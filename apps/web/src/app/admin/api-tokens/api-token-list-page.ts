@@ -133,18 +133,18 @@ const SCOPE_ROWS: readonly {
     ErrorText,
   ],
   template: `
-    <app-page-header [title]="text.page.title" [intro]="text.page.intro">
+    <ui-page-header [title]="text.page.title" [intro]="text.page.intro">
       <button
-        appButton
+        uiButton
         type="button"
         class="gap-2"
         [disabled]="adding()"
         (click)="startAdd()"
       >
-        <app-icon [glyph]="plusIcon" class="size-4" />
+        <ui-icon [glyph]="plusIcon" class="size-4" />
         {{ text.add }}
       </button>
-    </app-page-header>
+    </ui-page-header>
 
     <div class="max-w-3xl">
       <!-- The value, once. Amber rather than a plain card: this is the only
@@ -152,7 +152,7 @@ const SCOPE_ROWS: readonly {
            until it is dismissed — an admin who navigates away has not lost a
            step, they have lost the credential. -->
       @if (created(); as token) {
-        <div appNotice tone="warning" class="mb-6" role="status">
+        <div uiNotice tone="warning" class="mb-6" role="status">
           <p class="font-medium">
             {{ fill(text.createdHeading, token.name) }}
           </p>
@@ -165,14 +165,14 @@ const SCOPE_ROWS: readonly {
               >{{ token.token }}</code
             >
             <button
-              appButton
+              uiButton
               variant="secondary"
               size="sm"
               type="button"
               class="shrink-0 gap-2"
               (click)="copy(token.token)"
             >
-              <app-icon
+              <ui-icon
                 [glyph]="copied() ? circleCheckIcon : copyIcon"
                 class="size-4"
               />
@@ -180,7 +180,7 @@ const SCOPE_ROWS: readonly {
             </button>
           </div>
           <button
-            appButton
+            uiButton
             variant="secondary"
             size="sm"
             type="button"
@@ -201,7 +201,7 @@ const SCOPE_ROWS: readonly {
               <!-- Three sentences, not three figures: what this credential
                    may do, who issued it when, and whether anything has used
                    it. Each on its own line. -->
-              <app-record-row [stackMeta]="true">
+              <ui-record-row [stackMeta]="true">
                 <span
                   class="font-medium"
                   [class]="
@@ -214,9 +214,9 @@ const SCOPE_ROWS: readonly {
                 >
                 <ng-container recordBadge>
                   @if (token.revokedAt) {
-                    <span appStatusBadge tone="danger">{{ text.revoked }}</span>
+                    <span uiStatusBadge tone="danger">{{ text.revoked }}</span>
                   } @else {
-                    <span appStatusBadge tone="ok">{{ text.active }}</span>
+                    <span uiStatusBadge tone="ok">{{ text.active }}</span>
                   }
                 </ng-container>
                 <ng-container recordMeta>
@@ -227,20 +227,20 @@ const SCOPE_ROWS: readonly {
                 <ng-container recordActions>
                   @if (!token.revokedAt) {
                     <button
-                      appIconButton
+                      uiIconButton
                       variant="danger"
                       type="button"
                       [attr.aria-label]="text.revokeAria"
                       [disabled]="busy()"
                       (click)="revoke(token)"
                     >
-                      <app-icon [glyph]="circleSlashIcon" />
+                      <ui-icon [glyph]="circleSlashIcon" />
                     </button>
                   }
                 </ng-container>
-              </app-record-row>
+              </ui-record-row>
               @if (rowError() === token.id) {
-                <p appErrorText class="mt-2" role="alert">
+                <p uiErrorText class="mt-2" role="alert">
                   {{ text.revokeError }}
                 </p>
               }
@@ -252,21 +252,21 @@ const SCOPE_ROWS: readonly {
               <!-- Name and capabilities, and nothing else: a token has no
                    expiry to set (revocation is the control) and no value to
                    choose. -->
-              <form appRecordFields [formRoot]="form" (submit)="save()">
-                <app-field
+              <form uiRecordFields [formRoot]="form" (submit)="save()">
+                <ui-field
                   [field]="form.name"
                   [label]="text.name"
                   controlId="api-token-name"
                 >
                   <input
-                    appInput
+                    uiInput
                     size="sm"
                     class="w-full"
                     autocomplete="off"
                     [placeholder]="text.namePlaceholder"
                     [formField]="form.name"
                   />
-                </app-field>
+                </ui-field>
                 <!-- One token, however many capabilities: the automated
                      client a deployment runs is usually one process doing
                      several things, and two credentials for it would be two
@@ -286,7 +286,7 @@ const SCOPE_ROWS: readonly {
                      so it is stated instead; the ticks appear on their own
                      when a second one is added. -->
                 @if (scopes.length > 1) {
-                  <app-field-group [field]="form.scopes" [label]="text.scope">
+                  <ui-field-group [field]="form.scopes" [label]="text.scope">
                     <!-- Columns as wide as their heading, not as wide as the
                          form: a tick belongs beside the words that name it,
                          and two stretched columns put it halfway across the
@@ -309,7 +309,7 @@ const SCOPE_ROWS: readonly {
                             @if (cell; as scope) {
                               <input
                                 type="checkbox"
-                                appCheckbox
+                                uiCheckbox
                                 [checked]="draft().scopes.includes(scope)"
                                 [attr.aria-label]="scopeLabel(scope)"
                                 (change)="toggleScope(scope)"
@@ -319,10 +319,10 @@ const SCOPE_ROWS: readonly {
                         }
                       }
                     </div>
-                  </app-field-group>
+                  </ui-field-group>
                 } @else {
                   <div>
-                    <span appFieldLabel>{{ text.scope }}</span>
+                    <span uiFieldLabel>{{ text.scope }}</span>
                     <p class="pt-1.5 text-sm">
                       {{ scopeList(draft().scopes) }}
                     </p>
@@ -331,19 +331,19 @@ const SCOPE_ROWS: readonly {
                 <p class="text-xs text-ink-subtle sm:col-span-full">
                   {{ text.scopeHint }}
                 </p>
-                <div appRecordFormActions>
+                <div uiRecordFormActions>
                   <button
-                    appButton
+                    uiButton
                     size="sm"
                     type="submit"
                     class="gap-2"
                     [disabled]="busy()"
                   >
-                    <app-icon [glyph]="saveIcon" class="size-4" />
+                    <ui-icon [glyph]="saveIcon" class="size-4" />
                     {{ busy() ? actionText.saving : text.create }}
                   </button>
                   <button
-                    appButton
+                    uiButton
                     variant="secondary"
                     size="sm"
                     type="button"
@@ -351,12 +351,12 @@ const SCOPE_ROWS: readonly {
                     [disabled]="busy()"
                     (click)="cancel()"
                   >
-                    <app-icon [glyph]="xIcon" class="size-4" />
+                    <ui-icon [glyph]="xIcon" class="size-4" />
                     {{ actionText.cancel }}
                   </button>
                 </div>
                 @if (formError()) {
-                  <p appErrorText class="sm:col-span-full" role="alert">
+                  <p uiErrorText class="sm:col-span-full" role="alert">
                     {{ formError() }}
                   </p>
                 }
@@ -367,7 +367,7 @@ const SCOPE_ROWS: readonly {
           }
         </div>
       } @else if (showSkeleton()) {
-        <app-skeleton [lines]="3" />
+        <ui-skeleton [lines]="3" />
       }
     </div>
   `,

@@ -17,7 +17,7 @@ import { PageService } from '../../shared/pages/page.service';
   template: `
     @if (shown()) {
       {{ text.text }}
-      <a appLink routerLink="/terms" target="_blank" rel="noopener">{{
+      <a uiLink routerLink="/terms" target="_blank" rel="noopener">{{
         text.link
       }}</a
       >{{ text.after }}

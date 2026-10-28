@@ -74,7 +74,7 @@ type View = 'all' | 'linked';
   template: `
     <div class="flex flex-nowrap items-end justify-between gap-3">
       <div>
-        <span appFieldLabel class="mb-0">{{ text.heading }}</span>
+        <span uiFieldLabel class="mb-0">{{ text.heading }}</span>
         <p class="mt-1 text-xs wrap-break-word text-ink-subtle">
           {{ text.hint }}
         </p>
@@ -82,7 +82,7 @@ type View = 'all' | 'linked';
       <!-- The app's segmented pill, as everywhere else one choice is made
            between a few: they are two views of one list, and the count in the
            second label is what an admin watches while ticking. -->
-      <app-segmented
+      <ui-segmented
         class="shrink-0"
         [options]="viewOptions()"
         [value]="view()"
@@ -93,7 +93,7 @@ type View = 'all' | 'linked';
 
     <div class="mt-3 grid gap-3 sm:grid-cols-[2fr_1fr]">
       <input
-        appInput
+        uiInput
         type="search"
         autocomplete="off"
         class="w-full"
@@ -102,9 +102,9 @@ type View = 'all' | 'linked';
         [value]="query()"
         (input)="query.set($any($event.target).value)"
       />
-      <app-select-input>
+      <ui-select-input>
         <select
-          appInput
+          uiInput
           class="w-full"
           [attr.aria-label]="text.categoryAria"
           [value]="categoryId()"
@@ -115,11 +115,11 @@ type View = 'all' | 'linked';
             <option [value]="option.id">{{ option.label }}</option>
           }
         </select>
-      </app-select-input>
+      </ui-select-input>
     </div>
 
     @if (products.error()) {
-      <p appErrorText class="mt-3" role="alert">{{ text.loadError }}</p>
+      <p uiErrorText class="mt-3" role="alert">{{ text.loadError }}</p>
     }
 
     <!-- A fixed-height scroller: the list is up to fifty rows, and a form that
@@ -139,18 +139,18 @@ type View = 'all' | 'linked';
           >
             <input
               type="checkbox"
-              appCheckbox
+              uiCheckbox
               [id]="rowId(index)"
               [checked]="isLinked(row.slug)"
               (click)="toggle($event, index)"
             />
             <span class="min-w-0 flex-1 truncate">{{ row.name }}</span>
             @if (row.deleted) {
-              <span appStatusBadge tone="danger">{{
+              <span uiStatusBadge tone="danger">{{
                 productStates.deleted
               }}</span>
             } @else if (row.unpublished) {
-              <span appStatusBadge tone="waiting">{{
+              <span uiStatusBadge tone="waiting">{{
                 productStates.unpublished
               }}</span>
             }

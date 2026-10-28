@@ -17,16 +17,16 @@ export interface SegmentOption<T extends string> {
  * so arrow keys, group semantics and the focus ring are the platform's.
  */
 @Component({
-  selector: 'app-segmented',
+  selector: 'ui-segmented',
   imports: [SegmentGroup, Segment],
   host: { class: 'inline-block' },
   template: `
-    <div appSegmentGroup role="radiogroup" [attr.aria-label]="ariaLabel()">
+    <div uiSegmentGroup role="radiogroup" [attr.aria-label]="ariaLabel()">
       @for (option of options(); track option.value) {
         <!-- Disabled, the segments take the locked look: the radios are
              hidden, so their own disabled styling reaches nothing visible. -->
         <label
-          appSegment
+          uiSegment
           [state]="option.value === value() ? 'selected' : 'available'"
           [size]="size()"
           [locked]="disabled()"

@@ -68,9 +68,9 @@ function around(line: string, placeholder: string): [string, string] {
            box after them would be passed before anyone reached it. -->
       @if (rememberDays() > 0) {
         <div>
-          <label appTickLabel>
+          <label uiTickLabel>
             <input
-              appCheckbox
+              uiCheckbox
               type="checkbox"
               [formField]="form.remember"
               aria-describedby="rememberBrowserHint"
@@ -83,7 +83,7 @@ function around(line: string, placeholder: string): [string, string] {
         </div>
       }
 
-      <app-field
+      <ui-field
         [field]="form.code"
         [label]="text.code"
         [marker]="false"
@@ -91,11 +91,11 @@ function around(line: string, placeholder: string): [string, string] {
         [describedBy]="inputId + '-message'"
       >
         <!-- Six digits send themselves, the way pressing Enter would. -->
-        <app-code-input
+        <ui-code-input
           [field]="form.code"
           (completed)="formElement.requestSubmit()"
         />
-      </app-field>
+      </ui-field>
 
       <p
         [id]="inputId + '-message'"
@@ -114,7 +114,7 @@ function around(line: string, placeholder: string): [string, string] {
            change the button's width. -->
       <div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
         <button
-          appButton
+          uiButton
           type="submit"
           [disabled]="busy()"
           [attr.aria-busy]="busy() || null"
@@ -124,7 +124,7 @@ function around(line: string, placeholder: string): [string, string] {
         <!-- Counted in figures of one width, so it does not jitter. -->
         <button
           type="button"
-          appTextButton
+          uiTextButton
           class="text-sm tabular-nums"
           [disabled]="busy() || waitLeft() > 0"
           (click)="resend()"

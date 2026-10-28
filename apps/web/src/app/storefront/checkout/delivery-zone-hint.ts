@@ -39,7 +39,7 @@ import { WarningNote } from '@b2b-catalog-platform/ui/content/warning-note';
           <p class="text-sm text-ink-subtle">{{ resolved.threshold }}</p>
         }
       } @else {
-        <app-warning-note>{{ text.noDelivery }}</app-warning-note>
+        <ui-warning-note>{{ text.noDelivery }}</ui-warning-note>
       }
     } @else if (hasAddress()) {
       <p class="text-sm text-ink-subtle">{{ text.unknown }}</p>

@@ -194,7 +194,7 @@ import { useTaxStatement } from '../../shared/catalog/tax-statement';
                 <p class="mt-4 text-xs text-ink-subtle">{{ taxNote }}</p>
               }
 
-              <app-pagination
+              <ui-pagination
                 class="mt-8"
                 link="/search"
                 [page]="data.pagination.page"
@@ -216,7 +216,7 @@ import { useTaxStatement } from '../../shared/catalog/tax-statement';
           <p class="mt-2 text-ink-subtle">{{ text.noResultsHint }}</p>
           <a
             routerLink="/catalog"
-            appButton
+            uiButton
             variant="secondary"
             class="mt-6 inline-flex"
             >{{ catalogText.backToCatalog }}</a

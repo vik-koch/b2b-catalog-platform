@@ -17,11 +17,11 @@ import {
  * themselves). A drop is not: it was aimed here, and the upload's refusal
  * says more than ignoring it would.
  *
- *   <button [appFileTarget]="accept" (filesReceived)="upload($event)">
+ *   <button [uiFileTarget]="accept" (filesReceived)="upload($event)">
  */
 @Directive({
-  selector: '[appFileTarget]',
-  exportAs: 'appFileTarget',
+  selector: '[uiFileTarget]',
+  exportAs: 'uiFileTarget',
   host: {
     '(dragover)': 'onDragOver($event)',
     '(dragleave)': 'dragging.set(false)',
@@ -34,7 +34,7 @@ export class FileTarget {
     inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
 
   /** What it takes, as an `<input accept>` lists it; empty takes anything. */
-  readonly accept = input('', { alias: 'appFileTarget' });
+  readonly accept = input('', { alias: 'uiFileTarget' });
   /** Hand over every file, not only the first. */
   readonly fileTargetMultiple = input(false);
   readonly filesReceived = output<File[]>();

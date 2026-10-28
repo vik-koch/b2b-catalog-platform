@@ -51,7 +51,7 @@ let nextId = 0;
       } @else {
         <div class="space-y-2" role="radiogroup">
           @for (address of addresses(); track address.id) {
-            <app-choice-branch
+            <ui-choice-branch
               [name]="group"
               [value]="address.id"
               [checked]="selectedId() === address.id"
@@ -63,13 +63,13 @@ let nextId = 0;
               <span branchLabel class="text-sm text-ink-subtle">
                 {{ lines(address) }}
               </span>
-            </app-choice-branch>
+            </ui-choice-branch>
           }
 
           <!-- Framed while it is the one chosen: the fields it reveals end in a
                tick box of their own, which without a frame would read as one
                more option in this list. -->
-          <app-choice-branch
+          <ui-choice-branch
             [name]="group"
             value="new"
             [checked]="selectedId() === null"
@@ -83,7 +83,7 @@ let nextId = 0;
                 <ng-container [ngTemplateOutlet]="addressFields" />
               </div>
             }
-          </app-choice-branch>
+          </ui-choice-branch>
         </div>
       }
 
@@ -103,10 +103,10 @@ let nextId = 0;
         <!-- Only where there is a book to save it to. Checked, because an
              address typed at checkout is one the customer orders to. -->
         @if (canSave()) {
-          <label appTickLabel>
+          <label uiTickLabel>
             <input
               type="checkbox"
-              appCheckbox
+              uiCheckbox
               [checked]="save()"
               (change)="saveChange.emit(!save())"
             />

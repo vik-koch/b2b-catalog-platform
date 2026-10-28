@@ -10,20 +10,20 @@ const uiText = { required: 'required' };
   imports: [FORM_FIELDS],
   template: `
     <form [formRoot]="form">
-      <app-field
+      <ui-field
         [field]="form.code"
         label="Code"
         [hint]="hint()"
         controlId="code"
         describedBy="answer"
       >
-        <button appFieldAction type="button">Show</button>
+        <button uiFieldAction type="button">Show</button>
         <input [formField]="form.code" />
-      </app-field>
-      <app-field-group [field]="form.size" label="Size" hint="Pick one">
+      </ui-field>
+      <ui-field-group [field]="form.size" label="Size" hint="Pick one">
         <input type="radio" value="s" [formField]="form.size" />
         <input type="radio" value="m" [formField]="form.size" />
-      </app-field-group>
+      </ui-field-group>
       <input id="trap" aria-describedby="trap-hint" [formField]="form.trap" />
       <button type="submit">Send</button>
     </form>

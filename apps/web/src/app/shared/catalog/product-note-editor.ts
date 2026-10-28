@@ -53,10 +53,10 @@ import { messageCirclePlusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/mes
          which is the only time it has anything to say. -->
     <ng-template #field>
       <label class="block text-left">
-        <span appFieldLabel>{{ text.noteLabel }}</span>
+        <span uiFieldLabel>{{ text.noteLabel }}</span>
         <textarea
-          appInput
-          appAutoGrow
+          uiInput
+          uiAutoGrow
           rows="3"
           class="w-full"
           [attr.maxlength]="noteMax"
@@ -74,14 +74,14 @@ import { messageCirclePlusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/mes
          them it is is the glyph's job, not the colour's. -->
     <button
       type="button"
-      appIconButton
+      uiIconButton
       variant="marked"
       [attr.aria-label]="written() ? text.noteEdit : text.noteAdd"
       [title]="written() ? text.noteEdit : text.noteAdd"
       (click)="requestOpen.emit()"
     >
       <!-- The glyph says whether anything is written. -->
-      <app-icon
+      <ui-icon
         [glyph]="written() ? messageCircleCheckIcon : messageCirclePlusIcon"
       />
     </button>
@@ -95,7 +95,7 @@ import { messageCirclePlusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/mes
       @if (narrow()) {
         <dialog
           #dialog
-          appDialogPanel
+          uiDialogPanel
           [attr.aria-label]="text.noteLabel"
           (cancel)="cancelled.emit()"
         >
@@ -103,16 +103,16 @@ import { messageCirclePlusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/mes
           <!-- Two answers, because a modal took the choice the bubble made by
                being dismissed: away from it kept nothing, and there is no away
                here. -->
-          <div appDialogActions>
+          <div uiDialogActions>
             <button
-              appButton
+              uiButton
               variant="secondary"
               type="button"
               (click)="cancelled.emit()"
             >
               {{ actionText.cancel }}
             </button>
-            <button appButton type="button" (click)="done.emit()">
+            <button uiButton type="button" (click)="done.emit()">
               {{ actionText.done }}
             </button>
           </div>
@@ -121,14 +121,14 @@ import { messageCirclePlusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/mes
         <!-- Upwards: everything else on this block is below the price line, and
              a bubble over the stepper and the button is one the customer has to
              clear before buying. -->
-        <app-popover
+        <ui-popover
           align="end"
           placement="above"
           [roomy]="true"
           (dismissed)="dismissed.emit()"
         >
           <ng-container [ngTemplateOutlet]="field" />
-        </app-popover>
+        </ui-popover>
       }
     }
   `,

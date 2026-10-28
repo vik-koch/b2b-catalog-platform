@@ -56,7 +56,7 @@ import { wrenchIcon } from '@b2b-catalog-platform/ui/icons/glyphs/wrench';
          and at the full width of a desktop each card was a name on the left
          and half a screen of nothing beside it. -->
     <div class="max-w-3xl">
-      <h1 appPageTitle class="mb-4">
+      <h1 uiPageTitle class="mb-4">
         {{ isAdmin() ? panelText.adminPanel : panelText.staffArea }}
       </h1>
       <app-signed-in-as />
@@ -87,7 +87,7 @@ import { wrenchIcon } from '@b2b-catalog-platform/ui/icons/glyphs/wrench';
                catalog. -->
           <section class="order-1 md:order-0">
             <h2 id="admin-orders-heading" [class]="headingClass">
-              <app-icon [glyph]="clipboardListIcon" class="size-4" />
+              <ui-icon [glyph]="clipboardListIcon" class="size-4" />
               {{ panelText.orders }}
             </h2>
             <ul [class]="cardClass" aria-labelledby="admin-orders-heading">
@@ -104,7 +104,7 @@ import { wrenchIcon } from '@b2b-catalog-platform/ui/icons/glyphs/wrench';
                 <div class="flex flex-col items-end gap-0.5">
                   @if (waitingOrders(); as count) {
                     <a
-                      appActionLink
+                      uiActionLink
                       routerLink="/admin/orders"
                       [queryParams]="{ status: 'requested' }"
                       >{{ fill(panelText.workOrders, count) }}</a
@@ -112,7 +112,7 @@ import { wrenchIcon } from '@b2b-catalog-platform/ui/icons/glyphs/wrench';
                   }
                   @if (unpaidOrders(); as count) {
                     <a
-                      appActionLink
+                      uiActionLink
                       routerLink="/admin/orders"
                       [queryParams]="{ status: 'completed', payment: 'unpaid' }"
                       >{{ fill(panelText.workUnpaid, count) }}</a
@@ -143,7 +143,7 @@ import { wrenchIcon } from '@b2b-catalog-platform/ui/icons/glyphs/wrench';
                  button underneath. -->
             <section class="order-3 md:order-0">
               <h2 id="admin-catalog-heading" [class]="headingClass">
-                <app-icon [glyph]="packageIcon" class="size-4" />
+                <ui-icon [glyph]="packageIcon" class="size-4" />
                 {{ panelText.catalog }}
               </h2>
               <ul [class]="cardClass" aria-labelledby="admin-catalog-heading">
@@ -158,7 +158,7 @@ import { wrenchIcon } from '@b2b-catalog-platform/ui/icons/glyphs/wrench';
                   <div class="flex flex-col items-end gap-0.5">
                     @if (waitingProducts(); as count) {
                       <a
-                        appActionLink
+                        uiActionLink
                         routerLink="/admin/products"
                         [queryParams]="{ state: 'unpublished' }"
                         >{{ fill(panelText.workProducts, count) }}</a
@@ -169,7 +169,7 @@ import { wrenchIcon } from '@b2b-catalog-platform/ui/icons/glyphs/wrench';
                        nobody can publish until it has a price. -->
                     @if (unpricedProducts(); as count) {
                       <a
-                        appActionLink
+                        uiActionLink
                         routerLink="/admin/products"
                         [queryParams]="{ missing: 'price' }"
                         >{{ fill(panelText.workUnpricedProducts, count) }}</a
@@ -188,7 +188,7 @@ import { wrenchIcon } from '@b2b-catalog-platform/ui/icons/glyphs/wrench';
                   <div class="flex flex-col items-end gap-0.5">
                     @if (expiredDocuments(); as count) {
                       <a
-                        appActionLink
+                        uiActionLink
                         routerLink="/admin/documents"
                         [queryParams]="{ status: 'expired' }"
                         >{{ fill(panelText.workDocumentsExpired, count) }}</a
@@ -196,7 +196,7 @@ import { wrenchIcon } from '@b2b-catalog-platform/ui/icons/glyphs/wrench';
                     }
                     @if (waitingDocuments(); as count) {
                       <a
-                        appActionLink
+                        uiActionLink
                         routerLink="/admin/documents"
                         [queryParams]="{ status: 'expiring' }"
                         >{{ fill(panelText.workDocuments, count) }}</a
@@ -217,7 +217,7 @@ import { wrenchIcon } from '@b2b-catalog-platform/ui/icons/glyphs/wrench';
                   <div class="flex flex-col items-end gap-0.5">
                     @if (stagedCatalogRuns(); as count) {
                       <a
-                        appActionLink
+                        uiActionLink
                         routerLink="/admin/sync/catalog"
                         [queryParams]="{ status: 'previewed' }"
                         >{{ fill(panelText.workSyncRuns, count) }}</a
@@ -241,7 +241,7 @@ import { wrenchIcon } from '@b2b-catalog-platform/ui/icons/glyphs/wrench';
                  storefront edit mode happens to be on. -->
             <section class="order-5 md:order-0">
               <h2 id="admin-pages-heading" [class]="headingClass">
-                <app-icon [glyph]="fileTextIcon" class="size-4" />
+                <ui-icon [glyph]="fileTextIcon" class="size-4" />
                 {{ panelText.pages }}
               </h2>
               <ul [class]="cardClass" aria-labelledby="admin-pages-heading">
@@ -261,7 +261,7 @@ import { wrenchIcon } from '@b2b-catalog-platform/ui/icons/glyphs/wrench';
                and last of all on a phone. -->
           <section class="order-8 md:order-0">
             <h2 id="admin-security-heading" [class]="headingClass">
-              <app-icon [glyph]="lockIcon" class="size-4" />
+              <ui-icon [glyph]="lockIcon" class="size-4" />
               {{ panelText.securityHeading }}
             </h2>
             <ul [class]="cardClass" aria-labelledby="admin-security-heading">
@@ -280,7 +280,7 @@ import { wrenchIcon } from '@b2b-catalog-platform/ui/icons/glyphs/wrench';
                already approved. -->
           <section class="order-2 md:order-0">
             <h2 id="admin-accounts-heading" [class]="headingClass">
-              <app-icon [glyph]="usersIcon" class="size-4" />
+              <ui-icon [glyph]="usersIcon" class="size-4" />
               {{ panelText.accounts }}
             </h2>
             <ul [class]="cardClass" aria-labelledby="admin-accounts-heading">
@@ -290,7 +290,7 @@ import { wrenchIcon } from '@b2b-catalog-platform/ui/icons/glyphs/wrench';
               >
                 @if (waitingRegistrations(); as count) {
                   <a
-                    appActionLink
+                    uiActionLink
                     routerLink="/admin/users"
                     [queryParams]="{ status: 'pending' }"
                     >{{ fill(panelText.workRegistrations, count) }}</a
@@ -313,7 +313,7 @@ import { wrenchIcon } from '@b2b-catalog-platform/ui/icons/glyphs/wrench';
                 <div class="flex flex-col items-end gap-0.5">
                   @if (stagedCustomerRuns(); as count) {
                     <a
-                      appActionLink
+                      uiActionLink
                       routerLink="/admin/sync/customers"
                       [queryParams]="{ status: 'previewed' }"
                       >{{ fill(panelText.workSyncRuns, count) }}</a
@@ -337,7 +337,7 @@ import { wrenchIcon } from '@b2b-catalog-platform/ui/icons/glyphs/wrench';
                  same thing twice. -->
             <section class="order-4 md:order-0">
               <h2 id="admin-registries-heading" [class]="headingClass">
-                <app-icon [glyph]="funnelIcon" class="size-4" />
+                <ui-icon [glyph]="funnelIcon" class="size-4" />
                 {{ panelText.registries }}
               </h2>
               <ul
@@ -366,7 +366,7 @@ import { wrenchIcon } from '@b2b-catalog-platform/ui/icons/glyphs/wrench';
             @if (consentPurposes.length > 0) {
               <section class="order-6 md:order-0">
                 <h2 id="admin-consents-heading" [class]="headingClass">
-                  <app-icon [glyph]="bookCheckIcon" class="size-4" />
+                  <ui-icon [glyph]="bookCheckIcon" class="size-4" />
                   {{ consentText.page.title }}
                 </h2>
                 <ul
@@ -395,7 +395,7 @@ import { wrenchIcon } from '@b2b-catalog-platform/ui/icons/glyphs/wrench';
                  history to sit above. -->
             <section class="order-7 md:order-0">
               <h2 id="admin-operations-heading" [class]="headingClass">
-                <app-icon [glyph]="wrenchIcon" class="size-4" />
+                <ui-icon [glyph]="wrenchIcon" class="size-4" />
                 {{ panelText.operations }}
               </h2>
               <ul
@@ -416,27 +416,27 @@ import { wrenchIcon } from '@b2b-catalog-platform/ui/icons/glyphs/wrench';
                   link="/admin/operations"
                 >
                   @if (maintenanceOn()) {
-                    <span appStatusBadge tone="danger">
+                    <span uiStatusBadge tone="danger">
                       {{ panelText.maintenanceOn }}
                     </span>
                   }
                   @if (fullyOwned()) {
-                    <span appStatusBadge tone="info">
+                    <span uiStatusBadge tone="info">
                       {{ panelText.fullyOwned }}
                     </span>
                   } @else {
                     @if (catalogOwned()) {
-                      <span appStatusBadge tone="info">
+                      <span uiStatusBadge tone="info">
                         {{ panelText.catalogOwned }}
                       </span>
                     }
                     @if (customersOwned()) {
-                      <span appStatusBadge tone="info">
+                      <span uiStatusBadge tone="info">
                         {{ panelText.customersOwned }}
                       </span>
                     }
                     @if (ordersOwned()) {
-                      <span appStatusBadge tone="info">
+                      <span uiStatusBadge tone="info">
                         {{ panelText.ordersOwned }}
                       </span>
                     }

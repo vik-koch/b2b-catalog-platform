@@ -30,13 +30,13 @@ import { layers2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/layers-2';
   template: `
     @if (variant() === 'short') {
       <span [class]="pill + ' whitespace-nowrap'" [title]="full()">
-        <app-icon [glyph]="layers2Icon" class="size-3.5 shrink-0" />
+        <ui-icon [glyph]="layers2Icon" class="size-3.5 shrink-0" />
         <span class="truncate" aria-hidden="true">{{ text.short }}</span>
         <span class="sr-only">{{ full() }}</span>
       </span>
     } @else {
       <span [class]="pill + ' items-start leading-tight'">
-        <app-icon [glyph]="layers2Icon" class="size-3.5 shrink-0" />
+        <ui-icon [glyph]="layers2Icon" class="size-3.5 shrink-0" />
         <span>{{ full() }}</span>
       </span>
     }

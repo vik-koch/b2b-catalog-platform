@@ -4,7 +4,7 @@ import { AutoGrow } from './auto-grow';
 
 @Component({
   imports: [AutoGrow],
-  template: `<textarea appAutoGrow [value]="note()"></textarea>`,
+  template: `<textarea uiAutoGrow [value]="note()"></textarea>`,
 })
 class Host {
   readonly note = signal('one line');

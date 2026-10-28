@@ -18,10 +18,10 @@ const states = {
  * file is over it is read from the FileTarget on the same element. The size
  * is the caller's.
  *
- *   <button appDropZone [appFileTarget]="accept" class="h-26 w-26">…</button>
+ *   <button uiDropZone [uiFileTarget]="accept" class="h-26 w-26">…</button>
  */
 @Directive({
-  selector: '[appDropZone]',
+  selector: '[uiDropZone]',
   host: { '[class]': 'classes()' },
 })
 export class DropZone {

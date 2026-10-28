@@ -39,14 +39,14 @@ import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
       @if (status() === 'step') {
         <app-sign-in-step (done)="land()" />
       } @else {
-        <h1 appPageTitle class="mb-8">
+        <h1 uiPageTitle class="mb-8">
           {{ text.login }}
         </h1>
 
         <form [formRoot]="form" class="space-y-6">
           <!-- No required-marker beside either label: both fields are required,
              and marking every field on a form marks none of them. -->
-          <app-field
+          <ui-field
             [field]="form.email"
             [label]="fields.email.label"
             [marker]="false"
@@ -55,13 +55,13 @@ import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
             <input
               type="email"
               autocomplete="email"
-              appInput
+              uiInput
               class="w-full"
               [formField]="form.email"
             />
-          </app-field>
+          </ui-field>
 
-          <app-field
+          <ui-field
             [field]="form.password"
             [label]="text.password"
             [marker]="false"
@@ -70,19 +70,19 @@ import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
             <input
               type="password"
               autocomplete="current-password"
-              appInput
+              uiInput
               class="w-full"
               [formField]="form.password"
             />
-          </app-field>
+          </ui-field>
 
           @if (failure(); as message) {
-            <p appErrorText role="alert">{{ message }}</p>
+            <p uiErrorText role="alert">{{ message }}</p>
           }
 
           <div class="flex flex-wrap items-center gap-4">
             <button
-              appButton
+              uiButton
               type="submit"
               [disabled]="status() === 'submitting'"
             >
@@ -91,7 +91,7 @@ import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
             <!-- Beside the button, not under the password field: it is what you
                reach for after the login fails, which is where the eye already
                is. -->
-            <a appTextButton routerLink="/forgot-password" class="text-sm">
+            <a uiTextButton routerLink="/forgot-password" class="text-sm">
               {{ text.forgotPassword.link }}
             </a>
           </div>
@@ -101,7 +101,7 @@ import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
           <p class="mb-3 text-sm text-ink-subtle">
             {{ text.register.noAccount }}
           </p>
-          <a appButton variant="secondary" routerLink="/register">
+          <a uiButton variant="secondary" routerLink="/register">
             {{ text.register.signUp }}
           </a>
         </div>

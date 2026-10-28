@@ -37,7 +37,7 @@ export const PRODUCT_FEATURE_GLYPHS: Record<ProductFeature, Glyph> = {
       <ul class="flex items-center gap-1.5 text-ink-subtle">
         @for (feature of features(); track feature) {
           <li class="flex" [title]="text[feature]">
-            <app-icon [glyph]="glyphs[feature]" class="size-3.5" />
+            <ui-icon [glyph]="glyphs[feature]" class="size-3.5" />
             <span class="sr-only">{{ text[feature] }}</span>
           </li>
         }

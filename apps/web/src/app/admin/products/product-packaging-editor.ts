@@ -80,7 +80,7 @@ export function parseCount(text: string): number | null {
     <!-- min-w-0 for the same reason as the attribute grid above: a <fieldset>
          will not shrink below its content's min-content width. -->
     <fieldset class="min-w-0">
-      <legend appFieldLabel>{{ packing.heading }}</legend>
+      <legend uiFieldLabel>{{ packing.heading }}</legend>
       <p class="mb-2 text-xs text-ink-subtle">{{ text.hint }}</p>
 
       @if (narrow()) {
@@ -105,13 +105,13 @@ export function parseCount(text: string): number | null {
                   row.hint
                 }}</span>
               }
-              <app-unit-input [unit]="row.suffix">
+              <ui-unit-input [unit]="row.suffix">
                 <input
                   [id]="'packaging-narrow-' + row.key"
                   type="text"
                   [attr.inputmode]="row.inputMode"
-                  [appAllow]="numericRules[row.kind]"
-                  appUnitInputControl
+                  [uiAllow]="numericRules[row.kind]"
+                  uiUnitInputControl
                   [value]="row.value"
                   [placeholder]="row.placeholder"
                   [disabled]="row.disabled"
@@ -120,7 +120,7 @@ export function parseCount(text: string): number | null {
                   (input)="edit(row.key, $any($event.target).value)"
                   (blur)="normalize(row.key)"
                 />
-              </app-unit-input>
+              </ui-unit-input>
               @if (row.price) {
                 <span class="mt-1 block text-xs text-ink-subtle">{{
                   row.price
@@ -166,7 +166,7 @@ export function parseCount(text: string): number | null {
                       [id]="'packaging-' + row.key"
                       type="text"
                       [attr.inputmode]="row.inputMode"
-                      [appAllow]="numericRules[row.kind]"
+                      [uiAllow]="numericRules[row.kind]"
                       class="h-10 min-w-0 flex-1 bg-transparent px-2 py-1.5
                              leading-6 outline-none
                              disabled:cursor-not-allowed"
@@ -197,7 +197,7 @@ export function parseCount(text: string): number | null {
         </table>
       }
       @if (error(); as error) {
-        <p appErrorText [id]="errorId" class="mt-1">{{ error }}</p>
+        <p uiErrorText [id]="errorId" class="mt-1">{{ error }}</p>
       }
     </fieldset>
   `,

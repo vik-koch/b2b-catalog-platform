@@ -170,7 +170,7 @@ describe('ApiTokenListPage', () => {
   it('refuses to create a token nobody chose a capability for', async () => {
     const { el, service, click, type, submit } = await render();
 
-    await click('button[appButton]');
+    await click('button[uiButton]');
     await type('#api-token-name', 'Stock feed');
     await submit();
 
@@ -182,7 +182,7 @@ describe('ApiTokenListPage', () => {
    * both feeds ticks both rather than managing two secrets. */
   it('lays the capabilities out as areas over read and submit', async () => {
     const { el, click } = await render();
-    await click('button[appButton]');
+    await click('button[uiButton]');
 
     // The column headings, and one box per capability that exists — the
     // catalog's read square is empty, because nothing reads the catalog
@@ -198,7 +198,7 @@ describe('ApiTokenListPage', () => {
   it('sends exactly the capabilities that were ticked', async () => {
     const { service, click, type, tick, submit } = await render();
 
-    await click('button[appButton]');
+    await click('button[uiButton]');
     await type('#api-token-name', 'Stock feed');
     await tick(text.scopes['catalog-sync']);
     await tick(text.scopes['customer-sync']);
@@ -213,7 +213,7 @@ describe('ApiTokenListPage', () => {
   it('refuses to create a token with no name, without calling the API', async () => {
     const { el, service, click, submit } = await render();
 
-    await click('button[appButton]');
+    await click('button[uiButton]');
     await submit();
 
     expect(el.textContent).toContain(text.nameRequired);
@@ -223,7 +223,7 @@ describe('ApiTokenListPage', () => {
   it('creates a token and shows its value once', async () => {
     const { el, service, click, type, tick, submit } = await render();
 
-    await click('button[appButton]');
+    await click('button[uiButton]');
     await type('#api-token-name', '  Stock feed  ');
     await tick(text.scopes['catalog-sync']);
     await submit();
@@ -239,7 +239,7 @@ describe('ApiTokenListPage', () => {
   it('clears the value only when it is dismissed', async () => {
     const { el, click, type, tick, submit, fixture } = await render();
 
-    await click('button[appButton]');
+    await click('button[uiButton]');
     await type('#api-token-name', 'Stock feed');
     await tick(text.scopes['catalog-sync']);
     await submit();
@@ -260,7 +260,7 @@ describe('ApiTokenListPage', () => {
       createFails: true,
     });
 
-    await click('button[appButton]');
+    await click('button[uiButton]');
     await type('#api-token-name', 'Stock feed');
     await tick(text.scopes['catalog-sync']);
     await submit();

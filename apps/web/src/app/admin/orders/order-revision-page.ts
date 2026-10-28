@@ -74,10 +74,10 @@ import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
         >
           <div class="min-w-0">
             <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
-              <h1 appPageTitle>
+              <h1 uiPageTitle>
                 {{ order.reference }}
               </h1>
-              <span appStatusBadge [tone]="statusTone()">
+              <span uiStatusBadge [tone]="statusTone()">
                 {{ statusLabel() }}
               </span>
             </div>
@@ -105,7 +105,7 @@ import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
 
                 <dt class="text-ink-subtle">{{ names.status }}</dt>
                 <dd class="min-w-0">
-                  <span appStatusBadge [tone]="statusTone()">
+                  <span uiStatusBadge [tone]="statusTone()">
                     {{ statusLabel() }}
                   </span>
                   @if (order.statusReason; as reason) {
@@ -196,14 +196,14 @@ import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
                  is nothing to do, it still leads somewhere — the order as it
                  now stands — and says so instead. -->
             <a
-              appButton
+              uiButton
               class="mt-5 w-full"
               [routerLink]="['/admin/orders', reference()]"
             >
               {{ locked() ? text.openOrder : text.openControls }}
             </a>
             <a
-              appButton
+              uiButton
               variant="secondary"
               routerLink="/admin/orders"
               class="mt-3 w-full"
@@ -215,11 +215,11 @@ import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
       </div>
     } @else if (missing()) {
       <p class="text-ink-subtle">{{ ordersText.notFound }}</p>
-      <a appButton variant="secondary" routerLink="/admin/orders" class="mt-5">
+      <a uiButton variant="secondary" routerLink="/admin/orders" class="mt-5">
         {{ detailText.back }}
       </a>
     } @else if (showSkeleton()) {
-      <app-skeleton [lines]="6" />
+      <ui-skeleton [lines]="6" />
     }
   `,
 })

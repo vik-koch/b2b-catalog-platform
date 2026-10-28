@@ -121,10 +121,10 @@ import { useTaxStatement } from './tax-statement';
                  a line under it: it says what to write, and it is read while
                  the field is empty — the only time it has anything to say. -->
             <label class="block">
-              <span appFieldLabel>{{ text.noteLabel }}</span>
+              <span uiFieldLabel>{{ text.noteLabel }}</span>
               <textarea
-                appInput
-                appAutoGrow
+                uiInput
+                uiAutoGrow
                 rows="2"
                 class="w-full"
                 [attr.maxlength]="noteMax"

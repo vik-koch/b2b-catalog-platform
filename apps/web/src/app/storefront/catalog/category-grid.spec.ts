@@ -242,7 +242,7 @@ describe('CategoryGrid', () => {
     // show what is already shown.
     expect(
       toggle(defaultStorefrontText.catalog.showLess)?.closest(
-        'app-show-more-toggle',
+        'ui-show-more-toggle',
       )?.className,
     ).toContain('sm:hidden');
   });

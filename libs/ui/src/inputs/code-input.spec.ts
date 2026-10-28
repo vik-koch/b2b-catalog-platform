@@ -7,9 +7,9 @@ import { FORM_FIELDS } from '../fields/form-fields';
 @Component({
   imports: [CodeInput, FORM_FIELDS],
   template: `<form [formRoot]="form">
-    <app-field [field]="form.code" label="Code">
-      <app-code-input [field]="form.code" (completed)="completed.set($event)" />
-    </app-field>
+    <ui-field [field]="form.code" label="Code">
+      <ui-code-input [field]="form.code" (completed)="completed.set($event)" />
+    </ui-field>
   </form>`,
 })
 class Host {
@@ -31,7 +31,7 @@ async function render() {
   const fixture = TestBed.createComponent(Host);
   await fixture.whenStable();
   const el = fixture.nativeElement as HTMLElement;
-  const input = el.querySelector('app-code-input input') as HTMLInputElement;
+  const input = el.querySelector('ui-code-input input') as HTMLInputElement;
   const boxes = () =>
     [...el.querySelectorAll('[aria-hidden="true"]')].map(
       (box) => box.textContent?.trim() ?? '',

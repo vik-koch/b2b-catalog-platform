@@ -51,7 +51,7 @@ import { shoppingBasketIcon } from '@b2b-catalog-platform/ui/icons/glyphs/shoppi
            line's descender space under the glyph and pushes the icon off the
            row's centre. -->
       <span class="relative inline-flex">
-        <app-icon [glyph]="shoppingBasketIcon" class="size-6" />
+        <ui-icon [glyph]="shoppingBasketIcon" class="size-6" />
         <!-- The account's waiting-work dot, because a filled cart is work too:
              an order the customer has still to place or drop. The white
              figure on it is 3.2:1, short of the 4.5:1 text wants; dark digits

@@ -74,19 +74,19 @@ interface ConsentSearch {
   ],
   template: `
     <div class="max-w-3xl">
-      <h1 appPageTitle>{{ text.page.title }}</h1>
+      <h1 uiPageTitle>{{ text.page.title }}</h1>
       @if (text.page.intro; as intro) {
-        <p appPageIntro class="mt-2">{{ intro }}</p>
+        <p uiPageIntro class="mt-2">{{ intro }}</p>
       }
 
       <form [formRoot]="form" class="mt-6 space-y-4" (submit)="search()">
-        <app-segmented
+        <ui-segmented
           [options]="searchOptions"
           size="md"
           [formField]="form.by"
         />
         @if (searchBy() === 'email') {
-          <app-field
+          <ui-field
             [field]="form.email"
             [label]="text.byEmail"
             controlId="email"
@@ -94,25 +94,25 @@ interface ConsentSearch {
             <input
               type="email"
               autocomplete="off"
-              appInput
+              uiInput
               class="w-full"
               [formField]="form.email"
             />
-          </app-field>
+          </ui-field>
         } @else {
-          <app-field
+          <ui-field
             [field]="form.phone"
             [label]="text.byPhone"
             controlId="phone"
           >
-            <app-phone-input
+            <ui-phone-input
               [field]="form.phone"
               [phone]="phoneInput"
               autocomplete="off"
             />
-          </app-field>
+          </ui-field>
         }
-        <button appButton type="submit">{{ text.search }}</button>
+        <button uiButton type="submit">{{ text.search }}</button>
       </form>
 
       <div class="mt-8">
@@ -120,7 +120,7 @@ interface ConsentSearch {
           <p class="text-ink-subtle" role="alert">{{ text.loadError }}</p>
         } @else if (results.hasValue() && query(); as asked) {
           @if (withdrawError(); as message) {
-            <p appErrorText class="mb-4" role="alert">{{ message }}</p>
+            <p uiErrorText class="mb-4" role="alert">{{ message }}</p>
           }
           @if (results.value().length > 0) {
             <app-consent-record-list
@@ -132,7 +132,7 @@ interface ConsentSearch {
             <p class="text-ink-subtle">{{ emptyLine(asked) }}</p>
           }
         } @else if (showSkeleton()) {
-          <app-skeleton [lines]="4" />
+          <ui-skeleton [lines]="4" />
         }
       </div>
     </div>

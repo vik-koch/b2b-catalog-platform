@@ -6,7 +6,7 @@ import { Directive } from '@angular/core';
  * wanting the whole line takes `sm:col-span-2`.
  */
 @Directive({
-  selector: '[appRecordFields]',
+  selector: '[uiRecordFields]',
   host: { class: 'grid grid-cols-1 gap-x-4 gap-y-3 sm:grid-cols-2' },
 })
 export class RecordFields {}

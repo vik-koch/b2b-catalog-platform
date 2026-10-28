@@ -59,7 +59,7 @@ describe('TileGallery', () => {
 
     expect(root.querySelector('a')?.getAttribute('href')).toBe('/product/p1');
     expect(root.querySelector('img')).toBeNull();
-    expect(root.querySelector('app-image-placeholder')).not.toBeNull();
+    expect(root.querySelector('ui-image-placeholder')).not.toBeNull();
   });
 
   it('swaps a failed image for the placeholder in its slot', () => {
@@ -71,7 +71,7 @@ describe('TileGallery', () => {
 
     // One slot became a placeholder; the other image is still present.
     expect(root.querySelectorAll('img')).toHaveLength(1);
-    expect(root.querySelector('app-image-placeholder')).not.toBeNull();
+    expect(root.querySelector('ui-image-placeholder')).not.toBeNull();
   });
 
   it('scrubs to the image under the cursor on mouse move', () => {

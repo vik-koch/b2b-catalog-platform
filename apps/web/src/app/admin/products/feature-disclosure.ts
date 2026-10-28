@@ -23,8 +23,8 @@ let nextId = 0;
   imports: [Icon, DisclosureToggle, DisclosureFrame],
   host: { class: 'block' },
   template: `
-    <div class="max-w-xl rounded-md border" appDisclosureFrame [open]="open()">
-      <app-disclosure-toggle
+    <div class="max-w-xl rounded-md border" uiDisclosureFrame [open]="open()">
+      <ui-disclosure-toggle
         [label]="label()"
         [count]="on() ? 1 : 0"
         [countLabel]="text.switchedOn"
@@ -32,12 +32,12 @@ let nextId = 0;
         [panelId]="panelId"
         (toggled)="open.set(!open())"
       >
-        <app-icon
+        <ui-icon
           disclosureLead
           [glyph]="glyph()"
           class="size-4 text-ink-subtle"
         />
-      </app-disclosure-toggle>
+      </ui-disclosure-toggle>
       @if (open()) {
         <div [id]="panelId" class="border-t border-edge p-4">
           <ng-content />

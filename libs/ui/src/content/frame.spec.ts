@@ -5,8 +5,8 @@ import { Frame } from './frame';
 @Component({
   imports: [Frame],
   template: `
-    <span appFrame class="photo"></span>
-    <button appFrame class="thumb" [selected]="selected()" [pressable]="true">
+    <span uiFrame class="photo"></span>
+    <button uiFrame class="thumb" [selected]="selected()" [pressable]="true">
       Press me
     </button>
   `,

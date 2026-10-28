@@ -20,8 +20,8 @@ import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
   imports: [PageTitle, PageIntro],
   template: `
     @if (heading()) {
-      <h1 appPageTitle>{{ heading() }}</h1>
-      <p appPageIntro class="mt-4">{{ message() ?? text.cannotLoadBody }}</p>
+      <h1 uiPageTitle>{{ heading() }}</h1>
+      <p uiPageIntro class="mt-4">{{ message() ?? text.cannotLoadBody }}</p>
     } @else {
       <p class="text-ink-subtle">{{ message() ?? text.cannotLoadBody }}</p>
     }

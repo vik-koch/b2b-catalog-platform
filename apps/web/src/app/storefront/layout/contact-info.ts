@@ -35,13 +35,13 @@ export function telHref(phone: string): string {
   template: `
     @if (contact?.phone; as phone) {
       <a [href]="telHref(phone)" [class]="pillClass">
-        <app-icon [glyph]="phoneIcon" class="size-4" />
+        <ui-icon [glyph]="phoneIcon" class="size-4" />
         {{ phone }}
       </a>
     }
     @if (contact?.email; as email) {
       <a [href]="'mailto:' + email" [class]="pillClass">
-        <app-icon [glyph]="mailIcon" class="size-4" />
+        <ui-icon [glyph]="mailIcon" class="size-4" />
         {{ email }}
       </a>
     }

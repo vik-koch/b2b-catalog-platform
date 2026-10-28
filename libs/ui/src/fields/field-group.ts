@@ -12,25 +12,25 @@ let nextId = 0;
  * which no one label can name: a fieldset and legend carry the caption and the
  * description, and the inputs inside keep none of their own.
  *
- *   <app-field-group [field]="form.size" [label]="text.size">
- *     <app-segmented [options]="sizes" [formField]="form.size" />
- *   </app-field-group>
+ *   <ui-field-group [field]="form.size" [label]="text.size">
+ *     <ui-segmented [options]="sizes" [formField]="form.size" />
+ *   </ui-field-group>
  */
 @Component({
-  selector: 'app-field-group',
+  selector: 'ui-field-group',
   imports: [ErrorText, FieldLabel, Hint],
   hostDirectives: [{ directive: FieldStatus, inputs: ['field'] }],
   host: { class: 'block' },
   template: `
     <fieldset [attr.aria-describedby]="descriptionIds()">
-      <legend appFieldLabel>
+      <legend uiFieldLabel>
         {{ label() }}
         @if (marker() && required()) {
           <span class="text-accent" aria-hidden="true">*</span>
         } @else if (optional() && !required()) {
           <span class="font-normal text-ink-subtle">({{ optional() }})</span>
         }
-        <ng-content select="[appFieldCaption]" />
+        <ng-content select="[uiFieldCaption]" />
         <!-- A fieldset takes no aria-required, so the word joins its name. -->
         @if (required() && requiredWord) {
           <span class="sr-only">{{ requiredWord }}</span>
@@ -38,11 +38,11 @@ let nextId = 0;
       </legend>
       <!-- Above the inputs: it says what the set is for. -->
       @if (hint(); as hint) {
-        <p appHint [id]="hintId" class="mb-2">{{ hint }}</p>
+        <p uiHint [id]="hintId" class="mb-2">{{ hint }}</p>
       }
       <ng-content />
       @if (error(); as error) {
-        <p appErrorText [id]="errorId" class="mt-1">{{ error }}</p>
+        <p uiErrorText [id]="errorId" class="mt-1">{{ error }}</p>
       }
     </fieldset>
   `,

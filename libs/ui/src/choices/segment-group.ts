@@ -14,15 +14,15 @@ const tones = {
 export type SegmentTone = keyof typeof tones;
 
 /**
- * The pill around a row of `appSegment`s, whose look follows its tone. For a
+ * The pill around a row of `uiSegment`s, whose look follows its tone. For a
  * row of radios, Segmented builds both.
  *
- *   <div appSegmentGroup tone="neutral" role="group">
- *     <button appSegment state="selected">…</button>
+ *   <div uiSegmentGroup tone="neutral" role="group">
+ *     <button uiSegment state="selected">…</button>
  *   </div>
  */
 @Directive({
-  selector: '[appSegmentGroup]',
+  selector: '[uiSegmentGroup]',
   host: { '[class]': 'classes()' },
 })
 export class SegmentGroup {

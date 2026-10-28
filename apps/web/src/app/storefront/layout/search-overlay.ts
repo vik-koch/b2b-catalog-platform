@@ -47,7 +47,7 @@ const LEAVE_MS = 150;
                  active:text-primary-press"
           (click)="search.close()"
         >
-          <app-icon [glyph]="xIcon" class="size-6" />
+          <ui-icon [glyph]="xIcon" class="size-6" />
           <span class="sr-only">{{ text.closeSearchAria }}</span>
         </button>
       </div>

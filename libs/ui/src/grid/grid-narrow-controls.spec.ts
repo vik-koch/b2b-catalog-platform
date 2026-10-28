@@ -30,7 +30,7 @@ const columns: GridColumn[] = [
 @Component({
   imports: [GridNarrowControls],
   template: `
-    <app-grid-narrow-controls
+    <ui-grid-narrow-controls
       [columns]="columns"
       [chips]="chips"
       [sort]="sort()"

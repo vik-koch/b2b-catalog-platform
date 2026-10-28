@@ -50,7 +50,7 @@ import { WarningNote } from '@b2b-catalog-platform/ui/content/warning-note';
           </div>
         } @empty {
           @if (loading()) {
-            <app-skeleton [lines]="3" />
+            <ui-skeleton [lines]="3" />
           }
         }
         <div
@@ -67,9 +67,9 @@ import { WarningNote } from '@b2b-catalog-platform/ui/content/warning-note';
       </p>
 
       @if (!complete()) {
-        <app-warning-note class="mt-2">
+        <ui-warning-note class="mt-2">
           {{ text.totalIncomplete }}
-        </app-warning-note>
+        </ui-warning-note>
       }
       @if (hasEstimate()) {
         <p class="mt-3 text-xs text-ink-subtle">

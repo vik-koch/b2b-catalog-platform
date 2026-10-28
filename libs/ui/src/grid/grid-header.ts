@@ -19,7 +19,7 @@ const CLEAR_AT: Record<NarrowBreakpoint, string> = {
  * search takes the line below. Without a search the title takes its column.
  */
 @Component({
-  selector: 'app-grid-header',
+  selector: 'ui-grid-header',
   imports: [GridSearchField, GridClearFilters, PageIntro],
   template: `
     <!-- One grid, reordered: projected content can be placed only once. -->
@@ -42,7 +42,7 @@ const CLEAR_AT: Record<NarrowBreakpoint, string> = {
           class="order-3 col-span-2 flex w-full items-center gap-2
                  md:order-2 md:col-span-1 md:justify-self-center"
         >
-          <app-grid-search-field
+          <ui-grid-search-field
             class="min-w-0 flex-1"
             [query]="query()"
             [maxLength]="searchMaxLength()"
@@ -50,7 +50,7 @@ const CLEAR_AT: Record<NarrowBreakpoint, string> = {
             [searchPlaceholder]="searchPlaceholder()"
             [clearLabel]="clearSearchLabel()"
           />
-          <app-grid-clear-filters
+          <ui-grid-clear-filters
             [class]="clearClass()"
             [filtered]="filtered()"
           />
@@ -58,7 +58,7 @@ const CLEAR_AT: Record<NarrowBreakpoint, string> = {
       }
     </div>
     @if (intro(); as intro) {
-      <p appPageIntro class="mb-6 max-w-3xl">{{ intro }}</p>
+      <p uiPageIntro class="mb-6 max-w-3xl">{{ intro }}</p>
     }
   `,
 })

@@ -188,7 +188,7 @@ describe('ProductRow', () => {
       )?.click();
       await TestBed.inject(ApplicationRef).whenStable();
 
-      const bubble = el.querySelector('app-popover');
+      const bubble = el.querySelector('ui-popover');
       expect(bubble?.querySelector('app-product-gallery')).not.toBeNull();
       expect(bubble?.textContent).toContain('Sand');
       expect(bubble?.textContent).toContain(variantsText.unavailable);

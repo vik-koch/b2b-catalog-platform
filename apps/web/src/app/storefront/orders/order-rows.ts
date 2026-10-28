@@ -60,11 +60,11 @@ import {
               <!-- Payment only where something is owed or has been paid: an
                    order with nothing due says nothing about money at all. -->
               @if (paymentLabel(order); as payment) {
-                <span appStatusBadge variant="dot" [tone]="paymentTone(order)">
+                <span uiStatusBadge variant="dot" [tone]="paymentTone(order)">
                   {{ payment }}
                 </span>
               }
-              <span appStatusBadge [tone]="statusTone(order)">
+              <span uiStatusBadge [tone]="statusTone(order)">
                 {{ statusLabel(order) }}
               </span>
               <p class="text-sm font-medium tabular-nums">

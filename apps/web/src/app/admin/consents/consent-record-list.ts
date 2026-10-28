@@ -31,11 +31,11 @@ import { circleSlashIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-sl
     <div class="divide-y divide-edge border-y border-edge">
       @for (record of records(); track record.id) {
         <div class="py-3">
-          <app-record-row [stackMeta]="true">
+          <ui-record-row [stackMeta]="true">
             <span class="font-medium">{{ text.purposes[record.purpose] }}</span>
             <ng-container recordBadge>
               @if (record.withdrawal) {
-                <span appStatusBadge>{{ text.withdrawn }}</span>
+                <span uiStatusBadge>{{ text.withdrawn }}</span>
               }
             </ng-container>
             <!-- What was ticked, as it read: the version's own wording, its
@@ -45,7 +45,7 @@ import { circleSlashIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-sl
               <span>
                 {{ moment(record.givenAt) }} ·
                 <a
-                  appLink
+                  uiLink
                   [routerLink]="['/admin/pages', slugs[record.purpose], 'edit']"
                   >{{ version(record) }}</a
                 >
@@ -56,7 +56,7 @@ import { circleSlashIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-sl
               @if (showAccount() && record.account; as account) {
                 <span>
                   {{ text.account }}:
-                  <a appLink [routerLink]="['/admin/users', account.id]">{{
+                  <a uiLink [routerLink]="['/admin/users', account.id]">{{
                     account.name ?? record.email
                   }}</a>
                 </span>
@@ -82,18 +82,18 @@ import { circleSlashIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-sl
                 !record.withdrawal
               ) {
                 <button
-                  appIconButton
+                  uiIconButton
                   variant="danger"
                   type="button"
                   [attr.aria-label]="text.withdraw"
                   [title]="text.withdraw"
                   (click)="withdraw.emit(record)"
                 >
-                  <app-icon [glyph]="circleSlashIcon" />
+                  <ui-icon [glyph]="circleSlashIcon" />
                 </button>
               }
             </ng-container>
-          </app-record-row>
+          </ui-record-row>
         </div>
       }
     </div>

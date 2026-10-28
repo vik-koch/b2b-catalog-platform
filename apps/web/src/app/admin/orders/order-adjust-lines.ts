@@ -125,9 +125,9 @@ export interface AdjustLineRow {
                hint below would be four lines for two numbers, and a form of
                forty lines is read by scrolling. -->
           <div class="mt-1 flex flex-wrap items-center gap-2">
-            <app-unit-input class="w-28" [unit]="pieceUnit">
+            <ui-unit-input class="w-28" [unit]="pieceUnit">
               <input
-                appUnitInputControl
+                uiUnitInputControl
                 type="number"
                 min="1"
                 step="1"
@@ -137,11 +137,11 @@ export interface AdjustLineRow {
                 [value]="line.pieces"
                 (input)="piecesTyped(i, $any($event.target).value)"
               />
-            </app-unit-input>
-            <app-unit-input class="w-28" [unit]="priceSuffix()">
+            </ui-unit-input>
+            <ui-unit-input class="w-28" [unit]="priceSuffix()">
               <input
-                [appAllow]="partialPrice"
-                appUnitInputControl
+                [uiAllow]="partialPrice"
+                uiUnitInputControl
                 type="text"
                 inputmode="decimal"
                 [id]="id + '-price-' + i"
@@ -150,12 +150,12 @@ export interface AdjustLineRow {
                 [value]="line.priceText"
                 (input)="priceTyped(i, $any($event.target).value)"
               />
-            </app-unit-input>
+            </ui-unit-input>
             @if (line.offList) {
-              <span appStatusBadge tone="info">{{ text.offList }}</span>
+              <span uiStatusBadge tone="info">{{ text.offList }}</span>
             }
             @for (flag of line.flags; track flag) {
-              <span appStatusBadge [tone]="tone(flag)">
+              <span uiStatusBadge [tone]="tone(flag)">
                 {{ flagLabel(flag) }}
               </span>
             }
@@ -184,12 +184,12 @@ export interface AdjustLineRow {
                        own, both hung off the right edge the figures are set
                        against. -->
                   <span class="block w-20">
-                    <app-skeleton
+                    <ui-skeleton
                       size="sm"
                       align="right"
                       [widths]="['4.5rem']"
                     />
-                    <app-skeleton
+                    <ui-skeleton
                       size="base"
                       align="right"
                       [widths]="['3.25rem']"
@@ -204,31 +204,31 @@ export interface AdjustLineRow {
                    loses its agreed price. -->
               <span class="flex shrink-0 items-center">
                 <button
-                  appIconButton
+                  uiIconButton
                   type="button"
                   [disabled]="disabled() || i === 0"
                   [attr.aria-label]="moveLabel(line, text.moveUpAria)"
                   (click)="moved.emit({ from: i, to: i - 1 })"
                 >
-                  <app-icon [glyph]="chevronUpIcon" />
+                  <ui-icon [glyph]="chevronUpIcon" />
                 </button>
                 <button
-                  appIconButton
+                  uiIconButton
                   type="button"
                   [disabled]="disabled() || i === lines().length - 1"
                   [attr.aria-label]="moveLabel(line, text.moveDownAria)"
                   (click)="moved.emit({ from: i, to: i + 1 })"
                 >
-                  <app-icon [glyph]="chevronDownIcon" />
+                  <ui-icon [glyph]="chevronDownIcon" />
                 </button>
                 <button
-                  appIconButton
+                  uiIconButton
                   type="button"
                   [disabled]="disabled()"
                   [attr.aria-label]="removeLabel(line)"
                   (click)="removed.emit(i)"
                 >
-                  <app-icon [glyph]="xIcon" />
+                  <ui-icon [glyph]="xIcon" />
                 </button>
               </span>
             </span>
@@ -244,8 +244,8 @@ export interface AdjustLineRow {
          offer, and a staff screen that hides it would send somebody to
          publish a product just to put it on one order. -->
     <div class="mt-4">
-      <label [for]="id + '-add'" appFieldLabel>{{ text.addLabel }}</label>
-      <app-suggest-field
+      <label [for]="id + '-add'" uiFieldLabel>{{ text.addLabel }}</label>
+      <ui-suggest-field
         [list]="list"
         [text]="suggestText"
         (picked)="add($event)"
@@ -253,17 +253,17 @@ export interface AdjustLineRow {
         <input
           [id]="id + '-add'"
           autocomplete="off"
-          appInput
-          appSuggestInput
+          uiInput
+          uiSuggestInput
           class="w-full"
           [disabled]="disabled()"
           [value]="query()"
           [placeholder]="text.addPlaceholder"
           (input)="query.set($any($event.target).value)"
         />
-        <ng-template appSuggestRow [of]="list" let-item let-query="query">
+        <ng-template uiSuggestRow [of]="list" let-item let-query="query">
           <span class="block truncate">
-            <app-highlighted-line
+            <ui-highlighted-line
               [segments]="item.name | matchSegments: query : alternateQuery()"
             />
           </span>
@@ -273,7 +273,7 @@ export interface AdjustLineRow {
             </span>
           }
         </ng-template>
-      </app-suggest-field>
+      </ui-suggest-field>
     </div>
   `,
 })

@@ -298,7 +298,7 @@ describe('CartPage', () => {
     });
 
     expect(view.text()).toContain(text.issues.quantityCorrected);
-    expect(view.el.querySelector('app-popover')?.textContent).toContain(
+    expect(view.el.querySelector('ui-popover')?.textContent).toContain(
       text.issues.quantityCorrected,
     );
   });
@@ -313,7 +313,7 @@ describe('CartPage', () => {
       ]),
     });
 
-    expect(view.el.querySelector('app-popover')).toBeNull();
+    expect(view.el.querySelector('ui-popover')).toBeNull();
     expect(view.text()).toContain(text.issues.unavailable);
   });
 
@@ -370,7 +370,7 @@ describe('CartPage', () => {
     await view.rerender();
 
     expect(view.priced.mock.calls.length).toBeGreaterThan(1);
-    expect(view.el.querySelector('app-popover')?.textContent).toContain(
+    expect(view.el.querySelector('ui-popover')?.textContent).toContain(
       text.issues.quantityCorrected,
     );
   });
@@ -384,7 +384,7 @@ describe('CartPage', () => {
       answer: preview([{ unit: 'piece', issues: ['unit-unavailable'] }]),
     });
 
-    expect(view.el.querySelector('app-popover')?.textContent).toContain(
+    expect(view.el.querySelector('ui-popover')?.textContent).toContain(
       text.issues.unitUnavailable,
     );
   });
@@ -395,11 +395,11 @@ describe('CartPage', () => {
       lines: [addition()],
       answer: preview([{ pieces: 18, issues: ['quantity-corrected'] }]),
     });
-    expect(view.el.querySelector('app-popover')).not.toBeNull();
+    expect(view.el.querySelector('ui-popover')).not.toBeNull();
 
     await view.pressOutside();
 
-    expect(view.el.querySelector('app-popover')).toBeNull();
+    expect(view.el.querySelector('ui-popover')).toBeNull();
   });
 
   // The figures are on the lines, so the estimate is the cart's own

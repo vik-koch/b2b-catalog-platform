@@ -68,50 +68,50 @@ export const EDIT_ACTIONS_INSET = 'pr-30';
            publication. -->
       @if (listLink(); as link) {
         <a
-          appDiscButton
+          uiDiscButton
           [size]="style().size"
           [routerLink]="link"
           [queryParams]="listParams()"
           [attr.aria-label]="listLabel()"
           [attr.title]="listLabel()"
         >
-          <app-icon [glyph]="tableIcon" [class]="style().icon" />
+          <ui-icon [glyph]="tableIcon" [class]="style().icon" />
         </a>
       }
       @if (editLink(); as link) {
         <a
-          appDiscButton
+          uiDiscButton
           [size]="style().size"
           [routerLink]="link"
           [queryParams]="editParams()"
           [attr.aria-label]="editLabel()"
           [attr.title]="editLabel()"
         >
-          <app-icon [glyph]="pencilIcon" [class]="style().icon" />
+          <ui-icon [glyph]="pencilIcon" [class]="style().icon" />
         </a>
       }
       @if (filtersLink(); as link) {
         <a
-          appDiscButton
+          uiDiscButton
           [size]="style().size"
           [routerLink]="link"
           [queryParams]="filtersParams()"
           [attr.aria-label]="filtersLabel()"
           [attr.title]="filtersLabel()"
         >
-          <app-icon [glyph]="funnelIcon" [class]="style().icon" />
+          <ui-icon [glyph]="funnelIcon" [class]="style().icon" />
         </a>
       }
       @if (publishLabel(); as label) {
         <button
-          appDiscButton
+          uiDiscButton
           [size]="style().size"
           type="button"
           [attr.aria-label]="label"
           [attr.title]="label"
           (click)="togglePublished.emit()"
         >
-          <app-icon
+          <ui-icon
             [glyph]="published() ? bookDashedIcon : bookCheckIcon"
             [class]="style().icon"
           />

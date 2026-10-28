@@ -71,13 +71,13 @@ import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
                   </div>
                   <div [class]="body">
                     <p class="mb-1 flex flex-wrap gap-1">
-                      <span appStatusBadge tone="waiting">{{
+                      <span uiStatusBadge tone="waiting">{{
                         productStates.unpublished
                       }}</span>
                       <!-- The second reason, and the one the button below
                            cannot resolve: nothing prices this product. -->
                       @if (item.priceMinor === null) {
-                        <span appStatusBadge tone="danger">{{
+                        <span uiStatusBadge tone="danger">{{
                           productStates.unpriced
                         }}</span>
                       }
@@ -109,17 +109,17 @@ import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
                          from the storefront does. -->
                     <div class="mt-3 flex flex-col items-start gap-2">
                       <a
-                        appButton
+                        uiButton
                         variant="secondary"
                         class="w-full gap-2"
                         [routerLink]="['/admin/products', item.slug, 'edit']"
                         [queryParams]="editorFrom()"
                       >
-                        <app-icon [glyph]="pencilIcon" class="size-4" />
+                        <ui-icon [glyph]="pencilIcon" class="size-4" />
                         {{ text.editProduct }}
                       </a>
                       <button
-                        appButton
+                        uiButton
                         variant="secondary"
                         type="button"
                         class="w-full gap-2"
@@ -127,7 +127,7 @@ import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
                         [title]="cannotPublish(item) ? text.unpricedHint : null"
                         (click)="publish(item)"
                       >
-                        <app-icon [glyph]="bookCheckIcon" class="size-4" />
+                        <ui-icon [glyph]="bookCheckIcon" class="size-4" />
                         {{ actionLabel(item) }}
                       </button>
                     </div>
@@ -137,7 +137,7 @@ import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
             }
           </ul>
           @if (error()) {
-            <p appErrorText class="mt-4" role="alert">{{ error() }}</p>
+            <p uiErrorText class="mt-4" role="alert">{{ error() }}</p>
           }
         </section>
       }

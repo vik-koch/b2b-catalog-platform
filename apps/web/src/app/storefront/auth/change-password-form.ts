@@ -32,7 +32,7 @@ import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
   imports: [FORM_FIELDS, Button, Input, ErrorText],
   template: `
     <form [formRoot]="form" class="space-y-6">
-      <app-field
+      <ui-field
         [field]="form.currentPassword"
         [label]="text.currentPassword"
         [marker]="false"
@@ -41,15 +41,15 @@ import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
         <input
           type="password"
           autocomplete="current-password"
-          appInput
+          uiInput
           class="w-full"
           [formField]="form.currentPassword"
         />
-      </app-field>
+      </ui-field>
 
       <!-- One line, not two: the rule and the refusal are the same sentence,
            so it changes colour rather than being printed twice. -->
-      <app-field
+      <ui-field
         [field]="form.newPassword"
         [label]="text.newPassword"
         [hint]="minLengthHint"
@@ -59,13 +59,13 @@ import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
         <input
           type="password"
           autocomplete="new-password"
-          appInput
+          uiInput
           class="w-full"
           [formField]="form.newPassword"
         />
-      </app-field>
+      </ui-field>
 
-      <app-field
+      <ui-field
         [field]="form.confirmPassword"
         [label]="text.confirmPassword"
         [marker]="false"
@@ -74,20 +74,20 @@ import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
         <input
           type="password"
           autocomplete="new-password"
-          appInput
+          uiInput
           class="w-full"
           [formField]="form.confirmPassword"
         />
-      </app-field>
+      </ui-field>
 
       @if (failure(); as message) {
-        <p appErrorText role="alert">{{ message }}</p>
+        <p uiErrorText role="alert">{{ message }}</p>
       }
       @if (status() === 'ok') {
         <p class="text-sm text-success" role="status">{{ text.success }}</p>
       }
 
-      <button appButton type="submit" [disabled]="status() === 'submitting'">
+      <button uiButton type="submit" [disabled]="status() === 'submitting'">
         {{ status() === 'submitting' ? text.submitting : text.submit }}
       </button>
     </form>

@@ -42,7 +42,7 @@ const columns: GridColumn[] = [
 @Component({
   imports: [DataGrid, GridRowTemplate, GridCardTemplate],
   template: `
-    <app-data-grid
+    <ui-data-grid
       gridId="test"
       [columns]="columns"
       [rows]="rows()"
@@ -52,15 +52,15 @@ const columns: GridColumn[] = [
       countLabel="Rows: {count}"
       emptyMessage="Nothing here"
     >
-      <ng-template appGridRow [of]="rows()" let-row>
+      <ng-template uiGridRow [of]="rows()" let-row>
         <td class="name-cell">{{ row.name }}</td>
         <td>{{ row.status }}</td>
         <td><button type="button">edit</button></td>
       </ng-template>
-      <ng-template appGridCard [of]="rows()" let-row>
+      <ng-template uiGridCard [of]="rows()" let-row>
         <span class="card-row">{{ row.name }} — {{ row.status }}</span>
       </ng-template>
-    </app-data-grid>
+    </ui-data-grid>
   `,
 })
 class Host {

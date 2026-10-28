@@ -34,13 +34,13 @@ import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
       <a
         [routerLink]="['/admin/users', user().id, 'edit']"
         [queryParams]="returnParams()"
-        appIconButton
+        uiIconButton
         [variant]="user().status === 'pending' ? 'marked' : 'default'"
         [attr.aria-label]="
           user().status === 'pending' ? text.approve : text.edit
         "
       >
-        <app-icon
+        <ui-icon
           [glyph]="user().status === 'pending' ? circleCheckIcon : pencilIcon"
         />
       </a>
@@ -53,31 +53,31 @@ import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
     @if (user().status === 'pending') {
       <button
         type="button"
-        appIconButton
+        uiIconButton
         variant="danger"
         [attr.aria-label]="text.declineAria"
         (click)="declined.emit(user())"
       >
-        <app-icon [glyph]="trash2Icon" />
+        <ui-icon [glyph]="trash2Icon" />
       </button>
     } @else if (user().status === 'disabled') {
       <button
         type="button"
-        appIconButton
+        uiIconButton
         [attr.aria-label]="text.reactivateAria"
         (click)="activeChanged.emit({ user: user(), active: true })"
       >
-        <app-icon [glyph]="rotateCcwIcon" />
+        <ui-icon [glyph]="rotateCcwIcon" />
       </button>
     } @else if (user().status !== 'anonymized') {
       <button
         type="button"
-        appIconButton
+        uiIconButton
         variant="danger"
         [attr.aria-label]="text.deactivateAria"
         (click)="activeChanged.emit({ user: user(), active: false })"
       >
-        <app-icon [glyph]="circleSlashIcon" />
+        <ui-icon [glyph]="circleSlashIcon" />
       </button>
     }
   `,

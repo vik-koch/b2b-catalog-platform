@@ -40,12 +40,12 @@ const variants = {
  * The button look on a native <button> or <a>, which keeps its own semantics
  * and router behaviour.
  *
- *   <a appButton routerLink="/about">About us</a>
- *   <button appButton variant="secondary">Cancel</button>
- *   <a appButton variant="ghost" size="sm" [routerLink]="…">Next</a>
+ *   <a uiButton routerLink="/about">About us</a>
+ *   <button uiButton variant="secondary">Cancel</button>
+ *   <a uiButton variant="ghost" size="sm" [routerLink]="…">Next</a>
  */
 @Directive({
-  selector: '[appButton]',
+  selector: '[uiButton]',
   hostDirectives: [{ directive: ButtonBox, inputs: ['size'] }],
   host: { '[class]': 'classes()' },
 })

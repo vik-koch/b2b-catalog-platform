@@ -11,12 +11,12 @@ export interface SuggestRowContext<T> {
 /**
  * What one SuggestField row draws:
  *
- *   <ng-template appSuggestRow [of]="list" let-item let-query="query">…</ng-template>
+ *   <ng-template uiSuggestRow [of]="list" let-item let-query="query">…</ng-template>
  *
  * `of` is the field's own list and is never read: it is there so the compiler
  * can infer what `let-item` is.
  */
-@Directive({ selector: 'ng-template[appSuggestRow]' })
+@Directive({ selector: 'ng-template[uiSuggestRow]' })
 export class SuggestRow<T> {
   readonly of = input.required<SuggestList<T>>();
   readonly template = inject<TemplateRef<SuggestRowContext<T>>>(TemplateRef);

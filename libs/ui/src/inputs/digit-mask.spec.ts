@@ -25,7 +25,7 @@ const format: DigitMaskFormat = {
   imports: [FormField, DigitMask],
   template: `
     <input
-      appDigitMask
+      uiDigitMask
       [mask]="mask()"
       [prefix]="prefix()"
       [formField]="field"

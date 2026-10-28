@@ -7,13 +7,13 @@ import { Button } from '../actions/button';
  * margin and width stay with the caller.
  */
 @Component({
-  selector: 'app-show-more-toggle',
+  selector: 'ui-show-more-toggle',
   imports: [Button],
   host: { class: 'flex justify-center' },
   template: `
     <button
       type="button"
-      appButton
+      uiButton
       variant="ghost"
       size="sm"
       [attr.aria-expanded]="expanded()"

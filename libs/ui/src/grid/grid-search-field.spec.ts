@@ -5,7 +5,7 @@ import { GridSearchField } from './grid-search-field';
 
 @Component({
   imports: [GridSearchField],
-  template: `<app-grid-search-field [query]="query()" />`,
+  template: `<ui-grid-search-field [query]="query()" />`,
 })
 class Host {
   readonly query = signal('');

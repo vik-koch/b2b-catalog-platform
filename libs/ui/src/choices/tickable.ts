@@ -14,7 +14,7 @@ const inRow = 'mt-0.5';
  * arbitrary variant because `hover:` cannot reach a parent's hover.
  */
 @Directive({
-  selector: '[appTickable]',
+  selector: '[uiTickable]',
   host: {
     class: `size-4 shrink-0 cursor-pointer appearance-none border
             border-edge-strong bg-white bg-contain bg-center bg-no-repeat

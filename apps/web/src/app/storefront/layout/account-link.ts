@@ -62,20 +62,20 @@ import { userIcon } from '@b2b-catalog-platform/ui/icons/glyphs/user';
                  duration-200"
           [class.opacity-0]="signedOut()"
         >
-          <app-icon
+          <ui-icon
             [glyph]="circleUserRoundIcon"
             class="col-start-1 row-start-1 size-6 transition-opacity
                    duration-200"
             [class.opacity-0]="waiting()"
           />
-          <app-icon
+          <ui-icon
             [glyph]="circleUserRoundDotIcon"
             class="col-start-1 row-start-1 size-6 transition-opacity
                    duration-200"
             [class.opacity-0]="!waiting()"
           />
         </span>
-        <app-icon
+        <ui-icon
           data-session="anonymous"
           [glyph]="userIcon"
           class="col-start-1 row-start-1 size-6 transition-opacity delay-300

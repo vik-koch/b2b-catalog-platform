@@ -10,7 +10,7 @@ import { Directive } from '@angular/core';
  * nothing can scroll to it.
  */
 @Directive({
-  selector: '[appDialogActions]',
+  selector: '[uiDialogActions]',
   host: {
     class: `mt-6 flex flex-wrap gap-3
             sm:justify-end sm:[&>*]:flex-initial

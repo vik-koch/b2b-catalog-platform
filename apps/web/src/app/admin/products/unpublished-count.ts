@@ -18,7 +18,7 @@ import { Link } from '@b2b-catalog-platform/ui/actions/link';
   template: `
     @if (count()) {
       <a
-        appLink
+        uiLink
         tone="warning"
         routerLink="/admin/products"
         [queryParams]="params()"

@@ -16,7 +16,7 @@ import { Link } from '@b2b-catalog-platform/ui/actions/link';
   template: `
     @if (published) {
       {{ text.text }}
-      <a appLink routerLink="/privacy" target="_blank" rel="noopener">{{
+      <a uiLink routerLink="/privacy" target="_blank" rel="noopener">{{
         text.link
       }}</a
       >{{ text.after }}

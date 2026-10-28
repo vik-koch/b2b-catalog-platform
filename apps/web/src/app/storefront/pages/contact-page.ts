@@ -55,7 +55,7 @@ import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
       <app-load-error-view [heading]="errorText.cannotLoadTitle" />
     } @else if (ready()) {
       <div class="flex items-start justify-between gap-4">
-        <h1 appPageTitle class="mb-4">{{ heading }}</h1>
+        <h1 uiPageTitle class="mb-4">{{ heading }}</h1>
         @if (canEdit(); as editorText) {
           <app-edit-actions
             variant="inline"
@@ -86,7 +86,7 @@ import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
             </h2>
             @if (location.description) {
               <p class="mt-1 text-ink-subtle">
-                <app-emphasised [text]="location.description" />
+                <ui-emphasised [text]="location.description" />
               </p>
             }
             <app-map-frame
@@ -99,8 +99,8 @@ import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
         }
       </div>
     } @else if (showSkeleton()) {
-      <app-skeleton size="title" class="mb-4" [widths]="['33%']" />
-      <app-skeleton [widths]="['100%', '83%']" />
+      <ui-skeleton size="title" class="mb-4" [widths]="['33%']" />
+      <ui-skeleton [widths]="['100%', '83%']" />
     }
   `,
 })

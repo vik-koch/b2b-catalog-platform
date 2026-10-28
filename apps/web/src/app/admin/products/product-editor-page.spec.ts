@@ -1275,7 +1275,7 @@ describe('ProductEditorPage', () => {
       );
 
       const locked = shownLocks(el).map((lock) =>
-        lock.closest('app-field')?.querySelector('label')?.getAttribute('for'),
+        lock.closest('ui-field')?.querySelector('label')?.getAttribute('for'),
       );
       expect(locked).toEqual(
         expect.arrayContaining(['product-name', 'product-stock']),

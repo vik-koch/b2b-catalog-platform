@@ -40,13 +40,13 @@ import { lockIcon } from '@b2b-catalog-platform/ui/icons/glyphs/lock';
       [attr.aria-expanded]="open()"
       (click)="open.set(!open())"
     >
-      <app-icon [glyph]="lockIcon" class="size-3.5" />
+      <ui-icon [glyph]="lockIcon" class="size-3.5" />
     </button>
 
     @if (open()) {
-      <app-popover align="start" (dismissed)="open.set(false)">
+      <ui-popover align="start" (dismissed)="open.set(false)">
         <p class="text-sm">{{ reason() }}</p>
-      </app-popover>
+      </ui-popover>
     }
   `,
 })

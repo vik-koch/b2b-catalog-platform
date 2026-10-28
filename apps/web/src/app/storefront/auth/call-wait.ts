@@ -67,9 +67,9 @@ function pieces(line: string, values: Record<string, string>) {
     <div class="mt-6 space-y-6">
       @if (step().rememberDays > 0) {
         <div>
-          <label appTickLabel>
+          <label uiTickLabel>
             <input
-              appCheckbox
+              uiCheckbox
               type="checkbox"
               [checked]="remember()"
               (change)="remember.set($any($event.target).checked)"
@@ -84,7 +84,7 @@ function pieces(line: string, values: Record<string, string>) {
       }
 
       @if (!byMail() && !over()) {
-        <a appButton [href]="'tel:' + step().dial" class="tabular-nums">
+        <a uiButton [href]="'tel:' + step().dial" class="tabular-nums">
           {{ text.callDial.replace('{callTo}', step().callTo) }}
         </a>
       }
@@ -101,7 +101,7 @@ function pieces(line: string, values: Record<string, string>) {
       @if (over()) {
         <!-- Counted in figures of one width, so it does not jitter. -->
         <button
-          appButton
+          uiButton
           type="button"
           class="tabular-nums"
           [disabled]="busy() || waitLeft() > 0"

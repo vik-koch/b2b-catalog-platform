@@ -69,11 +69,11 @@ const SORT_FIELD_ID = 'product-sort';
           >
             {{ text.sort.label }}
           </span>
-          <div appSegmentGroup tone="neutral" class="h-8 items-center">
+          <div uiSegmentGroup tone="neutral" class="h-8 items-center">
             @for (field of fields(); track field.key) {
               <button
                 type="button"
-                appSegment
+                uiSegment
                 [state]="field.active ? 'selected' : 'available'"
                 class="flex h-full items-center gap-1 px-2.5 whitespace-nowrap"
                 [attr.aria-pressed]="field.active"
@@ -100,7 +100,7 @@ const SORT_FIELD_ID = 'product-sort';
           class="text-sm whitespace-nowrap text-ink-subtle"
           >{{ text.sort.label }}</label
         >
-        <app-select-input class="max-w-52">
+        <ui-select-input class="max-w-52">
           <!-- Selection is marked on the option rather than bound on the <select>:
              a value binding is applied before the options exist, and the element
              silently falls back to the first one.
@@ -113,7 +113,7 @@ const SORT_FIELD_ID = 'product-sort';
              something the element is dirty and ignores it, so a later
              navigation (back/forward) needs the property. -->
           <select
-            appInput
+            uiInput
             size="sm"
             [id]="id()"
             (change)="onSelect($event)"
@@ -129,7 +129,7 @@ const SORT_FIELD_ID = 'product-sort';
               </option>
             }
           </select>
-        </app-select-input>
+        </ui-select-input>
       </div>
     }
   `,

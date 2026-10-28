@@ -19,10 +19,10 @@ import { flattenCategoryTree } from './category-tree';
   selector: 'app-category-picker',
   imports: [FormField, FieldBinding, Input, SelectInput],
   template: `
-    <app-select-input>
+    <ui-select-input>
       @if (field(); as field) {
         <!-- No [selected] here: the field sets the select's value itself. -->
-        <select appInput class="w-full" [formField]="field">
+        <select uiInput class="w-full" [formField]="field">
           @if (emptyLabel() !== null) {
             <option value="">{{ emptyLabel() }}</option>
           } @else {
@@ -34,7 +34,7 @@ import { flattenCategoryTree } from './category-tree';
         </select>
       } @else {
         <select
-          appInput
+          uiInput
           class="w-full"
           [attr.aria-label]="ariaLabel() || placeholder()"
           [disabled]="disabled()"
@@ -55,7 +55,7 @@ import { flattenCategoryTree } from './category-tree';
           }
         </select>
       }
-    </app-select-input>
+    </ui-select-input>
   `,
 })
 export class CategoryPicker {

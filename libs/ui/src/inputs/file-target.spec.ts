@@ -10,7 +10,7 @@ import { FileTarget } from './file-target';
     @if (shown()) {
       <button
         type="button"
-        [appFileTarget]="accept()"
+        [uiFileTarget]="accept()"
         [fileTargetMultiple]="multiple()"
         [disabled]="disabled()"
         (filesReceived)="received.push($event)"

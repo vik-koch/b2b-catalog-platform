@@ -19,11 +19,11 @@ import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
   template: `
     <section class="py-12 text-center sm:py-20">
       <p class="text-sm font-medium tracking-widest text-accent">404</p>
-      <h1 appPageTitle class="mt-3">
+      <h1 uiPageTitle class="mt-3">
         {{ heading() ?? text.notFoundTitle }}
       </h1>
-      <p appPageIntro class="mt-4">{{ body() ?? text.notFoundBody }}</p>
-      <a appButton variant="secondary" [routerLink]="backLink()" class="mt-8">
+      <p uiPageIntro class="mt-4">{{ body() ?? text.notFoundBody }}</p>
+      <a uiButton variant="secondary" [routerLink]="backLink()" class="mt-8">
         {{ backLabel() ?? text.notFoundBack }}
       </a>
     </section>

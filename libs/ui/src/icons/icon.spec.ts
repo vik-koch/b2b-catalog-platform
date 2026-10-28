@@ -6,7 +6,7 @@ import { xIcon } from './glyphs/x';
 
 @Component({
   imports: [Icon],
-  template: `<app-icon [glyph]="glyph()" />`,
+  template: `<ui-icon [glyph]="glyph()" />`,
 })
 class Host {
   readonly glyph = signal<Glyph>(xIcon);

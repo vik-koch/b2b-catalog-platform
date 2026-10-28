@@ -18,16 +18,16 @@ let answers: string[] = [];
   imports: [SuggestField, SuggestInput, SuggestRow],
   template: `
     <form (submit)="$event.preventDefault(); submitted = true">
-      <app-suggest-field
+      <ui-suggest-field
         [list]="list"
         [text]="text"
         (picked)="picked.push($event)"
       >
-        <input appSuggestInput />
-        <ng-template appSuggestRow [of]="list" let-item let-query="query">
+        <input uiSuggestInput />
+        <ng-template uiSuggestRow [of]="list" let-item let-query="query">
           <span>{{ item }}|{{ query }}</span>
         </ng-template>
-      </app-suggest-field>
+      </ui-suggest-field>
     </form>
   `,
 })

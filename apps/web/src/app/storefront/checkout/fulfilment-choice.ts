@@ -36,7 +36,7 @@ import { Link } from '@b2b-catalog-platform/ui/actions/link';
         [class.sm:grid-cols-2]="hasPickup"
         role="radiogroup"
       >
-        <app-choice-card
+        <ui-choice-card
           name="fulfilment"
           value="delivery"
           [title]="names.delivery"
@@ -52,17 +52,17 @@ import { Link } from '@b2b-catalog-platform/ui/actions/link';
                  prints in the same place. -->
             <button
               type="button"
-              appLink
+              uiLink
               class="block text-sm"
               (click)="showConditions.set(true)"
             >
               {{ text.conditionsLink }}
             </button>
           }
-        </app-choice-card>
+        </ui-choice-card>
 
         @if (hasPickup) {
-          <app-choice-card
+          <ui-choice-card
             name="fulfilment"
             value="pickup"
             [title]="names.pickup"

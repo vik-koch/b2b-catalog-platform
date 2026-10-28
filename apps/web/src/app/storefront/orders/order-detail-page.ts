@@ -96,14 +96,14 @@ import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
                all three. -->
           <div class="max-w-xl">
             <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
-              <h1 appPageTitle>
+              <h1 uiPageTitle>
                 {{ detail.reference }}
               </h1>
-              <span appStatusBadge [tone]="statusTone(detail)">
+              <span uiStatusBadge [tone]="statusTone(detail)">
                 {{ statusLabel(detail) }}
               </span>
               @if (paymentLabel(detail); as payment) {
-                <span appStatusBadge variant="dot" [tone]="paymentTone(detail)">
+                <span uiStatusBadge variant="dot" [tone]="paymentTone(detail)">
                   {{ payment }}
                 </span>
               }
@@ -167,7 +167,7 @@ import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
                  button is never drawn for a move the server would decline. -->
             @if (cancellable()) {
               <button
-                appButton
+                uiButton
                 variant="dangerOutline"
                 type="button"
                 class="mt-5 w-full"
@@ -178,12 +178,12 @@ import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
               </button>
             }
             @if (cancelFailed()) {
-              <p appErrorText class="mt-3" role="alert">
+              <p uiErrorText class="mt-3" role="alert">
                 {{ text.cancel.error }}
               </p>
             }
             <a
-              appButton
+              uiButton
               variant="secondary"
               routerLink="/account/orders"
               class="mt-5 w-full"
@@ -203,17 +203,12 @@ import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
         [backLabel]="text.backToList"
       />
     } @else if (order.error()) {
-      <p appErrorText role="alert">{{ text.error }}</p>
-      <a
-        appButton
-        variant="secondary"
-        routerLink="/account/orders"
-        class="mt-5"
-      >
+      <p uiErrorText role="alert">{{ text.error }}</p>
+      <a uiButton variant="secondary" routerLink="/account/orders" class="mt-5">
         {{ text.backToList }}
       </a>
     } @else if (showSkeleton()) {
-      <app-skeleton [lines]="6" />
+      <ui-skeleton [lines]="6" />
     }
   `,
 })

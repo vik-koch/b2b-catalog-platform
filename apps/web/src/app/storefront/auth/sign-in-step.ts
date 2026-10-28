@@ -31,14 +31,14 @@ export { formatWait };
   imports: [RouterLink, Button, CallWait, CodeEntry, PageTitle, PageIntro],
   template: `
     @if (restart()) {
-      <h1 appPageTitle class="mb-4">
+      <h1 uiPageTitle class="mb-4">
         {{ heading() }}
       </h1>
-      <p appPageIntro role="alert">{{ text.restart }}</p>
-      <a appButton routerLink="/login" class="mt-8">{{ text.restartAction }}</a>
+      <p uiPageIntro role="alert">{{ text.restart }}</p>
+      <a uiButton routerLink="/login" class="mt-8">{{ text.restartAction }}</a>
     } @else if (step(); as step) {
       @if (step.step === 'call') {
-        <h1 appPageTitle class="mb-2">
+        <h1 uiPageTitle class="mb-2">
           {{ text.callHeading }}
         </h1>
         <app-call-wait
@@ -50,7 +50,7 @@ export { formatWait };
           (restart)="restart.set(true)"
         />
       } @else {
-        <h1 appPageTitle class="mb-2">
+        <h1 uiPageTitle class="mb-2">
           {{ text.codeHeading }}
         </h1>
         <app-code-entry

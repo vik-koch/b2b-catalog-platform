@@ -7,7 +7,7 @@ import { GridChip } from './grid-column';
 
 /** The narrowings with no column, each with its own way out. */
 @Component({
-  selector: 'app-grid-chips',
+  selector: 'ui-grid-chips',
   imports: [RouterLink, Icon, IconButton],
   host: { class: 'block' },
   template: `
@@ -17,14 +17,14 @@ import { GridChip } from './grid-column';
           <span class="text-ink-subtle">{{ chip.label }}</span>
           <span class="font-medium">{{ chip.value }}</span>
           <a
-            appIconButton
+            uiIconButton
             variant="danger"
             routerLink="."
             [queryParams]="chip.clearParams"
             queryParamsHandling="merge"
             [attr.aria-label]="chip.clearLabel"
           >
-            <app-icon [glyph]="xIcon" />
+            <ui-icon [glyph]="xIcon" />
           </a>
         </li>
       }

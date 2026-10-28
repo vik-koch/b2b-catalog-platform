@@ -88,13 +88,13 @@ interface CategoryDraft {
     },
   ],
   template: `
-    <h1 appPageTitle class="mb-4">
+    <h1 uiPageTitle class="mb-4">
       {{ isNew ? text.newTitle : text.editTitle }}
     </h1>
 
     @if (loading()) {
       @if (showSkeleton()) {
-        <app-skeleton [lines]="4" />
+        <ui-skeleton [lines]="4" />
       }
     } @else if (!isNew && !category()) {
       <p class="text-ink-subtle" role="alert">{{ text.saveError }}</p>
@@ -108,23 +108,23 @@ interface CategoryDraft {
           <app-locked-note>{{ ownershipText.fieldLocked }}</app-locked-note>
         }
 
-        <app-field
+        <ui-field
           [field]="form.name"
           [label]="text.name"
           controlId="category-name"
         >
-          <app-locked-field-marker appFieldCaption [field]="form.name" />
+          <app-locked-field-marker uiFieldCaption [field]="form.name" />
           <input
             type="text"
-            appInput
+            uiInput
             class="w-full"
             [formField]="form.name"
             (input)="onNameInput()"
           />
-        </app-field>
+        </ui-field>
 
         <div class="grid gap-6 sm:grid-cols-2">
-          <app-field
+          <ui-field
             [field]="form.shortName"
             [label]="text.shortName"
             [hint]="text.shortNameHint"
@@ -132,13 +132,13 @@ interface CategoryDraft {
           >
             <input
               type="text"
-              appInput
+              uiInput
               class="w-full"
               [formField]="form.shortName"
             />
-          </app-field>
+          </ui-field>
 
-          <app-field
+          <ui-field
             [field]="form.parentId"
             [label]="text.parent"
             controlId="category-parent"
@@ -148,14 +148,14 @@ interface CategoryDraft {
               [field]="form.parentId"
               [emptyLabel]="text.noParent"
             />
-          </app-field>
+          </ui-field>
         </div>
 
         <!-- The category's two identifiers side by side, as the product
              editor pairs them: the one the shop addresses it by and the one
              the source system knows it as. One per line below sm. -->
         <div class="grid gap-6 sm:grid-cols-2">
-          <app-field
+          <ui-field
             [field]="form.slug"
             [label]="text.slug"
             [hint]="text.slugHint"
@@ -163,31 +163,31 @@ interface CategoryDraft {
           >
             <input
               type="text"
-              appInput
+              uiInput
               class="w-full font-mono text-sm"
               [formField]="form.slug"
               (input)="onSlugInput($any($event.target).value)"
             />
-          </app-field>
+          </ui-field>
 
-          <app-field
+          <ui-field
             [field]="form.sourceId"
             [label]="text.sourceId"
             [hint]="text.sourceIdHint"
             controlId="category-source-id"
           >
-            <app-locked-field-marker appFieldCaption [field]="form.sourceId" />
+            <app-locked-field-marker uiFieldCaption [field]="form.sourceId" />
             <input
               type="text"
-              appInput
+              uiInput
               class="w-full font-mono text-sm"
               [formField]="form.sourceId"
             />
-          </app-field>
+          </ui-field>
         </div>
 
         <div>
-          <span appFieldLabel>{{ text.mark }}</span>
+          <span uiFieldLabel>{{ text.mark }}</span>
           <p class="mb-2 text-xs text-ink-subtle">{{ text.markHint }}</p>
           <!-- Cropped to a square on upload, so the square tile beside it is
                the stored picture rather than a framing of it. -->
@@ -201,28 +201,28 @@ interface CategoryDraft {
       </div>
 
       @if (error()) {
-        <p appErrorText class="mt-4" role="alert">{{ error() }}</p>
+        <p uiErrorText class="mt-4" role="alert">{{ error() }}</p>
       }
 
       <div class="mt-6 flex max-w-3xl flex-wrap gap-3">
         <button
-          appButton
+          uiButton
           type="button"
           class="gap-2"
           [disabled]="saving()"
           (click)="save()"
         >
-          <app-icon [glyph]="saveIcon" class="size-4" />
+          <ui-icon [glyph]="saveIcon" class="size-4" />
           {{ saving() ? actionText.saving : adminText.actions.save }}
         </button>
         <button
-          appButton
+          uiButton
           variant="secondary"
           type="button"
           class="gap-2"
           (click)="cancel()"
         >
-          <app-icon [glyph]="xIcon" class="size-4" />
+          <ui-icon [glyph]="xIcon" class="size-4" />
           {{ actionText.cancel }}
         </button>
       </div>

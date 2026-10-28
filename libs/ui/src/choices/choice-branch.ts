@@ -33,7 +33,7 @@ const contents = {
  * way, so choosing never rebuilds the radio under the cursor.
  */
 @Component({
-  selector: 'app-choice-branch',
+  selector: 'ui-choice-branch',
   imports: [Radio],
   host: { class: 'block' },
   template: `
@@ -47,7 +47,7 @@ const contents = {
         >
           <input
             type="radio"
-            appRadio
+            uiRadio
             class="self-center"
             [name]="name()"
             [value]="value()"

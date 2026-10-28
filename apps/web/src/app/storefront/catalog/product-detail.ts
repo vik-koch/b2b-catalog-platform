@@ -107,15 +107,15 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
               @if (loaded.hidden; as hidden) {
                 @if (statusText(); as status) {
                   @if (hidden.deleted) {
-                    <span appStatusBadge tone="danger">{{
+                    <span uiStatusBadge tone="danger">{{
                       status.deleted
                     }}</span>
                   } @else {
-                    <span appStatusBadge tone="waiting">{{
+                    <span uiStatusBadge tone="waiting">{{
                       status.unpublished
                     }}</span>
                     @if (hidden.unpriced) {
-                      <span appStatusBadge tone="danger">{{
+                      <span uiStatusBadge tone="danger">{{
                         status.unpriced
                       }}</span>
                     }

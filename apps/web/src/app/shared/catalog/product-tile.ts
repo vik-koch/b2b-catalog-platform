@@ -58,7 +58,7 @@ export const PRODUCT_GRID = `grid
   ],
   host: { class: 'h-full' },
   template: `
-    <div appFrame [class]="card">
+    <div uiFrame [class]="card">
       <!-- Its own stacking context, so what the caller pins lands on the
            photo's corner rather than the card's — nowhere near it once the
            photo is a thumbnail on the left. It also keeps the projected

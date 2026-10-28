@@ -23,7 +23,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
   imports: [AutoGrow, FieldLabel, Input],
   host: { class: 'block' },
   template: `
-    <label [for]="id" appFieldLabel>
+    <label [for]="id" uiFieldLabel>
       {{ text.label }}
       <span class="font-normal text-ink-subtle">({{ optional }})</span>
     </label>
@@ -33,8 +33,8 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
       [attr.maxlength]="maxLength"
       [value]="note() ?? ''"
       [attr.placeholder]="text.placeholder"
-      appInput
-      appAutoGrow
+      uiInput
+      uiAutoGrow
       class="w-full"
       (input)="typed($event)"
     ></textarea>

@@ -21,7 +21,7 @@ a headless base layer.
 - **Tailwind CSS (v4)** utilities for layout and page composition; no
   styled component library.
 - **Owned primitives** (shadcn model): small, repo-owned building blocks —
-  the `appButton` directive and `ui/icons/*` SVG icon components — extracted
+  the `uiButton` directive and `ui/icons/*` SVG icon components — extracted
   when a pattern repeats or carries design decisions. Headless spartan/ui
   primitives (Angular CDK based) are adopted per-component when complex
   interactive widgets arrive (expected first: the admin UI in iteration 2).
@@ -100,14 +100,14 @@ The primitives were extracted one at a time, each answering its own screen, and
 by the ninth iteration they disagreed with each other. Two rules were settled
 across all of them.
 
-- **`appLink` is the one link treatment.** Three idioms had grown up in
+- **`uiLink` is the one link treatment.** Three idioms had grown up in
   parallel — `text-primary underline`, `text-accent hover:underline`, and an
   `underline hover:no-underline` inversion — so the same affordance meant three
   things depending on which screen it was on. `ui/link.ts` replaces them at
   every call site, with the underline drawn in a tint of the text colour so it
   reads as a hairline rather than a second line of the same weight. A global
   `a { … }` rule is the wrong shape here: most anchors in this app are nav
-  items, tiles, breadcrumbs and `appButton` links, and a global rule would be
+  items, tiles, breadcrumbs and `uiButton` links, and a global rule would be
   undone at each one. But rich text arrives as sanitized HTML (0020) where no
   directive can reach, so `styles.css` carries `.prose a` matching the
   directive — **two copies of one rule, kept in step by hand**, which is the
@@ -128,10 +128,10 @@ it is not built.
 
 ## Amendment — 2026-10-02 (v1.13.0): the text button
 
-The second tone is built: `appTextButton`, in the same file as `appLink`. It
+The second tone is built: `uiTextButton`, in the same file as `uiLink`. It
 keeps the link's colour and weight but underlines on hover only, and it takes
 the standalone text controls — show password, generate, enter manually, a map
-link under an address, reset widths. A word inside a sentence keeps `appLink`,
+link under an address, reset widths. A word inside a sentence keeps `uiLink`,
 and so does a count in a record row, which links to the list it counts.
 
 ## Amendment — 2026-10-26 (v1.15.2): every colour is a role, and lint holds the line

@@ -8,7 +8,7 @@ export interface GridRowContext<T> {
 /**
  * The `<td>`s of one row, written by the page:
  *
- *   <ng-template appGridRow [of]="data.items" let-order>
+ *   <ng-template uiGridRow [of]="data.items" let-order>
  *     <td>…</td>
  *   </ng-template>
  *
@@ -16,7 +16,7 @@ export interface GridRowContext<T> {
  * template cannot borrow from its host. One template, not one per column, so
  * a page can write a colspan; a spec holds the cell count to the columns.
  */
-@Directive({ selector: 'ng-template[appGridRow]' })
+@Directive({ selector: 'ng-template[uiGridRow]' })
 export class GridRowTemplate<T> {
   readonly of = input.required<readonly T[]>();
   readonly template = inject<TemplateRef<GridRowContext<T>>>(TemplateRef);

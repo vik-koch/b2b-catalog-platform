@@ -6,7 +6,7 @@ import { FileTarget } from './file-target';
 @Component({
   imports: [DropZone, FileTarget],
   template: `
-    <button appDropZone appFileTarget [filled]="filled()" type="button">
+    <button uiDropZone uiFileTarget [filled]="filled()" type="button">
       Drop
     </button>
   `,

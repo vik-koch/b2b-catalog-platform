@@ -22,7 +22,7 @@ import { Link } from '@b2b-catalog-platform/ui/actions/link';
           <!-- Inline-block, so a short label moves to the next line whole
                rather than breaking between its words. -->
           @if (notice.link; as link) {
-            <a appLink class="inline-block" [href]="link.url">{{
+            <a uiLink class="inline-block" [href]="link.url">{{
               link.label
             }}</a>
           }

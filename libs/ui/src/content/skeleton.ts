@@ -43,16 +43,16 @@ const barHeights: Record<SkeletonSize, string> = {
  * page. Show it after a short delay, so a quick load never flashes it.
  *
  *   @if (showSkeleton()) {
- *     <app-skeleton [lines]="4" />
+ *     <ui-skeleton [lines]="4" />
  *   }
  *
  * Standing in for a known line of text, give it that text's size — and its
  * width, where the answer is a figure rather than a sentence:
  *
- *   <app-skeleton size="sm" align="right" [widths]="['3rem']" />
+ *   <ui-skeleton size="sm" align="right" [widths]="['3rem']" />
  */
 @Component({
-  selector: 'app-skeleton',
+  selector: 'ui-skeleton',
   host: {
     class: 'block animate-pulse',
     'aria-hidden': 'true',

@@ -103,19 +103,19 @@ interface DocumentDraft {
     },
   ],
   template: `
-    <h1 appPageTitle class="mb-4">
+    <h1 uiPageTitle class="mb-4">
       {{ isNew ? text.newTitle : text.editTitle }}
     </h1>
 
     @if (loading()) {
       @if (showSkeleton()) {
-        <app-skeleton [lines]="4" />
+        <ui-skeleton [lines]="4" />
       }
     } @else if (!isNew && !loaded()) {
       <p class="text-ink-subtle" role="alert">{{ text.notFound }}</p>
     } @else {
       <div class="max-w-3xl space-y-6">
-        <app-field
+        <ui-field
           [field]="form.title"
           [label]="text.title"
           [hint]="text.titleHint"
@@ -123,15 +123,15 @@ interface DocumentDraft {
         >
           <input
             type="text"
-            appInput
+            uiInput
             class="w-full"
             [placeholder]="text.titlePlaceholder"
             [formField]="form.title"
           />
-        </app-field>
+        </ui-field>
 
         <div class="block">
-          <span appFieldLabel>{{ text.file }}</span>
+          <span uiFieldLabel>{{ text.file }}</span>
 
           <input
             #fileInput
@@ -152,7 +152,7 @@ interface DocumentDraft {
               <!-- The name keeps a readable width; on a phone the three
                    controls take the next line rather than squeeze it. -->
               <span class="flex min-w-0 flex-1 basis-48 items-center gap-3">
-                <app-icon
+                <ui-icon
                   [glyph]="fileTextIcon"
                   class="size-5 shrink-0 text-ink-subtle"
                 />
@@ -165,38 +165,38 @@ interface DocumentDraft {
               </span>
               <span class="ml-auto flex shrink-0 items-center gap-2">
                 <a
-                  appIconButton
+                  uiIconButton
                   [href]="stored.url"
                   target="_blank"
                   rel="noopener"
                   [attr.aria-label]="text.open"
                   [title]="text.open"
                 >
-                  <app-icon [glyph]="externalLinkIcon" />
+                  <ui-icon [glyph]="externalLinkIcon" />
                 </a>
                 <button
-                  appButton
+                  uiButton
                   variant="secondary"
                   type="button"
                   class="shrink-0 gap-2"
-                  [appFileTarget]="accept"
+                  [uiFileTarget]="accept"
                   [disabled]="uploading()"
                   (click)="fileInput.click()"
                   (filesReceived)="upload($event[0])"
                 >
-                  <app-icon [glyph]="uploadIcon" class="size-4" />
+                  <ui-icon [glyph]="uploadIcon" class="size-4" />
                   {{ uploading() ? adminText.upload.progress : text.replace }}
                 </button>
                 <!-- Leaves the link as the document; the bytes go when the
                    sweep finds nothing pointing at them. -->
                 <button
-                  appIconButton
+                  uiIconButton
                   type="button"
                   [attr.aria-label]="text.removeFile"
                   [title]="text.removeFile"
                   (click)="file.set(null)"
                 >
-                  <app-icon [glyph]="trash2Icon" />
+                  <ui-icon [glyph]="trash2Icon" />
                 </button>
               </span>
             </div>
@@ -209,13 +209,13 @@ interface DocumentDraft {
             <button
               type="button"
               class="w-full p-4"
-              [appFileTarget]="accept"
-              appDropZone
+              [uiFileTarget]="accept"
+              uiDropZone
               [disabled]="uploading()"
               (click)="fileInput.click()"
               (filesReceived)="upload($event[0])"
             >
-              <app-icon [glyph]="uploadIcon" class="size-6 mb-2" />
+              <ui-icon [glyph]="uploadIcon" class="size-6 mb-2" />
               <span class="font-medium">{{
                 uploading() ? adminText.upload.progress : text.dropHint
               }}</span>
@@ -225,14 +225,14 @@ interface DocumentDraft {
               }}</span>
             </button>
           }
-          <span appHint class="mt-1">{{ text.fileHint }}</span>
+          <span uiHint class="mt-1">{{ text.fileHint }}</span>
         </div>
 
         <!-- Where the document is held elsewhere (FR-DOC-05). Beside the file
              rather than instead of it: both are ways to the same paper. -->
         <!-- No mark: what is required is a file or a link, which a star on
              one of them would misstate. The save says it if neither is there. -->
-        <app-field
+        <ui-field
           [field]="form.link"
           [label]="text.link"
           [marker]="false"
@@ -244,51 +244,51 @@ interface DocumentDraft {
               type="url"
               inputmode="url"
               autocomplete="off"
-              appInput
+              uiInput
               class="min-w-0 flex-1"
               [placeholder]="text.linkPlaceholder"
               [formField]="form.link"
             />
             @if (linkValid()) {
               <a
-                appIconButton
+                uiIconButton
                 [href]="link().trim()"
                 target="_blank"
                 rel="noopener"
                 [attr.aria-label]="text.openLink"
                 [title]="text.openLink"
               >
-                <app-icon [glyph]="externalLinkIcon" />
+                <ui-icon [glyph]="externalLinkIcon" />
               </a>
             }
           </div>
-        </app-field>
+        </ui-field>
 
         <!-- Two dates copied off the document, side by side because that is how
              they are read off it; one per line below sm. The same field the
              checkout picks a delivery day in — one date control in the app,
              whoever is filling it in. -->
         <div class="grid gap-6 sm:grid-cols-2">
-          <app-field
+          <ui-field
             [field]="form.issuedAt"
             [label]="text.issuedAt"
             controlId="document-issued-at"
           >
-            <app-date-input
+            <ui-date-input
               [field]="form.issuedAt"
               [placeholder]="text.datePlaceholder"
             />
-          </app-field>
-          <app-field
+          </ui-field>
+          <ui-field
             [field]="form.expiresAt"
             [label]="text.expiresAt"
             controlId="document-expires-at"
           >
-            <app-date-input
+            <ui-date-input
               [field]="form.expiresAt"
               [placeholder]="text.datePlaceholder"
             />
-          </app-field>
+          </ui-field>
         </div>
         <p class="text-xs text-ink-subtle">{{ text.datesHint }}</p>
 
@@ -301,28 +301,28 @@ interface DocumentDraft {
       </div>
 
       @if (error()) {
-        <p appErrorText class="mt-4" role="alert">{{ error() }}</p>
+        <p uiErrorText class="mt-4" role="alert">{{ error() }}</p>
       }
 
       <div class="mt-6 flex max-w-3xl flex-wrap gap-3">
         <button
-          appButton
+          uiButton
           type="button"
           class="gap-2"
           [disabled]="saving()"
           (click)="save()"
         >
-          <app-icon [glyph]="saveIcon" class="size-4" />
+          <ui-icon [glyph]="saveIcon" class="size-4" />
           {{ saving() ? actionText.saving : adminText.actions.save }}
         </button>
         <button
-          appButton
+          uiButton
           variant="secondary"
           type="button"
           class="gap-2"
           (click)="cancel()"
         >
-          <app-icon [glyph]="xIcon" class="size-4" />
+          <ui-icon [glyph]="xIcon" class="size-4" />
           {{ actionText.cancel }}
         </button>
       </div>

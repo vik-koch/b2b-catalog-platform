@@ -8,13 +8,13 @@ const base = `flex cursor-pointer items-start gap-2 text-sm
  * area. Top-aligned for words that wrap; the box inside lines up with the
  * first line by itself.
  *
- *   <label appTickLabel>
- *     <input type="checkbox" appCheckbox />
+ *   <label uiTickLabel>
+ *     <input type="checkbox" uiCheckbox />
  *     <span>…</span>
  *   </label>
  */
 @Directive({
-  selector: 'label[appTickLabel]',
+  selector: 'label[uiTickLabel]',
   host: { class: base },
 })
 export class TickLabel {}

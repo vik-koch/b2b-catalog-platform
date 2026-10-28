@@ -6,12 +6,12 @@ import { Directive } from '@angular/core';
  * value: what is stored is this plus what was typed.
  *
  *   <div class="flex">
- *     <span appInputPrefix>+49</span>
- *     <input appInput class="w-full rounded-l-none" />
+ *     <span uiInputPrefix>+49</span>
+ *     <input uiInput class="w-full rounded-l-none" />
  *   </div>
  */
 @Directive({
-  selector: '[appInputPrefix]',
+  selector: '[uiInputPrefix]',
   host: {
     class: `inline-flex items-center rounded-l-md border border-r-0
             border-edge-strong bg-surface px-3 text-ink-subtle`,

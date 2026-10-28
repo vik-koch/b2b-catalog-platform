@@ -12,13 +12,13 @@ import { UI_TEXT } from '../core/ui-text';
  * past either end stays as words in the button's box, so the row keeps its
  * place. Nothing at all for a single page.
  *
- *   <app-pagination class="mt-8" link="/orders" [page]="p.page"
+ *   <ui-pagination class="mt-8" link="/orders" [page]="p.page"
  *     [totalPages]="p.totalPages" [queryParams]="pageParams" />
- *   <app-pagination [page]="page()" [totalPages]="pages()"
+ *   <ui-pagination [page]="page()" [totalPages]="pages()"
  *     (turned)="page.set($event)" />
  */
 @Component({
-  selector: 'app-pagination',
+  selector: 'ui-pagination',
   imports: [NgTemplateOutlet, RouterLink, Button, ButtonBox],
   host: { class: 'block empty:hidden' },
   template: `
@@ -46,12 +46,10 @@ import { UI_TEXT } from '../core/ui-text';
 
     <ng-template #step let-target let-label="label">
       @if (target < 1 || target > totalPages()) {
-        <span appButtonBox size="sm" class="text-ink-disabled">{{
-          label
-        }}</span>
+        <span uiButtonBox size="sm" class="text-ink-disabled">{{ label }}</span>
       } @else if (link(); as link) {
         <a
-          appButton
+          uiButton
           variant="ghost"
           size="sm"
           [routerLink]="link"
@@ -62,7 +60,7 @@ import { UI_TEXT } from '../core/ui-text';
       } @else {
         <button
           type="button"
-          appButton
+          uiButton
           variant="ghost"
           size="sm"
           (click)="turned.emit(target)"

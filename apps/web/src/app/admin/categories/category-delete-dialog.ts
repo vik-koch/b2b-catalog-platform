@@ -53,7 +53,7 @@ import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
       #dialog
       (cancel)="cancelled.emit()"
       aria-labelledby="category-delete-heading"
-      appDialogPanel
+      uiDialogPanel
     >
       <h2
         id="category-delete-heading"
@@ -74,7 +74,7 @@ import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
           <p class="mt-2 text-ink-subtle">{{ reassignDeleted(deleted) }}</p>
         }
         <div class="mt-4">
-          <span appFieldLabel>{{ text.reassignLabel }}</span>
+          <span uiFieldLabel>{{ text.reassignLabel }}</span>
           <app-category-picker
             [categories]="destinations()"
             [value]="reassignTo()"
@@ -88,12 +88,12 @@ import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
       }
 
       @if (error()) {
-        <p appErrorText class="mt-4" role="alert">{{ error() }}</p>
+        <p uiErrorText class="mt-4" role="alert">{{ error() }}</p>
       }
 
-      <div appDialogActions>
+      <div uiDialogActions>
         <button
-          appButton
+          uiButton
           variant="secondary"
           type="button"
           (click)="cancelled.emit()"
@@ -106,14 +106,14 @@ import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
           mode() !== 'blocked-owned'
         ) {
           <button
-            appButton
+            uiButton
             variant="danger"
             type="button"
             class="gap-2"
             [disabled]="deleting() || (mode() === 'reassign' && !reassignTo())"
             (click)="confirm()"
           >
-            <app-icon [glyph]="trash2Icon" class="size-4" />
+            <ui-icon [glyph]="trash2Icon" class="size-4" />
             {{ deleting() ? actionText.deleting : adminText.actions.delete }}
           </button>
         }

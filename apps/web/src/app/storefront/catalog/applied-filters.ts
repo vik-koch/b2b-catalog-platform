@@ -52,7 +52,7 @@ interface AppliedFilter {
               [attr.aria-label]="removeLabel(filter)"
               (click)="remove(filter)"
             >
-              <app-icon [glyph]="xIcon" class="size-3.5" />
+              <ui-icon [glyph]="xIcon" class="size-3.5" />
             </button>
           </li>
         }

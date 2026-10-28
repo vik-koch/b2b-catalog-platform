@@ -36,7 +36,7 @@ import { Button } from '@b2b-catalog-platform/ui/actions/button';
              answered it, can still choose to see the map. It is the same
              consent, so it is recorded the same way and the banner goes. -->
         @if (text.load; as load) {
-          <button appButton variant="secondary" (click)="consent.accept()">
+          <button uiButton variant="secondary" (click)="consent.accept()">
             {{ load }}
           </button>
         }

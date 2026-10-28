@@ -17,7 +17,7 @@ const glyphTones = {
  * the caller projects what to do about it.
  */
 @Component({
-  selector: 'app-empty-state',
+  selector: 'ui-empty-state',
   imports: [Icon],
   host: { class: 'block' },
   template: `
@@ -25,7 +25,7 @@ const glyphTones = {
       class="flex flex-col items-center rounded-lg border border-edge px-6
              py-12 text-center"
     >
-      <app-icon [glyph]="icon()" [class]="glyphClass()" />
+      <ui-icon [glyph]="icon()" [class]="glyphClass()" />
       @if (heading()) {
         <h2 class="mt-4 text-xl font-normal tracking-tight">
           {{ heading() }}

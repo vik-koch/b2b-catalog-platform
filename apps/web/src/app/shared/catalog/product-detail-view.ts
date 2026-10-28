@@ -162,7 +162,7 @@ const NARROW = '(max-width: 39.999rem)';
         </li>
         @for (crumb of item().category.ancestors; track crumb.slug) {
           <li aria-hidden="true" class="inline">
-            <app-icon
+            <ui-icon
               [glyph]="chevronRightIcon"
               class="mx-1 size-4 align-middle text-edge-strong"
             />
@@ -177,7 +177,7 @@ const NARROW = '(max-width: 39.999rem)';
           </li>
         }
         <li aria-hidden="true" class="inline">
-          <app-icon
+          <ui-icon
             [glyph]="chevronRightIcon"
             class="mx-1 size-4 align-middle text-edge-strong"
           />
@@ -196,7 +196,7 @@ const NARROW = '(max-width: 39.999rem)';
              technology too, for the same reason — it would be the name read
              twice, not a missing landmark. -->
         <li aria-hidden="true" class="hidden sm:inline">
-          <app-icon
+          <ui-icon
             [glyph]="chevronRightIcon"
             class="mx-1 size-4 align-middle text-edge-strong"
           />
@@ -268,7 +268,7 @@ const NARROW = '(max-width: 39.999rem)';
               </tbody>
             </table>
             <a
-              appTextButton
+              uiTextButton
               class="mt-3 inline-block text-sm"
               [routerLink]="[]"
               [fragment]="specsId"
@@ -333,7 +333,7 @@ const NARROW = '(max-width: 39.999rem)';
             }
           </div>
           @if (descriptionToggle()) {
-            <app-show-more-toggle
+            <ui-show-more-toggle
               class="mt-1"
               [expanded]="descriptionExpanded()"
               [moreLabel]="text.showMore"
@@ -436,7 +436,7 @@ const NARROW = '(max-width: 39.999rem)';
     <ng-template #attributeValue let-attr>
       @if (attr.filterParam) {
         <a
-          appLink
+          uiLink
           [routerLink]="['/catalog', item().category.slug]"
           [queryParams]="{ attr: attr.filterParam }"
         >

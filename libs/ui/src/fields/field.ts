@@ -17,38 +17,38 @@ let nextId = 0;
  * One form control with its caption, required mark, hint and error line, all
  * read from the field it is given, so the mark and the control's `required`
  * cannot disagree. FieldStatus decides when the error shows. An element
- * marked `appFieldCaption` joins the caption after the mark; `appFieldAction`
+ * marked `uiFieldCaption` joins the caption after the mark; `uiFieldAction`
  * stands at the end of the caption row. A control made of several inputs is a
  * FieldGroup.
  *
- *   <app-field [field]="form.name" [label]="text.name">
- *     <input appInput class="w-full" [formField]="form.name" />
- *   </app-field>
+ *   <ui-field [field]="form.name" [label]="text.name">
+ *     <input uiInput class="w-full" [formField]="form.name" />
+ *   </ui-field>
  */
 @Component({
-  selector: 'app-field',
+  selector: 'ui-field',
   imports: [ErrorText, FieldLabel, Hint],
   hostDirectives: [{ directive: FieldStatus, inputs: ['field'] }],
   host: { class: 'block' },
   template: `
     <div [class]="action() ? 'flex items-baseline justify-between' : ''">
-      <label [for]="controlId()" appFieldLabel>
+      <label [for]="controlId()" uiFieldLabel>
         {{ label() }}
         @if (marker() && required()) {
           <span class="text-accent" aria-hidden="true">*</span>
         } @else if (optional() && !required()) {
           <span class="font-normal text-ink-subtle">({{ optional() }})</span>
         }
-        <ng-content select="[appFieldCaption]" />
+        <ng-content select="[uiFieldCaption]" />
       </label>
-      <ng-content select="[appFieldAction]" />
+      <ng-content select="[uiFieldAction]" />
     </div>
     <ng-content />
     @if (!sharedLine()) {
       @if (error(); as error) {
-        <p appErrorText [id]="errorId()" class="mt-1">{{ error }}</p>
+        <p uiErrorText [id]="errorId()" class="mt-1">{{ error }}</p>
       } @else if (hint(); as hint) {
-        <p appHint [id]="hintId()" class="mt-1">{{ hint }}</p>
+        <p uiHint [id]="hintId()" class="mt-1">{{ hint }}</p>
       }
     }
   `,

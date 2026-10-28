@@ -35,14 +35,14 @@ const textareaExtras = {
  * (`w-full` in a stacked form, intrinsic elsewhere), as are modifiers such as
  * `font-mono`. A <select> also needs SelectInput around it for its chevron.
  *
- *   <input appInput class="w-full" [value]="…" />
- *   <textarea appInput size="sm" class="w-full font-mono"></textarea>
- *   <app-select-input class="max-w-72">
- *     <select appInput class="w-full">…</select>
- *   </app-select-input>
+ *   <input uiInput class="w-full" [value]="…" />
+ *   <textarea uiInput size="sm" class="w-full font-mono"></textarea>
+ *   <ui-select-input class="max-w-72">
+ *     <select uiInput class="w-full">…</select>
+ *   </ui-select-input>
  */
 @Directive({
-  selector: '[appInput]',
+  selector: '[uiInput]',
   host: { '[class]': 'classes()' },
 })
 export class Input {

@@ -109,11 +109,11 @@ interface UserDraft {
     <!-- One narrow column for the whole screen, heading included: a full-width
          title over a narrow form is a third layout where two will do. -->
     <div class="max-w-xl">
-      <h1 appPageTitle class="mb-4">{{ title() }}</h1>
+      <h1 uiPageTitle class="mb-4">{{ title() }}</h1>
 
       @if (loading()) {
         @if (showSkeleton()) {
-          <app-skeleton [lines]="5" />
+          <ui-skeleton [lines]="5" />
         }
       } @else if (notFound()) {
         <p class="text-ink-subtle" role="alert">{{ text.notFound }}</p>
@@ -135,7 +135,7 @@ interface UserDraft {
             <dd class="text-ink-subtle">{{ registered() }}</dd>
             <dt class="text-ink-subtle">{{ text.status }}</dt>
             <dd>
-              <span appStatusBadge [tone]="statusTone(user.status)">{{
+              <span uiStatusBadge [tone]="statusTone(user.status)">{{
                 statusLabel(user.status)
               }}</span>
             </dd>
@@ -143,7 +143,7 @@ interface UserDraft {
         }
 
         @if (closed()) {
-          <p appNotice tone="neutral" class="mb-6">
+          <p uiNotice tone="neutral" class="mb-6">
             {{ text.closed }}
           </p>
         }
@@ -167,19 +167,19 @@ interface UserDraft {
                is refused would only be a longer way of saying this. The way
                back stays, as it does on the catalog's own locked route. -->
           <button
-            appButton
+            uiButton
             variant="secondary"
             type="button"
             class="gap-2"
             (click)="cancel()"
           >
-            <app-icon [glyph]="xIcon" class="size-4" />
+            <ui-icon [glyph]="xIcon" class="size-4" />
             {{ actionText.cancel }}
           </button>
         } @else {
           <form [formRoot]="form" (submit)="submit()" class="space-y-6">
             @if (isNew) {
-              <app-field
+              <ui-field
                 [field]="form.email"
                 [label]="fields.email.label"
                 controlId="email"
@@ -187,37 +187,37 @@ interface UserDraft {
                 <input
                   type="email"
                   autocomplete="off"
-                  appInput
+                  uiInput
                   class="w-full"
                   [formField]="form.email"
                 />
-              </app-field>
+              </ui-field>
             } @else {
               <p class="text-sm text-ink-subtle">{{ text.emailFixed }}</p>
             }
 
             @if (isCustomer()) {
               @if (typeLeftBehind()) {
-                <app-warning-note>{{ text.typeNotAccepted }}</app-warning-note>
+                <ui-warning-note>{{ text.typeNotAccepted }}</ui-warning-note>
               }
               <!-- Only where the shop sells to more than one kind of customer
                    (FR-AUTH-13): with one, there is nothing to choose. -->
               @if (customerTypes.length > 1) {
-                <app-field-group
+                <ui-field-group
                   [field]="form.customerType"
                   [label]="text.customerType"
                 >
-                  <app-segmented
+                  <ui-segmented
                     [options]="customerTypes"
                     size="md"
                     [formField]="form.customerType"
                   />
-                </app-field-group>
+                </ui-field-group>
               }
             }
 
             <div class="grid gap-6 sm:grid-cols-2">
-              <app-field
+              <ui-field
                 [field]="form.firstName"
                 [label]="fields.firstName.label"
                 controlId="firstName"
@@ -225,13 +225,13 @@ interface UserDraft {
                 <input
                   type="text"
                   autocomplete="off"
-                  appInput
+                  uiInput
                   class="w-full"
                   [formField]="form.firstName"
                 />
-              </app-field>
+              </ui-field>
 
-              <app-field
+              <ui-field
                 [field]="form.lastName"
                 [label]="fields.lastName.label"
                 controlId="lastName"
@@ -239,11 +239,11 @@ interface UserDraft {
                 <input
                   type="text"
                   autocomplete="off"
-                  appInput
+                  uiInput
                   class="w-full"
                   [formField]="form.lastName"
                 />
-              </app-field>
+              </ui-field>
             </div>
 
             @if (isCompany()) {
@@ -259,26 +259,26 @@ interface UserDraft {
             <!-- Optional here, unlike on the registration form: staff often set
                an account up from an email alone, and a phone number they do
                not have is not a reason to block the account. -->
-            <app-field
+            <ui-field
               [field]="form.phone"
               [label]="fields.phone.label"
               controlId="phone"
             >
-              <app-phone-input
+              <ui-phone-input
                 [field]="form.phone"
                 [phone]="phoneInput"
                 autocomplete="off"
               />
-            </app-field>
+            </ui-field>
 
             @if (isCustomer()) {
-              <app-field
+              <ui-field
                 [field]="form.tierId"
                 [label]="text.tier"
                 controlId="tier"
               >
-                <app-select-input class="w-full">
-                  <select appInput class="w-full" [formField]="form.tierId">
+                <ui-select-input class="w-full">
+                  <select uiInput class="w-full" [formField]="form.tierId">
                     <!-- No tier is a default anywhere (ADR 0031), so an approval
                        has nothing to fall back on and must be chosen. -->
                     @if (isApproval()) {
@@ -293,26 +293,26 @@ interface UserDraft {
                       <option [value]="tier.id">{{ tier.label }}</option>
                     }
                   </select>
-                </app-select-input>
-              </app-field>
+                </ui-select-input>
+              </ui-field>
             }
 
             <!-- Admin only. A manager who could grant a role could grant it to
                themselves, so the field is absent for them and the API refuses
                it besides. -->
             @if (showsRole()) {
-              <app-field
+              <ui-field
                 [field]="form.role"
                 [label]="text.role"
                 controlId="role"
               >
-                <app-select-input class="w-full">
-                  <select appInput class="w-full" [formField]="form.role">
+                <ui-select-input class="w-full">
+                  <select uiInput class="w-full" [formField]="form.role">
                     <option value="manager">{{ listText.roleManager }}</option>
                     <option value="admin">{{ listText.roleAdmin }}</option>
                   </select>
-                </app-select-input>
-              </app-field>
+                </ui-select-input>
+              </ui-field>
             }
 
             <!-- Admin only, and only on a customer: the key an exchange
@@ -320,19 +320,19 @@ interface UserDraft {
                  account alone — a staff-created account has nothing to be
                  keyed against yet, and the field would invite a guess. -->
             @if (showsSourceId()) {
-              <app-field
+              <ui-field
                 [field]="form.sourceId"
                 [label]="text.sourceId"
                 [hint]="text.sourceIdHint"
                 controlId="sourceId"
               >
                 <input
-                  appInput
+                  uiInput
                   class="w-full"
                   autocomplete="off"
                   [formField]="form.sourceId"
                 />
-              </app-field>
+              </ui-field>
             }
 
             @if (isNew) {
@@ -340,7 +340,7 @@ interface UserDraft {
             }
 
             @if (error()) {
-              <p appErrorText role="alert">{{ error() }}</p>
+              <p uiErrorText role="alert">{{ error() }}</p>
             }
             @if (resent()) {
               <p class="text-sm text-success" role="status">
@@ -351,12 +351,12 @@ interface UserDraft {
             <div class="flex flex-wrap gap-3">
               @if (!closed() && !locked()) {
                 <button
-                  appButton
+                  uiButton
                   type="submit"
                   class="gap-2"
                   [disabled]="saving()"
                 >
-                  <app-icon [glyph]="submitIcon()" class="size-4" />
+                  <ui-icon [glyph]="submitIcon()" class="size-4" />
                   {{ saving() ? actionText.saving : submitLabel() }}
                 </button>
                 <!-- On a pending account the primary button approves, which is a
@@ -364,14 +364,14 @@ interface UserDraft {
                    to stay possible, so it gets its own button. -->
                 @if (isApproval()) {
                   <button
-                    appButton
+                    uiButton
                     variant="secondary"
                     type="button"
                     class="gap-2"
                     [disabled]="saving()"
                     (click)="submit(false)"
                   >
-                    <app-icon [glyph]="saveIcon" class="size-4" />
+                    <ui-icon [glyph]="saveIcon" class="size-4" />
                     {{ adminText.actions.save }}
                   </button>
                 }
@@ -381,25 +381,25 @@ interface UserDraft {
                  API's decision, off the account's own status. -->
               @if (canSendLink() && !locked()) {
                 <button
-                  appButton
+                  uiButton
                   variant="secondary"
                   type="button"
                   class="gap-2"
                   [disabled]="saving()"
                   (click)="sendPasswordLink()"
                 >
-                  <app-icon [glyph]="sendIcon" class="size-4" />
+                  <ui-icon [glyph]="sendIcon" class="size-4" />
                   {{ text.resend }}
                 </button>
               }
               <button
-                appButton
+                uiButton
                 variant="secondary"
                 type="button"
                 class="gap-2"
                 (click)="cancel()"
               >
-                <app-icon [glyph]="xIcon" class="size-4" />
+                <ui-icon [glyph]="xIcon" class="size-4" />
                 {{ actionText.cancel }}
               </button>
             </div>

@@ -35,7 +35,7 @@ let nextId = 0;
         <input
           [id]="id"
           type="checkbox"
-          appCheckbox
+          uiCheckbox
           [formField]="consent().field"
           class="mt-0.5 shrink-0"
           aria-required="true"
@@ -52,7 +52,7 @@ let nextId = 0;
             @if (parts(); as parts) {
               <label [for]="id" class="cursor-pointer">{{ parts.before }}</label
               ><a
-                appLink
+                uiLink
                 [routerLink]="consent().path"
                 target="_blank"
                 rel="noopener"
@@ -70,11 +70,11 @@ let nextId = 0;
         </p>
       </div>
       @if (consent().notice() === 'changed') {
-        <p appErrorText class="mt-1" role="alert">
+        <p uiErrorText class="mt-1" role="alert">
           {{ text.changed }}
         </p>
       } @else if (shown()) {
-        <p appErrorText class="mt-1">{{ text.required }}</p>
+        <p uiErrorText class="mt-1">{{ text.required }}</p>
       }
     } @else if (alone() && consent().state() !== 'loading') {
       <p class="text-sm"><app-privacy-notice /></p>
@@ -83,7 +83,7 @@ let nextId = 0;
       consent().state() === 'unavailable' ||
       consent().notice() === 'unavailable'
     ) {
-      <p appErrorText class="mt-1" role="alert">
+      <p uiErrorText class="mt-1" role="alert">
         {{ text.unavailable }}
       </p>
     }

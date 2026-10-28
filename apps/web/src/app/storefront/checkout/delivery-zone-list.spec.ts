@@ -110,6 +110,6 @@ describe('DeliveryZoneList', () => {
     ]);
 
     expect(el.querySelector('[class*="col-span"]')).toBeNull();
-    expect(el.querySelector('app-icon')).toBeNull();
+    expect(el.querySelector('ui-icon')).toBeNull();
   });
 });

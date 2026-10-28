@@ -133,7 +133,7 @@ describe('AdminPanelPage build info', () => {
  */
 describe('AdminPanelPage work counts', () => {
   const note = (el: HTMLElement, text: string) =>
-    Array.from(el.querySelectorAll('a[appActionLink]')).find((link) =>
+    Array.from(el.querySelectorAll('a[uiActionLink]')).find((link) =>
       link.textContent?.includes(text),
     );
 
@@ -191,7 +191,7 @@ describe('AdminPanelPage work counts', () => {
       unpublishedProducts: 0,
     });
 
-    expect(el.querySelectorAll('a[appActionLink]')).toHaveLength(1);
+    expect(el.querySelectorAll('a[uiActionLink]')).toHaveLength(1);
     expect(note(el, '4 awaiting your answer')).toBeDefined();
   });
 
@@ -205,7 +205,7 @@ describe('AdminPanelPage work counts', () => {
 
     expect(note(el, '1 awaiting approval')).toBeDefined();
     expect(note(el, '2 awaiting your answer')).toBeDefined();
-    expect(el.querySelectorAll('a[appActionLink]')).toHaveLength(2);
+    expect(el.querySelectorAll('a[uiActionLink]')).toHaveLength(2);
   });
 });
 

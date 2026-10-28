@@ -96,13 +96,13 @@ function isCategoryPanel(panel: Panel): panel is CategoryFilters {
            later reads as the page changing its mind. A bar of the same height
            holds the row instead. -->
       @if (loaded(); as panel) {
-        <h1 appPageTitle>
+        <h1 uiPageTitle>
           {{ headingFor(panel) }}
         </h1>
       } @else {
-        <app-skeleton size="title" class="w-2/3 max-w-sm" [widths]="['100%']" />
+        <ui-skeleton size="title" class="w-2/3 max-w-sm" [widths]="['100%']" />
       }
-      <a appButton variant="secondary" routerLink="/admin/attributes">
+      <a uiButton variant="secondary" routerLink="/admin/attributes">
         {{ text.page.title }}
       </a>
     </div>
@@ -139,14 +139,14 @@ function isCategoryPanel(panel: Panel): panel is CategoryFilters {
               >
                 @for (filter of draft(); track filter.attributeId) {
                   <li class="py-3" cdkDrag>
-                    <app-record-row>
+                    <ui-record-row>
                       <!-- Whether the panel offers this filter at all is the
                            one thing done to the row, so it leads it — where the
                            other lists put their grip. -->
                       <input
                         recordControl
                         type="checkbox"
-                        appCheckbox
+                        uiCheckbox
                         class="self-center"
                         [checked]="filter.visible"
                         [attr.aria-label]="filter.name"
@@ -161,7 +161,7 @@ function isCategoryPanel(panel: Panel): panel is CategoryFilters {
                           <span>{{ text.notPresent }}</span>
                         } @else {
                           <a
-                            appLink
+                            uiLink
                             routerLink="/admin/products"
                             [queryParams]="{
                               categoryId: categoryIdOf(panel),
@@ -185,14 +185,14 @@ function isCategoryPanel(panel: Panel): panel is CategoryFilters {
                       <span
                         recordActions
                         cdkDragHandle
-                        appIconButton
+                        uiIconButton
                         class="cursor-grab active:cursor-grabbing"
                         [attr.aria-label]="text.reorder"
                         [title]="text.reorder"
                       >
-                        <app-icon [glyph]="gripVerticalIcon" />
+                        <ui-icon [glyph]="gripVerticalIcon" />
                       </span>
-                    </app-record-row>
+                    </ui-record-row>
                   </li>
                 }
               </ul>
@@ -206,29 +206,29 @@ function isCategoryPanel(panel: Panel): panel is CategoryFilters {
 
             <div class="mt-6 flex flex-wrap items-center gap-2">
               <button
-                appButton
+                uiButton
                 type="button"
                 class="gap-2"
                 [disabled]="busy()"
                 (click)="save()"
               >
-                <app-icon [glyph]="saveIcon" class="size-4" />
+                <ui-icon [glyph]="saveIcon" class="size-4" />
                 {{ busy() ? actionText.saving : text.save }}
               </button>
               <button
-                appButton
+                uiButton
                 variant="secondary"
                 type="button"
                 class="gap-2"
                 [disabled]="busy()"
                 (click)="cancel()"
               >
-                <app-icon [glyph]="xIcon" class="size-4" />
+                <ui-icon [glyph]="xIcon" class="size-4" />
                 {{ actionText.cancel }}
               </button>
               @if (isCategoryPanel(panel) && panel.source === 'own') {
                 <button
-                  appButton
+                  uiButton
                   variant="secondary"
                   type="button"
                   [disabled]="busy()"
@@ -245,7 +245,7 @@ function isCategoryPanel(panel: Panel): panel is CategoryFilters {
               </p>
             }
             @if (error()) {
-              <p appErrorText class="mt-4" role="alert">
+              <p uiErrorText class="mt-4" role="alert">
                 {{ error() }}
               </p>
             }
@@ -256,7 +256,7 @@ function isCategoryPanel(panel: Panel): panel is CategoryFilters {
           </p>
         }
       } @else if (showSkeleton()) {
-        <app-skeleton [lines]="4" />
+        <ui-skeleton [lines]="4" />
       }
     </div>
   `,

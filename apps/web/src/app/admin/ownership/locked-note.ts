@@ -14,9 +14,9 @@ import { Notice } from '@b2b-catalog-platform/ui/content/notice';
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'block' },
   template: `
-    <p appNotice tone="neutral" role="status">
+    <p uiNotice tone="neutral" role="status">
       <span class="flex items-start gap-2.5">
-        <app-icon
+        <ui-icon
           [glyph]="lockIcon"
           class="mt-0.5 size-4 shrink-0"
           aria-hidden="true"

@@ -2,7 +2,7 @@
 const DECIMAL_PLACES = 3;
 const DECIMAL = new RegExp(`^\\d*([.,]\\d{0,${DECIMAL_PLACES}})?$`);
 
-/** What a numeric text input may hold while it is typed, for `[appAllow]`. */
+/** What a numeric text input may hold while it is typed, for `[uiAllow]`. */
 export const numericRules = {
   /** A count: digits only, so no separator, sign or exponent. */
   integer: (next: string) => /^\d*$/.test(next),

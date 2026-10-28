@@ -215,7 +215,7 @@ export interface BuyableProduct {
          sold in is shown greyed and says so when pressed. -->
     <ng-template #unitsBlock>
       <div
-        appSegmentGroup
+        uiSegmentGroup
         role="radiogroup"
         [attr.aria-label]="text.unitAria"
         [class]="group()"
@@ -226,7 +226,7 @@ export interface BuyableProduct {
           <div class="relative flex flex-auto">
             @if (option.available && sellable()) {
               <label
-                appSegment
+                uiSegment
                 [state]="segmentState(option.unit)"
                 [grow]="true"
                 [locked]="!sellable()"
@@ -252,7 +252,7 @@ export interface BuyableProduct {
                    genuinely disabled. -->
               <button
                 type="button"
-                appSegment
+                uiSegment
                 [state]="segmentState(option.unit)"
                 [grow]="true"
                 [locked]="!sellable()"
@@ -271,13 +271,13 @@ export interface BuyableProduct {
                      and one hanging off the side of the page. The end segment
                      is the box, and its bubble is the one anybody sees: a
                      product with no box is exactly the case that greys it. -->
-                <app-popover
+                <ui-popover
                   [align]="$last ? 'end' : $first ? 'start' : 'center'"
                   [duration]="noticeMs"
                   (dismissed)="dismiss()"
                 >
                   <p role="status">{{ open.message }}</p>
-                </app-popover>
+                </ui-popover>
               }
             }
           </div>
@@ -298,12 +298,12 @@ export interface BuyableProduct {
             [disabled]="!sellable()"
             (click)="step(-1)"
           >
-            <app-icon [glyph]="minusIcon" class="size-4" />
+            <ui-icon [glyph]="minusIcon" class="size-4" />
           </button>
 
           @if (popup(); as open) {
             @if (open.at === 'remove') {
-              <app-popover align="start" (dismissed)="dismiss()">
+              <ui-popover align="start" (dismissed)="dismiss()">
                 <p>{{ open.message }}</p>
                 <!-- Keeping it first, removing it second — the order the
                      confirmation dialog puts them in everywhere else. A yes/no
@@ -312,7 +312,7 @@ export interface BuyableProduct {
                 <div class="mt-2 flex gap-2">
                   <button
                     type="button"
-                    appButton
+                    uiButton
                     variant="secondary"
                     size="sm"
                     class="flex-1"
@@ -322,7 +322,7 @@ export interface BuyableProduct {
                   </button>
                   <button
                     type="button"
-                    appButton
+                    uiButton
                     variant="danger"
                     size="sm"
                     class="flex-1"
@@ -331,7 +331,7 @@ export interface BuyableProduct {
                     {{ text.removeYes }}
                   </button>
                 </div>
-              </app-popover>
+              </ui-popover>
             }
           }
         </div>
@@ -345,8 +345,8 @@ export interface BuyableProduct {
                The value is what is being typed while the field has it, and the
                quantity otherwise — see fieldText below. -->
           <input
-            appInput
-            [appAllow]="numericRules[whole() ? 'integer' : 'decimal']"
+            uiInput
+            [uiAllow]="numericRules[whole() ? 'integer' : 'decimal']"
             [attr.inputmode]="whole() ? 'numeric' : 'decimal'"
             [class]="quantityField()"
             [attr.aria-label]="text.quantityAria"
@@ -359,9 +359,9 @@ export interface BuyableProduct {
 
           @if (popup(); as open) {
             @if (open.at === 'quantity') {
-              <app-popover [duration]="noticeMs" (dismissed)="dismiss()">
+              <ui-popover [duration]="noticeMs" (dismissed)="dismiss()">
                 <p role="status">{{ open.message }}</p>
-              </app-popover>
+              </ui-popover>
             }
           }
         </div>
@@ -373,7 +373,7 @@ export interface BuyableProduct {
           [disabled]="!sellable()"
           (click)="step(1)"
         >
-          <app-icon [glyph]="plusIcon" class="size-4" />
+          <ui-icon [glyph]="plusIcon" class="size-4" />
         </button>
       </div>
     </ng-template>
@@ -384,7 +384,7 @@ export interface BuyableProduct {
           <!-- A field, not a button: it is the same size and in the same place
                as the one it replaced, so the row does not move, but there is
                nothing left to press — the stepper is what changes the line. -->
-          <p appButtonBox [class]="addedField()" role="status">
+          <p uiButtonBox [class]="addedField()" role="status">
             {{ addedMessage() }}
           </p>
         } @else {
@@ -394,20 +394,20 @@ export interface BuyableProduct {
                it sits next to. -->
           <button
             type="button"
-            appButton
+            uiButton
             [class]="addButton()"
             [disabled]="!sellable()"
             (click)="add()"
           >
-            <app-icon [glyph]="shoppingBasketIcon" class="mr-2 size-4" />
+            <ui-icon [glyph]="shoppingBasketIcon" class="mr-2 size-4" />
             {{ text.add }}
           </button>
         }
 
         @if (feedback() === 'full') {
-          <app-warning-note class="mt-2" role="status">
+          <ui-warning-note class="mt-2" role="status">
             {{ text.full }}
-          </app-warning-note>
+          </ui-warning-note>
         }
       }
     </ng-template>
@@ -810,7 +810,7 @@ export class ProductBuyControls {
    * keys look outlined, when the only edge that should answer is the group's.
    *
    * **It owns both seams**, so its own edge is the whole of what lights up: an
-   * ordinary `appInput` border on all four sides, squared off, with the keys
+   * ordinary `uiInput` border on all four sides, squared off, with the keys
    * dropping their border on the side that meets it. Nothing here says how it
    * answers a pointer or a caret — accent on hover and secondary on focus are
    * what the Input directive and the app-wide focus rule already give every

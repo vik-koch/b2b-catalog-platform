@@ -82,7 +82,7 @@ export function isPartialPrice(
   return pattern.test(text);
 }
 
-/** `isPartialPrice` bound to a currency, for `[appAllow]`. */
+/** `isPartialPrice` bound to a currency, for `[uiAllow]`. */
 export function partialPriceRule(
   currency: CurrencyConfig,
 ): (text: string) => boolean {

@@ -48,7 +48,7 @@ const contentsOpenAt = {
  * order; visibility transitions too, so it stays visible while closing.
  */
 @Component({
-  selector: 'app-collapsible',
+  selector: 'ui-collapsible',
   host: { '[class]': 'rowClass()' },
   template: `<div [class]="contentClass()"><ng-content /></div>`,
 })

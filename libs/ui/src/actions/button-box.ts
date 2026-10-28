@@ -20,10 +20,10 @@ export type ButtonSize = keyof typeof sizes;
  * built on it, and an element that takes a button's place (a label left where
  * the button was) uses it to keep the same box, so the row does not move.
  *
- *   <p appButtonBox class="bg-secondary text-white" role="status">…</p>
+ *   <p uiButtonBox class="bg-secondary text-white" role="status">…</p>
  */
 @Directive({
-  selector: '[appButtonBox]',
+  selector: '[uiButtonBox]',
   host: { '[class]': 'classes()' },
 })
 export class ButtonBox {

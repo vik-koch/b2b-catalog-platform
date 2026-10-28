@@ -193,7 +193,7 @@ interface ProductDraft {
   ],
   template: `
     <div class="mb-4 flex flex-wrap items-center gap-x-3 gap-y-2">
-      <h1 appPageTitle>
+      <h1 uiPageTitle>
         {{ isNew ? text.newTitle : text.editTitle }}
       </h1>
       <!-- Where the product stands, beside its name — the same badges the
@@ -204,15 +204,15 @@ interface ProductDraft {
            somebody editing it is actually asking. -->
       @if (!isNew && !loading() && !notFound()) {
         @if (deleted()) {
-          <span appStatusBadge tone="danger">{{ productStates.deleted }}</span>
+          <span uiStatusBadge tone="danger">{{ productStates.deleted }}</span>
         } @else {
           @if (!published()) {
-            <span appStatusBadge tone="waiting">{{
+            <span uiStatusBadge tone="waiting">{{
               productStates.unpublished
             }}</span>
           }
           @if (priceCleared()) {
-            <span appStatusBadge tone="danger">{{
+            <span uiStatusBadge tone="danger">{{
               productStates.unpriced
             }}</span>
           }
@@ -222,7 +222,7 @@ interface ProductDraft {
 
     @if (loading()) {
       @if (showSkeleton()) {
-        <app-skeleton [lines]="4" />
+        <ui-skeleton [lines]="4" />
       }
     } @else if (notFound()) {
       <p class="text-ink-subtle" role="alert">{{ text.saveError }}</p>
@@ -234,7 +234,7 @@ interface ProductDraft {
            product here") land on this route. -->
       <app-locked-note>{{ ownershipText.productCreate }}</app-locked-note>
     } @else if (previewing()) {
-      <p appNotice tone="neutral" class="mb-6" role="status">
+      <p uiNotice tone="neutral" class="mb-6" role="status">
         {{ text.previewNotice }}
       </p>
       <app-product-detail-view [item]="previewItem()" [canAdd]="false" />
@@ -247,20 +247,20 @@ interface ProductDraft {
           <app-locked-note>{{ ownershipText.fieldLocked }}</app-locked-note>
         }
 
-        <app-field
+        <ui-field
           [field]="form.name"
           [label]="text.name"
           controlId="product-name"
         >
-          <app-locked-field-marker appFieldCaption [field]="form.name" />
+          <app-locked-field-marker uiFieldCaption [field]="form.name" />
           <input
             type="text"
-            appInput
+            uiInput
             class="w-full"
             [formField]="form.name"
             (input)="onNameInput()"
           />
-        </app-field>
+        </ui-field>
 
         <!-- Side by side from sm up: the price is a short field and the
              category picker is the long one beside it. Below that each takes a
@@ -279,52 +279,52 @@ interface ProductDraft {
           <!-- Named after the list it writes: it is one price list's row like
                any other below, and the only thing separating it is that the
                storefront quotes it. -->
-          <app-field
+          <ui-field
             class="w-full sm:w-auto"
             [field]="form.price"
             [label]="priceLabel()"
             controlId="product-price"
           >
-            <app-locked-field-marker appFieldCaption [field]="form.price" />
+            <app-locked-field-marker uiFieldCaption [field]="form.price" />
             <!-- Text, not type=number: a number input reports a half-typed
                  "18." as an empty value, so binding the signal back to it wiped
                  the field the moment a decimal separator was pressed. The
                  inputmode still gets the numeric keypad on touch. -->
-            <app-unit-input class="w-full sm:w-43.5" [unit]="currencySuffix">
+            <ui-unit-input class="w-full sm:w-43.5" [unit]="currencySuffix">
               <input
                 type="text"
                 inputmode="decimal"
-                [appAllow]="partialPrice"
-                appUnitInputControl
+                [uiAllow]="partialPrice"
+                uiUnitInputControl
                 [placeholder]="pricePlaceholder"
                 [formField]="form.price"
                 (blur)="onPriceBlur()"
               />
-            </app-unit-input>
-          </app-field>
+            </ui-unit-input>
+          </ui-field>
 
           <!-- The product's own tax rate, beside the price it qualifies and
                owned like it. Half the price field less half a gap, which
                holds "12.75"; empty is the deployment's default, which the
                placeholder shows. Its own line on a phone, like the price. -->
-          <app-field
+          <ui-field
             class="w-full"
             [field]="form.taxRate"
             [label]="text.taxRate.label"
             controlId="product-tax-rate"
           >
-            <app-locked-field-marker appFieldCaption [field]="form.taxRate" />
-            <app-unit-input class="w-full" unit="%" [compact]="true">
+            <app-locked-field-marker uiFieldCaption [field]="form.taxRate" />
+            <ui-unit-input class="w-full" unit="%" [compact]="true">
               <input
                 type="text"
                 inputmode="decimal"
-                [appAllow]="isPartialTaxRate"
-                appUnitInputControl
+                [uiAllow]="isPartialTaxRate"
+                uiUnitInputControl
                 [placeholder]="taxRatePlaceholder"
                 [formField]="form.taxRate"
               />
-            </app-unit-input>
-          </app-field>
+            </ui-unit-input>
+          </ui-field>
 
           <!-- Said where the fields are, not only on the button: by the time
                somebody reads the button they have already cleared the price.
@@ -345,22 +345,19 @@ interface ProductDraft {
             </div>
           }
 
-          <app-field
+          <ui-field
             class="w-full sm:col-start-3 sm:row-start-1 sm:w-auto"
             [field]="form.categoryId"
             [label]="text.category"
             controlId="product-category"
           >
-            <app-locked-field-marker
-              appFieldCaption
-              [field]="form.categoryId"
-            />
+            <app-locked-field-marker uiFieldCaption [field]="form.categoryId" />
             <app-category-picker
               [categories]="categories()"
               [field]="form.categoryId"
               [placeholder]="text.categoryPlaceholder"
             />
-          </app-field>
+          </ui-field>
         </div>
 
         <!-- Only where the deployment actually has tiers: with none, the base
@@ -382,7 +379,7 @@ interface ProductDraft {
              of a 48rem form. One per line below sm, like every other pair on
              this page. -->
         <div class="grid gap-6 sm:grid-cols-2">
-          <app-field
+          <ui-field
             [field]="form.slug"
             [label]="text.slug"
             [hint]="text.slugHint"
@@ -390,31 +387,31 @@ interface ProductDraft {
           >
             <input
               type="text"
-              appInput
+              uiInput
               class="w-full font-mono text-sm"
               [formField]="form.slug"
               (input)="onSlugInput($any($event.target).value)"
             />
-          </app-field>
+          </ui-field>
 
-          <app-field
+          <ui-field
             [field]="form.sourceId"
             [label]="text.sourceId"
             [hint]="text.sourceIdHint"
             controlId="product-source-id"
           >
-            <app-locked-field-marker appFieldCaption [field]="form.sourceId" />
+            <app-locked-field-marker uiFieldCaption [field]="form.sourceId" />
             <input
               type="text"
-              appInput
+              uiInput
               class="w-full font-mono text-sm"
               [formField]="form.sourceId"
             />
-          </app-field>
+          </ui-field>
         </div>
 
         <div>
-          <span appFieldLabel>{{ product.description }}</span>
+          <span uiFieldLabel>{{ product.description }}</span>
           <app-rich-text-editor
             preset="product"
             [value]="description()"
@@ -443,7 +440,7 @@ interface ProductDraft {
         </div>
 
         <fieldset class="max-w-xl">
-          <legend appFieldLabel>{{ text.stock.heading }}</legend>
+          <legend uiFieldLabel>{{ text.stock.heading }}</legend>
           @if (!catalogOwned()) {
             <p class="mb-2 text-xs text-ink-subtle">{{ text.stock.hint }}</p>
           }
@@ -451,45 +448,45 @@ interface ProductDraft {
                them: the two are one sentence about how much is left, and a
                hint apiece made the block four lines deep for two numbers. -->
           <div class="grid gap-4 sm:grid-cols-2">
-            <app-field
+            <ui-field
               [field]="form.stockPieces"
               [label]="text.stock.pieces"
               controlId="product-stock"
             >
               <app-locked-field-marker
-                appFieldCaption
+                uiFieldCaption
                 [field]="form.stockPieces"
               />
-              <app-unit-input class="w-full" [unit]="pieceSuffix">
+              <ui-unit-input class="w-full" [unit]="pieceSuffix">
                 <input
                   type="text"
-                  [appAllow]="numericRules.signed"
-                  appUnitInputControl
+                  [uiAllow]="numericRules.signed"
+                  uiUnitInputControl
                   [formField]="form.stockPieces"
                 />
-              </app-unit-input>
-            </app-field>
+              </ui-unit-input>
+            </ui-field>
             <!-- The figure in force as the placeholder: empty means "work it
                  out from the packaging", and the number that would be worked
                  out is what an empty field then shows. It follows the
                  packaging as it is edited, and there is nothing to show while
                  the stock is untracked — the field is disabled then, and a
                  greyed figure in a greyed field reads as a value. -->
-            <app-field
+            <ui-field
               [field]="form.lowStockThreshold"
               [label]="text.stock.threshold"
               controlId="product-threshold"
             >
-              <app-unit-input class="w-full" [unit]="pieceSuffix">
+              <ui-unit-input class="w-full" [unit]="pieceSuffix">
                 <input
                   type="text"
-                  [appAllow]="numericRules.integer"
-                  appUnitInputControl
+                  [uiAllow]="numericRules.integer"
+                  uiUnitInputControl
                   [placeholder]="thresholdPlaceholder()"
                   [formField]="form.lowStockThreshold"
                 />
-              </app-unit-input>
-            </app-field>
+              </ui-unit-input>
+            </ui-field>
           </div>
           <!-- The badge itself rather than its name: what the admin is
                choosing is what a customer will see, and the preview panel is
@@ -519,10 +516,10 @@ interface ProductDraft {
           [on]="featured()"
         >
           <p class="mb-2 text-xs text-ink-subtle">{{ text.featured.hint }}</p>
-          <label appTickLabel>
+          <label uiTickLabel>
             <input
               type="checkbox"
-              appCheckbox
+              uiCheckbox
               [checked]="featured()"
               (change)="featured.set($any($event.target).checked)"
             />
@@ -545,17 +542,17 @@ interface ProductDraft {
           [on]="lineNoteEnabled()"
         >
           <p class="mb-2 text-xs text-ink-subtle">{{ text.lineNote.hint }}</p>
-          <label appTickLabel>
+          <label uiTickLabel>
             <input
               type="checkbox"
-              appCheckbox
+              uiCheckbox
               [checked]="lineNoteEnabled()"
               (change)="onLineNoteToggle($any($event.target).checked)"
             />
             <span>{{ text.lineNote.enable }}</span>
           </label>
           @if (lineNoteEnabled()) {
-            <app-field
+            <ui-field
               class="mt-3"
               [field]="form.lineNotePrompt"
               [label]="text.lineNote.prompt"
@@ -564,12 +561,12 @@ interface ProductDraft {
             >
               <input
                 type="text"
-                appInput
+                uiInput
                 class="w-full"
                 [placeholder]="text.lineNote.promptPlaceholder"
                 [formField]="form.lineNotePrompt"
               />
-            </app-field>
+            </ui-field>
           }
         </app-feature-disclosure>
 
@@ -600,7 +597,7 @@ interface ProductDraft {
     }
 
     @if (error()) {
-      <p appErrorText class="mt-4" role="alert">{{ error() }}</p>
+      <p uiErrorText class="mt-4" role="alert">{{ error() }}</p>
     }
 
     @if (!loading() && !notFound()) {
@@ -611,13 +608,13 @@ interface ProductDraft {
              out. -->
         @if (!newAndOwned()) {
           <button
-            appButton
+            uiButton
             type="button"
             class="gap-2"
             [disabled]="saving()"
             (click)="save()"
           >
-            <app-icon [glyph]="saveIcon" class="size-4" />
+            <ui-icon [glyph]="saveIcon" class="size-4" />
             {{ saving() ? actionText.saving : saveLabel() }}
           </button>
         }
@@ -631,26 +628,26 @@ interface ProductDraft {
              published (FR-ADM-01). -->
         @if (!published() && !deleted() && !newAndOwned() && !priceCleared()) {
           <button
-            appButton
+            uiButton
             variant="secondary"
             type="button"
             class="gap-2"
             [disabled]="saving()"
             (click)="save(true)"
           >
-            <app-icon [glyph]="circleCheckIcon" class="size-4" />
+            <ui-icon [glyph]="circleCheckIcon" class="size-4" />
             {{ text.saveAndPublish }}
           </button>
         }
         @if (!newAndOwned()) {
           <button
-            appButton
+            uiButton
             variant="secondary"
             type="button"
             class="gap-2"
             (click)="previewing.set(!previewing())"
           >
-            <app-icon
+            <ui-icon
               [glyph]="previewing() ? pencilIcon : eyeIcon"
               class="size-4"
             />
@@ -662,13 +659,13 @@ interface ProductDraft {
           </button>
         }
         <button
-          appButton
+          uiButton
           variant="secondary"
           type="button"
           class="gap-2"
           (click)="cancel()"
         >
-          <app-icon [glyph]="xIcon" class="size-4" />
+          <ui-icon [glyph]="xIcon" class="size-4" />
           {{ actionText.cancel }}
         </button>
         <!-- Cancel puts the admin back where they came from, which for an
@@ -679,13 +676,13 @@ interface ProductDraft {
              (FR-ADM-06). -->
         @if (!isNew) {
           <button
-            appButton
+            uiButton
             variant="secondary"
             type="button"
             class="gap-2"
             (click)="cancelToPage()"
           >
-            <app-icon [glyph]="eyeIcon" class="size-4" />
+            <ui-icon [glyph]="eyeIcon" class="size-4" />
             {{ text.cancelToPage }}
           </button>
         }

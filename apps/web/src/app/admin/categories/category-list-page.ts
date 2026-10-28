@@ -131,27 +131,27 @@ const EDGE_SLACK = 24;
     }
   `,
   template: `
-    <app-page-header [title]="text.page.title">
+    <ui-page-header [title]="text.page.title">
       <a
-        appButton
+        uiButton
         variant="secondary"
         routerLink="/admin/catalog/filters"
         [queryParams]="editorFrom()"
         class="gap-2"
       >
-        <app-icon [glyph]="funnelIcon" class="size-4" />
+        <ui-icon [glyph]="funnelIcon" class="size-4" />
         {{ text.catalogFilters }}
       </a>
       <a
-        appButton
+        uiButton
         routerLink="/admin/categories/new"
         [queryParams]="editorFrom()"
         class="gap-2"
       >
-        <app-icon [glyph]="plusIcon" class="size-4" />
+        <ui-icon [glyph]="plusIcon" class="size-4" />
         {{ text.add }}
       </a>
-    </app-page-header>
+    </ui-page-header>
 
     <!-- Narrower than the heading above it: everything below is a column of
          fields and rows to read down, not a table to scan across, and a line
@@ -165,7 +165,7 @@ const EDGE_SLACK = 24;
       <div class="mb-4 flex min-h-8 items-start justify-between gap-4">
         <p class="text-sm text-ink-subtle">{{ text.reorderHint }}</p>
         <button
-          appIconButton
+          uiIconButton
           type="button"
           class="shrink-0 mr-1"
           [class.opacity-40]="!canUndo()"
@@ -174,12 +174,12 @@ const EDGE_SLACK = 24;
           [title]="text.undo"
           (click)="undo()"
         >
-          <app-icon [glyph]="rotateCcwIcon" />
+          <ui-icon [glyph]="rotateCcwIcon" />
         </button>
       </div>
 
       @if (reorderError()) {
-        <p appErrorText class="mb-4" role="alert">
+        <p uiErrorText class="mb-4" role="alert">
           {{ text.reorderError }}
         </p>
       }
@@ -219,17 +219,17 @@ const EDGE_SLACK = 24;
                     [class.border-t]="!first"
                     [style.marginLeft.px]="node.depth * indent"
                   >
-                    <app-record-row [compact]="true">
+                    <ui-record-row [compact]="true">
                       <span
                         recordControl
                         cdkDragHandle
-                        appIconButton
+                        uiIconButton
                         size="lead"
                         class="cursor-grab active:cursor-grabbing"
                         [attr.aria-label]="adminText.actions.reorder"
                         [title]="adminText.actions.reorder"
                       >
-                        <app-icon [glyph]="gripVerticalIcon" />
+                        <ui-icon [glyph]="gripVerticalIcon" />
                       </span>
                       <!-- The whole line, and it wraps: a category's name is
                            written for the shelf it heads, not for this list,
@@ -259,7 +259,7 @@ const EDGE_SLACK = 24;
                       <ng-container recordMeta>
                         @if (node.category.productCount) {
                           <a
-                            appLink
+                            uiLink
                             routerLink="/admin/products"
                             [queryParams]="{ categoryId: node.category.id }"
                             [title]="text.editProducts"
@@ -285,7 +285,7 @@ const EDGE_SLACK = 24;
                           node.category.directProductCount
                         ) {
                           <a
-                            appLink
+                            uiLink
                             routerLink="/admin/products"
                             [queryParams]="{
                               categoryId: node.category.id,
@@ -308,7 +308,7 @@ const EDGE_SLACK = 24;
                       </ng-container>
                       <ng-container recordActions>
                         <a
-                          appIconButton
+                          uiIconButton
                           routerLink="/admin/categories/new"
                           [queryParams]="{
                             parent: node.category.slug,
@@ -317,10 +317,10 @@ const EDGE_SLACK = 24;
                           [attr.aria-label]="text.addChild"
                           [title]="text.addChild"
                         >
-                          <app-icon [glyph]="plusIcon" />
+                          <ui-icon [glyph]="plusIcon" />
                         </a>
                         <a
-                          appIconButton
+                          uiIconButton
                           [routerLink]="[
                             '/admin/categories',
                             node.category.slug,
@@ -330,10 +330,10 @@ const EDGE_SLACK = 24;
                           [attr.aria-label]="text.editFilters"
                           [title]="text.editFilters"
                         >
-                          <app-icon [glyph]="funnelIcon" />
+                          <ui-icon [glyph]="funnelIcon" />
                         </a>
                         <a
-                          appIconButton
+                          uiIconButton
                           [routerLink]="[
                             '/admin/categories',
                             node.category.slug,
@@ -343,20 +343,20 @@ const EDGE_SLACK = 24;
                           [attr.aria-label]="adminText.actions.edit"
                           [title]="adminText.actions.edit"
                         >
-                          <app-icon [glyph]="pencilIcon" />
+                          <ui-icon [glyph]="pencilIcon" />
                         </a>
                         <button
-                          appIconButton
+                          uiIconButton
                           variant="danger"
                           type="button"
                           [attr.aria-label]="adminText.actions.delete"
                           [title]="adminText.actions.delete"
                           (click)="deletingCategory.set(node.category)"
                         >
-                          <app-icon [glyph]="trash2Icon" />
+                          <ui-icon [glyph]="trash2Icon" />
                         </button>
                       </ng-container>
-                    </app-record-row>
+                    </ui-record-row>
                   </div>
                 </li>
               }
@@ -379,7 +379,7 @@ const EDGE_SLACK = 24;
           </div>
         }
       } @else if (showSkeleton()) {
-        <app-skeleton [lines]="5" />
+        <ui-skeleton [lines]="5" />
       }
 
       @if (deletingCategory(); as target) {

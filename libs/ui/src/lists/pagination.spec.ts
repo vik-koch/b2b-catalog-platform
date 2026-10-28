@@ -13,14 +13,14 @@ const text = {
 @Component({
   imports: [Pagination],
   template: `
-    <app-pagination
+    <ui-pagination
       class="linked"
       link="/orders"
       [page]="page()"
       [totalPages]="total()"
       [queryParams]="params"
     />
-    <app-pagination
+    <ui-pagination
       class="local"
       [page]="page()"
       [totalPages]="total()"
@@ -67,9 +67,7 @@ describe('Pagination', () => {
       '/orders?page=2&state=open',
     );
     expect(find('.linked a').textContent).toContain('Next');
-    expect(find('.linked span[appButtonBox]').textContent).toContain(
-      'Previous',
-    );
+    expect(find('.linked span[uiButtonBox]').textContent).toContain('Previous');
   });
 
   it('hands the page back where there is no link', async () => {

@@ -22,10 +22,10 @@ export type NoticeTone = keyof typeof tones;
  * something that failed, something not saved. The page keeps the element, its
  * role or label, and the space around it.
  *
- *   <p appNotice tone="warning" role="status" class="mb-4">…</p>
+ *   <p uiNotice tone="warning" role="status" class="mb-4">…</p>
  */
 @Directive({
-  selector: '[appNotice]',
+  selector: '[uiNotice]',
   host: { '[class]': 'classes()' },
 })
 export class Notice {

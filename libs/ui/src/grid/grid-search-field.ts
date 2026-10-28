@@ -23,19 +23,19 @@ const SEARCH_DEBOUNCE_MS = 200;
  * history. It fills the column it is given; the wording is the caller's.
  */
 @Component({
-  selector: 'app-grid-search-field',
+  selector: 'ui-grid-search-field',
   imports: [Input, Icon],
   template: `
     <div class="relative w-full min-w-0 flex-1">
       <!-- A label for the field, not a control: muted, no pointer events. -->
-      <app-icon
+      <ui-icon
         [glyph]="searchIcon"
         class="pointer-events-none absolute top-1/2 left-2.5 size-4
                -translate-y-1/2 text-ink-subtle"
       />
       <input
         #input
-        appInput
+        uiInput
         type="search"
         autocomplete="off"
         [attr.maxlength]="maxLength() ?? null"
@@ -56,7 +56,7 @@ const SEARCH_DEBOUNCE_MS = 200;
           [title]="clearLabel()"
           (click)="clear()"
         >
-          <app-icon [glyph]="xIcon" class="size-4" />
+          <ui-icon [glyph]="xIcon" class="size-4" />
           <span class="sr-only">{{ clearLabel() }}</span>
         </button>
       }

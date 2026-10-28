@@ -71,7 +71,7 @@ import { WarningNote } from '@b2b-catalog-platform/ui/content/warning-note';
     @if (visible()) {
       <dialog
         #dialog
-        appDialogPanel
+        uiDialogPanel
         size="xl"
         aria-labelledby="pairings-heading"
         (cancel)="close()"
@@ -92,9 +92,9 @@ import { WarningNote } from '@b2b-catalog-platform/ui/content/warning-note';
             }
           </ul>
         } @else if (items.error()) {
-          <app-warning-note class="mt-4">
+          <ui-warning-note class="mt-4">
             {{ text.loadError }}
-          </app-warning-note>
+          </ui-warning-note>
         } @else if (showSkeleton()) {
           <!-- As many placeholders as the marker promised, at a row's height:
                the panel then opens at the size it will settle at instead of
@@ -102,14 +102,14 @@ import { WarningNote } from '@b2b-catalog-platform/ui/content/warning-note';
           <ul [class]="rowList" class="mt-4">
             @for (row of skeletonRows(); track row) {
               <li>
-                <app-skeleton class="mt-3 mb-9.5" [lines]="5" />
+                <ui-skeleton class="mt-3 mb-9.5" [lines]="5" />
               </li>
             }
           </ul>
         }
 
-        <div appDialogActions>
-          <button appButton variant="secondary" type="button" (click)="close()">
+        <div uiDialogActions>
+          <button uiButton variant="secondary" type="button" (click)="close()">
             {{ actionText.close }}
           </button>
         </div>

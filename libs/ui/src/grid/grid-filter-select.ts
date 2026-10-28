@@ -18,7 +18,7 @@ export interface GridFilterOption {
  * column's values.
  */
 @Component({
-  selector: 'app-grid-filter-select',
+  selector: 'ui-grid-filter-select',
   imports: [SelectInput],
   template: `
     <!-- The wrapper is w-full, not content-sized: the select inside is w-full,
@@ -26,10 +26,10 @@ export interface GridFilterOption {
          against — it ended up hugging the right edge instead of sitting in the
          padding the select reserves for it.
 
-         Deliberately not an appInput field: a column filter is styled to read
+         Deliberately not an uiInput field: a column filter is styled to read
          as a heading, so it brings its own weightless look and only borrows
          the chevron. -->
-    <app-select-input size="sm" class="w-full">
+    <ui-select-input size="sm" class="w-full">
       <!-- Selection is marked on the option rather than bound on the <select>:
            a value binding is applied before the options exist and the element
            silently falls back to the first one. -->
@@ -52,7 +52,7 @@ export interface GridFilterOption {
           </option>
         }
       </select>
-    </app-select-input>
+    </ui-select-input>
   `,
 })
 export class GridFilterSelect {

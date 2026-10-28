@@ -37,7 +37,7 @@ import { layoutListIcon } from '@b2b-catalog-platform/ui/icons/glyphs/layout-lis
   imports: [Icon, Segment, SegmentGroup],
   template: `
     <div
-      appSegmentGroup
+      uiSegmentGroup
       tone="neutral"
       role="group"
       class="h-8 items-center"
@@ -45,7 +45,7 @@ import { layoutListIcon } from '@b2b-catalog-platform/ui/icons/glyphs/layout-lis
     >
       <button
         type="button"
-        appSegment
+        uiSegment
         [state]="chosen() === 'grid' ? 'selected' : 'available'"
         class="flex h-full items-center px-2"
         [attr.aria-pressed]="chosen() === 'grid'"
@@ -53,11 +53,11 @@ import { layoutListIcon } from '@b2b-catalog-platform/ui/icons/glyphs/layout-lis
         [title]="text.grid"
         (click)="choose('grid')"
       >
-        <app-icon [glyph]="layoutGridIcon" class="size-4" />
+        <ui-icon [glyph]="layoutGridIcon" class="size-4" />
       </button>
       <button
         type="button"
-        appSegment
+        uiSegment
         [state]="chosen() === 'list' ? 'selected' : 'available'"
         class="flex h-full items-center px-2"
         [attr.aria-pressed]="chosen() === 'list'"
@@ -65,7 +65,7 @@ import { layoutListIcon } from '@b2b-catalog-platform/ui/icons/glyphs/layout-lis
         [title]="text.list"
         (click)="choose('list')"
       >
-        <app-icon [glyph]="layoutListIcon" class="size-4" />
+        <ui-icon [glyph]="layoutListIcon" class="size-4" />
       </button>
     </div>
   `,

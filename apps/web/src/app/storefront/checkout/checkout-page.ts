@@ -116,43 +116,43 @@ import { shoppingBasketIcon } from '@b2b-catalog-platform/ui/icons/glyphs/shoppi
   ],
   template: `
     @if (placed(); as reference) {
-      <h1 appPageTitle class="mb-4">{{ heading() }}</h1>
+      <h1 uiPageTitle class="mb-4">{{ heading() }}</h1>
       <!-- The cart's and the account's own empty panel, read the other way
            round: the same shape of screen says "there is nothing here" and
            "that is done". Opening the order comes first — it is what somebody
            who has just sent one wants, and for a guest the link is the only
            copy they have besides the mail. -->
-      <app-empty-state
+      <ui-empty-state
         [icon]="circleCheckIcon"
         tone="positive"
         [message]="successMessage(reference)"
       >
         @if (placedLink(); as link) {
-          <a appButton [routerLink]="link">{{ text.successView }}</a>
+          <a uiButton [routerLink]="link">{{ text.successView }}</a>
         }
-        <a appButton variant="secondary" routerLink="/catalog">
+        <a uiButton variant="secondary" routerLink="/catalog">
           {{ text.successAction }}
         </a>
-      </app-empty-state>
+      </ui-empty-state>
 
       @if (guest()) {
         <p class="mt-8 max-w-xl text-sm text-ink-subtle">
           {{ invite.text }}
-          <a appLink routerLink="/register">
+          <a uiLink routerLink="/register">
             {{ invite.action }}
           </a>
         </p>
       }
     } @else if (cart.isEmpty()) {
-      <h1 appPageTitle class="mb-4">{{ heading() }}</h1>
-      <app-empty-state [icon]="shoppingBasketIcon" [message]="text.emptyCart">
-        <a appButton routerLink="/catalog">
+      <h1 uiPageTitle class="mb-4">{{ heading() }}</h1>
+      <ui-empty-state [icon]="shoppingBasketIcon" [message]="text.emptyCart">
+        <a uiButton routerLink="/catalog">
           {{ cartText.emptyAction }}
         </a>
-        <a appButton variant="secondary" routerLink="/cart">
+        <a uiButton variant="secondary" routerLink="/cart">
           {{ cartText.navLabel }}
         </a>
-      </app-empty-state>
+      </ui-empty-state>
     } @else {
       <!-- Form and summary, the pair the cart already draws — and at the width
            the cart draws it, not at whatever this page could get away with.
@@ -182,10 +182,10 @@ import { shoppingBasketIcon } from '@b2b-catalog-platform/ui/icons/glyphs/shoppi
                  form field wraps for no reason, and the questions below want
                  the shorter measure. -->
             <div class="mb-8">
-              <h1 appPageTitle class="mb-2">
+              <h1 uiPageTitle class="mb-2">
                 {{ heading() }}
               </h1>
-              <p appPageIntro>
+              <p uiPageIntro>
                 {{ reviewing() ? text.review.intro : text.intro }}
               </p>
             </div>
@@ -201,14 +201,14 @@ import { shoppingBasketIcon } from '@b2b-catalog-platform/ui/icons/glyphs/shoppi
                 class="mb-8 flex max-w-xl items-start gap-2 text-sm
                        text-ink-subtle"
               >
-                <app-icon
+                <ui-icon
                   [glyph]="circleUserRoundIcon"
                   class="mt-0.5 size-4 shrink-0 text-ink-subtle"
                 />
                 <span>
                   {{ text.signInPrompt }}
                   <a
-                    appLink
+                    uiLink
                     [routerLink]="['/login']"
                     [queryParams]="{ returnUrl: '/checkout' }"
                   >
@@ -230,7 +230,7 @@ import { shoppingBasketIcon } from '@b2b-catalog-platform/ui/icons/glyphs/shoppi
                    Drawing the form without them and correcting it a moment
                    later moves the page under whoever is already reading it. -->
               @if (showFormSkeleton()) {
-                <app-skeleton class="max-w-xl" [lines]="10" />
+                <ui-skeleton class="max-w-xl" [lines]="10" />
               }
             } @else {
               <!-- A form for its fields' sake: they read from it when it was
@@ -254,9 +254,9 @@ import { shoppingBasketIcon } from '@b2b-catalog-platform/ui/icons/glyphs/shoppi
                 }
 
                 @if (addressError()) {
-                  <app-warning-note>
+                  <ui-warning-note>
                     {{ addressText.loadError }}
-                  </app-warning-note>
+                  </ui-warning-note>
                 }
 
                 <!-- Whose name the invoice carries, asked before where anything
@@ -329,10 +329,10 @@ import { shoppingBasketIcon } from '@b2b-catalog-platform/ui/icons/glyphs/shoppi
                      own: there is no second address for this one to be the
                      same as. -->
                     @if (billingEnabled) {
-                      <label appTickLabel class="mt-4">
+                      <label uiTickLabel class="mt-4">
                         <input
                           type="checkbox"
-                          appCheckbox
+                          uiCheckbox
                           [checked]="draft().billingSameAsDelivery"
                           (change)="toggleSameBilling()"
                         />
@@ -440,7 +440,7 @@ import { shoppingBasketIcon } from '@b2b-catalog-platform/ui/icons/glyphs/shoppi
             <!-- Where the ADR says a refusal belongs: beside the button, not
                  only at the field it came from. -->
             @if (error(); as message) {
-              <p appErrorText class="mt-3" role="alert">
+              <p uiErrorText class="mt-3" role="alert">
                 {{ message }}
               </p>
             }
@@ -451,7 +451,7 @@ import { shoppingBasketIcon } from '@b2b-catalog-platform/ui/icons/glyphs/shoppi
                  nothing and one they never start. -->
             @if (staff()) {
               <p class="mt-3 flex items-start gap-2 text-sm text-ink-subtle">
-                <app-icon
+                <ui-icon
                   [glyph]="lockIcon"
                   class="mt-0.5 size-4 shrink-0 text-ink-subtle"
                 />
@@ -459,13 +459,13 @@ import { shoppingBasketIcon } from '@b2b-catalog-platform/ui/icons/glyphs/shoppi
               </p>
             } @else if (accountPhoneMissing()) {
               <p class="mt-3 flex items-start gap-2 text-sm text-ink-subtle">
-                <app-icon
+                <ui-icon
                   [glyph]="phoneIcon"
                   class="mt-0.5 size-4 shrink-0 text-ink-subtle"
                 />
                 <span>
                   {{ text.phoneMissing }}
-                  <a appLink routerLink="/account/edit">
+                  <a uiLink routerLink="/account/edit">
                     {{ text.phoneMissingAction }}
                   </a>
                 </span>
@@ -476,7 +476,7 @@ import { shoppingBasketIcon } from '@b2b-catalog-platform/ui/icons/glyphs/shoppi
               <!-- Sending accepts the terms, so it is said at the button. -->
               <app-terms-notice class="mt-3 block text-sm empty:hidden" />
               <button
-                appButton
+                uiButton
                 type="button"
                 class="mt-3 w-full"
                 [disabled]="sending() || blocked()"
@@ -485,7 +485,7 @@ import { shoppingBasketIcon } from '@b2b-catalog-platform/ui/icons/glyphs/shoppi
                 {{ sending() ? actionText.sending : text.submit }}
               </button>
               <button
-                appButton
+                uiButton
                 variant="ghost"
                 type="button"
                 class="mt-2 w-full"
@@ -495,7 +495,7 @@ import { shoppingBasketIcon } from '@b2b-catalog-platform/ui/icons/glyphs/shoppi
               </button>
             } @else {
               <button
-                appButton
+                uiButton
                 type="button"
                 class="mt-5 w-full"
                 (click)="review()"
@@ -503,7 +503,7 @@ import { shoppingBasketIcon } from '@b2b-catalog-platform/ui/icons/glyphs/shoppi
                 {{ text.review.send }}
               </button>
               <a
-                appButton
+                uiButton
                 variant="ghost"
                 routerLink="/cart"
                 class="mt-2 w-full"

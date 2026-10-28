@@ -86,14 +86,14 @@ import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
                all three. -->
           <div class="max-w-xl">
             <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
-              <h1 appPageTitle>
+              <h1 uiPageTitle>
                 {{ order.reference }}
               </h1>
-              <span appStatusBadge [tone]="statusTone(order)">
+              <span uiStatusBadge [tone]="statusTone(order)">
                 {{ statusLabel(order) }}
               </span>
               @if (paymentLabel(order); as payment) {
-                <span appStatusBadge variant="dot" [tone]="paymentTone(order)">
+                <span uiStatusBadge variant="dot" [tone]="paymentTone(order)">
                   {{ payment }}
                 </span>
               }
@@ -163,7 +163,7 @@ import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
               <div class="mt-5 rounded-lg border border-edge p-5">
                 <p class="text-sm text-ink-subtle">{{ invite.text }}</p>
                 <a
-                  appButton
+                  uiButton
                   variant="secondary"
                   routerLink="/register"
                   class="mt-4 w-full"
@@ -187,9 +187,9 @@ import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
         [backLabel]="text.home"
       />
     } @else if (order.error()) {
-      <p appErrorText role="alert">{{ orderText.error }}</p>
+      <p uiErrorText role="alert">{{ orderText.error }}</p>
     } @else if (showSkeleton()) {
-      <app-skeleton [lines]="6" />
+      <ui-skeleton [lines]="6" />
     }
   `,
 })

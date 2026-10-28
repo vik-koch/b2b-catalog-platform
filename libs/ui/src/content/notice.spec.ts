@@ -4,7 +4,7 @@ import { Notice, NoticeTone } from './notice';
 
 @Component({
   imports: [Notice],
-  template: `<p appNotice [tone]="tone()" class="mb-6" role="status">Saved</p>`,
+  template: `<p uiNotice [tone]="tone()" class="mb-6" role="status">Saved</p>`,
 })
 class Host {
   readonly tone = signal<NoticeTone>('warning');

@@ -51,7 +51,7 @@ const tappable = 'cursor-pointer select-none';
  * caller's.
  */
 @Component({
-  selector: 'app-date-input',
+  selector: 'ui-date-input',
   imports: [FormField, FieldBinding, Icon, Input],
   host: { class: 'block' },
   template: `
@@ -70,7 +70,7 @@ const tappable = 'cursor-pointer select-none';
                hover:text-accent"
         (click)="openPicker(dateInput()?.nativeElement)"
       >
-        <app-icon [glyph]="calendarIcon" class="size-4" />
+        <ui-icon [glyph]="calendarIcon" class="size-4" />
       </button>
       @if (field(); as field) {
         <!-- Inside a Field, which gives it its id and ARIA wiring. -->
@@ -79,7 +79,7 @@ const tappable = 'cursor-pointer select-none';
           type="date"
           [attr.min]="min()"
           [attr.max]="max()"
-          appInput
+          uiInput
           [class]="fieldClass()"
           [formField]="field"
           (click)="onFieldClick(input)"
@@ -92,7 +92,7 @@ const tappable = 'cursor-pointer select-none';
           [attr.min]="min()"
           [attr.max]="max()"
           [value]="value() ?? ''"
-          appInput
+          uiInput
           [class]="fieldClass()"
           (click)="onFieldClick(input)"
           (change)="picked($event)"

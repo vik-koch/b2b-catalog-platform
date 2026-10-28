@@ -7,14 +7,14 @@ import { Glyph } from './glyph';
  *
  *   import { searchIcon } from './glyphs/search';
  *   protected readonly searchIcon = searchIcon;
- *   <app-icon [glyph]="searchIcon" class="size-5" />
+ *   <ui-icon [glyph]="searchIcon" class="size-5" />
  *
  * Size via a height/width class on the element, or from the control around it
  * through `--icon-size` (IconButton does); colour follows `currentColor`.
  * Decorative: the control around it carries the name.
  */
 @Component({
-  selector: 'app-icon',
+  selector: 'ui-icon',
   host: { class: 'inline-flex' },
   // Set as a property rather than as the SVG's own stroke-width attribute: a
   // presentation attribute on the element beats any value inherited from an

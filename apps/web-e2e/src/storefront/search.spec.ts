@@ -62,7 +62,7 @@ test('drives the suggestion list from the keyboard alone', async ({
   await expect(field).toHaveAttribute('aria-activedescendant', /.+/);
   const activeId = await field.getAttribute('aria-activedescendant');
   const highlighted = String(
-    await page.locator(`#${activeId} app-highlighted-line`).textContent(),
+    await page.locator(`#${activeId} ui-highlighted-line`).textContent(),
   ).trim();
   expect(highlighted).not.toBe('');
 

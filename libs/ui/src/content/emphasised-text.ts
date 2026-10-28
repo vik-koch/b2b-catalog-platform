@@ -29,7 +29,7 @@ export function emphasisParts(text: string): TextPart[] {
  * nodes, never as HTML, so the sentence can carry nothing else onto the page.
  */
 @Component({
-  selector: 'app-emphasised',
+  selector: 'ui-emphasised',
   host: { class: 'contents' },
   // One line: a line break in here would add a space around every part.
   // prettier-ignore

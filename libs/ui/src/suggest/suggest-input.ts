@@ -6,7 +6,7 @@ import { SuggestField } from './suggest-field';
  * keys. Value binding stays the caller's (FormField, or `[value]`).
  */
 @Directive({
-  selector: 'input[appSuggestInput]',
+  selector: 'input[uiSuggestInput]',
   host: {
     type: 'text',
     role: 'combobox',

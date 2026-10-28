@@ -19,7 +19,7 @@ const sizes = {
  * IconButton. The caller sizes the glyph.
  */
 @Directive({
-  selector: '[appDiscButton]',
+  selector: '[uiDiscButton]',
   host: { '[class]': 'classes()' },
 })
 export class DiscButton {

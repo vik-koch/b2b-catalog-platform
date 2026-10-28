@@ -7,7 +7,7 @@ import { imageIcon } from '../icons/glyphs/image';
 
 @Component({
   imports: [GridToggles],
-  template: `<app-grid-toggles [groups]="groups()" />`,
+  template: `<ui-grid-toggles [groups]="groups()" />`,
 })
 class Host {
   readonly groups = signal<GridToggleGroup[]>([]);

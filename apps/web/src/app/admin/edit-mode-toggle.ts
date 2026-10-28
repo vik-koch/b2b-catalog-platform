@@ -62,7 +62,7 @@ import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
         [attr.aria-pressed]="editMode.enabled()"
         (click)="editMode.toggle()"
       >
-        <app-icon [glyph]="pencilIcon" class="size-4" />
+        <ui-icon [glyph]="pencilIcon" class="size-4" />
         {{ editMode.enabled() ? text.editMode.disable : text.editMode.enable }}
       </button>
     }

@@ -52,7 +52,7 @@ import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
             <label class="flex flex-1 cursor-pointer items-baseline gap-2">
               <input
                 type="radio"
-                appRadio
+                uiRadio
                 class="self-center"
                 name="pickup-location"
                 [value]="location.key"
@@ -66,14 +66,14 @@ import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
                 }}</span>
                 @if (location.description) {
                   <span class="text-sm text-ink-subtle">
-                    <app-emphasised [text]="location.description" />
+                    <ui-emphasised [text]="location.description" />
                   </span>
                 }
               </span>
             </label>
             @if (location.mapUrl) {
               <a
-                appTextButton
+                uiTextButton
                 class="shrink-0 text-sm"
                 target="_blank"
                 rel="noopener noreferrer"
@@ -87,7 +87,7 @@ import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
       </div>
 
       @if (invalid()) {
-        <p id="pickup-error" appErrorText class="mt-2">
+        <p id="pickup-error" uiErrorText class="mt-2">
           {{ text.pickupRequired }}
         </p>
       }

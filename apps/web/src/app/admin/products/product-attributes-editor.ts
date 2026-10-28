@@ -98,7 +98,7 @@ import { triangleAlertIcon } from '@b2b-catalog-platform/ui/icons/glyphs/triangl
          on a phone is however wide the table below wants to be — and the
          picker above it was dragged out past the screen edge with it. -->
     <fieldset class="min-w-0">
-      <legend appFieldLabel>{{ text.heading }}</legend>
+      <legend uiFieldLabel>{{ text.heading }}</legend>
 
       @if (narrow()) {
         <app-product-attributes-narrow
@@ -190,38 +190,35 @@ import { triangleAlertIcon } from '@b2b-catalog-platform/ui/icons/glyphs/triangl
                   @if (rowStatus(row) === 'stray-part') {
                     <!-- In the funnel's place: the row was meant to be
                        filterable, and this says why it is not. -->
-                    <app-hint-badge
+                    <ui-hint-badge
                       class="absolute top-1/2 right-2/3 mr-3 -translate-y-1/2"
                       tone="warning"
                       [label]="strayLabel(row)"
                     >
-                      <app-icon [glyph]="triangleAlertIcon" class="size-3.5" />
-                    </app-hint-badge>
+                      <ui-icon [glyph]="triangleAlertIcon" class="size-3.5" />
+                    </ui-hint-badge>
                   }
                   @if (isFilterable(row)) {
                     <!-- Over the key cell, because it is the *key* that the shop
                        filters by; the value cell says what happens to this
                        row's value. -->
-                    <app-hint-badge
+                    <ui-hint-badge
                       class="absolute top-1/2 right-2/3 mr-3 -translate-y-1/2"
                       tone="neutral"
                       [label]="text.filterable"
                     >
-                      <app-icon [glyph]="funnelIcon" class="size-3.5" />
-                    </app-hint-badge>
+                      <ui-icon [glyph]="funnelIcon" class="size-3.5" />
+                    </ui-hint-badge>
                   }
                   @if (valueMark(row); as mark) {
                     @if (mark === 'not-numeric') {
-                      <app-hint-badge
+                      <ui-hint-badge
                         class="absolute top-1/2 right-48 mr-3 -translate-y-1/2"
                         tone="warning"
                         [label]="text.notNumeric"
                       >
-                        <app-icon
-                          [glyph]="triangleAlertIcon"
-                          class="size-3.5"
-                        />
-                      </app-hint-badge>
+                        <ui-icon [glyph]="triangleAlertIcon" class="size-3.5" />
+                      </ui-hint-badge>
                     } @else {
                       <!-- The declared unit, where the packaging grid below puts
                          its own: after the number it measures, in the same
@@ -236,30 +233,30 @@ import { triangleAlertIcon } from '@b2b-catalog-platform/ui/icons/glyphs/triangl
                   }
                   <div class="flex items-center">
                     <button
-                      appIconButton
+                      uiIconButton
                       type="button"
                       cdkDragHandle
                       class="cursor-grab active:cursor-grabbing"
                       [attr.aria-label]="adminText.actions.reorder"
                     >
-                      <app-icon [glyph]="gripVerticalIcon" />
+                      <ui-icon [glyph]="gripVerticalIcon" />
                     </button>
                     <button
-                      appIconButton
+                      uiIconButton
                       type="button"
                       [attr.aria-label]="text.addAria"
                       (click)="addBelow($index)"
                     >
-                      <app-icon [glyph]="plusIcon" />
+                      <ui-icon [glyph]="plusIcon" />
                     </button>
                     <button
-                      appIconButton
+                      uiIconButton
                       variant="danger"
                       type="button"
                       [attr.aria-label]="actionText.remove"
                       (click)="remove($index)"
                     >
-                      <app-icon [glyph]="trash2Icon" />
+                      <ui-icon [glyph]="trash2Icon" />
                     </button>
                   </div>
                 </td>
@@ -274,11 +271,11 @@ import { triangleAlertIcon } from '@b2b-catalog-platform/ui/icons/glyphs/triangl
            fills the grid. -->
       <button
         type="button"
-        appTextButton
+        uiTextButton
         class="mt-2 inline-flex items-center gap-1.5 text-sm"
         (click)="picking.set(true)"
       >
-        <app-icon [glyph]="plusIcon" class="size-4" />
+        <ui-icon [glyph]="plusIcon" class="size-4" />
         {{ text.addKeys }}
       </button>
       @if (picking()) {

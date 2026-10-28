@@ -39,11 +39,11 @@ const variants = {
  * a cart line), on a <button> or an <a>. The glyph takes its size from here.
  * For a disc laid over content, DiscButton.
  *
- *   <a appIconButton routerLink="…"><app-icon [glyph]="pencilIcon" /></a>
- *   <button appIconButton variant="danger" (click)="…">…</button>
+ *   <a uiIconButton routerLink="…"><ui-icon [glyph]="pencilIcon" /></a>
+ *   <button uiIconButton variant="danger" (click)="…">…</button>
  */
 @Directive({
-  selector: '[appIconButton]',
+  selector: '[uiIconButton]',
   host: { '[class]': 'classes()' },
 })
 export class IconButton {

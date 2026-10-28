@@ -33,12 +33,12 @@ import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
     <a
       [routerLink]="['/admin/orders', order().reference]"
       [queryParams]="returnParams()"
-      appIconButton
+      uiIconButton
       [variant]="answerable() ? 'marked' : 'default'"
       [attr.aria-label]="answerable() ? text.actions.answer : text.actions.open"
       [title]="answerable() ? text.actions.answer : text.actions.open"
     >
-      <app-icon [glyph]="answerable() ? circleCheckIcon : pencilIcon" />
+      <ui-icon [glyph]="answerable() ? circleCheckIcon : pencilIcon" />
     </a>
 
     <!-- One slot for "stop this order", with the word the row's state gives
@@ -47,13 +47,13 @@ import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
     @if (!locked() && ending(); as ending) {
       <button
         type="button"
-        appIconButton
+        uiIconButton
         variant="danger"
         [attr.aria-label]="endingLabel()"
         [title]="endingLabel()"
         (click)="endRequested.emit({ order: order(), to: ending })"
       >
-        <app-icon [glyph]="circleSlashIcon" />
+        <ui-icon [glyph]="circleSlashIcon" />
       </button>
     }
   `,

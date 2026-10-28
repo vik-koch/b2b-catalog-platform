@@ -13,30 +13,30 @@ import { funnelXIcon } from '../icons/glyphs/funnel-x';
  * it off the route, so its two places cannot disagree.
  */
 @Component({
-  selector: 'app-grid-clear-filters',
+  selector: 'ui-grid-clear-filters',
   imports: [RouterLink, Icon, IconButton],
   template: `
     @if (filtered()) {
       <a
-        appIconButton
+        uiIconButton
         variant="danger"
         routerLink="."
         [queryParams]="keep()"
         [attr.aria-label]="gridText.clearFilters"
         [title]="gridText.clearFilters"
       >
-        <app-icon [glyph]="funnelXIcon" />
+        <ui-icon [glyph]="funnelXIcon" />
       </a>
     } @else {
       <button
-        appIconButton
+        uiIconButton
         type="button"
         disabled
         class="opacity-40"
         [attr.aria-label]="gridText.clearFilters"
         [title]="gridText.clearFilters"
       >
-        <app-icon [glyph]="funnelXIcon" />
+        <ui-icon [glyph]="funnelXIcon" />
       </button>
     }
   `,

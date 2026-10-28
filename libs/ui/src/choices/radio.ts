@@ -7,7 +7,7 @@ import { Tickable } from './tickable';
  * 2.25px rings leaves a 9.5px dot, so a thinner ring is a bigger dot.
  */
 @Directive({
-  selector: 'input[type="radio"][appRadio]',
+  selector: 'input[type="radio"][uiRadio]',
   hostDirectives: [Tickable],
   host: { class: 'rounded-full checked:shadow-[inset_0_0_0_2.25px_#fff]' },
 })

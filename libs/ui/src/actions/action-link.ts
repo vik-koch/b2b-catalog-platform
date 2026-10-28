@@ -12,12 +12,12 @@ const base = `group/action flex w-fit items-center text-xs font-medium
  * A link to work that waits for someone: an amber dot, the sentence, and an
  * arrow into the list it opens.
  *
- *   <a appActionLink routerLink="/orders" [queryParams]="{ status: 'open' }">
+ *   <a uiActionLink routerLink="/orders" [queryParams]="{ status: 'open' }">
  *     {{ count }} orders to confirm
  *   </a>
  */
 @Component({
-  selector: 'a[appActionLink]',
+  selector: 'a[uiActionLink]',
   host: { class: base },
   template: `
     <span

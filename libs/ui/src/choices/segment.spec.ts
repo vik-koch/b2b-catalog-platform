@@ -6,10 +6,10 @@ import { SegmentGroup, type SegmentTone } from './segment-group';
 @Component({
   imports: [Segment, SegmentGroup],
   template: `
-    <div appSegmentGroup [tone]="tone()">
-      <button appSegment [state]="state()" [locked]="locked()">A</button>
+    <div uiSegmentGroup [tone]="tone()">
+      <button uiSegment [state]="state()" [locked]="locked()">A</button>
     </div>
-    <button appSegment class="alone">B</button>
+    <button uiSegment class="alone">B</button>
   `,
 })
 class Host {

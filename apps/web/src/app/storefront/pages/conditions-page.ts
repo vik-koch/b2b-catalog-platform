@@ -70,7 +70,7 @@ import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
     } @else if (ready()) {
       @let content = page();
       <div class="flex items-start justify-between gap-4">
-        <h1 appPageTitle class="mb-4">
+        <h1 uiPageTitle class="mb-4">
           {{ content?.title || navLabel }}
         </h1>
         @if (canEdit(); as editorText) {
@@ -117,7 +117,7 @@ import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
             <ul class="space-y-3">
               @for (location of pickupLocations; track location.key) {
                 <li [class]="cardClass">
-                  <app-icon [glyph]="mapPinIcon" [class]="cardMark" />
+                  <ui-icon [glyph]="mapPinIcon" [class]="cardMark" />
                   <div class="min-w-0 flex-1">
                     <div
                       class="flex flex-wrap items-baseline justify-between
@@ -126,7 +126,7 @@ import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
                       <p class="font-medium">{{ location.name }}</p>
                       @if (location.mapUrl) {
                         <a
-                          appTextButton
+                          uiTextButton
                           class="text-sm"
                           target="_blank"
                           rel="noopener noreferrer"
@@ -141,7 +141,7 @@ import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
                     </p>
                     @if (location.description) {
                       <p class="mt-2 text-sm text-ink-subtle">
-                        <app-emphasised [text]="location.description" />
+                        <ui-emphasised [text]="location.description" />
                       </p>
                     }
                   </div>
@@ -160,7 +160,7 @@ import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
           </h2>
           <ul class="space-y-3">
             <li [class]="cardClass">
-              <app-icon [glyph]="banknoteIcon" [class]="cardMark" />
+              <ui-icon [glyph]="banknoteIcon" [class]="cardMark" />
               <div class="min-w-0 flex-1">
                 <p class="font-medium">{{ paymentNames.cash }}</p>
                 <p class="mt-1 text-sm text-ink-subtle">
@@ -172,7 +172,7 @@ import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
               </div>
             </li>
             <li [class]="cardClass">
-              <app-icon [glyph]="landmarkIcon" [class]="cardMark" />
+              <ui-icon [glyph]="landmarkIcon" [class]="cardMark" />
               <div class="min-w-0 flex-1">
                 <p class="font-medium">{{ paymentNames.transfer }}</p>
                 <p class="mt-1 text-sm text-ink-subtle">
@@ -195,7 +195,7 @@ import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
           </h2>
           <div class="space-y-3 text-ink-subtle">
             @for (paragraph of pageText.goodsParagraphs; track $index) {
-              <p><app-emphasised [text]="paragraph" /></p>
+              <p><ui-emphasised [text]="paragraph" /></p>
             }
             <p>{{ taxSentence }}</p>
           </div>
@@ -210,11 +210,11 @@ import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
             </h2>
             <div class="space-y-3 text-ink-subtle">
               @for (paragraph of pageText.returnsParagraphs; track $index) {
-                <p><app-emphasised [text]="paragraph" /></p>
+                <p><ui-emphasised [text]="paragraph" /></p>
               }
               @if (withdrawalPublished) {
                 <p>
-                  <a appTextButton routerLink="/withdrawal">{{
+                  <a uiTextButton routerLink="/withdrawal">{{
                     pageText.returnsWithdrawalLink
                   }}</a>
                 </p>
@@ -224,8 +224,8 @@ import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
         }
       </div>
     } @else if (showSkeleton()) {
-      <app-skeleton size="title" class="mb-4" [widths]="['33%']" />
-      <app-skeleton [widths]="['100%', '83%']" />
+      <ui-skeleton size="title" class="mb-4" [widths]="['33%']" />
+      <ui-skeleton [widths]="['100%', '83%']" />
     }
   `,
 })

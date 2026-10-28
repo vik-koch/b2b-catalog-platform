@@ -11,7 +11,7 @@ import { Component, computed, input } from '@angular/core';
  * directly.
  */
 @Component({
-  selector: 'app-record-row',
+  selector: 'ui-record-row',
   template: `
     <!-- pr-1: a last button flush with a tinted or bordered row looks clipped. -->
     <div class="flex items-center gap-3 pr-1">

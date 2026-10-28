@@ -17,15 +17,11 @@ const UI_BARREL = {
     'Import a file of the UI library, not the library or a group of it (see libs/ui/README.md).',
 };
 
-/*
- * What a view in a `ui/` folder may not reach for: data. Its folder's own UI
- * service (a dialog opener) is a sibling and stays allowed; one reached
- * through `../` is a container's.
- */
+/* What a view in a `ui/` folder may not reach for: data (ADR 0072). */
 const VIEW_MESSAGE =
   'A view takes inputs and gives outputs; services and API clients belong to its container (ADR 0072).';
 const VIEW_PATTERNS = [
-  { regex: '^\\.\\./(.*/)?[\\w.-]+\\.service$', message: VIEW_MESSAGE },
+  { regex: '^\\.{1,2}/(.*/)?[\\w.-]+\\.service$', message: VIEW_MESSAGE },
   {
     regex: '(^|/)(orpc-client|contract-routes\\.generated)$',
     message: VIEW_MESSAGE,

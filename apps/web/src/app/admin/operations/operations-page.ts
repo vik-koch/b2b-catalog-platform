@@ -67,11 +67,11 @@ import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
     <!-- Wrapping, unlike the token list's heading row: this title is several
          words longer, and at 375 the pair squeezed into two ragged columns
          instead of letting the button take a line of its own. -->
-    <app-page-header [title]="text.page.title" [intro]="text.page.intro">
-      <a appButton variant="secondary" routerLink="/admin">
+    <ui-page-header [title]="text.page.title" [intro]="text.page.intro">
+      <a uiButton variant="secondary" routerLink="/admin">
         {{ text.backToPanel }}
       </a>
-    </app-page-header>
+    </ui-page-header>
 
     <div class="max-w-3xl">
       <!-- Everything here is one row in the database and arrives in one answer,
@@ -96,7 +96,7 @@ import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
                     : maintenanceText.statusOff
                 }}
               </p>
-              <app-switch
+              <ui-switch
                 [checked]="state.maintenanceEnabled"
                 [label]="
                   state.maintenanceEnabled
@@ -112,7 +112,7 @@ import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
             </p>
 
             @if (maintenanceFailed()) {
-              <p appErrorText class="mt-3">
+              <p uiErrorText class="mt-3">
                 {{ maintenanceText.error }}
               </p>
             }
@@ -132,7 +132,7 @@ import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
           <div class="mb-4 rounded-lg border border-edge px-5 py-4">
             <div class="flex items-center justify-between gap-4">
               <h3 class="text-sm font-medium">{{ allText.heading }}</h3>
-              <app-switch
+              <ui-switch
                 [checked]="allOwned()"
                 [label]="allOwned() ? allText.take : allText.hand"
                 [disabled]="pending()"
@@ -140,10 +140,10 @@ import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
               />
             </div>
 
-            <p appHint class="mt-1">{{ allText.description }}</p>
+            <p uiHint class="mt-1">{{ allText.description }}</p>
 
             <div class="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1">
-              <span appStatusBadge [tone]="allTone()">{{ allStatus() }}</span>
+              <span uiStatusBadge [tone]="allTone()">{{ allStatus() }}</span>
               @if (mixed()) {
                 <p class="text-sm text-ink-subtle">{{ mixedEffect() }}</p>
               }
@@ -156,10 +156,10 @@ import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
                Open when they disagree, where "partly" is not an answer. -->
           <section
             class="mb-4 rounded-md border"
-            appDisclosureFrame
+            uiDisclosureFrame
             [open]="areasOpen()"
           >
-            <app-disclosure-toggle
+            <ui-disclosure-toggle
               [label]="allText.areasToggle"
               [open]="areasOpen()"
               [panelId]="areasPanelId"
@@ -177,7 +177,7 @@ import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
                       <h3 class="text-sm font-medium">
                         {{ areaText(area).name }}
                       </h3>
-                      <app-switch
+                      <ui-switch
                         [checked]="isOwned(area)"
                         [label]="
                           isOwned(area)
@@ -189,7 +189,7 @@ import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
                       />
                     </div>
 
-                    <p appHint class="mt-1">
+                    <p uiHint class="mt-1">
                       {{ areaText(area).description }}
                     </p>
 
@@ -200,7 +200,7 @@ import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
                       class="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1"
                     >
                       <span
-                        appStatusBadge
+                        uiStatusBadge
                         [tone]="isOwned(area) ? 'info' : 'neutral'"
                       >
                         {{
@@ -224,7 +224,7 @@ import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
           </section>
 
           @if (ownershipFailed()) {
-            <p appErrorText>{{ ownershipText.error }}</p>
+            <p uiErrorText>{{ ownershipText.error }}</p>
           }
         </section>
         <!-- Behind a lid, and not fetched until it is opened: the switches
@@ -232,10 +232,10 @@ import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
              when the answer to "since when" matters. -->
         <section
           class="rounded-md border"
-          appDisclosureFrame
+          uiDisclosureFrame
           [open]="historyOpen()"
         >
-          <app-disclosure-toggle
+          <ui-disclosure-toggle
             [label]="text.historyTitle"
             [open]="historyOpen()"
             [panelId]="historyPanelId"
@@ -280,13 +280,13 @@ import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
                      lasted a noticeable moment: an opened lid onto an empty
                      box reads as "nothing has been changed yet", which is a
                      sentence this panel can actually say. -->
-                <app-skeleton class="m-4" [lines]="3" />
+                <ui-skeleton class="m-4" [lines]="3" />
               }
             </div>
           }
         </section>
       } @else if (settings.error()) {
-        <p appErrorText>{{ text.loadError }}</p>
+        <p uiErrorText>{{ text.loadError }}</p>
       }
     </div>
   `,

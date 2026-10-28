@@ -169,7 +169,7 @@ import { ScrollToTop } from './scroll-to-top';
                    however many a deployment lists, the row keeps its shape.
                    An empty list leaves the group out entirely. -->
               <div class="flex flex-wrap items-center gap-4">
-                <a appButton routerLink="/inquiry">{{ nav['inquiry'] }}</a>
+                <a uiButton routerLink="/inquiry">{{ nav['inquiry'] }}</a>
                 @for (link of elsewhere; track link.url) {
                   <a
                     [href]="link.url"

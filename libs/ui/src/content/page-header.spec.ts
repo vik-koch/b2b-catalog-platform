@@ -5,10 +5,10 @@ import { PageHeader } from './page-header';
 @Component({
   imports: [PageHeader],
   template: `
-    <app-page-header id="with" title="Tiers" [intro]="intro()">
+    <ui-page-header id="with" title="Tiers" [intro]="intro()">
       <button type="button">Add</button>
-    </app-page-header>
-    <app-page-header id="without" title="Runs" />
+    </ui-page-header>
+    <ui-page-header id="without" title="Runs" />
   `,
 })
 class Host {

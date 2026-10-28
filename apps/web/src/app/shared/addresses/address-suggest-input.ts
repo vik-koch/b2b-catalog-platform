@@ -43,7 +43,7 @@ import { AddressesService } from './addresses.service';
   ],
   host: { class: 'block' },
   template: `
-    <app-suggest-field
+    <ui-suggest-field
       [list]="list"
       [text]="text()"
       width="lg"
@@ -52,15 +52,13 @@ import { AddressesService } from './addresses.service';
       <input
         autocomplete="street-address"
         [formField]="field()"
-        appInput
-        appSuggestInput
+        uiInput
+        uiSuggestInput
         class="w-full"
       />
-      <ng-template appSuggestRow [of]="list" let-item let-query="query">
+      <ng-template uiSuggestRow [of]="list" let-item let-query="query">
         <span class="block truncate text-ink">
-          <app-highlighted-line
-            [segments]="item.label | matchSegments: query"
-          />
+          <ui-highlighted-line [segments]="item.label | matchSegments: query" />
         </span>
         <!-- The province under the line, where the provider named one: it is
              the part the line itself leaves out, and two streets of the same
@@ -71,7 +69,7 @@ import { AddressesService } from './addresses.service';
           }}</span>
         }
       </ng-template>
-    </app-suggest-field>
+    </ui-suggest-field>
   `,
 })
 export class AddressSuggestInput {

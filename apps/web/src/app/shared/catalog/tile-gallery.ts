@@ -53,7 +53,7 @@ export type ImagePriority = 'lazy' | 'eager' | 'high';
     >
       @for (img of images(); track $index) {
         @if (failed().has(img.thumb)) {
-          <app-image-placeholder
+          <ui-image-placeholder
             [label]="productName()"
             class="absolute inset-0 transition-opacity duration-200"
             [class.opacity-100]="$index === selected()"
@@ -80,7 +80,7 @@ export type ImagePriority = 'lazy' | 'eager' | 'high';
           />
         }
       } @empty {
-        <app-image-placeholder [label]="productName()" />
+        <ui-image-placeholder [label]="productName()" />
       }
 
       @if (hasMultiple()) {

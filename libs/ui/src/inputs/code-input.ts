@@ -31,12 +31,12 @@ const slots = {
  * field, typing over a filled box replaces its digit, and clicking a box puts
  * the caret on it. As many boxes as the field's `maxLength` rule allows.
  *
- *   <app-field [field]="form.code" [label]="text.code">
- *     <app-code-input [field]="form.code" />
- *   </app-field>
+ *   <ui-field [field]="form.code" [label]="text.code">
+ *     <ui-code-input [field]="form.code" />
+ *   </ui-field>
  */
 @Component({
-  selector: 'app-code-input',
+  selector: 'ui-code-input',
   imports: [FormField, FieldBinding],
   host: { class: 'block' },
   template: `

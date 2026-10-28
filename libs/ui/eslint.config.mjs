@@ -18,18 +18,16 @@ export default [
   {
     files: ['**/*.ts'],
     rules: {
-      // The `ui` prefix comes with the rename at the end of the move; until
-      // then a moved piece keeps the selector its templates already use.
       '@angular-eslint/directive-selector': [
         'error',
-        { type: 'attribute', prefix: 'app', style: 'camelCase' },
+        { type: 'attribute', prefix: 'ui', style: 'camelCase' },
       ],
       // Attribute components on native elements, as in the app.
       '@angular-eslint/component-selector': [
         'error',
         [
-          { type: 'element', prefix: 'app', style: 'kebab-case' },
-          { type: 'attribute', prefix: 'app', style: 'camelCase' },
+          { type: 'element', prefix: 'ui', style: 'kebab-case' },
+          { type: 'attribute', prefix: 'ui', style: 'camelCase' },
         ],
       ],
       // The library knows Angular and itself: no domain, no deployment, no

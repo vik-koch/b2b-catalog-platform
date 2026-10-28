@@ -5,10 +5,10 @@ import { Directive } from '@angular/core';
  * grows with its container rather than the viewport (a listing, the cart)
  * keeps its own classes.
  *
- *   <h1 appPageTitle class="mb-4">{{ text.title }}</h1>
+ *   <h1 uiPageTitle class="mb-4">{{ text.title }}</h1>
  */
 @Directive({
-  selector: '[appPageTitle]',
+  selector: '[uiPageTitle]',
   host: { class: 'text-3xl font-medium tracking-tight' },
 })
 export class PageTitle {}

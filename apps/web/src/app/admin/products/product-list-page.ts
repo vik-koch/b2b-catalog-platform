@@ -117,7 +117,7 @@ function knownValues<T extends string>(
     RecordRow,
   ],
   template: `
-    <app-grid-header
+    <ui-grid-header
       [title]="text.page.title"
       [intro]="text.page.intro"
       [query]="query() ?? ''"
@@ -130,16 +130,16 @@ function knownValues<T extends string>(
       <!-- Kept while the catalog is externally owned: the click then explains
            who owns it instead of opening an editor that could only refuse the
            save. -->
-      <button appButton type="button" class="gap-2" (click)="addProduct()">
-        <app-icon [glyph]="plusIcon" class="size-4" />
+      <button uiButton type="button" class="gap-2" (click)="addProduct()">
+        <ui-icon [glyph]="plusIcon" class="size-4" />
         {{ editText.addProduct }}
       </button>
-    </app-grid-header>
+    </ui-grid-header>
 
     @if (products.error()) {
       <p class="text-ink-subtle" role="alert">{{ adminText.loadError }}</p>
     } @else if (shown(); as data) {
-      <app-data-grid
+      <ui-data-grid
         gridId="products"
         [columns]="columns()"
         [rows]="data.items"
@@ -163,7 +163,7 @@ function knownValues<T extends string>(
           <p gridEmpty class="mt-2 text-ink-subtle">
             {{ deletedMatchesLabel(count) }}
             <a
-              appLink
+              uiLink
               [routerLink]="[]"
               [queryParams]="{ state: 'deleted', page: null }"
               queryParamsHandling="merge"
@@ -171,7 +171,7 @@ function knownValues<T extends string>(
             >
           </p>
         }
-        <ng-template appGridRow [of]="data.items" let-item>
+        <ng-template uiGridRow [of]="data.items" let-item>
           <td>
             <div
               class="size-10 overflow-hidden rounded-sm border border-edge
@@ -245,7 +245,7 @@ function knownValues<T extends string>(
               <span class="text-ink-subtle">{{ text.stockUntracked }}</span>
             } @else {
               <span
-                appStatusBadge
+                uiStatusBadge
                 variant="dot"
                 [tone]="stockTone(item)"
                 [attr.aria-label]="stockLabel(item)"
@@ -255,7 +255,7 @@ function knownValues<T extends string>(
             }
           </td>
           <td data-keep>
-            <span appStatusBadge [tone]="stateTone(item)">
+            <span uiStatusBadge [tone]="stateTone(item)">
               {{ stateLabel(item) }}
             </span>
           </td>
@@ -280,11 +280,11 @@ function knownValues<T extends string>(
              works from — the name and the sync key — sit beside it with the
              price. The category and the exact minute of the last change are
              detail for the editor. -->
-        <ng-template appGridCard [of]="data.items" let-item>
+        <ng-template uiGridCard [of]="data.items" let-item>
           <!-- Only the product is greyed once it is deleted, never the badge
                that says so nor the buttons that undo it — the same rule the
                table follows cell by cell. -->
-          <app-record-row>
+          <ui-record-row>
             <div
               recordLead
               class="size-14 shrink-0 overflow-hidden rounded-sm border
@@ -309,7 +309,7 @@ function knownValues<T extends string>(
             </a>
             <span
               recordBadge
-              appStatusBadge
+              uiStatusBadge
               class="shrink-0"
               [tone]="stateTone(item)"
               >{{ stateLabel(item) }}</span
@@ -334,7 +334,7 @@ function knownValues<T extends string>(
               </span>
               @if (item.stockPieces !== null) {
                 <span
-                  appStatusBadge
+                  uiStatusBadge
                   variant="dot"
                   [tone]="stockTone(item)"
                   [attr.aria-label]="stockLabel(item)"
@@ -358,13 +358,13 @@ function knownValues<T extends string>(
               (deleteRequested)="remove($event)"
               (purgeRequested)="purge($event)"
             />
-          </app-record-row>
+          </ui-record-row>
         </ng-template>
-      </app-data-grid>
+      </ui-data-grid>
 
-      <app-grid-pagination [pagination]="data.pagination" />
+      <ui-grid-pagination [pagination]="data.pagination" />
     } @else if (showSkeleton()) {
-      <app-skeleton [lines]="6" />
+      <ui-skeleton [lines]="6" />
     }
 
     <!-- Under the name, in the table and in the card alike (FR-ADM-20): the

@@ -46,7 +46,7 @@ import { PartiesService } from './parties.service';
   template: `
     <!-- Wider than its column: this field shares a row with the other, which
          is too narrow to read a company name in. -->
-    <app-suggest-field
+    <ui-suggest-field
       [list]="list"
       [text]="text()"
       width="md"
@@ -55,23 +55,23 @@ import { PartiesService } from './parties.service';
       <input
         [autocomplete]="autocomplete()"
         [formField]="field()"
-        appInput
-        appSuggestInput
+        uiInput
+        uiSuggestInput
         class="w-full"
       />
-      <ng-template appSuggestRow [of]="list" let-item let-query="query">
+      <ng-template uiSuggestRow [of]="list" let-item let-query="query">
         <span class="block truncate font-medium text-ink">
-          <app-highlighted-line [segments]="item.name | matchSegments: query" />
+          <ui-highlighted-line [segments]="item.name | matchSegments: query" />
         </span>
         <!-- Marked too, because the number is a query in its own right: a
              customer who typed one is looking for it in the row. -->
         @if (secondLine(item); as second) {
           <span class="block truncate text-ink-subtle">
-            <app-highlighted-line [segments]="second | matchSegments: query" />
+            <ui-highlighted-line [segments]="second | matchSegments: query" />
           </span>
         }
       </ng-template>
-    </app-suggest-field>
+    </ui-suggest-field>
   `,
 })
 export class PartySuggestInput {

@@ -69,7 +69,7 @@ const CARD_WIDTH = 'auto-cols-[15rem]';
               @if (canBack() || canForward()) {
                 <div class="hidden gap-1 pointer-fine:flex">
                   <button
-                    appIconButton
+                    uiIconButton
                     size="md"
                     type="button"
                     [disabled]="!canBack()"
@@ -77,10 +77,10 @@ const CARD_WIDTH = 'auto-cols-[15rem]';
                     [attr.aria-controls]="trackId"
                     (click)="page(-1)"
                   >
-                    <app-icon [glyph]="chevronRightIcon" class="rotate-180" />
+                    <ui-icon [glyph]="chevronRightIcon" class="rotate-180" />
                   </button>
                   <button
-                    appIconButton
+                    uiIconButton
                     size="md"
                     type="button"
                     [disabled]="!canForward()"
@@ -88,7 +88,7 @@ const CARD_WIDTH = 'auto-cols-[15rem]';
                     [attr.aria-controls]="trackId"
                     (click)="page(1)"
                   >
-                    <app-icon [glyph]="chevronRightIcon" />
+                    <ui-icon [glyph]="chevronRightIcon" />
                   </button>
                 </div>
               }

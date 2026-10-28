@@ -75,8 +75,8 @@ const SUGGESTIONS_SHOWN = 8;
   template: `
     <!-- The attribute picker's box: lid, count, and one border around
          everything it opens. -->
-    <div class="max-w-xl rounded-md border" appDisclosureFrame [open]="open()">
-      <app-disclosure-toggle
+    <div class="max-w-xl rounded-md border" uiDisclosureFrame [open]="open()">
+      <ui-disclosure-toggle
         [label]="product.pairings"
         [count]="value().length"
         [countLabel]="countLabel()"
@@ -84,12 +84,12 @@ const SUGGESTIONS_SHOWN = 8;
         [panelId]="panelId"
         (toggled)="open.set(!open())"
       >
-        <app-icon
+        <ui-icon
           disclosureLead
           [glyph]="glyph"
           class="size-4 text-ink-subtle"
         />
-      </app-disclosure-toggle>
+      </ui-disclosure-toggle>
       @if (open()) {
         <div [id]="panelId" class="border-t border-edge p-4">
           <p class="text-xs text-ink-subtle">{{ text.hint }}</p>
@@ -100,21 +100,21 @@ const SUGGESTIONS_SHOWN = 8;
                 <li class="flex items-center gap-2 py-1.5 text-sm">
                   <span class="min-w-0 flex-1 truncate">{{ item.name }}</span>
                   @if (item.deleted) {
-                    <span appStatusBadge tone="danger">
+                    <span uiStatusBadge tone="danger">
                       {{ productStates.deleted }}
                     </span>
                   } @else if (item.unpublished) {
-                    <span appStatusBadge tone="waiting">
+                    <span uiStatusBadge tone="waiting">
                       {{ productStates.unpublished }}
                     </span>
                   }
                   <button
-                    appIconButton
+                    uiIconButton
                     type="button"
                     [attr.aria-label]="removeLabel(item)"
                     (click)="remove(item.slug)"
                   >
-                    <app-icon [glyph]="xIcon" />
+                    <ui-icon [glyph]="xIcon" />
                   </button>
                 </li>
               }
@@ -125,8 +125,8 @@ const SUGGESTIONS_SHOWN = 8;
             <p class="mt-3 text-xs text-ink-subtle">{{ limitLabel() }}</p>
           } @else {
             <div class="mt-3">
-              <label [for]="inputId" appFieldLabel>{{ text.add }}</label>
-              <app-suggest-field
+              <label [for]="inputId" uiFieldLabel>{{ text.add }}</label>
+              <ui-suggest-field
                 [list]="list"
                 [text]="text"
                 (picked)="add($event)"
@@ -134,21 +134,21 @@ const SUGGESTIONS_SHOWN = 8;
                 <input
                   [id]="inputId"
                   autocomplete="off"
-                  appInput
-                  appSuggestInput
+                  uiInput
+                  uiSuggestInput
                   class="w-full"
                   [value]="query()"
                   [placeholder]="text.addPlaceholder"
                   (input)="query.set($any($event.target).value)"
                 />
                 <ng-template
-                  appSuggestRow
+                  uiSuggestRow
                   [of]="list"
                   let-item
                   let-query="query"
                 >
                   <span class="block truncate">
-                    <app-highlighted-line
+                    <ui-highlighted-line
                       [segments]="
                         item.name | matchSegments: query : alternateQuery()
                       "
@@ -160,7 +160,7 @@ const SUGGESTIONS_SHOWN = 8;
                     </span>
                   }
                 </ng-template>
-              </app-suggest-field>
+              </ui-suggest-field>
             </div>
           }
         </div>

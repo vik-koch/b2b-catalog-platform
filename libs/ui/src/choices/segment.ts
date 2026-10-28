@@ -67,12 +67,12 @@ const cursors = {
 const growing = 'flex-auto';
 
 /**
- * One segment of an `appSegmentGroup`, drawn in its group's tone. A radio's
+ * One segment of an `uiSegmentGroup`, drawn in its group's tone. A radio's
  * label or a button, so a segment can be pressed for something other than
  * choosing it.
  */
 @Directive({
-  selector: '[appSegment]',
+  selector: '[uiSegment]',
   host: { '[class]': 'classes()' },
 })
 export class Segment {

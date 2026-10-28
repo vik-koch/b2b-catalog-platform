@@ -12,7 +12,7 @@ import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
   imports: [ChangePasswordForm, PageTitle],
   template: `
     <div class="max-w-xl">
-      <h1 appPageTitle class="mb-4">
+      <h1 uiPageTitle class="mb-4">
         {{ text.heading }}
       </h1>
       <app-change-password-form />

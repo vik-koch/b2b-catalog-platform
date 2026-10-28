@@ -69,7 +69,7 @@ const sizes = {
  *   <div class="relative">
  *     <button …>−</button>
  *     @if (asking()) {
- *       <app-popover align="start" (dismissed)="stop()">…</app-popover>
+ *       <ui-popover align="start" (dismissed)="stop()">…</ui-popover>
  *     }
  *   </div>
  *
@@ -81,7 +81,7 @@ const sizes = {
  * is opened during the click that moved the focus, which would close it.
  */
 @Component({
-  selector: 'app-popover',
+  selector: 'ui-popover',
   host: { '[class]': 'hostClass()' },
   template: `
     <span [class]="arrowClass()"></span>

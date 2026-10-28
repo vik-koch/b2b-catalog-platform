@@ -7,16 +7,16 @@ import { refuseUnless } from './refuse-input';
  * `type="number"` reports a half-typed "18," as empty, and a bound value is
  * wiped mid-keystroke.
  *
- *   <input appInput type="text" inputmode="decimal" [appAllow]="isPartialTaxRate" />
+ *   <input uiInput type="text" inputmode="decimal" [uiAllow]="isPartialTaxRate" />
  */
 @Directive({
-  selector: 'input[appAllow]',
+  selector: 'input[uiAllow]',
   host: { '(beforeinput)': 'onBeforeInput($event)' },
 })
 export class Allow {
-  readonly appAllow = input.required<(next: string) => boolean>();
+  readonly uiAllow = input.required<(next: string) => boolean>();
 
   protected onBeforeInput(event: InputEvent): void {
-    refuseUnless(event, this.appAllow());
+    refuseUnless(event, this.uiAllow());
   }
 }

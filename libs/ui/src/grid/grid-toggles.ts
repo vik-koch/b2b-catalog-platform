@@ -18,7 +18,7 @@ const ON = `${PILL} border-primary bg-primary text-white
  * click rewrites the parameter as a list; an empty list clears it.
  */
 @Component({
-  selector: 'app-grid-toggles',
+  selector: 'ui-grid-toggles',
   imports: [Icon],
   host: { class: 'flex flex-col gap-2' },
   template: `
@@ -36,7 +36,7 @@ const ON = `${PILL} border-primary bg-primary text-white
             (click)="toggle(group, option)"
           >
             @if (option.icon) {
-              <app-icon [glyph]="option.icon" class="size-3.5" />
+              <ui-icon [glyph]="option.icon" class="size-3.5" />
             }
             {{ option.label }}
           </button>

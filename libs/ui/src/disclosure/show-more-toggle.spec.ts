@@ -4,7 +4,7 @@ import { ShowMoreToggle } from './show-more-toggle';
 
 @Component({
   imports: [ShowMoreToggle],
-  template: `<app-show-more-toggle
+  template: `<ui-show-more-toggle
     [expanded]="expanded()"
     moreLabel="Show more"
     lessLabel="Show less"

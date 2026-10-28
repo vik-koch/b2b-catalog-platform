@@ -8,7 +8,7 @@ const label = testGridText.clearFilters;
 
 @Component({
   imports: [GridClearFilters],
-  template: `<app-grid-clear-filters [filtered]="filtered()" />`,
+  template: `<ui-grid-clear-filters [filtered]="filtered()" />`,
 })
 class Host {
   readonly filtered = signal(true);

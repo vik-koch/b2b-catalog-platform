@@ -119,7 +119,7 @@ describe('the sold-together panel (FR-SET-05)', () => {
 
     // Two placeholders for two counterparts, so the panel opens at the size it
     // will settle at rather than growing under the pointer.
-    expect(el.querySelectorAll('app-skeleton')).toHaveLength(2);
+    expect(el.querySelectorAll('ui-skeleton')).toHaveLength(2);
   });
 
   it('lists the counterparts with their own way to buy them', async () => {

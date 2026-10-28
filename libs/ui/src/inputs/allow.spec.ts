@@ -4,7 +4,7 @@ import { Allow } from './allow';
 
 @Component({
   imports: [Allow],
-  template: `<input type="text" [appAllow]="twoDigits" />`,
+  template: `<input type="text" [uiAllow]="twoDigits" />`,
 })
 class Host {
   readonly twoDigits = (next: string) => /^\d{0,2}$/.test(next);

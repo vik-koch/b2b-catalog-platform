@@ -240,7 +240,7 @@ interface Listing {
                   </li>
                   @for (crumb of category.ancestors; track crumb.slug) {
                     <li aria-hidden="true" class="inline">
-                      <app-icon
+                      <ui-icon
                         [glyph]="chevronRightIcon"
                         class="mx-1 size-4 align-middle text-edge-strong"
                       />
@@ -258,7 +258,7 @@ interface Listing {
                     </li>
                   }
                   <li aria-hidden="true" class="inline">
-                    <app-icon
+                    <ui-icon
                       [glyph]="chevronRightIcon"
                       class="mx-1 size-4 align-middle text-edge-strong"
                     />
@@ -344,7 +344,7 @@ interface Listing {
                 }
               </ul>
               @if (subsToggle(data.subcategories.length)) {
-                <app-show-more-toggle
+                <ui-show-more-toggle
                   [class]="subsToggleClass"
                   [expanded]="showAllSubs()"
                   [moreLabel]="text.showMore"
@@ -454,7 +454,7 @@ interface Listing {
                   <p class="mt-4 text-xs text-ink-subtle">{{ taxNote }}</p>
                 }
 
-                <app-pagination
+                <ui-pagination
                   class="mt-8"
                   [link]="listingLink()"
                   [page]="data.pagination.page"

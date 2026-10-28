@@ -7,15 +7,15 @@ import { TickLabel } from './tick-label';
 @Component({
   imports: [Checkbox, Radio, TickLabel],
   template: `
-    <label appTickLabel class="row">
-      <input type="checkbox" appCheckbox class="in-row" />
+    <label uiTickLabel class="row">
+      <input type="checkbox" uiCheckbox class="in-row" />
       <span>Remember me</span>
     </label>
-    <label appTickLabel>
-      <input type="radio" appRadio class="radio-in-row" />
+    <label uiTickLabel>
+      <input type="radio" uiRadio class="radio-in-row" />
       <span>Pick up</span>
     </label>
-    <input type="checkbox" appCheckbox class="alone" />
+    <input type="checkbox" uiCheckbox class="alone" />
   `,
 })
 class Host {}

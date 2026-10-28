@@ -46,7 +46,7 @@ import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
             [attr.aria-label]="actionText.remove"
             (click)="valueChange.emit(null)"
           >
-            <app-icon [glyph]="trash2Icon" class="size-5 md:size-4" />
+            <ui-icon [glyph]="trash2Icon" class="size-5 md:size-4" />
           </button>
         </div>
       </div>
@@ -60,14 +60,14 @@ import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
       />
       <button
         type="button"
-        [appFileTarget]="accept"
-        appDropZone
+        [uiFileTarget]="accept"
+        uiDropZone
         class="size-26"
         [disabled]="uploading()"
         (click)="fileInput.click()"
         (filesReceived)="upload($event[0])"
       >
-        <app-icon [glyph]="imagePlusIcon" class="size-6" />
+        <ui-icon [glyph]="imagePlusIcon" class="size-6" />
         <span class="text-xs">{{
           uploading() ? adminText.upload.progress : label()
         }}</span>
@@ -79,7 +79,7 @@ import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
     }
 
     @if (error()) {
-      <p appErrorText class="mt-2" role="alert">{{ error() }}</p>
+      <p uiErrorText class="mt-2" role="alert">{{ error() }}</p>
     }
   `,
 })

@@ -69,14 +69,14 @@ const THUMBS_BESIDE = 6;
            scrolling under a vertical drag. -->
       <div
         data-main-image
-        appFrame
+        uiFrame
         [class]="mainImage()"
         (touchstart)="onTouchStart($event)"
         (touchend)="onTouchEnd($event)"
       >
         @if (current(); as img) {
           @if (failed().has(img.full)) {
-            <app-image-placeholder [label]="productName()" />
+            <ui-image-placeholder [label]="productName()" />
           } @else {
             <!-- The page's largest element, and server-rendered: telling the
                    browser so lets it start the fetch ahead of the other
@@ -90,7 +90,7 @@ const THUMBS_BESIDE = 6;
             />
           }
         } @else {
-          <app-image-placeholder [label]="productName()" />
+          <ui-image-placeholder [label]="productName()" />
         }
       </div>
 
@@ -103,7 +103,7 @@ const THUMBS_BESIDE = 6;
             <li [class]="folded($index) ? 'max-md:hidden' : ''">
               <button
                 type="button"
-                appFrame
+                uiFrame
                 [selected]="$index === selected()"
                 [pressable]="true"
                 class="block aspect-square w-full overflow-hidden rounded-md
@@ -114,7 +114,7 @@ const THUMBS_BESIDE = 6;
                 (mouseenter)="select($index)"
               >
                 @if (failed().has(img.thumb)) {
-                  <app-image-placeholder />
+                  <ui-image-placeholder />
                 } @else {
                   <img
                     [src]="img.thumb"
@@ -129,7 +129,7 @@ const THUMBS_BESIDE = 6;
           }
         </ul>
         @if (!compact() && images().length > THUMBS_COLLAPSED) {
-          <app-show-more-toggle
+          <ui-show-more-toggle
             class="md:hidden"
             [expanded]="showAllThumbs()"
             [moreLabel]="text.showMore"

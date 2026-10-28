@@ -8,7 +8,7 @@ import { UI_TEXT } from '../core/ui-text';
  * the width that holds it, measured on the box, not the window.
  */
 @Component({
-  selector: 'app-image-placeholder',
+  selector: 'ui-image-placeholder',
   imports: [Icon],
   host: {
     role: 'img',
@@ -17,7 +17,7 @@ import { UI_TEXT } from '../core/ui-text';
             justify-center gap-2 bg-surface text-ink-subtle`,
   },
   template: `
-    <app-icon
+    <ui-icon
       [glyph]="imageOffIcon"
       class="size-8 [--icon-stroke-width:1.5]"
       aria-hidden="true"

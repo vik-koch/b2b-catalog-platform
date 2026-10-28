@@ -10,9 +10,9 @@ const clearLabel = testGridText.clearFilters;
 @Component({
   imports: [GridHeader],
   template: `
-    <app-grid-header title="Products" [intro]="intro" [filtered]="filtered">
+    <ui-grid-header title="Products" [intro]="intro" [filtered]="filtered">
       <a href="/admin/products/new">Add product</a>
-    </app-grid-header>
+    </ui-grid-header>
   `,
 })
 class Host {
@@ -80,7 +80,7 @@ describe('GridHeader', () => {
   it('gives the title the search column when the grid has no search box', () => {
     @Component({
       imports: [GridHeader],
-      template: `<app-grid-header title="Runs" [searchable]="false" />`,
+      template: `<ui-grid-header title="Runs" [searchable]="false" />`,
     })
     class Unsearchable {}
 

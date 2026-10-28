@@ -48,7 +48,7 @@ const ZOOM_KEY_FACTOR = 1.1;
   template: `
     <dialog
       #dialog
-      appDialogPanel
+      uiDialogPanel
       size="lg"
       aria-labelledby="image-framer-heading"
       (cancel)="cancelled.emit()"
@@ -103,17 +103,17 @@ const ZOOM_KEY_FACTOR = 1.1;
         />
       </label>
       <div class="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm">
-        <button type="button" appTextButton (click)="frame.set(fitted)">
+        <button type="button" uiTextButton (click)="frame.set(fitted)">
           {{ text.centre }}
         </button>
-        <button type="button" appTextButton (click)="fill()">
+        <button type="button" uiTextButton (click)="fill()">
           {{ text.fill }}
         </button>
       </div>
 
-      <div appDialogActions>
+      <div uiDialogActions>
         <button
-          appButton
+          uiButton
           variant="secondary"
           type="button"
           (click)="cancelled.emit()"
@@ -122,7 +122,7 @@ const ZOOM_KEY_FACTOR = 1.1;
         </button>
         @if (offerOriginal()) {
           <button
-            appButton
+            uiButton
             variant="secondary"
             type="button"
             (click)="original.emit()"
@@ -130,7 +130,7 @@ const ZOOM_KEY_FACTOR = 1.1;
             {{ text.asIs }}
           </button>
         }
-        <button appButton type="button" [disabled]="!size()" (click)="apply()">
+        <button uiButton type="button" [disabled]="!size()" (click)="apply()">
           {{ text.apply }}
         </button>
       </div>

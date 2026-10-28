@@ -21,11 +21,11 @@ const pressable = 'hover:bg-accent hover:ring-accent';
  * The frame on a photo or its card. `pressable` where the framed thing is a
  * control, chosen or not.
  *
- *   <a appFrame class="block rounded-md" …><img … /></a>
- *   <button appFrame [selected]="i === current()" [pressable]="true">…</button>
+ *   <a uiFrame class="block rounded-md" …><img … /></a>
+ *   <button uiFrame [selected]="i === current()" [pressable]="true">…</button>
  */
 @Directive({
-  selector: '[appFrame]',
+  selector: '[uiFrame]',
   host: { '[class]': 'classes()' },
 })
 export class Frame {

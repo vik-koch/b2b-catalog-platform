@@ -4,7 +4,7 @@ import { StatusBadge, StatusBadgeVariant, StatusTone } from './status-badge';
 
 @Component({
   imports: [StatusBadge],
-  template: `<span appStatusBadge [tone]="tone()" [variant]="variant()"
+  template: `<span uiStatusBadge [tone]="tone()" [variant]="variant()"
     >State</span
   >`,
 })

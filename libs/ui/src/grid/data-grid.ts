@@ -47,7 +47,7 @@ const MUTED_CELLS = '[&>td:not([data-keep])]:opacity-50';
 /**
  * A table on a wide screen and a list of records below `narrowBelow`, from one
  * column model: a column is a heading, a line in the narrow filter panel and a
- * stored width alike. The cells are the page's (`appGridRow`, `appGridCard`).
+ * stored width alike. The cells are the page's (`uiGridRow`, `uiGridCard`).
  *
  * Widths are measured: the browser lays out the first render with rows, the
  * widths are frozen into a `<colgroup>`, and the table stays fixed, so paging
@@ -55,7 +55,7 @@ const MUTED_CELLS = '[&>td:not([data-keep])]:opacity-50';
  * measures again.
  */
 @Component({
-  selector: 'app-data-grid',
+  selector: 'ui-data-grid',
   imports: [
     GridChips,
     NgTemplateOutlet,
@@ -69,7 +69,7 @@ const MUTED_CELLS = '[&>td:not([data-keep])]:opacity-50';
     @if (narrow()) {
       <!-- Reading width: records are read down, not scanned across. -->
       <div class="max-w-3xl">
-        <app-grid-narrow-controls
+        <ui-grid-narrow-controls
           [columns]="columns()"
           [chips]="chips()"
           [toggles]="toggles()"
@@ -104,11 +104,11 @@ const MUTED_CELLS = '[&>td:not([data-keep])]:opacity-50';
       </div>
     } @else {
       @if (toggles().length) {
-        <app-grid-toggles class="mb-4" [groups]="toggles()" />
+        <ui-grid-toggles class="mb-4" [groups]="toggles()" />
       }
       <!-- Narrowings with no column; inside the filter panel when narrow. -->
       @if (chips().length) {
-        <app-grid-chips class="mb-4" [chips]="chips()" />
+        <ui-grid-chips class="mb-4" [chips]="chips()" />
       }
 
       <div>
@@ -122,7 +122,7 @@ const MUTED_CELLS = '[&>td:not([data-keep])]:opacity-50';
         >
           <p class="text-ink-subtle" aria-live="polite">{{ countText() }}</p>
           @if (customized()) {
-            <button type="button" appTextButton (click)="resetWidths()">
+            <button type="button" uiTextButton (click)="resetWidths()">
               {{ gridText.resetWidths }}
             </button>
           }
@@ -163,7 +163,7 @@ const MUTED_CELLS = '[&>td:not([data-keep])]:opacity-50';
                     [class.text-right]="column.align === 'right'"
                   >
                     @if (column.filter; as filter) {
-                      <app-grid-filter-select
+                      <ui-grid-filter-select
                         [param]="filter.param"
                         [options]="filter.options"
                         [value]="filter.value"
@@ -171,7 +171,7 @@ const MUTED_CELLS = '[&>td:not([data-keep])]:opacity-50';
                         [toParams]="filter.toParams"
                       />
                     } @else if (column.sort; as columnSort) {
-                      <app-grid-sort
+                      <ui-grid-sort
                         [asc]="columnSort.asc"
                         [desc]="columnSort.desc"
                         [descFirst]="columnSort.descFirst ?? false"

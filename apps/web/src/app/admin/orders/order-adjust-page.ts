@@ -210,12 +210,12 @@ const PREVIEW_DEBOUNCE_MS = 250;
          route. -->
     @if (locked()) {
       <div class="max-w-xl">
-        <h1 appPageTitle>{{ title() }}</h1>
+        <h1 uiPageTitle>{{ title() }}</h1>
         <app-locked-note class="mt-4">{{
           ownershipText.orderLocked
         }}</app-locked-note>
         <a
-          appButton
+          uiButton
           variant="secondary"
           class="mt-5"
           [routerLink]="['/admin/orders', reference()]"
@@ -231,27 +231,27 @@ const PREVIEW_DEBOUNCE_MS = 250;
                  @min-[63.75rem]/adjust:justify-between"
         >
           <div class="max-w-xl">
-            <h1 appPageTitle>{{ title() }}</h1>
+            <h1 uiPageTitle>{{ title() }}</h1>
             @if (text.page.intro; as intro) {
-              <p appPageIntro class="mt-2">{{ intro }}</p>
+              <p uiPageIntro class="mt-2">{{ intro }}</p>
             }
 
             <!-- Amber, not red: none of these refuses the adjustment. They
                  are what a manager should have weighed before making it. -->
             @if (loaded.paymentState === 'paid') {
-              <app-warning-note class="mt-4">
+              <ui-warning-note class="mt-4">
                 {{ text.warnPaid }}
-              </app-warning-note>
+              </ui-warning-note>
             }
             @if (loaded.status === 'ready') {
-              <app-warning-note class="mt-4">
+              <ui-warning-note class="mt-4">
                 {{ text.warnReady }}
-              </app-warning-note>
+              </ui-warning-note>
             }
             @if (ended(loaded)) {
-              <app-warning-note class="mt-4">
+              <ui-warning-note class="mt-4">
                 {{ text.warnEnded }}
-              </app-warning-note>
+              </ui-warning-note>
             }
 
             <!-- Two boxes, because an adjustment is two jobs. What was bought
@@ -262,10 +262,10 @@ const PREVIEW_DEBOUNCE_MS = 250;
             <div class="mt-4 space-y-6">
               <section
                 class="rounded-md border"
-                appDisclosureFrame
+                uiDisclosureFrame
                 [open]="itemsOpen()"
               >
-                <app-disclosure-toggle
+                <ui-disclosure-toggle
                   [label]="ordersText.items"
                   [count]="rows().length"
                   [countLabel]="lineCount()"
@@ -282,7 +282,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
                          than beside the save button: the figures on these lines
                          are the ones that could not be worked out. -->
                     @if (refusalOn() === 'lines') {
-                      <p appErrorText role="alert">
+                      <p uiErrorText role="alert">
                         {{ refusalMessage() }}
                       </p>
                     }
@@ -298,7 +298,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
                     />
 
                     <div>
-                      <label appFieldLabel for="adjust-tier">
+                      <label uiFieldLabel for="adjust-tier">
                         {{ ordersText.tier }}
                       </label>
                       <!-- The list and the button that applies it, half the
@@ -306,9 +306,9 @@ const PREVIEW_DEBOUNCE_MS = 250;
                            button drifting to wherever the longest tier name
                            left it read as something else on the row. -->
                       <div class="grid gap-6 sm:grid-cols-2">
-                        <app-select-input>
+                        <ui-select-input>
                           <select
-                            appInput
+                            uiInput
                             id="adjust-tier"
                             class="w-full"
                             [disabled]="saving()"
@@ -324,9 +324,9 @@ const PREVIEW_DEBOUNCE_MS = 250;
                               </option>
                             }
                           </select>
-                        </app-select-input>
+                        </ui-select-input>
                         <button
-                          appButton
+                          uiButton
                           type="button"
                           variant="secondary"
                           [disabled]="saving()"
@@ -342,10 +342,10 @@ const PREVIEW_DEBOUNCE_MS = 250;
 
               <section
                 class="rounded-md border"
-                appDisclosureFrame
+                uiDisclosureFrame
                 [open]="detailsOpen()"
               >
-                <app-disclosure-toggle
+                <ui-disclosure-toggle
                   [label]="text.detailsHeading"
                   [open]="detailsOpen()"
                   [panelId]="detailsPanelId"
@@ -357,7 +357,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
                     class="space-y-8 border-t border-edge p-4"
                   >
                     @if (refusalOn() === 'details') {
-                      <p appErrorText role="alert">
+                      <p uiErrorText role="alert">
                         {{ refusalMessage() }}
                       </p>
                     }
@@ -374,15 +374,15 @@ const PREVIEW_DEBOUNCE_MS = 250;
                       <div class="grid gap-6 sm:grid-cols-2">
                         <div>
                           <label
-                            appFieldLabel
+                            uiFieldLabel
                             for="adjust-fulfilment"
                             class="sr-only"
                           >
                             {{ sharedText.fulfilment.label }}
                           </label>
-                          <app-select-input>
+                          <ui-select-input>
                             <select
-                              appInput
+                              uiInput
                               id="adjust-fulfilment"
                               class="w-full"
                               [disabled]="saving()"
@@ -405,20 +405,20 @@ const PREVIEW_DEBOUNCE_MS = 250;
                                 </option>
                               }
                             </select>
-                          </app-select-input>
+                          </ui-select-input>
                         </div>
                         @if (fulfilmentMethod() === 'pickup') {
                           <div>
                             <label
-                              appFieldLabel
+                              uiFieldLabel
                               for="adjust-pickup"
                               class="sr-only"
                             >
                               {{ ordersText.pickupPoint }}
                             </label>
-                            <app-select-input>
+                            <ui-select-input>
                               <select
-                                appInput
+                                uiInput
                                 id="adjust-pickup"
                                 class="w-full"
                                 [disabled]="saving()"
@@ -438,7 +438,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
                                   </option>
                                 }
                               </select>
-                            </app-select-input>
+                            </ui-select-input>
                           </div>
                         }
                       </div>
@@ -468,7 +468,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
                       <!-- Only where the shop sells to more than one kind
                            of customer (FR-AUTH-13). -->
                       @if (partyKinds.length > 1) {
-                        <app-segmented
+                        <ui-segmented
                           name="adjust-party-kind"
                           class="mb-4"
                           [options]="partyKinds"
@@ -478,18 +478,18 @@ const PREVIEW_DEBOUNCE_MS = 250;
                       }
 
                       @if (partyKind() === 'person') {
-                        <app-field
+                        <ui-field
                           [field]="form.party.personName"
                           [label]="fields.name.label"
                           controlId="adjust-party-person"
                         >
                           <input
-                            appInput
+                            uiInput
                             class="w-full"
                             autocomplete="off"
                             [formField]="form.party.personName"
                           />
-                        </app-field>
+                        </ui-field>
                       } @else {
                         <app-company-fields
                           idInputId="adjust-party-id"
@@ -516,12 +516,12 @@ const PREVIEW_DEBOUNCE_MS = 250;
 
                     <section>
                       <h2 class="mb-2 font-medium">{{ names.payment }}</h2>
-                      <label appFieldLabel for="adjust-payment" class="sr-only">
+                      <label uiFieldLabel for="adjust-payment" class="sr-only">
                         {{ names.payment }}
                       </label>
-                      <app-select-input>
+                      <ui-select-input>
                         <select
-                          appInput
+                          uiInput
                           id="adjust-payment"
                           class="w-full"
                           [disabled]="saving()"
@@ -544,40 +544,40 @@ const PREVIEW_DEBOUNCE_MS = 250;
                             </option>
                           }
                         </select>
-                      </app-select-input>
+                      </ui-select-input>
                     </section>
 
                     <section>
                       <h2 class="mb-2 font-medium">{{ names.contact }}</h2>
                       <div class="grid gap-6 sm:grid-cols-[20rem_1fr]">
-                        <app-field
+                        <ui-field
                           [field]="form.contact.name"
                           [label]="fields.name.label"
                           controlId="adjust-contact-name"
                         >
                           <input
-                            appInput
+                            uiInput
                             class="w-full"
                             autocomplete="off"
                             [formField]="form.contact.name"
                           />
-                        </app-field>
+                        </ui-field>
                         <!-- A number in the deployment's own mask is as long
                              as it will ever be, and the name beside it is
                              not: the field stops where its content does and
                              leaves the rest of the column to the row below. -->
-                        <app-field
+                        <ui-field
                           [field]="form.contact.phone"
                           [label]="fields.phone.label"
                           controlId="adjust-contact-phone"
                         >
-                          <app-phone-input
+                          <ui-phone-input
                             [field]="form.contact.phone"
                             [phone]="phoneInput"
                             autocomplete="off"
                           />
-                        </app-field>
-                        <app-field
+                        </ui-field>
+                        <ui-field
                           class="sm:col-span-2"
                           [field]="form.contact.email"
                           [label]="fields.email.label"
@@ -585,12 +585,12 @@ const PREVIEW_DEBOUNCE_MS = 250;
                         >
                           <input
                             type="email"
-                            appInput
+                            uiInput
                             class="w-full"
                             autocomplete="off"
                             [formField]="form.contact.email"
                           />
-                        </app-field>
+                        </ui-field>
                       </div>
                     </section>
                   </div>
@@ -599,7 +599,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
             </div>
 
             @if (formFailure(); as message) {
-              <p appErrorText class="mt-6" role="alert">
+              <p uiErrorText class="mt-6" role="alert">
                 {{ message }}
               </p>
             }
@@ -637,7 +637,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
                  neither is visible in a total, so they are said once, here,
                  where the order is signed off. -->
             @for (notice of priceNotices(); track notice) {
-              <app-warning-note class="mt-4">{{ notice }}</app-warning-note>
+              <ui-warning-note class="mt-4">{{ notice }}</ui-warning-note>
             }
 
             <!-- What the shop says it changed, beside what it changed and
@@ -645,11 +645,11 @@ const PREVIEW_DEBOUNCE_MS = 250;
                  thing written before saving, and it is what the customer's
                  mail quotes. -->
             <div class="mt-6">
-              <label appFieldLabel for="adjust-note">{{
+              <label uiFieldLabel for="adjust-note">{{
                 names.changeNote
               }}</label>
               <textarea
-                appInput
+                uiInput
                 id="adjust-note"
                 rows="3"
                 class="w-full"
@@ -659,9 +659,9 @@ const PREVIEW_DEBOUNCE_MS = 250;
                 [value]="note()"
                 (input)="note.set($any($event.target).value)"
               ></textarea>
-              <p appHint class="mt-1">{{ text.noteHint }}</p>
+              <p uiHint class="mt-1">{{ text.noteHint }}</p>
               @if (noteMissing()) {
-                <p appErrorText class="mt-1" role="alert">
+                <p uiErrorText class="mt-1" role="alert">
                   {{ text.noteRequired }}
                 </p>
               } @else if (noteFailure(); as message) {
@@ -669,7 +669,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
                      either fold to say it. It reads here, on the last thing
                      written before saving and beside the button that was
                      pressed. -->
-                <p appErrorText class="mt-1" role="alert">
+                <p uiErrorText class="mt-1" role="alert">
                   {{ message }}
                 </p>
               }
@@ -679,9 +679,9 @@ const PREVIEW_DEBOUNCE_MS = 250;
                  the phone and then confirmed, and the confirmation is the one
                  mail worth sending; this is for the change with no move behind
                  it, which nothing else would ever mention. -->
-            <label appTickLabel class="mt-4">
+            <label uiTickLabel class="mt-4">
               <input
-                appCheckbox
+                uiCheckbox
                 type="checkbox"
                 [disabled]="saving()"
                 [checked]="notify()"
@@ -689,14 +689,14 @@ const PREVIEW_DEBOUNCE_MS = 250;
               />
               <span>
                 {{ text.notify }}
-                <span appHint>
+                <span uiHint>
                   {{ text.notifyHint }}
                 </span>
               </span>
             </label>
 
             <button
-              appButton
+              uiButton
               type="button"
               class="mt-5 w-full"
               [disabled]="saving()"
@@ -705,7 +705,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
               {{ text.save }}
             </button>
             <a
-              appButton
+              uiButton
               variant="secondary"
               class="mt-3 w-full"
               [routerLink]="['/admin/orders', reference()]"
@@ -717,16 +717,16 @@ const PREVIEW_DEBOUNCE_MS = 250;
       </div>
     } @else if (missing()) {
       <p class="text-ink-subtle">{{ ordersText.notFound }}</p>
-      <a appButton variant="secondary" routerLink="/admin/orders" class="mt-5">
+      <a uiButton variant="secondary" routerLink="/admin/orders" class="mt-5">
         {{ detailText.back }}
       </a>
     } @else if (loadFailed()) {
       <p class="text-ink-subtle" role="alert">{{ ordersText.loadError }}</p>
-      <a appButton variant="secondary" routerLink="/admin/orders" class="mt-5">
+      <a uiButton variant="secondary" routerLink="/admin/orders" class="mt-5">
         {{ detailText.back }}
       </a>
     } @else if (showSkeleton()) {
-      <app-skeleton [lines]="8" />
+      <ui-skeleton [lines]="8" />
     }
   `,
 })

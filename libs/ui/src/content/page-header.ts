@@ -7,23 +7,23 @@ import { PageTitle } from './page-title';
  * both. On a narrow screen the actions wrap below the title rather than
  * squeezing it.
  *
- *   <app-page-header [title]="text.title" [intro]="text.intro">
- *     <a appButton routerLink="new">{{ text.add }}</a>
- *   </app-page-header>
+ *   <ui-page-header [title]="text.title" [intro]="text.intro">
+ *     <a uiButton routerLink="new">{{ text.add }}</a>
+ *   </ui-page-header>
  */
 @Component({
-  selector: 'app-page-header',
+  selector: 'ui-page-header',
   imports: [PageIntro, PageTitle],
   host: { class: 'block' },
   template: `
     <div class="mb-4 flex flex-wrap items-start justify-between gap-3">
-      <h1 appPageTitle>{{ title() }}</h1>
+      <h1 uiPageTitle>{{ title() }}</h1>
       <div class="ml-auto flex flex-wrap justify-end gap-2 empty:hidden">
         <ng-content />
       </div>
     </div>
     @if (intro(); as intro) {
-      <p appPageIntro class="mb-6 max-w-3xl">{{ intro }}</p>
+      <p uiPageIntro class="mb-6 max-w-3xl">{{ intro }}</p>
     }
   `,
 })

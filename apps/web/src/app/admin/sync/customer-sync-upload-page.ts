@@ -71,14 +71,14 @@ import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
     DropZone,
   ],
   template: `
-    <app-page-header
+    <ui-page-header
       [title]="text.customers.uploadTitle"
       [intro]="text.customers.uploadDescription"
     >
-      <a appButton variant="secondary" routerLink="/admin/sync/customers">
+      <a uiButton variant="secondary" routerLink="/admin/sync/customers">
         {{ text.backToRuns }}
       </a>
-    </app-page-header>
+    </ui-page-header>
 
     <div class="max-w-3xl">
       <!-- Closed exactly while somebody else is doing the job. The form is
@@ -98,7 +98,7 @@ import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
           <h2 class="mb-3 text-sm font-medium">{{ text.modeLabel }}</h2>
           <div class="space-y-2">
             @for (option of presets; track option.name) {
-              <app-choice-card
+              <ui-choice-card
                 name="preset"
                 [value]="option.name"
                 [checked]="preset() === option.name"
@@ -117,10 +117,10 @@ import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
             </summary>
             <div class="mt-3 space-y-2 border-l-2 border-edge-subtle pl-4">
               @for (flag of flags; track flag.key) {
-                <label appTickLabel>
+                <label uiTickLabel>
                   <input
                     type="checkbox"
-                    appCheckbox
+                    uiCheckbox
                     [checked]="isFlagOn(flag.key)"
                     (change)="toggleFlag(flag.key, $any($event.target).checked)"
                   />
@@ -133,7 +133,7 @@ import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
 
         <!-- Step 2: the file -->
         <section class="mb-8">
-          <span appFieldLabel>{{ text.customers.file }}</span>
+          <span uiFieldLabel>{{ text.customers.file }}</span>
 
           <input
             #fileInput
@@ -145,13 +145,13 @@ import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
           <button
             type="button"
             class="w-full p-4"
-            appFileTarget=".csv,text/csv"
-            appDropZone
+            uiFileTarget=".csv,text/csv"
+            uiDropZone
             [filled]="!!file()"
             (click)="openPicker(fileInput)"
             (filesReceived)="setFile($event[0])"
           >
-            <app-icon [glyph]="uploadIcon" class="size-6 mb-2" />
+            <ui-icon [glyph]="uploadIcon" class="size-6 mb-2" />
             @if (file(); as chosen) {
               <span class="font-medium">{{ chosen.name }}</span>
               <span class="text-sm text-ink-subtle">{{ text.changeFile }}</span>
@@ -170,7 +170,7 @@ import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
 
           <div class="mt-4 flex items-center gap-3">
             <button
-              appButton
+              uiButton
               type="button"
               [disabled]="!file() || previewing()"
               (click)="runPreview()"
@@ -179,7 +179,7 @@ import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
             </button>
             @if (previewed()) {
               <button
-                appButton
+                uiButton
                 variant="secondary"
                 type="button"
                 (click)="reset()"
@@ -190,7 +190,7 @@ import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
           </div>
 
           @if (previewError(); as message) {
-            <p appErrorText class="mt-3" role="alert">{{ message }}</p>
+            <p uiErrorText class="mt-3" role="alert">{{ message }}</p>
           }
         </section>
 
@@ -210,7 +210,7 @@ import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
         @if (appliedRun(); as run) {
           <p class="mb-8 rounded-md bg-surface p-3 text-sm" role="status">
             {{ text.applied }} {{ changeSummary(run) }}
-            <a appLink routerLink="/admin/users" class="ml-2">{{
+            <a uiLink routerLink="/admin/users" class="ml-2">{{
               usersText.customersPage.title
             }}</a>
           </p>

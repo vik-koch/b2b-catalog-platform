@@ -14,7 +14,7 @@ export interface HighlightSegment {
  * splits the word with a space. A spec holds this.
  */
 @Component({
-  selector: 'app-highlighted-line',
+  selector: 'ui-highlighted-line',
   template: `@for (part of segments(); track $index) {
     @if (part.match) {
       <mark class="rounded-sm bg-accent/25 text-inherit">{{ part.text }}</mark>

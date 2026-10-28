@@ -156,17 +156,17 @@ interface CartRow {
            checkout draws once one has been sent: three screens that say
            "there is nothing here, here is where to go" should not be three
            different screens. -->
-      <app-empty-state [icon]="shoppingBasketIcon" [message]="text.empty">
-        <a appButton routerLink="/catalog">{{ text.emptyAction }}</a>
-      </app-empty-state>
+      <ui-empty-state [icon]="shoppingBasketIcon" [message]="text.empty">
+        <a uiButton routerLink="/catalog">{{ text.emptyAction }}</a>
+      </ui-empty-state>
     } @else {
       @if (cart.persistFailed()) {
-        <p appNotice tone="warning" class="mb-4">
+        <p uiNotice tone="warning" class="mb-4">
           {{ text.storageFailed }}
         </p>
       }
       @if (preview.error()) {
-        <p appNotice tone="warning" class="mb-4">
+        <p uiNotice tone="warning" class="mb-4">
           {{ text.loadError }}
         </p>
       }
@@ -192,7 +192,7 @@ interface CartRow {
            one place that says it happened *since last time*. -->
             @if (changes().length) {
               <section
-                appNotice
+                uiNotice
                 tone="warning"
                 class="mb-6"
                 [attr.aria-label]="changeText.heading"
@@ -201,12 +201,12 @@ interface CartRow {
                   <h2 class="font-medium">{{ changeText.heading }}</h2>
                   <button
                     type="button"
-                    appIconButton
+                    uiIconButton
                     class="-mt-1 -mr-1 shrink-0"
                     [attr.aria-label]="changeText.dismissAria"
                     (click)="cart.dismissChanges()"
                   >
-                    <app-icon [glyph]="xIcon" />
+                    <ui-icon [glyph]="xIcon" />
                   </button>
                 </div>
                 <ul class="mt-1 space-y-1">
@@ -234,7 +234,7 @@ interface CartRow {
               <label class="flex cursor-pointer items-center gap-2 text-accent">
                 <input
                   type="checkbox"
-                  appCheckbox
+                  uiCheckbox
                   [checked]="allSelected()"
                   [indeterminate]="someSelected() && !allSelected()"
                   (change)="toggleAll()"
@@ -257,7 +257,7 @@ interface CartRow {
                 [disabled]="selectedCount() === 0"
                 (click)="deleteSelected()"
               >
-                <app-icon [glyph]="trash2Icon" class="size-4" />
+                <ui-icon [glyph]="trash2Icon" class="size-4" />
                 <span class="group-enabled:group-hover:underline">
                   {{ text.deleteSelected }}
                 </span>
@@ -288,7 +288,7 @@ interface CartRow {
                     >
                       <input
                         type="checkbox"
-                        appCheckbox
+                        uiCheckbox
                         [checked]="isSelected(row.key)"
                         [attr.aria-label]="selectLabel(row)"
                         (change)="toggle(row.key)"
@@ -296,9 +296,9 @@ interface CartRow {
                     </label>
 
                     @for (issue of row.issues; track issue) {
-                      <app-warning-note class="mt-1">
+                      <ui-warning-note class="mt-1">
                         {{ issue }}
-                      </app-warning-note>
+                      </ui-warning-note>
                     }
 
                     @if (row.takesNote || row.pairedCount > 0) {
@@ -367,8 +367,8 @@ interface CartRow {
                              full-sized field among them reads as the thing to
                              fill in. -->
                           <textarea
-                            appInput
-                            appAutoGrow
+                            uiInput
+                            uiAutoGrow
                             size="sm"
                             rows="1"
                             class="w-full"
@@ -395,13 +395,13 @@ interface CartRow {
                     <button
                       rowActions
                       type="button"
-                      appIconButton
+                      uiIconButton
                       variant="danger"
                       class="shrink-0"
                       [attr.aria-label]="removeLabel(row)"
                       (click)="remove(row)"
                     >
-                      <app-icon [glyph]="trash2Icon" />
+                      <ui-icon [glyph]="trash2Icon" />
                     </button>
                   </app-product-row>
                 </li>
@@ -413,7 +413,7 @@ interface CartRow {
                  same three controls would read as a different one. Buttons
                  rather than links, because the page they turn is not in the
                  URL. -->
-            <app-pagination
+            <ui-pagination
               class="mt-8"
               [page]="page()"
               [totalPages]="totalPages()"
@@ -456,7 +456,7 @@ interface CartRow {
                  a long cart to check out reads this card, and an advisory
                  further up the page is one they scrolled past. -->
             @if (pairingSummary(); as summary) {
-              <app-warning-note class="mt-3">{{ summary }}</app-warning-note>
+              <ui-warning-note class="mt-3">{{ summary }}</ui-warning-note>
             }
 
             <!-- Inside the summary card, under the figure they act on: the
@@ -468,18 +468,18 @@ interface CartRow {
                    sending somebody to a form to be turned away there is a
                    worse way of saying the same thing. The API refuses it too
                    — this is not what makes it a rule. -->
-              <button appButton type="button" disabled class="mt-5 w-full">
+              <button uiButton type="button" disabled class="mt-5 w-full">
                 {{ text.checkout }}
               </button>
             } @else {
-              <a appButton routerLink="/checkout" class="mt-5 w-full">
+              <a uiButton routerLink="/checkout" class="mt-5 w-full">
                 {{ text.checkout }}
               </a>
             }
             <!-- Back to the shelf the visitor was standing at, with the
                  category, page and filters it was carrying. -->
             <a
-              appButton
+              uiButton
               variant="ghost"
               class="mt-2 w-full"
               [routerLink]="continueShoppingUrl"

@@ -6,7 +6,7 @@ import { chevronUpIcon } from '../icons/glyphs/chevron-up';
 
 /** A sortable column heading (FR-ADM-05), writing its own `sort` parameter. */
 @Component({
-  selector: 'app-grid-sort',
+  selector: 'ui-grid-sort',
   imports: [Icon],
   host: {
     // `group` so the affordance chevron can appear on hover; see the icon.
@@ -22,7 +22,7 @@ import { chevronUpIcon } from '../icons/glyphs/chevron-up';
       {{ label() }}
       <!-- Inked only for the sort in effect or under the pointer: a row of
            permanent arrows is noise. -->
-      <app-icon
+      <ui-icon
         [glyph]="descending() ? chevronDownIcon : chevronUpIcon"
         [class]="iconClass()"
       />

@@ -82,7 +82,7 @@ const CHIP_SIZES: Record<CategoryChipSize, { link: string; mark: string }> = {
              small chip whole: 2 × 20px + 16px leaves 4px either side of 64. -->
         <span [class]="contextClass()">
           <span class="line-clamp-2 leading-5">
-            <app-highlighted-line
+            <ui-highlighted-line
               [segments]="label() | matchSegments: query() : alternateQuery()"
             />
           </span>
@@ -90,7 +90,7 @@ const CHIP_SIZES: Record<CategoryChipSize, { link: string; mark: string }> = {
         </span>
       } @else if (query()) {
         <span [class]="nameClass()">
-          <app-highlighted-line
+          <ui-highlighted-line
             [segments]="label() | matchSegments: query() : alternateQuery()"
           />
         </span>

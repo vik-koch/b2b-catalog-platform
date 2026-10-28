@@ -61,15 +61,15 @@ import { paletteIcon } from '@b2b-catalog-platform/ui/icons/glyphs/palette';
       [title]="label()"
       (click)="toggle()"
     >
-      <app-icon [glyph]="paletteIcon" class="size-3.5 shrink-0" />
-      <span appLink class="truncate">{{ product.variants }}</span>
+      <ui-icon [glyph]="paletteIcon" class="size-3.5 shrink-0" />
+      <span uiLink class="truncate">{{ product.variants }}</span>
     </button>
 
     @if (open()) {
       @if (narrow()) {
         <dialog
           #dialog
-          appDialogPanel
+          uiDialogPanel
           [attr.aria-label]="productName()"
           (cancel)="open.set(false)"
         >
@@ -79,9 +79,9 @@ import { paletteIcon } from '@b2b-catalog-platform/ui/icons/glyphs/palette';
             [productName]="productName()"
             shape="stack"
           />
-          <div appDialogActions>
+          <div uiDialogActions>
             <button
-              appButton
+              uiButton
               variant="secondary"
               type="button"
               (click)="open.set(false)"
@@ -91,7 +91,7 @@ import { paletteIcon } from '@b2b-catalog-platform/ui/icons/glyphs/palette';
           </div>
         </dialog>
       } @else {
-        <app-popover
+        <ui-popover
           align="start"
           [wide]="true"
           [placement]="placement()"
@@ -103,7 +103,7 @@ import { paletteIcon } from '@b2b-catalog-platform/ui/icons/glyphs/palette';
             [productName]="productName()"
             shape="side"
           />
-        </app-popover>
+        </ui-popover>
       }
     }
   `,

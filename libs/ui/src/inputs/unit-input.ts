@@ -10,15 +10,15 @@ const compactUnit = 'sm:pr-2';
  * column, a caption, a hint and a unit beside would be four lines for one
  * number. A wrapper, because the unit is a sibling a directive cannot add;
  * flex rather than an overlay, so a long unit shortens the field instead of
- * being clipped. The input inside takes `appUnitInputControl`.
+ * being clipped. The input inside takes `uiUnitInputControl`.
  *
- *   <app-unit-input class="w-full" unit="pcs">
- *     <input appUnitInputControl … />
- *   </app-unit-input>
+ *   <ui-unit-input class="w-full" unit="pcs">
+ *     <input uiUnitInputControl … />
+ *   </ui-unit-input>
  */
 @Component({
-  selector: 'app-unit-input',
-  // An `appInput`'s border states, on the wrapper that owns the border. Hover
+  selector: 'ui-unit-input',
+  // An `uiInput`'s border states, on the wrapper that owns the border. Hover
   // excludes focus, which a plain input settles through the unlayered focus rule.
   host: {
     class: `flex items-center rounded-md border border-edge-strong bg-white

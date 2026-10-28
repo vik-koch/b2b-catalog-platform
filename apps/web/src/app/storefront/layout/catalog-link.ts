@@ -28,7 +28,7 @@ const CATALOG_ROUTES = ['/catalog', '/product', '/search'];
       [attr.aria-current]="active() ? 'page' : null"
       [class]="cls().action"
     >
-      <app-icon [glyph]="storeIcon" class="size-6" />
+      <ui-icon [glyph]="storeIcon" class="size-6" />
       <span [class]="cls().labelRow">
         <span [class]="cls().label" [attr.data-label]="label">{{ label }}</span>
       </span>

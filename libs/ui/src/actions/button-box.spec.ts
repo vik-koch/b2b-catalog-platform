@@ -6,8 +6,8 @@ import { ButtonBox } from './button-box';
 @Component({
   imports: [Button, ButtonBox],
   template: `
-    <p appButtonBox [class]="label()" role="status">Added</p>
-    <button appButton variant="secondary" size="sm">Go</button>
+    <p uiButtonBox [class]="label()" role="status">Added</p>
+    <button uiButton variant="secondary" size="sm">Go</button>
   `,
 })
 class Host {

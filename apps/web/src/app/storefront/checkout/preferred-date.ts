@@ -35,13 +35,13 @@ import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
   imports: [DateInput, FieldLabel],
   host: { class: 'block' },
   template: `
-    <label [for]="id" appFieldLabel>
+    <label [for]="id" uiFieldLabel>
       {{
         method() === 'pickup' ? names.preferredPickup : names.preferredDelivery
       }}
       <span class="font-normal text-ink-subtle">({{ optional }})</span>
     </label>
-    <app-date-input
+    <ui-date-input
       class="max-w-70"
       [fieldId]="id"
       [value]="date()"

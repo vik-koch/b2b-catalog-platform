@@ -45,7 +45,7 @@ import { plusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/plus';
   template: `
     <dialog
       #dialog
-      appDialogPanel
+      uiDialogPanel
       size="lg"
       aria-labelledby="attribute-key-picker-heading"
       (cancel)="closed.emit()"
@@ -72,7 +72,7 @@ import { plusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/plus';
               >
                 <input
                   type="checkbox"
-                  appCheckbox
+                  uiCheckbox
                   [checked]="picked().includes(hint.key)"
                   [disabled]="used().includes(hint.key)"
                   (change)="select(hint.key, $any($event.target).checked)"
@@ -80,9 +80,9 @@ import { plusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/plus';
                 <span>{{ hint.key }}</span>
                 <!-- The same badge the grid row shows, for the same fact. -->
                 @if (hint.type) {
-                  <app-hint-badge tone="neutral" [label]="text.filterable">
-                    <app-icon [glyph]="funnelIcon" class="size-3.5" />
-                  </app-hint-badge>
+                  <ui-hint-badge tone="neutral" [label]="text.filterable">
+                    <ui-icon [glyph]="funnelIcon" class="size-3.5" />
+                  </ui-hint-badge>
                 }
                 <span class="ml-auto pl-3 text-xs text-ink-subtle">
                   @if (used().includes(hint.key)) {
@@ -97,9 +97,9 @@ import { plusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/plus';
         </ul>
       }
 
-      <div appDialogActions>
+      <div uiDialogActions>
         <button
-          appButton
+          uiButton
           variant="secondary"
           type="button"
           (click)="closed.emit()"
@@ -107,13 +107,13 @@ import { plusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/plus';
           {{ actionText.cancel }}
         </button>
         <button
-          appButton
+          uiButton
           type="button"
           class="gap-2"
           [disabled]="picked().length === 0"
           (click)="apply()"
         >
-          <app-icon [glyph]="plusIcon" class="size-4" />
+          <ui-icon [glyph]="plusIcon" class="size-4" />
           {{ applyLabel() }}
         </button>
       </div>

@@ -80,7 +80,7 @@ import { Notice } from '@b2b-catalog-platform/ui/content/notice';
         <ul class="divide-y divide-edge-subtle text-sm">
           @for (account of plan().accounts; track account.sourceId) {
             <li class="flex flex-wrap items-baseline gap-x-3 py-2">
-              <span appStatusBadge [tone]="kindTone(account.kind)">
+              <span uiStatusBadge [tone]="kindTone(account.kind)">
                 {{ text.customers.count[kindCount[account.kind]] }}
               </span>
               <!-- Always the account list narrowed to this address, never the
@@ -89,7 +89,7 @@ import { Notice } from '@b2b-catalog-platform/ui/content/notice';
                    right beats two that differ by row. -->
               @if (account.email; as email) {
                 <a
-                  appLink
+                  uiLink
                   class="font-medium"
                   routerLink="/admin/users"
                   [queryParams]="{ searchTerm: email }"
@@ -122,7 +122,7 @@ import { Notice } from '@b2b-catalog-platform/ui/content/notice';
         <!-- An adoption changes what a key means from now on, so a reader
              about to apply one is told before they press, not after. -->
         @if (plan().summary.claimed > 0) {
-          <p appNotice tone="warning" class="mt-6" role="status">
+          <p uiNotice tone="warning" class="mt-6" role="status">
             {{ claimWarning() }}
           </p>
         }
@@ -130,7 +130,7 @@ import { Notice } from '@b2b-catalog-platform/ui/content/notice';
              carry either kind or both, and the two are told apart by which
              evidence adopted the account. -->
         @if (plan().summary.claimedById > 0) {
-          <p appNotice tone="warning" class="mt-6" role="status">
+          <p uiNotice tone="warning" class="mt-6" role="status">
             {{ claimByIdWarning() }}
           </p>
         }
@@ -139,13 +139,13 @@ import { Notice } from '@b2b-catalog-platform/ui/content/notice';
              typed confirmation a sweep of the catalog asks for, because it is
              the same class of act. -->
         @if (plan().summary.softDelete > 0 && !applyBlocked()) {
-          <div appNotice tone="danger" class="mt-6">
+          <div uiNotice tone="danger" class="mt-6">
             <p>{{ disableWarning() }}</p>
             <label class="mt-2 block text-sm">
               <span class="mb-1 block">{{ confirmLabel() }}</span>
               <input
                 type="text"
-                appInput
+                uiInput
                 class="font-mono"
                 [value]="confirmation()"
                 (input)="confirmation.set($any($event.target).value)"
@@ -158,7 +158,7 @@ import { Notice } from '@b2b-catalog-platform/ui/content/notice';
           <div class="mt-6 flex flex-wrap items-center gap-3">
             @if (!isNoop() && !applyBlocked()) {
               <button
-                appButton
+                uiButton
                 type="button"
                 [disabled]="!canApply() || busy()"
                 (click)="apply.emit()"
@@ -168,7 +168,7 @@ import { Notice } from '@b2b-catalog-platform/ui/content/notice';
             }
             @if (discardable()) {
               <button
-                appButton
+                uiButton
                 variant="dangerOutline"
                 type="button"
                 [disabled]="busy()"
@@ -181,7 +181,7 @@ import { Notice } from '@b2b-catalog-platform/ui/content/notice';
         }
 
         @if (error(); as message) {
-          <p appErrorText class="mt-3" role="alert">{{ message }}</p>
+          <p uiErrorText class="mt-3" role="alert">{{ message }}</p>
         }
       }
     </section>

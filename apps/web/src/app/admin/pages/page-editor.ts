@@ -74,18 +74,18 @@ import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
   host: { '(click)': 'onPreviewClick($event)' },
   template: `
     @if (previewing()) {
-      <p appNotice tone="neutral" class="mb-6" role="status">
+      <p uiNotice tone="neutral" class="mb-6" role="status">
         {{ text.previewNotice }}
       </p>
-      <h1 appPageTitle class="mb-4">{{ title() }}</h1>
+      <h1 uiPageTitle class="mb-4">{{ title() }}</h1>
       <!-- The published width, so the preview shows the line breaks the
            visitor will get — the same measure the editing surface uses. -->
       <div class="prose max-w-3xl" [innerHTML]="safeBody(body())"></div>
       @if (isConsent()) {
         <div class="mt-8 max-w-3xl border-t border-edge pt-4">
           <p class="mb-2 text-sm text-ink-subtle">{{ text.consentPreview }}</p>
-          <label appTickLabel>
-            <input type="checkbox" appCheckbox disabled />
+          <label uiTickLabel>
+            <input type="checkbox" uiCheckbox disabled />
             @if (consentParts(); as parts) {
               <span
                 >{{ parts.before
@@ -99,24 +99,24 @@ import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
         </div>
       }
     } @else {
-      <h1 appPageTitle class="mb-4">
+      <h1 uiPageTitle class="mb-4">
         {{ isNew() ? text.newTitle : text.editTitle }}
       </h1>
       <!-- The published measure, which is what the preview above uses: text
            typed at one width and read at another breaks in different places,
            and where a heading lands is half of what is being edited. -->
       <div class="max-w-3xl">
-        <app-field
+        <ui-field
           class="mb-6"
           [field]="form.title"
           [label]="text.pageTitle"
           controlId="page-title"
         >
-          <input type="text" appInput class="w-full" [formField]="form.title" />
-        </app-field>
+          <input type="text" uiInput class="w-full" [formField]="form.title" />
+        </ui-field>
 
         @if (isConsent()) {
-          <app-field
+          <ui-field
             class="mb-6"
             [field]="form.consentLabel"
             [label]="text.consentLabel"
@@ -124,12 +124,12 @@ import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
             controlId="consent-label"
           >
             <textarea
-              appInput
+              uiInput
               rows="2"
               class="w-full"
               [formField]="form.consentLabel"
             ></textarea>
-          </app-field>
+          </ui-field>
         }
 
         <app-rich-text-editor
@@ -140,33 +140,30 @@ import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
     }
 
     @if (error()) {
-      <p appErrorText class="mt-4 max-w-3xl" role="alert">
+      <p uiErrorText class="mt-4 max-w-3xl" role="alert">
         {{ error() }}
       </p>
     }
 
     <div class="mt-6 flex max-w-3xl flex-wrap gap-3">
       <button
-        appButton
+        uiButton
         type="button"
         class="gap-2"
         [disabled]="saving()"
         (click)="save()"
       >
-        <app-icon [glyph]="saveIcon" class="size-4" />
+        <ui-icon [glyph]="saveIcon" class="size-4" />
         {{ saving() ? actionText.saving : adminText.actions.save }}
       </button>
       <button
-        appButton
+        uiButton
         variant="secondary"
         type="button"
         class="gap-2"
         (click)="previewing.set(!previewing())"
       >
-        <app-icon
-          [glyph]="previewing() ? pencilIcon : eyeIcon"
-          class="size-4"
-        />
+        <ui-icon [glyph]="previewing() ? pencilIcon : eyeIcon" class="size-4" />
         {{
           previewing()
             ? adminText.actions.resumeEditing
@@ -174,13 +171,13 @@ import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
         }}
       </button>
       <button
-        appButton
+        uiButton
         variant="secondary"
         type="button"
         class="gap-2"
         (click)="cancel()"
       >
-        <app-icon [glyph]="xIcon" class="size-4" />
+        <ui-icon [glyph]="xIcon" class="size-4" />
         {{ actionText.cancel }}
       </button>
     </div>

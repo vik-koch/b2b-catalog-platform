@@ -41,7 +41,7 @@ const contentGaps = {
  * around the projected content would swallow clicks meant for a link in it.
  */
 @Component({
-  selector: 'app-choice-card',
+  selector: 'ui-choice-card',
   imports: [Radio],
   host: { class: 'block' },
   template: `
@@ -54,7 +54,7 @@ const contentGaps = {
         <!-- Centred on the title's 24px line, not on the block. -->
         <input
           type="radio"
-          appRadio
+          uiRadio
           class="mt-1"
           [name]="name()"
           [value]="value()"

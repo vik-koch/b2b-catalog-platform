@@ -33,7 +33,7 @@ interface SortOption {
  * writes the same query parameters as the headings: one URL per view.
  */
 @Component({
-  selector: 'app-grid-narrow-controls',
+  selector: 'ui-grid-narrow-controls',
   imports: [
     GridChips,
     DisclosureToggle,
@@ -50,10 +50,10 @@ interface SortOption {
              row, since a height cannot transition to the content's. -->
         <div
           class="min-w-0 flex-1 rounded-md border"
-          appDisclosureFrame
+          uiDisclosureFrame
           [open]="open()"
         >
-          <app-disclosure-toggle
+          <ui-disclosure-toggle
             [label]="gridText.filters"
             [count]="activeCount()"
             [countLabel]="countLabel()"
@@ -75,9 +75,9 @@ interface SortOption {
                     <span class="mb-1 block text-sm text-ink-subtle">{{
                       gridText.sort
                     }}</span>
-                    <app-select-input>
+                    <ui-select-input>
                       <select
-                        appInput
+                        uiInput
                         class="w-full text-sm"
                         (change)="onSort($event)"
                       >
@@ -100,7 +100,7 @@ interface SortOption {
                           </option>
                         }
                       </select>
-                    </app-select-input>
+                    </ui-select-input>
                   </label>
                 }
 
@@ -109,9 +109,9 @@ interface SortOption {
                     <span class="mb-1 block text-sm text-ink-subtle">{{
                       column.filter?.label
                     }}</span>
-                    <app-select-input>
+                    <ui-select-input>
                       <select
-                        appInput
+                        uiInput
                         class="w-full text-sm"
                         (change)="onFilter(column, $event)"
                       >
@@ -130,16 +130,16 @@ interface SortOption {
                           </option>
                         }
                       </select>
-                    </app-select-input>
+                    </ui-select-input>
                   </label>
                 }
 
                 @if (toggles().length) {
-                  <app-grid-toggles [groups]="toggles()" />
+                  <ui-grid-toggles [groups]="toggles()" />
                 }
 
                 @if (chips().length) {
-                  <app-grid-chips [chips]="chips()" />
+                  <ui-grid-chips [chips]="chips()" />
                 }
               </div>
             </div>
@@ -150,7 +150,7 @@ interface SortOption {
              not the growing box: h-10 is the toggle's height, mt-px the frame's
              border above it. -->
         <div class="mt-px flex h-10 items-center">
-          <app-grid-clear-filters [filtered]="filtered()" />
+          <ui-grid-clear-filters [filtered]="filtered()" />
         </div>
       </div>
     }

@@ -88,7 +88,7 @@ import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
     ErrorText,
   ],
   template: `
-    <app-grid-header
+    <ui-grid-header
       [title]="text.page.title"
       [intro]="text.page.intro"
       [query]="query()"
@@ -100,13 +100,13 @@ import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
     />
 
     @if (pageError(); as message) {
-      <p appErrorText class="mb-4" role="alert">{{ message }}</p>
+      <p uiErrorText class="mb-4" role="alert">{{ message }}</p>
     }
 
     @if (orders.error()) {
       <p class="text-ink-subtle" role="alert">{{ text.loadError }}</p>
     } @else if (shown(); as data) {
-      <app-data-grid
+      <ui-data-grid
         gridId="orders"
         [columns]="columns()"
         [rows]="data.items"
@@ -120,7 +120,7 @@ import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
         [total]="data.pagination.total"
         [countLabel]="text.count"
       >
-        <ng-template appGridRow [of]="data.items" let-order>
+        <ng-template uiGridRow [of]="data.items" let-order>
           <!-- The reference opens the order as it stands to be read; the
                action at the end of the row opens the screen where it is
                answered. Two jobs, two links: most of what a manager does with
@@ -150,13 +150,13 @@ import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
                nothing about money until it is handed over. -->
           <td data-keep>
             @if (paymentBadge(order); as badge) {
-              <span appStatusBadge variant="dot" [tone]="badge.tone">
+              <span uiStatusBadge variant="dot" [tone]="badge.tone">
                 {{ badge.label }}
               </span>
             }
           </td>
           <td data-keep>
-            <span appStatusBadge [tone]="statusTone(order)">
+            <span uiStatusBadge [tone]="statusTone(order)">
               {{ statusLabel(order) }}
             </span>
           </td>
@@ -178,10 +178,10 @@ import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
              manager is looking for — when it came in and what it comes to — on
              the third. The account it came from is a detail for the order's own
              page; the name and the reference are what a phone call is about. -->
-        <ng-template appGridCard [of]="data.items" let-order>
+        <ng-template uiGridCard [of]="data.items" let-order>
           <!-- Only the order is greyed once it is over, never the badge that
                says so — the same rule the table follows cell by cell. -->
-          <app-record-row>
+          <ui-record-row>
             <a
               class="truncate font-medium"
               [class.opacity-50]="isEnded(order)"
@@ -194,7 +194,7 @@ import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
             @if (paymentBadge(order); as badge) {
               <span
                 recordBadge
-                appStatusBadge
+                uiStatusBadge
                 variant="dot"
                 class="shrink-0"
                 [tone]="badge.tone"
@@ -204,7 +204,7 @@ import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
             }
             <span
               recordBadge
-              appStatusBadge
+              uiStatusBadge
               class="shrink-0"
               [tone]="statusTone(order)"
             >
@@ -239,13 +239,13 @@ import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
               [returnParams]="editorFrom()"
               (endRequested)="end($event.order, $event.to)"
             />
-          </app-record-row>
+          </ui-record-row>
         </ng-template>
-      </app-data-grid>
+      </ui-data-grid>
 
-      <app-grid-pagination [pagination]="data.pagination" />
+      <ui-grid-pagination [pagination]="data.pagination" />
     } @else if (showSkeleton()) {
-      <app-skeleton [lines]="6" />
+      <ui-skeleton [lines]="6" />
     }
   `,
 })

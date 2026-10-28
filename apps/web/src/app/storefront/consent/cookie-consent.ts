@@ -36,14 +36,14 @@ import { Link } from '@b2b-catalog-platform/ui/actions/link';
         >
           <p class="text-sm text-ink-subtle">
             {{ message }}
-            <a appLink routerLink="/privacy">{{ text.policyLink }}</a
+            <a uiLink routerLink="/privacy">{{ text.policyLink }}</a
             >{{ text.policyLinkAfter }}
           </p>
           <div class="flex shrink-0 gap-3">
-            <button appButton variant="secondary" (click)="consent.reject()">
+            <button uiButton variant="secondary" (click)="consent.reject()">
               {{ text.reject }}
             </button>
-            <button appButton variant="secondary" (click)="consent.accept()">
+            <button uiButton variant="secondary" (click)="consent.accept()">
               {{ text.accept }}
             </button>
           </div>

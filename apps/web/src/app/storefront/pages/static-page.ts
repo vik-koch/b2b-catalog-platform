@@ -41,7 +41,7 @@ import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
     } @else if (ready()) {
       @let content = page();
       <div class="flex items-start justify-between gap-4">
-        <h1 appPageTitle class="mb-4">
+        <h1 uiPageTitle class="mb-4">
           {{ content?.title || navLabel }}
         </h1>
         @if (canEdit(); as editorText) {
@@ -68,8 +68,8 @@ import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
         <p class="text-ink-subtle">{{ editorText.emptyNotice }}</p>
       }
     } @else if (showSkeleton()) {
-      <app-skeleton size="title" class="mb-4" [widths]="['33%']" />
-      <app-skeleton [widths]="['100%', '83%']" />
+      <ui-skeleton size="title" class="mb-4" [widths]="['33%']" />
+      <ui-skeleton [widths]="['100%', '83%']" />
     }
   `,
 })

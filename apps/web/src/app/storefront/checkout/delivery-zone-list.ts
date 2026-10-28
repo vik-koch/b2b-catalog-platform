@@ -39,7 +39,7 @@ const SPAN: Record<number, string> = {
           [class]="spread() ? 'flex gap-3 ' + spans[i] : ''"
         >
           @if (spread()) {
-            <app-icon
+            <ui-icon
               [glyph]="mapIcon"
               class="mt-0.5 size-5 shrink-0 text-ink-subtle"
             />
@@ -48,7 +48,7 @@ const SPAN: Record<number, string> = {
             <p class="font-medium">{{ zone.title }}</p>
             @if (zone.description; as description) {
               <p class="mt-1 text-sm text-ink-subtle">
-                <app-emphasised [text]="description" />
+                <ui-emphasised [text]="description" />
               </p>
             }
             <!-- Said out loud either way: a zone with no line under it would

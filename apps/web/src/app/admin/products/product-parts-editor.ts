@@ -59,8 +59,8 @@ let nextId = 0;
   ],
   host: { class: 'block' },
   template: `
-    <div class="max-w-xl rounded-md border" appDisclosureFrame [open]="open()">
-      <app-disclosure-toggle
+    <div class="max-w-xl rounded-md border" uiDisclosureFrame [open]="open()">
+      <ui-disclosure-toggle
         [label]="text.heading"
         [count]="value().length"
         [countLabel]="countLabel()"
@@ -68,12 +68,12 @@ let nextId = 0;
         [panelId]="panelId"
         (toggled)="open.set(!open())"
       >
-        <app-icon
+        <ui-icon
           disclosureLead
           [glyph]="glyph"
           class="size-4 text-ink-subtle"
         />
-      </app-disclosure-toggle>
+      </ui-disclosure-toggle>
       @if (open()) {
         <div [id]="panelId" class="border-t border-edge p-4">
           <p class="text-xs text-ink-subtle">{{ text.hint }}</p>
@@ -84,31 +84,31 @@ let nextId = 0;
                 <li class="flex items-center gap-2 py-1.5 text-sm">
                   <span class="min-w-0 flex-1 truncate">{{ part }}</span>
                   <button
-                    appIconButton
+                    uiIconButton
                     type="button"
                     [attr.aria-label]="removeLabel(part)"
                     (click)="remove(part)"
                   >
-                    <app-icon [glyph]="xIcon" />
+                    <ui-icon [glyph]="xIcon" />
                   </button>
                 </li>
               }
             </ul>
           }
           @if (tooFew()) {
-            <p appErrorText class="mt-2">{{ text.tooFew }}</p>
+            <p uiErrorText class="mt-2">{{ text.tooFew }}</p>
           }
 
           @if (value().length >= max) {
             <p class="mt-3 text-xs text-ink-subtle">{{ limitLabel() }}</p>
           } @else {
             <div class="mt-3">
-              <label [for]="inputId" appFieldLabel>{{ text.add }}</label>
+              <label [for]="inputId" uiFieldLabel>{{ text.add }}</label>
               <div class="flex gap-2">
                 <input
                   [id]="inputId"
                   type="text"
-                  appInput
+                  uiInput
                   class="min-w-0 flex-1"
                   autocomplete="off"
                   [attr.aria-invalid]="rejected() ? true : null"
@@ -118,7 +118,7 @@ let nextId = 0;
                   (keydown.enter)="$event.preventDefault(); add()"
                 />
                 <button
-                  appButton
+                  uiButton
                   variant="secondary"
                   type="button"
                   [disabled]="draft().trim() === ''"
@@ -128,7 +128,7 @@ let nextId = 0;
                 </button>
               </div>
               @if (rejected()) {
-                <p appErrorText class="mt-1">{{ rejectedLabel() }}</p>
+                <p uiErrorText class="mt-1">{{ rejectedLabel() }}</p>
               }
             </div>
           }

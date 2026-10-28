@@ -48,7 +48,7 @@ export interface ConfirmAnswer {
  * ConfirmService, not used in templates.
  */
 @Component({
-  selector: 'app-confirm-dialog',
+  selector: 'ui-confirm-dialog',
   imports: [
     AutoGrow,
     Button,
@@ -66,7 +66,7 @@ export interface ConfirmAnswer {
       #dialog
       (cancel)="cancelled.emit()"
       aria-labelledby="confirm-dialog-heading"
-      appDialogPanel
+      uiDialogPanel
     >
       <h2
         id="confirm-dialog-heading"
@@ -78,21 +78,21 @@ export interface ConfirmAnswer {
 
       <!-- Amber, never red: it refuses nothing. -->
       @if (warning(); as note) {
-        <app-warning-note class="mt-3">{{ note }}</app-warning-note>
+        <ui-warning-note class="mt-3">{{ note }}</ui-warning-note>
       }
 
       @if (reasonLabel(); as label) {
         <div class="mt-5">
           <!-- The confirm button waits on it, so it wears the required mark. -->
-          <label appFieldLabel for="confirm-dialog-reason">
+          <label uiFieldLabel for="confirm-dialog-reason">
             {{ label }}
             @if (reasonRequired()) {
               <span class="text-accent" aria-hidden="true">*</span>
             }
           </label>
           <textarea
-            appInput
-            appAutoGrow
+            uiInput
+            uiAutoGrow
             id="confirm-dialog-reason"
             class="w-full"
             rows="2"
@@ -106,13 +106,13 @@ export interface ConfirmAnswer {
 
       @for (check of checks(); track check.key) {
         <label
-          appTickLabel
+          uiTickLabel
           class="mt-4"
           [class.ml-6]="check.requires"
           [class.opacity-50]="blocked(check)"
         >
           <input
-            appCheckbox
+            uiCheckbox
             type="checkbox"
             [checked]="ticked()[check.key]"
             [disabled]="blocked(check)"
@@ -121,15 +121,15 @@ export interface ConfirmAnswer {
           <span>
             {{ check.label }}
             @if (check.hint) {
-              <span appHint>{{ check.hint }}</span>
+              <span uiHint>{{ check.hint }}</span>
             }
           </span>
         </label>
       }
 
-      <div appDialogActions>
+      <div uiDialogActions>
         <button
-          appButton
+          uiButton
           variant="secondary"
           type="button"
           (click)="cancelled.emit()"
@@ -139,7 +139,7 @@ export interface ConfirmAnswer {
         <!-- Absent where the dialog only explains. -->
         @if (confirmLabel(); as label) {
           <button
-            appButton
+            uiButton
             [variant]="confirmVariant()"
             type="button"
             [disabled]="incomplete()"

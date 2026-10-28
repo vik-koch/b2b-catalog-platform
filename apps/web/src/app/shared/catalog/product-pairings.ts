@@ -36,13 +36,13 @@ import { packagePlusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/package-p
     @if (variant() === 'marker') {
       <button
         type="button"
-        appIconButton
+        uiIconButton
         variant="marked"
         [attr.aria-label]="label()"
         [title]="label()"
         (click)="open()"
       >
-        <app-icon [glyph]="packagePlusIcon" />
+        <ui-icon [glyph]="packagePlusIcon" />
       </button>
     } @else {
       <!-- The glyph and the word, sized like the facts around it: on a product
@@ -53,7 +53,7 @@ import { packagePlusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/package-p
         <!-- Nudged to the first line's optical middle rather than centred on
              the whole line: the shortfall wraps to two lines in a narrow
              column, and a glyph centred on that sits beside neither. -->
-        <app-icon [glyph]="packagePlusIcon" class="mt-0.5 size-4 shrink-0" />
+        <ui-icon [glyph]="packagePlusIcon" class="mt-0.5 size-4 shrink-0" />
         <!-- One flex item for the whole sentence, so the words wrap as words:
              the link and what follows it in two items broke between them
              first, leaving "Add 20 pc" alone on a line. Written tight and left
@@ -62,7 +62,7 @@ import { packagePlusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/package-p
              between the two halves is an explicit ngsp entity, which is the
              whitespace the compiler keeps. -->
         <!-- prettier-ignore -->
-        <span><button type="button" appLink class="text-left" [tone]="message() ? 'warning' : 'default'" (click)="open()">{{ message()?.link ?? product.pairings }}</button>@if (message(); as said) {&ngsp;{{ said.rest }}}</span>
+        <span><button type="button" uiLink class="text-left" [tone]="message() ? 'warning' : 'default'" (click)="open()">{{ message()?.link ?? product.pairings }}</button>@if (message(); as said) {&ngsp;{{ said.rest }}}</span>
       </p>
     }
   `,

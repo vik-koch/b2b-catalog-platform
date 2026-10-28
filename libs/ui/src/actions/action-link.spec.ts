@@ -6,7 +6,7 @@ import { ActionLink } from './action-link';
 @Component({
   imports: [ActionLink, RouterLink],
   template: `
-    <a appActionLink routerLink="/orders" [queryParams]="{ status: 'open' }">
+    <a uiActionLink routerLink="/orders" [queryParams]="{ status: 'open' }">
       3 orders to confirm
     </a>
   `,

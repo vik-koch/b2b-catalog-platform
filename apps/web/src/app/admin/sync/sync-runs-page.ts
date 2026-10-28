@@ -70,7 +70,7 @@ import { uploadIcon } from '@b2b-catalog-platform/ui/icons/glyphs/upload';
     PageIntro,
   ],
   template: `
-    <app-grid-header
+    <ui-grid-header
       [title]="areaText().title"
       [searchable]="false"
       [filtered]="filtered()"
@@ -82,21 +82,21 @@ import { uploadIcon } from '@b2b-catalog-platform/ui/icons/glyphs/upload';
            arrival, which is a better place to learn it than a button that
            quietly is not there. -->
       @if (canUpload()) {
-        <a appButton class="gap-2" [routerLink]="uploadLink()">
-          <app-icon [glyph]="uploadIcon" class="size-4" />
+        <a uiButton class="gap-2" [routerLink]="uploadLink()">
+          <ui-icon [glyph]="uploadIcon" class="size-4" />
           {{ text.newRun }}
         </a>
       }
-    </app-grid-header>
+    </ui-grid-header>
 
-    <p appPageIntro class="mb-6 max-w-3xl">
+    <p uiPageIntro class="mb-6 max-w-3xl">
       {{ areaText().runsDescription }}
     </p>
 
     @if (runs.error()) {
       <p class="text-ink-subtle" role="alert">{{ text.runLoadError }}</p>
     } @else if (shown(); as data) {
-      <app-data-grid
+      <ui-data-grid
         gridId="sync-runs"
         [columns]="columns()"
         [rows]="data.runs"
@@ -107,7 +107,7 @@ import { uploadIcon } from '@b2b-catalog-platform/ui/icons/glyphs/upload';
         [total]="data.pagination.total"
         [countLabel]="text.historyCount"
       >
-        <ng-template appGridRow [of]="data.runs" let-run>
+        <ng-template uiGridRow [of]="data.runs" let-run>
           <!-- When it ran is what a run is called: there is no other name for
                it, and it is the way into the run itself. -->
           <td class="truncate">
@@ -140,8 +140,8 @@ import { uploadIcon } from '@b2b-catalog-platform/ui/icons/glyphs/upload';
 
         <!-- The same run on a phone: when it ran and how it ended, with what
              sent it and what it came to underneath. -->
-        <ng-template appGridCard [of]="data.runs" let-run>
-          <app-record-row>
+        <ng-template uiGridCard [of]="data.runs" let-run>
+          <ui-record-row>
             <a
               class="font-medium text-ink hover:text-accent"
               [routerLink]="['/admin/sync/runs', run.id]"
@@ -164,19 +164,19 @@ import { uploadIcon } from '@b2b-catalog-platform/ui/icons/glyphs/upload';
               <span class="tabular-nums">{{ changeSummary(run) }}</span>
               <span class="truncate">{{ fieldsLine(run) }}</span>
             </span>
-          </app-record-row>
+          </ui-record-row>
         </ng-template>
-      </app-data-grid>
+      </ui-data-grid>
 
-      <app-grid-pagination [pagination]="data.pagination" />
+      <ui-grid-pagination [pagination]="data.pagination" />
     } @else if (showSkeleton()) {
-      <app-skeleton [lines]="6" />
+      <ui-skeleton [lines]="6" />
     }
 
     <!-- One badge for both shapes. A run held for review says so in its title:
          the badge has room for the word, not for the reason. -->
     <ng-template #state let-run>
-      <span appStatusBadge [tone]="tone(run)" [title]="reason(run)">
+      <span uiStatusBadge [tone]="tone(run)" [title]="reason(run)">
         {{ statusLabel(run) }}
       </span>
     </ng-template>

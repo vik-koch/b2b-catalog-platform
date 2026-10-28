@@ -5,12 +5,12 @@ import { Directive } from '@angular/core';
  * rather than on the label itself.
  *
  *   <label class="block">
- *     <span appFieldLabel>{{ text.name }}</span>
- *     <input appInput class="w-full" />
+ *     <span uiFieldLabel>{{ text.name }}</span>
+ *     <input uiInput class="w-full" />
  *   </label>
  */
 @Directive({
-  selector: '[appFieldLabel]',
+  selector: '[uiFieldLabel]',
   host: { class: 'mb-1 block text-sm font-medium' },
 })
 export class FieldLabel {}

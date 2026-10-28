@@ -5,7 +5,7 @@ import { DisclosureFrame } from './disclosure-frame';
 @Component({
   imports: [DisclosureFrame],
   template: `<div
-    appDisclosureFrame
+    uiDisclosureFrame
     class="box rounded-md"
     [open]="open()"
   ></div>`,

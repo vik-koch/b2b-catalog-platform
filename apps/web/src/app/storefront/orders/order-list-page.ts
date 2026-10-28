@@ -41,8 +41,8 @@ import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
     Pagination,
   ],
   template: `
-    <h1 appPageTitle class="mb-2">{{ text.heading }}</h1>
-    <p appPageIntro class="mb-4">{{ text.intro }}</p>
+    <h1 uiPageTitle class="mb-2">{{ text.heading }}</h1>
+    <p uiPageIntro class="mb-4">{{ text.intro }}</p>
 
     <!-- What the history is narrowed to, said as the one chip that narrowed
          it (FR-WORK-03). A chip and not a dropdown: nothing on this page
@@ -63,7 +63,7 @@ import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
                    hover:text-danger"
             [attr.aria-label]="removeLabel()"
           >
-            <app-icon [glyph]="xIcon" class="size-3.5" />
+            <ui-icon [glyph]="xIcon" class="size-3.5" />
           </a>
         </span>
       </div>
@@ -75,27 +75,27 @@ import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
              drawn and the link being followed, which is what a count over
              current state does. The way out is the whole history, not the
              catalog. -->
-        <app-empty-state
+        <ui-empty-state
           [icon]="shoppingBasketIcon"
           [message]="text.filterEmpty"
         >
-          <a appButton routerLink="/account/orders">{{ text.action }}</a>
-        </app-empty-state>
+          <a uiButton routerLink="/account/orders">{{ text.action }}</a>
+        </ui-empty-state>
       } @else if (data.items.length === 0) {
         <!-- The cart's own empty panel, so an account with nothing on it and a
              cart with nothing in it read as the same kind of screen. The two
              actions are a row inside it rather than two buttons left touching
              each other under a sentence. -->
-        <app-empty-state [icon]="shoppingBasketIcon" [message]="text.empty">
-          <a appButton routerLink="/catalog">{{ text.emptyAction }}</a>
-          <a appButton variant="secondary" routerLink="/account">
+        <ui-empty-state [icon]="shoppingBasketIcon" [message]="text.empty">
+          <a uiButton routerLink="/catalog">{{ text.emptyAction }}</a>
+          <a uiButton variant="secondary" routerLink="/account">
             {{ text.back }}
           </a>
-        </app-empty-state>
+        </ui-empty-state>
       } @else {
         <app-order-rows class="max-w-3xl" [orders]="data.items" />
 
-        <app-pagination
+        <ui-pagination
           class="mt-8"
           link="/account/orders"
           [page]="data.pagination.page"
@@ -103,17 +103,17 @@ import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
           [queryParams]="pageParams"
         />
 
-        <a appButton variant="secondary" routerLink="/account" class="mt-10">
+        <a uiButton variant="secondary" routerLink="/account" class="mt-10">
           {{ text.back }}
         </a>
       }
     } @else if (orders.error()) {
-      <p appErrorText role="alert">{{ text.error }}</p>
-      <a appButton variant="secondary" routerLink="/account" class="mt-5">
+      <p uiErrorText role="alert">{{ text.error }}</p>
+      <a uiButton variant="secondary" routerLink="/account" class="mt-5">
         {{ text.back }}
       </a>
     } @else if (showSkeleton()) {
-      <app-skeleton [lines]="4" />
+      <ui-skeleton [lines]="4" />
     }
   `,
 })

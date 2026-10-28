@@ -117,11 +117,11 @@ export const FACET_SIBLING_ALONE =
         class="min-w-0 flex-1 rounded-md border
                @min-[63.75rem]/listing:rounded-none
                @min-[63.75rem]/listing:border-0"
-        appDisclosureFrame
+        uiDisclosureFrame
         [open]="open()"
         [class]="open() ? '' : '@min-[63.75rem]/listing:border-transparent'"
       >
-        <app-disclosure-toggle
+        <ui-disclosure-toggle
           class="@min-[63.75rem]/listing:hidden"
           [label]="text.title"
           [count]="selectedCount()"
@@ -201,7 +201,7 @@ export const FACET_SIBLING_ALONE =
                       }
                     </ul>
                     @if (facet.values.length > VALUES_COLLAPSED) {
-                      <app-collapsible
+                      <ui-collapsible
                         [open]="expanded(facet)"
                         [id]="'facet-rest-' + facet.slug"
                       >
@@ -219,10 +219,10 @@ export const FACET_SIBLING_ALONE =
                             />
                           }
                         </ul>
-                      </app-collapsible>
+                      </ui-collapsible>
                       <!-- Pulled out by the button's own padding, so its word
                            starts on the line the checkboxes do. -->
-                      <app-show-more-toggle
+                      <ui-show-more-toggle
                         class="mt-1 -ml-3 justify-start"
                         [expanded]="expanded(facet)"
                         [moreLabel]="catalogText.showMore"
@@ -245,10 +245,10 @@ export const FACET_SIBLING_ALONE =
           <!-- A zero-count value is disabled rather than hidden (FR-ATTR-05):
                a list that reshuffles as it is clicked cannot be read, and the
                greyed row is the answer to "why can I not combine these two?". -->
-          <label appTickLabel [class.text-ink-subtle]="disabled(value)">
+          <label uiTickLabel [class.text-ink-subtle]="disabled(value)">
             <input
               type="checkbox"
-              appCheckbox
+              uiCheckbox
               [checked]="value.selected"
               [attr.checked]="value.selected ? '' : null"
               [disabled]="disabled(value)"
@@ -290,7 +290,7 @@ export const FACET_SIBLING_ALONE =
     <ng-template #clearAll let-size="size">
       @if (selectedCount()) {
         <button
-          appIconButton
+          uiIconButton
           variant="danger"
           type="button"
           [size]="size ?? 'sm'"
@@ -298,11 +298,11 @@ export const FACET_SIBLING_ALONE =
           [title]="text.clearAll"
           (click)="selection.clearAll()"
         >
-          <app-icon [glyph]="funnelXIcon" />
+          <ui-icon [glyph]="funnelXIcon" />
         </button>
       } @else {
         <button
-          appIconButton
+          uiIconButton
           type="button"
           disabled
           class="opacity-40"
@@ -310,7 +310,7 @@ export const FACET_SIBLING_ALONE =
           [attr.aria-label]="text.clearAll"
           [title]="text.clearAll"
         >
-          <app-icon [glyph]="funnelXIcon" />
+          <ui-icon [glyph]="funnelXIcon" />
         </button>
       }
     </ng-template>

@@ -39,7 +39,7 @@ const SHOWN = 4;
       }
     </ul>
     @if (rest().length) {
-      <app-collapsible [open]="open()" [id]="restId()">
+      <ui-collapsible [open]="open()" [id]="restId()">
         <ul [class]="listClass">
           @for (child of rest(); track child.slug) {
             <li>
@@ -49,8 +49,8 @@ const SHOWN = 4;
             </li>
           }
         </ul>
-      </app-collapsible>
-      <app-show-more-toggle
+      </ui-collapsible>
+      <ui-show-more-toggle
         class="mt-1 justify-start"
         [expanded]="open()"
         [moreLabel]="text.showMore"

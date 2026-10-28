@@ -65,7 +65,7 @@ import { WarningNote } from '@b2b-catalog-platform/ui/content/warning-note';
         <ng-container [ngTemplateOutlet]="otherParty" />
       } @else {
         <div class="space-y-2" role="radiogroup">
-          <app-choice-branch
+          <ui-choice-branch
             name="party"
             value="account"
             [checked]="party() === 'account'"
@@ -76,9 +76,9 @@ import { WarningNote } from '@b2b-catalog-platform/ui/content/warning-note';
                  name about to replace it; the neutral one is for an account
                  that has no name to show. -->
             <span branchLabel>{{ accountName() ?? text.own }}</span>
-          </app-choice-branch>
+          </ui-choice-branch>
 
-          <app-choice-branch
+          <ui-choice-branch
             name="party"
             value="other"
             [checked]="party() !== 'account'"
@@ -90,14 +90,14 @@ import { WarningNote } from '@b2b-catalog-platform/ui/content/warning-note';
             @if (party() !== 'account') {
               <ng-container [ngTemplateOutlet]="otherParty" />
             }
-          </app-choice-branch>
+          </ui-choice-branch>
         </div>
       }
 
       <ng-template #otherParty>
         <div class="space-y-4">
           @if (kinds.length > 1) {
-            <app-segmented
+            <ui-segmented
               name="party-kind"
               [options]="kinds"
               [value]="party()"
@@ -106,7 +106,7 @@ import { WarningNote } from '@b2b-catalog-platform/ui/content/warning-note';
           }
 
           @if (party() === 'person') {
-            <app-field
+            <ui-field
               [field]="partyField().personName"
               [label]="text.personName"
               controlId="party-personName"
@@ -114,11 +114,11 @@ import { WarningNote } from '@b2b-catalog-platform/ui/content/warning-note';
               <input
                 type="text"
                 autocomplete="off"
-                appInput
+                uiInput
                 class="w-full"
                 [formField]="partyField().personName"
               />
-            </app-field>
+            </ui-field>
           } @else {
             <app-company-fields
               idInputId="party-companyId"
@@ -133,7 +133,7 @@ import { WarningNote } from '@b2b-catalog-platform/ui/content/warning-note';
           <!-- Only where there is an account whose prices this order is not
                getting. A guest has none, so there is nothing to warn them off. -->
           @if (!guest()) {
-            <app-warning-note>{{ text.otherNotice }}</app-warning-note>
+            <ui-warning-note>{{ text.otherNotice }}</ui-warning-note>
           }
         </div>
       </ng-template>

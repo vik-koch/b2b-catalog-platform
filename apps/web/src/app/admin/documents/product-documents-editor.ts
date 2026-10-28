@@ -74,8 +74,8 @@ const SUGGESTIONS_SHOWN = 8;
   ],
   host: { class: 'block' },
   template: `
-    <div class="max-w-xl rounded-md border" appDisclosureFrame [open]="open()">
-      <app-disclosure-toggle
+    <div class="max-w-xl rounded-md border" uiDisclosureFrame [open]="open()">
+      <ui-disclosure-toggle
         [label]="product.documents"
         [count]="value().length"
         [countLabel]="countLabel()"
@@ -83,12 +83,12 @@ const SUGGESTIONS_SHOWN = 8;
         [panelId]="panelId"
         (toggled)="open.set(!open())"
       >
-        <app-icon
+        <ui-icon
           disclosureLead
           [glyph]="glyph"
           class="size-4 text-ink-subtle"
         />
-      </app-disclosure-toggle>
+      </ui-disclosure-toggle>
       @if (open()) {
         <div [id]="panelId" class="border-t border-edge p-4">
           <p class="text-xs text-ink-subtle">{{ text.hint }}</p>
@@ -100,7 +100,7 @@ const SUGGESTIONS_SHOWN = 8;
                   <!-- The title goes to the document itself, which is where the
                        file, the dates and every other product on it live. -->
                   <a
-                    appLink
+                    uiLink
                     class="min-w-0 flex-1 truncate"
                     [routerLink]="['/admin/documents', item.id, 'edit']"
                     >{{ item.title }}</a
@@ -109,12 +109,12 @@ const SUGGESTIONS_SHOWN = 8;
                     {{ expiry(item) }}
                   </span>
                   <button
-                    appIconButton
+                    uiIconButton
                     type="button"
                     [attr.aria-label]="removeLabel(item)"
                     (click)="remove(item.id)"
                   >
-                    <app-icon [glyph]="xIcon" />
+                    <ui-icon [glyph]="xIcon" />
                   </button>
                 </li>
               }
@@ -122,8 +122,8 @@ const SUGGESTIONS_SHOWN = 8;
           }
 
           <div class="mt-3">
-            <label [for]="inputId" appFieldLabel>{{ text.add }}</label>
-            <app-suggest-field
+            <label [for]="inputId" uiFieldLabel>{{ text.add }}</label>
+            <ui-suggest-field
               [list]="list"
               [text]="text"
               (picked)="add($event)"
@@ -131,16 +131,16 @@ const SUGGESTIONS_SHOWN = 8;
               <input
                 [id]="inputId"
                 autocomplete="off"
-                appInput
-                appSuggestInput
+                uiInput
+                uiSuggestInput
                 class="w-full"
                 [value]="query()"
                 [placeholder]="text.addPlaceholder"
                 (input)="query.set($any($event.target).value)"
               />
-              <ng-template appSuggestRow [of]="list" let-item let-query="query">
+              <ng-template uiSuggestRow [of]="list" let-item let-query="query">
                 <span class="block truncate">
-                  <app-highlighted-line
+                  <ui-highlighted-line
                     [segments]="
                       item.title | matchSegments: query : alternateQuery()
                     "
@@ -150,7 +150,7 @@ const SUGGESTIONS_SHOWN = 8;
                   {{ expiry(item) }}
                 </span>
               </ng-template>
-            </app-suggest-field>
+            </ui-suggest-field>
           </div>
         </div>
       }

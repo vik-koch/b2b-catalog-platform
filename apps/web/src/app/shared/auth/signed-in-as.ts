@@ -29,7 +29,7 @@ import { AuthService } from './auth.service';
             <p class="text-sm text-ink-subtle">{{ user.email }}</p>
           }
         </div>
-        <button appButton variant="secondary" type="button" (click)="logout()">
+        <button uiButton variant="secondary" type="button" (click)="logout()">
           {{ text.logout }}
         </button>
       </div>

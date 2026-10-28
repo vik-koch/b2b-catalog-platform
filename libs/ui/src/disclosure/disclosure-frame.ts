@@ -1,8 +1,7 @@
 import { computed, Directive, input } from '@angular/core';
 
 /** Hover wins over open: Tailwind orders the variant after the plain utility. */
-const base =
-  'transition-colors has-[app-disclosure-toggle:hover]:border-accent';
+const base = 'transition-colors has-[ui-disclosure-toggle:hover]:border-accent';
 
 const borders = {
   open: 'border-secondary',
@@ -14,10 +13,10 @@ const borders = {
  * host's. Accent while the toggle is under the pointer, secondary while open,
  * the strong edge otherwise.
  *
- *   <div appDisclosureFrame [open]="open()" class="rounded-md border">…</div>
+ *   <div uiDisclosureFrame [open]="open()" class="rounded-md border">…</div>
  */
 @Directive({
-  selector: '[appDisclosureFrame]',
+  selector: '[uiDisclosureFrame]',
   host: { '[class]': 'classes()' },
 })
 export class DisclosureFrame {

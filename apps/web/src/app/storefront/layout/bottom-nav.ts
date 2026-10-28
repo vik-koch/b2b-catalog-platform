@@ -123,13 +123,13 @@ const LEAVE_MS = 150;
                wordmark; this is where the other one lives on a phone. -->
           @if (contact?.phone; as phone) {
             <a [href]="telHref(phone)" [class]="menuRow" (click)="close()">
-              <app-icon [glyph]="phoneIcon" class="size-4" />
+              <ui-icon [glyph]="phoneIcon" class="size-4" />
               {{ phone }}
             </a>
           }
           @if (contact?.email; as email) {
             <a [href]="'mailto:' + email" [class]="menuRow" (click)="close()">
-              <app-icon [glyph]="mailIcon" class="size-4" />
+              <ui-icon [glyph]="mailIcon" class="size-4" />
               {{ email }}
             </a>
           }
@@ -176,7 +176,7 @@ const LEAVE_MS = 150;
             [class]="searchClasses()"
             (click)="openSearch()"
           >
-            <app-icon [glyph]="searchIcon" class="size-6" />
+            <ui-icon [glyph]="searchIcon" class="size-6" />
             <span [class]="tab.labelRow">
               <span [class]="tab.label">{{ search.openSearch }}</span>
             </span>
@@ -197,9 +197,9 @@ const LEAVE_MS = 150;
             (click)="toggle()"
           >
             @if (menuOpen()) {
-              <app-icon [glyph]="xIcon" class="size-6" />
+              <ui-icon [glyph]="xIcon" class="size-6" />
             } @else {
-              <app-icon [glyph]="menuIcon" class="size-6" />
+              <ui-icon [glyph]="menuIcon" class="size-6" />
             }
             <span [class]="tab.labelRow">
               <span [class]="tab.label">{{ nav['more'] }}</span>

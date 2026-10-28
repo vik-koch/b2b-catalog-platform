@@ -6,9 +6,9 @@ import { UnitInputControl } from './unit-input-control';
 @Component({
   imports: [UnitInput, UnitInputControl],
   template: `
-    <app-unit-input unit="pcs" [compact]="compact()">
-      <input appUnitInputControl />
-    </app-unit-input>
+    <ui-unit-input unit="pcs" [compact]="compact()">
+      <input uiUnitInputControl />
+    </ui-unit-input>
   `,
 })
 class Host {

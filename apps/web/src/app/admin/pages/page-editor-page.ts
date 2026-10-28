@@ -38,8 +38,8 @@ import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
     } @else if (page.error()) {
       <p class="text-ink-subtle" role="alert">{{ text.saveError }}</p>
     } @else if (showSkeleton()) {
-      <app-skeleton size="title" class="mb-4" [widths]="['33%']" />
-      <app-skeleton [widths]="['100%']" />
+      <ui-skeleton size="title" class="mb-4" [widths]="['33%']" />
+      <ui-skeleton [widths]="['100%']" />
     }
   `,
 })

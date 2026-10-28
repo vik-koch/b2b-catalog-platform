@@ -191,7 +191,7 @@ test('collecting it asks where from, and drops the delivery address', async ({
   // the card lays an overlay over its whole surface, and that overlay is what
   // a customer hits.
   await page
-    .locator('app-choice-card')
+    .locator('ui-choice-card')
     .filter({ hasText: 'Self-pickup' })
     .locator('label')
     .click();

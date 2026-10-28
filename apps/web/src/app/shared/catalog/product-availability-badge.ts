@@ -23,7 +23,7 @@ import {
   imports: [StatusBadge],
   template: `
     @if (availability(); as state) {
-      <span appStatusBadge variant="dot" [tone]="tone()">{{ label() }}</span>
+      <span uiStatusBadge variant="dot" [tone]="tone()">{{ label() }}</span>
     } @else if (reserve()) {
       <!-- The badge's own height, held open by a space rather than a fixed
            figure, so it tracks the pill's line box if that ever changes. -->

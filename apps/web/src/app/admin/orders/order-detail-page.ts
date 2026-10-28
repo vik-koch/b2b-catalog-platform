@@ -142,7 +142,7 @@ const MARK_PAID = 'markPaid';
         >
           <div class="min-w-0">
             <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
-              <h1 appPageTitle>
+              <h1 uiPageTitle>
                 {{ order.reference }}
               </h1>
             </div>
@@ -180,7 +180,7 @@ const MARK_PAID = 'markPaid';
                        the version they are on is already one, further down. -->
                   @if (order.publicToken; as token) {
                     <a
-                      appLink
+                      uiLink
                       class="ml-2"
                       [routerLink]="['/orders', token]"
                       target="_blank"
@@ -198,7 +198,7 @@ const MARK_PAID = 'markPaid';
                     @if (data.removable) {
                       <div [class]="actions">
                         <button
-                          appButton
+                          uiButton
                           size="sm"
                           variant="secondary"
                           type="button"
@@ -206,7 +206,7 @@ const MARK_PAID = 'markPaid';
                           [disabled]="busy()"
                           (click)="removePersonalData(order)"
                         >
-                          <app-icon [glyph]="trash2Icon" class="size-4" />
+                          <ui-icon [glyph]="trash2Icon" class="size-4" />
                           {{ text.personalData.remove }}
                         </button>
                       </div>
@@ -234,7 +234,7 @@ const MARK_PAID = 'markPaid';
                   @if (paymentMove(); as move) {
                     <div [class]="actions">
                       <button
-                        appButton
+                        uiButton
                         size="sm"
                         variant="secondary"
                         type="button"
@@ -242,7 +242,7 @@ const MARK_PAID = 'markPaid';
                         [disabled]="busy()"
                         (click)="move.run()"
                       >
-                        <app-icon [glyph]="move.icon" class="size-4" />
+                        <ui-icon [glyph]="move.icon" class="size-4" />
                         {{ move.label }}
                       </button>
                     </div>
@@ -256,7 +256,7 @@ const MARK_PAID = 'markPaid';
                          stands, so it sits beside the badge and wraps under
                          it only when there is no room. -->
                     <div class="flex flex-wrap items-center gap-x-2">
-                      <span appStatusBadge [tone]="statusTone(order)">
+                      <span uiStatusBadge [tone]="statusTone(order)">
                         {{ statusLabel(order) }}
                       </span>
                       <span class="text-ink-subtle">{{
@@ -302,7 +302,7 @@ const MARK_PAID = 'markPaid';
                            not a button: it opens a form, and nothing happens
                            until that form is saved. -->
                       <a
-                        appButton
+                        uiButton
                         size="sm"
                         variant="secondary"
                         class="w-full gap-2 sm:w-auto"
@@ -312,7 +312,7 @@ const MARK_PAID = 'markPaid';
                           'adjust',
                         ]"
                       >
-                        <app-icon [glyph]="pencilIcon" class="size-4" />
+                        <ui-icon [glyph]="pencilIcon" class="size-4" />
                         {{ text.actions.adjust }}
                       </a>
 
@@ -324,7 +324,7 @@ const MARK_PAID = 'markPaid';
                            list. -->
                       @for (move of moves(); track move.to) {
                         <button
-                          appButton
+                          uiButton
                           size="sm"
                           type="button"
                           class="w-full gap-2 sm:w-auto"
@@ -332,7 +332,7 @@ const MARK_PAID = 'markPaid';
                           [disabled]="busy()"
                           (click)="move.run()"
                         >
-                          <app-icon [glyph]="move.icon" class="size-4" />
+                          <ui-icon [glyph]="move.icon" class="size-4" />
                           {{ move.label }}
                         </button>
                       }
@@ -366,7 +366,7 @@ const MARK_PAID = 'markPaid';
                   @if (customerAction(); as action) {
                     <div [class]="actions">
                       <button
-                        appButton
+                        uiButton
                         size="sm"
                         variant="secondary"
                         type="button"
@@ -374,7 +374,7 @@ const MARK_PAID = 'markPaid';
                         [disabled]="busy()"
                         (click)="tellCustomer(order, action.kind)"
                       >
-                        <app-icon [glyph]="action.icon" class="size-4" />
+                        <ui-icon [glyph]="action.icon" class="size-4" />
                         {{ action.label }}
                       </button>
                     </div>
@@ -406,10 +406,10 @@ const MARK_PAID = 'markPaid';
                   <dd [class]="value">
                     <div
                       class="rounded-md border"
-                      appDisclosureFrame
+                      uiDisclosureFrame
                       [open]="historyOpen()"
                     >
-                      <app-disclosure-toggle
+                      <ui-disclosure-toggle
                         [label]="revisionText.subheading"
                         [count]="order.revisionNumber"
                         [countLabel]="revisionCount(order)"
@@ -461,7 +461,7 @@ const MARK_PAID = 'markPaid';
                                      stood when it was written, and a manager
                                      reading the thread should not have to learn
                                      a second vocabulary for it. -->
-                                    <span appStatusBadge [tone]="entry.tone">
+                                    <span uiStatusBadge [tone]="entry.tone">
                                       {{ entry.status }}
                                     </span>
                                     <span class="text-ink-subtle">
@@ -484,7 +484,7 @@ const MARK_PAID = 'markPaid';
                                     >
                                       @if (entry.customerView) {
                                         <span
-                                          appStatusBadge
+                                          uiStatusBadge
                                           variant="dot"
                                           tone="info"
                                         >
@@ -493,7 +493,7 @@ const MARK_PAID = 'markPaid';
                                       }
                                       @if (entry.notified; as notified) {
                                         <span
-                                          appStatusBadge
+                                          uiStatusBadge
                                           variant="dot"
                                           tone="ok"
                                         >
@@ -520,7 +520,7 @@ const MARK_PAID = 'markPaid';
                                    order otherwise. -->
                                   @if (entry.kind === 'adjustment') {
                                     <div class="mt-2">
-                                      <app-disclosure-toggle
+                                      <ui-disclosure-toggle
                                         class="-mx-4 block"
                                         [label]="revisionText.changes"
                                         [open]="diffOpen().has(entry.number)"
@@ -548,7 +548,7 @@ const MARK_PAID = 'markPaid';
                             </p>
                           } @else {
                             <div class="border-t border-edge p-4">
-                              <app-skeleton [lines]="3" />
+                              <ui-skeleton [lines]="3" />
                             </div>
                           }
                         </div>
@@ -560,7 +560,7 @@ const MARK_PAID = 'markPaid';
             </section>
 
             @if (failed(); as message) {
-              <p appErrorText class="mt-3 max-w-xl" role="alert">
+              <p uiErrorText class="mt-3 max-w-xl" role="alert">
                 {{ message }}
               </p>
             }
@@ -590,7 +590,7 @@ const MARK_PAID = 'markPaid';
               [taxBasis]="order.taxBasis"
             />
             <a
-              appButton
+              uiButton
               variant="secondary"
               routerLink="/admin/orders"
               class="mt-5 w-full"
@@ -602,16 +602,16 @@ const MARK_PAID = 'markPaid';
       </div>
     } @else if (missing()) {
       <p class="text-ink-subtle">{{ ordersText.notFound }}</p>
-      <a appButton variant="secondary" routerLink="/admin/orders" class="mt-5">
+      <a uiButton variant="secondary" routerLink="/admin/orders" class="mt-5">
         {{ text.back }}
       </a>
     } @else if (order.error()) {
       <p class="text-ink-subtle" role="alert">{{ ordersText.loadError }}</p>
-      <a appButton variant="secondary" routerLink="/admin/orders" class="mt-5">
+      <a uiButton variant="secondary" routerLink="/admin/orders" class="mt-5">
         {{ text.back }}
       </a>
     } @else if (showSkeleton()) {
-      <app-skeleton [lines]="6" />
+      <ui-skeleton [lines]="6" />
     }
   `,
 })

@@ -139,7 +139,7 @@ let nextId = 0;
         >
           <!-- Leading glyph: a label for the field rather than a control, so it
                is muted and takes no pointer events. -->
-          <app-icon
+          <ui-icon
             [glyph]="searchIcon"
             class="pointer-events-none absolute left-2.5 size-4
                    text-ink-subtle"
@@ -182,7 +182,7 @@ let nextId = 0;
                      active:text-primary-press"
               (click)="clear()"
             >
-              <app-icon [glyph]="xIcon" class="size-4" />
+              <ui-icon [glyph]="xIcon" class="size-4" />
               <span class="sr-only">{{ text.clearAria }}</span>
             </button>
           }
@@ -243,7 +243,7 @@ let nextId = 0;
                     @if (stripBack() || stripForward()) {
                       <span class="hidden gap-1 pointer-fine:flex">
                         <button
-                          appIconButton
+                          uiIconButton
                           size="sm"
                           type="button"
                           tabindex="-1"
@@ -251,13 +251,13 @@ let nextId = 0;
                           [disabled]="!stripBack()"
                           (click)="pageStrip(-1)"
                         >
-                          <app-icon
+                          <ui-icon
                             [glyph]="chevronRightIcon"
                             class="rotate-180"
                           />
                         </button>
                         <button
-                          appIconButton
+                          uiIconButton
                           size="sm"
                           type="button"
                           tabindex="-1"
@@ -265,7 +265,7 @@ let nextId = 0;
                           [disabled]="!stripForward()"
                           (click)="pageStrip(1)"
                         >
-                          <app-icon [glyph]="chevronRightIcon" />
+                          <ui-icon [glyph]="chevronRightIcon" />
                         </button>
                       </span>
                     }
@@ -342,7 +342,7 @@ let nextId = 0;
                         class="flex min-w-0 flex-1 items-center gap-3"
                       >
                         <!-- Decorative: the name beside it says what it shows. -->
-                        <span appFrame [class]="thumb">
+                        <span uiFrame [class]="thumb">
                           @if (
                             item.images[0] &&
                             !failed().has(item.images[0].thumb)
@@ -354,7 +354,7 @@ let nextId = 0;
                               (error)="markFailed(item.images[0].thumb)"
                             />
                           } @else {
-                            <app-image-placeholder aria-hidden="true" />
+                            <ui-image-placeholder aria-hidden="true" />
                           }
                         </span>
                         <span class="flex min-w-0 flex-col gap-0.5">
@@ -366,7 +366,7 @@ let nextId = 0;
                            keystrokes would flicker a highlight the list has
                            not caught up with. -->
                           <span class="line-clamp-2 text-sm text-ink">
-                            <app-highlighted-line
+                            <ui-highlighted-line
                               [segments]="
                                 item.name
                                   | matchSegments: query() : alternateQuery()
@@ -406,7 +406,7 @@ let nextId = 0;
                           [attr.aria-label]="inCartLabel(item)"
                           [class]="addBox + ' ' + addedMark"
                         >
-                          <app-icon [glyph]="circleCheckIcon" class="size-4" />
+                          <ui-icon [glyph]="circleCheckIcon" class="size-4" />
                         </span>
                       } @else {
                         <!-- Out of the tab order: the caret stays in the field
@@ -414,7 +414,7 @@ let nextId = 0;
                            wears the focus ring while it is the active cell. -->
                         <button
                           type="button"
-                          appButton
+                          uiButton
                           tabindex="-1"
                           [class]="addBox + ' px-0'"
                           [class.outline-2]="isActive(i + offset(), 1)"
@@ -423,7 +423,7 @@ let nextId = 0;
                           [disabled]="item.availability === 'out'"
                           (click)="add(item)"
                         >
-                          <app-icon
+                          <ui-icon
                             [glyph]="shoppingBasketIcon"
                             class="size-4"
                           />
@@ -436,9 +436,9 @@ let nextId = 0;
             </div>
 
             @if (full()) {
-              <app-warning-note class="mx-3 my-2" role="status">
+              <ui-warning-note class="mx-3 my-2" role="status">
                 {{ cartText.full }}
-              </app-warning-note>
+              </ui-warning-note>
             }
 
             @if (suggestions().length) {
@@ -456,7 +456,7 @@ let nextId = 0;
                 (click)="showAll()"
               >
                 {{ text.showAllResults }}
-                <app-icon [glyph]="chevronRightIcon" class="size-4" />
+                <ui-icon [glyph]="chevronRightIcon" class="size-4" />
               </button>
             }
           </div>

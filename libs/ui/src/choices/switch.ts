@@ -32,10 +32,10 @@ const knobs = {
  * than a verb. A choice that waits for a save is a checkbox in a form. The
  * label is only the accessible name; the words around it say the rest.
  *
- *   <app-switch [checked]="enabled()" [label]="text.enable" (toggled)="save($event)" />
+ *   <ui-switch [checked]="enabled()" [label]="text.enable" (toggled)="save($event)" />
  */
 @Component({
-  selector: 'app-switch',
+  selector: 'ui-switch',
   // As an inline box it took the line's descender space: 31px for a 24px switch.
   host: { class: 'inline-flex' },
   template: `

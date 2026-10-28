@@ -67,7 +67,7 @@ describe('ProductGallery', () => {
 
     expect(mainSrc(f)).toBeUndefined();
     expect(
-      el.querySelector('[data-main-image] app-image-placeholder'),
+      el.querySelector('[data-main-image] ui-image-placeholder'),
     ).not.toBeNull();
   });
 
@@ -82,7 +82,7 @@ describe('ProductGallery', () => {
 
     expect(el.querySelector('[data-main-image] img')).toBeNull();
     expect(
-      el.querySelector('[data-main-image] app-image-placeholder'),
+      el.querySelector('[data-main-image] ui-image-placeholder'),
     ).not.toBeNull();
   });
 });

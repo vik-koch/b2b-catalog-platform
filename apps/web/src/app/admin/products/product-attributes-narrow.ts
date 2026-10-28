@@ -92,11 +92,11 @@ import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
             <!-- The same two-column form the tiers and the filterable
                  attributes wear: both fields on one line from sm up, one per
                  line below it, and the two buttons on a line of their own. -->
-            <form appRecordFields (submit)="commit($event)">
+            <form uiRecordFields (submit)="commit($event)">
               <label class="block">
-                <span appFieldLabel>{{ text.key }}</span>
+                <span uiFieldLabel>{{ text.key }}</span>
                 <input
-                  appInput
+                  uiInput
                   size="sm"
                   class="w-full"
                   autocomplete="off"
@@ -106,9 +106,9 @@ import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
                 />
               </label>
               <label class="block">
-                <span appFieldLabel>{{ text.value }}</span>
+                <span uiFieldLabel>{{ text.value }}</span>
                 <input
-                  appInput
+                  uiInput
                   size="sm"
                   class="w-full"
                   autocomplete="off"
@@ -117,38 +117,38 @@ import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
                   (input)="edit($index, 'value', $any($event.target).value)"
                 />
               </label>
-              <div appRecordFormActions>
-                <button appButton size="sm" type="submit" class="gap-2">
-                  <app-icon [glyph]="saveIcon" class="size-4" />
+              <div uiRecordFormActions>
+                <button uiButton size="sm" type="submit" class="gap-2">
+                  <ui-icon [glyph]="saveIcon" class="size-4" />
                   {{ adminText.actions.save }}
                 </button>
                 <button
-                  appButton
+                  uiButton
                   variant="secondary"
                   size="sm"
                   type="button"
                   class="gap-2"
                   (click)="cancel()"
                 >
-                  <app-icon [glyph]="xIcon" class="size-4" />
+                  <ui-icon [glyph]="xIcon" class="size-4" />
                   {{ actionText.cancel }}
                 </button>
               </div>
             </form>
           } @else {
-            <app-record-row>
+            <ui-record-row>
               <!-- The grip leads the row, where every other record list in the
                    panel puts it: the control that acts on the whole row, not
                    one of the buttons at the other end. -->
               <span
                 recordControl
                 cdkDragHandle
-                appIconButton
+                uiIconButton
                 size="lead"
                 class="cursor-grab active:cursor-grabbing"
                 [attr.aria-label]="adminText.actions.reorder"
               >
-                <app-icon [glyph]="gripVerticalIcon" />
+                <ui-icon [glyph]="gripVerticalIcon" />
               </span>
               <span
                 class="font-medium wrap-break-word text-ink"
@@ -161,14 +161,14 @@ import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
                    *key* that is filterable — pushed to the far end of the row
                    it read as a property of the buttons under it. -->
               @if (strayLabel(row); as label) {
-                <app-hint-badge tone="warning" [label]="label">
-                  <app-icon [glyph]="triangleAlertIcon" class="size-3.5" />
-                </app-hint-badge>
+                <ui-hint-badge tone="warning" [label]="label">
+                  <ui-icon [glyph]="triangleAlertIcon" class="size-3.5" />
+                </ui-hint-badge>
               }
               @if (isFilterable(row)) {
-                <app-hint-badge tone="neutral" [label]="text.filterable">
-                  <app-icon [glyph]="funnelIcon" class="size-3.5" />
-                </app-hint-badge>
+                <ui-hint-badge tone="neutral" [label]="text.filterable">
+                  <ui-icon [glyph]="funnelIcon" class="size-3.5" />
+                </ui-hint-badge>
               }
               <ng-container recordMeta>
                 <span
@@ -179,9 +179,9 @@ import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
                 </span>
                 @if (valueMark(row); as mark) {
                   @if (mark === 'not-numeric') {
-                    <app-hint-badge tone="warning" [label]="text.notNumeric">
-                      <app-icon [glyph]="triangleAlertIcon" class="size-3.5" />
-                    </app-hint-badge>
+                    <ui-hint-badge tone="warning" [label]="text.notNumeric">
+                      <ui-icon [glyph]="triangleAlertIcon" class="size-3.5" />
+                    </ui-hint-badge>
                   } @else {
                     <span class="text-xs">{{ mark }}</span>
                   }
@@ -192,32 +192,32 @@ import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
                    is read. -->
               <ng-container recordActions>
                 <button
-                  appIconButton
+                  uiIconButton
                   type="button"
                   [attr.aria-label]="text.addAria"
                   (click)="addBelow($index)"
                 >
-                  <app-icon [glyph]="plusIcon" />
+                  <ui-icon [glyph]="plusIcon" />
                 </button>
                 <button
-                  appIconButton
+                  uiIconButton
                   type="button"
                   [attr.aria-label]="adminText.actions.edit"
                   (click)="open($index)"
                 >
-                  <app-icon [glyph]="pencilIcon" />
+                  <ui-icon [glyph]="pencilIcon" />
                 </button>
                 <button
-                  appIconButton
+                  uiIconButton
                   variant="danger"
                   type="button"
                   [attr.aria-label]="actionText.remove"
                   (click)="remove($index)"
                 >
-                  <app-icon [glyph]="trash2Icon" />
+                  <ui-icon [glyph]="trash2Icon" />
                 </button>
               </ng-container>
-            </app-record-row>
+            </ui-record-row>
           }
         </li>
       }

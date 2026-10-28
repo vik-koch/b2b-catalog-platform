@@ -49,7 +49,7 @@ interface DocumentRow {
             <!-- A file and a link: two places to go, so two anchors — the
                  title opens the file, the site under it the entry. -->
             <div class="flex items-start gap-3 py-2.5">
-              <app-icon
+              <ui-icon
                 [glyph]="row.glyph"
                 class="mt-0.5 size-4 shrink-0 text-ink-subtle"
               />
@@ -77,7 +77,7 @@ interface DocumentRow {
                            decoration-ink-subtle/40 underline-offset-2
                            hover:text-accent hover:decoration-accent"
                     >{{ link.host
-                    }}<app-icon
+                    }}<ui-icon
                       [glyph]="externalLinkIcon"
                       class="size-3 shrink-0"
                   /></a>
@@ -95,7 +95,7 @@ interface DocumentRow {
               [attr.aria-describedby]="hintId"
               class="group flex items-start gap-3 py-2.5"
             >
-              <app-icon
+              <ui-icon
                 [glyph]="row.glyph"
                 class="mt-0.5 size-4 shrink-0 text-ink-subtle"
               />

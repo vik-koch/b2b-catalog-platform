@@ -122,7 +122,7 @@ const typeRank = (t: StaffUser['customerType']): number =>
     ErrorText,
   ],
   template: `
-    <app-grid-header
+    <ui-grid-header
       [title]="page().title"
       [intro]="page().intro"
       [query]="query() ?? ''"
@@ -132,22 +132,22 @@ const typeRank = (t: StaffUser['customerType']): number =>
       [clearSearchLabel]="text.clearSearch"
       [filtered]="filtered()"
     >
-      <button appButton type="button" class="gap-2" (click)="add()">
-        <app-icon [glyph]="plusIcon" class="size-4" />
+      <button uiButton type="button" class="gap-2" (click)="add()">
+        <ui-icon [glyph]="plusIcon" class="size-4" />
         {{ isStaff() ? text.addStaff : text.addCustomer }}
       </button>
-    </app-grid-header>
+    </ui-grid-header>
 
     <!-- Where a decline that raced with another change reports itself: every
          other action is a navigation, and reports from the editor. -->
     @if (pageError()) {
-      <p appErrorText class="mb-4" role="alert">{{ pageError() }}</p>
+      <p uiErrorText class="mb-4" role="alert">{{ pageError() }}</p>
     }
 
     @if (users.error()) {
       <p class="text-ink-subtle" role="alert">{{ text.loadError }}</p>
     } @else if (rows(); as data) {
-      <app-data-grid
+      <ui-data-grid
         [gridId]="gridId()"
         [columns]="columns()"
         [rows]="data"
@@ -160,7 +160,7 @@ const typeRank = (t: StaffUser['customerType']): number =>
         [emptyMessage]="filtered() ? text.noResults : text.empty"
         [countLabel]="text.count"
       >
-        <ng-template appGridRow [of]="data" let-user>
+        <ng-template uiGridRow [of]="data" let-user>
           <!-- Who to call, and underneath the address to write to — the same
                pair the order list draws in one cell, for the same reason: two
                columns of the same person cost a third of the table. -->
@@ -200,7 +200,7 @@ const typeRank = (t: StaffUser['customerType']): number =>
             </td>
           }
           <td data-keep>
-            <span appStatusBadge [tone]="statusTone(user.status)">{{
+            <span uiStatusBadge [tone]="statusTone(user.status)">{{
               statusLabel(user.status)
             }}</span>
           </td>
@@ -221,10 +221,10 @@ const typeRank = (t: StaffUser['customerType']): number =>
              on the first line, then the two ways to reach them, then what
              prices they get — the tier is why a manager opens this list, and it
              is invisible to the customer themselves. -->
-        <ng-template appGridCard [of]="data" let-user>
+        <ng-template uiGridCard [of]="data" let-user>
           <!-- Only the account is greyed once it is closed, never the badge
                that says so — the same rule the table follows cell by cell. -->
-          <app-record-row>
+          <ui-record-row>
             <a
               class="truncate font-medium text-ink"
               [class.opacity-50]="isClosed(user)"
@@ -235,7 +235,7 @@ const typeRank = (t: StaffUser['customerType']): number =>
             </a>
             <span
               recordBadge
-              appStatusBadge
+              uiStatusBadge
               class="shrink-0"
               [tone]="statusTone(user.status)"
               >{{ statusLabel(user.status) }}</span
@@ -267,11 +267,11 @@ const typeRank = (t: StaffUser['customerType']): number =>
               (declined)="decline($event)"
               (activeChanged)="setActive($event.user, $event.active)"
             />
-          </app-record-row>
+          </ui-record-row>
         </ng-template>
-      </app-data-grid>
+      </ui-data-grid>
     } @else if (showSkeleton()) {
-      <app-skeleton [lines]="6" />
+      <ui-skeleton [lines]="6" />
     }
   `,
 })

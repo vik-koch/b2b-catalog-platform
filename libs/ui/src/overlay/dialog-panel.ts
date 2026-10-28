@@ -22,10 +22,10 @@ const widths = {
  * trap, Escape and the backdrop. The width is an input, not a caller's class:
  * two widths on one element would be decided by stylesheet order.
  *
- *   <dialog appDialogPanel size="lg" #dialog (cancel)="…">…</dialog>
+ *   <dialog uiDialogPanel size="lg" #dialog (cancel)="…">…</dialog>
  */
 @Directive({
-  selector: '[appDialogPanel]',
+  selector: '[uiDialogPanel]',
   host: { '[class]': 'classes()' },
 })
 export class DialogPanel {

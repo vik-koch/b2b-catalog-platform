@@ -52,7 +52,7 @@ let nextId = 0;
       <!-- A container, so a suggestion panel under the ten-character number
            field may cross into the name's column but not past the row. -->
       <div class="@container grid gap-6 sm:grid-cols-[10rem_1fr]">
-        <app-field
+        <ui-field
           [field]="idField()"
           [label]="text().idLabel"
           [controlId]="idInputId()"
@@ -63,9 +63,9 @@ let nextId = 0;
             [text]="suggestText"
             (picked)="picked.emit($event)"
           />
-        </app-field>
+        </ui-field>
 
-        <app-field
+        <ui-field
           [field]="nameField()"
           [label]="text().nameLabel"
           [controlId]="nameInputId()"
@@ -77,7 +77,7 @@ let nextId = 0;
             autocomplete="organization"
             (picked)="picked.emit($event)"
           />
-        </app-field>
+        </ui-field>
       </div>
 
       <!-- Gone entirely when there is nothing to say, rather than an empty
@@ -86,7 +86,7 @@ let nextId = 0;
            person. -->
       <div [id]="lineId" class="empty:hidden mt-1">
         @for (message of messages(); track message) {
-          <p appErrorText>{{ message }}</p>
+          <p uiErrorText>{{ message }}</p>
         } @empty {
           @if (hint(); as hint) {
             <p class="text-sm text-ink-subtle">{{ hint }}</p>

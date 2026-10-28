@@ -119,7 +119,7 @@ async function openLid(
   which: 'areas' | 'history',
 ): Promise<void> {
   const lids = el.querySelectorAll<HTMLButtonElement>(
-    'app-disclosure-toggle button',
+    'ui-disclosure-toggle button',
   );
   const lid = which === 'areas' ? lids[0] : lids[lids.length - 1];
   if (!lid) throw new Error(`no ${which} lid`);

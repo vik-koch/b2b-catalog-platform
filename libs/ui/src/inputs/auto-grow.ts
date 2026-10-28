@@ -17,10 +17,10 @@ import {
  * since text that wraps to two lines in a wide column wraps to four in a
  * narrow one.
  *
- *   <textarea appInput appAutoGrow rows="1" [value]="note()"></textarea>
+ *   <textarea uiInput uiAutoGrow rows="1" [value]="note()"></textarea>
  */
 @Directive({
-  selector: 'textarea[appAutoGrow]',
+  selector: 'textarea[uiAutoGrow]',
   host: { '(input)': 'fit()' },
 })
 export class AutoGrow {

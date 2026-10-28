@@ -8,7 +8,7 @@ import { chevronDownIcon } from '../icons/glyphs/chevron-down';
  * host makes it a heading, another the lid of its box (DisclosureFrame).
  */
 @Component({
-  selector: 'app-disclosure-toggle',
+  selector: 'ui-disclosure-toggle',
   imports: [Icon],
   template: `
     <button
@@ -31,7 +31,7 @@ import { chevronDownIcon } from '../icons/glyphs/chevron-down';
         </span>
       </span>
       <!-- Keyed on the button's hover, so the chevron follows the label. -->
-      <app-icon
+      <ui-icon
         [glyph]="chevronDownIcon"
         class="size-4 shrink-0 text-ink-subtle transition-[transform,color]
                [button:hover_&]:text-accent"

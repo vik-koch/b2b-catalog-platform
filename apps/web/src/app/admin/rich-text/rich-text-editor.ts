@@ -109,7 +109,7 @@ interface ToolbarAction {
               [class]="buttonClass(activeIds().includes(action.id))"
               (click)="run(action)"
             >
-              <app-icon [glyph]="action.icon" />
+              <ui-icon [glyph]="action.icon" />
             </button>
           }
         </div>
@@ -156,7 +156,7 @@ interface ToolbarAction {
       </p>
     }
     @if (uploadError()) {
-      <p appErrorText class="mt-2" role="alert">
+      <p uiErrorText class="mt-2" role="alert">
         {{ adminText.upload.error }}
       </p>
     }
@@ -169,11 +169,11 @@ interface ToolbarAction {
            takes half of what there is, so the same fields are a modal. -->
     <ng-template #linkBody>
       <label class="block">
-        <span appFieldLabel>{{ link.urlLabel }}</span>
+        <span uiFieldLabel>{{ link.urlLabel }}</span>
         <input
           #linkInput
           type="text"
-          appInput
+          uiInput
           size="sm"
           class="w-full"
           [placeholder]="link.placeholder"
@@ -182,12 +182,12 @@ interface ToolbarAction {
           (keydown.enter)="applyLink()"
           (keydown.escape)="closeLinkPanel()"
         />
-        <span appHint class="mt-1">{{ link.hint }}</span>
+        <span uiHint class="mt-1">{{ link.hint }}</span>
       </label>
-      <div appDialogActions>
+      <div uiDialogActions>
         @if (editingExistingLink()) {
           <button
-            appButton
+            uiButton
             variant="dangerOutline"
             size="sm"
             type="button"
@@ -198,7 +198,7 @@ interface ToolbarAction {
           </button>
         }
         <button
-          appButton
+          uiButton
           variant="secondary"
           size="sm"
           type="button"
@@ -207,7 +207,7 @@ interface ToolbarAction {
           {{ actionText.cancel }}
         </button>
         <button
-          appButton
+          uiButton
           size="sm"
           type="button"
           [disabled]="!linkDraft().trim()"
@@ -220,24 +220,24 @@ interface ToolbarAction {
 
     <ng-template #imageBody>
       <label class="block">
-        <span appFieldLabel>{{ image.altLabel }}</span>
+        <span uiFieldLabel>{{ image.altLabel }}</span>
         <input
           type="text"
-          appInput
+          uiInput
           size="sm"
           class="w-full"
           [placeholder]="image.altPlaceholder"
           [value]="imageAlt()"
           (input)="onImageAltInput($any($event.target).value)"
         />
-        <span appHint class="mt-1">{{ image.altHint }}</span>
+        <span uiHint class="mt-1">{{ image.altHint }}</span>
       </label>
 
       <label class="mt-3 block">
-        <span appFieldLabel>{{ image.linkLabel }}</span>
+        <span uiFieldLabel>{{ image.linkLabel }}</span>
         <input
           type="text"
-          appInput
+          uiInput
           size="sm"
           class="w-full"
           [placeholder]="image.linkPlaceholder"
@@ -247,7 +247,7 @@ interface ToolbarAction {
       </label>
 
       <div class="mt-3">
-        <span appFieldLabel>{{ image.alignLabel }}</span>
+        <span uiFieldLabel>{{ image.alignLabel }}</span>
         <div class="flex gap-1">
           <button
             type="button"
@@ -283,9 +283,9 @@ interface ToolbarAction {
         />
       </label>
 
-      <div appDialogActions>
+      <div uiDialogActions>
         <button
-          appButton
+          uiButton
           variant="dangerOutline"
           size="sm"
           type="button"
@@ -294,7 +294,7 @@ interface ToolbarAction {
         >
           {{ image.remove }}
         </button>
-        <button appButton size="sm" type="button" (click)="closeImagePanel()">
+        <button uiButton size="sm" type="button" (click)="closeImagePanel()">
           {{ actionText.done }}
         </button>
       </div>
@@ -303,7 +303,7 @@ interface ToolbarAction {
     @if (linkPanelOpen() && narrow()) {
       <dialog
         #linkDialog
-        appDialogPanel
+        uiDialogPanel
         [attr.aria-label]="link.headingAria"
         (cancel)="closeLinkPanel()"
       >
@@ -314,7 +314,7 @@ interface ToolbarAction {
     @if (imagePanelOpen() && narrow()) {
       <dialog
         #imageDialog
-        appDialogPanel
+        uiDialogPanel
         [attr.aria-label]="image.headingAria"
         (cancel)="closeImagePanel()"
       >

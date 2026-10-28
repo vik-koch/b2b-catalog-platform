@@ -483,7 +483,7 @@ body:has(dialog[open]) {
 
 /*
  * A link an admin wrote is the app's own link. Typography gives it the colour
- * and the underline; the rest is what `appLink` says in a template, written
+ * and the underline; the rest is what `uiLink` says in a template, written
  * again here because nothing can reach inside a body that arrives as HTML.
  */
 .prose a {

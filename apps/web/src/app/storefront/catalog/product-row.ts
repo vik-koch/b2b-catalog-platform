@@ -88,7 +88,7 @@ export interface RowProduct extends BuyableProduct {
              cluster in *its* corner sits on the controls. -->
         <div [class]="photoBox">
           <app-tile-gallery
-            appFrame
+            uiFrame
             [class]="photo"
             [images]="item().images"
             [link]="link()"

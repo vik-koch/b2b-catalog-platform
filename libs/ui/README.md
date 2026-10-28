@@ -16,20 +16,20 @@ it stays in the app and is built from these.
 
 A piece exports its directive or component, the types of its inputs and pure helpers; its classes
 stay private. Another element that needs the look takes the directive (a directive styles any
-element), and a look that varies is an input (`<a appLink tone="warning">`).
+element), and a look that varies is an input (`<a uiLink tone="warning">`).
 
 ## Names
 
 - **Field:** the labelled unit around a value, with its caption, required mark, hint and error
   (`Field`, `FieldGroup` and their parts). Only these carry "field" in their name.
 - **Input:** what holds the value, with a native form element at its core: a directive on that
-  element (`input[appInput]`, `input[appCheckbox]`) or a component wrapping one, named `…Input`
+  element (`input[uiInput]`, `input[uiCheckbox]`) or a component wrapping one, named `…Input`
   (`DateInput`, `SelectInput`).
 - **Control:** the native element itself, named only as the inner part of an input component
-  (`appUnitInputControl`).
+  (`uiUnitInputControl`).
 
-A directive that changes what a control accepts or does is named for that (`appAllow`,
-`appDigitMask`, `appAutoGrow`).
+A directive that changes what a control accepts or does is named for that (`uiAllow`,
+`uiDigitMask`, `uiAutoGrow`).
 
 ## Importing
 
@@ -46,18 +46,18 @@ by module, so a barrel would carry everything behind it into the first load.
 <!-- prettier-ignore -->
 | Folder | Holds |
 | --- | --- |
-| `actions/` | Buttons and links: `appButton`, `appIconButton`, `appTextButton`, `appDiscButton`, `appLink`, `appActionLink` and the shared `ButtonBox` |
-| `choices/` | Inputs that pick a value: `appCheckbox`, `appRadio`, `appSwitch`, `appTickable`, `appTickLabel`, `ChoiceCard`, `ChoiceBranch`, `Segmented` with `Segment` and `SegmentGroup` |
-| `content/` | What a page shows rather than asks: `PageHeader`, `appPageTitle`, `appPageIntro`, `appNotice`, `WarningNote`, `EmptyState`, `Skeleton`, `appStatusBadge`, `HintBadge`, `EmphasisedText`, `appFrame`, `ImagePlaceholder` |
+| `actions/` | Buttons and links: `uiButton`, `uiIconButton`, `uiTextButton`, `uiDiscButton`, `uiLink`, `uiActionLink` and the shared `ButtonBox` |
+| `choices/` | Inputs that pick a value: `uiCheckbox`, `uiRadio`, `appSwitch`, `uiTickable`, `uiTickLabel`, `ChoiceCard`, `ChoiceBranch`, `Segmented` with `Segment` and `SegmentGroup` |
+| `content/` | What a page shows rather than asks: `PageHeader`, `uiPageTitle`, `uiPageIntro`, `uiNotice`, `WarningNote`, `EmptyState`, `Skeleton`, `uiStatusBadge`, `HintBadge`, `EmphasisedText`, `uiFrame`, `ImagePlaceholder` |
 | `core/` | What the pieces share and draw nothing: `fill`, the `UI_TEXT` token, `debounced`, the narrow-screen query |
-| `disclosure/` | What opens and closes: `DisclosureToggle`, `appDisclosureFrame`, `disclosureState`, `Collapsible`, `ShowMoreToggle` |
-| `fields/` | The labelled unit around an input: `Field`, `FieldGroup`, `FieldStatus`, `FieldBinding`, `appFieldLabel`, `appFieldAction`, `SubmitAttempt`, `appErrorText`, `appHint`, and `FORM_FIELDS` to import them with Signal Forms |
-| `grid/` | A list as a table on a wide screen and records below: `DataGrid` with its column model, `appGridRow` and `appGridCard`, `GridHeader`, `GridPagination`, the `GRID_TEXT` token |
+| `disclosure/` | What opens and closes: `DisclosureToggle`, `uiDisclosureFrame`, `disclosureState`, `Collapsible`, `ShowMoreToggle` |
+| `fields/` | The labelled unit around an input: `Field`, `FieldGroup`, `FieldStatus`, `FieldBinding`, `uiFieldLabel`, `uiFieldAction`, `SubmitAttempt`, `uiErrorText`, `uiHint`, and `FORM_FIELDS` to import them with Signal Forms |
+| `grid/` | A list as a table on a wide screen and records below: `DataGrid` with its column model, `uiGridRow` and `uiGridCard`, `GridHeader`, `GridPagination`, the `GRID_TEXT` token |
 | `icons/` | `Icon`, the `Glyph` type and one module per glyph |
-| `inputs/` | What holds a typed value: `appInput`, `SelectInput`, `DateInput`, `UnitInput` with `appUnitInputControl`, `CodeInput`, `PhoneInput`, `appInputPrefix`; and what shapes a control: `appAllow` with `numericRules`, `appDigitMask`, `appAutoGrow`, `appFileTarget`, `appDropZone` |
-| `lists/` | Short lists and paging: `RecordRow`, `appRecordFields`, `appRecordFormActions`, `Pagination` |
-| `overlay/` | What opens over the page: `ConfirmService` with `ConfirmDialog`, `DialogPanel`, `appDialogActions`, `Popover` |
-| `suggest/` | The type-ahead combobox: `SuggestField` with `appSuggestInput` and `appSuggestRow`, the `SuggestList` state behind it, `HighlightedLine` for a matched row |
+| `inputs/` | What holds a typed value: `uiInput`, `SelectInput`, `DateInput`, `UnitInput` with `uiUnitInputControl`, `CodeInput`, `PhoneInput`, `uiInputPrefix`; and what shapes a control: `uiAllow` with `numericRules`, `uiDigitMask`, `uiAutoGrow`, `uiFileTarget`, `uiDropZone` |
+| `lists/` | Short lists and paging: `RecordRow`, `uiRecordFields`, `uiRecordFormActions`, `Pagination` |
+| `overlay/` | What opens over the page: `ConfirmService` with `ConfirmDialog`, `DialogPanel`, `uiDialogActions`, `Popover` |
+| `suggest/` | The type-ahead combobox: `SuggestField` with `uiSuggestInput` and `uiSuggestRow`, the `SuggestList` state behind it, `HighlightedLine` for a matched row |
 | `ui.css` | Tailwind, the breakpoints, the type weight, the colour roles and the pieces' own animations; the app's stylesheet imports it |
 
 ## Checking

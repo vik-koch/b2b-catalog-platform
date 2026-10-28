@@ -21,12 +21,12 @@ const tones: Record<HintBadgeTone, string> = {
  * go. Filled and round where icon controls are chromeless and square, so it
  * does not read as one more thing to click. The glyph is projected.
  *
- *   <app-hint-badge tone="warning" [label]="text.notNumeric">
- *     <app-icon [glyph]="triangleAlertIcon" class="h-3.5 w-3.5" />
- *   </app-hint-badge>
+ *   <ui-hint-badge tone="warning" [label]="text.notNumeric">
+ *     <ui-icon [glyph]="triangleAlertIcon" class="h-3.5 w-3.5" />
+ *   </ui-hint-badge>
  */
 @Component({
-  selector: 'app-hint-badge',
+  selector: 'ui-hint-badge',
   host: { class: 'inline-flex' },
   template: `
     <span

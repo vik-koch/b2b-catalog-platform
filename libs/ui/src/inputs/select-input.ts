@@ -17,22 +17,22 @@ const chevrons = {
  * <select> stays native, with its keyboard, name and mobile picker. Width goes
  * on the host.
  *
- *   <app-select-input class="max-w-72">
- *     <select appInput class="w-full">…</select>
- *   </app-select-input>
+ *   <ui-select-input class="max-w-72">
+ *     <select uiInput class="w-full">…</select>
+ *   </ui-select-input>
  */
 @Component({
-  selector: 'app-select-input',
+  selector: 'ui-select-input',
   imports: [Icon],
   // The chevron follows the select's border states; only the wrapper sees both.
   host: {
     class: `relative block
-            [&:has(select:enabled):not(:focus-within):hover_app-icon]:text-accent
-            [&:focus-within_app-icon]:text-secondary`,
+            [&:has(select:enabled):not(:focus-within):hover_ui-icon]:text-accent
+            [&:focus-within_ui-icon]:text-secondary`,
   },
   template: `
     <ng-content />
-    <app-icon [glyph]="chevronDownIcon" [class]="chevronClass()" />
+    <ui-icon [glyph]="chevronDownIcon" [class]="chevronClass()" />
   `,
 })
 export class SelectInput {

@@ -50,7 +50,7 @@ import { ContactAnswers, PartyAnswers } from './checkout-forms';
       <!-- Only where the shop sells to more than one kind of customer
            (FR-AUTH-13): with one, there is nothing to choose. -->
       @if (kinds.length > 1) {
-        <app-segmented
+        <ui-segmented
           name="party-kind"
           [options]="kinds"
           [value]="party()"
@@ -76,7 +76,7 @@ import { ContactAnswers, PartyAnswers } from './checkout-forms';
       }
 
       <ng-template #reach>
-        <app-field
+        <ui-field
           [field]="contact().name"
           [label]="party() === 'company' ? text.contactName : text.name"
           controlId="contact-name"
@@ -84,13 +84,13 @@ import { ContactAnswers, PartyAnswers } from './checkout-forms';
           <input
             type="text"
             autocomplete="name"
-            appInput
+            uiInput
             class="w-full"
             [formField]="contact().name"
           />
-        </app-field>
+        </ui-field>
 
-        <app-field
+        <ui-field
           [field]="contact().email"
           [label]="fields.email.label"
           controlId="contact-email"
@@ -98,19 +98,19 @@ import { ContactAnswers, PartyAnswers } from './checkout-forms';
           <input
             type="email"
             autocomplete="email"
-            appInput
+            uiInput
             class="w-full"
             [formField]="contact().email"
           />
-        </app-field>
+        </ui-field>
 
-        <app-field
+        <ui-field
           [field]="contact().phone"
           [label]="fields.phone.label"
           controlId="contact-phone"
         >
-          <app-phone-input [field]="contact().phone" [phone]="phoneInput" />
-        </app-field>
+          <ui-phone-input [field]="contact().phone" [phone]="phoneInput" />
+        </ui-field>
 
         <p class="text-sm text-ink-subtle">{{ text.note }}</p>
       </ng-template>

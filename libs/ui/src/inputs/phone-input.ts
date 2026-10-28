@@ -14,27 +14,27 @@ export interface PhoneMask {
  * The phone control inside a Field: a country code beside a digit mask. With
  * no `phone` it is a plain text field: no code, no national part to mask.
  *
- *   <app-field [field]="form.phone" [label]="text.phone">
- *     <app-phone-input [field]="form.phone" [phone]="phoneInput" />
- *   </app-field>
+ *   <ui-field [field]="form.phone" [label]="text.phone">
+ *     <ui-phone-input [field]="form.phone" [phone]="phoneInput" />
+ *   </ui-field>
  */
 @Component({
-  selector: 'app-phone-input',
+  selector: 'ui-phone-input',
   imports: [FormField, FieldBinding, DigitMask, InputPrefix, Input],
   host: { class: 'block' },
   template: `
     @if (phone(); as phone) {
       <div class="flex">
-        <span appInputPrefix>{{ phone.countryCode }}</span>
+        <span uiInputPrefix>{{ phone.countryCode }}</span>
         <input
           type="tel"
-          appDigitMask
+          uiDigitMask
           [mask]="phone.mask ?? ''"
           [prefix]="phone.countryCode"
           [formField]="field()"
           [autocomplete]="autocomplete()"
           inputmode="tel"
-          appInput
+          uiInput
           class="rounded-l-none"
           [class]="inputWidth()"
         />
@@ -44,7 +44,7 @@ export interface PhoneMask {
         type="tel"
         [formField]="field()"
         [autocomplete]="autocomplete()"
-        appInput
+        uiInput
         [class]="inputWidth()"
       />
     }

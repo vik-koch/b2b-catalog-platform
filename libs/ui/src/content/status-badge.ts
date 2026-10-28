@@ -61,7 +61,7 @@ const flows = {
  * appears. The wording is the caller's; this is handed only a tone.
  */
 @Directive({
-  selector: '[appStatusBadge]',
+  selector: '[uiStatusBadge]',
   host: { '[class]': 'classes()' },
 })
 export class StatusBadge {

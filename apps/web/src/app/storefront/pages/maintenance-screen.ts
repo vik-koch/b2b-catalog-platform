@@ -15,8 +15,8 @@ import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
   imports: [PageTitle, PageIntro],
   template: `
     <section class="py-12 text-center sm:py-20">
-      <h1 appPageTitle class="mt-3">{{ text.title }}</h1>
-      <p appPageIntro class="mx-auto mt-4 max-w-xl">{{ text.body }}</p>
+      <h1 uiPageTitle class="mt-3">{{ text.title }}</h1>
+      <p uiPageIntro class="mx-auto mt-4 max-w-xl">{{ text.body }}</p>
     </section>
   `,
 })

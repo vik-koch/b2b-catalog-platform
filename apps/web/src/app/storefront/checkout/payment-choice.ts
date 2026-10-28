@@ -33,7 +33,7 @@ import { ChoiceCard } from '@b2b-catalog-platform/ui/choices/choice-card';
       <legend class="mb-3 font-medium">{{ text.heading }}</legend>
 
       <div class="grid gap-3 sm:grid-cols-2" role="radiogroup">
-        <app-choice-card
+        <ui-choice-card
           name="payment"
           value="cash"
           [title]="names.cash"
@@ -43,7 +43,7 @@ import { ChoiceCard } from '@b2b-catalog-platform/ui/choices/choice-card';
           (chosen)="methodChange.emit('cash')"
         />
 
-        <app-choice-card
+        <ui-choice-card
           name="payment"
           value="bank-transfer"
           [title]="names.transfer"

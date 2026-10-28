@@ -20,7 +20,7 @@ import { DIGIT_MASK_FORMAT } from './digit-mask-format';
  * field.
  */
 @Directive({
-  selector: 'input[appDigitMask]',
+  selector: 'input[uiDigitMask]',
   host: {
     '(input)': 'handleInput()',
     '(blur)': 'touch.emit()',

@@ -68,7 +68,7 @@ import {
         <ul class="divide-y divide-edge-subtle text-sm">
           @for (order of answered(); track order.reference) {
             <li class="flex flex-wrap items-baseline gap-x-3 py-2">
-              <span appStatusBadge [tone]="kindTone(order.kind)">
+              <span uiStatusBadge [tone]="kindTone(order.kind)">
                 {{ text.orders.kind[order.kind] }}
               </span>
               <!-- The order itself, not the version this run wrote, and no
@@ -76,7 +76,7 @@ import {
                    from a log wants the order, and the order's own page says
                    what it says better than a copy of it in a log would. -->
               <a
-                appLink
+                uiLink
                 class="font-medium"
                 [routerLink]="['/admin/orders', order.reference]"
                 >{{ order.reference }}</a

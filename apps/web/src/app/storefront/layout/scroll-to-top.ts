@@ -40,7 +40,7 @@ import { chevronUpIcon } from '@b2b-catalog-platform/ui/icons/glyphs/chevron-up'
       [title]="label"
       (click)="toTop()"
     >
-      <app-icon [glyph]="chevronUpIcon" class="size-4" />
+      <ui-icon [glyph]="chevronUpIcon" class="size-4" />
       <span class="sr-only">{{ label }}</span>
     </button>
   `,

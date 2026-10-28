@@ -15,11 +15,11 @@ export type LinkTone = keyof typeof tones;
  * A link inside running content, on any element that reads as one: a
  * coloured word with a hairline under it, the text's colour at 30%.
  *
- *   <a appLink routerLink="…">{{ value }}</a>
- *   <button type="button" appLink tone="warning" (click)="…">…</button>
+ *   <a uiLink routerLink="…">{{ value }}</a>
+ *   <button type="button" uiLink tone="warning" (click)="…">…</button>
  */
 @Directive({
-  selector: '[appLink]',
+  selector: '[uiLink]',
   host: { '[class]': 'classes()' },
 })
 export class Link {

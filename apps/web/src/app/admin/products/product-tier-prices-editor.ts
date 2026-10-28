@@ -53,7 +53,7 @@ export interface TierPriceDraft {
     UnitInputControl,
   ],
   template: `
-    <span appFieldLabel>
+    <span uiFieldLabel>
       {{ text.heading }}
       <app-locked-field-marker [field]="field()" />
     </span>
@@ -71,7 +71,7 @@ export interface TierPriceDraft {
              sm:gap-6 sm:rounded-none sm:border-0 sm:p-0"
     >
       @for (draft of field()().value(); track draft.tierId; let i = $index) {
-        <app-field
+        <ui-field
           class="w-full sm:w-auto"
           [field]="field()[i].value"
           [label]="labelFor(draft.tierId)"
@@ -79,22 +79,22 @@ export interface TierPriceDraft {
         >
           <!-- Text with inputmode, for the same reason as the base price
                field: a number input drops a half-typed decimal. -->
-          <app-unit-input class="w-full sm:w-43.5" [unit]="currencySuffix">
+          <ui-unit-input class="w-full sm:w-43.5" [unit]="currencySuffix">
             <input
               type="text"
               inputmode="decimal"
-              [appAllow]="partialPrice"
-              appUnitInputControl
+              [uiAllow]="partialPrice"
+              uiUnitInputControl
               [placeholder]="placeholder()"
               [formField]="field()[i].value"
               (blur)="onBlur(i)"
             />
-          </app-unit-input>
-        </app-field>
+          </ui-unit-input>
+        </ui-field>
       }
     </div>
     @if (!disabled()) {
-      <span appHint class="mt-1">{{ text.hint }}</span>
+      <span uiHint class="mt-1">{{ text.hint }}</span>
     }
   `,
 })

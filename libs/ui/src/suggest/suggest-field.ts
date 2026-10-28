@@ -33,15 +33,15 @@ const widths = {
  * The caller owns the value and the SuggestList. No row is active until an
  * arrow key, so Enter submits the form until then.
  *
- *   <app-suggest-field [list]="list" [text]="text" (picked)="apply($event)">
- *     <input appInput appSuggestInput class="w-full" [formField]="field()" />
- *     <ng-template appSuggestRow [of]="list" let-item let-query="query">
+ *   <ui-suggest-field [list]="list" [text]="text" (picked)="apply($event)">
+ *     <input uiInput uiSuggestInput class="w-full" [formField]="field()" />
+ *     <ng-template uiSuggestRow [of]="list" let-item let-query="query">
  *       {{ item.name }}
  *     </ng-template>
- *   </app-suggest-field>
+ *   </ui-suggest-field>
  */
 @Component({
-  selector: 'app-suggest-field',
+  selector: 'ui-suggest-field',
   imports: [NgTemplateOutlet],
   host: { class: 'block' },
   template: `

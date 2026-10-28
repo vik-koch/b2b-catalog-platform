@@ -12,10 +12,10 @@ export interface GridPage {
  * live there, and `page` alone would page through a different list.
  */
 @Component({
-  selector: 'app-grid-pagination',
+  selector: 'ui-grid-pagination',
   imports: [Pagination],
   template: `
-    <app-pagination
+    <ui-pagination
       class="mt-8"
       link="."
       [merge]="true"

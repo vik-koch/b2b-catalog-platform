@@ -90,8 +90,8 @@ interface DetailRow {
         <p class="text-ink-subtle" role="alert">{{ text.loadError }}</p>
       } @else if (user(); as person) {
         <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
-          <h1 appPageTitle>{{ name() }}</h1>
-          <span appStatusBadge [tone]="statusTone(person.status)">{{
+          <h1 uiPageTitle>{{ name() }}</h1>
+          <span uiStatusBadge [tone]="statusTone(person.status)">{{
             statusLabel(person.status)
           }}</span>
         </div>
@@ -177,7 +177,7 @@ interface DetailRow {
                 @if (canExempt()) {
                   <button
                     type="button"
-                    appButton
+                    uiButton
                     variant="secondary"
                     class="mt-4"
                     [disabled]="exempting()"
@@ -187,7 +187,7 @@ interface DetailRow {
                   </button>
                 }
                 @if (exemptError(); as error) {
-                  <p appErrorText class="mt-3" role="alert">
+                  <p uiErrorText class="mt-3" role="alert">
                     {{ error }}
                   </p>
                 }
@@ -227,12 +227,12 @@ interface DetailRow {
                so nothing is offered; the way back stays either way. -->
           @if (canEdit()) {
             <a
-              appButton
+              uiButton
               class="gap-2"
               [routerLink]="['/admin/users', person.id, 'edit']"
               [queryParams]="editorFrom()"
             >
-              <app-icon
+              <ui-icon
                 [glyph]="isPending() ? circleCheckIcon : pencilIcon"
                 class="size-4"
               />
@@ -240,36 +240,36 @@ interface DetailRow {
             </a>
           }
           <a
-            appButton
+            uiButton
             variant="secondary"
             class="gap-2"
             [routerLink]="listUrl()"
           >
-            <app-icon [glyph]="arrowLeftIcon" class="size-4" />
+            <ui-icon [glyph]="arrowLeftIcon" class="size-4" />
             {{ text.back }}
           </a>
           <!-- Set apart from the two above: it cannot be taken back. -->
           @if (canDelete()) {
             <button
               type="button"
-              appButton
+              uiButton
               variant="dangerOutline"
               class="gap-2 sm:ml-auto"
               [disabled]="deleting()"
               (click)="deleteOnRequest(person)"
             >
-              <app-icon [glyph]="trash2Icon" class="size-4" />
+              <ui-icon [glyph]="trash2Icon" class="size-4" />
               {{ text.delete }}
             </button>
           }
         </div>
         @if (deleteError(); as error) {
-          <p appErrorText class="mt-3" role="alert">{{ error }}</p>
+          <p uiErrorText class="mt-3" role="alert">{{ error }}</p>
         }
       } @else if (notFound()) {
         <p class="text-ink-subtle" role="alert">{{ text.notFound }}</p>
       } @else if (showSkeleton()) {
-        <app-skeleton [lines]="6" />
+        <ui-skeleton [lines]="6" />
       }
     </div>
   `,
