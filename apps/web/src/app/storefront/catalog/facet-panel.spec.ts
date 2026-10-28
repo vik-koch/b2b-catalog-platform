@@ -1,4 +1,4 @@
-import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { provideUiText, SHARED_TEXT } from '../../shared/config/shared-text';
 import { defaultSharedText } from '../../shared/config/shared-text.fixture';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
@@ -41,6 +41,7 @@ async function render(facets: Facet[], startUrl = '/catalog/espresso') {
       provideRouter([{ path: '**', component: Host }]),
       { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
       { provide: SHARED_TEXT, useValue: defaultSharedText },
+      provideUiText(),
       // The panel reads the sort-control flag to decide whether anything
       // stands above the facets, so the token has to be there.
       { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
@@ -191,7 +192,7 @@ describe('FacetPanel', () => {
     expect(collapsed.boxes()).toHaveLength(12);
     expect(rest(collapsed.host).querySelectorAll('input')).toHaveLength(4);
     expect(folded(collapsed.host)).toBe(true);
-    collapsed.buttonWith(defaultStorefrontText.catalog.showMore)?.click();
+    collapsed.buttonWith(defaultSharedText.showMore)?.click();
     collapsed.fixture.detectChanges();
     expect(folded(collapsed.host)).toBe(false);
 

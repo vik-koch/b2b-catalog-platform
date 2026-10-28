@@ -114,8 +114,6 @@ export const storefrontTextSchema = z
         loadError: z.string(),
         /** Category grid (FR-CAT-03/04). */
         catalogRoot: z.string(),
-        showMore: z.string(),
-        showLess: z.string(),
         emptyProducts: z.string(),
         /** How many products the listing is showing, above the grid. Counts,
          * so it may carry both forms; `{count}` substituted at render. */

@@ -1,13 +1,12 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ShowMoreToggle } from './show-more-toggle';
+import { provideTestUiText } from '../core/ui-text.testing';
 
 @Component({
   imports: [ShowMoreToggle],
   template: `<ui-show-more-toggle
     [expanded]="expanded()"
-    moreLabel="Show more"
-    lessLabel="Show less"
     [controls]="controls()"
     (toggled)="toggles.update((n) => n + 1)"
   />`,
@@ -20,7 +19,10 @@ class Host {
 
 async function render() {
   TestBed.resetTestingModule();
-  TestBed.configureTestingModule({ imports: [Host] });
+  TestBed.configureTestingModule({
+    imports: [Host],
+    providers: [provideTestUiText()],
+  });
   const fixture = TestBed.createComponent(Host);
   await fixture.whenStable();
   fixture.detectChanges();

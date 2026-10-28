@@ -6,6 +6,9 @@ export interface UiText {
   readonly required: string;
   /** Caption and accessible name of a missing picture. */
   readonly imagePlaceholder: string;
+  /** The toggle under something cut short, before and after it opens. */
+  readonly showMore: string;
+  readonly showLess: string;
   /** `status` holds `{page}` and `{total}`. */
   readonly pagination: {
     readonly previous: string;

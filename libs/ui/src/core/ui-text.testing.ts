@@ -5,6 +5,8 @@ import { UI_TEXT, UiText } from './ui-text';
 export const testUiText: UiText = {
   required: 'required',
   imagePlaceholder: 'No image',
+  showMore: 'Show more',
+  showLess: 'Show less',
   pagination: {
     previous: 'Previous',
     next: 'Next',

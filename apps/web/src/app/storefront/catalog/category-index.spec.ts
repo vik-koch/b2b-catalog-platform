@@ -1,4 +1,4 @@
-import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { provideUiText, SHARED_TEXT } from '../../shared/config/shared-text';
 import { defaultSharedText } from '../../shared/config/shared-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
@@ -50,6 +50,7 @@ async function render(getCategoryTree: () => Promise<CategoryNode[]>) {
       provideRouter([]),
       { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
       { provide: SHARED_TEXT, useValue: defaultSharedText },
+      provideUiText(),
       { provide: CatalogService, useValue: { getCategoryTree } },
     ],
   });
@@ -106,18 +107,18 @@ describe('CategoryIndex', () => {
     const row = () => link(f, 'capsules')?.closest('ui-collapsible');
     expect(row()?.className).toContain('grid-rows-[0fr]');
 
-    toggle(f, defaultStorefrontText.catalog.showMore)?.click();
+    toggle(f, defaultSharedText.showMore)?.click();
     await f.whenStable();
     f.detectChanges();
 
     expect(row()?.className).toContain('grid-rows-[1fr]');
-    expect(toggle(f, defaultStorefrontText.catalog.showLess)).toBeTruthy();
+    expect(toggle(f, defaultSharedText.showLess)).toBeTruthy();
   });
 
   it('offers no toggle where every subcategory is already named', async () => {
     const f = await render(async () => [tree[1]]);
 
-    expect(toggle(f, defaultStorefrontText.catalog.showMore)).toBeUndefined();
+    expect(toggle(f, defaultSharedText.showMore)).toBeUndefined();
   });
 
   it('says so when there are no categories', async () => {

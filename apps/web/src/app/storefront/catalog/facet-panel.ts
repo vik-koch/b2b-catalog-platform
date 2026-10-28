@@ -8,16 +8,14 @@ import {
 } from '@b2b-catalog-platform/shared';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
-import { NgTemplateOutlet } from '@angular/common';
 import { Checkbox } from '@b2b-catalog-platform/ui/choices/checkbox';
 import { TickLabel } from '@b2b-catalog-platform/ui/choices/tick-label';
-import { Collapsible } from '@b2b-catalog-platform/ui/disclosure/collapsible';
 import { disclosureState } from '@b2b-catalog-platform/ui/disclosure/disclosure-state';
 import { DisclosureToggle } from '@b2b-catalog-platform/ui/disclosure/disclosure-toggle';
 import { DisclosureFrame } from '@b2b-catalog-platform/ui/disclosure/disclosure-frame';
 import { ProductSortSelect } from './product-sort-select';
 import { FacetSelection, selectedValues } from './facet-selection';
-import { ShowMoreToggle } from '@b2b-catalog-platform/ui/disclosure/show-more-toggle';
+import { ShowMoreList } from '@b2b-catalog-platform/ui/disclosure/show-more-list';
 import { ClearFiltersButton } from '@b2b-catalog-platform/ui/actions/clear-filters-button';
 
 /** Values a facet shows before its own "show more" reveals the rest. */
@@ -89,13 +87,11 @@ export const FACET_SIBLING_ALONE =
   selector: 'app-facet-panel',
   imports: [
     ClearFiltersButton,
-    NgTemplateOutlet,
     Checkbox,
     TickLabel,
-    Collapsible,
     DisclosureToggle,
     ProductSortSelect,
-    ShowMoreToggle,
+    ShowMoreList,
     DisclosureFrame,
   ],
   providers: [FacetSelection],
@@ -187,51 +183,51 @@ export const FACET_SIBLING_ALONE =
                     <h3 class="text-sm font-medium text-ink">
                       {{ facet.name }}
                     </h3>
-                    <ul class="mt-2 space-y-1.5">
-                      @for (
-                        value of facet.values.slice(0, VALUES_COLLAPSED);
-                        track value.value
-                      ) {
-                        <ng-container
-                          [ngTemplateOutlet]="valueRow"
-                          [ngTemplateOutletContext]="{
-                            $implicit: value,
-                            facet,
-                          }"
-                        />
-                      }
-                    </ul>
-                    @if (facet.values.length > VALUES_COLLAPSED) {
-                      <ui-collapsible
-                        [open]="expanded(facet)"
-                        [id]="'facet-rest-' + facet.slug"
-                      >
-                        <ul class="space-y-1.5 pt-1.5">
-                          @for (
-                            value of facet.values.slice(VALUES_COLLAPSED);
-                            track value.value
-                          ) {
-                            <ng-container
-                              [ngTemplateOutlet]="valueRow"
-                              [ngTemplateOutletContext]="{
-                                $implicit: value,
-                                facet,
-                              }"
+                    <ui-show-more-list
+                      class="mt-2"
+                      spaced
+                      [items]="facet.values"
+                      [limit]="VALUES_COLLAPSED"
+                      [open]="expanded(facet)"
+                      [restId]="'facet-rest-' + facet.slug"
+                      [trackBy]="byValue"
+                      (toggled)="toggleExpanded(facet)"
+                    >
+                      <ng-template let-value>
+                        <li>
+                          <!-- A zero-count value is disabled rather than hidden
+                               (FR-ATTR-05): a list that reshuffles as it is
+                               clicked cannot be read, and the greyed row is the
+                               answer to "why can I not combine these two?". -->
+                          <label
+                            uiTickLabel
+                            [class.text-ink-subtle]="disabled(value)"
+                          >
+                            <input
+                              type="checkbox"
+                              uiCheckbox
+                              [checked]="value.selected"
+                              [attr.checked]="value.selected ? '' : null"
+                              [disabled]="disabled(value)"
+                              (change)="toggle(facet, value)"
                             />
-                          }
-                        </ul>
-                      </ui-collapsible>
-                      <!-- Pulled out by the button's own padding, so its word
-                           starts on the line the checkboxes do. -->
-                      <ui-show-more-toggle
-                        class="mt-1 -ml-3 justify-start"
-                        [expanded]="expanded(facet)"
-                        [moreLabel]="catalogText.showMore"
-                        [lessLabel]="catalogText.showLess"
-                        [controls]="'facet-rest-' + facet.slug"
-                        (toggled)="toggleExpanded(facet)"
-                      />
-                    }
+                            <span class="min-w-0 flex-1">
+                              {{ label(facet, value) }}
+                            </span>
+                            <!-- leading-5 so the smaller count shares the
+                                 label's line box: the row is top-aligned for
+                                 the sake of a value that wraps, and a 1rem line
+                                 box in a 1.25rem row sat visibly high. -->
+                            <span
+                              class="text-xs/5 px-2 text-ink-subtle
+                                     tabular-nums"
+                            >
+                              {{ value.count }}
+                            </span>
+                          </label>
+                        </li>
+                      </ng-template>
+                    </ui-show-more-list>
                   </li>
                 }
               </ul>
@@ -239,34 +235,6 @@ export const FACET_SIBLING_ALONE =
           </div>
         </div>
       </div>
-
-      <!-- One value's row, drawn the same in the first few and in the rest. -->
-      <ng-template #valueRow let-value let-facet="facet">
-        <li>
-          <!-- A zero-count value is disabled rather than hidden (FR-ATTR-05):
-               a list that reshuffles as it is clicked cannot be read, and the
-               greyed row is the answer to "why can I not combine these two?". -->
-          <label uiTickLabel [class.text-ink-subtle]="disabled(value)">
-            <input
-              type="checkbox"
-              uiCheckbox
-              [checked]="value.selected"
-              [attr.checked]="value.selected ? '' : null"
-              [disabled]="disabled(value)"
-              (change)="toggle(facet, value)"
-            />
-            <span class="min-w-0 flex-1">
-              {{ label(facet, value) }}
-            </span>
-            <!-- leading-5 so the smaller count shares the label's line box:
-                 the row is top-aligned for the sake of a value that wraps, and
-                 a 1rem line box in a 1.25rem row sat visibly high. -->
-            <span class="text-xs/5 px-2 text-ink-subtle tabular-nums">
-              {{ value.count }}
-            </span>
-          </label>
-        </li>
-      </ng-template>
 
       <!-- Beside the disclosure rather than inside it, where the admin grids
            put the same control: it undoes what the box holds, so it cannot be
@@ -293,8 +261,7 @@ export const FACET_SIBLING_ALONE =
 })
 export class FacetPanel {
   protected readonly selection = inject(FacetSelection);
-  protected readonly catalogText = inject(STOREFRONT_TEXT).catalog;
-  protected readonly text = this.catalogText.filters;
+  protected readonly text = inject(STOREFRONT_TEXT).catalog.filters;
   protected readonly VALUES_COLLAPSED = VALUES_COLLAPSED;
   /** A listing renders exactly one panel, so a constant id keeps the server's
    * markup and the browser's identical (as the sort control's does). */
@@ -367,6 +334,8 @@ export class FacetPanel {
   protected readonly selectedCount = computed(() =>
     this.facets().reduce((n, f) => n + selectedValues(f).length, 0),
   );
+
+  protected readonly byValue = (value: FacetValue) => value.value;
 
   protected label(facet: Facet, value: FacetValue): string {
     return formatAttributeValue(value.value, facet.unit);

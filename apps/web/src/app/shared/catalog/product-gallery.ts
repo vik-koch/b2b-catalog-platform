@@ -132,8 +132,6 @@ const THUMBS_BESIDE = 6;
           <ui-show-more-toggle
             class="md:hidden"
             [expanded]="showAllThumbs()"
-            [moreLabel]="text.showMore"
-            [lessLabel]="text.showLess"
             (toggled)="showAllThumbs.set(!showAllThumbs())"
           />
         }
