@@ -26,9 +26,9 @@ import { HintBadge } from '../../shared/ui/hint-badge';
 import { IconButton } from '../../shared/ui/icon-button';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Input } from '../../shared/ui/input';
-import { RecordFields } from '../records/record-fields';
-import { RecordFormActions } from '../records/record-form-actions';
-import { RecordRow } from '../records/record-row';
+import { RecordFields } from '../../shared/ui/record-fields';
+import { RecordFormActions } from '../../shared/ui/record-form-actions';
+import { RecordRow } from '../../shared/ui/record-row';
 import {
   AttributeHint,
   attributeRowKey,

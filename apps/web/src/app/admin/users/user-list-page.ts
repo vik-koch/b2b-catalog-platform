@@ -34,7 +34,7 @@ import { GridFilterOption } from '../grid/grid-filter-select';
 import { GridCardTemplate } from '../grid/grid-card-template';
 import { GridRowTemplate } from '../grid/grid-row-template';
 import { GridTimestamp } from '../grid/grid-timestamp';
-import { RecordRow } from '../records/record-row';
+import { RecordRow } from '../../shared/ui/record-row';
 import { AdminListHeader } from '../list-header';
 import { SettingsService } from '../settings/settings.service';
 import { TiersService } from '../tiers/tiers.service';

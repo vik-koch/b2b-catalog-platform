@@ -21,7 +21,7 @@ import { Input } from '../../shared/ui/input';
 import { HintBadge } from '../../shared/ui/hint-badge';
 import { Skeleton } from '../../shared/ui/skeleton';
 import { ConfirmService } from '../../shared/ui/confirm.service';
-import { RecordRow } from '../records/record-row';
+import { RecordRow } from '../../shared/ui/record-row';
 import { UnpublishedCount } from '../products/unpublished-count';
 import { AttributesService } from './attributes.service';
 import { SHARED_TEXT } from '../../shared/config/shared-text';

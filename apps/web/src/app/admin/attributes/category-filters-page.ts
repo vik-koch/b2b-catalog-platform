@@ -31,7 +31,7 @@ import { Skeleton } from '../../shared/ui/skeleton';
 import { ConfirmService } from '../../shared/ui/confirm.service';
 import { injectEditorReturn } from '../../shared/edit-mode/editor-return';
 import { UnpublishedCount } from '../products/unpublished-count';
-import { RecordRow } from '../records/record-row';
+import { RecordRow } from '../../shared/ui/record-row';
 import { AttributesService } from './attributes.service';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { PageTitle } from '../../shared/ui/page-title';

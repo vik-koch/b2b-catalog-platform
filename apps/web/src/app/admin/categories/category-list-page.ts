@@ -31,7 +31,7 @@ import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Link } from '../../shared/ui/link';
 import { AdminCatalogService } from '../admin-catalog.service';
 import { injectEditorReturnParams } from '../../shared/edit-mode/editor-return';
-import { RecordRow } from '../records/record-row';
+import { RecordRow } from '../../shared/ui/record-row';
 import { UnpublishedCount } from '../products/unpublished-count';
 import { CategoryDeleteDialog } from './category-delete-dialog';
 import {

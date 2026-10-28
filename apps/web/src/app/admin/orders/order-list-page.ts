@@ -44,7 +44,7 @@ import { GridPagination } from '../grid/grid-pagination';
 import { GridCardTemplate } from '../grid/grid-card-template';
 import { GridRowTemplate } from '../grid/grid-row-template';
 import { GridTimestamp } from '../grid/grid-timestamp';
-import { RecordRow } from '../records/record-row';
+import { RecordRow } from '../../shared/ui/record-row';
 import { injectEditorReturnParams } from '../../shared/edit-mode/editor-return';
 import {
   ConfirmService,

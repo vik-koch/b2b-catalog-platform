@@ -26,7 +26,7 @@ import { GridCardTemplate } from '../grid/grid-card-template';
 import { GridRowTemplate } from '../grid/grid-row-template';
 import { GridTimestamp } from '../grid/grid-timestamp';
 import { AdminListHeader } from '../list-header';
-import { RecordRow } from '../records/record-row';
+import { RecordRow } from '../../shared/ui/record-row';
 import { SyncService } from './sync.service';
 import { PageIntro } from '../../shared/ui/page-intro';
 import { uploadIcon } from '@b2b-catalog-platform/ui/icons/glyphs/upload';
