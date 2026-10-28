@@ -11,10 +11,8 @@ import {
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { Input } from '../../shared/ui/input';
-import {
-  SEGMENTED_GROUP_NEUTRAL,
-  segmentClass,
-} from '../../shared/ui/segmented';
+import { Segment } from '../../shared/ui/segment';
+import { SegmentGroup } from '../../shared/ui/segment-group';
 import { SelectField } from '../../shared/ui/select-field';
 
 /**
@@ -54,7 +52,7 @@ const SORT_FIELD_ID = 'product-sort';
  */
 @Component({
   selector: 'app-product-sort-select',
-  imports: [Input, SelectField],
+  imports: [Input, SelectField, Segment, SegmentGroup],
   template: `
     @if (enabled) {
       @if (shape() === 'segments') {
@@ -71,11 +69,13 @@ const SORT_FIELD_ID = 'product-sort';
           >
             {{ text.sort.label }}
           </span>
-          <div [class]="group">
+          <div appSegmentGroup tone="neutral" class="h-8 items-center">
             @for (field of fields(); track field.key) {
               <button
                 type="button"
-                [class]="segment(field.active)"
+                appSegment
+                [state]="field.active ? 'selected' : 'available'"
+                class="flex h-full items-center gap-1 px-2.5 whitespace-nowrap"
                 [attr.aria-pressed]="field.active"
                 [attr.aria-label]="text.sort[field.shows]"
                 [title]="text.sort[field.shows]"
@@ -158,7 +158,6 @@ export class ProductSortSelect {
   /** Segments above a listing, the select inside the filter disclosure. */
   readonly shape = input<'segments' | 'select'>('select');
 
-  protected readonly group = `${SEGMENTED_GROUP_NEUTRAL} h-8 items-center`;
   protected readonly selectRow = computed(
     () =>
       `flex items-center gap-2${this.shape() === 'segments' ? ' @min-[38rem]/listing:hidden' : ''}`,
@@ -185,11 +184,6 @@ export class ProductSortSelect {
       return [{ key, active, shows, arrow }];
     });
   });
-
-  protected segment(active: boolean): string {
-    return `${segmentClass(active ? 'selected' : 'available', { tone: 'neutral' })}
-            flex h-full items-center gap-1 px-2.5 whitespace-nowrap`;
-  }
 
   /** A new field starts ascending; the chosen one turns round. */
   protected press(key: SortField): void {

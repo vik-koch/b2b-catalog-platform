@@ -19,47 +19,32 @@ import { DialogPanel } from './dialog-panel';
 import { WarningNote } from './warning-note';
 import { Hint } from './hint';
 
-/**
- * One thing that happens because the answer was yes, offered as a tick.
- *
- * A choice and not a second question: the dialog's own question has already
- * been asked, and this is what rides along with it.
- */
+/** One thing that happens because the answer was yes, offered as a tick. */
 export interface ConfirmCheck {
   key: string;
   label: string;
   /** The line under it, where the tick needs a word of explanation. */
   hint?: string;
-  /** How it is offered. The caller works out the answer that is right almost
-   * always, and the person confirming overrides it. */
+  /** How it is offered: the usual answer, which the person may override. */
   checked: boolean;
   /**
-   * The key of a tick this one hangs off, where one only makes sense with the
-   * other: writing to the customer about a version they are not being shown
-   * would send them a link to something they cannot open.
-   *
-   * Offered under it, disabled while it is clear, and cleared with it — a tick
-   * that is on but cannot take effect is a promise the dialog does not keep.
+   * The key of a tick this one only makes sense with. Offered under it,
+   * disabled while it is clear and cleared with it: a tick that is on but
+   * cannot take effect is a promise the dialog does not keep.
    */
   requires?: string;
 }
 
-/** What a confirmed dialog answers with: the reason as typed, and how every
- * choice was left. */
+/** The reason as typed, and how every choice was left. */
 export interface ConfirmAnswer {
   reason: string;
   checks: Record<string, boolean>;
 }
 
 /**
- * Generic yes/no confirmation modal, optionally asking why.
- *
- * The reason field is here rather than in a second dialog because the question
- * is the same one: a destructive answer that somebody has to be told about —
- * an order declined, an order called off — is a confirmation with a sentence
- * attached, and a caller that needs one should not have to build a modal.
- *
- * Rendered by `ConfirmService` rather than used in templates directly.
+ * A yes/no modal, optionally asking why: an answer somebody has to be told
+ * about is a confirmation with a sentence attached. Rendered by
+ * ConfirmService, not used in templates.
  */
 @Component({
   selector: 'app-confirm-dialog',
@@ -89,19 +74,14 @@ export interface ConfirmAnswer {
       </h2>
       <p class="mt-3 text-ink-subtle">{{ message() }}</p>
 
-      <!-- Something to weigh before answering yes, where the question has one.
-           Amber and never red: it refuses nothing, and the button below it
-           still does what it says. -->
+      <!-- Amber, never red: it refuses nothing. -->
       @if (warning(); as note) {
         <app-warning-note class="mt-3">{{ note }}</app-warning-note>
       }
 
       @if (reasonLabel(); as label) {
         <div class="mt-5">
-          <!-- Marked required wherever it is, with the same asterisk every
-               other required field in the app wears: the confirm button waits
-               on this one, and a dead button beside an unmarked field is a
-               dialog that looks broken. -->
+          <!-- The confirm button waits on it, so it wears the required mark. -->
           <label appFieldLabel for="confirm-dialog-reason">
             {{ label }}
             @if (reasonRequired()) {
@@ -154,10 +134,7 @@ export interface ConfirmAnswer {
         >
           {{ cancelLabel() }}
         </button>
-        <!-- Absent where there is nothing to answer: a dialog that only
-             explains why a control refused is the same dialog with its yes
-             taken away, and a second component for it would be this one
-             copied. -->
+        <!-- Absent where the dialog only explains. -->
         @if (confirmLabel(); as label) {
           <button
             appButton
@@ -181,43 +158,31 @@ export class ConfirmDialog {
 
   readonly heading = input.required<string>();
   readonly message = input.required<string>();
-  /** A consequence the reader should weigh, drawn under the question. Absent
-   * on a question that has none. */
+  /** A consequence to weigh, drawn under the question. */
   readonly warning = input<string | null>(null);
-  /** Null where the dialog only explains: the close button is then the whole
-   * of its actions. */
+  /** Null where the dialog only explains, leaving the close button. */
   readonly confirmLabel = input.required<string | null>();
   readonly cancelLabel = input.required<string>();
   readonly confirmVariant = input<'primary' | 'danger'>('danger');
   /** Present where the answer may say why; absent for a plain yes/no. */
   readonly reasonLabel = input<string | null>(null);
   /**
-   * Choices that ride along with the answer — the things that happen *because*
-   * of it rather than parts of it: writing to the customer about a move,
-   * recording the money that came with the goods.
-   *
-   * Here rather than in a screen of its own because they are answered in the
-   * same breath as the question: a manager pressing "Complete" is deciding all
-   * of it at once, and a second dialog for the consequences of the first is a
-   * click nobody wants.
+   * What happens because of the answer, decided in the same breath as it
+   * rather than in a second dialog.
    */
   readonly checks = input<readonly ConfirmCheck[]>([]);
   readonly reasonMaxLength = input<number>(500);
-  /** Whether the answer is refused without one. A reason quoted *at* somebody
-   * has to exist; one quoted at the shop is a courtesy. */
+  /** Whether the answer is refused without a reason. */
   readonly reasonRequired = input(true);
 
-  /** The reason as typed — an empty string where none was asked for — and how
-   * every choice was left. */
+  /** The reason (empty where none was asked for) and how every choice was left. */
   readonly confirmed = output<ConfirmAnswer>();
   readonly cancelled = output<void>();
 
   protected readonly reason = signal('');
   /**
-   * Each choice as it now stands, seeded from how it was offered. A
-   * `linkedSignal` and not a constructor assignment: inputs are set after the
-   * component is created, so a value read in the constructor is the default
-   * and never the caller's.
+   * Each choice as it stands, seeded from how it was offered. A linkedSignal:
+   * inputs are set after construction, so the constructor sees defaults.
    */
   protected readonly ticked = linkedSignal<Record<string, boolean>>(() =>
     Object.fromEntries(
@@ -236,20 +201,16 @@ export class ConfirmDialog {
     return check.requires !== undefined && !this.ticked()[check.requires];
   }
 
-  /** Clearing a tick clears whatever hangs off it, so what the dialog answers
-   * with is what it was showing. */
+  /** Clearing a tick clears whatever hangs off it, so the answer is what was shown. */
   protected tick(key: string, on: boolean): void {
-    this.ticked.update((state) => ({
-      ...state,
-      [key]: on,
-      ...(on
-        ? {}
-        : Object.fromEntries(
-            this.checks()
-              .filter((check) => check.requires === key)
-              .map((check) => [check.key, false]),
-          )),
-    }));
+    this.ticked.update((state) => {
+      const next = { ...state, [key]: on };
+      if (on) return next;
+      for (const check of this.checks()) {
+        if (check.requires === key) next[check.key] = false;
+      }
+      return next;
+    });
   }
 
   constructor() {

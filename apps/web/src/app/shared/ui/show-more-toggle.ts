@@ -2,16 +2,9 @@ import { Component, input, output } from '@angular/core';
 import { Button } from './button';
 
 /**
- * The button under something that has been clipped: the gallery's thumbnails,
- * a long description, a list of subcategories.
- *
- * It owns the control and the word for its state, never the clipping — what is
- * hidden and how it comes back differs at every call site, and the only thing
- * they ever shared was the button, spelled out four times.
- *
- * The labels come in rather than from STOREFRONT_TEXT: nothing in `ui/` knows the
- * deployment's words. The host centres itself and nothing more, so the call
- * site keeps the margin and the width it is shown at.
+ * The button under something clipped. It owns the control and its words, never
+ * the clipping, which differs at every call site. The host only centres itself;
+ * margin and width stay with the caller.
  */
 @Component({
   selector: 'app-show-more-toggle',

@@ -60,11 +60,8 @@ import {
   ConfirmService,
   confirmRequest,
 } from '../../shared/ui/confirm.service';
-import {
-  DISCLOSURE_FRAME,
-  disclosureBorder,
-  DisclosureToggle,
-} from '../../shared/ui/disclosure-toggle';
+import { DisclosureToggle } from '../../shared/ui/disclosure-toggle';
+import { DisclosureFrame } from '../../shared/ui/disclosure-frame';
 import { FieldAttempt, FIELD_ATTEMPT } from '../../shared/ui/field-attempt';
 import { FieldLabel } from '../../shared/ui/field-label';
 import { FORM_FIELDS } from '../../shared/ui/form-fields';
@@ -187,6 +184,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
     ErrorText,
     Hint,
     PageIntro,
+    DisclosureFrame,
   ],
   // No <form> element holds the fields: the save button sits in the aside,
   // after the note, so the page says itself when the form has been sent.
@@ -256,7 +254,8 @@ const PREVIEW_DEBOUNCE_MS = 250;
             <div class="mt-4 space-y-6">
               <section
                 class="rounded-md border"
-                [class]="frame + ' ' + disclosureBorder(itemsOpen())"
+                appDisclosureFrame
+                [open]="itemsOpen()"
               >
                 <app-disclosure-toggle
                   [label]="ordersText.items"
@@ -335,7 +334,8 @@ const PREVIEW_DEBOUNCE_MS = 250;
 
               <section
                 class="rounded-md border"
-                [class]="frame + ' ' + disclosureBorder(detailsOpen())"
+                appDisclosureFrame
+                [open]="detailsOpen()"
               >
                 <app-disclosure-toggle
                   [label]="text.detailsHeading"
@@ -751,8 +751,6 @@ export class AdminOrderAdjustPage implements FieldAttempt {
   protected readonly locations = this.config.pickup?.locations ?? [];
   protected readonly billingEnabled = this.config.billingAddressEnabled;
   protected readonly noteMax = ORDER_ADJUSTMENT_NOTE_MAX;
-  protected readonly frame = DISCLOSURE_FRAME;
-  protected readonly disclosureBorder = disclosureBorder;
   protected readonly itemsPanelId = 'adjust-items';
   protected readonly detailsPanelId = 'adjust-details';
   /** Both open on arrival: an adjustment starts by reading the order, and a

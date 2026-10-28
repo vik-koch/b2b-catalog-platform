@@ -32,7 +32,7 @@ import {
   documentFileLabel,
   documentFileSize,
 } from '../../shared/core/document-file';
-import { DROP_ZONE, dropZoneState } from '../../shared/ui/drop-zone';
+import { DropZone } from '../../shared/ui/drop-zone';
 import { FileTarget, pasteKeys } from '../../shared/ui/file-target';
 import { DocumentProductsPicker } from './document-products-picker';
 import { DocumentsService } from './documents.service';
@@ -86,6 +86,7 @@ interface DocumentDraft {
     PageTitle,
     ErrorText,
     Hint,
+    DropZone,
   ],
   // No <form> element: the buttons under the page save or leave, so the page
   // says itself when the form has been sent.
@@ -202,9 +203,8 @@ interface DocumentDraft {
             <button
               type="button"
               class="w-full p-4"
-              #target="appFileTarget"
               [appFileTarget]="accept"
-              [class]="dropZoneClass(target.dragging())"
+              appDropZone
               [disabled]="uploading()"
               (click)="fileInput.click()"
               (filesReceived)="upload($event[0])"
@@ -447,10 +447,6 @@ export class DocumentEditorPage implements UnsavedChangesAware, FieldAttempt {
   protected readonly pasteHint = fillText(this.adminText.upload.pasteHint, {
     keys: pasteKeys(),
   });
-
-  protected dropZoneClass(dragging: boolean): string {
-    return `${DROP_ZONE} ${dropZoneState(dragging)}`;
-  }
 
   protected async onFile(event: Event): Promise<void> {
     const input = event.target as HTMLInputElement;

@@ -26,7 +26,8 @@ import { Input } from '../../shared/ui/input';
 import { Skeleton } from '../../shared/ui/skeleton';
 import { PriceField } from '../../shared/ui/price-field';
 import { StatusBadge } from '../../shared/ui/status-badge';
-import { UNIT_FIELD_INPUT, UnitField } from '../../shared/ui/unit-field';
+import { UnitField } from '../../shared/ui/unit-field';
+import { UnitFieldInput } from '../../shared/ui/unit-field-input';
 import { chevronDownIcon } from '@b2b-catalog-platform/ui/icons/glyphs/chevron-down';
 import { chevronUpIcon } from '@b2b-catalog-platform/ui/icons/glyphs/chevron-up';
 import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
@@ -91,6 +92,7 @@ export interface AdjustLineRow {
     Skeleton,
     StatusBadge,
     UnitField,
+    UnitFieldInput,
   ],
   host: { class: 'block' },
   template: `
@@ -117,7 +119,7 @@ export interface AdjustLineRow {
           <div class="mt-1 flex flex-wrap items-center gap-2">
             <app-unit-field class="w-28" [unit]="pieceUnit">
               <input
-                [class]="unitFieldInput"
+                appUnitFieldInput
                 type="number"
                 min="1"
                 step="1"
@@ -131,7 +133,7 @@ export interface AdjustLineRow {
             <app-unit-field class="w-28" [unit]="priceSuffix()">
               <input
                 appPriceField
-                [class]="unitFieldInput"
+                appUnitFieldInput
                 type="text"
                 inputmode="decimal"
                 [id]="id + '-price-' + i"
@@ -301,7 +303,6 @@ export class OrderAdjustLines {
   protected readonly pieceUnit = inject(SHARED_TEXT).units.piece;
   private readonly availability = inject(SHARED_TEXT).product.availability;
   private readonly currency = moneyFormat(inject(DEPLOYMENT_CONFIG));
-  protected readonly unitFieldInput = UNIT_FIELD_INPUT;
   protected readonly panel = SUGGEST_PANEL;
   protected readonly id = `adjust-lines-${++nextId}`;
   protected readonly listId = `${this.id}-suggestions`;

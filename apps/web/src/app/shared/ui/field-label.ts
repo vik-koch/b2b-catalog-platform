@@ -1,10 +1,8 @@
 import { Directive } from '@angular/core';
 
 /**
- * The caption above a form field — the text half of the `<label>` wrapper the
- * forms use, so it is a directive on the <span> rather than on the <label>
- * itself. Repeated in every editor and form in the app, which is the whole
- * reason it is here.
+ * The caption above a form field, on the <span> inside a wrapping <label>
+ * rather than on the label itself.
  *
  *   <label class="block">
  *     <span appFieldLabel>{{ text.name }}</span>

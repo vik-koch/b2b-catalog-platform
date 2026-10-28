@@ -8,7 +8,8 @@ import { injectNarrowScreen } from '../../shared/core/narrow-screen';
 import { ErrorText } from '../../shared/ui/error-text';
 import { FieldLabel } from '../../shared/ui/field-label';
 import { NumericField } from '../../shared/ui/numeric-field';
-import { UNIT_FIELD_INPUT, UnitField } from '../../shared/ui/unit-field';
+import { UnitField } from '../../shared/ui/unit-field';
+import { UnitFieldInput } from '../../shared/ui/unit-field-input';
 
 /**
  * How a product is packaged.
@@ -73,7 +74,7 @@ export function parseCount(text: string): number | null {
 
 @Component({
   selector: 'app-product-packaging-editor',
-  imports: [ErrorText, FieldLabel, NumericField, UnitField],
+  imports: [ErrorText, FieldLabel, NumericField, UnitField, UnitFieldInput],
   template: `
     <!-- min-w-0 for the same reason as the attribute grid above: a <fieldset>
          will not shrink below its content's min-content width. -->
@@ -109,7 +110,7 @@ export function parseCount(text: string): number | null {
                   type="text"
                   [attr.inputmode]="row.inputMode"
                   [appNumericField]="row.inputMode"
-                  [class]="unitFieldInput"
+                  appUnitFieldInput
                   [value]="row.value"
                   [placeholder]="row.placeholder"
                   [disabled]="row.disabled"
@@ -201,7 +202,6 @@ export function parseCount(text: string): number | null {
   `,
 })
 export class ProductPackagingEditor {
-  protected readonly unitFieldInput = UNIT_FIELD_INPUT;
   protected readonly text = inject(ADMIN_TEXT).products.editor.packaging;
   protected readonly packing = inject(SHARED_TEXT).packaging;
   private readonly unitNames = inject(SHARED_TEXT).units;

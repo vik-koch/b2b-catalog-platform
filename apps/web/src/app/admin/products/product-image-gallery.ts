@@ -20,7 +20,7 @@ import { FieldLabel } from '../../shared/ui/field-label';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Input } from '../../shared/ui/input';
 import { SelectField } from '../../shared/ui/select-field';
-import { DROP_ZONE, dropZoneState } from '../../shared/ui/drop-zone';
+import { DropZone } from '../../shared/ui/drop-zone';
 import { FileTarget, pasteKeys } from '../../shared/ui/file-target';
 import { ImageFramerService } from '../media/image-framer.service';
 import { MediaService } from '../media/media.service';
@@ -59,6 +59,7 @@ import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
     Input,
     SelectField,
     ErrorText,
+    DropZone,
   ],
   template: `
     <fieldset class="max-w-xl">
@@ -168,10 +169,10 @@ import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
           />
           <button
             type="button"
-            #target="appFileTarget"
             [appFileTarget]="accept"
             [fileTargetMultiple]="true"
-            [class]="tileClass(target.dragging())"
+            appDropZone
+            class="size-26"
             [disabled]="uploading()"
             (click)="fileInput.click()"
             (filesReceived)="upload($event)"
@@ -208,12 +209,6 @@ export class ProductImageGallery {
   protected readonly tileHint = fillText(this.adminText.upload.tileHint, {
     keys: pasteKeys(),
   });
-
-  /** The shared dashed target at tile size — the same one the sync screen and
-   * the document editor wear at their own. */
-  protected tileClass(dragging: boolean): string {
-    return `h-26 w-26 ${DROP_ZONE} ${dropZoneState(dragging)}`;
-  }
 
   readonly value = input.required<ProductImageInput[]>();
   /** The variants a picture may show; none hides the picker. */

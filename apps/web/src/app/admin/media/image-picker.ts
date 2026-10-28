@@ -6,7 +6,7 @@ import {
 } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
-import { DROP_ZONE, dropZoneState } from '../../shared/ui/drop-zone';
+import { DropZone } from '../../shared/ui/drop-zone';
 import { FileTarget, pasteKeys } from '../../shared/ui/file-target';
 import { MediaService } from './media.service';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
@@ -23,7 +23,7 @@ import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
  */
 @Component({
   selector: 'app-image-picker',
-  imports: [Icon, FileTarget, ErrorText],
+  imports: [Icon, FileTarget, ErrorText, DropZone],
   template: `
     @if (value(); as image) {
       <div
@@ -57,9 +57,9 @@ import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
       />
       <button
         type="button"
-        #target="appFileTarget"
         [appFileTarget]="accept"
-        [class]="tileClass(target.dragging())"
+        appDropZone
+        class="size-26"
         [disabled]="uploading()"
         (click)="fileInput.click()"
         (filesReceived)="upload($event[0])"
@@ -90,12 +90,6 @@ export class ImagePicker {
   protected readonly tileHint = fillText(this.adminText.upload.tileHint, {
     keys: pasteKeys(),
   });
-
-  /** The shared dashed target at tile size — the same one the sync screen and
-   * the document editor wear at their own. */
-  protected tileClass(dragging: boolean): string {
-    return `h-26 w-26 ${DROP_ZONE} ${dropZoneState(dragging)}`;
-  }
 
   readonly value = input.required<CatalogImage | null>();
   /** Caption on the empty tile, e.g. "Image". */

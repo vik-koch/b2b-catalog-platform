@@ -22,11 +22,8 @@ import { delayedLoading } from '../../shared/core/delayed-loading';
 import { usePageSeo } from '../../shared/core/page-seo';
 import { Button } from '../../shared/ui/button';
 import { ConfirmService } from '../../shared/ui/confirm.service';
-import {
-  DISCLOSURE_FRAME,
-  disclosureBorder,
-  DisclosureToggle,
-} from '../../shared/ui/disclosure-toggle';
+import { DisclosureToggle } from '../../shared/ui/disclosure-toggle';
+import { DisclosureFrame } from '../../shared/ui/disclosure-frame';
 import { Skeleton } from '../../shared/ui/skeleton';
 import { StatusBadge } from '../../shared/ui/status-badge';
 import { Switch } from '../../shared/ui/switch';
@@ -66,6 +63,7 @@ import { PageIntro } from '../../shared/ui/page-intro';
     ErrorText,
     Hint,
     PageIntro,
+    DisclosureFrame,
   ],
   template: `
     <!-- Wrapping, unlike the token list's heading row: this title is several
@@ -164,7 +162,8 @@ import { PageIntro } from '../../shared/ui/page-intro';
                Open when they disagree, where "partly" is not an answer. -->
           <section
             class="mb-4 rounded-md border"
-            [class]="frame + ' ' + border(areasOpen())"
+            appDisclosureFrame
+            [open]="areasOpen()"
           >
             <app-disclosure-toggle
               [label]="allText.areasToggle"
@@ -239,7 +238,8 @@ import { PageIntro } from '../../shared/ui/page-intro';
              when the answer to "since when" matters. -->
         <section
           class="rounded-md border"
-          [class]="frame + ' ' + border(historyOpen())"
+          appDisclosureFrame
+          [open]="historyOpen()"
         >
           <app-disclosure-toggle
             [label]="text.historyTitle"
@@ -316,8 +316,6 @@ export class OperationsPage {
   protected readonly actionText = inject(SHARED_TEXT).actions;
   protected readonly areas = OWNERSHIP_AREAS;
   protected readonly pageSize = SETTING_CHANGES_PAGE_SIZE;
-  protected readonly frame = DISCLOSURE_FRAME;
-  protected readonly border = disclosureBorder;
   protected readonly historyPanelId = 'operations-history';
   protected readonly areasPanelId = 'operations-areas';
 

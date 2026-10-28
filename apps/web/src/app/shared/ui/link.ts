@@ -1,15 +1,6 @@
 import { computed, Directive, input } from '@angular/core';
 
-/**
- * A link inside running content — the treatment that says "this word goes
- * somewhere" without the weight of a button.
- *
- * The rule under it is the text's colour at 30%, so it reads as a hairline
- * under a coloured word instead of a second line of the same weight; hover
- * takes both to the accent. It applies to <a> and to a
- * <button> that reads as a link, because a control that opens a panel makes
- * the same promise as one that navigates.
- */
+const base = 'cursor-pointer font-medium underline underline-offset-2';
 
 /** `warning` for a link inside a sentence that is already amber. */
 const tones = {
@@ -21,9 +12,11 @@ const tones = {
 export type LinkTone = keyof typeof tones;
 
 /**
- * The default tone as a directive, for the ordinary case.
+ * A link inside running content, on any element that reads as one: a
+ * coloured word with a hairline under it, the text's colour at 30%.
  *
  *   <a appLink routerLink="…">{{ value }}</a>
+ *   <button type="button" appLink tone="warning" (click)="…">…</button>
  */
 @Directive({
   selector: '[appLink]',
@@ -32,9 +25,5 @@ export type LinkTone = keyof typeof tones;
 export class Link {
   readonly tone = input<LinkTone>('default');
 
-  protected readonly classes = computed(
-    () =>
-      `cursor-pointer font-medium underline underline-offset-2
-       ${tones[this.tone()]}`,
-  );
+  protected readonly classes = computed(() => `${base} ${tones[this.tone()]}`);
 }

@@ -3,11 +3,8 @@ import { RouterLink } from '@angular/router';
 import { fillText } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { disclosureState } from '../../shared/ui/disclosure-state';
-import {
-  DISCLOSURE_FRAME,
-  disclosureBorder,
-  DisclosureToggle,
-} from '../../shared/ui/disclosure-toggle';
+import { DisclosureToggle } from '../../shared/ui/disclosure-toggle';
+import { DisclosureFrame } from '../../shared/ui/disclosure-frame';
 import { IconButton } from '../../shared/ui/icon-button';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Input } from '../../shared/ui/input';
@@ -66,6 +63,7 @@ interface SortOption {
     SelectField,
     GridClearFilters,
     GridToggles,
+    DisclosureFrame,
   ],
   template: `
     @if (anything()) {
@@ -77,7 +75,8 @@ interface SortOption {
              transitioned to "as tall as the content". -->
         <div
           class="min-w-0 flex-1 rounded-md border"
-          [class]="frame + ' ' + disclosureBorder(open())"
+          appDisclosureFrame
+          [open]="open()"
         >
           <app-disclosure-toggle
             [label]="adminText.grid.filters"
@@ -215,8 +214,6 @@ interface SortOption {
 })
 export class GridNarrowControls {
   protected readonly xIcon = xIcon;
-  protected readonly frame = DISCLOSURE_FRAME;
-  protected readonly disclosureBorder = disclosureBorder;
   private readonly navigate = injectGridNav();
   protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly panelId = 'grid-filters-panel';

@@ -12,11 +12,8 @@ import { NgTemplateOutlet } from '@angular/common';
 import { Checkbox } from '../../shared/ui/checkbox';
 import { Collapsible } from '../../shared/ui/collapsible';
 import { disclosureState } from '../../shared/ui/disclosure-state';
-import {
-  DISCLOSURE_FRAME,
-  disclosureBorder,
-  DisclosureToggle,
-} from '../../shared/ui/disclosure-toggle';
+import { DisclosureToggle } from '../../shared/ui/disclosure-toggle';
+import { DisclosureFrame } from '../../shared/ui/disclosure-frame';
 import { IconButton } from '../../shared/ui/icon-button';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { ProductSortSelect } from './product-sort-select';
@@ -100,6 +97,7 @@ export const FACET_SIBLING_ALONE =
     IconButton,
     ProductSortSelect,
     ShowMoreToggle,
+    DisclosureFrame,
   ],
   providers: [FacetSelection],
   template: `
@@ -117,14 +115,9 @@ export const FACET_SIBLING_ALONE =
         class="min-w-0 flex-1 rounded-md border
                @min-[63.75rem]/listing:rounded-none
                @min-[63.75rem]/listing:border-0"
-        [class]="
-          frame +
-          ' ' +
-          (open()
-            ? disclosureBorder(true)
-            : disclosureBorder(false) +
-              ' @min-[63.75rem]/listing:border-transparent')
-        "
+        appDisclosureFrame
+        [open]="open()"
+        [class]="open() ? '' : '@min-[63.75rem]/listing:border-transparent'"
       >
         <app-disclosure-toggle
           class="@min-[63.75rem]/listing:hidden"
@@ -328,8 +321,6 @@ export const FACET_SIBLING_ALONE =
 })
 export class FacetPanel {
   protected readonly funnelXIcon = funnelXIcon;
-  protected readonly frame = DISCLOSURE_FRAME;
-  protected readonly disclosureBorder = disclosureBorder;
   protected readonly selection = inject(FacetSelection);
   protected readonly catalogText = inject(STOREFRONT_TEXT).catalog;
   protected readonly text = this.catalogText.filters;

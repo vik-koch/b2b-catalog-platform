@@ -27,11 +27,8 @@ import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { Button } from '../../shared/ui/button';
 import { Checkbox } from '../../shared/ui/checkbox';
-import {
-  DISCLOSURE_FRAME,
-  disclosureBorder,
-  DisclosureToggle,
-} from '../../shared/ui/disclosure-toggle';
+import { DisclosureToggle } from '../../shared/ui/disclosure-toggle';
+import { DisclosureFrame } from '../../shared/ui/disclosure-frame';
 import { FieldLabel } from '../../shared/ui/field-label';
 import { IconButton } from '../../shared/ui/icon-button';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
@@ -74,13 +71,11 @@ let nextId = 0;
     IconButton,
     Input,
     ErrorText,
+    DisclosureFrame,
   ],
   host: { class: 'block' },
   template: `
-    <div
-      class="max-w-xl rounded-md border"
-      [class]="frame + ' ' + disclosureBorder(open())"
-    >
+    <div class="max-w-xl rounded-md border" appDisclosureFrame [open]="open()">
       <app-disclosure-toggle
         [label]="product.variants"
         [count]="value().length"
@@ -252,8 +247,6 @@ export class ProductVariantsEditor implements OnInit {
   protected readonly gripVerticalIcon = gripVerticalIcon;
   protected readonly imageIcon = imageIcon;
   protected readonly xIcon = xIcon;
-  protected readonly frame = DISCLOSURE_FRAME;
-  protected readonly disclosureBorder = disclosureBorder;
   protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly text = inject(ADMIN_TEXT).products.editor.variants;
   protected readonly product = inject(SHARED_TEXT).product;

@@ -8,7 +8,8 @@ import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { FieldLabel } from '../../shared/ui/field-label';
 import { FORM_FIELDS } from '../../shared/ui/form-fields';
 import { PriceField } from '../../shared/ui/price-field';
-import { UNIT_FIELD_INPUT, UnitField } from '../../shared/ui/unit-field';
+import { UnitField } from '../../shared/ui/unit-field';
+import { UnitFieldInput } from '../../shared/ui/unit-field-input';
 import { LockedFieldMarker } from '../ownership/locked-field-marker';
 import { Hint } from '../../shared/ui/hint';
 
@@ -45,6 +46,7 @@ export interface TierPriceDraft {
     UnitField,
     LockedFieldMarker,
     Hint,
+    UnitFieldInput,
   ],
   template: `
     <span appFieldLabel>
@@ -78,7 +80,7 @@ export interface TierPriceDraft {
               type="text"
               inputmode="decimal"
               appPriceField
-              [class]="unitFieldInput"
+              appUnitFieldInput
               [placeholder]="placeholder()"
               [formField]="field()[i].value"
               (blur)="onBlur(i)"
@@ -94,7 +96,6 @@ export interface TierPriceDraft {
 })
 export class ProductTierPricesEditor {
   protected readonly text = inject(ADMIN_TEXT).products.editor.tierPrices;
-  protected readonly unitFieldInput = UNIT_FIELD_INPUT;
   private readonly currency = moneyFormat(inject(DEPLOYMENT_CONFIG));
   /** The same mark the base price field above carries. */
   protected readonly currencySuffix = currencySymbol(this.currency);

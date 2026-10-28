@@ -1,10 +1,9 @@
 import { Directive } from '@angular/core';
 
 /**
- * A control that stands on its own — "show password", "enter manually", a
- * map link under an address — rather than a word inside a sentence. Position
- * and spacing already say it is operable, so the underline is kept for hover
- * and the colour and weight carry it at rest. Inside running text, `appLink`.
+ * A control standing on its own ("show password", a map link under an
+ * address) rather than a word in a sentence, so the underline waits for
+ * hover. Inside running text, `appLink`.
  *
  *   <button type="button" appTextButton (click)="…">{{ label }}</button>
  */

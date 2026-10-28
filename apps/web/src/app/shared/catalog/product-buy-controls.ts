@@ -29,7 +29,8 @@ import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Input } from '../ui/input';
 import { NumericField } from '../ui/numeric-field';
 import { Popover } from '../ui/popover';
-import { SEGMENTED_GROUP, SegmentState, segmentClass } from '../ui/segmented';
+import { Segment, type SegmentState } from '../ui/segment';
+import { SegmentGroup } from '../ui/segment-group';
 import { createBuyQuantity } from './buy-quantity';
 import { formatPriceMinor } from './price';
 import { ProductNoteEditor } from './product-note-editor';
@@ -151,6 +152,8 @@ export interface BuyableProduct {
     ProductNoteEditor,
     ProductPairings,
     ProductUnitFacts,
+    Segment,
+    SegmentGroup,
   ],
   host: { class: 'block' },
   template: `
@@ -208,6 +211,7 @@ export interface BuyableProduct {
          sold in is shown greyed and says so when pressed. -->
     <ng-template #unitsBlock>
       <div
+        appSegmentGroup
         role="radiogroup"
         [attr.aria-label]="text.unitAria"
         [class]="group()"
@@ -217,7 +221,12 @@ export interface BuyableProduct {
                given: its own width plus an equal part of what is left over. -->
           <div class="relative flex flex-auto">
             @if (option.available && sellable()) {
-              <label [class]="segment(option.unit)">
+              <label
+                appSegment
+                [state]="segmentState(option.unit)"
+                [grow]="true"
+                [locked]="!sellable()"
+              >
                 <input
                   type="radio"
                   [name]="radioName"
@@ -239,7 +248,11 @@ export interface BuyableProduct {
                    genuinely disabled. -->
               <button
                 type="button"
-                [class]="segment(option.unit) + ' w-full'"
+                appSegment
+                [state]="segmentState(option.unit)"
+                [grow]="true"
+                [locked]="!sellable()"
+                class="w-full"
                 [disabled]="!sellable()"
                 (click)="explainUnit(option.unit)"
               >
@@ -679,7 +692,7 @@ export class ProductBuyControls {
   /** In a row the spacing belongs to the cells, which have to space
    * themselves differently in each arrangement. */
   protected readonly group = computed(
-    () => `${SEGMENTED_GROUP} flex w-full ${this.row() ? '' : 'mt-2'}`,
+    () => `flex w-full ${this.row() ? '' : 'mt-2'}`,
   );
 
   /**
@@ -739,12 +752,6 @@ export class ProductBuyControls {
              @min-[28.5rem]/body:col-start-2 @min-[28.5rem]/body:row-start-2
              @min-[28.5rem]/body:mt-1`,
   } as const;
-
-  protected readonly segment = (unit: ProductUnit): string =>
-    segmentClass(this.segmentState(unit), {
-      grow: true,
-      locked: !this.sellable(),
-    });
 
   /**
    * The row's height is set here rather than left to the field, so the ends can
@@ -962,7 +969,7 @@ export class ProductBuyControls {
     this.heldNotice.set(null);
   }
 
-  private segmentState(unit: ProductUnit): SegmentState {
+  protected segmentState(unit: ProductUnit): SegmentState {
     // A line that cannot be bought is not a choice any more, but it is still a
     // reading: the quantity beside the segments is in one of these units, and
     // dropping the mark would leave "12" meaning nothing in particular.

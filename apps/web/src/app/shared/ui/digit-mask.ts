@@ -12,32 +12,16 @@ import { type FormValueControl } from '@angular/forms/signals';
 import { applyMask, stripDialPrefix } from '@b2b-catalog-platform/shared';
 
 /**
- * Formats a digit-only field as the visitor types, per a configurable mask
- * where `#` is one digit and every other character is a literal separator
- * (e.g. `(###) ###-####`). An empty mask means "digits only" — no grouping and
- * no length limit. Used by the phone fields and by the company registration
- * number (FR-AUTH-01), whose masks are both deployment config.
+ * Formats a digit-only field as it is typed, per a mask where `#` is a digit
+ * and anything else a separator (`(###) ###-####`); an empty mask is digits
+ * only. The value is the typed part: a fixed prefix such as a country code is
+ * the form's, and one arriving inside the value (a browser autofilling a full
+ * international number) is taken off, or it would be stored twice.
  *
- * The control value is the formatted, typed part only. Any fixed prefix — a
- * phone country code, a VAT country code — is owned and displayed by the form
- * and prepended when the value is submitted, never entered here. Tell the
- * directive what that prefix is (`[prefix]`) and a value arriving with one is
- * relieved of it: a browser autofilling a full international number would
- * otherwise have its country code masked as part of the national number, and
- * stored doubled.
- *
- * The mask may change under a live field — the company-id picker swaps one
- * jurisdiction's grouping for another's — so it is watched rather than read
- * once: what is on screen is regrouped immediately, and the control follows.
- * Without that the field keeps the old grouping until the next keystroke, and
- * a shorter new mask would truncate on screen only.
- *
- * A custom control for `[formField]`: it owns what the input shows, so the
- * field binds its `value` rather than the element's, and the native
- * `disabled`, `required` and `name` are said here. Deliberately simple: it
- * reformats on input and leaves the caret at the end, which is fine for a
- * short, append-mostly field — a mask library would only be worth it if we
- * needed mid-string editing.
+ * The mask may change under a live field, so it is watched: what is on screen
+ * regroups at once, and the value follows. A custom control for `[formField]`,
+ * so `disabled`, `required` and `name` are said here. It reformats on input
+ * and leaves the caret at the end, which suits a short, append-mostly field.
  */
 @Directive({
   selector: 'input[appDigitMask]',
@@ -51,8 +35,7 @@ import { applyMask, stripDialPrefix } from '@b2b-catalog-platform/shared';
 })
 export class DigitMask implements FormValueControl<string> {
   readonly mask = input('');
-  /** The fixed prefix the form shows beside this field, e.g. `+49`. Used only
-   * to recognise and remove one that arrives inside the value. */
+  /** The prefix the form shows beside this field, to remove from a value. */
   readonly prefix = input('');
 
   readonly value = model('');

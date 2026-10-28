@@ -8,16 +8,14 @@ import {
 } from '@angular/core';
 
 /**
- * A file-picking control that also takes a file dropped on it, or pasted
- * anywhere on the page outside a text field — the same file the picker would
- * have been handed, so the host routes it to the upload it already has.
+ * A file-picking control that also takes a file dropped on it or pasted on the
+ * page, handed over as the picker would have.
  *
- * A paste is taken only when nothing else wants it: one aimed at a field, or
- * already handled (the rich-text and attribute editors handle their own), is
- * left alone. It is filtered by `accept`, because a clipboard carries more
- * than was copied — cells copied from a spreadsheet arrive with a picture of
- * themselves. A drop is not: whoever dropped the file aimed it here, and the
- * upload's own refusal says more than ignoring it would.
+ * A paste is taken only when nothing else wants it: not one aimed at a text
+ * field or already handled. It is filtered by `accept`, since a clipboard
+ * carries more than was copied (spreadsheet cells arrive with a picture of
+ * themselves). A drop is not: it was aimed here, and the upload's refusal
+ * says more than ignoring it would.
  *
  *   <button [appFileTarget]="accept" (filesReceived)="upload($event)">
  */
@@ -100,9 +98,10 @@ const NOT_TEXT_INPUTS = new Set([
   'submit',
 ]);
 
-/** Where a paste means text: a field, or anything editable in place. A
- * checkbox or a select is not one — a paste after ticking an option is
- * still meant for the page. */
+/**
+ * Where a paste means text: a field, or anything editable in place. Not a
+ * checkbox or a select: a paste after ticking an option is meant for the page.
+ */
 function isTextEntry(target: EventTarget | null): boolean {
   if (!(target instanceof HTMLElement)) return false;
   if (target instanceof HTMLTextAreaElement) return true;

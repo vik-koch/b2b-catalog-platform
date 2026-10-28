@@ -15,7 +15,7 @@ import { usePageSeo } from '../../shared/core/page-seo';
 import { Button } from '../../shared/ui/button';
 import { Checkbox } from '../../shared/ui/checkbox';
 import { ChoiceCard } from '../../shared/ui/choice-card';
-import { DROP_ZONE, dropZoneState } from '../../shared/ui/drop-zone';
+import { DropZone } from '../../shared/ui/drop-zone';
 import { FileTarget, pasteKeys } from '../../shared/ui/file-target';
 import { FieldLabel } from '../../shared/ui/field-label';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
@@ -65,6 +65,7 @@ import { uploadIcon } from '@b2b-catalog-platform/ui/icons/glyphs/upload';
     PageTitle,
     ErrorText,
     PageIntro,
+    DropZone,
   ],
   template: `
     <div class="mb-4 flex flex-wrap items-center gap-3">
@@ -150,9 +151,9 @@ import { uploadIcon } from '@b2b-catalog-platform/ui/icons/glyphs/upload';
           <button
             type="button"
             class="w-full p-4"
-            #target="appFileTarget"
             appFileTarget=".csv,text/csv"
-            [class]="dropZoneClass(target.dragging())"
+            appDropZone
+            [filled]="!!file()"
             (click)="openPicker(fileInput)"
             (filesReceived)="setFile($event[0])"
           >
@@ -295,10 +296,6 @@ export class CustomerSyncUploadPage {
   protected openPicker(input: HTMLInputElement): void {
     input.value = '';
     input.click();
-  }
-
-  protected dropZoneClass(dragging: boolean): string {
-    return `${DROP_ZONE} ${dropZoneState(dragging, !!this.file())}`;
   }
 
   protected setFile(file: File | null): void {

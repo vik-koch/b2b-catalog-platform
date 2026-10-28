@@ -1,22 +1,44 @@
 import { Component, computed, input, output } from '@angular/core';
 import { Radio } from './radio';
 
+const card = `relative h-full rounded-lg border p-3 transition-colors
+              has-[:focus-visible]:outline-1
+              has-[:focus-visible]:outline-offset-2
+              has-[:focus-visible]:outline-secondary`;
+
 /**
- * One option of a choice big enough to deserve explaining: a framed card with
- * a title, a sentence saying what picking it means, and room underneath for
- * whatever the choice reveals — a link to the conditions, a list of offices.
+ * The chosen card is tinted, which reads across a row where a border alone is
+ * a hairline, and still answers a pointer; a disabled one is shown greyed.
+ */
+const states = {
+  disabled: 'border-edge opacity-60',
+  checked: `border-primary bg-surface-subtle
+            hover:border-accent
+            active:border-primary-press`,
+  unchecked: `border-edge-strong
+              hover:border-accent
+              active:border-primary active:bg-surface-subtle-press`,
+} as const;
+
+/**
+ * Above the overlay, so what is in it can be clicked, and only as wide as its
+ * content, so a click beside a link still chooses the card.
+ */
+const content = 'relative ml-7 w-fit empty:hidden';
+
+/** Clear of the description where there is one, close under the title where not. */
+const contentGaps = {
+  described: 'mt-3',
+  bare: 'mt-1',
+} as const;
+
+/**
+ * One option of a choice that deserves a sentence (how the goods arrive, how
+ * they are paid for): a framed card with a title, a description, and room
+ * under it for what the choice reveals. The radio stays real.
  *
- * A card rather than a segment or a dropdown because these choices decide the
- * shape of the rest of the form. Checkout asks two of them (how the goods
- * arrive, how they are paid for), and both are worth a sentence each; a
- * dropdown has nowhere to put one.
- *
- * The radio is real and stays real — the group semantics, arrow-key navigation
- * and the focus ring all come from the platform, and `has-[:focus-visible]`
- * puts that ring on the card. The whole card is the hit area, laid over it as
- * an overlay inside the label rather than by making the card a label: a label
- * wrapping the projected content would swallow clicks meant for the link or
- * the office list inside it. Those sit above the overlay instead.
+ * The whole card is the hit area, as an overlay inside the label: a label
+ * around the projected content would swallow clicks meant for a link in it.
  */
 @Component({
   selector: 'app-choice-card',
@@ -25,14 +47,11 @@ import { Radio } from './radio';
   template: `
     <div [class]="cardClass()">
       <label class="flex items-start gap-3">
-        <!-- The overlay: the card's own hit area, and the reason the card is
-             not itself a label. -->
         <span
           class="absolute inset-0 rounded-lg"
           [class.cursor-pointer]="!disabled()"
         ></span>
-        <!-- Centred on the title's own line box, not on the block: the radio
-             is 16px in the 24px line the title sets, so it sits 4px down. -->
+        <!-- Centred on the title's 24px line, not on the block. -->
         <input
           type="radio"
           appRadio
@@ -44,10 +63,7 @@ import { Radio } from './radio';
           (change)="chosen.emit()"
         />
         <span class="min-w-0">
-          <!-- The title stays put under a pointer. The card already answers
-               with its border and its radio, and a heading that recolours with
-               them makes one hover read as three things moving — the title is
-               the name of the option, not a control of its own. -->
+          <!-- The title stays put under a pointer: it names the option. -->
           <span class="block font-medium">
             {{ title() }}
           </span>
@@ -59,22 +75,12 @@ import { Radio } from './radio';
         </span>
       </label>
 
-      <!-- Above the overlay, so a link or a list in here is clickable. Indented
-           to the title's own column: what a choice reveals belongs under what
-           it says, not under its radio. Flush under a card that says nothing
-           else: the gap is there to clear a sentence, and with no sentence to
-           clear it stands where the sentence would have been.
-
-           Only as wide as what is in it. Full width, this sits over the card's
-           own hit area for the whole line, and a click to the right of a link
-           lands on nothing instead of choosing the card. -->
       <div [class]="contentClass()"><ng-content /></div>
     </div>
   `,
 })
 export class ChoiceCard {
-  /** The radio group this card belongs to — the same string on every card of
-   * one choice, which is what makes the arrow keys walk them. */
+  /** The same on every card of one choice, so arrow keys walk them. */
   readonly name = input.required<string>();
   readonly value = input.required<string>();
   readonly checked = input(false);
@@ -86,33 +92,14 @@ export class ChoiceCard {
 
   protected readonly contentClass = computed(
     () =>
-      `relative ml-7 w-fit ${this.description() ? 'mt-3' : 'mt-1'}
-       empty:hidden`,
+      `${content} ${contentGaps[this.description() ? 'described' : 'bare']}`,
   );
 
-  protected readonly cardClass = computed(() => {
-    // Selected deepens to primary the way a pressed button does; hover goes
-    // outward to accent. The tint is what makes the choice readable at a
-    // glance across a row of cards, where a border alone is a hairline.
-    // Unavailable is shown, not hidden: the card still says what the option
-    // is and what it would need, greyed rather than removed.
-    //
-    // The chosen card answers a pointer too. It used to be the one card in the
-    // row that did not, which read as the one that could no longer be pressed —
-    // it is the one that already is. Its press deepens rather than tinting,
-    // there being a tint on it already.
-    const state = this.disabled()
-      ? 'border-edge opacity-60'
-      : this.checked()
-        ? `border-primary bg-surface-subtle
-           hover:border-accent
-           active:border-primary-press`
-        : `border-edge-strong
-           hover:border-accent
-           active:border-primary active:bg-surface-subtle-press`;
-    return `relative h-full rounded-lg border p-3 transition-colors ${state}
-            has-[:focus-visible]:outline-1
-            has-[:focus-visible]:outline-offset-2
-            has-[:focus-visible]:outline-secondary`;
-  });
+  protected readonly cardClass = computed(() => `${card} ${this.state()}`);
+
+  private state(): string {
+    if (this.disabled()) return states.disabled;
+    if (this.checked()) return states.checked;
+    return states.unchecked;
+  }
 }

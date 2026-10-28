@@ -1,5 +1,8 @@
 import { computed, Directive, input } from '@angular/core';
 
+const base = `inline-flex items-center justify-center rounded-md text-sm
+              font-medium`;
+
 /**
  * Height is a floor, not padding, so a wrapping label grows by one line
  * rather than by a line plus the padding again.
@@ -26,9 +29,5 @@ export type ButtonSize = keyof typeof sizes;
 export class ButtonBox {
   readonly size = input<ButtonSize>('md');
 
-  protected readonly classes = computed(
-    () =>
-      `inline-flex items-center justify-center rounded-md text-sm font-medium
-       ${sizes[this.size()]}`,
-  );
+  protected readonly classes = computed(() => `${base} ${sizes[this.size()]}`);
 }

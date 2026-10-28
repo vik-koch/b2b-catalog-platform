@@ -8,9 +8,8 @@ export interface TextPart {
 const BOLD = /<b>(.*?)<\/b>/gs;
 
 /**
- * Splits a config sentence on `<b>…</b>`. Only that one pair is read; any other
- * markup, and a `<b>` left unclosed, stays literal text and is escaped like
- * the rest.
+ * Splits a sentence on `<b>…</b>`. Only that pair is read; other markup, and
+ * an unclosed `<b>`, stay literal text.
  */
 export function emphasisParts(text: string): TextPart[] {
   const parts: TextPart[] = [];
@@ -26,15 +25,13 @@ export function emphasisParts(text: string): TextPart[] {
 }
 
 /**
- * A deployment's own sentence, with the words it marked `<b>` set in bold —
- * a zone's or a pickup point's description. Rendered as text nodes, never as
- * HTML, so a config value cannot carry anything else onto the page.
+ * A sentence with the words it marks `<b>` set in bold. Rendered as text
+ * nodes, never as HTML, so the sentence can carry nothing else onto the page.
  */
 @Component({
   selector: 'app-emphasised',
   host: { class: 'contents' },
-  // One line: whitespace between the parts is the text's own, and any line
-  // break in here would add a space around every part.
+  // One line: a line break in here would add a space around every part.
   // prettier-ignore
   template: `@for (part of parts(); track $index) {@if (part.bold) {<b class="font-medium text-ink">{{ part.text }}</b>} @else {{{ part.text }}}}`,
 })

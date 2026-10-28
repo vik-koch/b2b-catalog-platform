@@ -1,12 +1,14 @@
 import { computed, Directive, input } from '@angular/core';
 
+/** A badge names a state, so its label is not there to be selected. */
+const base = 'inline-flex text-xs font-medium select-none';
+
 /**
- * What a state means, not what colour it is. Every badge in the app answers one
- * of these five, so an order awaiting an answer and an account awaiting
- * approval are the same amber, and nobody has to remember which shade of it.
+ * What a state means, not what colour it is: two things awaiting someone are
+ * the same amber wherever they are.
  */
 const tones = {
-  /** Nothing is pending and nothing is wrong — history, or a plain fact. */
+  /** Nothing pending and nothing wrong: history, or a plain fact. */
   neutral: 'bg-chip text-ink-subtle',
   /** Somebody has to act before this moves. */
   waiting: 'bg-warning-surface text-warning-ink',
@@ -19,12 +21,8 @@ const tones = {
 } as const;
 
 /**
- * The same five states in the quiet variant, where the dot is the only thing
- * that carries the tone: the field is white, the border is the app's ordinary
- * hairline and the label is body-coloured whatever the state. A shelf being
- * empty is a fact about a product, not a warning about it, so in a listing the
- * badge should read at the weight of the words around it — the colour is there
- * to be scanned down a column, not to shout from inside a card.
+ * The quiet variant, where only the dot carries the tone, so a badge reads at
+ * the weight of the words around it and its colour is there to be scanned.
  */
 const dots = {
   neutral: 'before:bg-ink-subtle',
@@ -36,31 +34,31 @@ const dots = {
 
 export type StatusTone = keyof typeof tones;
 
-/**
- * `solid` is the pill this started as; `dot` is the bordered variant. The dot
- * is a `::before` rather than an element so both variants stay one directive
- * with no content of their own, and no caller has to know which shape it asked
- * for beyond naming it.
- */
-export type StatusBadgeVariant = 'solid' | 'dot';
-
+/** The dot is a `::before`, so both variants stay one directive with no content. */
 const shapes = {
   solid: 'rounded-full px-2 py-0.5',
-  dot:
-    `gap-x-1.5 rounded-md border border-edge bg-white px-1.5 py-0.5
-     text-ink-subtle ` +
-    "before:size-1.5 before:shrink-0 before:rounded-full before:content-['']",
+  dot: `gap-x-1.5 rounded-md border border-edge bg-white px-1.5 py-0.5
+        text-ink-subtle
+        before:size-1.5 before:shrink-0 before:rounded-full
+        before:content-['']`,
+} as const;
+
+export type StatusBadgeVariant = keyof typeof shapes;
+
+const colors = { solid: tones, dot: dots } as const;
+
+/**
+ * Unbroken by default. Wrapped, the lines sit close, so they still read as one
+ * label, and the dot stays level with the first.
+ */
+const flows = {
+  line: 'items-center whitespace-nowrap',
+  wrap: 'items-start leading-tight before:mt-[calc(0.5lh-0.1875rem)]',
 } as const;
 
 /**
- * The pill that says what state a thing is in — an order's status, an account's,
- * a product that is off the storefront, a row a sync would change.
- *
- * One directive because these read as the same control wherever they appear: a
- * customer and a manager look at the same order, and the badge on their two
- * screens was a different shape. The wording is never shared — a customer reads
- * "Awaiting confirmation" where staff read the state itself — so the domains
- * keep their own catalogues and hand this only a tone.
+ * The badge that says what state a thing is in, one shape wherever it
+ * appears. The wording is the caller's; this is handed only a tone.
  */
 @Directive({
   selector: '[appStatusBadge]',
@@ -70,25 +68,14 @@ export class StatusBadge {
   readonly tone = input<StatusTone>('neutral');
   readonly variant = input<StatusBadgeVariant>('solid');
   /**
-   * Lets a long label break onto a second line — only where a column beside a
-   * thumbnail has the height to spare and not the width (the main page's small
-   * card). The lines sit closer than text does, so two of them still read as
-   * one label, and the dot stays level with the first rather than drifting to
-   * the middle of both.
+   * Lets a long label take a second line, where a column has height to spare
+   * and not width.
    */
   readonly wrap = input(false);
 
   protected readonly classes = computed(() => {
     const variant = this.variant();
-    const colors = variant === 'dot' ? dots[this.tone()] : tones[this.tone()];
-    // select-none: a badge names a state, it is not text about one. See Button.
-    // nowrap for the same reason: a two-word state is one label, and a narrow
-    // column — a table the reader has dragged, a phone — should push it out of
-    // the way rather than break it across two lines.
-    const flow = this.wrap()
-      ? 'items-start leading-tight before:mt-[calc(0.5lh-0.1875rem)]'
-      : 'items-center whitespace-nowrap';
-    return `inline-flex ${flow} text-xs font-medium select-none
-            ${shapes[variant]} ${colors}`;
+    return `${base} ${flows[this.wrap() ? 'wrap' : 'line']} ${shapes[variant]}
+            ${colors[variant][this.tone()]}`;
   });
 }

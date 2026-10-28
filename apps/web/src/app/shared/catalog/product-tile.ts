@@ -1,7 +1,6 @@
 import { Component, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ProductListItem } from '@b2b-catalog-platform/shared';
-import { FRAME } from '../ui/frame';
 import {
   NARROW_BODY_IN_GRID,
   NARROW_PADDING_IN_GRID,
@@ -11,6 +10,7 @@ import { ProductBuyControls } from './product-buy-controls';
 import { ProductStatusLine } from './product-status-line';
 import { ProductUnitFacts } from './product-unit-facts';
 import { ImagePriority, TileGallery } from './tile-gallery';
+import { Frame } from '../ui/frame';
 
 /**
  * The classes every grid of product cards uses.
@@ -54,10 +54,11 @@ export const PRODUCT_GRID = `grid
     ProductStatusLine,
     ProductBuyControls,
     ProductUnitFacts,
+    Frame,
   ],
   host: { class: 'h-full' },
   template: `
-    <div [class]="card">
+    <div appFrame [class]="card">
       <!-- Its own stacking context, so what the caller pins lands on the
            photo's corner rather than the card's — nowhere near it once the
            photo is a thumbnail on the left. It also keeps the projected
@@ -131,8 +132,7 @@ export class ProductTile {
    * a line with nothing drawn around it. */
   protected readonly card =
     `group relative flex h-full flex-col rounded-lg bg-white transition-shadow
-     hover:shadow-md ` +
-    FRAME +
+     hover:shadow-md` +
     ` @max-[38rem]/listing:flex-row @max-[38rem]/listing:items-stretch
       @max-[38rem]/listing:gap-4 @max-[38rem]/listing:rounded-none
       @max-[38rem]/listing:ring-0 @max-[38rem]/listing:bg-transparent

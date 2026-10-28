@@ -10,9 +10,9 @@ import {
 import { ProductImage } from '@b2b-catalog-platform/shared';
 import { swipeStep, touchX } from './swipe';
 import { STOREFRONT_TEXT } from '../config/storefront-text';
-import { FRAME, FRAME_HOVER, FRAME_SELECTED } from '../ui/frame';
 import { ShowMoreToggle } from '../ui/show-more-toggle';
 import { ImagePlaceholder } from './image-placeholder';
+import { Frame } from '../ui/frame';
 
 /** Thumbnails a phone keeps before the show-more toggle takes over — one row
  * of the narrow grid. Which row that is has to be written into the class as a
@@ -59,7 +59,7 @@ const THUMBS_BESIDE = 6;
  */
 @Component({
   selector: 'app-product-gallery',
-  imports: [ImagePlaceholder, ShowMoreToggle],
+  imports: [ImagePlaceholder, ShowMoreToggle, Frame],
   template: `
     <div [class]="frameClass()">
       <!-- A horizontal swipe steps between the photos, the gesture the card
@@ -69,6 +69,7 @@ const THUMBS_BESIDE = 6;
            scrolling under a vertical drag. -->
       <div
         data-main-image
+        appFrame
         [class]="mainImage()"
         (touchstart)="onTouchStart($event)"
         (touchend)="onTouchEnd($event)"
@@ -102,7 +103,11 @@ const THUMBS_BESIDE = 6;
             <li [class]="folded($index) ? 'max-md:hidden' : ''">
               <button
                 type="button"
-                [class]="thumb($index === selected())"
+                appFrame
+                [selected]="$index === selected()"
+                [pressable]="true"
+                class="block aspect-square w-full overflow-hidden rounded-md
+                       transition-shadow"
                 [attr.aria-current]="$index === selected() || null"
                 [attr.aria-label]="thumbLabel($index)"
                 (click)="select($index)"
@@ -153,7 +158,7 @@ export class ProductGallery {
   protected readonly mainImage = computed(
     () =>
       `aspect-square w-full min-w-0 touch-pan-y overflow-hidden bg-white
-       ${FRAME} ${this.compact() ? 'rounded-lg' : 'rounded-xl md:w-100'}`,
+       ${this.compact() ? 'rounded-lg' : 'rounded-xl md:w-100'}`,
   );
 
   protected readonly THUMBS_COLLAPSED = THUMBS_COLLAPSED;
@@ -267,18 +272,6 @@ export class ProductGallery {
 
   protected markFailed(src: string): void {
     this.failed.update((set) => new Set(set).add(src));
-  }
-
-  /** Every thumbnail carries the hairline the photos elsewhere have; the
-   * chosen one wears it at primary, two pixels wide. Weight as well as colour,
-   * so which one is chosen survives a page of photos that are themselves brown
-   * — and outwards, so the photo inside is the same size whichever one is
-   * chosen. Both answer a pointer with accent, the chosen one included: it is
-   * still a thing you can press, and it was the one that said otherwise. */
-  protected thumb(selected: boolean): string {
-    return `block aspect-square w-full overflow-hidden rounded-md
-            transition-shadow ${FRAME_HOVER}
-            ${selected ? FRAME_SELECTED : FRAME}`;
   }
 
   protected thumbLabel(index: number): string {

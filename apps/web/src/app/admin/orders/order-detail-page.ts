@@ -52,11 +52,8 @@ import {
   confirmRequest,
 } from '../../shared/ui/confirm.service';
 import { AuthService } from '../../shared/auth/auth.service';
-import {
-  DISCLOSURE_FRAME,
-  disclosureBorder,
-  DisclosureToggle,
-} from '../../shared/ui/disclosure-toggle';
+import { DisclosureToggle } from '../../shared/ui/disclosure-toggle';
+import { DisclosureFrame } from '../../shared/ui/disclosure-frame';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Skeleton } from '../../shared/ui/skeleton';
 import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
@@ -127,6 +124,7 @@ const MARK_PAID = 'markPaid';
     LockedNote,
     PageTitle,
     ErrorText,
+    DisclosureFrame,
   ],
   template: `
     @if (detail(); as order) {
@@ -405,7 +403,8 @@ const MARK_PAID = 'markPaid';
                   <dd [class]="value">
                     <div
                       class="rounded-md border"
-                      [class]="frame + ' ' + disclosureBorder(historyOpen())"
+                      appDisclosureFrame
+                      [open]="historyOpen()"
                     >
                       <app-disclosure-toggle
                         [label]="revisionText.subheading"
@@ -645,8 +644,6 @@ export class AdminOrderDetailPage {
    * button — the documents panel already had a reading mode, and takes it.
    */
   protected readonly locked = computed(() => this.ownership.owns('orders'));
-  protected readonly frame = DISCLOSURE_FRAME;
-  protected readonly disclosureBorder = disclosureBorder;
   /**
    * The block's rows, spelled the way the account page spells its own: no row
    * gap, but a margin under each half, so on a narrow screen a label sits

@@ -1,5 +1,7 @@
 import { computed, Directive, input } from '@angular/core';
 
+const base = 'block rounded-md border p-3 text-sm';
+
 /**
  * A notice is its tone's text on its tone's ground, inside its tone's line
  * (docs/design-language.md): one rule, so a notice reads the same whichever
@@ -14,9 +16,9 @@ const tones = {
 export type NoticeTone = keyof typeof tones;
 
 /**
- * A panel that stops the reader before what follows it: a delete that needs
- * confirming, a run that failed, a cart that was not saved. The page keeps
- * what only it knows: the element, its role or label, and the space around it.
+ * A panel that stops the reader before what follows it: a step to confirm,
+ * something that failed, something not saved. The page keeps the element, its
+ * role or label, and the space around it.
  *
  *   <p appNotice tone="warning" role="status" class="mb-4">…</p>
  */
@@ -27,7 +29,5 @@ export type NoticeTone = keyof typeof tones;
 export class Notice {
   readonly tone = input.required<NoticeTone>();
 
-  protected readonly classes = computed(
-    () => `block rounded-md border p-3 text-sm ${tones[this.tone()]}`,
-  );
+  protected readonly classes = computed(() => `${base} ${tones[this.tone()]}`);
 }

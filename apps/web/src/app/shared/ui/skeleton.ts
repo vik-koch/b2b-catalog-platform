@@ -11,25 +11,33 @@ const WIDTHS = ['100%', '83%', '66%'] as const;
  */
 export type SkeletonSize = 'block' | 'sm' | 'base';
 
+const row = 'flex items-center';
+
 /** The line box each size fills, and the bar drawn inside it. */
-const ROWS: Record<SkeletonSize, string> = {
+const rowHeights: Record<SkeletonSize, string> = {
   block: 'h-4',
   sm: 'h-5',
   base: 'h-6',
 };
-const BARS: Record<SkeletonSize, string> = {
+
+/** The edge the replaced text is set against. */
+const aligns = {
+  left: '',
+  right: 'justify-end',
+} as const;
+
+const bar = 'rounded-sm bg-skeleton';
+
+const barHeights: Record<SkeletonSize, string> = {
   block: 'h-4',
   sm: 'h-3',
   base: 'h-3.5',
 };
 
 /**
- * Placeholder bars for a region whose content has not arrived yet. Purely
- * decorative — `aria-hidden`, because the screen reader's cue is the live
- * region or the heading that is already on the page, not a row of grey boxes.
- *
- * Pair it with `delayedLoading` so it never appears for a load that was quick
- * enough not to need it.
+ * Placeholder bars for content that has not arrived. Hidden from assistive
+ * technology: the cue there is the live region or the heading already on the
+ * page. Show it after a short delay, so a quick load never flashes it.
  *
  *   @if (showSkeleton()) {
  *     <app-skeleton [lines]="4" />
@@ -52,12 +60,8 @@ const BARS: Record<SkeletonSize, string> = {
   },
   template: `
     @for (width of bars(); track $index) {
-      <div class="flex items-center" [class]="row()">
-        <div
-          class="rounded-sm bg-skeleton"
-          [class]="bar()"
-          [style.width]="width"
-        ></div>
+      <div [class]="rowClass()">
+        <div [class]="barClass()" [style.width]="width"></div>
       </div>
     }
   `,
@@ -65,11 +69,11 @@ const BARS: Record<SkeletonSize, string> = {
 export class Skeleton {
   readonly lines = input(3);
   readonly size = input<SkeletonSize>('block');
-  /** Which edge the bars hang from — the edge the text they replace is set
-   * against. */
-  readonly align = input<'left' | 'right'>('left');
-  /** Bar widths, one per line, where the content has a width worth imitating.
-   * Its length wins over `lines`. */
+  readonly align = input<keyof typeof aligns>('left');
+  /**
+   * Bar widths, one per line, where the content has a width worth imitating.
+   * Its length wins over `lines`.
+   */
   readonly widths = input<readonly string[] | null>(null);
 
   protected readonly bars = computed(
@@ -77,9 +81,10 @@ export class Skeleton {
       this.widths() ??
       Array.from({ length: this.lines() }, (_, i) => WIDTHS[i % WIDTHS.length]),
   );
-  protected readonly row = computed(
-    () =>
-      `${ROWS[this.size()]} ${this.align() === 'right' ? 'justify-end' : ''}`,
+  protected readonly rowClass = computed(
+    () => `${row} ${rowHeights[this.size()]} ${aligns[this.align()]}`,
   );
-  protected readonly bar = computed(() => BARS[this.size()]);
+  protected readonly barClass = computed(
+    () => `${bar} ${barHeights[this.size()]}`,
+  );
 }

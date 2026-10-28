@@ -1,45 +1,26 @@
-import { Component, input } from '@angular/core';
+import { Component, computed, input } from '@angular/core';
+
+const unit = 'pr-3 text-xs text-ink-subtle';
+
+/** As far from the edge as the figure is from the other one. */
+const compactUnit = 'sm:pr-2';
 
 /**
- * What the input inside a UnitField wears instead of `appInput`: the wrapper
- * carries the border, the background and the focus ring, so the field itself
- * is a bare box that fills what is left of the row.
- */
-export const UNIT_FIELD_INPUT = `h-10 min-w-0 flex-1 bg-transparent px-2
-                                 py-1.5 leading-6 outline-none
-                                 disabled:cursor-not-allowed`;
-
-/** The same, with the figure close up to its unit from `sm` up — for a
- * compact field. */
-export const UNIT_FIELD_INPUT_COMPACT = `h-10 min-w-0 flex-1 bg-transparent
-                                         px-2 py-1.5 leading-6 outline-none
-                                         disabled:cursor-not-allowed
-                                         sm:pr-1`;
-
-/**
- * A field with its unit printed inside it, after the figure it measures — the
- * packaging editor's rows, the stock counts. The unit is part of what the
- * field says rather than a caption under it, which is the only shape that
- * survives a narrow column: a label above, a hint below and a unit beside
- * would be four lines for one number.
- *
- * A wrapper rather than a directive on the input, for SelectField's reason —
- * the unit is a *sibling*, which a directive on the input cannot add. Flex
- * rather than an overlay, so a locale whose abbreviation is four characters
- * long shortens the field instead of being clipped by it.
+ * A field with its unit printed inside it, after the figure: in a narrow
+ * column, a caption, a hint and a unit beside would be four lines for one
+ * number. A wrapper, because the unit is a sibling a directive cannot add;
+ * flex rather than an overlay, so a long unit shortens the field instead of
+ * being clipped. The input inside takes `appUnitFieldInput`.
  *
  *   <app-unit-field class="w-full" unit="pcs">
- *     <input [class]="unitFieldInput" … />
+ *     <input appUnitFieldInput … />
  *   </app-unit-field>
  */
 @Component({
   selector: 'app-unit-field',
+  // An `appInput`'s border states, on the wrapper that owns the border. Hover
+  // excludes focus, which a plain input settles through the unlayered focus rule.
   host: {
-    // The border states an `appInput` field wears, said on the wrapper because
-    // the border is the wrapper's: accent under a pointer, secondary once the
-    // caret is in it. The hover excludes `:focus-within` explicitly — being
-    // focused is the stronger statement, and on a plain input the app's
-    // unlayered focus rule already settles that.
     class: `flex items-center rounded-md border border-edge-strong bg-white
             transition-colors
             [&:has(input:enabled):not(:focus-within):hover]:border-accent
@@ -50,19 +31,19 @@ export const UNIT_FIELD_INPUT_COMPACT = `h-10 min-w-0 flex-1 bg-transparent
   template: `
     <ng-content />
     @if (unit()) {
-      <span
-        [class]="compact() ? 'pr-3 sm:pr-2' : 'pr-3'"
-        class="text-xs text-ink-subtle"
-        >{{ unit() }}</span
-      >
+      <span [class]="unitClass()">{{ unit() }}</span>
     }
   `,
 })
 export class UnitField {
   readonly unit = input<string>('');
-  /** For a field sized to its figure rather than to the form from `sm` up:
-   * the unit sits as far from the edge as the figure does from the other one.
-   * Below `sm` it is a full-width field like any other, its unit in line with
-   * theirs. Pair it with `UNIT_FIELD_INPUT_COMPACT` on the input. */
+  /**
+   * Sized to its figure rather than to the form from `sm` up, with the unit
+   * as far from the edge as the figure is from the other one.
+   */
   readonly compact = input(false);
+
+  protected readonly unitClass = computed(
+    () => `${unit} ${this.compact() ? compactUnit : ''}`,
+  );
 }

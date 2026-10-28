@@ -42,7 +42,6 @@ import { HighlightedLine } from '../../shared/core/highlighted-line';
 import { AlternateLayout } from '../../shared/core/alternate-layout';
 import { Button } from '../../shared/ui/button';
 import { IconButton } from '../../shared/ui/icon-button';
-import { FRAME } from '../../shared/ui/frame';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { WarningNote } from '../../shared/ui/warning-note';
 import { chevronRightIcon } from '@b2b-catalog-platform/ui/icons/glyphs/chevron-right';
@@ -50,6 +49,7 @@ import { circleCheckIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-ch
 import { searchIcon } from '@b2b-catalog-platform/ui/icons/glyphs/search';
 import { shoppingBasketIcon } from '@b2b-catalog-platform/ui/icons/glyphs/shopping-basket';
 import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
+import { Frame } from '../../shared/ui/frame';
 
 /** Long enough that a fast typist produces one request per word rather than
  * one per letter, short enough that a pause feels answered immediately. */
@@ -97,6 +97,7 @@ let nextId = 0;
     WarningNote,
     CategoryChip,
     IconButton,
+    Frame,
   ],
   host: { class: 'block' },
   template: `
@@ -339,7 +340,7 @@ let nextId = 0;
                         class="flex min-w-0 flex-1 items-center gap-3"
                       >
                         <!-- Decorative: the name beside it says what it shows. -->
-                        <span [class]="thumb">
+                        <span appFrame [class]="thumb">
                           @if (
                             item.images[0] &&
                             !failed().has(item.images[0].thumb)
@@ -573,7 +574,7 @@ export class SearchField {
   protected readonly failed = signal<ReadonlySet<string>>(new Set());
 
   protected readonly thumb = `block h-16 w-16 shrink-0 overflow-hidden
-                              rounded-md ${FRAME}`;
+                              rounded-md`;
   /** The add button's box, and the mark's that replaces it — one size, so a
    * row does not move when one becomes the other. */
   protected readonly addBox = 'inline-flex h-9 w-9 items-center justify-center';

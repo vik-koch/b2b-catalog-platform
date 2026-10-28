@@ -17,11 +17,8 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { HighlightedLine } from '../../shared/core/highlighted-line';
 import { AlternateLayout } from '../../shared/core/alternate-layout';
 import { SUGGEST_PANEL, SuggestList } from '../../shared/core/suggest-list';
-import {
-  DISCLOSURE_FRAME,
-  disclosureBorder,
-  DisclosureToggle,
-} from '../../shared/ui/disclosure-toggle';
+import { DisclosureToggle } from '../../shared/ui/disclosure-toggle';
+import { DisclosureFrame } from '../../shared/ui/disclosure-frame';
 import { FieldLabel } from '../../shared/ui/field-label';
 import { IconButton } from '../../shared/ui/icon-button';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
@@ -64,15 +61,13 @@ const SUGGESTIONS_SHOWN = 8;
     IconButton,
     Input,
     StatusBadge,
+    DisclosureFrame,
   ],
   host: { class: 'block' },
   template: `
     <!-- The attribute picker's box: lid, count, and one border around
          everything it opens. -->
-    <div
-      class="max-w-xl rounded-md border"
-      [class]="frame + ' ' + disclosureBorder(open())"
-    >
+    <div class="max-w-xl rounded-md border" appDisclosureFrame [open]="open()">
       <app-disclosure-toggle
         [label]="product.pairings"
         [count]="value().length"
@@ -198,8 +193,6 @@ const SUGGESTIONS_SHOWN = 8;
 })
 export class ProductPairingsEditor implements OnInit {
   protected readonly xIcon = xIcon;
-  protected readonly frame = DISCLOSURE_FRAME;
-  protected readonly disclosureBorder = disclosureBorder;
   private readonly service = inject(AdminCatalogService);
   protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly text = inject(ADMIN_TEXT).products.editor.pairings;

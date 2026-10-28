@@ -32,7 +32,8 @@ import { Input } from './input';
           [autocomplete]="autocomplete()"
           inputmode="tel"
           appInput
-          [class]="inputWidth() + ' rounded-l-none'"
+          class="rounded-l-none"
+          [class]="inputWidth()"
         />
       </div>
     } @else {

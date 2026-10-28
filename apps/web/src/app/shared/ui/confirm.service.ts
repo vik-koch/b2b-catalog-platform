@@ -15,18 +15,15 @@ export interface ConfirmRequest {
   message: string;
   /** Null on a dialog that only explains: there is nothing to answer yes to. */
   confirmLabel: string | null;
-  /** A consequence worth weighing before answering yes — drawn amber under the
-   * question, and never a refusal. */
+  /** A consequence to weigh before answering yes; never a refusal. */
   warning?: string;
   cancelLabel: string;
   confirmVariant?: 'primary' | 'danger';
-  /** What happens *because* the answer is yes, each offered as a tick with the
-   * usual answer already filled in. */
+  /** What happens because the answer is yes, each offered as a tick. */
   checks?: readonly ConfirmCheck[];
 }
 
-/** A dialog's words as a deployment writes them (`confirmText` in the text
- * schemas). */
+/** A dialog's words as the text files write them. */
 export interface ConfirmText {
   readonly heading: string;
   readonly message: string;
@@ -35,8 +32,7 @@ export interface ConfirmText {
   readonly warning?: string;
 }
 
-/** The request for those words; a view adds the warning when it applies, and
- * the common cancel stands in where the dialog names none. */
+/** The request for those words; `cancel` stands in where they name none. */
 export function confirmRequest(text: ConfirmText, cancel = ''): ConfirmRequest {
   return {
     heading: text.heading,
@@ -46,9 +42,7 @@ export function confirmRequest(text: ConfirmText, cancel = ''): ConfirmRequest {
   };
 }
 
-/** A confirmation that may say why. Required by default, because the usual
- * case is a reason quoted at somebody; optional where it is a courtesy to the
- * reader rather than an explanation owed to them. */
+/** A confirmation that may say why; the reason is required unless said otherwise. */
 export interface ReasonRequest extends ConfirmRequest {
   reasonLabel: string;
   reasonMaxLength: number;
@@ -56,12 +50,9 @@ export interface ReasonRequest extends ConfirmRequest {
 }
 
 /**
- * Asks the user a yes/no question and resolves with the answer.
- * The dialog is created imperatively and attached to `<body>` rather than
- * declared in a host template: callers (canDeactivate guards especially) have
- * no template of their own, and the modal belongs in the top layer regardless.
- * On the server there is nothing to ask, so it answers "yes" — guards only ever
- * run in the browser anyway.
+ * Asks a yes/no question and resolves with the answer. The dialog is attached
+ * to `<body>`, since callers such as guards have no template. On the server
+ * there is nothing to ask, so it answers yes.
  */
 @Injectable({ providedIn: 'root' })
 export class ConfirmService {
@@ -74,10 +65,8 @@ export class ConfirmService {
   }
 
   /**
-   * States something and waits for it to be read — the same modal with nothing
-   * to answer. For a control that refuses rather than acts: the button stays
-   * where it is and says why it will not work, which is what the product
-   * delete dialog does while the catalog is owned elsewhere.
+   * States something and waits for it to be read: for a control that refuses
+   * rather than acts, saying why.
    */
   async tell(request: {
     heading: string;
@@ -100,11 +89,7 @@ export class ConfirmService {
     return (await this.open(request))?.reason ?? null;
   }
 
-  /**
-   * The whole answer — the reason, and how the ticks were left — for a caller
-   * that offered choices. `ask` and `askWithReason` are this with the parts
-   * they do not use dropped.
-   */
+  /** The whole answer, for a caller that offered choices. */
   askDetailed(
     request: ConfirmRequest | ReasonRequest,
   ): Promise<ConfirmAnswer | null> {
@@ -114,8 +99,7 @@ export class ConfirmService {
   private open(
     request: ConfirmRequest | ReasonRequest,
   ): Promise<ConfirmAnswer | null> {
-    // Nothing to ask on the server, and nothing to answer with: a guard there
-    // proceeds, and every choice stands as it was offered.
+    // On the server a guard proceeds, and every choice stands as offered.
     if (!this.isBrowser) {
       return Promise.resolve({
         reason: '',

@@ -1,5 +1,7 @@
 import { Component, computed, input } from '@angular/core';
-import { triangleAlertIcon } from '@b2b-catalog-platform/ui/icons/glyphs/triangle-alert';
+
+const base = `inline-flex h-5 w-5 items-center justify-center rounded-full
+              select-none`;
 
 /** How much attention the badge asks for. */
 export type HintBadgeTone = 'neutral' | 'notice' | 'warning';
@@ -7,21 +9,17 @@ export type HintBadgeTone = 'neutral' | 'notice' | 'warning';
 const tones: Record<HintBadgeTone, string> = {
   /** A fact about the row, no action implied. */
   neutral: 'bg-chip text-ink-subtle',
-  /** Something the shop does with this row — filterable, published, indexed. */
+  /** Something the app does with this row: filterable, published, indexed. */
   notice: 'bg-chip text-accent-strong',
   /** Something the admin may want to look at, but nothing is refused. */
   warning: 'bg-warning-surface text-warning-ink',
 };
 
 /**
- * A small circled icon that states something about the row it sits in, with the
- * sentence itself in the tooltip — for a remark that has to be visible in a
- * dense table where a line of text has nowhere to go.
- *
- * Deliberately not a button: it is filled and round where the app's icon
- * controls are square and chromeless, so it does not read as one more thing to
- * click. The icon is projected, so this stays in `ui/` without naming a glyph
- * of its own.
+ * A small circled glyph that states something about its row, the sentence in
+ * the tooltip: a remark for a dense table, where a line of text has nowhere to
+ * go. Filled and round where icon controls are chromeless and square, so it
+ * does not read as one more thing to click. The glyph is projected.
  *
  *   <app-hint-badge tone="warning" [label]="text.notNumeric">
  *     <app-icon [glyph]="triangleAlertIcon" class="h-3.5 w-3.5" />
@@ -42,14 +40,9 @@ const tones: Record<HintBadgeTone, string> = {
   `,
 })
 export class HintBadge {
-  protected readonly triangleAlertIcon = triangleAlertIcon;
-  /** The whole remark — it is the tooltip and the accessible name. */
+  /** The whole remark: the tooltip and the accessible name. */
   readonly label = input.required<string>();
   readonly tone = input<HintBadgeTone>('neutral');
 
-  protected readonly classes = computed(
-    () =>
-      `inline-flex h-5 w-5 items-center justify-center rounded-full
-       select-none ${tones[this.tone()]}`,
-  );
+  protected readonly classes = computed(() => `${base} ${tones[this.tone()]}`);
 }

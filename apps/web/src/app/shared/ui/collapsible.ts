@@ -8,35 +8,44 @@ import {
   signal,
 } from '@angular/core';
 
-/** How long opening and closing take — the app's other disclosures' figure. */
+/** How long opening and closing take, as for every disclosure. */
 const DURATION_MS = 200;
 
-/**
- * Widths at which nothing is folded, so the rest stands open whatever the
- * toggle says. Literal classes, so Tailwind sees them.
- */
-const OPEN_AT = {
+const row = 'grid';
+
+const rows = {
+  open: 'grid-rows-[1fr]',
+  closed: 'grid-rows-[0fr]',
+} as const;
+
+const rowMotion = 'transition-[grid-template-rows] duration-200 ease-out';
+
+const content = 'min-h-0 overflow-hidden';
+
+const contents = {
+  open: 'visible',
+  closed: 'invisible',
+} as const;
+
+const contentMotion = 'transition-[visibility] duration-200';
+
+/** Widths at which nothing is folded. Literal classes, so Tailwind sees them. */
+const rowsOpenAt = {
   md: 'md:grid-rows-[1fr]',
 } as const;
-const VISIBLE_AT = {
+const contentsOpenAt = {
   md: 'md:visible',
 } as const;
 
 /**
- * The rest of a list past its first few, opening in place under them: the
- * facet values past the cutoff, a chip's subcategories, the gallery's second
- * row of thumbnails. One movement for all of them, paired with ShowMoreToggle
- * as the one control that asks for it.
+ * The rest of a list past its first few, opening in place under them, asked
+ * for by a ShowMoreToggle. A grid row from `0fr` to `1fr`, since a height
+ * cannot animate to `auto`. The transition is armed only while a change of
+ * `open` plays out, so a row that starts open, or is held open by width, does
+ * not play its opening on load or on a resize.
  *
- * A grid row going from `0fr` to `1fr`, since a height cannot be animated to
- * `auto`; the first few stay outside it, so they never move. The transition is
- * armed only while a change of `open` plays out, so a row that starts open
- * (a shared link ticking a value past the cutoff) or is held open by width
- * simply is, rather than playing its opening on load or on a resize.
- *
- * Folded content is `invisible` as well as clipped, so its links and boxes
- * leave the tab order with it; visibility is transitioned too, which keeps it
- * visible until a closing movement has finished.
+ * Folded content is `invisible` as well as clipped, so it leaves the tab
+ * order; visibility transitions too, so it stays visible while closing.
  */
 @Component({
   selector: 'app-collapsible',
@@ -46,7 +55,7 @@ const VISIBLE_AT = {
 export class Collapsible {
   readonly open = input(false);
   /** A width from which the rest is always shown. */
-  readonly openAt = input<keyof typeof OPEN_AT>();
+  readonly openAt = input<keyof typeof rowsOpenAt>();
 
   private readonly animated = signal(false);
 
@@ -61,26 +70,24 @@ export class Collapsible {
       }
       this.animated.set(true);
       clearTimeout(timer);
-      // A hair past the movement: disarming on the exact frame it ends can
-      // catch the last one.
+      // A hair past the movement: disarming on its last frame can cut it.
       timer = setTimeout(() => this.animated.set(false), DURATION_MS + 50);
     });
     inject(DestroyRef).onDestroy(() => clearTimeout(timer));
   }
 
+  private readonly state = computed(() => (this.open() ? 'open' : 'closed'));
+
   protected readonly rowClass = computed(() => {
     const at = this.openAt();
-    const move = this.animated()
-      ? ' transition-[grid-template-rows] duration-200 ease-out'
-      : '';
-    const rows = this.open() ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]';
-    return `grid${move} ${rows}${at ? ` ${OPEN_AT[at]}` : ''}`;
+    return `${row} ${rows[this.state()]} ${this.animated() ? rowMotion : ''}
+            ${at ? rowsOpenAt[at] : ''}`;
   });
 
   protected readonly contentClass = computed(() => {
     const at = this.openAt();
-    const move = this.animated() ? ' transition-[visibility] duration-200' : '';
-    const shown = this.open() ? 'visible' : 'invisible';
-    return `min-h-0 overflow-hidden${move} ${shown}${at ? ` ${VISIBLE_AT[at]}` : ''}`;
+    return `${content} ${contents[this.state()]}
+            ${this.animated() ? contentMotion : ''}
+            ${at ? contentsOpenAt[at] : ''}`;
   });
 }

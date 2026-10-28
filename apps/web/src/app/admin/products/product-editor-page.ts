@@ -109,11 +109,8 @@ import {
   ProductTierPricesEditor,
   TierPriceDraft,
 } from './product-tier-prices-editor';
-import {
-  UNIT_FIELD_INPUT,
-  UNIT_FIELD_INPUT_COMPACT,
-  UnitField,
-} from '../../shared/ui/unit-field';
+import { UnitField } from '../../shared/ui/unit-field';
+import { UnitFieldInput } from '../../shared/ui/unit-field-input';
 import { PageTitle } from '../../shared/ui/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
 import { circleCheckIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-check';
@@ -178,6 +175,7 @@ interface ProductDraft {
     StatusBadge,
     PageTitle,
     ErrorText,
+    UnitFieldInput,
   ],
   // No <form> element: the buttons under the page save, publish or preview,
   // so the page says itself when the form has been sent.
@@ -294,7 +292,7 @@ interface ProductDraft {
                 type="text"
                 inputmode="decimal"
                 appPriceField
-                [class]="unitFieldInput"
+                appUnitFieldInput
                 [placeholder]="pricePlaceholder"
                 [formField]="form.price"
                 (blur)="onPriceBlur()"
@@ -317,7 +315,7 @@ interface ProductDraft {
               <input
                 type="text"
                 appPercentField
-                [class]="unitFieldInputCompact"
+                appUnitFieldInput
                 [placeholder]="taxRatePlaceholder"
                 [formField]="form.taxRate"
               />
@@ -462,7 +460,7 @@ interface ProductDraft {
                 <input
                   type="text"
                   appNumericField="signed"
-                  [class]="unitFieldInput"
+                  appUnitFieldInput
                   [formField]="form.stockPieces"
                 />
               </app-unit-field>
@@ -482,7 +480,7 @@ interface ProductDraft {
                 <input
                   type="text"
                   appNumericField="integer"
-                  [class]="unitFieldInput"
+                  appUnitFieldInput
                   [placeholder]="thresholdPlaceholder()"
                   [formField]="form.lowStockThreshold"
                 />
@@ -744,8 +742,6 @@ export class ProductEditorPage implements UnsavedChangesAware, FieldAttempt {
    * the packaging rows use, so the two blocks measure in one word. */
   protected readonly pieceSuffix = inject(SHARED_TEXT).units.piece;
   protected readonly actionText = inject(SHARED_TEXT).actions;
-  protected readonly unitFieldInput = UNIT_FIELD_INPUT;
-  protected readonly unitFieldInputCompact = UNIT_FIELD_INPUT_COMPACT;
 
   /** null slug param → the "new" route. */
   private readonly slugParam = this.route.snapshot.paramMap.get('slug');

@@ -16,16 +16,55 @@ import { isPlatformBrowser } from '@angular/common';
 /** How close to the window's edge the panel may come before it is nudged in. */
 const EDGE_MARGIN_PX = 8;
 
+const hostBase = 'absolute left-0 z-20 block w-full';
+
+const arrowBase = `absolute left-1/2 z-10 h-3 w-3 -translate-x-1/2 rotate-45
+                   border-edge-strong bg-white`;
+
+/** Shadowed well clear of a white card, so it does not read as part of it. */
+const panelBase = `absolute rounded-md border border-edge-strong bg-white
+                   text-sm text-ink shadow-xl`;
+
+const aligns = {
+  center: 'left-1/2 -translate-x-1/2',
+  start: 'left-0',
+  end: 'right-0',
+} as const;
+
 /**
- * A small bubble anchored under the control it is about, with an arrow touching
- * it (owned primitive, like Button and Input).
- *
- * It is deliberately not a dialog: nothing here traps focus or blocks the page.
- * It says one thing about one control — a correction already made, a question
- * with two answers — and it goes away on the next click anywhere, on Escape, or
- * by itself where the caller gives it a duration.
- *
- * Place it inside a `relative` wrapper around the control it points at:
+ * Per side of the anchor: where the host sits, which edges of the arrow are
+ * drawn (those facing the anchor, so it reads as the panel's corner drawn
+ * out), and where the panel hangs.
+ */
+const placements = {
+  below: {
+    host: 'top-full mt-2',
+    arrow: '-top-1.5 border-t border-l',
+    panel: '',
+  },
+  above: {
+    host: 'bottom-full mb-2',
+    arrow: '-bottom-1.5 border-r border-b',
+    panel: 'bottom-0',
+  },
+} as const;
+
+/**
+ * One max-width each, as `min()`: two utilities, a cap and a viewport one,
+ * were decided by stylesheet order rather than by which is smaller. A bubble
+ * holding a control is padded evenly and reads from the left.
+ */
+const sizes = {
+  sentence: 'w-max max-w-[min(13rem,calc(100vw-2rem))] px-3 py-2 text-center',
+  roomy: 'w-56 max-w-[calc(100vw-2rem)] p-3 text-left',
+  wide: 'w-[36rem] max-w-[calc(100vw-2rem)] p-3 text-left',
+} as const;
+
+/**
+ * A small bubble anchored to the control it is about, with an arrow touching
+ * it. Not a dialog: it traps nothing, and goes away on the next pointer press
+ * anywhere, on Escape, or after a duration. Place it in a `relative` wrapper
+ * around the control:
  *
  *   <div class="relative">
  *     <button …>−</button>
@@ -35,105 +74,61 @@ const EDGE_MARGIN_PX = 8;
  *   </div>
  *
  * The host spans the anchor's width and the arrow sits at its centre, so the
- * arrow points at the control whatever the panel itself does — which is why a
- * bubble on a control at the right edge is aligned `end`: the panel hangs
- * inwards from the thing the arrow points at rather than off the card. An
- * anchor narrower than the panel's corner radius would put the arrow over that
- * corner, so a wrapper is given the control's own padding rather than being
- * pulled in tight around the glyph.
+ * arrow points at the control whatever the panel does; a control near the
+ * right edge takes `end`, so the panel hangs inwards.
  *
- * Dismissal listens for `pointerdown`, not `click`. A bubble opened by a blur —
- * the quantity correction — is opened *during* the click that moved the focus,
- * and a click listener would be called by that same click and close it before
- * it was ever seen.
+ * Dismissal listens for `pointerdown`, not `click`: a bubble opened by a blur
+ * is opened during the click that moved the focus, which would close it.
  */
 @Component({
   selector: 'app-popover',
   host: { '[class]': 'hostClass()' },
   template: `
     <span [class]="arrowClass()"></span>
-    <!-- The panel's own transform is written straight to the element by fit()
-         rather than bound here: see the note on it. -->
+    <!-- The panel's nudge is written by fit(), not bound: see there. -->
     <div #panel [class]="panelClass()">
       <ng-content />
     </div>
   `,
 })
 export class Popover {
-  /** Where the panel sits under the arrow: centred on the control, or starting
-   * at its left edge — which is what keeps a bubble on a narrow control (a
-   * stepper key) inside the card it belongs to. */
-  readonly align = input<'center' | 'start' | 'end'>('center');
-  /**
-   * Which side of the anchor the bubble opens on. Below by default; above
-   * where what sits underneath is the rest of the controls — a bubble a
-   * customer has to dismiss before they can reach the button behind it is a
-   * bubble in the way.
-   */
-  readonly placement = input<'below' | 'above'>('below');
-  /** A bubble that holds a control rather than a sentence: wide enough to type
-   * in, and its content reads from the left rather than being centred. */
+  /** Centred on the control, or hanging from its start or end edge. */
+  readonly align = input<keyof typeof aligns>('center');
+  /** Above where what lies below is the rest of the controls. */
+  readonly placement = input<keyof typeof placements>('below');
+  /** Holds a control rather than a sentence: wide enough to type in. */
   readonly roomy = input(false);
-  /** Roomier still: a bubble holding pictures, which need the width to be
-   * worth looking at. */
+  /** Holds pictures, which need the width. */
   readonly wide = input(false);
-  /** Milliseconds after which it dismisses itself; 0 waits for the customer.
-   * A statement can time out, a question may not. */
+  /** Milliseconds until it dismisses itself; 0 waits. A question never times out. */
   readonly duration = input(0);
   readonly dismissed = output<void>();
 
-  /** The host is the anchor's own box: it spans its width, so everything
-   * inside is placed relative to the control the bubble is about. */
   protected readonly hostClass = computed(
-    () =>
-      `absolute left-0 z-20 block w-full
-       ${this.placement() === 'above' ? 'bottom-full mb-2' : 'top-full mt-2'}`,
+    () => `${hostBase} ${this.side().host}`,
   );
 
-  protected readonly arrowClass = computed(() => {
-    // The two bordered edges are the ones facing the anchor, so the arrow
-    // reads as the panel's own corner drawn out to a point.
-    const side =
-      this.placement() === 'above'
-        ? '-bottom-1.5 border-r border-b'
-        : '-top-1.5 border-t border-l';
-    // Centred on the anchor whatever the alignment: the arrow says which
-    // control the bubble is about, and a bubble that pointed beside its own
-    // button said it about nothing.
-    return `absolute z-10 h-3 w-3 rotate-45 border-edge-strong bg-white
-            left-1/2 -translate-x-1/2 ${side}`;
+  protected readonly arrowClass = computed(
+    () => `${arrowBase} ${this.side().arrow}`,
+  );
+
+  protected readonly panelClass = computed(
+    () =>
+      `${panelBase} ${sizes[this.size()]} ${aligns[this.align()]}
+       ${this.side().panel}`,
+  );
+
+  private readonly side = computed(() => placements[this.placement()]);
+
+  private readonly size = computed((): keyof typeof sizes => {
+    if (this.wide()) return 'wide';
+    if (this.roomy()) return 'roomy';
+    return 'sentence';
   });
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
-
-  /** Shadowed well clear of the card's own edge: both are white, and a bubble
-   * that reads as part of the card underneath it is not a bubble. */
-  protected readonly panelClass = computed(() => {
-    const align = this.align();
-    const place =
-      align === 'center'
-        ? 'left-1/2 -translate-x-1/2'
-        : align === 'end'
-          ? 'right-0'
-          : 'left-0';
-    const vertical = this.placement() === 'above' ? 'bottom-0' : '';
-    // A bubble holding a control is padded evenly: the field inside it stands
-    // off the bubble's edge by as much below as it does at its sides, which a
-    // tighter vertical padding did not. A sentence still gets the flatter box.
-    // One max-width, not two. Written as two utilities — a fixed cap and a
-    // viewport one — the cascade picked whichever Tailwind emitted last rather
-    // than the smaller of them, and the arbitrary value won: every sentence
-    // bubble was drawn a third wider than the cap it was given. `min()` says
-    // what was meant, and says it in one declaration nothing can outrank.
-    const size = this.wide()
-      ? 'w-[36rem] max-w-[calc(100vw-2rem)] p-3 text-left'
-      : this.roomy()
-        ? 'w-56 max-w-[calc(100vw-2rem)] p-3 text-left'
-        : 'w-max max-w-[min(13rem,calc(100vw-2rem))] px-3 py-2 text-center';
-    return `absolute rounded-md border border-edge-strong bg-white text-sm
-            text-ink shadow-xl ${size} ${place} ${vertical}`;
-  });
+  private readonly panel = viewChild.required<ElementRef<HTMLElement>>('panel');
 
   private readonly onOutside = (event: Event) => {
     if (!this.host.nativeElement.contains(event.target as Node)) this.close();
@@ -142,54 +137,26 @@ export class Popover {
     if (event.key === 'Escape') this.close();
   };
 
-  private readonly panel = viewChild.required<ElementRef<HTMLElement>>('panel');
-
-  /**
-   * How far the panel has been nudged sideways to stay on screen.
-   *
-   * The bubble is placed against its anchor, and an anchor near a window edge
-   * puts a panel wider than itself past that edge. Nothing above can solve it:
-   * the alignment is chosen by the call site, which knows where the control
-   * sits in its card and not where the card sits in the window.
-   *
-   * So the panel is measured once it is on screen and moved back in by
-   * whatever it overhangs. Only the panel moves: the arrow keeps pointing at
-   * the control, which is the one thing about the bubble that must stay true.
-   */
+  /** How far the panel has been nudged sideways to stay on screen. */
   private shift = 0;
 
   /**
-   * Measure the panel and pull it back inside the page, **in the frame it was
-   * drawn in**.
-   *
-   * The correction is written to the element rather than through a signal, and
-   * that is the whole point of it. A signal write here schedules another round
-   * of change detection, so the browser paints one frame with the panel still
-   * hanging off the edge — and on a phone that single frame is not cosmetic: a
-   * mobile browser widens its layout viewport to fit content that overflows,
-   * every `position: fixed` bar stretches to the new width, and it does not
-   * shrink back when the panel is moved a frame later. The bottom tab bar slid
-   * off screen and the page scrolled sideways, both of them long after the
-   * bubble had been put right.
-   *
-   * `transform`, not `translate`: the alignment classes own the `translate`
-   * property, and the two compose — so centring stays centring and this only
-   * adds to it. Re-measured on a resize, since a window narrowing under an
-   * open bubble is exactly the case that overflows.
+   * Pulls the panel back inside the page in the frame it was drawn in. Written
+   * to the element, not through a signal: a signal paints one frame first, and
+   * a phone widens its layout viewport for that frame's overflow and does not
+   * shrink it back, so fixed bars stretch and the page scrolls sideways.
+   * `transform`, not `translate`, which the alignment classes own. Only the
+   * panel moves; the arrow keeps pointing at the control.
    */
   private readonly fit = () => {
     const panel = this.panel().nativeElement;
     const rect = panel.getBoundingClientRect();
-    // The page's own width, not the window's: `innerWidth` counts the
-    // scrollbar, and a panel allowed to overhang by that much still sets a
-    // desktop page scrolling sideways.
+    // The page's width: `innerWidth` counts the scrollbar.
     const width = document.documentElement.clientWidth;
-    // Measured with the current shift already applied, so each correction is
-    // relative and a second pass changes nothing once it fits.
+    // Measured with the shift applied, so a second pass changes nothing.
     const overhangRight = rect.right - (width - EDGE_MARGIN_PX);
     const overhangLeft = EDGE_MARGIN_PX - rect.left;
-    const by =
-      overhangRight > 0 ? -overhangRight : overhangLeft > 0 ? overhangLeft : 0;
+    const by = this.nudge(overhangRight, overhangLeft);
     if (by === 0) return;
     this.shift += by;
     panel.style.transform = `translateX(${this.shift}px)`;
@@ -202,7 +169,7 @@ export class Popover {
       document.addEventListener('pointerdown', this.onOutside);
       document.addEventListener('keydown', this.onKey);
     }
-    // In an effect, not here: an input has no bound value yet at construction.
+    // In an effect: an input has no bound value yet at construction.
     effect((onCleanup) => {
       const ms = this.duration();
       if (ms <= 0) return;
@@ -215,6 +182,12 @@ export class Popover {
       document.removeEventListener('keydown', this.onKey);
       window.removeEventListener('resize', this.fit);
     });
+  }
+
+  private nudge(overhangRight: number, overhangLeft: number): number {
+    if (overhangRight > 0) return -overhangRight;
+    if (overhangLeft > 0) return overhangLeft;
+    return 0;
   }
 
   private close(): void {

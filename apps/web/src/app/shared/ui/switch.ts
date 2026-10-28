@@ -1,68 +1,73 @@
-import { Component, input, output } from '@angular/core';
+import { Component, computed, input, output } from '@angular/core';
+
+const track = `relative inline-flex h-6 w-11 shrink-0 cursor-pointer
+               rounded-full transition-[background-color,box-shadow]
+               select-none
+               disabled:cursor-not-allowed disabled:opacity-60`;
 
 /**
- * An on/off switch — a native <button role="switch">, so the browser gives it
- * keyboard activation and screen readers announce the state rather than a verb.
- * For settings that take effect immediately; a control that only takes effect on
- * save belongs in a form with a checkbox instead.
+ * Off, the track is drawn as an unticked checkbox is, a pale ground in an edge,
+ * and it is the edge that answers a pointer: an accent fill would read as on.
+ */
+const tracks = {
+  on: 'bg-primary hover:bg-accent active:bg-primary-press',
+  off: `bg-surface-strong ring-1 ring-edge-strong
+        hover:bg-accent hover:ring-accent
+        active:ring-primary`,
+} as const;
+
+/** The knob moves by transform only, so its travel reflows nothing. */
+const knob = `pointer-events-none absolute top-0.5 left-0.5 size-5
+              rounded-full bg-white shadow-sm ring-1 ring-black/5
+              transition-transform`;
+
+const knobs = {
+  on: 'translate-x-5',
+  off: 'translate-x-0',
+} as const;
+
+/**
+ * An on/off switch for a setting that takes effect at once: a native
+ * <button role="switch">, so keyboard and screen readers get a state rather
+ * than a verb. A choice that waits for a save is a checkbox in a form. The
+ * label is only the accessible name; the words around it say the rest.
  *
- * The label is never rendered: it is the accessible name, and the surrounding
- * block already says in words what the setting is and what state it is in.
- *
- *   <app-switch
- *     [checked]="enabled()"
- *     [label]="text.enable"
- *     (toggled)="save($event)"
- *   />
+ *   <app-switch [checked]="enabled()" [label]="text.enable" (toggled)="save($event)" />
  */
 @Component({
   selector: 'app-switch',
-  // Without this the host stays an inline box and adds the line's descender
-  // space around the control: it measures ~31px tall for a 24px switch, which
-  // both breaks `items-center` against neighbouring text and makes the control
-  // taller than any skeleton standing in for it.
+  // As an inline box it took the line's descender space: 31px for a 24px switch.
   host: { class: 'inline-flex' },
   template: `
-    <!-- On, the track is a fill and lightens to accent under a pointer like
-         any other fill in the app. Off, it cannot: an accent *fill* on an off
-         switch reads as an on one. So an off switch is drawn the way an
-         unticked checkbox is — a pale ground inside an edge — and it is that
-         edge which answers the pointer, in the accent every other edge in the
-         app uses. Deepening the grey instead said "operable" in a colour that
-         appears nowhere else, and at a contrast nobody noticed. -->
     <button
       type="button"
       role="switch"
       [attr.aria-checked]="checked()"
       [attr.aria-label]="label()"
       [disabled]="disabled()"
-      class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer
-             rounded-full transition-[background-color,box-shadow] select-none
-             disabled:cursor-not-allowed disabled:opacity-60"
-      [class]="
-        checked()
-          ? 'bg-primary hover:bg-accent active:bg-primary-press'
-          : 'bg-surface-strong ring-1 ring-edge-strong hover:bg-accent hover:ring-accent active:ring-primary'
-      "
+      [class]="trackClass()"
       (click)="toggled.emit(!checked())"
     >
-      <!-- The knob. Transform only, so the travel never reflows anything. -->
-      <span
-        class="pointer-events-none absolute top-0.5 left-0.5 size-5
-               rounded-full bg-white shadow-sm ring-1 ring-black/5
-               transition-transform"
-        [class]="checked() ? 'translate-x-5' : 'translate-x-0'"
-        aria-hidden="true"
-      ></span>
+      <span [class]="knobClass()" aria-hidden="true"></span>
     </button>
   `,
 })
 export class Switch {
   readonly checked = input.required<boolean>();
-  /** Accessible name — say what the switch controls, e.g. "Maintenance mode". */
+  /** The accessible name: what the switch controls, e.g. "Maintenance mode". */
   readonly label = input.required<string>();
   readonly disabled = input(false);
 
-  /** Emits the requested state, so the host owns whether it actually changes. */
+  /** The requested state; the host decides whether it changes. */
   readonly toggled = output<boolean>();
+
+  private readonly state = computed(() => (this.checked() ? 'on' : 'off'));
+
+  protected readonly trackClass = computed(
+    () => `${track} ${tracks[this.state()]}`,
+  );
+
+  protected readonly knobClass = computed(
+    () => `${knob} ${knobs[this.state()]}`,
+  );
 }

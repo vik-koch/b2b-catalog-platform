@@ -1,31 +1,39 @@
-/**
- * The dashed area that says "a file goes here".
- *
- * There were three of these and they were three different things: the image
- * tile on a product and a category (a 1px dash, lighting its border and its
- * text), the CSV drop target on the sync screen (a 2px dash, lighting its
- * border and its ground), and the document editor's file chooser, which was a
- * plain button and so did not read as a target at all. Same gesture, same
- * promise, so one treatment — and it is the heavier dash that survives, since
- * the whole point of the dash is to be seen as a boundary from across a form.
- *
- * The size is the caller's: a tile is 7rem square, a drop target on the sync
- * screen is the width of the form.
- */
-export const DROP_ZONE =
-  'flex cursor-pointer flex-col items-center justify-center rounded-md ' +
-  'border-1 border-edge-strong bg-white border-dashed transition-colors ' +
-  'text-center text-ink-subtle disabled:cursor-not-allowed disabled:opacity-50';
+import { computed, Directive, inject, input } from '@angular/core';
+import { FileTarget } from './file-target';
+
+const base = `flex cursor-pointer flex-col items-center justify-center
+              rounded-md border-1 border-dashed border-edge-strong bg-white
+              text-center text-ink-subtle transition-colors
+              disabled:cursor-not-allowed disabled:opacity-50`;
+
+/** Only a file over it fills it; one already holding something stops inviting. */
+const states = {
+  dragging: 'border-primary bg-primary/5 text-accent',
+  filled: '',
+  empty: 'hover:border-accent hover:text-accent',
+} as const;
 
 /**
- * What it is doing. `dragging` is the only state that fills the box — a file
- * is over it and about to land; `filled` is the resting look of a target that
- * already holds something, which no longer invites a pointer the way an empty
- * one does.
+ * The dashed area a file goes into, on the element that takes it; whether a
+ * file is over it is read from the FileTarget on the same element. The size
+ * is the caller's.
+ *
+ *   <button appDropZone [appFileTarget]="accept" class="h-26 w-26">…</button>
  */
-export function dropZoneState(dragging: boolean, filled = false): string {
-  if (dragging) return 'border-primary bg-primary/5 text-accent';
-  return filled
-    ? 'border-edge-strong'
-    : 'border-edge-strong hover:border-accent hover:text-accent';
+@Directive({
+  selector: '[appDropZone]',
+  host: { '[class]': 'classes()' },
+})
+export class DropZone {
+  private readonly target = inject(FileTarget, { self: true, optional: true });
+
+  readonly filled = input(false);
+
+  protected readonly classes = computed(() => `${base} ${this.state()}`);
+
+  private state(): string {
+    if (this.target?.dragging()) return states.dragging;
+    if (this.filled()) return states.filled;
+    return states.empty;
+  }
 }

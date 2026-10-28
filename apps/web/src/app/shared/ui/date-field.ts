@@ -13,83 +13,53 @@ import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Input } from './input';
 import { calendarIcon } from '@b2b-catalog-platform/ui/icons/glyphs/calendar';
 
-/*
- * The day/month/year segments a date is typed into, which only the WebKit
- * engines expose. Held here rather than in the template because the selector
- * list is longer than the rule it carries.
- *
- * The segment being typed in is highlighted in our own focused colour, in
- * place of the OS blue that matches nothing else on the page. Inert elsewhere —
- * a segment that highlights the platform's way is still a working field.
+/**
+ * The engine's own affordance takes all three rules to hide: appearance-none
+ * where it is drawn as part of the control, and the two pseudo-elements where
+ * it is a child. The left padding is the calendar glyph's room.
+ */
+const base = `peer w-full appearance-none pl-9
+              [&::-webkit-calendar-picker-indicator]:hidden
+              [&::-webkit-inner-spin-button]:hidden`;
+
+/**
+ * The segment being typed in, in the focus colour rather than the OS blue.
+ * Only WebKit exposes the segments; elsewhere this is inert.
  */
 const segments =
   '[&::-webkit-datetime-edit-day-field:focus,&::-webkit-datetime-edit-month-field:focus,&::-webkit-datetime-edit-year-field:focus]:bg-secondary [&::-webkit-datetime-edit-day-field:focus,&::-webkit-datetime-edit-month-field:focus,&::-webkit-datetime-edit-year-field:focus]:text-white';
 
 /**
- * What an empty field wears, so that it can say something of its own.
- *
- * A native date input takes no `placeholder`, and what it draws instead is a
- * different thing in every engine: "dd.mm.yyyy" on a desktop, and on iOS an
- * empty box with nothing in it at all. So the field draws its own text over
- * the control and takes the engine's away — by making the text transparent,
- * which is the one way that reaches every engine (only WebKit exposes the
- * segments as a pseudo-element, and it needs telling separately because its
- * own colour does not inherit).
- *
- * Only while the field is *not* focused. Once the caret is in it the segments
- * are what is being typed into and have to be visible — in the meta colour a
- * half-entered date deserves, rather than at the full strength that reads as a
- * date somebody chose.
+ * An empty field hides the engine's own placeholder (different in every
+ * engine, and nothing at all on iOS) so it can draw its own. Transparent text
+ * is the one way that reaches every engine; WebKit's segments need telling
+ * separately. While focused the segments show, quieter than a chosen date.
  */
 const empty =
   'text-ink-subtle [&::-webkit-datetime-edit]:text-ink-subtle ' +
   '[&:not(:focus)]:text-transparent ' +
   '[&:not(:focus)::-webkit-datetime-edit]:text-transparent';
 
+/** Under a finger the field is a button that opens the picker, and looks it. */
+const tappable = 'cursor-pointer select-none';
+
 /**
- * The app's date field: one native date input, drawn our way.
- *
- * A native input rather than a calendar of our own — the browser's picker is
- * the one the person already knows, it hands back an ISO day with nothing to
- * parse, and on a phone it is the platform's wheel. What this owns is only the
- * appearance: our calendar glyph in place of the engine's affordance (drawn
- * differently in every browser and pinned to the right edge, where no other
- * field in the app keeps its own), our placeholder over an empty control, and
- * our focus colour on the segments.
- *
- * It carries no label and no hint: a customer's preferred delivery date and an
- * admin's certificate expiry are the same control saying entirely different
- * things around it, so the words stay with the caller.
+ * One native date input, drawn our way: the browser's picker is the one the
+ * person knows, and it hands back an ISO day. This owns only the appearance:
+ * a calendar glyph in place of the engine's affordance, a placeholder of its
+ * own and the focus colour on the segments. The words around it are the
+ * caller's.
  */
 @Component({
   selector: 'app-date-field',
   imports: [FormField, FieldBinding, Icon, Input],
   host: { class: 'block' },
   template: `
-    <!-- Under a mouse there are two ways in, and they are different gestures.
-         The field is typed into: a click lands a caret in the segment under
-         it, and the segments take digits, as they do in any date input. The
-         glyph is the other way — the picker, opened deliberately rather than
-         by every click on the control, which is what used to make the field
-         impossible to type in: the overlay came up before the caret ever
-         landed.
-
-         Under a finger there is one way in, and it is the picker. A day/month/
-         year segment is a 2mm target that needs a keyboard nobody has, and the
-         platform's own wheel is both the better control and the one already
-         known — so on a touch screen a tap anywhere in the field opens it and
-         the segments are not text to be dragged across.
-
-         The glyph is a pointer affordance and nothing else, so it is out of
-         the tab order and unnamed: a keyboard is already typing the date, and
-         a second stop that only opens a picker is a stop with nothing behind
-         it.
-
-         Hiding the engine's own affordance takes all three rules:
-         appearance-none for the engines that draw it as part of the control
-         (Chrome on Android draws a chevron there), and the two pseudo-elements
-         for those that make it a child. Each is inert where it does not
-         apply. -->
+    <!-- Under a mouse, a click types into the segment under it and the glyph
+         opens the picker; opening it on every click made the field impossible
+         to type in. Under a finger, a tap anywhere opens the picker: a segment
+         is too small a target. The glyph is a pointer affordance only, so it
+         is out of the tab order and unnamed. -->
     <div class="relative flex items-center">
       <button
         type="button"
@@ -110,9 +80,6 @@ const empty =
           [attr.min]="min()"
           [attr.max]="max()"
           appInput
-          class="peer w-full appearance-none pl-9
-                 [&::-webkit-calendar-picker-indicator]:hidden
-                 [&::-webkit-inner-spin-button]:hidden"
           [class]="fieldClass()"
           [formField]="field"
           (click)="onFieldClick(input)"
@@ -126,9 +93,6 @@ const empty =
           [attr.max]="max()"
           [value]="value() ?? ''"
           appInput
-          class="peer w-full appearance-none pl-9
-                 [&::-webkit-calendar-picker-indicator]:hidden
-                 [&::-webkit-inner-spin-button]:hidden"
           [class]="fieldClass()"
           (click)="onFieldClick(input)"
           (change)="picked($event)"
@@ -137,10 +101,8 @@ const empty =
           [attr.aria-describedby]="describedBy() || null"
         />
       }
-      <!-- Our own empty state, over the field the engine has been made to
-           draw nothing in. After the input so it can watch it: it goes away
-           the moment the caret arrives, which is when the segments underneath
-           become the thing to read. Decorative — the label names the field. -->
+      <!-- The placeholder, after the input so it can hide once the caret
+           arrives. Decorative: the label names the field. -->
       @if (current() === null && placeholder()) {
         <span
           aria-hidden="true"
@@ -158,15 +120,15 @@ export class DateField {
   protected readonly calendarIcon = calendarIcon;
   /** ISO `YYYY-MM-DD`, or null for no date at all. */
   readonly value = input<string | null>(null);
-  /** The field the input is the control of, where a form holds the date; an
-   * empty string is no date. */
+  /** Where a form holds the date; an empty string is no date. */
   readonly field = input<FieldTree<string>>();
   readonly fieldId = input<string>();
-  /** What an empty field says, since a native one says something different in
-   * every engine. */
+  /** What an empty field says. */
   readonly placeholder = input<string>();
-  /** Bounds the picker offers. Advisory: a native picker still lets a date be
-   * typed, so whatever refuses one says so itself. */
+  /**
+   * Bounds the picker offers. Advisory: a date can still be typed, so whatever
+   * refuses one says so itself.
+   */
   readonly min = input<string>();
   readonly max = input<string>();
   readonly invalid = input(false);
@@ -187,23 +149,21 @@ export class DateField {
     return field ? field().value() || null : this.value();
   });
 
-  protected readonly fieldClass = computed(() => {
-    const state = this.current() === null ? `${segments} ${empty}` : segments;
-    // Under a finger the field is a button that opens the picker, and says so:
-    // a caret it will not keep, and a text selection it cannot act on, are
-    // both promises the tap is about to break.
-    return this.coarse() ? `${state} cursor-pointer select-none` : state;
-  });
+  protected readonly fieldClass = computed(
+    () =>
+      `${base} ${segments} ${this.current() === null ? empty : ''}
+       ${this.coarse() ? tappable : ''}`,
+  );
 
   /** A tap opens the picker; a click does not — see the template. */
   protected onFieldClick(input: HTMLInputElement): void {
     if (this.coarse()) this.openPicker(input);
   }
 
-  /** Opens the native picker from the glyph, in place of the engine's own
-   * affordance, which is drawn differently in every browser. Guarded:
-   * `showPicker` is absent on older engines and refuses outside a user
-   * gesture, and the field still takes typing either way. */
+  /**
+   * Guarded: `showPicker` is absent on older engines and refuses outside a
+   * user gesture, and the field still takes typing either way.
+   */
   protected openPicker(input: HTMLInputElement | undefined): void {
     try {
       input?.showPicker?.();

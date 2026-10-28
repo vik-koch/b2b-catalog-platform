@@ -1,10 +1,7 @@
 import { Component, inject, input, OnInit, signal } from '@angular/core';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
-import {
-  DISCLOSURE_FRAME,
-  disclosureBorder,
-  DisclosureToggle,
-} from '../../shared/ui/disclosure-toggle';
+import { DisclosureToggle } from '../../shared/ui/disclosure-toggle';
+import { DisclosureFrame } from '../../shared/ui/disclosure-frame';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Glyph } from '@b2b-catalog-platform/ui/icons/glyph';
 
@@ -23,13 +20,10 @@ let nextId = 0;
  */
 @Component({
   selector: 'app-feature-disclosure',
-  imports: [Icon, DisclosureToggle],
+  imports: [Icon, DisclosureToggle, DisclosureFrame],
   host: { class: 'block' },
   template: `
-    <div
-      class="max-w-xl rounded-md border"
-      [class]="frame + ' ' + disclosureBorder(open())"
-    >
+    <div class="max-w-xl rounded-md border" appDisclosureFrame [open]="open()">
       <app-disclosure-toggle
         [label]="label()"
         [count]="on() ? 1 : 0"
@@ -53,8 +47,6 @@ let nextId = 0;
   `,
 })
 export class FeatureDisclosure implements OnInit {
-  protected readonly frame = DISCLOSURE_FRAME;
-  protected readonly disclosureBorder = disclosureBorder;
   protected readonly text = inject(ADMIN_TEXT).products.editor;
   protected readonly panelId = `feature-disclosure-${nextId++}`;
 
