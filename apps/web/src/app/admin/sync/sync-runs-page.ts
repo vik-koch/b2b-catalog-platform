@@ -29,7 +29,7 @@ import { GridCardTemplate } from '../../shared/ui/grid/grid-card-template';
 import { GridRowTemplate } from '../../shared/ui/grid/grid-row-template';
 import { GridTimestamp } from '../dates/grid-timestamp';
 import { GridHeader } from '../../shared/ui/grid/grid-header';
-import { RecordRow } from '../../shared/ui/record-row';
+import { RecordRow } from '@b2b-catalog-platform/ui/lists/record-row';
 import { SyncService } from './sync.service';
 import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
 import { uploadIcon } from '@b2b-catalog-platform/ui/icons/glyphs/upload';

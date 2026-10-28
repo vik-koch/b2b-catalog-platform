@@ -26,9 +26,9 @@ import { HintBadge } from '@b2b-catalog-platform/ui/content/hint-badge';
 import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Input } from '@b2b-catalog-platform/ui/inputs/input';
-import { RecordFields } from '../../shared/ui/record-fields';
-import { RecordFormActions } from '../../shared/ui/record-form-actions';
-import { RecordRow } from '../../shared/ui/record-row';
+import { RecordFields } from '@b2b-catalog-platform/ui/lists/record-fields';
+import { RecordFormActions } from '@b2b-catalog-platform/ui/lists/record-form-actions';
+import { RecordRow } from '@b2b-catalog-platform/ui/lists/record-row';
 import {
   AttributeHint,
   attributeRowKey,

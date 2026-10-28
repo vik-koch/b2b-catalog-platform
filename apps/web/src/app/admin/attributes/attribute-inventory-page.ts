@@ -21,7 +21,7 @@ import { Input } from '@b2b-catalog-platform/ui/inputs/input';
 import { HintBadge } from '@b2b-catalog-platform/ui/content/hint-badge';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
-import { RecordRow } from '../../shared/ui/record-row';
+import { RecordRow } from '@b2b-catalog-platform/ui/lists/record-row';
 import { UnpublishedCount } from '../products/unpublished-count';
 import { AttributesService } from './attributes.service';
 import { SHARED_TEXT } from '../../shared/config/shared-text';

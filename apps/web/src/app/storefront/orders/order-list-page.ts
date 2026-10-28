@@ -10,7 +10,7 @@ import { delayedLoading } from '../../shared/core/delayed-loading';
 import { usePageSeo } from '../../shared/core/page-seo';
 import { stableValue } from '../../shared/core/stable-value';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
-import { Pagination } from '../../shared/ui/pagination';
+import { Pagination } from '@b2b-catalog-platform/ui/lists/pagination';
 import { EmptyState } from '@b2b-catalog-platform/ui/content/empty-state';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';

@@ -35,7 +35,7 @@ import { GridFilterOption } from '../../shared/ui/grid/grid-filter-select';
 import { GridCardTemplate } from '../../shared/ui/grid/grid-card-template';
 import { GridRowTemplate } from '../../shared/ui/grid/grid-row-template';
 import { GridTimestamp } from '../dates/grid-timestamp';
-import { RecordRow } from '../../shared/ui/record-row';
+import { RecordRow } from '@b2b-catalog-platform/ui/lists/record-row';
 import { GridHeader } from '../../shared/ui/grid/grid-header';
 import { SettingsService } from '../settings/settings.service';
 import { TiersService } from '../tiers/tiers.service';

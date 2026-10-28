@@ -1,10 +1,10 @@
 import { NgTemplateOutlet } from '@angular/common';
 import { Component, computed, inject, input, output } from '@angular/core';
 import { Params, RouterLink } from '@angular/router';
-import { Button } from '@b2b-catalog-platform/ui/actions/button';
-import { ButtonBox } from '@b2b-catalog-platform/ui/actions/button-box';
-import { fill } from '@b2b-catalog-platform/ui/core/fill';
-import { UI_TEXT } from '@b2b-catalog-platform/ui/core/ui-text';
+import { Button } from '../actions/button';
+import { ButtonBox } from '../actions/button-box';
+import { fill } from '../core/fill';
+import { UI_TEXT } from '../core/ui-text';
 
 /**
  * Previous, where we are, next. With a `link` each step is a router link, its

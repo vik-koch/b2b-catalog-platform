@@ -48,7 +48,7 @@ import { GridPagination } from '../../shared/ui/grid/grid-pagination';
 import { GridCardTemplate } from '../../shared/ui/grid/grid-card-template';
 import { GridRowTemplate } from '../../shared/ui/grid/grid-row-template';
 import { GridTimestamp } from '../dates/grid-timestamp';
-import { RecordRow } from '../../shared/ui/record-row';
+import { RecordRow } from '@b2b-catalog-platform/ui/lists/record-row';
 import { injectEditorReturnParams } from '../../shared/edit-mode/editor-return';
 import {
   ConfirmService,

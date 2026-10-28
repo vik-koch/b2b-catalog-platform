@@ -2,7 +2,7 @@ import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { Pagination } from './pagination';
-import { UI_TEXT } from '@b2b-catalog-platform/ui/core/ui-text';
+import { UI_TEXT } from '../core/ui-text';
 
 const text = {
   previous: 'Previous',

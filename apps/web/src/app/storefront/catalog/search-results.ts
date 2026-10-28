@@ -15,7 +15,7 @@ import { usePageSeo } from '../../shared/core/page-seo';
 import { stableValue } from '../../shared/core/stable-value';
 import { LoadErrorView } from '../pages/load-error-view';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
-import { Pagination } from '../../shared/ui/pagination';
+import { Pagination } from '@b2b-catalog-platform/ui/lists/pagination';
 import { AppliedFilters } from './applied-filters';
 import { CatalogService } from './catalog.service';
 import {

@@ -54,6 +54,7 @@ by module, so a barrel would carry everything behind it into the first load.
 | `fields/` | The labelled unit around an input: `Field`, `FieldGroup`, `FieldStatus`, `FieldBinding`, `appFieldLabel`, `appFieldAction`, `SubmitAttempt`, `appErrorText`, `appHint`, and `FORM_FIELDS` to import them with Signal Forms |
 | `icons/` | `Icon`, the `Glyph` type and one module per glyph |
 | `inputs/` | What holds a typed value: `appInput`, `SelectInput`, `DateInput`, `UnitInput` with `appUnitInputControl`, `CodeInput`, `PhoneInput`, `appInputPrefix`; and what shapes a control: `appAllow` with `numericRules`, `appDigitMask`, `appAutoGrow`, `appFileTarget`, `appDropZone` |
+| `lists/` | Short lists and paging: `RecordRow`, `appRecordFields`, `appRecordFormActions`, `Pagination` |
 | `overlay/` | What opens over the page: `ConfirmService` with `ConfirmDialog`, `DialogPanel`, `appDialogActions`, `Popover` |
 | `suggest/` | The type-ahead combobox: `SuggestField` with `appSuggestInput` and `appSuggestRow`, the `SuggestList` state behind it, `HighlightedLine` for a matched row |
 | `ui.css` | Tailwind, the breakpoints, the type weight and the colour roles; the app's stylesheet imports it |

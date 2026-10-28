@@ -31,7 +31,7 @@ import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
 import { injectEditorReturn } from '../../shared/edit-mode/editor-return';
 import { UnpublishedCount } from '../products/unpublished-count';
-import { RecordRow } from '../../shared/ui/record-row';
+import { RecordRow } from '@b2b-catalog-platform/ui/lists/record-row';
 import { AttributesService } from './attributes.service';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';

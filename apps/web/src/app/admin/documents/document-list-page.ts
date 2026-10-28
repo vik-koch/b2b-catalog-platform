@@ -40,7 +40,7 @@ import { GridCardTemplate } from '../../shared/ui/grid/grid-card-template';
 import { GridRowTemplate } from '../../shared/ui/grid/grid-row-template';
 import { GridTimestamp } from '../dates/grid-timestamp';
 import { GridHeader } from '../../shared/ui/grid/grid-header';
-import { RecordRow } from '../../shared/ui/record-row';
+import { RecordRow } from '@b2b-catalog-platform/ui/lists/record-row';
 import { UnpublishedCount } from '../products/unpublished-count';
 import { injectEditorReturnParams } from '../../shared/edit-mode/editor-return';
 import { DocumentsService } from './documents.service';

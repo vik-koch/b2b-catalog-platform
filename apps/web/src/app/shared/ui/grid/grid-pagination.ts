@@ -1,5 +1,5 @@
 import { Component, input } from '@angular/core';
-import { Pagination } from '../pagination';
+import { Pagination } from '@b2b-catalog-platform/ui/lists/pagination';
 
 /** Where a paged list stands. */
 export interface GridPage {

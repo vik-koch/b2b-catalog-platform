@@ -25,7 +25,7 @@ import { delayedLoading } from '../../shared/core/delayed-loading';
 import { usePageSeo } from '../../shared/core/page-seo';
 import { stableValue } from '../../shared/core/stable-value';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
-import { Pagination } from '../../shared/ui/pagination';
+import { Pagination } from '@b2b-catalog-platform/ui/lists/pagination';
 import { Checkbox } from '@b2b-catalog-platform/ui/choices/checkbox';
 import { EmptyState } from '@b2b-catalog-platform/ui/content/empty-state';
 import { AutoGrow } from '@b2b-catalog-platform/ui/inputs/auto-grow';
