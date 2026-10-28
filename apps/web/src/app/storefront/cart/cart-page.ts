@@ -28,8 +28,8 @@ import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { Pagination } from '../../shared/ui/pagination';
 import { Checkbox } from '@b2b-catalog-platform/ui/choices/checkbox';
 import { EmptyState } from '@b2b-catalog-platform/ui/content/empty-state';
-import { AutoGrow } from '../../shared/ui/auto-grow';
-import { Input } from '../../shared/ui/input';
+import { AutoGrow } from '@b2b-catalog-platform/ui/inputs/auto-grow';
+import { Input } from '@b2b-catalog-platform/ui/inputs/input';
 import {
   confirmRequest,
   ConfirmService,

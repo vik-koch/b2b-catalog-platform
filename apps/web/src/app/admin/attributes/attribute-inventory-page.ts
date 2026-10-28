@@ -17,7 +17,7 @@ import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Link } from '@b2b-catalog-platform/ui/actions/link';
-import { Input } from '../../shared/ui/input';
+import { Input } from '@b2b-catalog-platform/ui/inputs/input';
 import { HintBadge } from '@b2b-catalog-platform/ui/content/hint-badge';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import { ConfirmService } from '../../shared/ui/confirm.service';

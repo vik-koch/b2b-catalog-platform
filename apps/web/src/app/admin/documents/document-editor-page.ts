@@ -26,8 +26,8 @@ import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
 import { submitAttempt } from '@b2b-catalog-platform/ui/fields/submit-attempt';
 import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
-import { DateInput } from '../../shared/ui/date-input';
-import { Input } from '../../shared/ui/input';
+import { DateInput } from '@b2b-catalog-platform/ui/inputs/date-input';
+import { Input } from '@b2b-catalog-platform/ui/inputs/input';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import { injectEditorReturn } from '../../shared/edit-mode/editor-return';
 import { UnsavedChangesAware } from '../unsaved-changes.guard';
@@ -35,8 +35,11 @@ import {
   documentFileLabel,
   documentFileSize,
 } from '../../shared/core/document-file';
-import { DropZone } from '../../shared/ui/drop-zone';
-import { FileTarget, pasteKeys } from '../../shared/ui/file-target';
+import { DropZone } from '@b2b-catalog-platform/ui/inputs/drop-zone';
+import {
+  FileTarget,
+  pasteKeys,
+} from '@b2b-catalog-platform/ui/inputs/file-target';
 import { DocumentProductsPicker } from './document-products-picker';
 import { DocumentsService } from './documents.service';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';

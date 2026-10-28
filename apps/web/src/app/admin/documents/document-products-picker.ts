@@ -20,8 +20,8 @@ import { debounced } from '@b2b-catalog-platform/ui/core/debounced';
 import { AlternateLayout } from '../../shared/core/alternate-layout';
 import { Checkbox } from '@b2b-catalog-platform/ui/choices/checkbox';
 import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
-import { Input } from '../../shared/ui/input';
-import { SelectInput } from '../../shared/ui/select-input';
+import { Input } from '@b2b-catalog-platform/ui/inputs/input';
+import { SelectInput } from '@b2b-catalog-platform/ui/inputs/select-input';
 import {
   SegmentOption,
   Segmented,

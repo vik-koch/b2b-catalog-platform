@@ -1,6 +1,6 @@
 import { Provider } from '@angular/core';
 import { applyMask, stripDialPrefix } from '@b2b-catalog-platform/shared';
-import { DIGIT_MASK_FORMAT } from '../ui/digit-mask-format';
+import { DIGIT_MASK_FORMAT } from '@b2b-catalog-platform/ui/inputs/digit-mask-format';
 
 /**
  * A phone number in both directions. It is stored in one canonical form

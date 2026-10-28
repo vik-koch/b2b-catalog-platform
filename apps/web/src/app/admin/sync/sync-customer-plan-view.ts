@@ -15,7 +15,7 @@ import {
 } from '@b2b-catalog-platform/shared/sync';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
-import { Input } from '../../shared/ui/input';
+import { Input } from '@b2b-catalog-platform/ui/inputs/input';
 import { Link } from '@b2b-catalog-platform/ui/actions/link';
 import {
   StatusBadge,

@@ -8,9 +8,9 @@ import {
 import { CART_NOTE_MAX, ProductDetail } from '@b2b-catalog-platform/shared';
 import { CartService } from '../cart/cart.service';
 import { STOREFRONT_TEXT } from '../config/storefront-text';
-import { AutoGrow } from '../ui/auto-grow';
+import { AutoGrow } from '@b2b-catalog-platform/ui/inputs/auto-grow';
 import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
-import { Input } from '../ui/input';
+import { Input } from '@b2b-catalog-platform/ui/inputs/input';
 import { ProductAvailabilityBadge } from './product-availability-badge';
 import { ProductBuyControls } from './product-buy-controls';
 import { ProductPairings } from './product-pairings';

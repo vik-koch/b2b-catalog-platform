@@ -7,11 +7,11 @@ import {
   viewChild,
 } from '@angular/core';
 import { FormField, type FieldTree } from '@angular/forms/signals';
-import { FieldBinding } from '@b2b-catalog-platform/ui/fields/field-binding';
+import { FieldBinding } from '../fields/field-binding';
 import { injectCoarsePointer } from './coarse-pointer';
-import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import { Icon } from '../icons/icon';
 import { Input } from './input';
-import { calendarIcon } from '@b2b-catalog-platform/ui/icons/glyphs/calendar';
+import { calendarIcon } from '../icons/glyphs/calendar';
 
 /**
  * The engine's own affordance takes all three rules to hide: appearance-none

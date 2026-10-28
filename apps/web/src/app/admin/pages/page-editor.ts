@@ -32,7 +32,7 @@ import {
 } from '@b2b-catalog-platform/ui/fields/field-attempt';
 import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
 import { submitAttempt } from '@b2b-catalog-platform/ui/fields/submit-attempt';
-import { Input } from '../../shared/ui/input';
+import { Input } from '@b2b-catalog-platform/ui/inputs/input';
 import { Checkbox } from '@b2b-catalog-platform/ui/choices/checkbox';
 import { TickLabel } from '@b2b-catalog-platform/ui/choices/tick-label';
 import { PageEditingService } from './page-editing.service';

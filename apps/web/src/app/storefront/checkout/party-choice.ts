@@ -9,7 +9,7 @@ import { CompanyFields } from '../../shared/parties/company-fields';
 import { ChoiceBranch } from '@b2b-catalog-platform/ui/choices/choice-branch';
 import { Field } from '@b2b-catalog-platform/ui/fields/field';
 import { FieldBinding } from '@b2b-catalog-platform/ui/fields/field-binding';
-import { Input } from '../../shared/ui/input';
+import { Input } from '@b2b-catalog-platform/ui/inputs/input';
 import {
   Segmented,
   SegmentOption,

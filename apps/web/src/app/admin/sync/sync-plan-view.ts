@@ -21,7 +21,7 @@ import { formatPriceMinor } from '../../shared/catalog/price';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
-import { Input } from '../../shared/ui/input';
+import { Input } from '@b2b-catalog-platform/ui/inputs/input';
 import { Link } from '@b2b-catalog-platform/ui/actions/link';
 import {
   StatusBadge,

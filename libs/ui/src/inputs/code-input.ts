@@ -9,8 +9,8 @@ import {
   viewChild,
 } from '@angular/core';
 import { FormField, type FieldTree } from '@angular/forms/signals';
-import { Field } from '@b2b-catalog-platform/ui/fields/field';
-import { FieldBinding } from '@b2b-catalog-platform/ui/fields/field-binding';
+import { Field } from '../fields/field';
+import { FieldBinding } from '../fields/field-binding';
 
 const slot = `flex h-12 w-10 items-center justify-center rounded-md border
               bg-white text-xl tabular-nums transition-colors

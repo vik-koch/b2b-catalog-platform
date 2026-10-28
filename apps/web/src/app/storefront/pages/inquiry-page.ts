@@ -9,8 +9,8 @@ import { canonicalPhone } from '../../shared/core/contact-fields';
 import { completeMask, emailAddress } from '../../shared/core/field-rules';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
-import { Input } from '../../shared/ui/input';
-import { PhoneInput } from '../../shared/ui/phone-input';
+import { Input } from '@b2b-catalog-platform/ui/inputs/input';
+import { PhoneInput } from '@b2b-catalog-platform/ui/inputs/phone-input';
 import {
   Segmented,
   SegmentOption,

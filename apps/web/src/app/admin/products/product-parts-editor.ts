@@ -24,7 +24,7 @@ import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
 import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { PRODUCT_FEATURE_GLYPHS } from './product-feature-glyphs';
-import { Input } from '../../shared/ui/input';
+import { Input } from '@b2b-catalog-platform/ui/inputs/input';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
 

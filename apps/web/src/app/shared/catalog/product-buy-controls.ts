@@ -26,7 +26,7 @@ import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { ButtonBox } from '@b2b-catalog-platform/ui/actions/button-box';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
-import { Input } from '../ui/input';
+import { Input } from '@b2b-catalog-platform/ui/inputs/input';
 import { Popover } from '../ui/popover';
 import {
   Segment,
@@ -44,8 +44,8 @@ import { FirstRender } from '../core/first-render';
 import { minusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/minus';
 import { plusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/plus';
 import { shoppingBasketIcon } from '@b2b-catalog-platform/ui/icons/glyphs/shopping-basket';
-import { numericRules } from '../ui/numeric-rules';
-import { Allow } from '../ui/allow';
+import { numericRules } from '@b2b-catalog-platform/ui/inputs/numeric-rules';
+import { Allow } from '@b2b-catalog-platform/ui/inputs/allow';
 
 /** How long a statement stays on screen before it fades away. */
 const NOTICE_MS = 5000;

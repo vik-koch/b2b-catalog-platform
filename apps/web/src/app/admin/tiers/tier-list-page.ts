@@ -20,7 +20,7 @@ import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Link } from '@b2b-catalog-platform/ui/actions/link';
-import { Input } from '../../shared/ui/input';
+import { Input } from '@b2b-catalog-platform/ui/inputs/input';
 import { filled } from '../../shared/core/field-rules';
 import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
 import { submitAttempt } from '@b2b-catalog-platform/ui/fields/submit-attempt';

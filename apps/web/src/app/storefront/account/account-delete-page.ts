@@ -7,7 +7,7 @@ import { AuthService } from '../../shared/auth/auth.service';
 import { usePageSeo } from '../../shared/core/page-seo';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
-import { Input } from '../../shared/ui/input';
+import { Input } from '@b2b-catalog-platform/ui/inputs/input';
 import { AccountService } from './account.service';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';

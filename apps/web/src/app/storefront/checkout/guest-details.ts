@@ -8,8 +8,8 @@ import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { CompanyFields } from '../../shared/parties/company-fields';
 import { Field } from '@b2b-catalog-platform/ui/fields/field';
 import { FieldBinding } from '@b2b-catalog-platform/ui/fields/field-binding';
-import { Input } from '../../shared/ui/input';
-import { PhoneInput } from '../../shared/ui/phone-input';
+import { Input } from '@b2b-catalog-platform/ui/inputs/input';
+import { PhoneInput } from '@b2b-catalog-platform/ui/inputs/phone-input';
 import {
   Segmented,
   SegmentOption,

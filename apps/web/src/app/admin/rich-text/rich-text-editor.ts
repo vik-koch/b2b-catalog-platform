@@ -30,7 +30,7 @@ import { DialogActions } from '../../shared/ui/dialog-actions';
 import { DialogPanel } from '../../shared/ui/dialog-panel';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
-import { Input } from '../../shared/ui/input';
+import { Input } from '@b2b-catalog-platform/ui/inputs/input';
 import { RichTextImage } from './rich-text-image';
 import { MediaService } from '../media/media.service';
 import { SHARED_TEXT } from '../../shared/config/shared-text';

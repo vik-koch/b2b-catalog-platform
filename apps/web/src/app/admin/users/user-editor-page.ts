@@ -31,15 +31,15 @@ import { Notice } from '@b2b-catalog-platform/ui/content/notice';
 import { CompanyFields } from '../../shared/parties/company-fields';
 import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
 import { submitAttempt } from '@b2b-catalog-platform/ui/fields/submit-attempt';
-import { PhoneInput } from '../../shared/ui/phone-input';
+import { PhoneInput } from '@b2b-catalog-platform/ui/inputs/phone-input';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
-import { Input } from '../../shared/ui/input';
+import { Input } from '@b2b-catalog-platform/ui/inputs/input';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import { injectEditorReturn } from '../../shared/edit-mode/editor-return';
 import { SettingsService } from '../settings/settings.service';
 import { TiersService } from '../tiers/tiers.service';
 import { StaffUsersService } from './users.service';
-import { SelectInput } from '../../shared/ui/select-input';
+import { SelectInput } from '@b2b-catalog-platform/ui/inputs/select-input';
 import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';
 import { userStatusTone } from './user-status';
 import {

@@ -15,7 +15,7 @@ import {
 import { AuthCard } from './auth-card';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
-import { Input } from '../../shared/ui/input';
+import { Input } from '@b2b-catalog-platform/ui/inputs/input';
 import { AuthService, CodeSendFailure } from '../../shared/auth/auth.service';
 import { formatWait, SignInStepPanel } from './sign-in-step';
 import { landingFor } from '../../shared/auth/auth.guard';

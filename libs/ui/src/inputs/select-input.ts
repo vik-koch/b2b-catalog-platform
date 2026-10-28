@@ -1,6 +1,6 @@
 import { Component, computed, input } from '@angular/core';
-import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
-import { chevronDownIcon } from '@b2b-catalog-platform/ui/icons/glyphs/chevron-down';
+import { Icon } from '../icons/icon';
+import { chevronDownIcon } from '../icons/glyphs/chevron-down';
 
 const chevron = `pointer-events-none absolute top-1/2 -translate-y-1/2
                  text-ink-subtle transition-colors`;

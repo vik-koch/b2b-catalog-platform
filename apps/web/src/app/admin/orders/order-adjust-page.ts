@@ -69,14 +69,14 @@ import {
 } from '@b2b-catalog-platform/ui/fields/field-attempt';
 import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
 import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
-import { Input } from '../../shared/ui/input';
-import { PhoneInput } from '../../shared/ui/phone-input';
+import { Input } from '@b2b-catalog-platform/ui/inputs/input';
+import { PhoneInput } from '@b2b-catalog-platform/ui/inputs/phone-input';
 import { submitAttempt } from '@b2b-catalog-platform/ui/fields/submit-attempt';
 import {
   SegmentOption,
   Segmented,
 } from '@b2b-catalog-platform/ui/choices/segmented';
-import { SelectInput } from '../../shared/ui/select-input';
+import { SelectInput } from '@b2b-catalog-platform/ui/inputs/select-input';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import { WarningNote } from '@b2b-catalog-platform/ui/content/warning-note';
 import { TiersService } from '../tiers/tiers.service';

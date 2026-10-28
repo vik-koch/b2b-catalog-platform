@@ -18,10 +18,13 @@ import {
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
-import { Input } from '../../shared/ui/input';
-import { SelectInput } from '../../shared/ui/select-input';
-import { DropZone } from '../../shared/ui/drop-zone';
-import { FileTarget, pasteKeys } from '../../shared/ui/file-target';
+import { Input } from '@b2b-catalog-platform/ui/inputs/input';
+import { SelectInput } from '@b2b-catalog-platform/ui/inputs/select-input';
+import { DropZone } from '@b2b-catalog-platform/ui/inputs/drop-zone';
+import {
+  FileTarget,
+  pasteKeys,
+} from '@b2b-catalog-platform/ui/inputs/file-target';
 import { ImageFramerService } from '../media/image-framer.service';
 import { MediaService } from '../media/media.service';
 import { SHARED_TEXT } from '../../shared/config/shared-text';

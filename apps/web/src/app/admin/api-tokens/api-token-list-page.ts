@@ -19,7 +19,7 @@ import { submitAttempt } from '@b2b-catalog-platform/ui/fields/submit-attempt';
 import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Checkbox } from '@b2b-catalog-platform/ui/choices/checkbox';
-import { Input } from '../../shared/ui/input';
+import { Input } from '@b2b-catalog-platform/ui/inputs/input';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';
 import { RecordFields } from '../../shared/ui/record-fields';

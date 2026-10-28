@@ -16,7 +16,7 @@ import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { Checkbox } from '@b2b-catalog-platform/ui/choices/checkbox';
 import { TickLabel } from '@b2b-catalog-platform/ui/choices/tick-label';
-import { CodeInput } from '../../shared/ui/code-input';
+import { CodeInput } from '@b2b-catalog-platform/ui/inputs/code-input';
 import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
 import { SubmitAttempt } from '@b2b-catalog-platform/ui/fields/submit-attempt';
 import { TextButton } from '@b2b-catalog-platform/ui/actions/text-button';

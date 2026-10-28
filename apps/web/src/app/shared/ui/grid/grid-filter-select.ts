@@ -1,5 +1,5 @@
 import { Component, input } from '@angular/core';
-import { SelectInput } from '../select-input';
+import { SelectInput } from '@b2b-catalog-platform/ui/inputs/select-input';
 import { filterParams, GridFilter } from './grid-column';
 import { injectGridNav } from './grid-nav';
 

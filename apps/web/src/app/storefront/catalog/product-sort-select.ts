@@ -10,10 +10,10 @@ import {
 } from '@b2b-catalog-platform/shared';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
-import { Input } from '../../shared/ui/input';
+import { Input } from '@b2b-catalog-platform/ui/inputs/input';
 import { Segment } from '@b2b-catalog-platform/ui/choices/segment';
 import { SegmentGroup } from '@b2b-catalog-platform/ui/choices/segment-group';
-import { SelectInput } from '../../shared/ui/select-input';
+import { SelectInput } from '@b2b-catalog-platform/ui/inputs/select-input';
 
 /**
  * Ties the visible label to the field. A constant rather than a generated id:

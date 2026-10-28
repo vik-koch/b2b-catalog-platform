@@ -15,7 +15,7 @@ import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { confirmation, newPassword } from '../../shared/core/password';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
-import { Input } from '../../shared/ui/input';
+import { Input } from '@b2b-catalog-platform/ui/inputs/input';
 import { SubmitAttempt } from '@b2b-catalog-platform/ui/fields/submit-attempt';
 import {
   AuthService,

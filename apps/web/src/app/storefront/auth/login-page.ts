@@ -7,7 +7,7 @@ import { usePageSeo } from '../../shared/core/page-seo';
 import { emailAddress } from '../../shared/core/field-rules';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
-import { Input } from '../../shared/ui/input';
+import { Input } from '@b2b-catalog-platform/ui/inputs/input';
 import { AuthCard } from './auth-card';
 import { landingFor } from '../../shared/auth/auth.guard';
 import { AuthService, LoginResult } from '../../shared/auth/auth.service';

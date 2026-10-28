@@ -11,9 +11,9 @@ import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
 import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
-import { Allow } from '../../shared/ui/allow';
-import { UnitInput } from '../../shared/ui/unit-input';
-import { UnitInputControl } from '../../shared/ui/unit-input-control';
+import { Allow } from '@b2b-catalog-platform/ui/inputs/allow';
+import { UnitInput } from '@b2b-catalog-platform/ui/inputs/unit-input';
+import { UnitInputControl } from '@b2b-catalog-platform/ui/inputs/unit-input-control';
 import { LockedFieldMarker } from '../ownership/locked-field-marker';
 import { Hint } from '@b2b-catalog-platform/ui/fields/hint';
 

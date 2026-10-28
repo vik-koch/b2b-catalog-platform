@@ -7,10 +7,10 @@ import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { injectNarrowScreen } from '@b2b-catalog-platform/ui/core/narrow-screen';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
-import { UnitInput } from '../../shared/ui/unit-input';
-import { UnitInputControl } from '../../shared/ui/unit-input-control';
-import { numericRules } from '../../shared/ui/numeric-rules';
-import { Allow } from '../../shared/ui/allow';
+import { UnitInput } from '@b2b-catalog-platform/ui/inputs/unit-input';
+import { UnitInputControl } from '@b2b-catalog-platform/ui/inputs/unit-input-control';
+import { numericRules } from '@b2b-catalog-platform/ui/inputs/numeric-rules';
+import { Allow } from '@b2b-catalog-platform/ui/inputs/allow';
 
 /**
  * How a product is packaged.

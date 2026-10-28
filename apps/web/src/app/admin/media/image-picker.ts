@@ -6,8 +6,11 @@ import {
 } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
-import { DropZone } from '../../shared/ui/drop-zone';
-import { FileTarget, pasteKeys } from '../../shared/ui/file-target';
+import { DropZone } from '@b2b-catalog-platform/ui/inputs/drop-zone';
+import {
+  FileTarget,
+  pasteKeys,
+} from '@b2b-catalog-platform/ui/inputs/file-target';
 import { MediaService } from './media.service';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';

@@ -53,6 +53,7 @@ by module, so a barrel would carry everything behind it into the first load.
 | `disclosure/` | What opens and closes: `DisclosureToggle`, `appDisclosureFrame`, `disclosureState`, `Collapsible`, `ShowMoreToggle` |
 | `fields/` | The labelled unit around an input: `Field`, `FieldGroup`, `FieldStatus`, `FieldBinding`, `appFieldLabel`, `appFieldAction`, `SubmitAttempt`, `appErrorText`, `appHint`, and `FORM_FIELDS` to import them with Signal Forms |
 | `icons/` | `Icon`, the `Glyph` type and one module per glyph |
+| `inputs/` | What holds a typed value: `appInput`, `SelectInput`, `DateInput`, `UnitInput` with `appUnitInputControl`, `CodeInput`, `PhoneInput`, `appInputPrefix`; and what shapes a control: `appAllow` with `numericRules`, `appDigitMask`, `appAutoGrow`, `appFileTarget`, `appDropZone` |
 | `ui.css` | Tailwind, the breakpoints, the type weight and the colour roles; the app's stylesheet imports it |
 
 ## Checking

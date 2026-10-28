@@ -61,7 +61,7 @@ import {
   partialPriceRule,
 } from '../../shared/catalog/price';
 import { LockedNote } from '../ownership/locked-note';
-import { Allow } from '../../shared/ui/allow';
+import { Allow } from '@b2b-catalog-platform/ui/inputs/allow';
 import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';
 import { LockedFieldMarker } from '../ownership/locked-field-marker';
 import { SettingsService } from '../settings/settings.service';
@@ -88,7 +88,7 @@ import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
 import { submitAttempt } from '@b2b-catalog-platform/ui/fields/submit-attempt';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { PRODUCT_FEATURE_GLYPHS } from './product-feature-glyphs';
-import { Input } from '../../shared/ui/input';
+import { Input } from '@b2b-catalog-platform/ui/inputs/input';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import { AdminCatalogService } from '../admin-catalog.service';
 import { AttributesService } from '../attributes/attributes.service';
@@ -114,8 +114,8 @@ import {
   ProductTierPricesEditor,
   TierPriceDraft,
 } from './product-tier-prices-editor';
-import { UnitInput } from '../../shared/ui/unit-input';
-import { UnitInputControl } from '../../shared/ui/unit-input-control';
+import { UnitInput } from '@b2b-catalog-platform/ui/inputs/unit-input';
+import { UnitInputControl } from '@b2b-catalog-platform/ui/inputs/unit-input-control';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { circleCheckIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-check';
@@ -123,7 +123,7 @@ import { eyeIcon } from '@b2b-catalog-platform/ui/icons/glyphs/eye';
 import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
 import { saveIcon } from '@b2b-catalog-platform/ui/icons/glyphs/save';
 import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
-import { numericRules } from '../../shared/ui/numeric-rules';
+import { numericRules } from '@b2b-catalog-platform/ui/inputs/numeric-rules';
 
 interface ProductDraft {
   name: string;

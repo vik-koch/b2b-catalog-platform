@@ -16,8 +16,11 @@ import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { Checkbox } from '@b2b-catalog-platform/ui/choices/checkbox';
 import { TickLabel } from '@b2b-catalog-platform/ui/choices/tick-label';
 import { ChoiceCard } from '@b2b-catalog-platform/ui/choices/choice-card';
-import { DropZone } from '../../shared/ui/drop-zone';
-import { FileTarget, pasteKeys } from '../../shared/ui/file-target';
+import { DropZone } from '@b2b-catalog-platform/ui/inputs/drop-zone';
+import {
+  FileTarget,
+  pasteKeys,
+} from '@b2b-catalog-platform/ui/inputs/file-target';
 import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Link } from '@b2b-catalog-platform/ui/actions/link';

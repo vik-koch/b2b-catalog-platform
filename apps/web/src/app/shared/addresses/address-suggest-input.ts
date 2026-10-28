@@ -9,7 +9,7 @@ import { HighlightedLine } from '../ui/highlighted-line';
 import { MatchSegmentsPipe } from '../catalog/match-segments.pipe';
 import { SuggestList, SuggestListText } from '../ui/suggest-list';
 import { FieldBinding } from '@b2b-catalog-platform/ui/fields/field-binding';
-import { Input } from '../ui/input';
+import { Input } from '@b2b-catalog-platform/ui/inputs/input';
 import { SuggestField } from '../ui/suggest-field';
 import { SuggestInput } from '../ui/suggest-input';
 import { SuggestRow } from '../ui/suggest-row';
