@@ -227,8 +227,8 @@ describe('CategoryGrid', () => {
         (b.textContent ?? '').includes(label),
       );
 
-    expect(toggle(defaultStorefrontText.catalog.showMore)).toBeTruthy();
-    toggle(defaultStorefrontText.catalog.showMore)?.click();
+    expect(toggle(defaultSharedText.showMore)).toBeTruthy();
+    toggle(defaultSharedText.showMore)?.click();
     await f.whenStable();
     f.detectChanges();
 
@@ -236,14 +236,13 @@ describe('CategoryGrid', () => {
     // both states are a length, so the movement between them runs.
     expect(list()?.className).not.toContain('max-h-75');
     expect(list()?.className).toContain('var(--subs-full');
-    expect(toggle(defaultStorefrontText.catalog.showLess)).toBeTruthy();
+    expect(toggle(defaultSharedText.showLess)).toBeTruthy();
 
     // The toggle is hidden wherever the clip is lifted — a button offering to
     // show what is already shown.
     expect(
-      toggle(defaultStorefrontText.catalog.showLess)?.closest(
-        'ui-show-more-toggle',
-      )?.className,
+      toggle(defaultSharedText.showLess)?.closest('ui-show-more-toggle')
+        ?.className,
     ).toContain('sm:hidden');
   });
 
@@ -705,9 +704,7 @@ describe('CategoryGrid as the catalogue index (FR-CAT-02)', () => {
     expect(root.querySelector('#subcategories')?.className).not.toContain(
       'overflow-hidden',
     );
-    expect(root.textContent).not.toContain(
-      defaultStorefrontText.catalog.showMore,
-    );
+    expect(root.textContent).not.toContain(defaultSharedText.showMore);
   });
 
   it('pages within the catalogue', async () => {

@@ -347,8 +347,6 @@ interface Listing {
                 <ui-show-more-toggle
                   [class]="subsToggleClass"
                   [expanded]="showAllSubs()"
-                  [moreLabel]="text.showMore"
-                  [lessLabel]="text.showLess"
                   [controls]="subsListId"
                   (toggled)="subsDisclosure.toggle()"
                 />

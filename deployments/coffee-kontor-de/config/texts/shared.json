@@ -27,6 +27,8 @@
   "optional": "optional",
   "required": "erforderlich",
   "imagePlaceholder": "Kein Bild vorhanden",
+  "showMore": "Mehr anzeigen",
+  "showLess": "Weniger anzeigen",
   "units": {
     "piece": "Stk.",
     "pack": "Pck.",

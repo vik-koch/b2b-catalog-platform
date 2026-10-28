@@ -22,6 +22,12 @@
     "texts/shared.json:imagePlaceholder": {
       "from": ["texts/app.json:catalog.imagePlaceholder"]
     },
+    "texts/shared.json:showMore": {
+      "from": ["texts/app.json:catalog.showMore"]
+    },
+    "texts/shared.json:showLess": {
+      "from": ["texts/app.json:catalog.showLess"]
+    },
     "texts/shared.json:nav.catalog": {
       "from": ["texts/app.json:catalog.navLabel"]
     },

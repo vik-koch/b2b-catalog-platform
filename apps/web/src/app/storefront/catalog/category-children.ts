@@ -1,12 +1,10 @@
-import { Component, computed, inject, input, signal } from '@angular/core';
+import { Component, computed, input, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
   categoryDisplayName,
   CategoryNode,
 } from '@b2b-catalog-platform/shared';
-import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
-import { Collapsible } from '@b2b-catalog-platform/ui/disclosure/collapsible';
-import { ShowMoreToggle } from '@b2b-catalog-platform/ui/disclosure/show-more-toggle';
+import { ShowMoreList } from '@b2b-catalog-platform/ui/disclosure/show-more-list';
 
 /** How many subcategories stand under a chip before the rest are behind the
  * toggle. Four is what the tallest cell can carry without the row it sits in
@@ -27,44 +25,30 @@ const SHOWN = 4;
  */
 @Component({
   selector: 'app-category-children',
-  imports: [Collapsible, RouterLink, ShowMoreToggle],
+  imports: [RouterLink, ShowMoreList],
   template: `
-    <ul [class]="'mt-2 ' + listClass">
-      @for (child of shown(); track child.slug) {
+    <ui-show-more-list
+      class="mt-2 px-3 text-sm text-ink-subtle"
+      [items]="parent().children"
+      [limit]="SHOWN"
+      [open]="open()"
+      [restId]="restId()"
+      [trackBy]="bySlug"
+      (toggled)="open.set(!open())"
+    >
+      <ng-template let-child>
         <li>
           <a [routerLink]="['/catalog', child.slug]" [class]="lineClass">
             {{ displayName(child) }}
           </a>
         </li>
-      }
-    </ul>
-    @if (rest().length) {
-      <ui-collapsible [open]="open()" [id]="restId()">
-        <ul [class]="listClass">
-          @for (child of rest(); track child.slug) {
-            <li>
-              <a [routerLink]="['/catalog', child.slug]" [class]="lineClass">
-                {{ displayName(child) }}
-              </a>
-            </li>
-          }
-        </ul>
-      </ui-collapsible>
-      <ui-show-more-toggle
-        class="mt-1 justify-start"
-        [expanded]="open()"
-        [moreLabel]="text.showMore"
-        [lessLabel]="text.showLess"
-        [controls]="restId()"
-        (toggled)="open.set(!open())"
-      />
-    }
+      </ng-template>
+    </ui-show-more-list>
   `,
 })
 export class CategoryChildren {
   readonly parent = input.required<CategoryNode>();
 
-  protected readonly text = inject(STOREFRONT_TEXT).catalog;
   protected readonly open = signal(false);
   /** The parent's own slug, so several cells' toggles point at their own row. */
   protected readonly restId = computed(() => `children-${this.parent().slug}`);
@@ -73,12 +57,9 @@ export class CategoryChildren {
    * own name is right above it. */
   protected readonly displayName = categoryDisplayName;
 
-  protected readonly shown = computed(() =>
-    this.parent().children.slice(0, SHOWN),
-  );
-  protected readonly rest = computed(() => this.parent().children.slice(SHOWN));
+  protected readonly SHOWN = SHOWN;
+  protected readonly bySlug = (child: CategoryNode) => child.slug;
 
-  protected readonly listClass = 'px-3 text-sm text-ink-subtle';
   protected readonly lineClass =
     'block py-0.5 hover:text-accent [overflow-wrap:anywhere]';
 }

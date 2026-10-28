@@ -151,12 +151,15 @@ describe('GridNarrowControls (FR-ADM-05)', () => {
     expect(panel?.parentElement?.parentElement?.classList).toContain(
       'grid-rows-[0fr]',
     );
+    // Clipped is not enough: a shut panel's selects must leave the tab order.
+    expect(panel?.parentElement?.classList).toContain('invisible');
 
     open(fixture, el);
     expect(button?.getAttribute('aria-expanded')).toBe('true');
     expect(panel?.parentElement?.parentElement?.classList).toContain(
       'grid-rows-[1fr]',
     );
+    expect(panel?.parentElement?.classList).toContain('visible');
   });
 
   it('shows the filters with no column of their own, and the way out of one', async () => {

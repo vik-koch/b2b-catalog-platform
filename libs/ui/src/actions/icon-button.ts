@@ -26,6 +26,8 @@ const sizes = {
   touch: 'p-2 [--icon-size:1.25rem]',
 } as const;
 
+export type IconButtonSize = keyof typeof sizes;
+
 const variants = {
   /** Lighter than the text beside it: rows repeat it hundreds of times. */
   default: 'text-ink-subtle hover:text-accent active:text-primary-press',
@@ -48,7 +50,7 @@ const variants = {
 })
 export class IconButton {
   readonly variant = input<keyof typeof variants>('default');
-  readonly size = input<keyof typeof sizes>('sm');
+  readonly size = input<IconButtonSize>('sm');
 
   protected readonly classes = computed(
     () => `${base} ${sizes[this.size()]} ${variants[this.variant()]}`,

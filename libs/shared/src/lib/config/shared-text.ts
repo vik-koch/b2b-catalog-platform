@@ -80,6 +80,9 @@ export const sharedTextSchema = z
     required: z.string(),
     /** Stands in for a missing picture, as its caption and accessible name. */
     imagePlaceholder: z.string(),
+    /** The toggle under a list or a description that is cut short. */
+    showMore: z.string(),
+    showLess: z.string(),
     /** Under a list that runs to more than one page. `status` fills in
      * `{page}` and `{total}`. */
     pagination: z

@@ -1,7 +1,7 @@
-import { Component, computed, inject, input } from '@angular/core';
+import { Component, computed, inject, input, signal } from '@angular/core';
 import { fill } from '../core/fill';
 import { GRID_TEXT } from './grid-text';
-import { disclosureState } from '../disclosure/disclosure-state';
+import { Collapsible } from '../disclosure/collapsible';
 import { DisclosureToggle } from '../disclosure/disclosure-toggle';
 import { DisclosureFrame } from '../disclosure/disclosure-frame';
 import { Input } from '../inputs/input';
@@ -42,12 +42,12 @@ interface SortOption {
     GridClearFilters,
     GridToggles,
     DisclosureFrame,
+    Collapsible,
   ],
   template: `
     @if (anything()) {
       <div class="mb-4 flex items-start gap-2">
-        <!-- One bordered box for lid and panel; it grows by a 0fr → 1fr grid
-             row, since a height cannot transition to the content's. -->
+        <!-- One bordered box for lid and panel. -->
         <div
           class="min-w-0 flex-1 rounded-md border"
           uiDisclosureFrame
@@ -59,91 +59,87 @@ interface SortOption {
             [countLabel]="countLabel()"
             [open]="open()"
             [panelId]="panelId"
-            (toggled)="disclosure.toggle()"
+            (toggled)="open.set(!open())"
           />
 
-          <div [class]="panelRow()">
-            <div class="overflow-hidden">
-              <div
-                [id]="panelId"
-                class="grid gap-4 border-t border-edge p-4"
-                role="group"
-                [attr.aria-label]="gridText.filters"
-              >
-                @if (sortOptions().length) {
-                  <label class="block">
-                    <span class="mb-1 block text-sm text-ink-subtle">{{
-                      gridText.sort
-                    }}</span>
-                    <ui-select-input>
-                      <select
-                        uiInput
-                        class="w-full text-sm"
-                        (change)="onSort($event)"
-                      >
-                        <!-- Only for an ordering no column owns, or the picker
-                             would claim the first column. -->
-                        @if (unsorted()) {
-                          <option value="" selected>
-                            {{ defaultSortLabel() }}
-                          </option>
-                        }
-                        @for (option of sortOptions(); track option.value) {
-                          <option
-                            [value]="option.value"
-                            [selected]="option.value === sort()"
-                            [attr.selected]="
-                              option.value === sort() ? '' : null
-                            "
-                          >
-                            {{ option.label }}
-                          </option>
-                        }
-                      </select>
-                    </ui-select-input>
-                  </label>
-                }
+          <ui-collapsible [open]="open()">
+            <div
+              [id]="panelId"
+              class="grid gap-4 border-t border-edge p-4"
+              role="group"
+              [attr.aria-label]="gridText.filters"
+            >
+              @if (sortOptions().length) {
+                <label class="block">
+                  <span class="mb-1 block text-sm text-ink-subtle">{{
+                    gridText.sort
+                  }}</span>
+                  <ui-select-input>
+                    <select
+                      uiInput
+                      class="w-full text-sm"
+                      (change)="onSort($event)"
+                    >
+                      <!-- Only for an ordering no column owns, or the picker
+                           would claim the first column. -->
+                      @if (unsorted()) {
+                        <option value="" selected>
+                          {{ defaultSortLabel() }}
+                        </option>
+                      }
+                      @for (option of sortOptions(); track option.value) {
+                        <option
+                          [value]="option.value"
+                          [selected]="option.value === sort()"
+                          [attr.selected]="option.value === sort() ? '' : null"
+                        >
+                          {{ option.label }}
+                        </option>
+                      }
+                    </select>
+                  </ui-select-input>
+                </label>
+              }
 
-                @for (column of filters(); track column.key) {
-                  <label class="block">
-                    <span class="mb-1 block text-sm text-ink-subtle">{{
-                      column.filter?.label
-                    }}</span>
-                    <ui-select-input>
-                      <select
-                        uiInput
-                        class="w-full text-sm"
-                        (change)="onFilter(column, $event)"
-                      >
-                        @for (
-                          option of column.filter?.options ?? [];
-                          track option
-                        ) {
-                          <option
-                            [value]="option.value"
-                            [selected]="option.value === column.filter?.value"
-                            [attr.selected]="
-                              option.value === column.filter?.value ? '' : null
-                            "
-                          >
-                            {{ indent(option.depth) }}{{ option.label }}
-                          </option>
-                        }
-                      </select>
-                    </ui-select-input>
-                  </label>
-                }
+              @for (column of filters(); track column.key) {
+                <label class="block">
+                  <span class="mb-1 block text-sm text-ink-subtle">{{
+                    column.filter?.label
+                  }}</span>
+                  <ui-select-input>
+                    <select
+                      uiInput
+                      class="w-full text-sm"
+                      (change)="onFilter(column, $event)"
+                    >
+                      @for (
+                        option of column.filter?.options ?? [];
+                        track option
+                      ) {
+                        <option
+                          [value]="option.value"
+                          [selected]="option.value === column.filter?.value"
+                          [attr.selected]="
+                            option.value === column.filter?.value ? '' : null
+                          "
+                        >
+                          {{ indent(option.depth) }}{{ option.label }}
+                        </option>
+                      }
+                    </select>
+                  </ui-select-input>
+                </label>
+              }
 
-                @if (toggles().length) {
-                  <ui-grid-toggles [groups]="toggles()" />
-                }
+              @if (toggles().length) {
+                <ui-grid-toggles [groups]="toggles()" />
+              }
 
-                @if (chips().length) {
-                  <ui-grid-chips [chips]="chips()" />
-                }
-              </div>
+              @if (chips().length) {
+                <ui-grid-chips [chips]="chips()" />
+              }
             </div>
-          </div>
+          </ui-collapsible>
         </div>
 
         <!-- Beside the box: it also clears the search. Centred on the toggle,
@@ -173,16 +169,7 @@ export class GridNarrowControls {
   /** Whether anything narrows the list, the search included. */
   readonly filtered = input(false);
 
-  protected readonly disclosure = disclosureState(200);
-  protected readonly open = this.disclosure.open;
-
-  /** Armed by the toggle, so resizing the window does not play the opening. */
-  protected readonly panelRow = computed(() => {
-    const move = this.disclosure.animated()
-      ? 'transition-[grid-template-rows] duration-200 ease-out '
-      : '';
-    return `grid ${move}${this.open() ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`;
-  });
+  protected readonly open = signal(false);
 
   protected readonly countLabel = computed(() =>
     fill(this.gridText.countSuffix, { count: this.activeCount() }),

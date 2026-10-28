@@ -45,34 +45,31 @@ describe('GridClearFilters (FR-ADM-05)', () => {
    * exactly because it does not touch the sort.
    */
   it('clears the narrowing and keeps the ordering', async () => {
-    const { control } = await render(
+    const { fixture, control } = await render(
       '/admin/products?state=deleted&searchTerm=beans&sort=price&page=3',
     );
 
-    // The path is the route this test harness registered; what the control
-    // decides is the query it keeps.
-    expect(control?.getAttribute('href')).toContain('?sort=price');
+    control?.click();
+    await fixture.whenStable();
+
+    expect(TestBed.inject(Router).url).toBe('/admin/products?sort=price');
   });
 
   it('goes to the plain list where there is no ordering to keep', async () => {
-    const { control } = await render('/admin/products?state=deleted');
+    const { fixture, control } = await render('/admin/products?state=deleted');
 
-    expect(control?.getAttribute('href')).not.toContain('?');
+    control?.click();
+    await fixture.whenStable();
+
+    expect(TestBed.inject(Router).url).toBe('/admin/products');
   });
 
-  // Inert is a real disabled button, not a link styled to look spent: the
-  // difference is whether it can be tabbed to and pressed.
   it('is a dead control while nothing is narrowing the list', async () => {
-    const { fixture, control } = await render();
-    expect(control?.tagName).toBe('A');
+    const { fixture, control } = await render('/admin/products?state=deleted');
 
     fixture.componentInstance.filtered.set(false);
     fixture.detectChanges();
 
-    const inert = (fixture.nativeElement as HTMLElement).querySelector(
-      `[aria-label="${label}"]`,
-    );
-    expect(inert?.tagName).toBe('BUTTON');
-    expect(inert?.hasAttribute('disabled')).toBe(true);
+    expect(control?.hasAttribute('disabled')).toBe(true);
   });
 });

@@ -336,8 +336,6 @@ const NARROW = '(max-width: 39.999rem)';
             <ui-show-more-toggle
               class="mt-1"
               [expanded]="descriptionExpanded()"
-              [moreLabel]="text.showMore"
-              [lessLabel]="text.showLess"
               [controls]="descriptionTextId"
               (toggled)="descriptionDisclosure.toggle()"
             />

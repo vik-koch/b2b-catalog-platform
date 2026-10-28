@@ -35,6 +35,9 @@ the recurring theme: the smallest component that does the job, on one VM.
   `deployments/`, and in the release's `tools/config-migration` map: a moved one names where it
   came `from`, a new one carries its `new` value. `node tools/migrate-config.mjs --check` proves it.
 - Generated files are regenerated in the same change (the table in `docs/development.md`).
+- A batch is done after `npx nx format:write --base=main` has run after its last edit
+  (`--uncommitted` skips new, untracked files), and lint, tests and the `node tools/*` checks of
+  `ci.yml` pass. A slice is done when the e2e suites pass as well.
 - A schema change adds first and removes what it replaces a release later. Versions follow ADR
   0044: major when a port contract breaks or a migration cannot run unattended, minor for new
   scope, patch otherwise. The machine API stays stable; config keys are version-neutral.

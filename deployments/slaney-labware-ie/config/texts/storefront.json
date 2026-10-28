@@ -36,8 +36,6 @@
     "emptyCategories": "Our catalogue is being set up — please check back soon.",
     "loadError": "Something went wrong loading the catalogue — please try again later.",
     "catalogRoot": "Catalogue",
-    "showMore": "Show more",
-    "showLess": "Show less",
     "emptyProducts": "No products in this category yet.",
     "productCount": "Products: {count}",
     "set": {

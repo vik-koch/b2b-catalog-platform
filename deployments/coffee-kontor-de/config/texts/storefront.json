@@ -36,8 +36,6 @@
     "emptyCategories": "Unser Katalog wird gerade eingerichtet – bitte schauen Sie bald wieder vorbei.",
     "loadError": "Beim Laden des Katalogs ist etwas schiefgegangen – bitte versuchen Sie es später noch einmal.",
     "catalogRoot": "Katalog",
-    "showMore": "Mehr anzeigen",
-    "showLess": "Weniger anzeigen",
     "emptyProducts": "In dieser Kategorie gibt es noch keine Produkte.",
     "productCount": "Produkte: {count}",
     "set": {
