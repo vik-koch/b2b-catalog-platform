@@ -75,8 +75,7 @@ interface Inquiry {
             />
           </app-field>
 
-          <app-field
-            group
+          <app-field-group
             [field]="form.preferredContact"
             [label]="text.preferredContact"
           >
@@ -85,7 +84,7 @@ interface Inquiry {
               size="md"
               [formField]="form.preferredContact"
             />
-          </app-field>
+          </app-field-group>
 
           <!-- Whichever channel was picked is the required one; the other stays
                offered, because a visitor who gives both is being helpful. -->

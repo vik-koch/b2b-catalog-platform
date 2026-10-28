@@ -200,8 +200,7 @@ interface UserDraft {
               <!-- Only where the shop sells to more than one kind of customer
                    (FR-AUTH-13): with one, there is nothing to choose. -->
               @if (customerTypes.length > 1) {
-                <app-field
-                  group
+                <app-field-group
                   [field]="form.customerType"
                   [label]="text.customerType"
                 >
@@ -210,7 +209,7 @@ interface UserDraft {
                     size="md"
                     [formField]="form.customerType"
                   />
-                </app-field>
+                </app-field-group>
               }
             }
 

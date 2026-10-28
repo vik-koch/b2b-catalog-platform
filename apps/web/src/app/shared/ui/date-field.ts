@@ -8,7 +8,7 @@ import {
 } from '@angular/core';
 import { FormField, type FieldTree } from '@angular/forms/signals';
 import { FieldBinding } from './field-binding';
-import { injectCoarsePointer } from '../core/coarse-pointer';
+import { injectCoarsePointer } from './coarse-pointer';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Input } from './input';
 import { calendarIcon } from '@b2b-catalog-platform/ui/icons/glyphs/calendar';

@@ -293,7 +293,7 @@ const SCOPE_ROWS: readonly {
                      so it is stated instead; the ticks appear on their own
                      when a second one is added. -->
                 @if (scopes.length > 1) {
-                  <app-field group [field]="form.scopes" [label]="text.scope">
+                  <app-field-group [field]="form.scopes" [label]="text.scope">
                     <!-- Columns as wide as their heading, not as wide as the
                          form: a tick belongs beside the words that name it,
                          and two stretched columns put it halfway across the
@@ -326,7 +326,7 @@ const SCOPE_ROWS: readonly {
                         }
                       }
                     </div>
-                  </app-field>
+                  </app-field-group>
                 } @else {
                   <div>
                     <span appFieldLabel>{{ text.scope }}</span>

@@ -2,8 +2,9 @@ import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { form, required, validate } from '@angular/forms/signals';
 import { FORM_FIELDS } from './form-fields';
-import { SHARED_TEXT } from '../config/shared-text';
-import { defaultSharedText } from '../config/shared-text.fixture';
+import { UI_TEXT } from './ui-text';
+
+const uiText = { required: 'required' };
 
 @Component({
   imports: [FORM_FIELDS],
@@ -19,10 +20,10 @@ import { defaultSharedText } from '../config/shared-text.fixture';
         <button appFieldAction type="button">Show</button>
         <input [formField]="form.code" />
       </app-field>
-      <app-field group [field]="form.size" label="Size" hint="Pick one">
+      <app-field-group [field]="form.size" label="Size" hint="Pick one">
         <input type="radio" value="s" [formField]="form.size" />
         <input type="radio" value="m" [formField]="form.size" />
-      </app-field>
+      </app-field-group>
       <input id="trap" aria-describedby="trap-hint" [formField]="form.trap" />
       <button type="submit">Send</button>
     </form>
@@ -56,7 +57,7 @@ async function render() {
   TestBed.resetTestingModule();
   TestBed.configureTestingModule({
     imports: [Host],
-    providers: [{ provide: SHARED_TEXT, useValue: defaultSharedText }],
+    providers: [{ provide: UI_TEXT, useValue: uiText }],
   });
   const fixture = TestBed.createComponent(Host);
   await fixture.whenStable();
@@ -160,7 +161,7 @@ describe('Field', () => {
     const legend = el.querySelector('legend') as HTMLLegendElement;
 
     expect(legend.querySelector('.sr-only')?.textContent?.trim()).toBe(
-      defaultSharedText.required,
+      uiText.required,
     );
     expect(el.querySelector('fieldset')?.hasAttribute('aria-required')).toBe(
       false,

@@ -1,4 +1,4 @@
-import { computed, Directive, HostAttributeToken, inject } from '@angular/core';
+import { Directive, HostAttributeToken, inject } from '@angular/core';
 import { Field } from './field';
 
 const own = (name: string) =>
@@ -16,14 +16,13 @@ const own = (name: string) =>
   // eslint-disable-next-line @angular-eslint/directive-selector -- rides on FormField's selector, so no control forgets it
   selector: '[formField]',
   host: {
-    '[attr.id]': 'control() ? shell?.controlId() : ownId',
+    '[attr.id]': 'shell ? shell.controlId() : ownId',
     '[attr.aria-describedby]':
-      'control() ? shell?.descriptionIds() : ownDescribedBy',
+      'shell ? shell.descriptionIds() : ownDescribedBy',
     // A custom control gets no native `required`, so it is said once here.
     '[attr.aria-required]':
-      'control() ? (shell?.required() ? true : null) : ownRequired',
-    '[attr.aria-invalid]':
-      'control() ? (shell?.error() ? true : null) : ownInvalid',
+      'shell ? (shell.required() ? true : null) : ownRequired',
+    '[attr.aria-invalid]': 'shell ? (shell.error() ? true : null) : ownInvalid',
   },
 })
 export class FieldBinding {
@@ -32,9 +31,4 @@ export class FieldBinding {
   protected readonly ownDescribedBy = own('aria-describedby');
   protected readonly ownRequired = own('aria-required');
   protected readonly ownInvalid = own('aria-invalid');
-
-  /** A group's fieldset carries the wiring; its inputs do not. */
-  protected readonly control = computed(
-    () => !!this.shell && !this.shell.group(),
-  );
 }
