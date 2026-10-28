@@ -138,6 +138,19 @@ describe('ProductPackagingEditor', () => {
     expect(text).toContain('79,60 € per box');
   });
 
+  // `inputmode` has `numeric`, not `integer`: a wrong value shows a phone the
+  // full keyboard.
+  it('asks a phone for the number pad on counts and the decimal one on measures', () => {
+    const { fixture } = render({ ...emptyPackaging(), packsPerBox: '4' });
+    const mode = (id: string) =>
+      fixture.nativeElement
+        .querySelector(`#packaging-${id}`)
+        ?.getAttribute('inputmode');
+
+    expect(mode('piecesPerPack')).toBe('numeric');
+    expect(mode('boxWeight')).toBe('decimal');
+  });
+
   it('puts a required count back to 1 when it is emptied', () => {
     const { fixture, emitted } = render({
       ...emptyPackaging(),

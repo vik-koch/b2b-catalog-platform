@@ -110,7 +110,7 @@ export function parseCount(text: string): number | null {
                   [id]="'packaging-narrow-' + row.key"
                   type="text"
                   [attr.inputmode]="row.inputMode"
-                  [appAllow]="numericRules[row.inputMode]"
+                  [appAllow]="numericRules[row.kind]"
                   appUnitInputControl
                   [value]="row.value"
                   [placeholder]="row.placeholder"
@@ -166,7 +166,7 @@ export function parseCount(text: string): number | null {
                       [id]="'packaging-' + row.key"
                       type="text"
                       [attr.inputmode]="row.inputMode"
-                      [appAllow]="numericRules[row.inputMode]"
+                      [appAllow]="numericRules[row.kind]"
                       class="h-10 min-w-0 flex-1 bg-transparent px-2 py-1.5
                              leading-6 outline-none
                              disabled:cursor-not-allowed"
@@ -270,7 +270,9 @@ export class ProductPackagingEditor {
       suffix: opts.suffix ?? '',
       price: opts.price ?? '',
       hint: opts.hint ?? '',
-      inputMode: opts.decimal ? ('decimal' as const) : ('integer' as const),
+      kind: opts.decimal ? ('decimal' as const) : ('integer' as const),
+      // The keyboard a phone shows; `integer` is no `inputmode` value.
+      inputMode: opts.decimal ? 'decimal' : 'numeric',
       disabled: opts.enabled === false,
       invalid: this.invalidKeys().has(key),
     });
