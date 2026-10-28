@@ -34,6 +34,11 @@ deployment's texts or its config, and the design tokens they draw with
   lint refuses `@b2b-catalog-platform/*` inside it, and Nx refuses an import from
   the app. What a piece needs from the app, its words or a locale, it is given
   through an input or a token the app provides.
+- **Words by how they vary.** Words a piece says the same wherever it appears (paging,
+  a grid's controls) come from a token the app fills from its texts, one token per
+  audience: the public texts for any page, the staff texts for the admin's pieces.
+  Words that depend on the use (a field's label, a dialog's question) are inputs. The
+  library holds no wording of its own, not even a default.
 - **Per-file imports keep chunks honest.** A page downloads the pieces it
   imports and nothing else; lint refuses a path that names the library or a
   group. The cost is one import line per piece.

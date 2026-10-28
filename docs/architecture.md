@@ -144,6 +144,11 @@ refuses those imports inside it. The app imports it one file at a time, because 
 by module and a barrel would carry the whole library into the first load
 ([ADR 0071](adr/0071-a-ui-library-apart-from-the-app.md)).
 
+**Views apart from what loads data.** Inside a feature folder, the routed pages, services and
+URL-state writers sit at its root; the views, which take inputs, give outputs and read only
+texts and config, sit in its `ui/` subfolder. Lint refuses a service or an API client inside
+`ui/` ([ADR 0072](adr/0072-keep-views-apart-from-what-loads-data.md)).
+
 **The database** is PostgreSQL with Drizzle. A few modelling rules carry most of the domain:
 
 - A role (admin, manager, customer) grants permissions; a customer's tier picks the price
@@ -224,7 +229,7 @@ version says what it asks of the operator
 <!-- prettier-ignore -->
 | Area | Decisions |
 | --- | --- |
-| Product and stack | [0001](adr/0001-build-custom-instead-of-shop-platform.md), [0002](adr/0002-angular-nestjs-postgresql-stack.md), [0003](adr/0003-nx-monorepo.md), [0043](adr/0043-contract-layer-and-what-the-browser-downloads.md), [0069](adr/0069-split-web-texts-and-contracts-by-audience.md) |
+| Product and stack | [0001](adr/0001-build-custom-instead-of-shop-platform.md), [0002](adr/0002-angular-nestjs-postgresql-stack.md), [0003](adr/0003-nx-monorepo.md), [0043](adr/0043-contract-layer-and-what-the-browser-downloads.md), [0069](adr/0069-split-web-texts-and-contracts-by-audience.md), [0072](adr/0072-keep-views-apart-from-what-loads-data.md) |
 | Hosting and operations | [0004](adr/0004-docker-compose-on-a-vm.md), [0005](adr/0005-shared-traefik-reverse-proxy.md), [0006](adr/0006-ephemeral-demo-and-manual-pet-vm.md), [0007](adr/0007-build-once-promote-multi-arch-images.md), [0012](adr/0012-migrations-one-shot-container.md), [0016](adr/0016-central-logs-via-grafana-loki.md), [0017](adr/0017-scheduled-database-backups.md), [0023](adr/0023-maintenance-mode-db-flag-503-gate.md), [0028](adr/0028-media-backups-and-operator-restore.md), [0044](adr/0044-versioning-by-what-a-release-changes.md), [0067](adr/0067-backups-leave-the-host-as-an-encrypted-pair.md), [0068](adr/0068-simulate-the-demo-back-office-through-the-machine-api.md) |
 | Configuration and presentation | [0008](adr/0008-tailwind-owned-primitives-runtime-theming.md), [0009](adr/0009-deployment-config-and-text-via-transfer-state.md), [0010](adr/0010-map-embedding-iframe-url-only.md), [0018](adr/0018-unified-deployment-config-directory.md), [0020](adr/0020-rich-text-as-sanitized-html-tiptap.md), [0024](adr/0024-seo-sitemap-robots-and-environment-indexability.md), [0027](adr/0027-fixed-page-set-with-per-deployment-publication.md), [0070](adr/0070-build-forms-on-signal-forms.md), [0071](adr/0071-a-ui-library-apart-from-the-app.md) |
 | Catalog | [0021](adr/0021-media-uploads-behind-a-store-port.md), [0022](adr/0022-catalog-storage-model-and-import-read-decoupling.md), [0025](adr/0025-catalog-editing-model-and-affordances.md), [0030](adr/0030-product-search-postgres-fts-and-trigram.md), [0036](adr/0036-product-publication-gate.md), [0037](adr/0037-product-attributes-as-rows.md), [0045](adr/0045-availability-as-a-derived-state-of-a-piece-count.md), [0047](adr/0047-pair-products-mutually-and-check-the-cart.md), [0048](adr/0048-store-product-documents-unmodified.md), [0049](adr/0049-documents-expire-not-superseded.md), [0063](adr/0063-a-category-is-a-chip.md), [0064](adr/0064-a-variant-is-a-name-on-a-picture.md) |

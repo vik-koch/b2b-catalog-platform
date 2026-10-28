@@ -17,6 +17,22 @@ const UI_BARREL = {
     'Import a file of the UI library, not the library or a group of it (see libs/ui/README.md).',
 };
 
+/*
+ * What a view in a `ui/` folder may not reach for: data. Its folder's own UI
+ * service (a dialog opener) is a sibling and stays allowed; one reached
+ * through `../` is a container's.
+ */
+const VIEW_MESSAGE =
+  'A view takes inputs and gives outputs; services and API clients belong to its container (ADR 0072).';
+const VIEW_PATTERNS = [
+  { regex: '^\\.\\./(.*/)?[\\w.-]+\\.service$', message: VIEW_MESSAGE },
+  {
+    regex: '(^|/)(orpc-client|contract-routes\\.generated)$',
+    message: VIEW_MESSAGE,
+  },
+  { group: ['@angular/common/http', '@orpc/*'], message: VIEW_MESSAGE },
+];
+
 export default [
   ...nx.configs['flat/angular'],
   ...nx.configs['flat/angular-template'],
@@ -106,6 +122,13 @@ export default [
         files: [`${dir}/*.spec.ts`],
         rules: rulesFor(part, forbidden, offServer),
       },
+      // Views (ADR 0072): a later block replaces the earlier rule, so these
+      // carry the part's own patterns as well.
+      {
+        files: [`${dir}/ui/**/*.ts`],
+        ignores: [`${dir}/*.spec.ts`, ...serverSide],
+        rules: rulesFor(part, forbidden, entries, text, VIEW_PATTERNS),
+      },
     ];
   }),
   {
@@ -115,7 +138,7 @@ export default [
   },
 ];
 
-function rulesFor(part, forbidden, entries, text) {
+function rulesFor(part, forbidden, entries, text, extra = []) {
   return {
     'no-restricted-imports': [
       'error',
@@ -139,6 +162,7 @@ function rulesFor(part, forbidden, entries, text) {
                 },
               ]
             : []),
+          ...extra,
         ],
       },
     ],
