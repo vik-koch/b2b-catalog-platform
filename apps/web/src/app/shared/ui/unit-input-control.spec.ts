@@ -1,14 +1,14 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { UnitField } from './unit-field';
-import { UnitFieldInput } from './unit-field-input';
+import { UnitInput } from './unit-input';
+import { UnitInputControl } from './unit-input-control';
 
 @Component({
-  imports: [UnitField, UnitFieldInput],
+  imports: [UnitInput, UnitInputControl],
   template: `
-    <app-unit-field unit="pcs" [compact]="compact()">
-      <input appUnitFieldInput />
-    </app-unit-field>
+    <app-unit-input unit="pcs" [compact]="compact()">
+      <input appUnitInputControl />
+    </app-unit-input>
   `,
 })
 class Host {
@@ -27,7 +27,7 @@ async function render() {
   return { fixture, input };
 }
 
-describe('UnitFieldInput', () => {
+describe('UnitInputControl', () => {
   it('is a bare box filling the field’s row', async () => {
     const { input } = await render();
 

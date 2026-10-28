@@ -13,7 +13,7 @@ import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { Input } from '../../shared/ui/input';
 import { Segment } from '../../shared/ui/segment';
 import { SegmentGroup } from '../../shared/ui/segment-group';
-import { SelectField } from '../../shared/ui/select-field';
+import { SelectInput } from '../../shared/ui/select-input';
 
 /**
  * Ties the visible label to the field. A constant rather than a generated id:
@@ -52,7 +52,7 @@ const SORT_FIELD_ID = 'product-sort';
  */
 @Component({
   selector: 'app-product-sort-select',
-  imports: [Input, SelectField, Segment, SegmentGroup],
+  imports: [Input, SelectInput, Segment, SegmentGroup],
   template: `
     @if (enabled) {
       @if (shape() === 'segments') {
@@ -100,7 +100,7 @@ const SORT_FIELD_ID = 'product-sort';
           class="text-sm whitespace-nowrap text-ink-subtle"
           >{{ text.sort.label }}</label
         >
-        <app-select-field class="max-w-52">
+        <app-select-input class="max-w-52">
           <!-- Selection is marked on the option rather than bound on the <select>:
              a value binding is applied before the options exist, and the element
              silently falls back to the first one.
@@ -129,7 +129,7 @@ const SORT_FIELD_ID = 'product-sort';
               </option>
             }
           </select>
-        </app-select-field>
+        </app-select-input>
       </div>
     }
   `,

@@ -1,5 +1,5 @@
 import { Component, input } from '@angular/core';
-import { SelectField } from '../select-field';
+import { SelectInput } from '../select-input';
 import { filterParams, GridFilter } from './grid-column';
 import { injectGridNav } from './grid-nav';
 
@@ -19,7 +19,7 @@ export interface GridFilterOption {
  */
 @Component({
   selector: 'app-grid-filter-select',
-  imports: [SelectField],
+  imports: [SelectInput],
   template: `
     <!-- The wrapper is w-full, not content-sized: the select inside is w-full,
          so a shrink-to-fit box is not what the chevron should be measured
@@ -29,7 +29,7 @@ export interface GridFilterOption {
          Deliberately not an appInput field: a column filter is styled to read
          as a heading, so it brings its own weightless look and only borrows
          the chevron. -->
-    <app-select-field size="sm" class="w-full">
+    <app-select-input size="sm" class="w-full">
       <!-- Selection is marked on the option rather than bound on the <select>:
            a value binding is applied before the options exist and the element
            silently falls back to the first one. -->
@@ -52,7 +52,7 @@ export interface GridFilterOption {
           </option>
         }
       </select>
-    </app-select-field>
+    </app-select-input>
   `,
 })
 export class GridFilterSelect {

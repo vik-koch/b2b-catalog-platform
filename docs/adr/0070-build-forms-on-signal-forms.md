@@ -58,7 +58,7 @@ imports the lot as `FORM_FIELDS`.
 
 **A control with its own behaviour is a control of the form.** `Segmented` and
 `DigitMask` implement `FormValueControl`: one `value` model that `[formField]`
-binds. A composite that wraps a native input (`PhoneInput`, `DateField`,
+binds. A composite that wraps a native input (`PhoneInput`, `DateInput`,
 `CategoryPicker`, the suggestion inputs) takes the `field` and binds its inner
 input, so the shell's label names the element that is typed in.
 

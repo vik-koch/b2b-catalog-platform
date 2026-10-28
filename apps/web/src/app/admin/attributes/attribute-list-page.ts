@@ -34,7 +34,7 @@ import { Input } from '../../shared/ui/input';
 import { filled } from '../../shared/core/field-rules';
 import { FORM_FIELDS } from '../../shared/ui/form-fields';
 import { submitAttempt } from '../../shared/ui/submit-attempt';
-import { SelectField } from '../../shared/ui/select-field';
+import { SelectInput } from '../../shared/ui/select-input';
 import { Skeleton } from '../../shared/ui/skeleton';
 import { ConfirmService } from '../../shared/ui/confirm.service';
 import { RecordFields } from '../../shared/ui/record-fields';
@@ -105,7 +105,7 @@ const blankAttribute = (): AttributeDraft => ({
     RecordFields,
     RecordFormActions,
     Input,
-    SelectField,
+    SelectInput,
     Skeleton,
     ErrorText,
     Hint,
@@ -331,13 +331,13 @@ const blankAttribute = (): AttributeDraft => ({
             [label]="text.type"
             controlId="attribute-type"
           >
-            <app-select-field size="sm" class="block w-full">
+            <app-select-input size="sm" class="block w-full">
               <select appInput size="sm" class="w-full" [formField]="form.type">
                 @for (type of types; track type) {
                   <option [value]="type">{{ text.types[type] }}</option>
                 }
               </select>
-            </app-select-field>
+            </app-select-input>
           </app-field>
           <!-- A unit measures a quantity: a text attribute has none, and the
              field would only invite "Blue cm". -->

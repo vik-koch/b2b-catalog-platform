@@ -2,7 +2,7 @@ import { Component, input } from '@angular/core';
 import { FormField, type FieldTree } from '@angular/forms/signals';
 import { DigitMask } from './digit-mask';
 import { FieldBinding } from './field-binding';
-import { FieldPrefix } from './field-prefix';
+import { InputPrefix } from './input-prefix';
 import { Input } from './input';
 
 export interface PhoneMask {
@@ -20,12 +20,12 @@ export interface PhoneMask {
  */
 @Component({
   selector: 'app-phone-input',
-  imports: [FormField, FieldBinding, DigitMask, FieldPrefix, Input],
+  imports: [FormField, FieldBinding, DigitMask, InputPrefix, Input],
   host: { class: 'block' },
   template: `
     @if (phone(); as phone) {
       <div class="flex">
-        <span appFieldPrefix>{{ phone.countryCode }}</span>
+        <span appInputPrefix>{{ phone.countryCode }}</span>
         <input
           type="tel"
           appDigitMask

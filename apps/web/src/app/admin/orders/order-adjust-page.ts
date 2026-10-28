@@ -70,7 +70,7 @@ import { Input } from '../../shared/ui/input';
 import { PhoneInput } from '../../shared/ui/phone-input';
 import { submitAttempt } from '../../shared/ui/submit-attempt';
 import { SegmentOption, Segmented } from '../../shared/ui/segmented';
-import { SelectField } from '../../shared/ui/select-field';
+import { SelectInput } from '../../shared/ui/select-input';
 import { Skeleton } from '../../shared/ui/skeleton';
 import { WarningNote } from '../../shared/ui/warning-note';
 import { TiersService } from '../tiers/tiers.service';
@@ -178,7 +178,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
     PhoneInput,
     RouterLink,
     Segmented,
-    SelectField,
+    SelectInput,
     Skeleton,
     WarningNote,
     LockedNote,
@@ -300,7 +300,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
                            button drifting to wherever the longest tier name
                            left it read as something else on the row. -->
                       <div class="grid gap-6 sm:grid-cols-2">
-                        <app-select-field>
+                        <app-select-input>
                           <select
                             appInput
                             id="adjust-tier"
@@ -318,7 +318,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
                               </option>
                             }
                           </select>
-                        </app-select-field>
+                        </app-select-input>
                         <button
                           appButton
                           type="button"
@@ -374,7 +374,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
                           >
                             {{ sharedText.fulfilment.label }}
                           </label>
-                          <app-select-field>
+                          <app-select-input>
                             <select
                               appInput
                               id="adjust-fulfilment"
@@ -399,7 +399,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
                                 </option>
                               }
                             </select>
-                          </app-select-field>
+                          </app-select-input>
                         </div>
                         @if (fulfilmentMethod() === 'pickup') {
                           <div>
@@ -410,7 +410,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
                             >
                               {{ ordersText.pickupPoint }}
                             </label>
-                            <app-select-field>
+                            <app-select-input>
                               <select
                                 appInput
                                 id="adjust-pickup"
@@ -432,7 +432,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
                                   </option>
                                 }
                               </select>
-                            </app-select-field>
+                            </app-select-input>
                           </div>
                         }
                       </div>
@@ -513,7 +513,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
                       <label appFieldLabel for="adjust-payment" class="sr-only">
                         {{ names.payment }}
                       </label>
-                      <app-select-field>
+                      <app-select-input>
                         <select
                           appInput
                           id="adjust-payment"
@@ -538,7 +538,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
                             </option>
                           }
                         </select>
-                      </app-select-field>
+                      </app-select-input>
                     </section>
 
                     <section>

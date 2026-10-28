@@ -12,8 +12,8 @@ import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { FieldLabel } from '../../shared/ui/field-label';
 import { FORM_FIELDS } from '../../shared/ui/form-fields';
 import { Allow } from '../../shared/ui/allow';
-import { UnitField } from '../../shared/ui/unit-field';
-import { UnitFieldInput } from '../../shared/ui/unit-field-input';
+import { UnitInput } from '../../shared/ui/unit-input';
+import { UnitInputControl } from '../../shared/ui/unit-input-control';
 import { LockedFieldMarker } from '../ownership/locked-field-marker';
 import { Hint } from '../../shared/ui/hint';
 
@@ -47,10 +47,10 @@ export interface TierPriceDraft {
     FORM_FIELDS,
     FieldLabel,
     Allow,
-    UnitField,
+    UnitInput,
     LockedFieldMarker,
     Hint,
-    UnitFieldInput,
+    UnitInputControl,
   ],
   template: `
     <span appFieldLabel>
@@ -79,17 +79,17 @@ export interface TierPriceDraft {
         >
           <!-- Text with inputmode, for the same reason as the base price
                field: a number input drops a half-typed decimal. -->
-          <app-unit-field class="w-full sm:w-43.5" [unit]="currencySuffix">
+          <app-unit-input class="w-full sm:w-43.5" [unit]="currencySuffix">
             <input
               type="text"
               inputmode="decimal"
               [appAllow]="partialPrice"
-              appUnitFieldInput
+              appUnitInputControl
               [placeholder]="placeholder()"
               [formField]="field()[i].value"
               (blur)="onBlur(i)"
             />
-          </app-unit-field>
+          </app-unit-input>
         </app-field>
       }
     </div>

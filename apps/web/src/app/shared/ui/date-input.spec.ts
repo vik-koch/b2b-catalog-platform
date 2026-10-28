@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { DateField } from './date-field';
+import { DateInput } from './date-input';
 
 /**
  * The app's one date control, now that two screens share it: a customer's
@@ -12,9 +12,9 @@ async function render(
   options: { value?: string | null; placeholder?: string; min?: string } = {},
 ) {
   TestBed.resetTestingModule();
-  TestBed.configureTestingModule({ imports: [DateField] });
+  TestBed.configureTestingModule({ imports: [DateInput] });
 
-  const fixture = TestBed.createComponent(DateField);
+  const fixture = TestBed.createComponent(DateInput);
   fixture.componentRef.setInput('value', options.value ?? null);
   if (options.placeholder) {
     fixture.componentRef.setInput('placeholder', options.placeholder);
@@ -28,7 +28,7 @@ async function render(
   return { fixture, el, input };
 }
 
-describe('DateField', () => {
+describe('DateInput', () => {
   it('shows the day it was given', async () => {
     const { input } = await render({ value: '2026-09-05' });
 

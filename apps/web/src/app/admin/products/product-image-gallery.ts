@@ -19,7 +19,7 @@ import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { FieldLabel } from '../../shared/ui/field-label';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Input } from '../../shared/ui/input';
-import { SelectField } from '../../shared/ui/select-field';
+import { SelectInput } from '../../shared/ui/select-input';
 import { DropZone } from '../../shared/ui/drop-zone';
 import { FileTarget, pasteKeys } from '../../shared/ui/file-target';
 import { ImageFramerService } from '../media/image-framer.service';
@@ -57,7 +57,7 @@ import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
     FieldLabel,
     FileTarget,
     Input,
-    SelectField,
+    SelectInput,
     ErrorText,
     DropZone,
   ],
@@ -132,7 +132,7 @@ import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
               </div>
             </div>
             @if (variants().length) {
-              <app-select-field size="sm">
+              <app-select-input size="sm">
                 <select
                   appInput
                   size="sm"
@@ -153,7 +153,7 @@ import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
                     </option>
                   }
                 </select>
-              </app-select-field>
+              </app-select-input>
             }
           </li>
         }

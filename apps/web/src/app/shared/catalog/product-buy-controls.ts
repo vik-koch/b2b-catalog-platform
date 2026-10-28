@@ -27,7 +27,6 @@ import { Button } from '../ui/button';
 import { ButtonBox } from '../ui/button-box';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Input } from '../ui/input';
-import { NumericField } from '../ui/numeric-field';
 import { Popover } from '../ui/popover';
 import { Segment, type SegmentState } from '../ui/segment';
 import { SegmentGroup } from '../ui/segment-group';
@@ -42,6 +41,8 @@ import { FirstRender } from '../core/first-render';
 import { minusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/minus';
 import { plusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/plus';
 import { shoppingBasketIcon } from '@b2b-catalog-platform/ui/icons/glyphs/shopping-basket';
+import { numericRules } from '../ui/numeric-rules';
+import { Allow } from '../ui/allow';
 
 /** How long a statement stays on screen before it fades away. */
 const NOTICE_MS = 5000;
@@ -147,7 +148,7 @@ export interface BuyableProduct {
     Icon,
     Input,
     NgTemplateOutlet,
-    NumericField,
+    Allow,
     Popover,
     ProductNoteEditor,
     ProductPairings,
@@ -342,7 +343,7 @@ export interface BuyableProduct {
                quantity otherwise — see fieldText below. -->
           <input
             appInput
-            [appNumericField]="whole() ? 'integer' : 'decimal'"
+            [appAllow]="numericRules[whole() ? 'integer' : 'decimal']"
             [attr.inputmode]="whole() ? 'numeric' : 'decimal'"
             [class]="quantityField()"
             [attr.aria-label]="text.quantityAria"
@@ -460,6 +461,7 @@ export interface BuyableProduct {
   `,
 })
 export class ProductBuyControls {
+  protected readonly numericRules = numericRules;
   protected readonly minusIcon = minusIcon;
   protected readonly plusIcon = plusIcon;
   protected readonly shoppingBasketIcon = shoppingBasketIcon;
@@ -886,8 +888,8 @@ export class ProductBuyControls {
 
   /**
    * Up and down step the quantity, the way they would in a number field —
-   * which this is, minus the browser's spinner (see NumericField, which drops
-   * `type="number"` because it reports a half-typed "1." as empty).
+   * which this is, minus the browser's spinner (see Allow on why the input is
+   * text, not `type="number"`).
    *
    * They go through the same `step` the keys do, so down at the minimum asks
    * the same question the `−` key asks there: it is the same press, and a

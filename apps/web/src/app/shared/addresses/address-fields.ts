@@ -19,7 +19,7 @@ import { Field } from '../ui/field';
 import { FieldBinding } from '../ui/field-binding';
 import { Input } from '../ui/input';
 import { TextButton } from '../ui/text-button';
-import { SelectField } from '../ui/select-field';
+import { SelectInput } from '../ui/select-input';
 import { submitAttempt } from '../ui/submit-attempt';
 import { AddressForm } from './address-form';
 import { AddressSuggestInput } from './address-suggest-input';
@@ -57,7 +57,7 @@ let nextId = 0;
     FieldBinding,
     FormField,
     Input,
-    SelectField,
+    SelectInput,
     TextButton,
   ],
   host: { class: 'block' },
@@ -224,7 +224,7 @@ let nextId = 0;
             [label]="text.country"
             [controlId]="id('country')"
           >
-            <app-select-field class="max-w-72">
+            <app-select-input class="max-w-72">
               <select
                 autocomplete="country"
                 [attr.tabindex]="collapsed() ? -1 : null"
@@ -236,7 +236,7 @@ let nextId = 0;
                   <option [value]="option.code">{{ option.label }}</option>
                 }
               </select>
-            </app-select-field>
+            </app-select-input>
           </app-field>
         }
       </div>

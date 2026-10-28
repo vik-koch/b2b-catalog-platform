@@ -23,7 +23,7 @@ import { FORM_FIELDS } from '../../shared/ui/form-fields';
 import { submitAttempt } from '../../shared/ui/submit-attempt';
 import { IconButton } from '../../shared/ui/icon-button';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
-import { DateField } from '../../shared/ui/date-field';
+import { DateInput } from '../../shared/ui/date-input';
 import { Input } from '../../shared/ui/input';
 import { Skeleton } from '../../shared/ui/skeleton';
 import { injectEditorReturn } from '../../shared/edit-mode/editor-return';
@@ -77,7 +77,7 @@ interface DocumentDraft {
     Button,
     IconButton,
     Icon,
-    DateField,
+    DateInput,
     DocumentProductsPicker,
     FieldLabel,
     FileTarget,
@@ -268,7 +268,7 @@ interface DocumentDraft {
             [label]="text.issuedAt"
             controlId="document-issued-at"
           >
-            <app-date-field
+            <app-date-input
               [field]="form.issuedAt"
               [placeholder]="text.datePlaceholder"
             />
@@ -278,7 +278,7 @@ interface DocumentDraft {
             [label]="text.expiresAt"
             controlId="document-expires-at"
           >
-            <app-date-field
+            <app-date-input
               [field]="form.expiresAt"
               [placeholder]="text.datePlaceholder"
             />

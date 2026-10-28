@@ -86,7 +86,6 @@ import { submitAttempt } from '../../shared/ui/submit-attempt';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { PRODUCT_FEATURE_GLYPHS } from './product-feature-glyphs';
 import { Input } from '../../shared/ui/input';
-import { NumericField } from '../../shared/ui/numeric-field';
 import { Skeleton } from '../../shared/ui/skeleton';
 import { AdminCatalogService } from '../admin-catalog.service';
 import { AttributesService } from '../attributes/attributes.service';
@@ -112,8 +111,8 @@ import {
   ProductTierPricesEditor,
   TierPriceDraft,
 } from './product-tier-prices-editor';
-import { UnitField } from '../../shared/ui/unit-field';
-import { UnitFieldInput } from '../../shared/ui/unit-field-input';
+import { UnitInput } from '../../shared/ui/unit-input';
+import { UnitInputControl } from '../../shared/ui/unit-input-control';
 import { PageTitle } from '../../shared/ui/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
 import { circleCheckIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-check';
@@ -121,6 +120,7 @@ import { eyeIcon } from '@b2b-catalog-platform/ui/icons/glyphs/eye';
 import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
 import { saveIcon } from '@b2b-catalog-platform/ui/icons/glyphs/save';
 import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
+import { numericRules } from '../../shared/ui/numeric-rules';
 
 interface ProductDraft {
   name: string;
@@ -154,7 +154,6 @@ interface ProductDraft {
     Button,
     Icon,
     RichTextEditor,
-    NumericField,
     Allow,
     ProductAvailabilityBadge,
     CategoryPicker,
@@ -173,12 +172,12 @@ interface ProductDraft {
     FieldLabel,
     Input,
     Skeleton,
-    UnitField,
+    UnitInput,
     LockedFieldMarker,
     StatusBadge,
     PageTitle,
     ErrorText,
-    UnitFieldInput,
+    UnitInputControl,
     Notice,
   ],
   // No <form> element: the buttons under the page save, publish or preview,
@@ -288,17 +287,17 @@ interface ProductDraft {
                  "18." as an empty value, so binding the signal back to it wiped
                  the field the moment a decimal separator was pressed. The
                  inputmode still gets the numeric keypad on touch. -->
-            <app-unit-field class="w-full sm:w-43.5" [unit]="currencySuffix">
+            <app-unit-input class="w-full sm:w-43.5" [unit]="currencySuffix">
               <input
                 type="text"
                 inputmode="decimal"
                 [appAllow]="partialPrice"
-                appUnitFieldInput
+                appUnitInputControl
                 [placeholder]="pricePlaceholder"
                 [formField]="form.price"
                 (blur)="onPriceBlur()"
               />
-            </app-unit-field>
+            </app-unit-input>
           </app-field>
 
           <!-- The product's own tax rate, beside the price it qualifies and
@@ -312,16 +311,16 @@ interface ProductDraft {
             controlId="product-tax-rate"
           >
             <app-locked-field-marker appFieldCaption [field]="form.taxRate" />
-            <app-unit-field class="w-full" unit="%" [compact]="true">
+            <app-unit-input class="w-full" unit="%" [compact]="true">
               <input
                 type="text"
                 inputmode="decimal"
                 [appAllow]="isPartialTaxRate"
-                appUnitFieldInput
+                appUnitInputControl
                 [placeholder]="taxRatePlaceholder"
                 [formField]="form.taxRate"
               />
-            </app-unit-field>
+            </app-unit-input>
           </app-field>
 
           <!-- Said where the fields are, not only on the button: by the time
@@ -458,14 +457,14 @@ interface ProductDraft {
                 appFieldCaption
                 [field]="form.stockPieces"
               />
-              <app-unit-field class="w-full" [unit]="pieceSuffix">
+              <app-unit-input class="w-full" [unit]="pieceSuffix">
                 <input
                   type="text"
-                  appNumericField="signed"
-                  appUnitFieldInput
+                  [appAllow]="numericRules.signed"
+                  appUnitInputControl
                   [formField]="form.stockPieces"
                 />
-              </app-unit-field>
+              </app-unit-input>
             </app-field>
             <!-- The figure in force as the placeholder: empty means "work it
                  out from the packaging", and the number that would be worked
@@ -478,15 +477,15 @@ interface ProductDraft {
               [label]="text.stock.threshold"
               controlId="product-threshold"
             >
-              <app-unit-field class="w-full" [unit]="pieceSuffix">
+              <app-unit-input class="w-full" [unit]="pieceSuffix">
                 <input
                   type="text"
-                  appNumericField="integer"
-                  appUnitFieldInput
+                  [appAllow]="numericRules.integer"
+                  appUnitInputControl
                   [placeholder]="thresholdPlaceholder()"
                   [formField]="form.lowStockThreshold"
                 />
-              </app-unit-field>
+              </app-unit-input>
             </app-field>
           </div>
           <!-- The badge itself rather than its name: what the admin is
@@ -692,6 +691,7 @@ interface ProductDraft {
   `,
 })
 export class ProductEditorPage implements UnsavedChangesAware, FieldAttempt {
+  protected readonly numericRules = numericRules;
   protected readonly circleCheckIcon = circleCheckIcon;
   protected readonly eyeIcon = eyeIcon;
   protected readonly pencilIcon = pencilIcon;

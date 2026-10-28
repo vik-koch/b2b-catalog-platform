@@ -17,7 +17,7 @@ const sizes = {
 
 /**
  * A <select> drops the platform arrow, so it looks the same everywhere, and
- * reserves the room SelectField draws its chevron in. The two change together.
+ * reserves the room SelectInput draws its chevron in. The two change together.
  */
 const selectExtras = 'appearance-none pr-9';
 
@@ -33,13 +33,13 @@ const textareaExtras = {
 /**
  * The field look on an <input>, <textarea> or <select>. Width is the caller's
  * (`w-full` in a stacked form, intrinsic elsewhere), as are modifiers such as
- * `font-mono`. A <select> also needs SelectField around it for its chevron.
+ * `font-mono`. A <select> also needs SelectInput around it for its chevron.
  *
  *   <input appInput class="w-full" [value]="…" />
  *   <textarea appInput size="sm" class="w-full font-mono"></textarea>
- *   <app-select-field class="max-w-72">
+ *   <app-select-input class="max-w-72">
  *     <select appInput class="w-full">…</select>
- *   </app-select-field>
+ *   </app-select-input>
  */
 @Directive({
   selector: '[appInput]',

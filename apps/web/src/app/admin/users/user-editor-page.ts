@@ -39,7 +39,7 @@ import { injectEditorReturn } from '../../shared/edit-mode/editor-return';
 import { SettingsService } from '../settings/settings.service';
 import { TiersService } from '../tiers/tiers.service';
 import { StaffUsersService } from './users.service';
-import { SelectField } from '../../shared/ui/select-field';
+import { SelectInput } from '../../shared/ui/select-input';
 import { StatusBadge } from '../../shared/ui/status-badge';
 import { userStatusTone } from './user-status';
 import { Segmented, SegmentOption } from '../../shared/ui/segmented';
@@ -94,7 +94,7 @@ interface UserDraft {
     Input,
     PhoneInput,
     Skeleton,
-    SelectField,
+    SelectInput,
     StatusBadge,
     Segmented,
     WarningNote,
@@ -274,7 +274,7 @@ interface UserDraft {
                 [label]="text.tier"
                 controlId="tier"
               >
-                <app-select-field class="w-full">
+                <app-select-input class="w-full">
                   <select appInput class="w-full" [formField]="form.tierId">
                     <!-- No tier is a default anywhere (ADR 0031), so an approval
                        has nothing to fall back on and must be chosen. -->
@@ -290,7 +290,7 @@ interface UserDraft {
                       <option [value]="tier.id">{{ tier.label }}</option>
                     }
                   </select>
-                </app-select-field>
+                </app-select-input>
               </app-field>
             }
 
@@ -303,12 +303,12 @@ interface UserDraft {
                 [label]="text.role"
                 controlId="role"
               >
-                <app-select-field class="w-full">
+                <app-select-input class="w-full">
                   <select appInput class="w-full" [formField]="form.role">
                     <option value="manager">{{ listText.roleManager }}</option>
                     <option value="admin">{{ listText.roleAdmin }}</option>
                   </select>
-                </app-select-field>
+                </app-select-input>
               </app-field>
             }
 

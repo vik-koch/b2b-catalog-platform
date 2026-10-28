@@ -6,7 +6,7 @@ import {
 } from '@b2b-catalog-platform/shared/storefront';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
-import { DateField } from '../../shared/ui/date-field';
+import { DateInput } from '../../shared/ui/date-input';
 import { FieldLabel } from '../../shared/ui/field-label';
 
 /**
@@ -32,7 +32,7 @@ import { FieldLabel } from '../../shared/ui/field-label';
  */
 @Component({
   selector: 'app-preferred-date',
-  imports: [DateField, FieldLabel],
+  imports: [DateInput, FieldLabel],
   host: { class: 'block' },
   template: `
     <label [for]="id" appFieldLabel>
@@ -41,7 +41,7 @@ import { FieldLabel } from '../../shared/ui/field-label';
       }}
       <span class="font-normal text-ink-subtle">({{ optional }})</span>
     </label>
-    <app-date-field
+    <app-date-input
       class="max-w-70"
       [fieldId]="id"
       [value]="date()"

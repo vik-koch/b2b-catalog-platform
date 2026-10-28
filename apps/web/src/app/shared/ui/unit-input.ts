@@ -10,14 +10,14 @@ const compactUnit = 'sm:pr-2';
  * column, a caption, a hint and a unit beside would be four lines for one
  * number. A wrapper, because the unit is a sibling a directive cannot add;
  * flex rather than an overlay, so a long unit shortens the field instead of
- * being clipped. The input inside takes `appUnitFieldInput`.
+ * being clipped. The input inside takes `appUnitInputControl`.
  *
- *   <app-unit-field class="w-full" unit="pcs">
- *     <input appUnitFieldInput … />
- *   </app-unit-field>
+ *   <app-unit-input class="w-full" unit="pcs">
+ *     <input appUnitInputControl … />
+ *   </app-unit-input>
  */
 @Component({
-  selector: 'app-unit-field',
+  selector: 'app-unit-input',
   // An `appInput`'s border states, on the wrapper that owns the border. Hover
   // excludes focus, which a plain input settles through the unlayered focus rule.
   host: {
@@ -35,7 +35,7 @@ const compactUnit = 'sm:pr-2';
     }
   `,
 })
-export class UnitField {
+export class UnitInput {
   readonly unit = input<string>('');
   /**
    * Sized to its figure rather than to the form from `sm` up, with the unit

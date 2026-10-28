@@ -30,8 +30,8 @@ import { StatusBadge } from '../../shared/ui/status-badge';
 import { SuggestField } from '../../shared/ui/suggest-field';
 import { SuggestInput } from '../../shared/ui/suggest-input';
 import { SuggestRow } from '../../shared/ui/suggest-row';
-import { UnitField } from '../../shared/ui/unit-field';
-import { UnitFieldInput } from '../../shared/ui/unit-field-input';
+import { UnitInput } from '../../shared/ui/unit-input';
+import { UnitInputControl } from '../../shared/ui/unit-input-control';
 import { chevronDownIcon } from '@b2b-catalog-platform/ui/icons/glyphs/chevron-down';
 import { chevronUpIcon } from '@b2b-catalog-platform/ui/icons/glyphs/chevron-up';
 import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
@@ -99,8 +99,8 @@ export interface AdjustLineRow {
     SuggestField,
     SuggestInput,
     SuggestRow,
-    UnitField,
-    UnitFieldInput,
+    UnitInput,
+    UnitInputControl,
   ],
   host: { class: 'block' },
   template: `
@@ -125,9 +125,9 @@ export interface AdjustLineRow {
                hint below would be four lines for two numbers, and a form of
                forty lines is read by scrolling. -->
           <div class="mt-1 flex flex-wrap items-center gap-2">
-            <app-unit-field class="w-28" [unit]="pieceUnit">
+            <app-unit-input class="w-28" [unit]="pieceUnit">
               <input
-                appUnitFieldInput
+                appUnitInputControl
                 type="number"
                 min="1"
                 step="1"
@@ -137,11 +137,11 @@ export interface AdjustLineRow {
                 [value]="line.pieces"
                 (input)="piecesTyped(i, $any($event.target).value)"
               />
-            </app-unit-field>
-            <app-unit-field class="w-28" [unit]="priceSuffix()">
+            </app-unit-input>
+            <app-unit-input class="w-28" [unit]="priceSuffix()">
               <input
                 [appAllow]="partialPrice"
-                appUnitFieldInput
+                appUnitInputControl
                 type="text"
                 inputmode="decimal"
                 [id]="id + '-price-' + i"
@@ -150,7 +150,7 @@ export interface AdjustLineRow {
                 [value]="line.priceText"
                 (input)="priceTyped(i, $any($event.target).value)"
               />
-            </app-unit-field>
+            </app-unit-input>
             @if (line.offList) {
               <span appStatusBadge tone="info">{{ text.offList }}</span>
             }

@@ -3,7 +3,7 @@ import { FormField, type FieldTree } from '@angular/forms/signals';
 import { AdminCategory } from '@b2b-catalog-platform/shared/admin';
 import { FieldBinding } from '../../shared/ui/field-binding';
 import { Input } from '../../shared/ui/input';
-import { SelectField } from '../../shared/ui/select-field';
+import { SelectInput } from '../../shared/ui/select-input';
 import { flattenCategoryTree } from './category-tree';
 
 /**
@@ -17,9 +17,9 @@ import { flattenCategoryTree } from './category-tree';
  */
 @Component({
   selector: 'app-category-picker',
-  imports: [FormField, FieldBinding, Input, SelectField],
+  imports: [FormField, FieldBinding, Input, SelectInput],
   template: `
-    <app-select-field>
+    <app-select-input>
       @if (field(); as field) {
         <!-- No [selected] here: the field sets the select's value itself. -->
         <select appInput class="w-full" [formField]="field">
@@ -55,7 +55,7 @@ import { flattenCategoryTree } from './category-tree';
           }
         </select>
       }
-    </app-select-field>
+    </app-select-input>
   `,
 })
 export class CategoryPicker {

@@ -17,12 +17,12 @@ const chevrons = {
  * <select> stays native, with its keyboard, name and mobile picker. Width goes
  * on the host.
  *
- *   <app-select-field class="max-w-72">
+ *   <app-select-input class="max-w-72">
  *     <select appInput class="w-full">…</select>
- *   </app-select-field>
+ *   </app-select-input>
  */
 @Component({
-  selector: 'app-select-field',
+  selector: 'app-select-input',
   imports: [Icon],
   // The chevron follows the select's border states; only the wrapper sees both.
   host: {
@@ -35,7 +35,7 @@ const chevrons = {
     <app-icon [glyph]="chevronDownIcon" [class]="chevronClass()" />
   `,
 })
-export class SelectField {
+export class SelectInput {
   protected readonly chevronDownIcon = chevronDownIcon;
   readonly size = input<keyof typeof chevrons>('md');
 

@@ -51,7 +51,7 @@ const tappable = 'cursor-pointer select-none';
  * caller's.
  */
 @Component({
-  selector: 'app-date-field',
+  selector: 'app-date-input',
   imports: [FormField, FieldBinding, Icon, Input],
   host: { class: 'block' },
   template: `
@@ -116,7 +116,7 @@ const tappable = 'cursor-pointer select-none';
     </div>
   `,
 })
-export class DateField {
+export class DateInput {
   protected readonly calendarIcon = calendarIcon;
   /** ISO `YYYY-MM-DD`, or null for no date at all. */
   readonly value = input<string | null>(null);

@@ -7,9 +7,10 @@ import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { injectNarrowScreen } from '../../shared/ui/narrow-screen';
 import { ErrorText } from '../../shared/ui/error-text';
 import { FieldLabel } from '../../shared/ui/field-label';
-import { NumericField } from '../../shared/ui/numeric-field';
-import { UnitField } from '../../shared/ui/unit-field';
-import { UnitFieldInput } from '../../shared/ui/unit-field-input';
+import { UnitInput } from '../../shared/ui/unit-input';
+import { UnitInputControl } from '../../shared/ui/unit-input-control';
+import { numericRules } from '../../shared/ui/numeric-rules';
+import { Allow } from '../../shared/ui/allow';
 
 /**
  * How a product is packaged.
@@ -74,7 +75,7 @@ export function parseCount(text: string): number | null {
 
 @Component({
   selector: 'app-product-packaging-editor',
-  imports: [ErrorText, FieldLabel, NumericField, UnitField, UnitFieldInput],
+  imports: [ErrorText, FieldLabel, Allow, UnitInput, UnitInputControl],
   template: `
     <!-- min-w-0 for the same reason as the attribute grid above: a <fieldset>
          will not shrink below its content's min-content width. -->
@@ -104,13 +105,13 @@ export function parseCount(text: string): number | null {
                   row.hint
                 }}</span>
               }
-              <app-unit-field [unit]="row.suffix">
+              <app-unit-input [unit]="row.suffix">
                 <input
                   [id]="'packaging-narrow-' + row.key"
                   type="text"
                   [attr.inputmode]="row.inputMode"
-                  [appNumericField]="row.inputMode"
-                  appUnitFieldInput
+                  [appAllow]="numericRules[row.inputMode]"
+                  appUnitInputControl
                   [value]="row.value"
                   [placeholder]="row.placeholder"
                   [disabled]="row.disabled"
@@ -119,7 +120,7 @@ export function parseCount(text: string): number | null {
                   (input)="edit(row.key, $any($event.target).value)"
                   (blur)="normalize(row.key)"
                 />
-              </app-unit-field>
+              </app-unit-input>
               @if (row.price) {
                 <span class="mt-1 block text-xs text-ink-subtle">{{
                   row.price
@@ -165,7 +166,7 @@ export function parseCount(text: string): number | null {
                       [id]="'packaging-' + row.key"
                       type="text"
                       [attr.inputmode]="row.inputMode"
-                      [appNumericField]="row.inputMode"
+                      [appAllow]="numericRules[row.inputMode]"
                       class="h-10 min-w-0 flex-1 bg-transparent px-2 py-1.5
                              leading-6 outline-none
                              disabled:cursor-not-allowed"
@@ -202,6 +203,7 @@ export function parseCount(text: string): number | null {
   `,
 })
 export class ProductPackagingEditor {
+  protected readonly numericRules = numericRules;
   protected readonly text = inject(ADMIN_TEXT).products.editor.packaging;
   protected readonly packing = inject(SHARED_TEXT).packaging;
   private readonly unitNames = inject(SHARED_TEXT).units;

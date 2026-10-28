@@ -21,7 +21,7 @@ import { AlternateLayout } from '../../shared/core/alternate-layout';
 import { Checkbox } from '../../shared/ui/checkbox';
 import { FieldLabel } from '../../shared/ui/field-label';
 import { Input } from '../../shared/ui/input';
-import { SelectField } from '../../shared/ui/select-field';
+import { SelectInput } from '../../shared/ui/select-input';
 import { SegmentOption, Segmented } from '../../shared/ui/segmented';
 import { StatusBadge } from '../../shared/ui/status-badge';
 import { AdminCatalogService } from '../admin-catalog.service';
@@ -62,7 +62,7 @@ type View = 'all' | 'linked';
     Checkbox,
     FieldLabel,
     Input,
-    SelectField,
+    SelectInput,
     Segmented,
     StatusBadge,
     ErrorText,
@@ -99,7 +99,7 @@ type View = 'all' | 'linked';
         [value]="query()"
         (input)="query.set($any($event.target).value)"
       />
-      <app-select-field>
+      <app-select-input>
         <select
           appInput
           class="w-full"
@@ -112,7 +112,7 @@ type View = 'all' | 'linked';
             <option [value]="option.id">{{ option.label }}</option>
           }
         </select>
-      </app-select-field>
+      </app-select-input>
     </div>
 
     @if (products.error()) {

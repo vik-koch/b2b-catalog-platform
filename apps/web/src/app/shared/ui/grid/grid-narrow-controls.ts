@@ -5,7 +5,7 @@ import { disclosureState } from '../disclosure-state';
 import { DisclosureToggle } from '../disclosure-toggle';
 import { DisclosureFrame } from '../disclosure-frame';
 import { Input } from '../input';
-import { SelectField } from '../select-field';
+import { SelectInput } from '../select-input';
 import { GridClearFilters } from './grid-clear-filters';
 import { GridChips } from './grid-chips';
 import { GridToggles } from './grid-toggles';
@@ -38,7 +38,7 @@ interface SortOption {
     GridChips,
     DisclosureToggle,
     Input,
-    SelectField,
+    SelectInput,
     GridClearFilters,
     GridToggles,
     DisclosureFrame,
@@ -75,7 +75,7 @@ interface SortOption {
                     <span class="mb-1 block text-sm text-ink-subtle">{{
                       gridText.sort
                     }}</span>
-                    <app-select-field>
+                    <app-select-input>
                       <select
                         appInput
                         class="w-full text-sm"
@@ -100,7 +100,7 @@ interface SortOption {
                           </option>
                         }
                       </select>
-                    </app-select-field>
+                    </app-select-input>
                   </label>
                 }
 
@@ -109,7 +109,7 @@ interface SortOption {
                     <span class="mb-1 block text-sm text-ink-subtle">{{
                       column.filter?.label
                     }}</span>
-                    <app-select-field>
+                    <app-select-input>
                       <select
                         appInput
                         class="w-full text-sm"
@@ -130,7 +130,7 @@ interface SortOption {
                           </option>
                         }
                       </select>
-                    </app-select-field>
+                    </app-select-input>
                   </label>
                 }
 

@@ -18,6 +18,19 @@ A piece exports its directive or component, the types of its inputs and pure hel
 stay private. Another element that needs the look takes the directive (a directive styles any
 element), and a look that varies is an input (`<a appLink tone="warning">`).
 
+## Names
+
+- **Field:** the labelled unit around a value, with its caption, required mark, hint and error
+  (`Field`, `FieldGroup` and their parts). Only these carry "field" in their name.
+- **Input:** what holds the value, with a native form element at its core: a directive on that
+  element (`input[appInput]`, `input[appCheckbox]`) or a component wrapping one, named `…Input`
+  (`DateInput`, `SelectInput`).
+- **Control:** the native element itself, named only as the inner part of an input component
+  (`appUnitInputControl`).
+
+A directive that changes what a control accepts or does is named for that (`appAllow`,
+`appDigitMask`, `appAutoGrow`).
+
 ## Importing
 
 One file at a time, by its path:
