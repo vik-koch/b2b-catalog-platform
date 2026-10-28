@@ -25,10 +25,9 @@ import { Link } from '../../shared/ui/link';
 import { SyncPlanView } from './sync-plan-view';
 import { presetFor, SYNC_PRESETS, SyncPresetName } from './sync-presets';
 import { SyncService } from './sync.service';
-import { PageTitle } from '../../shared/ui/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
-import { PageIntro } from '../../shared/ui/page-intro';
 import { uploadIcon } from '@b2b-catalog-platform/ui/icons/glyphs/upload';
+import { PageHeader } from '../../shared/ui/page-header';
 
 /**
  * A manual catalog upload (FR-ADM-02) at `/admin/sync/new`: pick what the file
@@ -50,6 +49,7 @@ import { uploadIcon } from '@b2b-catalog-platform/ui/icons/glyphs/upload';
 @Component({
   selector: 'app-sync-page',
   imports: [
+    PageHeader,
     Checkbox,
     TickLabel,
     ChoiceCard,
@@ -60,26 +60,15 @@ import { uploadIcon } from '@b2b-catalog-platform/ui/icons/glyphs/upload';
     FileTarget,
     SyncPlanView,
     Link,
-    PageTitle,
     ErrorText,
-    PageIntro,
     DropZone,
   ],
   template: `
-    <div class="mb-4 flex flex-wrap items-center gap-3">
-      <h1 appPageTitle>
-        {{ text.uploadTitle }}
-      </h1>
-      <a
-        appButton
-        variant="secondary"
-        routerLink="/admin/sync/catalog"
-        class="ml-auto"
-      >
+    <app-page-header [title]="text.uploadTitle" [intro]="text.description">
+      <a appButton variant="secondary" routerLink="/admin/sync/catalog">
         {{ text.backToRuns }}
       </a>
-    </div>
-    <p appPageIntro class="mb-6 max-w-3xl">{{ text.description }}</p>
+    </app-page-header>
 
     <!-- Narrower than the heading above it: everything below is a column of
          fields and rows to read down, not a table to scan across, and a line

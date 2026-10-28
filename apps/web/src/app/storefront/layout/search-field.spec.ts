@@ -1,4 +1,4 @@
-import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { SHARED_TEXT, provideUiText } from '../../shared/config/shared-text';
 import { defaultSharedText } from '../../shared/config/shared-text.fixture';
 import { Location } from '@angular/common';
 import { ApplicationRef, signal } from '@angular/core';
@@ -73,6 +73,7 @@ async function renderAt(url?: string) {
   TestBed.configureTestingModule({
     imports: [SearchField],
     providers: [
+      provideUiText(),
       provideRouter([{ path: '**', children: [] }]),
       { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
       { provide: SHARED_TEXT, useValue: defaultSharedText },
@@ -168,6 +169,7 @@ describe('SearchField', () => {
     TestBed.configureTestingModule({
       imports: [SearchField],
       providers: [
+        provideUiText(),
         provideRouter([{ path: '**', children: [] }]),
         { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
         { provide: SHARED_TEXT, useValue: defaultSharedText },

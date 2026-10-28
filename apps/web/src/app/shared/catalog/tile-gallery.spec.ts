@@ -1,4 +1,4 @@
-import { SHARED_TEXT } from '../config/shared-text';
+import { SHARED_TEXT, provideUiText } from '../config/shared-text';
 import { defaultSharedText } from '../config/shared-text.fixture';
 import { provideRouter } from '@angular/router';
 import { TestBed } from '@angular/core/testing';
@@ -17,6 +17,7 @@ function render(images: CatalogImage[]): ComponentFixture<TileGallery> {
   TestBed.configureTestingModule({
     imports: [TileGallery],
     providers: [
+      provideUiText(),
       provideRouter([]),
       { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
       { provide: SHARED_TEXT, useValue: defaultSharedText },

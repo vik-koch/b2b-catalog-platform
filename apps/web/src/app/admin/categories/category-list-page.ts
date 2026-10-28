@@ -44,7 +44,6 @@ import {
   moveCategoryEntries,
   resolveDropTarget,
 } from './category-tree';
-import { PageTitle } from '../../shared/ui/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
 import { funnelIcon } from '@b2b-catalog-platform/ui/icons/glyphs/funnel';
 import { gripVerticalIcon } from '@b2b-catalog-platform/ui/icons/glyphs/grip-vertical';
@@ -52,6 +51,7 @@ import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
 import { plusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/plus';
 import { rotateCcwIcon } from '@b2b-catalog-platform/ui/icons/glyphs/rotate-ccw';
 import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
+import { PageHeader } from '../../shared/ui/page-header';
 
 /**
  * Pixels of indent per tree level, shared by the rows and the drop line. 1.5rem,
@@ -89,6 +89,7 @@ const EDGE_SLACK = 24;
 @Component({
   selector: 'app-category-list-page',
   imports: [
+    PageHeader,
     RouterLink,
     Button,
     IconButton,
@@ -101,7 +102,6 @@ const EDGE_SLACK = 24;
     CdkDragHandle,
     Skeleton,
     UnpublishedCount,
-    PageTitle,
     ErrorText,
   ],
   styles: `
@@ -131,30 +131,27 @@ const EDGE_SLACK = 24;
     }
   `,
   template: `
-    <div class="mb-4 flex items-start justify-between gap-4">
-      <h1 appPageTitle>{{ text.page.title }}</h1>
-      <div class="flex flex-wrap justify-end gap-2">
-        <a
-          appButton
-          variant="secondary"
-          routerLink="/admin/catalog/filters"
-          [queryParams]="editorFrom()"
-          class="gap-2"
-        >
-          <app-icon [glyph]="funnelIcon" class="size-4" />
-          {{ text.catalogFilters }}
-        </a>
-        <a
-          appButton
-          routerLink="/admin/categories/new"
-          [queryParams]="editorFrom()"
-          class="gap-2"
-        >
-          <app-icon [glyph]="plusIcon" class="size-4" />
-          {{ text.add }}
-        </a>
-      </div>
-    </div>
+    <app-page-header [title]="text.page.title">
+      <a
+        appButton
+        variant="secondary"
+        routerLink="/admin/catalog/filters"
+        [queryParams]="editorFrom()"
+        class="gap-2"
+      >
+        <app-icon [glyph]="funnelIcon" class="size-4" />
+        {{ text.catalogFilters }}
+      </a>
+      <a
+        appButton
+        routerLink="/admin/categories/new"
+        [queryParams]="editorFrom()"
+        class="gap-2"
+      >
+        <app-icon [glyph]="plusIcon" class="size-4" />
+        {{ text.add }}
+      </a>
+    </app-page-header>
 
     <!-- Narrower than the heading above it: everything below is a column of
          fields and rows to read down, not a table to scan across, and a line

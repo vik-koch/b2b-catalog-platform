@@ -32,7 +32,7 @@ import {
 import { CartAddResult, CartService } from '../../shared/cart/cart.service';
 import { CatalogService } from '../catalog/catalog.service';
 import { CategoryChip } from '../catalog/category-chip';
-import { ImagePlaceholder } from '../../shared/catalog/image-placeholder';
+import { ImagePlaceholder } from '../../shared/ui/image-placeholder';
 import { useProductUnits } from '../../shared/catalog/product-units-view';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { MobileSearch } from './mobile-search';

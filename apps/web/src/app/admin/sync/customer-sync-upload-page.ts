@@ -29,10 +29,9 @@ import {
 } from './customer-sync-presets';
 import { SyncCustomerPlanView } from './sync-customer-plan-view';
 import { SyncService } from './sync.service';
-import { PageTitle } from '../../shared/ui/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
-import { PageIntro } from '../../shared/ui/page-intro';
 import { uploadIcon } from '@b2b-catalog-platform/ui/icons/glyphs/upload';
+import { PageHeader } from '../../shared/ui/page-header';
 
 /**
  * A manual customer import (FR-ADM-12) at `/admin/sync/customers/new`: pick
@@ -54,6 +53,7 @@ import { uploadIcon } from '@b2b-catalog-platform/ui/icons/glyphs/upload';
 @Component({
   selector: 'app-customer-sync-page',
   imports: [
+    PageHeader,
     Icon,
     Button,
     Checkbox,
@@ -64,28 +64,18 @@ import { uploadIcon } from '@b2b-catalog-platform/ui/icons/glyphs/upload';
     Link,
     RouterLink,
     SyncCustomerPlanView,
-    PageTitle,
     ErrorText,
-    PageIntro,
     DropZone,
   ],
   template: `
-    <div class="mb-4 flex flex-wrap items-center gap-3">
-      <h1 appPageTitle>
-        {{ text.customers.uploadTitle }}
-      </h1>
-      <a
-        appButton
-        variant="secondary"
-        routerLink="/admin/sync/customers"
-        class="ml-auto"
-      >
+    <app-page-header
+      [title]="text.customers.uploadTitle"
+      [intro]="text.customers.uploadDescription"
+    >
+      <a appButton variant="secondary" routerLink="/admin/sync/customers">
         {{ text.backToRuns }}
       </a>
-    </div>
-    <p appPageIntro class="mb-6 max-w-3xl">
-      {{ text.customers.uploadDescription }}
-    </p>
+    </app-page-header>
 
     <div class="max-w-3xl">
       <!-- Closed exactly while somebody else is doing the job. The form is

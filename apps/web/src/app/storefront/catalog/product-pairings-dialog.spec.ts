@@ -1,4 +1,4 @@
-import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { SHARED_TEXT, provideUiText } from '../../shared/config/shared-text';
 import { defaultSharedText } from '../../shared/config/shared-text.fixture';
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
@@ -38,6 +38,7 @@ async function render(
   TestBed.configureTestingModule({
     imports: [ProductPairingsDialog],
     providers: [
+      provideUiText(),
       provideRouter([{ path: 'product/:slug', component: Page }]),
       { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
       { provide: SHARED_TEXT, useValue: defaultSharedText },

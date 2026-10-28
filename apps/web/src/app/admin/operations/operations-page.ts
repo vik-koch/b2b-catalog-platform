@@ -30,10 +30,9 @@ import { Switch } from '../../shared/ui/switch';
 import { adminMomentFormat } from '../grid/admin-date';
 import { SettingsService } from '../settings/settings.service';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
-import { PageTitle } from '../../shared/ui/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
 import { Hint } from '../../shared/ui/hint';
-import { PageIntro } from '../../shared/ui/page-intro';
+import { PageHeader } from '../../shared/ui/page-header';
 
 /**
  * The two runtime switches, and the trail of changes to both.
@@ -53,31 +52,26 @@ import { PageIntro } from '../../shared/ui/page-intro';
 @Component({
   selector: 'app-operations-page',
   imports: [
+    PageHeader,
     RouterLink,
     Button,
     DisclosureToggle,
     Skeleton,
     StatusBadge,
     Switch,
-    PageTitle,
     ErrorText,
     Hint,
-    PageIntro,
     DisclosureFrame,
   ],
   template: `
     <!-- Wrapping, unlike the token list's heading row: this title is several
          words longer, and at 375 the pair squeezed into two ragged columns
          instead of letting the button take a line of its own. -->
-    <div class="mb-4 flex flex-wrap items-start justify-between gap-3">
-      <h1 appPageTitle>{{ text.page.title }}</h1>
+    <app-page-header [title]="text.page.title" [intro]="text.page.intro">
       <a appButton variant="secondary" routerLink="/admin">
         {{ text.backToPanel }}
       </a>
-    </div>
-    @if (text.page.intro; as intro) {
-      <p appPageIntro class="mb-6 max-w-3xl">{{ intro }}</p>
-    }
+    </app-page-header>
 
     <div class="max-w-3xl">
       <!-- Everything here is one row in the database and arrives in one answer,

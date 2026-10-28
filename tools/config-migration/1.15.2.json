@@ -19,6 +19,9 @@
     "texts/shared.json:pagination.status": {
       "from": ["texts/app.json:catalog.pageStatus"]
     },
+    "texts/shared.json:imagePlaceholder": {
+      "from": ["texts/app.json:catalog.imagePlaceholder"]
+    },
     "texts/shared.json:nav.catalog": {
       "from": ["texts/app.json:catalog.navLabel"]
     },

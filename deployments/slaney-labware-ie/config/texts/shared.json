@@ -26,6 +26,7 @@
   },
   "optional": "optional",
   "required": "required",
+  "imagePlaceholder": "No image available",
   "units": {
     "piece": "pcs",
     "pack": "pk",

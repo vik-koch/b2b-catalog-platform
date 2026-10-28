@@ -7,7 +7,7 @@ import {
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ProductImage } from '@b2b-catalog-platform/shared';
-import { ImagePlaceholder } from './image-placeholder';
+import { ImagePlaceholder } from '../ui/image-placeholder';
 import { swipeStep, touchX } from './swipe';
 
 /**

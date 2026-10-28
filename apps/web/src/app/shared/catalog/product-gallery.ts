@@ -11,7 +11,7 @@ import { ProductImage } from '@b2b-catalog-platform/shared';
 import { swipeStep, touchX } from './swipe';
 import { STOREFRONT_TEXT } from '../config/storefront-text';
 import { ShowMoreToggle } from '../ui/show-more-toggle';
-import { ImagePlaceholder } from './image-placeholder';
+import { ImagePlaceholder } from '../ui/image-placeholder';
 import { Frame } from '../ui/frame';
 
 /** Thumbnails a phone keeps before the show-more toggle takes over — one row

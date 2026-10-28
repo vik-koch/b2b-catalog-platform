@@ -34,10 +34,8 @@ import { SettingsService } from '../settings/settings.service';
 import { TiersService } from './tiers.service';
 import { RouterLink } from '@angular/router';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
-import { PageTitle } from '../../shared/ui/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
 import { Hint } from '../../shared/ui/hint';
-import { PageIntro } from '../../shared/ui/page-intro';
 import { eyeIcon } from '@b2b-catalog-platform/ui/icons/glyphs/eye';
 import { gripVerticalIcon } from '@b2b-catalog-platform/ui/icons/glyphs/grip-vertical';
 import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
@@ -45,6 +43,7 @@ import { plusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/plus';
 import { saveIcon } from '@b2b-catalog-platform/ui/icons/glyphs/save';
 import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
 import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
+import { PageHeader } from '../../shared/ui/page-header';
 
 /** The row currently in edit mode: an existing tier's id, or the new-tier form. */
 type EditTarget = { id: string } | { id: null } | null;
@@ -66,6 +65,7 @@ type EditTarget = { id: string } | { id: null } | null;
 @Component({
   selector: 'app-tier-list-page',
   imports: [
+    PageHeader,
     FORM_FIELDS,
     CdkDropList,
     CdkDrag,
@@ -82,14 +82,11 @@ type EditTarget = { id: string } | { id: null } | null;
     Input,
     Skeleton,
     RouterLink,
-    PageTitle,
     ErrorText,
     Hint,
-    PageIntro,
   ],
   template: `
-    <div class="mb-4 flex items-start justify-between gap-4">
-      <h1 appPageTitle>{{ text.page.title }}</h1>
+    <app-page-header [title]="text.page.title" [intro]="text.page.intro">
       <button
         appButton
         type="button"
@@ -100,11 +97,7 @@ type EditTarget = { id: string } | { id: null } | null;
         <app-icon [glyph]="plusIcon" class="size-4" />
         {{ text.add }}
       </button>
-    </div>
-
-    @if (text.page.intro; as intro) {
-      <p appPageIntro class="mb-6 max-w-3xl">{{ intro }}</p>
-    }
+    </app-page-header>
 
     <!-- Narrower than the heading above it: everything below is a column of
          fields and rows to read down, not a table to scan across, and a line

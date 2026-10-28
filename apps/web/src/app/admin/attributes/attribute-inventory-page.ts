@@ -25,9 +25,7 @@ import { RecordRow } from '../records/record-row';
 import { UnpublishedCount } from '../products/unpublished-count';
 import { AttributesService } from './attributes.service';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
-import { PageTitle } from '../../shared/ui/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
-import { PageIntro } from '../../shared/ui/page-intro';
 import { chevronDownIcon } from '@b2b-catalog-platform/ui/icons/glyphs/chevron-down';
 import { chevronRightIcon } from '@b2b-catalog-platform/ui/icons/glyphs/chevron-right';
 import { funnelIcon } from '@b2b-catalog-platform/ui/icons/glyphs/funnel';
@@ -35,6 +33,7 @@ import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
 import { saveIcon } from '@b2b-catalog-platform/ui/icons/glyphs/save';
 import { triangleAlertIcon } from '@b2b-catalog-platform/ui/icons/glyphs/triangle-alert';
 import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
+import { PageHeader } from '../../shared/ui/page-header';
 
 /** What is being renamed: a key across the catalog, or one value under a key. */
 type RenameTarget =
@@ -58,6 +57,7 @@ type RenameTarget =
 @Component({
   selector: 'app-attribute-inventory-page',
   imports: [
+    PageHeader,
     NgTemplateOutlet,
     RouterLink,
     Button,
@@ -70,21 +70,14 @@ type RenameTarget =
     HintBadge,
     Input,
     Skeleton,
-    PageTitle,
     ErrorText,
-    PageIntro,
   ],
   template: `
-    <div class="mb-4 flex items-start justify-between gap-4">
-      <h1 appPageTitle>{{ text.page.title }}</h1>
+    <app-page-header [title]="text.page.title" [intro]="text.page.intro">
       <a appButton variant="secondary" routerLink="/admin/attributes">
         {{ text.toDefinitions }}
       </a>
-    </div>
-
-    @if (text.page.intro; as intro) {
-      <p appPageIntro class="mb-6 max-w-3xl">{{ intro }}</p>
-    }
+    </app-page-header>
 
     <!-- Narrower than the heading above it: everything below is a column of
          fields and rows to read down, not a table to scan across, and a line

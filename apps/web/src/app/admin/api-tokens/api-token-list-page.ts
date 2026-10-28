@@ -28,9 +28,7 @@ import { RecordRow } from '../records/record-row';
 import { adminMomentFormat } from '../grid/admin-date';
 import { ApiTokensService } from './api-tokens.service';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
-import { PageTitle } from '../../shared/ui/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
-import { PageIntro } from '../../shared/ui/page-intro';
 import { Notice } from '../../shared/ui/notice';
 import { circleCheckIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-check';
 import { circleSlashIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-slash';
@@ -38,6 +36,7 @@ import { copyIcon } from '@b2b-catalog-platform/ui/icons/glyphs/copy';
 import { plusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/plus';
 import { saveIcon } from '@b2b-catalog-platform/ui/icons/glyphs/save';
 import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
+import { PageHeader } from '../../shared/ui/page-header';
 
 /**
  * What a new token starts out allowed to do: **nothing**, so a capability is
@@ -117,6 +116,7 @@ const SCOPE_ROWS: readonly {
 @Component({
   selector: 'app-api-token-list-page',
   imports: [
+    PageHeader,
     FORM_FIELDS,
     Notice,
     Button,
@@ -130,13 +130,10 @@ const SCOPE_ROWS: readonly {
     RecordRow,
     RecordFields,
     RecordFormActions,
-    PageTitle,
     ErrorText,
-    PageIntro,
   ],
   template: `
-    <div class="mb-4 flex items-start justify-between gap-4">
-      <h1 appPageTitle>{{ text.page.title }}</h1>
+    <app-page-header [title]="text.page.title" [intro]="text.page.intro">
       <button
         appButton
         type="button"
@@ -147,11 +144,7 @@ const SCOPE_ROWS: readonly {
         <app-icon [glyph]="plusIcon" class="size-4" />
         {{ text.add }}
       </button>
-    </div>
-
-    @if (text.page.intro; as intro) {
-      <p appPageIntro class="mb-6 max-w-3xl">{{ intro }}</p>
-    }
+    </app-page-header>
 
     <div class="max-w-3xl">
       <!-- The value, once. Amber rather than a plain card: this is the only

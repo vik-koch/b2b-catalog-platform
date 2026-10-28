@@ -1,12 +1,11 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { imageOffIcon } from '@b2b-catalog-platform/ui/icons/glyphs/image-off';
-import { STOREFRONT_TEXT } from '../config/storefront-text';
+import { UI_TEXT } from './ui-text';
 
 /**
- * What stands in for a product photo that is not there. Fills its box, from a
- * thumbnail to the product page's image; the caption shows from the width
- * that holds it, measured on the box rather than the window.
+ * Stands in for a missing picture and fills its box. The caption shows from
+ * the width that holds it, measured on the box, not the window.
  */
 @Component({
   selector: 'app-image-placeholder',
@@ -23,27 +22,24 @@ import { STOREFRONT_TEXT } from '../config/storefront-text';
       class="size-8 [--icon-stroke-width:1.5]"
       aria-hidden="true"
     />
-    <!-- 6rem holds the glyph, the gap and two wrapped lines of caption in a
-         box as tall as it is wide. Below that it is a thumbnail, and the
-         glyph says the same thing on its own. -->
+    <!-- 6rem fits the glyph and two caption lines in a square box; below
+         that the glyph says it alone. -->
     <span
       class="hidden px-2 text-center text-xs text-balance
              @min-[6rem]/placeholder:block"
-      >{{ text.imagePlaceholder }}</span
+      >{{ caption }}</span
     >
   `,
 })
 export class ImagePlaceholder {
   protected readonly imageOffIcon = imageOffIcon;
-  protected readonly text = inject(STOREFRONT_TEXT).catalog;
+  protected readonly caption = inject(UI_TEXT).imagePlaceholder;
 
-  /** The product's name, as a real image's alt would carry it. */
-  label = input<string>('');
+  /** What the picture would show, as its alt would say. */
+  readonly label = input<string>('');
 
-  protected ariaLabel = computed(() => {
+  protected readonly ariaLabel = computed(() => {
     const name = this.label();
-    return name
-      ? `${name} — ${this.text.imagePlaceholder}`
-      : this.text.imagePlaceholder;
+    return name ? `${name} — ${this.caption}` : this.caption;
   });
 }
