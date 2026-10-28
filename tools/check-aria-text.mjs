@@ -9,10 +9,11 @@
  * fails on any that does not end where only assistive technology reads it:
  *
  * - an `aria-label`-like binding, or a component input that only renders one
- *   (`ariaLabel`, `searchLabel`, an `app-switch`'s `label`);
+ *   (`ariaLabel`, `searchLabel`, a `ui-switch`'s `label`);
  * - an interpolation inside a `sr-only` element;
  * - a config field that only renders one (`ariaLabel`, `srLabel`,
- *   `clearLabel`);
+ *   `clearLabel`), or one named `…Aria` itself, which carries the promise on
+ *   to wherever it is read: the UI library's reads are checked too;
  * - code in a class member whose every read is one of the above.
  *
  * The reverse — a text that is only read out but lacks the suffix — cannot be
@@ -31,15 +32,17 @@ const ARIA_BINDINGS = new Set([
   'searchLabel',
 ]);
 /** Inputs named generically that still only render an accessible name. */
-const ARIA_INPUTS = { 'app-switch': new Set(['label']) };
+const ARIA_INPUTS = { 'ui-switch': new Set(['label']) };
 const ARIA_FIELDS = new Set(['ariaLabel', 'srLabel', 'clearLabel']);
 
-const files = execFileSync('git', ['ls-files', 'apps/web/src/app/*.ts'], {
-  encoding: 'utf8',
-})
+const files = execFileSync(
+  'git',
+  ['ls-files', 'apps/web/src/app/*.ts', 'libs/ui/src/*.ts'],
+  { encoding: 'utf8' },
+)
   .trim()
   .split('\n')
-  .filter((file) => !/\.(spec|fixture)\.ts$/.test(file))
+  .filter((file) => !/\.(spec|fixture|testing)\.ts$/.test(file))
   .map((file) => {
     const source = readFileSync(file, 'utf8');
     // Inline templates hold no backticks of their own (they would end them).
@@ -111,7 +114,7 @@ for (const unit of files) {
     const field = /(\w+):\s*(?:fillText\()?[\w.]*$/.exec(
       source.slice(source.lastIndexOf('\n', match.index), match.index),
     )?.[1];
-    if (field && ARIA_FIELDS.has(field)) continue;
+    if (field && (ARIA_FIELDS.has(field) || /Aria$/.test(field))) continue;
     const member = memberAt(source, match.index);
     const reads = member ? memberReads(member, unit) : [];
     if (reads.length === 0 || reads.some((read) => read !== 'aria')) {

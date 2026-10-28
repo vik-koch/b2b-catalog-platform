@@ -54,7 +54,7 @@ export default [
         },
       ],
       // An attribute component keeps a native element and its semantics, as
-      // `a[appActionLink]` keeps the anchor, its router link and its query.
+      // the library's `a[uiActionLink]` keeps the anchor and its router link.
       '@angular-eslint/component-selector': [
         'error',
         [
