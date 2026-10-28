@@ -17,10 +17,13 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { delayedLoading } from '../../shared/core/delayed-loading';
 import { usePageSeo } from '../../shared/core/page-seo';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
-import { FieldAttempt, FIELD_ATTEMPT } from '../../shared/ui/field-attempt';
-import { FieldLabel } from '../../shared/ui/field-label';
-import { FORM_FIELDS } from '../../shared/ui/form-fields';
-import { submitAttempt } from '../../shared/ui/submit-attempt';
+import {
+  FieldAttempt,
+  FIELD_ATTEMPT,
+} from '@b2b-catalog-platform/ui/fields/field-attempt';
+import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
+import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
+import { submitAttempt } from '@b2b-catalog-platform/ui/fields/submit-attempt';
 import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { DateInput } from '../../shared/ui/date-input';
@@ -37,8 +40,8 @@ import { FileTarget, pasteKeys } from '../../shared/ui/file-target';
 import { DocumentProductsPicker } from './document-products-picker';
 import { DocumentsService } from './documents.service';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
-import { ErrorText } from '../../shared/ui/error-text';
-import { Hint } from '../../shared/ui/hint';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
+import { Hint } from '@b2b-catalog-platform/ui/fields/hint';
 import { externalLinkIcon } from '@b2b-catalog-platform/ui/icons/glyphs/external-link';
 import { fileTextIcon } from '@b2b-catalog-platform/ui/icons/glyphs/file-text';
 import { saveIcon } from '@b2b-catalog-platform/ui/icons/glyphs/save';

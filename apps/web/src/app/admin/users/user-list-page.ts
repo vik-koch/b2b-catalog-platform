@@ -44,7 +44,7 @@ import { injectEditorReturnParams } from '../../shared/edit-mode/editor-return';
 import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';
 import { StaffUsersService } from './users.service';
 import { userStatusTone } from './user-status';
-import { ErrorText } from '../../shared/ui/error-text';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { plusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/plus';
 
 /**

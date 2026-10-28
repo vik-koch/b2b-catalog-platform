@@ -1,7 +1,7 @@
 import { Component, input } from '@angular/core';
 import { FormField, type FieldTree } from '@angular/forms/signals';
 import { DigitMask } from './digit-mask';
-import { FieldBinding } from './field-binding';
+import { FieldBinding } from '@b2b-catalog-platform/ui/fields/field-binding';
 import { InputPrefix } from './input-prefix';
 import { Input } from './input';
 

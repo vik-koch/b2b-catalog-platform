@@ -10,7 +10,7 @@ import { DropZone } from '../../shared/ui/drop-zone';
 import { FileTarget, pasteKeys } from '../../shared/ui/file-target';
 import { MediaService } from './media.service';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
-import { ErrorText } from '../../shared/ui/error-text';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { imagePlusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/image-plus';
 import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
 

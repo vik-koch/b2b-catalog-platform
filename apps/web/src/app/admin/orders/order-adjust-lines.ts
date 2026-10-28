@@ -20,7 +20,7 @@ import { MatchSegmentsPipe } from '../../shared/catalog/match-segments.pipe';
 import { AlternateLayout } from '../../shared/core/alternate-layout';
 import { SuggestList } from '../../shared/ui/suggest-list';
 import { AdminCatalogService } from '../admin-catalog.service';
-import { FieldLabel } from '../../shared/ui/field-label';
+import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
 import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Input } from '../../shared/ui/input';

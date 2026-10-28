@@ -28,7 +28,7 @@ import { delayedLoading } from '../../shared/core/delayed-loading';
 import { completeMask, emailAddress } from '../../shared/core/field-rules';
 import { usePageSeo } from '../../shared/core/page-seo';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
-import { FORM_FIELDS } from '../../shared/ui/form-fields';
+import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
 import { Input } from '../../shared/ui/input';
 import { PhoneInput } from '../../shared/ui/phone-input';
 import {
@@ -42,7 +42,7 @@ import { ConsentRecordList } from './consent-record-list';
 import { ConsentsService } from './consents.service';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
-import { ErrorText } from '../../shared/ui/error-text';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
 
 type SearchBy = 'email' | 'phone';

@@ -19,13 +19,13 @@ import { TickLabel } from '@b2b-catalog-platform/ui/choices/tick-label';
 import { ChoiceCard } from '@b2b-catalog-platform/ui/choices/choice-card';
 import { DropZone } from '../../shared/ui/drop-zone';
 import { FileTarget, pasteKeys } from '../../shared/ui/file-target';
-import { FieldLabel } from '../../shared/ui/field-label';
+import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Link } from '@b2b-catalog-platform/ui/actions/link';
 import { SyncPlanView } from './sync-plan-view';
 import { presetFor, SYNC_PRESETS, SyncPresetName } from './sync-presets';
 import { SyncService } from './sync.service';
-import { ErrorText } from '../../shared/ui/error-text';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { uploadIcon } from '@b2b-catalog-platform/ui/icons/glyphs/upload';
 import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
 

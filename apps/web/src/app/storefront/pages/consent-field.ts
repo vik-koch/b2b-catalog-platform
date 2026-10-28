@@ -7,8 +7,8 @@ import { Checkbox } from '@b2b-catalog-platform/ui/choices/checkbox';
 import { Link } from '@b2b-catalog-platform/ui/actions/link';
 import { ConsentRequest } from './consent';
 import { PrivacyNotice } from './privacy-notice';
-import { ErrorText } from '../../shared/ui/error-text';
-import { FIELD_ATTEMPT } from '../../shared/ui/field-attempt';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
+import { FIELD_ATTEMPT } from '@b2b-catalog-platform/ui/fields/field-attempt';
 
 let nextId = 0;
 

@@ -7,7 +7,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { FormField, type FieldTree } from '@angular/forms/signals';
-import { FieldBinding } from './field-binding';
+import { FieldBinding } from '@b2b-catalog-platform/ui/fields/field-binding';
 import { injectCoarsePointer } from './coarse-pointer';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Input } from './input';

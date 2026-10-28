@@ -40,7 +40,7 @@ import {
 } from '../../shared/orders/order-status';
 import { OrdersService } from './orders.service';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
-import { ErrorText } from '../../shared/ui/error-text';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 
 /**
  * An order opened by the link its confirmation mail carries (FR-NOTIF-06).

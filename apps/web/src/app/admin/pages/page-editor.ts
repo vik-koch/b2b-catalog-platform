@@ -26,9 +26,12 @@ import { Notice } from '@b2b-catalog-platform/ui/content/notice';
 import { RichTextEditor } from '../rich-text/rich-text-editor';
 import { injectConfirmDiscard } from '../confirm-discard';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
-import { FieldAttempt, FIELD_ATTEMPT } from '../../shared/ui/field-attempt';
-import { FORM_FIELDS } from '../../shared/ui/form-fields';
-import { submitAttempt } from '../../shared/ui/submit-attempt';
+import {
+  FieldAttempt,
+  FIELD_ATTEMPT,
+} from '@b2b-catalog-platform/ui/fields/field-attempt';
+import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
+import { submitAttempt } from '@b2b-catalog-platform/ui/fields/submit-attempt';
 import { Input } from '../../shared/ui/input';
 import { Checkbox } from '@b2b-catalog-platform/ui/choices/checkbox';
 import { TickLabel } from '@b2b-catalog-platform/ui/choices/tick-label';
@@ -36,7 +39,7 @@ import { PageEditingService } from './page-editing.service';
 import { trustedRichText } from '../../shared/core/trusted-rich-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
-import { ErrorText } from '../../shared/ui/error-text';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { eyeIcon } from '@b2b-catalog-platform/ui/icons/glyphs/eye';
 import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
 import { saveIcon } from '@b2b-catalog-platform/ui/icons/glyphs/save';

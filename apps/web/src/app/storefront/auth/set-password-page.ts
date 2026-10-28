@@ -14,7 +14,7 @@ import {
 } from '../../shared/core/password';
 import { AuthCard } from './auth-card';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
-import { FORM_FIELDS } from '../../shared/ui/form-fields';
+import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
 import { Input } from '../../shared/ui/input';
 import { AuthService, CodeSendFailure } from '../../shared/auth/auth.service';
 import { formatWait, SignInStepPanel } from './sign-in-step';
@@ -24,8 +24,8 @@ import { ConsentField } from '../pages/consent-field';
 import { useConsent } from '../pages/consent';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
-import { ErrorText } from '../../shared/ui/error-text';
-import { Hint } from '../../shared/ui/hint';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
+import { Hint } from '@b2b-catalog-platform/ui/fields/hint';
 import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
 
 type Status =

@@ -16,7 +16,7 @@ import {
   ProductVariantInput,
 } from '@b2b-catalog-platform/shared/admin';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
-import { FieldLabel } from '../../shared/ui/field-label';
+import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Input } from '../../shared/ui/input';
 import { SelectInput } from '../../shared/ui/select-input';
@@ -25,7 +25,7 @@ import { FileTarget, pasteKeys } from '../../shared/ui/file-target';
 import { ImageFramerService } from '../media/image-framer.service';
 import { MediaService } from '../media/media.service';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
-import { ErrorText } from '../../shared/ui/error-text';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { cropIcon } from '@b2b-catalog-platform/ui/icons/glyphs/crop';
 import { gripVerticalIcon } from '@b2b-catalog-platform/ui/icons/glyphs/grip-vertical';
 import { imagePlusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/image-plus';

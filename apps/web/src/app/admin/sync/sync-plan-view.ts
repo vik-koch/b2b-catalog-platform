@@ -27,7 +27,7 @@ import {
   StatusBadge,
   StatusTone,
 } from '@b2b-catalog-platform/ui/content/status-badge';
-import { ErrorText } from '../../shared/ui/error-text';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { Notice } from '@b2b-catalog-platform/ui/content/notice';
 
 /**

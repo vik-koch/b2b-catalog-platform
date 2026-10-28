@@ -4,7 +4,7 @@ import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { EmphasisedText } from '@b2b-catalog-platform/ui/content/emphasised-text';
 import { Radio } from '@b2b-catalog-platform/ui/choices/radio';
 import { TextButton } from '@b2b-catalog-platform/ui/actions/text-button';
-import { ErrorText } from '../../shared/ui/error-text';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 
 /**
  * Which point the order is collected from — pickup's answer to the delivery

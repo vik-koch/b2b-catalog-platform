@@ -51,6 +51,7 @@ by module, so a barrel would carry everything behind it into the first load.
 | `content/` | What a page shows rather than asks: `PageHeader`, `appPageTitle`, `appPageIntro`, `appNotice`, `WarningNote`, `EmptyState`, `Skeleton`, `appStatusBadge`, `HintBadge`, `EmphasisedText`, `appFrame`, `ImagePlaceholder` |
 | `core/` | What the pieces share and draw nothing: `fill`, the `UI_TEXT` token, `debounced`, the narrow-screen query |
 | `disclosure/` | What opens and closes: `DisclosureToggle`, `appDisclosureFrame`, `disclosureState`, `Collapsible`, `ShowMoreToggle` |
+| `fields/` | The labelled unit around an input: `Field`, `FieldGroup`, `FieldStatus`, `FieldBinding`, `appFieldLabel`, `appFieldAction`, `SubmitAttempt`, `appErrorText`, `appHint`, and `FORM_FIELDS` to import them with Signal Forms |
 | `icons/` | `Icon`, the `Glyph` type and one module per glyph |
 | `ui.css` | Tailwind, the breakpoints, the type weight and the colour roles; the app's stylesheet imports it |
 

@@ -14,14 +14,14 @@ import {
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { confirmation, newPassword } from '../../shared/core/password';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
-import { FORM_FIELDS } from '../../shared/ui/form-fields';
+import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
 import { Input } from '../../shared/ui/input';
-import { SubmitAttempt } from '../../shared/ui/submit-attempt';
+import { SubmitAttempt } from '@b2b-catalog-platform/ui/fields/submit-attempt';
 import {
   AuthService,
   ChangePasswordResult,
 } from '../../shared/auth/auth.service';
-import { ErrorText } from '../../shared/ui/error-text';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 
 /**
  * Reusable change-password form. No required marks: every field is required,

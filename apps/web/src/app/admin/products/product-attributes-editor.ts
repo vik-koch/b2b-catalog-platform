@@ -33,7 +33,7 @@ import { injectNarrowScreen } from '@b2b-catalog-platform/ui/core/narrow-screen'
 import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { HintBadge } from '@b2b-catalog-platform/ui/content/hint-badge';
-import { FieldLabel } from '../../shared/ui/field-label';
+import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
 import { TextButton } from '@b2b-catalog-platform/ui/actions/text-button';
 import {
   AttributeHint,

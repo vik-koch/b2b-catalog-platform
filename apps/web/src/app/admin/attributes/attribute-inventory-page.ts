@@ -25,7 +25,7 @@ import { RecordRow } from '../../shared/ui/record-row';
 import { UnpublishedCount } from '../products/unpublished-count';
 import { AttributesService } from './attributes.service';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
-import { ErrorText } from '../../shared/ui/error-text';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { chevronDownIcon } from '@b2b-catalog-platform/ui/icons/glyphs/chevron-down';
 import { chevronRightIcon } from '@b2b-catalog-platform/ui/icons/glyphs/chevron-right';
 import { funnelIcon } from '@b2b-catalog-platform/ui/icons/glyphs/funnel';

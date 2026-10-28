@@ -35,7 +35,7 @@ import { RecordRow } from '../../shared/ui/record-row';
 import { AttributesService } from './attributes.service';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
-import { ErrorText } from '../../shared/ui/error-text';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { gripVerticalIcon } from '@b2b-catalog-platform/ui/icons/glyphs/grip-vertical';
 import { saveIcon } from '@b2b-catalog-platform/ui/icons/glyphs/save';
 import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';

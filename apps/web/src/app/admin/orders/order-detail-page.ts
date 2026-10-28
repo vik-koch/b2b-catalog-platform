@@ -68,7 +68,7 @@ import { orderChanges } from './order-changes';
 import { AdminOrdersService } from './orders.service';
 import { revisionKindLabel } from './revision-labels';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
-import { ErrorText } from '../../shared/ui/error-text';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { arrowLeftIcon } from '@b2b-catalog-platform/ui/icons/glyphs/arrow-left';
 import { arrowRightIcon } from '@b2b-catalog-platform/ui/icons/glyphs/arrow-right';
 import { circleCheckIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-check';

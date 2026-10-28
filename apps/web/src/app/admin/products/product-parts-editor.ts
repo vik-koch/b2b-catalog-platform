@@ -20,12 +20,12 @@ import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { DisclosureToggle } from '@b2b-catalog-platform/ui/disclosure/disclosure-toggle';
 import { DisclosureFrame } from '@b2b-catalog-platform/ui/disclosure/disclosure-frame';
-import { FieldLabel } from '../../shared/ui/field-label';
+import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
 import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { PRODUCT_FEATURE_GLYPHS } from './product-feature-glyphs';
 import { Input } from '../../shared/ui/input';
-import { ErrorText } from '../../shared/ui/error-text';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
 
 /** `aria-controls` must name one panel, and a page may hold more than one. */

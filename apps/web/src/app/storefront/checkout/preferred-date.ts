@@ -7,7 +7,7 @@ import {
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { DateInput } from '../../shared/ui/date-input';
-import { FieldLabel } from '../../shared/ui/field-label';
+import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
 
 /**
  * When the customer would like the order (FR-CART-07) — a wish, not a booking.

@@ -8,7 +8,7 @@ import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { canonicalPhone } from '../../shared/core/contact-fields';
 import { completeMask, emailAddress } from '../../shared/core/field-rules';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
-import { FORM_FIELDS } from '../../shared/ui/form-fields';
+import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
 import { Input } from '../../shared/ui/input';
 import { PhoneInput } from '../../shared/ui/phone-input';
 import {
@@ -19,7 +19,7 @@ import { InquiryService } from './inquiry.service';
 import { ConsentField } from './consent-field';
 import { useConsent } from './consent';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
-import { ErrorText } from '../../shared/ui/error-text';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 
 type PreferredContact = InquiryRequest['preferredContact'];
 type Status = 'idle' | 'success' | 'error';

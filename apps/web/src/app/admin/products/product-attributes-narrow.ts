@@ -21,7 +21,7 @@ import {
 } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
-import { FieldLabel } from '../../shared/ui/field-label';
+import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
 import { HintBadge } from '@b2b-catalog-platform/ui/content/hint-badge';
 import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';

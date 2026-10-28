@@ -49,7 +49,7 @@ import {
   documentFileSize,
   documentLinkHost,
 } from '../../shared/core/document-file';
-import { ErrorText } from '../../shared/ui/error-text';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
 import { plusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/plus';
 import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';

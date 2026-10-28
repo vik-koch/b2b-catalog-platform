@@ -52,7 +52,7 @@ import {
 import { customerQuantity } from '../../shared/orders/order-view';
 import { OrdersService } from './orders.service';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
-import { ErrorText } from '../../shared/ui/error-text';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 
 /**
  * One of the account's own orders (FR-ACC-01), read back exactly as it was

@@ -9,13 +9,13 @@ import {
 } from '../../shared/catalog/price';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
-import { FieldLabel } from '../../shared/ui/field-label';
-import { FORM_FIELDS } from '../../shared/ui/form-fields';
+import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
+import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
 import { Allow } from '../../shared/ui/allow';
 import { UnitInput } from '../../shared/ui/unit-input';
 import { UnitInputControl } from '../../shared/ui/unit-input-control';
 import { LockedFieldMarker } from '../ownership/locked-field-marker';
-import { Hint } from '../../shared/ui/hint';
+import { Hint } from '@b2b-catalog-platform/ui/fields/hint';
 
 /** A tier's field as the form holds it: raw text, empty meaning "no override". */
 export interface TierPriceDraft {

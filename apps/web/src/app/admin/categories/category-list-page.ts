@@ -44,7 +44,7 @@ import {
   moveCategoryEntries,
   resolveDropTarget,
 } from './category-tree';
-import { ErrorText } from '../../shared/ui/error-text';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { funnelIcon } from '@b2b-catalog-platform/ui/icons/glyphs/funnel';
 import { gripVerticalIcon } from '@b2b-catalog-platform/ui/icons/glyphs/grip-vertical';
 import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';

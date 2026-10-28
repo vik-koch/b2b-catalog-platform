@@ -11,8 +11,8 @@ import { PartySuggestion } from '@b2b-catalog-platform/shared';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { STOREFRONT_TEXT } from '../config/storefront-text';
 import { companyIdExamples } from '../core/field-rules';
-import { ErrorText } from '../ui/error-text';
-import { Field } from '../ui/field';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
+import { Field } from '@b2b-catalog-platform/ui/fields/field';
 import { PartySuggestInput } from './party-suggest-input';
 
 export interface CompanyFieldsText {

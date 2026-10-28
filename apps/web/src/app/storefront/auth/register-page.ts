@@ -14,7 +14,7 @@ import {
 } from '../../shared/core/field-rules';
 import { CompanyFields } from '../../shared/parties/company-fields';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
-import { FORM_FIELDS } from '../../shared/ui/form-fields';
+import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
 import { Input } from '../../shared/ui/input';
 import { PhoneInput } from '../../shared/ui/phone-input';
 import {
@@ -27,7 +27,7 @@ import { Link } from '@b2b-catalog-platform/ui/actions/link';
 import { ConsentField } from '../pages/consent-field';
 import { useConsent } from '../pages/consent';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
-import { ErrorText } from '../../shared/ui/error-text';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
 
 type Status = 'idle' | 'success' | 'error';

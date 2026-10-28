@@ -6,8 +6,8 @@ import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { CompanyFields } from '../../shared/parties/company-fields';
-import { Field } from '../../shared/ui/field';
-import { FieldBinding } from '../../shared/ui/field-binding';
+import { Field } from '@b2b-catalog-platform/ui/fields/field';
+import { FieldBinding } from '@b2b-catalog-platform/ui/fields/field-binding';
 import { Input } from '../../shared/ui/input';
 import { PhoneInput } from '../../shared/ui/phone-input';
 import {

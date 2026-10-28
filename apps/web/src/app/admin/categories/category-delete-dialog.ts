@@ -16,12 +16,12 @@ import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { DialogActions } from '../../shared/ui/dialog-actions';
 import { DialogPanel } from '../../shared/ui/dialog-panel';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
-import { FieldLabel } from '../../shared/ui/field-label';
+import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
 import { AdminCatalogService } from '../admin-catalog.service';
 import { CategoryPicker } from './category-picker';
 import { categoryDescendantIds } from './category-tree';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
-import { ErrorText } from '../../shared/ui/error-text';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
 
 /**

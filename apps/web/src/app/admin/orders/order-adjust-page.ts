@@ -63,12 +63,15 @@ import {
 } from '../../shared/ui/confirm.service';
 import { DisclosureToggle } from '@b2b-catalog-platform/ui/disclosure/disclosure-toggle';
 import { DisclosureFrame } from '@b2b-catalog-platform/ui/disclosure/disclosure-frame';
-import { FieldAttempt, FIELD_ATTEMPT } from '../../shared/ui/field-attempt';
-import { FieldLabel } from '../../shared/ui/field-label';
-import { FORM_FIELDS } from '../../shared/ui/form-fields';
+import {
+  FieldAttempt,
+  FIELD_ATTEMPT,
+} from '@b2b-catalog-platform/ui/fields/field-attempt';
+import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
+import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
 import { Input } from '../../shared/ui/input';
 import { PhoneInput } from '../../shared/ui/phone-input';
-import { submitAttempt } from '../../shared/ui/submit-attempt';
+import { submitAttempt } from '@b2b-catalog-platform/ui/fields/submit-attempt';
 import {
   SegmentOption,
   Segmented,
@@ -85,8 +88,8 @@ import { LockedNote } from '../ownership/locked-note';
 import { SettingsService } from '../settings/settings.service';
 import { AdjustmentRefusal, AdminOrdersService } from './orders.service';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
-import { ErrorText } from '../../shared/ui/error-text';
-import { Hint } from '../../shared/ui/hint';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
+import { Hint } from '@b2b-catalog-platform/ui/fields/hint';
 import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
 
 /** One line as the form holds it, before the server has priced it. */

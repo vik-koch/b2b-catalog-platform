@@ -2,7 +2,7 @@ import { Component, inject, input, output } from '@angular/core';
 import { ORDER_NOTE_MAX } from '@b2b-catalog-platform/shared';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { AutoGrow } from '../../shared/ui/auto-grow';
-import { FieldLabel } from '../../shared/ui/field-label';
+import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
 import { Input } from '../../shared/ui/input';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 

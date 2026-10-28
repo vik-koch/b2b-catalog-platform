@@ -79,10 +79,13 @@ import { Notice } from '@b2b-catalog-platform/ui/content/notice';
 import { Checkbox } from '@b2b-catalog-platform/ui/choices/checkbox';
 import { TickLabel } from '@b2b-catalog-platform/ui/choices/tick-label';
 import { ConfirmService } from '../../shared/ui/confirm.service';
-import { FieldAttempt, FIELD_ATTEMPT } from '../../shared/ui/field-attempt';
-import { FieldLabel } from '../../shared/ui/field-label';
-import { FORM_FIELDS } from '../../shared/ui/form-fields';
-import { submitAttempt } from '../../shared/ui/submit-attempt';
+import {
+  FieldAttempt,
+  FIELD_ATTEMPT,
+} from '@b2b-catalog-platform/ui/fields/field-attempt';
+import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
+import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
+import { submitAttempt } from '@b2b-catalog-platform/ui/fields/submit-attempt';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { PRODUCT_FEATURE_GLYPHS } from './product-feature-glyphs';
 import { Input } from '../../shared/ui/input';
@@ -114,7 +117,7 @@ import {
 import { UnitInput } from '../../shared/ui/unit-input';
 import { UnitInputControl } from '../../shared/ui/unit-input-control';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
-import { ErrorText } from '../../shared/ui/error-text';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { circleCheckIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-check';
 import { eyeIcon } from '@b2b-catalog-platform/ui/icons/glyphs/eye';
 import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';

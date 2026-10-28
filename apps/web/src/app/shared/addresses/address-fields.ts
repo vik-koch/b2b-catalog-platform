@@ -14,13 +14,13 @@ import { STOREFRONT_TEXT } from '../config/storefront-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { SHARED_TEXT } from '../config/shared-text';
 import { DigitMask } from '../ui/digit-mask';
-import { FIELD_ATTEMPT } from '../ui/field-attempt';
-import { Field } from '../ui/field';
-import { FieldBinding } from '../ui/field-binding';
+import { FIELD_ATTEMPT } from '@b2b-catalog-platform/ui/fields/field-attempt';
+import { Field } from '@b2b-catalog-platform/ui/fields/field';
+import { FieldBinding } from '@b2b-catalog-platform/ui/fields/field-binding';
 import { Input } from '../ui/input';
 import { TextButton } from '@b2b-catalog-platform/ui/actions/text-button';
 import { SelectInput } from '../ui/select-input';
-import { submitAttempt } from '../ui/submit-attempt';
+import { submitAttempt } from '@b2b-catalog-platform/ui/fields/submit-attempt';
 import { AddressForm } from './address-form';
 import { AddressSuggestInput } from './address-suggest-input';
 

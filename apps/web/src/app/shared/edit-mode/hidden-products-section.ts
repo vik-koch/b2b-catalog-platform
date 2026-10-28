@@ -24,7 +24,7 @@ import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';
 import { EDIT_MODE_CATALOG } from './edit-mode-catalog';
 import { injectEditorReturnParams } from './editor-return';
 import { SHARED_TEXT } from '../config/shared-text';
-import { ErrorText } from '../ui/error-text';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { bookCheckIcon } from '@b2b-catalog-platform/ui/icons/glyphs/book-check';
 import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
 

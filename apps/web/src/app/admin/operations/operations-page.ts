@@ -30,8 +30,8 @@ import { Switch } from '@b2b-catalog-platform/ui/choices/switch';
 import { adminMomentFormat } from '../dates/admin-date';
 import { SettingsService } from '../settings/settings.service';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
-import { ErrorText } from '../../shared/ui/error-text';
-import { Hint } from '../../shared/ui/hint';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
+import { Hint } from '@b2b-catalog-platform/ui/fields/hint';
 import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
 
 /**

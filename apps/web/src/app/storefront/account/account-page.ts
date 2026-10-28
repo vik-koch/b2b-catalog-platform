@@ -30,7 +30,7 @@ import { ActionLink } from '@b2b-catalog-platform/ui/actions/action-link';
 import { WorkService } from '../../shared/work/work.service';
 import { AccountService } from './account.service';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
-import { ErrorText } from '../../shared/ui/error-text';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { lockIcon } from '@b2b-catalog-platform/ui/icons/glyphs/lock';
 import { mapPinIcon } from '@b2b-catalog-platform/ui/icons/glyphs/map-pin';
 import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';

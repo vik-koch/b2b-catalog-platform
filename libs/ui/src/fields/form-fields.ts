@@ -19,3 +19,8 @@ export const FORM_FIELDS = [
   FieldAction,
   FieldBinding,
 ] as const;
+
+// The compiler references an imported array's directives through the module
+// the array came from (NG3004), so this one re-exports them. They are in the
+// array already: no chunk grows.
+export { Field, FieldAction, FieldBinding, FieldGroup, SubmitAttempt };

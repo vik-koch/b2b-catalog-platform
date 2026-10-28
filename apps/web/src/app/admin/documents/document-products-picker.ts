@@ -19,7 +19,7 @@ import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { debounced } from '@b2b-catalog-platform/ui/core/debounced';
 import { AlternateLayout } from '../../shared/core/alternate-layout';
 import { Checkbox } from '@b2b-catalog-platform/ui/choices/checkbox';
-import { FieldLabel } from '../../shared/ui/field-label';
+import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
 import { Input } from '../../shared/ui/input';
 import { SelectInput } from '../../shared/ui/select-input';
 import {
@@ -29,7 +29,7 @@ import {
 import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';
 import { AdminCatalogService } from '../admin-catalog.service';
 import { flattenCategoryTree } from '../categories/category-tree';
-import { ErrorText } from '../../shared/ui/error-text';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 
 /** `id`s must be unique on a page, and a form may hold more than one picker. */
 let nextId = 0;

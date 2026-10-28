@@ -7,8 +7,8 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { CompanyFields } from '../../shared/parties/company-fields';
 import { ChoiceBranch } from '@b2b-catalog-platform/ui/choices/choice-branch';
-import { Field } from '../../shared/ui/field';
-import { FieldBinding } from '../../shared/ui/field-binding';
+import { Field } from '@b2b-catalog-platform/ui/fields/field';
+import { FieldBinding } from '@b2b-catalog-platform/ui/fields/field-binding';
 import { Input } from '../../shared/ui/input';
 import {
   Segmented,

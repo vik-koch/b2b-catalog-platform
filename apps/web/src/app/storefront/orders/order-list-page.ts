@@ -17,7 +17,7 @@ import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { OrderRows } from './order-rows';
 import { OrdersService } from './orders.service';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
-import { ErrorText } from '../../shared/ui/error-text';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
 import { shoppingBasketIcon } from '@b2b-catalog-platform/ui/icons/glyphs/shopping-basket';
 import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';

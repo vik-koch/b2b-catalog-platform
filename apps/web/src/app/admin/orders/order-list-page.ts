@@ -57,7 +57,7 @@ import {
 import { SettingsService } from '../settings/settings.service';
 import { OrderRowActions } from './order-row-actions';
 import { AdminOrdersService, StaffOrderSummary } from './orders.service';
-import { ErrorText } from '../../shared/ui/error-text';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 
 /**
  * Every order request, for staff (FR-AUTH-03). An order is answered on its own

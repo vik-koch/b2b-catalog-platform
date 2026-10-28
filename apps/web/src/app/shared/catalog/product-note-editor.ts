@@ -15,7 +15,7 @@ import { AutoGrow } from '../ui/auto-grow';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { DialogActions } from '../ui/dialog-actions';
 import { DialogPanel } from '../ui/dialog-panel';
-import { FieldLabel } from '../ui/field-label';
+import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
 import { Input } from '../ui/input';

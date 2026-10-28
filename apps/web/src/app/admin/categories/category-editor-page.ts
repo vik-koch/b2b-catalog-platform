@@ -22,10 +22,13 @@ import { delayedLoading } from '../../shared/core/delayed-loading';
 import { UnsavedChangesAware } from '../unsaved-changes.guard';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
-import { FieldAttempt, FIELD_ATTEMPT } from '../../shared/ui/field-attempt';
-import { FieldLabel } from '../../shared/ui/field-label';
-import { FORM_FIELDS } from '../../shared/ui/form-fields';
-import { submitAttempt } from '../../shared/ui/submit-attempt';
+import {
+  FieldAttempt,
+  FIELD_ATTEMPT,
+} from '@b2b-catalog-platform/ui/fields/field-attempt';
+import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
+import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
+import { submitAttempt } from '@b2b-catalog-platform/ui/fields/submit-attempt';
 import { Input } from '../../shared/ui/input';
 import {
   AdminCatalogService,
@@ -37,7 +40,7 @@ import { ImagePicker } from '../media/image-picker';
 import { CategoryPicker } from './category-picker';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
-import { ErrorText } from '../../shared/ui/error-text';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { saveIcon } from '@b2b-catalog-platform/ui/icons/glyphs/save';
 import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
 

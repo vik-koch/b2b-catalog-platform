@@ -2,7 +2,7 @@ import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { form, required, validate } from '@angular/forms/signals';
 import { FORM_FIELDS } from './form-fields';
-import { UI_TEXT } from '@b2b-catalog-platform/ui/core/ui-text';
+import { UI_TEXT } from '../core/ui-text';
 
 const uiText = { required: 'required' };
 

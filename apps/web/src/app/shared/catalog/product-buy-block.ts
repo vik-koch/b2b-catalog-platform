@@ -9,7 +9,7 @@ import { CART_NOTE_MAX, ProductDetail } from '@b2b-catalog-platform/shared';
 import { CartService } from '../cart/cart.service';
 import { STOREFRONT_TEXT } from '../config/storefront-text';
 import { AutoGrow } from '../ui/auto-grow';
-import { FieldLabel } from '../ui/field-label';
+import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
 import { Input } from '../ui/input';
 import { ProductAvailabilityBadge } from './product-availability-badge';
 import { ProductBuyControls } from './product-buy-controls';
