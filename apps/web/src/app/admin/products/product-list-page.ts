@@ -34,8 +34,11 @@ import {
   ConfirmService,
 } from '../../shared/ui/confirm.service';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
-import { Skeleton } from '../../shared/ui/skeleton';
-import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
+import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
+import {
+  StatusBadge,
+  StatusTone,
+} from '@b2b-catalog-platform/ui/content/status-badge';
 import { AdminCatalogService } from '../admin-catalog.service';
 import { ProductCreateService } from '../ownership/product-create.service';
 import { AttributesService } from '../attributes/attributes.service';

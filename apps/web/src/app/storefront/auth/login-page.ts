@@ -13,7 +13,7 @@ import { landingFor } from '../../shared/auth/auth.guard';
 import { AuthService, LoginResult } from '../../shared/auth/auth.service';
 import { formatWait, SignInStepPanel } from './sign-in-step';
 import { TextButton } from '@b2b-catalog-platform/ui/actions/text-button';
-import { PageTitle } from '../../shared/ui/page-title';
+import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
 
 /**

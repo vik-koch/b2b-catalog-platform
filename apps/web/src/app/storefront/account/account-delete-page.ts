@@ -10,9 +10,9 @@ import { FORM_FIELDS } from '../../shared/ui/form-fields';
 import { Input } from '../../shared/ui/input';
 import { AccountService } from './account.service';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
-import { PageTitle } from '../../shared/ui/page-title';
+import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
-import { PageIntro } from '../../shared/ui/page-intro';
+import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
 
 type Status = 'idle' | 'submitting' | 'wrong-password' | 'last-admin' | 'error';
 

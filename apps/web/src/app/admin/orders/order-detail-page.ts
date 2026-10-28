@@ -55,8 +55,11 @@ import { AuthService } from '../../shared/auth/auth.service';
 import { DisclosureToggle } from '../../shared/ui/disclosure-toggle';
 import { DisclosureFrame } from '../../shared/ui/disclosure-frame';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
-import { Skeleton } from '../../shared/ui/skeleton';
-import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
+import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
+import {
+  StatusBadge,
+  StatusTone,
+} from '@b2b-catalog-platform/ui/content/status-badge';
 import { LockedNote } from '../ownership/locked-note';
 import { SettingsService } from '../settings/settings.service';
 import { OrderAdjustChanges, OrderChange } from './order-adjust-changes';
@@ -64,7 +67,7 @@ import { OrderDocumentsPanel } from './order-documents-panel';
 import { orderChanges } from './order-changes';
 import { AdminOrdersService } from './orders.service';
 import { revisionKindLabel } from './revision-labels';
-import { PageTitle } from '../../shared/ui/page-title';
+import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
 import { arrowLeftIcon } from '@b2b-catalog-platform/ui/icons/glyphs/arrow-left';
 import { arrowRightIcon } from '@b2b-catalog-platform/ui/icons/glyphs/arrow-right';

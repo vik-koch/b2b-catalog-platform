@@ -24,7 +24,7 @@ import { Input } from '../../shared/ui/input';
 import { filled } from '../../shared/core/field-rules';
 import { FORM_FIELDS } from '../../shared/ui/form-fields';
 import { submitAttempt } from '../../shared/ui/submit-attempt';
-import { Skeleton } from '../../shared/ui/skeleton';
+import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import { ConfirmService } from '../../shared/ui/confirm.service';
 import { RecordFields } from '../../shared/ui/record-fields';
 import { RecordFormActions } from '../../shared/ui/record-form-actions';
@@ -43,7 +43,7 @@ import { plusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/plus';
 import { saveIcon } from '@b2b-catalog-platform/ui/icons/glyphs/save';
 import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
 import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
-import { PageHeader } from '../../shared/ui/page-header';
+import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
 
 /** The row currently in edit mode: an existing tier's id, or the new-tier form. */
 type EditTarget = { id: string } | { id: null } | null;

@@ -12,7 +12,7 @@ import { formatPhone } from '../../shared/core/contact-fields';
 import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Link } from '@b2b-catalog-platform/ui/actions/link';
-import { StatusBadge } from '../../shared/ui/status-badge';
+import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';
 import { adminMomentFormat } from '../dates/admin-date';
 import { RecordRow } from '../../shared/ui/record-row';
 import { circleSlashIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-slash';

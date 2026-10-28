@@ -6,14 +6,14 @@ import { injectEditorReturnParams } from '../../shared/edit-mode/editor-return';
 import { editAwareContent } from '../../shared/edit-mode/edit-aware-content';
 import { EditActions } from '../../shared/edit-mode/edit-actions';
 import { usePageSeo } from '../../shared/core/page-seo';
-import { EmphasisedText } from '../../shared/ui/emphasised-text';
+import { EmphasisedText } from '@b2b-catalog-platform/ui/content/emphasised-text';
 import { MapFrame } from './map-frame';
 import { PageService } from '../../shared/pages/page.service';
 import { LoadErrorView } from './load-error-view';
 import { RichTextLinks } from '../../shared/core/rich-text-links';
 import { trustedRichText } from '../../shared/core/trusted-rich-text';
-import { PageTitle } from '../../shared/ui/page-title';
-import { Skeleton } from '../../shared/ui/skeleton';
+import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
+import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 
 /**
  * Contact page — a code route that renders an editable body.

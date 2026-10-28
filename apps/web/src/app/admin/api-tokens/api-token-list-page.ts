@@ -20,8 +20,8 @@ import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Checkbox } from '../../shared/ui/checkbox';
 import { Input } from '../../shared/ui/input';
-import { Skeleton } from '../../shared/ui/skeleton';
-import { StatusBadge } from '../../shared/ui/status-badge';
+import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
+import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';
 import { RecordFields } from '../../shared/ui/record-fields';
 import { RecordFormActions } from '../../shared/ui/record-form-actions';
 import { RecordRow } from '../../shared/ui/record-row';
@@ -29,14 +29,14 @@ import { adminMomentFormat } from '../dates/admin-date';
 import { ApiTokensService } from './api-tokens.service';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { ErrorText } from '../../shared/ui/error-text';
-import { Notice } from '../../shared/ui/notice';
+import { Notice } from '@b2b-catalog-platform/ui/content/notice';
 import { circleCheckIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-check';
 import { circleSlashIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-slash';
 import { copyIcon } from '@b2b-catalog-platform/ui/icons/glyphs/copy';
 import { plusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/plus';
 import { saveIcon } from '@b2b-catalog-platform/ui/icons/glyphs/save';
 import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
-import { PageHeader } from '../../shared/ui/page-header';
+import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
 
 /**
  * What a new token starts out allowed to do: **nothing**, so a capability is

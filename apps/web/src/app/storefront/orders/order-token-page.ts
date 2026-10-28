@@ -16,7 +16,7 @@ import { delayedLoading } from '../../shared/core/delayed-loading';
 import { usePageSeo } from '../../shared/core/page-seo';
 import { NotFoundView } from '../pages/not-found-view';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
-import { Skeleton } from '../../shared/ui/skeleton';
+import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import {
   injectCustomerBlockLabels,
   orderBlocks,
@@ -28,7 +28,10 @@ import {
   ReadBackLine,
   ReviewBlock,
 } from '../../shared/orders/order-read-back';
-import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
+import {
+  StatusBadge,
+  StatusTone,
+} from '@b2b-catalog-platform/ui/content/status-badge';
 import {
   orderPaymentLabel,
   orderPaymentTone,
@@ -36,7 +39,7 @@ import {
   orderStatusTone,
 } from '../../shared/orders/order-status';
 import { OrdersService } from './orders.service';
-import { PageTitle } from '../../shared/ui/page-title';
+import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
 
 /**

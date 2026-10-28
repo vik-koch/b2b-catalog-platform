@@ -13,7 +13,7 @@ import { Input } from '../../shared/ui/input';
 import { Segmented, SegmentOption } from '../../shared/ui/segmented';
 import { PartyChoice as Party } from './checkout-draft.service';
 import { PartyAnswers } from './checkout-forms';
-import { WarningNote } from '../../shared/ui/warning-note';
+import { WarningNote } from '@b2b-catalog-platform/ui/content/warning-note';
 
 /**
  * Who the order is invoiced to (FR-CART-09) — a field of the order, not a

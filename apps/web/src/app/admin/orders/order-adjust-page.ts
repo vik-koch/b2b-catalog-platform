@@ -71,8 +71,8 @@ import { PhoneInput } from '../../shared/ui/phone-input';
 import { submitAttempt } from '../../shared/ui/submit-attempt';
 import { SegmentOption, Segmented } from '../../shared/ui/segmented';
 import { SelectInput } from '../../shared/ui/select-input';
-import { Skeleton } from '../../shared/ui/skeleton';
-import { WarningNote } from '../../shared/ui/warning-note';
+import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
+import { WarningNote } from '@b2b-catalog-platform/ui/content/warning-note';
 import { TiersService } from '../tiers/tiers.service';
 import { OrderAdjustChanges, OrderChange } from './order-adjust-changes';
 import { AdjustLineRow, OrderAdjustLines } from './order-adjust-lines';
@@ -81,10 +81,10 @@ import { customerQuantity } from '../../shared/orders/order-view';
 import { LockedNote } from '../ownership/locked-note';
 import { SettingsService } from '../settings/settings.service';
 import { AdjustmentRefusal, AdminOrdersService } from './orders.service';
-import { PageTitle } from '../../shared/ui/page-title';
+import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
 import { Hint } from '../../shared/ui/hint';
-import { PageIntro } from '../../shared/ui/page-intro';
+import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
 
 /** One line as the form holds it, before the server has priced it. */
 interface DraftLine {

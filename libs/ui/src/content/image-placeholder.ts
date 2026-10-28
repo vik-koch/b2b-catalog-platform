@@ -1,7 +1,7 @@
 import { Component, computed, inject, input } from '@angular/core';
-import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
-import { imageOffIcon } from '@b2b-catalog-platform/ui/icons/glyphs/image-off';
-import { UI_TEXT } from '@b2b-catalog-platform/ui/core/ui-text';
+import { Icon } from '../icons/icon';
+import { imageOffIcon } from '../icons/glyphs/image-off';
+import { UI_TEXT } from '../core/ui-text';
 
 /**
  * Stands in for a missing picture and fills its box. The caption shows from

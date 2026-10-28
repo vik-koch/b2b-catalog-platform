@@ -23,9 +23,9 @@ import { AuthService } from '../../shared/auth/auth.service';
 import { Link } from '@b2b-catalog-platform/ui/actions/link';
 import { ConsentField } from '../pages/consent-field';
 import { useConsent } from '../pages/consent';
-import { PageTitle } from '../../shared/ui/page-title';
+import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
-import { PageIntro } from '../../shared/ui/page-intro';
+import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
 
 type Status = 'idle' | 'success' | 'error';
 

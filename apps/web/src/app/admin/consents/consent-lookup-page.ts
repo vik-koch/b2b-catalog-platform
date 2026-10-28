@@ -33,14 +33,14 @@ import { Input } from '../../shared/ui/input';
 import { PhoneInput } from '../../shared/ui/phone-input';
 import { Segmented, SegmentOption } from '../../shared/ui/segmented';
 import { ConfirmService } from '../../shared/ui/confirm.service';
-import { Skeleton } from '../../shared/ui/skeleton';
+import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import { adminDayFormat } from '../dates/admin-date';
 import { ConsentRecordList } from './consent-record-list';
 import { ConsentsService } from './consents.service';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
-import { PageTitle } from '../../shared/ui/page-title';
+import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
-import { PageIntro } from '../../shared/ui/page-intro';
+import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
 
 type SearchBy = 'email' | 'phone';
 

@@ -10,8 +10,8 @@ import { formatStoredDecimal } from '../catalog/quantity';
 import { useTaxStatement } from '../catalog/tax-statement';
 import { STOREFRONT_TEXT } from '../config/storefront-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
-import { Skeleton } from '../ui/skeleton';
-import { WarningNote } from '../ui/warning-note';
+import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
+import { WarningNote } from '@b2b-catalog-platform/ui/content/warning-note';
 
 /**
  * What the order comes to — the same card on the cart, on checkout and on the

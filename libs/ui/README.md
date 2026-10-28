@@ -47,6 +47,7 @@ by module, so a barrel would carry everything behind it into the first load.
 | Folder | Holds |
 | --- | --- |
 | `actions/` | Buttons and links: `appButton`, `appIconButton`, `appTextButton`, `appDiscButton`, `appLink`, `appActionLink` and the shared `ButtonBox` |
+| `content/` | What a page shows rather than asks: `PageHeader`, `appPageTitle`, `appPageIntro`, `appNotice`, `WarningNote`, `EmptyState`, `Skeleton`, `appStatusBadge`, `HintBadge`, `EmphasisedText`, `appFrame`, `ImagePlaceholder` |
 | `core/` | What the pieces share and draw nothing: `fill`, the `UI_TEXT` token, `debounced`, the narrow-screen query |
 | `icons/` | `Icon`, the `Glyph` type and one module per glyph |
 | `ui.css` | Tailwind, the breakpoints, the type weight and the colour roles; the app's stylesheet imports it |

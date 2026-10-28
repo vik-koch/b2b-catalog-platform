@@ -15,7 +15,7 @@ import { Segmented, SegmentOption } from '../../shared/ui/segmented';
 import { InquiryService } from './inquiry.service';
 import { ConsentField } from './consent-field';
 import { useConsent } from './consent';
-import { PageTitle } from '../../shared/ui/page-title';
+import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
 
 type PreferredContact = InquiryRequest['preferredContact'];

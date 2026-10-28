@@ -11,8 +11,8 @@ import { RichTextLinks } from '../../shared/core/rich-text-links';
 import { trustedRichText } from '../../shared/core/trusted-rich-text';
 import { LoadErrorView } from './load-error-view';
 import { PageUpdated } from './page-updated';
-import { PageTitle } from '../../shared/ui/page-title';
-import { Skeleton } from '../../shared/ui/skeleton';
+import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
+import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 
 @Component({
   selector: 'app-static-page',

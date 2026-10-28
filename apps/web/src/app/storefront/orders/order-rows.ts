@@ -9,7 +9,10 @@ import { formatPriceMinor } from '../../shared/catalog/price';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
-import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
+import {
+  StatusBadge,
+  StatusTone,
+} from '@b2b-catalog-platform/ui/content/status-badge';
 import {
   orderPaymentLabel,
   orderPaymentTone,

@@ -16,8 +16,11 @@ import { usePageSeo } from '../../shared/core/page-seo';
 import { stableValue } from '../../shared/core/stable-value';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
-import { Skeleton } from '../../shared/ui/skeleton';
-import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
+import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
+import {
+  StatusBadge,
+  StatusTone,
+} from '@b2b-catalog-platform/ui/content/status-badge';
 import { DataGrid } from '../../shared/ui/grid/data-grid';
 import { GridColumn } from '../../shared/ui/grid/grid-column';
 import { GridFilterOption } from '../../shared/ui/grid/grid-filter-select';
@@ -28,7 +31,7 @@ import { GridTimestamp } from '../dates/grid-timestamp';
 import { GridHeader } from '../../shared/ui/grid/grid-header';
 import { RecordRow } from '../../shared/ui/record-row';
 import { SyncService } from './sync.service';
-import { PageIntro } from '../../shared/ui/page-intro';
+import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
 import { uploadIcon } from '@b2b-catalog-platform/ui/icons/glyphs/upload';
 
 /**

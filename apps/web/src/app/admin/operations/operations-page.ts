@@ -24,15 +24,15 @@ import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { ConfirmService } from '../../shared/ui/confirm.service';
 import { DisclosureToggle } from '../../shared/ui/disclosure-toggle';
 import { DisclosureFrame } from '../../shared/ui/disclosure-frame';
-import { Skeleton } from '../../shared/ui/skeleton';
-import { StatusBadge } from '../../shared/ui/status-badge';
+import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
+import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';
 import { Switch } from '../../shared/ui/switch';
 import { adminMomentFormat } from '../dates/admin-date';
 import { SettingsService } from '../settings/settings.service';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { ErrorText } from '../../shared/ui/error-text';
 import { Hint } from '../../shared/ui/hint';
-import { PageHeader } from '../../shared/ui/page-header';
+import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
 
 /**
  * The two runtime switches, and the trail of changes to both.

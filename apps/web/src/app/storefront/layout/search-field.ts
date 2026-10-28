@@ -32,7 +32,7 @@ import {
 import { CartAddResult, CartService } from '../../shared/cart/cart.service';
 import { CatalogService } from '../catalog/catalog.service';
 import { CategoryChip } from '../catalog/category-chip';
-import { ImagePlaceholder } from '../../shared/ui/image-placeholder';
+import { ImagePlaceholder } from '@b2b-catalog-platform/ui/content/image-placeholder';
 import { useProductUnits } from '../../shared/catalog/product-units-view';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { MobileSearch } from './mobile-search';
@@ -44,13 +44,13 @@ import { AlternateLayout } from '../../shared/core/alternate-layout';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
-import { WarningNote } from '../../shared/ui/warning-note';
+import { WarningNote } from '@b2b-catalog-platform/ui/content/warning-note';
 import { chevronRightIcon } from '@b2b-catalog-platform/ui/icons/glyphs/chevron-right';
 import { circleCheckIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-check';
 import { searchIcon } from '@b2b-catalog-platform/ui/icons/glyphs/search';
 import { shoppingBasketIcon } from '@b2b-catalog-platform/ui/icons/glyphs/shopping-basket';
 import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
-import { Frame } from '../../shared/ui/frame';
+import { Frame } from '@b2b-catalog-platform/ui/content/frame';
 
 /** Long enough that a fast typist produces one request per word rather than
  * one per letter, short enough that a pause feels answered immediately. */

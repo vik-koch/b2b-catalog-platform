@@ -28,8 +28,11 @@ import {
   confirmRequest,
   ConfirmService,
 } from '../../shared/ui/confirm.service';
-import { Skeleton } from '../../shared/ui/skeleton';
-import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
+import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
+import {
+  StatusBadge,
+  StatusTone,
+} from '@b2b-catalog-platform/ui/content/status-badge';
 import {
   injectCustomerBlockLabels,
   orderBlocks,
@@ -48,7 +51,7 @@ import {
 } from '../../shared/orders/order-status';
 import { customerQuantity } from '../../shared/orders/order-view';
 import { OrdersService } from './orders.service';
-import { PageTitle } from '../../shared/ui/page-title';
+import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
 
 /**

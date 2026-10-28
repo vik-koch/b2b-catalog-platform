@@ -31,7 +31,7 @@ import { SyncCustomerPlanView } from './sync-customer-plan-view';
 import { SyncService } from './sync.service';
 import { ErrorText } from '../../shared/ui/error-text';
 import { uploadIcon } from '@b2b-catalog-platform/ui/icons/glyphs/upload';
-import { PageHeader } from '../../shared/ui/page-header';
+import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
 
 /**
  * A manual customer import (FR-ADM-12) at `/admin/sync/customers/new`: pick

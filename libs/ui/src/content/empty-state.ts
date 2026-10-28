@@ -1,6 +1,6 @@
 import { Component, computed, input } from '@angular/core';
-import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
-import { Glyph } from '@b2b-catalog-platform/ui/icons/glyph';
+import { Icon } from '../icons/icon';
+import { Glyph } from '../icons/glyph';
 
 const glyph = 'size-10';
 

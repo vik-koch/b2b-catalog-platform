@@ -1,7 +1,10 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { ProductAvailability } from '@b2b-catalog-platform/shared';
 import { SHARED_TEXT } from '../config/shared-text';
-import { StatusBadge, StatusTone } from '../ui/status-badge';
+import {
+  StatusBadge,
+  StatusTone,
+} from '@b2b-catalog-platform/ui/content/status-badge';
 
 /**
  * Whether the product can be had, wherever its buying controls are

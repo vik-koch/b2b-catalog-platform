@@ -25,7 +25,7 @@ import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { PRODUCT_FEATURE_GLYPHS } from './product-feature-glyphs';
 import { Input } from '../../shared/ui/input';
-import { StatusBadge } from '../../shared/ui/status-badge';
+import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';
 import { SuggestField } from '../../shared/ui/suggest-field';
 import { SuggestInput } from '../../shared/ui/suggest-input';
 import { SuggestRow } from '../../shared/ui/suggest-row';

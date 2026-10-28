@@ -32,7 +32,7 @@ import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { injectNarrowScreen } from '@b2b-catalog-platform/ui/core/narrow-screen';
 import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
-import { HintBadge } from '../../shared/ui/hint-badge';
+import { HintBadge } from '@b2b-catalog-platform/ui/content/hint-badge';
 import { FieldLabel } from '../../shared/ui/field-label';
 import { TextButton } from '@b2b-catalog-platform/ui/actions/text-button';
 import {

@@ -37,9 +37,9 @@ import { Checkbox } from '../../shared/ui/checkbox';
 import { TickLabel } from '../../shared/ui/tick-label';
 import { FORM_FIELDS } from '../../shared/ui/form-fields';
 import { submitAttempt } from '../../shared/ui/submit-attempt';
-import { EmptyState } from '../../shared/ui/empty-state';
+import { EmptyState } from '@b2b-catalog-platform/ui/content/empty-state';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
-import { Skeleton } from '../../shared/ui/skeleton';
+import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import { AddressPicker } from './address-picker';
 import {
   CheckoutDraft,
@@ -60,11 +60,11 @@ import { PreferredDate } from './preferred-date';
 import { Link } from '@b2b-catalog-platform/ui/actions/link';
 import { PrivacyNotice } from '../pages/privacy-notice';
 import { TermsNotice } from '../pages/terms-notice';
-import { WarningNote } from '../../shared/ui/warning-note';
+import { WarningNote } from '@b2b-catalog-platform/ui/content/warning-note';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
-import { PageTitle } from '../../shared/ui/page-title';
+import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
-import { PageIntro } from '../../shared/ui/page-intro';
+import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
 import { circleCheckIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-check';
 import { circleUserRoundIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-user-round';
 import { lockIcon } from '@b2b-catalog-platform/ui/icons/glyphs/lock';

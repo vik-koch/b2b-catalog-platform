@@ -23,7 +23,7 @@ import { FieldLabel } from '../../shared/ui/field-label';
 import { Input } from '../../shared/ui/input';
 import { SelectInput } from '../../shared/ui/select-input';
 import { SegmentOption, Segmented } from '../../shared/ui/segmented';
-import { StatusBadge } from '../../shared/ui/status-badge';
+import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';
 import { AdminCatalogService } from '../admin-catalog.service';
 import { flattenCategoryTree } from '../categories/category-tree';
 import { ErrorText } from '../../shared/ui/error-text';

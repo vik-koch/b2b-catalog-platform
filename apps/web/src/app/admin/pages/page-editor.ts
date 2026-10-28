@@ -22,7 +22,7 @@ import {
 } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
-import { Notice } from '../../shared/ui/notice';
+import { Notice } from '@b2b-catalog-platform/ui/content/notice';
 import { RichTextEditor } from '../rich-text/rich-text-editor';
 import { injectConfirmDiscard } from '../confirm-discard';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
@@ -35,7 +35,7 @@ import { TickLabel } from '../../shared/ui/tick-label';
 import { PageEditingService } from './page-editing.service';
 import { trustedRichText } from '../../shared/core/trusted-rich-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
-import { PageTitle } from '../../shared/ui/page-title';
+import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
 import { eyeIcon } from '@b2b-catalog-platform/ui/icons/glyphs/eye';
 import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';

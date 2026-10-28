@@ -28,8 +28,11 @@ import { ConfirmService } from '../../shared/ui/confirm.service';
 import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
 import { Link } from '@b2b-catalog-platform/ui/actions/link';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
-import { Skeleton } from '../../shared/ui/skeleton';
-import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
+import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
+import {
+  StatusBadge,
+  StatusTone,
+} from '@b2b-catalog-platform/ui/content/status-badge';
 import { DataGrid } from '../../shared/ui/grid/data-grid';
 import { GridColumn } from '../../shared/ui/grid/grid-column';
 import { GridFilterOption } from '../../shared/ui/grid/grid-filter-select';

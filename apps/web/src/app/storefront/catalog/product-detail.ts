@@ -14,7 +14,7 @@ import {
 } from '@b2b-catalog-platform/shared';
 import { Meta } from '@angular/platform-browser';
 import { hiddenProductText } from '../../shared/edit-mode/hidden-product-text';
-import { StatusBadge } from '../../shared/ui/status-badge';
+import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';
 import { AuthService } from '../../shared/auth/auth.service';
 import { EditActions } from '../../shared/edit-mode/edit-actions';
 import { editAwareContent } from '../../shared/edit-mode/edit-aware-content';

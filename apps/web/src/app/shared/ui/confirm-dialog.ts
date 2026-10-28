@@ -17,7 +17,7 @@ import { FieldLabel } from './field-label';
 import { Input } from './input';
 import { DialogActions } from './dialog-actions';
 import { DialogPanel } from './dialog-panel';
-import { WarningNote } from './warning-note';
+import { WarningNote } from '@b2b-catalog-platform/ui/content/warning-note';
 import { Hint } from './hint';
 
 /** One thing that happens because the answer was yes, offered as a tick. */

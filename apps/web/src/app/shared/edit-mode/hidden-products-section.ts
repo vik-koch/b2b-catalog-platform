@@ -20,7 +20,7 @@ import { ADMIN_TEXT } from '../config/admin-text';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { ConfirmService } from '../ui/confirm.service';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
-import { StatusBadge } from '../ui/status-badge';
+import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';
 import { EDIT_MODE_CATALOG } from './edit-mode-catalog';
 import { injectEditorReturnParams } from './editor-return';
 import { SHARED_TEXT } from '../config/shared-text';

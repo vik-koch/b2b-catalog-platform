@@ -23,9 +23,12 @@ import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { Input } from '../../shared/ui/input';
 import { Link } from '@b2b-catalog-platform/ui/actions/link';
-import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
+import {
+  StatusBadge,
+  StatusTone,
+} from '@b2b-catalog-platform/ui/content/status-badge';
 import { ErrorText } from '../../shared/ui/error-text';
-import { Notice } from '../../shared/ui/notice';
+import { Notice } from '@b2b-catalog-platform/ui/content/notice';
 
 /**
  * What a run would do, or did: the counts, the products, the categories and

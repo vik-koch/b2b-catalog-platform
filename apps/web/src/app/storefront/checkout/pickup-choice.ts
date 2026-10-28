@@ -1,7 +1,7 @@
 import { Component, inject, input, output } from '@angular/core';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
-import { EmphasisedText } from '../../shared/ui/emphasised-text';
+import { EmphasisedText } from '@b2b-catalog-platform/ui/content/emphasised-text';
 import { Radio } from '../../shared/ui/radio';
 import { TextButton } from '@b2b-catalog-platform/ui/actions/text-button';
 import { ErrorText } from '../../shared/ui/error-text';

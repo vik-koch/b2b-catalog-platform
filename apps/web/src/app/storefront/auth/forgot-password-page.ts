@@ -11,9 +11,9 @@ import { Input } from '../../shared/ui/input';
 import { AuthCard } from './auth-card';
 import { AuthService } from '../../shared/auth/auth.service';
 import { TextButton } from '@b2b-catalog-platform/ui/actions/text-button';
-import { PageTitle } from '../../shared/ui/page-title';
+import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
-import { PageIntro } from '../../shared/ui/page-intro';
+import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
 
 type Status = 'idle' | 'success' | 'error';
 

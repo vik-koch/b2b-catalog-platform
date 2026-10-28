@@ -27,7 +27,7 @@ import { presetFor, SYNC_PRESETS, SyncPresetName } from './sync-presets';
 import { SyncService } from './sync.service';
 import { ErrorText } from '../../shared/ui/error-text';
 import { uploadIcon } from '@b2b-catalog-platform/ui/icons/glyphs/upload';
-import { PageHeader } from '../../shared/ui/page-header';
+import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
 
 /**
  * A manual catalog upload (FR-ADM-02) at `/admin/sync/new`: pick what the file

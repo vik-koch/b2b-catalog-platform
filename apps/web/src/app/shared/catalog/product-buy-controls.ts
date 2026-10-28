@@ -36,7 +36,7 @@ import { ProductNoteEditor } from './product-note-editor';
 import { ProductPairings } from './product-pairings';
 import { ProductUnitFacts } from './product-unit-facts';
 import { useProductUnits } from './product-units-view';
-import { WarningNote } from '../ui/warning-note';
+import { WarningNote } from '@b2b-catalog-platform/ui/content/warning-note';
 import { FirstRender } from '../core/first-render';
 import { minusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/minus';
 import { plusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/plus';

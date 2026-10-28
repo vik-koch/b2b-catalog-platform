@@ -11,8 +11,8 @@ import { ProductImage } from '@b2b-catalog-platform/shared';
 import { swipeStep, touchX } from './swipe';
 import { STOREFRONT_TEXT } from '../config/storefront-text';
 import { ShowMoreToggle } from '../ui/show-more-toggle';
-import { ImagePlaceholder } from '../ui/image-placeholder';
-import { Frame } from '../ui/frame';
+import { ImagePlaceholder } from '@b2b-catalog-platform/ui/content/image-placeholder';
+import { Frame } from '@b2b-catalog-platform/ui/content/frame';
 
 /** Thumbnails a phone keeps before the show-more toggle takes over — one row
  * of the narrow grid. Which row that is has to be written into the class as a

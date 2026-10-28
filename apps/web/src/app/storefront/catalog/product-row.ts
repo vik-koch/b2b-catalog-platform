@@ -16,7 +16,7 @@ import {
 } from '../../shared/catalog/product-buy-controls';
 import { ProductStatusLine } from '../../shared/catalog/product-status-line';
 import { TileGallery } from '../../shared/catalog/tile-gallery';
-import { Frame } from '../../shared/ui/frame';
+import { Frame } from '@b2b-catalog-platform/ui/content/frame';
 
 /** The classes a list of product rows uses: hairlines between the lines, and
  * one above and below the run, so the list reads as a single block. */

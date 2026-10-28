@@ -1,5 +1,5 @@
 import { Component, input } from '@angular/core';
-import { Skeleton } from '../../shared/ui/skeleton';
+import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 
 /**
  * What an adjustment is about to change (FR-ORD-03) — the whole of it, and

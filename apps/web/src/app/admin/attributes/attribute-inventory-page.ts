@@ -18,8 +18,8 @@ import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Link } from '@b2b-catalog-platform/ui/actions/link';
 import { Input } from '../../shared/ui/input';
-import { HintBadge } from '../../shared/ui/hint-badge';
-import { Skeleton } from '../../shared/ui/skeleton';
+import { HintBadge } from '@b2b-catalog-platform/ui/content/hint-badge';
+import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import { ConfirmService } from '../../shared/ui/confirm.service';
 import { RecordRow } from '../../shared/ui/record-row';
 import { UnpublishedCount } from '../products/unpublished-count';
@@ -33,7 +33,7 @@ import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
 import { saveIcon } from '@b2b-catalog-platform/ui/icons/glyphs/save';
 import { triangleAlertIcon } from '@b2b-catalog-platform/ui/icons/glyphs/triangle-alert';
 import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
-import { PageHeader } from '../../shared/ui/page-header';
+import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
 
 /** What is being renamed: a key across the catalog, or one value under a key. */
 type RenameTarget =

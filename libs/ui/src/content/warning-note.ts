@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
-import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
-import { triangleAlertIcon } from '@b2b-catalog-platform/ui/icons/glyphs/triangle-alert';
+import { Icon } from '../icons/icon';
+import { triangleAlertIcon } from '../icons/glyphs/triangle-alert';
 
 /**
  * A remark to weigh before going on that refuses nothing: amber, with its own

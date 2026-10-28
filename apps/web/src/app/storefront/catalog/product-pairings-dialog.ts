@@ -18,11 +18,11 @@ import { delayedLoading } from '../../shared/core/delayed-loading';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { DialogActions } from '../../shared/ui/dialog-actions';
 import { DialogPanel } from '../../shared/ui/dialog-panel';
-import { Skeleton } from '../../shared/ui/skeleton';
+import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import { CatalogService } from './catalog.service';
 import { PairingsService } from '../../shared/catalog/pairings.service';
 import { PRODUCT_ROWS, ProductRow } from './product-row';
-import { WarningNote } from '../../shared/ui/warning-note';
+import { WarningNote } from '@b2b-catalog-platform/ui/content/warning-note';
 
 /**
  * What a sold-together marker opens (FR-SET-05): the counterparts as product

@@ -11,14 +11,14 @@ import { usePageSeo } from '../../shared/core/page-seo';
 import { stableValue } from '../../shared/core/stable-value';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { Pagination } from '../../shared/ui/pagination';
-import { EmptyState } from '../../shared/ui/empty-state';
-import { Skeleton } from '../../shared/ui/skeleton';
+import { EmptyState } from '@b2b-catalog-platform/ui/content/empty-state';
+import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { OrderRows } from './order-rows';
 import { OrdersService } from './orders.service';
-import { PageTitle } from '../../shared/ui/page-title';
+import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
-import { PageIntro } from '../../shared/ui/page-intro';
+import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
 import { shoppingBasketIcon } from '@b2b-catalog-platform/ui/icons/glyphs/shopping-basket';
 import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
 

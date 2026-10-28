@@ -5,7 +5,7 @@ import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { delayedLoading } from '../../shared/core/delayed-loading';
 import { usePageSeo } from '../../shared/core/page-seo';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
-import { Skeleton } from '../../shared/ui/skeleton';
+import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import { AddressFields } from '../../shared/addresses/address-fields';
 import { createAddressForm } from '../../shared/addresses/address-form';
 import {
@@ -14,9 +14,9 @@ import {
 } from '../../shared/addresses/addresses.service';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { FORM_FIELDS } from '../../shared/ui/form-fields';
-import { PageTitle } from '../../shared/ui/page-title';
+import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
-import { PageIntro } from '../../shared/ui/page-intro';
+import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
 
 type Status = 'idle' | 'submitting' | 'error';
 

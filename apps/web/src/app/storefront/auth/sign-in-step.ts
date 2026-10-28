@@ -12,8 +12,8 @@ import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { AuthService } from '../../shared/auth/auth.service';
 import { CallWait } from './call-wait';
 import { CodeEntry, formatWait } from './code-entry';
-import { PageTitle } from '../../shared/ui/page-title';
-import { PageIntro } from '../../shared/ui/page-intro';
+import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
+import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
 
 export { formatWait };
 

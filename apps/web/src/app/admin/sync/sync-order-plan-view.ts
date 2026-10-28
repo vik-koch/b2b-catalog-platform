@@ -8,7 +8,10 @@ import {
 } from '@b2b-catalog-platform/shared/sync';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { Link } from '@b2b-catalog-platform/ui/actions/link';
-import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
+import {
+  StatusBadge,
+  StatusTone,
+} from '@b2b-catalog-platform/ui/content/status-badge';
 
 /**
  * What an order run did (FR-ADM-08): the counts, the orders it answered, and

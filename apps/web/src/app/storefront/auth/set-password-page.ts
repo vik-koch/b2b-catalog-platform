@@ -23,10 +23,10 @@ import { TextButton } from '@b2b-catalog-platform/ui/actions/text-button';
 import { ConsentField } from '../pages/consent-field';
 import { useConsent } from '../pages/consent';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
-import { PageTitle } from '../../shared/ui/page-title';
+import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
 import { Hint } from '../../shared/ui/hint';
-import { PageIntro } from '../../shared/ui/page-intro';
+import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
 
 type Status =
   | 'checking'

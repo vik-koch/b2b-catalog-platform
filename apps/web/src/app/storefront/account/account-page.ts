@@ -25,11 +25,11 @@ import {
 } from '../../shared/ui/confirm.service';
 import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
-import { Skeleton } from '../../shared/ui/skeleton';
+import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import { ActionLink } from '@b2b-catalog-platform/ui/actions/action-link';
 import { WorkService } from '../../shared/work/work.service';
 import { AccountService } from './account.service';
-import { PageTitle } from '../../shared/ui/page-title';
+import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
 import { lockIcon } from '@b2b-catalog-platform/ui/icons/glyphs/lock';
 import { mapPinIcon } from '@b2b-catalog-platform/ui/icons/glyphs/map-pin';

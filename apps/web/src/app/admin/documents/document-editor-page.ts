@@ -25,7 +25,7 @@ import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { DateInput } from '../../shared/ui/date-input';
 import { Input } from '../../shared/ui/input';
-import { Skeleton } from '../../shared/ui/skeleton';
+import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import { injectEditorReturn } from '../../shared/edit-mode/editor-return';
 import { UnsavedChangesAware } from '../unsaved-changes.guard';
 import {
@@ -36,7 +36,7 @@ import { DropZone } from '../../shared/ui/drop-zone';
 import { FileTarget, pasteKeys } from '../../shared/ui/file-target';
 import { DocumentProductsPicker } from './document-products-picker';
 import { DocumentsService } from './documents.service';
-import { PageTitle } from '../../shared/ui/page-title';
+import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
 import { Hint } from '../../shared/ui/hint';
 import { externalLinkIcon } from '@b2b-catalog-platform/ui/icons/glyphs/external-link';

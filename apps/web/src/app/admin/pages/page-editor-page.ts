@@ -10,7 +10,7 @@ import { PageHistory } from './page-history';
 import { PageService } from '../../shared/pages/page.service';
 import { UnsavedChangesAware } from '../unsaved-changes.guard';
 import { injectEditorReturn } from '../../shared/edit-mode/editor-return';
-import { Skeleton } from '../../shared/ui/skeleton';
+import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 
 /**
  * Edit a static page (FR-ADM-03) on its own screen at

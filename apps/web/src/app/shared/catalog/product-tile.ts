@@ -10,7 +10,7 @@ import { ProductBuyControls } from './product-buy-controls';
 import { ProductStatusLine } from './product-status-line';
 import { ProductUnitFacts } from './product-unit-facts';
 import { ImagePriority, TileGallery } from './tile-gallery';
-import { Frame } from '../ui/frame';
+import { Frame } from '@b2b-catalog-platform/ui/content/frame';
 
 /**
  * The classes every grid of product cards uses.

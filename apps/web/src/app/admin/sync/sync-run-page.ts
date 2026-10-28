@@ -22,8 +22,11 @@ import { delayedLoading } from '../../shared/core/delayed-loading';
 import { usePageSeo } from '../../shared/core/page-seo';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { ConfirmService } from '../../shared/ui/confirm.service';
-import { Skeleton } from '../../shared/ui/skeleton';
-import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
+import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
+import {
+  StatusBadge,
+  StatusTone,
+} from '@b2b-catalog-platform/ui/content/status-badge';
 import { adminDayFormat } from '../dates/admin-date';
 import { SyncCustomerPlanView } from './sync-customer-plan-view';
 import { SyncOrderPlanView } from './sync-order-plan-view';
@@ -32,8 +35,8 @@ import { LockedNote } from '../ownership/locked-note';
 import { SettingsService } from '../settings/settings.service';
 import { SyncService } from './sync.service';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
-import { PageTitle } from '../../shared/ui/page-title';
-import { Notice } from '../../shared/ui/notice';
+import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
+import { Notice } from '@b2b-catalog-platform/ui/content/notice';
 
 /** Whatever diff this run holds, or none: pruned, or never taken. */
 type AreaPlan = CatalogSyncPlan | CustomerSyncPlan | OrderSyncPlan | null;

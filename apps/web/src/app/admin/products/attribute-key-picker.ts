@@ -15,7 +15,7 @@ import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { Checkbox } from '../../shared/ui/checkbox';
 import { DialogActions } from '../../shared/ui/dialog-actions';
 import { DialogPanel } from '../../shared/ui/dialog-panel';
-import { HintBadge } from '../../shared/ui/hint-badge';
+import { HintBadge } from '@b2b-catalog-platform/ui/content/hint-badge';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { AttributeHint } from './attribute-hints';
 import { SHARED_TEXT } from '../../shared/config/shared-text';

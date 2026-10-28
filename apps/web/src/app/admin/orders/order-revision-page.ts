@@ -27,13 +27,16 @@ import {
   orderDateTimeFormat,
 } from '../../shared/orders/order-view';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
-import { Skeleton } from '../../shared/ui/skeleton';
-import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
+import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
+import {
+  StatusBadge,
+  StatusTone,
+} from '@b2b-catalog-platform/ui/content/status-badge';
 import { AdminOrdersService } from './orders.service';
 import { SettingsService } from '../settings/settings.service';
 import { OrderDocumentsPanel } from './order-documents-panel';
 import { revisionKindLabel } from './revision-labels';
-import { PageTitle } from '../../shared/ui/page-title';
+import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
 
 /**
  * One version of an order, read back (FR-ORD-03, ADR 0051).
