@@ -21,7 +21,7 @@ import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { delayedLoading } from '../../shared/core/delayed-loading';
 import { usePageSeo } from '../../shared/core/page-seo';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
-import { ConfirmService } from '../../shared/ui/confirm.service';
+import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
 import { DisclosureToggle } from '@b2b-catalog-platform/ui/disclosure/disclosure-toggle';
 import { DisclosureFrame } from '@b2b-catalog-platform/ui/disclosure/disclosure-frame';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';

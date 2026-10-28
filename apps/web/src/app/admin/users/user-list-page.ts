@@ -26,7 +26,7 @@ import { usePageSeo } from '../../shared/core/page-seo';
 import { delayedLoading } from '../../shared/core/delayed-loading';
 import { stableValue } from '../../shared/core/stable-value';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
-import { ConfirmService } from '../../shared/ui/confirm.service';
+import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import { DataGrid } from '../../shared/ui/grid/data-grid';

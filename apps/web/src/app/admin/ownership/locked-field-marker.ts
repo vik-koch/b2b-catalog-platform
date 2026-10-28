@@ -1,7 +1,7 @@
 import { Component, computed, input, signal } from '@angular/core';
 import { type FieldTree } from '@angular/forms/signals';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
-import { Popover } from '../../shared/ui/popover';
+import { Popover } from '@b2b-catalog-platform/ui/overlay/popover';
 import { lockIcon } from '@b2b-catalog-platform/ui/icons/glyphs/lock';
 
 /**

@@ -8,7 +8,7 @@ import { ADMIN_TEXT } from '../config/admin-text';
 import { defaultStorefrontText } from '../config/storefront-text.fixture';
 import { defaultAdminText } from '../config/admin-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
-import { ConfirmService } from '../ui/confirm.service';
+import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
 import { EDIT_MODE_CATALOG, EditModeCatalog } from './edit-mode-catalog';
 import { productListItem } from '../catalog/product.fixture';
 import { HiddenProductsSection } from './hidden-products-section';

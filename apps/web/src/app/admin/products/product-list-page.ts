@@ -32,7 +32,7 @@ import { Link } from '@b2b-catalog-platform/ui/actions/link';
 import {
   confirmRequest,
   ConfirmService,
-} from '../../shared/ui/confirm.service';
+} from '@b2b-catalog-platform/ui/overlay/confirm.service';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import {

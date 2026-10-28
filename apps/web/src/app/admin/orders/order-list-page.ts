@@ -53,7 +53,7 @@ import { injectEditorReturnParams } from '../../shared/edit-mode/editor-return';
 import {
   ConfirmService,
   confirmRequest,
-} from '../../shared/ui/confirm.service';
+} from '@b2b-catalog-platform/ui/overlay/confirm.service';
 import { SettingsService } from '../settings/settings.service';
 import { OrderRowActions } from './order-row-actions';
 import { AdminOrdersService, StaffOrderSummary } from './orders.service';

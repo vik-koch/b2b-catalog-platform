@@ -27,7 +27,7 @@ import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
 import {
   ConfirmService,
   confirmRequest,
-} from '../../shared/ui/confirm.service';
+} from '@b2b-catalog-platform/ui/overlay/confirm.service';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { adminDayFormat } from '../dates/admin-date';
 import { AdminOrdersService } from './orders.service';

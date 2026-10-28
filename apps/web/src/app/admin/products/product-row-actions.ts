@@ -1,7 +1,7 @@
 import { Component, computed, inject, input, output } from '@angular/core';
 import { Params, RouterLink } from '@angular/router';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
-import { ConfirmService } from '../../shared/ui/confirm.service';
+import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
 import { SettingsService } from '../settings/settings.service';

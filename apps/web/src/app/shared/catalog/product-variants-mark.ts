@@ -17,11 +17,11 @@ import { STOREFRONT_TEXT } from '../config/storefront-text';
 import { SHARED_TEXT } from '../config/shared-text';
 import { injectNarrowScreen } from '@b2b-catalog-platform/ui/core/narrow-screen';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
-import { DialogActions } from '../ui/dialog-actions';
-import { DialogPanel } from '../ui/dialog-panel';
+import { DialogActions } from '@b2b-catalog-platform/ui/overlay/dialog-actions';
+import { DialogPanel } from '@b2b-catalog-platform/ui/overlay/dialog-panel';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Link } from '@b2b-catalog-platform/ui/actions/link';
-import { Popover } from '../ui/popover';
+import { Popover } from '@b2b-catalog-platform/ui/overlay/popover';
 import { ProductVariantGallery } from './product-variant-gallery';
 import { paletteIcon } from '@b2b-catalog-platform/ui/icons/glyphs/palette';
 

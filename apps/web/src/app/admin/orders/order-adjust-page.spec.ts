@@ -15,7 +15,7 @@ import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { defaultStorefrontText } from '../../shared/config/storefront-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { defaultDeploymentConfig } from '../../shared/config/deployment-config.fixture';
-import { ConfirmService } from '../../shared/ui/confirm.service';
+import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
 import { TiersService } from '../tiers/tiers.service';
 import { AdminOrderAdjustPage } from './order-adjust-page';
 import { AdminOrdersService } from './orders.service';

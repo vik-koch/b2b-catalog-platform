@@ -40,7 +40,7 @@ import { stableValue } from '../../shared/core/stable-value';
 import { LoadErrorView } from '../pages/load-error-view';
 import { NotFoundView } from '../pages/not-found-view';
 import { Pagination } from '../../shared/ui/pagination';
-import { ConfirmService } from '../../shared/ui/confirm.service';
+import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
 import { disclosureState } from '@b2b-catalog-platform/ui/disclosure/disclosure-state';
 import { ShowMoreToggle } from '@b2b-catalog-platform/ui/disclosure/show-more-toggle';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';

@@ -28,7 +28,7 @@ import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Link } from '@b2b-catalog-platform/ui/actions/link';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
-import { ConfirmService } from '../../shared/ui/confirm.service';
+import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
 import { injectEditorReturn } from '../../shared/edit-mode/editor-return';
 import { UnpublishedCount } from '../products/unpublished-count';
 import { RecordRow } from '../../shared/ui/record-row';

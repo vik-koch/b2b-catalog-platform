@@ -33,7 +33,7 @@ import { Input } from '@b2b-catalog-platform/ui/inputs/input';
 import {
   confirmRequest,
   ConfirmService,
-} from '../../shared/ui/confirm.service';
+} from '@b2b-catalog-platform/ui/overlay/confirm.service';
 import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { LastListingService } from '../catalog/last-listing.service';

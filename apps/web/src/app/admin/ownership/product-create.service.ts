@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { Params, Router } from '@angular/router';
 import { adminText } from '../../shared/config/admin-text';
-import { ConfirmService } from '../../shared/ui/confirm.service';
+import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
 import { SettingsService } from '../settings/settings.service';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 

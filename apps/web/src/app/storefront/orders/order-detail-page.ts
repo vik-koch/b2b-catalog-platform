@@ -27,7 +27,7 @@ import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import {
   confirmRequest,
   ConfirmService,
-} from '../../shared/ui/confirm.service';
+} from '@b2b-catalog-platform/ui/overlay/confirm.service';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import {
   StatusBadge,

@@ -16,7 +16,7 @@ import { plainUser } from '../../shared/auth/auth-user.fixture';
 import { AccountPage } from './account-page';
 import { AddressesService } from '../../shared/addresses/addresses.service';
 import { OrdersService } from '../orders/orders.service';
-import { ConfirmService } from '../../shared/ui/confirm.service';
+import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
 import { AccountService } from './account.service';
 
 const text = defaultStorefrontText.auth;

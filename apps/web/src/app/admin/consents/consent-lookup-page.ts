@@ -35,7 +35,7 @@ import {
   Segmented,
   SegmentOption,
 } from '@b2b-catalog-platform/ui/choices/segmented';
-import { ConfirmService } from '../../shared/ui/confirm.service';
+import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import { adminDayFormat } from '../dates/admin-date';
 import { ConsentRecordList } from './consent-record-list';

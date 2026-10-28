@@ -27,7 +27,7 @@ import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { ButtonBox } from '@b2b-catalog-platform/ui/actions/button-box';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Input } from '@b2b-catalog-platform/ui/inputs/input';
-import { Popover } from '../ui/popover';
+import { Popover } from '@b2b-catalog-platform/ui/overlay/popover';
 import {
   Segment,
   type SegmentState,

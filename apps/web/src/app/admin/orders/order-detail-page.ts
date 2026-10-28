@@ -46,11 +46,11 @@ import {
 } from '../../shared/orders/order-status';
 import { orderDateTimeFormat } from '../../shared/orders/order-view';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
-import { ConfirmCheck } from '../../shared/ui/confirm-dialog';
+import { ConfirmCheck } from '@b2b-catalog-platform/ui/overlay/confirm-dialog';
 import {
   ConfirmService,
   confirmRequest,
-} from '../../shared/ui/confirm.service';
+} from '@b2b-catalog-platform/ui/overlay/confirm.service';
 import { AuthService } from '../../shared/auth/auth.service';
 import { DisclosureToggle } from '@b2b-catalog-platform/ui/disclosure/disclosure-toggle';
 import { DisclosureFrame } from '@b2b-catalog-platform/ui/disclosure/disclosure-frame';

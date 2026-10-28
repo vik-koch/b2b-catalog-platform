@@ -10,7 +10,7 @@ import {
 import { Router } from '@angular/router';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
-import { DialogPanel } from '../../shared/ui/dialog-panel';
+import { DialogPanel } from '@b2b-catalog-platform/ui/overlay/dialog-panel';
 import { AuthService } from '../../shared/auth/auth.service';
 import { ChangePasswordForm } from './change-password-form';
 

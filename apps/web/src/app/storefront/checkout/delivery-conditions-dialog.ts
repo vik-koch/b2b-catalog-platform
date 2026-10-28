@@ -10,7 +10,7 @@ import { RouterLink } from '@angular/router';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
-import { DialogPanel } from '../../shared/ui/dialog-panel';
+import { DialogPanel } from '@b2b-catalog-platform/ui/overlay/dialog-panel';
 import { TextButton } from '@b2b-catalog-platform/ui/actions/text-button';
 import { DeliveryZoneList } from './delivery-zone-list';
 import { SHARED_TEXT } from '../../shared/config/shared-text';

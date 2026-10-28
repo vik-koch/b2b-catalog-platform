@@ -18,7 +18,7 @@ import { PricePipe } from '../catalog/price.pipe';
 import { PRODUCT_GRID } from '../catalog/product-tile';
 import { ADMIN_TEXT } from '../config/admin-text';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
-import { ConfirmService } from '../ui/confirm.service';
+import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';
 import { EDIT_MODE_CATALOG } from './edit-mode-catalog';

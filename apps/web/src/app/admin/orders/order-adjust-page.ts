@@ -60,7 +60,7 @@ import { TickLabel } from '@b2b-catalog-platform/ui/choices/tick-label';
 import {
   ConfirmService,
   confirmRequest,
-} from '../../shared/ui/confirm.service';
+} from '@b2b-catalog-platform/ui/overlay/confirm.service';
 import { DisclosureToggle } from '@b2b-catalog-platform/ui/disclosure/disclosure-toggle';
 import { DisclosureFrame } from '@b2b-catalog-platform/ui/disclosure/disclosure-frame';
 import {

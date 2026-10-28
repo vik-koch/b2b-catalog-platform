@@ -5,7 +5,7 @@ import { TestBed } from '@angular/core/testing';
 import { ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
 import { ADMIN_TEXT } from '../shared/config/admin-text';
 import { defaultAdminText } from '../shared/config/admin-text.fixture';
-import { ConfirmService } from '../shared/ui/confirm.service';
+import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
 import {
   unsavedChangesGuard,
   UnsavedChangesAware,

@@ -9,16 +9,16 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import { Button } from '@b2b-catalog-platform/ui/actions/button';
-import { Checkbox } from '@b2b-catalog-platform/ui/choices/checkbox';
-import { TickLabel } from '@b2b-catalog-platform/ui/choices/tick-label';
-import { AutoGrow } from '@b2b-catalog-platform/ui/inputs/auto-grow';
-import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
-import { Input } from '@b2b-catalog-platform/ui/inputs/input';
+import { Button } from '../actions/button';
+import { Checkbox } from '../choices/checkbox';
+import { TickLabel } from '../choices/tick-label';
+import { AutoGrow } from '../inputs/auto-grow';
+import { FieldLabel } from '../fields/field-label';
+import { Input } from '../inputs/input';
 import { DialogActions } from './dialog-actions';
 import { DialogPanel } from './dialog-panel';
-import { WarningNote } from '@b2b-catalog-platform/ui/content/warning-note';
-import { Hint } from '@b2b-catalog-platform/ui/fields/hint';
+import { WarningNote } from '../content/warning-note';
+import { Hint } from '../fields/hint';
 
 /** One thing that happens because the answer was yes, offered as a tick. */
 export interface ConfirmCheck {

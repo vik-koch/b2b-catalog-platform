@@ -25,7 +25,7 @@ import { filled } from '../../shared/core/field-rules';
 import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
 import { submitAttempt } from '@b2b-catalog-platform/ui/fields/submit-attempt';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
-import { ConfirmService } from '../../shared/ui/confirm.service';
+import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
 import { RecordFields } from '../../shared/ui/record-fields';
 import { RecordFormActions } from '../../shared/ui/record-form-actions';
 import { RecordRow } from '../../shared/ui/record-row';

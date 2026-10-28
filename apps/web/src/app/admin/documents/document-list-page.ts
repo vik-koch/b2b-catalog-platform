@@ -24,7 +24,7 @@ import { delayedLoading } from '../../shared/core/delayed-loading';
 import { AlternateLayout } from '../../shared/core/alternate-layout';
 import { usePageSeo } from '../../shared/core/page-seo';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
-import { ConfirmService } from '../../shared/ui/confirm.service';
+import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
 import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
 import { Link } from '@b2b-catalog-platform/ui/actions/link';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';

@@ -27,7 +27,7 @@ import { NotFoundView } from '../pages/not-found-view';
 import {
   confirmRequest,
   ConfirmService,
-} from '../../shared/ui/confirm.service';
+} from '@b2b-catalog-platform/ui/overlay/confirm.service';
 import { CatalogService } from './catalog.service';
 import {
   PRODUCT_PAGE_COLUMNS,

@@ -22,7 +22,7 @@ import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import {
   confirmRequest,
   ConfirmService,
-} from '../../shared/ui/confirm.service';
+} from '@b2b-catalog-platform/ui/overlay/confirm.service';
 import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
