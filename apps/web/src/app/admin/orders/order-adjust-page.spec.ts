@@ -19,6 +19,7 @@ import { ConfirmService } from '../../shared/ui/confirm.service';
 import { TiersService } from '../tiers/tiers.service';
 import { AdminOrderAdjustPage } from './order-adjust-page';
 import { AdminOrdersService } from './orders.service';
+import { provideDigitMaskFormat } from '../../shared/core/contact-fields';
 
 const text = defaultAdminText.orders.adjust;
 const names = defaultSharedText.order;
@@ -153,6 +154,7 @@ function render(
   TestBed.configureTestingModule({
     imports: [AdminOrderAdjustPage],
     providers: [
+      provideDigitMaskFormat(),
       provideRouter([]),
       { provide: ADMIN_TEXT, useValue: defaultAdminText },
       { provide: SHARED_TEXT, useValue: defaultSharedText },

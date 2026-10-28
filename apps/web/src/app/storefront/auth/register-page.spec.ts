@@ -11,6 +11,7 @@ import { PageService } from '../../shared/pages/page.service';
 import { PartiesService } from '../../shared/parties/parties.service';
 import { AuthService } from '../../shared/auth/auth.service';
 import { RegisterPage } from './register-page';
+import { provideDigitMaskFormat } from '../../shared/core/contact-fields';
 
 const text = defaultStorefrontText.auth.register;
 
@@ -77,6 +78,7 @@ async function render(
   TestBed.configureTestingModule({
     imports: [RegisterPage],
     providers: [
+      provideDigitMaskFormat(),
       provideRouter([]),
       { provide: PartiesService, useValue: { suggest } },
       { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },

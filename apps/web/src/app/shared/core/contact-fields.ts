@@ -1,3 +1,7 @@
+import { Provider } from '@angular/core';
+import { applyMask, stripDialPrefix } from '@b2b-catalog-platform/shared';
+import { DIGIT_MASK_FORMAT } from '../ui/digit-mask-format';
+
 /**
  * A phone number in both directions. It is stored in one canonical form
  * (`+49401234501`) while being *entered* in two parts: a fixed prefix the form
@@ -16,3 +20,11 @@ export {
   formatPhone,
   typedPhone,
 } from '@b2b-catalog-platform/shared';
+
+/** The masks' grouping rule for DigitMask, the one the API formats with. */
+export function provideDigitMaskFormat(): Provider {
+  return {
+    provide: DIGIT_MASK_FORMAT,
+    useValue: { apply: applyMask, stripPrefix: stripDialPrefix },
+  };
+}

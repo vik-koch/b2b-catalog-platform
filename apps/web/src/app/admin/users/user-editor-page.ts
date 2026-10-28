@@ -262,7 +262,11 @@ interface UserDraft {
               [label]="fields.phone.label"
               controlId="phone"
             >
-              <app-phone-input [field]="form.phone" autocomplete="off" />
+              <app-phone-input
+                [field]="form.phone"
+                [phone]="phoneInput"
+                autocomplete="off"
+              />
             </app-field>
 
             @if (isCustomer()) {
@@ -464,7 +468,7 @@ export class UserEditorPage implements UnsavedChangesAware {
     this.tiers().filter((t) => !t.isDefault),
   );
 
-  private readonly phoneInput = this.config.phoneInput;
+  protected readonly phoneInput = this.config.phoneInput;
   private readonly companyIdInput = this.config.companyIdInput;
 
   protected readonly companyText = {

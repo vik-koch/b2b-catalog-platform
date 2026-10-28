@@ -37,6 +37,7 @@ import {
   splitAttributeKey,
   totalMinor,
   moneyFormat,
+  isPartialTaxRate,
 } from '@b2b-catalog-platform/shared';
 import {
   AdminCategory,
@@ -57,8 +58,10 @@ import {
   decimalSeparator,
   formatPriceInput,
   parsePriceInput,
+  partialPriceRule,
 } from '../../shared/catalog/price';
 import { LockedNote } from '../ownership/locked-note';
+import { Allow } from '../../shared/ui/allow';
 import { StatusBadge } from '../../shared/ui/status-badge';
 import { LockedFieldMarker } from '../ownership/locked-field-marker';
 import { SettingsService } from '../settings/settings.service';
@@ -84,8 +87,6 @@ import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { PRODUCT_FEATURE_GLYPHS } from './product-feature-glyphs';
 import { Input } from '../../shared/ui/input';
 import { NumericField } from '../../shared/ui/numeric-field';
-import { PercentField } from '../../shared/ui/percent-field';
-import { PriceField } from '../../shared/ui/price-field';
 import { Skeleton } from '../../shared/ui/skeleton';
 import { AdminCatalogService } from '../admin-catalog.service';
 import { AttributesService } from '../attributes/attributes.service';
@@ -154,7 +155,7 @@ interface ProductDraft {
     Icon,
     RichTextEditor,
     NumericField,
-    PercentField,
+    Allow,
     ProductAvailabilityBadge,
     CategoryPicker,
     ProductAttributesEditor,
@@ -171,7 +172,6 @@ interface ProductDraft {
     TickLabel,
     FieldLabel,
     Input,
-    PriceField,
     Skeleton,
     UnitField,
     LockedFieldMarker,
@@ -292,7 +292,7 @@ interface ProductDraft {
               <input
                 type="text"
                 inputmode="decimal"
-                appPriceField
+                [appAllow]="partialPrice"
                 appUnitFieldInput
                 [placeholder]="pricePlaceholder"
                 [formField]="form.price"
@@ -315,7 +315,8 @@ interface ProductDraft {
             <app-unit-field class="w-full" unit="%" [compact]="true">
               <input
                 type="text"
-                appPercentField
+                inputmode="decimal"
+                [appAllow]="isPartialTaxRate"
                 appUnitFieldInput
                 [placeholder]="taxRatePlaceholder"
                 [formField]="form.taxRate"
@@ -900,6 +901,8 @@ export class ProductEditorPage implements UnsavedChangesAware, FieldAttempt {
       ? (this.form.packaging().errors()[0]?.message ?? null)
       : null,
   );
+  protected readonly isPartialTaxRate = isPartialTaxRate;
+  protected readonly partialPrice = partialPriceRule(this.currency);
   /** The default rate, shown in the empty field. */
   protected readonly taxRatePlaceholder =
     this.tax.basis === 'none' ? '' : formatTaxRate(this.tax.rate, this.locale);

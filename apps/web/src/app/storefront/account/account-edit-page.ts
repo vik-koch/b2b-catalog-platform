@@ -112,7 +112,7 @@ type Status = 'idle' | 'submitting' | 'error';
               [label]="fields.phone.label"
               controlId="phone"
             >
-              <app-phone-input [field]="form.phone" />
+              <app-phone-input [field]="form.phone" [phone]="phoneInput" />
             </app-field>
           }
 
@@ -150,7 +150,7 @@ export class AccountEditPage {
   protected readonly accountText = inject(STOREFRONT_TEXT).account;
   protected readonly fields = inject(SHARED_TEXT).fields;
   protected readonly actionText = inject(SHARED_TEXT).actions;
-  private readonly phoneInput = inject(DEPLOYMENT_CONFIG).phoneInput;
+  protected readonly phoneInput = inject(DEPLOYMENT_CONFIG).phoneInput;
   protected readonly status = signal<Status>('idle');
 
   protected readonly profile = resource({

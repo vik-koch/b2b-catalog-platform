@@ -14,7 +14,7 @@ import {
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
-import { currencySymbol } from '../../shared/catalog/price';
+import { currencySymbol, partialPriceRule } from '../../shared/catalog/price';
 import { HighlightedLine } from '../../shared/ui/highlighted-line';
 import { MatchSegmentsPipe } from '../../shared/catalog/match-segments.pipe';
 import { AlternateLayout } from '../../shared/core/alternate-layout';
@@ -25,7 +25,7 @@ import { IconButton } from '../../shared/ui/icon-button';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Input } from '../../shared/ui/input';
 import { Skeleton } from '../../shared/ui/skeleton';
-import { PriceField } from '../../shared/ui/price-field';
+import { Allow } from '../../shared/ui/allow';
 import { StatusBadge } from '../../shared/ui/status-badge';
 import { SuggestField } from '../../shared/ui/suggest-field';
 import { SuggestInput } from '../../shared/ui/suggest-input';
@@ -93,7 +93,7 @@ export interface AdjustLineRow {
     MatchSegmentsPipe,
     IconButton,
     Input,
-    PriceField,
+    Allow,
     Skeleton,
     StatusBadge,
     SuggestField,
@@ -140,7 +140,7 @@ export interface AdjustLineRow {
             </app-unit-field>
             <app-unit-field class="w-28" [unit]="priceSuffix()">
               <input
-                appPriceField
+                [appAllow]="partialPrice"
                 appUnitFieldInput
                 type="text"
                 inputmode="decimal"
@@ -287,6 +287,7 @@ export class OrderAdjustLines {
   protected readonly pieceUnit = inject(SHARED_TEXT).units.piece;
   private readonly availability = inject(SHARED_TEXT).product.availability;
   private readonly currency = moneyFormat(inject(DEPLOYMENT_CONFIG));
+  protected readonly partialPrice = partialPriceRule(this.currency);
   protected readonly id = `adjust-lines-${++nextId}`;
   /** The field's label names the list: the panel is the search's answer. */
   protected readonly suggestText = {

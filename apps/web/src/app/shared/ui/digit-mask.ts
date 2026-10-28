@@ -9,19 +9,15 @@ import {
   untracked,
 } from '@angular/core';
 import { type FormValueControl } from '@angular/forms/signals';
-import { applyMask, stripDialPrefix } from '@b2b-catalog-platform/shared';
+import { DIGIT_MASK_FORMAT } from './digit-mask-format';
 
 /**
- * Formats a digit-only field as it is typed, per a mask where `#` is a digit
- * and anything else a separator (`(###) ###-####`); an empty mask is digits
- * only. The value is the typed part: a fixed prefix such as a country code is
- * the form's, and one arriving inside the value (a browser autofilling a full
- * international number) is taken off, or it would be stored twice.
- *
- * The mask may change under a live field, so it is watched: what is on screen
- * regroups at once, and the value follows. A custom control for `[formField]`,
- * so `disabled`, `required` and `name` are said here. It reformats on input
- * and leaves the caret at the end, which suits a short, append-mostly field.
+ * Groups a digit field as it is typed, by DIGIT_MASK_FORMAT. The value is the
+ * typed part: a `prefix` arriving inside it (autofill) is taken off, or it is
+ * stored twice. A changed mask regroups at once and the value follows. A
+ * custom control for `[formField]`, so `disabled`, `required` and `name` are
+ * said here. The caret ends up at the end: fine for a short, append-mostly
+ * field.
  */
 @Directive({
   selector: 'input[appDigitMask]',
@@ -44,14 +40,11 @@ export class DigitMask implements FormValueControl<string> {
   readonly name = input('');
   readonly touch = output<void>();
 
+  private readonly rule = inject(DIGIT_MASK_FORMAT);
   private readonly el =
     inject<ElementRef<HTMLInputElement>>(ElementRef).nativeElement;
-  /**
-   * The last value this field was given, before any mask was applied to it —
-   * what the form wrote, or what was typed. The screen is not that source: a
-   * mask can only ever remove digits, so re-reading the input to re-format it
-   * would keep whatever the previous mask had already dropped.
-   */
+  /** The last value given, unmasked. Never the screen: a mask only drops
+   * digits, so re-reading it keeps what the previous mask dropped. */
   private source = '';
   /** What this field last wrote itself, so its own write is not read back
    * as one from the form. */
@@ -59,9 +52,8 @@ export class DigitMask implements FormValueControl<string> {
   private lastMask: string | null = null;
 
   constructor() {
-    // One effect for both: a form that sets the value and the format together
-    // (a whole address, country and postal code) delivers them in one pass,
-    // and two effects would each find the other's half already on screen.
+    // One effect for both: a form setting value and mask together delivers
+    // them in one pass, and two effects would each see half on screen.
     effect(() => {
       const value = this.value();
       const mask = this.mask();
@@ -72,14 +64,12 @@ export class DigitMask implements FormValueControl<string> {
           this.written = null;
           this.source = this.stripPrefix(value);
         }
-        const formatted = applyMask(this.source, mask);
+        const formatted = this.rule.apply(this.source, mask);
         if (formatted !== this.el.value) this.el.value = formatted;
         const maskChanged = this.lastMask !== null && mask !== this.lastMask;
         this.lastMask = mask;
-        // A value from the form is left as it is under the mask it came with.
-        // A changed mask pushes what it shows: one that takes fewer digits
-        // drops some, and a value the visitor can no longer see must not
-        // still be saved.
+        // A form's value stays as given; a changed mask pushes what it shows,
+        // since digits it dropped must not still be saved.
         if (maskChanged && formatted !== value) this.write(formatted);
       });
     });
@@ -100,11 +90,11 @@ export class DigitMask implements FormValueControl<string> {
   }
 
   private format(value: string): string {
-    return applyMask(value, this.mask());
+    return this.rule.apply(value, this.mask());
   }
 
   private stripPrefix(value: string): string {
     const prefix = this.prefix();
-    return prefix ? stripDialPrefix(value, prefix) : value;
+    return prefix ? this.rule.stripPrefix(value, prefix) : value;
   }
 }

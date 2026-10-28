@@ -13,6 +13,7 @@ import { defaultDeploymentConfig } from '../../shared/config/deployment-config.f
 import { AuthService } from '../../shared/auth/auth.service';
 import { AccountEditPage } from './account-edit-page';
 import { AccountService } from './account.service';
+import { provideDigitMaskFormat } from '../../shared/core/contact-fields';
 
 const text = defaultStorefrontText.account.edit;
 const config = defaultDeploymentConfig;
@@ -47,6 +48,7 @@ async function render(
   TestBed.configureTestingModule({
     imports: [AccountEditPage],
     providers: [
+      provideDigitMaskFormat(),
       // A real /account route, so the redirect after a save has somewhere to go.
       provideRouter([{ path: 'account', children: [] }]),
       { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },

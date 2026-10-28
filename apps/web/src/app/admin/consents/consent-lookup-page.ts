@@ -102,7 +102,11 @@ interface ConsentSearch {
             [label]="text.byPhone"
             controlId="phone"
           >
-            <app-phone-input [field]="form.phone" autocomplete="off" />
+            <app-phone-input
+              [field]="form.phone"
+              [phone]="phoneInput"
+              autocomplete="off"
+            />
           </app-field>
         }
         <button appButton type="submit">{{ text.search }}</button>
@@ -138,7 +142,7 @@ export class ConsentLookupPage {
   /** Why the last withdrawal was not saved, until the next one is tried. */
   protected readonly withdrawError = signal<string | null>(null);
   private readonly router = inject(Router);
-  private readonly phoneInput = inject(DEPLOYMENT_CONFIG).phoneInput;
+  protected readonly phoneInput = inject(DEPLOYMENT_CONFIG).phoneInput;
 
   protected readonly text = inject(ADMIN_TEXT).consents;
   private readonly adminText = inject(ADMIN_TEXT);

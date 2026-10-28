@@ -106,7 +106,7 @@ import { ContactAnswers, PartyAnswers } from './checkout-forms';
           [label]="fields.phone.label"
           controlId="contact-phone"
         >
-          <app-phone-input [field]="contact().phone" />
+          <app-phone-input [field]="contact().phone" [phone]="phoneInput" />
         </app-field>
 
         <p class="text-sm text-ink-subtle">{{ text.note }}</p>
@@ -119,6 +119,7 @@ export class GuestDetails {
   protected readonly fields = inject(SHARED_TEXT).fields;
   protected readonly text = inject(STOREFRONT_TEXT).checkout.contact;
   private readonly partyChoice = inject(STOREFRONT_TEXT).partyChoice;
+  protected readonly phoneInput = inject(DEPLOYMENT_CONFIG).phoneInput;
   /** Typed as the whole choice, not just these two: the pill hands back
    * what the page holds, and the page also knows about the account. */
   protected readonly kinds: readonly SegmentOption<Party>[] = inject(

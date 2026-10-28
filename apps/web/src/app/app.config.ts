@@ -25,6 +25,7 @@ import { provideStorefrontText } from './shared/config/storefront-text';
 import { provideSharedText } from './shared/config/shared-text';
 import { provideDeploymentConfig } from './shared/config/deployment-config';
 import { provideSuggestionsEnabled } from './shared/config/suggestions-enabled';
+import { provideDigitMaskFormat } from './shared/core/contact-fields';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -59,6 +60,7 @@ export const appConfig: ApplicationConfig = {
     provideStorefrontText(),
     provideSharedText(),
     provideSuggestionsEnabled(),
+    provideDigitMaskFormat(),
     provideEditModeCatalog(),
     // Nothing injects it, and it has to run wherever the visitor happens to
     // be: a cart priced for somebody else is corrected as the session changes,

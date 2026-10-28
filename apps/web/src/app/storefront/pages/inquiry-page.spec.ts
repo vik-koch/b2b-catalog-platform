@@ -10,6 +10,7 @@ import { defaultDeploymentConfig } from '../../shared/config/deployment-config.f
 import { InquiryPage } from './inquiry-page';
 import { InquiryService } from './inquiry.service';
 import { PageService } from '../../shared/pages/page.service';
+import { provideDigitMaskFormat } from '../../shared/core/contact-fields';
 
 const text = defaultStorefrontText.inquiry;
 const consentText = defaultStorefrontText.consentBox;
@@ -64,6 +65,7 @@ async function render(
   TestBed.configureTestingModule({
     imports: [InquiryPage],
     providers: [
+      provideDigitMaskFormat(),
       provideRouter([]),
       { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
       { provide: SHARED_TEXT, useValue: defaultSharedText },

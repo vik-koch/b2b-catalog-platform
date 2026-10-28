@@ -10,6 +10,7 @@ import { defaultDeploymentConfig } from '../../shared/config/deployment-config.f
 import { ConfirmService } from '../../shared/ui/confirm.service';
 import { ConsentLookupPage } from './consent-lookup-page';
 import { ConsentsService } from './consents.service';
+import { provideDigitMaskFormat } from '../../shared/core/contact-fields';
 
 const text = defaultAdminText.consents;
 
@@ -73,6 +74,7 @@ async function render(
   TestBed.configureTestingModule({
     imports: [ConsentLookupPage],
     providers: [
+      provideDigitMaskFormat(),
       provideRouter([]),
       { provide: ADMIN_TEXT, useValue: defaultAdminText },
       { provide: SHARED_TEXT, useValue: defaultSharedText },

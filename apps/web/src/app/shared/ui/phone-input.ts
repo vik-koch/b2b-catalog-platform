@@ -1,18 +1,21 @@
-import { Component, inject, input } from '@angular/core';
+import { Component, input } from '@angular/core';
 import { FormField, type FieldTree } from '@angular/forms/signals';
-import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { DigitMask } from './digit-mask';
 import { FieldBinding } from './field-binding';
 import { FieldPrefix } from './field-prefix';
 import { Input } from './input';
 
+export interface PhoneMask {
+  readonly countryCode: string;
+  readonly mask?: string;
+}
+
 /**
- * The phone control inside a Field: the deployment's country code beside its
- * digit mask. A deployment with no `phoneInput` gets a plain text field, since
- * with no country code there is no national part to mask.
+ * The phone control inside a Field: a country code beside a digit mask. With
+ * no `phone` it is a plain text field: no code, no national part to mask.
  *
  *   <app-field [field]="form.phone" [label]="text.phone">
- *     <app-phone-input [field]="form.phone" />
+ *     <app-phone-input [field]="form.phone" [phone]="phoneInput" />
  *   </app-field>
  */
 @Component({
@@ -20,7 +23,7 @@ import { Input } from './input';
   imports: [FormField, FieldBinding, DigitMask, FieldPrefix, Input],
   host: { class: 'block' },
   template: `
-    @if (config; as phone) {
+    @if (phone(); as phone) {
       <div class="flex">
         <span appFieldPrefix>{{ phone.countryCode }}</span>
         <input
@@ -49,6 +52,7 @@ import { Input } from './input';
 })
 export class PhoneInput {
   readonly field = input.required<FieldTree<string>>();
+  readonly phone = input<PhoneMask>();
   /**
    * How wide the box is, where the column is wider than any number the mask
    * can hold. The country code stands beside it and is not counted.
@@ -56,6 +60,4 @@ export class PhoneInput {
   readonly inputWidth = input('w-full');
   /** `off` where staff type a customer's number rather than their own. */
   readonly autocomplete = input('tel');
-
-  protected readonly config = inject(DEPLOYMENT_CONFIG).phoneInput;
 }

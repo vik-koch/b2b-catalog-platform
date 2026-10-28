@@ -567,6 +567,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
                         >
                           <app-phone-input
                             [field]="form.contact.phone"
+                            [phone]="phoneInput"
                             autocomplete="off"
                           />
                         </app-field>
@@ -731,6 +732,7 @@ export class AdminOrderAdjustPage implements FieldAttempt {
   private readonly confirm = inject(ConfirmService);
   private readonly router = inject(Router);
   private readonly config = inject(DEPLOYMENT_CONFIG);
+  protected readonly phoneInput = this.config.phoneInput;
   private readonly currency = moneyFormat(this.config);
 
   protected readonly text = inject(ADMIN_TEXT).orders.adjust;

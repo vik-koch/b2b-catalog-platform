@@ -164,7 +164,7 @@ interface Registration {
             [label]="fields.phone.label"
             controlId="phone"
           >
-            <app-phone-input [field]="form.phone" />
+            <app-phone-input [field]="form.phone" [phone]="phoneInput" />
           </app-field>
 
           <!-- Honeypot: hidden from humans. -->
@@ -221,7 +221,7 @@ export class RegisterPage {
   private readonly firstType = this.config.customerTypes[0];
   protected readonly home = inject(STOREFRONT_TEXT).errors.notFoundBack;
   protected readonly actionText = inject(SHARED_TEXT).actions;
-  private readonly phoneInput = this.config.phoneInput;
+  protected readonly phoneInput = this.config.phoneInput;
   private readonly companyIdInput = this.config.companyIdInput;
 
   // Held as a field rather than built in the template, so its identity is

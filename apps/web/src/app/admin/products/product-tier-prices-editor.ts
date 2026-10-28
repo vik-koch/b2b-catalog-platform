@@ -2,12 +2,16 @@ import { Component, computed, inject, input } from '@angular/core';
 import { type FieldTree } from '@angular/forms/signals';
 import { moneyFormat } from '@b2b-catalog-platform/shared';
 import { CustomerTier } from '@b2b-catalog-platform/shared/admin';
-import { currencySymbol, parsePriceInput } from '../../shared/catalog/price';
+import {
+  currencySymbol,
+  parsePriceInput,
+  partialPriceRule,
+} from '../../shared/catalog/price';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { FieldLabel } from '../../shared/ui/field-label';
 import { FORM_FIELDS } from '../../shared/ui/form-fields';
-import { PriceField } from '../../shared/ui/price-field';
+import { Allow } from '../../shared/ui/allow';
 import { UnitField } from '../../shared/ui/unit-field';
 import { UnitFieldInput } from '../../shared/ui/unit-field-input';
 import { LockedFieldMarker } from '../ownership/locked-field-marker';
@@ -42,7 +46,7 @@ export interface TierPriceDraft {
   imports: [
     FORM_FIELDS,
     FieldLabel,
-    PriceField,
+    Allow,
     UnitField,
     LockedFieldMarker,
     Hint,
@@ -79,7 +83,7 @@ export interface TierPriceDraft {
             <input
               type="text"
               inputmode="decimal"
-              appPriceField
+              [appAllow]="partialPrice"
               appUnitFieldInput
               [placeholder]="placeholder()"
               [formField]="field()[i].value"
@@ -99,6 +103,7 @@ export class ProductTierPricesEditor {
   private readonly currency = moneyFormat(inject(DEPLOYMENT_CONFIG));
   /** The same mark the base price field above carries. */
   protected readonly currencySuffix = currencySymbol(this.currency);
+  protected readonly partialPrice = partialPriceRule(this.currency);
 
   readonly tiers = input.required<CustomerTier[]>();
   /** The base price as text, e.g. "18,90" — empty while none is entered. */

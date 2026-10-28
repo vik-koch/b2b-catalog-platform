@@ -108,7 +108,7 @@ interface Inquiry {
             [label]="fields.phone.label"
             controlId="phone"
           >
-            <app-phone-input [field]="form.phone" />
+            <app-phone-input [field]="form.phone" [phone]="phoneInput" />
           </app-field>
 
           <app-field
@@ -163,7 +163,7 @@ export class InquiryPage {
   protected readonly errors = inject(STOREFRONT_TEXT).errors;
   protected readonly heading = inject(SHARED_TEXT).nav['inquiry'];
   protected readonly actionText = inject(SHARED_TEXT).actions;
-  private readonly phoneInput = inject(DEPLOYMENT_CONFIG).phoneInput;
+  protected readonly phoneInput = inject(DEPLOYMENT_CONFIG).phoneInput;
   protected readonly status = signal<Status>('idle');
   protected readonly consent = useConsent('contact');
 
