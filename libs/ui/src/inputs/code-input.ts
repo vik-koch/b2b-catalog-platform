@@ -136,7 +136,7 @@ export class CodeInput {
     this.write(next, start + 1);
   }
 
-  /** Whatever arrived — a paste, a suggestion from a message — as digits. */
+  /** Whatever arrived (a paste, a suggestion from a message) as digits. */
   protected sanitize(): void {
     const el = this.typed().nativeElement;
     const digits = el.value.replace(/\D/g, '').slice(0, this.length());

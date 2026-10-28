@@ -103,7 +103,7 @@ across all of them.
 - **`uiLink` is the one link treatment.** Three idioms had grown up in
   parallel — `text-primary underline`, `text-accent hover:underline`, and an
   `underline hover:no-underline` inversion — so the same affordance meant three
-  things depending on which screen it was on. `ui/link.ts` replaces them at
+  things depending on which screen it was on. `ui/actions/link.ts` replaces them at
   every call site, with the underline drawn in a tint of the text colour so it
   reads as a hairline rather than a second line of the same weight. A global
   `a { … }` rule is the wrong shape here: most anchors in this app are nav

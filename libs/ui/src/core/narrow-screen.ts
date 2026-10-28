@@ -4,7 +4,7 @@ import { isPlatformBrowser } from '@angular/common';
 /**
  * The widths below which a screen is narrow: `sm` the phone line, `md` where
  * three-column layouts fold, `lg` for screens with many columns. Range queries,
- * so they match the breakpoints in styles.css to the pixel.
+ * so they match the breakpoints in ui.css to the pixel.
  */
 export const NARROW_SCREEN_QUERIES = {
   sm: '(width < 40rem)',

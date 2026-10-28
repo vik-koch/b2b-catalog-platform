@@ -155,7 +155,7 @@ export class DateInput {
        ${this.coarse() ? tappable : ''}`,
   );
 
-  /** A tap opens the picker; a click does not — see the template. */
+  /** A tap opens the picker; a click does not (see the template). */
   protected onFieldClick(input: HTMLInputElement): void {
     if (this.coarse()) this.openPicker(input);
   }

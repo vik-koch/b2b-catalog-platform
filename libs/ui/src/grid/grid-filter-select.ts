@@ -23,7 +23,7 @@ export interface GridFilterOption {
   template: `
     <!-- The wrapper is w-full, not content-sized: the select inside is w-full,
          so a shrink-to-fit box is not what the chevron should be measured
-         against — it ended up hugging the right edge instead of sitting in the
+         against: it ended up hugging the right edge instead of sitting in the
          padding the select reserves for it.
 
          Deliberately not an uiInput field: a column filter is styled to read

@@ -1,8 +1,8 @@
 /**
  * A glyph as data: the SVG's children on a 24×24 viewBox, drawn by Icon with
- * a round stroke in `currentColor`. Owned Lucide SVGs (ISC); see ADR 0008
- * (owned primitives). Each lives in `glyphs/<lucide-name>.ts`, copied from
- * the Lucide source with its elements in the same order.
+ * a round stroke in `currentColor`. Owned Lucide SVGs (ISC): each lives in
+ * `glyphs/<lucide-name>.ts`, copied from the Lucide source with its elements
+ * in the same order.
  *
  * Import a glyph from its own module, never through a barrel: chunks are cut
  * by module, so one module re-exporting them all would carry every glyph any

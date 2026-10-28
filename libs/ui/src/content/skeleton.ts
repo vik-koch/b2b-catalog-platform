@@ -4,7 +4,7 @@ import { Component, computed, input } from '@angular/core';
 const WIDTHS = ['100%', '83%', '66%'] as const;
 
 /**
- * What the bars stand in for. `block` is a region of unknown content — bars
+ * What the bars stand in for. `block` is a region of unknown content: bars
  * with air between them. The text sizes stand in for lines of actual text: the
  * row is the line box that text would occupy and the bar is thinner inside it,
  * so what arrives lands exactly where the bar was and nothing under it moves.
@@ -46,7 +46,7 @@ const barHeights: Record<SkeletonSize, string> = {
  *     <ui-skeleton [lines]="4" />
  *   }
  *
- * Standing in for a known line of text, give it that text's size — and its
+ * Standing in for a known line of text, give it that text's size, and its
  * width, where the answer is a figure rather than a sentence:
  *
  *   <ui-skeleton size="sm" align="right" [widths]="['3rem']" />

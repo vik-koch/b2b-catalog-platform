@@ -46,8 +46,8 @@ by module, so a barrel would carry everything behind it into the first load.
 <!-- prettier-ignore -->
 | Folder | Holds |
 | --- | --- |
-| `actions/` | Buttons and links: `uiButton`, `uiIconButton`, `uiTextButton`, `uiDiscButton`, `uiLink`, `uiActionLink` and the shared `ButtonBox` |
-| `choices/` | Inputs that pick a value: `uiCheckbox`, `uiRadio`, `appSwitch`, `uiTickable`, `uiTickLabel`, `ChoiceCard`, `ChoiceBranch`, `Segmented` with `Segment` and `SegmentGroup` |
+| `actions/` | Buttons and links: `uiButton`, `uiIconButton`, `uiTextButton`, `uiDiscButton`, `uiLink`, `uiActionLink` and the shared `uiButtonBox` |
+| `choices/` | Inputs that pick a value: `uiCheckbox`, `uiRadio`, `Switch`, `uiTickable`, `uiTickLabel`, `ChoiceCard`, `ChoiceBranch`, `Segmented` with `uiSegment` and `uiSegmentGroup` |
 | `content/` | What a page shows rather than asks: `PageHeader`, `uiPageTitle`, `uiPageIntro`, `uiNotice`, `WarningNote`, `EmptyState`, `Skeleton`, `uiStatusBadge`, `HintBadge`, `EmphasisedText`, `uiFrame`, `ImagePlaceholder` |
 | `core/` | What the pieces share and draw nothing: `fill`, the `UI_TEXT` token, `debounced`, the narrow-screen query |
 | `disclosure/` | What opens and closes: `DisclosureToggle`, `uiDisclosureFrame`, `disclosureState`, `Collapsible`, `ShowMoreToggle` |
@@ -56,7 +56,7 @@ by module, so a barrel would carry everything behind it into the first load.
 | `icons/` | `Icon`, the `Glyph` type and one module per glyph |
 | `inputs/` | What holds a typed value: `uiInput`, `SelectInput`, `DateInput`, `UnitInput` with `uiUnitInputControl`, `CodeInput`, `PhoneInput`, `uiInputPrefix`; and what shapes a control: `uiAllow` with `numericRules`, `uiDigitMask`, `uiAutoGrow`, `uiFileTarget`, `uiDropZone` |
 | `lists/` | Short lists and paging: `RecordRow`, `uiRecordFields`, `uiRecordFormActions`, `Pagination` |
-| `overlay/` | What opens over the page: `ConfirmService` with `ConfirmDialog`, `DialogPanel`, `uiDialogActions`, `Popover` |
+| `overlay/` | What opens over the page: `ConfirmService` with `ConfirmDialog`, `uiDialogPanel`, `uiDialogActions`, `Popover` |
 | `suggest/` | The type-ahead combobox: `SuggestField` with `uiSuggestInput` and `uiSuggestRow`, the `SuggestList` state behind it, `HighlightedLine` for a matched row |
 | `ui.css` | Tailwind, the breakpoints, the type weight, the colour roles and the pieces' own animations; the app's stylesheet imports it |
 

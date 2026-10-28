@@ -47,7 +47,7 @@ deployment's text files; limits and patterns come from the import-free modules.
 `filled()` is `required` that takes spaces alone as nothing, for the fields a
 save trims.
 
-**Every field is an `<ui-field>`.** The shell draws the caption (a `<legend>`
+**Every field is a `<ui-field>`.** The shell draws the caption (a `<legend>`
 in group mode), the required mark, the hint and the error, all read from the
 field it is given; an element marked `uiFieldCaption` joins the caption.
 `FieldBinding` sits on each `[formField]` control and gives it the id,
