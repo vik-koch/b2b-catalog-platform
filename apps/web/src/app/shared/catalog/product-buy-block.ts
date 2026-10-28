@@ -17,6 +17,7 @@ import { ProductPairings } from './product-pairings';
 import { ProductSetBadge } from './product-set-badge';
 import { ProductUnitFacts } from './product-unit-facts';
 import { useTaxStatement } from './tax-statement';
+import { Card } from '@b2b-catalog-platform/ui/content/card';
 
 /**
  * The buying block on a product page (FR-UNIT-07, FR-CART-01/08). The controls
@@ -37,6 +38,7 @@ import { useTaxStatement } from './tax-statement';
 @Component({
   selector: 'app-product-buy-block',
   imports: [
+    Card,
     AutoGrow,
     FieldLabel,
     Input,
@@ -60,8 +62,9 @@ import { useTaxStatement } from './tax-statement';
          early — on the product page the panel shed it while it still had 2rem
          of slack over its floor. -->
     <div
-      class="rounded-xl border border-edge py-4 px-2.75
-             @min-[15.75rem]/buy:px-4"
+      uiCard
+      [padded]="false"
+      class="py-4 px-2.75 @min-[15.75rem]/buy:px-4"
     >
       <!-- Over the price, as it is over the name on a card: whether the thing
            can be had is read before what it costs, and the panel's first line

@@ -37,6 +37,7 @@ import { SettingsService } from '../settings/settings.service';
 import { OrderDocumentsPanel } from './order-documents-panel';
 import { revisionKindLabel } from './revision-labels';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
+import { Card } from '@b2b-catalog-platform/ui/content/card';
 
 /**
  * One version of an order, read back (FR-ORD-03, ADR 0051).
@@ -55,6 +56,7 @@ import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
 @Component({
   selector: 'app-admin-order-revision-page',
   imports: [
+    Card,
     RouterLink,
     Button,
     Skeleton,
@@ -88,7 +90,7 @@ import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
                  see it in everywhere else. Without a single control — this
                  page reads a version, and a version already superseded is not
                  a thing to press buttons at. -->
-            <section class="mt-4 rounded-lg border border-edge p-5 text-sm">
+            <section uiCard class="mt-4 text-sm">
               <dl
                 class="grid gap-x-6 gap-y-3 wrap-break-word
                        sm:grid-cols-[7rem_1fr]"
@@ -179,7 +181,7 @@ import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
                  other order screen puts it — a document is a copy of what has
                  just been read, and the controls stay last. -->
             @if (order.documents.length) {
-              <section class="mt-5 rounded-lg border border-edge p-5">
+              <section uiCard class="mt-5">
                 <h2 class="font-medium">{{ documentsText.heading }}</h2>
                 <div class="mt-1 text-sm">
                   <app-order-documents-panel

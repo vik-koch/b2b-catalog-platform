@@ -8,6 +8,7 @@ import {
 } from '../../shared/core/document-file';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { fileTextIcon } from '@b2b-catalog-platform/ui/icons/glyphs/file-text';
+import { Card } from '@b2b-catalog-platform/ui/content/card';
 
 /**
  * What a customer can open on their order (FR-ORD-05, FR-ACC-02).
@@ -29,10 +30,10 @@ import { fileTextIcon } from '@b2b-catalog-platform/ui/icons/glyphs/file-text';
  */
 @Component({
   selector: 'app-order-documents-list',
-  imports: [Icon],
+  imports: [Card, Icon],
   host: { class: 'block' },
   template: `
-    <section class="rounded-lg border border-edge p-5">
+    <section uiCard>
       <h2 class="font-medium">{{ text.heading }}</h2>
       <ul class="mt-1 divide-y divide-edge text-sm">
         @for (document of rows(); track document.kind) {

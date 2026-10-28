@@ -26,6 +26,7 @@ import { banknoteIcon } from '@b2b-catalog-platform/ui/icons/glyphs/banknote';
 import { landmarkIcon } from '@b2b-catalog-platform/ui/icons/glyphs/landmark';
 import { mapPinIcon } from '@b2b-catalog-platform/ui/icons/glyphs/map-pin';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
+import { Card } from '@b2b-catalog-platform/ui/content/card';
 
 /**
  * Payment and delivery conditions (FR-NAV-03) — a code route that renders an
@@ -48,6 +49,7 @@ import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 @Component({
   selector: 'app-conditions-page',
   imports: [
+    Card,
     RichTextLinks,
     DeliveryZoneList,
     EditActions,
@@ -116,7 +118,7 @@ import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
             </p>
             <ul class="space-y-3">
               @for (location of pickupLocations; track location.key) {
-                <li [class]="cardClass">
+                <li uiCard class="flex gap-3">
                   <ui-icon [glyph]="mapPinIcon" [class]="cardMark" />
                   <div class="min-w-0 flex-1">
                     <div
@@ -159,7 +161,7 @@ import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
             {{ pageText.paymentHeading }}
           </h2>
           <ul class="space-y-3">
-            <li [class]="cardClass">
+            <li uiCard class="flex gap-3">
               <ui-icon [glyph]="banknoteIcon" [class]="cardMark" />
               <div class="min-w-0 flex-1">
                 <p class="font-medium">{{ paymentNames.cash }}</p>
@@ -171,7 +173,7 @@ import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
                 </p>
               </div>
             </li>
-            <li [class]="cardClass">
+            <li uiCard class="flex gap-3">
               <ui-icon [glyph]="landmarkIcon" [class]="cardMark" />
               <div class="min-w-0 flex-1">
                 <p class="font-medium">{{ paymentNames.transfer }}</p>
@@ -240,7 +242,6 @@ export class ConditionsPage {
   private readonly config = inject(DEPLOYMENT_CONFIG);
   private readonly pageService = inject(PageService);
 
-  protected readonly cardClass = 'flex gap-3 rounded-lg border border-edge p-4';
   protected readonly cardMark = 'mt-0.5 size-5 shrink-0 text-ink-subtle';
 
   protected readonly navLabel = this.nav.conditions;

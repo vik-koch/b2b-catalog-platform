@@ -77,6 +77,7 @@ import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
 import { rotateCcwIcon } from '@b2b-catalog-platform/ui/icons/glyphs/rotate-ccw';
 import { sendIcon } from '@b2b-catalog-platform/ui/icons/glyphs/send';
 import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
+import { Card } from '@b2b-catalog-platform/ui/content/card';
 
 /**
  * One order as staff read it (FR-AUTH-03) — the customer's own page plus what
@@ -113,6 +114,7 @@ const MARK_PAID = 'markPaid';
 @Component({
   selector: 'app-admin-order-detail-page',
   imports: [
+    Card,
     RouterLink,
     Icon,
     Button,
@@ -168,7 +170,7 @@ const MARK_PAID = 'markPaid';
               are looking at. Nothing has to line up across the block for that
               to read: a button is next to its own sentence.
             -->
-            <section class="mt-4 rounded-lg border border-edge p-5 text-sm">
+            <section uiCard class="mt-4 text-sm">
               <dl class="grid gap-x-6 wrap-break-word sm:grid-cols-[7rem_1fr]">
                 <dt [class]="term">{{ ordersText.account }}</dt>
                 <dd [class]="value">

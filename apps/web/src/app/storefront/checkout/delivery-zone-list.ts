@@ -6,6 +6,7 @@ import { formatPriceMinor } from '../../shared/catalog/price';
 import { EmphasisedText } from '@b2b-catalog-platform/ui/content/emphasised-text';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { mapIcon } from '@b2b-catalog-platform/ui/icons/glyphs/map';
+import { Card } from '@b2b-catalog-platform/ui/content/card';
 
 /**
  * How wide a card is in a row of `n`, on a twelve-column grid. Written out so
@@ -30,14 +31,11 @@ const SPAN: Record<number, string> = {
 @Component({
   selector: 'app-delivery-zone-list',
   host: { class: 'block' },
-  imports: [EmphasisedText, Icon],
+  imports: [Card, EmphasisedText, Icon],
   template: `
     <ul [class]="spread() ? 'grid gap-3 sm:grid-cols-12' : 'space-y-3'">
       @for (zone of zones; track zone.key; let i = $index) {
-        <li
-          class="rounded-lg border border-edge p-4"
-          [class]="spread() ? 'flex gap-3 ' + spans[i] : ''"
-        >
+        <li uiCard [class]="spread() ? 'flex gap-3 ' + spans[i] : ''">
           @if (spread()) {
             <ui-icon
               [glyph]="mapIcon"

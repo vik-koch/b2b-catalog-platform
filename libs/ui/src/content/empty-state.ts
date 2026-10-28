@@ -21,6 +21,9 @@ const glyphTones = {
   imports: [Icon],
   host: { class: 'block' },
   template: `
+    <!-- An edge on the page's own ground, not a card: it stands where the
+         content would be, and a white card the width of the page reads as
+         content that failed to arrive. -->
     <div
       class="flex flex-col items-center rounded-lg border border-edge px-6
              py-12 text-center"

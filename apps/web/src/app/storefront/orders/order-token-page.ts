@@ -41,6 +41,7 @@ import {
 import { OrdersService } from './orders.service';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
+import { Card } from '@b2b-catalog-platform/ui/content/card';
 
 /**
  * An order opened by the link its confirmation mail carries (FR-NOTIF-06).
@@ -56,6 +57,7 @@ import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 @Component({
   selector: 'app-order-token-page',
   imports: [
+    Card,
     RouterLink,
     Button,
     NotFoundView,
@@ -160,7 +162,7 @@ import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
                  Under the summary, where every other flow keeps what to do
                  next. -->
             @if (!signedIn()) {
-              <div class="mt-5 rounded-lg border border-edge p-5">
+              <div uiCard class="mt-5">
                 <p class="text-sm text-ink-subtle">{{ invite.text }}</p>
                 <a
                   uiButton

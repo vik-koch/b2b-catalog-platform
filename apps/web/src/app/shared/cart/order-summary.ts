@@ -12,6 +12,7 @@ import { STOREFRONT_TEXT } from '../config/storefront-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import { WarningNote } from '@b2b-catalog-platform/ui/content/warning-note';
+import { Card } from '@b2b-catalog-platform/ui/content/card';
 
 /**
  * What the order comes to — the same card on the cart, on checkout and on the
@@ -31,10 +32,10 @@ import { WarningNote } from '@b2b-catalog-platform/ui/content/warning-note';
  */
 @Component({
   selector: 'app-order-summary',
-  imports: [WarningNote, Skeleton],
+  imports: [Card, WarningNote, Skeleton],
   host: { class: 'block' },
   template: `
-    <div class="rounded-lg border border-edge p-5">
+    <div uiCard>
       <h2 class="mb-3 font-medium">{{ text.summaryTitle }}</h2>
       <dl class="space-y-2 text-sm">
         <!-- How many lines is the cart's own answer, so it is stated before
