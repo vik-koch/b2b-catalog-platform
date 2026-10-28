@@ -257,13 +257,13 @@ export interface AdjustLineRow {
       />
       @if (list.panelOpen()) {
         <div [class]="panel">
-          @if (options().length === 0) {
+          @if (list.suggestions().length === 0) {
             <p class="px-3 py-2 text-sm text-ink-subtle">
               {{ text.noMatches }}
             </p>
           }
           <ul [id]="listId" role="listbox" [attr.aria-label]="text.addLabel">
-            @for (item of options(); track item.slug; let i = $index) {
+            @for (item of list.suggestions(); track item.slug; let i = $index) {
               <li
                 [id]="listId + '-' + i"
                 role="option"
@@ -322,21 +322,20 @@ export class OrderAdjustLines {
     load: (q) =>
       this.catalog.listProducts({ q, sort: 'relevance' }).then((r) => r.items),
     minLength: 2,
+    /** A product already on the order is not offered again: a product in a
+     * given unit is one line, and a second one would be two lines to
+     * reconcile. */
+    shown: (answer) => {
+      const taken = new Set(this.lines().map((line) => line.slug));
+      return answer
+        .filter((item) => !taken.has(item.slug))
+        .slice(0, SUGGESTIONS_SHOWN);
+    },
   });
   private readonly layout = inject(AlternateLayout);
   protected readonly alternateQuery = computed(() =>
     this.layout.of(this.list.query()),
   );
-
-  /** A product already on the order is not offered again: a product in a given
-   * unit is one line, and a second one would be two lines to reconcile. */
-  protected readonly options = computed(() => {
-    const taken = new Set(this.lines().map((line) => line.slug));
-    return this.list
-      .suggestions()
-      .filter((item) => !taken.has(item.slug))
-      .slice(0, SUGGESTIONS_SHOWN);
-  });
 
   protected readonly activeOptionId = computed(() =>
     this.list.panelOpen() && this.list.activeIndex() >= 0

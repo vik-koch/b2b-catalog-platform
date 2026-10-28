@@ -88,14 +88,14 @@ export class SuggestList<T> {
   });
 
   /**
-   * The rows on screen. A loading `resource` reports no value, and rendering
+   * The latest answer. A loading `resource` reports no value, and rendering
    * that directly makes the panel blink on every keystroke — the previous
    * answer is a better placeholder for the next one than nothing is.
    *
    * A *failed* request is not an answer of "nothing", and `value()` rethrows in
    * the error state, so neither it nor the panel below ever sees one.
    */
-  readonly suggestions = linkedSignal<T[] | undefined, T[]>({
+  private readonly answer = linkedSignal<T[] | undefined, T[]>({
     source: () => {
       const status = this.suggested.status();
       return status === 'idle' || status === 'error'
@@ -103,6 +103,16 @@ export class SuggestList<T> {
         : this.suggested.value();
     },
     computation: (value, previous) => value ?? previous?.value ?? [],
+  });
+
+  /**
+   * The rows on screen, after the field's own exclusions. The keys, the
+   * active row and the count all index this list, never the raw answer, or
+   * Enter picks a row nobody sees.
+   */
+  readonly suggestions = computed(() => {
+    const answer = this.answer();
+    return this.options.shown ? this.options.shown(answer) : answer;
   });
 
   /**
@@ -126,6 +136,8 @@ export class SuggestList<T> {
       readonly minLength: number;
       /** A signal whose change re-asks — a country to bias by, say. */
       readonly dependsOn?: () => unknown;
+      /** What of an answer the field offers: exclusions and a row cap. */
+      readonly shown?: (answer: T[]) => T[];
     },
   ) {}
 

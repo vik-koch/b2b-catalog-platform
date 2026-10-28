@@ -139,7 +139,7 @@ const SUGGESTIONS_SHOWN = 8;
 
                 @if (list.panelOpen()) {
                   <div [class]="panel">
-                    @if (options().length === 0) {
+                    @if (list.suggestions().length === 0) {
                       <p class="px-3 py-2 text-sm text-ink-subtle">
                         {{ text.noSuggestions }}
                       </p>
@@ -150,7 +150,7 @@ const SUGGESTIONS_SHOWN = 8;
                       [attr.aria-label]="text.suggestionsAria"
                     >
                       @for (
-                        item of options();
+                        item of list.suggestions();
                         track item.slug;
                         let i = $index
                       ) {
@@ -226,29 +226,29 @@ export class ProductPairingsEditor implements OnInit {
     load: (q) =>
       this.service.listProducts({ q, sort: 'relevance' }).then((r) => r.items),
     minLength: 2,
+    /**
+     * What is actually offerable: not this product, not one already paired,
+     * and not a deleted one. Filtered here rather than in the query because the
+     * grid endpoint answers the same question the grid asks — "all states" —
+     * and the three exclusions are about this form, not about the catalog.
+     */
+    shown: (answer) => {
+      const taken = new Set(this.value().map((p) => p.slug));
+      const own = this.ownSlug();
+      return answer
+        .filter(
+          (item) =>
+            item.deletedAt === null &&
+            item.slug !== own &&
+            !taken.has(item.slug),
+        )
+        .slice(0, SUGGESTIONS_SHOWN);
+    },
   });
   private readonly layout = inject(AlternateLayout);
   protected readonly alternateQuery = computed(() =>
     this.layout.of(this.list.query()),
   );
-
-  /**
-   * What is actually offerable: not this product, not one already paired, and
-   * not a deleted one. Filtered here rather than in the query because the grid
-   * endpoint answers the same question the grid asks — "all states" — and the
-   * three exclusions are about this form, not about the catalog.
-   */
-  protected readonly options = computed(() => {
-    const taken = new Set(this.value().map((p) => p.slug));
-    const own = this.ownSlug();
-    return this.list
-      .suggestions()
-      .filter(
-        (item) =>
-          item.deletedAt === null && item.slug !== own && !taken.has(item.slug),
-      )
-      .slice(0, SUGGESTIONS_SHOWN);
-  });
 
   protected readonly countLabel = computed(() =>
     fillText(this.adminText.countSuffix, { count: this.value().length }),
@@ -267,7 +267,7 @@ export class ProductPairingsEditor implements OnInit {
   /** Counted after the exclusions, so it says what is on screen. */
   protected readonly announcement = computed(() => {
     if (!this.list.panelOpen()) return '';
-    const count = this.options().length;
+    const count = this.list.suggestions().length;
     return count === 0
       ? this.text.noSuggestions
       : fillText(this.text.suggestionCountAria, { count });
