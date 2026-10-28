@@ -1,22 +1,21 @@
 import { Component } from '@angular/core';
+import { Card } from '@b2b-catalog-platform/ui/content/card';
 
 /**
- * The white panel every signed-out screen sits in — login, register, and the
- * two password-reset steps. Pairs with the shell's grey page background on
- * those routes (see app.routes.ts `layout: 'centered'`): the card is what the
- * gray is there to set off, so the two belong to the same decision.
- *
- * Narrow-width and centering live here rather than in each page, which is the
- * whole point of having it: four screens that looked alike by coincidence now
- * look alike by construction.
+ * The card every signed-out screen sits in: login, register, and the two
+ * password-reset steps. Pairs with the shell's grey ground on those routes
+ * (`layout: 'centered'` in storefront.routes.ts), so the centred width lives
+ * here rather than in the lib or in each page.
  */
 @Component({
   selector: 'app-auth-card',
+  imports: [Card],
   template: `
     <div
-      class="mx-auto max-w-xl rounded-xl border border-edge bg-white p-6
-             shadow-sm
-             sm:p-8"
+      uiCard
+      variant="raised"
+      [padded]="false"
+      class="mx-auto max-w-xl p-5 sm:p-8"
     >
       <ng-content />
     </div>

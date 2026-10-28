@@ -37,6 +37,7 @@ import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
 import { shoppingBasketIcon } from '@b2b-catalog-platform/ui/icons/glyphs/shopping-basket';
 import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
 import { userIcon } from '@b2b-catalog-platform/ui/icons/glyphs/user';
+import { Card } from '@b2b-catalog-platform/ui/content/card';
 
 /**
  * How many of the newest orders the account page itself shows. Enough that a
@@ -76,6 +77,7 @@ interface DetailRow {
 @Component({
   selector: 'app-account-page',
   imports: [
+    Card,
     SignedInAs,
     Skeleton,
     Button,
@@ -112,7 +114,7 @@ interface DetailRow {
             {{ orderText.heading }}
           </h2>
           <!-- As above: the frame and its bars from the first frame. -->
-          <div class="rounded-lg border border-edge p-5">
+          <div uiCard>
             <!-- What waits on the account holder, above the rows it is about
                  (FR-WORK-03): the same amber line the marker on the account
                  control leads here for, and the link opens the history it is
@@ -197,52 +199,50 @@ interface DetailRow {
                card is known before the calls answer, so the bars stand in the box
                the values will fill and the arrival is a fill rather than a jump.
                The delayed skeleton is for regions whose height nobody can guess. -->
-          <div class="rounded-lg border border-edge">
-            <div class="p-5">
-              <!-- Both halves at once, never each as it lands. They are two
-                     answers to one question arriving on two round trips, and drawn
-                     separately the card grew twice under somebody already reading
-                     the first half of it. Settled, not loaded — a column that
-                     failed says so in the same frame the other one appears in. -->
-              @if (!profileReady()) {
-                <!-- Five rows: what a private account has. A company's two extra
-                       lines grow the card by that much on arrival, which is the
-                       smaller error of the two — bars for rows that never come
-                       would shrink it instead. -->
-                <ui-skeleton [lines]="5" />
-              } @else if (profile.hasValue()) {
-                <dl class="grid gap-x-8 sm:grid-cols-[12rem_1fr]">
-                  @for (row of rows(); track row.label) {
-                    <dt
-                      class="text-sm text-ink-subtle
-                             odd:mb-1
-                             sm:odd:mb-3
-                             nth-last-[2]:mb-0"
-                    >
-                      {{ row.label }}
-                    </dt>
-                    <dd class="text-sm even:mb-3 sm:even:mb-3 last:mb-0">
-                      {{ row.value }}
-                    </dd>
-                  }
-                </dl>
-                <p class="mt-2 text-sm text-ink-subtle">
-                  {{ accountText.changeHint }}
-                </p>
-                <a
-                  uiButton
-                  variant="secondary"
-                  routerLink="/account/edit"
-                  class="mt-5"
-                >
-                  {{ accountText.edit.action }}
-                </a>
-              } @else {
-                <p uiErrorText role="alert">
-                  {{ accountText.error }}
-                </p>
-              }
-            </div>
+          <div uiCard>
+            <!-- Both halves at once, never each as it lands. They are two
+                   answers to one question arriving on two round trips, and drawn
+                   separately the card grew twice under somebody already reading
+                   the first half of it. Settled, not loaded — a column that
+                   failed says so in the same frame the other one appears in. -->
+            @if (!profileReady()) {
+              <!-- Five rows: what a private account has. A company's two extra
+                     lines grow the card by that much on arrival, which is the
+                     smaller error of the two — bars for rows that never come
+                     would shrink it instead. -->
+              <ui-skeleton [lines]="5" />
+            } @else if (profile.hasValue()) {
+              <dl class="grid gap-x-8 sm:grid-cols-[12rem_1fr]">
+                @for (row of rows(); track row.label) {
+                  <dt
+                    class="text-sm text-ink-subtle
+                           odd:mb-1
+                           sm:odd:mb-3
+                           nth-last-[2]:mb-0"
+                  >
+                    {{ row.label }}
+                  </dt>
+                  <dd class="text-sm even:mb-3 sm:even:mb-3 last:mb-0">
+                    {{ row.value }}
+                  </dd>
+                }
+              </dl>
+              <p class="mt-2 text-sm text-ink-subtle">
+                {{ accountText.changeHint }}
+              </p>
+              <a
+                uiButton
+                variant="secondary"
+                routerLink="/account/edit"
+                class="mt-5"
+              >
+                {{ accountText.edit.action }}
+              </a>
+            } @else {
+              <p uiErrorText role="alert">
+                {{ accountText.error }}
+              </p>
+            }
           </div>
         </section>
 
@@ -254,86 +254,84 @@ interface DetailRow {
             <ui-icon [glyph]="mapPinIcon" class="size-4" />
             {{ addressText.heading }}
           </h2>
-          <div class="rounded-lg border border-edge">
-            <div class="p-5">
-              @if (!profileReady()) {
-                <ui-skeleton [lines]="3" />
-              } @else if (addresses.hasValue()) {
-                @if (addresses.value().length === 0) {
-                  <p class="text-sm text-ink-subtle">{{ addressText.empty }}</p>
-                } @else {
-                  <ul class="divide-y divide-edge">
-                    @for (address of addresses.value(); track address.id) {
-                      <!-- The buttons sit against the middle of the row they
-                             act on, not against its first line: an address is one
-                             or two lines deep, and a pair of buttons pinned to the
-                             top of a two-line row reads as belonging to the name
-                             alone. The last row gives up its bottom padding so
-                             "add address" stands the same distance under the list
-                             as "edit details" does under its own last line. -->
-                      <li
-                        class="flex flex-wrap items-center justify-between
-                               gap-4 py-4
-                               first:pt-0
-                               last:pb-0"
-                      >
-                        <div>
-                          <p class="text-sm font-medium">
-                            {{ name(address) }}
-                          </p>
-                          @if (lines(address)) {
-                            <p class="mt-1 text-sm text-ink-subtle">
-                              {{ lines(address) }}
-                            </p>
-                          }
-                        </div>
-                        <!-- Glyphs, not words: the row already says which
-                               address they act on, and two spelled-out buttons
-                               on every line read louder than the addresses. The
-                               bare glyph is the storefront's own icon control,
-                               as the cart's bin is — the disc belongs to
-                               affordances laid over content. The address is the
-                               accessible name. -->
-                        <div class="flex shrink-0 gap-1">
-                          <a
-                            uiIconButton
-                            [attr.aria-label]="editLabel(address)"
-                            [routerLink]="[
-                              '/account/addresses',
-                              address.id,
-                              'edit',
-                            ]"
-                          >
-                            <ui-icon [glyph]="pencilIcon" />
-                          </a>
-                          <button
-                            uiIconButton
-                            variant="danger"
-                            type="button"
-                            [attr.aria-label]="removeLabel(address)"
-                            (click)="remove(address)"
-                          >
-                            <ui-icon [glyph]="trash2Icon" />
-                          </button>
-                        </div>
-                      </li>
-                    }
-                  </ul>
-                }
-                <a
-                  uiButton
-                  variant="secondary"
-                  routerLink="/account/addresses/new"
-                  class="mt-5"
-                >
-                  {{ addressText.add }}
-                </a>
+          <div uiCard>
+            @if (!profileReady()) {
+              <ui-skeleton [lines]="3" />
+            } @else if (addresses.hasValue()) {
+              @if (addresses.value().length === 0) {
+                <p class="text-sm text-ink-subtle">{{ addressText.empty }}</p>
               } @else {
-                <p uiErrorText role="alert">
-                  {{ addressText.error }}
-                </p>
+                <ul class="divide-y divide-edge">
+                  @for (address of addresses.value(); track address.id) {
+                    <!-- The buttons sit against the middle of the row they
+                           act on, not against its first line: an address is one
+                           or two lines deep, and a pair of buttons pinned to the
+                           top of a two-line row reads as belonging to the name
+                           alone. The last row gives up its bottom padding so
+                           "add address" stands the same distance under the list
+                           as "edit details" does under its own last line. -->
+                    <li
+                      class="flex flex-wrap items-center justify-between gap-4
+                             py-4
+                             first:pt-0
+                             last:pb-0"
+                    >
+                      <div>
+                        <p class="text-sm font-medium">
+                          {{ name(address) }}
+                        </p>
+                        @if (lines(address)) {
+                          <p class="mt-1 text-sm text-ink-subtle">
+                            {{ lines(address) }}
+                          </p>
+                        }
+                      </div>
+                      <!-- Glyphs, not words: the row already says which
+                             address they act on, and two spelled-out buttons
+                             on every line read louder than the addresses. The
+                             bare glyph is the storefront's own icon control,
+                             as the cart's bin is — the disc belongs to
+                             affordances laid over content. The address is the
+                             accessible name. -->
+                      <div class="flex shrink-0 gap-1">
+                        <a
+                          uiIconButton
+                          [attr.aria-label]="editLabel(address)"
+                          [routerLink]="[
+                            '/account/addresses',
+                            address.id,
+                            'edit',
+                          ]"
+                        >
+                          <ui-icon [glyph]="pencilIcon" />
+                        </a>
+                        <button
+                          uiIconButton
+                          variant="danger"
+                          type="button"
+                          [attr.aria-label]="removeLabel(address)"
+                          (click)="remove(address)"
+                        >
+                          <ui-icon [glyph]="trash2Icon" />
+                        </button>
+                      </div>
+                    </li>
+                  }
+                </ul>
               }
-            </div>
+              <a
+                uiButton
+                variant="secondary"
+                routerLink="/account/addresses/new"
+                class="mt-5"
+              >
+                {{ addressText.add }}
+              </a>
+            } @else {
+              <p uiErrorText role="alert">
+                {{ addressText.error }}
+              </p>
+            }
           </div>
         </section>
 
@@ -346,7 +344,7 @@ interface DetailRow {
             <ui-icon [glyph]="lockIcon" class="size-4" />
             {{ text.securityHeading }}
           </h2>
-          <div class="rounded-lg border border-edge">
+          <div uiCard [padded]="false">
             <div
               class="grid divide-y divide-edge
                      md:grid-cols-2 md:divide-x md:divide-y-0"

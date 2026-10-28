@@ -32,6 +32,7 @@ import { lockIcon } from '@b2b-catalog-platform/ui/icons/glyphs/lock';
 import { packageIcon } from '@b2b-catalog-platform/ui/icons/glyphs/package';
 import { usersIcon } from '@b2b-catalog-platform/ui/icons/glyphs/users';
 import { wrenchIcon } from '@b2b-catalog-platform/ui/icons/glyphs/wrench';
+import { Card } from '@b2b-catalog-platform/ui/content/card';
 
 /**
  * Admin panel — a small dashboard: the two staff-facing halves (orders and
@@ -43,6 +44,7 @@ import { wrenchIcon } from '@b2b-catalog-platform/ui/icons/glyphs/wrench';
 @Component({
   selector: 'app-admin-panel-page',
   imports: [
+    Card,
     SignedInAs,
     Icon,
     PanelRow,
@@ -90,7 +92,12 @@ import { wrenchIcon } from '@b2b-catalog-platform/ui/icons/glyphs/wrench';
               <ui-icon [glyph]="clipboardListIcon" class="size-4" />
               {{ panelText.orders }}
             </h2>
-            <ul [class]="cardClass" aria-labelledby="admin-orders-heading">
+            <ul
+              uiCard
+              [padded]="false"
+              [class]="listClass"
+              aria-labelledby="admin-orders-heading"
+            >
               <app-panel-row
                 [label]="orderText.page.title"
                 link="/admin/orders"
@@ -146,7 +153,12 @@ import { wrenchIcon } from '@b2b-catalog-platform/ui/icons/glyphs/wrench';
                 <ui-icon [glyph]="packageIcon" class="size-4" />
                 {{ panelText.catalog }}
               </h2>
-              <ul [class]="cardClass" aria-labelledby="admin-catalog-heading">
+              <ul
+                uiCard
+                [padded]="false"
+                [class]="listClass"
+                aria-labelledby="admin-catalog-heading"
+              >
                 <app-panel-row
                   [label]="categoryText.page.title"
                   link="/admin/categories"
@@ -244,7 +256,12 @@ import { wrenchIcon } from '@b2b-catalog-platform/ui/icons/glyphs/wrench';
                 <ui-icon [glyph]="fileTextIcon" class="size-4" />
                 {{ panelText.pages }}
               </h2>
-              <ul [class]="cardClass" aria-labelledby="admin-pages-heading">
+              <ul
+                uiCard
+                [padded]="false"
+                [class]="listClass"
+                aria-labelledby="admin-pages-heading"
+              >
                 @for (slug of pageSlugs; track slug) {
                   <app-panel-row
                     [label]="navText[slug]"
@@ -264,7 +281,12 @@ import { wrenchIcon } from '@b2b-catalog-platform/ui/icons/glyphs/wrench';
               <ui-icon [glyph]="lockIcon" class="size-4" />
               {{ panelText.securityHeading }}
             </h2>
-            <ul [class]="cardClass" aria-labelledby="admin-security-heading">
+            <ul
+              uiCard
+              [padded]="false"
+              [class]="listClass"
+              aria-labelledby="admin-security-heading"
+            >
               <app-panel-row
                 [label]="panelText.changePassword"
                 link="/change-password"
@@ -283,7 +305,12 @@ import { wrenchIcon } from '@b2b-catalog-platform/ui/icons/glyphs/wrench';
               <ui-icon [glyph]="usersIcon" class="size-4" />
               {{ panelText.accounts }}
             </h2>
-            <ul [class]="cardClass" aria-labelledby="admin-accounts-heading">
+            <ul
+              uiCard
+              [padded]="false"
+              [class]="listClass"
+              aria-labelledby="admin-accounts-heading"
+            >
               <app-panel-row
                 [label]="userText.customersPage.title"
                 link="/admin/users"
@@ -341,7 +368,9 @@ import { wrenchIcon } from '@b2b-catalog-platform/ui/icons/glyphs/wrench';
                 {{ panelText.registries }}
               </h2>
               <ul
-                [class]="cardClass"
+                uiCard
+                [padded]="false"
+                [class]="listClass"
                 aria-labelledby="admin-registries-heading"
               >
                 <app-panel-row
@@ -370,7 +399,9 @@ import { wrenchIcon } from '@b2b-catalog-platform/ui/icons/glyphs/wrench';
                   {{ consentText.page.title }}
                 </h2>
                 <ul
-                  [class]="cardClass"
+                  uiCard
+                  [padded]="false"
+                  [class]="listClass"
                   aria-labelledby="admin-consents-heading"
                 >
                   <app-panel-row
@@ -399,7 +430,9 @@ import { wrenchIcon } from '@b2b-catalog-platform/ui/icons/glyphs/wrench';
                 {{ panelText.operations }}
               </h2>
               <ul
-                [class]="cardClass"
+                uiCard
+                [padded]="false"
+                [class]="listClass"
                 aria-labelledby="admin-operations-heading"
               >
                 <!-- The only two runtime states an admin can forget they
@@ -519,8 +552,7 @@ export class AdminPanelPage {
                                      uppercase`;
   /** `overflow-hidden` because a row's hover ground is a square: without it
    * the first and last row paint their corners over the card's rounding. */
-  protected readonly cardClass =
-    'divide-y divide-edge overflow-hidden rounded-lg border border-edge';
+  protected readonly listClass = 'divide-y divide-edge overflow-hidden';
 
   private readonly work = inject(WorkService);
   private readonly settings = inject(SettingsService);

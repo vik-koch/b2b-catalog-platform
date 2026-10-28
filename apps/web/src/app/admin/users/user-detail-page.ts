@@ -45,6 +45,7 @@ import { arrowLeftIcon } from '@b2b-catalog-platform/ui/icons/glyphs/arrow-left'
 import { circleCheckIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-check';
 import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
 import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
+import { Card } from '@b2b-catalog-platform/ui/content/card';
 
 /** One line of a details list: a label, and the value under it. */
 interface DetailRow {
@@ -72,6 +73,7 @@ interface DetailRow {
 @Component({
   selector: 'app-user-detail-page',
   imports: [
+    Card,
     RouterLink,
     Icon,
     Button,
@@ -104,7 +106,7 @@ interface DetailRow {
         <div class="mt-7 flex flex-col gap-7">
           <section>
             <h2 [class]="headingClass">{{ text.detailsHeading }}</h2>
-            <div class="rounded-lg border border-edge p-5">
+            <div uiCard>
               <dl
                 class="grid gap-x-8 mt-2 text-sm wrap-break-word
                        sm:grid-cols-[12rem_1fr]"
@@ -128,7 +130,7 @@ interface DetailRow {
 
           <section>
             <h2 [class]="headingClass">{{ text.accountHeading }}</h2>
-            <div class="rounded-lg border border-edge p-5">
+            <div uiCard>
               <dl
                 class="grid gap-x-8 mt-2 text-sm wrap-break-word
                        sm:grid-cols-[12rem_1fr]"
@@ -155,7 +157,7 @@ interface DetailRow {
           @if (asksCode()) {
             <section>
               <h2 [class]="headingClass">{{ text.signInHeading }}</h2>
-              <div class="rounded-lg border border-edge p-5">
+              <div uiCard>
                 <dl
                   class="grid gap-x-8 mt-2 text-sm wrap-break-word
                          sm:grid-cols-[12rem_1fr]"

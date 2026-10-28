@@ -33,6 +33,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { Hint } from '@b2b-catalog-platform/ui/fields/hint';
 import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
+import { Card } from '@b2b-catalog-platform/ui/content/card';
 
 /**
  * The two runtime switches, and the trail of changes to both.
@@ -52,6 +53,7 @@ import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
 @Component({
   selector: 'app-operations-page',
   imports: [
+    Card,
     PageHeader,
     RouterLink,
     Button,
@@ -87,7 +89,7 @@ import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
             {{ text.maintenanceHeading }}
           </h2>
 
-          <div class="rounded-lg border border-edge px-5 py-4">
+          <div uiCard>
             <div class="flex items-center justify-between gap-4">
               <p class="text-sm font-medium">
                 {{
@@ -129,7 +131,7 @@ import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
                areas and an action across them, never a fourth stored flag: a
                stored answer to "is everything owned" could disagree with the
                three switches under it, and then neither would be believable. -->
-          <div class="mb-4 rounded-lg border border-edge px-5 py-4">
+          <div uiCard class="mb-4">
             <div class="flex items-center justify-between gap-4">
               <h3 class="text-sm font-medium">{{ allText.heading }}</h3>
               <ui-switch
@@ -169,10 +171,7 @@ import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
             @if (areasOpen()) {
               <div [id]="areasPanelId" class="border-t border-edge p-4">
                 @for (area of areas; track area) {
-                  <div
-                    class="mb-4 rounded-lg border border-edge px-5 py-4
-                           last:mb-0"
-                  >
+                  <div uiCard class="mb-4 last:mb-0">
                     <div class="flex items-center justify-between gap-4">
                       <h3 class="text-sm font-medium">
                         {{ areaText(area).name }}

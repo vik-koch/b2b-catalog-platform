@@ -139,14 +139,14 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
                content arrives. -->
           <div [class]="columns">
             <div
-              class="aspect-square w-full rounded-xl bg-skeleton md:max-w-120"
+              class="aspect-square w-full rounded-lg bg-skeleton md:max-w-120"
             ></div>
             <!-- The facts column, which only the widest shape has. -->
             <div
               class="hidden h-48 rounded-sm bg-skeleton
                      @min-[65rem]/product:block"
             ></div>
-            <div class="h-64 rounded-xl bg-skeleton"></div>
+            <div class="h-64 rounded-lg bg-skeleton"></div>
             <div [class]="sectionCell + ' max-w-3xl space-y-4'">
               <div class="h-4 w-full rounded-sm bg-skeleton"></div>
               <div class="h-4 w-5/6 rounded-sm bg-skeleton"></div>

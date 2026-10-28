@@ -157,8 +157,8 @@ export class ProductGallery {
    * reversed row, and it went where nothing could scroll to it. */
   protected readonly mainImage = computed(
     () =>
-      `aspect-square w-full min-w-0 touch-pan-y overflow-hidden bg-white
-       ${this.compact() ? 'rounded-lg' : 'rounded-xl md:w-100'}`,
+      `aspect-square w-full min-w-0 touch-pan-y overflow-hidden rounded-lg
+       bg-white ${this.compact() ? '' : 'md:w-100'}`,
   );
 
   protected readonly THUMBS_COLLAPSED = THUMBS_COLLAPSED;

@@ -19,7 +19,7 @@ import { AuthService } from './auth.service';
     @if (auth.user(); as user) {
       <div
         class="flex flex-wrap items-center justify-between gap-3 rounded-lg
-               border border-edge bg-surface px-5 py-3"
+               bg-surface px-5 py-3"
       >
         <div>
           <p class="font-medium text-ink">{{ greeting() }}</p>
