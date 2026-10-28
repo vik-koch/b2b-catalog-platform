@@ -169,6 +169,13 @@ export class SuggestList<T> {
       this.activeIndex.set(
         this.activeIndex() < 0 ? last : this.activeIndex() - 1,
       );
+    } else if (
+      (event.key === 'Home' || event.key === 'End') &&
+      this.activeIndex() >= 0
+    ) {
+      // Only inside the list: while typing they move the caret.
+      event.preventDefault();
+      this.activeIndex.set(event.key === 'Home' ? 0 : last);
     } else if (event.key === 'Enter' && this.activeIndex() >= 0) {
       // Only when a row is selected: Enter otherwise belongs to the form.
       event.preventDefault();
