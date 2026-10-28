@@ -10,7 +10,7 @@ import {
 import { ProductImage } from '@b2b-catalog-platform/shared';
 import { swipeStep, touchX } from './swipe';
 import { STOREFRONT_TEXT } from '../config/storefront-text';
-import { ShowMoreToggle } from '../ui/show-more-toggle';
+import { ShowMoreToggle } from '@b2b-catalog-platform/ui/disclosure/show-more-toggle';
 import { ImagePlaceholder } from '@b2b-catalog-platform/ui/content/image-placeholder';
 import { Frame } from '@b2b-catalog-platform/ui/content/frame';
 

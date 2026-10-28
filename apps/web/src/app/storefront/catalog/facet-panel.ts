@@ -11,15 +11,15 @@ import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { NgTemplateOutlet } from '@angular/common';
 import { Checkbox } from '../../shared/ui/checkbox';
 import { TickLabel } from '../../shared/ui/tick-label';
-import { Collapsible } from '../../shared/ui/collapsible';
-import { disclosureState } from '../../shared/ui/disclosure-state';
-import { DisclosureToggle } from '../../shared/ui/disclosure-toggle';
-import { DisclosureFrame } from '../../shared/ui/disclosure-frame';
+import { Collapsible } from '@b2b-catalog-platform/ui/disclosure/collapsible';
+import { disclosureState } from '@b2b-catalog-platform/ui/disclosure/disclosure-state';
+import { DisclosureToggle } from '@b2b-catalog-platform/ui/disclosure/disclosure-toggle';
+import { DisclosureFrame } from '@b2b-catalog-platform/ui/disclosure/disclosure-frame';
 import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { ProductSortSelect } from './product-sort-select';
 import { FacetSelection, selectedValues } from './facet-selection';
-import { ShowMoreToggle } from '../../shared/ui/show-more-toggle';
+import { ShowMoreToggle } from '@b2b-catalog-platform/ui/disclosure/show-more-toggle';
 import { funnelXIcon } from '@b2b-catalog-platform/ui/icons/glyphs/funnel-x';
 
 /** Values a facet shows before its own "show more" reveals the rest. */

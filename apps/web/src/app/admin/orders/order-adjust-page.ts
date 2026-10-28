@@ -61,8 +61,8 @@ import {
   ConfirmService,
   confirmRequest,
 } from '../../shared/ui/confirm.service';
-import { DisclosureToggle } from '../../shared/ui/disclosure-toggle';
-import { DisclosureFrame } from '../../shared/ui/disclosure-frame';
+import { DisclosureToggle } from '@b2b-catalog-platform/ui/disclosure/disclosure-toggle';
+import { DisclosureFrame } from '@b2b-catalog-platform/ui/disclosure/disclosure-frame';
 import { FieldAttempt, FIELD_ATTEMPT } from '../../shared/ui/field-attempt';
 import { FieldLabel } from '../../shared/ui/field-label';
 import { FORM_FIELDS } from '../../shared/ui/form-fields';

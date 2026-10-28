@@ -5,8 +5,8 @@ import {
   CategoryNode,
 } from '@b2b-catalog-platform/shared';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
-import { Collapsible } from '../../shared/ui/collapsible';
-import { ShowMoreToggle } from '../../shared/ui/show-more-toggle';
+import { Collapsible } from '@b2b-catalog-platform/ui/disclosure/collapsible';
+import { ShowMoreToggle } from '@b2b-catalog-platform/ui/disclosure/show-more-toggle';
 
 /** How many subcategories stand under a chip before the rest are behind the
  * toggle. Four is what the tallest cell can carry without the row it sits in

@@ -1,9 +1,9 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { fill } from '@b2b-catalog-platform/ui/core/fill';
 import { GRID_TEXT } from './grid-text';
-import { disclosureState } from '../disclosure-state';
-import { DisclosureToggle } from '../disclosure-toggle';
-import { DisclosureFrame } from '../disclosure-frame';
+import { disclosureState } from '@b2b-catalog-platform/ui/disclosure/disclosure-state';
+import { DisclosureToggle } from '@b2b-catalog-platform/ui/disclosure/disclosure-toggle';
+import { DisclosureFrame } from '@b2b-catalog-platform/ui/disclosure/disclosure-frame';
 import { Input } from '../input';
 import { SelectInput } from '../select-input';
 import { GridClearFilters } from './grid-clear-filters';

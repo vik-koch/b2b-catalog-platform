@@ -1,7 +1,7 @@
 import { Component, inject, input, OnInit, signal } from '@angular/core';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
-import { DisclosureToggle } from '../../shared/ui/disclosure-toggle';
-import { DisclosureFrame } from '../../shared/ui/disclosure-frame';
+import { DisclosureToggle } from '@b2b-catalog-platform/ui/disclosure/disclosure-toggle';
+import { DisclosureFrame } from '@b2b-catalog-platform/ui/disclosure/disclosure-frame';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Glyph } from '@b2b-catalog-platform/ui/icons/glyph';
 

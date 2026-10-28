@@ -1,5 +1,5 @@
 import { Component, input, output } from '@angular/core';
-import { Button } from '@b2b-catalog-platform/ui/actions/button';
+import { Button } from '../actions/button';
 
 /**
  * The button under something clipped. It owns the control and its words, never
