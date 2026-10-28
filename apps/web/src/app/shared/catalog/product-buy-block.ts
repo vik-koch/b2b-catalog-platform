@@ -61,11 +61,7 @@ import { Card } from '@b2b-catalog-platform/ui/content/card';
          given back. It was 17rem, which spent the padding a fifth of a column
          early — on the product page the panel shed it while it still had 2rem
          of slack over its floor. -->
-    <div
-      uiCard
-      [padded]="false"
-      class="py-4 px-2.75 @min-[15.75rem]/buy:px-4"
-    >
+    <div uiCard [padded]="false" class="py-4 px-2.75 @min-[15.75rem]/buy:px-4">
       <!-- Over the price, as it is over the name on a card: whether the thing
            can be had is read before what it costs, and the panel's first line
            is where the eye enters it. -->
