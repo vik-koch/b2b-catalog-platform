@@ -4,7 +4,7 @@ import { formatPriceMinor } from '../../shared/catalog/price';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
-import { injectNarrowScreen } from '../../shared/ui/narrow-screen';
+import { injectNarrowScreen } from '@b2b-catalog-platform/ui/core/narrow-screen';
 import { ErrorText } from '../../shared/ui/error-text';
 import { FieldLabel } from '../../shared/ui/field-label';
 import { UnitInput } from '../../shared/ui/unit-input';

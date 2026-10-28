@@ -3,8 +3,8 @@ import { Component, computed, inject, input, output } from '@angular/core';
 import { Params, RouterLink } from '@angular/router';
 import { Button } from './button';
 import { ButtonBox } from './button-box';
-import { fill } from './fill';
-import { UI_TEXT } from './ui-text';
+import { fill } from '@b2b-catalog-platform/ui/core/fill';
+import { UI_TEXT } from '@b2b-catalog-platform/ui/core/ui-text';
 
 /**
  * Previous, where we are, next. With a `link` each step is a router link, its

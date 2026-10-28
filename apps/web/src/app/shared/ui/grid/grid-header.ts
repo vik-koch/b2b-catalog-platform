@@ -1,5 +1,5 @@
 import { Component, computed, input } from '@angular/core';
-import { NarrowBreakpoint } from '../narrow-screen';
+import { NarrowBreakpoint } from '@b2b-catalog-platform/ui/core/narrow-screen';
 import { GridClearFilters } from './grid-clear-filters';
 import { GridSearchField } from './grid-search-field';
 import { PageIntro } from '../page-intro';

@@ -3,7 +3,7 @@ import { ErrorText } from './error-text';
 import { FieldLabel } from './field-label';
 import { FieldStatus } from './field-status';
 import { Hint } from './hint';
-import { UI_TEXT } from './ui-text';
+import { UI_TEXT } from '@b2b-catalog-platform/ui/core/ui-text';
 
 let nextId = 0;
 

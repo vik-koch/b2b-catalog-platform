@@ -16,7 +16,7 @@ import {
   DocumentProduct,
 } from '@b2b-catalog-platform/shared/admin';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
-import { debounced } from '../../shared/ui/debounced';
+import { debounced } from '@b2b-catalog-platform/ui/core/debounced';
 import { AlternateLayout } from '../../shared/core/alternate-layout';
 import { Checkbox } from '../../shared/ui/checkbox';
 import { FieldLabel } from '../../shared/ui/field-label';

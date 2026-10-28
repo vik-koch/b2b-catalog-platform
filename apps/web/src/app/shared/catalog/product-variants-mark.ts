@@ -15,7 +15,7 @@ import {
 } from '@b2b-catalog-platform/shared';
 import { STOREFRONT_TEXT } from '../config/storefront-text';
 import { SHARED_TEXT } from '../config/shared-text';
-import { injectNarrowScreen } from '../ui/narrow-screen';
+import { injectNarrowScreen } from '@b2b-catalog-platform/ui/core/narrow-screen';
 import { Button } from '../ui/button';
 import { DialogActions } from '../ui/dialog-actions';
 import { DialogPanel } from '../ui/dialog-panel';

@@ -7,7 +7,7 @@ import {
   resource,
   signal,
 } from '@angular/core';
-import { debounced } from './debounced';
+import { debounced } from '@b2b-catalog-platform/ui/core/debounced';
 
 export interface SuggestListText {
   readonly suggestionsAria: string;

@@ -1,5 +1,5 @@
 import { Component, computed, inject, input } from '@angular/core';
-import { fill } from '../fill';
+import { fill } from '@b2b-catalog-platform/ui/core/fill';
 import { GRID_TEXT } from './grid-text';
 import { disclosureState } from '../disclosure-state';
 import { DisclosureToggle } from '../disclosure-toggle';

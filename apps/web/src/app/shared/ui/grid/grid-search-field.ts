@@ -7,7 +7,7 @@ import {
   untracked,
   viewChild,
 } from '@angular/core';
-import { debounced } from '../debounced';
+import { debounced } from '@b2b-catalog-platform/ui/core/debounced';
 import { Input } from '../input';
 import { injectGridNav } from './grid-nav';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';

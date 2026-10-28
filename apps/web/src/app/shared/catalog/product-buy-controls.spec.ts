@@ -8,7 +8,7 @@ import { STOREFRONT_TEXT } from '../config/storefront-text';
 import { defaultStorefrontText } from '../config/storefront-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { defaultDeploymentConfig } from '../config/deployment-config.fixture';
-import { NARROW_SCREEN_QUERIES } from '../ui/narrow-screen';
+import { NARROW_SCREEN_QUERIES } from '@b2b-catalog-platform/ui/core/narrow-screen';
 import { ProductBuyControls } from './product-buy-controls';
 import { packagedPackaging, productDetail } from './product.fixture';
 

@@ -1,5 +1,5 @@
 import { Provider } from '@angular/core';
-import { provideTestUiText } from '../ui-text.testing';
+import { provideTestUiText } from '@b2b-catalog-platform/ui/core/ui-text.testing';
 import { GRID_TEXT, GridText } from './grid-text';
 
 /** Stand-in words for the grid's specs. */

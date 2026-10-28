@@ -51,7 +51,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { staffBlockLabels } from './staff-block-labels';
 import { staffFields } from '../staff-fields';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
-import { debounced } from '../../shared/ui/debounced';
+import { debounced } from '@b2b-catalog-platform/ui/core/debounced';
 import { delayedLoading } from '../../shared/core/delayed-loading';
 import { usePageSeo } from '../../shared/core/page-seo';
 import { Button } from '../../shared/ui/button';
