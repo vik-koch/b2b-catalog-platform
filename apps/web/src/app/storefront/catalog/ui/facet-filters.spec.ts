@@ -1,7 +1,4 @@
-import {
-  provideUiText,
-  SHARED_TEXT,
-} from '../../../shared/config/shared-text';
+import { provideUiText, SHARED_TEXT } from '../../../shared/config/shared-text';
 import { defaultSharedText } from '../../../shared/config/shared-text.fixture';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';

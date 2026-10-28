@@ -20,7 +20,9 @@ const rows = (...keys: string[]): Row[] => keys.map((key) => ({ key }));
       [trackBy]="byKey"
       (toggled)="open.set(!open())"
     >
-      <ng-template let-row><li class="row">{{ row.key }}</li></ng-template>
+      <ng-template let-row
+        ><li class="row">{{ row.key }}</li></ng-template
+      >
     </ui-show-more-list>
   `,
 })

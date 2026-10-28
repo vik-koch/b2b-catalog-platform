@@ -214,6 +214,16 @@ test.describe('without JavaScript', () => {
 test.describe('sort controls (FR-SEARCH-04)', () => {
   const sortBy = (page: Page) =>
     page.getByRole('combobox', { name: 'Sort by' });
+
+  /** On a phone the select is inside the Filters disclosure, out of reach
+   * until it is opened. */
+  async function phoneSortBy(page: Page) {
+    const filters = page.locator('button[aria-controls="facet-panel"]');
+    if ((await filters.getAttribute('aria-expanded')) !== 'true') {
+      await filters.click();
+    }
+    return sortBy(page);
+  }
   const segments = (page: Page) => page.getByRole('group', { name: 'Sort by' });
 
   async function sortByPrice(
@@ -222,7 +232,7 @@ test.describe('sort controls (FR-SEARCH-04)', () => {
     sort: 'price' | 'price_desc',
   ): Promise<void> {
     if (isMobile) {
-      await sortBy(page).selectOption(sort);
+      await (await phoneSortBy(page)).selectOption(sort);
       return;
     }
     const price = () => segments(page).getByRole('button', { name: /^Price/ });
@@ -236,7 +246,7 @@ test.describe('sort controls (FR-SEARCH-04)', () => {
   /** The accessible name of the order the control says is in effect. */
   async function shownSort(page: Page, isMobile: boolean): Promise<string> {
     if (isMobile) {
-      return sortBy(page)
+      return (await phoneSortBy(page))
         .locator('option:checked')
         .evaluate((o) => o.textContent?.trim() ?? '');
     }
@@ -348,8 +358,8 @@ test.describe('sort controls (FR-SEARCH-04)', () => {
     expect(await shownSort(page, isMobile)).toBe('Best match');
 
     await page.goto('/catalog/espresso');
-    const control = isMobile ? sortBy(page) : segments(page);
-    if (!isMobile) await expect(control).toBeVisible();
+    const control = isMobile ? await phoneSortBy(page) : segments(page);
+    await expect(control).toBeVisible();
     await expect(
       control.getByRole(isMobile ? 'option' : 'button', {
         name: 'Best match',
