@@ -11,6 +11,7 @@ import {
   COMPANY_ID_NONE,
   formatPersonName,
   userRoleSchema,
+  SEARCH_QUERY_MAX_LENGTH,
 } from '@b2b-catalog-platform/shared';
 import {
   StaffUser,
@@ -33,7 +34,7 @@ import { GridColumn } from '../grid/grid-column';
 import { GridFilterOption } from '../grid/grid-filter-select';
 import { GridCardTemplate } from '../grid/grid-card-template';
 import { GridRowTemplate } from '../grid/grid-row-template';
-import { GridTimestamp } from '../grid/grid-timestamp';
+import { GridTimestamp } from '../dates/grid-timestamp';
 import { RecordRow } from '../../shared/ui/record-row';
 import { AdminListHeader } from '../list-header';
 import { SettingsService } from '../settings/settings.service';
@@ -125,6 +126,7 @@ const typeRank = (t: StaffUser['customerType']): number =>
       [title]="page().title"
       [intro]="page().intro"
       [query]="query() ?? ''"
+      [searchMaxLength]="searchMaxLength"
       [searchLabel]="text.searchAria"
       [searchPlaceholder]="text.searchPlaceholder"
       [clearSearchLabel]="text.clearSearch"
@@ -274,6 +276,7 @@ const typeRank = (t: StaffUser['customerType']): number =>
   `,
 })
 export class UserListPage {
+  protected readonly searchMaxLength = SEARCH_QUERY_MAX_LENGTH;
   protected readonly plusIcon = plusIcon;
   private readonly service = inject(StaffUsersService);
   private readonly ownership = inject(SettingsService);

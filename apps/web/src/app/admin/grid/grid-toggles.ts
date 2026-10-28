@@ -1,7 +1,7 @@
 import { Component, input } from '@angular/core';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { GridToggleGroup, GridToggleOption } from './grid-column';
-import { injectGridNav } from './grid-query';
+import { injectGridNav } from './grid-nav';
 
 const PILL = `inline-flex cursor-pointer items-center gap-1.5 rounded-full
               border px-3 py-1 text-sm whitespace-nowrap transition-colors`;

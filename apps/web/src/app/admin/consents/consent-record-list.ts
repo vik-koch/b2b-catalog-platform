@@ -13,7 +13,7 @@ import { IconButton } from '../../shared/ui/icon-button';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Link } from '../../shared/ui/link';
 import { StatusBadge } from '../../shared/ui/status-badge';
-import { adminMomentFormat } from '../grid/admin-date';
+import { adminMomentFormat } from '../dates/admin-date';
 import { RecordRow } from '../../shared/ui/record-row';
 import { circleSlashIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-slash';
 

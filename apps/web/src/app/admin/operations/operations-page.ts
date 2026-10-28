@@ -27,7 +27,7 @@ import { DisclosureFrame } from '../../shared/ui/disclosure-frame';
 import { Skeleton } from '../../shared/ui/skeleton';
 import { StatusBadge } from '../../shared/ui/status-badge';
 import { Switch } from '../../shared/ui/switch';
-import { adminMomentFormat } from '../grid/admin-date';
+import { adminMomentFormat } from '../dates/admin-date';
 import { SettingsService } from '../settings/settings.service';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { ErrorText } from '../../shared/ui/error-text';

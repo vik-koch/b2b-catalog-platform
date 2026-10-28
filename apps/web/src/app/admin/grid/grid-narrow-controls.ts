@@ -20,7 +20,7 @@ import {
   GridColumn,
   sortableColumns,
 } from './grid-column';
-import { DEFAULT_ADMIN_SORT, gridParam, injectGridNav } from './grid-query';
+import { gridParam, injectGridNav } from './grid-nav';
 import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
 
 /** One line of the sort picker: a column in one direction. */
@@ -224,7 +224,7 @@ export class GridNarrowControls {
   /** The sort in effect, already resolved — null where no column owns it. */
   readonly sort = input.required<string | null>();
   /** The key written as an absent parameter. */
-  readonly defaultSort = input<string>(DEFAULT_ADMIN_SORT);
+  readonly defaultSort = input('');
   /** What to call the ordering that belongs to no column. */
   readonly defaultSortLabel = input<string>('');
   /** Whether anything at all — including the search box — narrows the list. */

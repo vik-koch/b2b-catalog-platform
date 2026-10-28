@@ -2,7 +2,7 @@ import { Component, inject, input, resource } from '@angular/core';
 import { fillText, PageSlug } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
-import { adminDayFormat } from '../grid/admin-date';
+import { adminDayFormat } from '../dates/admin-date';
 import { PageEditingService } from './page-editing.service';
 import { trustedRichText } from '../../shared/core/trusted-rich-text';
 

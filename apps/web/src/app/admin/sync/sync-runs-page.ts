@@ -24,7 +24,7 @@ import { GridFilterOption } from '../grid/grid-filter-select';
 import { GridPagination } from '../grid/grid-pagination';
 import { GridCardTemplate } from '../grid/grid-card-template';
 import { GridRowTemplate } from '../grid/grid-row-template';
-import { GridTimestamp } from '../grid/grid-timestamp';
+import { GridTimestamp } from '../dates/grid-timestamp';
 import { AdminListHeader } from '../list-header';
 import { RecordRow } from '../../shared/ui/record-row';
 import { SyncService } from './sync.service';

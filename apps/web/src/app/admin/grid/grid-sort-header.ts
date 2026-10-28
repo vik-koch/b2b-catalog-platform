@@ -1,6 +1,6 @@
 import { Component, computed, input } from '@angular/core';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
-import { gridParam, DEFAULT_ADMIN_SORT, injectGridNav } from './grid-query';
+import { gridParam, injectGridNav } from './grid-nav';
 import { chevronDownIcon } from '@b2b-catalog-platform/ui/icons/glyphs/chevron-down';
 import { chevronUpIcon } from '@b2b-catalog-platform/ui/icons/glyphs/chevron-up';
 
@@ -51,7 +51,7 @@ export class GridSortHeader {
   readonly sort = input.required<string | null>();
   readonly label = input.required<string>();
   /** The key written as an absent parameter, so its column reads as unsorted. */
-  readonly defaultSort = input<string>(DEFAULT_ADMIN_SORT);
+  readonly defaultSort = input('');
   /**
    * Which direction a first click takes. Ascending everywhere except recency,
    * where "most recently updated" is the whole reason to sort by the column and

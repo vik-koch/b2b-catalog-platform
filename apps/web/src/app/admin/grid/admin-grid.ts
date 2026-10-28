@@ -33,7 +33,6 @@ import {
 import { GridFilterSelect } from './grid-filter-select';
 import { GridToggles } from './grid-toggles';
 import { GridNarrowControls } from './grid-narrow-controls';
-import { DEFAULT_ADMIN_SORT } from './grid-query';
 import { fitWidths, resizeBoundary } from './grid-resize';
 import { GridSortHeader } from './grid-sort-header';
 import { GridCardTemplate } from './grid-card-template';
@@ -329,7 +328,7 @@ export class AdminGrid<T> {
   readonly trackBy = input.required<(row: T) => string>();
   /** The sort in effect, already resolved — null where no column owns it. */
   readonly sort = input<string | null>(null);
-  readonly defaultSort = input<string>(DEFAULT_ADMIN_SORT);
+  readonly defaultSort = input('');
   /** Whether a reload is in flight, for `aria-busy`; the rows on screen stay. */
   readonly busy = input(false);
   /** Which of the two nothings this is — no rows at all, or none that match. */

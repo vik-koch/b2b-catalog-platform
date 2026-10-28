@@ -34,7 +34,7 @@ import { PhoneInput } from '../../shared/ui/phone-input';
 import { Segmented, SegmentOption } from '../../shared/ui/segmented';
 import { ConfirmService } from '../../shared/ui/confirm.service';
 import { Skeleton } from '../../shared/ui/skeleton';
-import { adminDayFormat } from '../grid/admin-date';
+import { adminDayFormat } from '../dates/admin-date';
 import { ConsentRecordList } from './consent-record-list';
 import { ConsentsService } from './consents.service';
 import { SHARED_TEXT } from '../../shared/config/shared-text';

@@ -1,10 +1,9 @@
 import {
   DEFAULT_ADMIN_SORT,
   DEFAULT_ADMIN_STATE,
-  gridParam,
   resolveAdminSort,
   resolveAdminState,
-} from './grid-query';
+} from './product-grid-query';
 
 /**
  * The grid's parameters come from the URL, which anyone can edit and any old
@@ -38,16 +37,5 @@ describe('resolveAdminState', () => {
     ['unknown', 'archived'],
   ])('falls back to the default for %s input', (_label, raw) => {
     expect(resolveAdminState(raw)).toBe(DEFAULT_ADMIN_STATE);
-  });
-});
-
-describe('gridParam', () => {
-  it('drops the default, so the plain URL is the default view', () => {
-    expect(gridParam(DEFAULT_ADMIN_STATE, DEFAULT_ADMIN_STATE)).toBeNull();
-    expect(gridParam(DEFAULT_ADMIN_SORT, DEFAULT_ADMIN_SORT)).toBeNull();
-  });
-
-  it('keeps anything else', () => {
-    expect(gridParam('price', DEFAULT_ADMIN_SORT)).toBe('price');
   });
 });

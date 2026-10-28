@@ -68,6 +68,7 @@ const CLEAR_AT: Record<NarrowBreakpoint, string> = {
           <app-grid-search-field
             class="min-w-0 flex-1"
             [query]="query()"
+            [maxLength]="searchMaxLength()"
             [searchLabel]="searchLabel()"
             [searchPlaceholder]="searchPlaceholder()"
             [clearLabel]="clearSearchLabel()"
@@ -92,6 +93,7 @@ export class AdminListHeader {
    * worse than no box. */
   readonly searchable = input(true);
   readonly query = input('');
+  readonly searchMaxLength = input<number>();
   readonly searchLabel = input('');
   readonly searchPlaceholder = input('');
   readonly clearSearchLabel = input('');

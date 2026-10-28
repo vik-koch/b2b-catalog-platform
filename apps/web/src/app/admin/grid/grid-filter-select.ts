@@ -1,7 +1,7 @@
 import { Component, input } from '@angular/core';
 import { SelectField } from '../../shared/ui/select-field';
 import { filterParams, GridFilter } from './grid-column';
-import { injectGridNav } from './grid-query';
+import { injectGridNav } from './grid-nav';
 
 export interface GridFilterOption {
   /** The URL value; the empty string means "no filter" and is left out. */

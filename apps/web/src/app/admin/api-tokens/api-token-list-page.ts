@@ -25,7 +25,7 @@ import { StatusBadge } from '../../shared/ui/status-badge';
 import { RecordFields } from '../../shared/ui/record-fields';
 import { RecordFormActions } from '../../shared/ui/record-form-actions';
 import { RecordRow } from '../../shared/ui/record-row';
-import { adminMomentFormat } from '../grid/admin-date';
+import { adminMomentFormat } from '../dates/admin-date';
 import { ApiTokensService } from './api-tokens.service';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { ErrorText } from '../../shared/ui/error-text';

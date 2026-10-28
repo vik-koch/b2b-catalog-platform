@@ -24,7 +24,7 @@ import { Button } from '../../shared/ui/button';
 import { ConfirmService } from '../../shared/ui/confirm.service';
 import { Skeleton } from '../../shared/ui/skeleton';
 import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
-import { adminDayFormat } from '../grid/admin-date';
+import { adminDayFormat } from '../dates/admin-date';
 import { SyncCustomerPlanView } from './sync-customer-plan-view';
 import { SyncOrderPlanView } from './sync-order-plan-view';
 import { SyncPlanView } from './sync-plan-view';

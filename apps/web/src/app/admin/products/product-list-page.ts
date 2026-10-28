@@ -12,6 +12,7 @@ import {
   fillText,
   formatAttributeValue,
   ProductAvailability,
+  SEARCH_QUERY_MAX_LENGTH,
 } from '@b2b-catalog-platform/shared';
 import {
   AdminProductSort,
@@ -45,14 +46,15 @@ import { GridChip, GridColumn, GridToggleGroup } from '../grid/grid-column';
 import { GridFilterOption } from '../grid/grid-filter-select';
 import { GridPagination } from '../grid/grid-pagination';
 import {
+  DEFAULT_ADMIN_SORT,
   DEFAULT_ADMIN_STATE,
   resolveAdminAvailability,
   resolveAdminSort,
   resolveAdminState,
-} from '../grid/grid-query';
+} from './product-grid-query';
 import { GridCardTemplate } from '../grid/grid-card-template';
 import { GridRowTemplate } from '../grid/grid-row-template';
-import { GridTimestamp } from '../grid/grid-timestamp';
+import { GridTimestamp } from '../dates/grid-timestamp';
 import { RecordRow } from '../../shared/ui/record-row';
 import { AdminListHeader } from '../list-header';
 import { DocumentsService } from '../documents/documents.service';
@@ -112,6 +114,7 @@ function knownValues<T extends string>(
       [title]="text.page.title"
       [intro]="text.page.intro"
       [query]="query() ?? ''"
+      [searchMaxLength]="searchMaxLength"
       [searchLabel]="text.searchAria"
       [searchPlaceholder]="text.searchPlaceholder"
       [clearSearchLabel]="text.clearSearch"
@@ -136,6 +139,7 @@ function knownValues<T extends string>(
         [trackBy]="bySlug"
         [muted]="isDeleted"
         [sort]="headerSort()"
+        [defaultSort]="defaultSort"
         [defaultSortLabel]="text.bestMatch"
         [chips]="chips()"
         [toggles]="toggles()"
@@ -382,6 +386,7 @@ function knownValues<T extends string>(
   `,
 })
 export class ProductListPage {
+  protected readonly searchMaxLength = SEARCH_QUERY_MAX_LENGTH;
   protected readonly plusIcon = plusIcon;
   private readonly admin = inject(AdminCatalogService);
   private readonly attributes = inject(AttributesService);
@@ -431,6 +436,7 @@ export class ProductListPage {
   );
 
   readonly sort = input('');
+  protected readonly defaultSort = DEFAULT_ADMIN_SORT;
   protected readonly sortKey = computed(() => resolveAdminSort(this.sort()));
   /**
    * The sort as the column headings should show it. `relevance` is not a column

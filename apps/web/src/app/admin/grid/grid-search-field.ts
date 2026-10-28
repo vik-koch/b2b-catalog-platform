@@ -7,10 +7,9 @@ import {
   untracked,
   viewChild,
 } from '@angular/core';
-import { SEARCH_QUERY_MAX_LENGTH } from '@b2b-catalog-platform/shared';
 import { debounced } from '../../shared/ui/debounced';
 import { Input } from '../../shared/ui/input';
-import { injectGridNav } from './grid-query';
+import { injectGridNav } from './grid-nav';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { searchIcon } from '@b2b-catalog-platform/ui/icons/glyphs/search';
 import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
@@ -56,7 +55,7 @@ const SEARCH_DEBOUNCE_MS = 200;
         appInput
         type="search"
         autocomplete="off"
-        [maxLength]="maxLength"
+        [attr.maxlength]="maxLength() ?? null"
         [attr.aria-label]="searchLabel()"
         [placeholder]="searchPlaceholder()"
         [value]="value()"
@@ -86,10 +85,11 @@ export class GridSearchField {
   protected readonly xIcon = xIcon;
   private readonly navigate = injectGridNav();
   private readonly input = viewChild<ElementRef<HTMLInputElement>>('input');
-  protected readonly maxLength = SEARCH_QUERY_MAX_LENGTH;
 
   /** The query in the URL. */
   readonly query = input('');
+  /** The longest query the list's API accepts. */
+  readonly maxLength = input<number>();
   readonly searchLabel = input('');
   readonly searchPlaceholder = input('');
   readonly clearLabel = input('');

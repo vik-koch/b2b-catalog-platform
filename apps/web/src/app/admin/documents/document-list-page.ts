@@ -13,12 +13,13 @@ import {
   DocumentExpiryState,
   fillText,
   isoToday,
+  SEARCH_QUERY_MAX_LENGTH,
 } from '@b2b-catalog-platform/shared';
 import { ProductDocument } from '@b2b-catalog-platform/shared/admin';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
-import { adminDayFormat } from '../grid/admin-date';
+import { adminDayFormat } from '../dates/admin-date';
 import { delayedLoading } from '../../shared/core/delayed-loading';
 import { AlternateLayout } from '../../shared/core/alternate-layout';
 import { usePageSeo } from '../../shared/core/page-seo';
@@ -34,7 +35,7 @@ import { GridColumn } from '../grid/grid-column';
 import { GridFilterOption } from '../grid/grid-filter-select';
 import { GridCardTemplate } from '../grid/grid-card-template';
 import { GridRowTemplate } from '../grid/grid-row-template';
-import { GridTimestamp } from '../grid/grid-timestamp';
+import { GridTimestamp } from '../dates/grid-timestamp';
 import { AdminListHeader } from '../list-header';
 import { RecordRow } from '../../shared/ui/record-row';
 import { UnpublishedCount } from '../products/unpublished-count';
@@ -93,6 +94,7 @@ type DocumentStatusFilter = (typeof STATUS_FILTERS)[number];
       [title]="text.page.title"
       [intro]="text.page.intro"
       [query]="term()"
+      [searchMaxLength]="searchMaxLength"
       [searchLabel]="text.searchAria"
       [searchPlaceholder]="text.searchPlaceholder"
       [clearSearchLabel]="text.clearSearch"
@@ -294,6 +296,7 @@ type DocumentStatusFilter = (typeof STATUS_FILTERS)[number];
   `,
 })
 export class DocumentListPage {
+  protected readonly searchMaxLength = SEARCH_QUERY_MAX_LENGTH;
   protected readonly pencilIcon = pencilIcon;
   protected readonly plusIcon = plusIcon;
   protected readonly trash2Icon = trash2Icon;

@@ -29,7 +29,7 @@ import {
   confirmRequest,
 } from '../../shared/ui/confirm.service';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
-import { adminDayFormat } from '../grid/admin-date';
+import { adminDayFormat } from '../dates/admin-date';
 import { AdminOrdersService } from './orders.service';
 import { ErrorText } from '../../shared/ui/error-text';
 import { externalLinkIcon } from '@b2b-catalog-platform/ui/icons/glyphs/external-link';

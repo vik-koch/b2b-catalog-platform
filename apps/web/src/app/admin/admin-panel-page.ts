@@ -19,7 +19,7 @@ import { ActionLink } from '../shared/ui/action-link';
 import { WorkService } from '../shared/work/work.service';
 import { BuildInfoService } from './build-info.service';
 import { injectEditorReturnParams } from '../shared/edit-mode/editor-return';
-import { adminMomentFormat } from './grid/admin-date';
+import { adminMomentFormat } from './dates/admin-date';
 import { PanelRow } from './panel-row';
 import { SettingsService } from './settings/settings.service';
 import { SyncService } from './sync/sync.service';

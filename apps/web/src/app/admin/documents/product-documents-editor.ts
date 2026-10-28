@@ -14,7 +14,7 @@ import { LinkedDocument } from '@b2b-catalog-platform/shared/admin';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
-import { adminDayFormat } from '../grid/admin-date';
+import { adminDayFormat } from '../dates/admin-date';
 import { HighlightedLine } from '../../shared/ui/highlighted-line';
 import { MatchSegmentsPipe } from '../../shared/catalog/match-segments.pipe';
 import { AlternateLayout } from '../../shared/core/alternate-layout';

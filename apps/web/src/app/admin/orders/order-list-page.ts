@@ -14,6 +14,7 @@ import {
   OrderStatus,
   orderStatusSchema,
   moneyFormat,
+  SEARCH_QUERY_MAX_LENGTH,
 } from '@b2b-catalog-platform/shared';
 import {
   StaffOrderSort,
@@ -43,7 +44,7 @@ import { GridFilterOption } from '../grid/grid-filter-select';
 import { GridPagination } from '../grid/grid-pagination';
 import { GridCardTemplate } from '../grid/grid-card-template';
 import { GridRowTemplate } from '../grid/grid-row-template';
-import { GridTimestamp } from '../grid/grid-timestamp';
+import { GridTimestamp } from '../dates/grid-timestamp';
 import { RecordRow } from '../../shared/ui/record-row';
 import { injectEditorReturnParams } from '../../shared/edit-mode/editor-return';
 import {
@@ -88,6 +89,7 @@ import { ErrorText } from '../../shared/ui/error-text';
       [title]="text.page.title"
       [intro]="text.page.intro"
       [query]="query()"
+      [searchMaxLength]="searchMaxLength"
       [searchLabel]="text.searchAria"
       [searchPlaceholder]="text.searchPlaceholder"
       [clearSearchLabel]="text.clearSearch"
@@ -245,6 +247,7 @@ import { ErrorText } from '../../shared/ui/error-text';
   `,
 })
 export class AdminOrderListPage {
+  protected readonly searchMaxLength = SEARCH_QUERY_MAX_LENGTH;
   private readonly api = inject(AdminOrdersService);
   private readonly ownership = inject(SettingsService);
   private readonly currency = moneyFormat(inject(DEPLOYMENT_CONFIG));
