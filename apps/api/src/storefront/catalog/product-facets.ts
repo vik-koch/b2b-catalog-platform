@@ -8,13 +8,13 @@ import {
   Facet,
   FacetValue,
 } from '@b2b-catalog-platform/shared/storefront/catalog';
-import * as schema from '../db/schema';
+import * as schema from '../../db/schema';
 import {
   attributeDefinitions,
   productAttributes,
   products,
-} from '../db/schema';
-import { attributeValuesCondition } from './attribute-filter';
+} from '../../db/schema';
+import { attributeValuesCondition } from '../../core/catalog/attribute-filter';
 
 /**
  * The storefront's facet panel (FR-ATTR-04/05).

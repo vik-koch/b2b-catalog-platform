@@ -2,7 +2,9 @@ import {
   CatalogImage,
   CategoryCrumb,
 } from '@b2b-catalog-platform/shared/core/catalog';
+/* eslint-disable boundaries/dependencies -- until the storefront builds its own tree */
 import { CategoryNode } from '@b2b-catalog-platform/shared/storefront/catalog';
+/* eslint-enable boundaries/dependencies */
 
 /** A flat category row as stored, the input to every tree computation below. */
 export interface CategoryRow {

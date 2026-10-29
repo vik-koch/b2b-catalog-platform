@@ -1,5 +1,5 @@
 import { desc, isNull, ne, or, sql } from 'drizzle-orm';
-import { products } from '../db/schema';
+import { products } from '../../db/schema';
 
 /**
  * What the main page's row may draw on (FR-CAT-09), on top of being publicly

@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { AuthModule } from '../auth/auth.module';
-import { AuditLogger } from '../audit/audit.logger';
+import { AuthModule } from '../../../auth/auth.module';
+import { AuditLogger } from '../../../audit/audit.logger';
 import { DocumentsController } from './documents.controller';
 import { DocumentsService } from './documents.service';
 

@@ -43,8 +43,8 @@ import {
   ProductTierPrice,
 } from '@b2b-catalog-platform/shared/admin/catalog';
 import { sanitizeProductRichText } from '@b2b-catalog-platform/shared/node';
-import { DRIZZLE } from '../db/database.module';
-import * as schema from '../db/schema';
+import { DRIZZLE } from '../../../db/database.module';
+import * as schema from '../../../db/schema';
 import {
   categories,
   customerTiers,
@@ -57,12 +57,12 @@ import {
   ProductImageRef,
   products,
   ProductVariantRef,
-} from '../db/schema';
-import { excluded } from '../db/sql-columns';
-import { SettingsService } from '../settings/settings.service';
-import { catalogExternallyOwned } from '../settings/ownership.refusals';
-import { changedProductFields } from './owned-fields';
-import { attributeFilterCondition } from './attribute-filter';
+} from '../../../db/schema';
+import { excluded } from '../../../db/sql-columns';
+import { SettingsService } from '../../../settings/settings.service';
+import { catalogExternallyOwned } from '../../../settings/ownership.refusals';
+import { changedProductFields } from '../owned-fields';
+import { attributeFilterCondition } from '../../../core/catalog/attribute-filter';
 import { documentCondition } from './document-filter';
 import {
   featureColumns,
@@ -71,14 +71,17 @@ import {
   missingCondition,
 } from './content-filter';
 import { tierPriceCondition } from './tier-price-filter';
-import { categoryBySlug, descendantIds } from './catalog-tree';
+import {
+  categoryBySlug,
+  descendantIds,
+} from '../../../core/catalog/catalog-tree';
 import {
   adminSearchCondition,
   parseSearchQuery,
   relevanceScore,
   setSearchThreshold,
-} from './product-search';
-import { adminProductOrderBy } from './product-sort';
+} from '../../../core/catalog/product-search';
+import { adminProductOrderBy } from '../../../core/catalog/product-sort';
 import {
   availabilityColumns,
   partsColumns,
@@ -86,25 +89,29 @@ import {
   noteColumns,
   toUnpricedListItem,
   unitColumns,
-} from './product-view';
-import { counterpartOf, involves, pairedCountOf } from './product-pairings';
+} from '../../../core/catalog/product-view';
+import {
+  counterpartOf,
+  involves,
+  pairedCountOf,
+} from '../../../core/catalog/product-pairings';
 import { defaultTierId } from './default-tier';
-import { resolvedPriceMinor } from './product-price';
+import { resolvedPriceMinor } from '../../../core/catalog/product-price';
 import {
   ALTERNATE_LAYOUT,
   LOW_STOCK_THRESHOLD_PIECES,
-} from '../config/deployment-config';
+} from '../../../config/deployment-config';
 import {
   resolveNewSlug,
   resolveNewProductSourceId,
   resolveSlugOverride,
   resolveProductSourceIdOverride,
   runUnique,
-} from './catalog-identity';
+} from '../catalog-identity';
 import {
   assertCategoryExists,
   categoryNotFound,
-} from './admin-categories.service';
+} from '../categories/admin-categories.service';
 
 /**
  * A function rather than a constant so each throw gets its own stack; the code

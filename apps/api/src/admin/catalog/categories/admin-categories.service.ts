@@ -11,22 +11,22 @@ import {
   CategoryInput,
   ReorderCategoriesRequest,
 } from '@b2b-catalog-platform/shared/admin/catalog';
-import { DRIZZLE } from '../db/database.module';
-import * as schema from '../db/schema';
-import { categories, products } from '../db/schema';
-import { SettingsService } from '../settings/settings.service';
-import { catalogExternallyOwned } from '../settings/ownership.refusals';
-import { changedCategoryFields } from './owned-fields';
-import { publiclyVisible } from './product-view';
+import { DRIZZLE } from '../../../db/database.module';
+import * as schema from '../../../db/schema';
+import { categories, products } from '../../../db/schema';
+import { SettingsService } from '../../../settings/settings.service';
+import { catalogExternallyOwned } from '../../../settings/ownership.refusals';
+import { changedCategoryFields } from '../owned-fields';
+import { publiclyVisible } from '../../../core/catalog/product-view';
 import { hasCycle } from './category-cycle';
-import { subtreeCounts } from './catalog-tree';
+import { subtreeCounts } from '../../../core/catalog/catalog-tree';
 import {
   resolveNewSlug,
   resolveNewCategorySourceId,
   resolveSlugOverride,
   resolveCategorySourceIdOverride,
   runUnique,
-} from './catalog-identity';
+} from '../catalog-identity';
 
 /**
  * A 404 rather than a foreign-key error: the editors render this message.

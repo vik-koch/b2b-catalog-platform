@@ -2,10 +2,10 @@ import { Controller } from '@nestjs/common';
 import { Implement, implement } from '@orpc/nest';
 import { AuthUser } from '@b2b-catalog-platform/shared';
 import { tiersContract } from '@b2b-catalog-platform/shared/admin/catalog';
-import { Auth } from '../auth/auth.decorator';
-import { CurrentUser } from '../auth/current-user.decorator';
-import { AuditLogger } from '../audit/audit.logger';
-import { refusals } from '../orpc/refusals';
+import { Auth } from '../../../auth/auth.decorator';
+import { CurrentUser } from '../../../auth/current-user.decorator';
+import { AuditLogger } from '../../../audit/audit.logger';
+import { refusals } from '../../../orpc/refusals';
 import { TiersService } from './tiers.service';
 
 /**

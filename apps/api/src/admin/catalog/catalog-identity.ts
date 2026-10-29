@@ -3,8 +3,8 @@ import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { eq } from 'drizzle-orm';
 import { randomUUID } from 'node:crypto';
 import { slugify } from '@b2b-catalog-platform/shared/core/catalog';
-import * as schema from '../db/schema';
-import { categories, products } from '../db/schema';
+import * as schema from '../../db/schema';
+import { categories, products } from '../../db/schema';
 
 /**
  * How a product and a category get the two names they are addressed by: the

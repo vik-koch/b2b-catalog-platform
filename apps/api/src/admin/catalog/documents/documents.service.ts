@@ -8,9 +8,9 @@ import {
   ProductDocument,
   StoredDocumentFile,
 } from '@b2b-catalog-platform/shared/admin/catalog';
-import { DRIZZLE } from '../db/database.module';
-import * as schema from '../db/schema';
-import { documentProducts, documents, products } from '../db/schema';
+import { DRIZZLE } from '../../../db/database.module';
+import * as schema from '../../../db/schema';
+import { documentProducts, documents, products } from '../../../db/schema';
 
 /** The one 404 the document itself has; a function so each throw gets its own
  * stack. */

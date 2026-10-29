@@ -1,4 +1,4 @@
-import { attributeDefinitions, categoryAttributes } from '../db/schema';
+import { attributeDefinitions, categoryAttributes } from '../../db/schema';
 import { CategoryRow } from './catalog-tree';
 
 /**

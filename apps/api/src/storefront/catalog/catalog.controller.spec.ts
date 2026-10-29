@@ -3,7 +3,7 @@ import { Test } from '@nestjs/testing';
 import { CatalogController } from './catalog.controller';
 import { CatalogService } from './catalog.service';
 import { ThrottlerGuard } from '@nestjs/throttler';
-import { OptionalAuthGuard } from '../auth/optional-auth.guard';
+import { OptionalAuthGuard } from '../../auth/optional-auth.guard';
 
 /**
  * Over a real server, for the three things that only exist there: how the

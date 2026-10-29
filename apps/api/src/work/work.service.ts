@@ -17,7 +17,7 @@ import {
 } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { DRIZZLE } from '../db/database.module';
-import { resolvedPriceMinor } from '../catalog/product-price';
+import { resolvedPriceMinor } from '../core/catalog/product-price';
 import * as schema from '../db/schema';
 
 const { documents, orderRevisions, orders, products, syncRuns, users } = schema;

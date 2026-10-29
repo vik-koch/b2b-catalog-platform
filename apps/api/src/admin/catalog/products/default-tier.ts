@@ -1,7 +1,7 @@
 import { eq } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import * as schema from '../db/schema';
-import { customerTiers } from '../db/schema';
+import * as schema from '../../../db/schema';
+import { customerTiers } from '../../../db/schema';
 
 /**
  * The price list guests are charged and a product must be priced in to be

@@ -1,4 +1,4 @@
-import { DefinitionRow } from './category-filters';
+import { DefinitionRow } from '../../core/catalog/category-filters';
 import { ResolvedSelection } from './product-facets';
 import { carriedSelections, selectionParams } from './subcategory-links';
 

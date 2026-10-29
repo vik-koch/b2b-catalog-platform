@@ -1,7 +1,7 @@
 import { drizzle, NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { and, SQL } from 'drizzle-orm';
-import * as schema from '../db/schema';
-import { products } from '../db/schema';
+import * as schema from '../../db/schema';
+import { products } from '../../db/schema';
 import {
   buildFacets,
   resolveSelections,

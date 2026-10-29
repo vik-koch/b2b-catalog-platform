@@ -1,9 +1,9 @@
 import { and, eq, inArray, or, SQL, sql } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import * as schema from '../db/schema';
+import * as schema from '../../db/schema';
 import { PgColumn } from 'drizzle-orm/pg-core';
-import { productPairings, products } from '../db/schema';
-import { qualified } from '../db/sql-columns';
+import { productPairings, products } from '../../db/schema';
+import { qualified } from '../../db/sql-columns';
 
 /**
  * Sold-together pairings as the storefront reads them (FR-SET-05). The admin

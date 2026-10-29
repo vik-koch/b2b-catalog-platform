@@ -3,12 +3,12 @@ import { Implement, implement } from '@orpc/nest';
 import { catalogContract } from '@b2b-catalog-platform/shared/storefront/catalog';
 import { parseAttributeParams } from '@b2b-catalog-platform/shared/core/catalog';
 import { CatalogService } from './catalog.service';
-import { PricingTier } from '../auth/pricing-tier.decorator';
-import { TierPriced } from '../auth/tier-priced.decorator';
+import { PricingTier } from '../../auth/pricing-tier.decorator';
+import { TierPriced } from '../../auth/tier-priced.decorator';
 import {
   SearchThrottle,
   SuggestionThrottle,
-} from '../throttling/throttle-presets';
+} from '../../throttling/throttle-presets';
 
 /**
  * The storefront read API (FR-CAT-01…05), backed by the database. The

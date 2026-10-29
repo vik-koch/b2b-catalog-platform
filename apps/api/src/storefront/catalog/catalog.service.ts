@@ -44,9 +44,9 @@ import {
   KeyboardLayout,
 } from '@b2b-catalog-platform/shared/platform';
 import { effectiveTaxRate, TaxConfig } from '@b2b-catalog-platform/shared';
-import { ALTERNATE_LAYOUT, TAX_CONFIG } from '../config/deployment-config';
-import { DRIZZLE } from '../db/database.module';
-import * as schema from '../db/schema';
+import { ALTERNATE_LAYOUT, TAX_CONFIG } from '../../config/deployment-config';
+import { DRIZZLE } from '../../db/database.module';
+import * as schema from '../../db/schema';
 import {
   attributeDefinitions,
   catalogAttributes,
@@ -59,7 +59,7 @@ import {
   productPairings,
   products,
   orderItems,
-} from '../db/schema';
+} from '../../db/schema';
 import {
   ancestorsOf,
   buildCategoryTree,
@@ -70,7 +70,7 @@ import {
   directChildren,
   stockedCategoryIds,
   subtreeCounts,
-} from './catalog-tree';
+} from '../../core/catalog/catalog-tree';
 import {
   parseSearchQuery,
   categoryNameCondition,
@@ -78,9 +78,12 @@ import {
   relevanceScore,
   searchCondition,
   setSearchThreshold,
-} from './product-search';
-import { livePriceMinor } from './product-price';
-import { catalogOrderBy, productOrderBy } from './product-sort';
+} from '../../core/catalog/product-search';
+import { livePriceMinor } from '../../core/catalog/product-price';
+import {
+  catalogOrderBy,
+  productOrderBy,
+} from '../../core/catalog/product-sort';
 import {
   boxDimensionsOf,
   packagingOf,
@@ -93,8 +96,12 @@ import {
   noteColumns,
   unitColumns,
   unitPricesOf,
-} from './product-view';
-import { counterpartOf, involves, pairedCountOf } from './product-pairings';
+} from '../../core/catalog/product-view';
+import {
+  counterpartOf,
+  involves,
+  pairedCountOf,
+} from '../../core/catalog/product-pairings';
 import {
   featuredRowCandidate,
   featuredRowOrder,
@@ -111,7 +118,7 @@ import {
   categoryChain,
   DefinitionRow,
   resolveCategoryDefinitions,
-} from './category-filters';
+} from '../../core/catalog/category-filters';
 import { SearchLogger } from './search.logger';
 
 interface Pagination {

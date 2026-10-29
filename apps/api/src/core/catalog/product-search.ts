@@ -7,7 +7,7 @@ import {
   SEARCH_QUERY_MAX_LENGTH,
   searchTerms,
 } from '@b2b-catalog-platform/shared/core/catalog';
-import { products } from '../db/schema';
+import { products } from '../../db/schema';
 
 /**
  * Name matching — shared by the storefront search, the admin grid's

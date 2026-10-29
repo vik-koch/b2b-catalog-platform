@@ -20,7 +20,7 @@ import {
 import { pairingShortfalls } from '@b2b-catalog-platform/shared/node';
 import * as schema from '../db/schema';
 import { products } from '../db/schema';
-import { livePriceMinor } from '../catalog/product-price';
+import { livePriceMinor } from '../core/catalog/product-price';
 import {
   availabilityColumns,
   packagingOf,
@@ -30,8 +30,8 @@ import {
   publiclyVisible,
   unitColumns,
   unitPricesOf,
-} from '../catalog/product-view';
-import { pairedCountOf, pairingsAmong } from '../catalog/product-pairings';
+} from '../core/catalog/product-view';
+import { pairedCountOf, pairingsAmong } from '../core/catalog/product-pairings';
 
 /**
  * Pricing a cart, once, for both the preview and the submission — a submitted

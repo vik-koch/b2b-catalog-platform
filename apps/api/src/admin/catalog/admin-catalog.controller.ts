@@ -2,13 +2,15 @@ import { Controller } from '@nestjs/common';
 import { Implement, implement } from '@orpc/nest';
 import { AuthUser } from '@b2b-catalog-platform/shared';
 import { adminCatalogContract } from '@b2b-catalog-platform/shared/admin/catalog';
-import { Auth } from '../auth/auth.decorator';
-import { CurrentUser } from '../auth/current-user.decorator';
-import { AuditLogger } from '../audit/audit.logger';
-import { refusals } from '../orpc/refusals';
-import { AdminCategoriesService } from './admin-categories.service';
-import { AdminProductsService } from './admin-products.service';
-import { CatalogService } from './catalog.service';
+import { Auth } from '../../auth/auth.decorator';
+import { CurrentUser } from '../../auth/current-user.decorator';
+import { AuditLogger } from '../../audit/audit.logger';
+import { refusals } from '../../orpc/refusals';
+import { AdminCategoriesService } from './categories/admin-categories.service';
+import { AdminProductsService } from './products/admin-products.service';
+/* eslint-disable boundaries/dependencies -- until the product page read moves to core */
+import { CatalogService } from '../../storefront/catalog/catalog.service';
+/* eslint-enable boundaries/dependencies */
 
 /**
  * The admin catalog write surface. Every route is admin-only; the service

@@ -2,13 +2,15 @@ import { ConflictException, INestApplication } from '@nestjs/common';
 import { APP_FILTER } from '@nestjs/core';
 import { Test } from '@nestjs/testing';
 import { AdminCatalogController } from './admin-catalog.controller';
-import { CatalogService } from './catalog.service';
-import { AdminCategoriesService } from './admin-categories.service';
-import { AdminProductsService } from './admin-products.service';
-import { AuditLogger } from '../audit/audit.logger';
-import { ContractErrorFilter } from '../orpc/contract-error.filter';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { RolesGuard } from '../auth/roles.guard';
+/* eslint-disable boundaries/dependencies -- until the product page read moves to core */
+import { CatalogService } from '../../storefront/catalog/catalog.service';
+/* eslint-enable boundaries/dependencies */
+import { AdminCategoriesService } from './categories/admin-categories.service';
+import { AdminProductsService } from './products/admin-products.service';
+import { AuditLogger } from '../../audit/audit.logger';
+import { ContractErrorFilter } from '../../orpc/contract-error.filter';
+import { JwtAuthGuard } from '../../auth/jwt-auth.guard';
+import { RolesGuard } from '../../auth/roles.guard';
 
 /**
  * The write surface over a real server. The service raises its refusals as

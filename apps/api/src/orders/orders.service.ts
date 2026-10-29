@@ -79,7 +79,7 @@ import {
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { alias, PgColumn } from 'drizzle-orm/pg-core';
 import { AddressesService } from '../addresses/addresses.service';
-import { publiclyVisible } from '../catalog/product-view';
+import { publiclyVisible } from '../core/catalog/product-view';
 import {
   BILLING_ADDRESS_ENABLED,
   ACCEPTED_CUSTOMER_TYPES,

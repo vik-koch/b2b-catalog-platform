@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
-import { AuthModule } from '../auth/auth.module';
-import { SettingsModule } from '../settings/settings.module';
-import { AuditLogger } from '../audit/audit.logger';
+import { AuthModule } from '../../../auth/auth.module';
+import { SettingsModule } from '../../../settings/settings.module';
+import { AuditLogger } from '../../../audit/audit.logger';
 import { TiersController } from './tiers.controller';
 import { TiersService } from './tiers.service';
 

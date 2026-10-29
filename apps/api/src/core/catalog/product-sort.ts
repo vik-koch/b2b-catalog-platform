@@ -1,11 +1,13 @@
 import { asc, desc, sql, SQL } from 'drizzle-orm';
 import { PgColumn } from 'drizzle-orm/pg-core';
+/* eslint-disable boundaries/dependencies -- until each audience orders its own listing */
 import {
   CatalogSort,
   SearchSort,
 } from '@b2b-catalog-platform/shared/storefront/catalog';
 import { AdminProductSort } from '@b2b-catalog-platform/shared/admin/catalog';
-import { products } from '../db/schema';
+/* eslint-enable boundaries/dependencies */
+import { products } from '../../db/schema';
 import { resolvedPriceMinor } from './product-price';
 
 /**

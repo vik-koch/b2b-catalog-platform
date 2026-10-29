@@ -23,11 +23,16 @@ import {
   TierInput,
 } from '@b2b-catalog-platform/shared/admin/catalog';
 import { OWNED_TIER_FIELDS } from '@b2b-catalog-platform/shared/sync';
-import { DRIZZLE } from '../db/database.module';
-import * as schema from '../db/schema';
-import { customerTiers, productPrices, products, users } from '../db/schema';
-import { SettingsService } from '../settings/settings.service';
-import { catalogExternallyOwned } from '../settings/ownership.refusals';
+import { DRIZZLE } from '../../../db/database.module';
+import * as schema from '../../../db/schema';
+import {
+  customerTiers,
+  productPrices,
+  products,
+  users,
+} from '../../../db/schema';
+import { SettingsService } from '../../../settings/settings.service';
+import { catalogExternallyOwned } from '../../../settings/ownership.refusals';
 
 /**
  * Only customers are counted against a price list. Staff carry a null `tierId`

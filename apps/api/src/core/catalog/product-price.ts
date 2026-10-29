@@ -1,7 +1,7 @@
 import { SQL, sql } from 'drizzle-orm';
 import { PgColumn } from 'drizzle-orm/pg-core';
-import { customerTiers, productPrices, products } from '../db/schema';
-import { qualified } from '../db/sql-columns';
+import { customerTiers, productPrices, products } from '../../db/schema';
+import { qualified } from '../../db/sql-columns';
 
 /**
  * Tier price resolution (FR-AUTH-05). One definition shared by every read that

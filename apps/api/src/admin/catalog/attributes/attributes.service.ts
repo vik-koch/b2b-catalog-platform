@@ -31,8 +31,8 @@ import {
   ReorderAttributesRequest,
 } from '@b2b-catalog-platform/shared/admin/catalog';
 import { slugify } from '@b2b-catalog-platform/shared/core/catalog';
-import { DRIZZLE } from '../db/database.module';
-import * as schema from '../db/schema';
+import { DRIZZLE } from '../../../db/database.module';
+import * as schema from '../../../db/schema';
 import {
   attributeDefinitions,
   catalogAttributes,
@@ -40,12 +40,12 @@ import {
   categoryAttributes,
   productAttributes,
   products,
-} from '../db/schema';
+} from '../../../db/schema';
 import {
   categoryChain,
   CategoryAttributeRow,
-} from '../catalog/category-filters';
-import { CategoryRow, descendantIds } from '../catalog/catalog-tree';
+} from '../../../core/catalog/category-filters';
+import { CategoryRow, descendantIds } from '../../../core/catalog/catalog-tree';
 
 /** The one 404 this surface has; a function so each throw gets its own stack. */
 const notFound = () =>

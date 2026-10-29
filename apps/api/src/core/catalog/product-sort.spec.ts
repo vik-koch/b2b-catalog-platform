@@ -1,10 +1,12 @@
 import { sql } from 'drizzle-orm';
 import { PgDialect } from 'drizzle-orm/pg-core';
+/* eslint-disable boundaries/dependencies -- until each audience orders its own listing */
 import {
   productSortSchema,
   searchSortSchema,
 } from '@b2b-catalog-platform/shared/storefront/catalog';
 import { adminProductSortSchema } from '@b2b-catalog-platform/shared/admin/catalog';
+/* eslint-enable boundaries/dependencies */
 import {
   adminProductOrderBy,
   catalogOrderBy,
