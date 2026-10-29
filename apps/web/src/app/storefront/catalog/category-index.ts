@@ -6,7 +6,7 @@ import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { LoadErrorView } from '../pages/load-error-view';
 import { CatalogService } from './catalog.service';
 import { CategoryChildren } from './category-children';
-import { CategoryChip } from './category-chip';
+import { CategoryChip } from './ui/category-chip';
 
 /**
  * The grid the categories stand in, on the same column family as a listing:

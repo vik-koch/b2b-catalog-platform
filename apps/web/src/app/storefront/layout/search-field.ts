@@ -31,7 +31,7 @@ import {
 } from '@b2b-catalog-platform/shared';
 import { CartAddResult, CartService } from '../../shared/cart/cart.service';
 import { CatalogService } from '../catalog/catalog.service';
-import { CategoryChip } from '../catalog/category-chip';
+import { CategoryChip } from '../catalog/ui/category-chip';
 import { ImagePlaceholder } from '@b2b-catalog-platform/ui/content/image-placeholder';
 import { useProductUnits } from '../../shared/catalog/product-units-view';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
