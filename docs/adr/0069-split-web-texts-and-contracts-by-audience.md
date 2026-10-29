@@ -21,35 +21,37 @@ configuration, and no smaller bundle: the admin is already lazy.
 
 ## Decision
 
-Three levels, the same at each layer, with lint rules enforcing the direction:
+The audience is the first cut at each layer, with lint rules enforcing the
+direction; [ADR 0073](0073-cut-the-code-by-area-and-audience.md) cuts each
+audience by area and names the levels below it:
 
-- **Web code:** `storefront/`, `admin/` and `shared/`. The storefront and the
-  admin import shared code and never each other; shared code imports neither;
+- **Web code:** `storefront/` and `admin/`, over `core/` (an area's code both
+  sides use) and `platform/` (code that knows no area). The storefront and the
+  admin import the levels below and never each other; those import neither;
   only the root (`app.ts`, `app.config*`, `app.routes*`) composes both. Edit mode
   reaches the admin's catalog client through an injection token the root
   provides, never by import.
 - **Texts:** `storefront.json` (the customers' wording, injected), `admin.json`
   (the staff's, fetched) and `shared.json` (everyone's, and the API's). Each side
-  reads its own text and the shared one; shared code, which shows one side's
-  view to the other, reads all three.
-- **Contracts:** an entry point per audience of the route —
-  `@b2b-catalog-platform/shared` (public and signed-in routes, and the shapes
-  every side uses), `/storefront`, `/admin` (staff routes), `/sync` (the machine
-  routes and the exchange) and `/node` (what only the server runs). A staff half
-  extends the public shapes, never the reverse. Each side of the web app gets a
-  generated routes file typed against its own entry points.
+  reads its own text and the shared one; core code, which shows one side's view
+  to the other, reads all three. Texts are cut by audience only, not by area.
+- **Contracts:** entry points by the audience of the route —
+  `/storefront/<area>` (public and signed-in routes), `/admin/<area>` (staff
+  routes), `/machine/<area>` (the exchange), `/core/<area>` and `/platform` (the
+  values and shapes every side uses) and `/node` (what only the server runs). A
+  staff shape and a customer shape are built from the same core values and never
+  import each other. Each side of the web app gets a generated routes file typed
+  against its own entry points.
 
 ## Rationale
 
 - **The line that is real there.** In the web app the audience is the boundary:
   a separate UI, its own wording, delivered differently, loaded lazily. In the
-  contracts it is the role check behind each route. The API keeps its domain
-  folders, because there the audience already is the controller and its guard,
-  and audience folders would cut every domain in two.
-- **Shared by use, not by guess.** Something enters `shared/` only when both
-  sides use it: the product views the admin previews, the session, an order's
-  labels. Edit mode lives there too, as the admin's controls on storefront
-  pages, and its one call into the admin goes through the token.
+  contracts and the API it is the role check behind each route.
+- **Shared by use, not by guess.** Something enters `core/` only when both
+  sides use it: the product views the admin previews, an order's labels. Edit
+  mode lives there too, as the admin's controls on storefront pages, and its one
+  call into the admin goes through the token.
 - **Wording follows its reader.** Staff shown what a customer sees — the
   preview, an address form, the customer's version of an order — read the
   customer's wording; staff wording that only resembled it (a load error, the
@@ -66,9 +68,9 @@ Three levels, the same at each layer, with lint rules enforcing the direction:
 - (+) Where a file belongs, and who may call a route, is read off its path.
 - (+) A wrong-way import, static or lazy, fails lint; so does a side reading the
   other side's text.
-- (−) `shared/` is the largest level in both places, because most contracts and
-  the product views genuinely serve both sides.
-- (−) A shape both sides need sometimes has to move to the shared level first,
+- (−) `core/` is the largest level in both places, because most values and the
+  product views genuinely serve both sides.
+- (−) A shape both sides need sometimes has to move to `core/` first,
   as the product page's documents and the machine token's scopes did.
 - (−) Operators rename two text files and move a few keys when they upgrade;
   `migrate-config` does it from the release's map.
