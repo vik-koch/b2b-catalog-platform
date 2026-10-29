@@ -89,5 +89,6 @@ The index below is generated from each record's heading and status line
 | 0070 | [Build every form on Signal Forms, around one field shell](0070-build-forms-on-signal-forms.md) | 2026-10-26 | accepted |
 | 0071 | [Keep the UI building blocks in a library apart from the app](0071-a-ui-library-apart-from-the-app.md) | 2026-10-27 | accepted |
 | 0072 | [Keep the web app's views apart from what loads and changes data](0072-keep-views-apart-from-what-loads-data.md) | 2026-10-28 | accepted |
+| 0073 | [Cut every layer by area and audience, with a core per area](0073-cut-the-code-by-area-and-audience.md) | 2026-10-29 | accepted |
 
 <!-- /generated:adr-index -->

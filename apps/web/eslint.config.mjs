@@ -1,5 +1,6 @@
 import nx from '@nx/eslint-plugin';
 import baseConfig from '../../eslint.config.mjs';
+import { areaBoundaries } from '../../tools/lint/area-boundaries.mjs';
 import { classLines } from '../../tools/lint/class-lines.mjs';
 import {
   classFieldColours,
@@ -34,6 +35,7 @@ export default [
   ...nx.configs['flat/angular-template'],
   ...baseConfig,
   ...classLines,
+  areaBoundaries('src/app'),
   tailwindChecks(`${import.meta.dirname}/src/styles.css`, [
     // Plain classes styles.css defines outside Tailwind.
     '^text-stable$',
