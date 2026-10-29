@@ -7,7 +7,10 @@ import { CurrentUser } from '../../../auth/current-user.decorator';
 import { AuditLogger } from '../../../audit/audit.logger';
 import { refusals } from '../../../orpc/refusals';
 import { CatalogReader } from '../../../core/catalog/catalog-reader';
-import { AdminProductsService } from './admin-products.service';
+import { ProductEditorService } from './product-editor.service';
+import { ProductGridService } from './product-grid.service';
+import { ProductLifecycleService } from './product-lifecycle.service';
+import { ProductRecords } from './product-records';
 import { productPageOf } from './product-page';
 
 /**
@@ -21,7 +24,10 @@ import { productPageOf } from './product-page';
 @Controller()
 export class AdminProductsController {
   constructor(
-    private readonly products: AdminProductsService,
+    private readonly grid: ProductGridService,
+    private readonly records: ProductRecords,
+    private readonly editor: ProductEditorService,
+    private readonly lifecycle: ProductLifecycleService,
     private readonly reader: CatalogReader,
     private readonly audit: AuditLogger,
   ) {}
@@ -30,7 +36,7 @@ export class AdminProductsController {
   listProducts() {
     return implement(adminProductsContract.listProducts)
       .use(refusals)
-      .handler(({ input: { query } }) => this.products.listProducts(query));
+      .handler(({ input: { query } }) => this.grid.listProducts(query));
   }
 
   @Implement(adminProductsContract.getProduct)
@@ -38,7 +44,7 @@ export class AdminProductsController {
     return implement(adminProductsContract.getProduct)
       .use(refusals)
       .handler(async ({ input: { params }, errors }) => {
-        const product = await this.products.getProduct(params.slug);
+        const product = await this.records.get(params.slug);
         if (!product) {
           throw errors['product-not-found']({ message: 'Product not found' });
         }
@@ -68,7 +74,7 @@ export class AdminProductsController {
     return implement(adminProductsContract.createProduct)
       .use(refusals)
       .handler(async ({ input: { body } }) => {
-        const product = await this.products.createProduct(body, user.id);
+        const product = await this.editor.createProduct(body, user.id);
         this.audit.record('product.created', user, product);
         return product;
       });
@@ -79,7 +85,7 @@ export class AdminProductsController {
     return implement(adminProductsContract.updateProduct)
       .use(refusals)
       .handler(async ({ input: { params, body } }) => {
-        const product = await this.products.updateProduct(
+        const product = await this.editor.updateProduct(
           params.slug,
           body,
           user.id,
@@ -94,7 +100,10 @@ export class AdminProductsController {
     return implement(adminProductsContract.deleteProduct)
       .use(refusals)
       .handler(async ({ input: { params } }) => {
-        const product = await this.products.deleteProduct(params.slug, user.id);
+        const product = await this.lifecycle.deleteProduct(
+          params.slug,
+          user.id,
+        );
         this.audit.record('product.deleted', user, product);
         return product;
       });
@@ -105,7 +114,7 @@ export class AdminProductsController {
     return implement(adminProductsContract.restoreProduct)
       .use(refusals)
       .handler(async ({ input: { params } }) => {
-        const product = await this.products.restoreProduct(
+        const product = await this.lifecycle.restoreProduct(
           params.slug,
           user.id,
         );
@@ -119,7 +128,7 @@ export class AdminProductsController {
     return implement(adminProductsContract.purgeProduct)
       .use(refusals)
       .handler(async ({ input: { params } }) => {
-        const product = await this.products.purgeProduct(params.slug);
+        const product = await this.lifecycle.purgeProduct(params.slug);
         this.audit.record('product.purged', user, product);
         return product;
       });
@@ -130,7 +139,7 @@ export class AdminProductsController {
     return implement(adminProductsContract.listStrandedPairings)
       .use(refusals)
       .handler(async ({ input: { params } }) => ({
-        items: await this.products.listStrandedPairings(params.slug),
+        items: await this.lifecycle.listStrandedPairings(params.slug),
       }));
   }
 
@@ -139,7 +148,7 @@ export class AdminProductsController {
     return implement(adminProductsContract.setProductPublished)
       .use(refusals)
       .handler(async ({ input: { params, body } }) => {
-        const product = await this.products.setProductPublished(
+        const product = await this.lifecycle.setProductPublished(
           params.slug,
           body.published,
           user.id,
@@ -158,7 +167,7 @@ export class AdminProductsController {
     return implement(adminProductsContract.listHiddenProducts)
       .use(refusals)
       .handler(async ({ input: { params } }) => ({
-        items: await this.products.listHiddenProducts(params.slug),
+        items: await this.grid.listHiddenProducts(params.slug),
       }));
   }
 }

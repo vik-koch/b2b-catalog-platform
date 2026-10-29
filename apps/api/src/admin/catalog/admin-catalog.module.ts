@@ -2,7 +2,10 @@ import { Module } from '@nestjs/common';
 import { AdminCategoriesController } from './categories/categories.controller';
 import { AdminProductsController } from './products/products.controller';
 import { AdminCategoriesService } from './categories/admin-categories.service';
-import { AdminProductsService } from './products/admin-products.service';
+import { ProductEditorService } from './products/product-editor.service';
+import { ProductGridService } from './products/product-grid.service';
+import { ProductLifecycleService } from './products/product-lifecycle.service';
+import { ProductRecords } from './products/product-records';
 import { AuditLogger } from '../../audit/audit.logger';
 import { AuthModule } from '../../auth/auth.module';
 import { SettingsModule } from '../../settings/settings.module';
@@ -22,7 +25,10 @@ import {
   imports: [AuthModule, SettingsModule, CatalogCoreModule],
   controllers: [AdminProductsController, AdminCategoriesController],
   providers: [
-    AdminProductsService,
+    ProductRecords,
+    ProductGridService,
+    ProductEditorService,
+    ProductLifecycleService,
     AdminCategoriesService,
     AuditLogger,
     {

@@ -5,7 +5,10 @@ import { AdminCategoriesController } from './categories/categories.controller';
 import { AdminProductsController } from './products/products.controller';
 import { CatalogReader } from '../../core/catalog/catalog-reader';
 import { AdminCategoriesService } from './categories/admin-categories.service';
-import { AdminProductsService } from './products/admin-products.service';
+import { ProductEditorService } from './products/product-editor.service';
+import { ProductGridService } from './products/product-grid.service';
+import { ProductLifecycleService } from './products/product-lifecycle.service';
+import { ProductRecords } from './products/product-records';
 import { AuditLogger } from '../../audit/audit.logger';
 import { ContractErrorFilter } from '../../orpc/contract-error.filter';
 import { JwtAuthGuard } from '../../auth/jwt-auth.guard';
@@ -54,7 +57,19 @@ describe('the admin catalog routes', () => {
     const moduleRef = await Test.createTestingModule({
       controllers: [AdminProductsController, AdminCategoriesController],
       providers: [
-        { provide: AdminProductsService, useValue: products },
+        {
+          provide: ProductGridService,
+          useValue: { listProducts: products.listProducts },
+        },
+        { provide: ProductRecords, useValue: { get: products.getProduct } },
+        {
+          provide: ProductEditorService,
+          useValue: {
+            createProduct: products.createProduct,
+            updateProduct: products.updateProduct,
+          },
+        },
+        { provide: ProductLifecycleService, useValue: {} },
         { provide: AdminCategoriesService, useValue: categories },
         { provide: CatalogReader, useValue: {} },
         { provide: AuditLogger, useValue: { record: vi.fn() } },
