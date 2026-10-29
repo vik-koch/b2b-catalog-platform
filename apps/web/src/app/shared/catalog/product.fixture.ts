@@ -1,4 +1,7 @@
-import { ProductDetail, ProductListItem } from '@b2b-catalog-platform/shared';
+import {
+  ProductDetail,
+  ProductListItem,
+} from '@b2b-catalog-platform/shared/core/catalog';
 
 /**
  * Product fixtures for unit specs, so a new contract field is filled in here

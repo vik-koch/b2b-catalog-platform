@@ -1,7 +1,7 @@
-import { SitemapEntry } from '@b2b-catalog-platform/shared';
+import { SitemapEntry } from '@b2b-catalog-platform/shared/storefront/catalog';
 import { requireEnv } from '../../../env';
-import { getDeploymentConfig } from './deployment-config.server';
-import { isMaintenanceOn } from './maintenance.server';
+import { getDeploymentConfig } from '../../shared/config/deployment-config.server';
+import { isMaintenanceOn } from '../../shared/config/maintenance.server';
 
 /**
  * Server-side SEO surface: robots.txt, sitemap.xml, and the environment-level

@@ -16,7 +16,7 @@ import {
   ne,
   sql,
 } from 'drizzle-orm';
-import { parseAttributeNumber } from '@b2b-catalog-platform/shared';
+import { parseAttributeNumber } from '@b2b-catalog-platform/shared/core/catalog';
 import {
   AttributeDefinition,
   AttributeDefinitionInput,
@@ -29,8 +29,8 @@ import {
   RenameAttributeKeyRequest,
   RenameAttributeValueRequest,
   ReorderAttributesRequest,
-  slugify,
-} from '@b2b-catalog-platform/shared/admin';
+} from '@b2b-catalog-platform/shared/admin/catalog';
+import { slugify } from '@b2b-catalog-platform/shared/core/catalog';
 import { DRIZZLE } from '../db/database.module';
 import * as schema from '../db/schema';
 import {

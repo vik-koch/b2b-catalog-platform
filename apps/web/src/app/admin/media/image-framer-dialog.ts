@@ -12,7 +12,7 @@ import {
 import {
   MEDIA_CATALOG_FULL_WIDTH,
   MEDIA_CATALOG_THUMB_WIDTH,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/platform';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { DialogActions } from '@b2b-catalog-platform/ui/overlay/dialog-actions';

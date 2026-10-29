@@ -8,8 +8,8 @@ import {
   UnitPrices,
   piecesPerUnit,
   totalMinor,
-} from '@b2b-catalog-platform/shared';
-import { shownPictures } from '@b2b-catalog-platform/shared/admin';
+} from '@b2b-catalog-platform/shared/core/catalog';
+import { shownPictures } from '@b2b-catalog-platform/shared/core/catalog';
 import { and, isNotNull, isNull } from 'drizzle-orm';
 import { ProductImageRef, ProductVariantRef, products } from '../db/schema';
 

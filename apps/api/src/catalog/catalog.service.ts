@@ -17,19 +17,20 @@ import {
 } from 'drizzle-orm';
 import {
   AttributeSelection,
-  CATALOG_PAGE_SIZE,
   CategoryCrumb,
-  Facet,
-  CategoryNode,
-  isoToday,
   joinAttributeKey,
   ProductDetailAttribute,
   ProductDetail,
   ProductPage,
   PublicDocument,
   ProductListItem,
-  CatalogSort,
   publicDocumentSchema,
+} from '@b2b-catalog-platform/shared/core/catalog';
+import {
+  CATALOG_PAGE_SIZE,
+  Facet,
+  CategoryNode,
+  CatalogSort,
   SearchSort,
   SubcategoryLink,
   SEARCH_CATEGORY_LIMIT,
@@ -37,10 +38,12 @@ import {
   SearchCategory,
   FEATURED_ROW_SIZE,
   SitemapEntry,
-  effectiveTaxRate,
+} from '@b2b-catalog-platform/shared/storefront/catalog';
+import {
+  isoToday,
   KeyboardLayout,
-  TaxConfig,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/platform';
+import { effectiveTaxRate, TaxConfig } from '@b2b-catalog-platform/shared';
 import { ALTERNATE_LAYOUT, TAX_CONFIG } from '../config/deployment-config';
 import { DRIZZLE } from '../db/database.module';
 import * as schema from '../db/schema';

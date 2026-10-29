@@ -1,12 +1,12 @@
 import { oc } from '@orpc/contract';
 import * as z from 'zod';
-import { commonAuthErrors } from '../lib/core/api-error';
+import { commonAuthErrors } from '../../lib/core/api-error';
 import {
   ATTRIBUTE_NAME_MAX_LENGTH,
   ATTRIBUTE_VALUE_MAX_LENGTH,
-} from '../lib/catalog/attribute-value';
-import { slugSchema } from './slug';
-import { attributeTypeSchema } from '../lib/catalog/catalog.contract';
+} from '../../core/catalog/attribute-value';
+import { slugSchema } from '../../core/catalog/slug';
+import { attributeTypeSchema } from '../../core/catalog/catalog.contract';
 
 /**
  * The registry of filterable attributes (FR-ATTR-01), admin side.

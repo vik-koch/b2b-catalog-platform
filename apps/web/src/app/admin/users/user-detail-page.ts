@@ -12,11 +12,8 @@ import {
   formatPersonName,
   normalizePhone,
 } from '@b2b-catalog-platform/shared';
-import {
-  ConsentRecord,
-  CustomerTier,
-  StaffUser,
-} from '@b2b-catalog-platform/shared/admin';
+import { ConsentRecord, StaffUser } from '@b2b-catalog-platform/shared/admin';
+import { CustomerTier } from '@b2b-catalog-platform/shared/admin/catalog';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';

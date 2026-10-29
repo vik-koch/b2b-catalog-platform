@@ -2,7 +2,7 @@ import { ConflictException } from '@nestjs/common';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { eq } from 'drizzle-orm';
 import { randomUUID } from 'node:crypto';
-import { slugify } from '@b2b-catalog-platform/shared/admin';
+import { slugify } from '@b2b-catalog-platform/shared/core/catalog';
 import * as schema from '../db/schema';
 import { categories, products } from '../db/schema';
 

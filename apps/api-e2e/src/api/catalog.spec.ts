@@ -1,8 +1,8 @@
 import {
   CATALOG_PAGE_SIZE,
   FEATURED_ROW_SIZE,
-  parseAttributeNumber,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/storefront/catalog';
+import { parseAttributeNumber } from '@b2b-catalog-platform/shared/core/catalog';
 import axios from 'axios';
 import { fixtureSeed } from '../support/seed-fixture';
 

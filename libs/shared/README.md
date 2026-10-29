@@ -3,21 +3,29 @@
 What both apps read: the API contracts, the deployment's config schemas, and the constants and
 rules the storefront and the API must agree on.
 
-One entry point per audience of a route
-([ADR 0069](../../docs/adr/0069-split-web-texts-and-contracts-by-audience.md)):
+An entry point per audience and area, over `core/<area>` for what an area's audiences share and
+`platform` for what knows no area
+([ADR 0073](../../docs/adr/0073-cut-the-code-by-area-and-audience.md)). The areas move into
+this shape one at a time; until they have, their modules stay in the last five entry points.
 
 <!-- prettier-ignore -->
 | Import | Folder | What it holds |
 | --- | --- | --- |
-| `@b2b-catalog-platform/shared` | `src/lib/` | public and signed-in routes, and what every side reads, by domain: `core`, `config`, `catalog`, `orders`, `accounts`, `site` |
-| `@b2b-catalog-platform/shared/storefront` | `src/storefront/` | what only the storefront uses: the customer's own account, and checkout's delivery-zone and date rules |
-| `@b2b-catalog-platform/shared/admin` | `src/admin/` | staff routes; a staff half extends the public shapes |
+| `@b2b-catalog-platform/shared/platform` | `src/platform/` | what knows no area: media upload facts, pagination, keyboard layouts, ISO days |
+| `@b2b-catalog-platform/shared/core/catalog` | `src/core/catalog/` | the catalog's values and rules, and the product shapes both sides draw |
+| `@b2b-catalog-platform/shared/storefront/catalog` | `src/storefront/catalog/` | the storefront's catalog routes: tree, listings, facets, search, sitemap |
+| `@b2b-catalog-platform/shared/admin/catalog` | `src/admin/catalog/` | the staff's catalog routes: products, categories, attributes, documents, tiers |
+| `@b2b-catalog-platform/shared` | `src/lib/` | the areas not yet moved: public and signed-in routes, and what every side reads |
+| `@b2b-catalog-platform/shared/storefront` | `src/storefront/` | the customer's own account, and checkout's delivery-zone and date rules |
+| `@b2b-catalog-platform/shared/admin` | `src/admin/` | the other staff routes |
 | `@b2b-catalog-platform/shared/sync` | `src/sync/` | the machine API and the exchange it feeds |
 | `@b2b-catalog-platform/shared/node` | `src/node/` | what only runs on a server: loading the config directory, sanitizing rich text, server-only settings |
 
-`src/lib` imports none of the other folders; an audience's folder imports `src/lib` and itself,
-and the admin's also `src/sync`. The web app's lint rules decide which entry points each of its
-parts may import.
+An audience never imports another audience, and a staff shape and a customer shape are built
+from the same core values rather than from each other. `tools/lint/area-boundaries.mjs` holds
+this for the moved areas; for the rest, `src/lib` imports none of the other folders, an
+audience's folder imports `src/lib` and itself, and the admin's also `src/sync`. The web app's
+lint rules decide which entry points each of its parts may import.
 
 - **`*.contract.ts`** — one Zod schema per API route, implemented by the API with oRPC and
   called by the web app. A contract module exports schemas only.

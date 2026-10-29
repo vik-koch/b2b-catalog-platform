@@ -1,9 +1,7 @@
 import { Component, inject, input, output, signal } from '@angular/core';
-import {
-  ACCEPTED_IMAGE_MIME_TYPES,
-  CatalogImage,
-  fillText,
-} from '@b2b-catalog-platform/shared';
+import { ACCEPTED_IMAGE_MIME_TYPES } from '@b2b-catalog-platform/shared/platform';
+import { CatalogImage } from '@b2b-catalog-platform/shared/core/catalog';
+import { fillText } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { DropZone } from '@b2b-catalog-platform/ui/inputs/drop-zone';

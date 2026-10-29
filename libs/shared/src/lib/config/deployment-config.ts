@@ -5,7 +5,7 @@ import type { DeepReadonly } from '../core/deep-readonly';
 import { addressConfigSchema } from './address-config';
 import { companyIdInputSchema, phoneInputSchema } from './contact-config';
 import { consentConfigSchema } from './consent-config';
-import { KEYBOARD_LAYOUTS } from '../catalog/keyboard-layout';
+import { KEYBOARD_LAYOUTS } from '../../platform/keyboard-layout';
 import {
   deliveryConfigSchema,
   orderReferenceConfigSchema,

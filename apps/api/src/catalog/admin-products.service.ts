@@ -18,8 +18,8 @@ import {
   SQL,
   sql,
 } from 'drizzle-orm';
+import { ADMIN_CATALOG_PAGE_SIZE } from '@b2b-catalog-platform/shared/admin/catalog';
 import {
-  ADMIN_CATALOG_PAGE_SIZE,
   HiddenProduct,
   parseAttributeNumber,
   joinAttributeKey,
@@ -28,8 +28,8 @@ import {
   splitAttributeKey,
   productAvailability,
   ProductAvailability,
-  KeyboardLayout,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/core/catalog';
+import { KeyboardLayout } from '@b2b-catalog-platform/shared/platform';
 import {
   AdminProduct,
   AdminProductListItem,
@@ -41,7 +41,7 @@ import {
   PairedProduct,
   ProductInput,
   ProductTierPrice,
-} from '@b2b-catalog-platform/shared/admin';
+} from '@b2b-catalog-platform/shared/admin/catalog';
 import { sanitizeProductRichText } from '@b2b-catalog-platform/shared/node';
 import { DRIZZLE } from '../db/database.module';
 import * as schema from '../db/schema';

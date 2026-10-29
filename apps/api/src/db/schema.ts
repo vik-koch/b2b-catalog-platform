@@ -15,10 +15,12 @@ import {
   ORDER_STATUSES,
   PAYMENT_METHODS,
   PAYMENT_STATES,
-  PRODUCT_AVAILABILITIES,
-  PRODUCT_UNITS,
   TAX_BASES,
 } from '@b2b-catalog-platform/shared';
+import {
+  PRODUCT_AVAILABILITIES,
+  PRODUCT_UNITS,
+} from '@b2b-catalog-platform/shared/core/catalog';
 import { SETTING_CHANGE_KINDS } from '@b2b-catalog-platform/shared/admin';
 import {
   OWNERSHIP_AREAS,

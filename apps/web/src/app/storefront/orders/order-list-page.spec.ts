@@ -1,11 +1,8 @@
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import {
-  fillText,
-  OrderSummary,
-  Pagination,
-} from '@b2b-catalog-platform/shared';
+import { fillText, OrderSummary } from '@b2b-catalog-platform/shared';
+import { Pagination } from '@b2b-catalog-platform/shared/platform';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { defaultStorefrontText } from '../../shared/config/storefront-text.fixture';
 import { defaultSharedText } from '../../shared/config/shared-text.fixture';

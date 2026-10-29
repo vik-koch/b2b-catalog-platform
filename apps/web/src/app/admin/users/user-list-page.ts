@@ -11,8 +11,8 @@ import {
   COMPANY_ID_NONE,
   formatPersonName,
   userRoleSchema,
-  SEARCH_QUERY_MAX_LENGTH,
 } from '@b2b-catalog-platform/shared';
+import { SEARCH_QUERY_MAX_LENGTH } from '@b2b-catalog-platform/shared/core/catalog';
 import {
   StaffUser,
   UserKind,

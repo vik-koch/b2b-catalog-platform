@@ -3,8 +3,8 @@ import { PgDialect } from 'drizzle-orm/pg-core';
 import {
   productSortSchema,
   searchSortSchema,
-} from '@b2b-catalog-platform/shared';
-import { adminProductSortSchema } from '@b2b-catalog-platform/shared/admin';
+} from '@b2b-catalog-platform/shared/storefront/catalog';
+import { adminProductSortSchema } from '@b2b-catalog-platform/shared/admin/catalog';
 import {
   adminProductOrderBy,
   catalogOrderBy,

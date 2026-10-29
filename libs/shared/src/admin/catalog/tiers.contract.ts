@@ -5,8 +5,8 @@ import {
   TIER_KEY_MAX_LENGTH,
   TIER_KEY_PATTERN,
   TIER_LABEL_MAX_LENGTH,
-} from '../lib/accounts/tier-constants';
-import { commonAuthErrors } from '../lib/core/api-error';
+} from '../../core/catalog/tier-constants';
+import { commonAuthErrors } from '../../lib/core/api-error';
 
 /**
  * Customer tiers (FR-AUTH-05), admin side.

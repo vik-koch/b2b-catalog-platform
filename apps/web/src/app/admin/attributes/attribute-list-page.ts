@@ -15,13 +15,16 @@ import {
   signal,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { AttributeType, ATTRIBUTE_TYPES } from '@b2b-catalog-platform/shared';
-import { form, hidden, validate } from '@angular/forms/signals';
 import {
-  AttributeDefinition,
+  AttributeType,
+  ATTRIBUTE_TYPES,
+} from '@b2b-catalog-platform/shared/core/catalog';
+import { form, hidden, validate } from '@angular/forms/signals';
+import { AttributeDefinition } from '@b2b-catalog-platform/shared/admin/catalog';
+import {
   SLUG_MAX_LENGTH,
   SLUG_PATTERN,
-} from '@b2b-catalog-platform/shared/admin';
+} from '@b2b-catalog-platform/shared/core/catalog';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { usePageSeo } from '../../shared/core/page-seo';
 import { useRowAnchor } from '../../shared/core/row-anchor';

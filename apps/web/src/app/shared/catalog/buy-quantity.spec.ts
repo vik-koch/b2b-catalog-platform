@@ -2,7 +2,7 @@ import { signal } from '@angular/core';
 import {
   ProductPackagingInfo,
   ProductUnit,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/core/catalog';
 import { createBuyQuantity, QuantityLine } from './buy-quantity';
 import { packagedPackaging, plainPackaging } from './product.fixture';
 

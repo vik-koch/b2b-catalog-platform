@@ -7,14 +7,12 @@ import {
   moveItemInArray,
 } from '@angular/cdk/drag-drop';
 import { Component, inject, input, output, signal } from '@angular/core';
-import {
-  ACCEPTED_IMAGE_MIME_TYPES,
-  fillText,
-} from '@b2b-catalog-platform/shared';
+import { ACCEPTED_IMAGE_MIME_TYPES } from '@b2b-catalog-platform/shared/platform';
+import { fillText } from '@b2b-catalog-platform/shared';
 import {
   ProductImageInput,
   ProductVariantInput,
-} from '@b2b-catalog-platform/shared/admin';
+} from '@b2b-catalog-platform/shared/admin/catalog';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';

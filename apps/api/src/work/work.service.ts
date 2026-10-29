@@ -1,10 +1,6 @@
-import {
-  AuthUser,
-  DOCUMENT_EXPIRY_WARNING_DAYS,
-  isoToday,
-  UserRole,
-  WorkCounts,
-} from '@b2b-catalog-platform/shared';
+import { AuthUser, UserRole, WorkCounts } from '@b2b-catalog-platform/shared';
+import { DOCUMENT_EXPIRY_WARNING_DAYS } from '@b2b-catalog-platform/shared/core/catalog';
+import { isoToday } from '@b2b-catalog-platform/shared/platform';
 import { SyncArea } from '@b2b-catalog-platform/shared/sync';
 import { WorkQueue } from '@b2b-catalog-platform/shared/node';
 import { Inject, Injectable } from '@nestjs/common';

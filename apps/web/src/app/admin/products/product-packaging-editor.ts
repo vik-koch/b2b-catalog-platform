@@ -1,5 +1,6 @@
 import { Component, computed, inject, input, output } from '@angular/core';
-import { totalMinor, moneyFormat } from '@b2b-catalog-platform/shared';
+import { totalMinor } from '@b2b-catalog-platform/shared/core/catalog';
+import { moneyFormat } from '@b2b-catalog-platform/shared';
 import { formatPriceMinor } from '../../shared/catalog/price';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';

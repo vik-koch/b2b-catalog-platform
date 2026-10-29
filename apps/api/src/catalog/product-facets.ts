@@ -2,10 +2,12 @@ import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { and, countDistinct, eq, inArray, ne, SQL } from 'drizzle-orm';
 import {
   AttributeSelection,
+  parseAttributeNumber,
+} from '@b2b-catalog-platform/shared/core/catalog';
+import {
   Facet,
   FacetValue,
-  parseAttributeNumber,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/storefront/catalog';
 import * as schema from '../db/schema';
 import {
   attributeDefinitions,

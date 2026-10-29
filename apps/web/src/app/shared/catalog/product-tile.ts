@@ -1,6 +1,6 @@
 import { Component, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { ProductListItem } from '@b2b-catalog-platform/shared';
+import { ProductListItem } from '@b2b-catalog-platform/shared/core/catalog';
 import {
   NARROW_BODY_IN_GRID,
   NARROW_PADDING_IN_GRID,

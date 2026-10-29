@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { alternateLayoutQuery } from '@b2b-catalog-platform/shared';
+import { alternateLayoutQuery } from '@b2b-catalog-platform/shared/platform';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 
 /**

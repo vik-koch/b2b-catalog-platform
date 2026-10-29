@@ -6,11 +6,8 @@ import {
   PartySuggestion,
   UserRole,
 } from '@b2b-catalog-platform/shared';
-import {
-  CustomerTier,
-  StaffUser,
-  UserKind,
-} from '@b2b-catalog-platform/shared/admin';
+import { CustomerTier } from '@b2b-catalog-platform/shared/admin/catalog';
+import { StaffUser, UserKind } from '@b2b-catalog-platform/shared/admin';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { staffFields } from '../staff-fields';

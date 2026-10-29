@@ -21,7 +21,7 @@ import {
   CustomerTier,
   ReorderTiersRequest,
   TierInput,
-} from '@b2b-catalog-platform/shared/admin';
+} from '@b2b-catalog-platform/shared/admin/catalog';
 import { OWNED_TIER_FIELDS } from '@b2b-catalog-platform/shared/sync';
 import { DRIZZLE } from '../db/database.module';
 import * as schema from '../db/schema';

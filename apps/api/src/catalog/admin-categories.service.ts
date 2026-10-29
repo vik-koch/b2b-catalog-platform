@@ -10,7 +10,7 @@ import {
   AdminCategory,
   CategoryInput,
   ReorderCategoriesRequest,
-} from '@b2b-catalog-platform/shared/admin';
+} from '@b2b-catalog-platform/shared/admin/catalog';
 import { DRIZZLE } from '../db/database.module';
 import * as schema from '../db/schema';
 import { categories, products } from '../db/schema';

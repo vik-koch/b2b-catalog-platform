@@ -1,8 +1,8 @@
 import {
   DOCUMENT_EXPIRY_WARNING_DAYS,
   documentExpiryState,
-  isoToday,
 } from './document-constants';
+import { isoToday } from '../../platform/iso-day';
 
 /**
  * The one rule three surfaces share (FR-DOC-04): the badge in the admin list,

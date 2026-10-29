@@ -147,7 +147,7 @@ function rulesFor(part, forbidden, entries, text, extra = []) {
             message: `${part} code imports shared code, not ${forbidden.join(' or ')} code (see eslint.config.mjs).`,
           },
           {
-            regex: `^@b2b-catalog-platform/shared/(${entries.join('|')})$`,
+            regex: `^@b2b-catalog-platform/shared/(${entries.join('|')})(/|$)`,
             message: `${part} code imports the shared library's root entry${part === 'shared' ? ' only' : ` and its own, not ${entries.join(' or ')}`} (see eslint.config.mjs).`,
           },
           ...(text

@@ -2,9 +2,9 @@ import { computed, inject, Signal } from '@angular/core';
 import {
   AddressInput,
   fillText,
-  unitQuantity,
   moneyFormat,
 } from '@b2b-catalog-platform/shared';
+import { unitQuantity } from '@b2b-catalog-platform/shared/core/catalog';
 import { AddressForm } from '../../shared/addresses/address-form';
 import { addressLines } from '../../shared/addresses/address-format';
 import { CartService, CartStoredLine } from '../../shared/cart/cart.service';

@@ -1,5 +1,8 @@
 import { Component, inject, input, output } from '@angular/core';
-import { ProductImage, ProductVariant } from '@b2b-catalog-platform/shared';
+import {
+  ProductImage,
+  ProductVariant,
+} from '@b2b-catalog-platform/shared/core/catalog';
 import { STOREFRONT_TEXT } from '../config/storefront-text';
 import { SHARED_TEXT } from '../config/shared-text';
 

@@ -1,4 +1,4 @@
-import { AdminCategory } from '@b2b-catalog-platform/shared/admin';
+import { AdminCategory } from '@b2b-catalog-platform/shared/admin/catalog';
 import {
   categoryDescendantIds,
   currentOrderEntries,

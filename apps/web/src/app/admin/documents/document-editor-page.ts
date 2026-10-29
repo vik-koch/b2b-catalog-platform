@@ -2,16 +2,14 @@ import { Component, computed, forwardRef, inject, signal } from '@angular/core';
 import { form, maxLength, required, validate } from '@angular/forms/signals';
 import { filled } from '../../shared/core/field-rules';
 import { ActivatedRoute } from '@angular/router';
-import {
-  ACCEPTED_DOCUMENT_MIME_TYPES,
-  DOCUMENT_LINK_MAX_LENGTH,
-  fillText,
-} from '@b2b-catalog-platform/shared';
+import { ACCEPTED_DOCUMENT_MIME_TYPES } from '@b2b-catalog-platform/shared/platform';
+import { DOCUMENT_LINK_MAX_LENGTH } from '@b2b-catalog-platform/shared/core/catalog';
+import { fillText } from '@b2b-catalog-platform/shared';
 import {
   DocumentInput,
   DocumentProduct,
   StoredDocumentFile,
-} from '@b2b-catalog-platform/shared/admin';
+} from '@b2b-catalog-platform/shared/admin/catalog';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { delayedLoading } from '../../shared/core/delayed-loading';

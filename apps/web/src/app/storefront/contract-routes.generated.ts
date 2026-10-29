@@ -5,6 +5,7 @@
 // contract defines; the imports below are type-only and erased at build.
 
 import type * as storefront from '@b2b-catalog-platform/shared/storefront';
+import type * as storefrontCatalog from '@b2b-catalog-platform/shared/storefront/catalog';
 
 export const accountContract = {
   getProfile: {
@@ -37,3 +38,92 @@ export const accountContract = {
     },
   },
 } as unknown as typeof storefront.accountContract;
+export const catalogContract = {
+  getCategoryTree: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: { method: 'GET', path: '/catalog/categories' },
+    },
+  },
+  getCatalogProducts: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'GET',
+        path: '/catalog/products',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+  getCategoryProducts: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'GET',
+        path: '/catalog/categories/{slug}/products',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+  searchProducts: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'GET',
+        path: '/catalog/search',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+  getSearchSuggestions: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'GET',
+        path: '/catalog/search/suggestions',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+  getSitemap: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: { method: 'GET', path: '/catalog/sitemap' },
+    },
+  },
+  getFeaturedProducts: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: { method: 'GET', path: '/catalog/featured' },
+    },
+  },
+  getProduct: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'GET',
+        path: '/catalog/products/{slug}',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+  getProductPairings: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'GET',
+        path: '/catalog/products/{slug}/pairings',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+} as unknown as typeof storefrontCatalog.catalogContract;

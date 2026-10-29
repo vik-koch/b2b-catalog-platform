@@ -3,7 +3,7 @@ import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import {
   DOCUMENT_URL_PREFIX,
   MEDIA_URL_PREFIX,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/platform';
 import * as schema from '../../db/schema';
 import {
   categories,

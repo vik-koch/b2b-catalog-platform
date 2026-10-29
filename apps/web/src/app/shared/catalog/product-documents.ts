@@ -1,5 +1,6 @@
 import { Component, computed, inject, input } from '@angular/core';
-import { fillText, PublicDocument } from '@b2b-catalog-platform/shared';
+import { fillText } from '@b2b-catalog-platform/shared';
+import { PublicDocument } from '@b2b-catalog-platform/shared/core/catalog';
 import { STOREFRONT_TEXT } from '../config/storefront-text';
 import { SHARED_TEXT } from '../config/shared-text';
 import {

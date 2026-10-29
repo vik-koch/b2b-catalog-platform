@@ -1,7 +1,7 @@
 import { SHARED_TEXT } from '../config/shared-text';
 import { defaultSharedText } from '../config/shared-text.fixture';
 import { TestBed } from '@angular/core/testing';
-import { PublicDocument } from '@b2b-catalog-platform/shared';
+import { PublicDocument } from '@b2b-catalog-platform/shared/core/catalog';
 import { STOREFRONT_TEXT } from '../config/storefront-text';
 import { defaultStorefrontText } from '../config/storefront-text.fixture';
 import { ProductDocuments } from './product-documents';

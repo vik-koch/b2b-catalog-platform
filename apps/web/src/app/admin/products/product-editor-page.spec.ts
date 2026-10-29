@@ -12,7 +12,7 @@ import {
   AdminCategory,
   AdminProduct,
   CustomerTier,
-} from '@b2b-catalog-platform/shared/admin';
+} from '@b2b-catalog-platform/shared/admin/catalog';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { provideOwnership } from '../settings/settings.fixture';

@@ -20,7 +20,7 @@ import { fillText } from '@b2b-catalog-platform/shared';
 import {
   AdminCategory,
   CategoryOrderEntry,
-} from '@b2b-catalog-platform/shared/admin';
+} from '@b2b-catalog-platform/shared/admin/catalog';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { usePageSeo } from '../../shared/core/page-seo';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';

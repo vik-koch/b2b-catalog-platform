@@ -1,5 +1,8 @@
 import { InjectionToken } from '@angular/core';
-import type { HiddenProduct, ProductPage } from '@b2b-catalog-platform/shared';
+import type {
+  HiddenProduct,
+  ProductPage,
+} from '@b2b-catalog-platform/shared/core/catalog';
 
 /** The admin catalog calls edit mode makes from a storefront page. */
 export interface EditModeCatalog {

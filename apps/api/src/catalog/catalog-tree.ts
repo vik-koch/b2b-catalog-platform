@@ -1,8 +1,8 @@
 import {
   CatalogImage,
   CategoryCrumb,
-  CategoryNode,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/core/catalog';
+import { CategoryNode } from '@b2b-catalog-platform/shared/storefront/catalog';
 
 /** A flat category row as stored, the input to every tree computation below. */
 export interface CategoryRow {

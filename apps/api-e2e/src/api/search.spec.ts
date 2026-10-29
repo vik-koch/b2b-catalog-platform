@@ -1,8 +1,8 @@
 import {
   CATALOG_PAGE_SIZE,
-  SEARCH_QUERY_MAX_LENGTH,
   SEARCH_SUGGESTION_LIMIT,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/storefront/catalog';
+import { SEARCH_QUERY_MAX_LENGTH } from '@b2b-catalog-platform/shared/core/catalog';
 import axios from 'axios';
 import { Client } from 'pg';
 import { requireEnv } from '../support/env';

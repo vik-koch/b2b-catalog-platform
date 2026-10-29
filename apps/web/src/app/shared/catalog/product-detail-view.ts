@@ -17,7 +17,7 @@ import {
   encodeAttributeParams,
   formatAttributeValue,
   ProductDetail,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/core/catalog';
 import { EDIT_ACTIONS_INSET } from '../edit-mode/edit-actions';
 import { STOREFRONT_TEXT } from '../config/storefront-text';
 import { SHARED_TEXT } from '../config/shared-text';

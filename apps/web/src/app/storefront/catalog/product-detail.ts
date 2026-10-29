@@ -11,7 +11,7 @@ import { Router } from '@angular/router';
 import {
   ProductDetail as ProductDetailModel,
   ProductPage,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/core/catalog';
 import { Meta } from '@angular/platform-browser';
 import { hiddenProductText } from '../../shared/edit-mode/hidden-product-text';
 import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';

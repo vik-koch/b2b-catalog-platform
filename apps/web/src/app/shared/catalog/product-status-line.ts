@@ -4,7 +4,7 @@ import {
   ProductAvailability,
   ProductImage,
   ProductVariant,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/core/catalog';
 import { ProductAvailabilityBadge } from './product-availability-badge';
 import { ProductSetBadge } from './product-set-badge';
 import { ProductVariantsMark } from './product-variants-mark';

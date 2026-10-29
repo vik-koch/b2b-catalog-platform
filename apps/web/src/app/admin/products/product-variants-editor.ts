@@ -19,10 +19,12 @@ import { fillText } from '@b2b-catalog-platform/shared';
 import {
   PRODUCT_VARIANT_NAME_MAX_LENGTH,
   PRODUCT_VARIANTS_MAX,
+  variantNameKey,
+} from '@b2b-catalog-platform/shared/core/catalog';
+import {
   ProductImageInput,
   ProductVariantInput,
-  variantNameKey,
-} from '@b2b-catalog-platform/shared/admin';
+} from '@b2b-catalog-platform/shared/admin/catalog';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';

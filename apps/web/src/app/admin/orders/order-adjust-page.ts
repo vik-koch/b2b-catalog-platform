@@ -18,15 +18,15 @@ import {
   ORDER_ADJUSTMENT_NOTE_MAX,
   PartySuggestion,
   PaymentMethod,
-  ProductUnit,
   moneyFormat,
 } from '@b2b-catalog-platform/shared';
+import { ProductUnit } from '@b2b-catalog-platform/shared/core/catalog';
 import {
   AdminOrderDetail,
-  AdminProductListItem,
   OrderAdjustment,
   OrderAdjustmentPreview,
 } from '@b2b-catalog-platform/shared/admin';
+import { AdminProductListItem } from '@b2b-catalog-platform/shared/admin/catalog';
 import { AddressFields } from '../../shared/addresses/address-fields';
 import {
   AddressDraft,

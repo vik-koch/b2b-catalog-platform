@@ -1,6 +1,6 @@
 import { isPlatformBrowser } from '@angular/common';
 import { effect, inject, Injectable, PLATFORM_ID } from '@angular/core';
-import { ProductListItem } from '@b2b-catalog-platform/shared';
+import { ProductListItem } from '@b2b-catalog-platform/shared/core/catalog';
 import { AuthService } from '../../shared/auth/auth.service';
 import { CatalogService } from '../catalog/catalog.service';
 

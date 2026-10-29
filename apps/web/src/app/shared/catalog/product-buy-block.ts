@@ -5,7 +5,8 @@ import {
   input,
   linkedSignal,
 } from '@angular/core';
-import { CART_NOTE_MAX, ProductDetail } from '@b2b-catalog-platform/shared';
+import { CART_NOTE_MAX } from '@b2b-catalog-platform/shared';
+import { ProductDetail } from '@b2b-catalog-platform/shared/core/catalog';
 import { CartService } from '../cart/cart.service';
 import { STOREFRONT_TEXT } from '../config/storefront-text';
 import { AutoGrow } from '@b2b-catalog-platform/ui/inputs/auto-grow';

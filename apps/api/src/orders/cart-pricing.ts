@@ -5,16 +5,18 @@ import {
   CartLineIssue,
   CartPreview,
   CartPreviewLine,
+  ShipmentLineInput,
+  shipmentEstimate,
+  effectiveTaxRate,
+  TaxConfig,
+} from '@b2b-catalog-platform/shared';
+import {
   ProductAvailability,
   correctPieces,
   exactLineTotal,
   piecesPerUnit,
-  ShipmentLineInput,
-  shipmentEstimate,
   unitQuantity,
-  effectiveTaxRate,
-  TaxConfig,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/core/catalog';
 import { pairingShortfalls } from '@b2b-catalog-platform/shared/node';
 import * as schema from '../db/schema';
 import { products } from '../db/schema';

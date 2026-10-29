@@ -32,7 +32,7 @@ import {
   injectNoindexMeta,
   renderRobots,
   renderSitemap,
-} from './app/shared/config/seo.server';
+} from './app/storefront/shell/seo.server';
 
 const serverDistFolder = dirname(fileURLToPath(import.meta.url));
 const browserDistFolder = resolve(serverDistFolder, '../browser');

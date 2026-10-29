@@ -1,11 +1,8 @@
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
-import {
-  CustomerTier,
-  StaffUser,
-  UserKind,
-} from '@b2b-catalog-platform/shared/admin';
+import { CustomerTier } from '@b2b-catalog-platform/shared/admin/catalog';
+import { StaffUser, UserKind } from '@b2b-catalog-platform/shared/admin';
 import { OwnershipArea } from '@b2b-catalog-platform/shared/sync';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { defaultAdminText } from '../../shared/config/admin-text.fixture';

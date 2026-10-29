@@ -2,7 +2,7 @@ import { Component, computed, inject, input } from '@angular/core';
 import {
   ProductPackagingInfo,
   ProductUnit,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/core/catalog';
 import { STOREFRONT_TEXT } from '../config/storefront-text';
 import { SHARED_TEXT } from '../config/shared-text';
 import { useProductUnits } from './product-units-view';

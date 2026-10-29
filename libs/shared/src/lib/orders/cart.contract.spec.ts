@@ -1,6 +1,6 @@
 import { cartRequestSchema } from './cart.contract';
 import { CART_LINES_MAX, CART_NOTE_MAX } from './cart-constants';
-import { LINE_PIECES_MAX } from '../catalog/product-units';
+import { LINE_PIECES_MAX } from '../../core/catalog/product-units';
 
 const line = (overrides: Record<string, unknown> = {}) => ({
   slug: 'hafen-espresso',

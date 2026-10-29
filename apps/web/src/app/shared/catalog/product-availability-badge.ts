@@ -1,5 +1,5 @@
 import { Component, computed, inject, input } from '@angular/core';
-import { ProductAvailability } from '@b2b-catalog-platform/shared';
+import { ProductAvailability } from '@b2b-catalog-platform/shared/core/catalog';
 import { SHARED_TEXT } from '../config/shared-text';
 import {
   StatusBadge,

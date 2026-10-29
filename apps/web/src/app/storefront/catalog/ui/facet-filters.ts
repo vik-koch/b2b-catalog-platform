@@ -9,8 +9,8 @@ import {
 import {
   Facet,
   FacetValue,
-  formatAttributeValue,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/storefront/catalog';
+import { formatAttributeValue } from '@b2b-catalog-platform/shared/core/catalog';
 import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
 import { Checkbox } from '@b2b-catalog-platform/ui/choices/checkbox';
 import { TickLabel } from '@b2b-catalog-platform/ui/choices/tick-label';

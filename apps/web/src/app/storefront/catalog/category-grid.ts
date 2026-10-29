@@ -16,16 +16,18 @@ import {
   CategoryCrumb,
   categoryDisplayName,
   encodeAttributeParams,
-  Facet,
-  fillText,
   parseAttributeParams,
+  ProductListItem,
+} from '@b2b-catalog-platform/shared/core/catalog';
+import {
+  Facet,
   CATALOG_SORTS,
   CatalogSort,
   ListingSort,
   PRODUCT_SORTS,
-  ProductListItem,
   SubcategoryLink,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/storefront/catalog';
+import { fillText } from '@b2b-catalog-platform/shared';
 import {
   EDIT_ACTIONS_INSET,
   EditActions,

@@ -1,4 +1,4 @@
-import { ProductTierPrice } from '@b2b-catalog-platform/shared/admin';
+import { ProductTierPrice } from '@b2b-catalog-platform/shared/admin/catalog';
 import {
   OWNED_CATEGORY_FIELDS,
   OWNED_PRODUCT_FIELDS,

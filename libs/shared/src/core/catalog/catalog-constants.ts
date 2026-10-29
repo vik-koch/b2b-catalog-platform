@@ -1,35 +1,8 @@
 /**
- * Catalog values the storefront needs without the catalog schemas. Plain data
- * and one pure helper, with no imports, so a listing component does not pull
- * Zod into the first load (see `auth-constants.ts` for why).
+ * Catalog values without the catalog schemas. Plain data and one pure helper,
+ * with no imports, so a listing component does not pull Zod into the first
+ * load (see `auth-constants.ts` for why).
  */
-
-/**
- * How a product listing is ordered (FR-SEARCH-04). Name and price, each in both
- * directions — the only two fields a tile shows that a visitor can meaningfully
- * order by. Every sort is total: the server appends name and id as tiebreakers,
- * so a row cannot swap pages between requests.
- */
-export const PRODUCT_SORTS = [
-  'name',
-  'name_desc',
-  'price',
-  'price_desc',
-] as const;
-
-/**
- * The same, plus relevance — only meaningful where there is a query to be
- * relevant to, so it exists on the search endpoint alone rather than as a
- * fourth option the category listing has to reject.
- */
-export const SEARCH_SORTS = ['relevance', ...PRODUCT_SORTS] as const;
-
-/**
- * The same, plus by category — a browsed listing's default: grouped in the
- * category tree's order, by name within each group. Offered only where there
- * are subcategories; on a leaf it is the name order.
- */
-export const CATALOG_SORTS = ['category', ...PRODUCT_SORTS] as const;
 
 /**
  * Upper bound on a search term. Longer than any real product query,
@@ -40,13 +13,6 @@ export const CATALOG_SORTS = ['category', ...PRODUCT_SORTS] as const;
  */
 export const SEARCH_QUERY_MAX_LENGTH = 100;
 
-/**
- * How many products the main page's row holds (FR-CAT-09): five 15rem columns
- * are exactly the page's width, so a wide screen shows the whole row and a
- * narrower one scrolls the same five.
- */
-export const FEATURED_ROW_SIZE = 5;
-
 /** The name to display where the parent is visible: the nickname, or the full
  * name when there is none. */
 export function categoryDisplayName(category: {
@@ -55,15 +21,6 @@ export function categoryDisplayName(category: {
 }): string {
   return category.shortName || category.name;
 }
-
-/**
- * How many categories the search bar suggests beside the products
- * (FR-SEARCH-07). A handful of shortcuts, not a second list to scan.
- */
-export const SEARCH_CATEGORY_LIMIT = 3;
-
-/** Admin grid page size — denser than the storefront's, for scanning. */
-export const ADMIN_CATALOG_PAGE_SIZE = 50;
 
 /** Matches the `products.name` varchar(512). */
 export const PRODUCT_NAME_MAX_LENGTH = 512;
@@ -78,17 +35,6 @@ export const PRODUCT_DESCRIPTION_MAX_LENGTH = 32_000;
 
 /** Caps on the custom-attribute table (FR-CAT-05). Bounds, not business rules. */
 export const PRODUCT_ATTRIBUTES_MAX = 100;
-
-/**
- * The admin write surface for the catalog — the counterpart to the public read
- * contract in `catalog.contract.ts`, kept deliberately separate so the
- * storefront's stable read shapes never entangle with editing.
- *
- * Every route here is admin-only and speaks the *editable* shape, which
- * — unlike the public read model — exposes fields the storefront never sees:
- * a product's `categoryId` (the picker's handle), its private `sourceId` sync
- * key, and its `deletedAt` (so the admin grid can render soft-deleted rows).
- */
 
 export const PRODUCT_ATTRIBUTE_KEY_MAX_LENGTH = 200;
 

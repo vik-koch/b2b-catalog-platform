@@ -10,7 +10,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router } from '@angular/router';
-import { ProductListItem } from '@b2b-catalog-platform/shared';
+import { ProductListItem } from '@b2b-catalog-platform/shared/core/catalog';
 import { filter } from 'rxjs';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';

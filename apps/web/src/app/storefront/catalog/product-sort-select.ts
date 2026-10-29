@@ -7,7 +7,7 @@ import {
   PRODUCT_SORTS,
   SEARCH_SORTS,
   SearchSort,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/storefront/catalog';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { Input } from '@b2b-catalog-platform/ui/inputs/input';

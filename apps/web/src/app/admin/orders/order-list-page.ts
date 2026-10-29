@@ -14,8 +14,8 @@ import {
   OrderStatus,
   orderStatusSchema,
   moneyFormat,
-  SEARCH_QUERY_MAX_LENGTH,
 } from '@b2b-catalog-platform/shared';
+import { SEARCH_QUERY_MAX_LENGTH } from '@b2b-catalog-platform/shared/core/catalog';
 import {
   StaffOrderSort,
   staffOrderSortSchema,

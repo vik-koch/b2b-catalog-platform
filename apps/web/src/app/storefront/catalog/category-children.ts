@@ -1,9 +1,7 @@
 import { Component, computed, input, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import {
-  categoryDisplayName,
-  CategoryNode,
-} from '@b2b-catalog-platform/shared';
+import { categoryDisplayName } from '@b2b-catalog-platform/shared/core/catalog';
+import { CategoryNode } from '@b2b-catalog-platform/shared/storefront/catalog';
 import { ShowMoreList } from '@b2b-catalog-platform/ui/disclosure/show-more-list';
 
 /** How many subcategories stand under a chip before the rest are behind the

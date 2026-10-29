@@ -1,9 +1,7 @@
 import { Controller } from '@nestjs/common';
 import { Implement, implement } from '@orpc/nest';
-import {
-  catalogContract,
-  parseAttributeParams,
-} from '@b2b-catalog-platform/shared';
+import { catalogContract } from '@b2b-catalog-platform/shared/storefront/catalog';
+import { parseAttributeParams } from '@b2b-catalog-platform/shared/core/catalog';
 import { CatalogService } from './catalog.service';
 import { PricingTier } from '../auth/pricing-tier.decorator';
 import { TierPriced } from '../auth/tier-priced.decorator';

@@ -1,4 +1,4 @@
-import { searchTerms } from '@b2b-catalog-platform/shared';
+import { searchTerms } from '@b2b-catalog-platform/shared/core/catalog';
 import { HighlightSegment } from '@b2b-catalog-platform/ui/suggest/highlighted-line';
 
 /**

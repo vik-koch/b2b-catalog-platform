@@ -11,15 +11,14 @@ import {
   CatalogImage,
   correctPieces,
   exactLineTotal,
-  fillText,
   ProductAvailability,
   ProductImage,
   ProductPackagingInfo,
   ProductUnit,
   ProductVariant,
   UnitPrices,
-  moneyFormat,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/core/catalog';
+import { fillText, moneyFormat } from '@b2b-catalog-platform/shared';
 import { CartAddResult, CartService } from '../cart/cart.service';
 import { STOREFRONT_TEXT } from '../config/storefront-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';

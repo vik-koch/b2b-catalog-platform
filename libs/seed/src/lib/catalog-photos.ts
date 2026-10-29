@@ -1,5 +1,5 @@
 import sharp, { Sharp } from 'sharp';
-import { CatalogImage } from '@b2b-catalog-platform/shared';
+import { CatalogImage } from '@b2b-catalog-platform/shared/core/catalog';
 import { PictureSeed } from './bundle';
 import { FULL_PX, storeImage, THUMB_PX } from './catalog-placeholders';
 

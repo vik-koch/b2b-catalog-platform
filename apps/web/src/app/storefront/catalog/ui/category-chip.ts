@@ -3,7 +3,7 @@ import { Params, RouterLink } from '@angular/router';
 import {
   CatalogImage,
   categoryDisplayName,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/core/catalog';
 import { HighlightedLine } from '@b2b-catalog-platform/ui/suggest/highlighted-line';
 import { MatchSegmentsPipe } from '../../../shared/catalog/match-segments.pipe';
 

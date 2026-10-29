@@ -15,8 +15,8 @@ import {
 import { NgTemplateOutlet } from '@angular/common';
 import { Editor } from '@tiptap/core';
 import StarterKit from '@tiptap/starter-kit';
+import { ACCEPTED_IMAGE_MIME_TYPES } from '@b2b-catalog-platform/shared/platform';
 import {
-  ACCEPTED_IMAGE_MIME_TYPES,
   RICH_TEXT_IMAGE_ALIGNMENTS,
   RICH_TEXT_IMAGE_SIZE_MAX_PERCENT,
   RICH_TEXT_IMAGE_SIZE_MIN_PERCENT,

@@ -10,8 +10,9 @@ import {
 import { disabled, form } from '@angular/forms/signals';
 import { filled } from '../../shared/core/field-rules';
 import { ActivatedRoute } from '@angular/router';
-import { CatalogImage } from '@b2b-catalog-platform/shared';
-import { AdminCategory, slugify } from '@b2b-catalog-platform/shared/admin';
+import { CatalogImage } from '@b2b-catalog-platform/shared/core/catalog';
+import { AdminCategory } from '@b2b-catalog-platform/shared/admin/catalog';
+import { slugify } from '@b2b-catalog-platform/shared/core/catalog';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { LockedFieldMarker } from '../ownership/locked-field-marker';
 import { SettingsService } from '../settings/settings.service';

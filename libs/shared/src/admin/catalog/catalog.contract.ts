@@ -12,29 +12,29 @@ import {
   PRODUCT_PAIRINGS_MAX,
   PRODUCT_TIER_PRICES_MAX,
   SOURCE_ID_MAX_LENGTH,
-} from '../lib/catalog/catalog-constants';
-import { commonAuthErrors } from '../lib/core/api-error';
-import { ownershipErrors } from '../sync/ownership-constants';
+} from '../../core/catalog/catalog-constants';
+import { commonAuthErrors } from '../../lib/core/api-error';
+import { ownershipErrors } from '../../sync/ownership-constants';
 import {
   availabilitySchema,
   catalogImageSchema,
   priceInputMinorSchema,
   priceMinorSchema,
   productAttributeSchema,
-} from '../lib/catalog/catalog.contract';
-import { SEARCH_QUERY_MAX_LENGTH } from '../lib/catalog/catalog-constants';
+} from '../../core/catalog/catalog.contract';
+import { SEARCH_QUERY_MAX_LENGTH } from '../../core/catalog/catalog-constants';
 import {
   hiddenProductSchema,
   productPageSchema,
-} from '../lib/catalog/product-page.contract';
-import { PRODUCT_DOCUMENTS_MAX } from '../lib/catalog/document-constants';
+} from '../../core/catalog/product-page.contract';
+import { PRODUCT_DOCUMENTS_MAX } from '../../core/catalog/document-constants';
 import { linkedDocumentSchema } from './documents.contract';
-import { minimumFitsPacks } from '../lib/catalog/product-units';
+import { minimumFitsPacks } from '../../core/catalog/product-units';
 import {
   ATTRIBUTE_NAME_MAX_LENGTH,
   ATTRIBUTE_VALUE_MAX_LENGTH,
-} from '../lib/catalog/attribute-value';
-import { PRODUCT_AVAILABILITIES } from '../lib/catalog/product-availability';
+} from '../../core/catalog/attribute-value';
+import { PRODUCT_AVAILABILITIES } from '../../core/catalog/product-availability';
 import {
   INCOMPLETE_GAPS,
   PRODUCT_FEATURES,
@@ -44,15 +44,15 @@ import {
   isValidPartList,
   PRODUCT_PART_MAX_LENGTH,
   PRODUCT_PARTS_MAX,
-} from '../lib/catalog/product-parts';
+} from '../../core/catalog/product-parts';
 import {
   hasDistinctVariants,
   picturesNameKnownVariants,
   PRODUCT_VARIANT_NAME_MAX_LENGTH,
   PRODUCT_VARIANTS_MAX,
-} from './product-variants';
-import { slugSchema } from './slug';
-import { taxRateSchema } from '../lib/config/tax-config';
+} from '../../core/catalog/product-variants';
+import { slugSchema } from '../../core/catalog/slug';
+import { taxRateSchema } from '../../lib/config/tax-config';
 
 /**
  * One tier's price for this product (FR-AUTH-05). Tiers are addressed by id

@@ -8,11 +8,11 @@ import {
   PAGE_SLUGS,
   PAYMENT_METHODS,
   PAYMENT_STATES,
-  PRODUCT_UNITS,
   TAX_BASES,
   USER_ROLES,
   USER_STATUSES,
 } from '@b2b-catalog-platform/shared';
+import { PRODUCT_UNITS } from '@b2b-catalog-platform/shared/core/catalog';
 import { OWNERSHIP_AREAS } from '@b2b-catalog-platform/shared/sync';
 
 /**

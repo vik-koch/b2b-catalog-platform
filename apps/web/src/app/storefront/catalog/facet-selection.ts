@@ -1,6 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { encodeAttributeParams, Facet } from '@b2b-catalog-platform/shared';
+import { encodeAttributeParams } from '@b2b-catalog-platform/shared/core/catalog';
+import { Facet } from '@b2b-catalog-platform/shared/storefront/catalog';
 
 /** One attribute's ticked values, in the order the facet lists them. */
 export function selectedValues(facet: Facet): string[] {

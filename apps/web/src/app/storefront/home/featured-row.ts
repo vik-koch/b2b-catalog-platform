@@ -11,7 +11,7 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import { FEATURED_ROW_SIZE } from '@b2b-catalog-platform/shared';
+import { FEATURED_ROW_SIZE } from '@b2b-catalog-platform/shared/storefront/catalog';
 import { EditActions } from '../../shared/edit-mode/edit-actions';
 import { editAwareContent } from '../../shared/edit-mode/edit-aware-content';
 import { injectEditorReturnParams } from '../../shared/edit-mode/editor-return';

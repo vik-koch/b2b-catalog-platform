@@ -1,5 +1,6 @@
 import { Component, computed, inject, input } from '@angular/core';
-import { Facet, formatAttributeValue } from '@b2b-catalog-platform/shared';
+import { Facet } from '@b2b-catalog-platform/shared/storefront/catalog';
+import { formatAttributeValue } from '@b2b-catalog-platform/shared/core/catalog';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { FacetSelection, selectedValues } from './facet-selection';

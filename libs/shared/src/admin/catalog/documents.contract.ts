@@ -1,13 +1,15 @@
 import { oc } from '@orpc/contract';
 import * as z from 'zod';
-import { commonAuthErrors } from '../lib/core/api-error';
+import { commonAuthErrors } from '../../lib/core/api-error';
 import {
   ACCEPTED_DOCUMENT_MIME_TYPES,
   DOCUMENT_FILE_NAME_MAX_LENGTH,
+} from '../../platform/media-constants';
+import {
   DOCUMENT_LINK_MAX_LENGTH,
   DOCUMENT_PRODUCTS_MAX,
   DOCUMENT_TITLE_MAX_LENGTH,
-} from '../lib/catalog/document-constants';
+} from '../../core/catalog/document-constants';
 
 /**
  * Product documents (FR-DOC-01…05), admin side.

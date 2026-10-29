@@ -16,22 +16,24 @@ import {
   OrderStatus,
   OrderSubmission,
   OrderSummary,
-  Pagination,
   formatPersonName,
   PaymentMethod,
   PaymentState,
   paymentStateAfterAdjustment,
   paymentStateWithoutPayment,
-  ProductUnit,
   transitionHasReason,
   transitionNeedsReason,
-  alternateLayoutQuery,
-  KeyboardLayout,
   effectiveTaxRate,
   TaxBasis,
   TaxConfig,
   CustomerType,
 } from '@b2b-catalog-platform/shared';
+import {
+  Pagination,
+  alternateLayoutQuery,
+  KeyboardLayout,
+} from '@b2b-catalog-platform/shared/platform';
+import { ProductUnit } from '@b2b-catalog-platform/shared/core/catalog';
 import { resolveDeliveryZone } from '@b2b-catalog-platform/shared/storefront';
 import {
   AdminOrderDetail,

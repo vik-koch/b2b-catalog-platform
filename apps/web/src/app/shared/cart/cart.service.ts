@@ -13,6 +13,12 @@ import {
   CartLine,
   CartPreview,
   CartPreviewLine,
+  shipmentEstimate,
+  ShipmentSummary,
+  USER_ROLES,
+  UserRole,
+} from '@b2b-catalog-platform/shared';
+import {
   CatalogImage,
   correctPieces,
   exactLineTotal,
@@ -23,12 +29,8 @@ import {
   ProductPackagingInfo,
   ProductUnit,
   ProductVariant,
-  shipmentEstimate,
-  ShipmentSummary,
   UnitPrices,
-  USER_ROLES,
-  UserRole,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/core/catalog';
 import { readSessionHint } from '../auth/session-hint';
 import { CART_STORAGE_KEY, CART_STORAGE_VERSION } from './cart-storage';
 

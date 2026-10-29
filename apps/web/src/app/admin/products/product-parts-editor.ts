@@ -8,14 +8,14 @@ import {
   output,
   signal,
 } from '@angular/core';
+import { fillText } from '@b2b-catalog-platform/shared';
 import {
-  fillText,
   isValidPart,
   parsePartList,
   PRODUCT_PART_MAX_LENGTH,
   PRODUCT_PARTS_MAX,
   PRODUCT_PARTS_MIN,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/core/catalog';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { DisclosureToggle } from '@b2b-catalog-platform/ui/disclosure/disclosure-toggle';

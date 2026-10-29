@@ -4,11 +4,11 @@ import {
   ProductAttribute,
   splitAttributeKey,
   strayPart,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/core/catalog';
 import {
   AttributeDefinition,
   AttributeKeyUsage,
-} from '@b2b-catalog-platform/shared/admin';
+} from '@b2b-catalog-platform/shared/admin/catalog';
 
 /**
  * What the catalog already knows about one attribute name, as the product

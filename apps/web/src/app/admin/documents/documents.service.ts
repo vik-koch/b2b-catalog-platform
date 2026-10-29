@@ -7,8 +7,8 @@ import {
   DocumentErrorCode,
   DocumentInput,
   ProductDocument,
-  UploadDocumentResponse,
-} from '@b2b-catalog-platform/shared/admin';
+} from '@b2b-catalog-platform/shared/admin/catalog';
+import { UploadDocumentResponse } from '@b2b-catalog-platform/shared/admin';
 import { safe, type ClientPromiseResult } from '@orpc/client';
 import { documentsContract } from '../contract-routes.generated';
 import { createOrpcClient } from '../../shared/core/orpc-client';

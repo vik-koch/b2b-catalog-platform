@@ -3,7 +3,7 @@ import {
   ProductAvailability,
   HiddenProduct,
   ProductPage,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/core/catalog';
 import {
   AdminCategory,
   AdminProduct,
@@ -15,7 +15,7 @@ import {
   ProductGapFilter,
   ProductInput,
   ReorderCategoriesRequest,
-} from '@b2b-catalog-platform/shared/admin';
+} from '@b2b-catalog-platform/shared/admin/catalog';
 import { adminCatalogContract } from './contract-routes.generated';
 import { safe, type ClientPromiseResult } from '@orpc/client';
 import { createOrpcClient } from '../shared/core/orpc-client';

@@ -11,8 +11,8 @@ import { disabled, form, validate } from '@angular/forms/signals';
 import {
   TIER_KEY_MAX_LENGTH,
   TIER_KEY_PATTERN,
-} from '@b2b-catalog-platform/shared';
-import { CustomerTier } from '@b2b-catalog-platform/shared/admin';
+} from '@b2b-catalog-platform/shared/core/catalog';
+import { CustomerTier } from '@b2b-catalog-platform/shared/admin/catalog';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { usePageSeo } from '../../shared/core/page-seo';
 import { delayedLoading } from '../../shared/core/delayed-loading';

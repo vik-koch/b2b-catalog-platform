@@ -6,7 +6,7 @@ import {
   signal,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { ProductImage } from '@b2b-catalog-platform/shared';
+import { ProductImage } from '@b2b-catalog-platform/shared/core/catalog';
 import { ImagePlaceholder } from '@b2b-catalog-platform/ui/content/image-placeholder';
 import { swipeStep, touchX } from './swipe';
 

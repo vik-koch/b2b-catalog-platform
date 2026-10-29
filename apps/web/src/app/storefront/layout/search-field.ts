@@ -22,13 +22,13 @@ import {
   RouterLink,
 } from '@angular/router';
 import { filter } from 'rxjs';
+import { fillText } from '@b2b-catalog-platform/shared';
 import {
-  fillText,
   pieceFloor,
   ProductListItem,
   SEARCH_QUERY_MAX_LENGTH,
-  SearchCategory,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/core/catalog';
+import { SearchCategory } from '@b2b-catalog-platform/shared/storefront/catalog';
 import { CartAddResult, CartService } from '../../shared/cart/cart.service';
 import { CatalogService } from '../catalog/catalog.service';
 import { CategoryChip } from '../catalog/ui/category-chip';

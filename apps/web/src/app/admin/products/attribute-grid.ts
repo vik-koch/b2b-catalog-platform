@@ -1,4 +1,4 @@
-import { ProductAttribute } from '@b2b-catalog-platform/shared';
+import { ProductAttribute } from '@b2b-catalog-platform/shared/core/catalog';
 
 /** A cell coordinate in the attribute grid (two columns: key=0, value=1). */
 export interface GridCell {

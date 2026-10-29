@@ -1,7 +1,6 @@
 import { inject } from '@angular/core';
 import {
   availableUnits,
-  fillText,
   pieceFloor,
   piecesPerUnit,
   PRODUCT_UNITS,
@@ -9,8 +8,8 @@ import {
   ProductUnit,
   UnitPrices,
   unitQuantity,
-  moneyFormat,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/core/catalog';
+import { fillText, moneyFormat } from '@b2b-catalog-platform/shared';
 import { STOREFRONT_TEXT } from '../config/storefront-text';
 import { SHARED_TEXT } from '../config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';

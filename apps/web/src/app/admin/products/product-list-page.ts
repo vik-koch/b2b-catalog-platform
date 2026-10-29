@@ -8,18 +8,18 @@ import {
   signal,
 } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
+import { fillText } from '@b2b-catalog-platform/shared';
 import {
-  fillText,
   formatAttributeValue,
   ProductAvailability,
   SEARCH_QUERY_MAX_LENGTH,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/core/catalog';
 import {
   AdminProductSort,
   IncompleteGap,
   PRODUCT_FEATURES,
   PRODUCT_GAP_FILTERS,
-} from '@b2b-catalog-platform/shared/admin';
+} from '@b2b-catalog-platform/shared/admin/catalog';
 import { NgTemplateOutlet } from '@angular/common';
 import { PricePipe } from '../../shared/catalog/price.pipe';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';

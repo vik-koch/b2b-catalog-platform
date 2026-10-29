@@ -3,11 +3,8 @@ import { defaultSharedText } from '../../shared/config/shared-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { type DeploymentConfig } from '@b2b-catalog-platform/shared';
-import {
-  ConsentRecord,
-  CustomerTier,
-  StaffUser,
-} from '@b2b-catalog-platform/shared/admin';
+import { ConsentRecord, StaffUser } from '@b2b-catalog-platform/shared/admin';
+import { CustomerTier } from '@b2b-catalog-platform/shared/admin/catalog';
 import { OwnershipArea } from '@b2b-catalog-platform/shared/sync';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { defaultAdminText } from '../../shared/config/admin-text.fixture';

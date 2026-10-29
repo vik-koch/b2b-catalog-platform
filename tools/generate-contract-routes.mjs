@@ -39,7 +39,6 @@ const OUTPUTS = [
         'addressesContract',
         'authContract',
         'cartContract',
-        'catalogContract',
         'inquiryContract',
         'ordersContract',
         'pageContract',
@@ -51,22 +50,27 @@ const OUTPUTS = [
   },
   {
     file: 'apps/web/src/app/storefront/contract-routes.generated.ts',
-    entries: { storefront: ['accountContract'] },
+    entries: {
+      storefront: ['accountContract'],
+      'storefront/catalog': ['catalogContract'],
+    },
   },
   {
     file: 'apps/web/src/app/admin/contract-routes.generated.ts',
     entries: {
       admin: [
-        'adminCatalogContract',
         'adminOrdersContract',
         'adminPagesContract',
         'adminSettingsContract',
         'apiTokensContract',
-        'attributesContract',
         'consentsContract',
+        'usersContract',
+      ],
+      'admin/catalog': [
+        'adminCatalogContract',
+        'attributesContract',
         'documentsContract',
         'tiersContract',
-        'usersContract',
       ],
       sync: ['syncContract'],
     },
@@ -85,7 +89,7 @@ const CLIENT_ROUTE_FIELDS = [
 async function loadContracts(entry) {
   // Inside the workspace, not the system temp dir: the bundle leaves its
   // dependencies external, so it has to sit where node_modules resolves.
-  const outfile = `node_modules/.contract-routes-${entry || 'root'}.mjs`;
+  const outfile = `node_modules/.contract-routes-${entry.replace('/', '-') || 'root'}.mjs`;
   try {
     await build({
       entryPoints: [`libs/shared/src/${entry ? `${entry}/` : ''}index.ts`],
@@ -123,7 +127,9 @@ async function render({ entries }) {
   const imports = [];
   const exports = [];
   for (const [entry, names] of Object.entries(entries)) {
-    const alias = entry || 'shared';
+    // `admin/catalog` is imported as `adminCatalog`.
+    const alias =
+      entry.replace(/\/(\w)/g, (_, letter) => letter.toUpperCase()) || 'shared';
     const contracts = await loadContracts(entry);
     imports.push(
       `import type * as ${alias} from '@b2b-catalog-platform/shared${entry ? `/${entry}` : ''}';`,

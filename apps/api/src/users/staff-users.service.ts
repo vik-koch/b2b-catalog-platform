@@ -25,9 +25,11 @@ import {
   companyIdFormatOf,
   CustomerType,
   UserRole,
+} from '@b2b-catalog-platform/shared';
+import {
   alternateLayoutQuery,
   KeyboardLayout,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/platform';
 import {
   CreateUserRequest,
   StaffUser,

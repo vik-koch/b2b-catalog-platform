@@ -3,7 +3,7 @@ import { and } from 'drizzle-orm';
 import {
   PRODUCT_FEATURES,
   PRODUCT_GAPS,
-} from '@b2b-catalog-platform/shared/admin';
+} from '@b2b-catalog-platform/shared/admin/catalog';
 import * as schema from '../db/schema';
 import { products } from '../db/schema';
 import { featureCondition, missingCondition } from './content-filter';

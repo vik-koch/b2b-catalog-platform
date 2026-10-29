@@ -2,7 +2,7 @@ import { SHARED_TEXT } from '../config/shared-text';
 import { defaultSharedText } from '../config/shared-text.fixture';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { ProductAvailability } from '@b2b-catalog-platform/shared';
+import { ProductAvailability } from '@b2b-catalog-platform/shared/core/catalog';
 import { STOREFRONT_TEXT } from '../config/storefront-text';
 import { defaultStorefrontText } from '../config/storefront-text.fixture';
 import { ProductSetBadge } from './product-set-badge';

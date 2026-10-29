@@ -3,10 +3,10 @@ import { Component, computed, inject, input, resource } from '@angular/core';
 import { Params, RouterLink } from '@angular/router';
 import {
   encodeAttributeParams,
-  fillText,
   parseAttributeParams,
-  SEARCH_SORTS,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/core/catalog';
+import { fillText } from '@b2b-catalog-platform/shared';
+import { SEARCH_SORTS } from '@b2b-catalog-platform/shared/storefront/catalog';
 import { EditActions } from '../../shared/edit-mode/edit-actions';
 import { editAwareContent } from '../../shared/edit-mode/edit-aware-content';
 import { injectEditorReturnParams } from '../../shared/edit-mode/editor-return';

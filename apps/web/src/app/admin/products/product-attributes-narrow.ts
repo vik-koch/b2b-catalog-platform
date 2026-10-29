@@ -13,12 +13,12 @@ import {
   output,
   signal,
 } from '@angular/core';
+import { fillText } from '@b2b-catalog-platform/shared';
 import {
-  fillText,
   PRODUCT_ATTRIBUTES_MAX,
   ProductAttribute,
   strayPart,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/core/catalog';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';

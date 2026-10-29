@@ -8,11 +8,11 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
+import { fillText } from '@b2b-catalog-platform/shared';
 import {
-  fillText,
   ProductImage,
   ProductVariant,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/core/catalog';
 import { STOREFRONT_TEXT } from '../config/storefront-text';
 import { SHARED_TEXT } from '../config/shared-text';
 import { injectNarrowScreen } from '@b2b-catalog-platform/ui/core/narrow-screen';

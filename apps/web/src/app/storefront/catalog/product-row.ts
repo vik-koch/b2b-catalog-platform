@@ -4,7 +4,7 @@ import {
   ProductAvailability,
   ProductImage,
   ProductVariant,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/core/catalog';
 import {
   NARROW_BODY_IN_LINE,
   NARROW_PADDING_IN_LINE,

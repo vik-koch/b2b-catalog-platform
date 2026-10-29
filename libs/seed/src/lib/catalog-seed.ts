@@ -6,7 +6,7 @@ import {
   ProductAttribute,
   productAvailability,
   splitAttributeKey,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/core/catalog';
 import { sanitizeRichText } from '@b2b-catalog-platform/shared/node';
 import { ProductSeed, SeedBundle } from './bundle';
 import { CatalogPhotos, PictureMode } from './catalog-photos';

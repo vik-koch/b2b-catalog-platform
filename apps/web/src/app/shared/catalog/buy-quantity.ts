@@ -8,7 +8,7 @@ import {
   stepFrom,
   unitQuantity,
   unitQuantityIsWhole,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/core/catalog';
 import { CurrencyConfig } from './price';
 import { formatUnitQuantity, parseUnitQuantity } from './quantity';
 

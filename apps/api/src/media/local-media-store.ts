@@ -12,7 +12,7 @@ import { join } from 'node:path';
 import {
   DOCUMENT_URL_PREFIX,
   MEDIA_URL_PREFIX,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/platform';
 import { env } from '../env';
 import {
   DOCUMENT_SUBDIR,

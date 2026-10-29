@@ -1,4 +1,4 @@
-import { QUANTITY_SCALE } from '@b2b-catalog-platform/shared';
+import { QUANTITY_SCALE } from '@b2b-catalog-platform/shared/core/catalog';
 import { CurrencyConfig, decimalSeparator } from './price';
 
 /**

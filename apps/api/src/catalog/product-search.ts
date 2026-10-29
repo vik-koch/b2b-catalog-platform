@@ -2,9 +2,11 @@ import { SQL, sql } from 'drizzle-orm';
 import {
   alternateLayoutQuery,
   KeyboardLayout,
+} from '@b2b-catalog-platform/shared/platform';
+import {
   SEARCH_QUERY_MAX_LENGTH,
   searchTerms,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/core/catalog';
 import { products } from '../db/schema';
 
 /**

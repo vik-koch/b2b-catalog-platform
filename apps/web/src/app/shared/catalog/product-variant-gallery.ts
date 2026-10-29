@@ -5,7 +5,10 @@ import {
   linkedSignal,
   viewChild,
 } from '@angular/core';
-import { ProductImage, ProductVariant } from '@b2b-catalog-platform/shared';
+import {
+  ProductImage,
+  ProductVariant,
+} from '@b2b-catalog-platform/shared/core/catalog';
 import { ProductGallery } from './product-gallery';
 import { ProductVariantList } from './product-variant-list';
 

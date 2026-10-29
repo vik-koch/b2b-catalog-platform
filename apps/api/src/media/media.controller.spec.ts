@@ -5,7 +5,7 @@ import {
   UnsupportedMediaTypeException,
 } from '@nestjs/common';
 import sharp from 'sharp';
-import { MEDIA_MAX_UPLOAD_BYTES } from '@b2b-catalog-platform/shared';
+import { MEDIA_MAX_UPLOAD_BYTES } from '@b2b-catalog-platform/shared/platform';
 import { MediaController } from './media.controller';
 import { MediaStore } from './media-store';
 

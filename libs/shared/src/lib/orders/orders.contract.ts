@@ -28,10 +28,8 @@ import {
   productUnitSchema,
 } from './cart.contract';
 import { CART_LINES_MAX } from './cart-constants';
-import {
-  catalogImageSchema,
-  paginationSchema,
-} from '../catalog/catalog.contract';
+import { catalogImageSchema } from '../../core/catalog/catalog.contract';
+import { paginationSchema } from '../../platform/pagination.contract';
 
 /**
  * Placing an order request and reading it back (FR-CART-03/04/07, FR-ACC-01,

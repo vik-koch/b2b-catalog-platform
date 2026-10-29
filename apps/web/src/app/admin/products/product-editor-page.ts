@@ -24,6 +24,10 @@ import {
   fillText,
   formatTaxRate,
   parseTaxRate,
+  moneyFormat,
+  isPartialTaxRate,
+} from '@b2b-catalog-platform/shared';
+import {
   isValidPartList,
   minimumFitsPacks,
   piecesPerUnit,
@@ -36,23 +40,23 @@ import {
   lowStockThreshold,
   splitAttributeKey,
   totalMinor,
-  moneyFormat,
-  isPartialTaxRate,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/core/catalog';
 import {
   AdminCategory,
   AttributeDefinition,
   AttributeKeyUsage,
   CustomerTier,
-  hasDistinctVariants,
   LinkedDocument,
   PairedProduct,
   ProductImageInput,
   ProductInput,
   ProductVariantInput,
+} from '@b2b-catalog-platform/shared/admin/catalog';
+import {
+  hasDistinctVariants,
   shownPictures,
   slugify,
-} from '@b2b-catalog-platform/shared/admin';
+} from '@b2b-catalog-platform/shared/core/catalog';
 import {
   currencySymbol,
   decimalSeparator,
