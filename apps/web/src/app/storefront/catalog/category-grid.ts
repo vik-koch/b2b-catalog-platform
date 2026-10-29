@@ -46,7 +46,7 @@ import { ShowMoreToggle } from '@b2b-catalog-platform/ui/disclosure/show-more-to
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { AppliedFilters } from './applied-filters';
 import { CatalogService } from './catalog.service';
-import { CategoryChip } from './category-chip';
+import { CategoryChip } from './ui/category-chip';
 import { CATEGORY_GRID } from './category-index';
 import {
   FACET_COLUMN,
