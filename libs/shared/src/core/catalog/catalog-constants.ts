@@ -5,6 +5,29 @@
  */
 
 /**
+ * How a product listing is ordered (FR-SEARCH-04). Name and price, each in both
+ * directions — the only two fields a tile shows that a visitor can meaningfully
+ * order by. Every sort is total: the server appends name and id as tiebreakers,
+ * so a row cannot swap pages between requests.
+ */
+export const PRODUCT_SORTS = [
+  'name',
+  'name_desc',
+  'price',
+  'price_desc',
+] as const;
+
+/**
+ * The same, plus relevance — only meaningful where there is a query to be
+ * relevant to, so it exists on the search endpoint alone rather than as a
+ * fourth option the category listing has to reject.
+ */
+export const SEARCH_SORTS = ['relevance', ...PRODUCT_SORTS] as const;
+
+export type ProductSort = (typeof PRODUCT_SORTS)[number];
+export type SearchSort = (typeof SEARCH_SORTS)[number];
+
+/**
  * Upper bound on a search term. Longer than any real product query,
  * short enough that no caller can hand the matcher an expensive string.
  * Rejected at the contract rather than truncated, so an over-long query is an

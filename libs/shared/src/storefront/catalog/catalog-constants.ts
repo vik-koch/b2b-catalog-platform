@@ -1,27 +1,9 @@
 /**
- * The storefront's listing values without its schemas: plain data with no
- * imports, so a listing component does not pull Zod into the first load.
+ * The storefront's listing values without its schemas: plain data, so a
+ * listing component does not pull Zod into the first load.
  */
 
-/**
- * How a product listing is ordered (FR-SEARCH-04). Name and price, each in both
- * directions — the only two fields a tile shows that a visitor can meaningfully
- * order by. Every sort is total: the server appends name and id as tiebreakers,
- * so a row cannot swap pages between requests.
- */
-export const PRODUCT_SORTS = [
-  'name',
-  'name_desc',
-  'price',
-  'price_desc',
-] as const;
-
-/**
- * The same, plus relevance — only meaningful where there is a query to be
- * relevant to, so it exists on the search endpoint alone rather than as a
- * fourth option the category listing has to reject.
- */
-export const SEARCH_SORTS = ['relevance', ...PRODUCT_SORTS] as const;
+import { PRODUCT_SORTS } from '../../core/catalog/catalog-constants';
 
 /**
  * The same, plus by category — a browsed listing's default: grouped in the

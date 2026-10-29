@@ -1,18 +1,11 @@
 import { sql } from 'drizzle-orm';
 import { PgDialect } from 'drizzle-orm/pg-core';
-/* eslint-disable boundaries/dependencies -- until each audience orders its own listing */
 import {
   productSortSchema,
   searchSortSchema,
 } from '@b2b-catalog-platform/shared/storefront/catalog';
-import { adminProductSortSchema } from '@b2b-catalog-platform/shared/admin/catalog';
-/* eslint-enable boundaries/dependencies */
-import {
-  adminProductOrderBy,
-  catalogOrderBy,
-  productOrderBy,
-} from './product-sort';
-import { resolvedPriceMinor } from './product-price';
+import { catalogOrderBy, productOrderBy } from './listing-sort';
+import { resolvedPriceMinor } from '../../core/catalog/product-price';
 
 /** Renders an order-by list the way the query builder would, as one string. */
 function render(clauses: ReturnType<typeof productOrderBy>): string {
@@ -135,68 +128,6 @@ describe('catalogOrderBy', () => {
       expect(render(catalogOrderBy(option, price, ['a']))).toBe(
         render(productOrderBy(option, undefined, price)),
       );
-    },
-  );
-});
-
-describe('adminProductOrderBy', () => {
-  it.each(adminProductSortSchema.options)(
-    'ends %s with the id tiebreak, so no row can swap pages',
-    (option) => {
-      expect(render(adminProductOrderBy(option, score))).toMatch(/"id" asc$/);
-    },
-  );
-
-  it.each([
-    ['updated', 'asc'],
-    ['updated_desc', 'desc'],
-  ] as const)('sorts %s on updatedAt %s', (option, direction) => {
-    expect(render(adminProductOrderBy(option))).toMatch(
-      new RegExp(`^"products"\\."updatedAt" ${direction}`),
-    );
-  });
-
-  it.each([
-    ['state', 'asc'],
-    ['state_desc', 'desc'],
-  ] as const)('sorts %s on what the row needs, %s', (option, direction) => {
-    const rendered = render(adminProductOrderBy(option));
-
-    // Unpublished (0) before live (1) before deleted (2), so ascending is
-    // "what still needs somebody" first.
-    expect(rendered).toContain('"deletedAt" is not null then 2');
-    expect(rendered).toContain('"publishedAt" is null then 0');
-    expect(rendered).toMatch(new RegExp(`end ${direction}`));
-  });
-
-  /*
-   * The admin grid opens with no sort and no query, and alphabetical is not
-   * what that screen is for: a sync leaves its new products unpublished, and
-   * those are what an admin came to deal with. The storefront's own fallback is
-   * untouched — see the shared ordering above.
-   */
-  it('falls back to state order when relevance has nothing to score', () => {
-    expect(render(adminProductOrderBy('relevance'))).toBe(
-      render(adminProductOrderBy('state')),
-    );
-    expect(render(productOrderBy('relevance'))).toBe(
-      render(productOrderBy('name')),
-    );
-  });
-
-  /**
-   * The keys agree; the lead does not. A manager narrowing the catalog is
-   * answering a question about it rather than shopping in it, so the grid is
-   * not to pin every empty shelf to the bottom of every page — it filters by
-   * stock instead (FR-ADM-05).
-   */
-  it.each(searchSortSchema.options)(
-    'delegates %s to the shared ordering, without the availability lead',
-    (option) => {
-      const admin = render(adminProductOrderBy(option, score));
-
-      expect(admin).toBe(within(productOrderBy(option, score)));
-      expect(admin).not.toContain('"availability"');
     },
   );
 });

@@ -2,9 +2,6 @@ import {
   CatalogImage,
   CategoryCrumb,
 } from '@b2b-catalog-platform/shared/core/catalog';
-/* eslint-disable boundaries/dependencies -- until the storefront builds its own tree */
-import { CategoryNode } from '@b2b-catalog-platform/shared/storefront/catalog';
-/* eslint-enable boundaries/dependencies */
 
 /** A flat category row as stored, the input to every tree computation below. */
 export interface CategoryRow {
@@ -16,35 +13,6 @@ export interface CategoryRow {
   /** The chip mark (FR-CAT-07). */
   mark: CatalogImage | null;
   sortOrder: number;
-}
-
-/**
- * Build the category forest from flat rows. Rows are expected pre-sorted by
- * `sortOrder` (then name); children keep that order.
- */
-export function buildCategoryTree(rows: CategoryRow[]): CategoryNode[] {
-  const nodes = new Map<string, CategoryNode>();
-  for (const row of rows) {
-    nodes.set(row.id, {
-      slug: row.slug,
-      name: row.name,
-      shortName: row.shortName,
-      mark: row.mark,
-      children: [],
-    });
-  }
-  const roots: CategoryNode[] = [];
-  for (const row of rows) {
-    const node = nodes.get(row.id);
-    if (!node) continue;
-    const parent = row.parentId ? nodes.get(row.parentId) : undefined;
-    if (parent) {
-      parent.children.push(node);
-    } else {
-      roots.push(node);
-    }
-  }
-  return roots;
 }
 
 /**

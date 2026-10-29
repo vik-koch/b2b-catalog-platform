@@ -67,7 +67,8 @@ const OUTPUTS = [
         'usersContract',
       ],
       'admin/catalog': [
-        'adminCatalogContract',
+        'adminCategoriesContract',
+        'adminProductsContract',
         'attributesContract',
         'documentsContract',
         'tiersContract',

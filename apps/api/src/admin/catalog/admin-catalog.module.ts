@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
-import { AdminCatalogController } from './admin-catalog.controller';
+import { AdminCategoriesController } from './categories/categories.controller';
+import { AdminProductsController } from './products/products.controller';
 import { AdminCategoriesService } from './categories/admin-categories.service';
 import { AdminProductsService } from './products/admin-products.service';
 import { AuditLogger } from '../../audit/audit.logger';
 import { AuthModule } from '../../auth/auth.module';
 import { SettingsModule } from '../../settings/settings.module';
-// eslint-disable-next-line boundaries/dependencies -- until the product page read moves to core
-import { CatalogModule } from '../../storefront/catalog/catalog.module';
+import { CatalogCoreModule } from '../../core/catalog/catalog-core.module';
 import {
   ALTERNATE_LAYOUT,
   LOW_STOCK_THRESHOLD_PIECES,
@@ -19,8 +19,8 @@ import {
  * the `@Auth('admin')` guards AuthModule supplies.
  */
 @Module({
-  imports: [AuthModule, SettingsModule, CatalogModule],
-  controllers: [AdminCatalogController],
+  imports: [AuthModule, SettingsModule, CatalogCoreModule],
+  controllers: [AdminProductsController, AdminCategoriesController],
   providers: [
     AdminProductsService,
     AdminCategoriesService,

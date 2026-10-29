@@ -16,7 +16,10 @@ import {
   ProductInput,
   ReorderCategoriesRequest,
 } from '@b2b-catalog-platform/shared/admin/catalog';
-import { adminCatalogContract } from './contract-routes.generated';
+import {
+  adminCategoriesContract,
+  adminProductsContract,
+} from './contract-routes.generated';
 import { safe, type ClientPromiseResult } from '@orpc/client';
 import { createOrpcClient } from '../shared/core/orpc-client';
 import { WorkService } from '../shared/work/work.service';
@@ -45,7 +48,12 @@ function renderableCategory(code: string): code is CategorySaveErrorCode {
  */
 @Injectable({ providedIn: 'root' })
 export class AdminCatalogService implements EditModeCatalog {
-  private client = createOrpcClient(adminCatalogContract);
+  // One client over both routers until products and categories each get a
+  // service of their own.
+  private client = createOrpcClient({
+    ...adminProductsContract,
+    ...adminCategoriesContract,
+  });
   private readonly work = inject(WorkService);
 
   /** The stored row, or the code the server refused with. */

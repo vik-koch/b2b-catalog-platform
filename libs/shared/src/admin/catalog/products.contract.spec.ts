@@ -1,4 +1,4 @@
-import { productInputSchema } from './catalog.contract';
+import { productInputSchema } from './products.contract';
 import { PRODUCT_PAIRINGS_MAX } from '../../core/catalog/catalog-constants';
 
 /** The minimum a product needs; packaging fields all have defaults. */

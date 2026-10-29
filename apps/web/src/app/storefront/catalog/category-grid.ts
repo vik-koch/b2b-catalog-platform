@@ -24,9 +24,9 @@ import {
   CATALOG_SORTS,
   CatalogSort,
   ListingSort,
-  PRODUCT_SORTS,
   SubcategoryLink,
 } from '@b2b-catalog-platform/shared/storefront/catalog';
+import { PRODUCT_SORTS } from '@b2b-catalog-platform/shared/core/catalog';
 import { fillText } from '@b2b-catalog-platform/shared';
 import {
   EDIT_ACTIONS_INSET,

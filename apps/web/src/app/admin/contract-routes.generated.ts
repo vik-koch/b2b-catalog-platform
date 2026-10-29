@@ -367,7 +367,60 @@ export const usersContract = {
     },
   },
 } as unknown as typeof admin.usersContract;
-export const adminCatalogContract = {
+export const adminCategoriesContract = {
+  listCategories: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: { method: 'GET', path: '/admin/catalog/categories' },
+    },
+  },
+  createCategory: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'POST',
+        path: '/admin/catalog/categories',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+  updateCategory: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'PUT',
+        path: '/admin/catalog/categories/{id}',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+  deleteCategory: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'DELETE',
+        path: '/admin/catalog/categories/{id}',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+  reorderCategories: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'PATCH',
+        path: '/admin/catalog/categories/order',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+} as unknown as typeof adminCatalog.adminCategoriesContract;
+export const adminProductsContract = {
   listProducts: {
     '~orpc': {
       errorMap: {},
@@ -489,58 +542,7 @@ export const adminCatalogContract = {
       },
     },
   },
-  listCategories: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: { method: 'GET', path: '/admin/catalog/categories' },
-    },
-  },
-  createCategory: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: {
-        method: 'POST',
-        path: '/admin/catalog/categories',
-        inputStructure: 'detailed',
-      },
-    },
-  },
-  updateCategory: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: {
-        method: 'PUT',
-        path: '/admin/catalog/categories/{id}',
-        inputStructure: 'detailed',
-      },
-    },
-  },
-  deleteCategory: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: {
-        method: 'DELETE',
-        path: '/admin/catalog/categories/{id}',
-        inputStructure: 'detailed',
-      },
-    },
-  },
-  reorderCategories: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: {
-        method: 'PATCH',
-        path: '/admin/catalog/categories/order',
-        inputStructure: 'detailed',
-      },
-    },
-  },
-} as unknown as typeof adminCatalog.adminCatalogContract;
+} as unknown as typeof adminCatalog.adminProductsContract;
 export const attributesContract = {
   listAttributes: {
     '~orpc': {

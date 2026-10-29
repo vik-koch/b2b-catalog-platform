@@ -1,10 +1,9 @@
 import { ConflictException, INestApplication } from '@nestjs/common';
 import { APP_FILTER } from '@nestjs/core';
 import { Test } from '@nestjs/testing';
-import { AdminCatalogController } from './admin-catalog.controller';
-/* eslint-disable boundaries/dependencies -- until the product page read moves to core */
-import { CatalogService } from '../../storefront/catalog/catalog.service';
-/* eslint-enable boundaries/dependencies */
+import { AdminCategoriesController } from './categories/categories.controller';
+import { AdminProductsController } from './products/products.controller';
+import { CatalogReader } from '../../core/catalog/catalog-reader';
 import { AdminCategoriesService } from './categories/admin-categories.service';
 import { AdminProductsService } from './products/admin-products.service';
 import { AuditLogger } from '../../audit/audit.logger';
@@ -18,7 +17,7 @@ import { RolesGuard } from '../../auth/roles.guard';
  * editor renders — and where the output schema is proved to keep the private
  * sync key off the wire.
  */
-describe('AdminCatalogController', () => {
+describe('the admin catalog routes', () => {
   let app: INestApplication;
   let baseUrl: string;
 
@@ -53,11 +52,11 @@ describe('AdminCatalogController', () => {
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
-      controllers: [AdminCatalogController],
+      controllers: [AdminProductsController, AdminCategoriesController],
       providers: [
         { provide: AdminProductsService, useValue: products },
         { provide: AdminCategoriesService, useValue: categories },
-        { provide: CatalogService, useValue: {} },
+        { provide: CatalogReader, useValue: {} },
         { provide: AuditLogger, useValue: { record: vi.fn() } },
         { provide: APP_FILTER, useClass: ContractErrorFilter },
       ],

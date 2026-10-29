@@ -81,7 +81,7 @@ import {
   relevanceScore,
   setSearchThreshold,
 } from '../../../core/catalog/product-search';
-import { adminProductOrderBy } from '../../../core/catalog/product-sort';
+import { adminProductOrderBy } from './grid-sort';
 import {
   availabilityColumns,
   partsColumns,

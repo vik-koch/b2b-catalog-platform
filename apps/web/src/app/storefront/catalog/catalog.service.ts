@@ -2,8 +2,8 @@ import { Injectable } from '@angular/core';
 import {
   CatalogSort,
   SearchCategory,
-  SearchSort,
 } from '@b2b-catalog-platform/shared/storefront/catalog';
+import { SearchSort } from '@b2b-catalog-platform/shared/core/catalog';
 import { ProductListItem } from '@b2b-catalog-platform/shared/core/catalog';
 import { catalogContract } from '../contract-routes.generated';
 import { safe } from '@orpc/client';

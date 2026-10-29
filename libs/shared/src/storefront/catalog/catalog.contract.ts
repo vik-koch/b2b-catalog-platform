@@ -6,7 +6,12 @@ import {
   ATTRIBUTE_NAME_MAX_LENGTH,
   ATTRIBUTE_VALUE_MAX_LENGTH,
 } from '../../core/catalog/attribute-value';
-import { SEARCH_QUERY_MAX_LENGTH } from '../../core/catalog/catalog-constants';
+import {
+  PRODUCT_SORTS,
+  SEARCH_QUERY_MAX_LENGTH,
+  SEARCH_SORTS,
+  SearchSort,
+} from '../../core/catalog/catalog-constants';
 import {
   attributeTypeSchema,
   type CatalogImage,
@@ -16,11 +21,7 @@ import {
   productListItemSchema,
   shortNameSchema,
 } from '../../core/catalog/catalog.contract';
-import {
-  CATALOG_SORTS,
-  PRODUCT_SORTS,
-  SEARCH_SORTS,
-} from './catalog-constants';
+import { CATALOG_SORTS } from './catalog-constants';
 
 /**
  * The internal read API the storefront consumes — deliberately independent of
@@ -82,10 +83,8 @@ export const subcategoryLinkSchema = z
 export type SubcategoryLink = z.infer<typeof subcategoryLinkSchema>;
 
 export const productSortSchema = z.enum(PRODUCT_SORTS);
-export type ProductSort = (typeof PRODUCT_SORTS)[number];
 
 export const searchSortSchema = z.enum(SEARCH_SORTS);
-export type SearchSort = (typeof SEARCH_SORTS)[number];
 
 export const catalogSortSchema = z.enum(CATALOG_SORTS);
 export type CatalogSort = (typeof CATALOG_SORTS)[number];

@@ -7,11 +7,13 @@ import {
   CATALOG_SORTS,
   catalogSortSchema,
   ListingSort,
-  PRODUCT_SORTS,
   productSortSchema,
-  SEARCH_SORTS,
   searchSortSchema,
 } from '@b2b-catalog-platform/shared/storefront/catalog';
+import {
+  PRODUCT_SORTS,
+  SEARCH_SORTS,
+} from '@b2b-catalog-platform/shared/core/catalog';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { defaultDeploymentConfig } from '../../shared/config/deployment-config.fixture';

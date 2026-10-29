@@ -2,8 +2,8 @@ import { Component, computed, inject, input } from '@angular/core';
 import {
   Facet,
   ListingSort,
-  PRODUCT_SORTS,
 } from '@b2b-catalog-platform/shared/storefront/catalog';
+import { PRODUCT_SORTS } from '@b2b-catalog-platform/shared/core/catalog';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { ProductSortSelect } from './product-sort-select';
 import { FacetSelection } from './facet-selection';

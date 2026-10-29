@@ -4,7 +4,7 @@ import { PgDialect } from 'drizzle-orm/pg-core';
 import * as schema from '../../db/schema';
 import { products } from '../../db/schema';
 import { resolvedPriceMinor } from './product-price';
-import { productOrderBy } from './product-sort';
+import { productSortKeys } from './product-sort';
 
 /** Renders an expression the way the query builder would, with its params. */
 function render(expression: unknown): { text: string; params: unknown[] } {
@@ -71,21 +71,17 @@ describe('resolvedPriceMinor', () => {
 });
 
 describe('price sorting follows resolution', () => {
-  /** Rendered without the availability lead every listing opens with
-   * (FR-STOCK-05) — what is under test here is the price key it precedes. */
-  const renderOrder = (clauses: ReturnType<typeof productOrderBy>) =>
-    new PgDialect()
-      .sqlToQuery(
-        sql.join(
-          clauses.map((clause) => sql`${clause}`),
-          sql`, `,
-        ),
-      )
-      .sql.replace(/^case[\s\S]*?end asc, /, '');
+  const renderOrder = (clauses: ReturnType<typeof productSortKeys>) =>
+    new PgDialect().sqlToQuery(
+      sql.join(
+        clauses.map((clause) => sql`${clause}`),
+        sql`, `,
+      ),
+    ).sql;
 
   it('sorts a tiered caller on the resolved price, not the base column', () => {
     const price = resolvedPriceMinor('tier-1');
-    const ordered = renderOrder(productOrderBy('price', undefined, price));
+    const ordered = renderOrder(productSortKeys('price', undefined, price));
 
     // Ordering on the bare column here would page the customer by prices they
     // are never shown.
@@ -94,7 +90,7 @@ describe('price sorting follows resolution', () => {
   });
 
   it('orders an untiered sort on the badged list, nulls last', () => {
-    const ordered = renderOrder(productOrderBy('price'));
+    const ordered = renderOrder(productSortKeys('price'));
 
     expect(ordered).toContain('"dt"."isDefault"');
     // A product nobody has priced is not the cheapest thing in the catalog.
@@ -103,7 +99,9 @@ describe('price sorting follows resolution', () => {
 
   it('sorts descending on the resolved price too', () => {
     const price = resolvedPriceMinor('tier-1');
-    const ordered = renderOrder(productOrderBy('price_desc', undefined, price));
+    const ordered = renderOrder(
+      productSortKeys('price_desc', undefined, price),
+    );
 
     expect(ordered).toContain('coalesce');
     expect(ordered).toMatch(/desc nulls last/);

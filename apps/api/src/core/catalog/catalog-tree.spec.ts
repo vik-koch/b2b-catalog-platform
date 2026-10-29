@@ -1,6 +1,5 @@
 import {
   ancestorsOf,
-  buildCategoryTree,
   categoryBySlug,
   CategoryRow,
   categoryTreeOrder,
@@ -35,14 +34,6 @@ const rows: CategoryRow[] = [
 ];
 
 describe('catalog-tree', () => {
-  it('builds a forest with children under their parents', () => {
-    const tree = buildCategoryTree(rows);
-
-    expect(tree.map((n) => n.slug)).toEqual(['coffee-beans', 'tea']);
-    expect(tree[0].children.map((n) => n.slug)).toEqual(['espresso', 'filter']);
-    expect(tree[1].children).toEqual([]);
-  });
-
   it('orders categories depth-first, siblings as they arrive', () => {
     expect(categoryTreeOrder(rows)).toEqual(['cb', 'esp', 'fil', 'tea']);
     // A child sorted ahead of its parent still follows it.
@@ -95,7 +86,7 @@ describe('catalog-tree', () => {
     expect(directChildren('esp', rows)).toEqual([]);
   });
 
-  it('carries the short name through crumbs, children and the tree', () => {
+  it('carries the short name through crumbs and children', () => {
     expect(
       ancestorsOf(
         'esp',
@@ -108,7 +99,6 @@ describe('catalog-tree', () => {
       'Esp',
       null,
     ]);
-    expect(buildCategoryTree(rows)[0].children[0].shortName).toBe('Esp');
   });
 
   it('keeps a stocked category and every ancestor of one', () => {
@@ -119,9 +109,7 @@ describe('catalog-tree', () => {
 
   it('drops a category nothing visible is filed under', () => {
     const stocked = stockedCategoryIds(rows, ['tea']);
-    const tree = buildCategoryTree(rows.filter((r) => stocked.has(r.id)));
 
-    expect(tree.map((n) => n.slug)).toEqual(['tea']);
     expect(
       directChildren(
         'cb',
