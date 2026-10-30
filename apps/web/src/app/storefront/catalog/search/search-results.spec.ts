@@ -1,16 +1,16 @@
-import { SHARED_TEXT, provideUiText } from '../../shared/config/shared-text';
-import { defaultSharedText } from '../../shared/config/shared-text.fixture';
+import { SHARED_TEXT, provideUiText } from '../../../shared/config/shared-text';
+import { defaultSharedText } from '../../../shared/config/shared-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { Meta } from '@angular/platform-browser';
 import { Facet } from '@b2b-catalog-platform/shared/storefront/catalog';
 import { ProductListItem } from '@b2b-catalog-platform/shared/core/catalog';
-import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
-import { defaultStorefrontText } from '../../shared/config/storefront-text.fixture';
-import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
-import { defaultDeploymentConfig } from '../../shared/config/deployment-config.fixture';
-import { CatalogService } from './catalog.service';
-import { productListItem } from '../../core/catalog/product.fixture';
+import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
+import { defaultStorefrontText } from '../../../shared/config/storefront-text.fixture';
+import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
+import { defaultDeploymentConfig } from '../../../shared/config/deployment-config.fixture';
+import { CatalogService } from '../catalog.service';
+import { productListItem } from '../../../core/catalog/product.fixture';
 import { SearchResults } from './search-results';
 
 const item = (slug: string, name: string): ProductListItem =>

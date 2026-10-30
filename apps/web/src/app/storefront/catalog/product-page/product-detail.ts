@@ -15,26 +15,26 @@ import {
 import { Meta } from '@angular/platform-browser';
 import { hiddenProductText } from './hidden-product-text';
 import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';
-import { AuthService } from '../../shared/auth/auth.service';
-import { EditActions } from '../../shared/edit-mode/edit-actions';
-import { editAwareContent } from '../../shared/edit-mode/edit-aware-content';
-import { EDIT_MODE_CATALOG } from '../../core/catalog/edit-mode-catalog';
-import { injectEditorReturnParams } from '../../shared/edit-mode/editor-return';
-import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
-import { usePageSeo } from '../../shared/core/page-seo';
-import { LoadErrorView } from '../pages/load-error-view';
-import { NotFoundView } from '../pages/not-found-view';
+import { AuthService } from '../../../shared/auth/auth.service';
+import { EditActions } from '../../../shared/edit-mode/edit-actions';
+import { editAwareContent } from '../../../shared/edit-mode/edit-aware-content';
+import { EDIT_MODE_CATALOG } from '../../../core/catalog/edit-mode-catalog';
+import { injectEditorReturnParams } from '../../../shared/edit-mode/editor-return';
+import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
+import { usePageSeo } from '../../../shared/core/page-seo';
+import { LoadErrorView } from '../../pages/load-error-view';
+import { NotFoundView } from '../../pages/not-found-view';
 import {
   confirmRequest,
   ConfirmService,
 } from '@b2b-catalog-platform/ui/overlay/confirm.service';
-import { CatalogService } from './catalog.service';
+import { CatalogService } from '../catalog.service';
 import {
   PRODUCT_PAGE_COLUMNS,
   PRODUCT_PAGE_SECTION_CELL,
   ProductDetailView,
-} from '../../core/catalog/product-page/product-detail-view';
-import { SHARED_TEXT } from '../../shared/config/shared-text';
+} from '../../../core/catalog/product-page/product-detail-view';
+import { SHARED_TEXT } from '../../../shared/config/shared-text';
 
 /**
  * The product page route (FR-CAT-05): loads a product by slug and renders it

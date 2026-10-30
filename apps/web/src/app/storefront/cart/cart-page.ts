@@ -16,7 +16,11 @@ import {
   formatMoneyMinor,
 } from '@b2b-catalog-platform/shared';
 import { ProductPairings } from '../../core/catalog/buying/product-pairings';
-import { PRODUCT_ROWS, ProductRow, RowProduct } from '../catalog/product-row';
+import {
+  PRODUCT_ROWS,
+  ProductRow,
+  RowProduct,
+} from '../catalog/ui/product-row';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';

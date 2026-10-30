@@ -1,5 +1,5 @@
-import { SHARED_TEXT } from '../../shared/config/shared-text';
-import { defaultSharedText } from '../../shared/config/shared-text.fixture';
+import { SHARED_TEXT } from '../../../shared/config/shared-text';
+import { defaultSharedText } from '../../../shared/config/shared-text.fixture';
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
@@ -14,10 +14,10 @@ import {
   PRODUCT_SORTS,
   SEARCH_SORTS,
 } from '@b2b-catalog-platform/shared/core/catalog';
-import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
-import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
-import { defaultDeploymentConfig } from '../../shared/config/deployment-config.fixture';
-import { defaultStorefrontText } from '../../shared/config/storefront-text.fixture';
+import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
+import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
+import { defaultDeploymentConfig } from '../../../shared/config/deployment-config.fixture';
+import { defaultStorefrontText } from '../../../shared/config/storefront-text.fixture';
 import { ProductSortSelect, sortParam } from './product-sort-select';
 
 /** A host page the control can navigate within, so the URL is observable. */

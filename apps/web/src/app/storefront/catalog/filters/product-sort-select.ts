@@ -10,8 +10,8 @@ import {
   SEARCH_SORTS,
   SearchSort,
 } from '@b2b-catalog-platform/shared/core/catalog';
-import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
-import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
+import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
+import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
 import { Input } from '@b2b-catalog-platform/ui/inputs/input';
 import { Segment } from '@b2b-catalog-platform/ui/choices/segment';
 import { SegmentGroup } from '@b2b-catalog-platform/ui/choices/segment-group';

@@ -1,11 +1,11 @@
-import { SHARED_TEXT } from '../../shared/config/shared-text';
-import { defaultSharedText } from '../../shared/config/shared-text.fixture';
+import { SHARED_TEXT } from '../../../shared/config/shared-text';
+import { defaultSharedText } from '../../../shared/config/shared-text.fixture';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { Facet } from '@b2b-catalog-platform/shared/storefront/catalog';
-import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
-import { defaultStorefrontText } from '../../shared/config/storefront-text.fixture';
+import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
+import { defaultStorefrontText } from '../../../shared/config/storefront-text.fixture';
 import { AppliedFilters } from './applied-filters';
 
 const facet = (over: Partial<Facet> = {}): Facet => ({

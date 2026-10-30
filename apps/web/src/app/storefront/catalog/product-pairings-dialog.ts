@@ -21,7 +21,7 @@ import { DialogPanel } from '@b2b-catalog-platform/ui/overlay/dialog-panel';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import { CatalogService } from './catalog.service';
 import { PairingsService } from '../../core/catalog/buying/pairings.service';
-import { PRODUCT_ROWS, ProductRow } from './product-row';
+import { PRODUCT_ROWS, ProductRow } from './ui/product-row';
 import { WarningNote } from '@b2b-catalog-platform/ui/content/warning-note';
 
 /**

@@ -1,7 +1,7 @@
 import { isPlatformBrowser } from '@angular/common';
 import { computed, effect, inject, PLATFORM_ID, signal } from '@angular/core';
 // eslint-disable-next-line no-restricted-imports -- until the texts are cut by area: edit mode is staff reading a storefront page
-import { adminText, loadAdminText } from '../../shared/config/admin-text';
+import { adminText, loadAdminText } from '../../../shared/config/admin-text';
 
 /**
  * The admin wording a hidden product's page shows: its status badges, and why

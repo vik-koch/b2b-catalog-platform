@@ -1,23 +1,23 @@
-import { SHARED_TEXT } from '../../shared/config/shared-text';
-import { defaultSharedText } from '../../shared/config/shared-text.fixture';
+import { SHARED_TEXT } from '../../../shared/config/shared-text';
+import { defaultSharedText } from '../../../shared/config/shared-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { HiddenProduct } from '@b2b-catalog-platform/shared/core/catalog';
 import { DeploymentConfig } from '@b2b-catalog-platform/shared';
-import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
-import { ADMIN_TEXT } from '../../shared/config/admin-text';
-import { defaultStorefrontText } from '../../shared/config/storefront-text.fixture';
-import { defaultAdminText } from '../../shared/config/admin-text.fixture';
-import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
+import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
+import { ADMIN_TEXT } from '../../../shared/config/admin-text';
+import { defaultStorefrontText } from '../../../shared/config/storefront-text.fixture';
+import { defaultAdminText } from '../../../shared/config/admin-text.fixture';
+import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
 import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
 import {
   EDIT_MODE_CATALOG,
   EditModeCatalog,
-} from '../../core/catalog/edit-mode-catalog';
+} from '../../../core/catalog/edit-mode-catalog';
 import {
   productListItem,
   plainPrices,
-} from '../../core/catalog/product.fixture';
+} from '../../../core/catalog/product.fixture';
 import { HiddenProductsSection } from './hidden-products-section';
 
 const text = defaultAdminText.editMode;

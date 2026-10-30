@@ -7,35 +7,35 @@ import {
 } from '@b2b-catalog-platform/shared/core/catalog';
 import { fillText } from '@b2b-catalog-platform/shared';
 import { SEARCH_SORTS } from '@b2b-catalog-platform/shared/core/catalog';
-import { EditActions } from '../../shared/edit-mode/edit-actions';
-import { editAwareContent } from '../../shared/edit-mode/edit-aware-content';
-import { injectEditorReturnParams } from '../../shared/edit-mode/editor-return';
-import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
-import { usePageSeo } from '../../shared/core/page-seo';
-import { stableValue } from '../../shared/core/stable-value';
-import { LoadErrorView } from '../pages/load-error-view';
+import { EditActions } from '../../../shared/edit-mode/edit-actions';
+import { editAwareContent } from '../../../shared/edit-mode/edit-aware-content';
+import { injectEditorReturnParams } from '../../../shared/edit-mode/editor-return';
+import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
+import { usePageSeo } from '../../../shared/core/page-seo';
+import { stableValue } from '../../../shared/core/stable-value';
+import { LoadErrorView } from '../../pages/load-error-view';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { Pagination } from '@b2b-catalog-platform/ui/lists/pagination';
-import { AppliedFilters } from './applied-filters';
-import { CatalogService } from './catalog.service';
+import { AppliedFilters } from '../filters/applied-filters';
+import { CatalogService } from '../catalog.service';
 import {
   FACET_COLUMN,
   FACET_LAYOUT,
   FACET_SIBLING,
   FACET_SIBLING_ALONE,
   FacetPanel,
-} from './facet-panel';
-import { anyStatus } from './ui/product-status-line';
-import { ProductLayoutService } from './product-layout';
-import { ProductLayoutToggle } from './product-layout-toggle';
-import { PRODUCT_ROWS, ProductRow } from './product-row';
+} from '../filters/facet-panel';
+import { anyStatus } from '../ui/product-status-line';
+import { ProductLayoutService } from '../product-layout';
+import { ProductLayoutToggle } from '../product-layout-toggle';
+import { PRODUCT_ROWS, ProductRow } from '../ui/product-row';
 import {
   ProductSortSelect,
   resolveSearchSort,
   sortParam,
-} from './product-sort-select';
-import { PRODUCT_GRID, ProductTile } from './ui/product-tile';
-import { useTaxStatement } from '../../core/catalog/pricing/tax-statement';
+} from '../filters/product-sort-select';
+import { PRODUCT_GRID, ProductTile } from '../ui/product-tile';
+import { useTaxStatement } from '../../../core/catalog/pricing/tax-statement';
 
 /**
  * Search results — the same product tiles the category grid

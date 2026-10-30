@@ -13,18 +13,18 @@ import {
   NARROW_BODY_IN_GRID,
   NARROW_PADDING_IN_GRID,
   NARROW_PHOTO_IN_GRID,
-} from './ui/listing-narrow';
-import { PricePipe } from '../../core/catalog/pricing/price.pipe';
-import { PRODUCT_GRID } from './ui/product-tile';
+} from '../ui/listing-narrow';
+import { PricePipe } from '../../../core/catalog/pricing/price.pipe';
+import { PRODUCT_GRID } from '../ui/product-tile';
 // eslint-disable-next-line no-restricted-imports -- until the texts are cut by area: edit mode is staff reading a storefront page
-import { ADMIN_TEXT } from '../../shared/config/admin-text';
+import { ADMIN_TEXT } from '../../../shared/config/admin-text';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';
-import { EDIT_MODE_CATALOG } from '../../core/catalog/edit-mode-catalog';
-import { injectEditorReturnParams } from '../../shared/edit-mode/editor-return';
-import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { EDIT_MODE_CATALOG } from '../../../core/catalog/edit-mode-catalog';
+import { injectEditorReturnParams } from '../../../shared/edit-mode/editor-return';
+import { SHARED_TEXT } from '../../../shared/config/shared-text';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { bookCheckIcon } from '@b2b-catalog-platform/ui/icons/glyphs/book-check';
 import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';

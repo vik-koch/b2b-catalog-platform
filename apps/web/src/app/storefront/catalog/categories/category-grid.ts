@@ -31,24 +31,24 @@ import { fillText } from '@b2b-catalog-platform/shared';
 import {
   EDIT_ACTIONS_INSET,
   EditActions,
-} from '../../shared/edit-mode/edit-actions';
-import { editAwareContent } from '../../shared/edit-mode/edit-aware-content';
-import { EditModeService } from '../../shared/edit-mode/edit-mode.service';
-import { injectEditorReturnParams } from '../../shared/edit-mode/editor-return';
+} from '../../../shared/edit-mode/edit-actions';
+import { editAwareContent } from '../../../shared/edit-mode/edit-aware-content';
+import { EditModeService } from '../../../shared/edit-mode/edit-mode.service';
+import { injectEditorReturnParams } from '../../../shared/edit-mode/editor-return';
 import { HiddenProductsSection } from './hidden-products-section';
-import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
-import { usePageSeo } from '../../shared/core/page-seo';
-import { stableValue } from '../../shared/core/stable-value';
-import { LoadErrorView } from '../pages/load-error-view';
-import { NotFoundView } from '../pages/not-found-view';
+import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
+import { usePageSeo } from '../../../shared/core/page-seo';
+import { stableValue } from '../../../shared/core/stable-value';
+import { LoadErrorView } from '../../pages/load-error-view';
+import { NotFoundView } from '../../pages/not-found-view';
 import { Pagination } from '@b2b-catalog-platform/ui/lists/pagination';
 import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
 import { disclosureState } from '@b2b-catalog-platform/ui/disclosure/disclosure-state';
 import { ShowMoreToggle } from '@b2b-catalog-platform/ui/disclosure/show-more-toggle';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
-import { AppliedFilters } from './applied-filters';
-import { CatalogService } from './catalog.service';
-import { CategoryChip } from './ui/category-chip';
+import { AppliedFilters } from '../filters/applied-filters';
+import { CatalogService } from '../catalog.service';
+import { CategoryChip } from '../ui/category-chip';
 import { CATEGORY_GRID } from './category-index';
 import {
   FACET_COLUMN,
@@ -56,18 +56,18 @@ import {
   FACET_SIBLING,
   FACET_SIBLING_ALONE,
   FacetPanel,
-} from './facet-panel';
-import { anyStatus } from './ui/product-status-line';
-import { ProductLayoutService } from './product-layout';
-import { ProductLayoutToggle } from './product-layout-toggle';
-import { PRODUCT_ROWS, ProductRow } from './product-row';
+} from '../filters/facet-panel';
+import { anyStatus } from '../ui/product-status-line';
+import { ProductLayoutService } from '../product-layout';
+import { ProductLayoutToggle } from '../product-layout-toggle';
+import { PRODUCT_ROWS, ProductRow } from '../ui/product-row';
 import {
   ProductSortSelect,
   resolveCatalogSort,
   sortParam,
-} from './product-sort-select';
-import { PRODUCT_GRID, ProductTile } from './ui/product-tile';
-import { useTaxStatement } from '../../core/catalog/pricing/tax-statement';
+} from '../filters/product-sort-select';
+import { PRODUCT_GRID, ProductTile } from '../ui/product-tile';
+import { useTaxStatement } from '../../../core/catalog/pricing/tax-statement';
 import { chevronRightIcon } from '@b2b-catalog-platform/ui/icons/glyphs/chevron-right';
 
 /**

@@ -1,13 +1,16 @@
-import { provideUiText, SHARED_TEXT } from '../../../shared/config/shared-text';
-import { defaultSharedText } from '../../../shared/config/shared-text.fixture';
+import {
+  provideUiText,
+  SHARED_TEXT,
+} from '../../../../shared/config/shared-text';
+import { defaultSharedText } from '../../../../shared/config/shared-text.fixture';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import {
   Facet,
   FacetValue,
 } from '@b2b-catalog-platform/shared/storefront/catalog';
-import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
-import { defaultStorefrontText } from '../../../shared/config/storefront-text.fixture';
+import { STOREFRONT_TEXT } from '../../../../shared/config/storefront-text';
+import { defaultStorefrontText } from '../../../../shared/config/storefront-text.fixture';
 import { FacetFilters, FacetValueToggle } from './facet-filters';
 
 const value = (v: string, count = 3, selected = false): FacetValue => ({
