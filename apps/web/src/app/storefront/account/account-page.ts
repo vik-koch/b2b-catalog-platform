@@ -38,6 +38,7 @@ import { shoppingBasketIcon } from '@b2b-catalog-platform/ui/icons/glyphs/shoppi
 import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
 import { userIcon } from '@b2b-catalog-platform/ui/icons/glyphs/user';
 import { Card } from '@b2b-catalog-platform/ui/content/card';
+import { SectionTitle } from '@b2b-catalog-platform/ui/content/section-title';
 
 /**
  * How many of the newest orders the account page itself shows. Enough that a
@@ -77,6 +78,7 @@ interface DetailRow {
 @Component({
   selector: 'app-account-page',
   imports: [
+    SectionTitle,
     Card,
     SignedInAs,
     Skeleton,
@@ -109,7 +111,7 @@ interface DetailRow {
              behind a button that only said the list existed. The page itself is
              still there for the rest of it. -->
         <section>
-          <h2 [class]="headingClass">
+          <h2 uiSectionTitle class="mb-1.5 flex items-center gap-2">
             <ui-icon [glyph]="shoppingBasketIcon" class="size-4" />
             {{ orderText.heading }}
           </h2>
@@ -190,7 +192,7 @@ interface DetailRow {
              which was which. Down the page they have the width to be read, and
              the section heading is that heading. -->
         <section>
-          <h2 [class]="headingClass">
+          <h2 uiSectionTitle class="mb-1.5 flex items-center gap-2">
             <ui-icon [glyph]="userIcon" class="size-4" />
             {{ accountText.detailsHeading }}
           </h2>
@@ -250,7 +252,7 @@ interface DetailRow {
              its own: it is one short list, and checkout is where it is actually
              used — this is where it is kept. -->
         <section>
-          <h2 [class]="headingClass">
+          <h2 uiSectionTitle class="mb-1.5 flex items-center gap-2">
             <ui-icon [glyph]="mapPinIcon" class="size-4" />
             {{ addressText.heading }}
           </h2>
@@ -340,7 +342,7 @@ interface DetailRow {
              different weight of decision — and its consequences still live on
              their own page rather than being crammed in beside the link. -->
         <section>
-          <h2 [class]="headingClass">
+          <h2 uiSectionTitle class="mb-1.5 flex items-center gap-2">
             <ui-icon [glyph]="lockIcon" class="size-4" />
             {{ text.securityHeading }}
           </h2>
@@ -400,11 +402,6 @@ export class AccountPage {
   protected readonly shoppingBasketIcon = shoppingBasketIcon;
   protected readonly trash2Icon = trash2Icon;
   protected readonly userIcon = userIcon;
-  /** One heading treatment, written once: four sections spelling the same
-   * class list out is four chances for one of them to drift. */
-  protected readonly headingClass = `mb-1.5 flex items-center gap-2 text-xs
-                                     font-medium tracking-wide text-ink-subtle
-                                     uppercase`;
 
   private readonly account = inject(AccountService);
   private readonly api = inject(OrdersService);

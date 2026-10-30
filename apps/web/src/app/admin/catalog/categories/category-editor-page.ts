@@ -41,11 +41,11 @@ import { categoriesOutside } from './category-tree';
 
 import { ImagePicker } from '../../media/image-picker';
 import { CategoryPicker } from './category-picker';
-import { SHARED_TEXT } from '../../../shared/config/shared-text';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
-import { saveIcon } from '@b2b-catalog-platform/ui/icons/glyphs/save';
-import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
+import { SaveButton } from '../../ui/save-button';
+import { CancelButton } from '../../ui/cancel-button';
+import { SHARED_TEXT } from '../../../shared/config/shared-text';
 
 interface CategoryDraft {
   name: string;
@@ -64,6 +64,8 @@ interface CategoryDraft {
 @Component({
   selector: 'app-category-editor-page',
   imports: [
+    CancelButton,
+    SaveButton,
     FORM_FIELDS,
     LockedNote,
     Button,
@@ -197,22 +199,20 @@ interface CategoryDraft {
       <div class="mt-6 flex max-w-3xl flex-wrap gap-3">
         <button
           uiButton
+          appSaveButton
           type="button"
-          class="gap-2"
-          [disabled]="saving()"
+          [saving]="saving()"
           (click)="save()"
         >
-          <ui-icon [glyph]="saveIcon" class="size-4" />
-          {{ saving() ? actionText.saving : adminText.actions.save }}
+          {{ adminText.actions.save }}
         </button>
         <button
           uiButton
           variant="secondary"
+          appCancelButton
           type="button"
-          class="gap-2"
           (click)="cancel()"
         >
-          <ui-icon [glyph]="xIcon" class="size-4" />
           {{ actionText.cancel }}
         </button>
       </div>
@@ -220,14 +220,12 @@ interface CategoryDraft {
   `,
 })
 export class CategoryEditorPage implements UnsavedChangesAware, FieldAttempt {
-  protected readonly saveIcon = saveIcon;
-  protected readonly xIcon = xIcon;
   private readonly service = inject(CategoriesService);
   private readonly route = inject(ActivatedRoute);
   protected readonly text = inject(ADMIN_TEXT).categories.editor;
   protected readonly adminText = inject(ADMIN_TEXT);
-  protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
   protected readonly actionText = inject(SHARED_TEXT).actions;
+  protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
   private readonly ownership = inject(SettingsService);
 
   /**

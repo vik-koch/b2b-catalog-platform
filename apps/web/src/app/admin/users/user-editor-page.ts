@@ -51,7 +51,8 @@ import { Glyph } from '@b2b-catalog-platform/ui/icons/glyph';
 import { circleCheckIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-check';
 import { saveIcon } from '@b2b-catalog-platform/ui/icons/glyphs/save';
 import { sendIcon } from '@b2b-catalog-platform/ui/icons/glyphs/send';
-import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
+import { SaveButton } from '../ui/save-button';
+import { CancelButton } from '../ui/cancel-button';
 
 interface UserDraft {
   email: string;
@@ -87,6 +88,8 @@ interface UserDraft {
 @Component({
   selector: 'app-user-editor-page',
   imports: [
+    CancelButton,
+    SaveButton,
     FORM_FIELDS,
     LockedNote,
     Button,
@@ -167,11 +170,10 @@ interface UserDraft {
           <button
             uiButton
             variant="secondary"
+            appCancelButton
             type="button"
-            class="gap-2"
             (click)="cancel()"
           >
-            <ui-icon [glyph]="xIcon" class="size-4" />
             {{ actionText.cancel }}
           </button>
         } @else {
@@ -350,12 +352,12 @@ interface UserDraft {
               @if (!closed() && !locked()) {
                 <button
                   uiButton
+                  appSaveButton
                   type="submit"
-                  class="gap-2"
-                  [disabled]="saving()"
+                  [saving]="saving()"
+                  [glyph]="submitIcon()"
                 >
-                  <ui-icon [glyph]="submitIcon()" class="size-4" />
-                  {{ saving() ? actionText.saving : submitLabel() }}
+                  {{ submitLabel() }}
                 </button>
                 <!-- On a pending account the primary button approves, which is a
                    decision. Correcting a typo without taking that decision has
@@ -393,11 +395,10 @@ interface UserDraft {
               <button
                 uiButton
                 variant="secondary"
+                appCancelButton
                 type="button"
-                class="gap-2"
                 (click)="cancel()"
               >
-                <ui-icon [glyph]="xIcon" class="size-4" />
                 {{ actionText.cancel }}
               </button>
             </div>
@@ -410,7 +411,6 @@ interface UserDraft {
 export class UserEditorPage implements UnsavedChangesAware {
   protected readonly saveIcon = saveIcon;
   protected readonly sendIcon = sendIcon;
-  protected readonly xIcon = xIcon;
   private readonly service = inject(StaffUsersService);
   private readonly tiersService = inject(TiersService);
   private readonly route = inject(ActivatedRoute);
@@ -449,8 +449,8 @@ export class UserEditorPage implements UnsavedChangesAware {
     );
   });
   protected readonly adminText = inject(ADMIN_TEXT);
-  protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
   protected readonly actionText = inject(SHARED_TEXT).actions;
+  protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
   private readonly ownership = inject(SettingsService);
   /**
    * What an account with no tier of its own is charged, named: "Default

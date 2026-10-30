@@ -4,12 +4,9 @@ import { Params, RouterLink } from '@angular/router';
 import { fillText } from '@b2b-catalog-platform/shared';
 import { SEARCH_SORTS } from '@b2b-catalog-platform/shared/core/catalog';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
-import { Pagination } from '@b2b-catalog-platform/ui/lists/pagination';
-import { useTaxStatement } from '../../../core/catalog/pricing/tax-statement';
 import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
 import { usePageSeo } from '../../../shared/core/page-seo';
 import { stableValue } from '../../../shared/core/stable-value';
-import { EditActions } from '../../../shared/edit-mode/edit-actions';
 import { editAwareContent } from '../../../shared/edit-mode/edit-aware-content';
 import { injectEditorReturnParams } from '../../../shared/edit-mode/editor-return';
 import { LoadErrorView } from '../../pages/load-error-view';
@@ -26,9 +23,8 @@ import { ProductSortSelect } from '../filters/product-sort-select';
 import { listingParams } from '../listing-params';
 import { ProductLayoutService } from '../product-layout';
 import { ProductLayoutToggle } from '../product-layout-toggle';
-import { PRODUCT_ROWS, ProductRow } from '../ui/product-row';
-import { anyStatus } from '../ui/product-status-line';
-import { PRODUCT_GRID, ProductTile } from '../ui/product-tile';
+import { PRODUCT_GRID } from '../ui/product-tile';
+import { ProductListing } from '../ui/product-listing';
 import { CatalogSearchService } from './catalog-search.service';
 
 /** Search results (FR-SEARCH-01…04): the category listing's cards and lines,
@@ -36,18 +32,15 @@ import { CatalogSearchService } from './catalog-search.service';
 @Component({
   selector: 'app-search-results',
   imports: [
+    ProductListing,
     NgTemplateOutlet,
     RouterLink,
-    EditActions,
-    ProductTile,
-    ProductRow,
     ProductLayoutToggle,
     ProductSortSelect,
     FacetPanel,
     AppliedFilters,
     Button,
     LoadErrorView,
-    Pagination,
   ],
   template: `
     <ng-template #title>
@@ -98,77 +91,28 @@ import { CatalogSearchService } from './catalog-search.service';
               @if (!data.items.length) {
                 <p class="text-ink-subtle">{{ filterText.noMatches }}</p>
               } @else {
-                <!-- The filter heading's height, so the first card starts on
-                     the first facet's line. -->
-                <div class="mb-4 flex h-8 items-center justify-between gap-4">
-                  <p class="text-sm text-ink-subtle">
-                    {{ resultCount(data.pagination.total) }}
-                  </p>
-                  <div class="flex items-center gap-3">
-                    <app-product-sort-select
-                      shape="segments"
-                      [class]="data.facets.length ? headerSortAt : ''"
-                      [value]="sortKey()"
-                      defaultSort="relevance"
-                      [options]="sortOptions"
-                    />
-                    <app-product-layout-toggle />
-                  </div>
-                </div>
+                <app-product-listing
+                  [items]="data.items"
+                  [cards]="cards()"
+                  [loading]="results.isLoading()"
+                  [countLabel]="resultCount(data.pagination.total)"
+                  link="/search"
+                  [page]="data.pagination.page"
+                  [totalPages]="data.pagination.totalPages"
+                  [pageParams]="pageParams"
+                  [editText]="editControls()"
+                  [editorFrom]="editorFrom()"
+                >
+                  <app-product-sort-select
+                    shape="segments"
+                    [class]="data.facets.length ? headerSortAt : ''"
+                    [value]="sortKey()"
+                    defaultSort="relevance"
+                    [options]="sortOptions"
+                  />
+                  <app-product-layout-toggle />
+                </app-product-listing>
               }
-              <!-- Faded while the next page, sort or filter loads. -->
-              <ul [class]="list()" [class.listing-held]="results.isLoading()">
-                <!-- One cluster for a card's corner and a line's photo. -->
-                <ng-template #productEdit let-slug>
-                  @if (editControls(); as editText) {
-                    <app-edit-actions
-                      variant="tile"
-                      [editLink]="['/admin/products', slug, 'edit']"
-                      [editParams]="editorFrom()"
-                      [editLabel]="editText.editProduct"
-                    />
-                  }
-                </ng-template>
-                <!-- One product stating a stock reserves the line for all,
-                     so the names sit level. -->
-                @let reserveStatus = anyStatus(data.items);
-
-                @for (item of data.items; track item.slug) {
-                  <li [class]="cards() ? 'h-full' : ''">
-                    @if (cards()) {
-                      <app-product-tile
-                        [item]="item"
-                        [reserveStatus]="reserveStatus"
-                      >
-                        <ng-container
-                          [ngTemplateOutlet]="productEdit"
-                          [ngTemplateOutletContext]="{ $implicit: item.slug }"
-                        />
-                      </app-product-tile>
-                    } @else {
-                      <app-product-row [item]="item">
-                        <ng-container
-                          ngProjectAs="[rowOverlay]"
-                          [ngTemplateOutlet]="productEdit"
-                          [ngTemplateOutletContext]="{ $implicit: item.slug }"
-                        />
-                      </app-product-row>
-                    }
-                  </li>
-                }
-              </ul>
-              <!-- NFR-LEGAL-11: once per page, naming no rate. -->
-              @if (taxNote && data.items.length) {
-                <p class="mt-4 text-xs text-ink-subtle">{{ taxNote }}</p>
-              }
-
-              <ui-pagination
-                class="mt-8"
-                link="/search"
-                [page]="data.pagination.page"
-                [totalPages]="data.pagination.totalPages"
-                [queryParams]="pageParams"
-              />
             </div>
           </div>
         } @else if (query()) {
@@ -201,8 +145,6 @@ import { CatalogSearchService } from './catalog-search.service';
   `,
 })
 export class SearchResults {
-  protected readonly anyStatus = anyStatus;
-
   protected readonly productGrid = PRODUCT_GRID;
   protected readonly sortOptions = SEARCH_SORTS;
 
@@ -215,15 +157,11 @@ export class SearchResults {
   protected readonly cards = computed(
     () => this.productLayout.layout() === 'grid',
   );
-  protected list(): string {
-    return this.cards() ? PRODUCT_GRID : PRODUCT_ROWS;
-  }
 
   private readonly search = inject(CatalogSearchService);
 
   protected readonly text = inject(STOREFRONT_TEXT).search;
   protected readonly catalogText = inject(STOREFRONT_TEXT).catalog;
-  protected readonly taxNote = useTaxStatement().listing();
   protected readonly filterText = this.catalogText.filters;
   protected readonly skeletons = Array.from({ length: 10 }, (_, i) => i);
 

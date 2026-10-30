@@ -25,6 +25,7 @@ import { categoriesOutside } from './category-tree';
 import { SHARED_TEXT } from '../../../shared/config/shared-text';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
+import { DialogTitle } from '@b2b-catalog-platform/ui/overlay/dialog-title';
 
 /**
  * Every category delete (FR-ADM-01), from the storefront grid as well as the
@@ -36,6 +37,7 @@ import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
 @Component({
   selector: 'app-category-delete-dialog',
   imports: [
+    DialogTitle,
     Button,
     Icon,
     CategoryPicker,
@@ -51,10 +53,7 @@ import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
       aria-labelledby="category-delete-heading"
       uiDialogPanel
     >
-      <h2
-        id="category-delete-heading"
-        class="text-xl font-normal tracking-tight"
-      >
+      <h2 id="category-delete-heading" uiDialogTitle>
         {{ text.deleteTitle }}
       </h2>
 

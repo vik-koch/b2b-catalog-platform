@@ -118,7 +118,7 @@ async function render(
     await settle();
   };
   const rowNames = () =>
-    [...el.querySelectorAll('li label span:first-of-type')].map((s) =>
+    [...el.querySelectorAll('li label > span:first-of-type')].map((s) =>
       s.textContent?.trim(),
     );
   /** The two views are a segmented pill: real radios inside their labels. */

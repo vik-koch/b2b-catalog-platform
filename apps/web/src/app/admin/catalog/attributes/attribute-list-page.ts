@@ -1,12 +1,4 @@
 import {
-  CdkDrag,
-  CdkDragDrop,
-  CdkDragHandle,
-  CdkDropList,
-  moveItemInArray,
-} from '@angular/cdk/drag-drop';
-import { NgTemplateOutlet } from '@angular/common';
-import {
   Component,
   computed,
   inject,
@@ -51,17 +43,16 @@ import { WarningNote } from '@b2b-catalog-platform/ui/content/warning-note';
 import { SHARED_TEXT } from '../../../shared/config/shared-text';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { Hint } from '@b2b-catalog-platform/ui/fields/hint';
-import { gripVerticalIcon } from '@b2b-catalog-platform/ui/icons/glyphs/grip-vertical';
 import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
 import { plusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/plus';
-import { saveIcon } from '@b2b-catalog-platform/ui/icons/glyphs/save';
 import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
-import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
 import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
+import { DragGrip } from '../ui/drag-grip';
+import { EditTarget, RecordList, SortEntry } from '../ui/record-list';
+import { SaveButton } from '../../ui/save-button';
+import { CancelButton } from '../../ui/cancel-button';
 
 /** The row open for editing; `{ id: null }` is the add form. */
-type EditTarget = { id: string } | { id: null } | null;
-
 interface AttributeDraft {
   name: string;
   /** Empty asks the server to derive one from the name. */
@@ -86,14 +77,14 @@ const blankAttribute = (): AttributeDraft => ({
 @Component({
   selector: 'app-attribute-list-page',
   imports: [
+    RecordList,
+    CancelButton,
+    SaveButton,
+    DragGrip,
     PageHeader,
     FORM_FIELDS,
     WarningNote,
-    NgTemplateOutlet,
     RouterLink,
-    CdkDropList,
-    CdkDrag,
-    CdkDragHandle,
     Button,
     IconButton,
     Icon,
@@ -132,241 +123,205 @@ const blankAttribute = (): AttributeDraft => ({
       @if (definitions.error()) {
         <p class="text-ink-subtle" role="alert">{{ adminText.loadError }}</p>
       } @else if (definitions.hasValue()) {
-        <div class="border-y border-edge">
-          <ul
-            class="divide-y divide-edge"
-            cdkDropList
-            [cdkDropListDisabled]="busy() || editing() !== null"
-            (cdkDropListDropped)="onDrop($event)"
-          >
-            @for (definition of definitions.value(); track definition.id) {
-              <!-- scroll-mt clears the sticky header (see the inventory). -->
-              <li
-                class="scroll-mt-24 py-3"
-                cdkDrag
-                [cdkDragData]="definition"
-                [id]="rowId(definition.name)"
-              >
-                @if (isEditing(definition.id)) {
-                  <ng-container [ngTemplateOutlet]="recordForm" />
-                } @else {
-                  <ui-record-row [compact]="true">
-                    <!-- The order is the filter panel's and nothing else. -->
-                    <span
-                      recordControl
-                      cdkDragHandle
-                      uiIconButton
-                      size="lead"
-                      class="cursor-grab active:cursor-grabbing"
-                      [attr.aria-label]="adminText.actions.reorder"
-                      [title]="adminText.actions.reorder"
+        <app-record-list
+          [items]="definitions.value()"
+          [editing]="editing()"
+          [locked]="busy()"
+          [empty]="text.empty"
+          [rowId]="definitionRowId"
+          (moved)="saveOrder($event)"
+        >
+          <ng-template #row let-definition>
+            <ui-record-row [compact]="true">
+              <!-- The order is the filter panel's and nothing else. -->
+              <app-drag-grip recordControl size="lead" />
+              <span class="font-medium text-ink">
+                {{ definition.name }}
+              </span>
+              <code class="rounded-sm bg-surface px-1.5 py-0.5 text-xs">
+                {{ definition.slug }}
+              </code>
+              <ng-container recordMeta>
+                <span>
+                  {{ typeLabel(definition) }} ·
+                  @if (definition.productCount) {
+                    <a
+                      uiLink
+                      routerLink="/admin/products"
+                      [queryParams]="{ attributeKey: definition.name }"
+                      [title]="text.showProducts"
                     >
-                      <ui-icon [glyph]="gripVerticalIcon" />
-                    </span>
-                    <span class="font-medium text-ink">
-                      {{ definition.name }}
-                    </span>
-                    <code class="rounded-sm bg-surface px-1.5 py-0.5 text-xs">
-                      {{ definition.slug }}
-                    </code>
-                    <ng-container recordMeta>
-                      <span>
-                        {{ typeLabel(definition) }} ·
-                        @if (definition.productCount) {
-                          <a
-                            uiLink
-                            routerLink="/admin/products"
-                            [queryParams]="{ attributeKey: definition.name }"
-                            [title]="text.showProducts"
-                          >
-                            {{ productsLabel(definition.productCount) }}
-                          </a>
-                          @if (definition.unpublishedProductCount) {
-                            ·
-                            <app-unpublished-count
-                              [count]="definition.unpublishedProductCount"
-                              [query]="{ attributeKey: definition.name }"
-                            />
-                          }
-                        } @else {
-                          {{ productsLabel(0) }}
-                        }
-                        ·
-                        @if (definition.valueCount) {
-                          <a
-                            uiLink
-                            routerLink="/admin/attributes/inventory"
-                            [queryParams]="{ key: definition.name }"
-                            [title]="text.showUsage"
-                          >
-                            {{ valuesLabel(definition.valueCount) }}
-                          </a>
-                        } @else {
-                          {{ valuesLabel(0) }}
-                        }
-                      </span>
-                    </ng-container>
-                    <ng-container recordActions>
-                      <button
-                        uiIconButton
-                        type="button"
-                        [attr.aria-label]="adminText.actions.edit"
-                        [disabled]="editing() !== null"
-                        (click)="startEdit(definition)"
-                      >
-                        <ui-icon [glyph]="pencilIcon" />
-                      </button>
-                      <button
-                        uiIconButton
-                        variant="danger"
-                        type="button"
-                        [attr.aria-label]="adminText.actions.delete"
-                        [disabled]="busy()"
-                        (click)="remove(definition)"
-                      >
-                        <ui-icon [glyph]="trash2Icon" />
-                      </button>
-                    </ng-container>
-                  </ui-record-row>
-                  @if (definition.productCount === 0) {
-                    <ui-warning-note class="mt-2">
-                      {{ text.noMatch }}
-                    </ui-warning-note>
-                  } @else if (
-                    definition.type === 'number' && definition.unparsedCount > 0
-                  ) {
-                    <ui-warning-note class="mt-2">
-                      {{ unparsedLabel(definition.unparsedCount) }}
-                    </ui-warning-note>
+                      {{ productsLabel(definition.productCount) }}
+                    </a>
+                    @if (definition.unpublishedProductCount) {
+                      ·
+                      <app-unpublished-count
+                        [count]="definition.unpublishedProductCount"
+                        [query]="{ attributeKey: definition.name }"
+                      />
+                    }
+                  } @else {
+                    {{ productsLabel(0) }}
                   }
-                  @if (rowError()?.id === definition.id) {
-                    <p uiErrorText class="mt-2" role="alert">
-                      {{ rowError()?.message }}
-                    </p>
+                  ·
+                  @if (definition.valueCount) {
+                    <a
+                      uiLink
+                      routerLink="/admin/attributes/inventory"
+                      [queryParams]="{ key: definition.name }"
+                      [title]="text.showUsage"
+                    >
+                      {{ valuesLabel(definition.valueCount) }}
+                    </a>
+                  } @else {
+                    {{ valuesLabel(0) }}
                   }
-                }
-              </li>
+                </span>
+              </ng-container>
+              <ng-container recordActions>
+                <button
+                  uiIconButton
+                  type="button"
+                  [attr.aria-label]="adminText.actions.edit"
+                  [disabled]="editing() !== null"
+                  (click)="startEdit(definition)"
+                >
+                  <ui-icon [glyph]="pencilIcon" />
+                </button>
+                <button
+                  uiIconButton
+                  variant="danger"
+                  type="button"
+                  [attr.aria-label]="adminText.actions.delete"
+                  [disabled]="busy()"
+                  (click)="remove(definition)"
+                >
+                  <ui-icon [glyph]="trash2Icon" />
+                </button>
+              </ng-container>
+            </ui-record-row>
+            @if (definition.productCount === 0) {
+              <ui-warning-note class="mt-2">
+                {{ text.noMatch }}
+              </ui-warning-note>
+            } @else if (
+              definition.type === 'number' && definition.unparsedCount > 0
+            ) {
+              <ui-warning-note class="mt-2">
+                {{ unparsedLabel(definition.unparsedCount) }}
+              </ui-warning-note>
             }
-          </ul>
-
-          @if (isEditing(null)) {
-            <div
-              class="py-3"
-              [class]="
-                definitions.value().length !== 0 ? 'border-t border-edge' : ''
-              "
-            >
-              <ng-container [ngTemplateOutlet]="recordForm" />
-            </div>
-          } @else if (definitions.value().length === 0) {
-            <p class="py-3 text-sm text-ink-subtle">{{ text.empty }}</p>
-          }
-        </div>
+            @if (rowError()?.id === definition.id) {
+              <p uiErrorText class="mt-2" role="alert">
+                {{ rowError()?.message }}
+              </p>
+            }
+          </ng-template>
+          <ng-template #editor>
+            <form uiRecordFields [formRoot]="form" (submit)="save()">
+              <ui-field
+                [field]="form.name"
+                [label]="text.name"
+                controlId="attribute-name"
+              >
+                <input
+                  uiInput
+                  size="sm"
+                  class="w-full"
+                  autocomplete="off"
+                  [placeholder]="text.namePlaceholder"
+                  [formField]="form.name"
+                />
+              </ui-field>
+              <ui-field
+                [field]="form.slug"
+                [label]="text.slug"
+                controlId="attribute-slug"
+              >
+                <input
+                  uiInput
+                  size="sm"
+                  class="w-full font-mono"
+                  autocomplete="off"
+                  [placeholder]="text.slugPlaceholder"
+                  [formField]="form.slug"
+                />
+              </ui-field>
+              <ui-field
+                [field]="form.type"
+                [label]="text.type"
+                controlId="attribute-type"
+              >
+                <ui-select-input size="sm" class="block w-full">
+                  <select
+                    uiInput
+                    size="sm"
+                    class="w-full"
+                    [formField]="form.type"
+                  >
+                    @for (type of types; track type) {
+                      <option [value]="type">{{ text.types[type] }}</option>
+                    }
+                  </select>
+                </ui-select-input>
+              </ui-field>
+              @if (draft().type === 'number') {
+                <ui-field
+                  [field]="form.unit"
+                  [label]="text.unit"
+                  controlId="attribute-unit"
+                >
+                  <input
+                    uiInput
+                    size="sm"
+                    class="w-full"
+                    autocomplete="off"
+                    [placeholder]="text.unitPlaceholder"
+                    [formField]="form.unit"
+                  />
+                </ui-field>
+              }
+              <p uiHint class="sm:col-span-2">{{ text.nameHint }}</p>
+              <div uiRecordFormActions>
+                <button
+                  uiButton
+                  appSaveButton
+                  size="sm"
+                  type="submit"
+                  [saving]="busy()"
+                >
+                  {{ adminText.actions.save }}
+                </button>
+                <button
+                  uiButton
+                  variant="secondary"
+                  appCancelButton
+                  size="sm"
+                  type="button"
+                  [disabled]="busy()"
+                  (click)="cancel()"
+                >
+                  {{ actionText.cancel }}
+                </button>
+              </div>
+              @if (formError()) {
+                <p uiErrorText class="sm:col-span-2" role="alert">
+                  {{ formError() }}
+                </p>
+              }
+            </form>
+          </ng-template>
+        </app-record-list>
       } @else if (showSkeleton()) {
         <ui-skeleton [lines]="4" />
       }
-
-      <ng-template #recordForm>
-        <form uiRecordFields [formRoot]="form" (submit)="save()">
-          <ui-field
-            [field]="form.name"
-            [label]="text.name"
-            controlId="attribute-name"
-          >
-            <input
-              uiInput
-              size="sm"
-              class="w-full"
-              autocomplete="off"
-              [placeholder]="text.namePlaceholder"
-              [formField]="form.name"
-            />
-          </ui-field>
-          <ui-field
-            [field]="form.slug"
-            [label]="text.slug"
-            controlId="attribute-slug"
-          >
-            <input
-              uiInput
-              size="sm"
-              class="w-full font-mono"
-              autocomplete="off"
-              [placeholder]="text.slugPlaceholder"
-              [formField]="form.slug"
-            />
-          </ui-field>
-          <ui-field
-            [field]="form.type"
-            [label]="text.type"
-            controlId="attribute-type"
-          >
-            <ui-select-input size="sm" class="block w-full">
-              <select uiInput size="sm" class="w-full" [formField]="form.type">
-                @for (type of types; track type) {
-                  <option [value]="type">{{ text.types[type] }}</option>
-                }
-              </select>
-            </ui-select-input>
-          </ui-field>
-          @if (draft().type === 'number') {
-            <ui-field
-              [field]="form.unit"
-              [label]="text.unit"
-              controlId="attribute-unit"
-            >
-              <input
-                uiInput
-                size="sm"
-                class="w-full"
-                autocomplete="off"
-                [placeholder]="text.unitPlaceholder"
-                [formField]="form.unit"
-              />
-            </ui-field>
-          }
-          <p uiHint class="sm:col-span-2">{{ text.nameHint }}</p>
-          <div uiRecordFormActions>
-            <button
-              uiButton
-              size="sm"
-              type="submit"
-              class="gap-2"
-              [disabled]="busy()"
-            >
-              <ui-icon [glyph]="saveIcon" class="size-4" />
-              {{ busy() ? actionText.saving : adminText.actions.save }}
-            </button>
-            <button
-              uiButton
-              variant="secondary"
-              size="sm"
-              type="button"
-              class="gap-2"
-              [disabled]="busy()"
-              (click)="cancel()"
-            >
-              <ui-icon [glyph]="xIcon" class="size-4" />
-              {{ actionText.cancel }}
-            </button>
-          </div>
-          @if (formError()) {
-            <p uiErrorText class="sm:col-span-2" role="alert">
-              {{ formError() }}
-            </p>
-          }
-        </form>
-      </ng-template>
     </div>
   `,
 })
 export class AttributeListPage {
-  protected readonly gripVerticalIcon = gripVerticalIcon;
   protected readonly pencilIcon = pencilIcon;
   protected readonly plusIcon = plusIcon;
-  protected readonly saveIcon = saveIcon;
   protected readonly trash2Icon = trash2Icon;
-  protected readonly xIcon = xIcon;
   private readonly service = inject(AttributesService);
   private readonly confirm = inject(ConfirmService);
   protected readonly text = inject(ADMIN_TEXT).attributes.list;
@@ -408,23 +363,7 @@ export class AttributeListPage {
   protected readonly busy = signal(false);
   protected readonly reorderError = signal(false);
 
-  /** The drop is the save, so there is nothing to confirm. */
-  protected onDrop(event: CdkDragDrop<AttributeDefinition>): void {
-    if (event.previousIndex === event.currentIndex) return;
-    void this.move(event.previousIndex, event.currentIndex);
-  }
-
-  private async move(from: number, to: number): Promise<void> {
-    const current = this.definitions.value();
-    if (!current || to < 0 || to >= current.length) return;
-
-    const ordered = [...current];
-    moveItemInArray(ordered, from, to);
-    const order = ordered.map((definition, index) => ({
-      id: definition.id,
-      sortOrder: index,
-    }));
-
+  protected async saveOrder(order: SortEntry[]): Promise<void> {
     this.busy.set(true);
     this.reorderError.set(false);
     try {
@@ -435,11 +374,6 @@ export class AttributeListPage {
     } finally {
       this.busy.set(false);
     }
-  }
-
-  protected isEditing(id: string | null): boolean {
-    const target = this.editing();
-    return target !== null && target.id === id;
   }
 
   /** The type, with the unit appended where there is one: "Number (cm)". */
@@ -565,6 +499,9 @@ export class AttributeListPage {
   protected rowId(name: string): string {
     return `definition-${name.replace(/\s+/g, '_')}`;
   }
+
+  protected readonly definitionRowId = (definition: AttributeDefinition) =>
+    this.rowId(definition.name);
 
   constructor() {
     usePageSeo({ name: () => this.text.page.title });

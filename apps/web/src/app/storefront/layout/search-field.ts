@@ -51,6 +51,7 @@ import { searchIcon } from '@b2b-catalog-platform/ui/icons/glyphs/search';
 import { shoppingBasketIcon } from '@b2b-catalog-platform/ui/icons/glyphs/shopping-basket';
 import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
 import { Frame } from '@b2b-catalog-platform/ui/content/frame';
+import { brokenImages } from '@b2b-catalog-platform/ui/core/broken-images';
 
 /** Long enough that a fast typist produces one request per word rather than
  * one per letter, short enough that a pause feels answered immediately. */
@@ -344,14 +345,13 @@ let nextId = 0;
                         <!-- Decorative: the name beside it says what it shows. -->
                         <span uiFrame [class]="thumb">
                           @if (
-                            item.images[0] &&
-                            !failed().has(item.images[0].thumb)
+                            item.images[0] && !broken.has(item.images[0].thumb)
                           ) {
                             <img
                               [src]="item.images[0].thumb"
                               alt=""
                               class="size-full bg-white object-contain"
-                              (error)="markFailed(item.images[0].thumb)"
+                              (error)="broken.add(item.images[0].thumb)"
                             />
                           } @else {
                             <ui-image-placeholder aria-hidden="true" />
@@ -573,8 +573,7 @@ export class SearchField {
    * cleared by the next keystroke. */
   protected readonly full = signal(false);
 
-  /** Photos that failed to load, drawn as the placeholder instead. */
-  protected readonly failed = signal<ReadonlySet<string>>(new Set());
+  protected readonly broken = brokenImages();
 
   protected readonly thumb = `block h-16 w-16 shrink-0 overflow-hidden
                               rounded-md`;
@@ -761,10 +760,6 @@ export class SearchField {
 
   protected inCartLabel(item: ProductListItem): string {
     return fillText(this.text.suggestionInCartAria, { name: item.name });
-  }
-
-  protected markFailed(src: string): void {
-    this.failed.update((failed) => new Set(failed).add(src));
   }
 
   /** The pointer takes the row, and the product cell with it: the button's

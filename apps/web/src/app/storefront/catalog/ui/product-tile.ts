@@ -24,6 +24,27 @@ export const PRODUCT_GRID = `grid
                              @max-[38rem]/listing:border-y
                              @max-[38rem]/listing:border-edge`;
 
+/** The card's shape below `LISTING_NARROW`, where it lies down as a line. The
+ * frame and ground stay the caller's. */
+export const TILE_NARROW_CARD = `${NARROW_PADDING_IN_GRID}
+                                 @max-[38rem]/listing:flex-row
+                                 @max-[38rem]/listing:items-stretch
+                                 @max-[38rem]/listing:gap-4
+                                 @max-[38rem]/listing:rounded-none
+                                 @max-[38rem]/listing:bg-transparent`;
+
+export const TILE_PHOTO_BOX = 'relative flex ' + NARROW_PHOTO_IN_GRID;
+
+/** Its own frame in the narrow shape, as a line's photo has. */
+export const TILE_PHOTO = `block aspect-square w-full overflow-hidden
+                           rounded-t-lg
+                           @max-[38rem]/listing:rounded-md
+                           @max-[38rem]/listing:ring-1
+                           @max-[38rem]/listing:ring-edge`;
+
+export const TILE_BODY = `flex flex-1 flex-col p-3 ${NARROW_BODY_IN_GRID}
+                          @max-[38rem]/listing:p-0`;
+
 /** A product card (FR-CAT-04). Below `LISTING_NARROW` it turns into a row in
  * CSS alone, so nothing re-renders after hydration. Projected edit controls
  * pin to the photo's corner, as on a row. */
@@ -93,28 +114,13 @@ export const PRODUCT_GRID = `grid
 export class ProductTile {
   /** The frame is the photo's too, flush with three of its edges. */
   protected readonly card = `group relative flex h-full flex-col rounded-lg
-                             bg-white transition-shadow
-                             ${NARROW_PADDING_IN_GRID}
+                             bg-white transition-shadow ${TILE_NARROW_CARD}
                              hover:shadow-md
-                             @max-[38rem]/listing:flex-row
-                             @max-[38rem]/listing:items-stretch
-                             @max-[38rem]/listing:gap-4
-                             @max-[38rem]/listing:rounded-none
                              @max-[38rem]/listing:ring-0
-                             @max-[38rem]/listing:bg-transparent
                              @max-[38rem]/listing:hover:shadow-none`;
-
-  protected readonly photoBox = 'relative flex ' + NARROW_PHOTO_IN_GRID;
-
-  /** Its own frame in the narrow shape, as a line's photo has. */
-  protected readonly photo = `block aspect-square w-full overflow-hidden
-                              rounded-t-lg
-                              @max-[38rem]/listing:rounded-md
-                              @max-[38rem]/listing:ring-1
-                              @max-[38rem]/listing:ring-edge`;
-
-  protected readonly body = `flex flex-1 flex-col p-3 ${NARROW_BODY_IN_GRID}
-                             @max-[38rem]/listing:p-0`;
+  protected readonly photoBox = TILE_PHOTO_BOX;
+  protected readonly photo = TILE_PHOTO;
+  protected readonly body = TILE_BODY;
 
   readonly item = input.required<ProductListItem>();
   /** The main page's row (FR-CAT-09): the photo inside the padding, no

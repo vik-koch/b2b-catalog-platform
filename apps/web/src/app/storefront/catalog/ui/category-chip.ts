@@ -1,4 +1,4 @@
-import { Component, computed, input, signal } from '@angular/core';
+import { Component, computed, input } from '@angular/core';
 import { Params, RouterLink } from '@angular/router';
 import {
   CatalogImage,
@@ -6,6 +6,7 @@ import {
 } from '@b2b-catalog-platform/shared/core/catalog';
 import { HighlightedLine } from '@b2b-catalog-platform/ui/suggest/highlighted-line';
 import { MatchSegmentsPipe } from '../../../core/catalog/search/match-segments.pipe';
+import { brokenImages } from '@b2b-catalog-platform/ui/core/broken-images';
 
 /** Both a tree node and a drill-down link fit as they arrive. */
 export interface CategoryChipTarget {
@@ -75,7 +76,7 @@ const CHIP_SIZES: Record<CategoryChipSize, { link: string; mark: string }> = {
           alt=""
           loading="lazy"
           [class]="markClass()"
-          (error)="markFailed.set(true)"
+          (error)="broken.add(mark.thumb)"
         />
       }
     </a>
@@ -94,10 +95,11 @@ export class CategoryChip {
   readonly alternateQuery = input<string | null>(null);
 
   /** A mark that fails to load leaves the name alone, not a broken icon. */
-  protected readonly markFailed = signal(false);
-  protected readonly shownMark = computed(() =>
-    this.markFailed() ? null : this.category().mark,
-  );
+  protected readonly broken = brokenImages();
+  protected readonly shownMark = computed(() => {
+    const mark = this.category().mark;
+    return mark && !this.broken.has(mark.thumb) ? mark : null;
+  });
 
   protected readonly label = computed(() =>
     categoryDisplayName(this.category()),

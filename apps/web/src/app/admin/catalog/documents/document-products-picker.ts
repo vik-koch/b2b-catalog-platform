@@ -22,11 +22,14 @@ import {
   SegmentOption,
   Segmented,
 } from '@b2b-catalog-platform/ui/choices/segmented';
-import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';
 import { CategoriesService } from '../categories/categories.service';
 import { ProductsService } from '../products/products.service';
 import { flattenCategoryTree } from '../categories/category-tree';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
+import {
+  linkedProductState,
+  ProductStateBadge,
+} from '../ui/product-state-badge';
 
 /** `id`s must be unique on a page, and a form may hold more than one picker. */
 let nextId = 0;
@@ -45,12 +48,12 @@ type View = 'all' | 'linked';
 @Component({
   selector: 'app-document-products-picker',
   imports: [
+    ProductStateBadge,
     Checkbox,
     FieldLabel,
     Input,
     SelectInput,
     Segmented,
-    StatusBadge,
     ErrorText,
   ],
   host: { class: 'block' },
@@ -123,15 +126,7 @@ type View = 'all' | 'linked';
               (click)="toggle($event, index)"
             />
             <span class="min-w-0 flex-1 truncate">{{ row.name }}</span>
-            @if (row.deleted) {
-              <span uiStatusBadge tone="danger">{{
-                productStates.deleted
-              }}</span>
-            } @else if (row.unpublished) {
-              <span uiStatusBadge tone="waiting">{{
-                productStates.unpublished
-              }}</span>
-            }
+            <app-product-state-badge [state]="linkedState(row)" />
             <span
               class="w-32 shrink-0 truncate text-right text-xs text-ink-subtle"
             >
@@ -156,7 +151,7 @@ export class DocumentProductsPicker {
   private readonly categoriesService = inject(CategoriesService);
   private readonly layout = inject(AlternateLayout);
   protected readonly text = inject(ADMIN_TEXT).documents.editor.products;
-  protected readonly productStates = inject(ADMIN_TEXT).products;
+  protected readonly linkedState = linkedProductState;
 
   readonly value = input.required<readonly LinkedProduct[]>();
   readonly valueChange = output<LinkedProduct[]>();

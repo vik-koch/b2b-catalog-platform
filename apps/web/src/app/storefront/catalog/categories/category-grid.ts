@@ -1,4 +1,3 @@
-import { NgTemplateOutlet } from '@angular/common';
 import {
   Component,
   computed,
@@ -11,7 +10,7 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import { Params, RouterLink } from '@angular/router';
+import { Params } from '@angular/router';
 import { fillText } from '@b2b-catalog-platform/shared';
 import {
   CategoryCrumb,
@@ -26,12 +25,12 @@ import {
   ListingSort,
   SubcategoryLink,
 } from '@b2b-catalog-platform/shared/storefront/catalog';
+import {
+  Breadcrumbs,
+  Crumb,
+} from '@b2b-catalog-platform/ui/content/breadcrumbs';
 import { disclosureState } from '@b2b-catalog-platform/ui/disclosure/disclosure-state';
 import { ShowMoreToggle } from '@b2b-catalog-platform/ui/disclosure/show-more-toggle';
-import { chevronRightIcon } from '@b2b-catalog-platform/ui/icons/glyphs/chevron-right';
-import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
-import { Pagination } from '@b2b-catalog-platform/ui/lists/pagination';
-import { useTaxStatement } from '../../../core/catalog/pricing/tax-statement';
 import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
 import { usePageSeo } from '../../../shared/core/page-seo';
 import { stableValue } from '../../../shared/core/stable-value';
@@ -59,9 +58,8 @@ import { listingParams } from '../listing-params';
 import { ProductLayoutService } from '../product-layout';
 import { ProductLayoutToggle } from '../product-layout-toggle';
 import { CategoryChip } from '../ui/category-chip';
-import { PRODUCT_ROWS, ProductRow } from '../ui/product-row';
-import { anyStatus } from '../ui/product-status-line';
-import { PRODUCT_GRID, ProductTile } from '../ui/product-tile';
+import { PRODUCT_GRID } from '../ui/product-tile';
+import { ProductListing } from '../ui/product-listing';
 import { CATEGORY_GRID } from './category-index';
 import { HiddenProductsSection } from './hidden-products-section';
 
@@ -108,11 +106,8 @@ interface Listing {
 @Component({
   selector: 'app-category-grid',
   imports: [
-    NgTemplateOutlet,
-    RouterLink,
-    Icon,
-    ProductTile,
-    ProductRow,
+    ProductListing,
+    Breadcrumbs,
     ProductLayoutToggle,
     ProductSortSelect,
     FacetPanel,
@@ -123,7 +118,6 @@ interface Listing {
     HiddenProductsSection,
     NotFoundView,
     LoadErrorView,
-    Pagination,
   ],
   template: `
     <!-- Everything inside measures this container, not the window, so all
@@ -169,61 +163,16 @@ interface Listing {
             }
           }
           <!-- A trail of one on the catalogue too, so the heading sits where a
-               category's does. -->
-          <div class="flex items-start justify-between gap-4">
-            <nav
-              [attr.aria-label]="text.catalogRoot"
-              [class]="editControls() ? editActionsInset : ''"
-            >
-              <!-- Inline, not flex: a flexed crumb drops whole onto the next
-                   line; as text a long name wraps. -->
-              <ol role="list" class="text-sm text-ink-subtle">
-                @if (data.category; as category) {
-                  <li class="inline">
-                    <a routerLink="/catalog" class="hover:text-accent">
-                      {{ text.catalogRoot }}
-                    </a>
-                  </li>
-                  @for (crumb of category.ancestors; track crumb.slug) {
-                    <li aria-hidden="true" class="inline">
-                      <ui-icon
-                        [glyph]="chevronRightIcon"
-                        class="mx-1 size-4 align-middle text-edge-strong"
-                      />
-                    </li>
-                    <li class="inline">
-                      <!-- The selection goes upward too: a wider scope offers
-                           every value the narrower one did. -->
-                      <a
-                        [routerLink]="['/catalog', crumb.slug]"
-                        [queryParams]="{ sort: sortParam(), attr: attrParam() }"
-                        class="hover:text-accent"
-                      >
-                        {{ displayName(crumb) }}
-                      </a>
-                    </li>
-                  }
-                  <li aria-hidden="true" class="inline">
-                    <ui-icon
-                      [glyph]="chevronRightIcon"
-                      class="mx-1 size-4 align-middle text-edge-strong"
-                    />
-                  </li>
-                  <li class="inline">
-                    <span aria-current="page" class="font-medium text-ink">
-                      {{ displayName(category) }}
-                    </span>
-                  </li>
-                } @else {
-                  <li class="inline">
-                    <span aria-current="page" class="font-medium text-ink">
-                      {{ text.catalogRoot }}
-                    </span>
-                  </li>
-                }
-              </ol>
-            </nav>
-          </div>
+               category's does. The selection goes upward too: a wider scope
+               offers every value the narrower one did. -->
+          <ui-breadcrumbs
+            [class]="editControls() ? editActionsInset : ''"
+            [label]="text.catalogRoot"
+            [crumbs]="crumbs()"
+            [current]="
+              data.category ? displayName(data.category) : text.catalogRoot
+            "
+          />
 
           <div
             class="mt-2 flex flex-wrap items-center justify-between gap-x-6
@@ -300,79 +249,27 @@ interface Listing {
             }
             <div [class]="data.facets.length ? listingColumn : listingAlone">
               @if (data.items.length) {
-                <!-- The filter heading's height, so the first card starts on
-                     the first facet's line. -->
-                <div class="mb-4 flex h-8 items-center justify-between gap-4">
-                  <p class="text-sm text-ink-subtle">
-                    {{ productCount(data.pagination.total) }}
-                  </p>
-                  <div class="flex items-center gap-3">
-                    <app-product-sort-select
-                      shape="segments"
-                      [class]="data.facets.length ? headerSortAt : ''"
-                      [value]="shownSort()"
-                      [defaultSort]="defaultSort()"
-                      [options]="sortOptions()"
-                    />
-                    <app-product-layout-toggle />
-                  </div>
-                </div>
-                <!-- Faded while the next page, sort or filter loads. -->
-                <ul
-                  [class]="list()"
-                  [class.listing-held]="products.isLoading()"
-                >
-                  <!-- One cluster for a card's corner and a line's photo. -->
-                  <ng-template #productEdit let-slug>
-                    @if (editControls(); as editText) {
-                      <app-edit-actions
-                        variant="tile"
-                        [editLink]="['/admin/products', slug, 'edit']"
-                        [editParams]="editorFrom()"
-                        [editLabel]="editText.editProduct"
-                      />
-                    }
-                  </ng-template>
-                  <!-- One product stating a stock reserves the line for all,
-                       so the names sit level. -->
-                  @let reserveStatus = anyStatus(data.items);
-
-                  @for (item of data.items; track item.slug) {
-                    <li [class]="cards() ? 'h-full' : ''">
-                      @if (cards()) {
-                        <app-product-tile
-                          [item]="item"
-                          [reserveStatus]="reserveStatus"
-                        >
-                          <ng-container
-                            [ngTemplateOutlet]="productEdit"
-                            [ngTemplateOutletContext]="{ $implicit: item.slug }"
-                          />
-                        </app-product-tile>
-                      } @else {
-                        <app-product-row [item]="item">
-                          <ng-container
-                            ngProjectAs="[rowOverlay]"
-                            [ngTemplateOutlet]="productEdit"
-                            [ngTemplateOutletContext]="{ $implicit: item.slug }"
-                          />
-                        </app-product-row>
-                      }
-                    </li>
-                  }
-                </ul>
-                <!-- NFR-LEGAL-11: once per page, naming no rate. -->
-                @if (taxNote) {
-                  <p class="mt-4 text-xs text-ink-subtle">{{ taxNote }}</p>
-                }
-
-                <ui-pagination
-                  class="mt-8"
+                <app-product-listing
+                  [items]="data.items"
+                  [cards]="cards()"
+                  [loading]="products.isLoading()"
+                  [countLabel]="productCount(data.pagination.total)"
                   [link]="listingLink()"
                   [page]="data.pagination.page"
                   [totalPages]="data.pagination.totalPages"
-                  [queryParams]="pageParams"
-                />
+                  [pageParams]="pageParams"
+                  [editText]="editControls()"
+                  [editorFrom]="editorFrom()"
+                >
+                  <app-product-sort-select
+                    shape="segments"
+                    [class]="data.facets.length ? headerSortAt : ''"
+                    [value]="shownSort()"
+                    [defaultSort]="defaultSort()"
+                    [options]="sortOptions()"
+                  />
+                  <app-product-layout-toggle />
+                </app-product-listing>
               } @else {
                 <p class="text-ink-subtle">
                   {{
@@ -422,8 +319,6 @@ interface Listing {
   `,
 })
 export class CategoryGrid {
-  protected readonly chevronRightIcon = chevronRightIcon;
-  protected readonly anyStatus = anyStatus;
   protected readonly productGrid = PRODUCT_GRID;
   protected readonly editActionsInset = EDIT_ACTIONS_INSET;
   protected readonly headerSortAt = FACET_HEADER_SORT;
@@ -438,7 +333,6 @@ export class CategoryGrid {
   protected readonly editMode = inject(EditModeService);
   protected readonly text = inject(STOREFRONT_TEXT).catalog;
   protected readonly filterText = this.text.filters;
-  protected readonly taxNote = useTaxStatement().listing();
   protected readonly editorFrom = injectEditorReturnParams();
   protected readonly skeletons = Array.from({ length: 8 }, (_, i) => i);
   /** Crumbs may use the short name; the heading keeps the full one. */
@@ -447,9 +341,6 @@ export class CategoryGrid {
   protected readonly cards = computed(
     () => this.productLayout.layout() === 'grid',
   );
-  protected list(): string {
-    return this.cards() ? PRODUCT_GRID : PRODUCT_ROWS;
-  }
 
   /** Absent on `/catalog` itself. */
   readonly slug = input<string>();
@@ -465,6 +356,20 @@ export class CategoryGrid {
   protected readonly sortParam = this.params.sortParam;
   protected readonly attrParam = this.params.attrParam;
   protected readonly hasSelection = this.params.hasSelection;
+
+  protected readonly crumbs = computed<Crumb[]>(() => {
+    const category = this.shown()?.category;
+    if (!category) return [];
+    const queryParams = { sort: this.sortParam(), attr: this.attrParam() };
+    return [
+      { label: this.text.catalogRoot, link: '/catalog' },
+      ...category.ancestors.map((crumb) => ({
+        label: categoryDisplayName(crumb),
+        link: ['/catalog', crumb.slug],
+        queryParams,
+      })),
+    ];
+  });
 
   protected readonly listingLink = computed(() => {
     const slug = this.slug();

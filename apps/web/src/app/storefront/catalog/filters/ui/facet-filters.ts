@@ -20,6 +20,7 @@ import { disclosureState } from '@b2b-catalog-platform/ui/disclosure/disclosure-
 import { DisclosureToggle } from '@b2b-catalog-platform/ui/disclosure/disclosure-toggle';
 import { ShowMoreList } from '@b2b-catalog-platform/ui/disclosure/show-more-list';
 import { STOREFRONT_TEXT } from '../../../../shared/config/storefront-text';
+import { SectionTitle } from '@b2b-catalog-platform/ui/content/section-title';
 
 const VALUES_COLLAPSED = 8;
 
@@ -34,6 +35,7 @@ export interface FacetValueToggle {
 @Component({
   selector: 'app-facet-filters',
   imports: [
+    SectionTitle,
     ClearFiltersButton,
     Checkbox,
     TickLabel,
@@ -80,10 +82,7 @@ export interface FacetValueToggle {
                 class="hidden items-center justify-between h-8 gap-2
                        @min-[63.75rem]/listing:flex"
               >
-                <h2
-                  class="text-xs font-medium tracking-wide text-ink-subtle
-                         uppercase"
-                >
+                <h2 uiSectionTitle>
                   {{ text.title }}
                 </h2>
                 <ui-clear-filters-button

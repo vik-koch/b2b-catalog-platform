@@ -1,3 +1,5 @@
+import { RecordList } from '../ui/record-list';
+import { By } from '@angular/platform-browser';
 import { SHARED_TEXT } from '../../../shared/config/shared-text';
 import { defaultSharedText } from '../../../shared/config/shared-text.fixture';
 import { TestBed } from '@angular/core/testing';
@@ -119,15 +121,15 @@ async function render(
     await flush();
   };
 
-  /** Clicks a row's move button; `row` is the position in the list. */
   /** The CDK's own drop event: a real drag cannot be dispatched in jsdom, so
-   * the handler is called the way the grid's own spec calls it. */
+   * the record list's handler is called directly. */
   const drop = async (previousIndex: number, currentIndex: number) => {
     (
-      fixture.componentInstance as unknown as {
-        onDrop(event: { previousIndex: number; currentIndex: number }): void;
+      fixture.debugElement.query(By.directive(RecordList))
+        .componentInstance as {
+        drop(event: { previousIndex: number; currentIndex: number }): void;
       }
-    ).onDrop({ previousIndex, currentIndex });
+    ).drop({ previousIndex, currentIndex });
     await flush();
   };
 

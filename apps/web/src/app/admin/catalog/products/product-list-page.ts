@@ -75,6 +75,7 @@ import {
 } from './product-feature-glyphs';
 import { AVAILABILITY_TONES } from '../../../core/catalog/buying/product-availability-badge';
 import { plusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/plus';
+import { ProductStateBadge, productState } from '../ui/product-state-badge';
 
 /** The category filter's "without subcategories" option; a uuid never ends
  * this way. */
@@ -97,6 +98,7 @@ function knownValues<T extends string>(
 @Component({
   selector: 'app-product-list-page',
   imports: [
+    ProductStateBadge,
     NgTemplateOutlet,
     RouterLink,
     PricePipe,
@@ -241,9 +243,7 @@ function knownValues<T extends string>(
             }
           </td>
           <td data-keep>
-            <span uiStatusBadge [tone]="stateTone(item)">
-              {{ stateLabel(item) }}
-            </span>
+            <app-product-state-badge [state]="stateOf(item)" [live]="true" />
           </td>
           <td class="text-ink-subtle">
             <app-grid-timestamp [value]="item.updatedAt" />
@@ -289,13 +289,11 @@ function knownValues<T extends string>(
             >
               {{ item.name }}
             </a>
-            <span
+            <app-product-state-badge
               recordBadge
-              uiStatusBadge
-              class="shrink-0"
-              [tone]="stateTone(item)"
-              >{{ stateLabel(item) }}</span
-            >
+              [state]="stateOf(item)"
+              [live]="true"
+            />
             <span
               class="max-w-full truncate rounded-sm bg-surface px-1.5 py-0.5
                      font-mono text-xs"
@@ -709,24 +707,7 @@ export class ProductListPage {
     deletedAt: string | null;
   }): boolean => !!item.deletedAt;
 
-  /** The filter's own three words, so list and rows cannot disagree. */
-  protected stateLabel(item: {
-    deletedAt: string | null;
-    publishedAt: string | null;
-  }): string {
-    if (item.deletedAt) return this.productStates.deleted;
-    return item.publishedAt
-      ? this.text.stateLive
-      : this.productStates.unpublished;
-  }
-
-  protected stateTone(item: {
-    deletedAt: string | null;
-    publishedAt: string | null;
-  }): StatusTone {
-    if (item.deletedAt) return 'danger';
-    return item.publishedAt ? 'ok' : 'waiting';
-  }
+  protected readonly stateOf = productState;
 
   protected stockTone(item: {
     availability: ProductAvailability | null;

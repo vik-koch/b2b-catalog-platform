@@ -32,10 +32,10 @@ import { chevronDownIcon } from '@b2b-catalog-platform/ui/icons/glyphs/chevron-d
 import { chevronRightIcon } from '@b2b-catalog-platform/ui/icons/glyphs/chevron-right';
 import { funnelIcon } from '@b2b-catalog-platform/ui/icons/glyphs/funnel';
 import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
-import { saveIcon } from '@b2b-catalog-platform/ui/icons/glyphs/save';
 import { triangleAlertIcon } from '@b2b-catalog-platform/ui/icons/glyphs/triangle-alert';
-import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
 import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
+import { SaveButton } from '../../ui/save-button';
+import { CancelButton } from '../../ui/cancel-button';
 
 /** A key across the catalog, or one value under a key. */
 type RenameTarget =
@@ -50,6 +50,8 @@ type RenameTarget =
 @Component({
   selector: 'app-attribute-inventory-page',
   imports: [
+    CancelButton,
+    SaveButton,
     PageHeader,
     NgTemplateOutlet,
     RouterLink,
@@ -357,24 +359,22 @@ type RenameTarget =
           />
           <button
             uiButton
+            appSaveButton
             size="sm"
             type="submit"
-            class="gap-2"
-            [disabled]="busy()"
+            [saving]="busy()"
           >
-            <ui-icon [glyph]="saveIcon" class="size-4" />
-            {{ busy() ? actionText.saving : adminText.actions.save }}
+            {{ adminText.actions.save }}
           </button>
           <button
             uiButton
             variant="secondary"
+            appCancelButton
             size="sm"
             type="button"
-            class="gap-2"
             [disabled]="busy()"
             (click)="cancel()"
           >
-            <ui-icon [glyph]="xIcon" class="size-4" />
             {{ actionText.cancel }}
           </button>
         </form>
@@ -387,9 +387,7 @@ export class AttributeInventoryPage {
   protected readonly chevronRightIcon = chevronRightIcon;
   protected readonly funnelIcon = funnelIcon;
   protected readonly pencilIcon = pencilIcon;
-  protected readonly saveIcon = saveIcon;
   protected readonly triangleAlertIcon = triangleAlertIcon;
-  protected readonly xIcon = xIcon;
   private readonly service = inject(AttributesService);
   private readonly confirm = inject(ConfirmService);
   private readonly router = inject(Router);

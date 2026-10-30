@@ -19,8 +19,6 @@ import { HighlightedLine } from '@b2b-catalog-platform/ui/suggest/highlighted-li
 import { MatchSegmentsPipe } from '../../../core/catalog/search/match-segments.pipe';
 import { AlternateLayout } from '../../../shared/core/alternate-layout';
 import { SuggestList } from '@b2b-catalog-platform/ui/suggest/suggest-list';
-import { DisclosureToggle } from '@b2b-catalog-platform/ui/disclosure/disclosure-toggle';
-import { DisclosureFrame } from '@b2b-catalog-platform/ui/disclosure/disclosure-frame';
 import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
 import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
@@ -32,6 +30,7 @@ import { SuggestInput } from '@b2b-catalog-platform/ui/suggest/suggest-input';
 import { SuggestRow } from '@b2b-catalog-platform/ui/suggest/suggest-row';
 import { DocumentsService } from './documents.service';
 import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
+import { SubEditorFrame } from '../ui/sub-editor-frame';
 
 /** `aria-controls` must name one panel, and a page may hold more than one. */
 let nextId = 0;
@@ -47,9 +46,9 @@ const SUGGESTIONS_SHOWN = 8;
 @Component({
   selector: 'app-product-documents-editor',
   imports: [
+    SubEditorFrame,
     RouterLink,
     Icon,
-    DisclosureToggle,
     FieldLabel,
     HighlightedLine,
     MatchSegmentsPipe,
@@ -59,89 +58,71 @@ const SUGGESTIONS_SHOWN = 8;
     SuggestField,
     SuggestInput,
     SuggestRow,
-    DisclosureFrame,
   ],
   host: { class: 'block' },
   template: `
-    <div class="max-w-xl rounded-md border" uiDisclosureFrame [open]="open()">
-      <ui-disclosure-toggle
-        [label]="product.documents"
-        [count]="value().length"
-        [countLabel]="countLabel()"
-        [open]="open()"
-        [panelId]="panelId"
-        (toggled)="open.set(!open())"
-      >
-        <ui-icon
-          disclosureLead
-          [glyph]="glyph"
-          class="size-4 text-ink-subtle"
-        />
-      </ui-disclosure-toggle>
-      @if (open()) {
-        <div [id]="panelId" class="border-t border-edge p-4">
-          <p class="text-xs text-ink-subtle">{{ text.hint }}</p>
-
-          @if (value().length > 0) {
-            <ul class="mt-3 divide-y divide-edge border-y border-edge">
-              @for (item of value(); track item.id) {
-                <li class="flex items-center gap-2 py-1.5 text-sm">
-                  <a
-                    uiLink
-                    class="min-w-0 flex-1 truncate"
-                    [routerLink]="['/admin/documents', item.id, 'edit']"
-                    >{{ item.title }}</a
-                  >
-                  <span class="shrink-0 text-xs text-ink-subtle">
-                    {{ expiry(item) }}
-                  </span>
-                  <button
-                    uiIconButton
-                    type="button"
-                    [attr.aria-label]="removeLabel(item)"
-                    (click)="remove(item.id)"
-                  >
-                    <ui-icon [glyph]="xIcon" />
-                  </button>
-                </li>
-              }
-            </ul>
+    <app-sub-editor-frame
+      [label]="product.documents"
+      [glyph]="glyph"
+      [count]="value().length"
+      [countLabel]="countLabel()"
+      [hint]="text.hint"
+      [(open)]="open"
+    >
+      @if (value().length > 0) {
+        <ul class="mt-3 divide-y divide-edge border-y border-edge">
+          @for (item of value(); track item.id) {
+            <li class="flex items-center gap-2 py-1.5 text-sm">
+              <a
+                uiLink
+                class="min-w-0 flex-1 truncate"
+                [routerLink]="['/admin/documents', item.id, 'edit']"
+                >{{ item.title }}</a
+              >
+              <span class="shrink-0 text-xs text-ink-subtle">
+                {{ expiry(item) }}
+              </span>
+              <button
+                uiIconButton
+                type="button"
+                [attr.aria-label]="removeLabel(item)"
+                (click)="remove(item.id)"
+              >
+                <ui-icon [glyph]="xIcon" />
+              </button>
+            </li>
           }
-
-          <div class="mt-3">
-            <label [for]="inputId" uiFieldLabel>{{ text.add }}</label>
-            <ui-suggest-field
-              [list]="list"
-              [text]="text"
-              (picked)="add($event)"
-            >
-              <input
-                [id]="inputId"
-                autocomplete="off"
-                uiInput
-                uiSuggestInput
-                class="w-full"
-                [value]="query()"
-                [placeholder]="text.addPlaceholder"
-                (input)="query.set($any($event.target).value)"
-              />
-              <ng-template uiSuggestRow [of]="list" let-item let-query="query">
-                <span class="block truncate">
-                  <ui-highlighted-line
-                    [segments]="
-                      item.title | matchSegments: query : alternateQuery()
-                    "
-                  />
-                </span>
-                <span class="block text-xs text-ink-subtle">
-                  {{ expiry(item) }}
-                </span>
-              </ng-template>
-            </ui-suggest-field>
-          </div>
-        </div>
+        </ul>
       }
-    </div>
+
+      <div class="mt-3">
+        <label [for]="inputId" uiFieldLabel>{{ text.add }}</label>
+        <ui-suggest-field [list]="list" [text]="text" (picked)="add($event)">
+          <input
+            [id]="inputId"
+            autocomplete="off"
+            uiInput
+            uiSuggestInput
+            class="w-full"
+            [value]="query()"
+            [placeholder]="text.addPlaceholder"
+            (input)="query.set($any($event.target).value)"
+          />
+          <ng-template uiSuggestRow [of]="list" let-item let-query="query">
+            <span class="block truncate">
+              <ui-highlighted-line
+                [segments]="
+                  item.title | matchSegments: query : alternateQuery()
+                "
+              />
+            </span>
+            <span class="block text-xs text-ink-subtle">
+              {{ expiry(item) }}
+            </span>
+          </ng-template>
+        </ui-suggest-field>
+      </div>
+    </app-sub-editor-frame>
   `,
 })
 export class ProductDocumentsEditor implements OnInit {
@@ -157,8 +138,7 @@ export class ProductDocumentsEditor implements OnInit {
 
   protected readonly open = signal(false);
   protected readonly query = signal('');
-  protected readonly panelId = `documents-panel-${++nextId}`;
-  protected readonly inputId = `document-search-${nextId}`;
+  protected readonly inputId = `document-search-${++nextId}`;
 
   private readonly locale = inject(DEPLOYMENT_CONFIG).locale;
   private readonly dayFormat = adminDayFormat(this.locale);

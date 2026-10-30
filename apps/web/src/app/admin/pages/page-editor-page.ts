@@ -90,8 +90,6 @@ export class PageEditorPage implements UnsavedChangesAware {
   }
 
   constructor() {
-    // Admin screens are client-rendered, so this is for the browser tab
-    // rather than for crawlers — but it is the same one-line contract.
     usePageSeo({
       name: () =>
         this.page.value() === null ? this.text.newTitle : this.text.editTitle,

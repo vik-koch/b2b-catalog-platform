@@ -19,6 +19,7 @@ import { DialogActions } from './dialog-actions';
 import { DialogPanel } from './dialog-panel';
 import { WarningNote } from '../content/warning-note';
 import { Hint } from '../fields/hint';
+import { DialogTitle } from './dialog-title';
 
 /** One thing that happens because the answer was yes, offered as a tick. */
 export interface ConfirmCheck {
@@ -50,6 +51,7 @@ export interface ConfirmAnswer {
 @Component({
   selector: 'ui-confirm-dialog',
   imports: [
+    DialogTitle,
     AutoGrow,
     Button,
     Checkbox,
@@ -68,10 +70,7 @@ export interface ConfirmAnswer {
       aria-labelledby="confirm-dialog-heading"
       uiDialogPanel
     >
-      <h2
-        id="confirm-dialog-heading"
-        class="text-xl font-normal tracking-tight"
-      >
+      <h2 id="confirm-dialog-heading" uiDialogTitle>
         {{ heading() }}
       </h2>
       <p class="mt-3 text-ink-subtle">{{ message() }}</p>

@@ -1,7 +1,6 @@
 import {
   CdkDrag,
   CdkDragDrop,
-  CdkDragHandle,
   CdkDragPreview,
   CdkDropList,
   moveItemInArray,
@@ -49,10 +48,10 @@ import {
 } from './attribute-grid';
 import { SHARED_TEXT } from '../../../shared/config/shared-text';
 import { funnelIcon } from '@b2b-catalog-platform/ui/icons/glyphs/funnel';
-import { gripVerticalIcon } from '@b2b-catalog-platform/ui/icons/glyphs/grip-vertical';
 import { plusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/plus';
 import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
 import { triangleAlertIcon } from '@b2b-catalog-platform/ui/icons/glyphs/triangle-alert';
+import { DragGrip } from '../ui/drag-grip';
 
 /**
  * The product's attributes (FR-CAT-05) as a spreadsheet: `contenteditable` on
@@ -67,6 +66,7 @@ import { triangleAlertIcon } from '@b2b-catalog-platform/ui/icons/glyphs/triangl
 @Component({
   selector: 'app-product-attributes-editor',
   imports: [
+    DragGrip,
     Icon,
     IconButton,
     AttributeKeyPicker,
@@ -74,7 +74,6 @@ import { triangleAlertIcon } from '@b2b-catalog-platform/ui/icons/glyphs/triangl
     HintBadge,
     CdkDropList,
     CdkDrag,
-    CdkDragHandle,
     CdkDragPreview,
     FieldLabel,
     TextButton,
@@ -194,15 +193,7 @@ import { triangleAlertIcon } from '@b2b-catalog-platform/ui/icons/glyphs/triangl
                     >
                   }
                   <div class="flex items-center">
-                    <button
-                      uiIconButton
-                      type="button"
-                      cdkDragHandle
-                      class="cursor-grab active:cursor-grabbing"
-                      [attr.aria-label]="adminText.actions.reorder"
-                    >
-                      <ui-icon [glyph]="gripVerticalIcon" />
-                    </button>
+                    <app-drag-grip />
                     <button
                       uiIconButton
                       type="button"
@@ -250,7 +241,6 @@ import { triangleAlertIcon } from '@b2b-catalog-platform/ui/icons/glyphs/triangl
 })
 export class ProductAttributesEditor {
   protected readonly funnelIcon = funnelIcon;
-  protected readonly gripVerticalIcon = gripVerticalIcon;
   protected readonly plusIcon = plusIcon;
   protected readonly trash2Icon = trash2Icon;
   protected readonly triangleAlertIcon = triangleAlertIcon;

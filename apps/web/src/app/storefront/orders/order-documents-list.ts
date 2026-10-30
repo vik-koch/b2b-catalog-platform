@@ -7,31 +7,20 @@ import {
   documentFileCaption,
   documentFileLabel,
 } from '../../shared/core/document-file';
-import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import { DocumentLink } from '@b2b-catalog-platform/ui/content/document-link';
 import { fileTextIcon } from '@b2b-catalog-platform/ui/icons/glyphs/file-text';
 import { Card } from '@b2b-catalog-platform/ui/content/card';
 
 /**
- * What a customer can open on their order (FR-ORD-05, FR-ACC-02).
- *
- * The same list on the account's own page and on the page a mailed link
- * opens, differing only in how the reader is entitled to it: a session, or the
- * token the link carries. Which version the summary states follows from that
- * and is never asked for here — the document says what the page around it
- * says.
- *
- * Drawn like the documents on a product page, because they are the same kind
- * of thing to a customer: a row, a glyph, and the format under the name. The
- * generated summary carries no size — it does not exist until it is asked for,
- * and a figure invented for it would be the one number on the page that is not
- * a fact.
- *
- * Nothing is listed that does not exist, so there is no empty state: an order
- * with nothing to open does not draw this at all.
+ * What a customer can open on their order (FR-ORD-05, FR-ACC-02), on the
+ * account's page and on the page a mailed link opens: only the entitlement
+ * differs. Drawn like a product's documents. The generated summary carries no
+ * size, since it does not exist until asked for. Nothing to open, nothing
+ * drawn.
  */
 @Component({
   selector: 'app-order-documents-list',
-  imports: [Card, Icon],
+  imports: [Card, DocumentLink],
   host: { class: 'block' },
   template: `
     <section uiCard>
@@ -39,31 +28,13 @@ import { Card } from '@b2b-catalog-platform/ui/content/card';
       <ul class="mt-1 divide-y divide-edge text-sm">
         @for (document of rows(); track document.kind) {
           <li>
-            <!-- The whole row is the link, glyph and caption included: they
-                 are one thing to press, which is what a finger on a phone is
-                 aiming at. -->
             <a
+              uiDocumentLink
               [href]="document.href"
-              target="_blank"
-              rel="noopener"
-              class="group flex items-start gap-3 py-2.5"
+              [glyph]="fileTextIcon"
+              [caption]="document.caption"
             >
-              <ui-icon
-                [glyph]="fileTextIcon"
-                class="mt-0.5 size-4 shrink-0 text-ink-subtle"
-              />
-              <span class="min-w-0">
-                <span
-                  class="block font-medium text-primary underline
-                         decoration-primary/30 underline-offset-2
-                         group-hover:text-accent group-hover:decoration-accent"
-                >
-                  {{ document.label }}
-                </span>
-                <span class="block text-xs text-ink-subtle">{{
-                  document.caption
-                }}</span>
-              </span>
+              {{ document.label }}
             </a>
           </li>
         }

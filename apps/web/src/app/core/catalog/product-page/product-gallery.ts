@@ -10,11 +10,12 @@ import {
 import { fillText } from '@b2b-catalog-platform/shared';
 import { ProductImage } from '@b2b-catalog-platform/shared/core/catalog';
 
-import { swipeStep, touchX } from './swipe';
+import { swipeStep, touchX } from '@b2b-catalog-platform/ui/core/swipe';
 import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
 import { ShowMoreToggle } from '@b2b-catalog-platform/ui/disclosure/show-more-toggle';
 import { ImagePlaceholder } from '@b2b-catalog-platform/ui/content/image-placeholder';
 import { Frame } from '@b2b-catalog-platform/ui/content/frame';
+import { brokenImages } from '@b2b-catalog-platform/ui/core/broken-images';
 
 /** One row of the narrow grid kept on a phone; the rest behind a show-more. */
 const THUMBS_COLLAPSED = 5;
@@ -45,7 +46,7 @@ const THUMBS_BESIDE = 6;
         (touchend)="onTouchEnd($event)"
       >
         @if (current(); as img) {
-          @if (failed().has(img.full)) {
+          @if (broken.has(img.full)) {
             <ui-image-placeholder [label]="productName()" />
           } @else {
             <!-- The page's largest element, fetched ahead of the others. -->
@@ -54,7 +55,7 @@ const THUMBS_BESIDE = 6;
               [alt]="altFor(img)"
               class="size-full bg-white object-contain"
               fetchpriority="high"
-              (error)="markFailed(img.full)"
+              (error)="broken.add(img.full)"
             />
           }
         } @else {
@@ -80,7 +81,7 @@ const THUMBS_BESIDE = 6;
                 (click)="select($index)"
                 (mouseenter)="select($index)"
               >
-                @if (failed().has(img.thumb)) {
+                @if (broken.has(img.thumb)) {
                   <ui-image-placeholder />
                 } @else {
                   <img
@@ -88,7 +89,7 @@ const THUMBS_BESIDE = 6;
                     alt=""
                     class="size-full bg-white object-contain"
                     loading="lazy"
-                    (error)="markFailed(img.thumb)"
+                    (error)="broken.add(img.thumb)"
                   />
                 }
               </button>
@@ -208,11 +209,7 @@ export class ProductGallery {
   });
 
   /** By URL, so it survives a change of selection. */
-  protected readonly failed = signal(new Set<string>());
-
-  protected markFailed(src: string): void {
-    this.failed.update((set) => new Set(set).add(src));
-  }
+  protected readonly broken = brokenImages();
 
   protected thumbLabel(index: number): string {
     return fillText(this.text.viewImageAria, { n: index + 1 });

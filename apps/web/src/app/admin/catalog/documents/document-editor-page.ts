@@ -43,10 +43,10 @@ import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { Hint } from '@b2b-catalog-platform/ui/fields/hint';
 import { externalLinkIcon } from '@b2b-catalog-platform/ui/icons/glyphs/external-link';
 import { fileTextIcon } from '@b2b-catalog-platform/ui/icons/glyphs/file-text';
-import { saveIcon } from '@b2b-catalog-platform/ui/icons/glyphs/save';
 import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
 import { uploadIcon } from '@b2b-catalog-platform/ui/icons/glyphs/upload';
-import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
+import { SaveButton } from '../../ui/save-button';
+import { CancelButton } from '../../ui/cancel-button';
 
 interface DocumentDraft {
   title: string;
@@ -65,6 +65,8 @@ interface DocumentDraft {
 @Component({
   selector: 'app-document-editor-page',
   imports: [
+    CancelButton,
+    SaveButton,
     FORM_FIELDS,
     Button,
     IconButton,
@@ -274,22 +276,20 @@ interface DocumentDraft {
       <div class="mt-6 flex max-w-3xl flex-wrap gap-3">
         <button
           uiButton
+          appSaveButton
           type="button"
-          class="gap-2"
-          [disabled]="saving()"
+          [saving]="saving()"
           (click)="save()"
         >
-          <ui-icon [glyph]="saveIcon" class="size-4" />
-          {{ saving() ? actionText.saving : adminText.actions.save }}
+          {{ adminText.actions.save }}
         </button>
         <button
           uiButton
           variant="secondary"
+          appCancelButton
           type="button"
-          class="gap-2"
           (click)="cancel()"
         >
-          <ui-icon [glyph]="xIcon" class="size-4" />
           {{ actionText.cancel }}
         </button>
       </div>
@@ -299,10 +299,8 @@ interface DocumentDraft {
 export class DocumentEditorPage implements UnsavedChangesAware, FieldAttempt {
   protected readonly externalLinkIcon = externalLinkIcon;
   protected readonly fileTextIcon = fileTextIcon;
-  protected readonly saveIcon = saveIcon;
   protected readonly trash2Icon = trash2Icon;
   protected readonly uploadIcon = uploadIcon;
-  protected readonly xIcon = xIcon;
   private readonly service = inject(DocumentsService);
   private readonly route = inject(ActivatedRoute);
   protected readonly text = inject(ADMIN_TEXT).documents.editor;

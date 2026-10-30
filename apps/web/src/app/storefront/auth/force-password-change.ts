@@ -13,6 +13,7 @@ import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { DialogPanel } from '@b2b-catalog-platform/ui/overlay/dialog-panel';
 import { AuthService } from '../../shared/auth/auth.service';
 import { ChangePasswordForm } from './change-password-form';
+import { DialogTitle } from '@b2b-catalog-platform/ui/overlay/dialog-title';
 
 /**
  * Forces the change-password form on an account still using a password it was
@@ -37,7 +38,7 @@ import { ChangePasswordForm } from './change-password-form';
  */
 @Component({
   selector: 'app-force-password-change',
-  imports: [ChangePasswordForm, Button, DialogPanel],
+  imports: [DialogTitle, ChangePasswordForm, Button, DialogPanel],
   template: `
     <!-- Deferred, not merely hidden: this component is mounted on every page,
          and the form it holds carries the password schemas. A visitor who owes
@@ -51,10 +52,7 @@ import { ChangePasswordForm } from './change-password-form';
           uiDialogPanel
         >
           @if (changed()) {
-            <h2
-              id="force-password-change-heading"
-              class="mb-2 text-xl font-normal tracking-tight"
-            >
+            <h2 id="force-password-change-heading" uiDialogTitle class="mb-2">
               {{ text.heading }}
             </h2>
             <p class="mb-6 text-sm text-ink-subtle" role="status">
@@ -64,10 +62,7 @@ import { ChangePasswordForm } from './change-password-form';
               {{ text.forcedContinue }}
             </button>
           } @else {
-            <h2
-              id="force-password-change-heading"
-              class="mb-2 text-xl font-normal tracking-tight"
-            >
+            <h2 id="force-password-change-heading" uiDialogTitle class="mb-2">
               {{ text.forcedHeading }}
             </h2>
             <p class="mb-6 text-sm text-ink-subtle">{{ text.forcedIntro }}</p>

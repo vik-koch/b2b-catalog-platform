@@ -37,13 +37,13 @@ import { Checkbox } from '@b2b-catalog-platform/ui/choices/checkbox';
 import { TickLabel } from '@b2b-catalog-platform/ui/choices/tick-label';
 import { PageEditingService } from './page-editing.service';
 import { trustedRichText } from '../../shared/core/trusted-rich-text';
-import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { eyeIcon } from '@b2b-catalog-platform/ui/icons/glyphs/eye';
 import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
-import { saveIcon } from '@b2b-catalog-platform/ui/icons/glyphs/save';
-import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
+import { SaveButton } from '../ui/save-button';
+import { CancelButton } from '../ui/cancel-button';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 
 /**
  * The editing surface for a static page: title, body and a preview that renders
@@ -53,6 +53,8 @@ import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
 @Component({
   selector: 'app-page-editor',
   imports: [
+    CancelButton,
+    SaveButton,
     Button,
     RichTextEditor,
     Icon,
@@ -148,13 +150,12 @@ import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
     <div class="mt-6 flex max-w-3xl flex-wrap gap-3">
       <button
         uiButton
+        appSaveButton
         type="button"
-        class="gap-2"
-        [disabled]="saving()"
+        [saving]="saving()"
         (click)="save()"
       >
-        <ui-icon [glyph]="saveIcon" class="size-4" />
-        {{ saving() ? actionText.saving : adminText.actions.save }}
+        {{ adminText.actions.save }}
       </button>
       <button
         uiButton
@@ -173,11 +174,10 @@ import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
       <button
         uiButton
         variant="secondary"
+        appCancelButton
         type="button"
-        class="gap-2"
         (click)="cancel()"
       >
-        <ui-icon [glyph]="xIcon" class="size-4" />
         {{ actionText.cancel }}
       </button>
     </div>
@@ -186,12 +186,10 @@ import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
 export class PageEditor implements FieldAttempt {
   protected readonly eyeIcon = eyeIcon;
   protected readonly pencilIcon = pencilIcon;
-  protected readonly saveIcon = saveIcon;
-  protected readonly xIcon = xIcon;
   private readonly pageService = inject(PageEditingService);
   protected readonly adminText = inject(ADMIN_TEXT);
-  protected readonly text = inject(ADMIN_TEXT).pages;
   protected readonly actionText = inject(SHARED_TEXT).actions;
+  protected readonly text = inject(ADMIN_TEXT).pages;
   private readonly confirmDiscard = injectConfirmDiscard();
   /** Bypasses Angular's redundant innerHTML sanitizer for the server-sanitized
    * preview body — see trustedRichText. */

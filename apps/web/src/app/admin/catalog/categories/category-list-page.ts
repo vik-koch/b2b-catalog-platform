@@ -1,7 +1,6 @@
 import {
   CdkDrag,
   CdkDragEnd,
-  CdkDragHandle,
   CdkDragMove,
   CdkDropList,
 } from '@angular/cdk/drag-drop';
@@ -46,12 +45,12 @@ import {
 } from './category-tree';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { funnelIcon } from '@b2b-catalog-platform/ui/icons/glyphs/funnel';
-import { gripVerticalIcon } from '@b2b-catalog-platform/ui/icons/glyphs/grip-vertical';
 import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
 import { plusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/plus';
 import { rotateCcwIcon } from '@b2b-catalog-platform/ui/icons/glyphs/rotate-ccw';
 import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
 import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
+import { DragGrip } from '../ui/drag-grip';
 
 /** Pixels per tree level, for the rows and the drop line alike. */
 const INDENT = 24;
@@ -69,6 +68,7 @@ const EDGE_SLACK = 24;
 @Component({
   selector: 'app-category-list-page',
   imports: [
+    DragGrip,
     PageHeader,
     RouterLink,
     Button,
@@ -79,7 +79,6 @@ const EDGE_SLACK = 24;
     CategoryDeleteDialog,
     CdkDropList,
     CdkDrag,
-    CdkDragHandle,
     Skeleton,
     UnpublishedCount,
     ErrorText,
@@ -186,17 +185,7 @@ const EDGE_SLACK = 24;
                     [style.marginLeft.px]="node.depth * indent"
                   >
                     <ui-record-row [compact]="true">
-                      <span
-                        recordControl
-                        cdkDragHandle
-                        uiIconButton
-                        size="lead"
-                        class="cursor-grab active:cursor-grabbing"
-                        [attr.aria-label]="adminText.actions.reorder"
-                        [title]="adminText.actions.reorder"
-                      >
-                        <ui-icon [glyph]="gripVerticalIcon" />
-                      </span>
+                      <app-drag-grip recordControl size="lead" />
                       <!-- Wraps rather than truncating: the name is what the
                            tree is scanned for. Greyed where the storefront
                            leaves it out (FR-ADM-19). -->
@@ -346,7 +335,6 @@ const EDGE_SLACK = 24;
 })
 export class CategoryListPage {
   protected readonly funnelIcon = funnelIcon;
-  protected readonly gripVerticalIcon = gripVerticalIcon;
   protected readonly pencilIcon = pencilIcon;
   protected readonly plusIcon = plusIcon;
   protected readonly rotateCcwIcon = rotateCcwIcon;

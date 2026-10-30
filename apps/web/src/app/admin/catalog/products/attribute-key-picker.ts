@@ -21,6 +21,7 @@ import { AttributeHint } from './attribute-hints';
 import { SHARED_TEXT } from '../../../shared/config/shared-text';
 import { funnelIcon } from '@b2b-catalog-platform/ui/icons/glyphs/funnel';
 import { plusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/plus';
+import { DialogTitle } from '@b2b-catalog-platform/ui/overlay/dialog-title';
 
 /**
  * The names the catalog already uses (FR-ATTR-09), one empty row appended per
@@ -31,7 +32,15 @@ import { plusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/plus';
  */
 @Component({
   selector: 'app-attribute-key-picker',
-  imports: [Icon, Button, Checkbox, DialogActions, DialogPanel, HintBadge],
+  imports: [
+    DialogTitle,
+    Icon,
+    Button,
+    Checkbox,
+    DialogActions,
+    DialogPanel,
+    HintBadge,
+  ],
   template: `
     <dialog
       #dialog
@@ -40,10 +49,7 @@ import { plusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/plus';
       aria-labelledby="attribute-key-picker-heading"
       (cancel)="closed.emit()"
     >
-      <h2
-        id="attribute-key-picker-heading"
-        class="text-xl font-normal tracking-tight"
-      >
+      <h2 id="attribute-key-picker-heading" uiDialogTitle>
         {{ text.addKeys }}
       </h2>
       <p class="mt-2 text-xs text-ink-subtle">{{ text.addKeysHint }}</p>

@@ -24,7 +24,11 @@ import { SHARED_TEXT } from '../../../shared/config/shared-text';
 import { trustedRichText } from '../../../shared/core/trusted-rich-text';
 import { disclosureState } from '@b2b-catalog-platform/ui/disclosure/disclosure-state';
 import { ShowMoreToggle } from '@b2b-catalog-platform/ui/disclosure/show-more-toggle';
-import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import {
+  Breadcrumbs,
+  Crumb,
+} from '@b2b-catalog-platform/ui/content/breadcrumbs';
+import { SectionTitle } from '@b2b-catalog-platform/ui/content/section-title';
 import { Link } from '@b2b-catalog-platform/ui/actions/link';
 import { TextButton } from '@b2b-catalog-platform/ui/actions/text-button';
 import { ProductBuyBlock } from './product-buy-block';
@@ -32,7 +36,6 @@ import { ProductDocuments } from './product-documents';
 import { ProductVariantGallery } from './product-variant-gallery';
 import { ProductVariantList } from './product-variant-list';
 import { useProductUnits } from '../buying/product-units-view';
-import { chevronRightIcon } from '@b2b-catalog-platform/ui/icons/glyphs/chevron-right';
 
 /**
  * The product page's band: photo, main facts, buying panel; the readings go
@@ -83,7 +86,8 @@ const NARROW = '(width < 40rem)';
     ProductVariantGallery,
     ProductVariantList,
     ProductBuyBlock,
-    Icon,
+    Breadcrumbs,
+    SectionTitle,
     Link,
     TextButton,
     NgTemplateOutlet,
@@ -91,62 +95,13 @@ const NARROW = '(width < 40rem)';
     ProductDocuments,
   ],
   template: `
-    <nav
-      [attr.aria-label]="text.catalogRoot"
+    <ui-breadcrumbs
       [class]="crumbInset() ? editActionsInset : ''"
-    >
-      <!-- Inline, not flex: a flexed crumb drops whole onto the next line. -->
-      <ol role="list" class="text-sm text-ink-subtle">
-        <li class="inline">
-          <a routerLink="/catalog" class="hover:text-accent">
-            {{ text.catalogRoot }}
-          </a>
-        </li>
-        @for (crumb of item().category.ancestors; track crumb.slug) {
-          <li aria-hidden="true" class="inline">
-            <ui-icon
-              [glyph]="chevronRightIcon"
-              class="mx-1 size-4 align-middle text-edge-strong"
-            />
-          </li>
-          <li class="inline">
-            <a
-              [routerLink]="['/catalog', crumb.slug]"
-              class="hover:text-accent"
-            >
-              {{ displayName(crumb) }}
-            </a>
-          </li>
-        }
-        <li aria-hidden="true" class="inline">
-          <ui-icon
-            [glyph]="chevronRightIcon"
-            class="mx-1 size-4 align-middle text-edge-strong"
-          />
-        </li>
-        <li class="inline">
-          <a
-            [routerLink]="['/catalog', item().category.slug]"
-            class="hover:text-accent"
-          >
-            {{ displayName(item().category) }}
-          </a>
-        </li>
-        <!-- The product's crumb goes on a phone, where the <h1> under it says
-             the same; hidden from assistive technology, as the name twice. -->
-        <li aria-hidden="true" class="hidden sm:inline">
-          <ui-icon
-            [glyph]="chevronRightIcon"
-            class="mx-1 size-4 align-middle text-edge-strong"
-          />
-        </li>
-        <li class="hidden sm:inline">
-          <span aria-current="page" class="font-medium text-ink">
-            {{ item().name }}
-          </span>
-        </li>
-      </ol>
-    </nav>
+      [label]="text.catalogRoot"
+      [crumbs]="crumbs()"
+      [current]="item().name"
+      currentFrom="sm"
+    />
 
     <!-- Above the columns, over the whole page. productStatus is where an
          admin's page says the public cannot see it (FR-ADM-06). -->
@@ -174,7 +129,7 @@ const NARROW = '(width < 40rem)';
       @if (mainAttributes().length || item().variants.length) {
         <div class="hidden @min-[65rem]/product:block">
           @if (mainAttributes().length) {
-            <h2 [class]="sectionHeading">{{ text.mainSpecifications }}</h2>
+            <h2 uiSectionTitle>{{ text.mainSpecifications }}</h2>
             <table class="mt-3 w-full border-t border-edge text-sm">
               <tbody class="divide-y divide-edge">
                 @for (attr of mainAttributes(); track $index) {
@@ -231,7 +186,7 @@ const NARROW = '(width < 40rem)';
 
       @if (item().descriptionHtml) {
         <div [id]="descriptionId" [class]="descriptionCellClass">
-          <h2 [class]="sectionHeading">
+          <h2 uiSectionTitle>
             <a
               [routerLink]="[]"
               [fragment]="descriptionId"
@@ -275,7 +230,7 @@ const NARROW = '(width < 40rem)';
            which an expired certificate does not mean. -->
       @if (item().documents.length) {
         <div [id]="documentsId" [class]="specsCellClass">
-          <h2 [class]="sectionHeading">
+          <h2 uiSectionTitle>
             <a
               [routerLink]="[]"
               [fragment]="documentsId"
@@ -294,7 +249,7 @@ const NARROW = '(width < 40rem)';
     <ng-template #specs>
       @if (attributes().length || packagingRows().length) {
         <div [id]="specsId" [class]="specsCellClass">
-          <h2 [class]="sectionHeading">
+          <h2 uiSectionTitle>
             <a
               [routerLink]="[]"
               [fragment]="specsId"
@@ -362,7 +317,6 @@ const NARROW = '(width < 40rem)';
   `,
 })
 export class ProductDetailView {
-  protected readonly chevronRightIcon = chevronRightIcon;
   protected readonly text = inject(STOREFRONT_TEXT).catalog;
   protected readonly product = inject(SHARED_TEXT).product;
   protected readonly columnsClass = `${PRODUCT_PAGE_COLUMNS} mt-6`;
@@ -372,8 +326,6 @@ export class ProductDetailView {
   protected readonly buyColumnClass = '@container/buy';
   protected readonly descriptionCellClass = `${PRODUCT_PAGE_SECTION_CELL} ${READING_WIDTH}`;
   protected readonly specsCellClass = `${PRODUCT_PAGE_SECTION_CELL} ${TABLE_WIDTH}`;
-  protected readonly sectionHeading =
-    'text-xs font-medium tracking-wide text-ink-subtle uppercase';
   /** Each heading links to its section, as a router link with a fragment: a
    * bare `href="#id"` resolves against `<base href="/">` to the site root. The
    * router keeps the query string, which carries the editor's return path. */
@@ -391,8 +343,18 @@ export class ProductDetailView {
   readonly crumbInset = input(false);
   protected readonly editActionsInset = EDIT_ACTIONS_INSET;
 
-  /** Crumbs sit next to their parent, so the nickname is enough. */
-  protected readonly displayName = categoryDisplayName;
+  /** Crumbs sit next to their parent, so the nickname is enough. The
+   * product's own goes on a phone, where the heading under it says the same. */
+  protected readonly crumbs = computed<Crumb[]>(() => {
+    const category = this.item().category;
+    return [
+      { label: this.text.catalogRoot, link: '/catalog' },
+      ...[...category.ancestors, category].map((crumb) => ({
+        label: categoryDisplayName(crumb),
+        link: ['/catalog', crumb.slug],
+      })),
+    ];
+  });
 
   private readonly units = useProductUnits();
   /** An empty value is an old stored row, and would print a dangling label. */

@@ -18,8 +18,6 @@ import {
 } from '@b2b-catalog-platform/shared/core/catalog';
 import { ADMIN_TEXT } from '../../../shared/config/admin-text';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
-import { DisclosureToggle } from '@b2b-catalog-platform/ui/disclosure/disclosure-toggle';
-import { DisclosureFrame } from '@b2b-catalog-platform/ui/disclosure/disclosure-frame';
 import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
 import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
@@ -27,6 +25,7 @@ import { PRODUCT_FEATURE_GLYPHS } from './product-feature-glyphs';
 import { Input } from '@b2b-catalog-platform/ui/inputs/input';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
+import { SubEditorFrame } from '../ui/sub-editor-frame';
 
 /** `aria-controls` must name one panel, and a page may hold more than one. */
 let nextId = 0;
@@ -39,93 +38,79 @@ let nextId = 0;
 @Component({
   selector: 'app-product-parts-editor',
   imports: [
+    SubEditorFrame,
     Icon,
     Button,
-    DisclosureToggle,
     FieldLabel,
     IconButton,
     Input,
     ErrorText,
-    DisclosureFrame,
   ],
   host: { class: 'block' },
   template: `
-    <div class="max-w-xl rounded-md border" uiDisclosureFrame [open]="open()">
-      <ui-disclosure-toggle
-        [label]="text.heading"
-        [count]="value().length"
-        [countLabel]="countLabel()"
-        [open]="open()"
-        [panelId]="panelId"
-        (toggled)="open.set(!open())"
-      >
-        <ui-icon
-          disclosureLead
-          [glyph]="glyph"
-          class="size-4 text-ink-subtle"
-        />
-      </ui-disclosure-toggle>
-      @if (open()) {
-        <div [id]="panelId" class="border-t border-edge p-4">
-          <p class="text-xs text-ink-subtle">{{ text.hint }}</p>
-
-          @if (value().length > 0) {
-            <ul class="mt-3 divide-y divide-edge border-y border-edge">
-              @for (part of value(); track part) {
-                <li class="flex items-center gap-2 py-1.5 text-sm">
-                  <span class="min-w-0 flex-1 truncate">{{ part }}</span>
-                  <button
-                    uiIconButton
-                    type="button"
-                    [attr.aria-label]="removeLabel(part)"
-                    (click)="remove(part)"
-                  >
-                    <ui-icon [glyph]="xIcon" />
-                  </button>
-                </li>
-              }
-            </ul>
+    <app-sub-editor-frame
+      [label]="text.heading"
+      [glyph]="glyph"
+      [count]="value().length"
+      [countLabel]="countLabel()"
+      [hint]="text.hint"
+      [(open)]="open"
+    >
+      @if (value().length > 0) {
+        <ul class="mt-3 divide-y divide-edge border-y border-edge">
+          @for (part of value(); track part) {
+            <li class="flex items-center gap-2 py-1.5 text-sm">
+              <span class="min-w-0 flex-1 truncate">{{ part }}</span>
+              <button
+                uiIconButton
+                type="button"
+                [attr.aria-label]="removeLabel(part)"
+                (click)="remove(part)"
+              >
+                <ui-icon [glyph]="xIcon" />
+              </button>
+            </li>
           }
-          @if (tooFew()) {
-            <p uiErrorText class="mt-2">{{ text.tooFew }}</p>
-          }
+        </ul>
+      }
+      @if (tooFew()) {
+        <p uiErrorText class="mt-2">{{ text.tooFew }}</p>
+      }
 
-          @if (value().length >= max) {
-            <p class="mt-3 text-xs text-ink-subtle">{{ limitLabel() }}</p>
-          } @else {
-            <div class="mt-3">
-              <label [for]="inputId" uiFieldLabel>{{ text.add }}</label>
-              <div class="flex gap-2">
-                <input
-                  [id]="inputId"
-                  type="text"
-                  uiInput
-                  class="min-w-0 flex-1"
-                  autocomplete="off"
-                  [attr.aria-invalid]="rejected() ? true : null"
-                  [value]="draft()"
-                  [placeholder]="text.addPlaceholder"
-                  (input)="type($any($event.target).value)"
-                  (keydown.enter)="$event.preventDefault(); add()"
-                />
-                <button
-                  uiButton
-                  variant="secondary"
-                  type="button"
-                  [disabled]="draft().trim() === ''"
-                  (click)="add()"
-                >
-                  {{ text.addButton }}
-                </button>
-              </div>
-              @if (rejected()) {
-                <p uiErrorText class="mt-1">{{ rejectedLabel() }}</p>
-              }
-            </div>
+      @if (value().length >= max) {
+        <p class="mt-3 text-xs text-ink-subtle">{{ limitLabel() }}</p>
+      } @else {
+        <div class="mt-3">
+          <label [for]="inputId" uiFieldLabel>{{ text.add }}</label>
+          <div class="flex gap-2">
+            <input
+              [id]="inputId"
+              type="text"
+              uiInput
+              class="min-w-0 flex-1"
+              autocomplete="off"
+              [attr.aria-invalid]="rejected() ? true : null"
+              [value]="draft()"
+              [placeholder]="text.addPlaceholder"
+              (input)="type($any($event.target).value)"
+              (keydown.enter)="$event.preventDefault(); add()"
+            />
+            <button
+              uiButton
+              variant="secondary"
+              type="button"
+              [disabled]="draft().trim() === ''"
+              (click)="add()"
+            >
+              {{ text.addButton }}
+            </button>
+          </div>
+          @if (rejected()) {
+            <p uiErrorText class="mt-1">{{ rejectedLabel() }}</p>
           }
         </div>
       }
-    </div>
+    </app-sub-editor-frame>
   `,
 })
 export class ProductPartsEditor implements OnInit {
@@ -145,8 +130,7 @@ export class ProductPartsEditor implements OnInit {
   protected readonly draft = signal('');
   /** Cleared by the next keystroke: text still being typed is not wrong yet. */
   protected readonly rejected = signal(false);
-  protected readonly panelId = `parts-panel-${++nextId}`;
-  protected readonly inputId = `parts-add-${nextId}`;
+  protected readonly inputId = `parts-add-${++nextId}`;
 
   /** One part is a product, not a set; the save refuses it too. */
   protected readonly tooFew = computed(

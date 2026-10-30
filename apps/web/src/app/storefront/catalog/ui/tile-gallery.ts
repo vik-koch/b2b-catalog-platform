@@ -1,14 +1,9 @@
-import {
-  Component,
-  computed,
-  input,
-  linkedSignal,
-  signal,
-} from '@angular/core';
+import { Component, computed, input, linkedSignal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ProductImage } from '@b2b-catalog-platform/shared/core/catalog';
 import { ImagePlaceholder } from '@b2b-catalog-platform/ui/content/image-placeholder';
-import { swipeStep, touchX } from '../../../core/catalog/product-page/swipe';
+import { brokenImages } from '@b2b-catalog-platform/ui/core/broken-images';
+import { swipeStep, touchX } from '@b2b-catalog-platform/ui/core/swipe';
 
 /** `lazy` near the viewport, `eager` with the page, `high` ahead of other
  * images. Only the first photo; the rest load when wanted. */
@@ -38,7 +33,7 @@ export type ImagePriority = 'lazy' | 'eager' | 'high';
       (click)="onClick($event)"
     >
       @for (img of images(); track $index) {
-        @if (failed().has(img.thumb)) {
+        @if (broken.has(img.thumb)) {
           <ui-image-placeholder
             [label]="productName()"
             class="absolute inset-0 transition-opacity duration-200"
@@ -60,7 +55,7 @@ export type ImagePriority = 'lazy' | 'eager' | 'high';
                    transition-opacity duration-200"
             [class.opacity-100]="$index === selected()"
             [class.opacity-0]="$index !== selected()"
-            (error)="markFailed(img.thumb)"
+            (error)="broken.add(img.thumb)"
           />
         }
       } @empty {
@@ -172,12 +167,7 @@ export class TileGallery {
 
   protected readonly hasMultiple = computed(() => this.images().length > 1);
 
-  /** Shown as the placeholder, not the browser's broken icon. */
-  protected readonly failed = signal(new Set<string>());
-
-  protected markFailed(src: string): void {
-    this.failed.update((set) => new Set(set).add(src));
-  }
+  protected readonly broken = brokenImages();
 
   private touchStartX = 0;
   /** The tap after a swipe is cancelled, not followed. */

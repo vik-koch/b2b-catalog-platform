@@ -7,6 +7,7 @@ import {
   documentFileCaption,
   documentLinkHost,
 } from '../../../shared/core/document-file';
+import { DocumentLink } from '@b2b-catalog-platform/ui/content/document-link';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Glyph } from '@b2b-catalog-platform/ui/icons/glyph';
 import { externalLinkIcon } from '@b2b-catalog-platform/ui/icons/glyphs/external-link';
@@ -28,7 +29,7 @@ interface DocumentRow {
  */
 @Component({
   selector: 'app-product-documents',
-  imports: [Icon],
+  imports: [DocumentLink, Icon],
   template: `
     <ul class="mt-3 divide-y divide-edge border-t border-edge text-sm">
       @for (row of rows(); track $index) {
@@ -72,37 +73,20 @@ interface DocumentRow {
               </span>
             </div>
           } @else {
-            <!-- The whole row is one thing to press. -->
             <a
+              uiDocumentLink
               [href]="row.href"
-              target="_blank"
-              rel="noopener"
+              [glyph]="row.glyph"
+              [caption]="row.caption"
               [attr.aria-describedby]="hintId"
-              class="group flex items-start gap-3 py-2.5"
             >
-              <ui-icon
-                [glyph]="row.glyph"
-                class="mt-0.5 size-4 shrink-0 text-ink-subtle"
-              />
-              <span class="min-w-0">
-                <span
-                  class="block font-medium text-primary underline
-                         decoration-primary/30 underline-offset-2
-                         group-hover:text-accent group-hover:decoration-accent"
-                >
-                  {{ row.title }}
-                </span>
-                <span class="block text-xs text-ink-subtle">
-                  {{ row.caption }}
-                </span>
-              </span>
+              {{ row.title }}
             </a>
           }
         </li>
       }
     </ul>
     <!-- Said once and pointed at by every link. -->
-
     <p [id]="hintId" class="sr-only">{{ text.hintAria }}</p>
   `,
 })

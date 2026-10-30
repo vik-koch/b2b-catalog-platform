@@ -19,19 +19,21 @@ import { HighlightedLine } from '@b2b-catalog-platform/ui/suggest/highlighted-li
 import { MatchSegmentsPipe } from '../../../core/catalog/search/match-segments.pipe';
 import { AlternateLayout } from '../../../shared/core/alternate-layout';
 import { SuggestList } from '@b2b-catalog-platform/ui/suggest/suggest-list';
-import { DisclosureToggle } from '@b2b-catalog-platform/ui/disclosure/disclosure-toggle';
-import { DisclosureFrame } from '@b2b-catalog-platform/ui/disclosure/disclosure-frame';
 import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
 import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { PRODUCT_FEATURE_GLYPHS } from './product-feature-glyphs';
 import { Input } from '@b2b-catalog-platform/ui/inputs/input';
-import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';
 import { SuggestField } from '@b2b-catalog-platform/ui/suggest/suggest-field';
 import { SuggestInput } from '@b2b-catalog-platform/ui/suggest/suggest-input';
 import { SuggestRow } from '@b2b-catalog-platform/ui/suggest/suggest-row';
 import { ProductsService } from './products.service';
 import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
+import { SubEditorFrame } from '../ui/sub-editor-frame';
+import {
+  linkedProductState,
+  ProductStateBadge,
+} from '../ui/product-state-badge';
 
 /** `aria-controls` must name one list, and a page may hold more than one. */
 let nextId = 0;
@@ -47,112 +49,81 @@ const SUGGESTIONS_SHOWN = 8;
 @Component({
   selector: 'app-product-pairings-editor',
   imports: [
+    ProductStateBadge,
+    SubEditorFrame,
     Icon,
-    DisclosureToggle,
     FieldLabel,
     HighlightedLine,
     MatchSegmentsPipe,
     IconButton,
     Input,
-    StatusBadge,
     SuggestField,
     SuggestInput,
     SuggestRow,
-    DisclosureFrame,
   ],
   host: { class: 'block' },
   template: `
-    <div class="max-w-xl rounded-md border" uiDisclosureFrame [open]="open()">
-      <ui-disclosure-toggle
-        [label]="product.pairings"
-        [count]="value().length"
-        [countLabel]="countLabel()"
-        [open]="open()"
-        [panelId]="panelId"
-        (toggled)="open.set(!open())"
-      >
-        <ui-icon
-          disclosureLead
-          [glyph]="glyph"
-          class="size-4 text-ink-subtle"
-        />
-      </ui-disclosure-toggle>
-      @if (open()) {
-        <div [id]="panelId" class="border-t border-edge p-4">
-          <p class="text-xs text-ink-subtle">{{ text.hint }}</p>
-
-          @if (value().length > 0) {
-            <ul class="mt-3 divide-y divide-edge border-y border-edge">
-              @for (item of value(); track item.slug) {
-                <li class="flex items-center gap-2 py-1.5 text-sm">
-                  <span class="min-w-0 flex-1 truncate">{{ item.name }}</span>
-                  @if (item.deleted) {
-                    <span uiStatusBadge tone="danger">
-                      {{ productStates.deleted }}
-                    </span>
-                  } @else if (item.unpublished) {
-                    <span uiStatusBadge tone="waiting">
-                      {{ productStates.unpublished }}
-                    </span>
-                  }
-                  <button
-                    uiIconButton
-                    type="button"
-                    [attr.aria-label]="removeLabel(item)"
-                    (click)="remove(item.slug)"
-                  >
-                    <ui-icon [glyph]="xIcon" />
-                  </button>
-                </li>
-              }
-            </ul>
-          }
-
-          @if (value().length >= max) {
-            <p class="mt-3 text-xs text-ink-subtle">{{ limitLabel() }}</p>
-          } @else {
-            <div class="mt-3">
-              <label [for]="inputId" uiFieldLabel>{{ text.add }}</label>
-              <ui-suggest-field
-                [list]="list"
-                [text]="text"
-                (picked)="add($event)"
+    <app-sub-editor-frame
+      [label]="product.pairings"
+      [glyph]="glyph"
+      [count]="value().length"
+      [countLabel]="countLabel()"
+      [hint]="text.hint"
+      [(open)]="open"
+    >
+      @if (value().length > 0) {
+        <ul class="mt-3 divide-y divide-edge border-y border-edge">
+          @for (item of value(); track item.slug) {
+            <li class="flex items-center gap-2 py-1.5 text-sm">
+              <span class="min-w-0 flex-1 truncate">{{ item.name }}</span>
+              <app-product-state-badge [state]="linkedState(item)" />
+              <button
+                uiIconButton
+                type="button"
+                [attr.aria-label]="removeLabel(item)"
+                (click)="remove(item.slug)"
               >
-                <input
-                  [id]="inputId"
-                  autocomplete="off"
-                  uiInput
-                  uiSuggestInput
-                  class="w-full"
-                  [value]="query()"
-                  [placeholder]="text.addPlaceholder"
-                  (input)="query.set($any($event.target).value)"
-                />
-                <ng-template
-                  uiSuggestRow
-                  [of]="list"
-                  let-item
-                  let-query="query"
-                >
-                  <span class="block truncate">
-                    <ui-highlighted-line
-                      [segments]="
-                        item.name | matchSegments: query : alternateQuery()
-                      "
-                    />
-                  </span>
-                  @if (item.publishedAt === null) {
-                    <span class="block text-xs text-ink-subtle">
-                      {{ productStates.unpublished }}
-                    </span>
-                  }
-                </ng-template>
-              </ui-suggest-field>
-            </div>
+                <ui-icon [glyph]="xIcon" />
+              </button>
+            </li>
           }
+        </ul>
+      }
+
+      @if (value().length >= max) {
+        <p class="mt-3 text-xs text-ink-subtle">{{ limitLabel() }}</p>
+      } @else {
+        <div class="mt-3">
+          <label [for]="inputId" uiFieldLabel>{{ text.add }}</label>
+          <ui-suggest-field [list]="list" [text]="text" (picked)="add($event)">
+            <input
+              [id]="inputId"
+              autocomplete="off"
+              uiInput
+              uiSuggestInput
+              class="w-full"
+              [value]="query()"
+              [placeholder]="text.addPlaceholder"
+              (input)="query.set($any($event.target).value)"
+            />
+            <ng-template uiSuggestRow [of]="list" let-item let-query="query">
+              <span class="block truncate">
+                <ui-highlighted-line
+                  [segments]="
+                    item.name | matchSegments: query : alternateQuery()
+                  "
+                />
+              </span>
+              @if (item.publishedAt === null) {
+                <span class="block text-xs text-ink-subtle">
+                  {{ productStates.unpublished }}
+                </span>
+              }
+            </ng-template>
+          </ui-suggest-field>
         </div>
       }
-    </div>
+    </app-sub-editor-frame>
   `,
 })
 export class ProductPairingsEditor implements OnInit {
@@ -162,6 +133,7 @@ export class ProductPairingsEditor implements OnInit {
   protected readonly text = inject(ADMIN_TEXT).products.editor.pairings;
   protected readonly product = inject(SHARED_TEXT).product;
   protected readonly productStates = inject(ADMIN_TEXT).products;
+  protected readonly linkedState = linkedProductState;
   protected readonly glyph = PRODUCT_FEATURE_GLYPHS.pairings;
 
   readonly value = input.required<readonly LinkedProduct[]>();
@@ -174,8 +146,7 @@ export class ProductPairingsEditor implements OnInit {
   protected readonly max = PRODUCT_PAIRINGS_MAX;
   protected readonly open = signal(false);
   protected readonly query = signal('');
-  protected readonly panelId = `pairings-panel-${++nextId}`;
-  protected readonly inputId = `pairing-search-${nextId}`;
+  protected readonly inputId = `pairing-search-${++nextId}`;
 
   /** A short query is fine: this searches our own catalog, not a metered
    * provider, and an admin pairing a lid types "lid". */

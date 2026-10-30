@@ -23,11 +23,12 @@ import { ADMIN_TEXT } from '../../../shared/config/admin-text';
 import { SHARED_TEXT } from '../../../shared/config/shared-text';
 import { injectEditorReturnParams } from '../../../shared/edit-mode/editor-return';
 import {
-  NARROW_BODY_IN_GRID,
-  NARROW_PADDING_IN_GRID,
-  NARROW_PHOTO_IN_GRID,
-} from '../ui/listing-narrow';
-import { PRODUCT_GRID } from '../ui/product-tile';
+  PRODUCT_GRID,
+  TILE_BODY,
+  TILE_NARROW_CARD,
+  TILE_PHOTO,
+  TILE_PHOTO_BOX,
+} from '../ui/product-tile';
 
 /**
  * The edit-mode overlay under a category grid (FR-ADM-06): its unpublished
@@ -153,25 +154,11 @@ export class HiddenProductsSection {
    * Below `LISTING_NARROW` it folds into a line as the tile does. */
   protected readonly card = `flex h-full flex-col rounded-lg border
                              border-dashed border-edge-strong
-                             bg-surface-subtle ${NARROW_PADDING_IN_GRID}
-                             @max-[38rem]/listing:flex-row
-                             @max-[38rem]/listing:items-stretch
-                             @max-[38rem]/listing:gap-4
-                             @max-[38rem]/listing:rounded-none
-                             @max-[38rem]/listing:border-0
-                             @max-[38rem]/listing:bg-transparent`;
-
-  protected readonly photoBox = 'relative flex ' + NARROW_PHOTO_IN_GRID;
-
-  /** Its own framed square once the card has no frame, as on the tile. */
-  protected readonly photo = `block aspect-square w-full overflow-hidden
-                              rounded-t-lg bg-white
-                              @max-[38rem]/listing:rounded-md
-                              @max-[38rem]/listing:ring-1
-                              @max-[38rem]/listing:ring-edge`;
-
-  protected readonly body =
-    'flex flex-1 flex-col p-3 @max-[38rem]/listing:p-0 ' + NARROW_BODY_IN_GRID;
+                             bg-surface-subtle ${TILE_NARROW_CARD}
+                             @max-[38rem]/listing:border-0`;
+  protected readonly photoBox = TILE_PHOTO_BOX;
+  protected readonly photo = `${TILE_PHOTO} bg-white`;
+  protected readonly body = TILE_BODY;
 
   protected readonly busy = signal<string | null>(null);
   protected readonly error = signal<string | null>(null);

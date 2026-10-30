@@ -1,7 +1,6 @@
 import {
   CdkDrag,
   CdkDragDrop,
-  CdkDragHandle,
   CdkDropList,
   moveItemInArray,
 } from '@angular/cdk/drag-drop';
@@ -29,17 +28,16 @@ import { ADMIN_TEXT } from '../../../shared/config/admin-text';
 import { SHARED_TEXT } from '../../../shared/config/shared-text';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { Checkbox } from '@b2b-catalog-platform/ui/choices/checkbox';
-import { DisclosureToggle } from '@b2b-catalog-platform/ui/disclosure/disclosure-toggle';
-import { DisclosureFrame } from '@b2b-catalog-platform/ui/disclosure/disclosure-frame';
 import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
 import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { PRODUCT_FEATURE_GLYPHS } from './product-feature-glyphs';
 import { Input } from '@b2b-catalog-platform/ui/inputs/input';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
-import { gripVerticalIcon } from '@b2b-catalog-platform/ui/icons/glyphs/grip-vertical';
 import { imageIcon } from '@b2b-catalog-platform/ui/icons/glyphs/image';
 import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
+import { DragGrip } from '../ui/drag-grip';
+import { SubEditorFrame } from '../ui/sub-editor-frame';
 
 /** `aria-controls` must name one panel, and a page may hold more than one. */
 let nextId = 0;
@@ -53,183 +51,157 @@ let nextId = 0;
 @Component({
   selector: 'app-product-variants-editor',
   imports: [
+    SubEditorFrame,
+    DragGrip,
     Icon,
     Button,
     CdkDrag,
-    CdkDragHandle,
     CdkDropList,
     Checkbox,
-    DisclosureToggle,
     FieldLabel,
     IconButton,
     Input,
     ErrorText,
-    DisclosureFrame,
   ],
   host: { class: 'block' },
   template: `
-    <div class="max-w-xl rounded-md border" uiDisclosureFrame [open]="open()">
-      <ui-disclosure-toggle
-        [label]="product.variants"
-        [count]="value().length"
-        [countLabel]="countLabel()"
-        [open]="open()"
-        [panelId]="panelId"
-        (toggled)="open.set(!open())"
-      >
-        <ui-icon
-          disclosureLead
-          [glyph]="glyph"
-          class="size-4 text-ink-subtle"
-        />
-      </ui-disclosure-toggle>
-      @if (open()) {
-        <div [id]="panelId" class="border-t border-edge p-4">
-          <p class="text-xs text-ink-subtle">{{ text.hint }}</p>
-
-          @if (value().length > 0) {
-            <div class="@container/variants mt-3">
-              <!-- Column names where the row is one line; on a phone each
-                   control names itself. -->
-              <div
-                class="hidden items-end gap-x-2 pb-1.5 pl-6 text-xs/tight
-                       text-ink-subtle
-                       @min-[30rem]/variants:flex"
-                aria-hidden="true"
+    <app-sub-editor-frame
+      [label]="product.variants"
+      [glyph]="glyph"
+      [count]="value().length"
+      [countLabel]="countLabel()"
+      [hint]="text.hint"
+      [(open)]="open"
+    >
+      @if (value().length > 0) {
+        <div class="@container/variants mt-3">
+          <!-- Column names where the row is one line; on a phone each
+               control names itself. -->
+          <div
+            class="hidden items-end gap-x-2 pb-1.5 pl-6 text-xs/tight
+                   text-ink-subtle
+                   @min-[30rem]/variants:flex"
+            aria-hidden="true"
+          >
+            <span class="flex-1"></span>
+            <span class="w-10 text-right">{{ text.picturesHeading }}</span>
+            <span class="w-24 text-center">{{ text.unavailable }}</span>
+            <span class="w-6"></span>
+          </div>
+          <ul
+            class="divide-y divide-edge border-y border-edge"
+            cdkDropList
+            (cdkDropListDropped)="onDrop($event)"
+          >
+            @for (variant of value(); track variant.id) {
+              <li
+                cdkDrag
+                [cdkDragPreviewClass]="previewClass"
+                class="flex flex-wrap items-center gap-x-2 gap-y-1.5 py-1.5
+                       text-sm"
               >
-                <span class="flex-1"></span>
-                <span class="w-10 text-right">{{ text.picturesHeading }}</span>
-                <span class="w-24 text-center">{{ text.unavailable }}</span>
-                <span class="w-6"></span>
-              </div>
-              <ul
-                class="divide-y divide-edge border-y border-edge"
-                cdkDropList
-                (cdkDropListDropped)="onDrop($event)"
-              >
-                @for (variant of value(); track variant.id) {
-                  <li
-                    cdkDrag
-                    [cdkDragPreviewClass]="previewClass"
-                    class="flex flex-wrap items-center gap-x-2 gap-y-1.5
-                           py-1.5 text-sm"
-                  >
-                    <span
-                      cdkDragHandle
-                      class="inline-flex cursor-grab text-ink-subtle
-                             active:cursor-grabbing"
-                      [attr.aria-label]="adminText.actions.reorder"
-                    >
-                      <ui-icon [glyph]="gripVerticalIcon" class="size-4" />
-                    </span>
-                    <input
-                      type="text"
-                      uiInput
-                      size="sm"
-                      class="min-w-0 flex-1 basis-[calc(100%-1.5rem)]
-                             @min-[30rem]/variants:basis-0"
-                      autocomplete="off"
-                      [attr.aria-label]="text.nameAria"
-                      [attr.maxlength]="nameMax"
-                      [attr.aria-invalid]="clashes(variant) ? true : null"
-                      [value]="variant.name"
-                      (input)="rename(variant.id, $any($event.target).value)"
-                    />
-                    <span
-                      class="ml-6 inline-flex shrink-0 items-center gap-1
-                             text-xs text-ink-subtle
-                             @min-[30rem]/variants:ml-0
-                             @min-[30rem]/variants:w-10
-                             @min-[30rem]/variants:justify-end"
-                      [title]="picturesLabel(variant.id)"
-                      [attr.aria-label]="picturesLabel(variant.id)"
-                    >
-                      <ui-icon [glyph]="imageIcon" class="size-3.5" />
-                      {{ pictureCount(variant.id) }}
-                    </span>
-                    <label
-                      class="flex shrink-0 cursor-pointer items-center gap-1.5
-                             text-xs
-                             @min-[30rem]/variants:w-24
-                             @min-[30rem]/variants:justify-center"
-                    >
-                      <input
-                        type="checkbox"
-                        uiCheckbox
-                        [checked]="variant.unavailable"
-                        (change)="
-                          setUnavailable(
-                            variant.id,
-                            $any($event.target).checked
-                          )
-                        "
-                      />
-                      <span class="@min-[30rem]/variants:sr-only">{{
-                        text.unavailable
-                      }}</span>
-                    </label>
-                    <button
-                      uiIconButton
-                      type="button"
-                      class="ml-auto @min-[30rem]/variants:ml-0"
-                      [attr.aria-label]="removeLabel(variant.name)"
-                      (click)="remove(variant.id)"
-                    >
-                      <ui-icon [glyph]="xIcon" />
-                    </button>
-                  </li>
-                }
-              </ul>
-            </div>
-          }
-          @if (hasClash()) {
-            <p uiErrorText class="mt-2">{{ text.duplicate }}</p>
-          }
-          @if (allWithheld()) {
-            <p class="mt-2 text-xs text-warning">{{ text.allWithheld }}</p>
-          }
-
-          @if (value().length >= max) {
-            <p class="mt-3 text-xs text-ink-subtle">{{ limitLabel() }}</p>
-          } @else {
-            <div class="mt-3">
-              <label [for]="inputId" uiFieldLabel>{{ text.add }}</label>
-              <div class="flex gap-2">
+                <app-drag-grip />
                 <input
-                  [id]="inputId"
                   type="text"
                   uiInput
-                  class="min-w-0 flex-1"
+                  size="sm"
+                  class="min-w-0 flex-1 basis-[calc(100%-1.5rem)]
+                         @min-[30rem]/variants:basis-0"
                   autocomplete="off"
+                  [attr.aria-label]="text.nameAria"
                   [attr.maxlength]="nameMax"
-                  [attr.aria-invalid]="rejected() ? true : null"
-                  [value]="draft()"
-                  [placeholder]="text.addPlaceholder"
-                  (input)="type($any($event.target).value)"
-                  (keydown.enter)="$event.preventDefault(); add()"
+                  [attr.aria-invalid]="clashes(variant) ? true : null"
+                  [value]="variant.name"
+                  (input)="rename(variant.id, $any($event.target).value)"
                 />
-                <button
-                  uiButton
-                  variant="secondary"
-                  type="button"
-                  [disabled]="draft().trim() === ''"
-                  (click)="add()"
+                <span
+                  class="ml-6 inline-flex shrink-0 items-center gap-1 text-xs
+                         text-ink-subtle
+                         @min-[30rem]/variants:ml-0 @min-[30rem]/variants:w-10
+                         @min-[30rem]/variants:justify-end"
+                  [title]="picturesLabel(variant.id)"
+                  [attr.aria-label]="picturesLabel(variant.id)"
                 >
-                  {{ text.addButton }}
+                  <ui-icon [glyph]="imageIcon" class="size-3.5" />
+                  {{ pictureCount(variant.id) }}
+                </span>
+                <label
+                  class="flex shrink-0 cursor-pointer items-center gap-1.5
+                         text-xs
+                         @min-[30rem]/variants:w-24
+                         @min-[30rem]/variants:justify-center"
+                >
+                  <input
+                    type="checkbox"
+                    uiCheckbox
+                    [checked]="variant.unavailable"
+                    (change)="
+                      setUnavailable(variant.id, $any($event.target).checked)
+                    "
+                  />
+                  <span class="@min-[30rem]/variants:sr-only">{{
+                    text.unavailable
+                  }}</span>
+                </label>
+                <button
+                  uiIconButton
+                  type="button"
+                  class="ml-auto @min-[30rem]/variants:ml-0"
+                  [attr.aria-label]="removeLabel(variant.name)"
+                  (click)="remove(variant.id)"
+                >
+                  <ui-icon [glyph]="xIcon" />
                 </button>
-              </div>
-              @if (rejected()) {
-                <p uiErrorText class="mt-1">{{ text.exists }}</p>
-              }
-            </div>
+              </li>
+            }
+          </ul>
+        </div>
+      }
+      @if (hasClash()) {
+        <p uiErrorText class="mt-2">{{ text.duplicate }}</p>
+      }
+      @if (allWithheld()) {
+        <p class="mt-2 text-xs text-warning">{{ text.allWithheld }}</p>
+      }
+
+      @if (value().length >= max) {
+        <p class="mt-3 text-xs text-ink-subtle">{{ limitLabel() }}</p>
+      } @else {
+        <div class="mt-3">
+          <label [for]="inputId" uiFieldLabel>{{ text.add }}</label>
+          <div class="flex gap-2">
+            <input
+              [id]="inputId"
+              type="text"
+              uiInput
+              class="min-w-0 flex-1"
+              autocomplete="off"
+              [attr.maxlength]="nameMax"
+              [attr.aria-invalid]="rejected() ? true : null"
+              [value]="draft()"
+              [placeholder]="text.addPlaceholder"
+              (input)="type($any($event.target).value)"
+              (keydown.enter)="$event.preventDefault(); add()"
+            />
+            <button
+              uiButton
+              variant="secondary"
+              type="button"
+              [disabled]="draft().trim() === ''"
+              (click)="add()"
+            >
+              {{ text.addButton }}
+            </button>
+          </div>
+          @if (rejected()) {
+            <p uiErrorText class="mt-1">{{ text.exists }}</p>
           }
         </div>
       }
-    </div>
+    </app-sub-editor-frame>
   `,
 })
 export class ProductVariantsEditor implements OnInit {
-  protected readonly gripVerticalIcon = gripVerticalIcon;
   protected readonly imageIcon = imageIcon;
   protected readonly xIcon = xIcon;
   protected readonly adminText = inject(ADMIN_TEXT);
@@ -253,8 +225,7 @@ export class ProductVariantsEditor implements OnInit {
   protected readonly draft = signal('');
   /** Cleared by the next keystroke: text still being typed is not wrong yet. */
   protected readonly rejected = signal(false);
-  protected readonly panelId = `variants-panel-${++nextId}`;
-  protected readonly inputId = `variants-add-${nextId}`;
+  protected readonly inputId = `variants-add-${++nextId}`;
 
   protected readonly countLabel = computed(() =>
     fillText(this.adminText.countSuffix, { count: this.value().length }),

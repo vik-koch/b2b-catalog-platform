@@ -5,6 +5,7 @@ import {
 } from '@b2b-catalog-platform/shared/core/catalog';
 import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
 import { SHARED_TEXT } from '../../../shared/config/shared-text';
+import { SectionTitle } from '@b2b-catalog-platform/ui/content/section-title';
 
 /** Where a variant's first picture is in the gallery, or -1 where it has none
  * on show — none uploaded yet, or withheld while it is unavailable. */
@@ -23,11 +24,9 @@ export function firstPictureOf(
  */
 @Component({
   selector: 'app-product-variant-list',
+  imports: [SectionTitle],
   template: `
-    <h2
-      [id]="headingId"
-      class="mb-3 font-medium text-ink-subtle text-xs tracking-wide uppercase"
-    >
+    <h2 [id]="headingId" uiSectionTitle class="mb-3">
       {{ product.variants }}
     </h2>
     <ul class="flex flex-wrap gap-1.5" [attr.aria-labelledby]="headingId">

@@ -1,7 +1,6 @@
 import {
   CdkDrag,
   CdkDragDrop,
-  CdkDragHandle,
   CdkDropList,
   moveItemInArray,
 } from '@angular/cdk/drag-drop';
@@ -29,13 +28,13 @@ import { RecordRow } from '@b2b-catalog-platform/ui/lists/record-row';
 import { AttributeRowMarks } from './attribute-hints';
 import { SHARED_TEXT } from '../../../shared/config/shared-text';
 import { funnelIcon } from '@b2b-catalog-platform/ui/icons/glyphs/funnel';
-import { gripVerticalIcon } from '@b2b-catalog-platform/ui/icons/glyphs/grip-vertical';
 import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
 import { plusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/plus';
 import { saveIcon } from '@b2b-catalog-platform/ui/icons/glyphs/save';
 import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
 import { triangleAlertIcon } from '@b2b-catalog-platform/ui/icons/glyphs/triangle-alert';
-import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
+import { DragGrip } from '../ui/drag-grip';
+import { CancelButton } from '../../ui/cancel-button';
 
 /**
  * The product's attributes on a phone (FR-CAT-05), where the spreadsheet's
@@ -46,6 +45,8 @@ import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
 @Component({
   selector: 'app-product-attributes-narrow',
   imports: [
+    CancelButton,
+    DragGrip,
     Icon,
     Button,
     HintBadge,
@@ -57,7 +58,6 @@ import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
     RecordRow,
     CdkDropList,
     CdkDrag,
-    CdkDragHandle,
   ],
   template: `
     <ul
@@ -103,28 +103,18 @@ import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
                 <button
                   uiButton
                   variant="secondary"
+                  appCancelButton
                   size="sm"
                   type="button"
-                  class="gap-2"
                   (click)="cancel()"
                 >
-                  <ui-icon [glyph]="xIcon" class="size-4" />
                   {{ actionText.cancel }}
                 </button>
               </div>
             </form>
           } @else {
             <ui-record-row>
-              <span
-                recordControl
-                cdkDragHandle
-                uiIconButton
-                size="lead"
-                class="cursor-grab active:cursor-grabbing"
-                [attr.aria-label]="adminText.actions.reorder"
-              >
-                <ui-icon [glyph]="gripVerticalIcon" />
-              </span>
+              <app-drag-grip recordControl size="lead" />
               <span
                 class="font-medium wrap-break-word text-ink"
                 [class.text-ink-subtle]="row.key.trim() === ''"
@@ -193,13 +183,11 @@ import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
 })
 export class ProductAttributesNarrow {
   protected readonly funnelIcon = funnelIcon;
-  protected readonly gripVerticalIcon = gripVerticalIcon;
   protected readonly pencilIcon = pencilIcon;
   protected readonly plusIcon = plusIcon;
   protected readonly saveIcon = saveIcon;
   protected readonly trash2Icon = trash2Icon;
   protected readonly triangleAlertIcon = triangleAlertIcon;
-  protected readonly xIcon = xIcon;
   protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly text = inject(ADMIN_TEXT).products.editor.attributes;
   protected readonly actionText = inject(SHARED_TEXT).actions;

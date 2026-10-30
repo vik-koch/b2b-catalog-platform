@@ -1,9 +1,7 @@
-/** Below this horizontal travel a touch gesture counts as a tap, not a swipe. */
+/** Below this horizontal travel a touch counts as a tap, not a swipe. */
 export const SWIPE_THRESHOLD_PX = 30;
 
-/** A one-finger horizontal swipe's step, the same for the tile's gallery and
- * the page's. */
-
+/** A one-finger horizontal swipe's step: 1 forward, -1 back, 0 for a tap. */
 export function swipeStep(startX: number, endX: number): -1 | 0 | 1 {
   const dx = endX - startX;
   if (Math.abs(dx) < SWIPE_THRESHOLD_PX) return 0;

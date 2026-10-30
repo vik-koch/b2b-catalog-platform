@@ -1,7 +1,6 @@
 import {
   CdkDrag,
   CdkDragDrop,
-  CdkDragHandle,
   CdkDropList,
   moveItemInArray,
 } from '@angular/cdk/drag-drop';
@@ -38,9 +37,9 @@ import { AttributesService } from './attributes.service';
 import { SHARED_TEXT } from '../../../shared/config/shared-text';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
-import { gripVerticalIcon } from '@b2b-catalog-platform/ui/icons/glyphs/grip-vertical';
-import { saveIcon } from '@b2b-catalog-platform/ui/icons/glyphs/save';
-import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
+import { DragGrip } from '../ui/drag-grip';
+import { SaveButton } from '../../ui/save-button';
+import { CancelButton } from '../../ui/cancel-button';
 
 /** Where the panel closes to when it was not opened from in the app. */
 const FALLBACK_RETURN = '/admin/categories';
@@ -62,10 +61,12 @@ function isCategoryPanel(panel: Panel): panel is CategoryFilters {
 @Component({
   selector: 'app-category-filters-page',
   imports: [
+    CancelButton,
+    SaveButton,
+    DragGrip,
     RouterLink,
     CdkDropList,
     CdkDrag,
-    CdkDragHandle,
     Button,
     Checkbox,
     IconButton,
@@ -160,16 +161,7 @@ function isCategoryPanel(panel: Panel): panel is CategoryFilters {
                           <span class="text-warning">{{ text.isNew }}</span>
                         }
                       </ng-container>
-                      <span
-                        recordActions
-                        cdkDragHandle
-                        uiIconButton
-                        class="cursor-grab active:cursor-grabbing"
-                        [attr.aria-label]="text.reorder"
-                        [title]="text.reorder"
-                      >
-                        <ui-icon [glyph]="gripVerticalIcon" />
-                      </span>
+                      <app-drag-grip recordActions [label]="text.reorder" />
                     </ui-record-row>
                   </li>
                 }
@@ -182,26 +174,24 @@ function isCategoryPanel(panel: Panel): panel is CategoryFilters {
               </p>
             }
 
-            <div class="mt-6 flex flex-wrap items-center gap-2">
+            <div class="mt-6 flex flex-wrap items-center gap-3">
               <button
                 uiButton
+                appSaveButton
                 type="button"
-                class="gap-2"
-                [disabled]="busy()"
+                [saving]="busy()"
                 (click)="save()"
               >
-                <ui-icon [glyph]="saveIcon" class="size-4" />
-                {{ busy() ? actionText.saving : text.save }}
+                {{ text.save }}
               </button>
               <button
                 uiButton
                 variant="secondary"
+                appCancelButton
                 type="button"
-                class="gap-2"
                 [disabled]="busy()"
                 (click)="cancel()"
               >
-                <ui-icon [glyph]="xIcon" class="size-4" />
                 {{ actionText.cancel }}
               </button>
               @if (isCategoryPanel(panel) && panel.source === 'own') {
@@ -240,9 +230,6 @@ function isCategoryPanel(panel: Panel): panel is CategoryFilters {
   `,
 })
 export class CategoryFiltersPage {
-  protected readonly gripVerticalIcon = gripVerticalIcon;
-  protected readonly saveIcon = saveIcon;
-  protected readonly xIcon = xIcon;
   private readonly service = inject(AttributesService);
   private readonly confirm = inject(ConfirmService);
   private readonly returnTo = injectEditorReturn();

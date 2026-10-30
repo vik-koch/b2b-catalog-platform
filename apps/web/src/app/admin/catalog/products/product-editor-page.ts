@@ -129,9 +129,9 @@ import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { circleCheckIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-check';
 import { eyeIcon } from '@b2b-catalog-platform/ui/icons/glyphs/eye';
 import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
-import { saveIcon } from '@b2b-catalog-platform/ui/icons/glyphs/save';
-import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
 import { numericRules } from '@b2b-catalog-platform/ui/inputs/numeric-rules';
+import { SaveButton } from '../../ui/save-button';
+import { CancelButton } from '../../ui/cancel-button';
 
 /** Packaging with no pack and no box, for the reads that need only those. */
 const NO_PACKAGING = { piecesPerPack: null, packsPerBox: null };
@@ -162,6 +162,8 @@ interface ProductDraft {
 @Component({
   selector: 'app-product-editor-page',
   imports: [
+    CancelButton,
+    SaveButton,
     FORM_FIELDS,
     LockedNote,
     Button,
@@ -567,13 +569,12 @@ interface ProductDraft {
         @if (!newAndOwned()) {
           <button
             uiButton
+            appSaveButton
             type="button"
-            class="gap-2"
-            [disabled]="saving()"
+            [saving]="saving()"
             (click)="save()"
           >
-            <ui-icon [glyph]="saveIcon" class="size-4" />
-            {{ saving() ? actionText.saving : saveLabel() }}
+            {{ saveLabel() }}
           </button>
         }
         <!-- Not without a price, which the server would refuse, nor on a
@@ -613,11 +614,10 @@ interface ProductDraft {
         <button
           uiButton
           variant="secondary"
+          appCancelButton
           type="button"
-          class="gap-2"
           (click)="cancel()"
         >
-          <ui-icon [glyph]="xIcon" class="size-4" />
           {{ actionText.cancel }}
         </button>
         <!-- Cancel goes back where the editor was opened; this discards the
@@ -643,8 +643,6 @@ export class ProductEditorPage implements UnsavedChangesAware, FieldAttempt {
   protected readonly circleCheckIcon = circleCheckIcon;
   protected readonly eyeIcon = eyeIcon;
   protected readonly pencilIcon = pencilIcon;
-  protected readonly saveIcon = saveIcon;
-  protected readonly xIcon = xIcon;
   private readonly productsService = inject(ProductsService);
   private readonly categoriesService = inject(CategoriesService);
   private readonly tiersService = inject(TiersService);

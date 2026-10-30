@@ -23,6 +23,7 @@ import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { delayedLoading } from '../../shared/core/delayed-loading';
 import { CatalogService } from './catalog.service';
 import { PRODUCT_ROWS, ProductRow } from './ui/product-row';
+import { DialogTitle } from '@b2b-catalog-platform/ui/overlay/dialog-title';
 
 /**
  * What a sold-together marker opens (FR-SET-05): the counterparts as product
@@ -36,6 +37,7 @@ import { PRODUCT_ROWS, ProductRow } from './ui/product-row';
 @Component({
   selector: 'app-product-pairings-dialog',
   imports: [
+    DialogTitle,
     WarningNote,
     Button,
     DialogActions,
@@ -52,7 +54,7 @@ import { PRODUCT_ROWS, ProductRow } from './ui/product-row';
         aria-labelledby="pairings-heading"
         (cancel)="close()"
       >
-        <h2 id="pairings-heading" class="text-xl font-normal tracking-tight">
+        <h2 id="pairings-heading" uiDialogTitle>
           {{ pairingsName }}
         </h2>
         <p class="mt-2 text-sm text-ink-subtle">{{ text.intro }}</p>
