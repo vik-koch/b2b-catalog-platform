@@ -28,10 +28,13 @@ audience's folder imports `src/lib` and itself, and the admin's also `src/sync`.
 lint rules decide which entry points each of its parts may import.
 
 - **`*.contract.ts`** — one Zod schema per API route, implemented by the API with oRPC and
-  called by the web app. A contract module exports schemas only.
-- **`*-constants.ts`, `*-format.ts` and the other plain modules** — limits, enums and pure
-  helpers with no imports, so a component that needs a limit does not pull Zod into the
-  browser.
+  called by the web app, or in `core/` the schemas several routes are built from. A contract
+  module exports schemas only.
+- **`<topic>.ts`** — one topic's limits, enums, types and pure rules together, with no
+  imports beyond other plain modules, so a component that needs a limit does not pull Zod
+  into the browser. The topic's schemas sit beside it in `<topic>.contract.ts`. A module
+  splits further only for a heavy dependency (`slugify.ts`). Areas not yet moved still name
+  theirs `*-constants.ts`.
 - **`src/lib/config/`** — the schemas a deployment's `deployment.json` and shared texts are loaded with.
 
 The browser never receives the schemas themselves: each side of the web app gets the route

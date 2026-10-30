@@ -10,8 +10,28 @@
 import { build } from 'esbuild';
 import { execFileSync } from 'node:child_process';
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
-import { dirname } from 'node:path';
+import { dirname, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
+
+const SHARED = '@b2b-catalog-platform/shared';
+
+/**
+ * Mirrors the tsconfig paths: `shared` is the root entry, `shared/<entry>` its
+ * folder's index. esbuild's `alias` matches by prefix, so it cannot say this.
+ */
+const sharedEntries = {
+  name: 'shared-entries',
+  setup(builder) {
+    builder.onResolve(
+      { filter: /^@b2b-catalog-platform\/shared(\/|$)/ },
+      (args) => ({
+        path: resolve(
+          `libs/shared/src${args.path.slice(SHARED.length)}/index.ts`,
+        ),
+      }),
+    );
+  },
+};
 
 /**
  * Runs a TypeScript module in Node by bundling it first.
@@ -33,15 +53,7 @@ export async function loadTypeScript(entryPoint) {
       format: 'esm',
       platform: 'node',
       packages: 'external',
-      alias: {
-        '@b2b-catalog-platform/shared': './libs/shared/src/index.ts',
-        '@b2b-catalog-platform/shared/admin':
-          './libs/shared/src/admin/index.ts',
-        '@b2b-catalog-platform/shared/node': './libs/shared/src/node/index.ts',
-        '@b2b-catalog-platform/shared/storefront':
-          './libs/shared/src/storefront/index.ts',
-        '@b2b-catalog-platform/shared/sync': './libs/shared/src/sync/index.ts',
-      },
+      plugins: [sharedEntries],
       logLevel: 'silent',
     });
     return await import(pathToFileURL(outfile).href);
