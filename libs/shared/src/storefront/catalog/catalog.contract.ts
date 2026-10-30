@@ -5,7 +5,7 @@ import { ATTRIBUTE_FILTER_MAX_PARAMS } from '../../core/catalog/attribute-filter
 import {
   ATTRIBUTE_NAME_MAX_LENGTH,
   ATTRIBUTE_VALUE_MAX_LENGTH,
-} from '../../core/catalog/attribute-value';
+} from '../../core/catalog/attributes';
 import {
   PRODUCT_SORTS,
   SEARCH_SORTS,

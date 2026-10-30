@@ -1,6 +1,6 @@
 import { Component, computed, inject, input } from '@angular/core';
 import {
-  ProductPackagingInfo,
+  ProductPackaging,
   ProductUnit,
 } from '@b2b-catalog-platform/shared/core/catalog';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
@@ -38,7 +38,7 @@ import { useProductUnits } from './product-units-view';
   `,
 })
 export class ProductUnitFacts {
-  readonly packagingInfo = input.required<ProductPackagingInfo>();
+  readonly packagingInfo = input.required<ProductPackaging>();
   /**
    * Which of the two facts to state. A row lays the block out across columns
    * rather than down the card — the minimum qualifies the quantity and goes

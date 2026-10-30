@@ -32,7 +32,7 @@ import { minimumFitsPacks } from '../../core/catalog/product-units';
 import {
   ATTRIBUTE_NAME_MAX_LENGTH,
   ATTRIBUTE_VALUE_MAX_LENGTH,
-} from '../../core/catalog/attribute-value';
+} from '../../core/catalog/attributes';
 import { PRODUCT_AVAILABILITIES } from '../../core/catalog/product-availability';
 import {
   INCOMPLETE_GAPS,

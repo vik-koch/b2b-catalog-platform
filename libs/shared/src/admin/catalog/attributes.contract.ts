@@ -4,7 +4,7 @@ import { commonAuthErrors } from '../../lib/core/api-error';
 import {
   ATTRIBUTE_NAME_MAX_LENGTH,
   ATTRIBUTE_VALUE_MAX_LENGTH,
-} from '../../core/catalog/attribute-value';
+} from '../../core/catalog/attributes';
 import { slugSchema } from './slug.contract';
 import { attributeTypeSchema } from '../../core/catalog/catalog.contract';
 

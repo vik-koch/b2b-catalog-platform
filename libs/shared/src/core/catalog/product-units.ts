@@ -196,27 +196,17 @@ export function minimumFitsPacks(packaging: ProductPackaging): boolean {
 }
 
 /**
- * A line's prices as the read contract publishes them (`unitPricesSchema`),
- * declared structurally so this file stays out of the contract's imports.
- */
-export interface LineUnitPrices {
-  piece: number;
-  pack: number | null;
-  box: number | null;
-}
-
-/**
- * What a cart line costs, in whole minor units. The unit is not an argument:
- * pack and box prices label the same piece count, and pricing through them
- * would be a second figure for one total.
+ * What a cart line costs, in whole minor units: `totalMinor`, guarded. Priced
+ * by the piece whatever the unit: pack and box prices label the same piece
+ * count, and pricing through them would be a second figure for one total.
  *
  * Null for a piece count that is not a positive whole number: a caller skipped
  * the quantity rules, and a plausible figure would hide that.
  */
 export function exactLineTotal(
-  prices: LineUnitPrices,
+  piecePriceMinor: number,
   pieces: number,
 ): number | null {
   if (!Number.isInteger(pieces) || pieces < 1) return null;
-  return prices.piece * pieces;
+  return totalMinor(piecePriceMinor, pieces);
 }

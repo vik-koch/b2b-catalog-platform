@@ -13,7 +13,7 @@ import {
   exactLineTotal,
   ProductAvailability,
   ProductImage,
-  ProductPackagingInfo,
+  ProductPackaging,
   ProductUnit,
   ProductVariant,
   UnitPrices,
@@ -69,7 +69,7 @@ export interface BuyableProduct {
   slug: string;
   name: string;
   prices: UnitPrices;
-  packaging: ProductPackagingInfo;
+  packaging: ProductPackaging;
   /**
    * What the shop says about its stock (FR-STOCK-02), or null where it is not
    * tracked — which is the default and restricts nothing.
@@ -666,7 +666,7 @@ export class ProductBuyControls {
   protected readonly total = computed(() => {
     if (!this.available()) return null;
     const exact = exactLineTotal(
-      this.item().prices,
+      this.item().prices.piece,
       correctPieces(this.packaging(), this.pieces()),
     );
     return exact === null ? null : formatPriceMinor(exact, this.currency);

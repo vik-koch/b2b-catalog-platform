@@ -1,16 +1,16 @@
 import { signal } from '@angular/core';
 import {
-  ProductPackagingInfo,
+  ProductPackaging,
   ProductUnit,
 } from '@b2b-catalog-platform/shared/core/catalog';
 import { createBuyQuantity, QuantityLine } from './buy-quantity';
 import { packagedPackaging, plainPackaging } from './product.fixture';
 
 /** Six to a pack, four packs to a box, no fewer than six. */
-const packaged: ProductPackagingInfo = { ...packagedPackaging };
+const packaged: ProductPackaging = { ...packagedPackaging };
 
 function chooseFor(
-  packaging: ProductPackagingInfo = packaged,
+  packaging: ProductPackaging = packaged,
   startingLine: QuantityLine | undefined = undefined,
 ) {
   const product = signal('espresso-roast');

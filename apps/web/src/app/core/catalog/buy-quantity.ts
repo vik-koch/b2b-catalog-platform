@@ -3,7 +3,7 @@ import {
   correctPieces,
   pieceFloor,
   piecesFromUnitQuantity,
-  ProductPackagingInfo,
+  ProductPackaging,
   ProductUnit,
   stepFrom,
   unitQuantity,
@@ -19,7 +19,7 @@ export interface QuantityLine {
 }
 
 export interface BuyQuantityDeps {
-  packaging: Signal<ProductPackagingInfo>;
+  packaging: Signal<ProductPackaging>;
   /** The product being bought. Every held choice resets when it changes: a
    * unit or a count chosen on one product means nothing on the next. */
   product: Signal<string>;

@@ -2,7 +2,7 @@ import {
   ATTRIBUTE_NUMERIC_LIMIT,
   formatAttributeValue,
   parseAttributeNumber,
-} from './attribute-value';
+} from './attributes';
 
 describe('parseAttributeNumber', () => {
   it('reads plain integers and decimals, signed or not', () => {

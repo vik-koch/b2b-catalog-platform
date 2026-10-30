@@ -1,7 +1,8 @@
 import * as z from 'zod';
 import { ACCEPTED_DOCUMENT_MIME_TYPES } from '../../platform/media-constants';
-import { ATTRIBUTE_TYPES } from './attribute-value';
+import { ATTRIBUTE_TYPES } from './attributes';
 import { PRODUCT_AVAILABILITIES } from './product-availability';
+import type { ProductPackaging } from './product-units';
 
 export const attributeTypeSchema = z.enum(ATTRIBUTE_TYPES);
 
@@ -90,8 +91,7 @@ export const productPackagingSchema = z
     /** The floor for a piece quantity, not its increment (`pieceStep`). */
     minPieceQty: z.number().int().positive(),
   })
-  .strict();
-export type ProductPackagingInfo = z.infer<typeof productPackagingSchema>;
+  .strict() satisfies z.ZodType<ProductPackaging>;
 
 /**
  * A box's shipping facts. The dimensions are decimal strings: they are shown,

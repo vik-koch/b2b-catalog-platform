@@ -1,5 +1,5 @@
 export * from './attribute-filter';
-export * from './attribute-value';
+export * from './attributes';
 export * from './catalog.contract';
 export * from './categories';
 export * from './product-availability';

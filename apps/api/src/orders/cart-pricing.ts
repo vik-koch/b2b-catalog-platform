@@ -302,7 +302,7 @@ function priceLine(
   const unit = sold ? line.unit : 'piece';
   if (!sold) issues.push('unit-unavailable');
 
-  const lineTotalMinor = exactLineTotal(prices, pieces);
+  const lineTotalMinor = exactLineTotal(prices.piece, pieces);
   if (lineTotalMinor === null) issues.push('price-unavailable');
 
   // The line stays exactly as it is — named, priced and orderable in every

@@ -4,7 +4,7 @@ import {
   pieceFloor,
   piecesPerUnit,
   PRODUCT_UNITS,
-  ProductPackagingInfo,
+  ProductPackaging,
   ProductUnit,
   UnitPrices,
   unitQuantity,
@@ -86,7 +86,7 @@ export function useProductUnits() {
      * and have to read as a scale, which a count in one of them breaks. What a
      * pack and a box hold is stated once, below, by the packaging line.
      */
-    unitOptions(packaging: ProductPackagingInfo): UnitOption[] {
+    unitOptions(packaging: ProductPackaging): UnitOption[] {
       const sold = new Set(availableUnits(packaging));
       return PRODUCT_UNITS.map((unit) => ({
         unit,
@@ -96,7 +96,7 @@ export function useProductUnits() {
     },
 
     /** "4 pk × 6 pcs = 24 pcs", or the pack-only form, or null. */
-    packagingSummary(packaging: ProductPackagingInfo): string | null {
+    packagingSummary(packaging: ProductPackaging): string | null {
       const { piecesPerPack, packsPerBox } = packaging;
       if (piecesPerPack === null) return null;
       if (packsPerBox === null) {
@@ -127,7 +127,7 @@ export function useProductUnits() {
      * Defaults to pieces, which is how a tile states it as a product fact.
      */
     minimumOrder(
-      packaging: ProductPackagingInfo,
+      packaging: ProductPackaging,
       unit: ProductUnit = 'piece',
     ): string {
       const floor = pieceFloor(packaging);
@@ -158,7 +158,7 @@ export function useProductUnits() {
      * states it in the wrong words as soon as another one is selected.
      */
     packagingRows(
-      packaging: ProductPackagingInfo,
+      packaging: ProductPackaging,
       box: {
         volume: string | null;
         weight: string | null;

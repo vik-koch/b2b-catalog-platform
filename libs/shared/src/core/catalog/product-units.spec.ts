@@ -387,25 +387,25 @@ describe('exactLineTotal', () => {
   const prices = { piece: 199, pack: 1990, box: 7960 };
 
   it('multiplies the piece price by the pieces, whatever the lens', () => {
-    expect(exactLineTotal(prices, 1)).toBe(199);
-    expect(exactLineTotal(prices, 10)).toBe(prices.pack);
-    expect(exactLineTotal(prices, 40)).toBe(prices.box);
+    expect(exactLineTotal(prices.piece, 1)).toBe(199);
+    expect(exactLineTotal(prices.piece, 10)).toBe(prices.pack);
+    expect(exactLineTotal(prices.piece, 40)).toBe(prices.box);
   });
 
   // The lens cannot change what a quantity costs: half a box of these is two
   // packs, and two packs is what it is charged as.
   it('prices a part box as the packs it is', () => {
-    expect(exactLineTotal(prices, 20)).toBe(3980);
+    expect(exactLineTotal(prices.piece, 20)).toBe(3980);
   });
 
   // Nothing about a quantity makes it unpriceable any more: whatever the
   // packaging, a piece count times a piece price is exact.
   it('prices a quantity that is not whole packs', () => {
-    expect(exactLineTotal(prices, 15)).toBe(2985);
+    expect(exactLineTotal(prices.piece, 15)).toBe(2985);
   });
 
   it('refuses a quantity that is not a positive integer', () => {
-    expect(exactLineTotal(prices, 0)).toBeNull();
-    expect(exactLineTotal(prices, 1.5)).toBeNull();
+    expect(exactLineTotal(prices.piece, 0)).toBeNull();
+    expect(exactLineTotal(prices.piece, 1.5)).toBeNull();
   });
 });

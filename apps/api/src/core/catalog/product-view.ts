@@ -2,7 +2,7 @@ import {
   BoxDimensions,
   ProductAvailability,
   ProductListItem,
-  ProductPackagingInfo,
+  ProductPackaging,
   ProductImage,
   ProductVariant,
   UnitPrices,
@@ -95,7 +95,7 @@ export interface PricedProductRow {
 
 export function packagingOf(
   row: Omit<PricedProductRow, 'priceMinor'>,
-): ProductPackagingInfo {
+): ProductPackaging {
   return {
     piecesPerPack: row.piecesPerPack,
     packsPerBox: row.packsPerBox,

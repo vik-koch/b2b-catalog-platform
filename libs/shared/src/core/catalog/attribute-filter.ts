@@ -5,7 +5,7 @@
  * nothing is packed into a single parameter; a slug never contains a colon.
  */
 
-import { ATTRIBUTE_NAME_MAX_LENGTH } from './attribute-value';
+import { ATTRIBUTE_NAME_MAX_LENGTH } from './attributes';
 
 /** Separates a definition's slug from the value it selects. */
 const SEPARATOR = ':';
