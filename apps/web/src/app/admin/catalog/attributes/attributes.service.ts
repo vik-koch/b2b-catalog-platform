@@ -17,44 +17,17 @@ import { safe, type ClientPromiseResult } from '@orpc/client';
 import { createOrpcClient } from '../../../shared/core/orpc-client';
 import { renderable } from '../../../shared/core/renderable';
 
-/**
- * A save the server refused, as its own code. The list looks the wording up in
- * the admin text, so nothing the server wrote reaches the screen.
- */
 export type AttributeResult =
   | { ok: true; definition: AttributeDefinition }
   | { ok: false; code: AttributeErrorCode };
 
 /**
- * The filterable-attribute registry client. Same discipline as
- * `TiersService`: the declared refusals (409 duplicate name or slug, 404 gone)
- * come back as typed results, and only the unexpected throws.
+ * The filterable-attribute client. The declared refusals come back as typed
+ * results; only the unexpected throws.
  */
 @Injectable({ providedIn: 'root' })
 export class AttributesService {
   private client = createOrpcClient(attributesContract);
-
-  /** A saved definition, or the code the server refused it with. */
-  private async saved<TError extends Error>(
-    call: ClientPromiseResult<AttributeDefinition, TError>,
-  ): Promise<AttributeResult> {
-    const result = await safe(call);
-    if (result.isDefined && renderable(result.error.code)) {
-      return { ok: false, code: result.error.code };
-    }
-    if (!result.isSuccess) throw result.error;
-    return { ok: true, definition: result.data };
-  }
-
-  /** A category's panel, or null when the category (or an attribute) is gone. */
-  private async panel<TError extends Error>(
-    call: ClientPromiseResult<CategoryFilters, TError>,
-  ): Promise<CategoryFilters | null> {
-    const result = await safe(call);
-    if (result.isDefined && renderable(result.error.code)) return null;
-    if (!result.isSuccess) throw result.error;
-    return result.data;
-  }
 
   async list(): Promise<AttributeDefinition[]> {
     return (await this.client.listAttributes()).definitions;
@@ -68,7 +41,18 @@ export class AttributesService {
     return this.saved(this.client.updateAttribute({ params: { id }, body }));
   }
 
-  /** Commits a whole filter-panel order; returns the list as stored. */
+  /** The stored row, or the code the server refused with. */
+  private async saved<TError extends Error>(
+    call: ClientPromiseResult<AttributeDefinition, TError>,
+  ): Promise<AttributeResult> {
+    const result = await safe(call);
+    if (result.isDefined && renderable(result.error.code)) {
+      return { ok: false, code: result.error.code };
+    }
+    if (!result.isSuccess) throw result.error;
+    return { ok: true, definition: result.data };
+  }
+
   async reorder(
     body: ReorderAttributesRequest,
   ): Promise<AttributeDefinition[]> {
@@ -85,7 +69,7 @@ export class AttributesService {
     return (await this.client.listAttributeValues({ query: { key } })).values;
   }
 
-  /** Rewrites a key on every product carrying it; returns how many rows moved. */
+  /** Rewrites a key on every product carrying it; answers how many changed. */
   async renameKey(body: RenameAttributeKeyRequest): Promise<number> {
     return (await this.client.renameAttributeKey({ body })).updated;
   }
@@ -114,6 +98,16 @@ export class AttributesService {
     return this.panel(this.client.resetCategoryFilters({ params: { slug } }));
   }
 
+  /** `null` when the category or one of the attributes is gone. */
+  private async panel<TError extends Error>(
+    call: ClientPromiseResult<CategoryFilters, TError>,
+  ): Promise<CategoryFilters | null> {
+    const result = await safe(call);
+    if (result.isDefined && renderable(result.error.code)) return null;
+    if (!result.isSuccess) throw result.error;
+    return result.data;
+  }
+
   /** The whole-catalogue listing's panel (FR-ATTR-12). */
   async catalogFilters(): Promise<CatalogFilters> {
     return this.client.getCatalogFilters();
@@ -129,10 +123,9 @@ export class AttributesService {
     return result.data;
   }
 
-  /**
-   * Deleting a definition only stops the attribute being filterable — no
-   * product data hangs off it — so the only refusal here is "already gone".
-   */
+  /** No product data hangs off a definition, so the one refusal is that it
+   * is already gone. */
+
   async remove(
     id: string,
   ): Promise<{ ok: true } | { ok: false; code: AttributeErrorCode }> {

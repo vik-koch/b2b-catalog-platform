@@ -20,6 +20,8 @@ import {
   ATTRIBUTE_TYPES,
 } from '@b2b-catalog-platform/shared/core/catalog';
 import { form, hidden, validate } from '@angular/forms/signals';
+import { fillText } from '@b2b-catalog-platform/shared';
+
 import {
   AttributeDefinition,
   SLUG_MAX_LENGTH,
@@ -57,7 +59,7 @@ import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
 import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
 import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
 
-/** The row currently in edit mode: a definition's id, or the new-attribute form. */
+/** The row open for editing; `{ id: null }` is the add form. */
 type EditTarget = { id: string } | { id: null } | null;
 
 interface AttributeDraft {
@@ -76,17 +78,10 @@ const blankAttribute = (): AttributeDraft => ({
 });
 
 /**
- * Filterable attributes (FR-ATTR-01) — which of the keys staff type into a
- * product's attribute grid the storefront offers as a filter.
- *
- * A definition is four fields, so rows edit in place and the add form is the
- * same markup with nothing in it — the tier list's shape, for the same reason.
- *
- * The counts on each row are the point of the screen as much as the fields
- * are: a name is matched against product attribute keys exactly, so a mistyped
- * definition matches nothing, and "0 products" here is the earliest anyone can
- * see it. For a number attribute the unparsed count is the second half of that
- * story — values that stay on the product page but drop out of the filter.
+ * The attribute keys the storefront offers as filters (FR-ATTR-01), edited in
+ * place. A name matches product keys exactly, so a row's counts are where a
+ * mistyped definition shows: "0 products", or for a number the values that
+ * do not parse and drop out of the filter.
  */
 @Component({
   selector: 'app-attribute-list-page',
@@ -127,9 +122,6 @@ const blankAttribute = (): AttributeDraft => ({
       </button>
     </ui-page-header>
 
-    <!-- Narrower than the heading above it: everything below is a column of
-         fields and rows to read down, not a table to scan across, and a line
-         that runs the full width of a desktop is a line nobody follows. -->
     <div class="max-w-3xl">
       @if (reorderError()) {
         <p uiErrorText class="mb-4" role="alert">
@@ -140,8 +132,6 @@ const blankAttribute = (): AttributeDraft => ({
       @if (definitions.error()) {
         <p class="text-ink-subtle" role="alert">{{ adminText.loadError }}</p>
       } @else if (definitions.hasValue()) {
-        <!-- Divided rules on the page, not a card: this is the same list of
-             records an admin grid draws on a phone. -->
         <div class="border-y border-edge">
           <ul
             class="divide-y divide-edge"
@@ -158,18 +148,10 @@ const blankAttribute = (): AttributeDraft => ({
                 [id]="rowId(definition.name)"
               >
                 @if (isEditing(definition.id)) {
-                  <ng-container
-                    [ngTemplateOutlet]="recordForm"
-                    class="bg-white"
-                  />
+                  <ng-container [ngTemplateOutlet]="recordForm" />
                 } @else {
                   <ui-record-row [compact]="true">
-                    <!-- Ordering is the filter panel's order and nothing else.
-                         A handle, not a pair of step buttons: the category
-                         list, the image gallery and the attribute grid itself
-                         are all dragged, and a button that has to disable
-                         itself at the ends of the list flickers through every
-                         reorder. -->
+                    <!-- The order is the filter panel's and nothing else. -->
                     <span
                       recordControl
                       cdkDragHandle
@@ -184,17 +166,9 @@ const blankAttribute = (): AttributeDraft => ({
                     <span class="font-medium text-ink">
                       {{ definition.name }}
                     </span>
-                    <!-- The URL key beside the name it belongs to: the two are
-                         read as a pair, not as two ends of the row. -->
                     <code class="rounded-sm bg-surface px-1.5 py-0.5 text-xs">
                       {{ definition.slug }}
                     </code>
-                    <!-- The two counts are the two ways out of this row: the
-                         products carrying the attribute, and what they spell
-                         it as — the inventory, which is what the glyph at the
-                         other end of the row used to open. Said as the count
-                         rather than as a symbol, and dead where there is
-                         nothing on the other side. -->
                     <ng-container recordMeta>
                       <span>
                         {{ typeLabel(definition) }} ·
@@ -254,8 +228,6 @@ const blankAttribute = (): AttributeDraft => ({
                       </button>
                     </ng-container>
                   </ui-record-row>
-                  <!-- Both notes are about the exact match, which is the one
-                     thing about this screen that surprises people. -->
                   @if (definition.productCount === 0) {
                     <ui-warning-note class="mt-2">
                       {{ text.noMatch }}
@@ -294,12 +266,7 @@ const blankAttribute = (): AttributeDraft => ({
         <ui-skeleton [lines]="4" />
       }
 
-      <!-- One form for both add and edit: a definition is the same four fields
-         either way, and only the request differs. -->
       <ng-template #recordForm>
-        <!-- Name and URL key across the top, since one is derived from the
-             other; the type below with the unit it measures beside it, which
-             is the pair that only exists together. One field per line below sm. -->
         <form uiRecordFields [formRoot]="form" (submit)="save()">
           <ui-field
             [field]="form.name"
@@ -342,8 +309,6 @@ const blankAttribute = (): AttributeDraft => ({
               </select>
             </ui-select-input>
           </ui-field>
-          <!-- A unit measures a quantity: a text attribute has none, and the
-             field would only invite "Blue cm". -->
           @if (draft().type === 'number') {
             <ui-field
               [field]="form.unit"
@@ -415,7 +380,6 @@ export class AttributeListPage {
   });
   protected readonly showSkeleton = delayedLoading(this.definitions.isLoading);
 
-  /** Which row is open for editing — `{ id: null }` is the add form. */
   protected readonly editing = signal<EditTarget>(null);
   protected readonly draft = signal<AttributeDraft>(blankAttribute());
   protected readonly form = form(
@@ -437,30 +401,25 @@ export class AttributeListPage {
     { name: 'attribute' },
   );
   protected readonly formError = signal<string | null>(null);
-  /** A refusal that belongs to a row rather than the form — a lost delete. */
+  /** A refusal that belongs to a row rather than the form: a lost delete. */
   protected readonly rowError = signal<{ id: string; message: string } | null>(
     null,
   );
   protected readonly busy = signal(false);
   protected readonly reorderError = signal(false);
 
-  /**
-   * Moves an attribute one place in the filter panel and commits immediately —
-   * the click *is* the save, so there is nothing to confirm.
-   */
+  /** The drop is the save, so there is nothing to confirm. */
   protected onDrop(event: CdkDragDrop<AttributeDefinition>): void {
     if (event.previousIndex === event.currentIndex) return;
     void this.move(event.previousIndex, event.currentIndex);
   }
 
-  protected async move(from: number, to: number): Promise<void> {
+  private async move(from: number, to: number): Promise<void> {
     const current = this.definitions.value();
     if (!current || to < 0 || to >= current.length) return;
 
     const ordered = [...current];
     moveItemInArray(ordered, from, to);
-    // Positions are re-numbered from zero on every move: the numbers carry no
-    // meaning of their own, only the sequence does.
     const order = ordered.map((definition, index) => ({
       id: definition.id,
       sortOrder: index,
@@ -490,15 +449,15 @@ export class AttributeListPage {
   }
 
   protected productsLabel(count: number): string {
-    return this.productsText.count.replace('{count}', String(count));
+    return fillText(this.productsText.count, { count });
   }
 
   protected valuesLabel(count: number): string {
-    return this.text.values.replace('{count}', String(count));
+    return fillText(this.text.values, { count });
   }
 
   protected unparsedLabel(count: number): string {
-    return this.text.unparsed.replace('{count}', String(count));
+    return fillText(this.text.unparsed, { count });
   }
 
   protected startAdd(): void {
@@ -540,8 +499,8 @@ export class AttributeListPage {
       name: draft.name.trim(),
       slug: slug || undefined,
       type: draft.type,
-      // Retyping to text drops the unit the server would drop anyway, so the
-      // form and the row agree the moment the save returns.
+      // The server drops a text attribute's unit too; sending null keeps the
+      // row and the form in step.
       unit: draft.type === 'number' ? draft.unit.trim() || null : null,
     };
 
@@ -555,8 +514,6 @@ export class AttributeListPage {
         this.reset();
         this.definitions.reload();
       } else {
-        // Which refusal, in the deployment's own words — a duplicate name is
-        // worth naming rather than a generic "could not save".
         this.formError.set(this.text.errors[result.code]);
       }
     } catch {
@@ -566,19 +523,14 @@ export class AttributeListPage {
     }
   }
 
-  /**
-   * Deleting is never blocked: no product data hangs off a definition, so this
-   * only stops the attribute being filterable. Confirmed all the same, because
-   * the storefront loses a filter the moment it happens.
-   */
+  /** Never blocked, but confirmed: the storefront loses a filter at once. */
   protected async remove(definition: AttributeDefinition): Promise<void> {
     this.rowError.set(null);
     const confirmed = await this.confirm.ask({
       heading: this.text.deleteConfirm.heading,
-      message: this.text.deleteConfirm.message.replace(
-        '{name}',
-        definition.name,
-      ),
+      message: fillText(this.text.deleteConfirm.message, {
+        name: definition.name,
+      }),
       confirmLabel: this.text.deleteConfirm.confirm,
       cancelLabel: this.text.deleteConfirm.cancel ?? this.actionText.cancel,
     });
@@ -605,12 +557,11 @@ export class AttributeListPage {
     }
   }
 
-  /** The definition to land on, from the URL — how the inventory hands a key
-   * back: "the shop filters by this, here is what it says". */
+  /** The definition to land on, from the URL: the inventory links back here. */
   readonly name = input('');
 
-  /** The DOM id a deep link scrolls to. Whitespace is all that has to go: an id
-   * may hold anything else, and collapsing more would let two names collide. */
+  /** Only whitespace goes: an id may hold anything else, and collapsing more
+   * would let two names collide. */
   protected rowId(name: string): string {
     return `definition-${name.replace(/\s+/g, '_')}`;
   }

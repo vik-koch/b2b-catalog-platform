@@ -6,23 +6,16 @@ import {
   TierInput,
 } from '@b2b-catalog-platform/shared/admin/catalog';
 import { tiersContract } from '../../contract-routes.generated';
-import { safe } from '@orpc/client';
+import { safe, type ClientPromiseResult } from '@orpc/client';
 import { createOrpcClient } from '../../../shared/core/orpc-client';
 import { renderable } from '../../../shared/core/renderable';
 
-/**
- * A save or delete the server refused. The refusal travels as the API's own
- * code; the list looks its wording up in the admin text, so nothing the server
- * wrote reaches the screen.
- */
 export type TierResult =
   { ok: true; tier: CustomerTier } | { ok: false; code: TierErrorCode };
 
 /**
- * The customer-tier admin client. Same discipline as `ProductsService`:
- * the declared refusals (409 duplicate key, 409 still-referenced, 404 gone)
- * come back as typed results the list can render next to the row, and only the
- * unexpected throws.
+ * The customer-tier client. The declared refusals come back as typed results
+ * the list can render next to the row; only the unexpected throws.
  */
 @Injectable({ providedIn: 'root' })
 export class TiersService {
@@ -32,12 +25,9 @@ export class TiersService {
     return this.client.listTiers();
   }
 
-  /**
-   * Moves the default badge. Not a `TierResult`: the answer is the whole list
-   * plus what the move cost, and the only refusal is a race on a tier that is
-   * already gone.
-   */
-  async setDefault(id: string): Promise<{
+  /** Moves the default badge. Answers with the whole list and how many
+   * products came off the storefront, so the screen need not reload. */
+  setDefault(id: string): Promise<{
     tiers: CustomerTier[];
     productCount: number;
     unpublished: number;
@@ -45,38 +35,32 @@ export class TiersService {
     return this.client.setDefaultTier({ params: { id } });
   }
 
-  async create(body: TierInput): Promise<TierResult> {
-    const { error, data, isDefined } = await safe(
-      this.client.createTier({ body }),
-    );
-    if (isDefined && renderable(error.code)) {
-      return { ok: false, code: error.code };
-    }
-    if (error) throw error;
-    return { ok: true, tier: data };
+  create(body: TierInput): Promise<TierResult> {
+    return this.saved(this.client.createTier({ body }));
   }
 
-  async update(id: string, body: TierInput): Promise<TierResult> {
-    const { error, data, isDefined } = await safe(
-      this.client.updateTier({ params: { id }, body }),
-    );
-    if (isDefined && renderable(error.code)) {
-      return { ok: false, code: error.code };
-    }
-    if (error) throw error;
-    return { ok: true, tier: data };
+  update(id: string, body: TierInput): Promise<TierResult> {
+    return this.saved(this.client.updateTier({ params: { id }, body }));
   }
 
-  /** Commits a whole display order; returns the list as stored. */
+  /** The stored row, or the code the server refused with. */
+  private async saved<TError extends Error>(
+    call: ClientPromiseResult<CustomerTier, TError>,
+  ): Promise<TierResult> {
+    const result = await safe(call);
+    if (result.isDefined && renderable(result.error.code)) {
+      return { ok: false, code: result.error.code };
+    }
+    if (!result.isSuccess) throw result.error;
+    return { ok: true, tier: result.data };
+  }
+
   async reorder(body: ReorderTiersRequest): Promise<CustomerTier[]> {
     return (await this.client.reorderTiers({ body })).tiers;
   }
 
-  /**
-   * The 409 here is the delete guard: accounts or prices still reference the
-   * tier. The list checks the same thing from the counts it already has, so
-   * reaching this means somebody else changed one in between.
-   */
+  /** The list checks the delete guard from its own counts first, so a
+   * refusal here means somebody changed one in between. */
   async remove(
     id: string,
   ): Promise<{ ok: true } | { ok: false; code: TierErrorCode }> {

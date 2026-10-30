@@ -8,6 +8,7 @@ import {
 import { NgTemplateOutlet } from '@angular/common';
 import { Component, computed, inject, resource, signal } from '@angular/core';
 import { disabled, form, validate } from '@angular/forms/signals';
+import { fillText } from '@b2b-catalog-platform/shared';
 import { TIER_KEY_MAX_LENGTH } from '@b2b-catalog-platform/shared/core/catalog';
 import {
   CustomerTier,
@@ -49,18 +50,10 @@ import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
 type EditTarget = { id: string } | { id: null } | null;
 
 /**
- * Customer tiers (FR-AUTH-05, admin side) — the deployment's price lists.
- *
- * A tier is two fields, so there is no editor screen: rows edit in place and
- * the add form is the same markup with nothing in it. That is the whole reason
- * this differs from categories and products, which have enough content to earn
- * a route of their own.
- *
- * Every list is a row here, the one the storefront quotes included: it is an
- * ordinary tier carrying a badge, renamed, rekeyed and priced like the rest.
- * Only two things separate it — it cannot be deleted, because every read path
- * resolves a price through it, and its account count is the customers with no
- * tier at all, which is the same state a guest is in.
+ * The price lists (FR-AUTH-05). A tier is two fields, so rows edit in place
+ * and the add form is the same markup, empty. The storefront's list is an
+ * ordinary row with a badge: it cannot be deleted, and its account count is
+ * the customers with no tier.
  */
 @Component({
   selector: 'app-tier-list-page',
@@ -99,9 +92,6 @@ type EditTarget = { id: string } | { id: null } | null;
       </button>
     </ui-page-header>
 
-    <!-- Narrower than the heading above it: everything below is a column of
-         fields and rows to read down, not a table to scan across, and a line
-         that runs the full width of a desktop is a line nobody follows. -->
     <div class="max-w-3xl">
       @if (reorderError()) {
         <p uiErrorText class="mb-4" role="alert">
@@ -112,9 +102,8 @@ type EditTarget = { id: string } | { id: null } | null;
       @if (tiers.error()) {
         <p class="text-ink-subtle" role="alert">{{ adminText.loadError }}</p>
       } @else if (tiers.hasValue()) {
-        <!-- Divided rules on the page, not a card: this is the same list of
-             records an admin grid draws on a phone, and two lists in one panel
-             that frame themselves differently read as two tools. -->
+        <!-- Rules, not a card: the same record list an admin grid draws on a
+             phone. -->
         <div class="divide-y divide-edge border-y border-edge">
           <ul
             class="divide-y divide-edge"
@@ -128,10 +117,6 @@ type EditTarget = { id: string } | { id: null } | null;
                   <ng-container [ngTemplateOutlet]="recordForm" />
                 } @else {
                   <ui-record-row [compact]="true">
-                    <!-- A handle, not a pair of step buttons: everything else
-                         in the panel that has an order is dragged, and a button
-                         that disables itself at the ends of the list flickers
-                         through every reorder. -->
                     <span
                       recordControl
                       cdkDragHandle
@@ -144,9 +129,6 @@ type EditTarget = { id: string } | { id: null } | null;
                       <ui-icon [glyph]="gripVerticalIcon" />
                     </span>
                     <span class="font-medium text-ink">{{ tier.label }}</span>
-                    <!-- The sync key beside the label it belongs to, not across
-                         the row: it is this tier's identifier, and read as a
-                         pair with the name it identifies. -->
                     <code class="rounded-sm bg-surface px-1.5 py-0.5 text-xs">
                       {{ tier.key }}
                     </code>
@@ -159,11 +141,6 @@ type EditTarget = { id: string } | { id: null } | null;
                         {{ text.defaultBadge }}
                       </span>
                     }
-                    <!-- Both counts are the ways out of the row: the accounts
-                         on this tier, and the products it prices — the second
-                         is what the glyph at the other end used to open, said
-                         as the figure itself. Dead where the tier prices
-                         nothing: that it is dead is the answer. -->
                     <ng-container recordMeta>
                       <span>
                         @if (tier.priceCount) {
@@ -178,10 +155,9 @@ type EditTarget = { id: string } | { id: null } | null;
                         } @else {
                           {{ pricesLabel(0) }}
                         }
-                        <!-- The other side of that count: what this list does
-                             not price. On the storefront's list those are the
-                             products nobody can publish; on any other they are
-                             the ones charged the storefront price. -->
+                        <!-- On the storefront's list these cannot be
+                             published; on any other they are charged the
+                             storefront price. -->
                         @if (unpricedCount(tier); as missing) {
                           ·
                           <a
@@ -207,8 +183,6 @@ type EditTarget = { id: string } | { id: null } | null;
                       </span>
                     </ng-container>
                     <ng-container recordActions>
-                      <!-- Only on a list that is not already the storefront's:
-                           there is nowhere for the badge to go from there. -->
                       @if (!tier.isDefault) {
                         <button
                           uiIconButton
@@ -221,10 +195,8 @@ type EditTarget = { id: string } | { id: null } | null;
                           <ui-icon [glyph]="eyeIcon" />
                         </button>
                       } @else {
-                        <!-- The badged list keeps the place rather than the
-                             control: with the glyph simply gone its row's
-                             buttons — and the counts they push against — sit a
-                             glyph's width off every other row in the list. -->
+                        <!-- Keeps the place, so this row's buttons line up
+                             with the others. -->
                         <span aria-hidden="true" class="inline-flex p-2 sm:p-1">
                           <span class="block size-5 sm:size-4"></span>
                         </span>
@@ -238,10 +210,8 @@ type EditTarget = { id: string } | { id: null } | null;
                       >
                         <ui-icon [glyph]="pencilIcon" />
                       </button>
-                      <!-- Present on the storefront's list too, and it
-                           explains rather than disappears: a control that is
-                           simply absent leaves the admin wondering whether the
-                           page is broken. -->
+                      <!-- On the storefront's list too: it explains why
+                           rather than vanishing. -->
                       <button
                         uiIconButton
                         variant="danger"
@@ -276,11 +246,6 @@ type EditTarget = { id: string } | { id: null } | null;
         <ui-skeleton [lines]="4" />
       }
 
-      <!-- One form for both add and edit: a tier is a name and a key either way,
-         and the only difference is which request the save makes. -->
-      <!-- How many accounts sit on a price list, and the way to them. The
-           base list says it too: it is a list like any other here, and the
-           only one nobody can edit. -->
       <ng-template #accounts let-count let-tier="tier">
         @if (count) {
           <a
@@ -297,9 +262,6 @@ type EditTarget = { id: string } | { id: null } | null;
       </ng-template>
 
       <ng-template #recordForm>
-        <!-- The label and the sync key it is stored under, side by side from
-             sm up and one per line below it — the same two-column form the
-             filterable attributes wear. -->
         <form uiRecordFields [formRoot]="form" (submit)="save()">
           <ui-field
             [field]="form.label"
@@ -315,11 +277,6 @@ type EditTarget = { id: string } | { id: null } | null;
               [formField]="form.label"
             />
           </ui-field>
-          <!-- Locked only on an existing list, and only while the catalog is
-               managed elsewhere: the key is that system's handle on this list.
-               A list being added has no handle yet, so the add form keeps the
-               field — it is how an admin answers a run that priced a key this
-               deployment does not have. -->
           <ui-field [field]="form.key" [label]="text.key" controlId="tier-key">
             <app-locked-field-marker uiFieldCaption [field]="form.key" />
             <input
@@ -388,19 +345,18 @@ export class TierListPage {
   protected readonly tiers = resource({ loader: () => this.service.list() });
   protected readonly showSkeleton = delayedLoading(this.tiers.isLoading);
 
-  /** Which row is open for editing — `{ id: null }` is the add form. */
+  /** `{ id: null }` is the add form. */
   protected readonly editing = signal<EditTarget>(null);
   private readonly draft = signal({ label: '', key: '' });
   protected readonly form = form(
     this.draft,
     (tier) => {
       filled(tier.label, this.text.labelRequired);
-      // The contract's rule, from its import-free parts.
       filled(tier.key, this.text.keyInvalid);
-      // The reason is what the key's lock says.
       disabled(tier.key, {
         when: () => this.keyLocked() && this.ownershipText.fieldLockedShort,
       });
+      // The contract's rule, from its import-free parts.
       validate(tier.key, ({ value }) => {
         const key = value().trim().normalize('NFC');
         return !key ||
@@ -412,7 +368,7 @@ export class TierListPage {
     { name: 'tier' },
   );
   protected readonly formError = signal<string | null>(null);
-  /** A refusal that belongs to a row rather than the form — a blocked delete. */
+  /** A refusal that belongs to a row rather than the form: a blocked delete. */
   protected readonly rowError = signal<{ id: string; message: string } | null>(
     null,
   );
@@ -420,10 +376,9 @@ export class TierListPage {
   protected readonly reorderError = signal(false);
 
   /**
-   * The sync key of a list that already exists, while an external system owns
-   * the catalog (FR-ADM-10). Nothing else on this screen locks: the label is
-   * what staff read, the order is display only, and adding or dropping a list
-   * writes no price.
+   * Only an existing list's key locks while the catalog is owned (FR-ADM-10):
+   * it is the source's handle on the list. A new list has none yet, so adding
+   * one is how an admin answers a run that priced an unknown key.
    */
   protected readonly keyLocked = computed(
     () =>
@@ -431,27 +386,18 @@ export class TierListPage {
       (this.settings.ownedAreas()?.includes('catalog') ?? false),
   );
 
-  /**
-   * Moves a tier one place and commits immediately — the click *is* the save,
-   * so there is nothing to confirm.
-   */
-  /**
-   * Moves a tier one place and commits immediately — the drop *is* the save,
-   * so there is nothing to confirm.
-   */
+  /** The drop is the save, so there is nothing to confirm. */
   protected onDrop(event: CdkDragDrop<CustomerTier>): void {
     if (event.previousIndex === event.currentIndex) return;
     void this.move(event.previousIndex, event.currentIndex);
   }
 
-  protected async move(from: number, to: number): Promise<void> {
+  private async move(from: number, to: number): Promise<void> {
     const current = this.tiers.value();
     if (!current || to < 0 || to >= current.tiers.length) return;
 
     const ordered = [...current.tiers];
     moveItemInArray(ordered, from, to);
-    // Positions are re-numbered from zero on every drop: the numbers carry no
-    // meaning of their own, only the sequence does.
     const order = ordered.map((tier, index) => ({
       id: tier.id,
       sortOrder: index,
@@ -470,22 +416,18 @@ export class TierListPage {
     }
   }
 
-  /**
-   * Moves the storefront's badge onto one list. The confirmation names what it
-   * costs first: products the new list does not price come off the storefront,
-   * and that figure is already on the row.
-   */
+  /** The confirmation names the cost first: the products the new list does
+   * not price come off the storefront. */
   protected async makeDefault(tier: CustomerTier): Promise<void> {
     this.rowError.set(null);
     const confirmed = await this.confirm.ask({
       heading: this.text.setDefaultConfirm.heading,
       message: [
-        this.text.setDefaultConfirm.message.replace('{name}', tier.label),
+        fillText(this.text.setDefaultConfirm.message, { name: tier.label }),
         tier.wouldUnpublish > 0
-          ? this.text.setDefaultWarning.replace(
-              '{count}',
-              String(tier.wouldUnpublish),
-            )
+          ? fillText(this.text.setDefaultWarning, {
+              count: tier.wouldUnpublish,
+            })
           : this.text.setDefaultNone,
       ].join(' '),
       confirmLabel: this.text.setDefaultConfirm.confirm,
@@ -497,18 +439,11 @@ export class TierListPage {
     try {
       const { tiers, productCount, unpublished } =
         await this.service.setDefault(tier.id);
-      // The move answers with the whole list, counts and badge included, so
-      // the screen takes it rather than asking for it again.
       this.tiers.set({ tiers, productCount });
       if (unpublished > 0) {
-        // Said afterwards as well: an admin who accepted the figure is owed
-        // the confirmation that it is what happened.
         this.rowError.set({
           id: tier.id,
-          message: this.text.setDefaultDone.replace(
-            '{count}',
-            String(unpublished),
-          ),
+          message: fillText(this.text.setDefaultDone, { count: unpublished }),
         });
       }
     } catch {
@@ -524,22 +459,18 @@ export class TierListPage {
   }
 
   protected accountsLabel(count: number): string {
-    return this.text.accounts.replace('{count}', String(count));
+    return fillText(this.text.accounts, { count });
   }
 
   protected pricesLabel(count: number): string {
-    return this.productsText.count.replace('{count}', String(count));
+    return fillText(this.productsText.count, { count });
   }
 
   protected unpricedLabel(count: number): string {
-    return this.text.unpriced.replace('{count}', String(count));
+    return fillText(this.text.unpriced, { count });
   }
 
-  /**
-   * How many live products this list does not price — the gap behind its own
-   * count. Two server figures subtracted rather than a third query: the list
-   * already carries both, and they are read together on the row.
-   */
+  /** The live products this list does not price. */
   protected unpricedCount(tier: CustomerTier): number {
     const total = this.tiers.value()?.productCount ?? 0;
     return Math.max(total - tier.priceCount, 0);
@@ -586,8 +517,6 @@ export class TierListPage {
         this.reset();
         this.tiers.reload();
       } else {
-        // Which refusal, in the deployment's own words — a duplicate sync key
-        // is worth naming rather than a generic "could not save".
         this.formError.set(this.text.errors[result.code]);
       }
     } catch {
@@ -597,16 +526,10 @@ export class TierListPage {
     }
   }
 
-  /**
-   * Deleting is refused while accounts or prices point at the tier. The counts
-   * are already on screen, so say so instead of asking for a confirmation the
-   * server is certain to reject.
-   */
+  /** The server's refusals, said from what the row already knows instead of
+   * asking for a confirmation it would reject. */
   protected async remove(tier: CustomerTier): Promise<void> {
     this.rowError.set(null);
-    // The same refusal the server makes, said here because the row already
-    // knows: this is the list the storefront quotes, and it is moved, never
-    // removed.
     if (tier.isDefault) {
       this.rowError.set({
         id: tier.id,
@@ -623,18 +546,20 @@ export class TierListPage {
     if (reasons.length > 0) {
       this.rowError.set({
         id: tier.id,
-        message: this.text.deleteBlocked
-          .replace('{name}', tier.label)
-          .replace('{reason}', reasons.join(', ')),
+        message: fillText(this.text.deleteBlocked, {
+          name: tier.label,
+          reason: reasons.join(', '),
+        }),
       });
       return;
     }
 
     const confirmed = await this.confirm.ask({
       heading: this.text.deleteConfirm.heading,
-      message: this.text.deleteConfirm.message
-        .replace('{name}', tier.label)
-        .replace('{key}', tier.key),
+      message: fillText(this.text.deleteConfirm.message, {
+        name: tier.label,
+        key: tier.key,
+      }),
       confirmLabel: this.text.deleteConfirm.confirm,
       cancelLabel: this.text.deleteConfirm.cancel ?? this.actionText.cancel,
     });

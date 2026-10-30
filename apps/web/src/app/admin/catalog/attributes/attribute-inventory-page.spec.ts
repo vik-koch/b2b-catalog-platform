@@ -4,6 +4,7 @@ import { Location } from '@angular/common';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, withComponentInputBinding } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
+import { fillText } from '@b2b-catalog-platform/shared';
 import {
   AttributeKeyUsage,
   AttributeValueUsage,
@@ -292,9 +293,7 @@ describe('AttributeInventoryPage', () => {
 
     expect(confirm.ask).toHaveBeenCalledWith(
       expect.objectContaining({
-        message: text.renameConfirm
-          .replace('{from}', 'Lenght')
-          .replace('{to}', 'Length'),
+        message: fillText(text.renameConfirm, { from: 'Lenght', to: 'Length' }),
       }),
     );
     expect(service.renameKey).toHaveBeenCalledWith({
@@ -317,11 +316,9 @@ describe('AttributeInventoryPage', () => {
     expect(confirm.ask).toHaveBeenCalledWith(
       expect.objectContaining({
         message:
-          text.renameConfirm
-            .replace('{from}', 'Lenght')
-            .replace('{to}', 'Length') +
+          fillText(text.renameConfirm, { from: 'Lenght', to: 'Length' }) +
           ' ' +
-          text.renameDeleted.replace('{count}', '2'),
+          fillText(text.renameDeleted, { count: 2 }),
       }),
     );
   });
@@ -337,9 +334,7 @@ describe('AttributeInventoryPage', () => {
 
     expect(confirm.ask).toHaveBeenCalledWith(
       expect.objectContaining({
-        message: text.mergeConfirm
-          .replace('{from}', 'colour')
-          .replace('{to}', 'Colour'),
+        message: fillText(text.mergeConfirm, { from: 'colour', to: 'Colour' }),
       }),
     );
   });

@@ -19,7 +19,9 @@ import {
   CategoryFilter,
   CategoryFilters,
 } from '@b2b-catalog-platform/shared/admin/catalog';
+import { fillText } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../../shared/config/admin-text';
+
 import { usePageSeo } from '../../../shared/core/page-seo';
 import { delayedLoading } from '../../../shared/core/delayed-loading';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
@@ -40,10 +42,9 @@ import { gripVerticalIcon } from '@b2b-catalog-platform/ui/icons/glyphs/grip-ver
 import { saveIcon } from '@b2b-catalog-platform/ui/icons/glyphs/save';
 import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
 
-/** Where the panel closes to when it was not opened from anywhere in-app. */
+/** Where the panel closes to when it was not opened from in the app. */
 const FALLBACK_RETURN = '/admin/categories';
 
-/** Either panel this screen edits: a category's, or the whole catalogue's. */
 type Panel = CategoryFilters | CatalogFilters;
 
 function isCategoryPanel(panel: Panel): panel is CategoryFilters {
@@ -51,25 +52,12 @@ function isCategoryPanel(panel: Panel): panel is CategoryFilters {
 }
 
 /**
- * One category's filter panel (FR-ATTR-11) — which filterable attributes it
- * offers, and in what order.
- *
- * Every definition is listed, offered or not: an attribute has to be placeable
- * before any product carries it, and one declared after this panel was saved
- * would otherwise be missing with nothing to say so. The product count carries
- * the judgement — an attribute no product here carries renders no facet
- * whatever this screen says, so the rows worth touching are the ones with a
- * count.
- *
- * Order and the checkboxes are one draft and one save, unlike the registry's
- * drag-to-commit: saving here is not a reorder, it is the moment a category
- * stops following its parent. Saving and cancelling both close the panel back
- * to wherever it was opened from — the storefront grid as often as the admin
- * list. Resetting to the inherited list does not: it is an edit to this
- * screen's own subject, and the result is what the screen then shows.
- *
- * Without a category it edits the whole-catalogue listing's panel
- * (FR-ATTR-12) — the same list, with nothing to inherit or reset to.
+ * A category's filter panel (FR-ATTR-11), or without one the whole catalogue's
+ * (FR-ATTR-12). Every definition is listed, so one can be placed before any
+ * product carries it. Order and ticks are one draft and one save, unlike the
+ * attribute list's drag-to-commit: saving is when a category stops following
+ * its parent. Save and cancel close back to where the panel was opened;
+ * reset stays, since its result is what the screen shows next.
  */
 @Component({
   selector: 'app-category-filters-page',
@@ -91,10 +79,7 @@ function isCategoryPanel(panel: Panel): panel is CategoryFilters {
   ],
   template: `
     <div class="mb-4 flex items-start justify-between gap-4">
-      <!-- The category is in the heading, so the heading waits for it: drawing
-           "Filters" first and growing it into "Filters in Coffee" a moment
-           later reads as the page changing its mind. A bar of the same height
-           holds the row instead. -->
+      <!-- The heading names the category, so it waits for it behind a bar. -->
       @if (loaded(); as panel) {
         <h1 uiPageTitle>
           {{ headingFor(panel) }}
@@ -116,9 +101,7 @@ function isCategoryPanel(panel: Panel): panel is CategoryFilters {
         <p class="text-ink-subtle" role="alert">{{ adminText.loadError }}</p>
       } @else if (filters.hasValue()) {
         @if (loaded(); as panel) {
-          <!-- Where the list comes from is the first thing to read: an
-               inherited panel looks identical to an owned one until it is
-               saved, and only this line tells them apart. -->
+          <!-- The one line that tells an inherited panel from an owned one. -->
           @if (sourceLabel(panel); as source) {
             <p class="mb-6 text-sm text-ink-subtle">{{ source }}</p>
           } @else {
@@ -128,8 +111,6 @@ function isCategoryPanel(panel: Panel): panel is CategoryFilters {
           @if (draft().length === 0) {
             <p class="text-sm text-ink-subtle">{{ text.noDefinitions }}</p>
           } @else {
-            <!-- Divided rules on the page, not a card: this is the same list
-                 of records the rest of the panel draws. -->
             <div class="border-y border-edge">
               <ul
                 class="divide-y divide-edge"
@@ -140,9 +121,6 @@ function isCategoryPanel(panel: Panel): panel is CategoryFilters {
                 @for (filter of draft(); track filter.attributeId) {
                   <li class="py-3" cdkDrag>
                     <ui-record-row>
-                      <!-- Whether the panel offers this filter at all is the
-                           one thing done to the row, so it leads it — where the
-                           other lists put their grip. -->
                       <input
                         recordControl
                         type="checkbox"
@@ -267,14 +245,12 @@ export class CategoryFiltersPage {
   protected readonly xIcon = xIcon;
   private readonly service = inject(AttributesService);
   private readonly confirm = inject(ConfirmService);
-  /** Back where the panel was opened from — the grid, or the category list. */
   private readonly returnTo = injectEditorReturn();
   protected readonly text = inject(ADMIN_TEXT).categories.filters;
   protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly actionText = inject(SHARED_TEXT).actions;
 
-  /** The category being edited, from the route — absent for the whole
-   * catalogue's panel. */
+  /** Absent for the whole catalogue's panel. */
   readonly slug = input<string>();
 
   protected readonly isCategoryPanel = isCategoryPanel;
@@ -287,13 +263,11 @@ export class CategoryFiltersPage {
         : this.service.catalogFilters(),
   });
   protected readonly showSkeleton = delayedLoading(this.filters.isLoading);
-  /** Null where the slug names no category — the resource itself succeeded. */
+  /** Null where the slug names no category: the resource itself succeeded. */
   protected readonly loaded = computed(() => this.filters.value() ?? null);
 
-  /**
-   * The edited list. Seeded from whatever the server resolved, inherited panel
-   * included: editing an inherited list is how a category is given its own.
-   */
+  /** Seeded from the resolved panel, inherited or not: editing an inherited
+   * list is how a category gets its own. */
   private readonly edited = signal<CategoryFilter[] | null>(null);
   private readonly loadedFilters = computed(() => this.loaded()?.filters ?? []);
   protected readonly draft = computed(
@@ -323,19 +297,17 @@ export class CategoryFiltersPage {
 
   protected headingFor(panel: Panel): string {
     return isCategoryPanel(panel)
-      ? this.text.heading.replace('{category}', panel.category.name)
+      ? fillText(this.text.heading, { category: panel.category.name })
       : this.text.catalogHeading;
   }
 
-  /** What a refused save or a missing subject says — the category is gone,
-   * or, for the whole catalogue, one of the attributes is. */
+  /** The category is gone, or for the whole catalogue one of the attributes. */
   protected notFound(): string {
     return this.slug()
       ? this.text.errors['category-not-found']
       : this.text.errors['attribute-not-found'];
   }
 
-  /** Leaves without saving. Same target as a save, so both close the same way. */
   protected cancel(): void {
     void this.returnTo(FALLBACK_RETURN);
   }
@@ -343,21 +315,18 @@ export class CategoryFiltersPage {
   /** Null for the whole catalogue, whose list comes from nowhere else. */
   protected sourceLabel(panel: Panel): string | null {
     if (!isCategoryPanel(panel)) return null;
-    return this.text.sources[panel.source].replace(
-      '{category}',
-      panel.inheritedFrom?.name ?? '',
-    );
+    return fillText(this.text.sources[panel.source], {
+      category: panel.inheritedFrom?.name ?? '',
+    });
   }
 
-  /** What a count's link narrows the grid to besides the key: this
-   * category's subtree, or nothing across the catalogue (null drops the
-   * parameter). */
+  /** Null drops the parameter from a count's link. */
   protected categoryIdOf(panel: Panel): string | null {
     return isCategoryPanel(panel) ? panel.category.id : null;
   }
 
   protected productsLabel(count: number): string {
-    return this.text.products.replace('{count}', String(count));
+    return fillText(this.text.products, { count });
   }
 
   protected toggle(filter: CategoryFilter): void {
@@ -379,7 +348,7 @@ export class CategoryFiltersPage {
     });
   }
 
-  /** Every edit clears the last save's outcome: it no longer describes this list. */
+  /** Every edit clears the last outcome: it no longer describes this list. */
   private edit(change: (list: CategoryFilter[]) => CategoryFilter[]): void {
     this.wasReset.set(false);
     this.error.set(null);
@@ -415,10 +384,8 @@ export class CategoryFiltersPage {
     }
   }
 
-  /**
-   * Confirmed, unlike a save: dropping the overlay also changes every
-   * subcategory that was following this one, which is not visible from here.
-   */
+  /** Confirmed, unlike a save: it also changes every subcategory following
+   * this one, which this screen does not show. */
   protected async reset(): Promise<void> {
     const slug = this.slug();
     if (!slug) return;
