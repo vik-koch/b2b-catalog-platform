@@ -12,11 +12,11 @@ import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
 import { AutoGrow } from '@b2b-catalog-platform/ui/inputs/auto-grow';
 import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
 import { Input } from '@b2b-catalog-platform/ui/inputs/input';
-import { ProductAvailabilityBadge } from '../buying/product-availability-badge';
+import { ProductAvailabilityBadge } from '../ui/product-availability-badge';
 import { ProductBuyControls } from '../buying/product-buy-controls';
 import { ProductPairings } from '../buying/product-pairings';
-import { ProductSetBadge } from '../buying/product-set-badge';
-import { ProductUnitFacts } from '../buying/product-unit-facts';
+import { ProductSetBadge } from '../ui/product-set-badge';
+import { ProductUnitFacts } from '../ui/product-unit-facts';
 import { useTaxStatement } from '../pricing/tax-statement';
 import { Card } from '@b2b-catalog-platform/ui/content/card';
 

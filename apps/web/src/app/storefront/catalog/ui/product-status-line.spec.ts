@@ -5,7 +5,7 @@ import { TestBed } from '@angular/core/testing';
 import { ProductAvailability } from '@b2b-catalog-platform/shared/core/catalog';
 import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
 import { defaultStorefrontText } from '../../../shared/config/storefront-text.fixture';
-import { ProductSetBadge } from '../../../core/catalog/buying/product-set-badge';
+import { ProductSetBadge } from '../../../core/catalog/ui/product-set-badge';
 import { anyStatus, ProductStatusLine } from './product-status-line';
 
 const text = defaultStorefrontText.catalog;

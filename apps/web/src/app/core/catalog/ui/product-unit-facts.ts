@@ -5,7 +5,7 @@ import {
 } from '@b2b-catalog-platform/shared/core/catalog';
 import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
 import { SHARED_TEXT } from '../../../shared/config/shared-text';
-import { useProductUnits } from './product-units-view';
+import { useProductUnits } from '../buying/product-units-view';
 
 /**
  * The minimum order and the packaging, worded alike on a tile and the product

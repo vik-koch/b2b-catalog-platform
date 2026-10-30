@@ -1,12 +1,12 @@
-import { SHARED_TEXT } from '../../../shared/config/shared-text';
-import { defaultSharedText } from '../../../shared/config/shared-text.fixture';
+import { SHARED_TEXT } from '../../../../shared/config/shared-text';
+import { defaultSharedText } from '../../../../shared/config/shared-text.fixture';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import {
   ProductImage,
   ProductVariant,
 } from '@b2b-catalog-platform/shared/core/catalog';
-import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
-import { defaultStorefrontText } from '../../../shared/config/storefront-text.fixture';
+import { STOREFRONT_TEXT } from '../../../../shared/config/storefront-text';
+import { defaultStorefrontText } from '../../../../shared/config/storefront-text.fixture';
 import { ProductVariantGallery } from './product-variant-gallery';
 
 const text = defaultStorefrontText.catalog.variants;

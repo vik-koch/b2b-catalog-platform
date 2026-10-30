@@ -11,7 +11,7 @@ import { fillText } from '@b2b-catalog-platform/shared';
 import { ProductImage } from '@b2b-catalog-platform/shared/core/catalog';
 
 import { swipeStep, touchX } from '@b2b-catalog-platform/ui/core/swipe';
-import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
+import { STOREFRONT_TEXT } from '../../../../shared/config/storefront-text';
 import { ShowMoreToggle } from '@b2b-catalog-platform/ui/disclosure/show-more-toggle';
 import { ImagePlaceholder } from '@b2b-catalog-platform/ui/content/image-placeholder';
 import { Frame } from '@b2b-catalog-platform/ui/content/frame';

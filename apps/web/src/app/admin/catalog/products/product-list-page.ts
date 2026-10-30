@@ -73,7 +73,7 @@ import {
   PRODUCT_FEATURE_GLYPHS,
   ProductFeatureGlyphs,
 } from './product-feature-glyphs';
-import { AVAILABILITY_TONES } from '../../../core/catalog/buying/product-availability-badge';
+import { AVAILABILITY_TONES } from '../../../core/catalog/ui/product-availability-badge';
 import { plusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/plus';
 import { ProductStateBadge, productState } from '../ui/product-state-badge';
 

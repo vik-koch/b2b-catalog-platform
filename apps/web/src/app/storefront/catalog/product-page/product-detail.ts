@@ -13,7 +13,7 @@ import {
   PRODUCT_PAGE_COLUMNS,
   PRODUCT_PAGE_SECTION_CELL,
   ProductDetailView,
-} from '../../../core/catalog/product-page/product-detail-view';
+} from '../../../core/catalog/product-page/ui/product-detail-view';
 import { AuthService } from '../../../shared/auth/auth.service';
 import { SHARED_TEXT } from '../../../shared/config/shared-text';
 import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';

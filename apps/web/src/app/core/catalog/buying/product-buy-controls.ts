@@ -37,9 +37,9 @@ import {
 } from '@b2b-catalog-platform/ui/choices/segment';
 import { SegmentGroup } from '@b2b-catalog-platform/ui/choices/segment-group';
 import { createBuyQuantity } from './buy-quantity';
-import { ProductNoteEditor } from './product-note-editor';
+import { ProductNoteEditor } from './ui/product-note-editor';
 import { ProductPairings } from './product-pairings';
-import { ProductUnitFacts } from './product-unit-facts';
+import { ProductUnitFacts } from '../ui/product-unit-facts';
 import { useProductUnits } from './product-units-view';
 import { WarningNote } from '@b2b-catalog-platform/ui/content/warning-note';
 import { FirstRender } from '../../../shared/core/first-render';

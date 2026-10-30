@@ -1,12 +1,12 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { fillText } from '@b2b-catalog-platform/shared';
 import { PublicDocument } from '@b2b-catalog-platform/shared/core/catalog';
-import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
-import { SHARED_TEXT } from '../../../shared/config/shared-text';
+import { STOREFRONT_TEXT } from '../../../../shared/config/storefront-text';
+import { SHARED_TEXT } from '../../../../shared/config/shared-text';
 import {
   documentFileCaption,
   documentLinkHost,
-} from '../../../shared/core/document-file';
+} from '../../../../shared/core/document-file';
 import { DocumentLink } from '@b2b-catalog-platform/ui/content/document-link';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Glyph } from '@b2b-catalog-platform/ui/icons/glyph';

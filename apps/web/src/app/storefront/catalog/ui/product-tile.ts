@@ -3,7 +3,7 @@ import { RouterLink } from '@angular/router';
 import { ProductListItem } from '@b2b-catalog-platform/shared/core/catalog';
 import { Frame } from '@b2b-catalog-platform/ui/content/frame';
 import { ProductBuyControls } from '../../../core/catalog/buying/product-buy-controls';
-import { ProductUnitFacts } from '../../../core/catalog/buying/product-unit-facts';
+import { ProductUnitFacts } from '../../../core/catalog/ui/product-unit-facts';
 import {
   NARROW_BODY_IN_GRID,
   NARROW_PADDING_IN_GRID,

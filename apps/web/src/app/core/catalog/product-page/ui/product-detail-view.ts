@@ -18,10 +18,10 @@ import {
   formatAttributeValue,
   ProductDetail,
 } from '@b2b-catalog-platform/shared/core/catalog';
-import { EDIT_ACTIONS_INSET } from '../../../shared/edit-mode/edit-actions';
-import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
-import { SHARED_TEXT } from '../../../shared/config/shared-text';
-import { trustedRichText } from '../../../shared/core/trusted-rich-text';
+import { EDIT_ACTIONS_INSET } from '../../../../shared/edit-mode/edit-actions';
+import { STOREFRONT_TEXT } from '../../../../shared/config/storefront-text';
+import { SHARED_TEXT } from '../../../../shared/config/shared-text';
+import { trustedRichText } from '../../../../shared/core/trusted-rich-text';
 import { disclosureState } from '@b2b-catalog-platform/ui/disclosure/disclosure-state';
 import { ShowMoreToggle } from '@b2b-catalog-platform/ui/disclosure/show-more-toggle';
 import {
@@ -31,11 +31,11 @@ import {
 import { SectionTitle } from '@b2b-catalog-platform/ui/content/section-title';
 import { Link } from '@b2b-catalog-platform/ui/actions/link';
 import { TextButton } from '@b2b-catalog-platform/ui/actions/text-button';
-import { ProductBuyBlock } from './product-buy-block';
+import { ProductBuyBlock } from '../product-buy-block';
 import { ProductDocuments } from './product-documents';
 import { ProductVariantGallery } from './product-variant-gallery';
 import { ProductVariantList } from './product-variant-list';
-import { useProductUnits } from '../buying/product-units-view';
+import { useProductUnits } from '../../buying/product-units-view';
 
 /**
  * The product page's band: photo, main facts, buying panel; the readings go

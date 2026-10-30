@@ -22,7 +22,7 @@ import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { DialogActions } from '@b2b-catalog-platform/ui/overlay/dialog-actions';
 import { DialogPanel } from '@b2b-catalog-platform/ui/overlay/dialog-panel';
 import { Popover } from '@b2b-catalog-platform/ui/overlay/popover';
-import { ProductVariantGallery } from '../../../core/catalog/product-page/product-variant-gallery';
+import { ProductVariantGallery } from '../../../core/catalog/product-page/ui/product-variant-gallery';
 import { SHARED_TEXT } from '../../../shared/config/shared-text';
 import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
 
