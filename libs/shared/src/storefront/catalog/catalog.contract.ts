@@ -8,10 +8,10 @@ import {
 } from '../../core/catalog/attribute-value';
 import {
   PRODUCT_SORTS,
-  SEARCH_QUERY_MAX_LENGTH,
   SEARCH_SORTS,
   SearchSort,
-} from '../../core/catalog/catalog-constants';
+} from '../../core/catalog/product-sort';
+import { SEARCH_QUERY_MAX_LENGTH } from '../../core/catalog/search';
 import {
   attributeTypeSchema,
   type CatalogImage,

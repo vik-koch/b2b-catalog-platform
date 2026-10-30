@@ -1,13 +1,11 @@
 import { oc } from '@orpc/contract';
 import * as z from 'zod';
-import {
-  CATEGORY_NAME_MAX_LENGTH,
-  SOURCE_ID_MAX_LENGTH,
-} from '../../core/catalog/catalog-constants';
+import { CATEGORY_NAME_MAX_LENGTH } from '../../core/catalog/categories';
+import { SOURCE_ID_MAX_LENGTH } from '../../core/catalog/products';
 import { commonAuthErrors } from '../../lib/core/api-error';
 import { ownershipErrors } from '../../sync/ownership-constants';
 import { catalogImageSchema } from '../../core/catalog/catalog.contract';
-import { slugSchema } from '../../core/catalog/slug';
+import { slugSchema } from '../../core/catalog/slug.contract';
 import { CATALOG_ERRORS } from './catalog-errors';
 
 /**

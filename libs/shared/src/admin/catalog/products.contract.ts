@@ -1,8 +1,6 @@
 import { oc } from '@orpc/contract';
 import * as z from 'zod';
 import {
-  PRODUCT_ATTRIBUTE_KEY_MAX_LENGTH,
-  PRODUCT_ATTRIBUTE_VALUE_MAX_LENGTH,
   PRODUCT_ATTRIBUTES_MAX,
   PRODUCT_DESCRIPTION_MAX_LENGTH,
   PRODUCT_IMAGES_MAX,
@@ -11,7 +9,7 @@ import {
   PRODUCT_PAIRINGS_MAX,
   PRODUCT_TIER_PRICES_MAX,
   SOURCE_ID_MAX_LENGTH,
-} from '../../core/catalog/catalog-constants';
+} from '../../core/catalog/products';
 import { commonAuthErrors } from '../../lib/core/api-error';
 import { ownershipErrors } from '../../sync/ownership-constants';
 import {
@@ -21,10 +19,8 @@ import {
   priceMinorSchema,
   productAttributeSchema,
 } from '../../core/catalog/catalog.contract';
-import {
-  SEARCH_QUERY_MAX_LENGTH,
-  SEARCH_SORTS,
-} from '../../core/catalog/catalog-constants';
+import { SEARCH_SORTS } from '../../core/catalog/product-sort';
+import { SEARCH_QUERY_MAX_LENGTH } from '../../core/catalog/search';
 import {
   hiddenProductSchema,
   productPageSchema,
@@ -53,7 +49,7 @@ import {
   PRODUCT_VARIANT_NAME_MAX_LENGTH,
   PRODUCT_VARIANTS_MAX,
 } from '../../core/catalog/product-variants';
-import { slugSchema } from '../../core/catalog/slug';
+import { slugSchema } from '../../core/catalog/slug.contract';
 import { taxRateSchema } from '../../lib/config/tax-config';
 import { CATALOG_ERRORS } from './catalog-errors';
 
@@ -92,8 +88,8 @@ export const boxDimensionInputSchema = z
  * the read contract trusts stored data, the write contract validates input.
  */
 const attributeInputSchema = productAttributeSchema.extend({
-  key: z.string().trim().max(PRODUCT_ATTRIBUTE_KEY_MAX_LENGTH),
-  value: z.string().trim().max(PRODUCT_ATTRIBUTE_VALUE_MAX_LENGTH),
+  key: z.string().trim().max(ATTRIBUTE_NAME_MAX_LENGTH),
+  value: z.string().trim().max(ATTRIBUTE_VALUE_MAX_LENGTH),
 });
 
 /**

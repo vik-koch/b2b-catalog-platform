@@ -20,11 +20,11 @@ import {
 import { machineAuthErrors } from './machine.contract';
 import { priceMinorSchema } from '../core/catalog/catalog.contract';
 import { taxRateSchema } from '../lib/config/tax-config';
+import { CATEGORY_NAME_MAX_LENGTH } from '../core/catalog/categories';
 import {
-  CATEGORY_NAME_MAX_LENGTH,
   PRODUCT_NAME_MAX_LENGTH,
   SOURCE_ID_MAX_LENGTH,
-} from '../core/catalog/catalog-constants';
+} from '../core/catalog/products';
 import { TIER_KEY_MAX_LENGTH } from '../core/catalog/tier-constants';
 
 /**

@@ -4,7 +4,7 @@ import {
   RICH_TEXT_LINK_SCHEMES,
   RICH_TEXT_TAGS,
 } from '../lib/site/page-constants';
-import { PRODUCT_RICH_TEXT_TAGS } from '../core/catalog/catalog.contract';
+import { PRODUCT_RICH_TEXT_TAGS } from '../core/catalog/products';
 import {
   MEDIA_MAX_IMAGE_WIDTH,
   MEDIA_URL_PREFIX,

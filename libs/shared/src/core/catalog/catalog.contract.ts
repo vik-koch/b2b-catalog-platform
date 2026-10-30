@@ -227,28 +227,6 @@ export type ProductDetailAttribute = z.infer<
 >;
 
 /**
- * The rich-text vocabulary a product description may use — the static-page set
- * (`RICH_TEXT_TAGS`) minus headings, links and images: paragraphs, inline
- * emphasis (bold/italic/underline/strike), lists, block quotes and a divider.
- * Declared here as the shared contract; the sanitizer that enforces it lives
- * with the product editor (FR-ADM). On the read path the stored HTML is already
- * trusted, same as pages.
- */
-export const PRODUCT_RICH_TEXT_TAGS = [
-  'p',
-  'br',
-  'strong',
-  'em',
-  'u',
-  's',
-  'ul',
-  'ol',
-  'li',
-  'blockquote',
-  'hr',
-] as const;
-
-/**
  * An optional admin-set nickname, shown wherever the owning parent category is
  * already on screen — subcategory tiles and chips, breadcrumbs.
  */

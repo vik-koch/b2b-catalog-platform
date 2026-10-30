@@ -1,5 +1,5 @@
 import { productInputSchema } from './products.contract';
-import { PRODUCT_PAIRINGS_MAX } from '../../core/catalog/catalog-constants';
+import { PRODUCT_PAIRINGS_MAX } from '../../core/catalog/products';
 
 /** The minimum a product needs; packaging fields all have defaults. */
 const base = {

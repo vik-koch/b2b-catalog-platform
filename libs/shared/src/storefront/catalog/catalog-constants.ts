@@ -3,7 +3,7 @@
  * listing component does not pull Zod into the first load.
  */
 
-import { PRODUCT_SORTS } from '../../core/catalog/catalog-constants';
+import { PRODUCT_SORTS } from '../../core/catalog/product-sort';
 
 /**
  * The same, plus by category — a browsed listing's default: grouped in the
