@@ -11,7 +11,7 @@ import { ADMIN_CATALOG_PAGE_SIZE } from '@b2b-catalog-platform/shared/admin/cata
 import { fillText } from '@b2b-catalog-platform/shared';
 import {
   AdminProductListItem,
-  DocumentProduct,
+  LinkedProduct,
 } from '@b2b-catalog-platform/shared/admin/catalog';
 import { ADMIN_TEXT } from '../../../shared/config/admin-text';
 import { debounced } from '@b2b-catalog-platform/ui/core/debounced';
@@ -178,8 +178,8 @@ export class DocumentProductsPicker {
   protected readonly text = inject(ADMIN_TEXT).documents.editor.products;
   protected readonly productStates = inject(ADMIN_TEXT).products;
 
-  readonly value = input.required<readonly DocumentProduct[]>();
-  readonly valueChange = output<DocumentProduct[]>();
+  readonly value = input.required<readonly LinkedProduct[]>();
+  readonly valueChange = output<LinkedProduct[]>();
 
   protected readonly view = signal<View>('all');
   protected readonly query = signal('');
@@ -238,21 +238,21 @@ export class DocumentProductsPicker {
   });
 
   /** One shape for both views, so the row template does not branch. */
-  protected readonly rows = computed<
-    (DocumentProduct & { category: string })[]
-  >(() => {
-    const names = this.categoryName();
-    if (this.view() === 'linked') return this.linkedRows();
-    return (this.products.value()?.items ?? [])
-      .filter((item: AdminProductListItem) => item.deletedAt === null)
-      .map((item: AdminProductListItem) => ({
-        slug: item.slug,
-        name: item.name,
-        deleted: false,
-        unpublished: item.publishedAt === null,
-        category: names.get(item.categoryId) ?? '',
-      }));
-  });
+  protected readonly rows = computed<(LinkedProduct & { category: string })[]>(
+    () => {
+      const names = this.categoryName();
+      if (this.view() === 'linked') return this.linkedRows();
+      return (this.products.value()?.items ?? [])
+        .filter((item: AdminProductListItem) => item.deletedAt === null)
+        .map((item: AdminProductListItem) => ({
+          slug: item.slug,
+          name: item.name,
+          deleted: false,
+          unpublished: item.publishedAt === null,
+          category: names.get(item.categoryId) ?? '',
+        }));
+    },
+  );
 
   /**
    * The linked view is drawn from the value, not from a query: a product that
@@ -260,7 +260,7 @@ export class DocumentProductsPicker {
    * still has to be unlinkable. Narrowed by the search box for the same reason
    * the other view is — thirty ticks are easier to find one in when typed at.
    */
-  private linkedRows(): (DocumentProduct & { category: string })[] {
+  private linkedRows(): (LinkedProduct & { category: string })[] {
     const terms = this.layout
       .readings(this.debouncedQuery().trim())
       .map((term) => term.toLocaleLowerCase());

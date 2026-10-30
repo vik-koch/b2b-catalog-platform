@@ -9,7 +9,7 @@ import {
 import {
   AdminProduct,
   LinkedDocument,
-  PairedProduct,
+  LinkedProduct,
   ProductTierPrice,
 } from '@b2b-catalog-platform/shared/admin/catalog';
 import { DRIZZLE } from '../../../db/database.module';
@@ -202,7 +202,7 @@ export class ProductRecords {
    * is not: the `case` picks the other end, and the `or` is what makes the
    * table read the same from both products.
    */
-  private async pairingsFor(productId: string): Promise<PairedProduct[]> {
+  private async pairingsFor(productId: string): Promise<LinkedProduct[]> {
     const counterpartId = counterpartOf(productId);
     const rows = await this.db
       .select({
@@ -259,7 +259,7 @@ export function toAdminProduct(
   row: ProductRow,
   tierPrices: ProductTierPrice[],
   attributes: StoredAttribute[],
-  pairings: PairedProduct[],
+  pairings: LinkedProduct[],
   documents: LinkedDocument[],
 ): AdminProduct {
   return {

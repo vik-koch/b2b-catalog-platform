@@ -6,7 +6,7 @@ import { ACCEPTED_DOCUMENT_MIME_TYPES } from '@b2b-catalog-platform/shared/platf
 import { fillText } from '@b2b-catalog-platform/shared';
 import {
   DocumentInput,
-  DocumentProduct,
+  LinkedProduct,
   StoredDocumentFile,
   DOCUMENT_LINK_MAX_LENGTH,
 } from '@b2b-catalog-platform/shared/admin/catalog';
@@ -353,7 +353,7 @@ export class DocumentEditorPage implements UnsavedChangesAware, FieldAttempt {
   protected readonly error = signal<string | null>(null);
 
   protected readonly file = signal<StoredDocumentFile | null>(null);
-  protected readonly products = signal<DocumentProduct[]>([]);
+  protected readonly products = signal<LinkedProduct[]>([]);
   private readonly model = signal<DocumentDraft>({
     title: '',
     link: '',

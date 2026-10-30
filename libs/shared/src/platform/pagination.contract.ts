@@ -10,3 +10,11 @@ export const paginationSchema = z
   })
   .strict();
 export type Pagination = z.infer<typeof paginationSchema>;
+
+/** A 1-based page as a query parameter: coerced, since a query is text. */
+export const pageParamSchema = z.coerce
+  .number()
+  .int()
+  .positive()
+  .optional()
+  .default(1);

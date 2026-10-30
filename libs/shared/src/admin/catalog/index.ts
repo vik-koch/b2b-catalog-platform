@@ -4,6 +4,7 @@ export * from './catalog-errors';
 export * from './categories.contract';
 export * from './documents';
 export * from './documents.contract';
+export * from './linked-product.contract';
 export * from './product-content';
 export * from './products';
 export * from './products.contract';

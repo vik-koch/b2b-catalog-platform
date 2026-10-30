@@ -10,5 +10,6 @@ export * from './product-units';
 export * from './product-variants';
 export * from './products';
 export * from './search';
+export * from './search.contract';
 export * from './slugify';
 export * from './tiers';

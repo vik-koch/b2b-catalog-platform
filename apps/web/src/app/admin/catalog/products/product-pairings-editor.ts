@@ -10,7 +10,7 @@ import {
 import { fillText } from '@b2b-catalog-platform/shared';
 import {
   AdminProductListItem,
-  PairedProduct,
+  LinkedProduct,
   PRODUCT_PAIRINGS_MAX,
 } from '@b2b-catalog-platform/shared/admin/catalog';
 import { ADMIN_TEXT } from '../../../shared/config/admin-text';
@@ -178,7 +178,7 @@ export class ProductPairingsEditor implements OnInit {
   protected readonly productStates = inject(ADMIN_TEXT).products;
   protected readonly glyph = PRODUCT_FEATURE_GLYPHS.pairings;
 
-  readonly value = input.required<readonly PairedProduct[]>();
+  readonly value = input.required<readonly LinkedProduct[]>();
   /**
    * The product being edited, so it cannot be offered as its own counterpart.
    * Null while it has no slug yet — a new product cannot be in the catalog the
@@ -186,7 +186,7 @@ export class ProductPairingsEditor implements OnInit {
    */
   readonly ownSlug = input<string | null>(null);
 
-  readonly valueChange = output<PairedProduct[]>();
+  readonly valueChange = output<LinkedProduct[]>();
 
   protected readonly max = PRODUCT_PAIRINGS_MAX;
   protected readonly open = signal(false);
@@ -260,7 +260,7 @@ export class ProductPairingsEditor implements OnInit {
     this.valueChange.emit(this.value().filter((p) => p.slug !== slug));
   }
 
-  protected removeLabel(item: PairedProduct): string {
+  protected removeLabel(item: LinkedProduct): string {
     return fillText(this.text.removeAria, { name: item.name });
   }
 }

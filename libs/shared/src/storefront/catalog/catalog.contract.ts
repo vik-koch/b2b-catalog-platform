@@ -1,13 +1,22 @@
+/**
+ * The storefront's read API. A product's sync key is private and never sent:
+ * the slug is its only public handle.
+ */
+
 import { oc } from '@orpc/contract';
 import * as z from 'zod';
-import { paginationSchema } from '../../platform/pagination.contract';
+import { listParam } from '../../platform/list-param.contract';
+import {
+  pageParamSchema,
+  paginationSchema,
+} from '../../platform/pagination.contract';
 import { ATTRIBUTE_FILTER_MAX_PARAMS } from '../../core/catalog/attribute-filter';
 import {
   ATTRIBUTE_NAME_MAX_LENGTH,
   ATTRIBUTE_VALUE_MAX_LENGTH,
 } from '../../core/catalog/attributes';
 import { PRODUCT_SORTS, SEARCH_SORTS } from '../../core/catalog/product-sort';
-import { SEARCH_QUERY_MAX_LENGTH } from '../../core/catalog/search';
+import { searchQueryParamSchema } from '../../core/catalog/search.contract';
 import {
   attributeTypeSchema,
   type CatalogImage,
@@ -15,7 +24,6 @@ import {
   categoryCrumbSchema,
   productDetailSchema,
   productListItemSchema,
-  shortNameSchema,
 } from '../../core/catalog/catalog.contract';
 import { CATALOG_SORTS } from './listing';
 
@@ -25,22 +33,12 @@ import { CATALOG_SORTS } from './listing';
  */
 export const categoryMarkSchema = catalogImageSchema.nullable();
 
-/**
- * The internal read API the storefront consumes — deliberately independent of
- * the file-sync import shape. What the legacy source file looks like never
- * leaks into these responses: the frontend sees clean, public shapes only.
- *
- * Nothing product-code-like is exposed. A product's stable legacy id
- * (`source_id`, the sync upsert key) is private and never serialized; the only
- * public handle is the `slug`, which is also what appears in URLs.
- */
+/** A category as its chip draws it, wherever it appears (FR-CAT-07). */
+const categoryChipSchema = categoryCrumbSchema
+  .extend({ mark: categoryMarkSchema })
+  .strict();
 
-/**
- * A node in the category tree (FR-CAT-01/02). The structure (name/hierarchy)
- * comes from the sync; `mark` and `shortName` are the admin
- * presentation overlay and may be absent. Recursive: subcategories nest
- * arbitrarily, though the UI may render only the depth it needs.
- */
+/** A node in the category tree (FR-CAT-01/02), nesting to any depth. */
 export interface CategoryNode {
   slug: string;
   name: string;
@@ -50,31 +48,20 @@ export interface CategoryNode {
 }
 export const categoryNodeSchema: z.ZodType<CategoryNode> = z.lazy(
   () =>
-    z
-      .object({
-        slug: z.string(),
-        name: z.string(),
-        shortName: shortNameSchema,
-        mark: categoryMarkSchema,
-        children: z.array(categoryNodeSchema),
-      })
+    categoryChipSchema
+      .extend({ children: z.array(categoryNodeSchema) })
       .strict(),
   // Cast: under the self-reference zod widens the inferred field types to
   // optional; the explicit interface above is the real shape.
 ) as z.ZodType<CategoryNode>;
 
-/** A direct child of the selected category, for the drill-down nav
- * (FR-CAT-02), drawn as a chip with its `mark` (FR-CAT-07).
- *
- * `attr` is the part of the listing's selection the child's own panel offers
- * — what its link carries — and `count` the products that part leaves beneath
- * it (FR-ATTR-13). */
-export const subcategoryLinkSchema = z
-  .object({
-    slug: z.string(),
-    name: z.string(),
-    shortName: shortNameSchema,
-    mark: categoryMarkSchema,
+/**
+ * A direct child of the selected category, for the drill-down nav (FR-CAT-02).
+ * `attr` is the part of the selection the child's own panel offers, which its
+ * link carries, and `count` the products that part leaves (FR-ATTR-13).
+ */
+export const subcategoryLinkSchema = categoryChipSchema
+  .extend({
     count: z.number().int().nonnegative(),
     attr: z.array(z.string()),
   })
@@ -92,42 +79,19 @@ const ATTRIBUTE_FILTER_PARAM_MAX_LENGTH =
   ATTRIBUTE_NAME_MAX_LENGTH + 1 + ATTRIBUTE_VALUE_MAX_LENGTH;
 
 /**
- * The selected attribute values (FR-ATTR-05/07), one entry per value as
- * `<definition-slug>:<value>` — see `attribute-filter.ts` for why the values
- * are not packed into one parameter.
- *
- * Two shapes, because a query string has no array type: a single entry arrives
- * as a bare string, and anything more as a list. The client writes `attr[0]=…`
- * and the contract layer reads that, `attr[]=…` and a repeated `attr=…` all
- * back as a list, at any length — so the panel is never one checkbox away from
- * a 400, and a hand-written or bookmarked URL in any of the three works.
- *
- * Entries naming an attribute nobody declared are ignored server-side rather
- * than refused: a link outlives the definition it was written from.
+ * The selected attribute values (FR-ATTR-05/07), one `attr` entry per value
+ * (`attribute-filter.ts`). An entry naming an undeclared attribute is ignored
+ * rather than refused: a link outlives the definition it was written from.
  */
-export const attributeParamSchema = z
-  .union([z.string(), z.array(z.string())])
-  .optional()
-  .transform((value) => {
-    if (value === undefined) return [];
-    return typeof value === 'string' ? [value] : value;
-  })
-  .pipe(
-    z
-      .array(z.string().max(ATTRIBUTE_FILTER_PARAM_MAX_LENGTH))
-      .max(ATTRIBUTE_FILTER_MAX_PARAMS),
-  );
+export const attributeParamSchema = listParam(
+  z.string().max(ATTRIBUTE_FILTER_PARAM_MAX_LENGTH),
+).pipe(z.array(z.string()).max(ATTRIBUTE_FILTER_MAX_PARAMS));
 
 /**
- * One selectable value of a facet, with the number of products it would leave
- * (FR-ATTR-04). The count is taken with every *other* attribute's selection
- * applied but not this attribute's own — otherwise clicking one value would
- * collapse its own list to that value. A zero count is rendered disabled, not
- * hidden (FR-ATTR-05).
- *
- * The value is the raw text staff typed; the unit lives on the facet, and
- * joining the two is the caller's business — the same string has to render in
- * the spec table and the facet label alike.
+ * One selectable value of a facet with the products it would leave
+ * (FR-ATTR-04): counted under every other attribute's selection but not its
+ * own, or one click would collapse its list. The value is the stored text; the
+ * unit is on the facet (`formatAttributeValue`).
  */
 export const facetValueSchema = z
   .object({
@@ -139,9 +103,8 @@ export const facetValueSchema = z
 export type FacetValue = z.infer<typeof facetValueSchema>;
 
 /**
- * One filterable attribute present among the products in scope (FR-ATTR-04),
- * in the registry's panel order. `slug` is what the URL is written with and
- * survives a rename, so a shared filtered link keeps working.
+ * One filterable attribute among the products in scope (FR-ATTR-04), in panel
+ * order. URLs use the `slug`, which survives a rename.
  */
 export const facetSchema = z
   .object({
@@ -155,63 +118,41 @@ export const facetSchema = z
 export type Facet = z.infer<typeof facetSchema>;
 
 /**
- * Query for the grid: 1-based page and a sort. Coerced — query values arrive as
- * strings. Both default here rather than in the UI, so an omitted parameter and
- * an explicit default mean the same thing and the shared default sort has one
- * definition. A listing defaults to grouping by category (FR-SEARCH-04), which
- * on a category with no subcategories is its name order.
+ * A listing's query. Defaults live here rather than in the UI, so an omitted
+ * parameter and the default mean the same; the sort groups by category
+ * (FR-SEARCH-04).
  */
 export const productListQuerySchema = z.object({
-  page: z.coerce.number().int().positive().optional().default(1),
+  page: pageParamSchema,
   sort: catalogSortSchema.optional().default('category'),
   attr: attributeParamSchema,
 });
 
-/**
- * Search query (FR-SEARCH-01…03). `q` is free text and may be anything a
- * visitor types: the server tokenizes it, and a query with nothing searchable
- * in it (blank, punctuation only, one character) is answered with an empty
- * page, not an error — an empty result is the honest answer to "no matches",
- * and the UI renders it the same way either way.
- */
+/** A search's query (FR-SEARCH-01…03). */
 export const productSearchQuerySchema = z.object({
-  q: z.string().max(SEARCH_QUERY_MAX_LENGTH).optional().default(''),
-  page: z.coerce.number().int().positive().optional().default(1),
+  q: searchQueryParamSchema,
+  page: pageParamSchema,
   sort: searchSortSchema.optional().default('relevance'),
   attr: attributeParamSchema,
 });
 
-/**
- * Query for the suggestion list. Just `q`: there is no paging past the first
- * few matches, and the limit is not the caller's to choose.
- */
+/** The suggestion list's query: no paging, and no limit for the caller. */
 export const searchSuggestionQuerySchema = z.object({
-  q: z.string().max(SEARCH_QUERY_MAX_LENGTH).optional().default(''),
+  q: searchQueryParamSchema,
 });
 
 /**
- * A category whose name the query matched (FR-SEARCH-07), drawn as a chip. The
- * parent's name is its context: a leaf's own name is often not unique across
- * the tree ("Accessories" under two branches), and its short name is the one
- * written for a place where the parent is visible. Null for a top-level one.
+ * A category whose name the query matched (FR-SEARCH-07). `parent` names its
+ * context, since a leaf's name is often not unique ("Accessories" under two
+ * branches); null for a top-level one.
  */
-export const searchCategorySchema = z
-  .object({
-    slug: z.string(),
-    name: z.string(),
-    shortName: shortNameSchema,
-    mark: categoryMarkSchema,
-    parent: z.string().nullable(),
-  })
+export const searchCategorySchema = categoryChipSchema
+  .extend({ parent: z.string().nullable() })
   .strict();
 export type SearchCategory = z.infer<typeof searchCategorySchema>;
 
-/**
- * One indexable URL for the sitemap (NFR-SEO-02): a slug and the row's
- * `updatedAt` as an ISO string, used for `<lastmod>`. The SSR server turns
- * these into absolute `/catalog/:slug` and `/product/:slug` URLs;
- * this endpoint stays origin-agnostic and exposes no other product data.
- */
+/** One indexable URL for the sitemap (NFR-SEO-02), with `updatedAt` for
+ * `<lastmod>`. The SSR server makes the absolute URLs. */
 export const sitemapEntrySchema = z
   .object({ slug: z.string(), updatedAt: z.string() })
   .strict();
@@ -230,12 +171,8 @@ export const catalogContract = {
     })
     .output(z.object({ categories: z.array(categoryNodeSchema) }).strict()),
 
-  /**
-   * Every publicly visible product, paginated (FR-CAT-02/03) — the listing
-   * the catalogue index is, one level above any category. The same query as
-   * a category's, and the top-level categories in place of its subcategories;
-   * no ancestors, because nothing is above it.
-   */
+  /** The catalogue index (FR-CAT-02/03): a category's listing one level up,
+   * with the top-level categories as its subcategories. */
   getCatalogProducts: oc
     .route({
       method: 'GET',
@@ -275,13 +212,10 @@ export const catalogContract = {
       z
         .object({
           /** The selected category, plus its ancestors for the breadcrumb. */
-          category: z
-            .object({
-              slug: z.string(),
-              name: z.string(),
-              shortName: shortNameSchema,
+          category: categoryCrumbSchema
+            .extend({
               ancestors: z.array(categoryCrumbSchema),
-              /** Direct children, for the drill-down nav. Empty on a leaf. */
+              /** Empty on a leaf. */
               subcategories: z.array(subcategoryLinkSchema),
             })
             .strict(),
@@ -292,13 +226,8 @@ export const catalogContract = {
         .strict(),
     ),
 
-  /**
-   * Product search by name (FR-SEARCH-01…03), ordered by relevance unless the
-   * caller asks for another sort (FR-SEARCH-04). Its own
-   * endpoint rather than a mode of the category listing: there is no category
-   * to describe, so the response carries no breadcrumb or subcategory envelope
-   * — just the same product tiles the grid renders, in match order.
-   */
+  /** Product search by name (FR-SEARCH-01…04). Not a mode of the listing:
+   * there is no category to describe. */
   searchProducts: oc
     .route({
       method: 'GET',
@@ -318,15 +247,9 @@ export const catalogContract = {
     ),
 
   /**
-   * Type-ahead suggestions for the search bar (FR-SEARCH-05/06/07), with the
-   * categories whose names the query matched beside them. The same
-   * matcher, the same ordering and the same tier-resolved tiles as
-   * `searchProducts`, so the list is a truthful prefix of what submitting the
-   * query would show — without the total count and the facets, which is what
-   * keeps it cheap enough to call per keystroke. Whole tiles, because a row
-   * shows the picture and the price and can put the product in the cart.
-   * Suggestions are an accelerator only: the full result list stays reachable
-   * by submitting.
+   * Type-ahead suggestions (FR-SEARCH-05/06/07): a prefix of what
+   * `searchProducts` would show, without the count and facets that would make
+   * it too costly per keystroke. Whole tiles, since a row can add to the cart.
    */
   getSearchSuggestions: oc
     .route({
@@ -345,12 +268,8 @@ export const catalogContract = {
         .strict(),
     ),
 
-  /**
-   * Every indexable slug for the sitemap (NFR-SEO-02) — all categories and all
-   * non-deleted products, each with its `updatedAt`. Consumed only by the SSR
-   * server to build sitemap.xml; the maintenance guard gates it like the rest
-   * of the storefront read API (ADR 0022), so it 503s while the site is gated.
-   */
+  /** Every indexable slug, for the SSR server's sitemap.xml (NFR-SEO-02).
+   * Gated by maintenance like the rest of this API. */
   getSitemap: oc
     .route({
       method: 'GET',
@@ -368,12 +287,9 @@ export const catalogContract = {
     ),
 
   /**
-   * The main page's row (FR-CAT-09): the featured products first, the rest of
-   * the row filled from the catalog, drawn at random and never out of stock.
-   * Which entries were featured is not said — the row is shuffled, and the
-   * items are the same list items every listing carries.
-   *
-   * An empty list where nothing can be shown; the page leaves the row out.
+   * The main page's row (FR-CAT-09): featured products first, filled from the
+   * catalog, drawn at random and never out of stock. Shuffled, so which were
+   * featured is not said. Empty where nothing can be shown.
    */
   getFeaturedProducts: oc
     .route({
@@ -396,16 +312,9 @@ export const catalogContract = {
     .output(productDetailSchema),
 
   /**
-   * The products a product is sold together with (FR-SET-05), as tiles that can
-   * be bought from where they are listed.
-   *
-   * Its own request rather than a field on the product: the marker is drawn
-   * from `pairedCount` on every card in a listing, and fetching every card's
-   * counterparts to draw an icon would price a listing several times over. This
-   * is asked once, for the one product whose marker was pressed.
-   *
-   * A product with no counterparts answers with an empty list rather than a
-   * 404 — it exists, and it is sold with nothing.
+   * The products a product is sold together with (FR-SET-05), as buyable
+   * tiles. Its own request, asked when a marker is pressed: fetching every
+   * card's counterparts would price a listing several times over.
    */
   getProductPairings: oc
     .route({

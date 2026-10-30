@@ -1,3 +1,10 @@
+/**
+ * Product documents (FR-DOC-01…05): a certificate, declaration or data sheet,
+ * as a file, a link to where it is held, or both. Its own record because one
+ * file is shown by many products; the links are edited from both sides, here
+ * in bulk and from a product's form (FR-DOC-02).
+ */
+
 import { oc } from '@orpc/contract';
 import * as z from 'zod';
 import { commonAuthErrors } from '../../lib/core/api-error';
@@ -11,25 +18,12 @@ import {
   DOCUMENT_TITLE_MAX_LENGTH,
   type DocumentErrorCode,
 } from './documents';
+import { linkedProductSchema } from './linked-product.contract';
 
 /**
- * Product documents (FR-DOC-01…05), admin side.
- *
- * A document is a file staff already have — a certificate, a declaration, a
- * data sheet — or a link to where it is held elsewhere, such as its entry in a
- * public register, or both; with a title to find it by and the dates that say
- * whether it is still current. It is its own record rather than a field on a product because
- * one file is shown by many products. The links are edited from both sides —
- * here in bulk, a certificate onto thirty products at once, and one at a time
- * from a product's own form (FR-DOC-02) — because they are one table read from
- * two directions, exactly like product pairings.
- */
-
-/**
- * A stored file, as the upload endpoint hands it back and as a document row
- * keeps it. Everything here but the URL is for the admin's benefit: the stored
- * name is a content hash, so without the name it was uploaded under, a row
- * whose title is wrong is unidentifiable.
+ * A stored file as the upload hands it back and a document row keeps it. The
+ * stored name is a content hash, so the uploaded name is what identifies a row
+ * whose title is wrong.
  */
 export const storedDocumentFileSchema = z
   .object({
@@ -44,25 +38,18 @@ export const storedDocumentFileSchema = z
   .strict();
 export type StoredDocumentFile = z.infer<typeof storedDocumentFileSchema>;
 
-/**
- * A document's external link: http(s) only, since the storefront renders it as
- * an `href`. Trimmed before it is checked — a URL pasted from a browser's
- * address bar often brings a space with it.
- */
+/** http(s) only, since the storefront renders it as an `href`. Trimmed first:
+ * a URL pasted from an address bar often brings a space. */
 const documentLinkField = z
   .string()
   .trim()
   .pipe(z.httpUrl().max(DOCUMENT_LINK_MAX_LENGTH));
 
 /**
- * What an admin fills in. The file is uploaded first and referenced here, the
- * way a catalog image is: the bytes travel as multipart, the row as JSON.
- * Either the file or the link may be missing, never both (FR-DOC-05).
- *
- * Both dates are optional and independent — a data sheet has neither, and a
- * certificate issued today may carry no expiry at all. Nothing here checks one
- * against the other beyond ordering, because a document's dates are copied off
- * the document, not decided in this form.
+ * What an admin fills in. The file is uploaded first and referenced here, as a
+ * catalog image is. Either the file or the link may be missing, never both
+ * (FR-DOC-05). The dates are copied off the document, so only their order is
+ * checked.
  */
 export const documentInputSchema = z
   .object({
@@ -71,14 +58,8 @@ export const documentInputSchema = z
     link: documentLinkField.nullable().default(null),
     issuedAt: z.iso.date().nullable().default(null),
     expiresAt: z.iso.date().nullable().default(null),
-    /**
-     * The products this document is shown on, by slug — the handle the admin
-     * API addresses a product by everywhere else.
-     *
-     * The whole set, like a product's tier prices: what is sent replaces what
-     * is stored. An unknown slug is a 404 naming the product rather than a
-     * foreign-key error.
-     */
+    /** The products it is shown on. The whole set: what is sent replaces
+     * what is stored. */
     productSlugs: z
       .array(z.string())
       .max(DOCUMENT_PRODUCTS_MAX)
@@ -100,27 +81,7 @@ export const documentInputSchema = z
   );
 export type DocumentInput = z.infer<typeof documentInputSchema>;
 
-/**
- * A product a document is shown on, as the editor lists it. The two markers
- * are the pairings editor's, for the same reason: a link outlives a soft
- * delete and an unpublished product is usually one still being prepared, so
- * both are listed marked rather than quietly dropped.
- */
-export const documentProductSchema = z
-  .object({
-    slug: z.string(),
-    name: z.string(),
-    deleted: z.boolean(),
-    unpublished: z.boolean(),
-  })
-  .strict();
-export type DocumentProduct = z.infer<typeof documentProductSchema>;
-
-/**
- * A document as a product carries it: what to call it, when it runs out, and
- * the id its own editor is reached by. Deliberately small — the product form
- * lists documents, it does not show them.
- */
+/** A document as a product's form lists it. */
 export const linkedDocumentSchema = z
   .object({
     id: z.uuid(),
@@ -136,13 +97,11 @@ export const productDocumentSchema = z
     id: z.uuid(),
     title: z.string(),
     file: storedDocumentFileSchema.nullable(),
-    /** Read as any string: the write side checked it, and a row this list
-     * refused would take every other row down with it. */
+    /** Any string: one row refused here would fail the whole list. */
     link: z.string().nullable(),
     issuedAt: z.iso.date().nullable(),
     expiresAt: z.iso.date().nullable(),
-    /** How many products show this document — the list's link into the
-     * product grid, narrowed to exactly those rows. */
+    /** Products showing it: the list's link into the grid. */
     productCount: z.number().int().nonnegative(),
     /** Of `productCount`, the ones not on the storefront. */
     unpublishedProductCount: z.number().int().nonnegative(),
@@ -151,13 +110,9 @@ export const productDocumentSchema = z
   .strict();
 export type ProductDocument = z.infer<typeof productDocumentSchema>;
 
-/**
- * One document with the products it is linked to. The list deliberately does
- * not carry them — a few dozen documents naming hundreds of products between
- * them is a payload nobody on that screen reads.
- */
+/** One document with its products, which the list leaves out. */
 export const documentDetailSchema = productDocumentSchema
-  .extend({ products: z.array(documentProductSchema) })
+  .extend({ products: z.array(linkedProductSchema) })
   .strict();
 export type DocumentDetail = z.infer<typeof documentDetailSchema>;
 
@@ -167,7 +122,7 @@ const documentErrors = {
   'document-product-not-found': { status: 404 },
 } as const satisfies Record<DocumentErrorCode, { status: number }>;
 
-/** Every route here is admin-only, like the rest of the catalog write surface. */
+/** Every route here is admin-only. */
 const admin = oc.errors(commonAuthErrors);
 
 export const documentsContract = {

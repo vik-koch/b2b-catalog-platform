@@ -1,15 +1,8 @@
 /**
- * What the admin grid can ask about a product's own content (FR-ADM-20): the
- * gaps a product can have, and the things it can carry. Plain data with no
- * imports, so the grid can read them without pulling the contract schemas in.
- */
-
-/**
- * The gaps. The first four make a product incomplete: every product page
- * shows a price, a picture, a description and an attribute, and an unpriced
- * product cannot even be published. Packaging and box facts
- * are gaps only for goods sold by the pack or box, and a product sold by the
- * piece rightly has neither, so they can be asked about but never count.
+ * What the admin grid can ask about a product's own content (FR-ADM-20). The
+ * first four gaps make a product incomplete: every product page shows them.
+ * Packaging and box facts can be asked about but never count: a product sold
+ * by the piece rightly has neither.
  */
 export const PRODUCT_GAPS = [
   'price',
@@ -21,7 +14,7 @@ export const PRODUCT_GAPS = [
 ] as const;
 export type ProductGap = (typeof PRODUCT_GAPS)[number];
 
-/** The gaps that make a product incomplete, and the ones a row names. */
+/** The gaps that make a product incomplete, and that a row names. */
 export const INCOMPLETE_GAPS = [
   'price',
   'picture',

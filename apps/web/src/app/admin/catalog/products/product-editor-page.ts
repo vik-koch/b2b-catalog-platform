@@ -46,7 +46,7 @@ import {
   AttributeKeyUsage,
   CustomerTier,
   LinkedDocument,
-  PairedProduct,
+  LinkedProduct,
   ProductImageInput,
   ProductInput,
   ProductVariantInput,
@@ -773,7 +773,7 @@ export class ProductEditorPage implements UnsavedChangesAware, FieldAttempt {
   protected readonly description = signal('');
   protected readonly attributes = signal<ProductAttribute[]>([]);
   protected readonly images = signal<ProductImageInput[]>([]);
-  protected readonly pairings = signal<PairedProduct[]>([]);
+  protected readonly pairings = signal<LinkedProduct[]>([]);
   protected readonly documents = signal<LinkedDocument[]>([]);
   /** Offered first to the main page's row (FR-CAT-09). */
   protected readonly featured = signal(false);

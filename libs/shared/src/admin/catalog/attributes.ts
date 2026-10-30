@@ -1,12 +1,8 @@
 /** Matches the `attribute_definitions.unit` varchar. */
 export const ATTRIBUTE_UNIT_MAX_LENGTH = 32;
 
-/**
- * Why a definition was refused. Both conflicts are uniqueness: one name can
- * only describe one attribute, and one slug can only address one filter.
- * There is no delete guard — a definition holds no data, so deleting it only
- * stops the attribute being filterable.
- */
+/** No delete guard: a definition holds no data, so deleting it only stops the
+ * attribute being filterable. */
 export const ATTRIBUTE_ERROR_CODES = [
   'attribute-not-found',
   'attribute-name-taken',

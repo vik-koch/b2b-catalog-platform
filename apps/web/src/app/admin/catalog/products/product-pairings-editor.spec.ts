@@ -3,7 +3,7 @@ import { defaultSharedText } from '../../../shared/config/shared-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import {
   AdminProductListItem,
-  PairedProduct,
+  LinkedProduct,
 } from '@b2b-catalog-platform/shared/admin/catalog';
 import { ADMIN_TEXT } from '../../../shared/config/admin-text';
 import { defaultAdminText } from '../../../shared/config/admin-text.fixture';
@@ -36,7 +36,7 @@ const listItem = (
 /** What the stubbed grid endpoint answers with; set per test. */
 let answers: AdminProductListItem[] = [];
 
-async function render(value: PairedProduct[] = [], ownSlug = 'cup') {
+async function render(value: LinkedProduct[] = [], ownSlug = 'cup') {
   const listProducts = vi.fn(async () => ({
     items: answers,
     pagination: { page: 1, pageSize: 25, total: answers.length, totalPages: 1 },
@@ -59,7 +59,7 @@ async function render(value: PairedProduct[] = [], ownSlug = 'cup') {
   fixture.detectChanges();
 
   const el = fixture.nativeElement as HTMLElement;
-  const emitted: PairedProduct[][] = [];
+  const emitted: LinkedProduct[][] = [];
   fixture.componentInstance.valueChange.subscribe((v) => emitted.push(v));
 
   /** Opens the panel if it is not already open — it opens itself where the

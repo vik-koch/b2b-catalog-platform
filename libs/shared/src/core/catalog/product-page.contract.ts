@@ -1,3 +1,9 @@
+/**
+ * What edit mode reads on a storefront page: the storefront's own shapes, for
+ * products the public cannot see, with the reason why. Served by staff routes,
+ * drawn by storefront pages.
+ */
+
 import * as z from 'zod';
 import {
   priceMinorSchema,
@@ -5,12 +11,6 @@ import {
   productListItemSchema,
   unitPricesSchema,
 } from './catalog.contract';
-
-/*
- * What edit mode reads on a storefront page: the storefront's own shapes, for
- * products the public cannot see, with the reason why. Served by staff routes,
- * drawn by storefront pages.
- */
 
 /** An unpublished product in the edit-mode overlay under a category grid. */
 export const hiddenProductSchema = productListItemSchema.extend({

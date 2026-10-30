@@ -15,7 +15,7 @@ import {
 import {
   AdminProduct,
   LinkedDocument,
-  PairedProduct,
+  LinkedProduct,
   ProductInput,
   ProductTierPrice,
 } from '@b2b-catalog-platform/shared/admin/catalog';
@@ -381,7 +381,7 @@ export class ProductEditorService {
   private async pairedProducts(
     slugs: string[],
     ownId?: string,
-  ): Promise<(PairedProduct & { id: string })[]> {
+  ): Promise<(LinkedProduct & { id: string })[]> {
     if (slugs.length === 0) return [];
     const rows = await this.db
       .select({
@@ -549,8 +549,8 @@ function storedAttributes(
  * rather than a wrong answer, which is how this was caught.
  */
 function namedPairings(
-  resolved: (PairedProduct & { id: string })[],
-): PairedProduct[] {
+  resolved: (LinkedProduct & { id: string })[],
+): LinkedProduct[] {
   return resolved.map(({ slug, name, deleted, unpublished }) => ({
     slug,
     name,

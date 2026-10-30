@@ -4,7 +4,7 @@ import { TestBed } from '@angular/core/testing';
 import {
   AdminCategory,
   AdminProductListItem,
-  DocumentProduct,
+  LinkedProduct,
 } from '@b2b-catalog-platform/shared/admin/catalog';
 import { ADMIN_TEXT } from '../../../shared/config/admin-text';
 import { defaultAdminText } from '../../../shared/config/admin-text.fixture';
@@ -60,7 +60,7 @@ const catalog = [
 
 async function render(
   options: {
-    value?: DocumentProduct[];
+    value?: LinkedProduct[];
     items?: AdminProductListItem[];
     total?: number;
   } = {},
@@ -96,7 +96,7 @@ async function render(
   fixture.detectChanges();
 
   const el = fixture.nativeElement as HTMLElement;
-  const emitted: DocumentProduct[][] = [];
+  const emitted: LinkedProduct[][] = [];
   fixture.componentInstance.valueChange.subscribe((v) => emitted.push(v));
 
   const settle = async () => {
@@ -114,7 +114,7 @@ async function render(
     await settle();
   };
   /** Feeds the emitted value back in, as the editor's signal does. */
-  const apply = async (value: DocumentProduct[]) => {
+  const apply = async (value: LinkedProduct[]) => {
     fixture.componentRef.setInput('value', value);
     await settle();
   };
@@ -164,7 +164,7 @@ describe('DocumentProductsPicker (FR-DOC-02)', () => {
     const { tick, apply, emitted } = await render();
 
     await tick(0);
-    await apply(emitted.at(-1) as DocumentProduct[]);
+    await apply(emitted.at(-1) as LinkedProduct[]);
     await tick(2, true);
 
     // Name order — Alpha, Bravo, Charlie — which is the order a save writes.
@@ -181,7 +181,7 @@ describe('DocumentProductsPicker (FR-DOC-02)', () => {
     const { tick, apply, emitted } = await render({ value: linked });
 
     await tick(3);
-    await apply(emitted.at(-1) as DocumentProduct[]);
+    await apply(emitted.at(-1) as LinkedProduct[]);
     await tick(1, true);
 
     expect(emitted.at(-1)?.map((p) => p.slug)).toEqual(['one']);

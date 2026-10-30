@@ -1,9 +1,4 @@
-/**
- * Why a catalog write was refused. The slug and source-id conflicts are the
- * ones an editor acts on directly — the field it names is on screen — and the
- * category guards are what the delete dialog explains before offering a
- * reassign target.
- */
+/** Why a product or category write was refused. */
 export const CATALOG_ERROR_CODES = [
   'product-not-found',
   'category-not-found',
@@ -12,7 +7,7 @@ export const CATALOG_ERROR_CODES = [
   'category-has-subcategories',
   'category-has-products',
   'category-reassign-to-self',
-  /** A reparent (single or in a reorder) that would make a category its own ancestor. */
+  /** A reparent that would make a category its own ancestor. */
   'category-cycle',
   'slug-taken',
   'source-id-taken',
@@ -24,34 +19,23 @@ export const CATALOG_ERROR_CODES = [
   'document-not-found',
   /** A product paired with itself, which is not a pairing. */
   'pairing-self',
-  /**
-   * A unique violation that got past the pre-checks — two admins saving the
-   * same slug at once. Which of the two columns collided is not worth a round
-   * trip to find out, so it is one code.
-   */
+  /** A unique violation past the pre-checks, two admins saving at once.
+   * Which column collided is not worth a round trip. */
   'slug-or-source-id-taken',
-  /** Publishing a product no price list prices (FR-ADM-06). The storefront
-   * shows every visitor the default list's figure, and there is none. */
+  /** Publishing a product the default list does not price (FR-ADM-06). */
   'product-has-no-price',
-  /** Deleting a product that is on the storefront (FR-ADM-01): removal goes
-   * in steps, and taking it off sale is the first. */
+  /** Deleting a published product: removal unpublishes first (FR-ADM-01). */
   'product-published',
   /** Publishing a deleted product: it is restored first, then published. */
   'product-deleted',
-  /** Deleting permanently a product that is not deleted (FR-ADM-21): it goes
-   * the same steps as any removal. */
+  /** Purging a product that is not deleted (FR-ADM-21). */
   'product-not-deleted',
-  /** Deleting permanently a product somebody has ordered: an order line must
-   * never lose its product, so it stays deleted instead. */
+  /** Purging an ordered product: an order line never loses its product. */
   'product-ordered',
 ] as const;
 export type CatalogErrorCode = (typeof CATALOG_ERROR_CODES)[number];
 
-/**
- * The status each refusal travels with. A missing row is a 404; everything
- * else is a conflict — the row is there, and what was asked of it is what
- * cannot be done.
- */
+/** A missing row is a 404; everything else is a conflict. */
 export const CATALOG_ERRORS = {
   'product-not-found': { status: 404 },
   'category-not-found': { status: 404 },

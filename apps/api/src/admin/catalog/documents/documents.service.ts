@@ -4,7 +4,7 @@ import { and, asc, desc, eq, inArray, isNull, notInArray } from 'drizzle-orm';
 import {
   DocumentDetail,
   DocumentInput,
-  DocumentProduct,
+  LinkedProduct,
   ProductDocument,
   StoredDocumentFile,
 } from '@b2b-catalog-platform/shared/admin/catalog';
@@ -163,7 +163,7 @@ export class DocumentsService {
 
   /** The products showing one document, in name order — the order the editor
    * lists them in, and the only one an admin can predict. */
-  private async productsFor(documentId: string): Promise<DocumentProduct[]> {
+  private async productsFor(documentId: string): Promise<LinkedProduct[]> {
     const rows = await this.db
       .select({
         slug: products.slug,

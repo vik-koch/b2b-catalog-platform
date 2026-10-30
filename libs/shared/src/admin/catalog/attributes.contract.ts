@@ -1,3 +1,9 @@
+/**
+ * The registry of filterable attributes (FR-ATTR-01). A definition names a key
+ * staff already type into a product's attributes; it constrains nothing and
+ * holds no data of its own.
+ */
+
 import { oc } from '@orpc/contract';
 import * as z from 'zod';
 import { commonAuthErrors } from '../../lib/core/api-error';
@@ -14,18 +20,8 @@ import { slugSchema } from './slug.contract';
 import { attributeTypeSchema } from '../../core/catalog/catalog.contract';
 
 /**
- * The registry of filterable attributes (FR-ATTR-01), admin side.
- *
- * A definition names an attribute key staff already type into the product
- * attribute grid; it does not constrain what a product may carry and holds no
- * data of its own. Nothing here changes how attributes are entered — the
- * product contracts keep their `attributes: [{key, value}]` array untouched.
- */
-
-/**
- * The name is matched against a product's attribute keys exactly, so it is
- * trimmed on both sides and nothing else is normalized: "Colour" and "color"
- * are two attributes, visibly, until somebody renames one.
+ * The name matches product attribute keys exactly, so only trimming normalizes
+ * it: "Colour" and "color" are two attributes until somebody renames one.
  */
 export const attributeDefinitionInputSchema = z
   .object({
@@ -33,11 +29,8 @@ export const attributeDefinitionInputSchema = z
     /** Omitted on create, the server derives one from the name. */
     slug: slugSchema.optional(),
     type: attributeTypeSchema,
-    /**
-     * Display suffix ("cm"), shown after every value of this attribute. It
-     * belongs here rather than inside a value, or "30 cm" and "30cm" become
-     * two facet entries.
-     */
+    /** Shown after every value ("cm"). Kept out of the values, or "30 cm"
+     * and "30cm" would be two facet entries. */
     unit: z
       .string()
       .trim()
@@ -50,11 +43,8 @@ export type AttributeDefinitionInput = z.infer<
   typeof attributeDefinitionInputSchema
 >;
 
-/**
- * A definition as staff see it. The three counts are what makes a mistyped
- * name answerable on the spot: a definition whose name matches nothing reads
- * "0 products" here rather than turning up as a facet that never appears.
- */
+/** A definition as staff see it. The counts expose a mistyped name: it reads
+ * "0 products" here instead of a facet that never appears. */
 export const attributeDefinitionSchema = z
   .object({
     id: z.uuid(),
@@ -62,19 +52,16 @@ export const attributeDefinitionSchema = z
     slug: z.string(),
     type: attributeTypeSchema,
     unit: z.string().nullable(),
-    /** Where the attribute sits in the filter panel. Presentation only. */
+    /** Its place in the filter panel. */
     sortOrder: z.number().int(),
     /** Catalog products carrying this key (deleted products excluded). */
     productCount: z.number().int().nonnegative(),
     /** Of `productCount`, the ones not on the storefront. */
     unpublishedProductCount: z.number().int().nonnegative(),
-    /** Distinct values in use under it — the size of its facet list. */
+    /** Distinct values in use: the size of its facet list. */
     valueCount: z.number().int().nonnegative(),
-    /**
-     * Values with no numeric form. Only meaningful for a `number` definition,
-     * where it is the count that drops out of the facet (FR-ATTR-03); text
-     * definitions carry it too rather than a null nobody would render.
-     */
+    /** Values with no numeric form: what a `number` definition's facet drops
+     * (FR-ATTR-03). */
     unparsedCount: z.number().int().nonnegative(),
     updatedAt: z.iso.datetime(),
   })
@@ -98,28 +85,21 @@ const attributeErrors = {
   'attribute-slug-taken': { status: 409 },
 } as const satisfies Record<AttributeErrorCode, { status: number }>;
 
-/**
- * One attribute key in use across the catalog, defined or freetext
- * (FR-ATTR-09). This is the inventory's row, and it is deliberately not the
- * registry's: a key nobody declared is exactly what an admin comes here to
- * find.
- */
+/** One attribute key in use, defined or not (FR-ATTR-09): an undeclared key
+ * is what the inventory is for. */
 export const attributeKeyUsageSchema = z
   .object({
     key: z.string(),
-    /** Products in the catalog carrying it; deleted ones are not counted
-     * (FR-ADM-22), and a key only they carry is not listed. */
+    /** Deleted products are not counted (FR-ADM-22), and a key only they
+     * carry is not listed. */
     productCount: z.number().int().positive(),
     /** Of `productCount`, the ones not on the storefront. */
     unpublishedProductCount: z.number().int().nonnegative(),
     valueCount: z.number().int().nonnegative(),
     /** Deleted products carrying it, which a rename rewrites too. */
     deletedProductCount: z.number().int().nonnegative(),
-    /**
-     * The definition matching this key exactly, if there is one. Its type
-     * comes along because it decides what the values mean here: under a number
-     * attribute, a value with no numeric form is a finding.
-     */
+    /** The definition matching the key exactly. Its type says whether a
+     * non-numeric value is a finding. */
     definition: z
       .object({ id: z.uuid(), type: attributeTypeSchema })
       .strict()
@@ -137,20 +117,15 @@ export const attributeValueUsageSchema = z
     unpublishedProductCount: z.number().int().nonnegative(),
     /** Deleted products carrying it, which a rename rewrites too. */
     deletedProductCount: z.number().int().nonnegative(),
-    /** Whether the value has a numeric form — a number facet drops the rest. */
+    /** Whether it has a numeric form: a number facet drops the rest. */
     numeric: z.boolean(),
   })
   .strict();
 export type AttributeValueUsage = z.infer<typeof attributeValueUsageSchema>;
 
 /**
- * A rename across every product carrying the text. Renaming *is* the
- * correction path: attribute text is matched exactly, so a typo is visible in
- * the inventory rather than silently merged, and this is what fixes it in one
- * statement instead of forty product saves.
- *
- * Renaming onto text already in use merges the two, which is the usual reason
- * for doing it.
+ * A rename across every product carrying the text: how a typo the inventory
+ * shows is corrected. Renaming onto text already in use merges the two.
  */
 export const renameAttributeKeySchema = z
   .object({
@@ -164,10 +139,7 @@ export type RenameAttributeKeyRequest = z.infer<
 
 /**
  * Scoped to one key: renaming "Blue" must not touch an unrelated attribute.
- *
- * `from` may be empty, and only `from`: a product saved before valueless
- * attributes stopped being stored carries rows with no value at all, and giving
- * them one in a single statement is the same correction as any other rename.
+ * `from` may be empty, so older rows stored without a value can be given one.
  */
 export const renameAttributeValueSchema = z
   .object({
@@ -186,13 +158,8 @@ export const renameResultSchema = z
   .strict();
 
 /**
- * One attribute as a category's filter editor shows it (FR-ATTR-11).
- *
- * Every definition in the registry appears, offered or not: the panel's order
- * is set here, and an attribute nobody has typed under this category yet still
- * has a place in it. `productCount` is how many of the category's own products
- * carry the key, and it is what makes an irrelevant attribute obvious — a zero
- * would never render a facet anyway.
+ * One attribute in a category's filter editor (FR-ATTR-11). Every definition
+ * appears, offered or not, since the panel's order is set here.
  */
 export const categoryFilterSchema = z
   .object({
@@ -207,11 +174,8 @@ export const categoryFilterSchema = z
     productCount: z.number().int().nonnegative(),
     /** Of `productCount`, the ones not on the storefront. */
     unpublishedProductCount: z.number().int().nonnegative(),
-    /**
-     * Declared after the overlay this category resolves to was saved, so it is
-     * in no row of it. Not offered here, and flagged rather than left looking
-     * like a deliberate exclusion.
-     */
+    /** Declared after the overlay this category resolves to was saved: not
+     * offered, and flagged so it does not look excluded on purpose. */
     isNew: z.boolean(),
   })
   .strict();
@@ -233,11 +197,8 @@ export const categoryFiltersSchema = z
   .strict();
 export type CategoryFilters = z.infer<typeof categoryFiltersSchema>;
 
-/**
- * A whole panel in one write — the array order *is* the panel order, and an
- * attribute left out of it is treated as hidden, so the editor always sends
- * every definition it was shown.
- */
+/** A whole panel in one write, in panel order. An attribute left out is
+ * hidden, so the editor sends every definition it was shown. */
 export const saveCategoryFiltersSchema = z
   .object({
     filters: z.array(
@@ -249,11 +210,8 @@ export type SaveCategoryFiltersRequest = z.infer<
   typeof saveCategoryFiltersSchema
 >;
 
-/**
- * The whole-catalogue listing's panel (FR-ATTR-12) — the same rows as a
- * category's, with nothing to inherit from: an attribute without a row is
- * simply not offered, so `isNew` is never set.
- */
+/** The whole-catalogue listing's panel (FR-ATTR-12). Nothing to inherit, so
+ * `isNew` is never set. */
 export const catalogFiltersSchema = z
   .object({ filters: z.array(categoryFilterSchema) })
   .strict();
@@ -339,7 +297,6 @@ export const attributesContract = {
       inputStructure: 'detailed',
       summary: 'Declare an attribute filterable (admin)',
     })
-    // Name or slug already taken.
     .errors({
       'attribute-name-taken': attributeErrors['attribute-name-taken'],
       'attribute-slug-taken': attributeErrors['attribute-slug-taken'],
