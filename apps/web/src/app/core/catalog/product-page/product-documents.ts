@@ -4,8 +4,7 @@ import { PublicDocument } from '@b2b-catalog-platform/shared/core/catalog';
 import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
 import { SHARED_TEXT } from '../../../shared/config/shared-text';
 import {
-  documentFileLabel,
-  documentFileSize,
+  documentFileCaption,
   documentLinkHost,
 } from '../../../shared/core/document-file';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
@@ -13,8 +12,7 @@ import { Glyph } from '@b2b-catalog-platform/ui/icons/glyph';
 import { externalLinkIcon } from '@b2b-catalog-platform/ui/icons/glyphs/external-link';
 import { fileTextIcon } from '@b2b-catalog-platform/ui/icons/glyphs/file-text';
 
-/** One row as the template draws it: where the title leads, and — for a
- * document with both a file and a link — the link as a second way in. */
+/** With both a file and a link, the link is a second way in. */
 interface DocumentRow {
   title: string;
   href: string;
@@ -24,20 +22,9 @@ interface DocumentRow {
 }
 
 /**
- * The documents on a product page (FR-DOC-03/05) — the certificates and data
- * sheets a buyer asks for before ordering, each a link that opens the file or
- * the page it is held on elsewhere, such as a register entry.
- *
- * A list of titles rather than page previews. A preview would have to be
- * rendered: on the client that is a PDF engine in the storefront bundle, on
- * the server a native renderer, a thumbnail store and a backfill — and what it
- * would show is the top of a scanned page, which is a grey rectangle at that
- * size. The title is what the buyer is looking for, and the line under it says
- * what pressing it gets: the format and size of a file, the site a link leads
- * to.
- *
- * Nothing about expiry is said here: an expired document is not in this list
- * at all (the API drops it), so there is no state for a customer to read.
+ * A product's documents (FR-DOC-03/05), as titles with what pressing one gets:
+ * a file's format and size, or the site a link leads to. No previews: they
+ * would need a PDF renderer and show a grey scan. The API drops expired ones.
  */
 @Component({
   selector: 'app-product-documents',
@@ -47,8 +34,7 @@ interface DocumentRow {
       @for (row of rows(); track $index) {
         <li>
           @if (row.link; as link) {
-            <!-- A file and a link: two places to go, so two anchors — the
-                 title opens the file, the site under it the entry. -->
+            <!-- Two anchors: the title opens the file, the site the entry. -->
             <div class="flex items-start gap-3 py-2.5">
               <ui-icon
                 [glyph]="row.glyph"
@@ -86,9 +72,7 @@ interface DocumentRow {
               </span>
             </div>
           } @else {
-            <!-- The whole row is the link, glyph and caption included: they
-                 are one thing to press, which is what a finger on a phone is
-                 aiming at. -->
+            <!-- The whole row is one thing to press. -->
             <a
               [href]="row.href"
               target="_blank"
@@ -117,8 +101,8 @@ interface DocumentRow {
         </li>
       }
     </ul>
-    <!-- Said once and pointed at by every link, rather than repeated into each
-         one's accessible name: it is the same promise for all of them. -->
+    <!-- Said once and pointed at by every link. -->
+
     <p [id]="hintId" class="sr-only">{{ text.hintAria }}</p>
   `,
 })
@@ -141,11 +125,7 @@ export class ProductDocuments {
         title,
         href: file.url,
         glyph: fileTextIcon,
-        // What the file is and what it weighs — "PDF · 240 kB".
-        caption: `${documentFileLabel(file.contentType)} · ${documentFileSize(
-          file.byteSize,
-          this.sizes,
-        )}`,
+        caption: documentFileCaption(file, this.sizes),
         link: link
           ? {
               href: link,

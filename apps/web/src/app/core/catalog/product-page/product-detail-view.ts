@@ -35,46 +35,19 @@ import { useProductUnits } from '../buying/product-units-view';
 import { chevronRightIcon } from '@b2b-catalog-platform/ui/icons/glyphs/chevron-right';
 
 /**
- * The product page's grid — one band of three columns at the top, and the two
- * long readings under it.
+ * The product page's band: photo, main facts, buying panel; the readings go
+ * in rows under it.
  *
- * The top band is what the page is *for*: the photo, the handful of facts that
- * decide whether this is the right product, and the way to buy it. Everything
- * that is read rather than scanned goes below it, one row each and set to a
- * reading width — a description at 1200px is not one anybody finishes.
+ * - The photo's track is `max-content`, sized to the gallery (30rem with
+ *   thumbnails, 25 without). It must not share: grid grows tracks in equal
+ *   shares, which squeezed the gallery and pushed its thumbnails off the edge.
+ * - The panel caps at 20rem and gives up five first; the facts take the rest.
+ * - Both right-hand tracks floor at 15rem, so the facts appear at 65rem
+ *   (30 + 15 + 15 + two gutters). Below that the band is photo and panel held
+ *   apart, below 40rem one column.
  *
- * The three widths, and where they come from:
- *
- * - The photo's column is `max-content`: sized to the photo, not to a figure
- *   written here — the gallery is 30rem with a strip of thumbnails beside it
- *   and 25rem without, and a track fixed at the larger leaves five rems of
- *   nothing on every product with one picture. It is the one track that may
- *   not be squeezed: grid hands free space to the tracks that can grow *in
- *   equal shares*, so a photo asked to share with the panel arrived narrower
- *   than the gallery inside it and pushed the thumbnails off the left edge.
- * - The buying panel takes 20rem where there is room and gives up five of them
- *   before anything else does. Past 20rem it would be a wide panel of narrow
- *   controls, so the track caps rather than the panel.
- * - The facts take everything else — including whatever the panel did not
- *   want. They are the column that can use it: a table of short pairs reads
- *   better wide than wrapped.
- *
- * Both of the right-hand columns floor at 15rem, the catalogue's own column,
- * so three of them need 30 + 15 + 15 plus two 2.5rem gutters — 65rem, and that
- * is where the third appears.
- *
- * Under 65rem there is no room for facts beside the photo and they are simply
- * gone — they are a summary of a table that is still on the page. The band is
- * then the photo and the panel, held apart rather than packed left: the panel
- * stays on the page's right edge, where it was a pixel before the third column
- * disappeared, and the space that column will occupy again is left standing
- * where it belongs. Under 40rem it is one column and everything is as wide as
- * the page.
- *
- * Container queries rather than the window, because the admin's live preview
- * draws this same page inside an editor column: what decides the layout is the
- * room the page actually has, which is the only thing a media query cannot
- * see.
+ * Container queries, not the window: the admin's preview draws this page in an
+ * editor column.
  */
 export const PRODUCT_PAGE_COLUMNS =
   'grid gap-x-10 gap-y-8 ' +
@@ -83,54 +56,27 @@ export const PRODUCT_PAGE_COLUMNS =
   '@min-[65rem]/product:justify-normal ' +
   '@min-[65rem]/product:grid-cols-[max-content_minmax(15rem,1fr)_minmax(15rem,20rem)]';
 
-/**
- * The description and the specifications: a row each, the full width of the
- * band. The measure is the section's own — prose reads to 3xl, and a table of
- * short pairs set that wide is a key and a value with a hand's width of
- * nothing between them.
- */
+/** A row each under the band, set to the section's own measure. */
 export const PRODUCT_PAGE_SECTION_CELL = 'col-span-full scroll-mt-24';
-/**
- * The description's measure, and the rule that closes it. Wider than a book's
- * line because what stands here is rarely a page of prose — it is a few
- * paragraphs, a list of what is in the bag, and at 3xl each of those broke
- * into a narrow ribbon down the left of an empty page. The rule under it is
- * drawn to the same width, so the column has a bottom edge and the
- * specifications below read as the next thing rather than as more of it.
- */
+/** Wider than a book's line: a few paragraphs and a list broke into a ribbon
+ * at 3xl. The rule gives the column a bottom edge. */
 const READING_WIDTH = 'max-w-3xl border-b border-edge pb-8';
 const TABLE_WIDTH = 'max-w-xl';
 
-/**
- * The gallery takes the column it is in and caps itself: 25rem of photo, plus
- * the strip of thumbnails when they stand beside it. Whichever it is, the
- * photo is the same 25rem — see ProductGallery.
- */
-const IMAGE_CAP = 'w-full';
-
-/** How many facts stand beside the photo. Four is a glance; the rest are a
- * table, and the link under them goes to it. */
+/** Facts beside the photo: a glance, the rest is the table. */
 const MAIN_SPECS = 4;
 
-/** Where the description is collapsed behind a show-more: only where it has no
- * column of its own, which is a phone. */
-const NARROW = '(max-width: 39.999rem)';
+/** Below `sm` the description collapses behind a show-more. */
+const NARROW = '(width < 40rem)';
 
 /**
- * The presentational product page: breadcrumb, gallery, name, price,
- * rich-text description and the specifications table. Pure — it takes a resolved
- * product and renders it, with no data loading of its own. The storefront route
- * (`ProductDetail`) wraps it with a resource + SEO; the admin editor reuses it
- * as a live preview, so the preview is exactly what visitors will see.
+ * The product page from a resolved product, loading nothing: the storefront
+ * route wraps it, and the admin editor's preview is this same view.
  */
 @Component({
   selector: 'app-product-detail-view',
-  // A fourth page width, beside the wide, form and reading columns: the top
-  // band wants three columns and the readings under it are set to a measure of
-  // their own, so the page is as wide as the band and no wider. On the
-  // component rather than on the route's section, so the editor's live preview
-  // is the same page — and a container, so that preview lays itself out by the
-  // room it has rather than by the window around the editor.
+  // The page width is the component's, not the route's, so the preview is the
+  // same page; a container, so it lays out by the room it has.
   host: { class: 'block @container/product max-w-7xl' },
   imports: [
     RouterLink,
@@ -149,11 +95,7 @@ const NARROW = '(max-width: 39.999rem)';
       [attr.aria-label]="text.catalogRoot"
       [class]="crumbInset() ? editActionsInset : ''"
     >
-      <!-- Inline flow, not a flex row. Flexed, a crumb is one unbreakable box:
-           a category whose name does not fit the line drops whole onto the next
-           one and leaves the gap it came from, which on a wide screen is half a
-           line of nothing. As text, a long name wraps where it runs out of room
-           and the trail stays a trail. -->
+      <!-- Inline, not flex: a flexed crumb drops whole onto the next line. -->
       <ol role="list" class="text-sm text-ink-subtle">
         <li class="inline">
           <a routerLink="/catalog" class="hover:text-accent">
@@ -190,11 +132,8 @@ const NARROW = '(max-width: 39.999rem)';
             {{ displayName(item().category) }}
           </a>
         </li>
-        <!-- The product's own crumb is the one line the trail can lose on a
-             phone: the <h1> under it says the same thing, at a size that does
-             not wrap the trail onto three lines. Hidden from assistive
-             technology too, for the same reason — it would be the name read
-             twice, not a missing landmark. -->
+        <!-- The product's crumb goes on a phone, where the <h1> under it says
+             the same; hidden from assistive technology, as the name twice. -->
         <li aria-hidden="true" class="hidden sm:inline">
           <ui-icon
             [glyph]="chevronRightIcon"
@@ -209,12 +148,8 @@ const NARROW = '(max-width: 39.999rem)';
       </ol>
     </nav>
 
-    <!-- Above the columns rather than inside one: with the way to buy in a
-         column of its own, a name in the middle column would sit level with the
-         price instead of over the whole page. -->
-    <!-- Whatever the host projects as productStatus sits beside the name:
-         an admin's page of a product the public cannot see says so here,
-         drawn with the page rather than after it (FR-ADM-06). -->
+    <!-- Above the columns, over the whole page. productStatus is where an
+         admin's page says the public cannot see it (FR-ADM-06). -->
     <div class="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1">
       <h1 class="text-2xl font-medium tracking-tight sm:text-3xl">
         {{ item().name }}
@@ -233,16 +168,9 @@ const NARROW = '(max-width: 39.999rem)';
         />
       </div>
 
-      <!-- The four facts that decide it, beside the photo — the head of the
-           table below, not a second one, which is what its heading and the
-           link under it say between them. Gone entirely where there is no
-           third column, since everything in it is still on the page a screen
-           further down.
-
-           The variants stand under them (FR-CAT-11): beside the pictures they
-           move, where a wide page has room, rather than under the gallery
-           pushing the description down. Once the column goes, the gallery
-           draws the list under itself instead. -->
+      <!-- The head of the table below, gone with the third column. The
+           variants stand under it, beside the pictures they move (FR-CAT-11);
+           without the column the gallery draws them. -->
       @if (mainAttributes().length || item().variants.length) {
         <div class="hidden @min-[65rem]/product:block">
           @if (mainAttributes().length) {
@@ -294,9 +222,7 @@ const NARROW = '(max-width: 39.999rem)';
         <app-product-buy-block [item]="item()" [canAdd]="canAdd()" />
       </aside>
 
-      <!-- The seam under the band, drawn only where the band is a band: with
-           one column the gap already says it, and a rule across a stack is one
-           more line in a page of them. -->
+      <!-- Only where the band has columns: in a stack the gap says it. -->
       <div
         aria-hidden="true"
         class="col-span-full hidden border-t border-edge
@@ -345,12 +271,8 @@ const NARROW = '(max-width: 39.999rem)';
 
       <ng-container [ngTemplateOutlet]="specs" />
 
-      <!-- Under the specifications, in a cell of its own: a document is a fact
-           about the product like the table above it, and it is looked for
-           after the specification it certifies rather than instead of it.
-           Absent when there is nothing current to show — an empty heading
-           would read as "this product has no papers", which is not what an
-           expired certificate means. -->
+      <!-- Absent with nothing current: an empty heading would say "no papers",
+           which an expired certificate does not mean. -->
       @if (item().documents.length) {
         <div [id]="documentsId" [class]="specsCellClass">
           <h2 [class]="sectionHeading">
@@ -368,8 +290,7 @@ const NARROW = '(max-width: 39.999rem)';
       }
     </div>
 
-    <!-- Wrapped in an element of its own, so the heading and its table land
-         in one grid cell rather than in two. -->
+    <!-- One element, so heading and table land in one grid cell. -->
     <ng-template #specs>
       @if (attributes().length || packagingRows().length) {
         <div [id]="specsId" [class]="specsCellClass">
@@ -383,9 +304,8 @@ const NARROW = '(max-width: 39.999rem)';
               {{ text.specifications }}
             </a>
           </h2>
-          <!-- A real table (not a dl) so selecting rows and copying yields
-             tab-separated key/value pairs — paste-ready into a spreadsheet or
-             the product editor's attribute grid. -->
+          <!-- A table, not a dl: copied rows paste as TSV into a spreadsheet
+               or the editor's attribute grid. -->
           <table class="mt-3 w-full border-t border-edge text-sm">
             <tbody class="divide-y divide-edge">
               @for (attr of attributes(); track $index) {
@@ -404,8 +324,7 @@ const NARROW = '(max-width: 39.999rem)';
                   </td>
                 </tr>
               }
-              <!-- Packaging closes the table as one group: the rows above say
-                 what the product is, these say how it ships. -->
+              <!-- What it is, then how it ships. -->
               @for (row of packagingRows(); track row.label) {
                 <tr>
                   <th
@@ -425,12 +344,8 @@ const NARROW = '(max-width: 39.999rem)';
       }
     </ng-template>
 
-    <!-- One cell for both tables. A filterable value is the way to "more like
-         this": the product's own category, narrowed to this value
-         (FR-ATTR-08), and the link treatment is the only cue that the shop
-         filters by this attribute at all. Shared rather than written twice —
-         the band's table was a copy that never grew the link, so the same
-         value was a link a screen further down and plain text here. -->
+    <!-- One cell for both tables. A filterable value links to its category
+         narrowed to it (FR-ATTR-08). -->
     <ng-template #attributeValue let-attr>
       @if (attr.filterParam) {
         <a
@@ -451,38 +366,26 @@ export class ProductDetailView {
   protected readonly text = inject(STOREFRONT_TEXT).catalog;
   protected readonly product = inject(SHARED_TEXT).product;
   protected readonly columnsClass = `${PRODUCT_PAGE_COLUMNS} mt-6`;
-  protected readonly imageColumnClass = `min-w-0 ${IMAGE_CAP}`;
-  /** Nothing but the container it opens: the track caps the panel at 20rem in
-   * both of the shapes that have a column for it, and the facts beside it take
-   * whatever it leaves. */
+  /** The gallery caps itself; see ProductGallery. */
+  protected readonly imageColumnClass = 'min-w-0 w-full';
+  /** The track caps the panel. */
   protected readonly buyColumnClass = '@container/buy';
   protected readonly descriptionCellClass = `${PRODUCT_PAGE_SECTION_CELL} ${READING_WIDTH}`;
   protected readonly specsCellClass = `${PRODUCT_PAGE_SECTION_CELL} ${TABLE_WIDTH}`;
-  /**
-   * Both halves of the lower row are headed the same way, and each heading is
-   * the link to its own section — a specification worth quoting to a colleague
-   * has an address now.
-   *
-   * Written as a router link with a fragment and no path, rather than as a
-   * plain `href="#id"`: the document carries `<base href="/">`, against which
-   * a bare fragment resolves to the site root, so the link that was meant to
-   * move down the page left it. The router keeps the query string too, which
-   * is what carries the editor's return path.
-   */
   protected readonly sectionHeading =
     'text-xs font-medium tracking-wide text-ink-subtle uppercase';
+  /** Each heading links to its section, as a router link with a fragment: a
+   * bare `href="#id"` resolves against `<base href="/">` to the site root. The
+   * router keeps the query string, which carries the editor's return path. */
   protected readonly sectionAnchor = 'transition-colors hover:text-accent';
   protected readonly descriptionId = 'description';
   protected readonly specsId = 'specifications';
   protected readonly documentsId = 'documents';
-  protected readonly documentText = inject(STOREFRONT_TEXT).catalog.documents;
-  /** The description is trusted rich text (server-sanitized, same as pages). */
+  /** Sanitized by the server, as pages are. */
   protected readonly safeDescription = trustedRichText();
 
   readonly item = input.required<ProductDetail>();
-  /** False in the editor's live preview: the buying block is shown so a manager
-   * sees the units and the note prompt they just configured, but adding to a
-   * cart from a preview of an unsaved product is not a thing to offer. */
+  /** False in the editor's preview, which shows the panel but sells nothing. */
   readonly canAdd = input(true);
   /** Edit mode's cluster is pinned beside the breadcrumb: keep clear of it. */
   readonly crumbInset = input(false);
@@ -492,18 +395,12 @@ export class ProductDetailView {
   protected readonly displayName = categoryDisplayName;
 
   private readonly units = useProductUnits();
-  /**
-   * The attributes worth a row. A stored attribute with no value would print a
-   * dangling label; the editor stopped saving them, and this covers what was
-   * stored before it did.
-   */
+  /** An empty value is an old stored row, and would print a dangling label. */
   protected readonly attributes = computed(() =>
     this.item()
       .attributes.filter((a) => a.value.trim() !== '')
-      // A declared attribute's unit lives on the definition, never in the
-      // value, so it is joined on here rather than stored (FR-ATTR-01) — and
-      // the link is written from the *stored* value, which is what the facet
-      // and the URL are keyed by.
+      // The unit is the definition's, joined here (FR-ATTR-01); the link is
+      // written from the stored value, which the facet is keyed by.
       .map((a) => ({
         key: a.key,
         value: formatAttributeValue(a.value, a.unit),
@@ -515,8 +412,7 @@ export class ProductDetailView {
       })),
   );
 
-  /** The first few, in the order the product states them — the manager's own
-   * order, which is the one the editor's grid is dragged into. */
+  /** In the manager's own order, as dragged in the editor. */
   protected readonly mainAttributes = computed(() =>
     this.attributes().slice(0, MAIN_SPECS),
   );
@@ -531,47 +427,35 @@ export class ProductDetailView {
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
   private readonly destroyRef = inject(DestroyRef);
 
-  /** Live viewport state. Stays false on the server (and in unit tests), which
-   * renders the whole description — so crawlers always see the full text. */
+  /**
+   * False on the server and in the first browser render, so crawlers get the
+   * whole text and hydration sees the server's markup; armed after it. Not
+   * `injectNarrowScreen`, which answers in the constructor.
+   */
   private readonly narrow = signal(false);
 
   /** Armed only while the toggle's own movement runs, so turning the phone
    * changes the clip with no transition on the element. */
   protected readonly descriptionDisclosure = disclosureState(200);
   protected readonly descriptionExpanded = this.descriptionDisclosure.open;
-  /** Set while the collapsed description actually has more text to reveal. */
+  /** The collapsed description has more to reveal. */
   private readonly descriptionOverflows = signal(false);
-  /** The text's unclipped height, as the open state's `max-height`: `none` is
-   * not a length, so a transition to it would not run. Null until measured,
-   * and the fallback then leaves the text unclipped. */
+  /** The open state's `max-height`: a transition to `none` does not run.
+   * Unmeasured, the fallback leaves the text unclipped. */
   protected readonly descriptionFullHeight = signal<string | null>(null);
   protected readonly descriptionTextId = 'description-text';
 
-  /** Collapsed only on a phone, where the description has neither a column of
-   * its own nor one beside it and would push everything else below the fold. */
   protected readonly descriptionCollapsed = computed(
     () => this.narrow() && !this.descriptionExpanded(),
   );
-  /** A description that fits inside the cap is not clipped, so fading its last
-   * line would only make readable text look cut off. */
+  /** Text that fits the cap is not faded, or it looks cut off. */
   protected readonly descriptionFaded = computed(
     () => this.descriptionCollapsed() && this.descriptionOverflows(),
   );
   /**
-   * The clip, and the movement between its two states. Off the phone there is
-   * no clip at all: the description has a column to itself and nothing to
-   * reveal, so neither the cap nor the transition has any business there.
-   */
-  /**
-   * The clip, and the movement between its two states. Off the phone there is
-   * no clip at all: the description has a column to itself and nothing to
-   * reveal, so neither the cap nor the transition has any business there.
-   *
-   * Both states are a length, because a transition to or from `none` does not
-   * run — the open one is the measured height of the text, with slack that
-   * costs no height and keeps the cap clear of the words under it. `-m-1 p-1`
-   * insets the clipped box so `overflow-hidden` does not cut the focus outline
-   * off a link on the last visible line.
+   * Only on a phone. Both states are lengths, the open one the measured height
+   * with slack. `-m-1 p-1` keeps `overflow-hidden` from cutting a focus
+   * outline on the last visible line.
    */
   protected readonly descriptionClass = computed(() => {
     if (!this.narrow()) return '';
@@ -594,15 +478,13 @@ export class ProductDetailView {
       return;
     }
     afterNextRender(() => {
-      // The collapse depends on a measured height, so without a layout engine
-      // (jsdom, in unit tests) it is not armed and the whole text stands.
+      // Without a layout engine (jsdom) the whole text stands.
       if (typeof ResizeObserver === 'undefined') {
         return;
       }
       this.watch(NARROW, this.narrow);
 
-      // The height changes with the description expanding and with the phone
-      // turning, so measure continuously rather than once.
+      // Expanding and turning the phone both change the height.
       const desc = this.description()?.nativeElement;
       if (!desc) {
         return;
@@ -614,7 +496,6 @@ export class ProductDetailView {
     });
   }
 
-  /** Mirrors a media query into a signal for the lifetime of the component. */
   private watch(query: string, target: ReturnType<typeof signal<boolean>>) {
     const list = window.matchMedia(query);
     const update = () => target.set(list.matches);
@@ -629,8 +510,8 @@ export class ProductDetailView {
     if (this.descriptionCollapsed()) {
       this.descriptionOverflows.set(desc.scrollHeight > desc.clientHeight + 1);
     }
-    // Unclipped in either state — scrollHeight is the whole text's height even
-    // while the cap hides the end of it.
+    // scrollHeight is the whole text's even while the cap hides its end.
+
     this.descriptionFullHeight.set(`${desc.scrollHeight}px`);
   }
 }

@@ -30,10 +30,7 @@ import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import { injectEditorReturn } from '../../../shared/edit-mode/editor-return';
 import { UnsavedChangesAware } from '../../unsaved-changes.guard';
 import { UnsavedChanges } from '../../unsaved-changes';
-import {
-  documentFileLabel,
-  documentFileSize,
-} from '../../../shared/core/document-file';
+import { documentFileCaption } from '../../../shared/core/document-file';
 import { DropZone } from '@b2b-catalog-platform/ui/inputs/drop-zone';
 import {
   FileTarget,
@@ -376,10 +373,7 @@ export class DocumentEditorPage implements UnsavedChangesAware, FieldAttempt {
   }
 
   protected meta(stored: StoredDocumentFile): string {
-    return `${documentFileLabel(stored.contentType)} · ${documentFileSize(
-      stored.byteSize,
-      this.sizes,
-    )}`;
+    return documentFileCaption(stored, this.sizes);
   }
 
   private async load(): Promise<void> {

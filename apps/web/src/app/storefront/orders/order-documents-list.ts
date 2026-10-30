@@ -2,9 +2,10 @@ import { Component, computed, inject, input } from '@angular/core';
 import { OrderDocument, orderDocumentPath } from '@b2b-catalog-platform/shared';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { AcceptedDocumentMime } from '@b2b-catalog-platform/shared/platform';
 import {
+  documentFileCaption,
   documentFileLabel,
-  documentFileSize,
 } from '../../shared/core/document-file';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { fileTextIcon } from '@b2b-catalog-platform/ui/icons/glyphs/file-text';
@@ -95,9 +96,12 @@ export class OrderDocumentsList {
   /** "PDF · 240 kB" for a file the shop supplied; just the format for the one
    * the shop system draws on demand. */
   private caption(document: OrderDocument): string {
-    const format = documentFileLabel(document.contentType as never);
+    const contentType = document.contentType as AcceptedDocumentMime;
     return document.byteSize === null
-      ? format
-      : `${format} · ${documentFileSize(document.byteSize, this.sizes)}`;
+      ? documentFileLabel(contentType)
+      : documentFileCaption(
+          { contentType, byteSize: document.byteSize },
+          this.sizes,
+        );
   }
 }

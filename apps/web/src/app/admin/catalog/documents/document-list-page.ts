@@ -45,8 +45,7 @@ import { UnpublishedCount } from '../products/unpublished-count';
 import { injectEditorReturnParams } from '../../../shared/edit-mode/editor-return';
 import { DocumentsService } from './documents.service';
 import {
-  documentFileLabel,
-  documentFileSize,
+  documentFileCaption,
   documentLinkHost,
 } from '../../../shared/core/document-file';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
@@ -412,11 +411,7 @@ export class DocumentListPage {
   /** "PDF · 240 kB", "Link", or both joined. */
   protected fileLabel({ file, link }: ProductDocument): string {
     return [
-      file &&
-        `${documentFileLabel(file.contentType)} · ${documentFileSize(
-          file.byteSize,
-          this.sizes,
-        )}`,
+      file && documentFileCaption(file, this.sizes),
       link && this.text.link,
     ]
       .filter(Boolean)

@@ -16,15 +16,10 @@ export function firstPictureOf(
 }
 
 /**
- * The variants a product names, as a list beside its pictures (FR-CAT-11):
- * every name in full, wrapping rather than shortening, and the variant of the
- * picture on show marked, however that picture came to be shown.
- *
- * Pointing at a name, focusing it or tapping it asks for its first picture,
- * and nothing puts the gallery back afterwards: a list that snapped back as
- * the pointer left it would flicker under a hand crossing it on the way to the
- * button. A variant with no picture on show is listed but asks for nothing,
- * and an unavailable one says so (FR-CAT-12).
+ * A product's variants beside its pictures (FR-CAT-11), names in full and the
+ * one on show marked. Pointing, focus or a tap asks for its first picture, and
+ * nothing snaps back on leaving: it would flicker under a hand crossing to the
+ * button. Unavailable ones say so (FR-CAT-12).
  */
 @Component({
   selector: 'app-product-variant-list',
@@ -95,9 +90,7 @@ export class ProductVariantList {
   private readonly base = `inline-flex min-w-0 items-center gap-1 rounded-md
                            px-2 py-1 text-sm leading-tight`;
 
-  /** A hairline at rest, answering a pointer with accent. The chosen one is
-   * filled in the secondary colour, which is the one the pictures' labels
-   * wear, so the name picked here and the name on the photo read as one. */
+  /** The chosen one in the secondary colour, the pictures' labels' own. */
   protected chip(chosen: boolean): string {
     return `${this.base} text-left ring-1 transition-colors ${
       chosen
@@ -107,11 +100,10 @@ export class ProductVariantList {
     }`;
   }
 
-  /** A variant with no picture yet: offered like the others, so drawn like
-   * them at rest, but with nothing to answer a pointer with. */
+  /** No picture yet: drawn like the others at rest, answering no pointer. */
   protected readonly pictureless = `${this.base} bg-white ring-1 ring-edge`;
 
-  /** One that is out for now: greyed on the page's ground, which is what says
-   * it cannot be had rather than that it has no picture. */
+  /** Greyed: it cannot be had, which is more than having no picture. */
+
   protected readonly unavailable = `${this.base} bg-ink/5 text-ink-subtle`;
 }

@@ -20,15 +20,10 @@ import { ProductVariantList } from './product-variant-list';
 export type VariantGalleryShape = 'page' | 'stack' | 'side';
 
 /**
- * A product's pictures with its variants listed next to them (FR-CAT-11) — the
- * product page's gallery, and what a row's variants mark opens (FR-CAT-13).
- * Never over a picture. A product that names no variants is its gallery alone.
- *
- * The list is sized by the gallery rather than the other way round: under it,
- * it has no width of its own to offer the column (`contain-inline-size`), so a
- * run of long names wraps instead of widening the page; beside it, it is as
- * tall as the pictures and scrolls past that, so fifteen names do not carry a
- * bubble off the bottom of the screen.
+ * A product's pictures with its variants beside them (FR-CAT-11, FR-CAT-13).
+ * The gallery sizes the list: under it the list offers no width
+ * (`contain-inline-size`), so long names wrap; beside it it is as tall as the
+ * pictures and scrolls, so many names cannot carry a bubble off screen.
  */
 @Component({
   selector: 'app-product-variant-gallery',
@@ -60,12 +55,9 @@ export class ProductVariantGallery {
   readonly variants = input.required<readonly ProductVariant[]>();
   readonly productName = input('');
   readonly shape = input<VariantGalleryShape>('page');
-  /**
-   * Classes that say where its own list is drawn. The product page shows the
-   * list in its middle column where it has one, and here only once that
-   * column has gone — the page draws the second list itself, from `current`
-   * and `show`.
-   */
+  /** Where this list shows: the page draws its own in the middle column, from
+   * `current` and `show`, and this one only once that column has gone. */
+
   readonly listWhere = input('');
 
   protected readonly hostClass = computed(() =>

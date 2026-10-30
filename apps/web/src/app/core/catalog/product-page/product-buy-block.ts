@@ -21,20 +21,9 @@ import { useTaxStatement } from '../pricing/tax-statement';
 import { Card } from '@b2b-catalog-platform/ui/content/card';
 
 /**
- * The buying block on a product page (FR-UNIT-07, FR-CART-01/08). The controls
- * are the same component a grid tile carries — a customer who learned the
- * selector on a card finds it unchanged here — and what this adds is the room a
- * tile does not have: the packaging facts at full size, and the note where the
- * product asks for one.
- *
- * It sits beside the photo, above the description rather than below it: a
- * description can be arbitrarily long, and the price and the way to buy are
- * what a returning customer came for.
- *
- * Nothing here is captioned that the control already says. The unit segments
- * read "Piece / Pack / Box" and the quantity is a number with steppers welded
- * to it; a label above either would only repeat it. The two facts that are
- * *not* visible in a control — the minimum and the packaging — get the words.
+ * The product page's buying panel (FR-UNIT-07, FR-CART-01/08): a tile's own
+ * controls, plus what a tile has no room for, the packaging facts and the
+ * line note. Nothing is captioned that a control already says.
  */
 @Component({
   selector: 'app-product-buy-block',
@@ -50,22 +39,11 @@ import { Card } from '@b2b-catalog-platform/ui/content/card';
     ProductUnitFacts,
   ],
   template: `
-    <!-- The padding follows the column: at its 15rem floor the panel gives it
-         back, so the controls keep the 13.5rem they have inside a catalogue
-         tile. 11px rather than 12 because the panel is a bordered box and the
-         tile is not — the border is the pixel a side that would otherwise go
-         missing.
-
-         The threshold is what the full padding actually costs, not a round
-         number above it: 13.5rem of controls plus 16px a side plus the border
-         is 15.625rem, so 15.75rem is the last width at which nothing has to be
-         given back. It was 17rem, which spent the padding a fifth of a column
-         early — on the product page the panel shed it while it still had 2rem
-         of slack over its floor. -->
+    <!-- At its 15rem floor the panel gives its padding back, so the controls
+         keep a tile's 13.5rem (11px: the border is the missing pixel). 15.75rem
+         is what full padding costs: 13.5rem + 16px a side + the border. -->
     <div uiCard [padded]="false" class="py-4 px-2.75 @min-[15.75rem]/buy:px-4">
-      <!-- Over the price, as it is over the name on a card: whether the thing
-           can be had is read before what it costs, and the panel's first line
-           is where the eye enters it. -->
+      <!-- Over the price, as on a card: read before what it costs. -->
       <app-product-availability-badge
         class="mb-1"
         [availability]="item().availability"
@@ -80,20 +58,13 @@ import { Card } from '@b2b-catalog-platform/ui/content/card';
         [canAdd]="canAdd()"
         [priceNote]="taxNote()"
       >
-        <!-- One column at one spacing, from the packaging facts to the
-             button: whichever of the three below a product has — none, one or
-             all of them — the gaps between them and the gap above the button
-             are the same 12px. Each used to bring its own margin, and the last
-             one sat 8px from the button because nothing knew it was last.
-             mb-1 because the button keeps its own mt-2, which it needs on a
-             card; the two come to the gap. -->
+        <!-- One 12px gap whichever of these a product has; mb-1 plus the
+             button's own mt-2 make the gap above it. -->
         <div class="mt-2 mb-1 flex flex-col items-stretch gap-3">
           <app-product-unit-facts [packagingInfo]="packaging()" />
 
-          <!-- Straight under the packaging, because it is what the packaging
-               counts: "100 pcs" is a hundred cups with their lids. Above the
-               pairing link — what one piece is comes before what goes with
-               it. -->
+          <!-- Under the packaging it counts: "100 pcs" is a hundred cups with
+               their lids. -->
           @if (item().parts.length > 0) {
             <app-product-set-badge
               class="self-start"
@@ -102,11 +73,6 @@ import { Card } from '@b2b-catalog-platform/ui/content/card';
             />
           }
 
-          <!-- After the packaging facts and before the note: it is one more
-               thing this product says about itself, and the note is the one
-               thing on this panel the customer writes. With the word rather
-               than the glyph alone — there is a line to spare here, and the
-               panel it opens is worth naming before it is pressed. -->
           @if (item().pairedCount > 0) {
             <app-product-pairings
               class="self-start"
@@ -117,9 +83,8 @@ import { Card } from '@b2b-catalog-platform/ui/content/card';
           }
 
           @if (item().lineNoteEnabled) {
-            <!-- The product's question is the field's placeholder rather than
-                 a line under it: it says what to write, and it is read while
-                 the field is empty — the only time it has anything to say. -->
+            <!-- The product's question is the placeholder: read while the
+                 field is empty, the only time it says anything. -->
             <label class="block">
               <span uiFieldLabel>{{ text.noteLabel }}</span>
               <textarea
@@ -146,8 +111,7 @@ export class ProductBuyBlock {
   private readonly tax = useTaxStatement();
 
   readonly item = input.required<ProductDetail>();
-  /** False in the product editor's live preview: the block is there to show
-   * what a visitor will see, not to fill a manager's own cart. */
+  /** False in the editor's preview. */
   readonly canAdd = input(true);
   protected readonly packaging = computed(() => this.item().packaging);
   protected readonly taxNote = computed(() =>
@@ -156,12 +120,8 @@ export class ProductBuyBlock {
 
   private readonly cart = inject(CartService);
 
-  /**
-   * Seeded from the cart's line, so a note written on a previous visit is on
-   * screen rather than apparently lost — this field *is* that note once the
-   * product is in the cart. Reset with the product: a note belongs to the line
-   * it was typed for.
-   */
+  /** The cart line's note once the product is in the cart, so an earlier one
+   * is not apparently lost; reset with the product. */
   protected readonly note = linkedSignal<string, string>({
     source: () => this.item().slug,
     computation: (slug) => this.cart.lineFor(slug)?.note ?? '',
@@ -175,8 +135,9 @@ export class ProductBuyBlock {
     this.note.set((event.target as HTMLTextAreaElement).value);
   }
 
-  /** Written to the line when the field is left, the same moment the bubble on
-   * a card writes its own — the note is a sentence, not a keystroke. */
+  /** On leaving the field, as a card's bubble does: a sentence, not a
+   * keystroke. */
+
   protected saveNote(): void {
     const note = this.note().trim();
     this.cart.setNote(this.item().slug, note === '' ? null : note);
