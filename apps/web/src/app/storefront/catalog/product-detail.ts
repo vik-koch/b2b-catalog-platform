@@ -33,7 +33,7 @@ import {
   PRODUCT_PAGE_COLUMNS,
   PRODUCT_PAGE_SECTION_CELL,
   ProductDetailView,
-} from '../../core/catalog/product-detail-view';
+} from '../../core/catalog/product-page/product-detail-view';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 
 /**

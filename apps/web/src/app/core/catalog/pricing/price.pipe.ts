@@ -1,5 +1,5 @@
 import { inject, Pipe, PipeTransform } from '@angular/core';
-import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
+import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
 import { formatPriceMinor } from './price';
 import { moneyFormat } from '@b2b-catalog-platform/shared';
 

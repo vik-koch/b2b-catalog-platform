@@ -1,4 +1,4 @@
-import { formatPriceMinorShort } from '../../core/catalog/price';
+import { formatPriceMinorShort } from '../../core/catalog/pricing/price';
 import { defaultDeploymentConfig } from '../../shared/config/deployment-config.fixture';
 import { cartShellSource } from './cart-shell.server';
 import {

@@ -1,5 +1,5 @@
 import { QUANTITY_SCALE } from '@b2b-catalog-platform/shared/core/catalog';
-import { CurrencyConfig, decimalSeparator } from './price';
+import { CurrencyConfig, decimalSeparator } from '../pricing/price';
 
 /**
  * Reading and writing a quantity in the unit it is being bought through

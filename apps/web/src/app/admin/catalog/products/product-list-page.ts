@@ -21,7 +21,7 @@ import {
   PRODUCT_GAP_FILTERS,
 } from '@b2b-catalog-platform/shared/admin/catalog';
 import { NgTemplateOutlet } from '@angular/common';
-import { PricePipe } from '../../../core/catalog/price.pipe';
+import { PricePipe } from '../../../core/catalog/pricing/price.pipe';
 import { ADMIN_TEXT } from '../../../shared/config/admin-text';
 import { SHARED_TEXT } from '../../../shared/config/shared-text';
 import { delayedLoading } from '../../../shared/core/delayed-loading';

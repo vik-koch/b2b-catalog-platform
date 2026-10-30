@@ -10,10 +10,10 @@ import {
   unitQuantity,
 } from '@b2b-catalog-platform/shared/core/catalog';
 import { fillText, moneyFormat } from '@b2b-catalog-platform/shared';
-import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
-import { SHARED_TEXT } from '../../shared/config/shared-text';
-import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
-import { formatPriceMinor } from './price';
+import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
+import { SHARED_TEXT } from '../../../shared/config/shared-text';
+import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
+import { formatPriceMinor } from '../pricing/price';
 import { formatStoredDecimal, formatUnitQuantity } from './quantity';
 
 /** One priced unit, ready to render. */

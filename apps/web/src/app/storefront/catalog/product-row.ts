@@ -13,7 +13,7 @@ import {
 import {
   BuyableProduct,
   ProductBuyControls,
-} from '../../core/catalog/product-buy-controls';
+} from '../../core/catalog/buying/product-buy-controls';
 import { ProductStatusLine } from './ui/product-status-line';
 import { TileGallery } from './ui/tile-gallery';
 import { Frame } from '@b2b-catalog-platform/ui/content/frame';

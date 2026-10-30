@@ -19,9 +19,9 @@ import {
   UnitPrices,
 } from '@b2b-catalog-platform/shared/core/catalog';
 import { fillText, moneyFormat } from '@b2b-catalog-platform/shared';
-import { CartAddResult, CartService } from '../../shared/cart/cart.service';
-import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
-import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
+import { CartAddResult, CartService } from '../../../shared/cart/cart.service';
+import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
+import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { ButtonBox } from '@b2b-catalog-platform/ui/actions/button-box';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
@@ -33,13 +33,13 @@ import {
 } from '@b2b-catalog-platform/ui/choices/segment';
 import { SegmentGroup } from '@b2b-catalog-platform/ui/choices/segment-group';
 import { createBuyQuantity } from './buy-quantity';
-import { formatPriceMinor } from './price';
+import { formatPriceMinor } from '../pricing/price';
 import { ProductNoteEditor } from './product-note-editor';
 import { ProductPairings } from './product-pairings';
 import { ProductUnitFacts } from './product-unit-facts';
 import { useProductUnits } from './product-units-view';
 import { WarningNote } from '@b2b-catalog-platform/ui/content/warning-note';
-import { FirstRender } from '../../shared/core/first-render';
+import { FirstRender } from '../../../shared/core/first-render';
 import { minusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/minus';
 import { plusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/plus';
 import { shoppingBasketIcon } from '@b2b-catalog-platform/ui/icons/glyphs/shopping-basket';

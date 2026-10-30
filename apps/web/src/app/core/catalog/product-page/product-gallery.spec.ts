@@ -1,10 +1,10 @@
-import { SHARED_TEXT, provideUiText } from '../../shared/config/shared-text';
-import { defaultSharedText } from '../../shared/config/shared-text.fixture';
+import { SHARED_TEXT, provideUiText } from '../../../shared/config/shared-text';
+import { defaultSharedText } from '../../../shared/config/shared-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import { ComponentFixture } from '@angular/core/testing';
 import { CatalogImage } from '@b2b-catalog-platform/shared/core/catalog';
-import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
-import { defaultStorefrontText } from '../../shared/config/storefront-text.fixture';
+import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
+import { defaultStorefrontText } from '../../../shared/config/storefront-text.fixture';
 import { ProductGallery } from './product-gallery';
 
 const img = (n: number): CatalogImage => ({

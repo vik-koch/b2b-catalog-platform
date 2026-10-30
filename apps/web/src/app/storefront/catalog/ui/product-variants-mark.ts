@@ -22,7 +22,7 @@ import { DialogPanel } from '@b2b-catalog-platform/ui/overlay/dialog-panel';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Link } from '@b2b-catalog-platform/ui/actions/link';
 import { Popover } from '@b2b-catalog-platform/ui/overlay/popover';
-import { ProductVariantGallery } from '../../../core/catalog/product-variant-gallery';
+import { ProductVariantGallery } from '../../../core/catalog/product-page/product-variant-gallery';
 import { paletteIcon } from '@b2b-catalog-platform/ui/icons/glyphs/palette';
 
 /**

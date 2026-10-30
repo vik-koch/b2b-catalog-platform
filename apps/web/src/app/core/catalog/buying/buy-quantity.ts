@@ -9,7 +9,7 @@ import {
   unitQuantity,
   unitQuantityIsWhole,
 } from '@b2b-catalog-platform/shared/core/catalog';
-import { CurrencyConfig } from './price';
+import { CurrencyConfig } from '../pricing/price';
 import { formatUnitQuantity, parseUnitQuantity } from './quantity';
 
 /** As much of a cart line as choosing a quantity needs to read. */

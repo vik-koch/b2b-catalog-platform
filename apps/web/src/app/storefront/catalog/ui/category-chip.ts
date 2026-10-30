@@ -5,7 +5,7 @@ import {
   categoryDisplayName,
 } from '@b2b-catalog-platform/shared/core/catalog';
 import { HighlightedLine } from '@b2b-catalog-platform/ui/suggest/highlighted-line';
-import { MatchSegmentsPipe } from '../../../core/catalog/match-segments.pipe';
+import { MatchSegmentsPipe } from '../../../core/catalog/search/match-segments.pipe';
 
 /**
  * What the chip needs of a category — the shape both the public tree node and

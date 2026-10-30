@@ -64,14 +64,14 @@ import {
   formatPriceInput,
   parsePriceInput,
   partialPriceRule,
-} from '../../../core/catalog/price';
+} from '../../../core/catalog/pricing/price';
 import { LockedNote } from '../../ownership/locked-note';
 import { Allow } from '@b2b-catalog-platform/ui/inputs/allow';
 import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';
 import { LockedFieldMarker } from '../../ownership/locked-field-marker';
 import { SettingsService } from '../../settings/settings.service';
-import { ProductAvailabilityBadge } from '../../../core/catalog/product-availability-badge';
-import { ProductDetailView } from '../../../core/catalog/product-detail-view';
+import { ProductAvailabilityBadge } from '../../../core/catalog/buying/product-availability-badge';
+import { ProductDetailView } from '../../../core/catalog/product-page/product-detail-view';
 import { ADMIN_TEXT } from '../../../shared/config/admin-text';
 import { SHARED_TEXT } from '../../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';

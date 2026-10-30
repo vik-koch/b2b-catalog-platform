@@ -1,6 +1,6 @@
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import { effect, inject, Injectable, PLATFORM_ID } from '@angular/core';
-import { formatPriceMinorShort } from '../../core/catalog/price';
+import { formatPriceMinorShort } from '../../core/catalog/pricing/price';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { CartService } from '../../shared/cart/cart.service';
 import { moneyFormat } from '@b2b-catalog-platform/shared';

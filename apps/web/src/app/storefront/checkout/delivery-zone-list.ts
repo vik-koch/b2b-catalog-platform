@@ -2,7 +2,7 @@ import { Component, inject, input } from '@angular/core';
 import { fillText, moneyFormat } from '@b2b-catalog-platform/shared';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
-import { formatPriceMinor } from '../../core/catalog/price';
+import { formatPriceMinor } from '../../core/catalog/pricing/price';
 import { EmphasisedText } from '@b2b-catalog-platform/ui/content/emphasised-text';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { mapIcon } from '@b2b-catalog-platform/ui/icons/glyphs/map';

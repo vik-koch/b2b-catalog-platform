@@ -14,7 +14,7 @@ import {
   NARROW_PADDING_IN_GRID,
   NARROW_PHOTO_IN_GRID,
 } from './ui/listing-narrow';
-import { PricePipe } from '../../core/catalog/price.pipe';
+import { PricePipe } from '../../core/catalog/pricing/price.pipe';
 import { PRODUCT_GRID } from './ui/product-tile';
 // eslint-disable-next-line no-restricted-imports -- until the texts are cut by area: edit mode is staff reading a storefront page
 import { ADMIN_TEXT } from '../../shared/config/admin-text';

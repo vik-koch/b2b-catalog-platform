@@ -10,7 +10,7 @@ import {
   signal,
   untracked,
 } from '@angular/core';
-import { useTaxStatement } from '../../core/catalog/tax-statement';
+import { useTaxStatement } from '../../core/catalog/pricing/tax-statement';
 import { apply, form, hidden, required } from '@angular/forms/signals';
 import { Router, RouterLink } from '@angular/router';
 import {
@@ -45,7 +45,7 @@ import {
   formatPriceMinor,
   formatPriceInput,
   parsePriceInput,
-} from '../../core/catalog/price';
+} from '../../core/catalog/pricing/price';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { staffBlockLabels } from './staff-block-labels';

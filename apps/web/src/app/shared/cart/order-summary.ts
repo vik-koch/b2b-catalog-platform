@@ -5,9 +5,9 @@ import {
   TaxBasis,
   moneyFormat,
 } from '@b2b-catalog-platform/shared';
-import { formatPriceMinor } from '../../core/catalog/price';
-import { formatStoredDecimal } from '../../core/catalog/quantity';
-import { useTaxStatement } from '../../core/catalog/tax-statement';
+import { formatPriceMinor } from '../../core/catalog/pricing/price';
+import { formatStoredDecimal } from '../../core/catalog/buying/quantity';
+import { useTaxStatement } from '../../core/catalog/pricing/tax-statement';
 import { STOREFRONT_TEXT } from '../config/storefront-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';

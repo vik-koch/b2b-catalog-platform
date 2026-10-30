@@ -35,7 +35,7 @@ import {
   sortParam,
 } from './product-sort-select';
 import { PRODUCT_GRID, ProductTile } from './ui/product-tile';
-import { useTaxStatement } from '../../core/catalog/tax-statement';
+import { useTaxStatement } from '../../core/catalog/pricing/tax-statement';
 
 /**
  * Search results — the same product tiles the category grid

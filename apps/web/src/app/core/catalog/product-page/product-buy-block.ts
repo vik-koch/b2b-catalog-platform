@@ -7,17 +7,17 @@ import {
 } from '@angular/core';
 import { CART_NOTE_MAX } from '@b2b-catalog-platform/shared';
 import { ProductDetail } from '@b2b-catalog-platform/shared/core/catalog';
-import { CartService } from '../../shared/cart/cart.service';
-import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
+import { CartService } from '../../../shared/cart/cart.service';
+import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
 import { AutoGrow } from '@b2b-catalog-platform/ui/inputs/auto-grow';
 import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
 import { Input } from '@b2b-catalog-platform/ui/inputs/input';
-import { ProductAvailabilityBadge } from './product-availability-badge';
-import { ProductBuyControls } from './product-buy-controls';
-import { ProductPairings } from './product-pairings';
-import { ProductSetBadge } from './product-set-badge';
-import { ProductUnitFacts } from './product-unit-facts';
-import { useTaxStatement } from './tax-statement';
+import { ProductAvailabilityBadge } from '../buying/product-availability-badge';
+import { ProductBuyControls } from '../buying/product-buy-controls';
+import { ProductPairings } from '../buying/product-pairings';
+import { ProductSetBadge } from '../buying/product-set-badge';
+import { ProductUnitFacts } from '../buying/product-unit-facts';
+import { useTaxStatement } from '../pricing/tax-statement';
 import { Card } from '@b2b-catalog-platform/ui/content/card';
 
 /**

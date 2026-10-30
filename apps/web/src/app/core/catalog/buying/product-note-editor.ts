@@ -9,7 +9,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { CART_NOTE_MAX } from '@b2b-catalog-platform/shared';
-import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
+import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
 import { injectNarrowScreen } from '@b2b-catalog-platform/ui/core/narrow-screen';
 import { AutoGrow } from '@b2b-catalog-platform/ui/inputs/auto-grow';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
@@ -20,7 +20,7 @@ import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
 import { Input } from '@b2b-catalog-platform/ui/inputs/input';
 import { Popover } from '@b2b-catalog-platform/ui/overlay/popover';
-import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { SHARED_TEXT } from '../../../shared/config/shared-text';
 import { messageCircleCheckIcon } from '@b2b-catalog-platform/ui/icons/glyphs/message-circle-check';
 import { messageCirclePlusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/message-circle-plus';
 

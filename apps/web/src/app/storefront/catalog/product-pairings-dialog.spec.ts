@@ -9,7 +9,7 @@ import { defaultStorefrontText } from '../../shared/config/storefront-text.fixtu
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { defaultDeploymentConfig } from '../../shared/config/deployment-config.fixture';
 import { CatalogService } from './catalog.service';
-import { PairingsService } from '../../core/catalog/pairings.service';
+import { PairingsService } from '../../core/catalog/buying/pairings.service';
 import { ProductPairingsDialog } from './product-pairings-dialog';
 import { productListItem } from '../../core/catalog/product.fixture';
 

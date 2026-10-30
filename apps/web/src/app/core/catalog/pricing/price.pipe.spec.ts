@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
+import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
 import { DeploymentConfig } from '@b2b-catalog-platform/shared';
 import { PricePipe } from './price.pipe';
 

@@ -3,8 +3,8 @@ import {
   ProductImage,
   ProductVariant,
 } from '@b2b-catalog-platform/shared/core/catalog';
-import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
-import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
+import { SHARED_TEXT } from '../../../shared/config/shared-text';
 
 /** Where a variant's first picture is in the gallery, or -1 where it has none
  * on show — none uploaded yet, or withheld while it is unavailable. */

@@ -6,9 +6,9 @@ import {
   NARROW_PADDING_IN_GRID,
   NARROW_PHOTO_IN_GRID,
 } from './listing-narrow';
-import { ProductBuyControls } from '../../../core/catalog/product-buy-controls';
+import { ProductBuyControls } from '../../../core/catalog/buying/product-buy-controls';
 import { ProductStatusLine } from './product-status-line';
-import { ProductUnitFacts } from '../../../core/catalog/product-unit-facts';
+import { ProductUnitFacts } from '../../../core/catalog/buying/product-unit-facts';
 import { ImagePriority, TileGallery } from './tile-gallery';
 import { Frame } from '@b2b-catalog-platform/ui/content/frame';
 

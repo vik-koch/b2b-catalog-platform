@@ -1,7 +1,7 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { fillText } from '@b2b-catalog-platform/shared';
 import { formatPartList } from '@b2b-catalog-platform/shared/core/catalog';
-import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
+import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { layers2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/layers-2';
 
