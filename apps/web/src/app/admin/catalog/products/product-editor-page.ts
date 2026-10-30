@@ -31,7 +31,6 @@ import {
   isValidPartList,
   minimumFitsPacks,
   piecesPerUnit,
-  PRODUCT_LINE_NOTE_PROMPT_MAX_LENGTH,
   ProductAttribute,
   DEFAULT_LOW_STOCK_THRESHOLD_PIECES,
   ProductAvailability,
@@ -51,6 +50,7 @@ import {
   ProductImageInput,
   ProductInput,
   ProductVariantInput,
+  PRODUCT_LINE_NOTE_PROMPT_MAX_LENGTH,
 } from '@b2b-catalog-platform/shared/admin/catalog';
 import {
   hasDistinctVariants,

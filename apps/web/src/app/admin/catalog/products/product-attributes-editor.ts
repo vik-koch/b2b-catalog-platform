@@ -19,7 +19,6 @@ import {
   viewChild,
 } from '@angular/core';
 import {
-  PRODUCT_ATTRIBUTES_MAX,
   ProductAttribute,
   strayPart,
 } from '@b2b-catalog-platform/shared/core/catalog';
@@ -27,6 +26,7 @@ import { fillText } from '@b2b-catalog-platform/shared';
 import {
   AttributeDefinition,
   AttributeKeyUsage,
+  PRODUCT_ATTRIBUTES_MAX,
 } from '@b2b-catalog-platform/shared/admin/catalog';
 import { ADMIN_TEXT } from '../../../shared/config/admin-text';
 import { injectNarrowScreen } from '@b2b-catalog-platform/ui/core/narrow-screen';

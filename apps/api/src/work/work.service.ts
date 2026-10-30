@@ -1,5 +1,5 @@
 import { AuthUser, UserRole, WorkCounts } from '@b2b-catalog-platform/shared';
-import { DOCUMENT_EXPIRY_WARNING_DAYS } from '@b2b-catalog-platform/shared/core/catalog';
+import { DOCUMENT_EXPIRY_WARNING_DAYS } from '@b2b-catalog-platform/shared/admin/catalog';
 import { isoToday } from '@b2b-catalog-platform/shared/platform';
 import { SyncArea } from '@b2b-catalog-platform/shared/sync';
 import { WorkQueue } from '@b2b-catalog-platform/shared/node';

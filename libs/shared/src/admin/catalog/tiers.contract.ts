@@ -1,11 +1,11 @@
 import { oc } from '@orpc/contract';
 import * as z from 'zod';
+import { TIER_KEY_MAX_LENGTH } from '../../core/catalog/tiers';
 import {
   TIER_ERROR_CODES,
-  TIER_KEY_MAX_LENGTH,
   TIER_KEY_PATTERN,
   TIER_LABEL_MAX_LENGTH,
-} from '../../core/catalog/tier-constants';
+} from './tiers';
 import { commonAuthErrors } from '../../lib/core/api-error';
 
 /**

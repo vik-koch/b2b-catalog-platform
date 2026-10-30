@@ -1,7 +1,4 @@
-import {
-  DOCUMENT_EXPIRY_WARNING_DAYS,
-  documentExpiryState,
-} from './document-constants';
+import { DOCUMENT_EXPIRY_WARNING_DAYS, documentExpiryState } from './documents';
 import { isoToday } from '../../platform/iso-day';
 
 /**

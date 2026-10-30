@@ -9,7 +9,7 @@ import {
   DOCUMENT_LINK_MAX_LENGTH,
   DOCUMENT_PRODUCTS_MAX,
   DOCUMENT_TITLE_MAX_LENGTH,
-} from '../../core/catalog/document-constants';
+} from './documents';
 
 /**
  * Product documents (FR-DOC-01…05), admin side.

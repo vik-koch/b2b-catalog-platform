@@ -5,7 +5,7 @@ import { SOURCE_ID_MAX_LENGTH } from '../../core/catalog/products';
 import { commonAuthErrors } from '../../lib/core/api-error';
 import { ownershipErrors } from '../../sync/ownership-constants';
 import { catalogImageSchema } from '../../core/catalog/catalog.contract';
-import { slugSchema } from '../../core/catalog/slug.contract';
+import { slugSchema } from './slug.contract';
 import { CATALOG_ERRORS } from './catalog-errors';
 
 /**

@@ -5,7 +5,7 @@ import {
   ATTRIBUTE_NAME_MAX_LENGTH,
   ATTRIBUTE_VALUE_MAX_LENGTH,
 } from '../../core/catalog/attribute-value';
-import { slugSchema } from '../../core/catalog/slug.contract';
+import { slugSchema } from './slug.contract';
 import { attributeTypeSchema } from '../../core/catalog/catalog.contract';
 
 /**

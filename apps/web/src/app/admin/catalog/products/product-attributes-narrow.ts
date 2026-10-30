@@ -15,10 +15,10 @@ import {
 } from '@angular/core';
 import { fillText } from '@b2b-catalog-platform/shared';
 import {
-  PRODUCT_ATTRIBUTES_MAX,
   ProductAttribute,
   strayPart,
 } from '@b2b-catalog-platform/shared/core/catalog';
+import { PRODUCT_ATTRIBUTES_MAX } from '@b2b-catalog-platform/shared/admin/catalog';
 import { ADMIN_TEXT } from '../../../shared/config/admin-text';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';

@@ -1,15 +1,17 @@
 import { oc } from '@orpc/contract';
 import * as z from 'zod';
 import {
+  PRODUCT_NAME_MAX_LENGTH,
+  SOURCE_ID_MAX_LENGTH,
+} from '../../core/catalog/products';
+import {
   PRODUCT_ATTRIBUTES_MAX,
   PRODUCT_DESCRIPTION_MAX_LENGTH,
   PRODUCT_IMAGES_MAX,
   PRODUCT_LINE_NOTE_PROMPT_MAX_LENGTH,
-  PRODUCT_NAME_MAX_LENGTH,
   PRODUCT_PAIRINGS_MAX,
   PRODUCT_TIER_PRICES_MAX,
-  SOURCE_ID_MAX_LENGTH,
-} from '../../core/catalog/products';
+} from './products';
 import { commonAuthErrors } from '../../lib/core/api-error';
 import { ownershipErrors } from '../../sync/ownership-constants';
 import {
@@ -25,7 +27,7 @@ import {
   hiddenProductSchema,
   productPageSchema,
 } from '../../core/catalog/product-page.contract';
-import { PRODUCT_DOCUMENTS_MAX } from '../../core/catalog/document-constants';
+import { PRODUCT_DOCUMENTS_MAX } from './documents';
 import { linkedDocumentSchema } from './documents.contract';
 import { minimumFitsPacks } from '../../core/catalog/product-units';
 import {
@@ -49,7 +51,7 @@ import {
   PRODUCT_VARIANT_NAME_MAX_LENGTH,
   PRODUCT_VARIANTS_MAX,
 } from '../../core/catalog/product-variants';
-import { slugSchema } from '../../core/catalog/slug.contract';
+import { slugSchema } from './slug.contract';
 import { taxRateSchema } from '../../lib/config/tax-config';
 import { CATALOG_ERRORS } from './catalog-errors';
 

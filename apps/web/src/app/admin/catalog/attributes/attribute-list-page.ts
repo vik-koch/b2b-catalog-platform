@@ -20,11 +20,11 @@ import {
   ATTRIBUTE_TYPES,
 } from '@b2b-catalog-platform/shared/core/catalog';
 import { form, hidden, validate } from '@angular/forms/signals';
-import { AttributeDefinition } from '@b2b-catalog-platform/shared/admin/catalog';
 import {
+  AttributeDefinition,
   SLUG_MAX_LENGTH,
   SLUG_PATTERN,
-} from '@b2b-catalog-platform/shared/core/catalog';
+} from '@b2b-catalog-platform/shared/admin/catalog';
 import { ADMIN_TEXT } from '../../../shared/config/admin-text';
 import { usePageSeo } from '../../../shared/core/page-seo';
 import { useRowAnchor } from '../../../shared/core/row-anchor';

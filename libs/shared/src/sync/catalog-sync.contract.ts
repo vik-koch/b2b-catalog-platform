@@ -25,7 +25,7 @@ import {
   PRODUCT_NAME_MAX_LENGTH,
   SOURCE_ID_MAX_LENGTH,
 } from '../core/catalog/products';
-import { TIER_KEY_MAX_LENGTH } from '../core/catalog/tier-constants';
+import { TIER_KEY_MAX_LENGTH } from '../core/catalog/tiers';
 
 /**
  * The bulk catalog sync: the rows a run carries and the diff it computes.

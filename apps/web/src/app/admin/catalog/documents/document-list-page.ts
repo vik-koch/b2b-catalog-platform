@@ -8,14 +8,14 @@ import {
   signal,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import {
-  documentExpiryState,
-  DocumentExpiryState,
-  SEARCH_QUERY_MAX_LENGTH,
-} from '@b2b-catalog-platform/shared/core/catalog';
+import { SEARCH_QUERY_MAX_LENGTH } from '@b2b-catalog-platform/shared/core/catalog';
 import { fillText } from '@b2b-catalog-platform/shared';
 import { isoToday } from '@b2b-catalog-platform/shared/platform';
-import { ProductDocument } from '@b2b-catalog-platform/shared/admin/catalog';
+import {
+  ProductDocument,
+  documentExpiryState,
+  DocumentExpiryState,
+} from '@b2b-catalog-platform/shared/admin/catalog';
 import { ADMIN_TEXT } from '../../../shared/config/admin-text';
 import { SHARED_TEXT } from '../../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
