@@ -4,7 +4,7 @@ import {
   type ConfirmText,
   confirmRequest,
 } from '@b2b-catalog-platform/ui/overlay/confirm.service';
-import type { AdminCatalogService } from '../admin-catalog.service';
+import type { ProductsService } from './products.service';
 
 /**
  * A removal step refused in advance (FR-ADM-10), answered where the click is
@@ -66,7 +66,7 @@ export function purgeRefusal(
  */
 export async function purgeWithConfirmation(
   confirm: ConfirmService,
-  admin: Pick<AdminCatalogService, 'purgeProduct'>,
+  products: Pick<ProductsService, 'purge'>,
   text: PurgeText,
   product: {
     slug: string;
@@ -93,7 +93,7 @@ export async function purgeWithConfirmation(
     confirmVariant: 'danger',
   });
   if (!confirmed) return false;
-  const result = await admin.purgeProduct(product.slug);
+  const result = await products.purge(product.slug);
   if (result.ok) return true;
   await tell(
     result.code === 'catalog-externally-owned'

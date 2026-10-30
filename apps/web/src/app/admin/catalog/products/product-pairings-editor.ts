@@ -30,7 +30,7 @@ import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';
 import { SuggestField } from '@b2b-catalog-platform/ui/suggest/suggest-field';
 import { SuggestInput } from '@b2b-catalog-platform/ui/suggest/suggest-input';
 import { SuggestRow } from '@b2b-catalog-platform/ui/suggest/suggest-row';
-import { AdminCatalogService } from '../admin-catalog.service';
+import { ProductsService } from './products.service';
 import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
 
 /** `aria-controls` must name one list, and a page may hold more than one. */
@@ -171,7 +171,7 @@ const SUGGESTIONS_SHOWN = 8;
 })
 export class ProductPairingsEditor implements OnInit {
   protected readonly xIcon = xIcon;
-  private readonly service = inject(AdminCatalogService);
+  private readonly service = inject(ProductsService);
   protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly text = inject(ADMIN_TEXT).products.editor.pairings;
   protected readonly product = inject(SHARED_TEXT).product;
@@ -200,7 +200,7 @@ export class ProductPairingsEditor implements OnInit {
    */
   protected readonly list = new SuggestList<AdminProductListItem>({
     load: (q) =>
-      this.service.listProducts({ q, sort: 'relevance' }).then((r) => r.items),
+      this.service.list({ q, sort: 'relevance' }).then((r) => r.items),
     minLength: 2,
     /**
      * What is actually offerable: not this product, not one already paired,

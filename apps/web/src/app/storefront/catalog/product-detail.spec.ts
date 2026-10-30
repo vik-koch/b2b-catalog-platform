@@ -50,7 +50,7 @@ const product: Product = productDetail({
 
 async function render(
   result: Product | null,
-  admin?: { getProductPage: () => Promise<ProductPage | null> },
+  admin?: { getPage: () => Promise<ProductPage | null> },
 ): Promise<ComponentFixture<ProductDetail>> {
   const config = {
     locale: 'de-DE',
@@ -261,10 +261,10 @@ describe('ProductDetail', () => {
     };
 
     it('shows an admin the page, kept out of the index', async () => {
-      const getProductPage = vi.fn(async () => ({ product, hidden }));
-      const fixture = await render(null, { getProductPage });
+      const getPage = vi.fn(async () => ({ product, hidden }));
+      const fixture = await render(null, { getPage });
 
-      expect(getProductPage).toHaveBeenCalled();
+      expect(getPage).toHaveBeenCalled();
       expect(el(fixture).textContent).toContain('Hafen Espresso');
       expect(el(fixture).textContent).not.toContain(
         defaultStorefrontText.catalog.productNotFound,
@@ -284,7 +284,7 @@ describe('ProductDetail', () => {
       try {
         await loadAdminText();
         const fixture = await render(null, {
-          getProductPage: async () => ({
+          getPage: async () => ({
             product,
             hidden: { ...hidden, unpriced: true },
           }),
@@ -304,7 +304,7 @@ describe('ProductDetail', () => {
 
     it('answers an admin not-found where there is no such product at all', async () => {
       const fixture = await render(null, {
-        getProductPage: async () => null,
+        getPage: async () => null,
       });
 
       expect(el(fixture).textContent).toContain(
@@ -313,10 +313,10 @@ describe('ProductDetail', () => {
     });
 
     it('never asks the admin read for a live product', async () => {
-      const getProductPage = vi.fn(async () => null);
-      await render(product, { getProductPage });
+      const getPage = vi.fn(async () => null);
+      await render(product, { getPage });
 
-      expect(getProductPage).not.toHaveBeenCalled();
+      expect(getPage).not.toHaveBeenCalled();
       expect(TestBed.inject(Meta).getTag('name="robots"')).toBeNull();
     });
   });

@@ -53,10 +53,10 @@ function provide(admin: Partial<EditModeCatalog>) {
 }
 
 async function render(items: HiddenProduct[]) {
-  const setProductPublished = vi.fn().mockResolvedValue({});
+  const setPublished = vi.fn().mockResolvedValue({});
   const fixture = provide({
-    listHiddenProducts: vi.fn().mockResolvedValue(items),
-    setProductPublished,
+    listHidden: vi.fn().mockResolvedValue(items),
+    setPublished,
   } as unknown as Partial<EditModeCatalog>);
   fixture.componentRef.setInput('categorySlug', 'espresso');
   await fixture.whenStable();
@@ -64,7 +64,7 @@ async function render(items: HiddenProduct[]) {
   return {
     fixture,
     el: fixture.nativeElement as HTMLElement,
-    setProductPublished,
+    setPublished,
   };
 }
 
@@ -100,14 +100,14 @@ describe('HiddenProductsSection', () => {
   });
 
   it('publishes a product and emits published', async () => {
-    const { fixture, el, setProductPublished } = await render([hidden()]);
+    const { fixture, el, setPublished } = await render([hidden()]);
     const published = vi.fn();
     fixture.componentInstance.published.subscribe(published);
 
     actionButton(el, text.publishProduct)?.click();
     await fixture.whenStable();
 
-    expect(setProductPublished).toHaveBeenCalledWith('old-roast', true);
+    expect(setPublished).toHaveBeenCalledWith('old-roast', true);
     expect(published).toHaveBeenCalled();
   });
 
@@ -124,7 +124,7 @@ describe('HiddenProductsSection', () => {
   });
 
   it('explains rather than acting on a product nothing prices', async () => {
-    const { fixture, el, setProductPublished } = await render([
+    const { fixture, el, setPublished } = await render([
       hidden({ prices: null }),
     ]);
 
@@ -133,7 +133,7 @@ describe('HiddenProductsSection', () => {
 
     // The server would refuse it, so the click is answered with the reason
     // instead of a request — and the button is live enough to give it.
-    expect(setProductPublished).not.toHaveBeenCalled();
+    expect(setPublished).not.toHaveBeenCalled();
     expect(tell).toHaveBeenCalledWith(
       expect.objectContaining({ heading: text.unpricedTitle }),
     );
@@ -141,7 +141,7 @@ describe('HiddenProductsSection', () => {
 
   it('emits loaded once the set has resolved, even when empty', async () => {
     const fixture = provide({
-      listHiddenProducts: vi.fn().mockResolvedValue([]),
+      listHidden: vi.fn().mockResolvedValue([]),
     } as unknown as Partial<EditModeCatalog>);
     const loaded = vi.fn();
     fixture.componentInstance.loaded.subscribe(loaded);

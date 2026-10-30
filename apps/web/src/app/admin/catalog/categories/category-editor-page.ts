@@ -32,9 +32,9 @@ import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
 import { submitAttempt } from '@b2b-catalog-platform/ui/fields/submit-attempt';
 import { Input } from '@b2b-catalog-platform/ui/inputs/input';
 import {
-  AdminCatalogService,
+  CategoriesService,
   type CategorySaveErrorCode,
-} from '../admin-catalog.service';
+} from './categories.service';
 import { injectEditorReturn } from '../../../shared/edit-mode/editor-return';
 import { categoryDescendantIds } from './category-tree';
 import { ImagePicker } from '../../media/image-picker';
@@ -233,7 +233,7 @@ interface CategoryDraft {
 export class CategoryEditorPage implements UnsavedChangesAware, FieldAttempt {
   protected readonly saveIcon = saveIcon;
   protected readonly xIcon = xIcon;
-  private readonly admin = inject(AdminCatalogService);
+  private readonly service = inject(CategoriesService);
   private readonly route = inject(ActivatedRoute);
   protected readonly text = inject(ADMIN_TEXT).categories.editor;
   protected readonly adminText = inject(ADMIN_TEXT);
@@ -358,7 +358,7 @@ export class CategoryEditorPage implements UnsavedChangesAware, FieldAttempt {
   }
 
   private async load(): Promise<void> {
-    const categories = await this.admin.listCategories();
+    const categories = await this.service.list();
     this.all.set(categories);
     if (this.isNew) {
       // An empty form, so the category only exists once it is saved with a name
@@ -429,8 +429,8 @@ export class CategoryEditorPage implements UnsavedChangesAware, FieldAttempt {
     };
     try {
       const result = current
-        ? await this.admin.updateCategory(current.id, body)
-        : await this.admin.createCategory(body);
+        ? await this.service.update(current.id, body)
+        : await this.service.create(body);
       if (!result.ok) {
         this.error.set(this.refusalText(result.code));
         this.saving.set(false);

@@ -4,11 +4,11 @@ import {
   ReorderTiersRequest,
   TierErrorCode,
   TierInput,
-  TIER_ERROR_CODES,
 } from '@b2b-catalog-platform/shared/admin/catalog';
 import { tiersContract } from '../../contract-routes.generated';
 import { safe } from '@orpc/client';
 import { createOrpcClient } from '../../../shared/core/orpc-client';
+import { renderable } from '../../../shared/core/renderable';
 
 /**
  * A save or delete the server refused. The refusal travels as the API's own
@@ -19,17 +19,7 @@ export type TierResult =
   { ok: true; tier: CustomerTier } | { ok: false; code: TierErrorCode };
 
 /**
- * Every route here also declares the two auth refusals, and those are not this
- * screen's to phrase: `not-authenticated` and `insufficient-role` mean the
- * session is wrong, which the guards answer with a redirect. Only the tier
- * codes have wording in the admin text, so only they come back as results.
- */
-function isTierCode(code: string): code is TierErrorCode {
-  return (TIER_ERROR_CODES as readonly string[]).includes(code);
-}
-
-/**
- * The customer-tier admin client. Same discipline as `AdminCatalogService`:
+ * The customer-tier admin client. Same discipline as `ProductsService`:
  * the declared refusals (409 duplicate key, 409 still-referenced, 404 gone)
  * come back as typed results the list can render next to the row, and only the
  * unexpected throws.
@@ -59,7 +49,7 @@ export class TiersService {
     const { error, data, isDefined } = await safe(
       this.client.createTier({ body }),
     );
-    if (isDefined && isTierCode(error.code)) {
+    if (isDefined && renderable(error.code)) {
       return { ok: false, code: error.code };
     }
     if (error) throw error;
@@ -70,7 +60,7 @@ export class TiersService {
     const { error, data, isDefined } = await safe(
       this.client.updateTier({ params: { id }, body }),
     );
-    if (isDefined && isTierCode(error.code)) {
+    if (isDefined && renderable(error.code)) {
       return { ok: false, code: error.code };
     }
     if (error) throw error;
@@ -93,7 +83,7 @@ export class TiersService {
     const { error, isDefined } = await safe(
       this.client.deleteTier({ params: { id } }),
     );
-    if (isDefined && isTierCode(error.code)) {
+    if (isDefined && renderable(error.code)) {
       return { ok: false, code: error.code };
     }
     if (error) throw error;

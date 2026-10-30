@@ -17,6 +17,7 @@ import {
 import { syncContract } from '../contract-routes.generated';
 import { safe } from '@orpc/client';
 import { createOrpcClient } from '../../shared/core/orpc-client';
+import { renderable } from '../../shared/core/renderable';
 
 /**
  * A preview the server refused — a malformed file, a file too large, or refused
@@ -131,12 +132,7 @@ export class SyncService {
     const result = await safe(this.client.commitRun({ params: { id } }));
 
     if (result.isSuccess) return { ok: true, result: result.data };
-    // The session refusals are the guards' to answer, not this screen's.
-    if (
-      result.isDefined &&
-      result.error.code !== 'not-authenticated' &&
-      result.error.code !== 'insufficient-role'
-    ) {
+    if (result.isDefined && renderable(result.error.code)) {
       return { ok: false, code: result.error.code };
     }
     throw result.error;
@@ -147,11 +143,7 @@ export class SyncService {
     const result = await safe(this.client.discardRun({ params: { id } }));
 
     if (result.isSuccess) return { ok: true, run: result.data.run };
-    if (
-      result.isDefined &&
-      result.error.code !== 'not-authenticated' &&
-      result.error.code !== 'insufficient-role'
-    ) {
+    if (result.isDefined && renderable(result.error.code)) {
       return { ok: false, code: result.error.code };
     }
     throw result.error;

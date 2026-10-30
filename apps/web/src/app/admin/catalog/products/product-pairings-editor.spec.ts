@@ -9,7 +9,7 @@ import { ADMIN_TEXT } from '../../../shared/config/admin-text';
 import { defaultAdminText } from '../../../shared/config/admin-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
 import { defaultDeploymentConfig } from '../../../shared/config/deployment-config.fixture';
-import { AdminCatalogService } from '../admin-catalog.service';
+import { ProductsService } from './products.service';
 import { ProductPairingsEditor } from './product-pairings-editor';
 
 const text = defaultAdminText.products.editor.pairings;
@@ -48,7 +48,7 @@ async function render(value: LinkedProduct[] = [], ownSlug = 'cup') {
       { provide: ADMIN_TEXT, useValue: defaultAdminText },
       { provide: SHARED_TEXT, useValue: defaultSharedText },
       { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
-      { provide: AdminCatalogService, useValue: { listProducts } },
+      { provide: ProductsService, useValue: { list: listProducts } },
     ],
   });
 

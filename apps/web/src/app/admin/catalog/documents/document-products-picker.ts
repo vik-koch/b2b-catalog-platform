@@ -25,7 +25,8 @@ import {
   Segmented,
 } from '@b2b-catalog-platform/ui/choices/segmented';
 import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';
-import { AdminCatalogService } from '../admin-catalog.service';
+import { CategoriesService } from '../categories/categories.service';
+import { ProductsService } from '../products/products.service';
 import { flattenCategoryTree } from '../categories/category-tree';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 
@@ -173,7 +174,8 @@ type View = 'all' | 'linked';
   `,
 })
 export class DocumentProductsPicker {
-  private readonly service = inject(AdminCatalogService);
+  private readonly productsService = inject(ProductsService);
+  private readonly categoriesService = inject(CategoriesService);
   private readonly layout = inject(AlternateLayout);
   protected readonly text = inject(ADMIN_TEXT).documents.editor.products;
   protected readonly productStates = inject(ADMIN_TEXT).products;
@@ -202,7 +204,7 @@ export class DocumentProductsPicker {
   private readonly debouncedQuery = debounced(this.query, SEARCH_DEBOUNCE_MS);
 
   private readonly categories = resource({
-    loader: () => this.service.listCategories(),
+    loader: () => this.categoriesService.list(),
   });
 
   /** The tree flattened depth-first, as every other category picker shows it. */
@@ -229,7 +231,7 @@ export class DocumentProductsPicker {
       categoryId: this.categoryId() || undefined,
     }),
     loader: ({ params }) =>
-      this.service.listProducts({
+      this.productsService.list({
         q: params.q,
         categoryId: params.categoryId,
         state: 'all',

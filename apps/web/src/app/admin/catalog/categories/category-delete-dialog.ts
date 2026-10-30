@@ -17,7 +17,7 @@ import { DialogActions } from '@b2b-catalog-platform/ui/overlay/dialog-actions';
 import { DialogPanel } from '@b2b-catalog-platform/ui/overlay/dialog-panel';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
-import { AdminCatalogService } from '../admin-catalog.service';
+import { CategoriesService } from './categories.service';
 import { CategoryPicker } from './category-picker';
 import { categoryDescendantIds } from './category-tree';
 import { SHARED_TEXT } from '../../../shared/config/shared-text';
@@ -26,7 +26,7 @@ import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
 
 /**
  * Delete-a-category confirmation modal (FR-ADM-01), the single flow for every
- * category delete (storefront grid + admin list). It owns `AdminCatalogService`
+ * category delete (storefront grid + admin list). It owns `CategoriesService`
  * — on the storefront it is `@defer`-loaded so the admin write client stays out
  * of the public bundle — and figures out for itself what the delete needs:
  * loads the categories to read this one's counts, then shows
@@ -123,7 +123,7 @@ import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
 })
 export class CategoryDeleteDialog {
   protected readonly trash2Icon = trash2Icon;
-  private readonly admin = inject(AdminCatalogService);
+  private readonly service = inject(CategoriesService);
   protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly text = inject(ADMIN_TEXT).categories.list;
   protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
@@ -185,7 +185,7 @@ export class CategoryDeleteDialog {
   }
 
   private async open(): Promise<void> {
-    const categories = await this.admin.listCategories();
+    const categories = await this.service.list();
     this.all.set(categories);
     this.self.set(categories.find((c) => c.slug === this.slug()) ?? null);
     this.loading.set(false);
@@ -230,7 +230,7 @@ export class CategoryDeleteDialog {
     this.deleting.set(true);
     this.error.set(null);
     try {
-      const result = await this.admin.deleteCategory(
+      const result = await this.service.remove(
         self.id,
         this.reassignTo() || undefined,
       );

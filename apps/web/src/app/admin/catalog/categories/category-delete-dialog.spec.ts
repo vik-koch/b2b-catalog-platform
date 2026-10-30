@@ -8,7 +8,7 @@ import { ADMIN_TEXT } from '../../../shared/config/admin-text';
 import { provideOwnership } from '../../settings/settings.fixture';
 import { defaultStorefrontText } from '../../../shared/config/storefront-text.fixture';
 import { defaultAdminText } from '../../../shared/config/admin-text.fixture';
-import { AdminCatalogService } from '../admin-catalog.service';
+import { CategoriesService } from './categories.service';
 import { CategoryDeleteDialog } from './category-delete-dialog';
 
 // jsdom's <dialog> has no showModal/close; the dialog opens itself on render.
@@ -58,10 +58,10 @@ async function render(
       { provide: SHARED_TEXT, useValue: defaultSharedText },
       provideOwnership(...owned),
       {
-        provide: AdminCatalogService,
+        provide: CategoriesService,
         useValue: {
-          listCategories: () => Promise.resolve(categories),
-          deleteCategory,
+          list: () => Promise.resolve(categories),
+          remove: deleteCategory,
         },
       },
     ],

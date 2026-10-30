@@ -94,10 +94,8 @@ import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { PRODUCT_FEATURE_GLYPHS } from './product-feature-glyphs';
 import { Input } from '@b2b-catalog-platform/ui/inputs/input';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
-import {
-  AdminCatalogService,
-  type ProductSaveErrorCode,
-} from '../admin-catalog.service';
+import { CategoriesService } from '../categories/categories.service';
+import { ProductsService, type ProductSaveErrorCode } from './products.service';
 import { AttributesService } from '../attributes/attributes.service';
 import { CategoryPicker } from '../categories/category-picker';
 import { categoryAncestors } from '../categories/category-tree';
@@ -704,7 +702,8 @@ export class ProductEditorPage implements UnsavedChangesAware, FieldAttempt {
   protected readonly pencilIcon = pencilIcon;
   protected readonly saveIcon = saveIcon;
   protected readonly xIcon = xIcon;
-  private readonly service = inject(AdminCatalogService);
+  private readonly productsService = inject(ProductsService);
+  private readonly categoriesService = inject(CategoriesService);
   private readonly tiersService = inject(TiersService);
   private readonly attributesService = inject(AttributesService);
   private readonly route = inject(ActivatedRoute);
@@ -1195,7 +1194,7 @@ export class ProductEditorPage implements UnsavedChangesAware, FieldAttempt {
 
   private async load(): Promise<void> {
     const [categories, tiers, attributeKeys, definitions] = await Promise.all([
-      this.service.listCategories(),
+      this.categoriesService.list(),
       // The tier list is small and admin-only, like the categories above; both
       // are needed before the form can render its pickers.
       this.tiersService.list().then((r) => r.tiers),
@@ -1215,7 +1214,7 @@ export class ProductEditorPage implements UnsavedChangesAware, FieldAttempt {
     this.attributeDefinitions.set(definitions);
     const existingSlug = this.slugParam;
     if (existingSlug !== null) {
-      const product = await this.service.getProduct(existingSlug);
+      const product = await this.productsService.get(existingSlug);
       if (!product) {
         this.notFound.set(true);
         this.loading.set(false);
@@ -1530,7 +1529,7 @@ export class ProductEditorPage implements UnsavedChangesAware, FieldAttempt {
       this.published() &&
       !(await this.confirm.ask({
         heading: this.editText.unpublishConfirm.heading,
-        message: await this.service.unpublishMessage(
+        message: await this.productsService.unpublishMessage(
           { slug: existingSlug, name: body.name },
           this.editText,
         ),
@@ -1547,8 +1546,8 @@ export class ProductEditorPage implements UnsavedChangesAware, FieldAttempt {
     this.error.set(null);
     const result =
       existingSlug === null
-        ? await this.service.createProduct(body)
-        : await this.service.updateProduct(existingSlug, body);
+        ? await this.productsService.create(body)
+        : await this.productsService.update(existingSlug, body);
 
     if (!result.ok) {
       this.error.set(this.refusalText(result.code, existingSlug === null));
@@ -1562,7 +1561,7 @@ export class ProductEditorPage implements UnsavedChangesAware, FieldAttempt {
       // failure here is reported as a failure to *publish* rather than losing
       // the save behind a generic error.
       try {
-        product = await this.service.setProductPublished(product.slug, true);
+        product = await this.productsService.setPublished(product.slug, true);
       } catch {
         this.published.set(false);
         this.error.set(this.text.publishError);

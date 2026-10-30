@@ -19,7 +19,8 @@ import { provideOwnership } from '../../settings/settings.fixture';
 import { defaultStorefrontText } from '../../../shared/config/storefront-text.fixture';
 import { defaultAdminText } from '../../../shared/config/admin-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
-import { AdminCatalogService } from '../admin-catalog.service';
+import { CategoriesService } from '../categories/categories.service';
+import { ProductsService } from './products.service';
 import { TiersService } from '../tiers/tiers.service';
 import { AttributesService } from '../attributes/attributes.service';
 import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
@@ -177,15 +178,18 @@ async function render(
         useValue: { snapshot: { paramMap, queryParamMap } },
       },
       {
-        provide: AdminCatalogService,
+        provide: ProductsService,
         useValue: {
-          listCategories: () => Promise.resolve([category]),
-          getProduct: () => Promise.resolve(options.product ?? storedProduct),
-          createProduct: h.createProduct,
-          updateProduct: h.updateProduct,
-          setProductPublished: h.setProductPublished,
+          get: () => Promise.resolve(options.product ?? storedProduct),
+          create: h.createProduct,
+          update: h.updateProduct,
+          setPublished: h.setProductPublished,
           unpublishMessage: h.unpublishMessage,
         },
+      },
+      {
+        provide: CategoriesService,
+        useValue: { list: () => Promise.resolve([category]) },
       },
       { provide: ConfirmService, useValue: { ask: h.ask } },
       {

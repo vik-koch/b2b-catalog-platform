@@ -29,7 +29,7 @@ import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Link } from '@b2b-catalog-platform/ui/actions/link';
-import { AdminCatalogService } from '../admin-catalog.service';
+import { CategoriesService } from './categories.service';
 import { injectEditorReturnParams } from '../../../shared/edit-mode/editor-return';
 import { RecordRow } from '@b2b-catalog-platform/ui/lists/record-row';
 import { UnpublishedCount } from '../products/unpublished-count';
@@ -400,7 +400,7 @@ export class CategoryListPage {
   protected readonly plusIcon = plusIcon;
   protected readonly rotateCcwIcon = rotateCcwIcon;
   protected readonly trash2Icon = trash2Icon;
-  private readonly admin = inject(AdminCatalogService);
+  private readonly service = inject(CategoriesService);
   protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly text = inject(ADMIN_TEXT).categories.list;
   private readonly productsText = inject(ADMIN_TEXT).products;
@@ -454,7 +454,7 @@ export class CategoryListPage {
   );
 
   protected categories = resource({
-    loader: () => this.admin.listCategories(),
+    loader: () => this.service.list(),
   });
 
   /** Delayed so a quick load never flashes a skeleton. */
@@ -635,7 +635,7 @@ export class CategoryListPage {
     this.busy.set(true);
     this.reorderError.set(false);
     try {
-      this.categories.set(await this.admin.reorderCategories({ order }));
+      this.categories.set(await this.service.reorder({ order }));
       if (previous) this.undoStack.update((stack) => [...stack, previous]);
     } catch {
       this.reorderError.set(true);

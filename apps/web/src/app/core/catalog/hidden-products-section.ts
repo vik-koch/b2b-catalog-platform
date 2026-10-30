@@ -203,7 +203,7 @@ export class HiddenProductsSection {
   protected readonly hidden = resource({
     params: () => ({ slug: this.categorySlug(), token: this.reloadToken() }),
     loader: async ({ params }) =>
-      (await this.catalog()).listHiddenProducts(params.slug),
+      (await this.catalog()).listHidden(params.slug),
   });
 
   constructor() {
@@ -240,7 +240,7 @@ export class HiddenProductsSection {
     this.busy.set(item.slug);
     this.error.set(null);
     try {
-      await (await this.catalog()).setProductPublished(item.slug, true);
+      await (await this.catalog()).setPublished(item.slug, true);
       this.published.emit();
     } catch {
       this.error.set(this.text.revealError);

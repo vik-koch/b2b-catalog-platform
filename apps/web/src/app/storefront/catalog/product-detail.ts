@@ -184,9 +184,7 @@ export class ProductDetail {
       // session decides, so the answer waits for it.
       await this.auth.whenResolved();
       if (this.auth.user()?.role !== 'admin') return null;
-      const page = await (
-        await this.adminCatalog()
-      ).getProductPage(params.slug);
+      const page = await (await this.adminCatalog()).getPage(params.slug);
       return page && { item: page.product, hidden: page.hidden };
     },
   });
@@ -263,7 +261,7 @@ export class ProductDetail {
       });
       if (!confirmed) return;
     }
-    await admin.setProductPublished(item.slug, !!hidden);
+    await admin.setPublished(item.slug, !!hidden);
     this.product.reload();
   }
 

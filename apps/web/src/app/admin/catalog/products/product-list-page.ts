@@ -39,7 +39,8 @@ import {
   StatusBadge,
   StatusTone,
 } from '@b2b-catalog-platform/ui/content/status-badge';
-import { AdminCatalogService } from '../admin-catalog.service';
+import { CategoriesService } from '../categories/categories.service';
+import { ProductsService } from './products.service';
 import { ProductCreateService } from './product-create.service';
 import { AttributesService } from '../attributes/attributes.service';
 import { flattenCategoryTree } from '../categories/category-tree';
@@ -395,7 +396,8 @@ function knownValues<T extends string>(
 export class ProductListPage {
   protected readonly searchMaxLength = SEARCH_QUERY_MAX_LENGTH;
   protected readonly plusIcon = plusIcon;
-  private readonly admin = inject(AdminCatalogService);
+  private readonly productsService = inject(ProductsService);
+  private readonly categoriesService = inject(CategoriesService);
   private readonly attributes = inject(AttributesService);
   private readonly tierService = inject(TiersService);
   private readonly documentService = inject(DocumentsService);
@@ -622,7 +624,7 @@ export class ProductListPage {
   );
 
   private readonly categories = resource({
-    loader: () => this.admin.listCategories(),
+    loader: () => this.categoriesService.list(),
   });
   protected readonly categoryOf = computed(
     () => new Map((this.categories.value() ?? []).map((c) => [c.id, c])),
@@ -935,7 +937,7 @@ export class ProductListPage {
             missing: this.missingKeys().length ? this.missingKeys() : undefined,
             has: this.hasKeys().length ? this.hasKeys() : undefined,
           },
-    loader: ({ params }) => this.admin.listProducts(params),
+    loader: ({ params }) => this.productsService.list(params),
   });
 
   /** Held across reloads, so filtering, sorting or typing swaps the rows
@@ -962,7 +964,10 @@ export class ProductListPage {
           this.editText.unpublishConfirm,
           this.actionText.cancel,
         ),
-        message: await this.admin.unpublishMessage(item, this.editText),
+        message: await this.productsService.unpublishMessage(
+          item,
+          this.editText,
+        ),
         confirmVariant: 'danger',
       }))
     ) {
@@ -970,7 +975,7 @@ export class ProductListPage {
     }
     this.publishing.set(item.slug);
     try {
-      await this.admin.setProductPublished(item.slug, publish);
+      await this.productsService.setPublished(item.slug, publish);
       this.products.reload();
     } finally {
       this.publishing.set(null);
@@ -987,7 +992,7 @@ export class ProductListPage {
   /** Unconfirmed: the row has already said why a live product cannot go, and
    * restore undoes the rest in one click (FR-ADM-01). */
   protected async remove(item: ProductRowState): Promise<void> {
-    await this.admin.deleteProduct(item.slug);
+    await this.productsService.remove(item.slug);
     this.products.reload();
   }
 
@@ -996,7 +1001,7 @@ export class ProductListPage {
   protected async purge(item: ProductRowState): Promise<void> {
     await purgeWithConfirmation(
       this.confirm,
-      this.admin,
+      this.productsService,
       this.purgeText,
       item,
       async () => (await this.settings.load()).includes('catalog'),
@@ -1005,7 +1010,7 @@ export class ProductListPage {
   }
 
   protected async restore(item: ProductRowState): Promise<void> {
-    await this.admin.restoreProduct(item.slug);
+    await this.productsService.restore(item.slug);
     this.products.reload();
   }
 

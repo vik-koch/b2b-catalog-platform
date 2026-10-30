@@ -17,7 +17,7 @@ import { HighlightedLine } from '@b2b-catalog-platform/ui/suggest/highlighted-li
 import { MatchSegmentsPipe } from '../../core/catalog/match-segments.pipe';
 import { AlternateLayout } from '../../shared/core/alternate-layout';
 import { SuggestList } from '@b2b-catalog-platform/ui/suggest/suggest-list';
-import { AdminCatalogService } from '../catalog/admin-catalog.service';
+import { ProductsService } from '../catalog/products/products.service';
 import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
 import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
@@ -279,7 +279,7 @@ export class OrderAdjustLines {
   protected readonly chevronDownIcon = chevronDownIcon;
   protected readonly chevronUpIcon = chevronUpIcon;
   protected readonly xIcon = xIcon;
-  private readonly catalog = inject(AdminCatalogService);
+  private readonly productsService = inject(ProductsService);
   protected readonly text = inject(ADMIN_TEXT).orders.adjust.lines;
   protected readonly products = inject(ADMIN_TEXT).products;
   protected readonly pieceUnit = inject(SHARED_TEXT).units.piece;
@@ -307,7 +307,7 @@ export class OrderAdjustLines {
 
   protected readonly list = new SuggestList<AdminProductListItem>({
     load: (q) =>
-      this.catalog.listProducts({ q, sort: 'relevance' }).then((r) => r.items),
+      this.productsService.list({ q, sort: 'relevance' }).then((r) => r.items),
     minLength: 2,
     /** A product already on the order is not offered again: a product in a
      * given unit is one line, and a second one would be two lines to

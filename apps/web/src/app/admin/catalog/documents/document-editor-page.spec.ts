@@ -10,7 +10,8 @@ import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
 import { defaultStorefrontText } from '../../../shared/config/storefront-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
 import { defaultDeploymentConfig } from '../../../shared/config/deployment-config.fixture';
-import { AdminCatalogService } from '../admin-catalog.service';
+import { CategoriesService } from '../categories/categories.service';
+import { ProductsService } from '../products/products.service';
 import { DocumentEditorPage } from './document-editor-page';
 import { DocumentsService } from './documents.service';
 
@@ -75,15 +76,15 @@ async function render(
       // The picker inside the form asks for the catalog; nothing here is about
       // what it lists.
       {
-        provide: AdminCatalogService,
+        provide: ProductsService,
         useValue: {
-          listProducts: async () => ({
+          list: async () => ({
             items: [],
             pagination: { page: 1, pageSize: 50, total: 0, totalPages: 0 },
           }),
-          listCategories: async () => [],
         },
       },
+      { provide: CategoriesService, useValue: { list: async () => [] } },
       {
         provide: ActivatedRoute,
         useValue: {

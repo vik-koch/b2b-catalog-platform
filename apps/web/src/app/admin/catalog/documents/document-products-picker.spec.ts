@@ -10,7 +10,8 @@ import { ADMIN_TEXT } from '../../../shared/config/admin-text';
 import { defaultAdminText } from '../../../shared/config/admin-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
 import { defaultDeploymentConfig } from '../../../shared/config/deployment-config.fixture';
-import { AdminCatalogService } from '../admin-catalog.service';
+import { CategoriesService } from '../categories/categories.service';
+import { ProductsService } from '../products/products.service';
 import { DocumentProductsPicker } from './document-products-picker';
 
 const text = defaultAdminText.documents.editor.products;
@@ -83,10 +84,8 @@ async function render(
       { provide: ADMIN_TEXT, useValue: defaultAdminText },
       { provide: SHARED_TEXT, useValue: defaultSharedText },
       { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
-      {
-        provide: AdminCatalogService,
-        useValue: { listProducts, listCategories },
-      },
+      { provide: ProductsService, useValue: { list: listProducts } },
+      { provide: CategoriesService, useValue: { list: listCategories } },
     ],
   });
 

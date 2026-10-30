@@ -15,6 +15,7 @@ import {
 import { attributesContract } from '../../contract-routes.generated';
 import { safe, type ClientPromiseResult } from '@orpc/client';
 import { createOrpcClient } from '../../../shared/core/orpc-client';
+import { renderable } from '../../../shared/core/renderable';
 
 /**
  * A save the server refused, as its own code. The list looks the wording up in
@@ -23,14 +24,6 @@ import { createOrpcClient } from '../../../shared/core/orpc-client';
 export type AttributeResult =
   | { ok: true; definition: AttributeDefinition }
   | { ok: false; code: AttributeErrorCode };
-
-/**
- * Every route also declares the two auth refusals; those mean the session is
- * wrong rather than the edit, and reach a redirect instead of this screen.
- */
-function renderable(code: string): code is AttributeErrorCode {
-  return code !== 'not-authenticated' && code !== 'insufficient-role';
-}
 
 /**
  * The filterable-attribute registry client. Same discipline as
