@@ -1,3 +1,8 @@
+/**
+ * Stored product rows as the read contracts publish them, and the column
+ * groups every product read selects, so the reads cannot drift.
+ */
+
 import {
   BoxDimensions,
   ProductAvailability,
@@ -7,30 +12,19 @@ import {
   ProductVariant,
   UnitPrices,
   piecesPerUnit,
+  shownPictures,
   totalMinor,
 } from '@b2b-catalog-platform/shared/core/catalog';
-import { shownPictures } from '@b2b-catalog-platform/shared/core/catalog';
 import { and, isNotNull, isNull } from 'drizzle-orm';
 import { ProductImageRef, ProductVariantRef, products } from '../../db/schema';
 
-/**
- * Stored product rows → the prices and packaging the read contract publishes.
- * A stored price is the price of one piece; the API publishes it multiplied
- * out to every unit the product is sold in.
- */
-
-/**
- * What the storefront may show: live, and published by an admin. Beside the
- * columns rather than inside the catalog service, because every reader of a
- * product needs it — the cart prices what a customer may buy, not what exists —
- * and a second copy is a forgotten call site waiting to happen.
- */
+/** What the storefront may show: live, and published. Every public read uses
+ * it, the cart included, so there is no second copy to forget. */
 export const publiclyVisible = and(
   isNull(products.deletedAt),
   isNotNull(products.publishedAt),
 );
 
-/** Selected by every product read, so the paths cannot drift. */
 export const unitColumns = {
   piecesPerPack: products.piecesPerPack,
   packsPerBox: products.packsPerBox,
@@ -44,8 +38,8 @@ export const noteColumns = {
   lineNotePrompt: products.lineNotePrompt,
 } as const;
 
-/** The gallery and the variants it shows (FR-CAT-11) — read together, because
- * neither can be published without the other deciding what is withheld. */
+/** The gallery and its variants (FR-CAT-11), read together: the variants
+ * decide which pictures are withheld. */
 export const pictureColumns = {
   images: products.images,
   variants: products.variants,
@@ -56,11 +50,8 @@ export interface PictureRow {
   variants: ProductVariantRef[];
 }
 
-/**
- * What the storefront is shown of a product's pictures: the ones it may see,
- * each labelled with its variant, and every variant by name — the unavailable
- * ones marked rather than dropped (FR-CAT-12), and their ids left behind.
- */
+/** The pictures the storefront may see, labelled with their variant, and
+ * every variant by name, unavailable ones marked (FR-CAT-12). Ids stay behind. */
 export function picturesOf(row: PictureRow): {
   images: ProductImage[];
   variants: ProductVariant[];

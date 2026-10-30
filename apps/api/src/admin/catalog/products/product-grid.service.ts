@@ -23,7 +23,7 @@ import {
 import { DRIZZLE } from '../../../db/database.module';
 import * as schema from '../../../db/schema';
 import { categories, orderItems, products } from '../../../db/schema';
-import { attributeFilterCondition } from '../../../core/catalog/attribute-filter';
+import { attributeValuesCondition } from '../../../core/catalog/attribute-filter';
 import { documentCondition } from './document-filter';
 import {
   featureColumns,
@@ -109,10 +109,10 @@ export class ProductGridService {
         : undefined,
       // The inventory's drill-down: the products carrying one attribute key,
       // and optionally one of its values.
-      attributeFilterCondition(
+      attributeValuesCondition(
         this.db,
         query.attributeKey,
-        query.attributeValue,
+        query.attributeValue ? [query.attributeValue] : [],
       ),
       // Where the tier list's price count leads: the products this tier has a
       // price of its own for.

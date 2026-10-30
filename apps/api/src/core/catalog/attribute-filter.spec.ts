@@ -2,7 +2,7 @@ import { drizzle } from 'drizzle-orm/node-postgres';
 import { and } from 'drizzle-orm';
 import * as schema from '../../db/schema';
 import { products } from '../../db/schema';
-import { attributeFilterCondition } from './attribute-filter';
+import { attributeValuesCondition } from './attribute-filter';
 
 /**
  * Rendered inside a real query, not on its own: drizzle qualifies every column
@@ -11,18 +11,18 @@ import { attributeFilterCondition } from './attribute-filter';
  */
 const db = drizzle({ client: {} as never, schema });
 
-const render = (key?: string, value?: string) =>
+const render = (key?: string, values: string[] = []) =>
   db
     .select({ slug: products.slug })
     .from(products)
-    .where(and(attributeFilterCondition(db, key, value)))
+    .where(and(attributeValuesCondition(db, key, values)))
     .toSQL();
 
-describe('attributeFilterCondition', () => {
+describe('attributeValuesCondition', () => {
   it('is absent without a key, so an unfiltered list stays unfiltered', () => {
-    expect(attributeFilterCondition(db, undefined, 'Blue')).toBeUndefined();
+    expect(attributeValuesCondition(db, undefined, ['Blue'])).toBeUndefined();
     // A value alone is not a question: values only mean anything under a key.
-    expect(render(undefined, 'Blue').sql).not.toContain('product_attributes');
+    expect(render(undefined, ['Blue']).sql).not.toContain('product_attributes');
   });
 
   it('correlates on the product row rather than joining', () => {
@@ -35,8 +35,8 @@ describe('attributeFilterCondition', () => {
     expect(text).not.toContain('join');
   });
 
-  it('narrows to one value when given one', () => {
-    const { sql: text, params } = render('Colour', 'Blue');
+  it('narrows to the values given', () => {
+    const { sql: text, params } = render('Colour', ['Blue']);
 
     expect(text).toContain('"product_attributes"."value"');
     expect(params).toEqual(['Colour', 'Blue']);

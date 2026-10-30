@@ -1,22 +1,13 @@
+/**
+ * Which filterable attributes a category offers, in what order (FR-ATTR-11):
+ * the registry's, unless the category or an ancestor overlays it. An overlay
+ * replaces the list whole and is inherited, so an override on "Coffee" needs no
+ * restating under "Coffee / Arabica", and an attribute declared after an
+ * overlay was saved is offered only where nothing is overlaid.
+ */
+
 import { attributeDefinitions, categoryAttributes } from '../../db/schema';
 import { CategoryRow } from './catalog-tree';
-
-/**
- * Which filterable attributes a category offers, and in what order
- * (FR-ATTR-11).
- *
- * The registry's own order is the default, and most categories keep it: the
- * facet panel already drops an attribute no product in scope carries, so a
- * category only needs an overlay when an attribute *is* present and still not
- * worth filtering by, or when the panel reads better in another order.
- *
- * An overlay **replaces** the list rather than adjusting it, and it is
- * inherited: a category with no rows of its own takes the nearest ancestor's
- * overlay whole. Two consequences follow, and both are the point — an override
- * on "Coffee" needs no restating under "Coffee / Arabica", and an attribute
- * declared after an overlay was saved is in no row of it, so it is offered
- * only where nothing is overlaid at all.
- */
 
 /** A registry row as the facets need it. */
 export type DefinitionRow = typeof attributeDefinitions.$inferSelect;
@@ -24,7 +15,8 @@ export type DefinitionRow = typeof attributeDefinitions.$inferSelect;
 /** One overlay row, as stored. */
 export type CategoryAttributeRow = typeof categoryAttributes.$inferSelect;
 
-/** A category and its ancestors, nearest first — where an overlay is looked for. */
+/** A category and its ancestors, nearest first: where an overlay is looked
+ * for. */
 export function categoryChain(
   categoryId: string,
   rows: CategoryRow[],
@@ -40,12 +32,9 @@ export function categoryChain(
 }
 
 /**
- * The definitions a category's filter panel offers.
- *
- * `overlay` may hold rows for any category in `chain`; the nearest one that
- * has any wins outright, and a mix is never taken — that is what "replaces"
- * means. A row naming a definition that has since been deleted is dropped
- * silently, the same way a stale `attr` parameter is.
+ * The definitions a category's panel offers. The nearest category in `chain`
+ * with overlay rows wins outright; a row naming a deleted definition is
+ * dropped, as a stale `attr` parameter is.
  */
 export function resolveCategoryDefinitions(
   chain: string[],

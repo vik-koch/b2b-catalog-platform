@@ -1,31 +1,23 @@
+/**
+ * The sort keys every product ordering shares (FR-SEARCH-04), so "by price"
+ * means the same on the storefront and in the admin grid. Every order closes
+ * with name, then id: without a total order, two equal rows could swap between
+ * pages and be shown twice or not at all.
+ */
+
 import { asc, desc, sql, SQL } from 'drizzle-orm';
 import { PgColumn } from 'drizzle-orm/pg-core';
 import { SearchSort } from '@b2b-catalog-platform/shared/core/catalog';
 import { products } from '../../db/schema';
 import { resolvedPriceMinor } from './product-price';
 
-/**
- * The sort keys every product ordering shares (FR-SEARCH-04), so "sorted by
- * price" means the same on the storefront and in the admin grid.
- *
- * Every result closes with name then id. Without a total order two rows of
- * equal price (or equal relevance) could swap between page requests and be
- * shown twice, or not at all.
- */
-
 export type OrderBy = (SQL | PgColumn)[];
 
 /** A resolved price, nullable because a product may not be priced yet. */
 export type PriceExpression = SQL<number | null> | PgColumn;
 
-/**
- * The chosen sort alone. A storefront listing leads it with availability; the
- * admin grid does not, because a manager narrowing the catalog by name or by
- * price is answering a question about the catalog, not shopping in it, and a
- * column of empty shelves pinned to the bottom of every page would be in the
- * way of every one of those questions. The grid filters by availability
- * instead (FR-ADM-05).
- */
+/** The chosen sort alone. A storefront listing leads it with availability;
+ * the admin grid filters by it instead (FR-ADM-05). */
 export function productSortKeys(
   sort: SearchSort,
   score?: SQL<number>,
@@ -35,8 +27,7 @@ export function productSortKeys(
 
   switch (sort) {
     case 'relevance':
-      // Falls back to the name order when there is no query to score against,
-      // which is the same thing an unscored listing would do anyway.
+      // Name order without a query to score against.
       return score ? [desc(score), ...tiebreak] : tiebreak;
     case 'name':
       return tiebreak;
@@ -45,9 +36,8 @@ export function productSortKeys(
     case 'price':
       return [sql`${price} asc nulls last`, ...tiebreak];
     case 'price_desc':
-      // Nulls last in both directions: a product nobody has priced is not the
-      // dearest thing in the catalog, it is the one with no answer. Only the
-      // admin grid can see one at all.
+      // Nulls last both ways: an unpriced product is not the dearest one.
+      // Only the admin grid sees one.
       return [sql`${price} desc nulls last`, ...tiebreak];
   }
 }

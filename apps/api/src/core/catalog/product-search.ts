@@ -1,3 +1,10 @@
+/**
+ * Name matching for every product and category search, so "matches this name"
+ * has one definition. Full-text search gives word-order independence and
+ * prefixes, trigram word similarity gives typo tolerance; candidates are an OR
+ * of both, each half indexable, ordered by a combined score.
+ */
+
 import { SQL, sql } from 'drizzle-orm';
 import {
   alternateLayoutQuery,
@@ -9,39 +16,23 @@ import {
 } from '@b2b-catalog-platform/shared/core/catalog';
 import { products } from '../../db/schema';
 
-/**
- * Name matching — shared by the storefront search, the admin grid's
- * find-a-product box and the category suggestions (FR-SEARCH-07), so "matches
- * this name" has one definition.
- *
- * Two mechanisms:
- * - full-text search gives word-order independence and prefix;
- * - trigram word-similarity gives typo tolerance.
- *
- * Candidates are selected by an OR of both (each half indexable),
- * then ordered by a combined score.
- */
-
-/** Terms past this add nothing but planner work — every term is another index scan. */
+/** Terms past this add only planner work: every term is another index scan. */
 export const SEARCH_MAX_TERMS = 8;
 
 /** Below this a query matches most of the catalog, so it is not run at all. */
-export const SEARCH_MIN_LENGTH = 2;
+const SEARCH_MIN_LENGTH = 2;
 
 /**
- * How close a term must come to some word of the name to count as a typo
- * rather than a different word. Measured against the demo catalog: real typos
- * ("esspreso", "hafn", "nordik") land at 0.6–0.78 and unrelated input at 0, so
- * 0.5 keeps a margin below the observed floor without letting noise in.
- * Applied per-statement, never left to the server default.
+ * How close a term must come to a word of the name to count as a typo. Real
+ * typos in the demo catalog ("esspreso", "hafn") land at 0.6–0.78 and unrelated
+ * input at 0, so 0.5 keeps a margin below the floor.
  */
-export const SEARCH_WORD_SIMILARITY_THRESHOLD = 0.5;
+const SEARCH_WORD_SIMILARITY_THRESHOLD = 0.5;
 
 /**
- * One word of the query: its terms as typed and, where the deployment's second
- * layout reads it differently (FR-SEARCH-08), its terms on that layout. Either
- * list may hold several terms — punctuation inside a word splits it — and
- * either may be empty.
+ * One word of the query: its terms as typed and, where the second keyboard
+ * layout reads it differently (FR-SEARCH-08), on that layout. Punctuation
+ * inside a word splits it into several terms; either list may be empty.
  */
 export interface SearchWord {
   typed: string[];
@@ -50,7 +41,7 @@ export interface SearchWord {
 
 /** A query that survived parsing and is worth running. */
 export interface SearchQuery {
-  /** Typed terms joined by a single space — what the substring tiers compare against. */
+  /** Typed terms joined by a space: what the substring tiers compare. */
   normalized: string;
   /** The same, every word on the other layout; absent where none reads differently. */
   otherNormalized?: string;
@@ -68,17 +59,10 @@ const OTHER_TIER_PENALTY = 0.5;
 const OTHER_SIMILARITY_WEIGHT = 0.9;
 
 /**
- * Normalizes raw user input into something safe to run, or null when there is
- * nothing worth searching for (empty, punctuation only, or below the minimum
- * length). Tokenization is `searchTerms` — shared with the search bar's
- * highlighter so both split a query the same way — and it is what makes the
- * result safe to interpolate into a `tsquery`: no operator character survives
- * it, so the caller never needs to escape. Accents are folded in the database
- * (`search_unaccent`), so both sides of the comparison fold identically and
- * this stays a pure string function.
- *
- * Words rather than the whole query are read on the second layout, so a query
- * typed half on each layout matches like one typed right.
+ * Raw input as a query safe to run, or null when nothing is worth searching
+ * for. `searchTerms` lets no operator character through, so the `tsquery`
+ * needs no escaping. Each word is read on the second layout separately, so a
+ * query typed half on each matches like one typed right.
  */
 export function parseSearchQuery(
   input: string,
@@ -118,7 +102,7 @@ export function parseSearchQuery(
   };
 }
 
-/** The readings a word has — one, or two where the other layout differs. */
+/** A word's readings: one, or two where the other layout differs. */
 function readings(word: SearchWord): string[][] {
   return [word.typed, word.other].filter((terms) => terms.length > 0);
 }
@@ -140,11 +124,8 @@ const folded = (name: SQL | typeof products.name) =>
 const fullText = (tsv: SQL | typeof products.nameTsv, tsquery: string) =>
   sql`(${tsv} @@ to_tsquery('simple', search_unaccent(${tsquery})))`;
 
-/**
- * Which rows are candidates. Every branch is index-backed — the tsvector GIN
- * for the full-text half, the trigram GIN once per term for the fuzzy half —
- * so this stays a bitmap OR of index scans rather than a table scan.
- */
+/** Which products are candidates. Every branch is index-backed, so this
+ * stays a bitmap OR of index scans rather than a table scan. */
 export function searchCondition(query: SearchQuery): SQL {
   const terms = new Set(query.words.flatMap(readings).flat());
   const fuzzy = [...terms].map(
@@ -155,15 +136,9 @@ export function searchCondition(query: SearchQuery): SQL {
 
 /**
  * Whether a category's name answers the query (FR-SEARCH-07). Stricter than
- * the product condition on purpose: *every* word has to match, in either of
- * its readings, each term either as a word prefix or as a typo of a word.
- * Products are ranked, so a product sharing one word with the query sinks to
- * the bottom of a long list; a category offered beside them is a claim that
- * the query names it, and "hafen espresso" does not name the category
- * *Espresso*.
- *
- * Unindexed — the category table is a few hundred rows, and the tsvector is
- * built on the fly rather than stored.
+ * for products: every word has to match. A product sharing one word sinks in a
+ * ranked list, but a category offered beside them claims the query names it,
+ * and "hafen espresso" does not name *Espresso*. Unindexed: the table is small.
  */
 export function categoryNameCondition(query: SearchQuery, name: SQL): SQL {
   const tsv = sql`to_tsvector('simple', search_unaccent(${name}))`;
@@ -187,9 +162,8 @@ export function categoryNameScore(query: SearchQuery, name: SQL): SQL<number> {
 }
 
 /**
- * ORs a list of predicates into one *parenthesized* condition. The parentheses
- * are the point: drizzle's `and()` splices a raw `SQL` fragment in as-is, so an
- * unwrapped `a or b` next to a `deletedAt is null` filter would bind as
+ * The predicates ORed in parentheses. drizzle's `and()` splices a raw fragment
+ * in as-is, so an unwrapped `a or b` beside a filter would bind as
  * `(filter and a) or b` and let unfiltered rows through.
  */
 function or(conditions: SQL[]): SQL {
@@ -197,13 +171,10 @@ function or(conditions: SQL[]): SQL {
 }
 
 /**
- * How well a row matches, highest first. Three tiers that cannot be reordered
- * by the fuzzy tail: a name starting with the query beats a name merely
- * containing it, which beats one that only matches term-wise. The similarity
- * average is added on top to order rows within a tier — averaging per term
- * rather than scoring the query as one string is what separates a name
- * containing every term from one containing a single common word. A word with
- * two readings counts the better one.
+ * How well a product matches, highest first. Tiers the fuzzy tail cannot
+ * reorder: a name starting with the query, then containing it, then matching
+ * term-wise. A per-term similarity average orders rows within a tier, which is
+ * what separates a name with every term from one sharing a common word.
  */
 export function relevanceScore(query: SearchQuery): SQL<number> {
   return nameScore(query, products.name, products.nameTsv);
@@ -260,24 +231,19 @@ function nameScore(
 }
 
 /**
- * The admin grid's box also matches the private sync key (FR-ADM-05), as a
- * case-insensitive substring of the raw input rather than through the name
- * matcher: a key like `legacy:AB-1200/3` is punctuation, which tokenization
- * would throw away, and an admin holding a key wants that exact row, not
- * something spelled similarly. LIKE metacharacters are escaped so a pasted `%`
- * cannot turn into a wildcard scan.
+ * The sync key as a case-insensitive substring of the raw input: a key like
+ * `legacy:AB-1200/3` is punctuation tokenization would drop. LIKE
+ * metacharacters are escaped, so a pasted `%` is no wildcard scan.
  */
-export function sourceIdCondition(raw: string): SQL {
+function sourceIdCondition(raw: string): SQL {
   const escaped = raw.trim().replace(/[\\%_]/g, (ch) => `\\${ch}`);
   return sql`${products.sourceId} ilike ${'%' + escaped + '%'}`;
 }
 
 /**
- * What the admin grid's single search box matches: the product name (same
- * matcher as the storefront, so "matches this name" has one definition) or the
- * sync key. Returns null when the input is blank — an unfiltered grid — but a
- * one-character entry still filters, because it is a valid key fragment even
- * though it is too short to run the name matcher on.
+ * The admin grid's box (FR-ADM-05): the name or the sync key. Null when blank;
+ * one character still filters, as a key fragment too short for the name
+ * matcher.
  */
 export function adminSearchCondition(
   raw: string,
@@ -294,10 +260,9 @@ export function adminSearchCondition(
 }
 
 /**
- * Pins the trigram threshold for the current transaction. `%>` reads it from a
- * GUC, and leaving that to the server default would make recall depend on
- * deployment configuration; `SET LOCAL` keeps it per-statement rather than
- * leaking into the next borrower of a pooled connection.
+ * Pins the trigram threshold for the transaction: `%>` reads it from a setting
+ * whose server default would make recall depend on the deployment. `SET LOCAL`
+ * keeps it from leaking into the next borrower of a pooled connection.
  */
 export const setSearchThreshold = sql`set local pg_trgm.word_similarity_threshold = ${sql.raw(
   String(SEARCH_WORD_SIMILARITY_THRESHOLD),

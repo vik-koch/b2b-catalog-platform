@@ -15,34 +15,6 @@ export interface CategoryRow {
   sortOrder: number;
 }
 
-/**
- * Every category id depth-first — a parent, then each child's subtree in
- * turn — siblings in the order the rows arrive (`sortOrder`, then name). A row
- * whose parent is missing counts as a root, as in buildCategoryTree; one no
- * root reaches (a parent loop) goes last rather than nowhere.
- */
-export function categoryTreeOrder(
-  rows: Pick<CategoryRow, 'id' | 'parentId'>[],
-): string[] {
-  const ids = new Set(rows.map((row) => row.id));
-  const children = new Map<string | null, string[]>();
-  for (const row of rows) {
-    const parent = row.parentId && ids.has(row.parentId) ? row.parentId : null;
-    children.set(parent, [...(children.get(parent) ?? []), row.id]);
-  }
-  const order: string[] = [];
-  const seen = new Set<string>();
-  const visit = (id: string) => {
-    if (seen.has(id)) return;
-    seen.add(id);
-    order.push(id);
-    for (const child of children.get(id) ?? []) visit(child);
-  };
-  for (const root of children.get(null) ?? []) visit(root);
-  for (const row of rows) visit(row.id);
-  return order;
-}
-
 export function categoryBySlug(
   rows: CategoryRow[],
   slug: string,
@@ -50,10 +22,8 @@ export function categoryBySlug(
   return rows.find((row) => row.slug === slug);
 }
 
-/**
- * The category and all its descendants: a parent page shows everything beneath
- * it (Pattern A).
- */
+/** The category and all its descendants: a parent page shows everything
+ * beneath it. */
 export function descendantIds(
   rootId: string,
   rows: Pick<CategoryRow, 'id' | 'parentId'>[],
@@ -73,11 +43,8 @@ export function descendantIds(
 }
 
 /**
- * Each category's products plus everything beneath it, the way the storefront
- * listing scopes a category (FR-ADM-19): every direct count is added to its
- * own category and to each ancestor up the chain. A broken chain stops the
- * walk rather than looping — the reparent guards keep the tree acyclic, and
- * this must not hang if they ever did not.
+ * Each category's count plus everything beneath it, as a listing scopes a
+ * category (FR-ADM-19). A parent loop stops the walk rather than hanging it.
  */
 export function subtreeCounts(
   rows: { id: string; parentId: string | null }[],
@@ -116,44 +83,4 @@ export function ancestorsOf(
     current = row.parentId;
   }
   return crumbs;
-}
-
-/** Direct children of a category, for the drill-down nav — of the catalogue
- * itself for `null`, which is the top level. */
-export function directChildren(
-  categoryId: string | null,
-  rows: CategoryRow[],
-): CategoryRow[] {
-  return rows.filter((row) => row.parentId === categoryId);
-}
-
-/**
- * The categories worth linking to: those a publicly visible product is filed
- * under, plus every ancestor of one.
- *
- * A category is a grouping of products rather than a thing in its own right, so
- * one with nothing visible beneath it is a tile leading to an empty grid. That
- * happens both ways round — a category the sync has just created holds only
- * unpublished products, and a category the sync has emptied holds none at all —
- * and neither wants a flag an admin has to remember to set.
- *
- * `liveIds` are the categories products sit in directly; walking upward is what
- * keeps a parent whose stock all lives in its children.
- */
-export function stockedCategoryIds(
-  rows: Pick<CategoryRow, 'id' | 'parentId'>[],
-  liveIds: Iterable<string>,
-): Set<string> {
-  const byId = new Map(rows.map((row) => [row.id, row]));
-  const stocked = new Set<string>();
-  for (const id of liveIds) {
-    let current: string | null = id;
-    // Guarded against a parent loop the write path should have refused, so a
-    // bad row costs a wrong tree rather than a hung request.
-    while (current && !stocked.has(current)) {
-      stocked.add(current);
-      current = byId.get(current)?.parentId ?? null;
-    }
-  }
-  return stocked;
 }

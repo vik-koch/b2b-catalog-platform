@@ -37,10 +37,7 @@ import {
   ancestorsOf,
   categoryBySlug,
   CategoryRow,
-  categoryTreeOrder,
   descendantIds,
-  directChildren,
-  stockedCategoryIds,
   subtreeCounts,
 } from '../../core/catalog/catalog-tree';
 import {
@@ -53,7 +50,12 @@ import {
 } from '../../core/catalog/product-search';
 import { livePriceMinor } from '../../core/catalog/product-price';
 import { catalogOrderBy, productOrderBy } from './listing-sort';
-import { buildCategoryTree } from './category-tree';
+import {
+  buildCategoryTree,
+  categoryTreeOrder,
+  directChildren,
+  stockedCategoryIds,
+} from './category-tree';
 import {
   publiclyVisible,
   availabilityColumns,

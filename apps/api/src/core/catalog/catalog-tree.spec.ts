@@ -2,10 +2,7 @@ import {
   ancestorsOf,
   categoryBySlug,
   CategoryRow,
-  categoryTreeOrder,
   descendantIds,
-  directChildren,
-  stockedCategoryIds,
   subtreeCounts,
 } from './catalog-tree';
 
@@ -34,36 +31,6 @@ const rows: CategoryRow[] = [
 ];
 
 describe('catalog-tree', () => {
-  it('orders categories depth-first, siblings as they arrive', () => {
-    expect(categoryTreeOrder(rows)).toEqual(['cb', 'esp', 'fil', 'tea']);
-    // A child sorted ahead of its parent still follows it.
-    expect(categoryTreeOrder([rows[1], rows[3], rows[0], rows[2]])).toEqual([
-      'tea',
-      'cb',
-      'esp',
-      'fil',
-    ]);
-  });
-
-  it('orders an orphan as a root and a loop last, never dropping one', () => {
-    const odd: CategoryRow[] = [
-      cat('a', 'a', 'b', 0),
-      cat('b', 'b', 'a', 1),
-      cat('orphan', 'orphan', 'gone', 2),
-      ...rows,
-    ];
-
-    expect(categoryTreeOrder(odd)).toEqual([
-      'orphan',
-      'cb',
-      'esp',
-      'fil',
-      'tea',
-      'a',
-      'b',
-    ]);
-  });
-
   it('collects a category and all its descendants', () => {
     expect(new Set(descendantIds('cb', rows))).toEqual(
       new Set(['cb', 'esp', 'fil']),
@@ -78,15 +45,7 @@ describe('catalog-tree', () => {
     expect(ancestorsOf('cb', rows)).toEqual([]);
   });
 
-  it('lists only direct children as subcategory links', () => {
-    expect(directChildren('cb', rows).map((c) => c.slug)).toEqual([
-      'espresso',
-      'filter',
-    ]);
-    expect(directChildren('esp', rows)).toEqual([]);
-  });
-
-  it('carries the short name through crumbs and children', () => {
+  it('carries the short name through crumbs', () => {
     expect(
       ancestorsOf(
         'esp',
@@ -95,39 +54,6 @@ describe('catalog-tree', () => {
     ).toEqual([
       { slug: 'coffee-beans', name: 'COFFEE-BEANS', shortName: 'Beans' },
     ]);
-    expect(directChildren('cb', rows).map((c) => c.shortName)).toEqual([
-      'Esp',
-      null,
-    ]);
-  });
-
-  it('keeps a stocked category and every ancestor of one', () => {
-    // Products sit on the leaf; the parent is kept because of them, and the
-    // sibling leaf and the flat category are not.
-    expect(stockedCategoryIds(rows, ['esp'])).toEqual(new Set(['esp', 'cb']));
-  });
-
-  it('drops a category nothing visible is filed under', () => {
-    const stocked = stockedCategoryIds(rows, ['tea']);
-
-    expect(
-      directChildren(
-        'cb',
-        rows.filter((r) => stocked.has(r.id)),
-      ),
-    ).toEqual([]);
-  });
-
-  it('keeps nothing when nothing is visible', () => {
-    expect(stockedCategoryIds(rows, [])).toEqual(new Set());
-  });
-
-  it('survives a parent loop rather than hanging on it', () => {
-    const looped: CategoryRow[] = [
-      { ...cat('a', 'a', 'b', 0) },
-      { ...cat('b', 'b', 'a', 1) },
-    ];
-    expect(stockedCategoryIds(looped, ['a'])).toEqual(new Set(['a', 'b']));
   });
 
   it('counts a category with everything beneath it', () => {

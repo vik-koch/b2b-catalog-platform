@@ -194,17 +194,11 @@ export class CatalogReader {
   }
 
   /**
-   * A product's attributes in the admin's row order — `sortOrder` is the order,
-   * so it has to be asked for explicitly.
-   *
-   * Left-joined to the registry by name, for the unit and the filter link: a
-   * key matching no definition still renders, exactly as it is stored
-   * (FR-ATTR-02).
-   *
-   * `filterable` is the set of slugs this product's own category offers
-   * (FR-ATTR-11). An attribute the category does not filter by keeps its unit
-   * and its row and loses only the link — it would otherwise lead to a listing
-   * whose panel cannot show or clear the filter.
+   * A product's attributes in the admin's row order, left-joined to the
+   * registry for the unit and the filter link; a key no definition matches
+   * still renders (FR-ATTR-02). `filterable` is what the product's category
+   * offers (FR-ATTR-11): any other attribute loses only its link, which would
+   * lead to a panel that cannot show or clear the filter.
    */
   private async attributesFor(
     productId: string,
@@ -246,13 +240,9 @@ export class CatalogReader {
   }
 
   /**
-   * The documents a product page lists (FR-DOC-03). Expired ones are dropped
-   * here rather than hidden in the template, so nothing downstream — the
-   * count, the heading, the SSR markup — can disagree about what is current.
-   *
-   * A document with no expiry never runs out and is always listed. Soonest
-   * expiry first, undated ones last, which puts the certificate a customer is
-   * most likely asking about at the top.
+   * The documents a product page lists (FR-DOC-03), expired ones dropped here
+   * so nothing downstream disagrees about what is current. Soonest expiry
+   * first, undated ones last.
    */
   private async documentsFor(productId: string): Promise<PublicDocument[]> {
     const today = isoToday();

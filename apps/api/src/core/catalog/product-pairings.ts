@@ -1,3 +1,9 @@
+/**
+ * Reading sold-together pairings (FR-SET-01/05). An edge is stored once, the
+ * smaller id on the A side, so a product's counterparts sit on whichever side
+ * it is not.
+ */
+
 import { and, eq, inArray, or, SQL, sql } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import * as schema from '../../db/schema';
@@ -6,23 +12,9 @@ import { productPairings, products } from '../../db/schema';
 import { qualified } from '../../db/sql-columns';
 
 /**
- * Sold-together pairings as the storefront reads them (FR-SET-05). The admin
- * side owns writing them and lists every edge, marked; this side lists only
- * what a customer could add — a counterpart that is withdrawn or unpublished
- * is still an edge, and is still not a product on offer.
- *
- * An edge is stored once with the smaller id on the A side, so a product's
- * counterparts sit on whichever side it is not: the `case` picks the other end,
- * and the `or` is what makes the table read the same from both products.
- */
-
-/**
- * How many sellable products the row being selected is paired with — a scalar
- * subquery that drops into any select over `products`.
- *
- * A count rather than the counterparts themselves, because this rides along on
- * every card in a listing: what a tile needs is whether to draw the marker, and
- * the list behind it is worth a request only for the tile that is pressed.
+ * How many products a customer could add alongside the row being selected: a
+ * withdrawn or unpublished counterpart is still an edge, but not on offer. A
+ * scalar subquery for any select over `products`.
  */
 export function pairedCountOf(): SQL<number> {
   const own = qualified(products.id);
@@ -59,14 +51,8 @@ export function involves(productId: string) {
   );
 }
 
-/**
- * The edges *among* a given set of products — every pairing where both ends are
- * in the set, as `[a, b]` id pairs.
- *
- * All the cart's check needs: a counterpart nobody added covers nothing, so
- * loading the whole neighbourhood of every line would be a bigger question with
- * the same answer.
- */
+/** The pairings with both ends in the set, as `[a, b]` id pairs: all the
+ * cart's check needs, since a counterpart nobody added covers nothing. */
 export async function pairingsAmong(
   db: NodePgDatabase<typeof schema>,
   productIds: readonly string[],
