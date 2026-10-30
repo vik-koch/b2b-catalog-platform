@@ -5,20 +5,15 @@ import { parseAttributeParams } from '@b2b-catalog-platform/shared/core/catalog'
 import { CatalogService } from './catalog.service';
 import { PricingTier } from '../../auth/pricing-tier.decorator';
 import { TierPriced } from '../../auth/tier-priced.decorator';
-import {
-  SearchThrottle,
-  SuggestionThrottle,
-} from '../../throttling/throttle-presets';
 
 /**
- * The storefront read API (FR-CAT-01…05), backed by the database. The
- * contract's output schemas are enforced on the way out, so no internal column
- * (e.g. a product's private `sourceId`) can leak.
+ * The storefront's catalog reads (FR-CAT-01…05); search has its own
+ * controller. The output schemas are enforced on the way out, so no internal
+ * column can leak.
  *
  * Public, but not session-blind: `@TierPriced()` reads a session if one is
- * offered so a signed-in customer gets their tier's prices (FR-AUTH-05), and
- * marks those responses so no cache serves them to anyone else. It never
- * rejects, and a request without the cookie does no extra work.
+ * offered, so a signed-in customer gets their tier's prices (FR-AUTH-05), and
+ * keeps those responses out of shared caches. It never rejects.
  */
 @Controller()
 export class CatalogController {
@@ -61,32 +56,6 @@ export class CatalogController {
           throw errors['not-found']({ message: 'Category not found' });
         return result;
       },
-    );
-  }
-
-  @SearchThrottle()
-  @TierPriced()
-  @Implement(catalogContract.searchProducts)
-  searchProducts(@PricingTier() tierId: string | null) {
-    return implement(catalogContract.searchProducts).handler(
-      ({ input: { query } }) =>
-        this.catalog.searchProducts(
-          query.q,
-          query.page,
-          query.sort,
-          tierId,
-          parseAttributeParams(query.attr),
-        ),
-    );
-  }
-
-  @SuggestionThrottle()
-  @TierPriced()
-  @Implement(catalogContract.getSearchSuggestions)
-  getSearchSuggestions(@PricingTier() tierId: string | null) {
-    return implement(catalogContract.getSearchSuggestions).handler(
-      ({ input: { query } }) =>
-        this.catalog.getSearchSuggestions(query.q, tierId),
     );
   }
 

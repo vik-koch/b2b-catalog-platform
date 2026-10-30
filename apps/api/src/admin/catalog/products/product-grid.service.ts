@@ -44,14 +44,10 @@ import {
 } from '../../../core/catalog/product-search';
 import { adminProductOrderBy } from './grid-sort';
 import {
-  availabilityColumns,
-  partsColumns,
-  pictureColumns,
-  noteColumns,
+  listItemColumns,
   toUnpricedListItem,
-  unitColumns,
 } from '../../../core/catalog/product-view';
-import { pairedCountOf } from '../../../core/catalog/product-pairings';
+import { paginationOf } from '../../../platform/pagination';
 import { resolvedPriceMinor } from '../../../core/catalog/product-price';
 import { ALTERNATE_LAYOUT } from '../../../config/deployment-config';
 import { categoryNotFound } from '../categories/admin-categories.service';
@@ -192,12 +188,7 @@ export class ProductGridService {
           updatedAt: r.updatedAt.toISOString(),
         })),
         ...(deletedMatches > 0 && { deletedMatches }),
-        pagination: {
-          page: query.page,
-          pageSize,
-          total: Number(total),
-          totalPages: Math.ceil(Number(total) / pageSize),
-        },
+        pagination: paginationOf(query.page, pageSize, Number(total)),
       };
     });
   }
@@ -244,17 +235,7 @@ export class ProductGridService {
     const ids = descendantIds(category.id, rows);
     // Default-list prices: staff have no tier.
     const hidden = await this.db
-      .select({
-        slug: products.slug,
-        name: products.name,
-        priceMinor: resolvedPriceMinor(null),
-        ...pictureColumns,
-        ...unitColumns,
-        ...noteColumns,
-        ...availabilityColumns,
-        ...partsColumns,
-        pairedCount: pairedCountOf(),
-      })
+      .select(listItemColumns(resolvedPriceMinor(null)))
       .from(products)
       .where(
         and(inArray(products.categoryId, ids), stateCondition('unpublished')),

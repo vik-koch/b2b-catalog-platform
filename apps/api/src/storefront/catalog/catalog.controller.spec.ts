@@ -17,7 +17,6 @@ describe('CatalogController', () => {
   let signedInTier: string | null = null;
 
   const getCategoryProducts = vi.fn();
-  const searchProducts = vi.fn();
   const getProduct = vi.fn();
   const getFeaturedProducts = vi.fn();
 
@@ -42,11 +41,9 @@ describe('CatalogController', () => {
           provide: CatalogService,
           useValue: {
             getCategoryProducts,
-            searchProducts,
             getProduct,
             getFeaturedProducts,
             getCategoryTree: async () => [],
-            getSearchSuggestions: async () => ({ items: [], categories: [] }),
             getSitemap: async () => ({
               categories: [],
               products: [],
@@ -91,7 +88,6 @@ describe('CatalogController', () => {
   beforeEach(() => {
     signedInTier = null;
     getCategoryProducts.mockReset().mockResolvedValue(listing);
-    searchProducts.mockReset();
     getProduct.mockReset();
     getFeaturedProducts.mockReset().mockResolvedValue([]);
   });

@@ -1,10 +1,8 @@
 import { CategoryNode } from '@b2b-catalog-platform/shared/storefront/catalog';
 import { CategoryRow } from '../../core/catalog/catalog-tree';
 
-/**
- * Build the category forest from flat rows. Rows are expected pre-sorted by
- * `sortOrder` (then name); children keep that order.
- */
+/** The category forest from flat rows, pre-sorted by `sortOrder` then name;
+ * children keep that order. */
 export function buildCategoryTree(rows: CategoryRow[]): CategoryNode[] {
   const nodes = new Map<string, CategoryNode>();
   for (const row of rows) {
@@ -31,10 +29,9 @@ export function buildCategoryTree(rows: CategoryRow[]): CategoryNode[] {
 }
 
 /**
- * Every category id depth-first — a parent, then each child's subtree in
- * turn — siblings in the order the rows arrive (`sortOrder`, then name). A row
- * whose parent is missing counts as a root, as in buildCategoryTree; one no
- * root reaches (a parent loop) goes last rather than nowhere.
+ * Every category id depth-first, siblings in the order the rows arrive. A row
+ * whose parent is missing counts as a root, as in `buildCategoryTree`; one in
+ * a parent loop goes last rather than nowhere.
  */
 export function categoryTreeOrder(
   rows: Pick<CategoryRow, 'id' | 'parentId'>[],
@@ -58,8 +55,8 @@ export function categoryTreeOrder(
   return order;
 }
 
-/** Direct children of a category, for the drill-down nav — of the catalogue
- * itself for `null`, which is the top level. */
+/** Direct children of a category for the drill-down nav; `null` is the top
+ * level. */
 export function directChildren(
   categoryId: string | null,
   rows: CategoryRow[],
@@ -68,17 +65,9 @@ export function directChildren(
 }
 
 /**
- * The categories worth linking to: those a publicly visible product is filed
- * under, plus every ancestor of one.
- *
- * A category is a grouping of products rather than a thing in its own right, so
- * one with nothing visible beneath it is a tile leading to an empty grid. That
- * happens both ways round — a category the sync has just created holds only
- * unpublished products, and a category the sync has emptied holds none at all —
- * and neither wants a flag an admin has to remember to set.
- *
- * `liveIds` are the categories products sit in directly; walking upward is what
- * keeps a parent whose stock all lives in its children.
+ * The categories worth linking to: those a visible product sits in directly
+ * (`liveIds`), plus every ancestor. One with nothing visible beneath it would
+ * be a tile leading to an empty grid, and no admin should have to flag it.
  */
 export function stockedCategoryIds(
   rows: Pick<CategoryRow, 'id' | 'parentId'>[],

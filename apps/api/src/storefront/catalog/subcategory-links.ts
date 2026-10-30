@@ -3,13 +3,9 @@ import { DefinitionRow } from '../../core/catalog/category-filters';
 import { ResolvedSelection } from './product-facets';
 
 /**
- * A subcategory chip under the listing's filters (FR-ATTR-13).
- *
- * A chip carries on only the part of the selection its target's own panel
- * offers — anything else would filter the next listing by something it can
- * neither show nor clear — and is counted under exactly that part. So a chip
- * whose panel offers none of the selected attributes carries nothing and is
- * counted whole.
+ * The part of the selection a subcategory chip carries on (FR-ATTR-13): only
+ * what its target's panel offers, or the next listing would filter by
+ * something it can neither show nor clear.
  */
 export function carriedSelections(
   selections: ResolvedSelection[],

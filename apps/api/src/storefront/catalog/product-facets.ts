@@ -1,3 +1,10 @@
+/**
+ * The storefront's facet panel (FR-ATTR-04/05). A facet's values come from the
+ * products in scope with no selection applied, so clicking a value never
+ * shortens its own list. Each count applies every other attribute's selection
+ * but not its own, so a greyed zero means something.
+ */
+
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { and, countDistinct, eq, inArray, ne, SQL } from 'drizzle-orm';
 import {
@@ -9,31 +16,9 @@ import {
   FacetValue,
 } from '@b2b-catalog-platform/shared/storefront/catalog';
 import * as schema from '../../db/schema';
-import {
-  attributeDefinitions,
-  productAttributes,
-  products,
-} from '../../db/schema';
+import { productAttributes, products } from '../../db/schema';
 import { attributeValuesCondition } from '../../core/catalog/attribute-filter';
-
-/**
- * The storefront's facet panel (FR-ATTR-04/05).
- *
- * Two rules decide every query here. The list of values a facet offers comes
- * from the products **in scope** — the category and its subcategories, or the
- * search result set — with no attribute selection applied, so clicking a value
- * never shortens the list it was clicked in. The **count** beside each value is
- * taken with every *other* attribute's selection applied but not its own, which
- * is what makes a greyed zero-count meaningful instead of collapsing every list
- * to what is already selected.
- *
- * Counts obey the publication gate and the soft delete, because they describe
- * what a visitor can reach — the opposite of the admin-side attribute counts,
- * which count the catalog as stored.
- */
-
-/** A definition as the facets need it; the registry row minus its counts. */
-type DefinitionRow = typeof attributeDefinitions.$inferSelect;
+import { DefinitionRow } from '../../core/catalog/category-filters';
 
 /** One attribute's selection, resolved from its URL slug to its key. */
 export interface ResolvedSelection {
@@ -46,12 +31,8 @@ type Db = NodePgDatabase<typeof schema>;
 /** key → value → products carrying it within some scope. */
 type Counts = Map<string, Map<string, number>>;
 
-/**
- * Resolves `attr` parameters against the registry. An entry naming an
- * attribute nobody declared is dropped: a filtered link outlives the
- * definition it was written from, and a deleted definition simply stops
- * filtering.
- */
+/** `attr` parameters resolved against the registry. An undeclared attribute is
+ * dropped: a link outlives the definition it was written from. */
 export function resolveSelections(
   selections: AttributeSelection[],
   definitions: DefinitionRow[],
@@ -67,18 +48,14 @@ export function resolveSelections(
   });
 }
 
-/**
- * Whether a value can appear in its attribute's filter at all. A number
- * attribute filters by numbers: a value that does not read as one is still
- * stored and still shown on the product page, but it offers no checkbox
- * (FR-ATTR-03) — and is dropped from a selection too, so the list and the
- * predicate never disagree.
- */
+/** Whether a value can be filtered by at all: a number attribute's
+ * non-numeric value offers no checkbox (FR-ATTR-03) and is dropped from a
+ * selection too, so list and predicate agree. */
 function isFilterable(definition: DefinitionRow, value: string): boolean {
   return definition.type !== 'number' || parseAttributeNumber(value) !== null;
 }
 
-/** The `where` fragments a selection adds to a listing — AND across attributes. */
+/** The `where` fragments a selection adds, ANDed across attributes. */
 export function selectionConditions(
   db: Db,
   selections: ResolvedSelection[],
@@ -90,12 +67,9 @@ export function selectionConditions(
 }
 
 /**
- * Product counts per attribute value over a scope, in one grouped pass.
- *
- * `count(distinct productId)`, not rows: a product may carry the same key twice
- * (the grid is a list of lines, not a map), and it is still one product. Rows
- * with no value are skipped — a product saved before valueless attributes
- * stopped being stored must not become a nameless checkbox.
+ * Products per attribute value over a scope, in one grouped pass. Distinct
+ * products, since one may carry a key twice; rows without a value are skipped,
+ * or older rows would become nameless checkboxes.
  */
 async function countValues(
   db: Db,
@@ -130,11 +104,8 @@ async function countValues(
   return counts;
 }
 
-/**
- * Values by their numeric form, so a list of sizes reads 9, 10, 100 rather than
- * 10, 100, 9. A text attribute is sorted as text even where its values happen
- * to be numbers: the definition says how they are read.
- */
+/** A number attribute's values in numeric order (9, 10, 100); a text one's
+ * as text, whatever they look like. */
 function sortValues(values: FacetValue[], type: DefinitionRow['type']) {
   const numeric = new Map(
     values.map((entry) => [
@@ -151,13 +122,9 @@ function sortValues(values: FacetValue[], type: DefinitionRow['type']) {
 }
 
 /**
- * The facet panel for one listing. `scope` is the listing's `where` **without**
- * any attribute selection — the selection is applied here, per facet, so each
- * one is counted against the others.
- *
- * Costs one query for the value lists, one for the counts, and one more per
- * *selected* attribute: every unselected facet shares the same "all selections
- * applied" count, so an unfiltered listing runs a single grouped query.
+ * The facet panel for one listing. `scope` excludes the selection, which is
+ * applied here per facet. One query for the values, one for the counts, one
+ * per selected attribute: an unfiltered listing runs a single grouped query.
  */
 export async function buildFacets(
   db: Db,

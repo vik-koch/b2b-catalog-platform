@@ -15,8 +15,9 @@ import {
   shownPictures,
   totalMinor,
 } from '@b2b-catalog-platform/shared/core/catalog';
-import { and, isNotNull, isNull } from 'drizzle-orm';
+import { and, isNotNull, isNull, SQL } from 'drizzle-orm';
 import { ProductImageRef, ProductVariantRef, products } from '../../db/schema';
+import { pairedCountOf } from './product-pairings';
 
 /** What the storefront may show: live, and published. Every public read uses
  * it, the cart included, so there is no second copy to forget. */
@@ -108,6 +109,21 @@ export function unitPricesOf(row: PricedProductRow): UnitPrices {
     piece: row.priceMinor,
     pack: priceFor('pack'),
     box: priceFor('box'),
+  };
+}
+
+/** What a tile is read from, `toListItem`'s input, at the price given. */
+export function listItemColumns<P extends SQL<number | null>>(price: P) {
+  return {
+    slug: products.slug,
+    name: products.name,
+    priceMinor: price,
+    ...pictureColumns,
+    ...unitColumns,
+    ...noteColumns,
+    ...availabilityColumns,
+    ...partsColumns,
+    pairedCount: pairedCountOf(),
   };
 }
 

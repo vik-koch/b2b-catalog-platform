@@ -2,7 +2,6 @@ import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import * as schema from '../../db/schema';
 import { CatalogReader } from '../../core/catalog/catalog-reader';
 import { CatalogService } from './catalog.service';
-import { SearchLogger } from './search.logger';
 
 /**
  * A drizzle stand-in for the sitemap selects. Each chain resolves to the next
@@ -29,12 +28,7 @@ function dbReturning(results: unknown[][]) {
 /** The service over one queue, which its reader draws from as well. */
 function serviceOver(results: unknown[][]): CatalogService {
   const db = dbReturning(results);
-  return new CatalogService(
-    db,
-    new CatalogReader(db, { basis: 'none' }),
-    new SearchLogger(),
-    null,
-  );
+  return new CatalogService(db, new CatalogReader(db, { basis: 'none' }));
 }
 
 const category = (
