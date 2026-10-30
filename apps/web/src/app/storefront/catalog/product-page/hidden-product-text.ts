@@ -3,13 +3,9 @@ import { computed, effect, inject, PLATFORM_ID, signal } from '@angular/core';
 // eslint-disable-next-line no-restricted-imports -- until the texts are cut by area: edit mode is staff reading a storefront page
 import { adminText, loadAdminText } from '../../../shared/config/admin-text';
 
-/**
- * The admin wording a hidden product's page shows: its status badges, and why
- * it cannot be published. Fetched like every admin word, once a hidden product
- * is in hand, which only an admin has; in the browser only, where the file is
- * served, so the server's render keeps the placeholder and the browser's first
- * frame matches it.
- */
+/** The admin words a hidden product's page shows, fetched once one is in
+ * hand. Browser only, where the file is served: the server keeps the
+ * placeholder, so the first frame matches it. */
 export function hiddenProductText(isHidden: () => boolean) {
   const failed = signal(false);
   const status = computed(() => adminText()?.products ?? null);

@@ -3,6 +3,7 @@ import {
   USER_ROLES,
   UserRole,
 } from '@b2b-catalog-platform/shared';
+import { cookieValue } from '../core/cookie';
 
 /**
  * The role from the readable session hint, or null where there is none.
@@ -16,10 +17,7 @@ import {
  * and a value that is not a role is not one.
  */
 export function readSessionHint(cookies: string | undefined): UserRole | null {
-  const match = cookies?.match(
-    new RegExp(`(?:^|;\\s*)${SESSION_HINT_COOKIE}=([^;]*)`),
-  );
-  const value = match?.[1] ? decodeURIComponent(match[1]) : '';
+  const value = cookieValue(cookies, SESSION_HINT_COOKIE);
   return (USER_ROLES as readonly string[]).includes(value)
     ? (value as UserRole)
     : null;

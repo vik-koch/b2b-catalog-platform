@@ -10,7 +10,7 @@ import { catalogContract } from '../../contract-routes.generated';
 
 @Injectable({ providedIn: 'root' })
 export class CatalogSearchService {
-  private client = createOrpcClient(catalogContract);
+  private readonly client = createOrpcClient(catalogContract);
 
   /** Best match first (FR-SEARCH-01…03). An unsearchable query answers with an
    * empty page, not an error. */

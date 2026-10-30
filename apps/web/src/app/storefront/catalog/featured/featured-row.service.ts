@@ -5,16 +5,11 @@ import { AuthService } from '../../../shared/auth/auth.service';
 import { CatalogService } from '../catalog.service';
 
 /**
- * The main page's row as first drawn in this tab (FR-CAT-09).
- *
- * The API draws a new row on every request, which is right for a fresh visit
- * and wrong for the way back: somebody who opens a product from the row and
- * returns would find it gone. So the browser keeps the first draw for as long
- * as the app runs — a reload is a new visit and draws again.
- *
- * Signing in or out forgets it, because the prices on it were the previous
- * visitor's. The first answer from the session does not: the draw that
- * preceded it already went out with the cookie, so its prices are right.
+ * The main page's row as first drawn in this tab (FR-CAT-09). The API draws a
+ * new row per request, so coming back from a product would find it changed;
+ * a reload is a new visit and draws again. Signing in or out forgets it, the
+ * prices being the previous visitor's; the session's first answer does not,
+ * the draw before it having gone out with the cookie.
  */
 @Injectable({ providedIn: 'root' })
 export class FeaturedRowService {
