@@ -16,6 +16,7 @@ export const TIER_ERROR_CODES = [
    * badge another list first, and this one becomes an ordinary tier. */
   'tier-is-default',
 ] as const;
+export type TierErrorCode = (typeof TIER_ERROR_CODES)[number];
 
 /**
  * The shape a price list's sync key can take: any script, so a deployment

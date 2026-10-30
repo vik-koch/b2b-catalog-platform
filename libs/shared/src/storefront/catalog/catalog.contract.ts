@@ -6,11 +6,7 @@ import {
   ATTRIBUTE_NAME_MAX_LENGTH,
   ATTRIBUTE_VALUE_MAX_LENGTH,
 } from '../../core/catalog/attributes';
-import {
-  PRODUCT_SORTS,
-  SEARCH_SORTS,
-  SearchSort,
-} from '../../core/catalog/product-sort';
+import { PRODUCT_SORTS, SEARCH_SORTS } from '../../core/catalog/product-sort';
 import { SEARCH_QUERY_MAX_LENGTH } from '../../core/catalog/search';
 import {
   attributeTypeSchema,
@@ -21,7 +17,7 @@ import {
   productListItemSchema,
   shortNameSchema,
 } from '../../core/catalog/catalog.contract';
-import { CATALOG_SORTS } from './catalog-constants';
+import { CATALOG_SORTS } from './listing';
 
 /**
  * A category's mark (FR-CAT-07): the small square image beside its name on the
@@ -38,9 +34,6 @@ export const categoryMarkSchema = catalogImageSchema.nullable();
  * (`source_id`, the sync upsert key) is private and never serialized; the only
  * public handle is the `slug`, which is also what appears in URLs.
  */
-
-/** Default page size for the product grid (FR-CAT-03). */
-export const CATALOG_PAGE_SIZE = 24;
 
 /**
  * A node in the category tree (FR-CAT-01/02). The structure (name/hierarchy)
@@ -93,10 +86,6 @@ export const productSortSchema = z.enum(PRODUCT_SORTS);
 export const searchSortSchema = z.enum(SEARCH_SORTS);
 
 export const catalogSortSchema = z.enum(CATALOG_SORTS);
-export type CatalogSort = (typeof CATALOG_SORTS)[number];
-
-/** Any listing's sort — what the shared sort control speaks. */
-export type ListingSort = SearchSort | CatalogSort;
 
 /** Longest `attr` entry: a slug, the separator, and a value. */
 const ATTRIBUTE_FILTER_PARAM_MAX_LENGTH =
@@ -191,15 +180,6 @@ export const productSearchQuerySchema = z.object({
   sort: searchSortSchema.optional().default('relevance'),
   attr: attributeParamSchema,
 });
-
-/**
- * How many products the search bar's suggestion list offers (FR-SEARCH-05).
- * Enforced server-side and exported so the UI can size the list without
- * guessing. More than the panel shows at once — it scrolls — because a row
- * can be added to the cart from where it is (FR-SEARCH-06), and filling a cart
- * from one query is worth a few rows more than a glance's worth.
- */
-export const SEARCH_SUGGESTION_LIMIT = 10;
 
 /**
  * Query for the suggestion list. Just `q`: there is no paging past the first

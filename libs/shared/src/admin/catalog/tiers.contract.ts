@@ -2,7 +2,7 @@ import { oc } from '@orpc/contract';
 import * as z from 'zod';
 import { TIER_KEY_MAX_LENGTH } from '../../core/catalog/tiers';
 import {
-  TIER_ERROR_CODES,
+  type TierErrorCode,
   TIER_KEY_PATTERN,
   TIER_LABEL_MAX_LENGTH,
 } from './tiers';
@@ -95,8 +95,6 @@ export const reorderTiersSchema = z
   .strict();
 export type ReorderTiersRequest = z.infer<typeof reorderTiersSchema>;
 
-export type TierErrorCode = (typeof TIER_ERROR_CODES)[number];
-
 /**
  * Each code carries its own status here, where the ts-rest shape only paired
  * them by convention: a status listed one schema of four possible codes, and
@@ -108,7 +106,7 @@ const tierErrors = {
   'tier-has-accounts': { status: 409 },
   'tier-has-prices': { status: 409 },
   'tier-is-default': { status: 409 },
-} as const;
+} as const satisfies Record<TierErrorCode, { status: number }>;
 
 /** Every route here is admin-only, so they all carry the two auth refusals. */
 const admin = oc.errors(commonAuthErrors);

@@ -64,3 +64,14 @@ export function documentExpiryState(
   const days = (Date.parse(expiresAt) - Date.parse(today)) / DAY_MS;
   return days <= DOCUMENT_EXPIRY_WARNING_DAYS ? 'expiring' : 'valid';
 }
+
+/**
+ * The one refusal this surface has. There is no delete guard: a document holds
+ * no data anything else depends on, and deleting it is how an admin clears a
+ * row that should never have been uploaded.
+ */
+export const DOCUMENT_ERROR_CODES = [
+  'document-not-found',
+  'document-product-not-found',
+] as const;
+export type DocumentErrorCode = (typeof DOCUMENT_ERROR_CODES)[number];

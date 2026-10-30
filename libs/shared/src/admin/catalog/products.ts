@@ -44,3 +44,6 @@ export const PRODUCT_TIER_PRICES_MAX = 50;
  * others, and the editor lists them all at once.
  */
 export const PRODUCT_PAIRINGS_MAX = 20;
+
+/** Admin grid page size — denser than the storefront's, for scanning. */
+export const ADMIN_CATALOG_PAGE_SIZE = 50;

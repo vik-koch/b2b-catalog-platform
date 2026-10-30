@@ -1,5 +1,5 @@
+export * from './attributes';
 export * from './attributes.contract';
-export * from './catalog-constants';
 export * from './catalog-errors';
 export * from './categories.contract';
 export * from './documents';

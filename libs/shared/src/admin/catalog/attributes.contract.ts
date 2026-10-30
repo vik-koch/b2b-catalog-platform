@@ -5,6 +5,11 @@ import {
   ATTRIBUTE_NAME_MAX_LENGTH,
   ATTRIBUTE_VALUE_MAX_LENGTH,
 } from '../../core/catalog/attributes';
+import {
+  ATTRIBUTE_UNIT_MAX_LENGTH,
+  type AttributeErrorCode,
+  CATEGORY_FILTER_SOURCES,
+} from './attributes';
 import { slugSchema } from './slug.contract';
 import { attributeTypeSchema } from '../../core/catalog/catalog.contract';
 
@@ -16,9 +21,6 @@ import { attributeTypeSchema } from '../../core/catalog/catalog.contract';
  * data of its own. Nothing here changes how attributes are entered — the
  * product contracts keep their `attributes: [{key, value}]` array untouched.
  */
-
-/** Matches the `attribute_definitions.unit` varchar. */
-export const ATTRIBUTE_UNIT_MAX_LENGTH = 32;
 
 /**
  * The name is matched against a product's attribute keys exactly, so it is
@@ -88,19 +90,6 @@ export const reorderAttributesSchema = z
   .object({ order: z.array(attributeOrderEntrySchema) })
   .strict();
 export type ReorderAttributesRequest = z.infer<typeof reorderAttributesSchema>;
-
-/**
- * Why a definition was refused. Both conflicts are uniqueness: one name can
- * only describe one attribute, and one slug can only address one filter.
- * There is no delete guard — a definition holds no data, so deleting it only
- * stops the attribute being filterable.
- */
-export const ATTRIBUTE_ERROR_CODES = [
-  'attribute-not-found',
-  'attribute-name-taken',
-  'attribute-slug-taken',
-] as const;
-export type AttributeErrorCode = (typeof ATTRIBUTE_ERROR_CODES)[number];
 
 /** A missing definition is a 404; a name or slug already taken is a conflict. */
 const attributeErrors = {
@@ -227,13 +216,6 @@ export const categoryFilterSchema = z
   })
   .strict();
 export type CategoryFilter = z.infer<typeof categoryFilterSchema>;
-
-/**
- * Where the resolved panel comes from: this category's own overlay, the
- * nearest ancestor's, or the registry when nothing is overlaid.
- */
-export const CATEGORY_FILTER_SOURCES = ['own', 'inherited', 'default'] as const;
-export type CategoryFilterSource = (typeof CATEGORY_FILTER_SOURCES)[number];
 
 export const categoryFiltersSchema = z
   .object({

@@ -9,6 +9,7 @@ import {
   DOCUMENT_LINK_MAX_LENGTH,
   DOCUMENT_PRODUCTS_MAX,
   DOCUMENT_TITLE_MAX_LENGTH,
+  type DocumentErrorCode,
 } from './documents';
 
 /**
@@ -159,17 +160,6 @@ export const documentDetailSchema = productDocumentSchema
   .extend({ products: z.array(documentProductSchema) })
   .strict();
 export type DocumentDetail = z.infer<typeof documentDetailSchema>;
-
-/**
- * The one refusal this surface has. There is no delete guard: a document holds
- * no data anything else depends on, and deleting it is how an admin clears a
- * row that should never have been uploaded.
- */
-export const DOCUMENT_ERROR_CODES = [
-  'document-not-found',
-  'document-product-not-found',
-] as const;
-export type DocumentErrorCode = (typeof DOCUMENT_ERROR_CODES)[number];
 
 const documentErrors = {
   'document-not-found': { status: 404 },
