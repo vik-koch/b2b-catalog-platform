@@ -40,7 +40,7 @@ export class SyncRunLog {
       .select({ status: syncRuns.status })
       .from(syncRuns)
       .where(and(eq(syncRuns.source, 'api'), eq(syncRuns.area, area)))
-      .orderBy(desc(syncRuns.startedAt))
+      .orderBy(desc(syncRuns.seq))
       .limit(1);
     return row?.status ?? null;
   }
