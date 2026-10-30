@@ -9,10 +9,8 @@ import {
 } from '@angular/core';
 import { ADMIN_CATALOG_PAGE_SIZE } from '@b2b-catalog-platform/shared/admin/catalog';
 import { fillText } from '@b2b-catalog-platform/shared';
-import {
-  AdminProductListItem,
-  LinkedProduct,
-} from '@b2b-catalog-platform/shared/admin/catalog';
+import { LinkedProduct } from '@b2b-catalog-platform/shared/admin/catalog';
+
 import { ADMIN_TEXT } from '../../../shared/config/admin-text';
 import { debounced } from '@b2b-catalog-platform/ui/core/debounced';
 import { AlternateLayout } from '../../../shared/core/alternate-layout';
@@ -33,30 +31,16 @@ import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 /** `id`s must be unique on a page, and a form may hold more than one picker. */
 let nextId = 0;
 
-/** Long enough that a fast typist produces one request per word rather than
- * one per letter — the same number every other admin search field uses. */
+/** One request per word, not per letter, as every admin search field. */
 const SEARCH_DEBOUNCE_MS = 200;
 
-/** Which set of products the list is showing. */
 type View = 'all' | 'linked';
 
 /**
- * The products a document is shown on (FR-DOC-02) — a catalog to tick through,
- * not a search box that adds one product at a time.
- *
- * Deliberately unlike the pairings editor beside it, because the job is not the
- * same one. A pairing is a considered statement about two products, made a few
- * at a time; a certificate covers a *range*, and the admin attaching it is
- * working down a list of thirty espressos. So this shows the catalog — narrowed
- * by name and by category, the two things staff group products by — with a tick
- * per row, and **shift-click ticks a run**, the way every file list has since
- * they were invented.
- *
- * The `Linked` view is what a second list of chosen products would otherwise
- * be: the same rows, narrowed to the ones already ticked, so "what is on this
- * document" is one click away without duplicating the list that answers it.
- * Products no search would return — deleted, or renamed out of the query — are
- * listed there from the value itself rather than from the catalog.
+ * The products a document is shown on (FR-DOC-02): the catalog to tick
+ * through, narrowed by name and category, with shift-click ticking a run. A
+ * certificate covers a range, so this is unlike the add-one-at-a-time pairings
+ * editor. `Linked` lists the value itself, so a deleted product still unlinks.
  */
 @Component({
   selector: 'app-document-products-picker',
@@ -78,9 +62,6 @@ type View = 'all' | 'linked';
           {{ text.hint }}
         </p>
       </div>
-      <!-- The app's segmented pill, as everywhere else one choice is made
-           between a few: they are two views of one list, and the count in the
-           second label is what an admin watches while ticking. -->
       <ui-segmented
         class="shrink-0"
         [options]="viewOptions()"
@@ -121,9 +102,7 @@ type View = 'all' | 'linked';
       <p uiErrorText class="mt-3" role="alert">{{ text.loadError }}</p>
     }
 
-    <!-- A fixed-height scroller: the list is up to fifty rows, and a form that
-         grows by a screenful when a search matches everything is one nobody can
-         reach the save button in. -->
+    <!-- Fixed height, or a broad search pushes the save button off screen. -->
     <ul
       class="mt-3 max-h-80 divide-y divide-edge overflow-y-auto rounded-md
              border border-edge"
@@ -167,7 +146,6 @@ type View = 'all' | 'linked';
       }
     </ul>
 
-    <!-- What the list is not showing, said where the list ends. -->
     @if (more(); as note) {
       <p class="mt-2 text-xs text-ink-subtle">{{ note }}</p>
     }
@@ -188,11 +166,9 @@ export class DocumentProductsPicker {
   protected readonly categoryId = signal('');
   private readonly idBase = `document-products-${++nextId}`;
 
-  /** The last row a click landed on — where a shift-click's range starts. */
+  /** Where a shift-click's range starts. */
   private anchor: number | null = null;
 
-  /** Recomputed rather than fixed: the second label carries the running count
-   * of what is ticked. */
   protected readonly viewOptions = computed<SegmentOption<View>[]>(() => [
     { value: 'all', label: this.text.showAll },
     {
@@ -207,7 +183,6 @@ export class DocumentProductsPicker {
     loader: () => this.categoriesService.list(),
   });
 
-  /** The tree flattened depth-first, as every other category picker shows it. */
   protected readonly categoryOptions = computed(() =>
     flattenCategoryTree(this.categories.value() ?? []).map((node) => ({
       id: node.category.id,
@@ -219,12 +194,8 @@ export class DocumentProductsPicker {
     () => new Map((this.categories.value() ?? []).map((c) => [c.id, c.name])),
   );
 
-  /**
-   * The catalog page the `All` view ticks through. Deleted products are left
-   * out — a document is not something to start showing on a product that is
-   * not sold — but they stay listed under `Linked`, where the value carries
-   * them.
-   */
+  /** `All` leaves deleted products out: a document is not started on a product
+   * that is not sold. */
   protected readonly products = resource({
     params: () => ({
       q: this.debouncedQuery(),
@@ -242,11 +213,11 @@ export class DocumentProductsPicker {
   /** One shape for both views, so the row template does not branch. */
   protected readonly rows = computed<(LinkedProduct & { category: string })[]>(
     () => {
-      const names = this.categoryName();
       if (this.view() === 'linked') return this.linkedRows();
+      const names = this.categoryName();
       return (this.products.value()?.items ?? [])
-        .filter((item: AdminProductListItem) => item.deletedAt === null)
-        .map((item: AdminProductListItem) => ({
+        .filter((item) => item.deletedAt === null)
+        .map((item) => ({
           slug: item.slug,
           name: item.name,
           deleted: false,
@@ -256,26 +227,16 @@ export class DocumentProductsPicker {
     },
   );
 
-  /**
-   * The linked view is drawn from the value, not from a query: a product that
-   * was deleted, or that this search would not return, is still linked and
-   * still has to be unlinkable. Narrowed by the search box for the same reason
-   * the other view is — thirty ticks are easier to find one in when typed at.
-   */
+  /** From the value, not a query: a deleted product is still linked and must
+   * stay unlinkable. */
   private linkedRows(): (LinkedProduct & { category: string })[] {
-    const terms = this.layout
-      .readings(this.debouncedQuery().trim())
-      .map((term) => term.toLocaleLowerCase());
+    const found = this.layout.matches(this.debouncedQuery());
     return this.value()
-      .filter((p) => {
-        const name = p.name.toLocaleLowerCase();
-        return terms.some((term) => name.includes(term));
-      })
+      .filter((p) => found(p.name))
       .map((p) => ({ ...p, category: '' }));
   }
 
-  /** The page is capped; say so rather than leaving a truncated list looking
-   * complete. */
+  /** The page is capped, so a truncated list says so. */
   protected readonly more = computed(() => {
     if (this.view() === 'linked') return null;
     const total = this.products.value()?.pagination.total ?? 0;
@@ -296,11 +257,9 @@ export class DocumentProductsPicker {
   }
 
   /**
-   * One tick, or — with shift held — every row between the last one clicked
-   * and this one, all set to what this row just became. The browser's own
-   * toggle is prevented so the checkbox follows the value rather than racing
-   * it; a keyboard press arrives here as a click with no shift, which is the
-   * single-row case.
+   * With shift, every row from the last one clicked is set to what this row
+   * becomes. The browser's own toggle is prevented, so the box follows the
+   * value instead of racing it. A key press arrives as an unshifted click.
    */
   protected toggle(event: MouseEvent, index: number): void {
     event.preventDefault();
@@ -326,8 +285,7 @@ export class DocumentProductsPicker {
         next.delete(target.slug);
       }
     }
-    // Name order, so the list a save writes reads the same as the one the
-    // server hands back.
+    // Name order, as the server hands the list back.
     this.valueChange.emit(
       [...next.values()].sort((a, b) => a.name.localeCompare(b.name)),
     );

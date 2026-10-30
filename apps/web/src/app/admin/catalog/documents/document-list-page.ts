@@ -54,23 +54,15 @@ import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
 import { plusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/plus';
 import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
 
-/**
- * What the status column can be narrowed to. `due` is not a state a document
- * is in — it is the pair of states that are work, which is what the panel's
- * count links to.
- */
+/** `due` is no state of its own: expiring and expired, the work the panel's
+ * count links to. */
 const STATUS_FILTERS = ['due', 'expiring', 'expired', 'valid'] as const;
 type DocumentStatusFilter = (typeof STATUS_FILTERS)[number];
 
 /**
- * The document list (FR-DOC-01) — every certificate, declaration and data
- * sheet the shop holds, soonest expiry first, which is the order the one
- * recurring question is asked in ("what is about to run out").
- *
- * Unpaged and searched in the browser: this is a few dozen rows, so a
- * server-side query per keystroke would be machinery for a list that fits in
- * one fetch. The search box still writes the URL like every other grid, so a
- * narrowed list is shareable and the back button behaves.
+ * Every document the shop holds (FR-DOC-01), soonest expiry first. A few dozen
+ * rows, so unpaged and searched in the browser; the search still lives in the
+ * URL like every other grid's.
  */
 @Component({
   selector: 'app-document-list-page',
@@ -132,9 +124,7 @@ type DocumentStatusFilter = (typeof STATUS_FILTERS)[number];
         [countLabel]="text.count"
       >
         <ng-template uiGridRow [of]="data" let-document>
-          <!-- The title is the way to the file, or to the link where there is
-               no file: what the row is called and what opening it gets you
-               are the same thing. -->
+          <!-- The title opens the file, or the link where there is none. -->
           <td class="truncate">
             <a
               class="block truncate wrap-break-word font-medium text-ink
@@ -147,16 +137,10 @@ type DocumentStatusFilter = (typeof STATUS_FILTERS)[number];
               {{ document.title }}
             </a>
           </td>
-          <!-- What the file is, not what it is called: the stored name is a
-               content hash, and the name it was uploaded under is the second
-               line because it is what an admin recognises it by. A link is
-               named by its site beside it (FR-DOC-05). -->
           <td class="truncate text-ink-subtle" [title]="names(document)">
             <span class="block truncate">{{ fileLabel(document) }}</span>
             <span class="block truncate text-xs">{{ names(document) }}</span>
           </td>
-          <!-- The count is the way into the product grid narrowed to exactly
-               these rows — the tier list's price count, said in words. -->
           <td class="truncate">
             <ng-container
               [ngTemplateOutlet]="productLink"
@@ -167,11 +151,6 @@ type DocumentStatusFilter = (typeof STATUS_FILTERS)[number];
           <td class="text-ink-subtle">
             {{ day(document.expiresAt) || text.noExpiry }}
           </td>
-          <!-- Where the document stands, as its own column (FR-DOC-04) — the
-               same badge every other admin list wears for a record's state, so
-               a document that has run out reads like a product that is off the
-               storefront. The date it runs out on is the column before it;
-               this one is what that date means today. -->
           <td data-keep>
             <span uiStatusBadge [tone]="stateTone(document)">
               {{ stateLabel(document) }}
@@ -190,8 +169,6 @@ type DocumentStatusFilter = (typeof STATUS_FILTERS)[number];
           </td>
         </ng-template>
 
-        <!-- The same document on a phone: what it is called, then the file and
-             the date it comes due — the pair the list is scanned for. -->
         <ng-template uiGridCard [of]="data" let-document>
           <ui-record-row>
             <a
@@ -212,10 +189,6 @@ type DocumentStatusFilter = (typeof STATUS_FILTERS)[number];
                 />
               </p>
             </div>
-            <!-- Where the row stands goes in the badge slot, as every other
-                 grid's card puts it: top right, on the line with the title.
-                 The bottom line is what the table's last columns say — when it
-                 runs out, and when it was last touched. -->
             <span
               recordBadge
               uiStatusBadge
@@ -250,8 +223,6 @@ type DocumentStatusFilter = (typeof STATUS_FILTERS)[number];
       <ui-skeleton [lines]="6" />
     }
 
-    <!-- How many products show this document, and the way to see which. Dead
-         text at zero: there is nothing for the grid to show. -->
     <ng-template #productLink let-document>
       @if (document.productCount) {
         <a
@@ -274,8 +245,6 @@ type DocumentStatusFilter = (typeof STATUS_FILTERS)[number];
       }
     </ng-template>
 
-    <!-- One set of buttons for both shapes: editing the row, deleting it.
-         Opening the file is the title itself. -->
     <ng-template #actions let-document>
       <a
         uiIconButton
@@ -316,20 +285,12 @@ export class DocumentListPage {
   private readonly layout = inject(AlternateLayout);
   private readonly dayFormat = adminDayFormat(this.locale);
 
-  /**
-   * The search box's parameter, bound from the URL like every other grid. An
-   * absent query parameter arrives as `undefined`, not as the default here, so
-   * every read of it goes through `term`.
-   */
+  /** An absent query parameter arrives as `undefined`, not as this default,
+   * so every read goes through `term`. */
   readonly searchTerm = input('');
   protected readonly term = computed(() => this.searchTerm()?.trim() ?? '');
 
-  /**
-   * The status filter (FR-DOC-04), bound from the URL like the search box.
-   * `due` is the panel's own destination — expiring *and* expired, the pair
-   * the work count is over — so the figure and the list it opens are one
-   * query; the other three are the states themselves.
-   */
+  /** FR-DOC-04, from the URL. */
   readonly status = input('');
   protected readonly statusFilter = computed<DocumentStatusFilter | ''>(() => {
     const value = this.status();
@@ -346,21 +307,13 @@ export class DocumentListPage {
   });
   protected readonly showSkeleton = delayedLoading(this.documents.isLoading);
 
-  /** Narrowed here rather than by the API: the whole list is already loaded,
-   * and a title and a file name are what somebody looking for one would type. */
   protected readonly rows = computed(() => {
     const all = this.documents.value();
     if (!all) return undefined;
     const term = this.term();
     const status = this.statusFilter();
     if (!term && !status) return all;
-    const terms = this.layout
-      .readings(term)
-      .map((reading) => reading.toLocaleLowerCase(this.locale));
-    const found = (text: string) =>
-      terms.some((reading) =>
-        text.toLocaleLowerCase(this.locale).includes(reading),
-      );
+    const found = this.layout.matches(term);
     return all.filter(
       (document) =>
         (!term ||
@@ -415,16 +368,12 @@ export class DocumentListPage {
     { value: 'valid', label: this.text.statusValid },
   ];
 
-  /**
-   * Where a row stands today. Today is read once per render rather than per
-   * row: a list sorted and filtered by two different midnights would be a
-   * puzzle nobody could reproduce.
-   */
+  /** Read once, so no two rows are judged by different midnights. */
+  private readonly today = isoToday();
+
   protected stateOf(document: ProductDocument): DocumentExpiryState {
     return documentExpiryState(document.expiresAt, this.today);
   }
-
-  private readonly today = isoToday();
 
   private readonly stateLabels: Record<DocumentExpiryState, string> = {
     valid: this.text.statusValid,
@@ -432,9 +381,6 @@ export class DocumentListPage {
     expired: this.text.statusExpired,
   };
 
-  /** Green for what is current, amber for what has to be renewed, red for what
-   * has already lapsed — the app's three words for "settled", "act" and
-   * "settled badly". */
   private readonly stateTones: Record<DocumentExpiryState, StatusTone> = {
     valid: 'ok',
     expiring: 'waiting',
@@ -451,7 +397,7 @@ export class DocumentListPage {
 
   protected readonly byId = (document: ProductDocument): string => document.id;
 
-  /** For the one action that is not a navigation. */
+  /** For the one action that is not a navigation: a delete. */
   protected readonly pageError = signal<string | null>(null);
 
   protected productCount(document: ProductDocument): string {
@@ -484,7 +430,8 @@ export class DocumentListPage {
       .join(' · ');
   }
 
-  /** An ISO day in the deployment's locale; empty for a date that is not set. */
+  /** Empty for a date that is not set. */
+
   protected day(value: string | null): string {
     return value ? this.dayFormat.format(new Date(value)) : '';
   }

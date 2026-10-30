@@ -33,27 +33,16 @@ import { SuggestRow } from '@b2b-catalog-platform/ui/suggest/suggest-row';
 import { DocumentsService } from './documents.service';
 import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
 
-/** `aria-controls` must name one list, and a page may hold more than one. */
+/** `aria-controls` must name one panel, and a page may hold more than one. */
 let nextId = 0;
 
 /** Enough rows to choose from without the panel becoming a listing of its own. */
 const SUGGESTIONS_SHOWN = 8;
 
 /**
- * The documents shown on one product (FR-DOC-02), in the product's own form —
- * the pairings editor's shape, deliberately, because it is the same job: a
- * short list of things attached to this one record, added one at a time.
- *
- * The other side of the link edits it in bulk (a certificate onto thirty
- * espressos in one pass), and that screen has a picker built for that. This one
- * answers the opposite question — "this product should not carry that
- * certificate" — which is one row, here, where the admin already is.
- *
- * Both write the same table and both send the whole set from their own side,
- * exactly as two products' pairing editors do.
- *
- * The suggestions come from the whole document list, which is a few dozen rows
- * fetched once; the search is over titles in the browser.
+ * The documents on one product (FR-DOC-02), added one at a time like pairings;
+ * the document's own screen links in bulk. Both send the whole set from their
+ * side. Suggestions search the whole list, fetched once, in the browser.
  */
 @Component({
   selector: 'app-product-documents-editor',
@@ -97,8 +86,6 @@ const SUGGESTIONS_SHOWN = 8;
             <ul class="mt-3 divide-y divide-edge border-y border-edge">
               @for (item of value(); track item.id) {
                 <li class="flex items-center gap-2 py-1.5 text-sm">
-                  <!-- The title goes to the document itself, which is where the
-                       file, the dates and every other product on it live. -->
                   <a
                     uiLink
                     class="min-w-0 flex-1 truncate"
@@ -176,14 +163,9 @@ export class ProductDocumentsEditor implements OnInit {
   private readonly locale = inject(DEPLOYMENT_CONFIG).locale;
   private readonly dayFormat = adminDayFormat(this.locale);
 
-  /**
-   * The whole document list, fetched once and searched here: there are a few
-   * dozen of them, and a title is short enough that a substring match is a
-   * better answer than the catalog's typo-tolerant matcher would be.
-   */
+  /** Projected to what a link carries: files and counts do not belong in a
+   * product's save. */
   private readonly documents = resource({
-    // Projected to what a link carries: the row the list endpoint returns knows
-    // about files and counts, and none of that belongs in a product's save.
     loader: () =>
       this.service
         .list()
@@ -193,18 +175,13 @@ export class ProductDocumentsEditor implements OnInit {
         .catch(() => []),
   });
 
+  private readonly layout = inject(AlternateLayout);
   protected readonly list = new SuggestList<LinkedDocument>({
     load: async (q) => {
-      const terms = this.layout
-        .readings(q.trim())
-        .map((term) => term.toLocaleLowerCase(this.locale));
-      return (this.documents.value() ?? []).filter((document) => {
-        const title = document.title.toLocaleLowerCase(this.locale);
-        return terms.some((term) => title.includes(term));
-      });
+      const found = this.layout.matches(q);
+      return (this.documents.value() ?? []).filter((d) => found(d.title));
     },
     minLength: 1,
-    /** What is offerable: everything not already on this product. */
     shown: (answer) => {
       const taken = new Set(this.value().map((d) => d.id));
       return answer
@@ -212,7 +189,6 @@ export class ProductDocumentsEditor implements OnInit {
         .slice(0, SUGGESTIONS_SHOWN);
     },
   });
-  private readonly layout = inject(AlternateLayout);
   protected readonly alternateQuery = computed(() =>
     this.layout.of(this.list.query()),
   );
@@ -221,9 +197,8 @@ export class ProductDocumentsEditor implements OnInit {
     fillText(this.adminText.countSuffix, { count: this.value().length }),
   );
 
-  /** Open where there is something to see — the pairings editor's rule, for
-   * the same reason: a panel that closed itself when the last row went would
-   * take the field that puts one back with it. */
+  /** Opens only on load: closing when the last row went would take the field
+   * that puts one back with it. */
   ngOnInit(): void {
     this.open.set(this.value().length > 0);
   }
@@ -238,7 +213,6 @@ export class ProductDocumentsEditor implements OnInit {
 
   protected add(item: LinkedDocument): void {
     this.valueChange.emit([...this.value(), item]);
-    // The field empties on a pick: the next one is a different search.
     this.query.set('');
   }
 
