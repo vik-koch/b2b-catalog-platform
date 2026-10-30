@@ -10,8 +10,14 @@ import { defaultStorefrontText } from '../../shared/config/storefront-text.fixtu
 import { defaultAdminText } from '../../shared/config/admin-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
-import { EDIT_MODE_CATALOG, EditModeCatalog } from './edit-mode-catalog';
-import { productListItem, plainPrices } from './product.fixture';
+import {
+  EDIT_MODE_CATALOG,
+  EditModeCatalog,
+} from '../../core/catalog/edit-mode-catalog';
+import {
+  productListItem,
+  plainPrices,
+} from '../../core/catalog/product.fixture';
 import { HiddenProductsSection } from './hidden-products-section';
 
 const text = defaultAdminText.editMode;

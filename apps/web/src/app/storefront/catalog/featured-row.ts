@@ -15,8 +15,8 @@ import { FEATURED_ROW_SIZE } from '@b2b-catalog-platform/shared/storefront/catal
 import { EditActions } from '../../shared/edit-mode/edit-actions';
 import { editAwareContent } from '../../shared/edit-mode/edit-aware-content';
 import { injectEditorReturnParams } from '../../shared/edit-mode/editor-return';
-import { anyStatus } from '../../core/catalog/product-status-line';
-import { ProductTile } from '../../core/catalog/product-tile';
+import { anyStatus } from './ui/product-status-line';
+import { ProductTile } from './ui/product-tile';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';

@@ -8,7 +8,7 @@ import {
 import { RouterLink } from '@angular/router';
 import { ProductImage } from '@b2b-catalog-platform/shared/core/catalog';
 import { ImagePlaceholder } from '@b2b-catalog-platform/ui/content/image-placeholder';
-import { swipeStep, touchX } from './swipe';
+import { swipeStep, touchX } from '../../../core/catalog/swipe';
 
 /**
  * How soon a tile's first photo is fetched: `lazy` once it nears the viewport,

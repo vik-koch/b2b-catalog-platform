@@ -13,7 +13,7 @@ import {
   ProductDetail as ProductDetailModel,
 } from '@b2b-catalog-platform/shared/core/catalog';
 import { Meta } from '@angular/platform-browser';
-import { hiddenProductText } from '../../core/catalog/hidden-product-text';
+import { hiddenProductText } from './hidden-product-text';
 import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';
 import { AuthService } from '../../shared/auth/auth.service';
 import { EditActions } from '../../shared/edit-mode/edit-actions';

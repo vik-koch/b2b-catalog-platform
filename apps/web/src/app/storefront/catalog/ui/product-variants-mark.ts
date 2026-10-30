@@ -13,8 +13,8 @@ import {
   ProductImage,
   ProductVariant,
 } from '@b2b-catalog-platform/shared/core/catalog';
-import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
-import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
+import { SHARED_TEXT } from '../../../shared/config/shared-text';
 import { injectNarrowScreen } from '@b2b-catalog-platform/ui/core/narrow-screen';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { DialogActions } from '@b2b-catalog-platform/ui/overlay/dialog-actions';
@@ -22,7 +22,7 @@ import { DialogPanel } from '@b2b-catalog-platform/ui/overlay/dialog-panel';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Link } from '@b2b-catalog-platform/ui/actions/link';
 import { Popover } from '@b2b-catalog-platform/ui/overlay/popover';
-import { ProductVariantGallery } from './product-variant-gallery';
+import { ProductVariantGallery } from '../../../core/catalog/product-variant-gallery';
 import { paletteIcon } from '@b2b-catalog-platform/ui/icons/glyphs/palette';
 
 /**

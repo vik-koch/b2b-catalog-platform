@@ -5,8 +5,8 @@ import {
   ProductImage,
   ProductVariant,
 } from '@b2b-catalog-platform/shared/core/catalog';
-import { ProductAvailabilityBadge } from './product-availability-badge';
-import { ProductSetBadge } from './product-set-badge';
+import { ProductAvailabilityBadge } from '../../../core/catalog/product-availability-badge';
+import { ProductSetBadge } from '../../../core/catalog/product-set-badge';
 import { ProductVariantsMark } from './product-variants-mark';
 
 /** What the line over a listed product's name is drawn from. */
