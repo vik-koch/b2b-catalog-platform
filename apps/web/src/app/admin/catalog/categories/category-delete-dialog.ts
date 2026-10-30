@@ -9,7 +9,9 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
+import { fillText } from '@b2b-catalog-platform/shared';
 import { AdminCategory } from '@b2b-catalog-platform/shared/admin/catalog';
+
 import { ADMIN_TEXT } from '../../../shared/config/admin-text';
 import { SettingsService } from '../../settings/settings.service';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
@@ -19,23 +21,17 @@ import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
 import { CategoriesService } from './categories.service';
 import { CategoryPicker } from './category-picker';
-import { categoryDescendantIds } from './category-tree';
+import { categoriesOutside } from './category-tree';
 import { SHARED_TEXT } from '../../../shared/config/shared-text';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
 
 /**
- * Delete-a-category confirmation modal (FR-ADM-01), the single flow for every
- * category delete (storefront grid + admin list). It owns `CategoriesService`
- * — on the storefront it is `@defer`-loaded so the admin write client stays out
- * of the public bundle — and figures out for itself what the delete needs:
- * loads the categories to read this one's counts, then shows
- *  - a hard block if it has subcategories (resolve the subtree first),
- *  - a destination picker to move its products if it has any, deleted ones
- *    included, which still hold it (the reassign-then-delete flow), or
- *  - a plain confirm when it is empty.
- * A native `<dialog>` in modal mode (as `ProductDeleteDialog`). Emits `deleted`
- * or `cancelled`; it never navigates itself.
+ * Every category delete (FR-ADM-01), from the storefront grid as well as the
+ * list; the storefront `@defer`s it, which keeps the admin client out of its
+ * bundle. It reads the category's counts itself: blocked by subcategories, a
+ * destination for its products (deleted ones too, which still hold it), or a
+ * plain confirmation. It never navigates.
  */
 @Component({
   selector: 'app-category-delete-dialog',
@@ -150,13 +146,10 @@ export class CategoryDeleteDialog {
     if (this.loading()) return 'loading';
     const self = this.self();
     if (!self || self.childCount > 0) return 'blocked-children';
-    // What it holds itself, not beneath it: a category with children never
-    // gets this far, and the foreign key only counts its own products —
-    // deleted ones included, which no count elsewhere shows (FR-ADM-22).
+    // Its own products only: one with children never gets here.
     if (heldBy(self) > 0) {
-      // Reassigning moves every product's category, which is the exchange's
-      // field. An *empty* category still deletes — that writes nothing it
-      // owns — so this blocks rather than replacing the whole flow.
+      // Moving products writes the exchange's field; an empty category still
+      // deletes while the catalog is owned.
       return this.catalogOwned() ? 'blocked-owned' : 'reassign';
     }
     return 'confirm';
@@ -167,20 +160,13 @@ export class CategoryDeleteDialog {
     () => this.ownership.ownedAreas()?.includes('catalog') ?? false,
   );
 
-  /** Categories the products can move to: everyone but this one and its
-   * descendants (there are none in the reassign case, but guard anyway). */
   protected readonly destinations = computed<AdminCategory[]>(() => {
     const self = this.self();
-    if (!self) return [];
-    const banned = categoryDescendantIds(this.all(), self.id);
-    banned.add(self.id);
-    return this.all().filter((c) => !banned.has(c.id));
+    return self ? categoriesOutside(this.all(), self.id) : [];
   });
 
   constructor() {
-    // Load the categories BEFORE opening, so the modal appears already sized to
-    // its final content (block / reassign / confirm) instead of flashing the
-    // loading state and reflowing.
+    // Opens once loaded, so the modal appears at its final size.
     afterNextRender(() => void this.open());
   }
 
@@ -193,35 +179,35 @@ export class CategoryDeleteDialog {
   }
 
   protected confirmMessage(): string {
-    return this.text.deleteConfirm.replace('{name}', this.name());
+    return fillText(this.text.deleteConfirm, { name: this.name() });
   }
 
   protected blockedChildrenMessage(): string {
-    return this.text.deleteBlockedChildren.replace('{name}', this.name());
+    return fillText(this.text.deleteBlockedChildren, { name: this.name() });
   }
 
   protected reassignIntro(): string {
     const self = this.self();
-    return this.text.deleteReassignIntro
-      .replace('{name}', this.name())
-      .replace('{count}', String(self ? heldBy(self) : 0));
+    return fillText(this.text.deleteReassignIntro, {
+      name: this.name(),
+      count: self ? heldBy(self) : 0,
+    });
   }
 
   protected reassignDeleted(count: number): string {
-    return this.text.deleteReassignDeleted.replace('{count}', String(count));
+    return fillText(this.text.deleteReassignDeleted, { count });
   }
 
-  /** Only deleted products left is its own sentence: emptying it in the
-   * source system, which the general one advises, has already happened. */
+  /** Only deleted products left is its own sentence: the general one advises
+   * emptying it in the source, which has already happened. */
   protected ownedMessage(): string {
     const self = this.self();
     if (!self || self.directProductCount > 0) {
       return this.ownershipText.categoryHasProducts;
     }
-    return this.ownershipText.categoryHasDeletedProducts.replace(
-      '{count}',
-      String(self.deletedProductCount),
-    );
+    return fillText(this.ownershipText.categoryHasDeletedProducts, {
+      count: self.deletedProductCount,
+    });
   }
 
   protected async confirm(): Promise<void> {
@@ -242,15 +228,13 @@ export class CategoryDeleteDialog {
           : this.adminText.catalogErrors[result.code],
       );
     } catch {
-      // An unexpected status used to reject unhandled, leaving the dialog
-      // spinning on "deleting" with nothing said.
       this.error.set(this.text.deleteError);
     }
     this.deleting.set(false);
   }
 }
 
-/** The products filed in a category, deleted ones included: what holds it. */
+/** Its own products, deleted ones included: what holds a category. */
 function heldBy(category: AdminCategory): number {
   return category.directProductCount + category.deletedProductCount;
 }

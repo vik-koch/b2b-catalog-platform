@@ -7,12 +7,8 @@ import { SelectInput } from '@b2b-catalog-platform/ui/inputs/select-input';
 import { flattenCategoryTree } from './category-tree';
 
 /**
- * Single-select category picker for the product editor: a native <select> whose
- * options are the category tree flattened depth-first and indented by depth. A
- * product belongs to exactly one category (the `categoryId` FK).
- *
- * Given a `field`, the select is that field's control inside a Field, which
- * names it and decides what it shows; otherwise it takes a `value` and says
+ * A native <select> over the category tree, indented by depth. Given a
+ * `field` it is that field's control; otherwise it takes `value` and emits
  * `valueChange`.
  */
 @Component({
@@ -37,11 +33,9 @@ import { flattenCategoryTree } from './category-tree';
           uiInput
           class="w-full"
           [attr.aria-label]="ariaLabel() || placeholder()"
-          [disabled]="disabled()"
           (change)="onChange($event)"
         >
           @if (emptyLabel() !== null) {
-            <!-- A selectable "none" (e.g. top-level) — opt-in via emptyLabel. -->
             <option value="" [selected]="!value()">{{ emptyLabel() }}</option>
           } @else {
             <option value="" disabled [selected]="!value()">
@@ -60,18 +54,15 @@ import { flattenCategoryTree } from './category-tree';
 })
 export class CategoryPicker {
   readonly categories = input.required<readonly AdminCategory[]>();
-  /** The field the select is the control of, where a form holds the value. */
   readonly field = input<FieldTree<string>>();
   readonly value = input<string | null>(null);
   readonly placeholder = input('');
-  /** When set, adds a selectable empty option with this label (value ""), for
-   * pickers where "none" is valid — e.g. a top-level category. The product
-   * editor leaves it null so a category stays required. */
+  /** A selectable empty option, where "none" is valid (a top-level category).
+   * Null keeps a choice required. */
   readonly emptyLabel = input<string | null>(null);
-  /** Accessible name for the field (the visible label sits outside). */
+  /** Outside a Field, where the visible label sits apart. */
   readonly ariaLabel = input('');
-  /** Read-only, for a category the shop does not get to choose (FR-ADM-10). */
-  readonly disabled = input(false);
+
   readonly valueChange = output<string>();
 
   protected readonly options = computed(() =>

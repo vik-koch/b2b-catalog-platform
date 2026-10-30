@@ -12,11 +12,8 @@ export interface CategoryTreeNode {
 const bySortThenName = (a: AdminCategory, b: AdminCategory): number =>
   a.sortOrder - b.sortOrder || a.name.localeCompare(b.name);
 
-/**
- * Flatten a flat category list into depth-first display order — each node
- * preceding its children, siblings ordered by `sortOrder` then name. Shared by
- * the category picker (indented options) and the management tree.
- */
+/** Depth-first display order: each node before its children, siblings by
+ * `sortOrder` then name. */
 export function flattenCategoryTree(
   categories: readonly AdminCategory[],
 ): CategoryTreeNode[] {
@@ -39,11 +36,8 @@ export function flattenCategoryTree(
   return out;
 }
 
-/**
- * The ancestors of a category, root-first, excluding it — the same crumb chain
- * the storefront gets from the API, rebuilt locally for the product editor's
- * live preview.
- */
+/** Root-first, without the category itself: the crumbs the storefront gets
+ * from the API, rebuilt for the product editor's preview. */
 export function categoryAncestors(
   categories: readonly AdminCategory[],
   categoryId: string,
@@ -64,20 +58,15 @@ export function categoryAncestors(
 export interface CategoryDropTarget {
   parentId: string | null;
   index: number;
-  /** Indent level of the insertion line — one deeper than the new parent. */
+  /** The insertion line's level: one deeper than the new parent. */
   depth: number;
 }
 
 /**
- * Resolve a drop into a concrete placement.
- *
- * `rows` is the flattened tree with the dragged subtree already removed, `gap`
- * is the slot the line sits in (0 = above the first row, `rows.length` = below
- * the last), and `desiredDepth` is what the pointer's horizontal position asks
- * for. A gap admits a range of depths: no deeper than one level inside the row
- * above it, and no shallower than the row below it — dropping between two
- * siblings cannot leave their parent. The pointer picks within that range,
- * which is what lets a leaf be turned into a parent by aiming right.
+ * `rows` is the flattened tree without the dragged subtree, `gap` the slot the
+ * line sits in (0 above the first row), `desiredDepth` what the pointer's
+ * horizontal position asks for. A gap admits depths from the row below it to
+ * one inside the row above; aiming right under a leaf makes it a parent.
  */
 export function resolveDropTarget(
   rows: readonly CategoryTreeNode[],
@@ -109,14 +98,8 @@ export function resolveDropTarget(
   return { parentId, index, depth };
 }
 
-/**
- * Whether landing on `target` would leave the category exactly where it is.
- *
- * The slot a category currently occupies is reachable from two gaps — the one
- * above its row and the one below its whole subtree — and neither is worth
- * drawing a line for. Suppressing the no-op also stops the same-level line
- * appearing twice for one position.
- */
+/** Its own slot is reachable from the gap above its row and the one below its
+ * subtree; neither is a move, so neither draws a line. */
 export function isNoOpDropTarget(
   categories: readonly AdminCategory[],
   draggedId: string,
@@ -131,11 +114,8 @@ export function isNoOpDropTarget(
   return index === target.index;
 }
 
-/**
- * The categories whose placement changes when `draggedId` lands on `target`,
- * re-indexed from zero — the old sibling group and the new one, which are often
- * the same group. `reorderCategories` applies whatever set it is given.
- */
+/** The old sibling group and the new one, often the same, re-indexed from
+ * zero. The reorder route applies whatever set it is given. */
 export function moveCategoryEntries(
   categories: readonly AdminCategory[],
   draggedId: string,
@@ -169,11 +149,8 @@ export function moveCategoryEntries(
   ];
 }
 
-/**
- * The stored placement of the given categories, for undo. Snapshotting the
- * actual persisted values (rather than re-deriving them) restores a group whose
- * `sortOrder`s were never normalised — e.g. siblings all at 0, ordered by name.
- */
+/** The stored placement, for undo. Stored rather than derived, so a group
+ * whose `sortOrder`s were never normalised (all 0, by name) comes back. */
 export function currentOrderEntries(
   categories: readonly AdminCategory[],
   ids: Iterable<string>,
@@ -187,12 +164,12 @@ export function currentOrderEntries(
   return out;
 }
 
-/** The ids of every descendant of `id` (excluding `id` itself). */
-export function categoryDescendantIds(
+/** `id` and every category beneath it. */
+export function categorySubtreeIds(
   categories: readonly AdminCategory[],
   id: string,
 ): Set<string> {
-  const out = new Set<string>();
+  const out = new Set([id]);
   const walk = (parentId: string): void => {
     for (const c of categories) {
       if (c.parentId === parentId && !out.has(c.id)) {
@@ -203,4 +180,13 @@ export function categoryDescendantIds(
   };
   walk(id);
   return out;
+}
+
+/** Where `id` may move or hand its products to: anywhere but its subtree. */
+export function categoriesOutside(
+  categories: readonly AdminCategory[],
+  id: string,
+): AdminCategory[] {
+  const subtree = categorySubtreeIds(categories, id);
+  return categories.filter((c) => !subtree.has(c.id));
 }

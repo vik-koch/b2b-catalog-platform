@@ -36,7 +36,8 @@ import {
   type CategorySaveErrorCode,
 } from './categories.service';
 import { injectEditorReturn } from '../../../shared/edit-mode/editor-return';
-import { categoryDescendantIds } from './category-tree';
+import { categoriesOutside } from './category-tree';
+
 import { ImagePicker } from '../../media/image-picker';
 import { CategoryPicker } from './category-picker';
 import { SHARED_TEXT } from '../../../shared/config/shared-text';
@@ -47,8 +48,7 @@ import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
 
 interface CategoryDraft {
   name: string;
-  /** Optional nickname for contexts where the parent is visible; empty means
-   * "fall back to the full name". */
+  /** For where the parent is visible; empty falls back to the name. */
   shortName: string;
   slug: string;
   parentId: string;
@@ -56,13 +56,9 @@ interface CategoryDraft {
 }
 
 /**
- * Edit a category (FR-ADM-01) on its own screen at
- * `/admin/categories/:slug/edit`. Mirrors the product editor's shape — a single
- * save, dirty tracking via a route guard — so category editing reads the same
- * as product editing rather than the list's earlier inline expansion. Structure
- * (add/reorder/delete) stays on the list; this page owns the presentation
- * overlay (name, parent, slug, mark). Browser-only (an admin
- * route).
+ * A category's name, parent, keys and mark (FR-ADM-01), with one save and an
+ * unsaved-changes guard like the product editor. Order and deletion stay on
+ * the list. Without a `:slug` it creates.
  */
 @Component({
   selector: 'app-category-editor-page',
@@ -101,10 +97,7 @@ interface CategoryDraft {
       <p class="text-ink-subtle" role="alert">{{ text.saveError }}</p>
     } @else {
       <div class="max-w-3xl space-y-6">
-        <!-- Only two of this form's fields are locked, so the banner names the
-             rest rather than letting the marks imply a whole read-only page:
-             the nickname, the parent and the mark stay the shop's, which is
-             what keeps the tree rearrangeable. -->
+        <!-- Two fields lock; the banner says the rest stay the shop's. -->
         @if (fieldsLocked()) {
           <app-locked-note>{{ ownershipText.fieldLocked }}</app-locked-note>
         }
@@ -152,9 +145,6 @@ interface CategoryDraft {
           </ui-field>
         </div>
 
-        <!-- The category's two identifiers side by side, as the product
-             editor pairs them: the one the shop addresses it by and the one
-             the source system knows it as. One per line below sm. -->
         <div class="grid gap-6 sm:grid-cols-2">
           <ui-field
             [field]="form.slug"
@@ -190,8 +180,6 @@ interface CategoryDraft {
         <div>
           <span uiFieldLabel>{{ text.mark }}</span>
           <p class="mb-2 text-xs text-ink-subtle">{{ text.markHint }}</p>
-          <!-- Cropped to a square on upload, so the square tile beside it is
-               the stored picture rather than a framing of it. -->
           <app-image-picker
             [value]="mark()"
             [label]="text.mark"
@@ -242,12 +230,9 @@ export class CategoryEditorPage implements UnsavedChangesAware, FieldAttempt {
   private readonly ownership = inject(SettingsService);
 
   /**
-   * Only an existing category the exchange knows — one carrying a source key.
-   * A new one has nothing stored to compare a name against, and creating
-   * categories stays open while the catalog is owned: the exchange creates the
-   * ones its rows name, and the shop is left free to add the ones it wants to
-   * arrange them under. Those keep their own name and key afterwards, since no
-   * file names them and no run writes them.
+   * Only on a category the exchange knows, one with a source key. The shop
+   * may still add categories of its own to arrange the exchange's under, and
+   * no run ever writes those.
    */
   protected readonly fieldsLocked = computed(
     () =>
@@ -256,15 +241,9 @@ export class CategoryEditorPage implements UnsavedChangesAware, FieldAttempt {
       (this.ownership.ownedAreas()?.includes('catalog') ?? false),
   );
 
-  // No :slug segment means this is `/admin/categories/new` — the same screen,
-  // creating instead of updating, mirroring the product editor.
   private readonly slugParam = this.route.snapshot.paramMap.get('slug');
   protected readonly isNew = this.slugParam === null;
-  /**
-   * Preselected parent when an "add subcategory" affordance opened this screen.
-   * Carried as a slug, not an id: the storefront's own add-card only knows the
-   * public catalog shape, where categories are identified by slug.
-   */
+  /** A slug, not an id: the storefront's add card knows only the public shape. */
   private readonly parentParam =
     this.route.snapshot.queryParamMap.get('parent');
 
@@ -292,8 +271,6 @@ export class CategoryEditorPage implements UnsavedChangesAware, FieldAttempt {
   protected readonly form = form(
     this.model,
     (category) => {
-      // The two fields an exchange writes, on a category it knows. The reason
-      // is what each field's lock says.
       const locked = {
         when: () => this.fieldsLocked() && this.ownershipText.fieldLockedShort,
       };
@@ -303,38 +280,24 @@ export class CategoryEditorPage implements UnsavedChangesAware, FieldAttempt {
     },
     { name: 'category-editor' },
   );
-  /** Read by every field on the page (FIELD_ATTEMPT). */
   readonly attempted = computed(() => submitAttempt(this.form)());
-  /** The chip mark (FR-CAT-07). */
+  /** FR-CAT-07. */
   protected readonly mark = signal<CatalogImage | null>(null);
 
-  // JSON snapshot of the form at load, for dirty detection.
+  /** The form at load, for the unsaved-changes guard. */
   private original = '';
   private navigatingAway = false;
   private readonly close = injectEditorReturn();
   private readonly dirty = computed(() => this.snapshot() !== this.original);
 
-  /** Parents this category may move under: everyone except itself and its
-   * descendants (which would form a cycle). */
+  /** Not itself nor anything under it, which would make a cycle. */
   protected readonly parentOptions = computed(() => {
     const current = this.category();
-    // A category that does not exist yet has no descendants to exclude, so
-    // every category is a candidate parent.
-    const banned = current
-      ? categoryDescendantIds(this.all(), current.id)
-      : new Set<string>();
-    if (current) banned.add(current.id);
-    return this.all()
-      .filter((o) => !banned.has(o.id))
-      .sort(
-        (a, b) => a.sortOrder - b.sortOrder || a.name.localeCompare(b.name),
-      );
+    return current ? categoriesOutside(this.all(), current.id) : this.all();
   });
 
   constructor() {
     void this.ownership.load();
-    // Admin screens are client-rendered, so this is for the browser tab
-    // rather than for crawlers — but it is the same one-line contract.
     usePageSeo({
       name: () => (this.isNew ? this.text.newTitle : this.text.editTitle),
     });
@@ -361,8 +324,6 @@ export class CategoryEditorPage implements UnsavedChangesAware, FieldAttempt {
     const categories = await this.service.list();
     this.all.set(categories);
     if (this.isNew) {
-      // An empty form, so the category only exists once it is saved with a name
-      // the admin chose — rather than appearing in the tree as "New category".
       const parent = categories.find((c) => c.slug === this.parentParam);
       this.form.parentId().value.set(parent?.id ?? '');
       this.original = this.snapshot();
@@ -399,7 +360,7 @@ export class CategoryEditorPage implements UnsavedChangesAware, FieldAttempt {
 
   protected async save(): Promise<void> {
     const current = this.category();
-    if (!this.isNew && !current) return;
+    if (this.saving() || (!this.isNew && !current)) return;
     submitAttempt(this.form).set(true);
     if (this.form().invalid()) {
       this.form().errorSummary()[0]?.fieldTree().focusBoundControl();
@@ -427,25 +388,25 @@ export class CategoryEditorPage implements UnsavedChangesAware, FieldAttempt {
       ...(slug ? { slug } : {}),
       sourceId,
     };
+    this.saving.set(true);
+    this.error.set(null);
     try {
       const result = current
         ? await this.service.update(current.id, body)
         : await this.service.create(body);
       if (!result.ok) {
         this.error.set(this.refusalText(result.code));
-        this.saving.set(false);
         return;
       }
-      this.navigatingAway = true; // let the unsaved-changes guard pass
+      this.navigatingAway = true;
       await this.close('/admin/categories');
     } catch {
       this.error.set(this.text.saveError);
+    } finally {
       this.saving.set(false);
     }
   }
 
-  /** A refusal is named by its code and worded here — never by what the server
-   * wrote. The ownership one reuses the sentence the locked fields carry. */
   private refusalText(code: CategorySaveErrorCode): string {
     return code === 'catalog-externally-owned'
       ? this.ownershipText.fieldLocked
@@ -453,7 +414,6 @@ export class CategoryEditorPage implements UnsavedChangesAware, FieldAttempt {
   }
 
   protected cancel(): void {
-    // The route's canDeactivate guard confirms if there are unsaved changes.
     void this.close('/admin/categories');
   }
 }

@@ -1,6 +1,7 @@
 import { AdminCategory } from '@b2b-catalog-platform/shared/admin/catalog';
 import {
-  categoryDescendantIds,
+  categoriesOutside,
+  categorySubtreeIds,
   currentOrderEntries,
   flattenCategoryTree,
   isNoOpDropTarget,
@@ -80,7 +81,7 @@ describe('currentOrderEntries', () => {
   });
 });
 
-describe('categoryDescendantIds', () => {
+describe('categorySubtreeIds', () => {
   const tree = [
     cat('a', null),
     cat('a1', 'a'),
@@ -88,12 +89,19 @@ describe('categoryDescendantIds', () => {
     cat('b', null),
   ];
 
-  it('collects all descendants, excluding the node itself', () => {
-    expect(categoryDescendantIds(tree, 'a')).toEqual(new Set(['a1', 'a1x']));
+  it('collects the node and everything beneath it', () => {
+    expect(categorySubtreeIds(tree, 'a')).toEqual(new Set(['a', 'a1', 'a1x']));
   });
 
-  it('is empty for a leaf', () => {
-    expect(categoryDescendantIds(tree, 'b')).toEqual(new Set());
+  it('is the node alone for a leaf', () => {
+    expect(categorySubtreeIds(tree, 'b')).toEqual(new Set(['b']));
+  });
+});
+
+describe('categoriesOutside', () => {
+  it('leaves out the node and its subtree', () => {
+    const tree = [cat('a', null), cat('a1', 'a'), cat('b', null)];
+    expect(categoriesOutside(tree, 'a').map((c) => c.id)).toEqual(['b']);
   });
 });
 
