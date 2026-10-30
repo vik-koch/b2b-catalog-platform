@@ -41,6 +41,7 @@ import {
 } from '@b2b-catalog-platform/shared/node';
 import {
   AnyPgColumn,
+  bigint,
   boolean,
   check,
   customType,
@@ -1502,6 +1503,10 @@ export const syncStagedReason = pgEnum('sync_staged_reason', [
  */
 export const syncRuns = pgTable('sync_runs', {
   id: uuid('id').primaryKey().defaultRandom(),
+  // Insertion order, which is what "the run before this one" means. Not
+  // `startedAt`: a wall clock can be stepped backwards, and a run stamped
+  // after the step would sort below the one it followed.
+  seq: bigint('seq', { mode: 'number' }).generatedAlwaysAsIdentity(),
   status: syncRunStatus('status').notNull().default('previewed'),
   // Which area of the platform's data the run carries (ADR 0060). One table
   // rather than one per area: everything around a run — its lifecycle, why it

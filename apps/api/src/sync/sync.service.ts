@@ -169,7 +169,7 @@ export class SyncService {
       .select()
       .from(syncRuns)
       .where(filter)
-      .orderBy(desc(syncRuns.startedAt))
+      .orderBy(desc(syncRuns.seq))
       .limit(SYNC_RUNS_PAGE_SIZE)
       .offset((page - 1) * SYNC_RUNS_PAGE_SIZE);
     const [applied] = await this.db

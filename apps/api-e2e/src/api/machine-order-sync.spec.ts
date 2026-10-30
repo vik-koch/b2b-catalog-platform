@@ -1,8 +1,10 @@
+import { readFileSync } from 'node:fs';
 import { hash } from '@node-rs/argon2';
 import axios from 'axios';
 import { Client } from 'pg';
 import { priceProduct } from '../support/catalog-fixture';
-import { requireEnv } from '../support/env';
+import { configFile, requireEnv } from '../support/env';
+import { deleteMatching, messagesMatching } from '../support/mailpit';
 
 /**
  * The order write-back (FR-ADM-08, ADR 0062) end to end.
@@ -898,6 +900,40 @@ describe('Order write-back (FR-ADM-08)', () => {
           area: 'orders',
           error: 'The order queue could not be read',
         });
+      });
+
+      /**
+       * "The run before this one" is the one written before it (FR-NOTIF-09).
+       * A run stamped later by a clock that was then stepped back must not
+       * make the shop hear about one breakage twice.
+       */
+      it('reads the previous run by insertion, not by its clock', async () => {
+        const subject = (
+          JSON.parse(readFileSync(configFile('texts/mail.json'), 'utf8')) as {
+            syncRun: { areas: { orders: { failed: { subject: string } } } };
+          }
+        ).syncRun.areas.orders.failed.subject;
+        const failedMail = `to:"${requireEnv('MAIL_ADMIN_TO')}" subject:"${subject}"`;
+        await deleteMatching(failedMail);
+        // Written just before the clock went back an hour.
+        await client.query(
+          `INSERT INTO sync_runs
+             (area, status, source, "tokenName", "startedAt", "finishedAt")
+           VALUES ('orders', 'applied', 'api', $1,
+                   now() + interval '1 hour', now() + interval '1 hour')`,
+          [TOKEN_NAME],
+        );
+        const fail = () =>
+          axios.post(
+            '/machine/sync/orders/failures',
+            { message: 'The order queue could not be read' },
+            { headers: { Authorization: `Bearer ${token}` } },
+          );
+
+        await fail();
+        await fail();
+
+        expect(await messagesMatching(failedMail)).toHaveLength(1);
       });
 
       /** The log is a manager's as well as an admin's (FR-ADM-09): an order
