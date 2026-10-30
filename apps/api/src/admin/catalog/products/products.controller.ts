@@ -8,7 +8,7 @@ import { AuditLogger } from '../../../audit/audit.logger';
 import { refusals } from '../../../orpc/refusals';
 import { CatalogReader } from '../../../core/catalog/catalog-reader';
 import { ProductEditorService } from './product-editor.service';
-import { ProductGridService } from './product-grid.service';
+import { ProductGridService } from './grid/product-grid.service';
 import { ProductLifecycleService } from './product-lifecycle.service';
 import { ProductRecords } from './product-records';
 import { productPageOf } from './product-page';
@@ -22,7 +22,7 @@ import { productPageOf } from './product-page';
  */
 @Auth('admin')
 @Controller()
-export class AdminProductsController {
+export class ProductsController {
   constructor(
     private readonly grid: ProductGridService,
     private readonly records: ProductRecords,

@@ -1,7 +1,10 @@
 import { asc, desc, sql, SQL } from 'drizzle-orm';
 import { AdminProductSort } from '@b2b-catalog-platform/shared/admin/catalog';
-import { products } from '../../../db/schema';
-import { OrderBy, productSortKeys } from '../../../core/catalog/product-sort';
+import { products } from '../../../../db/schema';
+import {
+  OrderBy,
+  productSortKeys,
+} from '../../../../core/catalog/product-sort';
 
 /**
  * The admin grid's ordering (FR-ADM-05): the storefront's keys plus recency,

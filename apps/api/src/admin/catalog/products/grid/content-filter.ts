@@ -8,14 +8,14 @@ import {
   ProductGap,
   ProductGapFilter,
 } from '@b2b-catalog-platform/shared/admin/catalog';
-import * as schema from '../../../db/schema';
+import * as schema from '../../../../db/schema';
 import {
   documentProducts,
   productAttributes,
   productPairings,
   products,
-} from '../../../db/schema';
-import { resolvedPriceMinor } from '../../../core/catalog/product-price';
+} from '../../../../db/schema';
+import { resolvedPriceMinor } from '../../../../core/catalog/product-price';
 
 type Db = NodePgDatabase<typeof schema>;
 

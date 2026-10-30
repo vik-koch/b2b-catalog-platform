@@ -6,7 +6,7 @@ import { Auth } from '../../../auth/auth.decorator';
 import { CurrentUser } from '../../../auth/current-user.decorator';
 import { AuditLogger } from '../../../audit/audit.logger';
 import { refusals } from '../../../orpc/refusals';
-import { AdminCategoriesService } from './admin-categories.service';
+import { CategoriesService } from './categories.service';
 
 /**
  * The admin's category routes. Every route is admin-only; the service
@@ -17,9 +17,9 @@ import { AdminCategoriesService } from './admin-categories.service';
  */
 @Auth('admin')
 @Controller()
-export class AdminCategoriesController {
+export class CategoriesController {
   constructor(
-    private readonly categories: AdminCategoriesService,
+    private readonly categories: CategoriesService,
     private readonly audit: AuditLogger,
   ) {}
 

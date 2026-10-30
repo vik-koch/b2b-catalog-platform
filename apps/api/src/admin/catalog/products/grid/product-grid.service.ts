@@ -20,10 +20,10 @@ import {
   INCOMPLETE_GAPS,
   PRODUCT_FEATURES,
 } from '@b2b-catalog-platform/shared/admin/catalog';
-import { DRIZZLE } from '../../../db/database.module';
-import * as schema from '../../../db/schema';
-import { categories, orderItems, products } from '../../../db/schema';
-import { attributeValuesCondition } from '../../../core/catalog/attribute-filter';
+import { DRIZZLE } from '../../../../db/database.module';
+import * as schema from '../../../../db/schema';
+import { categories, orderItems, products } from '../../../../db/schema';
+import { attributeValuesCondition } from '../../../../core/catalog/attribute-filter';
 import { documentCondition } from './document-filter';
 import {
   featureColumns,
@@ -35,24 +35,24 @@ import { tierPriceCondition } from './tier-price-filter';
 import {
   categoryBySlug,
   descendantIds,
-} from '../../../core/catalog/catalog-tree';
+} from '../../../../core/catalog/catalog-tree';
 import {
   adminSearchCondition,
   parseSearchQuery,
   relevanceScore,
   setSearchThreshold,
-} from '../../../core/catalog/product-search';
+} from '../../../../core/catalog/product-search';
 import { adminProductOrderBy } from './grid-sort';
 import {
   listItemColumns,
   toUnpricedListItem,
-} from '../../../core/catalog/product-view';
-import { paginationOf } from '../../../platform/pagination';
-import { resolvedPriceMinor } from '../../../core/catalog/product-price';
-import { ALTERNATE_LAYOUT } from '../../../config/deployment-config';
-import { categoryNotFound } from '../categories/admin-categories.service';
+} from '../../../../core/catalog/product-view';
+import { paginationOf } from '../../../../platform/pagination';
+import { resolvedPriceMinor } from '../../../../core/catalog/product-price';
+import { ALTERNATE_LAYOUT } from '../../../../config/deployment-config';
+import { categoryNotFound } from '../../categories/categories.service';
 
-import { deletedByRun } from './product-records';
+import { deletedByRun } from '../product-records';
 
 /**
  * The admin's product lists: the grid (FR-ADM-05) and what a category holds

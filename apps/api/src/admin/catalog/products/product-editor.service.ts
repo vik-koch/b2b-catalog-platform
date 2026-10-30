@@ -48,7 +48,7 @@ import {
   resolveProductSourceIdOverride,
   runUnique,
 } from '../catalog-identity';
-import { assertCategoryExists } from '../categories/admin-categories.service';
+import { assertCategoryExists } from '../categories/categories.service';
 
 import {
   adminProductWriteColumns,

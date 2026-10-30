@@ -1,7 +1,7 @@
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { and, eq, exists, SQL, sql } from 'drizzle-orm';
-import * as schema from '../../../db/schema';
-import { documentProducts, products } from '../../../db/schema';
+import * as schema from '../../../../db/schema';
+import { documentProducts, products } from '../../../../db/schema';
 
 /**
  * "This product shows this document" — what the admin grid filters on when the

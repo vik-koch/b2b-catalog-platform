@@ -1,7 +1,7 @@
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { and, eq, exists, not, SQL, sql } from 'drizzle-orm';
-import * as schema from '../../../db/schema';
-import { productPrices, products } from '../../../db/schema';
+import * as schema from '../../../../db/schema';
+import { productPrices, products } from '../../../../db/schema';
 
 /**
  * "This product has a price of its own for this tier" — what the admin grid

@@ -2,7 +2,7 @@ import { sql } from 'drizzle-orm';
 import { PgDialect } from 'drizzle-orm/pg-core';
 import { adminProductSortSchema } from '@b2b-catalog-platform/shared/admin/catalog';
 import { SEARCH_SORTS } from '@b2b-catalog-platform/shared/core/catalog';
-import { productSortKeys } from '../../../core/catalog/product-sort';
+import { productSortKeys } from '../../../../core/catalog/product-sort';
 import { adminProductOrderBy } from './grid-sort';
 
 /** Renders an order-by list the way the query builder would, as one string. */

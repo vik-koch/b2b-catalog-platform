@@ -62,7 +62,7 @@ export async function assertCategoryExists(
  * rather than content and a soft-deleted one would still hold its children.
  */
 @Injectable()
-export class AdminCategoriesService {
+export class CategoriesService {
   constructor(
     @Inject(DRIZZLE) private db: NodePgDatabase<typeof schema>,
     private readonly settings: SettingsService,

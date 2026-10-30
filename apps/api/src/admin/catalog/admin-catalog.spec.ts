@@ -1,12 +1,12 @@
 import { ConflictException, INestApplication } from '@nestjs/common';
 import { APP_FILTER } from '@nestjs/core';
 import { Test } from '@nestjs/testing';
-import { AdminCategoriesController } from './categories/categories.controller';
-import { AdminProductsController } from './products/products.controller';
+import { CategoriesController } from './categories/categories.controller';
+import { ProductsController } from './products/products.controller';
 import { CatalogReader } from '../../core/catalog/catalog-reader';
-import { AdminCategoriesService } from './categories/admin-categories.service';
+import { CategoriesService } from './categories/categories.service';
 import { ProductEditorService } from './products/product-editor.service';
-import { ProductGridService } from './products/product-grid.service';
+import { ProductGridService } from './products/grid/product-grid.service';
 import { ProductLifecycleService } from './products/product-lifecycle.service';
 import { ProductRecords } from './products/product-records';
 import { AuditLogger } from '../../audit/audit.logger';
@@ -55,7 +55,7 @@ describe('the admin catalog routes', () => {
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
-      controllers: [AdminProductsController, AdminCategoriesController],
+      controllers: [ProductsController, CategoriesController],
       providers: [
         {
           provide: ProductGridService,
@@ -70,7 +70,7 @@ describe('the admin catalog routes', () => {
           },
         },
         { provide: ProductLifecycleService, useValue: {} },
-        { provide: AdminCategoriesService, useValue: categories },
+        { provide: CategoriesService, useValue: categories },
         { provide: CatalogReader, useValue: {} },
         { provide: AuditLogger, useValue: { record: vi.fn() } },
         { provide: APP_FILTER, useClass: ContractErrorFilter },
