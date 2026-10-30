@@ -100,12 +100,12 @@ let nextId = 0;
                 class="flex flex-wrap items-center gap-x-2 gap-y-1.5 py-1.5
                        text-sm"
               >
-                <app-drag-grip />
+                <app-drag-grip size="lead" />
                 <input
                   type="text"
                   uiInput
                   size="sm"
-                  class="min-w-0 flex-1 basis-[calc(100%-1.5rem)]
+                  class="min-w-0 flex-1 basis-[calc(100%-1.75rem)]
                          @min-[30rem]/variants:basis-0"
                   autocomplete="off"
                   [attr.aria-label]="text.nameAria"
