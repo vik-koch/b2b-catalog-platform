@@ -141,29 +141,29 @@ describe('Tier prices (FR-AUTH-05)', () => {
     const res = await get(`/catalog/products/${PRICED_SLUG}`);
 
     expect(res.status).toBe(200);
-    expect(res.data.priceMinor).toBe(PRICED_BASE_MINOR);
+    expect(res.data.prices.piece).toBe(PRICED_BASE_MINOR);
   });
 
   it('shows the tiered customer their own price for the same product', async () => {
     const res = await get(`/catalog/products/${PRICED_SLUG}`, tierCookie);
 
     expect(res.status).toBe(200);
-    expect(res.data.priceMinor).toBe(OVERRIDE_MINOR);
-    expect(res.data.priceMinor).not.toBe(PRICED_BASE_MINOR);
+    expect(res.data.prices.piece).toBe(OVERRIDE_MINOR);
+    expect(res.data.prices.piece).not.toBe(PRICED_BASE_MINOR);
   });
 
   it('falls back to the base price for a product the tier does not price', async () => {
     const res = await get(`/catalog/products/${UNTOUCHED_SLUG}`, tierCookie);
 
     expect(res.status).toBe(200);
-    expect(res.data.priceMinor).toBe(UNTOUCHED_BASE_MINOR);
+    expect(res.data.prices.piece).toBe(UNTOUCHED_BASE_MINOR);
   });
 
   it('serves the base list to a signed-in customer with no tier', async () => {
     const res = await get(`/catalog/products/${PRICED_SLUG}`, defaultCookie);
 
     expect(res.status).toBe(200);
-    expect(res.data.priceMinor).toBe(PRICED_BASE_MINOR);
+    expect(res.data.prices.piece).toBe(PRICED_BASE_MINOR);
   });
 
   it('treats a junk session cookie as a guest instead of rejecting it', async () => {
@@ -173,7 +173,7 @@ describe('Tier prices (FR-AUTH-05)', () => {
     );
 
     expect(res.status).toBe(200);
-    expect(res.data.priceMinor).toBe(PRICED_BASE_MINOR);
+    expect(res.data.prices.piece).toBe(PRICED_BASE_MINOR);
   });
 
   it('carries the tier price into a listing and sorts by the resolved value', async () => {
@@ -187,7 +187,7 @@ describe('Tier prices (FR-AUTH-05)', () => {
       (i: { slug: string }) => i.slug === PRICED_SLUG,
     );
     expect(hit).toBeDefined();
-    expect(hit.priceMinor).toBe(OVERRIDE_MINOR);
+    expect(hit.prices.piece).toBe(OVERRIDE_MINOR);
     // Re-priced to one minor unit, so an ascending price sort must put it
     // first — the proof that ordering follows resolution rather than the base
     // column, which would have placed it by its original price.
@@ -223,9 +223,9 @@ describe('Tier prices (FR-AUTH-05)', () => {
       (i: { slug: string }) => i.slug === PRICED_SLUG,
     );
     expect(hit).toBeDefined();
-    expect(hit.priceMinor).toBe(PRICED_BASE_MINOR);
+    expect(hit.prices.piece).toBe(PRICED_BASE_MINOR);
     expect(
-      res.data.items.map((i: { priceMinor: number }) => i.priceMinor),
+      res.data.items.map((i: { prices: { piece: number } }) => i.prices.piece),
     ).not.toContain(OVERRIDE_MINOR);
   });
 });

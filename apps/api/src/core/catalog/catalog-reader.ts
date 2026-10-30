@@ -170,7 +170,6 @@ export class CatalogReader {
     const detail: ProductDetail = {
       slug: product.slug,
       name: product.name,
-      priceMinor: priced.priceMinor,
       prices: unitPricesOf(priced),
       packaging: packagingOf(product),
       boxDimensions: boxDimensionsOf(product),

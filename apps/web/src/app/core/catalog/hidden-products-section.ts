@@ -76,7 +76,7 @@ import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
                       }}</span>
                       <!-- The second reason, and the one the button below
                            cannot resolve: nothing prices this product. -->
-                      @if (item.priceMinor === null) {
+                      @if (item.prices === null) {
                         <span uiStatusBadge tone="danger">{{
                           productStates.unpriced
                         }}</span>
@@ -95,10 +95,10 @@ import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
                       >
                     </h3>
                     <p class="mt-auto pt-2 font-emphasis text-ink-subtle">
-                      @if (item.priceMinor === null) {
-                        {{ text.unpricedHint }}
+                      @if (item.prices; as prices) {
+                        {{ prices.piece | price }}
                       } @else {
-                        {{ item.priceMinor | price }}
+                        {{ text.unpricedHint }}
                       }
                     </p>
                     <!-- Editing above the action that undoes the hiding: a
@@ -217,7 +217,7 @@ export class HiddenProductsSection {
    * refuses it. The button explains rather than disappearing.
    */
   protected cannotPublish(item: HiddenProduct): boolean {
-    return item.priceMinor === null;
+    return item.prices === null;
   }
 
   protected actionLabel(item: HiddenProduct): string {

@@ -136,7 +136,6 @@ export function toListItem<
   return {
     slug: row.slug,
     name: row.name,
-    priceMinor: row.priceMinor,
     prices: unitPricesOf(row),
     packaging: packagingOf(row),
     ...picturesOf(row),
@@ -149,11 +148,9 @@ export function toListItem<
 }
 
 /**
- * The same row for a staff screen, where a product may have no price at all.
- * Separate from `toListItem` rather than making that one's price nullable: the
- * storefront cannot show an unpriced product — publication refuses it — and a
- * null the whole shop front would have to carry for one admin panel's sake is
- * a null in the wrong place.
+ * The same row for a staff screen, where a product may have no price. Kept
+ * apart from `toListItem`: publication refuses an unpriced product, so the
+ * storefront's shape never carries the null.
  */
 export function toUnpricedListItem<
   T extends Omit<PricedProductRow, 'priceMinor'> & {
@@ -168,16 +165,10 @@ export function toUnpricedListItem<
     pairedCount: number;
     parts: string[];
   },
->(
-  row: T,
-): Omit<ProductListItem, 'priceMinor' | 'prices'> & {
-  priceMinor: number | null;
-  prices: UnitPrices | null;
-} {
+>(row: T): Omit<ProductListItem, 'prices'> & { prices: UnitPrices | null } {
   const priceMinor = row.priceMinor;
   return {
     ...toListItem({ ...row, priceMinor: priceMinor ?? 0 }),
-    priceMinor,
     prices: priceMinor === null ? null : unitPricesOf({ ...row, priceMinor }),
   };
 }

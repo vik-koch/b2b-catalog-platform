@@ -17,14 +17,14 @@ import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { defaultStorefrontText } from '../../shared/config/storefront-text.fixture';
 import { ProductDetail } from './product-detail';
 import { CatalogService } from './catalog.service';
-import { productDetail } from '../../core/catalog/product.fixture';
+import { productDetail, plainPrices } from '../../core/catalog/product.fixture';
 
 type Product = NonNullable<Awaited<ReturnType<CatalogService['getProduct']>>>;
 
 const product: Product = productDetail({
   slug: 'hafen-espresso',
   name: 'Hafen Espresso',
-  priceMinor: 1890,
+  prices: plainPrices(1890),
   descriptionHtml: '<p>Dark and <strong>syrupy</strong>.</p>',
   images: [
     {

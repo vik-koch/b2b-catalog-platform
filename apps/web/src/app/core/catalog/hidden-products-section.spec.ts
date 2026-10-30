@@ -11,7 +11,7 @@ import { defaultAdminText } from '../../shared/config/admin-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
 import { EDIT_MODE_CATALOG, EditModeCatalog } from './edit-mode-catalog';
-import { productListItem } from './product.fixture';
+import { productListItem, plainPrices } from './product.fixture';
 import { HiddenProductsSection } from './hidden-products-section';
 
 const text = defaultAdminText.editMode;
@@ -20,7 +20,7 @@ const hidden = (overrides: Partial<HiddenProduct> = {}): HiddenProduct => ({
   ...productListItem({
     slug: 'old-roast',
     name: 'Old Roast',
-    priceMinor: 990,
+    prices: plainPrices(990),
     images: [{ full: 'f.jpg', thumb: 't.jpg', variant: null }],
   }),
   ...overrides,
@@ -93,7 +93,7 @@ describe('HiddenProductsSection', () => {
   });
 
   it('shows both reasons on a product that is unpublished and unpriced', async () => {
-    const { el } = await render([hidden({ priceMinor: null })]);
+    const { el } = await render([hidden({ prices: null })]);
 
     expect(el.textContent).toContain(defaultAdminText.products.unpublished);
     expect(el.textContent).toContain(defaultAdminText.products.unpriced);
@@ -125,7 +125,7 @@ describe('HiddenProductsSection', () => {
 
   it('explains rather than acting on a product nothing prices', async () => {
     const { fixture, el, setProductPublished } = await render([
-      hidden({ priceMinor: null }),
+      hidden({ prices: null }),
     ]);
 
     actionButton(el, text.publishProduct)?.click();

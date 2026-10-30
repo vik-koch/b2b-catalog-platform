@@ -118,8 +118,6 @@ export const productListItemSchema = z
   .object({
     slug: z.string(),
     name: z.string(),
-    /** The per-piece price. Prefer `prices`; never an input to a total. */
-    priceMinor: priceMinorSchema,
     prices: unitPricesSchema,
     packaging: productPackagingSchema,
     images: z.array(productImageSchema),
@@ -190,8 +188,6 @@ export const productDetailSchema = z
   .object({
     slug: z.string(),
     name: z.string(),
-    /** See `productListItemSchema`. */
-    priceMinor: priceMinorSchema,
     prices: unitPricesSchema,
     packaging: productPackagingSchema,
     boxDimensions: boxDimensionsSchema.nullable(),

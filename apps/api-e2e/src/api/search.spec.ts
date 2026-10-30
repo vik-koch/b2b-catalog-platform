@@ -62,7 +62,6 @@ describe('GET /catalog/search (FR-SEARCH-01…03)', () => {
       'packaging',
       'pairedCount',
       'parts',
-      'priceMinor',
       'prices',
       'slug',
       'variants',
@@ -161,7 +160,7 @@ describe('GET /catalog/search (FR-SEARCH-01…03)', () => {
       const res = await sorted(sort);
 
       const prices = res.data.items.map(
-        (i: { priceMinor: number }) => i.priceMinor,
+        (i: { prices: { piece: number } }) => i.prices.piece,
       );
       expect(res.status).toBe(200);
       expect(prices).toEqual([...prices].sort(compare));

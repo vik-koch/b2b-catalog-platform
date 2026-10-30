@@ -33,12 +33,10 @@ export function plainPrices(priceMinor: number): ProductListItem['prices'] {
 export function productListItem(
   overrides: Partial<ProductListItem> = {},
 ): ProductListItem {
-  const priceMinor = overrides.priceMinor ?? 1250;
   return {
     slug: 'espresso-roast',
     name: 'Espresso Roast',
-    priceMinor,
-    prices: plainPrices(priceMinor),
+    prices: plainPrices(1250),
     packaging: { ...plainPackaging },
     images: [],
     variants: [],
@@ -54,12 +52,10 @@ export function productListItem(
 export function productDetail(
   overrides: Partial<ProductDetail> = {},
 ): ProductDetail {
-  const priceMinor = overrides.priceMinor ?? 1250;
   return {
     slug: 'espresso-roast',
     name: 'Espresso Roast',
-    priceMinor,
-    prices: plainPrices(priceMinor),
+    prices: plainPrices(1250),
     packaging: { ...plainPackaging },
     boxDimensions: null,
     descriptionHtml: '',

@@ -9,7 +9,10 @@ import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { defaultStorefrontText } from '../../shared/config/storefront-text.fixture';
 import { CategoryGrid } from './category-grid';
 import { CatalogService } from './catalog.service';
-import { productListItem } from '../../core/catalog/product.fixture';
+import {
+  productListItem,
+  plainPrices,
+} from '../../core/catalog/product.fixture';
 import { provideUiText } from '../../shared/config/shared-text';
 
 type Products = NonNullable<
@@ -35,7 +38,7 @@ function response(overrides: Partial<Products> = {}): Products {
       productListItem({
         slug: 'hafen-espresso',
         name: 'Hafen Espresso',
-        priceMinor: 1890,
+        prices: plainPrices(1890),
         images: [image(1)],
       }),
     ],

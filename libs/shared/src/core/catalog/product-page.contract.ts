@@ -6,7 +6,6 @@
 
 import * as z from 'zod';
 import {
-  priceMinorSchema,
   productDetailSchema,
   productListItemSchema,
   unitPricesSchema,
@@ -16,7 +15,6 @@ import {
 export const hiddenProductSchema = productListItemSchema.extend({
   /** Null where no price list prices it: one reason it is hidden, and the
    * one the tile shape cannot express. */
-  priceMinor: priceMinorSchema.nullable(),
   prices: unitPricesSchema.nullable(),
 });
 export type HiddenProduct = z.infer<typeof hiddenProductSchema>;
