@@ -1,6 +1,6 @@
 export * from './attributes';
 export * from './attributes.contract';
-export * from './catalog-errors';
+export * from './categories';
 export * from './categories.contract';
 export * from './documents';
 export * from './documents.contract';

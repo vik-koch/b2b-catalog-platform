@@ -94,7 +94,10 @@ import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { PRODUCT_FEATURE_GLYPHS } from './product-feature-glyphs';
 import { Input } from '@b2b-catalog-platform/ui/inputs/input';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
-import { AdminCatalogService } from '../admin-catalog.service';
+import {
+  AdminCatalogService,
+  type ProductSaveErrorCode,
+} from '../admin-catalog.service';
 import { AttributesService } from '../attributes/attributes.service';
 import { CategoryPicker } from '../categories/category-picker';
 import { categoryAncestors } from '../categories/category-tree';
@@ -1432,6 +1435,17 @@ export class ProductEditorPage implements UnsavedChangesAware, FieldAttempt {
     );
   }
 
+  /** A refusal is worded here, never by the server. The ownership one reuses
+   * the sentence the locked fields carry. */
+  private refusalText(code: ProductSaveErrorCode, creating: boolean): string {
+    if (code !== 'catalog-externally-owned') {
+      return this.adminText.catalogErrors[code];
+    }
+    return creating
+      ? this.ownershipText.productCreate
+      : this.ownershipText.fieldLocked;
+  }
+
   protected async save(andPublish = false): Promise<void> {
     submitAttempt(this.form).set(true);
     if (this.form().invalid()) return this.revealFirstError();
@@ -1537,7 +1551,7 @@ export class ProductEditorPage implements UnsavedChangesAware, FieldAttempt {
         : await this.service.updateProduct(existingSlug, body);
 
     if (!result.ok) {
-      this.error.set(this.adminText.catalogErrors[result.code]);
+      this.error.set(this.refusalText(result.code, existingSlug === null));
       this.saving.set(false);
       return;
     }

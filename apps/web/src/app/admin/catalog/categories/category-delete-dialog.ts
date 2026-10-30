@@ -235,7 +235,12 @@ export class CategoryDeleteDialog {
         this.reassignTo() || undefined,
       );
       if (result.ok) return this.deleted.emit();
-      this.error.set(this.adminText.catalogErrors[result.code]);
+      // Only a reassign is refused for ownership: it moves products.
+      this.error.set(
+        result.code === 'catalog-externally-owned'
+          ? this.adminText.ownership.fieldLocked
+          : this.adminText.catalogErrors[result.code],
+      );
     } catch {
       // An unexpected status used to reject unhandled, leaving the dialog
       // spinning on "deleting" with nothing said.

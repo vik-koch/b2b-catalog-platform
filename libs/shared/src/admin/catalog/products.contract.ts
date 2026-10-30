@@ -11,6 +11,7 @@ import {
   PRODUCT_LINE_NOTE_PROMPT_MAX_LENGTH,
   PRODUCT_PAIRINGS_MAX,
   PRODUCT_TIER_PRICES_MAX,
+  type ProductErrorCode,
 } from './products';
 import { commonAuthErrors } from '../../lib/core/api-error';
 import { ownershipErrors } from '../../sync/ownership-constants';
@@ -62,7 +63,6 @@ import {
 } from '../../core/catalog/product-variants';
 import { slugSchema } from './slug.contract';
 import { taxRateSchema } from '../../lib/config/tax-config';
-import { CATALOG_ERRORS } from './catalog-errors';
 
 /**
  * A price as it is written. Zero is refused: a product that costs nothing has
@@ -443,18 +443,36 @@ export const adminProductListQuerySchema = z.object({
 });
 export type AdminProductListQuery = z.infer<typeof adminProductListQuerySchema>;
 
+/** A missing row is a 404; everything else is a conflict. */
+const productErrors = {
+  'product-not-found': { status: 404 },
+  'category-not-found': { status: 404 },
+  'tier-not-found': { status: 404 },
+  'paired-product-not-found': { status: 404 },
+  'document-not-found': { status: 404 },
+  'pairing-self': { status: 409 },
+  'slug-taken': { status: 409 },
+  'source-id-taken': { status: 409 },
+  'slug-or-source-id-taken': { status: 409 },
+  'product-has-no-price': { status: 409 },
+  'product-published': { status: 409 },
+  'product-deleted': { status: 409 },
+  'product-not-deleted': { status: 409 },
+  'product-ordered': { status: 409 },
+} as const satisfies Record<ProductErrorCode, { status: number }>;
+
 /** Saving a product can collide on either unique column, or name a gone tier,
  * a gone counterpart or a gone document. */
 const productWriteErrors = {
   'catalog-externally-owned': ownershipErrors['catalog-externally-owned'],
-  'category-not-found': CATALOG_ERRORS['category-not-found'],
-  'tier-not-found': CATALOG_ERRORS['tier-not-found'],
-  'paired-product-not-found': CATALOG_ERRORS['paired-product-not-found'],
-  'document-not-found': CATALOG_ERRORS['document-not-found'],
-  'pairing-self': CATALOG_ERRORS['pairing-self'],
-  'slug-taken': CATALOG_ERRORS['slug-taken'],
-  'source-id-taken': CATALOG_ERRORS['source-id-taken'],
-  'slug-or-source-id-taken': CATALOG_ERRORS['slug-or-source-id-taken'],
+  'category-not-found': productErrors['category-not-found'],
+  'tier-not-found': productErrors['tier-not-found'],
+  'paired-product-not-found': productErrors['paired-product-not-found'],
+  'document-not-found': productErrors['document-not-found'],
+  'pairing-self': productErrors['pairing-self'],
+  'slug-taken': productErrors['slug-taken'],
+  'source-id-taken': productErrors['source-id-taken'],
+  'slug-or-source-id-taken': productErrors['slug-or-source-id-taken'],
 } as const;
 
 /** Every route here is admin-only. */
@@ -492,7 +510,7 @@ export const adminProductsContract = {
       inputStructure: 'detailed',
       summary: 'Get a product in editable form (admin)',
     })
-    .errors({ 'product-not-found': CATALOG_ERRORS['product-not-found'] })
+    .errors({ 'product-not-found': productErrors['product-not-found'] })
     .input(z.object({ params: z.object({ slug: z.string() }) }))
     .output(adminProductSchema),
 
@@ -516,7 +534,7 @@ export const adminProductsContract = {
       summary: 'Replace a product (admin; slug stays fixed)',
     })
     .errors({
-      'product-not-found': CATALOG_ERRORS['product-not-found'],
+      'product-not-found': productErrors['product-not-found'],
       ...productWriteErrors,
     })
     .input(
@@ -537,8 +555,8 @@ export const adminProductsContract = {
       summary: 'Soft-delete a product (admin; reversible via restore)',
     })
     .errors({
-      'product-not-found': CATALOG_ERRORS['product-not-found'],
-      'product-published': CATALOG_ERRORS['product-published'],
+      'product-not-found': productErrors['product-not-found'],
+      'product-published': productErrors['product-published'],
     })
     .input(z.object({ params: z.object({ slug: z.string() }) }))
     .output(adminProductSchema),
@@ -553,7 +571,7 @@ export const adminProductsContract = {
     // `catalog-externally-owned` for a product a run deleted while the catalog
     // is owned: each side undoes only its own deletion (FR-ADM-10).
     .errors({
-      'product-not-found': CATALOG_ERRORS['product-not-found'],
+      'product-not-found': productErrors['product-not-found'],
       'catalog-externally-owned': ownershipErrors['catalog-externally-owned'],
     })
     .input(z.object({ params: z.object({ slug: z.string() }) }))
@@ -568,7 +586,7 @@ export const adminProductsContract = {
       inputStructure: 'detailed',
       summary: 'Read any product as its page shows it, and why it is hidden',
     })
-    .errors({ 'product-not-found': CATALOG_ERRORS['product-not-found'] })
+    .errors({ 'product-not-found': productErrors['product-not-found'] })
     .input(z.object({ params: z.object({ slug: z.string() }) }))
     .output(productPageSchema),
 
@@ -586,9 +604,9 @@ export const adminProductsContract = {
       summary: 'Delete a soft-deleted product permanently (admin)',
     })
     .errors({
-      'product-not-found': CATALOG_ERRORS['product-not-found'],
-      'product-not-deleted': CATALOG_ERRORS['product-not-deleted'],
-      'product-ordered': CATALOG_ERRORS['product-ordered'],
+      'product-not-found': productErrors['product-not-found'],
+      'product-not-deleted': productErrors['product-not-deleted'],
+      'product-ordered': productErrors['product-ordered'],
       'catalog-externally-owned': ownershipErrors['catalog-externally-owned'],
     })
     .input(z.object({ params: z.object({ slug: z.string() }) }))
@@ -607,9 +625,9 @@ export const adminProductsContract = {
       summary: 'Publish or unpublish a product (admin)',
     })
     .errors({
-      'product-not-found': CATALOG_ERRORS['product-not-found'],
-      'product-has-no-price': CATALOG_ERRORS['product-has-no-price'],
-      'product-deleted': CATALOG_ERRORS['product-deleted'],
+      'product-not-found': productErrors['product-not-found'],
+      'product-has-no-price': productErrors['product-has-no-price'],
+      'product-deleted': productErrors['product-deleted'],
     })
     .input(
       z.object({
@@ -632,7 +650,7 @@ export const adminProductsContract = {
       summary:
         'List live products left with no counterpart if this one is unpublished (admin)',
     })
-    .errors({ 'product-not-found': CATALOG_ERRORS['product-not-found'] })
+    .errors({ 'product-not-found': productErrors['product-not-found'] })
     .input(z.object({ params: z.object({ slug: z.string() }) }))
     .output(z.object({ items: z.array(productRefSchema) }).strict()),
 
@@ -647,7 +665,7 @@ export const adminProductsContract = {
       summary:
         'List products in a category subtree that the storefront hides (admin)',
     })
-    .errors({ 'category-not-found': CATALOG_ERRORS['category-not-found'] })
+    .errors({ 'category-not-found': productErrors['category-not-found'] })
     .input(z.object({ params: z.object({ slug: z.string() }) }))
     .output(z.object({ items: z.array(hiddenProductSchema) }).strict()),
 };

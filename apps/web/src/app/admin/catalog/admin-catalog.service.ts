@@ -7,10 +7,11 @@ import {
 import {
   AdminCategory,
   AdminProduct,
-  CatalogErrorCode,
   AdminProductSort,
   AdminProductState,
+  CategoryErrorCode,
   CategoryInput,
+  ProductErrorCode,
   ProductFeature,
   ProductGapFilter,
   ProductInput,
@@ -26,18 +27,14 @@ import { WorkService } from '../../shared/work/work.service';
 import type { EditModeCatalog } from '../../core/catalog/edit-mode-catalog';
 
 /**
- * The refusals the editor can render. Every route also declares the two auth
- * ones, and those mean the session is wrong rather than the edit — not this
- * screen's to phrase, so they throw like anything unexpected.
+ * The refusals a screen can render: every code a route declares but the two
+ * auth ones, which mean the session is wrong rather than the edit and throw
+ * like anything unexpected.
  */
-function renderable(code: string): code is CatalogErrorCode {
+function renderable<T extends string>(
+  code: T,
+): code is Exclude<T, 'not-authenticated' | 'insufficient-role'> {
   return code !== 'not-authenticated' && code !== 'insufficient-role';
-}
-
-/** The same rule for a category save, which may also be refused because an
- * external system owns the catalog (FR-ADM-10). */
-function renderableCategory(code: string): code is CategorySaveErrorCode {
-  return renderable(code) || code === 'catalog-externally-owned';
 }
 
 /**
@@ -120,17 +117,17 @@ export class AdminCatalogService implements EditModeCatalog {
    */
   async purgeProduct(
     slug: string,
-  ): Promise<{ ok: true } | { ok: false; code: CategorySaveErrorCode }> {
+  ): Promise<{ ok: true } | { ok: false; code: ProductSaveErrorCode }> {
     const result = await safe(this.client.purgeProduct({ params: { slug } }));
     void this.work.refresh();
-    if (result.isDefined && renderableCategory(result.error.code)) {
+    if (result.isDefined && renderable(result.error.code)) {
       return { ok: false, code: result.error.code };
     }
     if (!result.isSuccess) throw result.error;
     return { ok: true };
   }
 
-  /** The soft-deleted products in a category subtree — the edit-mode overlay. */
+  /** The unpublished products in a category subtree: the edit-mode overlay. */
   async listHiddenProducts(slug: string): Promise<HiddenProduct[]> {
     const result = await safe(
       this.client.listHiddenProducts({ params: { slug } }),
@@ -227,7 +224,7 @@ export class AdminCatalogService implements EditModeCatalog {
     call: ClientPromiseResult<AdminCategory, TError>,
   ): Promise<CategorySaveResult> {
     const result = await safe(call);
-    if (result.isDefined && renderableCategory(result.error.code)) {
+    if (result.isDefined && renderable(result.error.code)) {
       return { ok: false, code: result.error.code };
     }
     if (!result.isSuccess) throw result.error;
@@ -285,26 +282,24 @@ export interface ProductGridQuery {
   has?: ProductFeature[];
 }
 
-/**
- * A create/update outcome: the stored product, or the code the server refused
- * with. The editor looks the wording up in the admin text — nothing the server
- * wrote is shown.
- */
-export type SaveResult =
-  { ok: true; product: AdminProduct } | { ok: false; code: CatalogErrorCode };
+/** A product refusal, including the ownership one (FR-ADM-10). The editor
+ * looks the wording up in the admin text; nothing the server wrote is shown. */
+export type ProductSaveErrorCode =
+  ProductErrorCode | 'catalog-externally-owned';
 
-/**
- * A category create/update outcome. Wider than `SaveResult` by one code: the
- * ownership refusal, which the editor already has wording for because the same
- * rule greys the fields out before the save is attempted.
- */
+/** A create/update outcome: the stored product, or the refusal. */
+export type SaveResult =
+  | { ok: true; product: AdminProduct }
+  | { ok: false; code: ProductSaveErrorCode };
+
+/** A category refusal, including the ownership one (FR-ADM-10). */
+export type CategorySaveErrorCode =
+  CategoryErrorCode | 'catalog-externally-owned';
+
 export type CategorySaveResult =
   | { ok: true; category: AdminCategory }
   | { ok: false; code: CategorySaveErrorCode };
 
-export type CategorySaveErrorCode =
-  CatalogErrorCode | 'catalog-externally-owned';
-
 /** A category delete outcome: done, or blocked with a code to explain. */
 export type CategoryDeleteResult =
-  { ok: true } | { ok: false; code: CatalogErrorCode };
+  { ok: true } | { ok: false; code: CategorySaveErrorCode };

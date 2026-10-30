@@ -9,7 +9,7 @@ import {
   shortNameSchema,
 } from '../../core/catalog/catalog.contract';
 import { slugSchema } from './slug.contract';
-import { CATALOG_ERRORS } from './catalog-errors';
+import { type CategoryErrorCode } from './categories';
 
 /** A category as the management screen sees it, in a flat list the client
  * shapes into the tree. */
@@ -91,11 +91,24 @@ export const reorderCategoriesSchema = z
   .strict();
 export type ReorderCategoriesRequest = z.infer<typeof reorderCategoriesSchema>;
 
+/** A missing row is a 404; everything else is a conflict. */
+const categoryErrors = {
+  'category-not-found': { status: 404 },
+  'reassign-target-not-found': { status: 404 },
+  'category-has-subcategories': { status: 409 },
+  'category-has-products': { status: 409 },
+  'category-reassign-to-self': { status: 409 },
+  'category-cycle': { status: 409 },
+  'slug-taken': { status: 409 },
+  'source-id-taken': { status: 409 },
+  'slug-or-source-id-taken': { status: 409 },
+} as const satisfies Record<CategoryErrorCode, { status: number }>;
+
 /** A category collides on the same two unique columns a product does. */
 const categoryIdentityErrors = {
-  'slug-taken': CATALOG_ERRORS['slug-taken'],
-  'source-id-taken': CATALOG_ERRORS['source-id-taken'],
-  'slug-or-source-id-taken': CATALOG_ERRORS['slug-or-source-id-taken'],
+  'slug-taken': categoryErrors['slug-taken'],
+  'source-id-taken': categoryErrors['source-id-taken'],
+  'slug-or-source-id-taken': categoryErrors['slug-or-source-id-taken'],
 } as const;
 
 /** Every route here is admin-only. */
@@ -119,7 +132,7 @@ export const adminCategoriesContract = {
       summary: 'Create a category (admin; slug derived when omitted)',
     })
     .errors({
-      'category-not-found': CATALOG_ERRORS['category-not-found'],
+      'category-not-found': categoryErrors['category-not-found'],
       ...categoryIdentityErrors,
     })
     .input(z.object({ body: categoryInputSchema }))
@@ -133,8 +146,8 @@ export const adminCategoriesContract = {
       summary: 'Update a category name/overlay (admin)',
     })
     .errors({
-      'category-not-found': CATALOG_ERRORS['category-not-found'],
-      'category-cycle': CATALOG_ERRORS['category-cycle'],
+      'category-not-found': categoryErrors['category-not-found'],
+      'category-cycle': categoryErrors['category-cycle'],
       // Name and source id are the exchange's while the catalog is owned;
       // nickname, parent and mark stay the shop's.
       'catalog-externally-owned': ownershipErrors['catalog-externally-owned'],
@@ -157,12 +170,12 @@ export const adminCategoriesContract = {
         'Delete a category (admin; optionally reassign its products first)',
     })
     .errors({
-      'category-not-found': CATALOG_ERRORS['category-not-found'],
-      'reassign-target-not-found': CATALOG_ERRORS['reassign-target-not-found'],
+      'category-not-found': categoryErrors['category-not-found'],
+      'reassign-target-not-found': categoryErrors['reassign-target-not-found'],
       'category-has-subcategories':
-        CATALOG_ERRORS['category-has-subcategories'],
-      'category-has-products': CATALOG_ERRORS['category-has-products'],
-      'category-reassign-to-self': CATALOG_ERRORS['category-reassign-to-self'],
+        categoryErrors['category-has-subcategories'],
+      'category-has-products': categoryErrors['category-has-products'],
+      'category-reassign-to-self': categoryErrors['category-reassign-to-self'],
       // `reassignTo` while the catalog is owned: moving products writes a
       // field the exchange holds. Deleting an empty category is unaffected.
       'catalog-externally-owned': ownershipErrors['catalog-externally-owned'],
@@ -186,8 +199,8 @@ export const adminCategoriesContract = {
       summary: 'Reparent/reorder categories in one transaction (admin)',
     })
     .errors({
-      'category-not-found': CATALOG_ERRORS['category-not-found'],
-      'category-cycle': CATALOG_ERRORS['category-cycle'],
+      'category-not-found': categoryErrors['category-not-found'],
+      'category-cycle': categoryErrors['category-cycle'],
     })
     .input(z.object({ body: reorderCategoriesSchema }))
     .output(z.object({ categories: z.array(adminCategorySchema) }).strict()),
