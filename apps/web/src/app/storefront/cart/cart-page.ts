@@ -14,8 +14,8 @@ import {
   fillText,
   moneyFormat,
 } from '@b2b-catalog-platform/shared';
-import { formatPriceMinor } from '../../shared/catalog/price';
-import { ProductPairings } from '../../shared/catalog/product-pairings';
+import { formatPriceMinor } from '../../core/catalog/price';
+import { ProductPairings } from '../../core/catalog/product-pairings';
 import { PRODUCT_ROWS, ProductRow, RowProduct } from '../catalog/product-row';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
@@ -38,7 +38,7 @@ import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { LastListingService } from '../catalog/last-listing.service';
 import { CartPreviewService } from './cart-preview.service';
-import { useTaxStatement } from '../../shared/catalog/tax-statement';
+import { useTaxStatement } from '../../core/catalog/tax-statement';
 import { OrderSummary } from '../../shared/cart/order-summary';
 import { CartChange, CartService } from '../../shared/cart/cart.service';
 import { WarningNote } from '@b2b-catalog-platform/ui/content/warning-note';

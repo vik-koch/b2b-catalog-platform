@@ -7,7 +7,7 @@ import { Home } from './home';
 import { defaultStorefrontText } from '../../shared/config/storefront-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { defaultDeploymentConfig } from '../../shared/config/deployment-config.fixture';
-import { FeaturedRowService } from './featured-row.service';
+import { FeaturedRowService } from '../catalog/featured-row.service';
 
 describe('Home', () => {
   it('heads the page with the tagline', async () => {

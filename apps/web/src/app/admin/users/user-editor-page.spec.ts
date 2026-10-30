@@ -18,7 +18,7 @@ import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { defaultDeploymentConfig } from '../../shared/config/deployment-config.fixture';
 import { AuthService } from '../../shared/auth/auth.service';
 import { provideOwnership } from '../settings/settings.fixture';
-import { TiersService } from '../tiers/tiers.service';
+import { TiersService } from '../catalog/tiers/tiers.service';
 import { UserEditorPage } from './user-editor-page';
 import { StaffUsersService } from './users.service';
 import { provideDigitMaskFormat } from '../../shared/core/contact-fields';

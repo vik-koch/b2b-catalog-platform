@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { CategoryIndex } from '../catalog/category-index';
-import { FeaturedRow } from './featured-row';
+import { FeaturedRow } from '../catalog/featured-row';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { usePageSeo } from '../../shared/core/page-seo';

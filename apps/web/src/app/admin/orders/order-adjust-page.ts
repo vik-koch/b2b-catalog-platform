@@ -10,7 +10,7 @@ import {
   signal,
   untracked,
 } from '@angular/core';
-import { useTaxStatement } from '../../shared/catalog/tax-statement';
+import { useTaxStatement } from '../../core/catalog/tax-statement';
 import { apply, form, hidden, required } from '@angular/forms/signals';
 import { Router, RouterLink } from '@angular/router';
 import {
@@ -45,7 +45,7 @@ import {
   formatPriceMinor,
   formatPriceInput,
   parsePriceInput,
-} from '../../shared/catalog/price';
+} from '../../core/catalog/price';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { staffBlockLabels } from './staff-block-labels';
@@ -79,7 +79,7 @@ import {
 import { SelectInput } from '@b2b-catalog-platform/ui/inputs/select-input';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import { WarningNote } from '@b2b-catalog-platform/ui/content/warning-note';
-import { TiersService } from '../tiers/tiers.service';
+import { TiersService } from '../catalog/tiers/tiers.service';
 import { OrderAdjustChanges, OrderChange } from './order-adjust-changes';
 import { AdjustLineRow, OrderAdjustLines } from './order-adjust-lines';
 import { orderBlockChanges, orderLineChanges } from './order-changes';

@@ -100,9 +100,14 @@ it replaces a release later. A migration that cannot run unattended makes the re
   fails CI when the map misses one.
 - **Contracts export schemas only.** Limits and helpers a component needs live in import-free
   modules, so they do not pull Zod into the browser ([libs/shared](../libs/shared/README.md)).
-- **Storefront, admin and shared.** A web file lives on the side that uses it, and moves to
-  `shared/` only once both do; the contracts and the texts split the same way. Lint fails a
-  wrong-way import ([ADR 0069](adr/0069-split-web-texts-and-contracts-by-audience.md)).
+- **Audience, then area.** In the API, the contracts and the web app a file lives in
+  `<audience>/<area>/` (`storefront`, `admin`, `machine`), moves to `core/<area>/` only once a
+  second audience uses it, and goes to `platform/` when it knows no area. Areas import each
+  other only along the table in `tools/lint/area-boundaries.mjs`, and an area joins its
+  `ENABLED` list when it has moved; until then the web app's `shared/` holds what both sides
+  use. Texts split by audience only. Lint fails a wrong-way import
+  ([ADR 0069](adr/0069-split-web-texts-and-contracts-by-audience.md),
+  [ADR 0073](adr/0073-cut-the-code-by-area-and-audience.md)).
 - **Views in `ui/`, containers at the feature root.** A component that only draws (inputs,
   outputs, texts and config) lives in its feature's `ui/` folder and imports no service, API
   client or contract; pages and services stay at the root, helpers beside what uses them. Lint

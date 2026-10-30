@@ -1,6 +1,6 @@
 import { SharedText, fillText, OrderLine } from '@b2b-catalog-platform/shared';
-import { formatUnitQuantity } from '../catalog/quantity';
-import { CurrencyConfig } from '../catalog/price';
+import { formatUnitQuantity } from '../../core/catalog/quantity';
+import { CurrencyConfig } from '../../core/catalog/price';
 
 /**
  * How an order reads to the customer it belongs to.

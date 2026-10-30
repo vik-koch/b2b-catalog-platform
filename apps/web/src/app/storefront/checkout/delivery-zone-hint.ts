@@ -2,7 +2,7 @@ import { Component, computed, inject, input } from '@angular/core';
 import { fillText, moneyFormat } from '@b2b-catalog-platform/shared';
 import { resolveDeliveryZone } from '@b2b-catalog-platform/shared/storefront';
 import { CartService } from '../../shared/cart/cart.service';
-import { formatPriceMinor } from '../../shared/catalog/price';
+import { formatPriceMinor } from '../../core/catalog/price';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { WarningNote } from '@b2b-catalog-platform/ui/content/warning-note';

@@ -5,7 +5,7 @@ import {
   OrderSummary,
   moneyFormat,
 } from '@b2b-catalog-platform/shared';
-import { formatPriceMinor } from '../../shared/catalog/price';
+import { formatPriceMinor } from '../../core/catalog/price';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';

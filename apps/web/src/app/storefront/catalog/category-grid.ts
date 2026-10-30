@@ -35,7 +35,7 @@ import {
 import { editAwareContent } from '../../shared/edit-mode/edit-aware-content';
 import { EditModeService } from '../../shared/edit-mode/edit-mode.service';
 import { injectEditorReturnParams } from '../../shared/edit-mode/editor-return';
-import { HiddenProductsSection } from '../../shared/edit-mode/hidden-products-section';
+import { HiddenProductsSection } from '../../core/catalog/hidden-products-section';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { usePageSeo } from '../../shared/core/page-seo';
 import { stableValue } from '../../shared/core/stable-value';
@@ -57,7 +57,7 @@ import {
   FACET_SIBLING_ALONE,
   FacetPanel,
 } from './facet-panel';
-import { anyStatus } from '../../shared/catalog/product-status-line';
+import { anyStatus } from '../../core/catalog/product-status-line';
 import { ProductLayoutService } from './product-layout';
 import { ProductLayoutToggle } from './product-layout-toggle';
 import { PRODUCT_ROWS, ProductRow } from './product-row';
@@ -66,8 +66,8 @@ import {
   resolveCatalogSort,
   sortParam,
 } from './product-sort-select';
-import { PRODUCT_GRID, ProductTile } from '../../shared/catalog/product-tile';
-import { useTaxStatement } from '../../shared/catalog/tax-statement';
+import { PRODUCT_GRID, ProductTile } from '../../core/catalog/product-tile';
+import { useTaxStatement } from '../../core/catalog/tax-statement';
 import { chevronRightIcon } from '@b2b-catalog-platform/ui/icons/glyphs/chevron-right';
 
 /**

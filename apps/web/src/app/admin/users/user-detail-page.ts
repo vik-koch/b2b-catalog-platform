@@ -33,7 +33,7 @@ import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';
 import { injectEditorReturnParams } from '../../shared/edit-mode/editor-return';
 import { SettingsService } from '../settings/settings.service';
-import { TiersService } from '../tiers/tiers.service';
+import { TiersService } from '../catalog/tiers/tiers.service';
 import { StaffUsersService } from './users.service';
 import { userStatusTone } from './user-status';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';

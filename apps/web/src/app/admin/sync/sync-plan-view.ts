@@ -17,7 +17,7 @@ import {
   CatalogSyncProductChange,
   CatalogSyncRowError,
 } from '@b2b-catalog-platform/shared/sync';
-import { formatPriceMinor } from '../../shared/catalog/price';
+import { formatPriceMinor } from '../../core/catalog/price';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';

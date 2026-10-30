@@ -23,7 +23,7 @@ import {
   staffPaymentFilterSchema,
   TransitionTarget,
 } from '@b2b-catalog-platform/shared/admin';
-import { formatPriceMinor } from '../../shared/catalog/price';
+import { formatPriceMinor } from '../../core/catalog/price';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';

@@ -1,7 +1,7 @@
 import { PLATFORM_ID, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { CartPreview } from '@b2b-catalog-platform/shared';
-import { packagedPackaging } from '../../shared/catalog/product.fixture';
+import { packagedPackaging } from '../../core/catalog/product.fixture';
 import { AuthService } from '../../shared/auth/auth.service';
 import { CartPreviewService } from './cart-preview.service';
 import { CartRepricing } from './cart-repricing';

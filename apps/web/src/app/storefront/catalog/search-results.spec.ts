@@ -10,7 +10,7 @@ import { defaultStorefrontText } from '../../shared/config/storefront-text.fixtu
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { defaultDeploymentConfig } from '../../shared/config/deployment-config.fixture';
 import { CatalogService } from './catalog.service';
-import { productListItem } from '../../shared/catalog/product.fixture';
+import { productListItem } from '../../core/catalog/product.fixture';
 import { SearchResults } from './search-results';
 
 const item = (slug: string, name: string): ProductListItem =>

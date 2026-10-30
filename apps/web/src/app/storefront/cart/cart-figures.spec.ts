@@ -1,6 +1,6 @@
 import { PLATFORM_ID } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { plainPackaging } from '../../shared/catalog/product.fixture';
+import { plainPackaging } from '../../core/catalog/product.fixture';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { defaultDeploymentConfig } from '../../shared/config/deployment-config.fixture';
 import { CartFigures } from './cart-figures';

@@ -1,0 +1,645 @@
+import { Location, NgTemplateOutlet } from '@angular/common';
+import {
+  Component,
+  computed,
+  inject,
+  input,
+  linkedSignal,
+  resource,
+  signal,
+} from '@angular/core';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ADMIN_TEXT } from '../../../shared/config/admin-text';
+import { usePageSeo } from '../../../shared/core/page-seo';
+import { useRowAnchor } from '../../../shared/core/row-anchor';
+import { delayedLoading } from '../../../shared/core/delayed-loading';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
+import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import { Link } from '@b2b-catalog-platform/ui/actions/link';
+import { Input } from '@b2b-catalog-platform/ui/inputs/input';
+import { HintBadge } from '@b2b-catalog-platform/ui/content/hint-badge';
+import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
+import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
+import { RecordRow } from '@b2b-catalog-platform/ui/lists/record-row';
+import { UnpublishedCount } from '../products/unpublished-count';
+import { AttributesService } from './attributes.service';
+import { SHARED_TEXT } from '../../../shared/config/shared-text';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
+import { chevronDownIcon } from '@b2b-catalog-platform/ui/icons/glyphs/chevron-down';
+import { chevronRightIcon } from '@b2b-catalog-platform/ui/icons/glyphs/chevron-right';
+import { funnelIcon } from '@b2b-catalog-platform/ui/icons/glyphs/funnel';
+import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
+import { saveIcon } from '@b2b-catalog-platform/ui/icons/glyphs/save';
+import { triangleAlertIcon } from '@b2b-catalog-platform/ui/icons/glyphs/triangle-alert';
+import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
+import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
+
+/** What is being renamed: a key across the catalog, or one value under a key. */
+type RenameTarget =
+  { kind: 'key'; key: string } | { kind: 'value'; key: string; value: string };
+
+/**
+ * The attribute inventory (FR-ATTR-09) — every key and value in use across the
+ * catalog, declared or freetext, with the products behind each.
+ *
+ * This screen exists because attribute text is matched exactly and nothing is
+ * normalized beyond trimming: "Colour" and "colour" are two attributes and
+ * stay that way until somebody says otherwise. Listing them alphabetically
+ * puts a typo next to its correct spelling, and the rename beside it is the
+ * correction — one statement across the catalog rather than forty product
+ * saves.
+ *
+ * Drilling into products deliberately leaves this page for the admin product
+ * list, filtered: a second table here would arrive without its search, sort,
+ * pagination and row actions.
+ */
+@Component({
+  selector: 'app-attribute-inventory-page',
+  imports: [
+    PageHeader,
+    NgTemplateOutlet,
+    RouterLink,
+    Button,
+    IconButton,
+    Icon,
+    Icon,
+    Link,
+    RecordRow,
+    UnpublishedCount,
+    HintBadge,
+    Input,
+    Skeleton,
+    ErrorText,
+  ],
+  template: `
+    <ui-page-header [title]="text.page.title" [intro]="text.page.intro">
+      <a uiButton variant="secondary" routerLink="/admin/attributes">
+        {{ text.toDefinitions }}
+      </a>
+    </ui-page-header>
+
+    <!-- Narrower than the heading above it: everything below is a column of
+         fields and rows to read down, not a table to scan across, and a line
+         that runs the full width of a desktop is a line nobody follows. -->
+    <div class="max-w-3xl">
+      @if (keys.error()) {
+        <p class="text-ink-subtle" role="alert">{{ adminText.loadError }}</p>
+      } @else if (keys.hasValue()) {
+        @if (keys.value().length === 0) {
+          <p class="text-sm text-ink-subtle">{{ text.empty }}</p>
+        } @else {
+          <!-- Divided rules on the page, not a card: this is the same list of
+               records an admin grid draws on a phone. -->
+          <div class="border-y border-edge">
+            <ul class="divide-y divide-edge">
+              @for (entry of keys.value(); track entry.key) {
+                <!-- scroll-mt clears the sticky header: without it the anchor
+                   puts the row's own heading under the bar and the values look
+                   like the top of the list. -->
+                <li [id]="rowId(entry.key)" class="scroll-mt-24">
+                  <div class="py-3">
+                    @if (isRenaming({ kind: 'key', key: entry.key })) {
+                      <ng-container [ngTemplateOutlet]="form" />
+                    } @else {
+                      <ui-record-row [compact]="true">
+                        <!-- Opening the key is the one thing done to the row,
+                             so it leads it — where the other lists put their
+                             grip or their checkbox. Chevron and name are one
+                             button, not two beside each other: split, the pair
+                             had to be lit from a shared parent, and that parent
+                             was the whole title line — so the row highlighted
+                             under a pointer sitting in the empty space to the
+                             right of the name, where there is nothing to
+                             press. -->
+                        <button
+                          recordControl
+                          type="button"
+                          class="flex cursor-pointer items-center gap-2
+                                 self-stretch text-left font-medium text-ink
+                                 hover:text-accent"
+                          [attr.aria-expanded]="expanded() === entry.key"
+                          (click)="toggle(entry.key)"
+                        >
+                          <ui-icon
+                            class="size-5 shrink-0 md:size-4"
+                            [glyph]="
+                              expanded() === entry.key
+                                ? chevronDownIcon
+                                : chevronRightIcon
+                            "
+                          />
+                          {{ entry.key }}
+                        </button>
+                        <!-- The counts are the ways into the key: the product
+                             grid narrowed to it, and its own values — the
+                             second opens the same panel the chevron does,
+                             said as what is in it. -->
+                        <ng-container recordMeta>
+                          <span>
+                            @if (entry.productCount) {
+                              <a
+                                uiLink
+                                routerLink="/admin/products"
+                                [queryParams]="{ attributeKey: entry.key }"
+                                [title]="text.showProducts"
+                              >
+                                {{ productsLabel(entry.productCount) }}
+                              </a>
+                              @if (entry.unpublishedProductCount) {
+                                ·
+                                <app-unpublished-count
+                                  [count]="entry.unpublishedProductCount"
+                                  [query]="{ attributeKey: entry.key }"
+                                />
+                              }
+                            } @else {
+                              {{ productsLabel(0) }}
+                            }
+                            ·
+                            <button
+                              uiLink
+                              type="button"
+                              [attr.aria-expanded]="expanded() === entry.key"
+                              (click)="toggle(entry.key)"
+                            >
+                              {{ valuesLabel(entry.valueCount) }}
+                            </button>
+                          </span>
+                        </ng-container>
+                        <ng-container recordActions>
+                          <!-- Whether the shop filters by this key, and the way
+                               to its definition. States the fact where a
+                               freetext key is concerned — most attributes are
+                               freetext and none of them is a problem to be
+                               fixed — so it is deadened rather than dropped,
+                               and never offers to declare one. -->
+                          @if (entry.definition) {
+                            <a
+                              uiIconButton
+                              routerLink="/admin/attributes"
+                              [queryParams]="{ name: entry.key }"
+                              [attr.aria-label]="text.toDefinitionAria"
+                            >
+                              <ui-icon [glyph]="funnelIcon" />
+                            </a>
+                          } @else {
+                            <span
+                              uiIconButton
+                              class="pointer-events-none opacity-40"
+                              [attr.aria-label]="text.notFilterable"
+                              [title]="text.notFilterable"
+                            >
+                              <ui-icon [glyph]="funnelIcon" />
+                            </span>
+                          }
+                          <button
+                            uiIconButton
+                            type="button"
+                            [attr.aria-label]="text.renameKeyAria"
+                            [disabled]="busy()"
+                            (click)="
+                              startRename({ kind: 'key', key: entry.key })
+                            "
+                          >
+                            <ui-icon [glyph]="pencilIcon" />
+                          </button>
+                        </ng-container>
+                      </ui-record-row>
+                    }
+                  </div>
+
+                  @if (expanded() === entry.key) {
+                    <!-- Values sit inside their key's row rather than on a screen
+                       of their own: the comparison that matters is between two
+                       spellings of one attribute. -->
+                    <!-- Tinted and indented, the way the category tree marks a
+                         subcategory: these values belong to the key above them,
+                         and a flat list of both reads as one list of
+                         everything. -->
+                    <div class="border-t border-edge bg-surface ml-6 pl-2">
+                      @if (values.error()) {
+                        <p class="py-3 text-sm text-ink-subtle" role="alert">
+                          {{ adminText.loadError }}
+                        </p>
+                      } @else if (values.hasValue()) {
+                        <ul class="divide-y divide-edge">
+                          @for (value of values.value(); track value.value) {
+                            <li class="py-3">
+                              @if (
+                                isRenaming({
+                                  kind: 'value',
+                                  key: entry.key,
+                                  value: value.value,
+                                })
+                              ) {
+                                <ng-container [ngTemplateOutlet]="form" />
+                              } @else {
+                                <ui-record-row [compact]="true">
+                                  <!-- An empty value is a row stored before
+                                       valueless attributes stopped being
+                                       saved. Named, or it reads as a rendering
+                                       fault. -->
+                                  <!-- The same size the key above it is set in:
+                                       a nested row set smaller is a nested row
+                                       of a different height, and the two lists
+                                       stop lining up. -->
+                                  <span
+                                    class="text-ink"
+                                    [class.text-ink-subtle]="value.value === ''"
+                                  >
+                                    {{ value.value || text.emptyValue }}
+                                  </span>
+                                  <!-- Only worth saying where it costs
+                                       something: a value with no numeric form
+                                       drops out of a number attribute's
+                                       filter. -->
+                                  @if (
+                                    !value.numeric &&
+                                    entry.definition?.type === 'number'
+                                  ) {
+                                    <ui-hint-badge
+                                      recordBadge
+                                      class="shrink-0"
+                                      tone="warning"
+                                      [label]="text.notNumeric"
+                                    >
+                                      <ui-icon
+                                        [glyph]="triangleAlertIcon"
+                                        class="size-3.5"
+                                      />
+                                    </ui-hint-badge>
+                                  }
+                                  <ng-container recordMeta>
+                                    <span class="mr-7">
+                                      @if (value.productCount) {
+                                        <a
+                                          uiLink
+                                          routerLink="/admin/products"
+                                          [queryParams]="{
+                                            attributeKey: entry.key,
+                                            attributeValue: value.value,
+                                          }"
+                                          [title]="text.showProducts"
+                                        >
+                                          {{
+                                            productsLabel(value.productCount)
+                                          }}
+                                        </a>
+                                        @if (value.unpublishedProductCount) {
+                                          ·
+                                          <app-unpublished-count
+                                            [count]="
+                                              value.unpublishedProductCount
+                                            "
+                                            [query]="{
+                                              attributeKey: entry.key,
+                                              attributeValue: value.value,
+                                            }"
+                                          />
+                                        }
+                                      } @else {
+                                        {{ productsLabel(0) }}
+                                      }
+                                    </span>
+                                  </ng-container>
+                                  <ng-container recordActions>
+                                    <button
+                                      uiIconButton
+                                      type="button"
+                                      [attr.aria-label]="text.renameValueAria"
+                                      [disabled]="busy()"
+                                      (click)="
+                                        startRename({
+                                          kind: 'value',
+                                          key: entry.key,
+                                          value: value.value,
+                                        })
+                                      "
+                                    >
+                                      <ui-icon [glyph]="pencilIcon" />
+                                    </button>
+                                  </ng-container>
+                                </ui-record-row>
+                              }
+                            </li>
+                          }
+                        </ul>
+                      } @else {
+                        <!-- The placeholder is this list, not a generic block
+                           of bars: the row count is already known from the
+                           key's own line, so the values arrive into exactly
+                           the space they will occupy and nothing below moves.
+                           It is the value row's own component, so the two
+                           cannot drift: only the text and the glyphs are
+                           replaced by bars. -->
+                        <ul
+                          class="animate-pulse divide-y divide-edge"
+                          aria-hidden="true"
+                        >
+                          @for (
+                            width of valuePlaceholders(entry.valueCount);
+                            track $index
+                          ) {
+                            <li class="py-3">
+                              <ui-record-row [compact]="true">
+                                <!-- Each bar in a box the height of the line it
+                                     stands in — 20px of text-sm, 20px of meta,
+                                     a glyph's worth of button — rather than the
+                                     bar's own 16px, which is what left the
+                                     placeholder short of the real row. -->
+                                <span class="flex h-5 items-center">
+                                  <span
+                                    class="h-4 rounded-sm bg-skeleton"
+                                    [style.width]="width"
+                                  ></span>
+                                </span>
+                                <span
+                                  recordMeta
+                                  class="flex h-5 items-center mr-7"
+                                >
+                                  <span
+                                    class="h-4 w-20 rounded-sm bg-skeleton"
+                                  ></span>
+                                </span>
+                                <ng-container recordActions>
+                                  <!-- The glyph's own size, which the button
+                                       hands its icon as --icon-size. -->
+                                  <span uiIconButton>
+                                    <span
+                                      class="block size-(--icon-size)
+                                             rounded-sm bg-skeleton"
+                                    ></span>
+                                  </span>
+                                </ng-container>
+                              </ui-record-row>
+                            </li>
+                          }
+                        </ul>
+                      }
+                    </div>
+                  }
+                </li>
+              }
+            </ul>
+          </div>
+        }
+      } @else if (showSkeleton()) {
+        <ui-skeleton [lines]="6" />
+      }
+
+      @if (renameError()) {
+        <p uiErrorText class="mt-4" role="alert">
+          {{ renameError() }}
+        </p>
+      }
+
+      <!-- One form for both renames: the text is all that differs, and both
+         rewrite every product carrying it. -->
+      <ng-template #form>
+        <form
+          class="flex flex-wrap items-end gap-3 py-0.25"
+          (submit)="save($event)"
+        >
+          <input
+            uiInput
+            size="sm"
+            class="w-72"
+            name="rename"
+            autocomplete="off"
+            [attr.aria-label]="text.newTextAria"
+            [value]="draft()"
+            (input)="draft.set($any($event.target).value)"
+          />
+          <button
+            uiButton
+            size="sm"
+            type="submit"
+            class="gap-2"
+            [disabled]="busy()"
+          >
+            <ui-icon [glyph]="saveIcon" class="size-4" />
+            {{ busy() ? actionText.saving : adminText.actions.save }}
+          </button>
+          <button
+            uiButton
+            variant="secondary"
+            size="sm"
+            type="button"
+            class="gap-2"
+            [disabled]="busy()"
+            (click)="cancel()"
+          >
+            <ui-icon [glyph]="xIcon" class="size-4" />
+            {{ actionText.cancel }}
+          </button>
+        </form>
+      </ng-template>
+    </div>
+  `,
+})
+export class AttributeInventoryPage {
+  protected readonly chevronDownIcon = chevronDownIcon;
+  protected readonly chevronRightIcon = chevronRightIcon;
+  protected readonly funnelIcon = funnelIcon;
+  protected readonly pencilIcon = pencilIcon;
+  protected readonly saveIcon = saveIcon;
+  protected readonly triangleAlertIcon = triangleAlertIcon;
+  protected readonly xIcon = xIcon;
+  private readonly service = inject(AttributesService);
+  private readonly confirm = inject(ConfirmService);
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+  private readonly location = inject(Location);
+  protected readonly text = inject(ADMIN_TEXT).attributes.inventory;
+  private readonly productsText = inject(ADMIN_TEXT).products;
+  protected readonly adminText = inject(ADMIN_TEXT);
+  protected readonly actionText = inject(SHARED_TEXT).actions;
+
+  protected readonly keys = resource({ loader: () => this.service.listKeys() });
+  protected readonly showSkeleton = delayedLoading(this.keys.isLoading);
+
+  /**
+   * Which key arrives open, from the URL — how the product editor's grid hands
+   * a row over: the question there ("what does the rest of the catalog call
+   * this, and with which values?") is answered by this row, expanded.
+   */
+  readonly key = input('');
+
+  /**
+   * The key whose values are open; one at a time, so the list stays scannable.
+   *
+   * Seeded from the URL and written back to it on every toggle, but **not** by
+   * navigating: the router is configured to scroll to the top of the page on
+   * every navigation (`withInMemoryScrolling`), so a query-parameter round trip
+   * threw the list to the top and back on each click. `replaceState` moves the
+   * address bar without one. What that buys is the original point — a reload or
+   * a shared link opens the same row, and a stale `?key=` cannot sit in the URL
+   * naming a row collapsed ten clicks ago.
+   */
+  protected readonly expanded = linkedSignal<string | null>(
+    () => this.key() || null,
+  );
+  protected readonly values = resource({
+    params: () => ({ key: this.expanded() }),
+    loader: ({ params }) =>
+      params.key ? this.service.listValues(params.key) : Promise.resolve([]),
+  });
+
+  protected readonly renaming = signal<RenameTarget | null>(null);
+  protected readonly draft = signal('');
+  protected readonly busy = signal(false);
+  protected readonly renameError = signal<string | null>(null);
+
+  /** The DOM id a deep link scrolls to. Whitespace is all that has to go: an
+   * id may hold anything else, and collapsing more would let two keys collide. */
+  protected rowId(key: string): string {
+    return `attribute-${key.replace(/\s+/g, '_')}`;
+  }
+
+  protected toggle(key: string): void {
+    this.cancel();
+    this.open(this.expanded() === key ? null : key);
+  }
+
+  /** Opens a row and says so in the address bar. Replaces rather than pushes:
+   * expanding a row is reading, not a step to come back through. */
+  private open(key: string | null): void {
+    this.expanded.set(key);
+    const tree = this.router.createUrlTree([], {
+      relativeTo: this.route,
+      queryParams: { key },
+      queryParamsHandling: 'merge',
+    });
+    this.location.replaceState(this.router.serializeUrl(tree));
+  }
+
+  protected isRenaming(target: RenameTarget): boolean {
+    const current = this.renaming();
+    if (!current || current.kind !== target.kind) return false;
+    if (current.kind === 'key') return current.key === target.key;
+    return (
+      current.key === target.key &&
+      target.kind === 'value' &&
+      current.value === target.value
+    );
+  }
+
+  /**
+   * One placeholder per value the key is known to carry, with the value bar's
+   * width cycling so the block reads as a list of different words rather than
+   * as a column. A key with no values has nothing to stand in for.
+   */
+  protected valuePlaceholders(count: number): string[] {
+    const widths = ['8rem', '5rem', '10rem'];
+    return Array.from({ length: count }, (_, i) => widths[i % widths.length]);
+  }
+
+  protected productsLabel(count: number): string {
+    return this.productsText.count.replace('{count}', String(count));
+  }
+
+  protected valuesLabel(count: number): string {
+    return this.text.values.replace('{count}', String(count));
+  }
+
+  protected startRename(target: RenameTarget): void {
+    this.renameError.set(null);
+    this.renaming.set(target);
+    this.draft.set(target.kind === 'key' ? target.key : target.value);
+  }
+
+  protected cancel(): void {
+    this.renaming.set(null);
+    this.draft.set('');
+  }
+
+  /**
+   * Renaming onto text already in use merges the two, which is usually the
+   * whole point — so it is allowed, and the confirmation says which it is
+   * about to do rather than refusing.
+   */
+  protected async save(event: Event): Promise<void> {
+    event.preventDefault();
+    const target = this.renaming();
+    if (!target || this.busy()) return;
+
+    const to = this.draft().trim();
+    const from = target.kind === 'key' ? target.key : target.value;
+    if (!to || to === from) return this.cancel();
+
+    const merges = this.existingTexts(target).includes(to);
+    // Deleted products are not counted here, but a restored one must carry
+    // the new text, so the rename reaches them and says so (FR-ADM-22).
+    const deleted = this.deletedCarrying(target);
+    const confirmed = await this.confirm.ask({
+      heading: this.text.renameTitle,
+      message: [
+        (merges ? this.text.mergeConfirm : this.text.renameConfirm)
+          // An empty value has to be named here too, or the sentence has a
+          // hole in it where the thing being renamed should be.
+          .replace('{from}', from || this.text.emptyValue)
+          .replace('{to}', to),
+        deleted
+          ? this.text.renameDeleted.replace('{count}', String(deleted))
+          : '',
+      ]
+        .filter(Boolean)
+        .join(' '),
+      confirmLabel: this.adminText.actions.save,
+      cancelLabel: this.actionText.cancel,
+    });
+    if (!confirmed) return;
+
+    this.busy.set(true);
+    this.renameError.set(null);
+    try {
+      if (target.kind === 'key') {
+        await this.service.renameKey({ from, to });
+        // The key the values were listed under is gone; follow it.
+        if (this.expanded() === from) this.open(to);
+      } else {
+        await this.service.renameValue({ key: target.key, from, to });
+        this.values.reload();
+      }
+      this.cancel();
+      this.keys.reload();
+    } catch {
+      this.renameError.set(this.text.renameError);
+    } finally {
+      this.busy.set(false);
+    }
+  }
+
+  /** How many deleted products carry what is being renamed. */
+  private deletedCarrying(target: RenameTarget): number {
+    if (target.kind === 'key') {
+      return (
+        (this.keys.value() ?? []).find((entry) => entry.key === target.key)
+          ?.deletedProductCount ?? 0
+      );
+    }
+    return (
+      (this.values.value() ?? []).find((value) => value.value === target.value)
+        ?.deletedProductCount ?? 0
+    );
+  }
+
+  /** The texts a rename could collide with — its siblings in the same list. */
+  private existingTexts(target: RenameTarget): string[] {
+    if (target.kind === 'key') {
+      return (this.keys.value() ?? []).map((entry) => entry.key);
+    }
+    return (this.values.value() ?? []).map((value) => value.value);
+  }
+
+  constructor() {
+    usePageSeo({ name: () => this.text.page.title });
+    // Arriving with ?key= — from a product's attribute grid, or from the
+    // registry — should land on that row, not merely open it somewhere below.
+    useRowAnchor(
+      computed(() => (this.key() ? this.rowId(this.key()) : null)),
+      computed(() => this.keys.hasValue()),
+    );
+  }
+}

@@ -1,9 +1,9 @@
 import { Component, computed, inject, input, resource } from '@angular/core';
-import { useTaxStatement } from '../../shared/catalog/tax-statement';
+import { useTaxStatement } from '../../core/catalog/tax-statement';
 import { RouterLink } from '@angular/router';
 import { fillText, moneyFormat } from '@b2b-catalog-platform/shared';
 import { OrderSummary } from '../../shared/cart/order-summary';
-import { formatPriceMinor } from '../../shared/catalog/price';
+import { formatPriceMinor } from '../../core/catalog/price';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';

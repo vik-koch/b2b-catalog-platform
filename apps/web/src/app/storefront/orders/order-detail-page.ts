@@ -6,7 +6,7 @@ import {
   resource,
   signal,
 } from '@angular/core';
-import { useTaxStatement } from '../../shared/catalog/tax-statement';
+import { useTaxStatement } from '../../core/catalog/tax-statement';
 import { RouterLink } from '@angular/router';
 import {
   canTransition,
@@ -16,7 +16,7 @@ import {
   moneyFormat,
 } from '@b2b-catalog-platform/shared';
 import { OrderSummary } from '../../shared/cart/order-summary';
-import { formatPriceMinor } from '../../shared/catalog/price';
+import { formatPriceMinor } from '../../core/catalog/price';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';

@@ -1,0 +1,227 @@
+import { SHARED_TEXT } from '../../../shared/config/shared-text';
+import { defaultSharedText } from '../../../shared/config/shared-text.fixture';
+import { TestBed } from '@angular/core/testing';
+import {
+  AdminCategory,
+  AdminProductListItem,
+  DocumentProduct,
+} from '@b2b-catalog-platform/shared/admin/catalog';
+import { ADMIN_TEXT } from '../../../shared/config/admin-text';
+import { defaultAdminText } from '../../../shared/config/admin-text.fixture';
+import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
+import { defaultDeploymentConfig } from '../../../shared/config/deployment-config.fixture';
+import { AdminCatalogService } from '../admin-catalog.service';
+import { DocumentProductsPicker } from './document-products-picker';
+
+const text = defaultAdminText.documents.editor.products;
+
+const listItem = (
+  overrides: Partial<AdminProductListItem> & { slug: string; name: string },
+): AdminProductListItem => ({
+  priceMinor: 500,
+  categoryId: 'cat-1',
+  sourceId: 'manual:x',
+  thumb: null,
+  availability: null,
+  stockPieces: null,
+  gaps: [],
+  features: [],
+  deletedAt: null,
+  deletedByRun: false,
+  ordered: false,
+  publishedAt: '2026-09-01T00:00:00.000Z',
+  updatedAt: '2026-09-01T00:00:00.000Z',
+  ...overrides,
+});
+
+const category: AdminCategory = {
+  id: 'cat-1',
+  slug: 'espresso',
+  name: 'Espresso Roasts',
+  parentId: null,
+  sortOrder: 0,
+  mark: null,
+  sourceId: 'espresso',
+  shortName: null,
+  productCount: 3,
+  liveProductCount: 0,
+  directProductCount: 3,
+  deletedProductCount: 0,
+  childCount: 0,
+};
+
+/** Four rows, so a shift-click has a run to cover. */
+const catalog = [
+  listItem({ slug: 'one', name: 'Alpha' }),
+  listItem({ slug: 'two', name: 'Bravo' }),
+  listItem({ slug: 'three', name: 'Charlie' }),
+  listItem({ slug: 'four', name: 'Delta' }),
+];
+
+async function render(
+  options: {
+    value?: DocumentProduct[];
+    items?: AdminProductListItem[];
+    total?: number;
+  } = {},
+) {
+  const items = options.items ?? catalog;
+  const listProducts = vi.fn(async () => ({
+    items,
+    pagination: {
+      page: 1,
+      pageSize: 50,
+      total: options.total ?? items.length,
+      totalPages: 1,
+    },
+  }));
+  const listCategories = vi.fn(async () => [category]);
+
+  TestBed.configureTestingModule({
+    imports: [DocumentProductsPicker],
+    providers: [
+      { provide: ADMIN_TEXT, useValue: defaultAdminText },
+      { provide: SHARED_TEXT, useValue: defaultSharedText },
+      { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
+      {
+        provide: AdminCatalogService,
+        useValue: { listProducts, listCategories },
+      },
+    ],
+  });
+
+  const fixture = TestBed.createComponent(DocumentProductsPicker);
+  fixture.componentRef.setInput('value', options.value ?? []);
+  await fixture.whenStable();
+  fixture.detectChanges();
+
+  const el = fixture.nativeElement as HTMLElement;
+  const emitted: DocumentProduct[][] = [];
+  fixture.componentInstance.valueChange.subscribe((v) => emitted.push(v));
+
+  const settle = async () => {
+    await fixture.whenStable();
+    fixture.detectChanges();
+  };
+  const boxes = () => [
+    ...el.querySelectorAll<HTMLInputElement>('input[type="checkbox"]'),
+  ];
+  /** Clicks a row's tick, optionally with shift held. */
+  const tick = async (index: number, shiftKey = false) => {
+    boxes()[index].dispatchEvent(
+      new MouseEvent('click', { shiftKey, bubbles: true, cancelable: true }),
+    );
+    await settle();
+  };
+  /** Feeds the emitted value back in, as the editor's signal does. */
+  const apply = async (value: DocumentProduct[]) => {
+    fixture.componentRef.setInput('value', value);
+    await settle();
+  };
+  const rowNames = () =>
+    [...el.querySelectorAll('li label span:first-of-type')].map((s) =>
+      s.textContent?.trim(),
+    );
+  /** The two views are a segmented pill: real radios inside their labels. */
+  const chooseView = async (label: string) => {
+    [...el.querySelectorAll('ui-segmented label')]
+      .find((l) => l.textContent?.includes(label))
+      ?.querySelector<HTMLInputElement>('input')
+      ?.click();
+    await settle();
+  };
+
+  return {
+    fixture,
+    el,
+    emitted,
+    listProducts,
+    tick,
+    apply,
+    rowNames,
+    chooseView,
+    settle,
+  };
+}
+
+describe('DocumentProductsPicker (FR-DOC-02)', () => {
+  it('lists the catalog with a tick per product', async () => {
+    const { rowNames } = await render();
+    expect(rowNames()).toEqual(['Alpha', 'Bravo', 'Charlie', 'Delta']);
+  });
+
+  it('links one product on a plain click', async () => {
+    const { tick, emitted } = await render();
+
+    await tick(1);
+
+    expect(emitted.at(-1)).toEqual([
+      { slug: 'two', name: 'Bravo', deleted: false, unpublished: false },
+    ]);
+  });
+
+  it('links a whole run when shift is held', async () => {
+    const { tick, apply, emitted } = await render();
+
+    await tick(0);
+    await apply(emitted.at(-1) as DocumentProduct[]);
+    await tick(2, true);
+
+    // Name order — Alpha, Bravo, Charlie — which is the order a save writes.
+    expect(emitted.at(-1)?.map((p) => p.slug)).toEqual(['one', 'two', 'three']);
+  });
+
+  it('unlinks a run the same way, from the row that was clicked', async () => {
+    const linked = catalog.map((item) => ({
+      slug: item.slug,
+      name: item.name,
+      deleted: false,
+      unpublished: false,
+    }));
+    const { tick, apply, emitted } = await render({ value: linked });
+
+    await tick(3);
+    await apply(emitted.at(-1) as DocumentProduct[]);
+    await tick(1, true);
+
+    expect(emitted.at(-1)?.map((p) => p.slug)).toEqual(['one']);
+  });
+
+  it('shows only what is linked in the linked view, from the value itself', async () => {
+    const { chooseView, rowNames } = await render({
+      // A product the catalog query would never return: deleted.
+      value: [
+        { slug: 'gone', name: 'Zulu', deleted: true, unpublished: false },
+      ],
+    });
+
+    await chooseView('Linked');
+
+    expect(rowNames()).toEqual(['Zulu']);
+  });
+
+  it('says the linked view is empty rather than showing an empty catalog', async () => {
+    const { chooseView, el } = await render();
+    await chooseView('Linked');
+    expect(el.textContent).toContain(text.noneLinked);
+  });
+
+  it('says how much of the catalog the page is not showing', async () => {
+    const { el } = await render({ total: 137 });
+    expect(el.textContent).toContain('137');
+  });
+
+  it('leaves a deleted product out of the catalog view', async () => {
+    const { rowNames } = await render({
+      items: [
+        ...catalog,
+        listItem({
+          slug: 'dead',
+          name: 'Echo',
+          deletedAt: '2026-01-01T00:00:00.000Z',
+        }),
+      ],
+    });
+    expect(rowNames()).not.toContain('Echo');
+  });
+});

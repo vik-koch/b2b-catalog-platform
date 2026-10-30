@@ -8,12 +8,12 @@ import { unitQuantity } from '@b2b-catalog-platform/shared/core/catalog';
 import { AddressForm } from '../../shared/addresses/address-form';
 import { addressLines } from '../../shared/addresses/address-format';
 import { CartService, CartStoredLine } from '../../shared/cart/cart.service';
-import { formatPriceMinor } from '../../shared/catalog/price';
-import { formatUnitQuantity } from '../../shared/catalog/quantity';
+import { formatPriceMinor } from '../../core/catalog/price';
+import { formatUnitQuantity } from '../../core/catalog/quantity';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
-import { useTaxStatement } from '../../shared/catalog/tax-statement';
+import { useTaxStatement } from '../../core/catalog/tax-statement';
 import { ReadBackLine, ReviewBlock } from '../../shared/orders/order-read-back';
 import { CheckoutDraft } from './checkout-draft.service';
 

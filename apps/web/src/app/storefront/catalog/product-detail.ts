@@ -13,12 +13,12 @@ import {
   ProductPage,
 } from '@b2b-catalog-platform/shared/core/catalog';
 import { Meta } from '@angular/platform-browser';
-import { hiddenProductText } from '../../shared/edit-mode/hidden-product-text';
+import { hiddenProductText } from '../../core/catalog/hidden-product-text';
 import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';
 import { AuthService } from '../../shared/auth/auth.service';
 import { EditActions } from '../../shared/edit-mode/edit-actions';
 import { editAwareContent } from '../../shared/edit-mode/edit-aware-content';
-import { EDIT_MODE_CATALOG } from '../../shared/edit-mode/edit-mode-catalog';
+import { EDIT_MODE_CATALOG } from '../../core/catalog/edit-mode-catalog';
 import { injectEditorReturnParams } from '../../shared/edit-mode/editor-return';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { usePageSeo } from '../../shared/core/page-seo';
@@ -33,7 +33,7 @@ import {
   PRODUCT_PAGE_COLUMNS,
   PRODUCT_PAGE_SECTION_CELL,
   ProductDetailView,
-} from '../../shared/catalog/product-detail-view';
+} from '../../core/catalog/product-detail-view';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 
 /**

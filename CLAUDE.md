@@ -28,8 +28,10 @@ the recurring theme: the smallest component that does the job, on one VM.
   `*.contract.ts` exports schemas only; limits and helpers live in import-free modules, so Zod
   stays out of the browser. After changing a route: `node tools/generate-contract-routes.mjs`.
   A refusal travels as a contract error code, never as a message.
-- Storefront, admin and shared at every level: web folders, text files, `libs/shared` entry
-  points. Neither side imports the other; only the web root composes both (ADR 0069).
+- Audience, then area, at every level: `<audience>/<area>/`, `core/<area>/` for what a second
+  audience uses, `platform/` for what knows no area, in the API, `libs/shared` and the web app;
+  texts by audience only. No audience imports another, areas follow the table in
+  `tools/lint/area-boundaries.mjs`, and only the roots compose (ADR 0069, ADR 0073).
 - The UI's wording comes from the deployment's text files, one language per deployment, no i18n
   framework. A new or moved text or config key lands in the fixture and in every directory under
   `deployments/`, and in the release's `tools/config-migration` map: a moved one names where it

@@ -12,7 +12,7 @@ import { defaultDeploymentConfig } from '../../shared/config/deployment-config.f
 import { AuthService } from '../../shared/auth/auth.service';
 import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
 import { provideOwnership } from '../settings/settings.fixture';
-import { TiersService } from '../tiers/tiers.service';
+import { TiersService } from '../catalog/tiers/tiers.service';
 import { UserListPage } from './user-list-page';
 import { StaffUsersService } from './users.service';
 import { provideUiText } from '../../shared/config/shared-text';

@@ -7,12 +7,12 @@ import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { defaultStorefrontText } from '../../shared/config/storefront-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { defaultDeploymentConfig } from '../../shared/config/deployment-config.fixture';
-import { LISTING_NARROW } from '../../shared/catalog/listing-narrow';
+import { LISTING_NARROW } from '../../core/catalog/listing-narrow';
 import { ProductRow } from './product-row';
 import {
   packagedPackaging,
   productListItem,
-} from '../../shared/catalog/product.fixture';
+} from '../../core/catalog/product.fixture';
 
 const text = defaultStorefrontText.cart;
 

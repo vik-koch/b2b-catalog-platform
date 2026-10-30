@@ -9,7 +9,7 @@ import { ProductListItem } from '@b2b-catalog-platform/shared/core/catalog';
 import { SearchCategory } from '@b2b-catalog-platform/shared/storefront/catalog';
 import { CartAddition, CartService } from '../../shared/cart/cart.service';
 import { CatalogService } from '../catalog/catalog.service';
-import { productListItem } from '../../shared/catalog/product.fixture';
+import { productListItem } from '../../core/catalog/product.fixture';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { defaultStorefrontText } from '../../shared/config/storefront-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';

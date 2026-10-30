@@ -9,7 +9,7 @@ import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { defaultStorefrontText } from '../../shared/config/storefront-text.fixture';
 import { CategoryGrid } from './category-grid';
 import { CatalogService } from './catalog.service';
-import { productListItem } from '../../shared/catalog/product.fixture';
+import { productListItem } from '../../core/catalog/product.fixture';
 import { provideUiText } from '../../shared/config/shared-text';
 
 type Products = NonNullable<

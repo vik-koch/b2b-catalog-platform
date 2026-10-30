@@ -9,13 +9,13 @@ import {
   NARROW_BODY_IN_LINE,
   NARROW_PADDING_IN_LINE,
   NARROW_PHOTO_IN_LINE,
-} from '../../shared/catalog/listing-narrow';
+} from '../../core/catalog/listing-narrow';
 import {
   BuyableProduct,
   ProductBuyControls,
-} from '../../shared/catalog/product-buy-controls';
-import { ProductStatusLine } from '../../shared/catalog/product-status-line';
-import { TileGallery } from '../../shared/catalog/tile-gallery';
+} from '../../core/catalog/product-buy-controls';
+import { ProductStatusLine } from '../../core/catalog/product-status-line';
+import { TileGallery } from '../../core/catalog/tile-gallery';
 import { Frame } from '@b2b-catalog-platform/ui/content/frame';
 
 /** The classes a list of product rows uses: hairlines between the lines, and

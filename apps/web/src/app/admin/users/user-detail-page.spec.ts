@@ -12,7 +12,7 @@ import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { defaultDeploymentConfig } from '../../shared/config/deployment-config.fixture';
 import { AuthService } from '../../shared/auth/auth.service';
 import { provideOwnership } from '../settings/settings.fixture';
-import { TiersService } from '../tiers/tiers.service';
+import { TiersService } from '../catalog/tiers/tiers.service';
 import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
 import { ConfirmAnswer } from '@b2b-catalog-platform/ui/overlay/confirm-dialog';
 import { UserDetailPage } from './user-detail-page';

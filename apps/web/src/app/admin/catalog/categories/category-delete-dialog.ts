@@ -1,0 +1,251 @@
+import {
+  afterNextRender,
+  Component,
+  computed,
+  ElementRef,
+  inject,
+  input,
+  output,
+  signal,
+  viewChild,
+} from '@angular/core';
+import { AdminCategory } from '@b2b-catalog-platform/shared/admin/catalog';
+import { ADMIN_TEXT } from '../../../shared/config/admin-text';
+import { SettingsService } from '../../settings/settings.service';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
+import { DialogActions } from '@b2b-catalog-platform/ui/overlay/dialog-actions';
+import { DialogPanel } from '@b2b-catalog-platform/ui/overlay/dialog-panel';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
+import { AdminCatalogService } from '../admin-catalog.service';
+import { CategoryPicker } from './category-picker';
+import { categoryDescendantIds } from './category-tree';
+import { SHARED_TEXT } from '../../../shared/config/shared-text';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
+import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
+
+/**
+ * Delete-a-category confirmation modal (FR-ADM-01), the single flow for every
+ * category delete (storefront grid + admin list). It owns `AdminCatalogService`
+ * — on the storefront it is `@defer`-loaded so the admin write client stays out
+ * of the public bundle — and figures out for itself what the delete needs:
+ * loads the categories to read this one's counts, then shows
+ *  - a hard block if it has subcategories (resolve the subtree first),
+ *  - a destination picker to move its products if it has any, deleted ones
+ *    included, which still hold it (the reassign-then-delete flow), or
+ *  - a plain confirm when it is empty.
+ * A native `<dialog>` in modal mode (as `ProductDeleteDialog`). Emits `deleted`
+ * or `cancelled`; it never navigates itself.
+ */
+@Component({
+  selector: 'app-category-delete-dialog',
+  imports: [
+    Button,
+    Icon,
+    CategoryPicker,
+    FieldLabel,
+    DialogActions,
+    DialogPanel,
+    ErrorText,
+  ],
+  template: `
+    <dialog
+      #dialog
+      (cancel)="cancelled.emit()"
+      aria-labelledby="category-delete-heading"
+      uiDialogPanel
+    >
+      <h2
+        id="category-delete-heading"
+        class="text-xl font-normal tracking-tight"
+      >
+        {{ text.deleteTitle }}
+      </h2>
+
+      @if (mode() === 'loading') {
+        <p class="mt-3 text-ink-subtle" role="status">…</p>
+      } @else if (mode() === 'blocked-children') {
+        <p class="mt-3 text-ink-subtle">{{ blockedChildrenMessage() }}</p>
+      } @else if (mode() === 'blocked-owned') {
+        <p class="mt-3 text-ink-subtle">{{ ownedMessage() }}</p>
+      } @else if (mode() === 'reassign') {
+        <p class="mt-3 text-ink-subtle">{{ reassignIntro() }}</p>
+        @if (self()?.deletedProductCount; as deleted) {
+          <p class="mt-2 text-ink-subtle">{{ reassignDeleted(deleted) }}</p>
+        }
+        <div class="mt-4">
+          <span uiFieldLabel>{{ text.reassignLabel }}</span>
+          <app-category-picker
+            [categories]="destinations()"
+            [value]="reassignTo()"
+            [placeholder]="text.reassignPlaceholder"
+            [ariaLabel]="text.reassignLabel"
+            (valueChange)="reassignTo.set($event)"
+          />
+        </div>
+      } @else {
+        <p class="mt-3 text-ink-subtle">{{ confirmMessage() }}</p>
+      }
+
+      @if (error()) {
+        <p uiErrorText class="mt-4" role="alert">{{ error() }}</p>
+      }
+
+      <div uiDialogActions>
+        <button
+          uiButton
+          variant="secondary"
+          type="button"
+          (click)="cancelled.emit()"
+        >
+          {{ actionText.cancel }}
+        </button>
+        @if (
+          mode() !== 'loading' &&
+          mode() !== 'blocked-children' &&
+          mode() !== 'blocked-owned'
+        ) {
+          <button
+            uiButton
+            variant="danger"
+            type="button"
+            class="gap-2"
+            [disabled]="deleting() || (mode() === 'reassign' && !reassignTo())"
+            (click)="confirm()"
+          >
+            <ui-icon [glyph]="trash2Icon" class="size-4" />
+            {{ deleting() ? actionText.deleting : adminText.actions.delete }}
+          </button>
+        }
+      </div>
+    </dialog>
+  `,
+})
+export class CategoryDeleteDialog {
+  protected readonly trash2Icon = trash2Icon;
+  private readonly admin = inject(AdminCatalogService);
+  protected readonly adminText = inject(ADMIN_TEXT);
+  protected readonly text = inject(ADMIN_TEXT).categories.list;
+  protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
+  protected readonly actionText = inject(SHARED_TEXT).actions;
+
+  private readonly dialog =
+    viewChild.required<ElementRef<HTMLDialogElement>>('dialog');
+
+  readonly slug = input.required<string>();
+  readonly name = input.required<string>();
+  readonly deleted = output<void>();
+  readonly cancelled = output<void>();
+
+  private readonly all = signal<AdminCategory[]>([]);
+  protected readonly self = signal<AdminCategory | null>(null);
+  private readonly loading = signal(true);
+  protected readonly deleting = signal(false);
+  protected readonly error = signal<string | null>(null);
+  protected readonly reassignTo = signal('');
+
+  protected readonly mode = computed<
+    'loading' | 'blocked-children' | 'blocked-owned' | 'reassign' | 'confirm'
+  >(() => {
+    if (this.loading()) return 'loading';
+    const self = this.self();
+    if (!self || self.childCount > 0) return 'blocked-children';
+    // What it holds itself, not beneath it: a category with children never
+    // gets this far, and the foreign key only counts its own products —
+    // deleted ones included, which no count elsewhere shows (FR-ADM-22).
+    if (heldBy(self) > 0) {
+      // Reassigning moves every product's category, which is the exchange's
+      // field. An *empty* category still deletes — that writes nothing it
+      // owns — so this blocks rather than replacing the whole flow.
+      return this.catalogOwned() ? 'blocked-owned' : 'reassign';
+    }
+    return 'confirm';
+  });
+
+  private readonly ownership = inject(SettingsService);
+  private readonly catalogOwned = computed(
+    () => this.ownership.ownedAreas()?.includes('catalog') ?? false,
+  );
+
+  /** Categories the products can move to: everyone but this one and its
+   * descendants (there are none in the reassign case, but guard anyway). */
+  protected readonly destinations = computed<AdminCategory[]>(() => {
+    const self = this.self();
+    if (!self) return [];
+    const banned = categoryDescendantIds(this.all(), self.id);
+    banned.add(self.id);
+    return this.all().filter((c) => !banned.has(c.id));
+  });
+
+  constructor() {
+    // Load the categories BEFORE opening, so the modal appears already sized to
+    // its final content (block / reassign / confirm) instead of flashing the
+    // loading state and reflowing.
+    afterNextRender(() => void this.open());
+  }
+
+  private async open(): Promise<void> {
+    const categories = await this.admin.listCategories();
+    this.all.set(categories);
+    this.self.set(categories.find((c) => c.slug === this.slug()) ?? null);
+    this.loading.set(false);
+    this.dialog().nativeElement.showModal();
+  }
+
+  protected confirmMessage(): string {
+    return this.text.deleteConfirm.replace('{name}', this.name());
+  }
+
+  protected blockedChildrenMessage(): string {
+    return this.text.deleteBlockedChildren.replace('{name}', this.name());
+  }
+
+  protected reassignIntro(): string {
+    const self = this.self();
+    return this.text.deleteReassignIntro
+      .replace('{name}', this.name())
+      .replace('{count}', String(self ? heldBy(self) : 0));
+  }
+
+  protected reassignDeleted(count: number): string {
+    return this.text.deleteReassignDeleted.replace('{count}', String(count));
+  }
+
+  /** Only deleted products left is its own sentence: emptying it in the
+   * source system, which the general one advises, has already happened. */
+  protected ownedMessage(): string {
+    const self = this.self();
+    if (!self || self.directProductCount > 0) {
+      return this.ownershipText.categoryHasProducts;
+    }
+    return this.ownershipText.categoryHasDeletedProducts.replace(
+      '{count}',
+      String(self.deletedProductCount),
+    );
+  }
+
+  protected async confirm(): Promise<void> {
+    const self = this.self();
+    if (!self) return;
+    this.deleting.set(true);
+    this.error.set(null);
+    try {
+      const result = await this.admin.deleteCategory(
+        self.id,
+        this.reassignTo() || undefined,
+      );
+      if (result.ok) return this.deleted.emit();
+      this.error.set(this.adminText.catalogErrors[result.code]);
+    } catch {
+      // An unexpected status used to reject unhandled, leaving the dialog
+      // spinning on "deleting" with nothing said.
+      this.error.set(this.text.deleteError);
+    }
+    this.deleting.set(false);
+  }
+}
+
+/** The products filed in a category, deleted ones included: what holds it. */
+function heldBy(category: AdminCategory): number {
+  return category.directProductCount + category.deletedProductCount;
+}

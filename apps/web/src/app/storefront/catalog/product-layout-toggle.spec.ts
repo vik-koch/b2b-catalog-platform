@@ -5,7 +5,7 @@ import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { defaultStorefrontText } from '../../shared/config/storefront-text.fixture';
 import { ProductLayoutService } from './product-layout';
 import { ProductLayoutToggle } from './product-layout-toggle';
-import { LISTING_NARROW } from '../../shared/catalog/listing-narrow';
+import { LISTING_NARROW } from '../../core/catalog/listing-narrow';
 
 const text = defaultStorefrontText.catalog.layout;
 
