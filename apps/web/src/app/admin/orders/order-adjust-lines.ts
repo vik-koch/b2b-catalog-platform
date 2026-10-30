@@ -6,16 +6,13 @@ import {
   output,
   signal,
 } from '@angular/core';
-import { moneyFormat } from '@b2b-catalog-platform/shared';
+import { moneyFormat, currencySymbol } from '@b2b-catalog-platform/shared';
 import { AdjustmentLineFlag } from '@b2b-catalog-platform/shared/admin';
 import { AdminProductListItem } from '@b2b-catalog-platform/shared/admin/catalog';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
-import {
-  currencySymbol,
-  partialPriceRule,
-} from '../../core/catalog/pricing/price';
+import { partialPriceRule } from '../../core/catalog/pricing/price';
 import { HighlightedLine } from '@b2b-catalog-platform/ui/suggest/highlighted-line';
 import { MatchSegmentsPipe } from '../../core/catalog/search/match-segments.pipe';
 import { AlternateLayout } from '../../shared/core/alternate-layout';

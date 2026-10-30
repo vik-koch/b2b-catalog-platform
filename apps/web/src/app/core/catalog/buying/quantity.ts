@@ -1,5 +1,5 @@
+import { MoneyFormat, decimalSeparator } from '@b2b-catalog-platform/shared';
 import { QUANTITY_SCALE } from '@b2b-catalog-platform/shared/core/catalog';
-import { CurrencyConfig, decimalSeparator } from '../pricing/price';
 
 /**
  * Reading and writing a quantity in the unit it is being bought through
@@ -17,7 +17,7 @@ import { CurrencyConfig, decimalSeparator } from '../pricing/price';
  * something to delete. */
 export function formatUnitQuantity(
   quantity: number,
-  currency: CurrencyConfig,
+  currency: MoneyFormat,
 ): string {
   const text = String(Math.round(quantity * QUANTITY_SCALE) / QUANTITY_SCALE);
   return text.replace('.', decimalSeparator(currency));
@@ -27,7 +27,7 @@ export function formatUnitQuantity(
  * deployment's separator, its digits as stored. */
 export function formatStoredDecimal(
   value: string,
-  currency: CurrencyConfig,
+  currency: MoneyFormat,
 ): string {
   return value.replace('.', decimalSeparator(currency));
 }

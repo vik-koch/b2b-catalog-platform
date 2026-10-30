@@ -26,6 +26,8 @@ import {
   parseTaxRate,
   moneyFormat,
   isPartialTaxRate,
+  currencySymbol,
+  decimalSeparator,
 } from '@b2b-catalog-platform/shared';
 import {
   isValidPartList,
@@ -59,8 +61,6 @@ import {
   slugify,
 } from '@b2b-catalog-platform/shared/core/catalog';
 import {
-  currencySymbol,
-  decimalSeparator,
   formatPriceInput,
   parsePriceInput,
   partialPriceRule,

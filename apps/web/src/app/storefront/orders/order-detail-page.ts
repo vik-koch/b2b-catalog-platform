@@ -14,9 +14,9 @@ import {
   ORDER_STATUS_REASON_MAX,
   OrderDetail,
   moneyFormat,
+  formatMoneyMinor,
 } from '@b2b-catalog-platform/shared';
 import { OrderSummary } from '../../shared/cart/order-summary';
-import { formatPriceMinor } from '../../core/catalog/pricing/price';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
@@ -265,7 +265,7 @@ export class OrderDetailPage {
       note: line.note,
       href: line.linked ? `/product/${line.slug}` : null,
       quantity: customerQuantity(line, this.sharedText, this.currency),
-      total: formatPriceMinor(line.lineTotalMinor, this.currency),
+      total: formatMoneyMinor(line.lineTotalMinor, this.currency),
       // Only once the lines differ: a rate the total names would otherwise
       // be said on every line for nothing.
       taxRate: perLine ? this.tax.line(line.taxRate) : null,

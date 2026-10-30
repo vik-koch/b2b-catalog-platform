@@ -3,12 +3,12 @@ import {
   AddressInput,
   fillText,
   moneyFormat,
+  formatMoneyMinor,
 } from '@b2b-catalog-platform/shared';
 import { unitQuantity } from '@b2b-catalog-platform/shared/core/catalog';
 import { AddressForm } from '../../shared/addresses/address-form';
 import { addressLines } from '../../shared/addresses/address-format';
 import { CartService, CartStoredLine } from '../../shared/cart/cart.service';
-import { formatPriceMinor } from '../../core/catalog/pricing/price';
 import { formatUnitQuantity } from '../../core/catalog/buying/quantity';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
@@ -134,7 +134,7 @@ export function createCheckoutReadBack(deps: ReadBackDeps) {
         total:
           line.lineTotalMinor === null
             ? '—'
-            : formatPriceMinor(line.lineTotalMinor, moneyFormat(config)),
+            : formatMoneyMinor(line.lineTotalMinor, moneyFormat(config)),
         taxRate:
           perLine && line.taxRate != null ? tax.line(line.taxRate) : null,
       }));

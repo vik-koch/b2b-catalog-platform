@@ -19,6 +19,7 @@ import {
   PartySuggestion,
   PaymentMethod,
   moneyFormat,
+  formatMoneyMinor,
 } from '@b2b-catalog-platform/shared';
 import { ProductUnit } from '@b2b-catalog-platform/shared/core/catalog';
 import {
@@ -42,7 +43,6 @@ import {
   emailAddress,
 } from '../../shared/core/field-rules';
 import {
-  formatPriceMinor,
   formatPriceInput,
   parsePriceInput,
 } from '../../core/catalog/pricing/price';
@@ -1141,7 +1141,7 @@ export class AdminOrderAdjustPage implements FieldAttempt {
           : '',
         note: line.note,
         totalLabel: answer
-          ? formatPriceMinor(answer.lineTotalMinor, this.currency)
+          ? formatMoneyMinor(answer.lineTotalMinor, this.currency)
           : '',
         taxLabel: answer ? this.tax.line(answer.taxRate) : '',
         flags: answer?.flags ?? [],

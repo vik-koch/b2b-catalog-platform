@@ -18,7 +18,11 @@ import {
   ProductVariant,
   UnitPrices,
 } from '@b2b-catalog-platform/shared/core/catalog';
-import { fillText, moneyFormat } from '@b2b-catalog-platform/shared';
+import {
+  fillText,
+  moneyFormat,
+  formatMoneyMinor,
+} from '@b2b-catalog-platform/shared';
 import { CartAddResult, CartService } from '../../../shared/cart/cart.service';
 import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
 import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
@@ -33,7 +37,6 @@ import {
 } from '@b2b-catalog-platform/ui/choices/segment';
 import { SegmentGroup } from '@b2b-catalog-platform/ui/choices/segment-group';
 import { createBuyQuantity } from './buy-quantity';
-import { formatPriceMinor } from '../pricing/price';
 import { ProductNoteEditor } from './product-note-editor';
 import { ProductPairings } from './product-pairings';
 import { ProductUnitFacts } from './product-unit-facts';
@@ -669,7 +672,7 @@ export class ProductBuyControls {
       this.item().prices.piece,
       correctPieces(this.packaging(), this.pieces()),
     );
-    return exact === null ? null : formatPriceMinor(exact, this.currency);
+    return exact === null ? null : formatMoneyMinor(exact, this.currency);
   });
 
   /** What the line costs — or, where it cannot be priced, that it cannot be:

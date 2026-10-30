@@ -1,8 +1,11 @@
 import { Component, computed, inject, input, output } from '@angular/core';
 import { totalMinor } from '@b2b-catalog-platform/shared/core/catalog';
-import { fillText, moneyFormat } from '@b2b-catalog-platform/shared';
+import {
+  fillText,
+  moneyFormat,
+  formatMoneyMinor,
+} from '@b2b-catalog-platform/shared';
 
-import { formatPriceMinor } from '../../../core/catalog/pricing/price';
 import { ADMIN_TEXT } from '../../../shared/config/admin-text';
 import { SHARED_TEXT } from '../../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
@@ -296,7 +299,7 @@ export class ProductPackagingEditor {
             price:
               price === null
                 ? this.unavailable
-                : formatPriceMinor(totalMinor(price, pieces), this.currency),
+                : formatMoneyMinor(totalMinor(price, pieces), this.currency),
           });
 
     return {

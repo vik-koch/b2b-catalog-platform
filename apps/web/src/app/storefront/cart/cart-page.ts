@@ -13,8 +13,8 @@ import {
   CartLineIssue,
   fillText,
   moneyFormat,
+  formatMoneyMinor,
 } from '@b2b-catalog-platform/shared';
-import { formatPriceMinor } from '../../core/catalog/pricing/price';
 import { ProductPairings } from '../../core/catalog/buying/product-pairings';
 import { PRODUCT_ROWS, ProductRow, RowProduct } from '../catalog/product-row';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
@@ -830,7 +830,7 @@ export class CartPage {
   private money(minor: number | null): string {
     return minor === null
       ? this.text.noPrice
-      : formatPriceMinor(minor, this.currency);
+      : formatMoneyMinor(minor, this.currency);
   }
 
   protected removeLabel(row: CartRow): string {

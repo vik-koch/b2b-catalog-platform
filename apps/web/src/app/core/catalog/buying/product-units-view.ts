@@ -9,11 +9,14 @@ import {
   UnitPrices,
   unitQuantity,
 } from '@b2b-catalog-platform/shared/core/catalog';
-import { fillText, moneyFormat } from '@b2b-catalog-platform/shared';
+import {
+  fillText,
+  moneyFormat,
+  formatMoneyMinor,
+} from '@b2b-catalog-platform/shared';
 import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
 import { SHARED_TEXT } from '../../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
-import { formatPriceMinor } from '../pricing/price';
 import { formatStoredDecimal, formatUnitQuantity } from './quantity';
 
 /** One priced unit, ready to render. */
@@ -69,14 +72,14 @@ export function useProductUnits() {
       if (unit === 'piece') {
         return {
           label: perUnit(units.piece),
-          price: formatPriceMinor(prices.piece, currency),
+          price: formatMoneyMinor(prices.piece, currency),
         };
       }
       const price = unit === 'pack' ? prices.pack : prices.box;
       if (price === null) return null;
       return {
         label: perUnit(unit === 'pack' ? units.pack : units.box),
-        price: formatPriceMinor(price, currency),
+        price: formatMoneyMinor(price, currency),
       };
     },
 

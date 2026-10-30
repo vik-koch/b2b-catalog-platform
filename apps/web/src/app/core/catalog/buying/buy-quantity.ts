@@ -1,3 +1,4 @@
+import { MoneyFormat } from '@b2b-catalog-platform/shared';
 import { computed, linkedSignal, Signal } from '@angular/core';
 import {
   correctPieces,
@@ -9,7 +10,6 @@ import {
   unitQuantity,
   unitQuantityIsWhole,
 } from '@b2b-catalog-platform/shared/core/catalog';
-import { CurrencyConfig } from '../pricing/price';
 import { formatUnitQuantity, parseUnitQuantity } from './quantity';
 
 /** As much of a cart line as choosing a quantity needs to read. */
@@ -28,7 +28,7 @@ export interface BuyQuantityDeps {
   line: Signal<QuantityLine | undefined>;
   write: (unit: ProductUnit, pieces: number) => void;
   /** Decides the separator a reading is written with. */
-  currency: CurrencyConfig;
+  currency: MoneyFormat;
 }
 
 /** Where a step landed. `at-floor` is the one the caller has to answer for:
