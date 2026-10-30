@@ -28,21 +28,13 @@ import {
   runUnique,
 } from '../catalog-identity';
 
-/**
- * A 404 rather than a foreign-key error: the editors render this message.
- * A function rather than a constant so each throw gets its own stack; the
- * message varies where naming the row helps a log reader, while the code — the
- * only part a screen reads — does not.
- */
+/** A function, so each throw gets its own stack; the message may name the row
+ * for a log reader, the code a screen reads never varies. */
 export const categoryNotFound = (message = 'Category not found') =>
   new NotFoundException({ code: 'category-not-found', message });
 
-/**
- * That a category exists, asked by whoever is about to point a row at it.
- * Products need it as much as categories do, so it is a function rather than a
- * method: a product write should not have to hold this service to check a
- * foreign key.
- */
+/** That a category exists, before a row points at it: a 404 rather than a
+ * foreign-key error. A function, so a product write needs no service. */
 export async function assertCategoryExists(
   db: NodePgDatabase<typeof schema>,
   id: string,
@@ -56,10 +48,9 @@ export async function assertCategoryExists(
 }
 
 /**
- * The admin write model for categories — the tree the catalog hangs from.
- * Slugs are transliterated and kept unique here; reparenting is guarded against
- * cycles; deletion is a hard delete, guarded, because a category is structure
- * rather than content and a soft-deleted one would still hold its children.
+ * The category tree the catalog hangs from. Reparenting is guarded against
+ * cycles; deletion is hard, since a category is structure, not content, and a
+ * soft-deleted one would still hold its children.
  */
 @Injectable()
 export class CategoriesService {
@@ -69,45 +60,42 @@ export class CategoriesService {
   ) {}
 
   async listCategories(): Promise<AdminCategory[]> {
-    const rows = await this.db
-      .select()
-      .from(categories)
-      .orderBy(asc(categories.sortOrder), asc(categories.name));
-
-    // Deleted products are out of the catalog, so out of every count but the
-    // one the delete guard needs (FR-ADM-22). Live is the storefront's own
-    // predicate, so a category with none is one its navigation leaves out.
-    const productCounts = await this.db
-      .select({
-        categoryId: products.categoryId,
-        value:
-          sql<number>`count(*) filter (where ${products.deletedAt} is null)`.mapWith(
+    // Deleted products count only for the delete guard (FR-ADM-22); live is
+    // the storefront's own predicate.
+    const [rows, productCounts] = await Promise.all([
+      this.db
+        .select()
+        .from(categories)
+        .orderBy(asc(categories.sortOrder), asc(categories.name)),
+      this.db
+        .select({
+          categoryId: products.categoryId,
+          value:
+            sql<number>`count(*) filter (where ${products.deletedAt} is null)`.mapWith(
+              Number,
+            ),
+          live: sql<number>`count(*) filter (where ${publiclyVisible})`.mapWith(
             Number,
           ),
-        live: sql<number>`count(*) filter (where ${publiclyVisible})`.mapWith(
-          Number,
-        ),
-        deleted:
-          sql<number>`count(*) filter (where ${products.deletedAt} is not null)`.mapWith(
-            Number,
-          ),
-      })
-      .from(products)
-      .groupBy(products.categoryId);
-    const childCounts = await this.db
-      .select({ parentId: categories.parentId, value: count() })
-      .from(categories)
-      .groupBy(categories.parentId);
+          deleted:
+            sql<number>`count(*) filter (where ${products.deletedAt} is not null)`.mapWith(
+              Number,
+            ),
+        })
+        .from(products)
+        .groupBy(products.categoryId),
+    ]);
 
     const direct = new Map(productCounts.map((r) => [r.categoryId, r.value]));
     const deleted = new Map(
       productCounts.map((r) => [r.categoryId, r.deleted]),
     );
-    const children_ = new Map(
-      childCounts
-        .filter((r) => r.parentId)
-        .map((r) => [r.parentId as string, Number(r.value)]),
-    );
+    const childCount = new Map<string, number>();
+    for (const row of rows) {
+      if (row.parentId) {
+        childCount.set(row.parentId, (childCount.get(row.parentId) ?? 0) + 1);
+      }
+    }
     const subtree = subtreeCounts(rows, direct);
     const live = subtreeCounts(
       rows,
@@ -120,7 +108,7 @@ export class CategoriesService {
         liveProductCount: live.get(r.id) ?? 0,
         directProductCount: direct.get(r.id) ?? 0,
         deletedProductCount: deleted.get(r.id) ?? 0,
-        childCount: children_.get(r.id) ?? 0,
+        childCount: childCount.get(r.id) ?? 0,
       }),
     );
   }
@@ -137,11 +125,8 @@ export class CategoriesService {
       input.name,
       'category',
     );
-    // Place a new category after its current siblings.
+    // After its current siblings.
     const sortOrder = await this.nextSortOrder(input.parentId);
-    // A pre-assigned key is how a category an admin entered by hand binds to
-    // the source system's tree on the first run. Without one it has none: it
-    // is the shop's own, and stays the shop's to rename.
     const sourceId = await resolveNewCategorySourceId(this.db, input.sourceId);
 
     const row = await runUnique(() =>
@@ -176,17 +161,14 @@ export class CategoriesService {
     const existing = await this.categoryById(id);
     if (!existing) throw categoryNotFound();
 
-    // Only its name and its key belong to the exchange. The rest of this row —
-    // nickname, parent, slug, mark — is presentation the shop has
-    // always owned, so restructuring the tree stays open throughout: a product
-    // keeps hanging on the same leaf whatever an admin does above it.
+    // Only the name and key belong to the exchange; restructuring the tree
+    // stays open, since products keep hanging on the same leaves.
     if (this.settings.isExternallyOwned('catalog')) {
       const moved = changedCategoryFields(existing, input);
       if (moved.length) throw catalogExternallyOwned(moved.join(', '));
     }
 
-    // PUT is a full replace, so parentId is always authoritative. Guard the
-    // reparent against cycles before touching the row.
+    // A full replace, so `parentId` is authoritative.
     if (input.parentId !== existing.parentId) {
       if (input.parentId) await assertCategoryExists(this.db, input.parentId);
       await this.assertNoReparentCycle(id, input.parentId);
@@ -220,20 +202,17 @@ export class CategoriesService {
         .where(eq(categories.id, id)),
     );
 
-    // Read back through the list: a subtree count is only as good as the
-    // tree it was taken over, and a reparent has just changed it.
+    // Read back through the list: a reparent has just changed the subtree
+    // counts.
     const saved = (await this.listCategories()).find((c) => c.id === id);
     if (!saved) throw categoryNotFound();
     return saved;
   }
 
   /**
-   * Hard delete, guarded. Subcategories always block — the admin resolves the
-   * subtree first; reassignment never merges child categories. Products
-   * (including soft-deleted ones — the FK is `restrict` and does not
-   * distinguish) block too, unless `reassignToId` is given: then every product
-   * is moved to that category first, in one transaction with the delete, so a
-   * populated category can be removed without orphaning anything.
+   * Hard delete, guarded. Subcategories always block; products, soft-deleted
+   * ones included (the foreign key restricts), block unless `reassignToId`
+   * moves them first, in the same transaction.
    */
   async deleteCategory(
     id: string,
@@ -269,11 +248,8 @@ export class CategoriesService {
         message: 'Category still has products',
       });
     }
-    // Reassignment moves every product's `categoryId`, which is the exchange's
-    // field wherever the request arrives. Deleting an *empty* category is
-    // untouched by this — it writes nothing the exchange owns — so the
-    // existing refusal above becomes the only way out while the catalog is
-    // owned, which is the honest one: empty the category from the source.
+    // Moving products writes the exchange's field; an empty category can
+    // still be deleted, so while owned it is emptied from the source.
     if (this.settings.isExternallyOwned('catalog')) {
       throw catalogExternallyOwned('reassign');
     }
@@ -292,8 +268,7 @@ export class CategoriesService {
     }
 
     await this.db.transaction(async (tx) => {
-      // No deletedAt filter: soft-deleted products carry the FK too, so they
-      // must move as well or the delete would still fail.
+      // Soft-deleted products too: they hold the foreign key as well.
       await tx
         .update(products)
         .set({ categoryId: reassignToId, updatedAt: new Date() })
@@ -367,8 +342,7 @@ export class CategoriesService {
     return Number(row.value) + 1;
   }
 
-  /** Guard a single reparent: walking up from the new parent must not reach the
-   * moved node. A null parent (moving to root) can never cycle. */
+  /** A single reparent must not make the node its own ancestor. */
   private async assertNoReparentCycle(
     id: string,
     newParentId: string | null,

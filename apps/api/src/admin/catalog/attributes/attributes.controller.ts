@@ -8,11 +8,7 @@ import { AuditLogger } from '../../../audit/audit.logger';
 import { refusals } from '../../../orpc/refusals';
 import { AttributesService } from './attributes.service';
 
-/**
- * Admin-only throughout, like the rest of the catalog write surface: which
- * attributes a shop filters by is a decision about the catalog's presentation,
- * and a manager never edits the catalog.
- */
+/** Admin-only, like the rest of the catalog: a manager never edits it. */
 @Auth('admin')
 @Controller()
 export class AttributesController {
@@ -28,11 +24,7 @@ export class AttributesController {
     }));
   }
 
-  /**
-   * The inventory (FR-ATTR-09) — every key in use, declared or freetext. It
-   * reads product data, but it is keyed by attribute rather than by product,
-   * which is why it lives here and not on the catalog surface.
-   */
+  /** The inventory (FR-ATTR-09): every key in use, declared or not. */
   @Implement(attributesContract.listAttributeKeys)
   listAttributeKeys() {
     return implement(attributesContract.listAttributeKeys).handler(
@@ -50,20 +42,16 @@ export class AttributesController {
     );
   }
 
-  /**
-   * Both renames rewrite product data across the catalog in one statement, so
-   * both are audited with the text on either side — the trail is what makes a
-   * merge answerable afterwards.
-   */
+  /** Both renames rewrite product data catalog-wide, so both are audited
+   * with the text on either side. */
   @Implement(attributesContract.renameAttributeKey)
   renameAttributeKey(@CurrentUser() user: AuthUser) {
     return implement(attributesContract.renameAttributeKey)
       .use(refusals)
       .handler(async ({ input: { body } }) => {
         const result = await this.service.renameAttributeKey(body);
-        // The trail's `name` carries both spellings and the row count: a
-        // rename is a merge as often as a correction, and afterwards the
-        // question is always which text absorbed which.
+        // Both spellings and the count: a rename is often a merge, and the
+        // question afterwards is which text absorbed which.
         this.audit.record('attribute.keyRenamed', user, {
           name: `${body.from} → ${body.to} (${result.updated})`,
         });
@@ -127,12 +115,8 @@ export class AttributesController {
       });
   }
 
-  /**
-   * A category's own filter panel (FR-ATTR-11). Read is unaudited like every
-   * other read; the two writes carry the category, because a panel that lost
-   * an attribute is otherwise indistinguishable from one that never offered
-   * it.
-   */
+  /** A category's filter panel (FR-ATTR-11). The writes are audited with the
+   * category: a panel that lost an attribute looks like one that never had it. */
   @Implement(attributesContract.getCategoryFilters)
   getCategoryFilters() {
     return implement(attributesContract.getCategoryFilters)

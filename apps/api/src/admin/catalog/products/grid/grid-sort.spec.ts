@@ -3,10 +3,10 @@ import { PgDialect } from 'drizzle-orm/pg-core';
 import { adminProductSortSchema } from '@b2b-catalog-platform/shared/admin/catalog';
 import { SEARCH_SORTS } from '@b2b-catalog-platform/shared/core/catalog';
 import { productSortKeys } from '../../../../core/catalog/product-sort';
-import { adminProductOrderBy } from './grid-sort';
+import { gridOrderBy } from './grid-sort';
 
 /** Renders an order-by list the way the query builder would, as one string. */
-function render(clauses: ReturnType<typeof adminProductOrderBy>): string {
+function render(clauses: ReturnType<typeof gridOrderBy>): string {
   const { sql: text } = new PgDialect().sqlToQuery(
     sql.join(
       clauses.map((clause) => sql`${clause}`),
@@ -18,11 +18,11 @@ function render(clauses: ReturnType<typeof adminProductOrderBy>): string {
 
 const score = sql<number>`relevance_placeholder`;
 
-describe('adminProductOrderBy', () => {
+describe('gridOrderBy', () => {
   it.each(adminProductSortSchema.options)(
     'ends %s with the id tiebreak, so no row can swap pages',
     (option) => {
-      expect(render(adminProductOrderBy(option, score))).toMatch(/"id" asc$/);
+      expect(render(gridOrderBy(option, score))).toMatch(/"id" asc$/);
     },
   );
 
@@ -30,7 +30,7 @@ describe('adminProductOrderBy', () => {
     ['updated', 'asc'],
     ['updated_desc', 'desc'],
   ] as const)('sorts %s on updatedAt %s', (option, direction) => {
-    expect(render(adminProductOrderBy(option))).toMatch(
+    expect(render(gridOrderBy(option))).toMatch(
       new RegExp(`^"products"\\."updatedAt" ${direction}`),
     );
   });
@@ -39,7 +39,7 @@ describe('adminProductOrderBy', () => {
     ['state', 'asc'],
     ['state_desc', 'desc'],
   ] as const)('sorts %s on what the row needs, %s', (option, direction) => {
-    const rendered = render(adminProductOrderBy(option));
+    const rendered = render(gridOrderBy(option));
 
     // Unpublished (0) before live (1) before deleted (2), so ascending is
     // "what still needs somebody" first.
@@ -55,9 +55,7 @@ describe('adminProductOrderBy', () => {
    * to name order, which is what the storefront's listings keep.
    */
   it('falls back to state order when relevance has nothing to score', () => {
-    expect(render(adminProductOrderBy('relevance'))).toBe(
-      render(adminProductOrderBy('state')),
-    );
+    expect(render(gridOrderBy('relevance'))).toBe(render(gridOrderBy('state')));
     expect(render(productSortKeys('relevance'))).toBe(
       render(productSortKeys('name')),
     );
@@ -72,7 +70,7 @@ describe('adminProductOrderBy', () => {
   it.each(SEARCH_SORTS)(
     'delegates %s to the shared keys, without the availability lead',
     (option) => {
-      const admin = render(adminProductOrderBy(option, score));
+      const admin = render(gridOrderBy(option, score));
 
       expect(admin).toBe(render(productSortKeys(option, score)));
       expect(admin).not.toContain('"availability"');

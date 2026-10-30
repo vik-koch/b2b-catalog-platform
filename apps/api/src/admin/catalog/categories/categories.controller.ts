@@ -9,11 +9,9 @@ import { refusals } from '../../../orpc/refusals';
 import { CategoriesService } from './categories.service';
 
 /**
- * The admin's category routes. Every route is admin-only; the service
- * raises the 404/409 refusals the contract declares, which `refusals` restates
- * in the contract's terms. The output schemas keep the private sync keys and
- * internal columns from leaking — a response must match the admin schema
- * exactly.
+ * The admin's category routes. The service raises the refusals the contract
+ * declares, which `refusals` restates in its terms; the strict output schemas
+ * keep internal columns from leaking.
  */
 @Auth('admin')
 @Controller()

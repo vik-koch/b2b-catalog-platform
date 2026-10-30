@@ -8,11 +8,7 @@ import { AuditLogger } from '../../../audit/audit.logger';
 import { refusals } from '../../../orpc/refusals';
 import { DocumentsService } from './documents.service';
 
-/**
- * Admin-only throughout, like the rest of the catalog write surface: a
- * certificate is part of what the shop publishes about a product, and a
- * manager never edits the catalog.
- */
+/** Admin-only, like the rest of the catalog: a manager never edits it. */
 @Auth('admin')
 @Controller()
 export class DocumentsController {
@@ -49,12 +45,8 @@ export class DocumentsController {
       });
   }
 
-  /**
-   * One save covers the file and the product links as well as the fields, so a
-   * replaced file is `document.updated` like any other edit — what changed is
-   * answerable from the row's `fileUrl`, which is a content hash of the bytes
-   * now shown, and from the count of products the answer carries.
-   */
+  /** One save covers file, links and fields, so a replaced file is an
+   * ordinary `document.updated`; `fileUrl` is a hash of the bytes now shown. */
   @Implement(documentsContract.updateDocument)
   updateDocument(@CurrentUser() user: AuthUser) {
     return implement(documentsContract.updateDocument)

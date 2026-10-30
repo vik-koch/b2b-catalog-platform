@@ -8,12 +8,8 @@ import { AuditLogger } from '../../../audit/audit.logger';
 import { refusals } from '../../../orpc/refusals';
 import { TiersService } from './tiers.service';
 
-/**
- * Defining the set of price lists is admin-only — a tier is a pricing decision.
- * A manager may *read* the list, because assigning a customer to a tier on
- * approval needs the names and ids; each mutation narrows back to admin on the
- * method.
- */
+/** Managers may read the lists, to assign a customer one on approval; every
+ * change is admin-only. */
 @Auth('admin', 'manager')
 @Controller()
 export class TiersController {

@@ -49,35 +49,36 @@ import {
   runUnique,
 } from '../catalog-identity';
 import { assertCategoryExists } from '../categories/categories.service';
-
 import {
   adminProductWriteColumns,
+  linkedProductColumns,
   ProductRecords,
   productNotFound,
+  ProductRow,
   StoredAttribute,
   toAdminProduct,
+  toLinkedProduct,
 } from './product-records';
 
-/**
- * Creating and saving a product (FR-ADM-01). Descriptions are sanitized here,
- * the single write path, so nothing reaches the column unsanitized; the lists
- * beside the row are replaced in the same transaction.
- */
+/** What a save links to, resolved before it is written. */
+interface SaveLinks {
+  paired: (LinkedProduct & { id: string })[];
+  linked: LinkedDocument[];
+}
+
+/** Creating and saving a product (FR-ADM-01), its lists in the same
+ * transaction. */
 @Injectable()
 export class ProductEditorService {
   constructor(
     @Inject(DRIZZLE) private db: NodePgDatabase<typeof schema>,
-    // The last rung of the "few left" ladder, injected the way every other
-    // deployment rule is — a spec hands over a figure without a config file.
+    // The deployment's "few left" fallback.
     @Inject(LOW_STOCK_THRESHOLD_PIECES) private lowStockFallback: number,
     private readonly settings: SettingsService,
     private readonly records: ProductRecords,
   ) {}
 
-  /**
-   * Whether the exchange currently holds the pen (FR-ADM-10). A cached
-   * synchronous read, so asking it on every write costs nothing.
-   */
+  /** Whether the exchange owns the catalog (FR-ADM-10); a cached read. */
   private get catalogIsOwned(): boolean {
     return this.settings.isExternallyOwned('catalog');
   }
@@ -86,9 +87,8 @@ export class ProductEditorService {
     input: ProductInput,
     actorId: string,
   ): Promise<AdminProduct> {
-    // A create writes every owned field at once — identity included — so there
-    // is nothing to compare and nothing to allow through. While the exchange
-    // owns the catalog, what exists in it is the exchange's to say.
+    // A create writes every owned field, so while the exchange owns the
+    // catalog there is nothing to allow through.
     if (this.catalogIsOwned) throw catalogExternallyOwned('create');
     await assertCategoryExists(this.db, input.categoryId);
     const slug = await resolveNewSlug(
@@ -100,52 +100,17 @@ export class ProductEditorService {
     );
     const sourceId = await resolveNewProductSourceId(this.db, input.sourceId);
 
-    await this.ensureTiersExist(input.tierPrices);
-    const paired = await this.pairedProducts(input.pairedSlugs);
-    const linked = await this.linkedDocuments(input.documentIds);
+    const links = await this.resolveLinks(input);
 
-    // One transaction, because a product and its tier prices are one edit: a
-    // half-applied save would leave a price on the wrong product's row set.
+    // One transaction: the row and its lists are one edit.
     return this.db.transaction(async (tx) => {
-      const row = await runUnique(() =>
+      const [row] = await runUnique(() =>
         tx
           .insert(products)
-          .values({
-            sourceId,
-            slug,
-            name: input.name,
-            categoryId: input.categoryId,
-            descriptionHtml: sanitizeProductRichText(input.descriptionHtml),
-            images: input.images,
-            variants: input.variants,
-            featured: input.featured,
-            lineNoteEnabled: input.lineNoteEnabled,
-            lineNotePrompt: input.lineNotePrompt,
-            parts: input.parts,
-            updatedBy: actorId,
-            ...packagingValues(input),
-            ...this.stockValues(input),
-            taxRate: input.taxRate,
-          })
+          .values({ sourceId, slug, ...this.contentValues(input, actorId) })
           .returning(adminProductWriteColumns),
       );
-      await this.writeDefaultPrice(tx, row[0].id, input.priceMinor);
-      await this.replaceTierPrices(tx, row[0].id, input.tierPrices);
-      const attributes = storedAttributes(input.attributes, input.parts);
-      await this.replaceAttributes(tx, row[0].id, attributes);
-      await this.replacePairings(
-        tx,
-        row[0].id,
-        paired.map((p) => p.id),
-      );
-      await this.replaceDocumentLinks(tx, row[0].id, linked);
-      return toAdminProduct(
-        { ...row[0], priceMinor: input.priceMinor },
-        input.tierPrices,
-        attributes,
-        namedPairings(paired),
-        linked,
-      );
+      return this.writeLists(tx, row, input, links);
     });
   }
 
@@ -180,72 +145,100 @@ export class ProductEditorService {
       existing.sourceId,
     );
 
-    await this.ensureTiersExist(input.tierPrices);
-    const paired = await this.pairedProducts(input.pairedSlugs, existing.id);
-    const linked = await this.linkedDocuments(input.documentIds);
+    const links = await this.resolveLinks(input, existing.id);
 
     return this.db.transaction(async (tx) => {
-      const row = await runUnique(() =>
+      const [row] = await runUnique(() =>
         tx
           .update(products)
           .set({
             slug: newSlug,
-            name: input.name,
-            categoryId: input.categoryId,
-            descriptionHtml: sanitizeProductRichText(input.descriptionHtml),
-            images: input.images,
-            variants: input.variants,
-            featured: input.featured,
-            lineNoteEnabled: input.lineNoteEnabled,
-            lineNotePrompt: input.lineNotePrompt,
-            parts: input.parts,
             sourceId: newSourceId,
+            ...this.contentValues(input, actorId),
             updatedAt: new Date(),
-            updatedBy: actorId,
-            // Clearing the price takes the product off the storefront: a page
-            // cannot show a visitor a price that does not exist. The editor
-            // says so on the button before it is pressed, so this is the save
-            // the admin asked for rather than a refusal they have to undo.
+            // Clearing the price takes the product off the storefront; the
+            // editor says so on the button before it is pressed.
             ...(input.priceMinor === null
               ? { publishedAt: null, publishedBy: null }
               : {}),
-            ...packagingValues(input),
-            ...this.stockValues(input),
-            taxRate: input.taxRate,
           })
           .where(eq(products.id, existing.id))
           .returning(adminProductWriteColumns),
       );
-      await this.writeDefaultPrice(tx, existing.id, input.priceMinor);
-      await this.replaceTierPrices(tx, existing.id, input.tierPrices);
-      const attributes = storedAttributes(input.attributes, input.parts);
-      await this.replaceAttributes(tx, existing.id, attributes);
-      await this.replacePairings(
-        tx,
-        existing.id,
-        paired.map((p) => p.id),
-      );
-      await this.replaceDocumentLinks(tx, existing.id, linked);
-      return toAdminProduct(
-        { ...row[0], priceMinor: input.priceMinor },
-        input.tierPrices,
-        attributes,
-        namedPairings(paired),
-        linked,
-      );
+      return this.writeLists(tx, row, input, links);
     });
   }
 
   /**
-   * The stock columns as create and update both write them — the state
-   * alongside the figures it comes from, in one statement.
-   *
-   * Recomputed here rather than in the database because packaging is part of
-   * the answer and arrives in the same save: a threshold that follows the box
-   * moves whenever the box does. Writing the state with the figures is also
-   * what makes the response honest — `returning` hands back the row that was
-   * stored, so the editor reads back the badge it just caused rather than the
-   * one from before the save.
+   * What a save links to, resolved before the transaction opens so an unknown
+   * tier, counterpart or document is a 404 naming it rather than a foreign-key
+   * error. `ownId` is the product being saved.
+   */
+  private async resolveLinks(
+    input: ProductInput,
+    ownId?: string,
+  ): Promise<SaveLinks> {
+    await this.ensureTiersExist(input.tierPrices);
+    return {
+      paired: await this.pairedProducts(input.pairedSlugs, ownId),
+      linked: await this.linkedDocuments(input.documentIds),
+    };
+  }
+
+  /** The row's columns create and update both write from the editor. */
+  private contentValues(input: ProductInput, actorId: string) {
+    return {
+      name: input.name,
+      categoryId: input.categoryId,
+      // The single write path, so nothing reaches the column unsanitized.
+      descriptionHtml: sanitizeProductRichText(input.descriptionHtml),
+      images: input.images,
+      variants: input.variants,
+      featured: input.featured,
+      lineNoteEnabled: input.lineNoteEnabled,
+      lineNotePrompt: input.lineNotePrompt,
+      parts: input.parts,
+      updatedBy: actorId,
+      ...packagingValues(input),
+      ...this.stockValues(input),
+      taxRate: input.taxRate,
+    };
+  }
+
+  /**
+   * The lists beside the row, each replaced by what the save posted, and the
+   * product as the save leaves it.
+   */
+  private async writeLists(
+    tx: NodePgDatabase<typeof schema>,
+    row: Omit<ProductRow, 'priceMinor'>,
+    input: ProductInput,
+    { paired, linked }: SaveLinks,
+  ): Promise<AdminProduct> {
+    const defaultTier = await defaultTierId(tx);
+    await this.writeDefaultPrice(tx, row.id, defaultTier, input.priceMinor);
+    await this.replaceTierPrices(tx, row.id, defaultTier, input.tierPrices);
+    const attributes = storedAttributes(input.attributes, input.parts);
+    await this.replaceAttributes(tx, row.id, attributes);
+    await this.replacePairings(
+      tx,
+      row.id,
+      paired.map((p) => p.id),
+    );
+    await this.replaceDocumentLinks(tx, row.id, linked);
+    return toAdminProduct(
+      { ...row, priceMinor: input.priceMinor },
+      input.tierPrices,
+      attributes,
+      namedPairings(paired),
+      linked,
+    );
+  }
+
+  /**
+   * The stock figures and the state they resolve to, in one statement:
+   * packaging arrives in the same save and moves the threshold, and
+   * `returning` then hands back the badge the save caused.
    */
   private stockValues(input: ProductInput) {
     return {
@@ -261,17 +254,16 @@ export class ProductEditorService {
   }
 
   /**
-   * The default list's price for one product — the editor's own price field.
-   * Written apart from the other lists because the editor offers it apart, and
-   * null deletes it: a product nothing prices is a state the catalog holds
-   * rather than an error, and only publication refuses it.
+   * The default list's price, the editor's own price field. Null deletes it:
+   * an unpriced product is a state the catalog holds, refused only by
+   * publication.
    */
   private async writeDefaultPrice(
     tx: NodePgDatabase<typeof schema>,
     productId: string,
+    tierId: string,
     priceMinor: number | null,
   ): Promise<void> {
-    const tierId = await defaultTierId(tx);
     if (priceMinor === null) {
       await tx
         .delete(productPrices)
@@ -293,20 +285,17 @@ export class ProductEditorService {
   }
 
   /**
-   * The single write path for the non-default lists. The posted list is the
-   * whole truth: what is missing from it is deleted, so removing a product's
-   * price in the editor returns that tier to the default list's.
-   *
-   * The default list's own row is never swept — it is not in the posted list
-   * because the editor keeps it in a field of its own, and `writeDefaultPrice`
-   * is what answers for it.
+   * The other lists' prices: what the post leaves out is deleted, returning
+   * that tier to the default price. The default list's row is never swept;
+   * `writeDefaultPrice` answers for it.
    */
   private async replaceTierPrices(
     tx: NodePgDatabase<typeof schema>,
     productId: string,
+    defaultTier: string,
     entries: ProductTierPrice[],
   ): Promise<void> {
-    const keep = [...entries.map((e) => e.tierId), await defaultTierId(tx)];
+    const keep = [...entries.map((e) => e.tierId), defaultTier];
     await tx
       .delete(productPrices)
       .where(
@@ -336,13 +325,9 @@ export class ProductEditorService {
   }
 
   /**
-   * The single write path for attributes, and the same rule as tier prices: the
-   * posted list is the whole truth. Replaced wholesale rather than diffed, so a
-   * reorder is not a special case, and inside the product's transaction, so a
-   * failed save cannot leave half a grid behind.
-   *
-   * `valueNumeric` is parsed here for every value that reads as a number,
-   * whether or not a definition claims the key.
+   * The attributes, replaced wholesale rather than diffed, so a reorder is no
+   * special case. `valueNumeric` is parsed for every value that reads as a
+   * number, whether or not a definition claims the key.
    */
   private async replaceAttributes(
     tx: NodePgDatabase<typeof schema>,
@@ -370,13 +355,9 @@ export class ProductEditorService {
   }
 
   /**
-   * The counterparts a save named, resolved before the transaction opens so an
-   * unknown slug is a 404 naming the product rather than a foreign-key error.
-   *
-   * Soft-deleted counterparts resolve like any other: the editor lists them
-   * marked, and a save that keeps them must not be the thing that drops them.
-   * `ownId` is the product being saved — pairing it with itself is refused
-   * rather than silently dropped, so the editor says what it did not do.
+   * The counterparts a save named. Soft-deleted ones resolve like any other,
+   * or keeping one would drop it; pairing a product with itself is refused
+   * rather than dropped, so the editor says what it did not do.
    */
   private async pairedProducts(
     slugs: string[],
@@ -384,13 +365,7 @@ export class ProductEditorService {
   ): Promise<(LinkedProduct & { id: string })[]> {
     if (slugs.length === 0) return [];
     const rows = await this.db
-      .select({
-        id: products.id,
-        slug: products.slug,
-        name: products.name,
-        deletedAt: products.deletedAt,
-        publishedAt: products.publishedAt,
-      })
+      .select({ id: products.id, ...linkedProductColumns })
       .from(products)
       .where(inArray(products.slug, slugs))
       .orderBy(asc(products.name));
@@ -406,20 +381,10 @@ export class ProductEditorService {
         message: 'A product cannot be paired with itself',
       });
     }
-    return rows.map((row) => ({
-      id: row.id,
-      slug: row.slug,
-      name: row.name,
-      deleted: row.deletedAt !== null,
-      unpublished: row.publishedAt === null,
-    }));
+    return rows.map((row) => ({ id: row.id, ...toLinkedProduct(row) }));
   }
 
-  /**
-   * The documents a save named, resolved before the transaction opens so an
-   * unknown id is a 404 rather than a foreign-key error — and returned named,
-   * because the answer this save writes carries them back.
-   */
+  /** The documents a save named, returned named for the save's answer. */
   private async linkedDocuments(ids: string[]): Promise<LinkedDocument[]> {
     if (ids.length === 0) return [];
     const rows = await this.db
@@ -440,12 +405,8 @@ export class ProductEditorService {
     return rows;
   }
 
-  /**
-   * The single write path for this product's document links — the posted list
-   * is the whole truth *from this product's side*. Removing a document here
-   * removes it from this product only; every other product it is shown on
-   * keeps it, because a link names one pair.
-   */
+  /** This product's document links, from its side only: every other product
+   * a document is on keeps it. */
   private async replaceDocumentLinks(
     tx: NodePgDatabase<typeof schema>,
     productId: string,
@@ -471,13 +432,9 @@ export class ProductEditorService {
   }
 
   /**
-   * The single write path for pairings, and the same rule as tier prices: the
-   * posted list is the whole truth, from this product's side. Removing a
-   * counterpart here removes the pairing from that product too — there is one
-   * row, and it says the two are sold together.
-   *
-   * Untouched edges are left where they are (`onConflictDoNothing`), so saving
-   * a product does not re-date the pairings it kept.
+   * The pairings, from this product's side; one dropped here is dropped from
+   * the counterpart too, as one edge is one row. Kept edges are left alone, so
+   * a save does not re-date them.
    */
   private async replacePairings(
     tx: NodePgDatabase<typeof schema>,
@@ -503,10 +460,6 @@ export class ProductEditorService {
       .onConflictDoNothing();
   }
 
-  /**
-   * A 404 rather than a foreign-key error: an unknown tier is the same class of
-   * mistake as an unknown category, and the editor renders that message.
-   */
   private async ensureTiersExist(entries: ProductTierPrice[]): Promise<void> {
     if (entries.length === 0) return;
     const ids = [...new Set(entries.map((e) => e.tierId))];
@@ -524,11 +477,9 @@ export class ProductEditorService {
 }
 
 /**
- * The attributes a product actually keeps. A row with no value states nothing:
- * it would print a dangling label on the product page and turn up as a nameless
- * checkbox in that attribute's filter. The grid produces them on purpose — the
- * key picker adds a row per name picked — so they are dropped, not refused, the
- * same way a row with no key is.
+ * The attributes a product keeps. A row with no key or value states nothing,
+ * and the key picker adds empty rows on purpose, so they are dropped, not
+ * refused.
  */
 function storedAttributes(
   entries: ProductAttribute[],
@@ -543,11 +494,8 @@ function storedAttributes(
     }));
 }
 
-/**
- * The counterparts as the contract serializes them. The resolved rows carry the
- * id the write needs, and the output schema is strict — an extra field is a 500
- * rather than a wrong answer, which is how this was caught.
- */
+/** The counterparts without the id the write needed: the output schema is
+ * strict, so an extra field would be a 500. */
 function namedPairings(
   resolved: (LinkedProduct & { id: string })[],
 ): LinkedProduct[] {
@@ -559,11 +507,8 @@ function namedPairings(
   }));
 }
 
-/**
- * An edge's two columns, ordered as the table stores them: the smaller id is
- * always the A side, which is what makes one pairing one row whichever of the
- * two products was being edited.
- */
+/** An edge as stored, the smaller id on the A side, so one pairing is one
+ * row whichever product was edited. */
 function canonicalPair(
   one: string,
   other: string,

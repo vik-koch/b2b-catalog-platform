@@ -1,3 +1,10 @@
+/**
+ * Which owned fields a save would move (FR-ADM-10). A save sends the whole
+ * entity, so the rule is about change, not presence: sending the stored value
+ * back is no write. If the exchange moved a price since the editor loaded, the
+ * save is refused rather than silently undoing the exchange.
+ */
+
 import { ProductTierPrice } from '@b2b-catalog-platform/shared/admin/catalog';
 import {
   OWNED_CATEGORY_FIELDS,
@@ -5,24 +12,6 @@ import {
   OwnedCategoryField,
   OwnedProductField,
 } from '@b2b-catalog-platform/shared/sync';
-
-/**
- * Which owned fields a save would move (FR-ADM-10).
- *
- * The admin write contract takes a whole entity in one body, so "this field is
- * read-only" has no expression at the schema level: the editor sends `name` on
- * every save whether or not anybody typed in it. The rule is therefore about
- * *change* rather than about presence — a save that carries the stored value
- * back is not a write to that field, and a save that carries a different one
- * is, however it was produced.
- *
- * The consequence is deliberate: if the exchange moves a price between the
- * moment the editor loaded and the moment it saves, an admin who changed only
- * the description is refused and has to reload. That is the correct half of the
- * trade — the alternative is accepting their stale copy and silently undoing
- * the exchange, which is exactly the two-writers problem the switch exists to
- * remove.
- */
 
 /** What the comparison needs from the stored product; a subset of the row. */
 export interface StoredOwnedProduct {
@@ -35,8 +24,7 @@ export interface StoredOwnedProduct {
   tierPrices: readonly ProductTierPrice[];
 }
 
-/** What it needs from the save. `sourceId` is optional in the contract — the
- * server mints one — and an omitted override is a save that leaves it alone. */
+/** What it needs from the save; an omitted `sourceId` leaves it alone. */
 export interface SubmittedOwnedProduct {
   name: string;
   categoryId: string;
@@ -65,11 +53,8 @@ export function changedProductFields(
   return OWNED_PRODUCT_FIELDS.filter((field) => moved[field]);
 }
 
-/**
- * Order-insensitive: the overrides are a map keyed by tier, and the editor
- * makes no promise about the order it sends them in. A repeated tier cannot
- * reach here — the contract refuses it — so building a map loses nothing.
- */
+/** Order-insensitive: the overrides are a map keyed by tier, sent in no
+ * promised order. */
 function tierPricesDiffer(
   stored: readonly ProductTierPrice[],
   input: readonly ProductTierPrice[],
@@ -90,12 +75,9 @@ export interface SubmittedOwnedCategory {
 }
 
 /**
- * A keyless category is nobody else's. No export names it, so no run renames
- * it and no run deletes it — refusing the shop its own name would protect
- * nothing. Its key is open for the same reason: typing one in is how a
- * hand-made category binds to the source tree on the next run, and creating
- * one with a key is allowed while owned, so forbidding it afterwards would
- * only mean deleting the category and making it again.
+ * A keyless category is nobody else's: no run renames or deletes it. Its key
+ * stays open too, since typing one in is how a hand-made category binds to the
+ * source tree.
  */
 export function changedCategoryFields(
   stored: StoredOwnedCategory,

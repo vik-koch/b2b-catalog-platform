@@ -4,15 +4,9 @@ import * as schema from '../../../db/schema';
 import { customerTiers } from '../../../db/schema';
 
 /**
- * The price list guests are charged and a product must be priced in to be
- * published (FR-AUTH-05). Looked up rather than cached: it is one row found by
- * a partial unique index, it changes when an admin moves the badge, and an
- * invalidated cache of it would misprice the whole catalog.
- *
- * It throws rather than returning null. Exactly one row carries the badge —
- * the index forbids a second, the delete and badge-move refusals forbid
- * removing the last — so a deployment without one is a broken install, not a
- * state every read path should grow a branch for.
+ * The badged price list (FR-AUTH-05). Looked up, not cached: a stale cache
+ * after a badge move would misprice the catalog. Throws rather than returning
+ * null: exactly one row carries the badge, so none is a broken install.
  */
 export async function defaultTierId(
   db: NodePgDatabase<typeof schema>,

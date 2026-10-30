@@ -10,10 +10,13 @@ import {
   isNull,
   SQL,
 } from 'drizzle-orm';
-import { ADMIN_CATALOG_PAGE_SIZE } from '@b2b-catalog-platform/shared/admin/catalog';
 import { HiddenProduct } from '@b2b-catalog-platform/shared/core/catalog';
-import { KeyboardLayout } from '@b2b-catalog-platform/shared/platform';
 import {
+  KeyboardLayout,
+  Pagination,
+} from '@b2b-catalog-platform/shared/platform';
+import {
+  ADMIN_CATALOG_PAGE_SIZE,
   AdminProductListItem,
   AdminProductListQuery,
   AdminProductState,
@@ -42,11 +45,13 @@ import {
   relevanceScore,
   setSearchThreshold,
 } from '../../../../core/catalog/product-search';
-import { adminProductOrderBy } from './grid-sort';
+import { gridOrderBy } from './grid-sort';
 import {
   listItemColumns,
+  publiclyVisible,
   toUnpricedListItem,
 } from '../../../../core/catalog/product-view';
+import { CatalogReader } from '../../../../core/catalog/catalog-reader';
 import { paginationOf } from '../../../../platform/pagination';
 import { resolvedPriceMinor } from '../../../../core/catalog/product-price';
 import { ALTERNATE_LAYOUT } from '../../../../config/deployment-config';
@@ -62,31 +67,20 @@ import { deletedByRun } from '../product-records';
 export class ProductGridService {
   constructor(
     @Inject(DRIZZLE) private db: NodePgDatabase<typeof schema>,
+    private readonly reader: CatalogReader,
     @Inject(ALTERNATE_LAYOUT)
     private readonly alternateLayout: KeyboardLayout | null,
   ) {}
 
   /**
-   * The admin grid (FR-ADM-05): filtered by publication state and category,
-   * searched by name or sync key, sorted. Unlike the storefront listing this
-   * shows unpublished rows by default; deleted rows only under their own state
-   * (FR-ADM-22), because they are out of the catalog.
-   *
-   * Runs in a transaction for the same reason the storefront search does: the
-   * trigram threshold is set with `SET LOCAL`, so the matcher's recall cannot
-   * depend on the server default. Not logged as a search (NFR-OPS-05) — the
-   * search log measures what customers look for, and an admin looking up a row
-   * they are about to edit would poison that.
+   * The admin grid (FR-ADM-05). In a transaction because the trigram threshold
+   * is set with `SET LOCAL`, as in the storefront search. Not logged as a
+   * search (NFR-OPS-05): that log is what customers look for.
    */
   async listProducts(query: AdminProductListQuery): Promise<{
     items: AdminProductListItem[];
     deletedMatches?: number;
-    pagination: {
-      page: number;
-      pageSize: number;
-      total: number;
-      totalPages: number;
-    };
+    pagination: Pagination;
   }> {
     const pageSize = ADMIN_CATALOG_PAGE_SIZE;
     const search = parseSearchQuery(query.q, this.alternateLayout);
@@ -97,33 +91,24 @@ export class ProductGridService {
     // same search when the catalog itself has nothing.
     const narrowing = and(
       categoryIds ? inArray(products.categoryId, categoryIds) : undefined,
-      // The stored state, not the count: the threshold that decides "few left"
-      // follows the packaging, and a filter that re-derived it here would go
-      // out of step with the badge beside it the first time a box changed size.
+      // The stored state, not the count, so grid and badge agree.
       query.availability
         ? eq(products.availability, query.availability)
         : undefined,
-      // The inventory's drill-down: the products carrying one attribute key,
-      // and optionally one of its values.
       attributeValuesCondition(
         this.db,
         query.attributeKey,
         query.attributeValue ? [query.attributeValue] : [],
       ),
-      // Where the tier list's price count leads: the products this tier has a
-      // price of its own for.
       tierPriceCondition(this.db, query.tierId, query.tierPriced),
-      // Where the document list's product count leads: the products showing
-      // one certificate, declaration or data sheet.
       documentCondition(this.db, query.documentId),
-      // What the product's own content lacks or carries (FR-ADM-20).
       missingCondition(this.db, query.missing),
       featureCondition(this.db, query.has),
       adminSearchCondition(query.q, this.alternateLayout) ?? undefined,
     );
     const where = and(stateCondition(query.state), narrowing);
-    // Only rank when the box holds something the name matcher could score; a
-    // sync-key-only lookup has no meaningful relevance and falls back to name.
+    // Ranked only when the name matcher can score the box; otherwise
+    // `relevance` falls back to state.
     const score = search ? relevanceScore(search) : undefined;
 
     return this.db.transaction(async (tx) => {
@@ -165,7 +150,7 @@ export class ProductGridService {
         })
         .from(products)
         .where(where)
-        .orderBy(...adminProductOrderBy(query.sort, score))
+        .orderBy(...gridOrderBy(query.sort, score))
         .limit(pageSize)
         .offset((query.page - 1) * pageSize);
 
@@ -193,12 +178,8 @@ export class ProductGridService {
     });
   }
 
-  /**
-   * The categories a grid filter covers: the one asked for and everything
-   * beneath it, as the storefront listing and the category list's counts read
-   * a category (FR-ADM-19) — or, narrowed to `direct`, only the one itself. An
-   * unknown id stays in the list on its own and matches nothing.
-   */
+  /** The categories a grid filter covers: the one asked for and everything
+   * beneath it (FR-ADM-19), or with `direct` only itself. */
   private async categoryScopeIds(
     categoryId: string,
     scope: AdminProductListQuery['categoryScope'],
@@ -210,25 +191,10 @@ export class ProductGridService {
     return descendantIds(categoryId, rows);
   }
 
-  /**
-   * What this category's subtree holds that the storefront does not show: its
-   * unpublished products. Deleted ones are out of the catalog (FR-ADM-22), so
-   * they are left to the admin product list. Aggregates over descendants
-   * exactly like the storefront grid (Pattern A), so the edit-mode overlay and
-   * the live grid agree on what belongs to a category.
-   */
+  /** The unpublished products in a category's subtree, scoped like the
+   * storefront's listing, for edit mode's overlay. */
   async listHiddenProducts(slug: string): Promise<HiddenProduct[]> {
-    const rows = await this.db
-      .select({
-        id: categories.id,
-        slug: categories.slug,
-        name: categories.name,
-        shortName: categories.shortName,
-        parentId: categories.parentId,
-        mark: categories.mark,
-        sortOrder: categories.sortOrder,
-      })
-      .from(categories);
+    const rows = await this.reader.categoryRows();
     const category = categoryBySlug(rows, slug);
     if (!category) throw categoryNotFound();
 
@@ -241,22 +207,18 @@ export class ProductGridService {
         and(inArray(products.categoryId, ids), stateCondition('unpublished')),
       )
       .orderBy(asc(products.name));
-    return hidden.map((row) => toUnpricedListItem(row));
+    return hidden.map(toUnpricedListItem);
   }
 }
 
-/**
- * A publication state as a condition (FR-ADM-05). `all` is the catalog, live
- * and unpublished; deleted products are only ever their own state, because
- * they are out of the catalog (FR-ADM-22).
- */
+/** A publication state as a condition (FR-ADM-05). Deleted products are only
+ * ever their own state: they are out of the catalog (FR-ADM-22). */
 function stateCondition(state: AdminProductState): SQL | undefined {
   switch (state) {
     case 'all':
       return isNull(products.deletedAt);
-    // What the storefront shows: published and not deleted.
     case 'live':
-      return and(isNull(products.deletedAt), isNotNull(products.publishedAt));
+      return publiclyVisible;
     case 'unpublished':
       return and(isNull(products.deletedAt), isNull(products.publishedAt));
     case 'deleted':

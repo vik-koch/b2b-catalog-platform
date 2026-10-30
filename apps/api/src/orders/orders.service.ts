@@ -114,8 +114,8 @@ import { priceAdjustment, PricedAdjustment } from './order-adjustment';
 import { OrderDocumentsService } from './order-documents.service';
 import { OrderNotifications } from './order-notifications';
 import { TermsPdf } from './terms-pdf';
+import { isUniqueViolation } from '../db/pg-errors';
 import {
-  isUniqueViolation,
   ORDER_REFERENCE_ATTEMPTS,
   orderPublicToken,
   orderReference,

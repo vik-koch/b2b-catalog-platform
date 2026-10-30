@@ -1,26 +1,30 @@
+/**
+ * How products and categories get the two names they are addressed by: the
+ * slug in a URL and the private `sourceId` a sync run matches on. Every check
+ * is a pre-check; `runUnique` turns the race it cannot close into a 409.
+ */
+
 import { ConflictException } from '@nestjs/common';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { eq } from 'drizzle-orm';
 import { randomUUID } from 'node:crypto';
 import { slugify } from '@b2b-catalog-platform/shared/core/catalog';
 import * as schema from '../../db/schema';
-import { categories, products } from '../../db/schema';
+import { attributeDefinitions, categories, products } from '../../db/schema';
+import { isUniqueViolation } from '../../db/pg-errors';
 
-/**
- * How a product and a category get the two names they are addressed by: the
- * slug the storefront puts in a URL, and the private `sourceId` a sync run
- * matches on. Both tables carry both, both are unique per table, and both are
- * resolved the same way — so the rules live here rather than once per writer.
- *
- * Every check is a pre-check. The columns are unique in the database too, and
- * `runUnique` is what turns the race the pre-check cannot close into a 409.
- */
 type Db = NodePgDatabase<typeof schema>;
 
-/** The two tables addressed by slug and sync key. */
+/** The tables addressed by slug and sync key. */
 type IdentifiedTable = typeof products | typeof categories;
 
-const slugTaken = (slug: string) =>
+/** The tables addressed by slug; attribute definitions have no sync key. */
+type SluggedTable = IdentifiedTable | typeof attributeDefinitions;
+
+/** The refusal for a slug in use; each surface names its own code. */
+type SlugRefusal = (slug: string) => Error;
+
+const slugTaken: SlugRefusal = (slug) =>
   new ConflictException({
     code: 'slug-taken',
     message: `Slug '${slug}' is already in use`,
@@ -32,20 +36,18 @@ const sourceIdTaken = (sourceId: string) =>
     message: `Source id '${sourceId}' is already in use`,
   });
 
-/**
- * Resolve a slug on create: an admin-supplied slug is used as-is (409 if
- * taken), otherwise the name is transliterated and a numeric suffix appended
- * until unique. Falls back to `stem` when the name has no slug-able chars.
- */
+/** A slug on create: the admin's if given (409 if taken), else the name
+ * transliterated, or `stem`, with a numeric suffix until unique. */
 export async function resolveNewSlug(
   db: Db,
-  table: IdentifiedTable,
+  table: SluggedTable,
   provided: string | undefined,
   name: string,
   stem: string,
+  taken: SlugRefusal = slugTaken,
 ): Promise<string> {
   if (provided) {
-    if (await slugExists(db, table, provided)) throw slugTaken(provided);
+    if (await slugExists(db, table, provided)) throw taken(provided);
     return provided;
   }
   const base = slugify(name) || stem;
@@ -56,21 +58,22 @@ export async function resolveNewSlug(
   return candidate;
 }
 
-/** Resolve a slug on update: keep the old one unless a new, free slug is given. */
+/** A slug on update: the old one unless a new, free slug is given. */
 export async function resolveSlugOverride(
   db: Db,
-  table: IdentifiedTable,
+  table: SluggedTable,
   provided: string | undefined,
   current: string,
+  taken: SlugRefusal = slugTaken,
 ): Promise<string> {
   if (!provided || provided === current) return current;
-  if (await slugExists(db, table, provided)) throw slugTaken(provided);
+  if (await slugExists(db, table, provided)) throw taken(provided);
   return provided;
 }
 
 async function slugExists(
   db: Db,
-  table: IdentifiedTable,
+  table: SluggedTable,
   slug: string,
 ): Promise<boolean> {
   const [row] = await db
@@ -81,12 +84,8 @@ async function slugExists(
   return !!row;
 }
 
-/**
- * A product created in the admin has no legacy id to carry, so it is given one
- * that cannot collide with the source system's namespace — every product is
- * quoted, ordered and invoiced by a key, so it needs one whether or not an
- * exchange knows it.
- */
+/** A product made in the admin gets a key outside the source system's
+ * namespace: every product is ordered and invoiced by one. */
 export async function resolveNewProductSourceId(
   db: Db,
   provided: string | undefined,
@@ -98,12 +97,8 @@ export async function resolveNewProductSourceId(
   return provided;
 }
 
-/**
- * A category is a container the shop invented, not a row a source system is
- * missing, so one created without a key simply has none. Null is the honest
- * record of that, and it is what tells the ownership rules nobody else is
- * writing this row.
- */
+/** A category made without a key has none: null tells the ownership rules
+ * nobody else writes it. */
 export async function resolveNewCategorySourceId(
   db: Db,
   provided: string | null | undefined,
@@ -128,10 +123,7 @@ export async function resolveProductSourceIdOverride(
   return provided;
 }
 
-/**
- * The same, plus the answer only a category has: an explicit null detaches it
- * from the exchange, which is how a key typed by mistake is taken back.
- */
+/** The same, plus null, which detaches a category from the exchange. */
 export async function resolveCategorySourceIdOverride(
   db: Db,
   provided: string | null | undefined,
@@ -158,19 +150,13 @@ async function sourceIdExists(
   return !!row;
 }
 
-/**
- * Run a write and translate a unique-violation (race with a concurrent admin,
- * past our pre-checks) into a 409 rather than a 500.
- */
+/** A write whose unique violation, a race past the pre-checks, answers 409
+ * rather than 500. */
 export async function runUnique<T>(op: () => Promise<T>): Promise<T> {
   try {
     return await op();
   } catch (e) {
-    if (
-      typeof e === 'object' &&
-      e !== null &&
-      (e as { code?: string }).code === '23505'
-    ) {
+    if (isUniqueViolation(e)) {
       throw new ConflictException({
         code: 'slug-or-source-id-taken',
         message: 'A slug or source id conflict occurred',

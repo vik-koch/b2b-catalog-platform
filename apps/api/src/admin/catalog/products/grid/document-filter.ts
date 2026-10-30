@@ -3,14 +3,8 @@ import { and, eq, exists, SQL, sql } from 'drizzle-orm';
 import * as schema from '../../../../db/schema';
 import { documentProducts, products } from '../../../../db/schema';
 
-/**
- * "This product shows this document" — what the admin grid filters on when the
- * document list's product count is followed (FR-DOC-02).
- *
- * An `exists` subquery, written like the tier-price filter beside it: the two
- * read as one kind of question — which products did somebody attach this to —
- * and the product-leading index on `document_products` is what makes it cheap.
- */
+/** "This product shows this document": where the document list's count
+ * leads (FR-DOC-02). */
 export function documentCondition(
   db: NodePgDatabase<typeof schema>,
   documentId: string | undefined,

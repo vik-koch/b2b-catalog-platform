@@ -31,10 +31,7 @@ import {
 } from '../../../core/catalog/product-pairings';
 import { resolvedPriceMinor } from '../../../core/catalog/product-price';
 
-/**
- * A function rather than a constant so each throw gets its own stack; the code
- * — the only part a screen reads — never varies.
- */
+/** A function, so each throw gets its own stack. */
 export const productNotFound = () =>
   new NotFoundException({
     code: 'product-not-found',
@@ -42,10 +39,9 @@ export const productNotFound = () =>
   });
 
 /**
- * The editable product shape, minus the price. A write's `returning` uses this
- * one: the default list's price is a row in another table, written *after* the
- * product, so a subquery in `returning` would report the state before the save
- * rather than the one it just made.
+ * The editable product, minus the price, for a write's `returning`: the price
+ * is a row written after the product, so a subquery here would report it from
+ * before the save.
  */
 export const adminProductWriteColumns = {
   id: products.id,
@@ -76,7 +72,7 @@ export const adminProductWriteColumns = {
   parts: products.parts,
 } as const;
 
-/** The same shape as a read sees it — the default list's price included. */
+/** The same, as a read sees it: the default list's price included. */
 export const adminProductColumns = {
   ...adminProductWriteColumns,
   priceMinor: resolvedPriceMinor(null),
@@ -112,20 +108,39 @@ export type ProductRow = {
   parts: string[];
 };
 
+/** What a linked product is read from. */
+export const linkedProductColumns = {
+  slug: products.slug,
+  name: products.name,
+  deletedAt: products.deletedAt,
+  publishedAt: products.publishedAt,
+} as const;
+
+/** A product another record links to, marked rather than dropped when it is
+ * off the storefront. */
+export function toLinkedProduct(row: {
+  slug: string;
+  name: string;
+  deletedAt: Date | null;
+  publishedAt: Date | null;
+}): LinkedProduct {
+  return {
+    slug: row.slug,
+    name: row.name,
+    deleted: row.deletedAt !== null,
+    unpublished: row.publishedAt === null,
+  };
+}
+
 /**
- * An attribute row as stored: "Colour (cup)" on a product sold as a cup and a
- * lid is key "Colour", part "cup" (FR-CAT-10), so it filters as Colour. The
- * split is worked out again from the written key on every save, so dropping a
- * part turns its rows back into plain keys rather than leaving them pointing
- * at nothing.
+ * An attribute row as stored: "Colour (cup)" on a cup and lid is key "Colour",
+ * part "cup" (FR-CAT-10). Split again on every save, so dropping a part turns
+ * its rows back into plain keys.
  */
 export type StoredAttribute = PartKey & { value: string };
 
-/**
- * A product in its editable form (FR-ADM-01): the row and the four lists the
- * editor shows beside it. What every product route answers with, so a write
- * reads back exactly what a load would.
- */
+/** A product in its editable form (FR-ADM-01): what every product route
+ * answers with, so a write reads back exactly what a load would. */
 @Injectable()
 export class ProductRecords {
   constructor(@Inject(DRIZZLE) private db: NodePgDatabase<typeof schema>) {}
@@ -136,15 +151,15 @@ export class ProductRecords {
     return row ? this.assemble(row) : null;
   }
 
-  /** A stored row with its four lists, read after the row was. */
+  /** A stored row with the four lists the editor shows beside it. */
   async assemble(row: ProductRow): Promise<AdminProduct> {
-    return toAdminProduct(
-      row,
-      await this.tierPricesFor(row.id),
-      await this.attributesFor(row.id),
-      await this.pairingsFor(row.id),
-      await this.documentsFor(row.id),
-    );
+    const [tierPrices, attributes, pairings, documents] = await Promise.all([
+      this.tierPricesFor(row.id),
+      this.attributesFor(row.id),
+      this.pairingsFor(row.id),
+      this.documentsFor(row.id),
+    ]);
+    return toAdminProduct(row, tierPrices, attributes, pairings, documents);
   }
 
   async productBySlug(slug: string): Promise<ProductRow | undefined> {
@@ -156,11 +171,8 @@ export class ProductRecords {
     return row;
   }
 
-  /**
-   * The prices stored for a product, without the default list's — the editor
-   * carries that one in its own field, so an empty result means "this product
-   * costs the same in every tier".
-   */
+  /** The product's tier prices without the default list's, which the editor
+   * carries in its own field. Empty: the same price in every tier. */
   async tierPricesFor(productId: string): Promise<ProductTierPrice[]> {
     return this.db
       .select({
@@ -178,10 +190,7 @@ export class ProductRecords {
       .orderBy(asc(productPrices.tierId));
   }
 
-  /**
-   * A product's attributes in the grid's row order. `sortOrder` is data, so it
-   * has to be asked for — array position no longer carries the order.
-   */
+  /** A product's attributes in the editor's row order. */
   private async attributesFor(productId: string): Promise<StoredAttribute[]> {
     return this.db
       .select({
@@ -194,40 +203,21 @@ export class ProductRecords {
       .orderBy(asc(productAttributes.sortOrder));
   }
 
-  /**
-   * The products this one is sold together with (FR-SET-01), in name order —
-   * the order the editor lists them in, and the only one an admin can predict.
-   *
-   * An edge is stored once, so a product's neighbours sit on whichever side it
-   * is not: the `case` picks the other end, and the `or` is what makes the
-   * table read the same from both products.
-   */
+  /** The products this one is sold together with (FR-SET-01), in name
+   * order, the only one an admin can predict. */
   private async pairingsFor(productId: string): Promise<LinkedProduct[]> {
     const counterpartId = counterpartOf(productId);
     const rows = await this.db
-      .select({
-        slug: products.slug,
-        name: products.name,
-        deletedAt: products.deletedAt,
-        publishedAt: products.publishedAt,
-      })
+      .select(linkedProductColumns)
       .from(productPairings)
       .innerJoin(products, eq(products.id, counterpartId))
       .where(involves(productId))
       .orderBy(asc(products.name));
-    return rows.map((row) => ({
-      slug: row.slug,
-      name: row.name,
-      deleted: row.deletedAt !== null,
-      unpublished: row.publishedAt === null,
-    }));
+    return rows.map(toLinkedProduct);
   }
 
-  /**
-   * The documents shown on one product (FR-DOC-02), soonest expiry first — the
-   * order the document list uses, so the two screens agree about which one is
-   * about to run out.
-   */
+  /** The documents shown on one product (FR-DOC-02), soonest expiry first,
+   * as the document list orders them. */
   private async documentsFor(productId: string): Promise<LinkedDocument[]> {
     const rows = await this.db
       .select({
@@ -244,9 +234,9 @@ export class ProductRecords {
 }
 
 /**
- * A deletion nobody signed: a run's sweep writes no actor, a person's delete
- * always does (FR-ADM-10). Staff accounts are anonymized rather than removed,
- * so the foreign key's `set null` never turns a person's deletion into a run's.
+ * A deletion nobody signed: a run writes no actor, a person always does
+ * (FR-ADM-10). Staff accounts are anonymized, never removed, so the foreign
+ * key's `set null` cannot turn a person's deletion into a run's.
  */
 export function deletedByRun(row: {
   deletedAt: Date | null;
@@ -275,7 +265,7 @@ export function toAdminProduct(
       value: entry.value,
     })),
     parts: row.parts,
-    // Pictures stored before variants existed carry no reference at all.
+    // Older pictures carry no variant reference at all.
     images: row.images.map(({ full, thumb, variantId }) => ({
       full,
       thumb,

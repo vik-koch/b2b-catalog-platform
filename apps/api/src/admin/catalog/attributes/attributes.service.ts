@@ -13,7 +13,6 @@ import {
   gt,
   inArray,
   isNull,
-  ne,
   sql,
 } from 'drizzle-orm';
 import { parseAttributeNumber } from '@b2b-catalog-platform/shared/core/catalog';
@@ -30,22 +29,27 @@ import {
   RenameAttributeValueRequest,
   ReorderAttributesRequest,
 } from '@b2b-catalog-platform/shared/admin/catalog';
-import { slugify } from '@b2b-catalog-platform/shared/core/catalog';
 import { DRIZZLE } from '../../../db/database.module';
 import * as schema from '../../../db/schema';
 import {
   attributeDefinitions,
   catalogAttributes,
-  categories,
   categoryAttributes,
   productAttributes,
   products,
 } from '../../../db/schema';
 import {
   categoryChain,
-  CategoryAttributeRow,
+  DefinitionRow,
 } from '../../../core/catalog/category-filters';
-import { CategoryRow, descendantIds } from '../../../core/catalog/catalog-tree';
+import {
+  categoryBySlug,
+  CategoryRow,
+  descendantIds,
+} from '../../../core/catalog/catalog-tree';
+import { CatalogReader } from '../../../core/catalog/catalog-reader';
+import { categoryNotFound } from '../categories/categories.service';
+import { resolveNewSlug, resolveSlugOverride } from '../catalog-identity';
 
 /** The one 404 this surface has; a function so each throw gets its own stack. */
 const notFound = () =>
@@ -54,11 +58,10 @@ const notFound = () =>
     message: 'Attribute definition not found',
   });
 
-/** The category behind a filter-panel path. */
-const categoryNotFound = () =>
-  new NotFoundException({
-    code: 'category-not-found',
-    message: 'Category not found',
+const attributeSlugTaken = (slug: string) =>
+  new ConflictException({
+    code: 'attribute-slug-taken',
+    message: `Slug '${slug}' is already in use`,
   });
 
 /** Products in the catalog carrying the grouped text, and deleted ones. */
@@ -96,59 +99,73 @@ const NO_USAGE: Usage = {
   unparsedCount: 0,
 };
 
+/** A stored panel row: its place, and whether it is offered. */
+type PanelRow = { sortOrder: number; hidden: boolean };
+
 /**
- * A unit measures a quantity, so only a `number` attribute keeps one: "Blue cm"
- * is not a value anybody wants rendered. Dropped rather than refused — the same
- * temperament as the rest of this surface, where retyping a definition silently
- * changes what its values mean.
+ * A filter editor's rows: every definition, the placed ones in panel order and
+ * the rest after them in registry order. `offered` and `isNew` read a
+ * definition's row, absent where the panel does not place it.
  */
+function panelFilters(
+  definitions: DefinitionRow[],
+  placed: Map<string, PanelRow>,
+  counts: Map<string, ProductCounts>,
+  rules: {
+    offered: (row?: PanelRow) => boolean;
+    isNew: (row?: PanelRow) => boolean;
+  },
+) {
+  return definitions
+    .map((definition, index) => {
+      const row = placed.get(definition.id);
+      return {
+        attributeId: definition.id,
+        name: definition.name,
+        slug: definition.slug,
+        type: definition.type,
+        unit: definition.unit,
+        visible: rules.offered(row),
+        ...(counts.get(definition.name) ?? NO_PRODUCTS),
+        isNew: rules.isNew(row),
+        rank: row ? row.sortOrder : Number.MAX_SAFE_INTEGER - index,
+      };
+    })
+    .sort((a, b) => a.rank - b.rank)
+    .map(({ rank: _rank, ...filter }) => filter);
+}
+
+/** Only a `number` attribute keeps a unit: "Blue cm" means nothing. Dropped
+ * rather than refused, as retyping silently changes what values mean. */
 function unitFor(input: AttributeDefinitionInput): string | null {
   return input.type === 'number' ? input.unit || null : null;
 }
 
-/**
- * The numeric column's value for a piece of attribute text. `numeric` columns
- * are strings on the way in, which is also how the product write path stores
- * them.
- */
+/** Attribute text as the `numeric` column takes it: a string, or null. */
 function numericColumnValue(value: string): string | null {
   const parsed = parseAttributeNumber(value);
   return parsed === null ? null : String(parsed);
 }
 
 /**
- * The filterable-attribute registry (FR-ATTR-01).
+ * The filterable-attribute registry (FR-ATTR-01), its inventory of keys in use
+ * (FR-ATTR-09) and the filter panels (FR-ATTR-11/12). A definition is metadata
+ * only: nothing is stored against it, so every edit is plain, with nothing to
+ * rebuild and no delete guard.
  *
- * A definition is metadata only: it names an attribute key staff already type
- * and says how its values are read and labelled. Nothing is stored against it
- * and nothing is derived from it — `product_attributes.valueNumeric` is parsed
- * on the row whatever this table says — so creating, retyping and deleting are
- * all plain metadata edits with nothing to rebuild and no delete guard.
- *
- * The counts each definition carries exist for one reason: matching is exact,
- * so a definition whose name is mistyped matches nothing, and the earliest
- * place that can be seen is this list.
- *
- * Every count on this surface is taken over the catalog: live and
- * unpublished products, never deleted ones (FR-ADM-22), so that counting and
- * drilling down describe the same set of products. A rename reaches deleted
- * products too, and the inventory says how many. See `usageFor`.
+ * Every count here is over the catalog, live and unpublished, never deleted
+ * products (FR-ADM-22), so a count agrees with the grid it leads to.
  */
 @Injectable()
 export class AttributesService {
   constructor(
     @Inject(DRIZZLE) private readonly db: NodePgDatabase<typeof schema>,
+    private readonly reader: CatalogReader,
   ) {}
 
-  /** The registry in filter-panel order, name as the tiebreak. */
+  /** The registry in filter-panel order. */
   async listAttributes(): Promise<AttributeDefinition[]> {
-    const rows = await this.db
-      .select()
-      .from(attributeDefinitions)
-      .orderBy(
-        asc(attributeDefinitions.sortOrder),
-        asc(attributeDefinitions.name),
-      );
+    const rows = await this.reader.attributeDefinitions();
 
     const usage = await this.usageFor(rows.map((r) => r.name));
     return rows.map((row) => this.toDefinition(row, usage.get(row.name)));
@@ -160,7 +177,14 @@ export class AttributesService {
     actorId: string,
   ): Promise<AttributeDefinition> {
     await this.assertNameFree(input.name);
-    const slug = await this.resolveNewSlug(input.slug, input.name);
+    const slug = await resolveNewSlug(
+      this.db,
+      attributeDefinitions,
+      input.slug,
+      input.name,
+      'attribute',
+      attributeSlugTaken,
+    );
 
     const [{ value: maxOrder }] = await this.db
       .select({
@@ -187,10 +211,9 @@ export class AttributesService {
   }
 
   /**
-   * Renaming a definition changes which key it matches, and that is the point:
-   * it is how a definition is pointed at the spelling the products actually
-   * carry. No product is touched — renaming the *attribute on the products* is
-   * the inventory's rename, not this one.
+   * Renaming a definition points it at another key; no product is touched,
+   * that is the inventory's rename. The slug stays unless a new one is given:
+   * shared filtered links are written with it.
    */
   async updateAttribute(
     id: string,
@@ -200,8 +223,14 @@ export class AttributesService {
     const existing = await this.definitionById(id);
     if (!existing) throw notFound();
 
-    if (input.name !== existing.name) await this.assertNameFree(input.name, id);
-    const slug = await this.resolveSlugOverride(input.slug, existing.slug, id);
+    if (input.name !== existing.name) await this.assertNameFree(input.name);
+    const slug = await resolveSlugOverride(
+      this.db,
+      attributeDefinitions,
+      input.slug,
+      existing.slug,
+      attributeSlugTaken,
+    );
 
     const [updated] = await this.db
       .update(attributeDefinitions)
@@ -219,11 +248,8 @@ export class AttributesService {
     return this.toDefinition(updated, await this.usageOf(updated.name));
   }
 
-  /**
-   * Free, unlike deleting a tier: no row anywhere points at a definition, so
-   * this only stops the attribute being filterable. The products keep their
-   * attributes and the product page keeps showing them.
-   */
+  /** Only stops the attribute being filterable: no row points at a
+   * definition, and products keep their attributes. */
   async deleteAttribute(id: string): Promise<{ message: string }> {
     const existing = await this.definitionById(id);
     if (!existing) throw notFound();
@@ -260,12 +286,8 @@ export class AttributesService {
     return this.listAttributes();
   }
 
-  /**
-   * Every attribute key in use across the catalog, declared or not
-   * (FR-ATTR-09), in alphabetical order — which is the whole point of the
-   * screen: matching is exact, so "Colour" and "colour" are two keys, and
-   * ordering by name is what puts a typo next to its correct spelling.
-   */
+  /** Every key in use, declared or not (FR-ATTR-09), alphabetically, which
+   * puts a typo next to its correct spelling. */
   async listAttributeKeys(): Promise<AttributeKeyUsage[]> {
     const [rows, definitions] = await Promise.all([
       this.db
@@ -301,11 +323,8 @@ export class AttributesService {
     }));
   }
 
-  /**
-   * The values one key carries. Numbers first, in numeric order, then the rest
-   * alphabetically: a list of sizes reading 10, 9, 100 is unusable, and the
-   * numeric form is already on the row whether or not the key is declared.
-   */
+  /** The values one key carries: numbers first in numeric order, then the
+   * rest alphabetically. */
   async listAttributeValues(key: string): Promise<AttributeValueUsage[]> {
     const rows = await this.db
       .select({
@@ -314,8 +333,7 @@ export class AttributesService {
         unpublishedProductCount: unpublishedProducts,
         deletedProductCount: deletedProducts,
         numeric: sql<boolean>`bool_or(${productAttributes.valueNumeric} is not null)`,
-        // Grouped by text, so every row of a group shares one numeric form;
-        // max() is just how a group carries it into the ordering.
+        // One numeric form per group; max() carries it into the ordering.
         sortValue: sql<string | null>`max(${productAttributes.valueNumeric})`,
       })
       .from(productAttributes)
@@ -332,13 +350,9 @@ export class AttributesService {
   }
 
   /**
-   * Renames a key on every product carrying it, in one statement. Renaming
-   * onto a key already in use merges the two, which is the usual reason for
-   * doing it.
-   *
-   * Deleted products are rewritten too — a restored product must not come
-   * back carrying the spelling the rest of the catalog has left behind — and
-   * the inventory says how many beside the count it shows (FR-ADM-22).
+   * Renames a key on every product carrying it; onto a key in use, the two
+   * merge. Deleted products are rewritten too, so a restored one does not
+   * bring back the old spelling (FR-ADM-22).
    */
   async renameAttributeKey(
     request: RenameAttributeKeyRequest,
@@ -355,12 +369,8 @@ export class AttributesService {
   }
 
   /**
-   * Renames one value under one key. Scoped to the key on purpose: "Blue" under
-   * Colour has nothing to do with "Blue" under Finish.
-   *
-   * The numeric form is re-parsed from the new text, so correcting "ca. 30" to
-   * "30" puts the product back into that number attribute's filter — the only
-   * write path where a value changes without the product editor.
+   * Renames one value under one key. The numeric form is parsed again, so
+   * correcting "ca. 30" to "30" puts the product back into a number filter.
    */
   async renameAttributeValue(
     request: RenameAttributeValueRequest,
@@ -385,28 +395,16 @@ export class AttributesService {
   }
 
   /**
-   * One category's filter panel as the editor reads it (FR-ATTR-11).
-   *
-   * Every definition is listed, in the order the storefront would use, with
-   * the ones this category does not offer after them. The product counts are
-   * taken over the category *and its subcategories* — the same scope the
-   * listing's facets are built from, so a zero here means the attribute would
-   * genuinely never render a facet on that page.
+   * One category's filter panel as the editor reads it (FR-ATTR-11). The counts
+   * cover the category and its subcategories, the facets' own scope, so a zero
+   * means no facet would render there.
    */
   async getCategoryFilters(slug: string): Promise<CategoryFilters> {
-    const rows = await this.categoryRows();
-    const category = rows.find((row) => row.slug === slug);
-    if (!category) throw categoryNotFound();
+    const { rows, category } = await this.categoryAt(slug);
 
     const chain = categoryChain(category.id, rows);
     const [definitions, overlay, counts] = await Promise.all([
-      this.db
-        .select()
-        .from(attributeDefinitions)
-        .orderBy(
-          asc(attributeDefinitions.sortOrder),
-          asc(attributeDefinitions.name),
-        ),
+      this.reader.attributeDefinitions(),
       this.db
         .select()
         .from(categoryAttributes)
@@ -430,29 +428,13 @@ export class AttributesService {
     const applied = new Map(
       overlay
         .filter((row) => row.categoryId === owner)
-        .map((row): [string, CategoryAttributeRow] => [row.attributeId, row]),
+        .map((row) => [row.attributeId, row]),
     );
-
-    const filters = definitions
-      .map((definition, index) => {
-        const row = applied.get(definition.id);
-        return {
-          attributeId: definition.id,
-          name: definition.name,
-          slug: definition.slug,
-          type: definition.type,
-          unit: definition.unit,
-          visible: owner ? !!row && !row.hidden : true,
-          ...(counts.get(definition.name) ?? NO_PRODUCTS),
-          // Only meaningful under an overlay: with none, nothing was left out.
-          isNew: !!owner && !row,
-          // The registry's own order is the fallback rank, so an unplaced
-          // attribute still lands somewhere stable.
-          rank: row ? row.sortOrder : Number.MAX_SAFE_INTEGER - index,
-        };
-      })
-      .sort((a, b) => a.rank - b.rank)
-      .map(({ rank: _rank, ...filter }) => filter);
+    // Without an overlay everything is offered and nothing was left out.
+    const filters = panelFilters(definitions, applied, counts, {
+      offered: (row) => (owner ? !!row && !row.hidden : true),
+      isNew: (row) => !!owner && !row,
+    });
 
     return {
       category: { id: category.id, slug: category.slug, name: category.name },
@@ -462,19 +444,12 @@ export class AttributesService {
     };
   }
 
-  /**
-   * Replaces a category's overlay wholesale — the array order is the panel
-   * order, and an attribute the request omits is stored hidden rather than
-   * dropped, so an empty panel stays an empty panel instead of falling back to
-   * the inherited one.
-   */
+  /** Replaces a category's overlay wholesale, in the order posted. */
   async saveCategoryFilters(
     slug: string,
     request: SaveCategoryFiltersRequest,
   ): Promise<CategoryFilters> {
-    const rows = await this.categoryRows();
-    const category = rows.find((row) => row.slug === slug);
-    if (!category) throw categoryNotFound();
+    const { category } = await this.categoryAt(slug);
 
     await this.assertDefinitions(request);
 
@@ -498,9 +473,7 @@ export class AttributesService {
 
   /** Drops the overlay, so the category inherits again. */
   async resetCategoryFilters(slug: string): Promise<CategoryFilters> {
-    const rows = await this.categoryRows();
-    const category = rows.find((row) => row.slug === slug);
-    if (!category) throw categoryNotFound();
+    const { category } = await this.categoryAt(slug);
 
     await this.db
       .delete(categoryAttributes)
@@ -508,45 +481,19 @@ export class AttributesService {
     return this.getCategoryFilters(slug);
   }
 
-  /**
-   * The whole-catalogue listing's panel as the editor reads it (FR-ATTR-12).
-   *
-   * The category panel's shape, minus the inheritance: no row means not
-   * offered, so an attribute nobody has ticked is listed unticked after the
-   * placed ones rather than flagged as new. The counts cover every product.
-   */
+  /** The whole-catalogue panel (FR-ATTR-12): no inheritance, so a row-less
+   * attribute is simply not offered. The counts cover every product. */
   async getCatalogFilters(): Promise<CatalogFilters> {
     const [definitions, rows, counts] = await Promise.all([
-      this.db
-        .select()
-        .from(attributeDefinitions)
-        .orderBy(
-          asc(attributeDefinitions.sortOrder),
-          asc(attributeDefinitions.name),
-        ),
+      this.reader.attributeDefinitions(),
       this.db.select().from(catalogAttributes),
       this.countsInScope(null),
     ]);
     const placed = new Map(rows.map((row) => [row.attributeId, row]));
-
-    const filters = definitions
-      .map((definition, index) => {
-        const row = placed.get(definition.id);
-        return {
-          attributeId: definition.id,
-          name: definition.name,
-          slug: definition.slug,
-          type: definition.type,
-          unit: definition.unit,
-          visible: !!row && !row.hidden,
-          ...(counts.get(definition.name) ?? NO_PRODUCTS),
-          isNew: false,
-          rank: row ? row.sortOrder : Number.MAX_SAFE_INTEGER - index,
-        };
-      })
-      .sort((a, b) => a.rank - b.rank)
-      .map(({ rank: _rank, ...filter }) => filter);
-
+    const filters = panelFilters(definitions, placed, counts, {
+      offered: (row) => !!row && !row.hidden,
+      isNew: () => false,
+    });
     return { filters };
   }
 
@@ -582,19 +529,14 @@ export class AttributesService {
     if (known.length !== new Set(ids).size) throw notFound();
   }
 
-  /** The flat category rows the chain and the scope are both computed from. */
-  private categoryRows(): Promise<CategoryRow[]> {
-    return this.db
-      .select({
-        id: categories.id,
-        slug: categories.slug,
-        name: categories.name,
-        shortName: categories.shortName,
-        parentId: categories.parentId,
-        mark: categories.mark,
-        sortOrder: categories.sortOrder,
-      })
-      .from(categories);
+  /** The category a panel path names, with the rows its chain is read from. */
+  private async categoryAt(
+    slug: string,
+  ): Promise<{ rows: CategoryRow[]; category: CategoryRow }> {
+    const rows = await this.reader.categoryRows();
+    const category = categoryBySlug(rows, slug);
+    if (!category) throw categoryNotFound();
+    return { rows, category };
   }
 
   /** Products per attribute key within a set of categories — or across the
@@ -631,19 +573,8 @@ export class AttributesService {
     return row;
   }
 
-  /**
-   * Usage per attribute key, in one grouped pass over the rows of the named
-   * keys.
-   *
-   * Counted over the catalog — live and unpublished products, not deleted
-   * ones (FR-ADM-22). That is the rule every admin-side attribute number
-   * follows, and it is chosen so a count agrees with the drill-down it leads
-   * to: the admin product grid, whose default shows exactly those.
-   *
-   * The storefront's facet counts are the opposite and must stay so: they
-   * apply the publication gate and the soft delete, because they describe what
-   * a visitor can actually reach.
-   */
+  /** Usage per attribute key, in one grouped pass. The storefront's facet
+   * counts differ on purpose: they count what a visitor can reach. */
   private async usageFor(names: string[]): Promise<Map<string, Usage>> {
     if (names.length === 0) return new Map();
 
@@ -655,8 +586,8 @@ export class AttributesService {
           sql<number>`count(distinct ${productAttributes.productId})
           filter (where ${products.publishedAt} is null)`.mapWith(Number),
         valueCount: countDistinct(productAttributes.value),
-        // Distinct values rather than rows: it is the facet's list that loses
-        // them, and it reads against valueCount ("14 values, 2 not numbers").
+        // Distinct values, read against valueCount ("14 values, 2 not
+        // numbers").
         unparsedCount: sql<number>`count(distinct ${productAttributes.value})
           filter (where ${productAttributes.valueNumeric} is null)`.mapWith(
           Number,
@@ -676,86 +607,17 @@ export class AttributesService {
     return (await this.usageFor([name])).get(name) ?? NO_USAGE;
   }
 
-  private async assertNameFree(name: string, exceptId?: string): Promise<void> {
+  private async assertNameFree(name: string): Promise<void> {
     const [row] = await this.db
       .select({ id: attributeDefinitions.id })
       .from(attributeDefinitions)
-      .where(
-        exceptId
-          ? and(
-              eq(attributeDefinitions.name, name),
-              ne(attributeDefinitions.id, exceptId),
-            )
-          : eq(attributeDefinitions.name, name),
-      );
+      .where(eq(attributeDefinitions.name, name));
     if (row) {
       throw new ConflictException({
         code: 'attribute-name-taken',
         message: `Attribute '${name}' is already defined`,
       });
     }
-  }
-
-  /**
-   * Same rule as products and categories: an admin-supplied slug is used as-is
-   * (409 if taken), otherwise the name is transliterated and a numeric suffix
-   * appended until it is free. `attribute` is the fallback stem for a name with
-   * no slug-able characters.
-   */
-  private async resolveNewSlug(
-    provided: string | undefined,
-    name: string,
-  ): Promise<string> {
-    if (provided) {
-      await this.assertSlugFree(provided);
-      return provided;
-    }
-    const base = slugify(name) || 'attribute';
-    let candidate = base;
-    for (let i = 2; await this.slugTaken(candidate); i++) {
-      candidate = `${base}-${i}`;
-    }
-    return candidate;
-  }
-
-  /**
-   * Kept unless a new, free slug is given. Renaming an attribute deliberately
-   * leaves the slug alone: it is what filtered listing URLs are written with,
-   * and a rename must not break the links already shared.
-   */
-  private async resolveSlugOverride(
-    provided: string | undefined,
-    current: string,
-    id: string,
-  ): Promise<string> {
-    if (!provided || provided === current) return current;
-    await this.assertSlugFree(provided, id);
-    return provided;
-  }
-
-  private async assertSlugFree(slug: string, exceptId?: string): Promise<void> {
-    if (await this.slugTaken(slug, exceptId)) {
-      throw new ConflictException({
-        code: 'attribute-slug-taken',
-        message: `Slug '${slug}' is already in use`,
-      });
-    }
-  }
-
-  private async slugTaken(slug: string, exceptId?: string): Promise<boolean> {
-    const [row] = await this.db
-      .select({ id: attributeDefinitions.id })
-      .from(attributeDefinitions)
-      .where(
-        exceptId
-          ? and(
-              eq(attributeDefinitions.slug, slug),
-              ne(attributeDefinitions.id, exceptId),
-            )
-          : eq(attributeDefinitions.slug, slug),
-      )
-      .limit(1);
-    return !!row;
   }
 
   private toDefinition(

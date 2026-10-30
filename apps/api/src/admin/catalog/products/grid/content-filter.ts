@@ -16,19 +16,16 @@ import {
   products,
 } from '../../../../db/schema';
 import { resolvedPriceMinor } from '../../../../core/catalog/product-price';
+import { involves } from '../../../../core/catalog/product-pairings';
 
 type Db = NodePgDatabase<typeof schema>;
 
 /**
- * "This product lacks this piece of its own content" (FR-ADM-20). Each gap is
- * a predicate on the product row, so the grid can filter by it and a grid row
- * can name the ones it has from the same expressions.
- *
- * A description counts as missing when nothing but markup is left: the editor
- * can save an empty paragraph, which is no description to a reader. A price is
- * the default list's, the one publication needs.
+ * "This product lacks this content" (FR-ADM-20), one predicate for both the
+ * filter and a row's gaps. A description of nothing but markup is missing: the
+ * editor can save an empty paragraph. A price is the default list's.
  */
-export function gapCondition(db: Db, gap: ProductGap): SQL {
+function gapCondition(db: Db, gap: ProductGap): SQL {
   switch (gap) {
     case 'price':
       return isNull(resolvedPriceMinor(null));
@@ -53,8 +50,7 @@ export function gapCondition(db: Db, gap: ProductGap): SQL {
   }
 }
 
-/** The filter form: every entry must hold, so two gaps narrow to products
- * lacking both. */
+/** The filter form: every entry must hold. */
 export function missingCondition(
   db: Db,
   missing: readonly ProductGapFilter[],
@@ -95,8 +91,7 @@ export function featureColumns(db: Db): Record<ProductFeature, SQL<boolean>> {
   ) as Record<ProductFeature, SQL<boolean>>;
 }
 
-/** "This product carries this kind of content". The linked ones are `exists`
- * subqueries, written like the document and tier filters beside them. */
+/** "This product carries this kind of content". */
 function featurePredicate(db: Db, feature: ProductFeature): SQL {
   switch (feature) {
     case 'featured':
@@ -114,19 +109,12 @@ function featurePredicate(db: Db, feature: ProductFeature): SQL {
           .from(documentProducts)
           .where(eq(documentProducts.productId, products.id)),
       );
-    // A pairing is stored once, in canonical order, so the product may sit on
-    // either side of it.
     case 'pairings':
       return exists(
         db
           .select({ one: sql`1` })
           .from(productPairings)
-          .where(
-            or(
-              eq(productPairings.productAId, products.id),
-              eq(productPairings.productBId, products.id),
-            ),
-          ),
+          .where(involves(products.id)),
       );
   }
 }

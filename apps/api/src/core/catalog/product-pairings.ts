@@ -43,8 +43,8 @@ export function counterpartOf(productId: string): SQL<string> {
     else ${productPairings.productAId} end`;
 }
 
-/** Either end of an edge is this product. */
-export function involves(productId: string) {
+/** Either end of an edge is this product: an id, or the row in scope. */
+export function involves(productId: string | typeof products.id) {
   return or(
     eq(productPairings.productAId, productId),
     eq(productPairings.productBId, productId),
