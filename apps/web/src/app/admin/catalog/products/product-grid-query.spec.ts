@@ -1,8 +1,8 @@
 import {
-  DEFAULT_ADMIN_SORT,
-  DEFAULT_ADMIN_STATE,
-  resolveAdminSort,
-  resolveAdminState,
+  DEFAULT_SORT,
+  DEFAULT_STATE,
+  resolveSort,
+  resolveState,
 } from './product-grid-query';
 
 /**
@@ -10,11 +10,11 @@ import {
  * bookmark can carry — so what matters here is that nothing but a valid key
  * ever reaches the API, and that the default view has exactly one URL.
  */
-describe('resolveAdminSort', () => {
+describe('resolveSort', () => {
   it.each(['name', 'name_desc', 'price', 'price_desc', 'updated_desc'])(
     'passes %s through',
     (raw) => {
-      expect(resolveAdminSort(raw)).toBe(raw);
+      expect(resolveSort(raw)).toBe(raw);
     },
   );
 
@@ -23,19 +23,19 @@ describe('resolveAdminSort', () => {
     ['unknown', 'colour'],
     ['a storefront-only key', 'best'],
   ])('falls back to the default for %s input', (_label, raw) => {
-    expect(resolveAdminSort(raw)).toBe(DEFAULT_ADMIN_SORT);
+    expect(resolveSort(raw)).toBe(DEFAULT_SORT);
   });
 });
 
-describe('resolveAdminState', () => {
+describe('resolveState', () => {
   it.each(['all', 'live', 'deleted'])('passes %s through', (raw) => {
-    expect(resolveAdminState(raw)).toBe(raw);
+    expect(resolveState(raw)).toBe(raw);
   });
 
   it.each([
     ['empty', ''],
     ['unknown', 'archived'],
   ])('falls back to the default for %s input', (_label, raw) => {
-    expect(resolveAdminState(raw)).toBe(DEFAULT_ADMIN_STATE);
+    expect(resolveState(raw)).toBe(DEFAULT_STATE);
   });
 });

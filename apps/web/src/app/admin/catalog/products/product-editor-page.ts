@@ -42,6 +42,7 @@ import {
 } from '@b2b-catalog-platform/shared/core/catalog';
 import {
   AdminCategory,
+  AdminProduct,
   AttributeDefinition,
   AttributeKeyUsage,
   CustomerTier,
@@ -130,6 +131,9 @@ import { saveIcon } from '@b2b-catalog-platform/ui/icons/glyphs/save';
 import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
 import { numericRules } from '@b2b-catalog-platform/ui/inputs/numeric-rules';
 
+/** Packaging with no pack and no box, for the reads that need only those. */
+const NO_PACKAGING = { piecesPerPack: null, packsPerBox: null };
+
 interface ProductDraft {
   name: string;
   slug: string;
@@ -149,10 +153,9 @@ interface ProductDraft {
 }
 
 /**
- * Add/Edit a product (FR-ADM-01). One screen for both: `/admin/products/new`
- * and `/admin/products/:slug/edit`. Mirrors the static-page editor's shape —
- * dirty tracking (via a route guard), a live preview, and a stable slug that is
- * derived from the name but overridable. Browser-only (an admin route).
+ * A product (FR-ADM-01), new without a `:slug`: one save, an unsaved-changes
+ * guard, a preview through the storefront's own view, and a slug that follows
+ * the name until it is typed.
  */
 @Component({
   selector: 'app-product-editor-page',
@@ -188,8 +191,7 @@ interface ProductDraft {
     UnitInputControl,
     Notice,
   ],
-  // No <form> element: the buttons under the page save, publish or preview,
-  // so the page says itself when the form has been sent.
+  // No <form>: the page itself says when the form has been sent.
   providers: [
     {
       provide: FIELD_ATTEMPT,
@@ -201,12 +203,9 @@ interface ProductDraft {
       <h1 uiPageTitle>
         {{ isNew ? text.newTitle : text.editTitle }}
       </h1>
-      <!-- Where the product stands, beside its name — the same badges the
-           hidden-products overlay puts on a tile. Deleted alone where it
-           applies: restoring is the only step back from there (FR-ADM-01).
-           The price one tracks the field rather than what is stored: it says
-           what the product will be after a save, which is the question
-           somebody editing it is actually asking. -->
+      <!-- Deleted alone where it applies: restoring is the only way back
+           (FR-ADM-01). The price badge follows the field, which is what the
+           product will be after a save. -->
       @if (!isNew && !loading() && !notFound()) {
         @if (deleted()) {
           <span uiStatusBadge tone="danger">{{ productStates.deleted }}</span>
@@ -232,11 +231,8 @@ interface ProductDraft {
     } @else if (notFound()) {
       <p class="text-ink-subtle" role="alert">{{ text.saveError }}</p>
     } @else if (newAndOwned()) {
-      <!-- Creating writes every owned field at once, identity included, so
-           there is nothing here to offer. The affordances that lead here are
-           deliberately left in place — this is the one screen that can explain
-           why, and both of them (the list's button and the storefront's "add
-           product here") land on this route. -->
+      <!-- Creating writes every owned field, so there is nothing to offer;
+           this screen is where the ways in explain why. -->
       <app-locked-note>{{ ownershipText.productCreate }}</app-locked-note>
     } @else if (previewing()) {
       <p uiNotice tone="neutral" class="mb-6" role="status">
@@ -245,9 +241,6 @@ interface ProductDraft {
       <app-product-detail-view [item]="previewItem()" [canAdd]="false" />
     } @else {
       <div class="max-w-3xl space-y-6">
-        <!-- Said once, at the top, where it explains every lock below it. The
-             per-field marks say which fields; this says why and where to
-             change it. -->
         @if (catalogOwned()) {
           <app-locked-note>{{ ownershipText.fieldLocked }}</app-locked-note>
         }
@@ -267,23 +260,13 @@ interface ProductDraft {
           />
         </ui-field>
 
-        <!-- Side by side from sm up: the price is a short field and the
-             category picker is the long one beside it. Below that each takes a
-             line of its own — a 10rem price field and a picker sharing 360px
-             are two fields too narrow to read.
-
-             A grid rather than a flex row so the note under the price can be a
-             row of its own: inside the price field's own column it grew that
-             column and pushed the category picker away from the field it
-             belongs to. The picker is placed explicitly, so the note can sit
-             between the two fields in the markup and read under the price on a
-             phone. -->
+        <!-- A grid, so the notes under the price are a row of their own rather
+             than growing its column; the picker is placed explicitly, so on a
+             phone the notes read under the price. -->
         <div
           class="grid gap-6 sm:grid-cols-[10.875rem_4.6875rem_minmax(0,1fr)]"
         >
-          <!-- Named after the list it writes: it is one price list's row like
-               any other below, and the only thing separating it is that the
-               storefront quotes it. -->
+          <!-- Named after its price list, the one the storefront quotes. -->
           <ui-field
             class="w-full sm:w-auto"
             [field]="form.price"
@@ -291,10 +274,8 @@ interface ProductDraft {
             controlId="product-price"
           >
             <app-locked-field-marker uiFieldCaption [field]="form.price" />
-            <!-- Text, not type=number: a number input reports a half-typed
-                 "18." as an empty value, so binding the signal back to it wiped
-                 the field the moment a decimal separator was pressed. The
-                 inputmode still gets the numeric keypad on touch. -->
+            <!-- Text, not number: a number input reports "18." as empty,
+                 which wiped the field at the decimal separator. -->
             <ui-unit-input class="w-full sm:w-43.5" [unit]="currencySuffix">
               <input
                 type="text"
@@ -308,10 +289,8 @@ interface ProductDraft {
             </ui-unit-input>
           </ui-field>
 
-          <!-- The product's own tax rate, beside the price it qualifies and
-               owned like it. Half the price field less half a gap, which
-               holds "12.75"; empty is the deployment's default, which the
-               placeholder shows. Its own line on a phone, like the price. -->
+          <!-- Wide enough for "12.75"; empty is the default, shown as the
+               placeholder. -->
           <ui-field
             class="w-full"
             [field]="form.taxRate"
@@ -331,12 +310,9 @@ interface ProductDraft {
             </ui-unit-input>
           </ui-field>
 
-          <!-- Said where the fields are, not only on the button: by the time
-               somebody reads the button they have already cleared the price.
-               Under the fields on a phone, where they are a column; across all
-               three columns from sm up, so appearing mid-edit moves nothing
-               beside them. One row for both notes, so neither leaves a gap
-               when only the other is shown. -->
+          <!-- At the fields, not only on the button, which is read after the
+               price was cleared. Across all three columns, so appearing
+               mid-edit moves nothing. -->
           @if ((priceCleared() && published()) || taxRateNotInEffect) {
             <div class="-mt-4 space-y-1 text-sm sm:col-span-3 sm:row-start-2">
               @if (priceCleared() && published()) {
@@ -365,9 +341,6 @@ interface ProductDraft {
           </ui-field>
         </div>
 
-        <!-- Only where the deployment actually has tiers: with none, the base
-             price is the whole pricing story and an empty section would only
-             raise a question the admin cannot act on. -->
         @if (otherTiers().length > 0) {
           <div>
             <app-product-tier-prices-editor
@@ -378,11 +351,6 @@ interface ProductDraft {
           </div>
         }
 
-        <!-- The product's two identifiers, side by side: the one the shop
-             addresses it by and the one the source system knows it as. They
-             are read and corrected together, and neither is worth a full line
-             of a 48rem form. One per line below sm, like every other pair on
-             this page. -->
         <div class="grid gap-6 sm:grid-cols-2">
           <ui-field
             [field]="form.slug"
@@ -449,9 +417,6 @@ interface ProductDraft {
           @if (!catalogOwned()) {
             <p class="mb-2 text-xs text-ink-subtle">{{ text.stock.hint }}</p>
           }
-          <!-- Both counts in pieces, said in the fields rather than under
-               them: the two are one sentence about how much is left, and a
-               hint apiece made the block four lines deep for two numbers. -->
           <div class="grid gap-4 sm:grid-cols-2">
             <ui-field
               [field]="form.stockPieces"
@@ -471,12 +436,8 @@ interface ProductDraft {
                 />
               </ui-unit-input>
             </ui-field>
-            <!-- The figure in force as the placeholder: empty means "work it
-                 out from the packaging", and the number that would be worked
-                 out is what an empty field then shows. It follows the
-                 packaging as it is edited, and there is nothing to show while
-                 the stock is untracked — the field is disabled then, and a
-                 greyed figure in a greyed field reads as a value. -->
+            <!-- Empty works it out from the packaging; that figure is the
+                 placeholder. -->
             <ui-field
               [field]="form.lowStockThreshold"
               [label]="text.stock.threshold"
@@ -493,11 +454,8 @@ interface ProductDraft {
               </ui-unit-input>
             </ui-field>
           </div>
-          <!-- The badge itself rather than its name: what the admin is
-               choosing is what a customer will see, and the preview panel is
-               too far down the page to answer that while typing. As tall as
-               the pill either way — 22px, the badge's own height — so entering
-               a figure does not nudge the line down as the pill appears. -->
+          <!-- The badge a customer will see. As tall as the pill either way,
+               so it appearing nudges nothing. -->
           <p
             class="mt-3 flex min-h-5.5 items-center gap-2 text-xs
                    text-ink-subtle"
@@ -511,10 +469,8 @@ interface ProductDraft {
           </p>
         </fieldset>
 
-        <!-- The optional extras, one box each and in the order the grid
-             draws their glyphs: open where the product uses one, shut where
-             it does not. All six are the shop's own, open while the catalog
-             is owned and never written by a run. -->
+        <!-- The optional extras, in the grid's glyph order. All six stay the
+             shop's while the catalog is owned. -->
         <app-feature-disclosure
           [label]="text.featured.heading"
           [glyph]="glyphs.featured"
@@ -538,9 +494,8 @@ interface ProductDraft {
           (valueChange)="setVariants($event)"
         />
 
-        <!-- Its own box, though the first variant switches it on: the note is
-             how a customer picks among variants, and it stands without them
-             too. -->
+        <!-- Its own box: the first variant switches it on, but it stands
+             without variants too. -->
         <app-feature-disclosure
           [label]="text.lineNote.heading"
           [glyph]="glyphs.note"
@@ -607,10 +562,6 @@ interface ProductDraft {
 
     @if (!loading() && !notFound()) {
       <div class="mt-6 flex max-w-3xl flex-wrap gap-3">
-        <!-- Nothing to save on the "new" route while the catalog is externally
-             owned: what stands above is an explanation, not a form, and a Save
-             button over it could only fail. Cancel stays, so there is a way
-             out. -->
         @if (!newAndOwned()) {
           <button
             uiButton
@@ -623,14 +574,8 @@ interface ProductDraft {
             {{ saving() ? actionText.saving : saveLabel() }}
           </button>
         }
-        <!-- Only while the product is off the storefront: publishing is one
-             click from the list once it is on. -->
-        <!-- Not offered without a price: the server refuses to publish one,
-             and a button whose only outcome is that refusal is a worse way of
-             saying so than not offering it. The refusal still stands behind
-             it — this is the screen agreeing with the rule, not enforcing it. -->
-        <!-- Nor on a deleted product, which is restored before it is
-             published (FR-ADM-01). -->
+        <!-- Not without a price, which the server would refuse, nor on a
+             deleted product, restored first (FR-ADM-01). -->
         @if (!published() && !deleted() && !newAndOwned() && !priceCleared()) {
           <button
             uiButton
@@ -673,12 +618,8 @@ interface ProductDraft {
           <ui-icon [glyph]="xIcon" class="size-4" />
           {{ actionText.cancel }}
         </button>
-        <!-- Cancel puts the admin back where they came from, which for an
-             editor opened from the admin list is the admin list — so seeing
-             the product as a customer sees it meant saving first. This exit
-             discards the same way and lands on the page itself, which an
-             admin is shown whether or not it is on the storefront
-             (FR-ADM-06). -->
+        <!-- Cancel goes back where the editor was opened; this discards the
+             same way and lands on the product's page (FR-ADM-06). -->
         @if (!isNew) {
           <button
             uiButton
@@ -719,23 +660,15 @@ export class ProductEditorPage implements UnsavedChangesAware, FieldAttempt {
     DEFAULT_LOW_STOCK_THRESHOLD_PIECES;
   protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly text = inject(ADMIN_TEXT).products.editor;
-  /** The grid's glyphs, on the sections that set what they stand for. */
   protected readonly glyphs = PRODUCT_FEATURE_GLYPHS;
   protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
-  /** The badge wording, shared with the storefront's hidden-products overlay. */
   protected readonly editText = inject(ADMIN_TEXT).editMode;
   protected readonly product = inject(SHARED_TEXT).product;
   protected readonly productStates = inject(ADMIN_TEXT).products;
   private readonly ownership = inject(SettingsService);
 
-  /**
-   * Whether the exchange holds the catalog's fields (FR-ADM-10). Null while
-   * the answer is still in flight, and that reads as *not* owned here: the
-   * load is kicked off in the constructor and resolves well before anyone has
-   * typed, and painting every field locked on the way in would be a worse
-   * flicker than the one it avoids. Nothing is decided by this — the API
-   * refuses the save either way.
-   */
+  /** FR-ADM-10. Unknown reads as not owned: the form waits for the answer,
+   * and the API refuses either way. */
   protected readonly catalogOwned = computed(
     () => this.ownership.ownedAreas()?.includes('catalog') ?? false,
   );
@@ -744,12 +677,9 @@ export class ProductEditorPage implements UnsavedChangesAware, FieldAttempt {
   protected readonly newAndOwned = computed(
     () => this.isNew && this.catalogOwned(),
   );
-  /** The piece abbreviation, printed inside both stock fields — the same one
-   * the packaging rows use, so the two blocks measure in one word. */
   protected readonly pieceSuffix = inject(SHARED_TEXT).units.piece;
   protected readonly actionText = inject(SHARED_TEXT).actions;
 
-  /** null slug param → the "new" route. */
   private readonly slugParam = this.route.snapshot.paramMap.get('slug');
   protected readonly isNew = this.slugParam === null;
 
@@ -760,15 +690,11 @@ export class ProductEditorPage implements UnsavedChangesAware, FieldAttempt {
   protected readonly tiers = signal<CustomerTier[]>([]);
   protected readonly attributeKeys = signal<AttributeKeyUsage[]>([]);
   protected readonly attributeDefinitions = signal<AttributeDefinition[]>([]);
-  /**
-   * The keys the stored product carries, so the grid's badges can discount it
-   * from the catalog's counts and keep speaking about the other products.
-   */
+  /** The stored keys, left out of the grid's counts. */
   protected readonly ownAttributeKeys = signal<string[]>([]);
 
-  /** Where the slug comes from. A new record follows its name from the start.
-   * An emptied box stays empty until the name is next edited, then follows
-   * it, so clearing the box does not refill it from the current name. */
+  /** A new record follows its name; an emptied box stays empty until the name
+   * is next edited, then follows it. */
   private readonly slugSource = signal<'typed' | 'emptied' | 'name'>(
     this.isNew ? 'name' : 'typed',
   );
@@ -781,7 +707,6 @@ export class ProductEditorPage implements UnsavedChangesAware, FieldAttempt {
   protected readonly featured = signal(false);
   protected readonly lineNoteEnabled = signal(false);
 
-  /** What can be wrong, and so what the form checks. */
   private readonly model = signal<ProductDraft>({
     name: '',
     slug: '',
@@ -801,8 +726,7 @@ export class ProductEditorPage implements UnsavedChangesAware, FieldAttempt {
   protected readonly form = form(
     this.model,
     (product) => {
-      // Only the fields an exchange writes; the rest stay the shop's own. The
-      // reason is what each field's lock says.
+      // Only the fields an exchange writes.
       const owned = {
         when: () => this.catalogOwned() && this.ownershipText.fieldLockedShort,
       };
@@ -846,10 +770,9 @@ export class ProductEditorPage implements UnsavedChangesAware, FieldAttempt {
           const tier = this.tiers().find((t) => t.id === valueOf(draft.tierId));
           return {
             kind: 'price',
-            message: this.text.tierPrices.invalid.replace(
-              '{tier}',
-              tier?.label ?? '',
-            ),
+            message: fillText(this.text.tierPrices.invalid, {
+              tier: tier?.label ?? '',
+            }),
           };
         });
       });
@@ -884,8 +807,6 @@ export class ProductEditorPage implements UnsavedChangesAware, FieldAttempt {
   protected readonly taxRateInput = computed(() => this.model().taxRate);
   protected readonly categoryId = computed(() => this.model().categoryId);
   protected readonly sourceId = computed(() => this.model().sourceId);
-  /** Kept as strings like the packaging drafts, so a half-typed or
-   * deliberately blank figure is not thrown away between keystrokes. */
   protected readonly stockPieces = computed(() => this.model().stockPieces);
   protected readonly lowStockThresholdInput = computed(
     () => this.model().lowStockThreshold,
@@ -895,13 +816,11 @@ export class ProductEditorPage implements UnsavedChangesAware, FieldAttempt {
   );
   protected readonly tierPrices = computed(() => this.model().tierPrices);
   protected readonly packaging = computed(() => this.model().packaging);
-  /** What one piece is made of, where it is sold as a set (FR-CAT-10). */
   protected readonly parts = computed(() => this.model().parts);
   protected readonly partsValid = computed(() => isValidPartList(this.parts()));
   protected readonly variants = computed(() => this.model().variants);
 
-  /** The packaging rule's message, once a save has asked for it: the editor
-   * corrects most of what it catches as a field is left. */
+  /** Once a save has asked: the editor corrects most of it on blur. */
   protected readonly packagingError = computed(() =>
     submitAttempt(this.form)()
       ? (this.form.packaging().errors()[0]?.message ?? null)
@@ -909,52 +828,41 @@ export class ProductEditorPage implements UnsavedChangesAware, FieldAttempt {
   );
   protected readonly isPartialTaxRate = isPartialTaxRate;
   protected readonly partialPrice = partialPriceRule(this.currency);
-  /** The default rate, shown in the empty field. */
   protected readonly taxRatePlaceholder =
     this.tax.basis === 'none' ? '' : formatTaxRate(this.tax.rate, this.locale);
-  /** Under a basis that charges no tax a rate is kept but applies to
-   * nothing yet, which the field alone would not say. */
+  /** Under a basis that charges no tax, a rate is kept but applies to
+   * nothing yet. */
   protected readonly taxRateNotInEffect = this.tax.basis === 'none';
 
-  /** Null until loaded; drives the publish switch and where a save returns to. */
   protected readonly published = signal(false);
-  /** Soft-deleted: still editable, and the badge beside the title says so. */
+  /** Still editable, with a badge saying so. */
   protected readonly deleted = signal(false);
   protected readonly previewing = signal(false);
   protected readonly saving = signal(false);
   protected readonly error = signal<string | null>(null);
 
-  // JSON snapshot of the form at load, for dirty detection.
+  /** The form at load, for the unsaved-changes guard. */
   private original = '';
   private navigatingAway = false;
   private readonly close = injectEditorReturn();
 
-  /** Read by every field on the page (FIELD_ATTEMPT). */
   readonly attempted = computed(() => submitAttempt(this.form)());
   private readonly partsEditor = viewChild(ProductPartsEditor);
   private readonly variantsEditor = viewChild(ProductVariantsEditor);
   private readonly injector = inject(Injector);
 
-  /** Shows the shape a price takes here, e.g. "0,00" in a de-DE deployment. */
+  /** The shape of a price here, e.g. "0,00" in a de-DE deployment. */
   protected readonly pricePlaceholder = `0${decimalSeparator(this.currency)}00`;
-  /** The mark the deployment's prices are written with, printed inside every
-   * price field on this page — the base one here and the tier fields below. */
   protected readonly currencySuffix = currencySymbol(this.currency);
 
-  /**
-   * The base price as the tier fields advertise it — what an emptied tier
-   * charges. Formatted, not the raw text, so a half-typed "18," still shows the
-   * "18,00" it would save as; empty while the field holds no price at all.
-   */
+  /** What an emptied tier charges, formatted, so a half-typed "18," shows the
+   * "18,00" it saves as. */
   protected readonly basePriceText = computed(() => {
-    // Nothing to advertise while the field holds no price — a zero included,
-    // which saves as none: the tier fields fall back to naming it instead.
     if (this.priceCleared()) return '';
     const minor = parsePriceInput(this.priceInput(), this.currency);
     return minor === null ? '' : formatPriceInput(minor, this.currency);
   });
 
-  /** The storefront's price list, under its own name. */
   private readonly defaultTier = computed(() =>
     this.tiers().find((t) => t.isDefault),
   );
@@ -965,50 +873,35 @@ export class ProductEditorPage implements UnsavedChangesAware, FieldAttempt {
     }),
   );
 
-  /** The other lists — this product's price in the storefront's list is the
-   * field above, not a row in the table below. */
+  /** The storefront's list is the price field above, not a row below. */
   protected readonly otherTiers = computed(() =>
     this.tiers().filter((t) => !t.isDefault),
   );
 
-  /**
-   * The field says this product has no price, which is a state the catalog
-   * holds: it simply cannot be on the storefront.
-   *
-   * Zero is that state too, and stored as one rather than as a row saying the
-   * product is free: a shop that gives something away does not price it at
-   * nothing, and two spellings of one state is what the null is here to
-   * avoid. Typing 0,00 therefore reads exactly as clearing the field, warning
-   * and save label included.
-   */
+  /** No price, a state the catalog holds: off the storefront. Zero is the same
+   * state, never a free product, so 0,00 reads as a cleared field. */
   protected readonly priceCleared = computed(() => {
     const text = this.priceInput().trim();
     return text === '' || parsePriceInput(text, this.currency) === 0;
   });
 
-  /** Says what the save will do before it is pressed: clearing the price of a
-   * published product takes it off the storefront in the same write. */
+  /** Clearing a published product's price takes it off sale in the same
+   * write, and the button says so. */
   protected readonly saveLabel = computed(() =>
     this.priceCleared() && this.published()
       ? this.text.saveAndUnpublish
       : this.adminText.actions.save,
   );
 
-  /**
-   * Empties a price field left at zero. A price of nothing is no price, and an
-   * empty field is how this form says that — so the field is put into that
-   * state as soon as it is left, rather than reading as a free product until
-   * the save silently turns it into none.
-   */
+  /** A zero is no price, which this form writes as an empty field. */
   protected onPriceBlur(): void {
     if (parsePriceInput(this.priceInput(), this.currency) === 0) {
       this.form.price().value.set('');
     }
   }
 
-  /** The declared unit for an attribute key, matched as the server matches it:
-   * exactly, apart from surrounding whitespace (FR-ATTR-02), and without the
-   * part a set's row names (FR-CAT-10). */
+  /** Matched as the server does: exactly but for whitespace (FR-ATTR-02), and
+   * without a set's part (FR-CAT-10). */
   private unitFor(key: string): string | null {
     const name = splitAttributeKey(key, this.parts()).key;
     return (
@@ -1016,11 +909,8 @@ export class ProductEditorPage implements UnsavedChangesAware, FieldAttempt {
     );
   }
 
-  /**
-   * Pieces on hand, or null for a blank field — which means the stock is not
-   * tracked, not that it is zero. Negative is allowed: a stocktake correction
-   * reads as out of stock rather than being refused.
-   */
+  /** Null is untracked, not zero. Negative is allowed: a stocktake correction
+   * reads as out of stock. */
   protected readonly parsedStockPieces = computed(() => {
     const text = this.stockPieces().trim();
     return /^-?\d+$/.test(text) ? Number(text) : null;
@@ -1039,29 +929,25 @@ export class ProductEditorPage implements UnsavedChangesAware, FieldAttempt {
     return value >= 1 ? value : null;
   });
 
-  /** What the badge would say if the form were saved as it stands — the same
-   * function the API applies, so the preview cannot disagree with the save. */
+  /** The API's own function, so the preview cannot disagree with the save. */
   protected readonly previewAvailability = computed<ProductAvailability | null>(
     () =>
       productAvailability(
         this.parsedStockPieces(),
-        this.packagingInput() ?? { piecesPerPack: null, packsPerBox: null },
+        this.packagingInput() ?? NO_PACKAGING,
         this.parsedThreshold(),
         this.lowStockFallback,
       ),
   );
 
-  /** Names the figure actually in force, so an admin can see what the ladder
-   * resolved to without working the packaging out in their head. */
-  /** The threshold that is actually in force, shown where the field is empty.
-   * Nothing while the stock is untracked: the field is disabled then, and a
-   * figure in it would read as a value rather than as a default. */
+  /** The threshold in force. None while untracked: in a disabled field it
+   * would read as a value. */
   protected readonly thresholdPlaceholder = computed(() =>
     this.parsedStockPieces() === null
       ? ''
       : String(
           lowStockThreshold(
-            this.packagingInput() ?? { piecesPerPack: null, packsPerBox: null },
+            this.packagingInput() ?? NO_PACKAGING,
             this.parsedThreshold(),
             this.lowStockFallback,
           ),
@@ -1072,24 +958,20 @@ export class ProductEditorPage implements UnsavedChangesAware, FieldAttempt {
     () => parsePriceInput(this.priceInput(), this.currency) ?? 0,
   );
 
-  /** Null where the packaging hints have no price to multiply: the editor says
-   * so rather than quoting a pack at zero. */
+  /** Null rather than quoting a pack at zero. */
   protected readonly packagingPriceMinor = computed(() =>
     this.priceCleared()
       ? null
       : parsePriceInput(this.priceInput(), this.currency),
   );
 
-  /** The current form state as a ProductDetail, so the preview renders through
-   * the exact same component the storefront uses. */
+  /** The form as a ProductDetail, for the storefront's own view. */
   protected readonly previewItem = computed<ProductDetail>(() => {
     const category = this.categories().find((c) => c.id === this.categoryId());
     const stored = this.previewPriceMinor();
-    // Falls back to a piece-only shape while a packaging field is half-typed,
-    // so the preview keeps rendering instead of blanking mid-edit.
+    // Piece-only while a packaging field is half-typed, so it keeps rendering.
     const packaging = this.packagingInput() ?? {
-      piecesPerPack: null,
-      packsPerBox: null,
+      ...NO_PACKAGING,
       minPieceQty: 1,
       boxVolume: null,
       boxWeight: null,
@@ -1122,8 +1004,7 @@ export class ProductEditorPage implements UnsavedChangesAware, FieldAttempt {
               count: packaging.boxCount,
             },
       descriptionHtml: this.description(),
-      // What the storefront will show: unavailable variants' pictures
-      // withheld, the rest labelled (FR-CAT-11/12).
+      // FR-CAT-11/12: unavailable variants' pictures withheld.
       images: shownPictures(this.images(), this.variants()),
       variants: this.variants().map(({ name, unavailable }) => ({
         name: name.trim(),
@@ -1133,26 +1014,16 @@ export class ProductEditorPage implements UnsavedChangesAware, FieldAttempt {
       lineNotePrompt: this.lineNotePrompt().trim() || null,
       availability: this.previewAvailability(),
       taxRate: effectiveTaxRate(this.tax, this.parsedTaxRate() ?? null),
-      // What the marker will say once this is saved, counted the way the
-      // storefront counts it: a counterpart that is withdrawn or unpublished
-      // keeps its row in the box above and is not a product on offer.
+      // Counted as the storefront does: only counterparts on offer.
       pairedCount: this.pairings().filter(
         (paired) => !paired.deleted && !paired.unpublished,
       ).length,
-      // Only a list that would save: a half-typed one would draw a marker the
-      // storefront will never show.
       parts: this.partsValid() ? this.parts() : [],
-      // The preview lists no documents: what this form holds is a set of
-      // links, not the files behind them, and the section is drawn from the
-      // stored file's URL and size. It appears on the saved page.
+      // The form holds links, not the files the section is drawn from.
       documents: [],
-      // The unit is the registry's, not the row's — the preview joins it on
-      // exactly as the storefront's read does, so a declared attribute reads
-      // the same here as on the live page.
+      // No filter link: it would leave the half-saved product.
       attributes: this.attributes()
         .filter((a) => a.key.trim() !== '' || a.value.trim() !== '')
-        // No filter link in the preview: it would leave the half-saved
-        // product for a listing built from what is already stored.
         .map((a) => ({ ...a, unit: this.unitFor(a.key), filterSlug: null })),
       category: category
         ? {
@@ -1168,13 +1039,10 @@ export class ProductEditorPage implements UnsavedChangesAware, FieldAttempt {
   private readonly dirty = computed(() => this.snapshot() !== this.original);
 
   constructor() {
-    // Admin screens are client-rendered, so this is for the browser tab
-    // rather than for crawlers — but it is the same one-line contract.
     usePageSeo({
       name: () => (this.isNew ? this.text.newTitle : this.text.editTitle),
     });
-    // A following slug is the name's, kept in the model so the field shows it;
-    // an emptied one stays empty until the name is next edited.
+    // A following slug is kept in the model, so the field shows it.
     effect(() => {
       const name = this.form.name().value();
       if (this.slugSource() !== 'name') return;
@@ -1195,17 +1063,11 @@ export class ProductEditorPage implements UnsavedChangesAware, FieldAttempt {
   private async load(): Promise<void> {
     const [categories, tiers, attributeKeys, definitions] = await Promise.all([
       this.categoriesService.list(),
-      // The tier list is small and admin-only, like the categories above; both
-      // are needed before the form can render its pickers.
       this.tiersService.list().then((r) => r.tiers),
-      // The attribute hints are a convenience beside the grid, not part of the
-      // product: a failure here costs the picker and the row indicators, and
-      // must not cost the editor.
+      // A convenience beside the grid: a failure must not cost the editor.
       this.attributesService.listKeys().catch(() => []),
       this.attributesService.list().catch(() => []),
-      // Awaited with the rest so the form is never painted before the answer:
-      // on the "new" route the whole screen turns on it, and a form that
-      // flashes and is then replaced reads as a bug.
+      // With the rest: the "new" route turns on it, and must not flash a form.
       this.ownership.load(),
     ]);
     this.categories.set(categories);
@@ -1266,14 +1128,8 @@ export class ProductEditorPage implements UnsavedChangesAware, FieldAttempt {
           piecesPerPack: product.piecesPerPack?.toString() ?? '',
           packsPerBox: product.packsPerBox?.toString() ?? '',
           minPieceQty: product.minPieceQty.toString(),
-          // Shown with the deployment's own decimal separator, like a price:
-          // the column holds "0.072" whatever the locale, and a form that
-          // prints 18,90 beside 0.072 looks like two different products' data.
           boxVolume: this.showDecimal(product.boxVolume),
           boxWeight: this.showDecimal(product.boxWeight),
-          // A box ships as one unless told otherwise, and the rule is shown
-          // the way the minimum is. Without a box there is nothing to count,
-          // and the field is disabled and empty.
           boxCount:
             product.packsPerBox === null ? '' : product.boxCount.toString(),
         },
@@ -1281,8 +1137,8 @@ export class ProductEditorPage implements UnsavedChangesAware, FieldAttempt {
         variants: product.variants,
       });
     } else {
-      // "Add product in this category" preselects it (by slug) — set before the
-      // snapshot so the default doesn't count as an unsaved change.
+      // "Add product here" preselects the category, before the snapshot so it
+      // is no unsaved change.
       const categorySlug = this.route.snapshot.queryParamMap.get('category');
       const match = this.categories().find((c) => c.slug === categorySlug);
       this.model.update((draft) => ({
@@ -1298,11 +1154,8 @@ export class ProductEditorPage implements UnsavedChangesAware, FieldAttempt {
     this.loading.set(false);
   }
 
-  /**
-   * What a save sends. A row with no value states nothing — the picker adds one
-   * per name picked, and the ones left unfilled are simply not saved; the server
-   * applies the same rule, so what comes back matches what was sent.
-   */
+  /** A row with no value states nothing, as the server reads it too: the
+   * picker's unfilled rows are not saved. */
   private storedAttributes(): ProductAttribute[] {
     return this.attributes().filter(
       (a) => a.key.trim() !== '' && a.value.trim() !== '',
@@ -1322,20 +1175,16 @@ export class ProductEditorPage implements UnsavedChangesAware, FieldAttempt {
     });
   }
 
-  /**
-   * The packaging fields as the contract wants them, or null if a field holds
-   * something that is not a whole number. Blank means "not sold in that unit",
-   * and for the minimum it means 1.
-   */
-  /** A stored `numeric` string as the form shows it — the separator swapped for
-   * the deployment's, and nothing else touched, so the digits an admin typed
-   * survive a round trip unchanged. */
+  /** With the deployment's separator, like a price, and nothing else touched,
+   * so the digits typed survive a round trip. */
   private showDecimal(stored: string | null): string {
     return stored === null
       ? ''
       : stored.replace('.', decimalSeparator(this.currency));
   }
 
+  /** As the contract wants it, or null while a count is not whole. Blank is
+   * "not sold that way", and 1 for the minimum. */
   private packagingInput(): {
     piecesPerPack: number | null;
     packsPerBox: number | null;
@@ -1367,27 +1216,20 @@ export class ProductEditorPage implements UnsavedChangesAware, FieldAttempt {
 
     return {
       piecesPerPack,
-      // A box without a pack is meaningless, and the server refuses it.
       packsPerBox: piecesPerPack === null ? null : packsPerBox,
       minPieceQty,
-      // Dimensions belong to a box; without one they would never be shown.
-      // Either separator is accepted while typing, like a price.
+      // Either separator while typing, like a price.
       boxVolume: packsPerBox === null ? null : decimal(draft.boxVolume),
       boxWeight: packsPerBox === null ? null : decimal(draft.boxWeight),
-      // A count of boxes needs a box, exactly as the dimensions do.
       boxCount: packsPerBox === null ? 1 : boxCount,
     };
   }
 
-  /**
-   * A deleted variant's pictures stay in the gallery, showing none — deleting a
-   * name never deletes an upload (FR-CAT-12).
-   */
+  /** A deleted variant's pictures stay, showing none (FR-CAT-12). */
   protected setVariants(next: ProductVariantInput[]): void {
     const ids = new Set(next.map((variant) => variant.id));
-    // The first variant switches the note on: naming colours is nearly always
-    // so a customer can ask for one. Only a suggestion — it can be switched
-    // off again for goods sold assorted only.
+    // Colours are nearly always named so a customer can ask for one; it can
+    // be switched off for goods sold assorted only.
     if (this.variants().length === 0 && next.length > 0) {
       this.lineNoteEnabled.set(true);
     }
@@ -1401,8 +1243,7 @@ export class ProductEditorPage implements UnsavedChangesAware, FieldAttempt {
     );
   }
 
-  /** Turning the note off drops the prompt with it — that is what a save
-   * stores, and leaving the text behind would show the form as unsaved. */
+  /** The prompt goes with the note, as a save would store it. */
   protected onLineNoteToggle(enabled: boolean): void {
     this.lineNoteEnabled.set(enabled);
     if (!enabled) this.form.lineNotePrompt().value.set('');
@@ -1416,10 +1257,7 @@ export class ProductEditorPage implements UnsavedChangesAware, FieldAttempt {
     if (this.slugSource() === 'emptied') this.slugSource.set('name');
   }
 
-  /**
-   * Shows the first thing that stopped a save: back from the preview, the
-   * field focused, or the list's box opened where the list is the culprit.
-   */
+  /** Back from the preview to the field, or the list's box opened. */
   private revealFirstError(): void {
     const first = this.form().errorSummary()[0]?.fieldTree;
     if (!first) return;
@@ -1434,8 +1272,6 @@ export class ProductEditorPage implements UnsavedChangesAware, FieldAttempt {
     );
   }
 
-  /** A refusal is worded here, never by the server. The ownership one reuses
-   * the sentence the locked fields carry. */
   private refusalText(code: ProductSaveErrorCode, creating: boolean): string {
     if (code !== 'catalog-externally-owned') {
       return this.adminText.catalogErrors[code];
@@ -1455,8 +1291,7 @@ export class ProductEditorPage implements UnsavedChangesAware, FieldAttempt {
     const tierPrices = [];
     for (const draft of this.tierPrices()) {
       const tierMinor = parsePriceInput(draft.value, this.currency);
-      // An empty field uses the base price, and so does a zero: the list keeps
-      // no price of its own and is charged the storefront's.
+      // Empty or zero: charged the storefront's price.
       if (!tierMinor) continue;
       tierPrices.push({ tierId: draft.tierId, priceMinor: tierMinor });
     }
@@ -1471,9 +1306,8 @@ export class ProductEditorPage implements UnsavedChangesAware, FieldAttempt {
     const packaging = this.packagingInput();
     if (!packaging) return;
 
-    // An emptied box saves the name's slug, as a following one does. For a
-    // new product it is omitted, so the server derives and de-duplicates it;
-    // an existing one sends it, because omitting it there keeps the stored one.
+    // An emptied box saves the name's slug. A new product omits it, so the
+    // server derives and de-duplicates it; omitted on an update it stays.
     const slug =
       this.slugSource() !== 'typed'
         ? this.isNew
@@ -1487,31 +1321,22 @@ export class ProductEditorPage implements UnsavedChangesAware, FieldAttempt {
       priceMinor,
       categoryId: this.categoryId(),
       descriptionHtml: this.description(),
-      // Half-filled rows are dropped: a value with no name is meaningless, and
-      // a name with no value states nothing.
       attributes: this.storedAttributes(),
       parts: this.parts(),
       images: this.images(),
       variants,
-      // The full set: a tier the admin cleared is absent here, and the server
-      // takes that as "remove the override".
+      // Whole sets: an absent tier loses its price, an absent pairing goes
+      // from both products, an absent document from this one (FR-DOC-02).
       tierPrices,
-      // The whole set, from this product's side: a counterpart removed here is
-      // removed from that product too, because one pairing is one row.
       pairedSlugs: this.pairings().map((p) => p.slug),
-      // The whole set from this product's side too, and only this side: the
-      // document keeps every other product it is shown on (FR-DOC-02).
       documentIds: this.documents().map((d) => d.id),
       featured: this.featured(),
       lineNoteEnabled: this.lineNoteEnabled(),
-      // A prompt is only meaningful with the note on; the server refuses the
-      // pair the other way round.
       lineNotePrompt: this.lineNoteEnabled()
         ? this.lineNotePrompt().trim() || null
         : null,
       stockPieces: this.parsedStockPieces(),
-      // A threshold with nothing to measure would be refused by the contract;
-      // clearing the stock clears it here rather than in a message.
+      // The contract refuses a threshold on untracked stock.
       lowStockThresholdPieces:
         this.parsedStockPieces() === null ? null : this.parsedThreshold(),
       taxRate,
@@ -1520,8 +1345,7 @@ export class ProductEditorPage implements UnsavedChangesAware, FieldAttempt {
       ...(sourceId ? { sourceId } : {}),
     };
 
-    // Clearing the price takes the product off sale in the same write, so it
-    // is asked as an unpublish is, with the same wording.
+    // Clearing the price unpublishes, so it is asked as an unpublish is.
     const existingSlug = this.slugParam;
     if (
       existingSlug !== null &&
@@ -1544,60 +1368,59 @@ export class ProductEditorPage implements UnsavedChangesAware, FieldAttempt {
 
     this.saving.set(true);
     this.error.set(null);
-    const result =
-      existingSlug === null
-        ? await this.productsService.create(body)
-        : await this.productsService.update(existingSlug, body);
-
-    if (!result.ok) {
-      this.error.set(this.refusalText(result.code, existingSlug === null));
-      this.saving.set(false);
-      return;
-    }
-
-    let product = result.product;
-    if (andPublish) {
-      // Two calls, and the order matters: the edits are already saved, so a
-      // failure here is reported as a failure to *publish* rather than losing
-      // the save behind a generic error.
-      try {
-        product = await this.productsService.setPublished(product.slug, true);
-      } catch {
-        this.published.set(false);
-        this.error.set(this.text.publishError);
-        this.saving.set(false);
+    try {
+      const result =
+        existingSlug === null
+          ? await this.productsService.create(body)
+          : await this.productsService.update(existingSlug, body);
+      if (!result.ok) {
+        this.error.set(this.refusalText(result.code, existingSlug === null));
         return;
       }
-    }
-
-    this.navigatingAway = true; // let the unsaved-changes guard pass
-    if (product.publishedAt === null) {
-      // No storefront page to land on — it would 404 — so the admin list stands
-      // in, searched for the product just saved. Without the search the row is
-      // somewhere in a list the admin then has to hunt through.
-      // `searchTerm`, not `q`: the grid binds its inputs by parameter name.
-      // A deleted product is only listed under its own state (FR-ADM-22).
-      await this.router.navigate(['/admin/products'], {
-        queryParams: {
-          searchTerm: product.name,
-          state: product.deletedAt ? 'deleted' : null,
-        },
-      });
-    } else {
-      await this.router.navigate(['/product', product.slug]);
+      let product = result.product;
+      if (andPublish) {
+        // The edits are saved by now, so a failure here is a failure to
+        // publish, not to save.
+        try {
+          product = await this.productsService.setPublished(product.slug, true);
+        } catch {
+          this.error.set(this.text.publishError);
+          return;
+        }
+      }
+      this.navigatingAway = true;
+      await this.leaveTo(product);
+    } catch {
+      this.error.set(this.text.saveError);
+    } finally {
+      this.saving.set(false);
     }
   }
 
+  /**
+   * An unpublished product has no storefront page, so the grid stands in,
+   * searched for it (`searchTerm`: the grid binds inputs by parameter name).
+   * A deleted one is listed only under its own state (FR-ADM-22).
+   */
+  private leaveTo(product: AdminProduct): Promise<boolean> {
+    return product.publishedAt === null
+      ? this.router.navigate(['/admin/products'], {
+          queryParams: {
+            searchTerm: product.name,
+            state: product.deletedAt ? 'deleted' : null,
+          },
+        })
+      : this.router.navigate(['/product', product.slug]);
+  }
+
   protected cancel(): void {
-    // The route's canDeactivate guard confirms if there are unsaved changes.
     const existingSlug = this.slugParam;
     void this.close(
       existingSlug === null ? '/catalog' : `/product/${existingSlug}`,
     );
   }
 
-  /** The same discard, ignoring where the editor was opened from: the point of
-   * this one is the destination. Guarded by the same canDeactivate. */
+  /** Ignores where the editor was opened from: the destination is the point. */
   protected cancelToPage(): void {
     const existingSlug = this.slugParam;
     if (existingSlug === null) return;

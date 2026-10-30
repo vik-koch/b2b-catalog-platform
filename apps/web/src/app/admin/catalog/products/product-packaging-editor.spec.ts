@@ -183,6 +183,21 @@ describe('ProductPackagingEditor', () => {
     expect(emitted.at(-1)).toMatchObject({ minPieceQty: '30' });
   });
 
+  it('lifts the minimum when the pack it sits between changes', () => {
+    const { fixture, emitted } = render({
+      ...emptyPackaging(),
+      piecesPerPack: '6',
+      minPieceQty: '25',
+    });
+
+    const input: HTMLInputElement = fixture.nativeElement.querySelector(
+      '#packaging-piecesPerPack',
+    );
+    input.dispatchEvent(new Event('blur'));
+
+    expect(emitted.at(-1)).toMatchObject({ minPieceQty: '30' });
+  });
+
   it('leaves a minimum under one pack exactly as typed', () => {
     const { fixture, emitted } = render({
       ...emptyPackaging(),

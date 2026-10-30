@@ -284,6 +284,20 @@ function buttonByText(el: HTMLElement, label: string): HTMLButtonElement {
 }
 
 describe('ProductEditorPage', () => {
+  it('says a save that failed, and lets it be tried again', async () => {
+    const { fixture, el, h } = await render({ slug: null });
+    h.createProduct.mockRejectedValue(new Error('offline'));
+
+    setInput(inputByLabel(el, text.name), 'New Roast');
+    chooseCategory(el, 'cat-1');
+    saveButton(el).click();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(el.textContent).toContain(text.saveError);
+    expect(saveButton(el).disabled).toBe(false);
+  });
+
   it('creates a product and omits the slug so the server derives it', async () => {
     const { fixture, el, h } = await render({ slug: null });
 

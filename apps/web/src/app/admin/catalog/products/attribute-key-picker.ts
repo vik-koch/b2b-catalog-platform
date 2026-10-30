@@ -23,21 +23,11 @@ import { funnelIcon } from '@b2b-catalog-platform/ui/icons/glyphs/funnel';
 import { plusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/plus';
 
 /**
- * "Add attributes" — the names the catalog already uses, in a dialog opened
- * from under the grid (FR-ATTR-09). Checking names appends one empty row each,
- * so the first product of a category is filled from what the rest of the
- * catalog calls things instead of from memory; that is what keeps "Length" and
- * "Lenght" from becoming two attributes in the first place.
- *
- * A dialog rather than a box above the grid: the boxes further down the editor
- * are the product's optional extras, and a tool for filling the grid is not
- * one of them. It cannot live inside a grid cell either — the grid is one
- * `contenteditable` region whose cells are read back from the DOM, so a
- * control rendered in a cell is destroyed by the next paste.
- *
- * Names already in the table are listed and disabled rather than dropped: their
- * absence would read as "this attribute is unknown here", which is the opposite
- * of what it means.
+ * The names the catalog already uses (FR-ATTR-09), one empty row appended per
+ * ticked name, so "Length" and "Lenght" never start as two attributes. A
+ * dialog: inside the `contenteditable` grid the next paste would destroy it.
+ * Names already in the table are disabled, not dropped, which would read as
+ * unknown.
  */
 @Component({
   selector: 'app-attribute-key-picker',
@@ -60,8 +50,7 @@ import { plusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/plus';
       @if (hints().length === 0) {
         <p class="mt-3 text-sm text-ink-subtle">{{ text.addKeysEmpty }}</p>
       } @else {
-        <!-- Right padding, not on the rows: the counts would otherwise sit
-             against the scrollbar of a long list. -->
+        <!-- Padding here keeps the counts off a long list's scrollbar. -->
         <ul class="mt-3 max-h-80 overflow-y-auto pr-2">
           @for (hint of hints(); track hint.key) {
             <li>
@@ -78,7 +67,6 @@ import { plusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/plus';
                   (change)="select(hint.key, $any($event.target).checked)"
                 />
                 <span>{{ hint.key }}</span>
-                <!-- The same badge the grid row shows, for the same fact. -->
                 @if (hint.type) {
                   <ui-hint-badge tone="neutral" [label]="text.filterable">
                     <ui-icon [glyph]="funnelIcon" class="size-3.5" />
@@ -128,12 +116,12 @@ export class AttributeKeyPicker {
   private readonly productsText = inject(ADMIN_TEXT).products;
   protected readonly actionText = inject(SHARED_TEXT).actions;
 
-  /** Every name the catalog knows, declared or freetext, alphabetically. */
+  /** Declared or freetext, alphabetically. */
   readonly hints = input.required<readonly AttributeHint[]>();
-  /** Names the grid already holds — offered, but not twice. */
+  /** Names the grid already holds: offered, but not twice. */
   readonly used = input<readonly string[]>([]);
 
-  /** The checked names, in the order the grid should append them. */
+  /** In the order the grid appends them. */
   readonly add = output<string[]>();
   /** Cancelled or dismissed; the host removes the dialog. */
   readonly closed = output<void>();
@@ -148,8 +136,7 @@ export class AttributeKeyPicker {
     afterNextRender(() => this.dialog().nativeElement.showModal());
   }
 
-  /** What checking would actually add: a name already in the grid is not
-   * counted by the button, nor added a second time. */
+  /** A name already in the grid is neither counted nor added again. */
   protected readonly picked = computed(() =>
     this.checked().filter((key) => !this.used().includes(key)),
   );
@@ -164,8 +151,6 @@ export class AttributeKeyPicker {
     );
   }
 
-  /** The rows are appended at the bottom of the grid, and the dialog closes
-   * so they can be seen arriving. */
   protected apply(): void {
     const keys = this.picked();
     if (keys.length === 0) return;
@@ -173,6 +158,6 @@ export class AttributeKeyPicker {
   }
 
   protected productsLabel(count: number): string {
-    return this.productsText.count.replace('{count}', String(count));
+    return fillText(this.productsText.count, { count });
   }
 }

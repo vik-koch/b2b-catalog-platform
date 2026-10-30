@@ -8,27 +8,24 @@ import {
 } from '@b2b-catalog-platform/shared/admin/catalog';
 
 /** The product grid's URL state (FR-ADM-05). */
-export const DEFAULT_ADMIN_SORT: AdminProductSort = 'relevance';
-export const DEFAULT_ADMIN_STATE: AdminProductState = 'all';
+export const DEFAULT_SORT: AdminProductSort = 'relevance';
+export const DEFAULT_STATE: AdminProductState = 'all';
 
 /** A hand-edited or stale parameter resolves to the default rather than
  * becoming a request the API would reject. */
-export function resolveAdminSort(raw: string): AdminProductSort {
+export function resolveSort(raw: string): AdminProductSort {
   const parsed = adminProductSortSchema.safeParse(raw);
-  return parsed.success ? parsed.data : DEFAULT_ADMIN_SORT;
+  return parsed.success ? parsed.data : DEFAULT_SORT;
 }
 
-export function resolveAdminState(raw: string): AdminProductState {
+export function resolveState(raw: string): AdminProductState {
   const parsed = adminProductStateSchema.safeParse(raw);
-  return parsed.success ? parsed.data : DEFAULT_ADMIN_STATE;
+  return parsed.success ? parsed.data : DEFAULT_STATE;
 }
 
-/**
- * The stock filter (FR-ADM-05), whose default is *no* filter rather than a
- * value — so an unreadable or absent parameter resolves to undefined and the
- * grid shows everything, untracked products included.
- */
-export function resolveAdminAvailability(
+/** The stock filter's default is no filter, so untracked products show too. */
+
+export function resolveAvailability(
   raw: string,
 ): ProductAvailability | undefined {
   const parsed = adminProductAvailabilityFilterSchema.safeParse(raw);

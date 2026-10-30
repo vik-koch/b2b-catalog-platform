@@ -33,19 +33,10 @@ import { imagePlusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/image-plus'
 import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
 
 /**
- * The product's ordered image gallery (FR-CAT-04/05). Uploads go through the
- * catalog media endpoint, which returns the stored `{ full, thumb }` pair; the
- * list order is the display order. Reordering is by CDK drag-drop, shared in
- * spirit with the category tree; the upload tile is excluded from the drop list.
- *
- * A single new picture opens in the framer first, to be placed in a white
- * square; several at once were prepared elsewhere and go up as they are, each
- * one framed again from its tile if need be.
- *
- * Where the product names variants, each picture says under it which one it
- * shows, or none for a picture of the whole range (FR-CAT-11). The photo is
- * the drag handle then, so the picker under it can be used without starting a
- * drag.
+ * The product's pictures in display order (FR-CAT-04/05). One new picture
+ * opens in the framer first; several were prepared elsewhere and go up as
+ * they are. The photo is the drag handle, so the variant picker under it
+ * (FR-CAT-11) does not start a drag.
  */
 @Component({
   selector: 'app-product-image-gallery',
@@ -74,9 +65,7 @@ import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
       >
         @for (image of value(); track image.thumb) {
           <li cdkDrag [cdkDragData]="image" class="flex w-26 flex-col gap-1.5">
-            <!-- A thin insertion caret rather than a full-size box: in the
-                 single horizontal row it reads as "drops here"; when the row
-                 wraps on narrow screens it simply sits at the row it lands in. -->
+            <!-- A caret, not a full-size box: it reads as "drops here". -->
             <div
               *cdkDragPlaceholder
               class="h-26 w-1 self-center rounded-full bg-primary"
@@ -261,8 +250,9 @@ export class ProductImageGallery {
     }
   }
 
-  /** Frames a stored picture again from its `full`, replacing it in place;
-   * the old files are left to the unreferenced-upload clean-up. */
+  /** From its `full`, in place; the old files go with the unreferenced-upload
+   * clean-up. */
+
   protected async reframe(image: ProductImageInput): Promise<void> {
     const answer = await this.framer.frame(image.full, false);
     if (!(answer instanceof Blob)) return;

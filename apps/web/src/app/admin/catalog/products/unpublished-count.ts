@@ -5,11 +5,11 @@ import { ADMIN_TEXT } from '../../../shared/config/admin-text';
 import { Link } from '@b2b-catalog-platform/ui/actions/link';
 
 /**
- * How many of a product count are not on the storefront, beside that count:
- * the gap behind it, in amber like the grid's content gaps, because each one
- * is waiting on an admin. The link opens the same narrowed grid as the count
- * does, unpublished only. Nothing at zero.
+ * How many of a product count are off the storefront, in amber like the
+ * grid's gaps: each waits on an admin. Links to the same narrowed grid,
+ * unpublished only. Nothing at zero.
  */
+
 @Component({
   selector: 'app-unpublished-count',
   imports: [RouterLink, Link],

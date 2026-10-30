@@ -11,31 +11,22 @@ import {
 } from '@b2b-catalog-platform/shared/admin/catalog';
 
 /**
- * What the catalog already knows about one attribute name, as the product
- * editor needs it: how many products carry it, and whether the shop filters by
- * it.
- *
- * Two sources, because neither covers the other: the inventory lists the names
- * products actually carry (freetext included, which is most of them), the
- * registry lists the names declared filterable — and a definition added before
- * the first product carrying it exists in one list and not the other.
+ * What the catalog knows about one attribute name: how many products carry
+ * it, and whether the shop filters by it. From both the inventory and the
+ * definitions, since a definition may come before any product carries it.
  */
 export interface AttributeHint {
   key: string;
   productCount: number;
-  /** The definition matching this name exactly, if the shop declared one. */
+  /** From the definition of exactly this name, if there is one. */
   type: AttributeType | null;
   unit: string | null;
 }
 
 /**
- * Hints by attribute name, alphabetical — the inventory's own order.
- *
- * `ownKeys` are the keys the edited product carried when it was loaded, and
- * they are discounted from the counts: every number here answers "what does the
- * *rest* of the catalog do", which is the only question the editor can help
- * with. Without it a name would stop being reported as unmatched the moment it
- * was saved — the typo would go quiet exactly when it became permanent.
+ * Alphabetical, as the inventory. `ownKeys`, the edited product's keys at
+ * load, are left out of the counts: otherwise a typo would stop being reported
+ * the moment it was saved.
  */
 export function attributeHints(
   keys: readonly AttributeKeyUsage[],
@@ -48,8 +39,7 @@ export function attributeHints(
       entry.key,
       {
         key: entry.key,
-        // At most one, however many rows this product spends on the key: the
-        // inventory counts products, not attribute rows.
+        // One at most: the inventory counts products, not rows.
         productCount: entry.productCount - (own.has(entry.key) ? 1 : 0),
         type: null,
         unit: null,
@@ -69,21 +59,14 @@ export function attributeHints(
 }
 
 /**
- * What the grid says about a row's key. Only the cases worth an
- * icon are named: a freetext key other products already carry is the normal
- * case and gets nothing.
- *
- * `unknown` is the one the batch exists for — a key nothing else in the
- * catalog carries is either a new attribute or a typo, and the typo is only
- * cheap to fix while it is still being typed.
+ * Only the cases worth an icon; a freetext key others carry gets nothing.
+ * `unknown` is a new attribute or a typo, cheapest to fix while typing.
  */
 export type AttributeRowStatus =
   'none' | 'unknown' | 'filterable' | 'not-numeric' | 'stray-part';
 
-/**
- * The name the catalog counts a row under — its key without the part a set's
- * row names (FR-CAT-10): "Colour (cup)" on a cup and lid is a Colour row.
- */
+/** Without the part a set's row names (FR-CAT-10): "Colour (cup)" counts as
+ * Colour. */
 export function attributeRowKey(
   row: ProductAttribute,
   parts: readonly string[] = [],
@@ -92,12 +75,10 @@ export function attributeRowKey(
 }
 
 /**
- * `stray-part` is the set's typo: a product sold as a set, a row whose key
- * ends in a parenthesis naming none of its parts, and a name before it that
- * the shop filters by — "Colour (Cup)" where the parts are "cup" and "lid".
- * All three, so it cannot fire on a product that is not a set, on a key the
- * catalog already carries as it stands ("Volume (ml)" elsewhere), or on a
- * name nothing filters by, where a parenthesis loses nothing.
+ * `stray-part` is a set's typo, "Colour (Cup)" for parts "cup" and "lid": a
+ * set, a parenthesis naming none of its parts, and a filterable name before
+ * it. All three, so a key carried elsewhere as it stands ("Volume (ml)") or a
+ * name nothing filters by never fires.
  */
 export function attributeRowStatus(
   row: ProductAttribute,
@@ -112,8 +93,7 @@ export function attributeRowStatus(
     if (stray && hints.get(stray.key)?.type != null) return 'stray-part';
   }
   if (!hint || !attributeIsKnown(hint)) return 'unknown';
-  // A value that does not read as a number drops out of its own facet
-  // (FR-ATTR-03) — the one place the editor can say so before it is saved.
+  // It would drop out of its own facet (FR-ATTR-03).
   if (
     hint.type === 'number' &&
     row.value.trim() !== '' &&
@@ -124,11 +104,35 @@ export function attributeRowStatus(
   return hint.type === null ? 'none' : 'filterable';
 }
 
-/**
- * Whether anything but the edited product knows the name — a definition
- * declaring it, or another product carrying it. A name only this product uses
- * is exactly the unmatched case, whether or not it has been saved once.
- */
+/** A definition declares it, or another product carries it. */
+
 export function attributeIsKnown(hint: AttributeHint): boolean {
   return hint.productCount > 0 || hint.type !== null;
+}
+
+/** What a row's badges say, for the grid and the narrow list alike. */
+export interface AttributeRowMarks {
+  /** The shop filters by the key, whatever this row's value does. */
+  filterable: boolean;
+  /** A set's mistyped part, and the filter the row misses by it. */
+  stray: { part: string; key: string } | null;
+  /** The value drops out of its number facet (FR-ATTR-03). */
+  notNumeric: boolean;
+  /** The declared unit; an empty value keeps it, as the hint of what to type. */
+  unit: string | null;
+}
+
+export function attributeRowMarks(
+  row: ProductAttribute,
+  hints: ReadonlyMap<string, AttributeHint>,
+  parts: readonly string[] = [],
+): AttributeRowMarks {
+  const status = attributeRowStatus(row, hints, parts);
+  const stray = status === 'stray-part' ? strayPart(row.key, parts) : null;
+  return {
+    filterable: status === 'filterable' || status === 'not-numeric',
+    stray: stray ? { part: stray.part ?? '', key: stray.key } : null,
+    notNumeric: status === 'not-numeric',
+    unit: hints.get(attributeRowKey(row, parts))?.unit ?? null,
+  };
 }

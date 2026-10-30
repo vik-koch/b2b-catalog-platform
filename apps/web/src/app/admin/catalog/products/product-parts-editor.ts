@@ -32,18 +32,9 @@ import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
 let nextId = 0;
 
 /**
- * The parts one piece of this product is made of, where it is sold as a set
- * (FR-CAT-10) — a cup and its lid on one page at one price.
- *
- * A list of words rather than one text field, so each part is visibly one
- * thing and the rule a set has to meet — two or three different ones — can be
- * said about the list instead of about a string. The field still takes
- * "cup + lid" in one go: that is how the badge writes it, and how an admin
- * copying it from elsewhere will type it.
- *
- * A disclosure like the pairings beside it, for the same reason: there is no
- * stored flag to tick, and the lid's count says whether this product is a set
- * without opening it.
+ * The parts of a product sold as a set (FR-CAT-10), a cup and its lid. A list,
+ * so the set's rule (two or three different parts) is about the list; the
+ * field still takes "cup + lid" at once, as the badge writes it.
  */
 @Component({
   selector: 'app-product-parts-editor',
@@ -152,14 +143,12 @@ export class ProductPartsEditor implements OnInit {
   protected readonly max = PRODUCT_PARTS_MAX;
   protected readonly open = signal(false);
   protected readonly draft = signal('');
-  /** Set by a refused add and cleared by the next keystroke, so the field does
-   * not complain about text that is still being typed. */
+  /** Cleared by the next keystroke: text still being typed is not wrong yet. */
   protected readonly rejected = signal(false);
   protected readonly panelId = `parts-panel-${++nextId}`;
   protected readonly inputId = `parts-add-${nextId}`;
 
-  /** One part is a product, not a set — said under the list until a second is
-   * added or the first removed, and refused by the save. */
+  /** One part is a product, not a set; the save refuses it too. */
   protected readonly tooFew = computed(
     () => this.value().length > 0 && this.value().length < PRODUCT_PARTS_MIN,
   );
@@ -176,7 +165,8 @@ export class ProductPartsEditor implements OnInit {
     fillText(this.text.rejected, { max: PRODUCT_PART_MAX_LENGTH }),
   );
 
-  /** Open where there is something to see; read once, as the pairings do. */
+  /** Opens only on load: closing when the last part went would take the
+   * field that adds one with it. */
   ngOnInit(): void {
     this.open.set(this.value().length > 0);
   }
@@ -192,11 +182,9 @@ export class ProductPartsEditor implements OnInit {
     this.rejected.set(false);
   }
 
-  /**
-   * Adds what the field holds — one part, or several written "cup + lid". All
-   * or nothing: a list that took the first half of a typo would leave the
-   * admin working out which half.
-   */
+  /** All or nothing: taking half of a typo would leave the admin working out
+   * which half. */
+
   protected add(): void {
     const added = parsePartList(this.draft());
     if (added.length === 0) return;

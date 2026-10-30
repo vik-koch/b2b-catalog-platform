@@ -1,12 +1,12 @@
 import { ProductAttribute } from '@b2b-catalog-platform/shared/core/catalog';
 
-/** A cell coordinate in the attribute grid (two columns: key=0, value=1). */
+/** Column 0 is the key, 1 the value. */
 export interface GridCell {
   row: number;
   col: 0 | 1;
 }
 
-/** A rectangular cell range, inclusive. */
+/** Inclusive. */
 export interface GridRange {
   r0: number;
   c0: number;
@@ -14,12 +14,8 @@ export interface GridRange {
   c1: number;
 }
 
-/**
- * Parse clipboard text into a grid of cells. Newlines separate rows, tabs
- * separate columns. Wholly-empty lines are dropped — copying contenteditable
- * cells serialises blank lines between rows, which would otherwise become stray
- * empty rows on paste.
- */
+/** Lines are rows, tabs columns. Empty lines go: copied contenteditable cells
+ * bring blank lines between rows. */
 export function parseClipboardGrid(text: string): string[][] {
   return text
     .replace(/\r\n?/g, '\n')
@@ -29,10 +25,8 @@ export function parseClipboardGrid(text: string): string[][] {
     .filter((cols) => cols.some((c) => c.trim() !== ''));
 }
 
-/**
- * Apply a pasted grid onto the rows, filling outward from `start` (Excel-style)
- * and appending empty rows as needed up to `max`. Pure — returns a new array.
- */
+/** Fills outward from `start`, as a spreadsheet does, adding rows up to
+ * `max`. */
 export function applyPastedGrid(
   rows: readonly ProductAttribute[],
   start: GridCell,
@@ -55,7 +49,7 @@ export function applyPastedGrid(
   return out;
 }
 
-/** Serialise a selected rectangle to TSV — the clean copy payload. */
+/** The copy payload, as TSV. */
 export function selectionToTsv(
   rows: readonly ProductAttribute[],
   range: GridRange,
@@ -70,7 +64,6 @@ export function selectionToTsv(
   return lines.join('\n');
 }
 
-/** Clear (blank) every cell in a rectangle. Pure — returns a new array. */
 export function clearRange(
   rows: readonly ProductAttribute[],
   range: GridRange,

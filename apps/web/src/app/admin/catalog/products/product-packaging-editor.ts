@@ -1,6 +1,7 @@
 import { Component, computed, inject, input, output } from '@angular/core';
 import { totalMinor } from '@b2b-catalog-platform/shared/core/catalog';
-import { moneyFormat } from '@b2b-catalog-platform/shared';
+import { fillText, moneyFormat } from '@b2b-catalog-platform/shared';
+
 import { formatPriceMinor } from '../../../core/catalog/price';
 import { ADMIN_TEXT } from '../../../shared/config/admin-text';
 import { SHARED_TEXT } from '../../../shared/config/shared-text';
@@ -14,15 +15,8 @@ import { numericRules } from '@b2b-catalog-platform/ui/inputs/numeric-rules';
 import { Allow } from '@b2b-catalog-platform/ui/inputs/allow';
 
 /**
- * How a product is packaged.
- *
- * Laid out as the same table as the attribute grid above it, but built from
- * ordinary inputs: the grid is one `contenteditable` region, and typed fields
- * inside it would be clobbered by its paste and readback.
- *
- * Values are kept as strings so a half-typed number is not thrown away; the
- * page parses them on save. Empty means "not sold in that unit", except for the
- * minimum, where it means 1.
+ * Strings, so a half-typed number survives; the page parses them on save.
+ * Empty is "not sold in that unit".
  */
 export interface PackagingDraft {
   piecesPerPack: string;
@@ -30,15 +24,11 @@ export interface PackagingDraft {
   minPieceQty: string;
   boxVolume: string;
   boxWeight: string;
-  /** How many boxes ship; blank means the usual one. */
+  /** How many boxes ship. */
   boxCount: string;
 }
 
-/**
- * The minimum holds a real `1` rather than an empty field showing a greyed
- * placeholder: "minimum 1 piece" is the actual rule, and stating it is clearer
- * than leaving a blank to interpret.
- */
+/** The minimum holds a real `1`, not a placeholder: it is the rule. */
 export const emptyPackaging = (): PackagingDraft => ({
   piecesPerPack: '',
   packsPerBox: '',
@@ -48,14 +38,7 @@ export const emptyPackaging = (): PackagingDraft => ({
   boxCount: '',
 });
 
-/**
- * The fields that must always hold a number; the rest may be left unset.
- * `boxCount` is conditional — required only once the product has a box — so it
- * is handled beside these rather than among them.
- */
-const REQUIRED_COUNTS = ['minPieceQty'] as const;
-
-/** The fields that hold a whole number, where any number is held at all. */
+/** The fields that hold a whole number, where they hold any. */
 const COUNT_KEYS = [
   'piecesPerPack',
   'packsPerBox',
@@ -66,7 +49,7 @@ const COUNT_KEYS = [
 /** Ids for the error line; a page may hold more than one editor. */
 let nextId = 0;
 
-/** A whole number, or null for blank/invalid. */
+/** A whole number of one or more, else null. */
 export function parseCount(text: string): number | null {
   const trimmed = text.trim();
   if (!/^\d+$/.test(trimmed)) return null;
@@ -74,27 +57,24 @@ export function parseCount(text: string): number | null {
   return value >= 1 ? value : null;
 }
 
+/**
+ * How a product is packed, as a table lined up with the attribute grid above
+ * but of ordinary inputs: the grid is one `contenteditable` region, whose
+ * paste and readback would clobber typed fields inside it.
+ */
 @Component({
   selector: 'app-product-packaging-editor',
   imports: [ErrorText, FieldLabel, Allow, UnitInput, UnitInputControl],
   template: `
-    <!-- min-w-0 for the same reason as the attribute grid above: a <fieldset>
-         will not shrink below its content's min-content width. -->
+    <!-- A <fieldset> will not shrink below its content's min-content width. -->
     <fieldset class="min-w-0">
       <legend uiFieldLabel>{{ packing.heading }}</legend>
       <p class="mb-2 text-xs text-ink-subtle">{{ text.hint }}</p>
 
       @if (narrow()) {
-        <!-- The same six fields, stacked. Not the record list the attribute
-             grid gets below this width: those rows are the admin's own and vary
-             in number, while these are a fixed form — and a form whose every
-             field has to be opened with a pencil first is a form nobody
-             finishes. What the third column carried becomes a caption under the
-             field it is derived from.
-
-             One outlined box rather than six divided rows: these are not
-             records, they are the parts of one answer about how the product is
-             packed, and rules between them would say the opposite. -->
+        <!-- Stacked fields, not the attribute grid's record list: these are a
+             fixed form, not rows of the admin's own. One box, as parts of one
+             answer; the price column becomes a caption. -->
         <div class="max-w-xl space-y-4 rounded-md border border-edge p-4">
           @for (row of rows(); track row.key) {
             <label class="block">
@@ -131,9 +111,7 @@ export function parseCount(text: string): number | null {
           }
         </div>
       } @else {
-        <!-- Column widths mirror the attribute grid above, so the two tables line
-           up. The third column stands where its row actions are, and carries
-           what each row costs once the price is applied to it. -->
+        <!-- Widths mirror the attribute grid, so the tables line up. -->
         <table class="w-full max-w-3xl table-fixed border-collapse text-sm">
           <tbody>
             @for (row of rows(); track row.key) {
@@ -153,9 +131,8 @@ export function parseCount(text: string): number | null {
                     >
                   }
                 </th>
-                <!-- The unit sits inside the cell, after the value it measures,
-                   and the focus ring is drawn around the pair — so the cell
-                   behaves as one field, like the attribute grid's. -->
+                <!-- The ring goes round value and unit, one field as in the
+                     attribute grid. -->
                 <td
                   class="border border-edge-strong p-0
                          focus-within:outline-1 focus-within:-outline-offset-1
@@ -210,24 +187,21 @@ export class ProductPackagingEditor {
   private readonly unitNames = inject(SHARED_TEXT).units;
   private readonly unavailable =
     inject(ADMIN_TEXT).products.editor.packagingUnavailable;
-  /** Below `md` a three-column table of typed cells has no room; the glyph
-   * sizes turn on the same line. */
+  /** Below `md` a three-column table has no room. */
   protected readonly narrow = injectNarrowScreen('md');
   private readonly currency = moneyFormat(inject(DEPLOYMENT_CONFIG));
 
   readonly value = input.required<PackagingDraft>();
-  /** The piece price, so each level can show what it will be sold for. */
+  /** So each level can show what it sells for. */
   readonly priceMinor = input<number | null>(null);
-  /** Why the packaging cannot be saved, once a save has asked. */
+  /** Once a save has asked. */
   readonly error = input<string | null>(null);
   readonly valueChange = output<PackagingDraft>();
 
   protected readonly errorId = `packaging-error-${++nextId}`;
 
-  /**
-   * The rows the error is about: a count that is not a whole number, or else
-   * the minimum, which is the only other thing the packaging rule refuses.
-   */
+  /** A count that is not whole, or else the minimum: the only other thing the
+   * packaging rule refuses. */
   private readonly invalidKeys = computed<ReadonlySet<keyof PackagingDraft>>(
     () => {
       if (!this.error()) return new Set();
@@ -239,13 +213,8 @@ export class ProductPackagingEditor {
     },
   );
 
-  /**
-   * Ordered the way the values depend on each other: what a piece costs and how
-   * few may be bought, then the packs a piece goes into, then the box those
-   * packs go into, then that box's dimensions. Each outer level stays disabled
-   * until the one it is measured in exists — a box of nothing is not a thing,
-   * and its weight even less so.
-   */
+  /** In the order the values depend on each other; an outer level stays
+   * disabled until the one it is measured in exists. */
   protected readonly rows = computed(() => {
     const v = this.value();
     const prices = this.unitPrices();
@@ -305,8 +274,6 @@ export class ProductPackagingEditor {
         decimal: true,
         enabled: hasBox,
       }),
-      // Last, and the only one that is not about a single box: how many of
-      // them a delivery of this product arrives as.
       row('boxCount', this.text.boxCount, {
         enabled: hasBox,
       }),
@@ -315,26 +282,22 @@ export class ProductPackagingEditor {
 
   private readonly units = inject(DEPLOYMENT_CONFIG).catalog.boxUnits;
 
-  /** What a pack and a box will be sold for, once the piece price is applied
-   * to the packaging as entered. */
   private readonly unitPrices = computed(() => {
     const price = this.priceMinor();
     const v = this.value();
     const pack = parseCount(v.piecesPerPack);
     const box = parseCount(v.packsPerBox);
 
-    // A unit the product is not sold in has nothing to say; one it *is* sold
-    // in, on a product nothing prices, has a figure that cannot be worked out —
-    // and a dash says that, where a blank would read as the former.
+    // Unpriced shows a dash, where a blank would read as not sold that way.
     const per = (pieces: number | null, template: string) =>
       pieces === null
         ? ''
-        : price === null
-          ? template.replace('{price}', this.unavailable)
-          : template.replace(
-              '{price}',
-              formatPriceMinor(totalMinor(price, pieces), this.currency),
-            );
+        : fillText(template, {
+            price:
+              price === null
+                ? this.unavailable
+                : formatPriceMinor(totalMinor(price, pieces), this.currency),
+          });
 
     return {
       pack: per(pack, this.text.pricePerPack),
@@ -348,18 +311,16 @@ export class ProductPackagingEditor {
   protected edit(key: keyof PackagingDraft, raw: string): void {
     const current = this.value();
     const next = { ...current, [key]: raw };
-    // A minimum that was following the pack keeps following it — like a slug
-    // tracking a name. Only an empty field or one still matching the old pack
-    // counts as following: a minimum of 1 is a shop that sells single pieces,
-    // which is a decision, not a blank.
+    // An empty minimum or one matching the old pack follows the pack, as a
+    // slug follows a name; a minimum of 1 is a decision.
     const tracking =
       current.minPieceQty === '' ||
       current.minPieceQty === current.piecesPerPack;
     if (key === 'piecesPerPack' && tracking) {
       next.minPieceQty = raw || '1';
     }
-    // Clearing a level takes what it contained with it, so nothing is left
-    // stranded in a field that is now disabled and invisible on save.
+    // Clearing a level clears what it contained, or it would be stranded in a
+    // disabled field.
     if (key === 'piecesPerPack' && parseCount(raw) === null) {
       next.packsPerBox = '';
     }
@@ -369,10 +330,7 @@ export class ProductPackagingEditor {
         next.boxWeight = '';
         next.boxCount = '';
       } else if (next.boxCount.trim() === '') {
-        // A box that exists ships as one unless told otherwise, and that is a
-        // real value rather than a placeholder — the treatment the minimum
-        // gets, for the same reason: "ships as 1 box" is the rule, not a blank
-        // to interpret.
+        // A real value, as the minimum's: one box is the rule.
         next.boxCount = '1';
       }
     }
@@ -380,39 +338,30 @@ export class ProductPackagingEditor {
   }
 
   /**
-   * Puts a required count back to 1 when it is left empty or at zero, and lifts
-   * a minimum that sits across the pack up to the next whole one. Done on blur
-   * rather than per keystroke, so clearing the field to retype it does not
-   * fight the typing.
-   *
-   * A minimum **under** a pack is left exactly as typed: that is a shop that
-   * opens packs, and pieces move by ones there. Only a minimum above the pack
-   * and between two of them — 25 against a pack of 6 — is a rule the shop
-   * cannot keep, and 30 is the nearest one it can. Upward is the direction
-   * every other quantity correction goes. The save-time guard behind this
-   * catches a stored product that arrived off the lattice some other way.
+   * On blur, so clearing a field to retype it does not fight the typing: a
+   * required count left empty goes back to 1, and a minimum between two packs
+   * (25 against 6) rises to the next whole one. A minimum under one pack is a
+   * shop that opens packs, and stays as typed.
    */
   protected normalize(key: keyof PackagingDraft): void {
+    const v = this.value();
     const required =
-      REQUIRED_COUNTS.includes(key as (typeof REQUIRED_COUNTS)[number]) ||
-      // Only while there is a box to count; without one the field is disabled
-      // and stays empty.
-      (key === 'boxCount' && parseCount(this.value().packsPerBox) !== null);
-    if (!required) return;
-    if (parseCount(this.value()[key]) === null) {
-      this.valueChange.emit({ ...this.value(), [key]: '1' });
+      key === 'minPieceQty' ||
+      // A box count only while there is a box; otherwise it stays empty.
+      (key === 'boxCount' && parseCount(v.packsPerBox) !== null);
+    if (required && parseCount(v[key]) === null) {
+      this.valueChange.emit({ ...v, [key]: '1' });
       return;
     }
-    if (key === 'minPieceQty' || key === 'piecesPerPack') {
-      const pack = parseCount(this.value().piecesPerPack);
-      const min = parseCount(this.value().minPieceQty);
-      if (pack === null || min === null) return;
-      if (min < pack || min % pack === 0) return;
-      const lifted = Math.ceil(min / pack) * pack;
-      this.valueChange.emit({
-        ...this.value(),
-        minPieceQty: String(lifted),
-      });
+    if (key !== 'minPieceQty' && key !== 'piecesPerPack') return;
+    const pack = parseCount(v.piecesPerPack);
+    const min = parseCount(v.minPieceQty);
+    if (pack === null || min === null || min < pack || min % pack === 0) {
+      return;
     }
+    this.valueChange.emit({
+      ...v,
+      minPieceQty: String(Math.ceil(min / pack) * pack),
+    });
   }
 }

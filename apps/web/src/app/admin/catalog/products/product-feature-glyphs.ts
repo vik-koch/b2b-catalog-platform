@@ -10,11 +10,8 @@ import { packagePlusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/package-p
 import { paletteIcon } from '@b2b-catalog-platform/ui/icons/glyphs/palette';
 import { starIcon } from '@b2b-catalog-platform/ui/icons/glyphs/star';
 
-/**
- * One glyph per thing a product can carry (FR-ADM-20), shared by the grid row,
- * the grid's filter chips and the editor's section headings, so each is learnt
- * once. Variants, sets and pairings are the storefront's own glyphs.
- */
+/** One glyph per thing a product can carry (FR-ADM-20), the same in the grid,
+ * its chips and the editor. Variants, sets and pairings use the storefront's. */
 export const PRODUCT_FEATURE_GLYPHS: Record<ProductFeature, Glyph> = {
   featured: starIcon,
   variants: paletteIcon,
@@ -24,11 +21,8 @@ export const PRODUCT_FEATURE_GLYPHS: Record<ProductFeature, Glyph> = {
   documents: fileTextIcon,
 };
 
-/**
- * The glyphs of what a product carries, in a row. Each is named by its tooltip
- * and, for a screen reader, in words, because a phone has no hover and a glyph
- * is not a name.
- */
+/** Named in words too: a phone has no hover, and a glyph is not a name. */
+
 @Component({
   selector: 'app-product-feature-glyphs',
   imports: [Icon],

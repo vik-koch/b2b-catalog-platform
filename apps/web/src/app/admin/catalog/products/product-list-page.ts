@@ -54,11 +54,11 @@ import {
 import { GridFilterOption } from '@b2b-catalog-platform/ui/grid/grid-filter-select';
 import { GridPagination } from '@b2b-catalog-platform/ui/grid/grid-pagination';
 import {
-  DEFAULT_ADMIN_SORT,
-  DEFAULT_ADMIN_STATE,
-  resolveAdminAvailability,
-  resolveAdminSort,
-  resolveAdminState,
+  DEFAULT_SORT,
+  DEFAULT_STATE,
+  resolveAvailability,
+  resolveSort,
+  resolveState,
 } from './product-grid-query';
 import { GridCardTemplate } from '@b2b-catalog-platform/ui/grid/grid-card-template';
 import { GridRowTemplate } from '@b2b-catalog-platform/ui/grid/grid-row-template';
@@ -68,7 +68,6 @@ import { GridHeader } from '@b2b-catalog-platform/ui/grid/grid-header';
 import { DocumentsService } from '../documents/documents.service';
 import { TiersService } from '../tiers/tiers.service';
 import { purgeWithConfirmation, PurgeText } from './product-removal';
-import { SettingsService } from '../../settings/settings.service';
 import { ProductRowActions, ProductRowState } from './product-row-actions';
 import {
   PRODUCT_FEATURE_GLYPHS,
@@ -76,11 +75,19 @@ import {
 } from './product-feature-glyphs';
 import { plusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/plus';
 
-/** Marks the category filter's "without subcategories" option. A category id
- * is a uuid, so it can never end this way on its own. */
+/** The category filter's "without subcategories" option; a uuid never ends
+ * this way. */
 const DIRECT_SUFFIX = ':direct';
 
+/** Green, amber, grey: an empty shelf is a fact, never red. */
+const STOCK_TONES: Record<ProductAvailability, StatusTone> = {
+  in: 'ok',
+  low: 'waiting',
+  out: 'neutral',
+};
+
 /** The entries of a list parameter that are one of `known`, in its order. */
+
 function knownValues<T extends string>(
   raw: string | readonly string[] | undefined,
   known: readonly T[],
@@ -90,11 +97,8 @@ function knownValues<T extends string>(
 }
 
 /**
- * The admin product list: the catalog, live and unpublished, and under its own
- * state the deleted products (FR-ADM-22), each with edit and delete/restore
- * actions. This is where deletion is reversible — the public catalog only ever
- * hides deleted rows, so restoring one lives here rather than on the
- * storefront. Admin-only and client-rendered like the rest of the panel.
+ * The product grid (FR-ADM-05): live and unpublished products, and the deleted
+ * ones under their own state (FR-ADM-22), which is where a deletion is undone.
  */
 @Component({
   selector: 'app-product-list-page',
@@ -128,9 +132,7 @@ function knownValues<T extends string>(
       [clearSearchLabel]="text.clearSearch"
       [filtered]="filtered()"
     >
-      <!-- Kept while the catalog is externally owned: the click then explains
-           who owns it instead of opening an editor that could only refuse the
-           save. -->
+      <!-- Kept while the catalog is owned: the click then explains. -->
       <button uiButton type="button" class="gap-2" (click)="addProduct()">
         <ui-icon [glyph]="plusIcon" class="size-4" />
         {{ editText.addProduct }}
@@ -157,9 +159,8 @@ function knownValues<T extends string>(
         [total]="data.pagination.total"
         [countLabel]="productStates.count"
       >
-        <!-- A search that finds nothing in the catalog may be looking for a
-             product that was deleted (FR-ADM-22); the archive keeps the
-             search and every other filter, and changes only the state. -->
+        <!-- A search that finds nothing may mean a deleted product
+             (FR-ADM-22); the link keeps every filter but the state. -->
         @if (data.deletedMatches; as count) {
           <p gridEmpty class="mt-2 text-ink-subtle">
             {{ deletedMatchesLabel(count) }}
@@ -188,13 +189,11 @@ function knownValues<T extends string>(
             </div>
           </td>
           <td>
-            <!-- The sync key trails the name in the same flow rather than
-                 sitting beside it as its own column of the row: a name that
-                 wraps used to push the chip onto a line of its own, and the two
-                 belong together. -->
+            <!-- The sync key trails the name in one flow, so a wrapping name
+                 does not push it onto a line of its own. -->
             <div class="line-clamp-3 wrap-break-word [word-spacing:0.25rem]">
               <a
-                [routerLink]="pageOf(item)"
+                [routerLink]="['/product', item.slug]"
                 [queryParams]="editorFrom()"
                 class="align-middle font-medium text-ink hover:text-accent [word-spacing:normal]"
                 >{{ item.name }}</a
@@ -210,8 +209,7 @@ function knownValues<T extends string>(
             />
           </td>
           <td>
-            <!-- A name leads where the visitor sees it, as the product's
-                 own does. -->
+            <!-- To where the visitor sees it, as the product's name. -->
             <div class="flex items-center">
               @if (categoryOf().get(item.categoryId); as category) {
                 <a
@@ -232,16 +230,9 @@ function knownValues<T extends string>(
             }
           </td>
           <td>
-            <!-- The figure inside the badge, not the word: what a manager
-                 restocking needs is how many, and the colour is what the three
-                 states are for. The word is read out with it, so the colour is
-                 never carrying the state on its own.
-
-                 The unit is spelled out because the figure is not the only
-                 count in the row: packaging is entered in pieces per pack and
-                 packs per box, and a bare number in a stock column had to be
-                 taken on trust as one of them. Non-breaking, so the two never
-                 land on separate lines in the card. -->
+            <!-- The figure, not the word: restocking needs how many, and the
+                 word is read out with it. The unit is spelled out, since a
+                 pack or box count could be taken for it. -->
             @if (item.stockPieces === null) {
               <span class="text-ink-subtle">{{ text.stockUntracked }}</span>
             } @else {
@@ -276,15 +267,11 @@ function knownValues<T extends string>(
           </td>
         </ng-template>
 
-        <!-- The same product on a phone: the photo stays, because it is the
-             fastest way to recognise one, and the two identifiers a manager
-             works from — the name and the sync key — sit beside it with the
-             price. The category and the exact minute of the last change are
-             detail for the editor. -->
+        <!-- On a phone the photo stays, the fastest way to recognise one; the
+             category is detail for the editor. -->
         <ng-template uiGridCard [of]="data.items" let-item>
-          <!-- Only the product is greyed once it is deleted, never the badge
-               that says so nor the buttons that undo it — the same rule the
-               table follows cell by cell. -->
+          <!-- A deleted product is greyed, never the badge or the buttons
+               that undo it, as in the table. -->
           <ui-record-row>
             <div
               recordLead
@@ -301,7 +288,7 @@ function knownValues<T extends string>(
               }
             </div>
             <a
-              [routerLink]="pageOf(item)"
+              [routerLink]="['/product', item.slug]"
               [queryParams]="editorFrom()"
               class="font-medium wrap-break-word line-clamp-2 text-ink"
               [class.opacity-50]="isDeleted(item)"
@@ -368,15 +355,11 @@ function knownValues<T extends string>(
       <ui-skeleton [lines]="6" />
     }
 
-    <!-- Under the name, in the table and in the card alike (FR-ADM-20): the
-         glyphs of what the product carries, and in words what keeps it
-         incomplete. Amber and smaller than everything else in the cell, so
-         the gaps read as work rather than as another fact about the row. -->
+    <!-- What the product carries and lacks (FR-ADM-20); the gaps in amber,
+         so they read as work. In the card it flows beside the sync key,
+         where a top margin would lift it off the line. -->
     <ng-template #content let-item let-card="card">
       @if (item.features.length || item.gaps.length) {
-        <!-- Its own line under the name in the table; in the card it flows
-             beside the sync key, and a top margin there would lift it off
-             that line's centre. -->
         <div
           class="flex flex-wrap items-center gap-x-2 gap-y-1"
           [class.mt-1]="!card"
@@ -407,119 +390,76 @@ export class ProductListPage {
   protected readonly editText = inject(ADMIN_TEXT).editMode;
   protected readonly productStates = inject(ADMIN_TEXT).products;
   protected readonly actionText = inject(SHARED_TEXT).actions;
-  private readonly settings = inject(SettingsService);
   private readonly purgeText: PurgeText = {
     ...this.editText,
     cancel: this.actionText.cancel,
     close: this.actionText.close,
-    ordered: this.adminText.catalogErrors['product-ordered'],
     owned: inject(ADMIN_TEXT).ownership.productPurge,
     errors: this.adminText.catalogErrors,
   };
   private readonly confirm = inject(ConfirmService);
   private readonly productCreate = inject(ProductCreateService);
   protected readonly productText = inject(ADMIN_TEXT).products.editor;
-  /** The storefront's three words for a stock state, reused rather than
-   * restated: the grid and the badge a customer sees name one fact. */
+  /** The storefront's words, so grid and product page name one fact alike. */
   protected readonly availabilityText =
     inject(SHARED_TEXT).product.availability;
   protected readonly editorFrom = injectEditorReturnParams();
 
-  /** Bound from the `page` query param (a string); coerced and floored to 1. */
-  page = input('1');
-  protected currentPage = computed(() => {
+  /** The grid's state comes from the URL, each input named for its query
+   * parameter, and is narrowed before it reaches the API. */
+  readonly page = input('1');
+  protected readonly currentPage = computed(() => {
     const n = Number(this.page());
     return Number.isInteger(n) && n > 0 ? n : 1;
   });
 
-  /*
-   * The rest of the grid's state, likewise bound from query parameters
-   * (FR-ADM-05) — the inputs are named for the parameters, since router input
-   * binding matches on the parameter's name. Each is narrowed before it reaches
-   * the API, so a hand-edited URL falls back to the default instead of becoming
-   * a request the server would reject.
-   */
   readonly searchTerm = input('');
   protected readonly query = computed(() =>
     this.searchTerm() ? this.searchTerm().trim() : undefined,
   );
 
   readonly sort = input('');
-  protected readonly defaultSort = DEFAULT_ADMIN_SORT;
-  protected readonly sortKey = computed(() => resolveAdminSort(this.sort()));
-  /**
-   * The sort as the column headings should show it. `relevance` is not a column
-   * — with a query it is the text ranking, and with none the API falls back to
-   * state order, so that is the header to light up. Display only: the request
-   * still sends the key that was resolved.
-   */
+  protected readonly defaultSort = DEFAULT_SORT;
+  protected readonly sortKey = computed(() => resolveSort(this.sort()));
+  /** `relevance` is no column: with a query it is the ranking, without one
+   * the API sorts by state, so that heading lights up. Display only. */
   protected readonly headerSort = computed<AdminProductSort | null>(() => {
     if (this.sortKey() !== 'relevance') return this.sortKey();
     return this.query() ? null : 'state';
   });
 
   readonly state = input('');
-  protected readonly stateKey = computed(() => resolveAdminState(this.state()));
-  /** The select's value: the default is the unfiltered choice, whose option
-   * carries the empty value that clears the parameter. */
+  protected readonly stateKey = computed(() => resolveState(this.state()));
+  /** The default is the unfiltered option, whose empty value clears the
+   * parameter. */
   protected readonly stateParam = computed(() =>
-    this.stateKey() === DEFAULT_ADMIN_STATE ? '' : this.stateKey(),
+    this.stateKey() === DEFAULT_STATE ? '' : this.stateKey(),
   );
 
-  /**
-   * One of the three stock states, or empty for any (FR-ADM-05). Not narrowed
-   * here: a value that is not one of them fails contract validation, which is
-   * the same answer a hand-edited URL deserves anywhere else in this grid.
-   */
   readonly availability = input('');
   protected readonly availabilityKey = computed(() =>
-    resolveAdminAvailability(this.availability()),
+    resolveAvailability(this.availability()),
   );
 
-  /** Not narrowed here — an unknown id is a uuid the API answers with an empty
-   * page, and anything that is not one fails contract validation. The category
-   * covers everything beneath it, as the storefront listing does (FR-ADM-19). */
+  /** Not narrowed: an unknown uuid gets an empty page, a non-uuid a contract
+   * refusal. Covers the subtree, as the storefront does (FR-ADM-19). */
   readonly categoryId = input('');
-  /** `direct` narrows the category to the products filed in it, leaving out
-   * its subcategories'; anything else is the whole subtree. */
+  /** `direct` leaves out the subcategories' products. */
   readonly categoryScope = input('');
   protected readonly categoryDirect = computed(
     () => !!this.categoryId() && this.categoryScope() === 'direct',
   );
 
-  /**
-   * Where the attribute inventory drills down to (FR-ATTR-09): the products
-   * carrying one attribute key, optionally narrowed to one of its values. It
-   * has no column of its own — attributes are not in the grid — so it is shown
-   * as a chip above the table, which is also how it is cleared.
-   */
+  /** The drill-downs from the inventory (FR-ATTR-09), the tier list and the
+   * document list (FR-DOC-02): no column of their own, so each is a chip. */
   readonly attributeKey = input('');
   readonly attributeValue = input('');
-
-  /**
-   * Where the tier list's price count drills down to: the products this tier
-   * has a price of its own for. Like the attribute filter it has no column —
-   * the grid shows the base price, not a tier's — so it is a chip too.
-   */
   readonly tierId = input('');
-  /**
-   * Which side of that list to show: the products it prices, or the gap. Only
-   * meaningful beside a `tierId`, and it rides on the same chip — "not priced
-   * in wholesale" is one filter, not two.
-   */
+  /** Rides on the tier's chip: "not priced in wholesale" is one filter. */
   readonly tierPriced = input('');
-  /**
-   * Where the document list's product count drills down to: the products one
-   * certificate, declaration or data sheet is shown on (FR-DOC-02). A chip
-   * like the two above — a product row says nothing about its documents.
-   */
   readonly documentId = input('');
 
-  /**
-   * What the product's own content lacks or carries (FR-ADM-20), each a list:
-   * one entry arrives as a bare string, more as an array. Entries that are
-   * not one of the values are dropped, like a hand-edited state.
-   */
+  /** FR-ADM-20. One entry arrives as a bare string, more as an array. */
   readonly missing = input<string | readonly string[] | undefined>(undefined);
   readonly has = input<string | readonly string[] | undefined>(undefined);
   protected readonly missingKeys = computed(() =>
@@ -529,8 +469,7 @@ export class ProductListPage {
     knownValues(this.has(), PRODUCT_FEATURES),
   );
 
-  /** The content filter as two rows of chips: what a product has, with the
-   * glyphs its row draws, then the gaps. */
+  /** What a product has, with its row's glyphs, then the gaps. */
   protected readonly toggles = computed<GridToggleGroup[]>(() => [
     {
       ariaLabel: this.text.hasGroupAria,
@@ -553,9 +492,8 @@ export class ProductListPage {
     },
   ]);
 
-  /** The document, for the chip's title alone — fetched only while the chip is
-   * on screen, and a failure leaves the chip absent rather than the list
-   * broken, exactly as the tier's does. */
+  // The chips' names are fetched only while a chip shows, and a failure
+  // leaves the chip absent or unadorned rather than the list broken.
   private readonly documents = resource({
     params: () => (this.documentId() ? { id: this.documentId() } : undefined),
     loader: ({ params }) =>
@@ -564,8 +502,6 @@ export class ProductListPage {
   protected readonly documentFilter = computed(
     () => this.documents.value()?.title ?? null,
   );
-  /** The tiers, for the chip's name alone: fetched only while a chip is on
-   * screen, and a failure leaves the chip absent rather than the list broken. */
   private readonly tiers = resource({
     params: () => (this.tierId() ? { id: this.tierId() } : undefined),
     loader: () =>
@@ -574,30 +510,20 @@ export class ProductListPage {
         () => [],
       ),
   });
-  /** The tier's own label, or null until it is known. The chip waits for the
-   * name rather than showing a uuid nobody can read. */
+  /** The chip waits for the name rather than showing a uuid. */
   protected readonly tierFilter = computed(() => {
     const id = this.tierId();
     if (!id) return null;
     return (this.tiers.value() ?? []).find((t) => t.id === id)?.label ?? null;
   });
-  /**
-   * The registry, for the chip's unit alone — so it is fetched only while a
-   * chip is on screen, and a failure leaves the chip unadorned rather than
-   * breaking the list.
-   */
   private readonly definitions = resource({
     params: () =>
       this.attributeKey() ? { key: this.attributeKey() } : undefined,
     loader: () => this.attributes.list().catch(() => []),
   });
 
-  /**
-   * The value only qualifies a key; on its own there is nothing to show. The
-   * value is shown with the declared unit, as the storefront's chips and the
-   * spec table show it — the inventory, which is where values are *edited*,
-   * keeps showing them exactly as stored.
-   */
+  /** With the declared unit, as the storefront shows it; the inventory, where
+   * values are edited, keeps them as stored. */
   protected readonly attributeFilter = computed(() => {
     const key = this.attributeKey();
     if (!key) return null;
@@ -608,8 +534,7 @@ export class ProductListPage {
     return { key, value: value ? formatAttributeValue(value, unit) : null };
   });
 
-  /** Whether anything is narrowing the list, which is what separates "no
-   * products" from "no matches". */
+  /** What separates "no products" from "no matches". */
   protected readonly filtered = computed(
     () =>
       !!this.query() ||
@@ -620,7 +545,7 @@ export class ProductListPage {
       !!this.documentId() ||
       this.missingKeys().length > 0 ||
       this.hasKeys().length > 0 ||
-      this.stateKey() !== DEFAULT_ADMIN_STATE,
+      this.stateKey() !== DEFAULT_STATE,
   );
 
   private readonly categories = resource({
@@ -630,26 +555,15 @@ export class ProductListPage {
     () => new Map((this.categories.value() ?? []).map((c) => [c.id, c])),
   );
 
-  /**
-   * A category named by slug, which is all the storefront knows of one: its
-   * edit-mode way into this grid. Swapped for the id once the tree is here,
-   * so the URL ends up as the filter select would have written it; the rows
-   * wait for that rather than loading the whole catalogue first. An unknown
-   * slug just leaves the grid unfiltered.
-   */
+  /** A slug, all the storefront knows of a category: swapped for the id once
+   * the tree is here, and the rows wait for it. An unknown one unfilters. */
   readonly category = input('');
 
   /**
-   * The category filter's options: the tree flattened depth-first and
-   * indented, same as the editor's picker, led by the unfiltered choice.
-   *
-   * A category with subcategories *and* products of its own gets a second
-   * option for those alone, first among its children and indented like one:
-   * they are a part of what it holds, beside its subcategories, not a second
-   * reading of the whole. A product left in a parent is otherwise lost among
-   * everything beneath it. Anywhere else the two options would list the same
-   * rows, so it is not offered — except for the one in effect, which the
-   * select must still be able to show.
+   * A category with subcategories and products of its own gets a second
+   * option for those alone, indented like a child, or a product left in a
+   * parent is lost among everything beneath it. Elsewhere both would list the
+   * same rows, so it is offered only where it is in effect.
    */
   protected readonly categoryOptions = computed<GridFilterOption[]>(() => {
     const options: GridFilterOption[] = [
@@ -681,14 +595,8 @@ export class ProductListPage {
         }
       : { categoryId: value || null, categoryScope: null };
 
-  /**
-   * The columns, declared once: the headings on a desktop, the filter sheet and
-   * the sort picker on a phone, and the widths an admin drags. A computed
-   * because two of them carry the filter values in effect.
-   */
+  /** A computed: two columns carry the filter values in effect. */
   protected readonly columns = computed<GridColumn[]>(() => [
-    // A photo and a row of glyphs need what they need; the rest of the table
-    // divides what those two leave.
     {
       key: 'thumb',
       srLabel: this.productText.images.heading,
@@ -720,10 +628,7 @@ export class ProductListPage {
       sort: { asc: 'price', desc: 'price_desc' },
       minWidth: 90,
     },
-    // Filtered but not sorted: the storefront leads every listing with
-    // availability (FR-STOCK-05), and the grid answers the same question the
-    // other way round — "show me only what is out" — because a manager is
-    // working through a list, not shopping in it.
+    // Filtered, not sorted: a manager works through "only what is out".
     {
       key: 'stock',
       label: this.text.stockAll,
@@ -736,8 +641,6 @@ export class ProductListPage {
       },
       minWidth: 110,
     },
-    // Both a filter and a sort, like the order list's status: what the grid is
-    // narrowed by is also what an admin wants at the top when they open it.
     {
       key: 'state',
       label: this.text.stateAll,
@@ -766,13 +669,7 @@ export class ProductListPage {
     },
   ]);
 
-  /**
-   * The narrowings the table has no heading for, each arrived at from the
-   * screen that asks the question — the attribute inventory, the tier list,
-   * the document list.
-   * The grid shows them as chips and counts them with its own filters, so a
-   * phone can see and undo them without a column to hang them on.
-   */
+  /** The drill-downs, counted with the grid's own filters. */
   protected readonly chips = computed<GridChip[]>(() => {
     const chips: GridChip[] = [];
     const tier = this.tierFilter();
@@ -810,26 +707,15 @@ export class ProductListPage {
     return chips;
   });
 
-  /**
-   * The stock column is the seventh thing in a row that already carries a
-   * photo, a name with its sync key, a category, a state, a price and a
-   * timestamp — the same wall of truncation the customer list gives up on a
-   * breakpoint early, so this one now does too.
-   */
-
   protected readonly bySlug = (item: { slug: string }): string => item.slug;
 
-  /** A deleted product is listed under its own state — this is where
-   * undeleting happens — and greyed, since it is not part of the catalogue
-   * while it is there. An unpublished one is not greyed: it is waiting for
-   * somebody, which is work. */
+  /** Greyed while out of the catalogue; an unpublished one is not, since it is
+   * waiting on somebody. */
   protected readonly isDeleted = (item: {
     deletedAt: string | null;
   }): boolean => !!item.deletedAt;
 
-  /** Where a product stands, as its own column: deleted, waiting to be
-   * published, or on the storefront. The same three words the filter offers, so
-   * a narrowed list and its rows cannot describe the same state differently. */
+  /** The filter's own three words, so list and rows cannot disagree. */
   protected stateLabel(item: {
     deletedAt: string | null;
     publishedAt: string | null;
@@ -848,48 +734,26 @@ export class ProductListPage {
     return item.publishedAt ? 'ok' : 'waiting';
   }
 
-  /** The badge's colour, the storefront's own: green for what is there, amber
-   * for what is nearly gone, grey for an empty shelf. Never red — an empty
-   * shelf is a fact, not a fault of the row. */
-  protected stockTone(item: { availability: ProductAvailability | null }) {
-    const tones: Record<ProductAvailability, StatusTone> = {
-      in: 'ok',
-      low: 'waiting',
-      out: 'neutral',
-    };
-    return tones[item.availability ?? 'in'];
+  protected stockTone(item: {
+    availability: ProductAvailability | null;
+  }): StatusTone {
+    return STOCK_TONES[item.availability ?? 'in'];
   }
 
-  /** The editor's own word for a piece, not a second spelling of it: a
-   * deployment that says "ea" or "St." says it once. */
   protected readonly pieceSuffix = inject(SHARED_TEXT).units.piece;
 
-  /** What the badge says when it is read rather than seen: the figure and the
-   * state it resolves to. The unit is in the wording of `stockAria`, so the
-   * suffix beside the figure is not read out twice. */
+  /** The unit is in `stockAria`'s wording, so it is not read out twice. */
   protected stockLabel(item: {
     stockPieces: number | null;
     availability: ProductAvailability | null;
   }): string {
     return fillText(this.text.stockAria, {
-      count: String(item.stockPieces ?? 0),
+      count: item.stockPieces ?? 0,
       state: this.availabilityText[item.availability ?? 'in'],
     });
   }
 
-  /** Where a row's name goes: the product's page, which an admin is shown
-   * whether or not the storefront offers it — with a banner saying why not
-   * (FR-ADM-06). */
-  protected pageOf(item: { slug: string }): string[] {
-    return ['/product', item.slug];
-  }
-
-  /**
-   * The three states, in the order a manager reads them — what is gone first,
-   * because that is the list they came to act on. The words are the
-   * storefront's own, so a grid row and a product page cannot describe one
-   * stock in two vocabularies.
-   */
+  /** What is gone first: the list a manager comes to act on. */
   protected readonly stockOptions: GridFilterOption[] = [
     { value: '', label: this.text.stockAll },
     { value: 'out', label: this.availabilityText.out },
@@ -914,7 +778,7 @@ export class ProductListPage {
     { value: 'deleted', label: this.productStates.deleted },
   ];
 
-  protected products = resource({
+  protected readonly products = resource({
     params: () =>
       this.category()
         ? undefined
@@ -940,21 +804,16 @@ export class ProductListPage {
     loader: ({ params }) => this.productsService.list(params),
   });
 
-  /** Held across reloads, so filtering, sorting or typing swaps the rows
-   * instead of blanking the table — and the header that carries the controls
-   * stays put while the next page is in flight. */
+  /** Held across reloads, so a filter swaps the rows instead of blanking the
+   * table and its controls. */
   protected readonly shown = stableValue(this.products);
 
-  /** Delayed so a quick load never flashes a skeleton. Only the first load can
-   * reach it — a reload still has the previous rows on screen. */
   protected readonly showSkeleton = delayedLoading(this.products.isLoading);
 
   protected readonly publishing = signal<string | null>(null);
 
-  /**
-   * Publishing is one click; unpublishing is confirmed, because taking a
-   * product off sale is the same weight as deleting it.
-   */
+  /** Unpublishing is confirmed: taking a product off sale weighs as much as
+   * deleting it. */
   protected async togglePublished(item: ProductRowState): Promise<void> {
     const publish = item.publishedAt === null;
     if (
@@ -982,8 +841,7 @@ export class ProductListPage {
     }
   }
 
-  /** The header's ＋: a new product's editor, or the reason there is none.
-   * A grid narrowed to one category starts the product in it. */
+  /** A grid narrowed to one category starts the product in it. */
   protected addProduct(): void {
     const category = this.categoryOf().get(this.categoryId())?.slug;
     void this.productCreate.start({ category, ...this.editorFrom() });
@@ -996,16 +854,14 @@ export class ProductListPage {
     this.products.reload();
   }
 
-  /** The row has already said why a product cannot go; this asks before the
-   * one removal step that cannot be undone (FR-ADM-21). */
   protected async purge(item: ProductRowState): Promise<void> {
     await purgeWithConfirmation(
       this.confirm,
       this.productsService,
       this.purgeText,
       item,
-      async () => (await this.settings.load()).includes('catalog'),
     );
+
     this.products.reload();
   }
 
@@ -1015,8 +871,6 @@ export class ProductListPage {
   }
 
   constructor() {
-    // This screen is certain to need the ownership answer — its ＋ is always on
-    // screen — so it is asked for on load rather than on the click.
     this.productCreate.prepare();
     effect(() => {
       const slug = this.category();
@@ -1029,8 +883,6 @@ export class ProductListPage {
         replaceUrl: true,
       });
     });
-    // Admin screens are client-rendered, so this is for the browser tab
-    // rather than for crawlers — but it is the same one-line contract.
     usePageSeo({ name: () => this.text.page.title });
   }
 }

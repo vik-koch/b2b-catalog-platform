@@ -7,12 +7,9 @@ import {
 import type { ProductsService } from './products.service';
 
 /**
- * A removal step refused in advance (FR-ADM-10), answered where the click is
- * made: the control stays and the click says why, as an unpriced product's
- * publish button does. Returns whether the click may go ahead. The server
- * refuses either way; this is the screen agreeing with it, not enforcing it.
- *
- * While the catalog is owned, a run's deletion is a run's to undo.
+ * While the catalog is owned, only a run undoes a run's deletion (FR-ADM-10).
+ * The click says so instead of the control vanishing; the server refuses
+ * either way.
  */
 export async function mayRestore(
   confirm: ConfirmService,
@@ -30,25 +27,23 @@ export async function mayRestore(
   return false;
 }
 
-/** The wording the permanent delete reads, wherever it is offered. */
 export interface PurgeText {
   purgeProduct: string;
   purgeConfirm: ConfirmText;
   cancel: string;
   close: string;
-  ordered: string;
   owned: string;
   /** Every catalog refusal by code, for one the click could not foresee. */
   errors: Readonly<Record<string, string>>;
 }
 
 /**
- * Why deleting a product permanently would be refused (FR-ADM-21), or null
- * where it can succeed: somebody ordered it, or — while the catalog is owned —
- * an admin deleted it and the source still sends it.
+ * Why a permanent delete would be refused (FR-ADM-21): somebody ordered it,
+ * or while the catalog is owned an admin deleted it and the source still
+ * sends it.
  */
 export function purgeRefusal(
-  text: Pick<PurgeText, 'ordered' | 'owned'>,
+  text: { ordered: string; owned: string },
   product: { ordered: boolean; deletedByRun: boolean },
   catalogOwned: boolean,
 ): string | null {
@@ -58,35 +53,16 @@ export function purgeRefusal(
 }
 
 /**
- * The whole permanent delete from a click: the refusal said where there is
- * one, otherwise a confirmation — it is the one removal step that cannot be
- * undone — then the call, and a refusal the screen could not foresee (an
- * order placed since it loaded) told rather than swallowed. Resolves whether
- * the product is gone.
+ * Confirmed, as the one removal step that cannot be undone, after the row has
+ * told any refusal it can foresee. One it could not (an order placed since
+ * the list loaded) is told too. Resolves whether the product is gone.
  */
 export async function purgeWithConfirmation(
   confirm: ConfirmService,
   products: Pick<ProductsService, 'purge'>,
   text: PurgeText,
-  product: {
-    slug: string;
-    name: string;
-    ordered: boolean;
-    deletedByRun: boolean;
-  },
-  catalogOwned: () => Promise<boolean>,
+  product: { slug: string; name: string },
 ): Promise<boolean> {
-  const tell = (message: string) =>
-    confirm.tell({
-      heading: text.purgeProduct,
-      message,
-      closeLabel: text.close,
-    });
-  const refusal = purgeRefusal(text, product, await catalogOwned());
-  if (refusal) {
-    await tell(refusal);
-    return false;
-  }
   const confirmed = await confirm.ask({
     ...confirmRequest(text.purgeConfirm, text.cancel),
     message: fillText(text.purgeConfirm.message, { name: product.name }),
@@ -95,10 +71,13 @@ export async function purgeWithConfirmation(
   if (!confirmed) return false;
   const result = await products.purge(product.slug);
   if (result.ok) return true;
-  await tell(
-    result.code === 'catalog-externally-owned'
-      ? text.owned
-      : text.errors[result.code],
-  );
+  await confirm.tell({
+    heading: text.purgeProduct,
+    message:
+      result.code === 'catalog-externally-owned'
+        ? text.owned
+        : text.errors[result.code],
+    closeLabel: text.close,
+  });
   return false;
 }

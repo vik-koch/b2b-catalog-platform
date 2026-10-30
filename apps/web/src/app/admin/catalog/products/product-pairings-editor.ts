@@ -40,21 +40,9 @@ let nextId = 0;
 const SUGGESTIONS_SHOWN = 8;
 
 /**
- * The products this one is sold together with (FR-SET-01) — a search field that
- * suggests products by name, and the counterparts picked so far.
- *
- * A disclosure rather than a checkbox, though it hides the same way the note
- * prompt does: there is no stored flag here to check. A checkbox would be a
- * control whose off state has no meaning — unchecking it either loses the
- * pairings silently or lies about them — while the lid's count says how many
- * there are without opening it, which is the thing an admin scrolling past
- * wants to know.
- *
- * Counterparts that are deleted or unpublished are listed **marked**, not
- * dropped: a soft delete is reversible and an unpublished product is usually
- * one still being prepared, so the link an admin made outlives both. They are
- * simply not offered as new ones — a deleted product is not something to start
- * selling alongside.
+ * The products this one is sold with (FR-SET-01). A deleted or unpublished
+ * counterpart stays listed and marked, since both are reversible; it is only
+ * not offered as a new one.
  */
 @Component({
   selector: 'app-product-pairings-editor',
@@ -74,8 +62,6 @@ const SUGGESTIONS_SHOWN = 8;
   ],
   host: { class: 'block' },
   template: `
-    <!-- The attribute picker's box: lid, count, and one border around
-         everything it opens. -->
     <div class="max-w-xl rounded-md border" uiDisclosureFrame [open]="open()">
       <ui-disclosure-toggle
         [label]="product.pairings"
@@ -179,11 +165,8 @@ export class ProductPairingsEditor implements OnInit {
   protected readonly glyph = PRODUCT_FEATURE_GLYPHS.pairings;
 
   readonly value = input.required<readonly LinkedProduct[]>();
-  /**
-   * The product being edited, so it cannot be offered as its own counterpart.
-   * Null while it has no slug yet — a new product cannot be in the catalog the
-   * search reads, so there is nothing to exclude.
-   */
+  /** Not offered as its own counterpart. Null for a new product, which the
+   * search cannot return anyway. */
   readonly ownSlug = input<string | null>(null);
 
   readonly valueChange = output<LinkedProduct[]>();
@@ -194,20 +177,13 @@ export class ProductPairingsEditor implements OnInit {
   protected readonly panelId = `pairings-panel-${++nextId}`;
   protected readonly inputId = `pairing-search-${nextId}`;
 
-  /**
-   * One name is enough of a query here: this searches our own catalog rather
-   * than a metered provider, and an admin pairing a lid types "lid".
-   */
+  /** A short query is fine: this searches our own catalog, not a metered
+   * provider, and an admin pairing a lid types "lid". */
   protected readonly list = new SuggestList<AdminProductListItem>({
     load: (q) =>
       this.service.list({ q, sort: 'relevance' }).then((r) => r.items),
     minLength: 2,
-    /**
-     * What is actually offerable: not this product, not one already paired,
-     * and not a deleted one. Filtered here rather than in the query because the
-     * grid endpoint answers the same question the grid asks — "all states" —
-     * and the three exclusions are about this form, not about the catalog.
-     */
+    /** Filtered here, not in the query: the exclusions are this form's. */
     shown: (answer) => {
       const taken = new Set(this.value().map((p) => p.slug));
       const own = this.ownSlug();
@@ -234,9 +210,8 @@ export class ProductPairingsEditor implements OnInit {
     fillText(this.text.limit, { count: this.max }),
   );
 
-  /** Open where there is something to see. Read once, in `ngOnInit`: a panel
-   * that closed itself when the last pairing was removed would take the field
-   * that puts one back with it. */
+  /** Opens only on load: closing when the last pairing went would take the
+   * field that adds one with it. */
   ngOnInit(): void {
     this.open.set(this.value().length > 0);
   }
@@ -251,8 +226,6 @@ export class ProductPairingsEditor implements OnInit {
         unpublished: item.publishedAt === null,
       },
     ]);
-    // The field empties on a pick: the next one is a different search, and a
-    // panel of matches for the name just chosen is a list of what to skip.
     this.query.set('');
   }
 

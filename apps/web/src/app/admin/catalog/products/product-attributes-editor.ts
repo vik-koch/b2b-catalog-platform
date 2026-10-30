@@ -18,10 +18,7 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import {
-  ProductAttribute,
-  strayPart,
-} from '@b2b-catalog-platform/shared/core/catalog';
+import { ProductAttribute } from '@b2b-catalog-platform/shared/core/catalog';
 import { fillText } from '@b2b-catalog-platform/shared';
 import {
   AttributeDefinition,
@@ -38,9 +35,7 @@ import { TextButton } from '@b2b-catalog-platform/ui/actions/text-button';
 import {
   AttributeHint,
   attributeHints,
-  attributeRowKey,
-  AttributeRowStatus,
-  attributeRowStatus,
+  attributeRowMarks,
 } from './attribute-hints';
 import { AttributeKeyPicker } from './attribute-key-picker';
 import { ProductAttributesNarrow } from './product-attributes-narrow';
@@ -60,27 +55,18 @@ import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
 import { triangleAlertIcon } from '@b2b-catalog-platform/ui/icons/glyphs/triangle-alert';
 
 /**
- * The product's custom-attribute table (FR-CAT-05) as a spreadsheet-like grid.
+ * The product's attributes (FR-CAT-05) as a spreadsheet: `contenteditable` on
+ * the `<tbody>`, one editing host, so a selection spans cells, copy writes
+ * TSV, a paste fills outward and Delete clears a range.
  *
- * `contenteditable` sits on the `<tbody>` — a single editing host — so a mouse
- * selection spans cells and Ctrl+C copies the rectangle as TSV natively, exactly
- * like Excel; pasting a TSV block fills outward from the target cell, and
- * selecting a range + Delete clears it. There are no copy/paste buttons: the
- * table itself is the clipboard surface.
- *
- * Angular owns the row/cell *structure* (via `@for`) but not the cell *text*:
- * the text is written to the DOM from the model, skipping only the cell the
- * caret is in, and read back on input — so typing is never overwritten
- * mid-caret while every other cell still tracks the model. Structural keys that
- * a contenteditable would otherwise use to merge/delete cells (Enter, and
- * Backspace/Delete at a cell boundary) are intercepted, as is paste, so the
- * table shape the framework rendered can never be corrupted from inside the
- * editable region.
+ * Angular owns the rows and cells, not their text: the text is written from
+ * the model, skipping the cell under the caret, and read back on input. Enter,
+ * Backspace and Delete at a cell boundary, and paste, are intercepted, so the
+ * rendered structure cannot be broken from inside the editable region.
  */
 @Component({
   selector: 'app-product-attributes-editor',
   imports: [
-    Icon,
     Icon,
     IconButton,
     AttributeKeyPicker,
@@ -94,23 +80,19 @@ import { triangleAlertIcon } from '@b2b-catalog-platform/ui/icons/glyphs/triangl
     TextButton,
   ],
   template: `
-    <!-- min-w-0 because a <fieldset> defaults to min-width:min-content, which
-         on a phone is however wide the table below wants to be — and the
-         picker above it was dragged out past the screen edge with it. -->
+    <!-- A <fieldset> defaults to min-width:min-content, the table's width. -->
     <fieldset class="min-w-0">
       <legend uiFieldLabel>{{ text.heading }}</legend>
 
       @if (narrow()) {
         <app-product-attributes-narrow
           [value]="value()"
-          [hints]="hints()"
-          [parts]="parts()"
+          [marks]="marks()"
           (valueChange)="valueChange.emit($event)"
         />
       } @else {
-        <!-- Fixed layout, like the packaging grid below: a long value wraps and
-           grows the row instead of stretching the column, so the two tables
-           cannot drift apart on one product and line up on the next. -->
+        <!-- Fixed layout, like the packaging grid: a long value grows the row,
+             not the column, so the two tables stay lined up. -->
         <table class="w-full max-w-3xl table-fixed border-collapse text-sm">
           <thead>
             <tr class="text-left text-ink-subtle">
@@ -132,14 +114,13 @@ import { triangleAlertIcon } from '@b2b-catalog-platform/ui/icons/glyphs/triangl
             (keydown)="onKeydown($event)"
           >
             @for (row of rows(); track $index) {
-              <!-- The badges are positioned against the row, not the cells they
-                 mark: they are rendered from the action cell (the only part of
-                 the row outside the editable region) and the column edges are
-                 fractions of a fixed-layout table, so a fraction of the row is
-                 exactly the boundary they sit on. -->
+              @let mark = marks()[$index];
+              <!-- The badges are rendered from the action cell, the only part
+                   outside the editable region, and placed against the row:
+                   the column edges are fractions of a fixed-layout table. -->
               <tr cdkDrag [cdkDragData]="row" class="relative">
-                <!-- A detached table row collapses (loses cell widths), so the
-                   floating drag preview is a plain labelled chip instead. -->
+                <!-- A detached row loses its cell widths, so the preview is a
+                     chip. -->
                 <div
                   *cdkDragPreview
                   class="rounded-md border border-edge-strong bg-white px-3
@@ -147,14 +128,10 @@ import { triangleAlertIcon } from '@b2b-catalog-platform/ui/icons/glyphs/triangl
                 >
                   {{ row.key || text.key }}
                 </div>
-                <!-- An explicit line-height, not just a cell height: an empty cell
-                   otherwise has a zero-height line box, so the caret sits at the
-                   top on the first click and only drops into place once a
-                   character gives the line something to measure. It has to stay
-                   under the cell's content box (h-10 less padding and borders),
-                   or the first character grows the row instead. -->
-                <!-- The funnel overlaps this cell from the action cell (see
-                   below), so the text gets out of its way. -->
+                <!-- An explicit line-height: an empty cell has a zero-height
+                     line box, which puts the first caret at the top. It must
+                     fit the content box, or the first character grows the
+                     row. pr-9 clears a badge over the cell. -->
                 <td
                   [attr.data-row]="$index"
                   data-col="0"
@@ -162,46 +139,35 @@ import { triangleAlertIcon } from '@b2b-catalog-platform/ui/icons/glyphs/triangl
                          leading-6 align-middle wrap-break-word"
                   [class]="
                     cellFocus($index, 0) +
-                    (isFilterable(row) || rowStatus(row) === 'stray-part'
-                      ? ' pr-9'
-                      : '')
+                    (mark.filterable || mark.stray ? ' pr-9' : '')
                   "
                 ></td>
-                <!-- The badge overlaps this cell from the action cell beside it
-                   (see below), so the text gets out of its way. -->
                 <td
                   [attr.data-row]="$index"
                   data-col="1"
                   class="h-10 border border-edge-strong bg-white px-2 py-1.5
                          leading-6 align-middle wrap-break-word"
                   [class]="
-                    cellFocus($index, 1) + (valueMark(row) ? ' pr-9' : '')
+                    cellFocus($index, 1) +
+                    (mark.notNumeric || mark.unit ? ' pr-9' : '')
                   "
                 ></td>
                 <td
                   contenteditable="false"
                   class="w-48 border-0 pl-3 align-middle select-none"
                 >
-                  <!-- Everything here is outside the editable region, so it is
-                     safe to render — which is also why the marks live here and
-                     are positioned back over the cells they belong to rather
-                     than inside them: a node inside a cell would be wiped by
-                     the next write from the model. -->
-                  @if (rowStatus(row) === 'stray-part') {
-                    <!-- In the funnel's place: the row was meant to be
-                       filterable, and this says why it is not. -->
+                  <!-- In the funnel's place: why the row is not filterable. -->
+                  @if (mark.stray; as stray) {
                     <ui-hint-badge
                       class="absolute top-1/2 right-2/3 mr-3 -translate-y-1/2"
                       tone="warning"
-                      [label]="strayLabel(row)"
+                      [label]="strayLabel(stray)"
                     >
                       <ui-icon [glyph]="triangleAlertIcon" class="size-3.5" />
                     </ui-hint-badge>
                   }
-                  @if (isFilterable(row)) {
-                    <!-- Over the key cell, because it is the *key* that the shop
-                       filters by; the value cell says what happens to this
-                       row's value. -->
+                  <!-- Over the key cell: it is the key the shop filters by. -->
+                  @if (mark.filterable) {
                     <ui-hint-badge
                       class="absolute top-1/2 right-2/3 mr-3 -translate-y-1/2"
                       tone="neutral"
@@ -210,26 +176,22 @@ import { triangleAlertIcon } from '@b2b-catalog-platform/ui/icons/glyphs/triangl
                       <ui-icon [glyph]="funnelIcon" class="size-3.5" />
                     </ui-hint-badge>
                   }
-                  @if (valueMark(row); as mark) {
-                    @if (mark === 'not-numeric') {
-                      <ui-hint-badge
-                        class="absolute top-1/2 right-48 mr-3 -translate-y-1/2"
-                        tone="warning"
-                        [label]="text.notNumeric"
-                      >
-                        <ui-icon [glyph]="triangleAlertIcon" class="size-3.5" />
-                      </ui-hint-badge>
-                    } @else {
-                      <!-- The declared unit, where the packaging grid below puts
-                         its own: after the number it measures, in the same
-                         small grey. It is never part of the value — the cell
-                         holds "1000", the shop shows "1000 g". -->
-                      <span
-                        class="absolute top-1/2 right-48 mr-3 -translate-y-1/2
-                               text-xs text-ink-subtle"
-                        >{{ mark }}</span
-                      >
-                    }
+                  @if (mark.notNumeric) {
+                    <ui-hint-badge
+                      class="absolute top-1/2 right-48 mr-3 -translate-y-1/2"
+                      tone="warning"
+                      [label]="text.notNumeric"
+                    >
+                      <ui-icon [glyph]="triangleAlertIcon" class="size-3.5" />
+                    </ui-hint-badge>
+                  } @else if (mark.unit) {
+                    <!-- Never part of the value: the cell holds "1000", the
+                         shop shows "1000 g". -->
+                    <span
+                      class="absolute top-1/2 right-48 mr-3 -translate-y-1/2
+                             text-xs text-ink-subtle"
+                      >{{ mark.unit }}</span
+                    >
                   }
                   <div class="flex items-center">
                     <button
@@ -266,9 +228,6 @@ import { triangleAlertIcon } from '@b2b-catalog-platform/ui/icons/glyphs/triangl
         </table>
       }
 
-      <!-- A link under the grid rather than a box above it: the boxes
-           further down are the product's optional extras, and this only
-           fills the grid. -->
       <button
         type="button"
         uiTextButton
@@ -298,9 +257,8 @@ export class ProductAttributesEditor {
   protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly text = inject(ADMIN_TEXT).products.editor.attributes;
   protected readonly actionText = inject(SHARED_TEXT).actions;
-  /** Below `md` the spreadsheet is unusable — see the narrow view. Not `sm`:
-   * the action glyphs are already finger-sized a breakpoint earlier, and four
-   * of them plus two cells do not fit the table between the two. */
+  /** Not `sm`: the glyphs are finger-sized below `md`, and they and two cells
+   * do not fit the table in between. */
   protected readonly narrow = injectNarrowScreen('md');
   private readonly grid =
     viewChild<ElementRef<HTMLTableSectionElement>>('grid');
@@ -308,20 +266,13 @@ export class ProductAttributesEditor {
   readonly value = input.required<ProductAttribute[]>();
   readonly valueChange = output<ProductAttribute[]>();
 
-  /** Whether the dialog of names the catalog already uses is open. */
   protected readonly picking = signal(false);
 
-  /** What the rest of the catalog carries, for the picker and the badges. */
   readonly knownKeys = input<readonly AttributeKeyUsage[]>([]);
   readonly definitions = input<readonly AttributeDefinition[]>([]);
-  /**
-   * The keys this product carried when it was loaded. They are discounted from
-   * the counts, so the badges speak about the rest of the catalog and a name
-   * only this product uses keeps saying so after it has been saved.
-   */
+  /** The keys at load, left out of the counts (see `attributeHints`). */
   readonly ownKeys = input<readonly string[]>([]);
-  /** The product's parts, where it is sold as a set (FR-CAT-10): a row named
-   * "Colour (cup)" is then a Colour row, and the badges speak about Colour. */
+  /** A set's parts (FR-CAT-10): "Colour (cup)" is then a Colour row. */
   readonly parts = input<readonly string[]>([]);
 
   protected readonly hints = computed<AttributeHint[]>(() =>
@@ -338,51 +289,18 @@ export class ProductAttributesEditor {
       .filter((key) => key !== ''),
   );
 
-  /** What this row's key means to the catalog; drives the one status badge. */
-  protected rowStatus(row: ProductAttribute): AttributeRowStatus {
-    return attributeRowStatus(row, this.hintsByKey(), this.parts());
+  protected readonly marks = computed(() =>
+    this.rows().map((row) =>
+      attributeRowMarks(row, this.hintsByKey(), this.parts()),
+    ),
+  );
+
+  protected strayLabel(stray: { part: string; key: string }): string {
+    return fillText(this.text.strayPart, stray);
   }
 
-  /** What the warning over a stray part's key says: which part, and which
-   * filter the row is missing. */
-  protected strayLabel(row: ProductAttribute): string {
-    const stray = strayPart(row.key, this.parts());
-    return stray
-      ? fillText(this.text.strayPart, {
-          part: stray.part ?? '',
-          key: stray.key,
-        })
-      : '';
-  }
-
-  /**
-   * Whether the shop filters by this row's key — the funnel over the key cell.
-   * It says nothing about the value: a declared key stays filterable even where
-   * this row's value drops out of the facet, which the value cell reports.
-   */
-  protected isFilterable(row: ProductAttribute): boolean {
-    const status = this.rowStatus(row);
-    return status === 'filterable' || status === 'not-numeric';
-  }
-
-  /**
-   * What belongs over the value cell: the declared unit, or `'not-numeric'` for
-   * the warning that replaces it once the value cannot be read as a number
-   * (FR-ATTR-03). An empty cell keeps the unit — nothing is wrong with a row
-   * that is not typed yet, and the unit is the best hint of what to type.
-   */
-  protected valueMark(row: ProductAttribute): string | null {
-    if (this.rowStatus(row) === 'not-numeric') return 'not-numeric';
-    const hint = this.hintsByKey().get(attributeRowKey(row, this.parts()));
-    return hint?.unit ?? null;
-  }
-
-  /**
-   * Append one empty row per picked name. Rows with nothing in them at all are
-   * dropped first — including the phantom one an empty grid renders — so
-   * picking a name on a fresh product fills the first row rather than the
-   * second.
-   */
+  /** Empty rows go first, the phantom one too, so a name picked on a fresh
+   * product fills the first row, not the second. */
   protected addKeys(keys: string[]): void {
     const rows = this.current().filter(
       (row) => row.key.trim() !== '' || row.value.trim() !== '',
@@ -392,27 +310,24 @@ export class ProductAttributesEditor {
     if (added.length === 0) return;
     this.remember();
     this.dropCaret();
-    // Into the first new row's value: the name is already filled in.
+    // Into the first new row's value: its name is filled in.
     this.caretPending = { row: rows.length, col: 1 };
     this.valueChange.emit([...rows, ...added]);
   }
 
-  /** Always render at least one (empty) row so the table is never empty. */
+  /** At least one empty row, so the table is never empty. */
   protected readonly rows = computed<ProductAttribute[]>(() =>
     this.value().length > 0 ? this.value() : [{ key: '', value: '' }],
   );
 
   constructor() {
-    // Model → DOM. Angular owns the row/cell structure, this owns the text.
+    // Model to DOM: the text of every cell but the one being typed in.
     afterRenderEffect(() => {
       const data = this.rows();
       const tbody = this.grid()?.nativeElement;
       if (!tbody) return;
-      // The cell being typed in is left alone: writing `textContent` replaces
-      // the text node under the caret, which collapses the selection to the
-      // start of the editing host — the "caret jumps to the first cell" bug.
-      // Every *other* cell is written, so a structural change (remove, drop,
-      // undo) always reaches the DOM even while the grid has focus.
+      // Writing `textContent` under the caret collapses the selection to the
+      // start of the editing host, so that one cell is skipped.
       const caret = this.caretPending ? null : this.caretCell();
       const trs = tbody.querySelectorAll('tr');
       data.forEach((row, i) => {
@@ -429,13 +344,8 @@ export class ProductAttributesEditor {
     });
   }
 
-  /**
-   * The cell the caret sits in, as "row:col". The grid is a single
-   * contenteditable region, so no individual cell ever takes DOM focus and
-   * `:focus` cannot reach one — the selection is the only signal for which cell
-   * is being edited, and without it the grid is the one control in the app that
-   * shows nothing on focus.
-   */
+  /** The caret's cell as "row:col": no cell of one editing host takes focus,
+   * so the selection is the only signal for the focus outline. */
   private readonly activeCell = signal<string | null>(null);
 
   @HostListener('document:selectionchange')
@@ -444,8 +354,8 @@ export class ProductAttributesEditor {
     this.activeCell.set(cell ? `${cell.row}:${cell.col}` : null);
   }
 
-  /** Matches the focus outline of a normal input, drawn inside the cell's own
-   * border so it never overlaps its neighbours. */
+  /** An input's focus outline, inside the cell's border so it never overlaps
+   * a neighbour. */
   protected cellFocus(row: number, col: number): string {
     return this.activeCell() === `${row}:${col}`
       ? 'outline-1 -outline-offset-1 outline-secondary'
@@ -455,12 +365,10 @@ export class ProductAttributesEditor {
   // --- Undo ----------------------------------------------------------------
 
   /**
-   * States from before each change, newest last, with the caret that goes with
-   * them. The grid owns its whole history rather than leaning on the browser's:
-   * structural edits (add, remove, reorder, paste, range clear) rewrite the
-   * model and re-render from it, so the native stack never sees them, and a
-   * half-native history would undo text and rows in an order that matches
-   * neither. Typing is grouped into bursts per cell, the way an editor does it.
+   * States before each change, newest last, with their caret. The grid owns
+   * its whole history: the browser's never sees the model-driven edits, and
+   * half of each would undo in an order matching neither. Typing groups into
+   * bursts per cell.
    */
   private readonly undoStack: Snapshot[] = [];
   private readonly redoStack: Snapshot[] = [];
@@ -474,17 +382,13 @@ export class ProductAttributesEditor {
     };
   }
 
-  /** Snapshot before a structural change, so Ctrl+Z can put it back. */
   private remember(): void {
     this.undoStack.push(this.snapshot());
     this.redoStack.length = 0;
     this.typingCell = null;
   }
 
-  /**
-   * Snapshot before a keystroke — but only one per burst of typing in the same
-   * cell, so Ctrl+Z steps back by words rather than by character.
-   */
+  /** One snapshot per burst in a cell, so Ctrl+Z steps back by words. */
   private rememberTyping(): void {
     const cell = this.caretCell();
     const key = cell ? `${cell.row}:${cell.col}` : null;
@@ -504,8 +408,7 @@ export class ProductAttributesEditor {
     if (!previous) return;
     to.push(this.snapshot());
     this.typingCell = null;
-    // The rows are about to be replaced wholesale: drop the caret so no cell is
-    // skipped by the guard above, and put it back once the text has landed.
+    // Every cell is rewritten, so none may be skipped for the caret.
     this.dropCaret();
     this.caretPending = previous.caret ?? { row: 0, col: 0 };
     this.valueChange.emit(previous.rows);
@@ -513,18 +416,10 @@ export class ProductAttributesEditor {
 
   // --- Row actions ---------------------------------------------------------
 
-  /**
-   * Every row action leaves the caret in the row it acted on.
-   *
-   * Not only for the obvious reason. Ctrl+Z is bound to the grid, so it is
-   * reachable only while something inside it has focus — and a drag never
-   * gives the handle focus (the CDK swallows the mousedown), while a removal
-   * takes the clicked button out of the DOM with the row. Both would leave the
-   * step on the undo stack with no way to press it, until some later click
-   * happened to land back inside the grid.
-   */
+  // Every row action leaves the caret in its row: Ctrl+Z is bound to the
+  // grid, and a drag never focuses the handle while a removal takes the
+  // clicked button away, so the step could not otherwise be undone.
 
-  /** Insert a new empty row directly below the given one. */
   protected addBelow(index: number): void {
     this.remember();
     const rows = this.current();
@@ -537,8 +432,7 @@ export class ProductAttributesEditor {
   protected remove(index: number): void {
     this.remember();
     this.dropCaret();
-    // The row that moves up into the gap — or the new last row, once the one
-    // removed was the last; `applyPendingCaret` clamps it.
+    // The row moving up into the gap; `applyPendingCaret` clamps at the end.
     this.caretPending = { row: index, col: 0 };
     this.valueChange.emit(this.current().filter((_, i) => i !== index));
   }
@@ -546,8 +440,6 @@ export class ProductAttributesEditor {
   protected onDrop(event: CdkDragDrop<ProductAttribute[]>): void {
     if (event.previousIndex === event.currentIndex) return;
     this.remember();
-    // Drop the caret so the grid re-renders every cell from the reordered
-    // model rather than leaving the typed-in one behind.
     this.dropCaret();
     this.caretPending = { row: event.currentIndex, col: 0 };
     const rows = this.current();
@@ -557,7 +449,6 @@ export class ProductAttributesEditor {
 
   // --- Grid editing --------------------------------------------------------
 
-  /** Read every cell back from the DOM after a keystroke. */
   protected onInput(): void {
     this.rememberTyping();
     this.emitFromDom();
@@ -576,13 +467,8 @@ export class ProductAttributesEditor {
     this.valueChange.emit(rows);
   }
 
-  /**
-   * Copy a multi-cell selection as clean TSV. The browser's native copy of a
-   * contenteditable table serialises block breaks (stray blank lines that break
-   * a paste into Excel or back here), so we build the TSV ourselves from the
-   * selected rectangle. A selection within a single cell falls through to the
-   * normal text copy.
-   */
+  /** The browser's copy of a contenteditable table brings stray blank lines,
+   * so a multi-cell selection is written as TSV here. */
   protected onCopy(event: ClipboardEvent): void {
     const range = this.selectedRange();
     if (!range) return;
@@ -597,9 +483,8 @@ export class ProductAttributesEditor {
     if (event.ctrlKey || event.metaKey) {
       const key = event.key.toLowerCase();
       if (key === 'z' || key === 'y') {
-        // The grid owns its history, so the shortcut is always claimed — the
-        // browser's stack has not seen the model-driven edits and would undo
-        // into a state the model never had.
+        // Always claimed: the browser's stack would undo into a state the
+        // model never had.
         event.preventDefault();
         if ((key === 'z' && event.shiftKey) || key === 'y') {
           this.restore(this.redoStack, this.undoStack);
@@ -616,8 +501,7 @@ export class ProductAttributesEditor {
     if (this.typeOverSelection(event)) return;
     if (event.key !== 'Backspace' && event.key !== 'Delete') return;
 
-    // A multi-cell selection + Delete/Backspace clears those cells (Excel-style)
-    // rather than letting contenteditable merge them.
+    // A range is cleared, not merged by contenteditable.
     const range = this.clearableRange();
     if (range) {
       event.preventDefault();
@@ -627,25 +511,16 @@ export class ProductAttributesEditor {
       this.valueChange.emit(clearRange(this.current(), range));
       return;
     }
-    // A collapsed caret at a cell boundary would otherwise merge into the
-    // neighbouring cell — block it so the structure stays intact.
+    // At a cell boundary it would merge into the neighbouring cell.
     if (this.atBoundary(event.key)) {
       event.preventDefault();
     }
   }
 
   /**
-   * The cells Delete clears: the selection, minus any column the browser added
-   * to it on the way out of the cell the drag began in.
-   *
-   * Same trap `pasteTarget` documents, with a worse outcome. A drag stops being
-   * a text selection once it leaves its cell — Chrome selects whole cells, and
-   * one begun in the *value* column grows left over the key beside it (measured:
-   * anchor `0:1`, focus `0:0`). Clearing that literally wipes a key nobody
-   * dragged over and drops the caret into it, so the next character rewrites the
-   * key. The range therefore never starts left of the cell the mouse went down
-   * in. A drag down the value column is a genuine two-cell selection and is
-   * untouched by this.
+   * The selection, never starting left of the cell the mouse went down in: a
+   * drag leaving its cell makes Chrome select whole cells, and one begun in the
+   * value column grows over the key beside it (anchor `0:1`, focus `0:0`).
    */
   private clearableRange(): GridRange | null {
     const range = this.selectedRange();
@@ -655,16 +530,9 @@ export class ProductAttributesEditor {
     return { ...range, c0: Math.min(pressed.col, range.c1) };
   }
 
-  /**
-   * A printable key pressed while the selection spans more than one cell.
-   *
-   * Left to the browser, the character lands wherever the selection happens to
-   * start — the key column, for a value the user dragged over and out of, which
-   * is how a selection silently grows past its cell — and takes the structure
-   * of everything it spans with it. Handled here it does what a spreadsheet
-   * does: it replaces the cell the drag *began* in, the same target a paste
-   * uses, and leaves the rest of the selection alone.
-   */
+  /** A printable key over a multi-cell selection replaces the cell the drag
+   * began in, as a paste does; left to the browser it would land where the
+   * selection starts and take the structure with it. */
   private typeOverSelection(event: KeyboardEvent): boolean {
     if (
       event.key.length !== 1 ||
@@ -693,21 +561,14 @@ export class ProductAttributesEditor {
     return true;
   }
 
-  /**
-   * Paste is always handled here, never by contenteditable: the native one
-   * inserts the clipboard's HTML, which for anything copied out of a table
-   * means nested rows inside a cell — a structure Angular did not render and
-   * cannot reconcile. A plain value goes into the target cell as text; a value
-   * with tabs or newlines fills outward from it, Excel-style, adding rows up to
-   * the cap.
-   */
+  /** Never native: it inserts the clipboard's HTML, nested rows Angular did not
+   * render. Tabs or newlines fill outward, up to the cap. */
   protected onPaste(event: ClipboardEvent): void {
     const text = event.clipboardData?.getData('text/plain') ?? '';
     event.preventDefault();
     if (!text) return;
 
-    // A single value inside one cell is ordinary text entry: let the browser
-    // splice it in at the caret and read the result back.
+    // One value in one cell is ordinary text entry.
     if (this.withinOneCell() && !/[\t\n\r]/.test(text)) {
       this.rememberTyping();
       this.insertText(text);
@@ -731,17 +592,8 @@ export class ProductAttributesEditor {
     );
   }
 
-  /**
-   * Where a paste lands: the cell the selection is in, or — once it spans more
-   * than one — the cell the mouse went down in.
-   *
-   * Not the top-left of the selection, though that is the spreadsheet rule.
-   * Dragging over text stops being a text selection the moment the pointer
-   * leaves the cell: the browser switches to selecting whole cells, and a
-   * selection begun in the value column silently grows to cover the key column
-   * beside it. Its top-left is then a cell the user never pointed at, and the
-   * paste would land one column to the left of the text they meant to replace.
-   */
+  /** The selection's cell, or across cells the one the mouse went down in: the
+   * top-left may be a key the selection grew over (see `clearableRange`). */
   private pasteTarget(): GridCell | null {
     if (this.withinOneCell()) return this.caretCell();
     const range = this.selectedRange();
@@ -751,12 +603,8 @@ export class ProductAttributesEditor {
     );
   }
 
-  /**
-   * Whether the whole selection sits inside a single cell — the only case where
-   * splicing text in at the caret is safe. A selection that reaches out of the
-   * cell holds `<td>`/`<tr>` nodes, and replacing its contents would take the
-   * table's structure with it.
-   */
+  /** The only case where splicing in text is safe: a wider selection holds
+   * `<td>`/`<tr>` nodes. */
   private withinOneCell(): boolean {
     const selection = document.getSelection();
     const anchor = this.cellOf(selection?.anchorNode ?? null);
@@ -766,14 +614,13 @@ export class ProductAttributesEditor {
     return focus?.row === anchor.row && focus?.col === anchor.col;
   }
 
-  /** The cell the mouse last went down in — where a drag-selection began. */
+  /** Where a drag-selection began. */
   private pressedCell: GridCell | null = null;
 
   protected onMouseDown(event: MouseEvent): void {
     this.pressedCell = this.cellOf(event.target as Node);
   }
 
-  /** Splice text in at the caret, replacing whatever it spans in that cell. */
   private insertText(text: string): void {
     const selection = document.getSelection();
     const range = selection?.rangeCount ? selection.getRangeAt(0) : null;
@@ -801,9 +648,7 @@ export class ProductAttributesEditor {
       `td[data-row="${row}"][data-col="${target.col}"]`,
     );
     if (!cell) return;
-    // Focus *and* selection: putting a range inside an editing host does not
-    // make it the active element, and the grid's shortcuts are bound to the
-    // host — a caret it cannot type or undo into is only a decoration.
+    // A range alone does not make the host active, and its shortcuts need it.
     tbody.focus({ preventScroll: true });
     const range = document.createRange();
     range.selectNodeContents(cell);
@@ -813,7 +658,7 @@ export class ProductAttributesEditor {
     selection?.addRange(range);
   }
 
-  /** Take the caret out of the grid so cells can be rewritten under it. */
+  /** So every cell can be rewritten. */
   private dropCaret(): void {
     if (this.caretCell()) document.getSelection()?.removeAllRanges();
     this.activeCell.set(null);
@@ -829,13 +674,12 @@ export class ProductAttributesEditor {
     return tr.querySelector(`[data-col="${col}"]`)?.textContent ?? '';
   }
 
-  /** The cell the caret (or a selection anchor) is in, or null if it is out. */
+  /** The selection anchor's cell. */
   private caretCell(): GridCell | null {
     if (typeof document === 'undefined') return null;
     return this.cellOf(document.getSelection()?.anchorNode ?? null);
   }
 
-  /** The data cell (row/col) a DOM node sits in, or null. */
   private cellOf(node: Node | null): GridCell | null {
     const tbody = this.grid()?.nativeElement;
     if (!tbody || !node || !tbody.contains(node)) return null;
@@ -851,7 +695,7 @@ export class ProductAttributesEditor {
     };
   }
 
-  /** The rectangle spanned by a non-collapsed selection across cells, or null. */
+  /** Only for a selection across cells. */
   private selectedRange(): GridRange | null {
     const sel = document.getSelection();
     if (!sel || sel.isCollapsed) return null;
@@ -877,7 +721,7 @@ export class ProductAttributesEditor {
     return sel.anchorOffset >= len;
   }
 
-  /** A mutable copy of the current rows (materialising the phantom empty row). */
+  /** A mutable copy, with the phantom empty row made real. */
   private current(): ProductAttribute[] {
     return this.value().length > 0
       ? [...this.value()]
@@ -885,7 +729,8 @@ export class ProductAttributesEditor {
   }
 }
 
-/** A point in the grid's history: the rows, and where the caret was. */
+/** A point in the grid's history. */
+
 interface Snapshot {
   rows: ProductAttribute[];
   caret: GridCell | null;

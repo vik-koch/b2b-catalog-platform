@@ -4,6 +4,7 @@ import {
 } from '@b2b-catalog-platform/shared/admin/catalog';
 import {
   attributeHints,
+  attributeRowMarks,
   attributeRowStatus,
   AttributeHint,
 } from './attribute-hints';
@@ -142,5 +143,41 @@ describe('attributeRowStatus', () => {
     expect(attributeRowStatus({ key: 'Colour', value: '30 cm' }, hints)).toBe(
       'filterable',
     );
+  });
+});
+
+describe('attributeRowMarks', () => {
+  const hints = byKey(
+    attributeHints(
+      [usage('Weight', 3), usage('Colour', 2)],
+      [definition('Weight', 'number', 'g'), definition('Colour')],
+    ),
+  );
+
+  it('marks a filterable key and keeps its unit on an empty value', () => {
+    expect(attributeRowMarks({ key: 'Weight', value: '' }, hints)).toEqual({
+      filterable: true,
+      stray: null,
+      notNumeric: false,
+      unit: 'g',
+    });
+  });
+
+  it('keeps the funnel on a value that does not read as a number', () => {
+    expect(
+      attributeRowMarks({ key: 'Weight', value: 'heavy' }, hints),
+    ).toMatchObject({ filterable: true, notNumeric: true });
+  });
+
+  it('names the stray part and the filter it misses', () => {
+    expect(
+      attributeRowMarks({ key: 'Colour (Cup)', value: 'red' }, hints, [
+        'cup',
+        'lid',
+      ]),
+    ).toMatchObject({
+      filterable: false,
+      stray: { part: 'Cup', key: 'Colour' },
+    });
   });
 });

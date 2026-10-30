@@ -19,27 +19,18 @@ export interface ProductRowState {
   name: string;
   publishedAt: string | null;
   deletedAt: string | null;
-  /** Deleted by a sync run: while the catalog is owned, only a run restores
-   * it (FR-ADM-10). */
+  /** While the catalog is owned, only a run restores it (FR-ADM-10). */
   deletedByRun: boolean;
   /** On some order: never deleted permanently (FR-ADM-21). */
   ordered: boolean;
-  /** Null where no price list prices it, which is the one thing that stops it
-   * being published (FR-ADM-06). */
+  /** Null where nothing prices it, which stops publishing (FR-ADM-06). */
   priceMinor: number | null;
 }
 
 /**
- * What can be done to one product from the list, drawn once for both shapes it
- * appears in — a table cell on a desktop, the foot of a card on a phone.
- *
- * A component rather than a shared `<ng-template>` so the row keeps its type:
- * every one of these buttons switches on publication or deletion, which is
- * exactly the pair a typo would confuse.
- *
- * Removal goes in steps (FR-ADM-01): unpublish, then delete. A deleted row
- * offers only restore — it is shown as deleted and nothing else, and it is
- * published again only once it is back.
+ * A product's actions in the list, for the table cell and the phone card
+ * alike. A component, not an `<ng-template>`, so the row keeps its type: every
+ * button switches on publication or deletion, a pair a typo would confuse.
  */
 @Component({
   selector: 'app-product-row-actions',
@@ -56,14 +47,10 @@ export interface ProductRowState {
       <ui-icon [glyph]="pencilIcon" />
     </a>
 
-    <!-- Three fixed places, so a column of rows reads as one grid: edit,
-         then the step that brings a product forward (publish, restore), then
-         the step that takes it back (unpublish, delete). Removal goes in
-         steps (FR-ADM-01), so each state offers only its neighbours; a place
-         a state has nothing for keeps its width. -->
+    <!-- Three fixed places: edit, a step forward (publish, restore), a step
+         back (unpublish, delete). Removal goes in steps (FR-ADM-01), so each
+         state offers its neighbours; an empty place keeps its width. -->
     @if (product().deletedAt) {
-      <!-- Kept on a product a run deleted while the catalog is owned, rather
-           than hidden: the click says that only the run brings it back. -->
       <button
         type="button"
         uiIconButton
@@ -73,12 +60,9 @@ export interface ProductRowState {
       >
         <ui-icon [glyph]="rotateCcwIcon" />
       </button>
-      <!-- On every deleted row, since the deleted state offers this step.
-           Where this product cannot take it — somebody ordered it, or the
-           source still sends it while the catalog is owned (FR-ADM-21) — it
-           stays live, muted rather than red, and the click says why, as an
-           unpriced product's publish button does. A disabled button would
-           give no reason on a phone and be skipped by the keyboard. -->
+      <!-- Where it would be refused it stays live but muted, and the click
+           says why: a disabled button gives no reason on a phone and is
+           skipped by the keyboard. -->
       <button
         type="button"
         uiIconButton
@@ -104,8 +88,7 @@ export interface ProductRowState {
         <ui-icon [glyph]="bookDashedIcon" />
       </button>
     } @else {
-      <!-- Present and live on a product nothing prices: it explains instead of
-           acting. A dead button says only that something is wrong with it. -->
+      <!-- Live on a product nothing prices: the click explains. -->
       <button
         type="button"
         uiIconButton
@@ -146,7 +129,7 @@ export class ProductRowActions {
   protected readonly actionText = inject(SHARED_TEXT).actions;
 
   readonly product = input.required<ProductRowState>();
-  /** So an editor opened from a row returns to this list, filters and all. */
+  /** So an editor opened here returns to this list, filters and all. */
   readonly returnParams = input<Params>({});
   /** While this row's publication is being switched. */
   readonly busy = input(false);
@@ -156,11 +139,8 @@ export class ProductRowActions {
   readonly deleteRequested = output<ProductRowState>();
   readonly purgeRequested = output<ProductRowState>();
 
-  /**
-   * Why deleting permanently would be refused, or null where it can succeed.
-   * An unknown ownership answer reads as owned, as the editors read it, for
-   * the look of the button only; the click asks for the real answer.
-   */
+  /** An unknown ownership answer reads as owned, for the look of the button
+   * only; the click asks for the real answer. */
   protected readonly purgeRefusal = computed(() =>
     this.refusalFor(this.settings.ownedAreas()?.includes('catalog') ?? true),
   );
@@ -190,13 +170,10 @@ export class ProductRowActions {
     this.purgeRequested.emit(this.product());
   }
 
-  /** An unpublished product with no price cannot go on the storefront. */
   protected cannotPublish(): boolean {
     return this.product().priceMinor === null;
   }
 
-  /** Publishing an unpriced product is refused by the server, so the click
-   * says why rather than sending a request that cannot succeed. */
   protected onPublishClick(): void {
     if (this.cannotPublish()) {
       void this.confirm.tell({

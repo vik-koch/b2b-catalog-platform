@@ -45,19 +45,10 @@ import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
 let nextId = 0;
 
 /**
- * The variants an assorted product's pictures show (FR-CAT-11/12): a name
- * each, in the order the storefront lists them, and whether it is currently
- * unavailable. Which picture shows which is chosen under the picture itself.
- *
- * Unavailable rather than deleted is the way to take a colour off the shelf
- * for a while: its pictures are withheld and come back with the mark cleared.
- * Deleting is for a variant that will never be offered again, and leaves its
- * pictures in the gallery without a label.
- *
- * The line note, which is how a customer picks among them, has its own box
- * beside this one: an assorted article may name variants the customer has no
- * say in, and a product may ask for a colour before its colours are
- * photographed.
+ * The variants an assorted product's pictures show (FR-CAT-11/12), in the
+ * storefront's order; each picture picks its variant under itself.
+ * Unavailable withholds a variant's pictures for a while; deleting leaves them
+ * in the gallery unlabelled.
  */
 @Component({
   selector: 'app-product-variants-editor',
@@ -98,9 +89,8 @@ let nextId = 0;
 
           @if (value().length > 0) {
             <div class="@container/variants mt-3">
-              <!-- The columns named once, where the row has them side by side.
-                   On a phone the controls wrap under the name and say what
-                   they are themselves. -->
+              <!-- Column names where the row is one line; on a phone each
+                   control names itself. -->
               <div
                 class="hidden items-end gap-x-2 pb-1.5 pl-6 text-xs/tight
                        text-ink-subtle
@@ -118,13 +108,6 @@ let nextId = 0;
                 (cdkDropListDropped)="onDrop($event)"
               >
                 @for (variant of value(); track variant.id) {
-                  <!-- One line where the panel has the room; on a phone the
-                       name takes a line of its own and the controls go under
-                       it, lined up with the field rather than the grip. No
-                       ground of its own: only the copy under the pointer while
-                       dragging needs one, and gets it as its preview — as a
-                       list: the CDK adds a string as one token, and a space
-                       in it throws before the drag starts. -->
                   <li
                     cdkDrag
                     [cdkDragPreviewClass]="previewClass"
@@ -255,7 +238,7 @@ export class ProductVariantsEditor implements OnInit {
   protected readonly glyph = PRODUCT_FEATURE_GLYPHS.variants;
 
   readonly value = input.required<readonly ProductVariantInput[]>();
-  /** The gallery, read for how many pictures each variant has. */
+  /** Read for how many pictures each variant has. */
   readonly images = input.required<readonly ProductImageInput[]>();
   readonly valueChange = output<ProductVariantInput[]>();
 
@@ -264,11 +247,11 @@ export class ProductVariantsEditor implements OnInit {
 
   protected readonly max = PRODUCT_VARIANTS_MAX;
   protected readonly nameMax = PRODUCT_VARIANT_NAME_MAX_LENGTH;
+  /** A list: the CDK adds a string as one token, and a space in it throws. */
   protected readonly previewClass = ['bg-surface-subtle', 'shadow-md'];
   protected readonly open = signal(false);
   protected readonly draft = signal('');
-  /** Set by a refused add and cleared by the next keystroke, as the parts
-   * editor does, so the field does not complain about text still being typed. */
+  /** Cleared by the next keystroke: text still being typed is not wrong yet. */
   protected readonly rejected = signal(false);
   protected readonly panelId = `variants-panel-${++nextId}`;
   protected readonly inputId = `variants-add-${nextId}`;
@@ -281,7 +264,7 @@ export class ProductVariantsEditor implements OnInit {
     fillText(this.text.limit, { count: this.max }),
   );
 
-  /** A name another variant already has, or none at all — refused by the save. */
+  /** A name another variant has, or none: the save refuses it too. */
   protected readonly hasClash = computed(() =>
     this.value().some((variant) => this.clashes(variant)),
   );
@@ -302,7 +285,8 @@ export class ProductVariantsEditor implements OnInit {
     );
   });
 
-  /** Open where there is something to see; read once, as the parts do. */
+  /** Opens only on load, as the other boxes do. */
+
   ngOnInit(): void {
     this.open.set(this.value().length > 0);
   }

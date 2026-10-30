@@ -9,14 +9,9 @@ import { Glyph } from '@b2b-catalog-platform/ui/icons/glyph';
 let nextId = 0;
 
 /**
- * The box a switched product feature is set in (FR-ADM-20) — featured, the
- * line note — framed exactly as the list-shaped ones beside it (variants, a
- * set's parts, pairings, documents), so the six read as one run of optional
- * extras below the product's own facts.
- *
- * Opens on load where the feature is on and stays shut where it is not, the
- * rule the other five follow with their counts. The lid says "on" where they
- * say how many, so a shut box still answers whether it is in use.
+ * A switched feature's box (FR-ADM-20), framed like the list-shaped ones
+ * beside it. Open on load where it is on; the lid says "on" where they give a
+ * count.
  */
 @Component({
   selector: 'app-feature-disclosure',
@@ -52,7 +47,6 @@ export class FeatureDisclosure implements OnInit {
 
   readonly label = input.required<string>();
   readonly glyph = input.required<Glyph>();
-  /** Whether the feature is switched on. */
   readonly on = input(false);
 
   protected readonly open = signal(false);
