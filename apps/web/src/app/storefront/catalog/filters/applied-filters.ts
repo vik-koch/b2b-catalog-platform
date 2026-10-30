@@ -1,32 +1,21 @@
 import { Component, computed, inject, input } from '@angular/core';
-import { Facet } from '@b2b-catalog-platform/shared/storefront/catalog';
+import { fillText } from '@b2b-catalog-platform/shared';
 import { formatAttributeValue } from '@b2b-catalog-platform/shared/core/catalog';
-import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
-import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
-import { FacetSelection, selectedValues } from './facet-selection';
+import { Facet } from '@b2b-catalog-platform/shared/storefront/catalog';
 import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
+import { FacetSelection, selectedValues } from './facet-selection';
 
-/** One ticked value, as the chip row needs it. */
 interface AppliedFilter {
   slug: string;
   value: string;
   label: string;
 }
 
-/**
- * The applied attribute filters as removable chips (FR-ATTR-05/06) — what the
- * panel's checkboxes add up to, said once, above the grid.
- *
- * It sits in the listing's title row, which is on screen whether or not
- * anything is selected: a chip row of its own would push the grid down the
- * moment a box was ticked, and the tiles would move under the cursor of
- * someone reading the panel.
- *
- * That row is too narrow to share on a phone — a chip wraps to three lines
- * between the heading and the sort control — so the hosts hide it there. What
- * is ticked is reported by the count on the "Filters" disclosure instead, and
- * cleared inside it.
- */
+/** The ticked values as removable chips (FR-ATTR-05/06), in the listing's
+ * title row so that ticking never pushes the grid down. Hidden by the hosts on
+ * a phone, where the disclosure's count says the same. */
 @Component({
   selector: 'app-applied-filters',
   imports: [Icon],
@@ -37,8 +26,7 @@ interface AppliedFilter {
         class="flex flex-wrap items-center gap-2"
         [attr.aria-label]="text.appliedAria"
       >
-        <!-- The label carries both the attribute's name and the value, and
-             attribute names are unique, so it identifies the chip. -->
+        <!-- Unique: attribute names are, and the label carries one. -->
         @for (filter of applied(); track filter.label) {
           <li
             class="flex items-center gap-1.5 rounded-full bg-surface py-1
@@ -66,10 +54,9 @@ export class AppliedFilters {
   private readonly selection = inject(FacetSelection);
   protected readonly text = inject(STOREFRONT_TEXT).catalog.filters;
 
-  /** The facets as the API returned them; what is ticked is read off them. */
   readonly facets = input.required<readonly Facet[]>();
 
-  /** In panel order, so a chip sits where its attribute does in the column. */
+  /** In panel order. */
   protected readonly applied = computed<AppliedFilter[]>(() =>
     this.facets().flatMap((facet) =>
       selectedValues(facet).map((value) => ({
@@ -81,7 +68,7 @@ export class AppliedFilters {
   );
 
   protected removeLabel(filter: AppliedFilter): string {
-    return this.text.removeAria.replace('{label}', filter.label);
+    return fillText(this.text.removeAria, { label: filter.label });
   }
 
   protected remove(filter: AppliedFilter): void {

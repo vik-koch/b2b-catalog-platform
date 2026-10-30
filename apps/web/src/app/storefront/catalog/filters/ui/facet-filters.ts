@@ -6,36 +6,31 @@ import {
   output,
   signal,
 } from '@angular/core';
+import { fillText } from '@b2b-catalog-platform/shared';
+import { formatAttributeValue } from '@b2b-catalog-platform/shared/core/catalog';
 import {
   Facet,
   FacetValue,
 } from '@b2b-catalog-platform/shared/storefront/catalog';
-import { formatAttributeValue } from '@b2b-catalog-platform/shared/core/catalog';
-import { STOREFRONT_TEXT } from '../../../../shared/config/storefront-text';
+import { ClearFiltersButton } from '@b2b-catalog-platform/ui/actions/clear-filters-button';
 import { Checkbox } from '@b2b-catalog-platform/ui/choices/checkbox';
 import { TickLabel } from '@b2b-catalog-platform/ui/choices/tick-label';
+import { DisclosureFrame } from '@b2b-catalog-platform/ui/disclosure/disclosure-frame';
 import { disclosureState } from '@b2b-catalog-platform/ui/disclosure/disclosure-state';
 import { DisclosureToggle } from '@b2b-catalog-platform/ui/disclosure/disclosure-toggle';
-import { DisclosureFrame } from '@b2b-catalog-platform/ui/disclosure/disclosure-frame';
 import { ShowMoreList } from '@b2b-catalog-platform/ui/disclosure/show-more-list';
-import { ClearFiltersButton } from '@b2b-catalog-platform/ui/actions/clear-filters-button';
+import { STOREFRONT_TEXT } from '../../../../shared/config/storefront-text';
 
-/** Values a facet shows before its own "show more" reveals the rest. */
 const VALUES_COLLAPSED = 8;
 
-/** One value ticked or unticked, as the visitor asked. */
 export interface FacetValueToggle {
   facet: Facet;
   value: FacetValue;
 }
 
-/**
- * The attribute filters as drawn: a disclosure above the listing, and from
- * the listing's column width (FACET_LAYOUT) its left column. It renders the
- * facets it is given and reports what was asked; the selection lives in the
- * URL, which the container writes. A sort control the container projects
- * stands above the facets while there is no row above the grid to carry it.
- */
+/** The attribute filters as drawn: a disclosure above the listing, its left
+ * column from FACET_LAYOUT's width. A projected sort control stands above the
+ * facets while the row above the grid has no room for it. */
 @Component({
   selector: 'app-facet-filters',
   imports: [
@@ -47,14 +42,8 @@ export interface FacetValueToggle {
     DisclosureFrame,
   ],
   template: `
-    <!-- One details-free disclosure: the summary element cannot host the
-         "always open once it is a column" behaviour without JavaScript
-         re-opening it on every resize, and the button carries the selected
-         count anyway.
-
-         Toggle and panel share one border, so it is visible which controls
-         belong to the disclosure; at column width that border, and the toggle
-         with it, are gone and this is simply the column. -->
+    <!-- Not <details>: "always open as a column" would need script on every
+         resize. Toggle and panel share one border, gone at column width. -->
     <div class="flex items-start gap-1">
       <div
         class="min-w-0 flex-1 rounded-md border
@@ -73,14 +62,9 @@ export interface FacetValueToggle {
           [panelId]="panelId"
           (toggled)="disclosure.toggle()"
         />
-        <!-- Grown and shrunk rather than shown and hidden, which is what says
-             the two are one thing. Not Collapsible: this one is always open
-             from a container width, which Collapsible's viewport breakpoint
-             cannot see.
-
-             Slower than the admin's short filter row, because this panel is
-             usually several facets of a dozen values each: over that distance
-             200ms reads as the page jumping rather than as the panel opening. -->
+        <!-- Not Collapsible: always open from a container width, which its
+             viewport breakpoint cannot see. 300ms, slower than the admin's
+             row: over this distance 200ms reads as the page jumping. -->
         <div [class]="panelRow()">
           <div [class]="panelContent()">
             <div
@@ -91,11 +75,7 @@ export interface FacetValueToggle {
               role="group"
               [attr.aria-label]="text.title"
             >
-              <!-- Only as a column: opened as a disclosure the button above
-                   already says what this is, and a heading under it says it
-                   twice. It shares its line with the way back to the whole
-                   catalogue, which is the disclosure's own toggle row at any
-                   narrower width. -->
+              <!-- Only as a column: as a disclosure the toggle names it. -->
               <div
                 class="hidden items-center justify-between h-8 gap-2
                        @min-[63.75rem]/listing:flex"
@@ -137,10 +117,8 @@ export interface FacetValueToggle {
                     >
                       <ng-template let-value>
                         <li>
-                          <!-- A zero-count value is disabled rather than hidden
-                               (FR-ATTR-05): a list that reshuffles as it is
-                               clicked cannot be read, and the greyed row is the
-                               answer to "why can I not combine these two?". -->
+                          <!-- Disabled, not hidden (FR-ATTR-05): a list that
+                               reshuffles as it is clicked cannot be read. -->
                           <label
                             uiTickLabel
                             [class.text-ink-subtle]="disabled(value)"
@@ -156,10 +134,8 @@ export interface FacetValueToggle {
                             <span class="min-w-0 flex-1">
                               {{ label(facet, value) }}
                             </span>
-                            <!-- leading-5 so the smaller count shares the
-                                 label's line box: the row is top-aligned for
-                                 the sake of a value that wraps, and a 1rem line
-                                 box in a 1.25rem row sat visibly high. -->
+                            <!-- leading-5: the row is top-aligned for a value
+                                 that wraps, and a 1rem line box sat high. -->
                             <span
                               class="text-xs/5 px-2 text-ink-subtle
                                      tabular-nums"
@@ -178,18 +154,11 @@ export interface FacetValueToggle {
         </div>
       </div>
 
-      <!-- Beside the disclosure rather than inside it, where the admin grids
-           put the same control: it undoes what the box holds, so it cannot be
-           inside the part that is closed. -->
-      <!-- Centred on the toggle row rather than on the box, which grows as the
-           panel opens: h-10 is the toggle's own height (py-2.5 around a
-           text-sm line), and the mt-px is the frame's border, which the toggle
-           sits below and this does not. -->
+      <!-- Beside the disclosure, not in the part that closes. Centred on the
+           toggle row: h-10 is its height, mt-px the frame's border. -->
       <div class="mt-px flex h-10 items-center @min-[63.75rem]/listing:hidden">
-        <!-- Finger-sized for as long as the panel beside it is a disclosure,
-             which a container query decides and the viewport-based default
-             cannot see: on a thousand-pixel window this is still the phone's
-             layout. -->
+        <!-- Finger-sized by hand: the default size follows the viewport,
+             and this layout follows the container. -->
         <ui-clear-filters-button
           size="touch"
           [label]="text.clearAll"
@@ -203,24 +172,16 @@ export interface FacetValueToggle {
 export class FacetFilters {
   protected readonly text = inject(STOREFRONT_TEXT).catalog.filters;
   protected readonly VALUES_COLLAPSED = VALUES_COLLAPSED;
-  /** A listing renders exactly one panel, so a constant id keeps the server's
-   * markup and the browser's identical (as the sort control's does). */
+  /** A constant, so server and browser agree: a listing has one panel. */
   protected readonly panelId = 'facet-panel';
 
-  /** The facets for the products in scope, in the registry's order. */
   readonly facets = input.required<readonly Facet[]>();
-  /** Whether a sort control is projected to stand above the facets. */
   readonly sorted = input(false);
 
   readonly valueToggled = output<FacetValueToggle>();
   readonly cleared = output();
 
-  /**
-   * The gap above the facets, which has two reasons and only one of them is
-   * in this class. Below the column width the sort control stands there; from
-   * the column width up the sort is hidden and the panel's own heading stands
-   * there instead, which is a container query and so lives in the class.
-   */
+  /** A gap under the sort control, or as a column under the heading. */
   protected readonly facetList = computed(
     () =>
       `space-y-6 @min-[63.75rem]/listing:mt-4${this.sorted() ? ' mt-4' : ''}`,
@@ -229,11 +190,8 @@ export class FacetFilters {
   protected readonly disclosure = disclosureState(300);
   protected readonly open = this.disclosure.open;
 
-  /**
-   * The row that grows and shrinks. The transition is only on the element
-   * while a toggle's own movement runs (see disclosureState), so widening the
-   * window past the column width changes the rows with nothing to animate.
-   */
+  /** Animated only while a toggle runs, so a resize past the column width
+   * has nothing to animate. */
   protected readonly panelRow = computed(() => {
     const move = this.disclosure.animated()
       ? 'transition-[grid-template-rows] duration-300 ease-out '
@@ -245,11 +203,8 @@ export class FacetFilters {
     }`;
   });
 
-  /**
-   * Shut is `invisible` as well as clipped, so the folded checkboxes leave the
-   * tab order. Visibility transitions too, so the panel stays drawn while it
-   * closes.
-   */
+  /** Shut is also `invisible`, taking the checkboxes out of the tab order;
+   * visibility transitions so the panel stays drawn while it closes. */
   protected readonly panelContent = computed(() => {
     const move = this.disclosure.animated()
       ? ' transition-[visibility] duration-300'
@@ -259,7 +214,6 @@ export class FacetFilters {
     }`;
   });
 
-  /** Facets the visitor expanded past the first few values. */
   private readonly manuallyExpanded = signal<ReadonlySet<string>>(new Set());
 
   protected readonly selectedCount = computed(() =>
@@ -270,7 +224,7 @@ export class FacetFilters {
   );
 
   protected readonly selectedLabel = computed(() =>
-    this.text.selected.replace('{count}', String(this.selectedCount())),
+    fillText(this.text.selected, { count: this.selectedCount() }),
   );
 
   protected readonly byValue = (value: FacetValue) => value.value;
@@ -285,10 +239,8 @@ export class FacetFilters {
     return value.count === 0 && !value.selected;
   }
 
-  /**
-   * Expanded once asked for, or from the start where a selected value sits
-   * past the cutoff, so a shared link never hides part of its own filter.
-   */
+  /** Also where a ticked value sits past the cutoff, so a shared link never
+   * hides part of its own filter. */
   protected expanded(facet: Facet): boolean {
     return (
       this.manuallyExpanded().has(facet.slug) ||

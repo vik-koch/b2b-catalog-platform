@@ -18,7 +18,7 @@ import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
 import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
 import { defaultDeploymentConfig } from '../../../shared/config/deployment-config.fixture';
 import { defaultStorefrontText } from '../../../shared/config/storefront-text.fixture';
-import { ProductSortSelect, sortParam } from './product-sort-select';
+import { ProductSortSelect } from './product-sort-select';
 
 /** A host page the control can navigate within, so the URL is observable. */
 @Component({
@@ -169,19 +169,5 @@ describe('ProductSortSelect', () => {
     await choose('price');
 
     expect(router.url).toContain('q=espresso');
-  });
-});
-
-describe('sortParam', () => {
-  it('omits the default so one view has one URL', () => {
-    expect(sortParam('name', 'name')).toBeNull();
-    expect(sortParam('relevance', 'relevance')).toBeNull();
-  });
-
-  it('carries anything else', () => {
-    expect(sortParam('price', 'name')).toBe('price');
-    // The category default is not the search default: what counts as omissible
-    // is the listing's own default, not a globally special value.
-    expect(sortParam('name', 'relevance')).toBe('name');
   });
 });

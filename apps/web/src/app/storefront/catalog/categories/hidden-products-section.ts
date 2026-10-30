@@ -9,39 +9,31 @@ import {
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { HiddenProduct } from '@b2b-catalog-platform/shared/core/catalog';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
+import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
+import { bookCheckIcon } from '@b2b-catalog-platform/ui/icons/glyphs/book-check';
+import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
+import { EDIT_MODE_CATALOG } from '../../../core/catalog/edit-mode-catalog';
+import { PricePipe } from '../../../core/catalog/pricing/price.pipe';
+// eslint-disable-next-line no-restricted-imports -- until the texts are cut by area: edit mode is staff reading a storefront page
+import { ADMIN_TEXT } from '../../../shared/config/admin-text';
+import { SHARED_TEXT } from '../../../shared/config/shared-text';
+import { injectEditorReturnParams } from '../../../shared/edit-mode/editor-return';
 import {
   NARROW_BODY_IN_GRID,
   NARROW_PADDING_IN_GRID,
   NARROW_PHOTO_IN_GRID,
 } from '../ui/listing-narrow';
-import { PricePipe } from '../../../core/catalog/pricing/price.pipe';
 import { PRODUCT_GRID } from '../ui/product-tile';
-// eslint-disable-next-line no-restricted-imports -- until the texts are cut by area: edit mode is staff reading a storefront page
-import { ADMIN_TEXT } from '../../../shared/config/admin-text';
-import { Button } from '@b2b-catalog-platform/ui/actions/button';
-import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
-import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
-import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';
-import { EDIT_MODE_CATALOG } from '../../../core/catalog/edit-mode-catalog';
-import { injectEditorReturnParams } from '../../../shared/edit-mode/editor-return';
-import { SHARED_TEXT } from '../../../shared/config/shared-text';
-import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
-import { bookCheckIcon } from '@b2b-catalog-platform/ui/icons/glyphs/book-check';
-import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
 
 /**
- * The edit-mode overlay under a category grid (FR-ADM-06): what this category
- * holds that the storefront does not show, its unpublished products. Without
- * it the grid looks like the whole category, and a product awaiting review is
- * invisible to the person who has to review it. Deleted products are out of
- * the catalog (FR-ADM-22) and are restored from the admin product list.
- *
- * Each tile carries the action that puts it on the storefront: publish, which
- * explains itself where nothing prices the product.
- *
- * Only ever rendered inside a storefront `@defer (when editMode)` block, and
- * reaches the admin catalog client through `EDIT_MODE_CATALOG`, so its query
- * never runs for a visitor.
+ * The edit-mode overlay under a category grid (FR-ADM-06): its unpublished
+ * products, which the grid does not show, each with the action that publishes
+ * it. Rendered only inside `@defer (when editMode)`, so a visitor never runs
+ * its query.
  */
 @Component({
   selector: 'app-hidden-products-section',
@@ -75,16 +67,12 @@ import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
                       <span uiStatusBadge tone="waiting">{{
                         productStates.unpublished
                       }}</span>
-                      <!-- The second reason, and the one the button below
-                           cannot resolve: nothing prices this product. -->
                       @if (item.prices === null) {
                         <span uiStatusBadge tone="danger">{{
                           productStates.unpriced
                         }}</span>
                       }
                     </p>
-                    <!-- The page an admin is shown even while it is hidden,
-                         saying why (FR-ADM-06). -->
                     <h3
                       class="line-clamp-2 text-sm text-ink-subtle"
                       [title]="item.name"
@@ -102,12 +90,8 @@ import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
                         {{ text.unpricedHint }}
                       }
                     </p>
-                    <!-- Editing above the action that undoes the hiding: a
-                         tile down here has no pencil of its own, and a product
-                         nothing prices is fixed on the editor rather than by
-                         the button below — which is exactly what it says when
-                         pressed. Returns to this page, as every editor opened
-                         from the storefront does. -->
+                    <!-- No pencil on these tiles, and an unpriced product is
+                         fixed in the editor, so editing comes first. -->
                     <div class="mt-3 flex flex-col items-start gap-2">
                       <a
                         uiButton
@@ -150,45 +134,36 @@ export class HiddenProductsSection {
   protected readonly pencilIcon = pencilIcon;
   private readonly catalog = inject(EDIT_MODE_CATALOG);
   private readonly confirm = inject(ConfirmService);
-  /** So the editor's cancel lands back on the page the tile was on. */
   protected readonly editorFrom = injectEditorReturnParams();
-  protected readonly adminText = inject(ADMIN_TEXT);
-  protected readonly text = inject(ADMIN_TEXT).editMode;
-  protected readonly productStates = inject(ADMIN_TEXT).products;
+  private readonly adminText = inject(ADMIN_TEXT);
+  protected readonly text = this.adminText.editMode;
+  protected readonly productStates = this.adminText.products;
   protected readonly actionText = inject(SHARED_TEXT).actions;
 
   readonly categorySlug = input.required<string>();
-  /** Bump to force a re-fetch (e.g. after a delete elsewhere on the page). */
-  readonly reloadToken = input(0);
-  /** A product went onto the storefront, so the host reloads its grid. */
+  /** A product went onto the storefront: the host reloads its grid. */
   readonly published = output<void>();
-  /** Fires once the set has settled (loaded or errored). The host gates its
-   * edit affordances on this so they and this overlay appear together. */
+  /** Loaded or failed: the host shows its edit affordances with this. */
   readonly loaded = output<void>();
 
-  /** The storefront listing's own grid, measured on the same container: these
-   * tiles sit under that listing, and a grid of its own put them in two
-   * columns while the products above them were already one to a line. */
+  /** The listing's own grid, so these line up with the products above. */
   protected readonly grid = 'mt-5 ' + PRODUCT_GRID;
 
-  /**
-   * ProductTile's card, in the one state a hidden product is in: dashed and on
-   * a tinted ground, which is what says the storefront is not showing it.
-   * Below `LISTING_NARROW` it folds into a line exactly as the tile does — the
-   * grid draws the rules between them, so the card drops its own frame.
-   */
-  protected readonly card =
-    `flex h-full flex-col rounded-lg border border-dashed border-edge-strong
-     bg-surface-subtle ` +
-    `@max-[38rem]/listing:flex-row @max-[38rem]/listing:items-stretch
-     @max-[38rem]/listing:gap-4 @max-[38rem]/listing:rounded-none
-     @max-[38rem]/listing:border-0 @max-[38rem]/listing:bg-transparent ` +
-    NARROW_PADDING_IN_GRID;
+  /** ProductTile's card, dashed on a tinted ground: not on the storefront.
+   * Below `LISTING_NARROW` it folds into a line as the tile does. */
+  protected readonly card = `flex h-full flex-col rounded-lg border
+                             border-dashed border-edge-strong
+                             bg-surface-subtle ${NARROW_PADDING_IN_GRID}
+                             @max-[38rem]/listing:flex-row
+                             @max-[38rem]/listing:items-stretch
+                             @max-[38rem]/listing:gap-4
+                             @max-[38rem]/listing:rounded-none
+                             @max-[38rem]/listing:border-0
+                             @max-[38rem]/listing:bg-transparent`;
 
   protected readonly photoBox = 'relative flex ' + NARROW_PHOTO_IN_GRID;
 
-  /** Flush with the card's top edge, and its own framed square once the card
-   * has no frame to lend it — the tile's rule, and a row's at every width. */
+  /** Its own framed square once the card has no frame, as on the tile. */
   protected readonly photo = `block aspect-square w-full overflow-hidden
                               rounded-t-lg bg-white
                               @max-[38rem]/listing:rounded-md
@@ -202,9 +177,8 @@ export class HiddenProductsSection {
   protected readonly error = signal<string | null>(null);
 
   protected readonly hidden = resource({
-    params: () => ({ slug: this.categorySlug(), token: this.reloadToken() }),
-    loader: async ({ params }) =>
-      (await this.catalog()).listHidden(params.slug),
+    params: () => this.categorySlug(),
+    loader: async ({ params }) => (await this.catalog()).listHidden(params),
   });
 
   constructor() {
@@ -213,10 +187,6 @@ export class HiddenProductsSection {
     });
   }
 
-  /**
-   * An unpriced product cannot be put on the storefront, and the server
-   * refuses it. The button explains rather than disappearing.
-   */
   protected cannotPublish(item: HiddenProduct): boolean {
     return item.prices === null;
   }
@@ -228,8 +198,7 @@ export class HiddenProductsSection {
   }
 
   protected async publish(item: HiddenProduct): Promise<void> {
-    // Live but refusing on an unpriced product: the click is answered with the
-    // reason, which a dead button cannot give.
+    // Answered with the reason, which a disabled button could not give.
     if (this.cannotPublish(item)) {
       await this.confirm.tell({
         heading: this.text.unpricedTitle,
@@ -242,6 +211,7 @@ export class HiddenProductsSection {
     this.error.set(null);
     try {
       await (await this.catalog()).setPublished(item.slug, true);
+      this.hidden.reload();
       this.published.emit();
     } catch {
       this.error.set(this.text.revealError);

@@ -8,28 +8,17 @@ export function selectedValues(facet: Facet): string[] {
   return facet.values.filter((v) => v.selected).map((v) => v.value);
 }
 
-/**
- * Changing the selection, shared by the filter panel and the applied-filter
- * chips — two views of one selection, so the rule for writing it belongs in one
- * place rather than in whichever of them was written first.
- *
- * Provided by each component that uses it, never at the root: it navigates
- * relative to the listing's own route, and the root injector's ActivatedRoute
- * is the empty one — navigating relative to that would drop the path and land
- * on the home page.
- */
+/** Writes the selection for the filter panel and the applied chips alike.
+ * Provided per component, never at the root: the root's ActivatedRoute is the
+ * empty one, and navigating relative to it lands on the home page. */
 @Injectable()
 export class FacetSelection {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
 
-  /**
-   * Rebuilds the whole selection from the facets and applies `change` to one
-   * attribute's values. Rebuilt rather than patched into the URL that is there:
-   * the facets are the API's reading of that URL, so an entry naming an
-   * attribute the catalogue no longer declares drops out the first time
-   * anything is clicked instead of riding along forever.
-   */
+  /** Rebuilt from the facets, the API's reading of the URL, rather than
+   * patched into it: an attribute the catalogue no longer declares drops out
+   * on the first click. */
   apply(
     facets: readonly Facet[],
     slug: string,
@@ -52,18 +41,9 @@ export class FacetSelection {
     this.navigate(null);
   }
 
-  /**
-   * Writes the selection to the URL, which is what re-fetches (FR-ATTR-07).
-   * `page` is dropped: a page number from the previous selection points at
-   * nothing in particular in the new one — the same rule the sort control
-   * follows. An empty selection is an absent parameter, so the unfiltered
-   * listing keeps exactly one URL.
-   *
-   * `scroll: 'manual'` opts this one navigation out of the router's scroll to
-   * the top: the panel a value is ticked in is halfway down the page on a
-   * phone, and ticking a second value from the top of the listing is not what
-   * anybody meant to do.
-   */
+  /** The URL is what re-fetches (FR-ATTR-07); `page` is dropped, as the sort
+   * does. No scroll to the top: on a phone the panel is halfway down the page,
+   * where the next value is ticked. */
   private navigate(attr: string[] | null): void {
     void this.router.navigate([], {
       relativeTo: this.route,

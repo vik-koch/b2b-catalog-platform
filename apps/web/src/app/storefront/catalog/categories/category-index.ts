@@ -1,44 +1,22 @@
 import { Component, computed, inject, resource } from '@angular/core';
+import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
 import { EditActions } from '../../../shared/edit-mode/edit-actions';
 import { editAwareContent } from '../../../shared/edit-mode/edit-aware-content';
 import { injectEditorReturnParams } from '../../../shared/edit-mode/editor-return';
-import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
 import { LoadErrorView } from '../../pages/load-error-view';
 import { CatalogService } from '../catalog.service';
-import { CategoryChildren } from './ui/category-children';
 import { CategoryChip } from '../ui/category-chip';
+import { CategoryChildren } from './ui/category-children';
 
-/**
- * The grid the categories stand in, on the same column family as a listing:
- * tracks are fitted rather than counted, 15rem wide with the 1.25rem gap, so a
- * screen showing five product cards shows five categories in the same places
- * (see PRODUCT_GRID). One column below the viewport's `sm`, where a chip is a
- * full-width row: two columns of a phone leave a name about twelve characters
- * to live in, and every one of them was clipped.
- *
- * Exported because the subcategory navigation of a listing stands in the same
- * grid: a category is drawn the same way wherever it is shown, and that has to
- * include how wide it is drawn.
- */
+/** The listing's 15rem column family (PRODUCT_GRID), so categories stand
+ * where product cards do; also the grid of a listing's subcategory chips. One
+ * column below `sm`: two left a name about twelve characters. */
 export const CATEGORY_GRID = `grid gap-5 grid-cols-1
                               max-sm:gap-3
                               sm:grid-cols-[repeat(auto-fill,minmax(min(15rem,100%),1fr))]`;
 
-/**
- * Every top-level category as a chip, with the first few of its subcategories
- * named underneath (FR-CAT-01) — the main page's overview. The catalogue index
- * is a listing (see CategoryGrid) and draws only the top level, as chips.
- *
- * A category is a grouping of products rather than a thing in its own right, so
- * it is shown as a chip and not as a card with a picture of one of its
- * products: the mark identifies it, the name says what it is, and the emphasis
- * a photograph would give it belongs to the products themselves.
- *
- * The cells of a row are as tall as the tallest of them, which is what the
- * uniform grid is: a category with one subcategory leaves the space under it
- * empty rather than stretching, and the next row still starts on one line
- * across the page.
- */
+/** The main page's overview (FR-CAT-01): every top-level category as a chip,
+ * the first few subcategories named under it. */
 @Component({
   selector: 'app-category-index',
   imports: [CategoryChip, CategoryChildren, EditActions, LoadErrorView],
@@ -59,10 +37,8 @@ export const CATEGORY_GRID = `grid gap-5 grid-cols-1
                 />
               }
               <app-category-chip [category]="cat" />
-              <!-- Named only from the sm breakpoint up. On a phone the chip is
-                   already a full-width row and the way into the category is
-                   one tap away; a list of children under each of fifteen of
-                   them is a page nobody reaches the end of. -->
+              <!-- Not on a phone: children under each of fifteen full-width
+                   chips is a page nobody reaches the end of. -->
               @if (cat.children.length) {
                 <app-category-children class="hidden sm:block" [parent]="cat" />
               }
@@ -92,8 +68,6 @@ export class CategoryIndex {
     loader: () => this.catalog.getCategoryTree(),
   });
 
-  /** The chips and the edit affordances appear together, once the tree and the
-   * visitor's role are both known — see editAwareContent. */
   private readonly content = editAwareContent({
     ready: computed(() => this.categories.hasValue()),
     section: 'editMode',

@@ -1,10 +1,6 @@
 import { NgTemplateOutlet } from '@angular/common';
 import { Component, computed, inject, input, resource } from '@angular/core';
 import { Params, RouterLink } from '@angular/router';
-import {
-  encodeAttributeParams,
-  parseAttributeParams,
-} from '@b2b-catalog-platform/shared/core/catalog';
 import { fillText } from '@b2b-catalog-platform/shared';
 import { SEARCH_SORTS } from '@b2b-catalog-platform/shared/core/catalog';
 import { EditActions } from '../../../shared/edit-mode/edit-actions';
@@ -20,6 +16,7 @@ import { AppliedFilters } from '../filters/applied-filters';
 import { CatalogSearchService } from './catalog-search.service';
 import {
   FACET_COLUMN,
+  FACET_HEADER_SORT,
   FACET_LAYOUT,
   FACET_SIBLING,
   FACET_SIBLING_ALONE,
@@ -29,11 +26,8 @@ import { anyStatus } from '../ui/product-status-line';
 import { ProductLayoutService } from '../product-layout';
 import { ProductLayoutToggle } from '../product-layout-toggle';
 import { PRODUCT_ROWS, ProductRow } from '../ui/product-row';
-import {
-  ProductSortSelect,
-  resolveSearchSort,
-  sortParam,
-} from '../filters/product-sort-select';
+import { ProductSortSelect } from '../filters/product-sort-select';
+import { listingParams } from '../listing-params';
 import { PRODUCT_GRID, ProductTile } from '../ui/product-tile';
 import { useTaxStatement } from '../../../core/catalog/pricing/tax-statement';
 
@@ -249,13 +243,7 @@ export class SearchResults {
   protected readonly productGrid = PRODUCT_GRID;
   protected readonly sortOptions = SEARCH_SORTS;
 
-  /**
-   * The sort above the grid is hidden wherever the filter panel is a disclosure
-   * that carries a copy of it — but only where there *is* a panel: a listing
-   * with no attributes to filter by has no disclosure to hold the control, and
-   * losing it would leave a narrow screen with no way to reorder at all.
-   */
-  protected readonly headerSortAt = 'hidden @min-[63.75rem]/listing:block';
+  protected readonly headerSortAt = FACET_HEADER_SORT;
   protected readonly facetLayout = FACET_LAYOUT;
   protected readonly facetColumn = FACET_COLUMN;
   protected readonly listingColumn = FACET_SIBLING;
@@ -285,40 +273,17 @@ export class SearchResults {
   readonly q = input('');
   /** The query as everything else should see it: never null, never padded. */
   protected readonly query = computed(() => this.q().trim());
-  /** Bound from the `page` query param (a string); coerced and floored to 1. */
   readonly page = input('1');
-  protected readonly currentPage = computed(() => {
-    const n = Number(this.page());
-    return Number.isInteger(n) && n > 0 ? n : 1;
-  });
-
-  /** Bound from the `sort` query param; an unknown key falls back to the
-   * default rather than being sent on to the API (FR-SEARCH-04). */
   readonly sort = input('');
-  protected readonly sortKey = computed(() => resolveSearchSort(this.sort()));
-  /** The sort as pagination links should carry it — absent when default. */
-  protected readonly sortParam = computed(() =>
-    sortParam(this.sortKey(), 'relevance'),
-  );
-
-  /**
-   * Bound from the repeated `attr` query parameter (FR-ATTR-07) — a bare string
-   * when one value is ticked, an array beyond that, which is why it is read
-   * through the shared codec rather than used as it arrives.
-   */
   readonly attr = input<string | readonly string[] | undefined>(undefined);
-  /** The selection, normalized: duplicates collapsed, malformed entries gone. */
-  protected readonly attrParams = computed(() =>
-    encodeAttributeParams(parseAttributeParams(this.attr())),
+
+  private readonly params = listingParams(
+    { page: this.page, sort: this.sort, attr: this.attr },
+    SEARCH_SORTS,
+    'relevance',
   );
-  protected readonly hasSelection = computed(
-    () => this.attrParams().length > 0,
-  );
-  /** The selection as pagination links should carry it — absent when empty, so
-   * an unfiltered listing keeps one URL. */
-  protected readonly attrParam = computed(() =>
-    this.hasSelection() ? this.attrParams() : null,
-  );
+  protected readonly sortKey = this.params.sort;
+  protected readonly hasSelection = this.params.hasSelection;
 
   protected readonly heading = computed(() =>
     this.query()
@@ -329,9 +294,9 @@ export class SearchResults {
   protected readonly results = resource({
     params: () => ({
       q: this.query(),
-      page: this.currentPage(),
-      sort: this.sortKey(),
-      attr: this.attrParams(),
+      page: this.params.page(),
+      sort: this.params.sort(),
+      attr: this.params.attr(),
     }),
     loader: ({ params }) =>
       this.search.searchProducts(
@@ -377,7 +342,7 @@ export class SearchResults {
   protected readonly pageParams = (page: number): Params => ({
     q: this.query(),
     page,
-    sort: this.sortParam(),
-    attr: this.attrParam(),
+    sort: this.params.sortParam(),
+    attr: this.params.attrParam(),
   });
 }
