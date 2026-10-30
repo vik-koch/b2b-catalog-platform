@@ -6,17 +6,17 @@ import {
   StatusTone,
 } from '@b2b-catalog-platform/ui/content/status-badge';
 
+/** Green, amber, grey: an empty shelf is a fact, not a refusal. */
+export const AVAILABILITY_TONES: Record<ProductAvailability, StatusTone> = {
+  in: 'ok',
+  low: 'waiting',
+  out: 'neutral',
+};
+
 /**
- * Whether the product can be had, wherever its buying controls are
- * (FR-STOCK-03) — the card, the line and the product page. The quantity behind
- * it is never here: the state is the whole of what a customer is told.
- *
- * Renders nothing for a product whose stock is untracked, which is the default
- * and the state a deployment that never enters a figure stays in.
- *
- * `reserve` is what keeps a grid straight: a listing where *some* product has a
- * badge leaves the line for all of them, so every card's name sits at the same
- * height. A listing where none does leaves nothing.
+ * Whether the product can be had (FR-STOCK-03), never how many; nothing where
+ * stock is untracked. `reserve` holds the line open, so where some card in a
+ * listing has a badge every name sits at one height.
  */
 @Component({
   selector: 'app-product-availability-badge',
@@ -25,17 +25,13 @@ import {
     @if (availability(); as state) {
       <span uiStatusBadge variant="dot" [tone]="tone()">{{ label() }}</span>
     } @else if (reserve()) {
-      <!-- The badge's own height, held open by a space rather than a fixed
-           figure, so it tracks the pill's line box if that ever changes. -->
+      <!-- Held open by a space, so it tracks the pill's line box. -->
       <span aria-hidden="true" [class]="spacer">&nbsp;</span>
     }
   `,
-  // A flex container rather than a block: the badge is an inline box, and in a
-  // block it sits on a line whose height is the *parent's* font — four pixels
-  // of leading above a 22px pill that no margin here could take back.
-  //
-  // Out of the flow entirely when it has nothing to render, so a margin the
-  // caller set on it does not leave a gap under an untracked product.
+  // Flex, not block: in a block the inline badge sits on the parent font's
+  // line, four pixels of leading no margin takes back. Gone when empty, so a
+  // caller's margin leaves no gap.
   host: {
     class: 'flex items-start',
     '[style.display]': "availability() || reserve() ? null : 'none'",
@@ -45,16 +41,9 @@ export class ProductAvailabilityBadge {
   readonly availability = input.required<ProductAvailability | null>();
   readonly reserve = input(false);
 
-  /** Green for what is there, amber for what is nearly gone, and a plain grey
-   * for what is not — an empty shelf is a fact, not a refusal. */
-  protected readonly tone = computed<StatusTone>(() => {
-    const tones: Record<ProductAvailability, StatusTone> = {
-      in: 'ok',
-      low: 'waiting',
-      out: 'neutral',
-    };
-    return tones[this.availability() ?? 'in'];
-  });
+  protected readonly tone = computed(
+    () => AVAILABILITY_TONES[this.availability() ?? 'in'],
+  );
 
   private readonly text = inject(SHARED_TEXT).product.availability;
 
@@ -63,7 +52,8 @@ export class ProductAvailabilityBadge {
     return state === null ? '' : this.text[state];
   });
 
-  // The badge's own box, borders included, with nothing in it.
+  /** The badge's own box, borders included, empty. */
+
   protected readonly spacer = `inline-flex items-center border
                                border-transparent px-2 py-0.5 text-xs
                                font-medium`;

@@ -71,6 +71,7 @@ import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';
 import { LockedFieldMarker } from '../../ownership/locked-field-marker';
 import { SettingsService } from '../../settings/settings.service';
 import { ProductAvailabilityBadge } from '../../../core/catalog/buying/product-availability-badge';
+import { formatStoredDecimal } from '../../../core/catalog/buying/quantity';
 import { ProductDetailView } from '../../../core/catalog/product-page/product-detail-view';
 import { ADMIN_TEXT } from '../../../shared/config/admin-text';
 import { SHARED_TEXT } from '../../../shared/config/shared-text';
@@ -1175,9 +1176,7 @@ export class ProductEditorPage implements UnsavedChangesAware, FieldAttempt {
   /** With the deployment's separator, like a price, and nothing else touched,
    * so the digits typed survive a round trip. */
   private showDecimal(stored: string | null): string {
-    return stored === null
-      ? ''
-      : stored.replace('.', decimalSeparator(this.currency));
+    return stored === null ? '' : formatStoredDecimal(stored, this.currency);
   }
 
   /** As the contract wants it, or null while a count is not whole. Blank is

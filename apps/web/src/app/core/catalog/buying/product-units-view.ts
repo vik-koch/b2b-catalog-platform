@@ -19,37 +19,26 @@ import { SHARED_TEXT } from '../../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
 import { formatStoredDecimal, formatUnitQuantity } from './quantity';
 
-/** One priced unit, ready to render. */
 export interface UnitPriceRow {
-  /** "per pcs" — the unit this price covers. */
+  /** "per pcs". */
   label: string;
   price: string;
 }
 
-/** A row of the packaging block in the specifications table. */
 export interface PackagingRow {
   label: string;
   value: string;
 }
 
-/** One choice in the buying block's unit selector. */
 export interface UnitOption {
   unit: ProductUnit;
-  /** The unit's own name, and nothing more — see `unitOptions`. */
   label: string;
-  /** False where the product is not sold in this unit. The segment is still
-   * shown: three units in three fixed places is what lets a grid of cards line
-   * up, and a segment that answers for itself when pressed says more than a
-   * missing one. */
+  /** Unsold units are still shown, so a grid of cards lines up. */
   available: boolean;
 }
 
-/**
- * Wording for a product's units of sale, shared by the tile and the product
- * page so the two cannot describe the same product differently.
- *
- * Unit words are abbreviations that follow a number, so nothing here inflects.
- */
+/** A product's units of sale in words, alike on a tile and the product page.
+ * Unit words are abbreviations after a number, so nothing inflects. */
 export function useProductUnits() {
   const text = inject(STOREFRONT_TEXT).catalog.units;
   const common = inject(SHARED_TEXT);
@@ -62,33 +51,18 @@ export function useProductUnits() {
   const perUnit = (unit: string) => fillText(text.perUnit, { unit });
 
   return {
-    /**
-     * The price of one unit — what the selector's current choice costs, worded
-     * exactly as the same unit's row in `priceRows`. Null where the product
-     * carries no price for that unit, which is a state to word rather than a
-     * figure to invent.
-     */
+    /** Null where the product has no price for the unit. */
     priceRow(prices: UnitPrices, unit: ProductUnit): UnitPriceRow | null {
-      if (unit === 'piece') {
-        return {
-          label: perUnit(units.piece),
-          price: formatMoneyMinor(prices.piece, currency),
-        };
-      }
-      const price = unit === 'pack' ? prices.pack : prices.box;
+      const price = prices[unit];
       if (price === null) return null;
       return {
-        label: perUnit(unit === 'pack' ? units.pack : units.box),
+        label: perUnit(units[unit]),
         price: formatMoneyMinor(price, currency),
       };
     },
 
-    /**
-     * The units this product can be bought in, smallest first, worded for a
-     * selector (FR-UNIT-07). Just the unit's name: the segments are one control
-     * and have to read as a scale, which a count in one of them breaks. What a
-     * pack and a box hold is stated once, below, by the packaging line.
-     */
+    /** Smallest first, by name alone (FR-UNIT-07): a count in one segment
+     * breaks the scale; the packaging line says what they hold. */
     unitOptions(packaging: ProductPackaging): UnitOption[] {
       const sold = new Set(availableUnits(packaging));
       return PRODUCT_UNITS.map((unit) => ({
@@ -118,17 +92,8 @@ export function useProductUnits() {
       });
     },
 
-    /**
-     * The smallest order, read through `unit` — always stated, even where it is
-     * a single piece and states no rule: one piece is the answer to the
-     * question the line asks, and a line that comes and goes with the product
-     * costs more space than the words in it.
-     *
-     * The minimum is one figure, stored in pieces, and `unit` only decides how
-     * it reads — 24 pieces is four packs of six, or a quarter of a box of 96 —
-     * so a stepper that stops at four says why in the same words it stops in.
-     * Defaults to pieces, which is how a tile states it as a product fact.
-     */
+    /** One figure in pieces, read through `unit`: 24 pieces is four packs of
+     * six, so a stepper that stops at four says why in its own words. */
     minimumOrder(
       packaging: ProductPackaging,
       unit: ProductUnit = 'piece',
@@ -142,23 +107,10 @@ export function useProductUnits() {
     },
 
     /**
-     * The packaging rows appended to the specifications table (FR-UNIT-06):
-     * what a pack and a box contain, then a box's volume and weight. A
-     * contiguous group after the product's own attributes — those describe
-     * what it is, these how it ships.
-     *
-     * A product shipping as several boxes does not get a row of its own for the
-     * count. The figures are already the total across those boxes, so what a
-     * reader needs is what each one covers: the count qualifies the label,
-     * "Box volume (for 2)", and only where there is more than one. The contents
-     * rows are left out there altogether: how the pieces split across the boxes
-     * is not something the packaging can say, so staff state it as attributes.
-     *
-     * The packaging summary and the minimum are deliberately **not** here. Both
-     * belong to buying rather than to describing: the summary makes a per-unit
-     * price readable next to the unit that is being chosen, and the minimum is
-     * a rule on an input that reads differently in each unit, so a static row
-     * states it in the wrong words as soon as another one is selected.
+     * The specifications' packaging rows (FR-UNIT-06). Shipped as several
+     * boxes, the figures are totals, so the count qualifies the label ("Box
+     * volume (for 2)") and the contents rows go: the packaging cannot say how
+     * pieces split. The minimum is no row: it reads differently in each unit.
      */
     packagingRows(
       packaging: ProductPackaging,
@@ -170,8 +122,8 @@ export function useProductUnits() {
     ): PackagingRow[] {
       const rows: PackagingRow[] = [];
       if (!box || box.count === 1) {
-        // A unit holding a single piece is the piece by another name, so
-        // stating that it contains one says nothing.
+        // A unit of one piece is the piece by another name.
+
         const contents = (label: string, count: number | null) => {
           if (count !== null && count > 1) {
             rows.push({

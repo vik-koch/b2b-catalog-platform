@@ -6,27 +6,15 @@ import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { layers2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/layers-2';
 
 /**
- * Says a product is sold as a set of parts (FR-CAT-10) — one piece is a cup
- * with its lid, where the product beside it in the listing may be the cup
- * alone.
- *
- * A fact about the product rather than a state of it, so it is not a status
- * badge: no dot, no tone, a grey ground. Its height matches the stock badge's
- * to the pixel — the same text size and vertical padding, and a transparent
- * border where that one has a hairline — so the two sit level on one line. The
- * short one is narrower at the sides: it shares a card's line with the stock
- * badge, and the longest stock wording has to leave it room.
- *
- * `short` is a listing's: the word alone, the parts in the tooltip and for a
- * screen reader. There is no popover — the card is a link to the page that
- * says it in full, and a button inside it would be a second target under the
- * finger. `full` is the product page's, which has the room to name them.
+ * A product sold as a set of parts (FR-CAT-10): a fact, not a state, so no
+ * status badge. Exactly the stock badge's height, so the two sit level.
+ * `short` names the parts in its tooltip only: the card is a link, and a
+ * button inside it would be a second target. `full` names them.
  */
 @Component({
   selector: 'app-product-set-badge',
   imports: [Icon],
-  // min-w-0 so the one badge on a crowded line that can give way is this one:
-  // the stock state is the more urgent of the two.
+  // On a crowded line this one gives way: stock is the more urgent.
   host: { class: 'flex min-w-0' },
   template: `
     @if (variant() === 'short') {
@@ -54,11 +42,9 @@ export class ProductSetBadge {
     fillText(this.text.full, { parts: formatPartList(this.parts()) }),
   );
 
-  /**
-   * A tint of the ink rather than a grey ground, so the chip stands the same
-   * step off whatever it sits on: `surface` read clearly on a white card
-   * and all but vanished on the `surface-subtle` page a row and the product panel sit on.
-   */
+  /** A tint of the ink, not a grey ground: `surface` vanished on the
+   * `surface-subtle` page a row sits on. */
+
   protected readonly pill = `inline-flex min-w-0 items-center gap-1.5
                              rounded-md border border-transparent bg-ink/5
                              px-1.5 py-0.5 text-xs font-medium text-ink-subtle

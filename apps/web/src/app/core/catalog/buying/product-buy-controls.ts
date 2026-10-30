@@ -52,97 +52,50 @@ import { Allow } from '@b2b-catalog-platform/ui/inputs/allow';
 /** How long a statement stays on screen before it fades away. */
 const NOTICE_MS = 5000;
 
-/** Radios group by name across the whole document, so every instance needs its
- * own — a grid renders dozens of these side by side. */
+/** Radios group by name across the document, and a grid holds dozens. */
 let nextGroupId = 0;
 
-/**
- * What a bubble is saying, and which control it is saying it about. One at a
- * time: two bubbles open over one small block is noise, not information.
- */
+/** One bubble at a time, under the control it is about. */
 interface Popup {
-  /** `quantity`, `remove`, `note`, or the unit whose segment was pressed. */
+  /** Or the unit whose segment was pressed. */
   at: 'quantity' | 'remove' | 'note' | ProductUnit;
   message: string;
 }
 
-/** The little a grid tile and a product page have to agree on to sell
- * something: what it is called, what it costs and how it is packed. */
+/** What a tile and a product page must agree on to sell something. */
 export interface BuyableProduct {
   slug: string;
   name: string;
   prices: UnitPrices;
   packaging: ProductPackaging;
-  /**
-   * What the shop says about its stock (FR-STOCK-02), or null where it is not
-   * tracked — which is the default and restricts nothing.
-   *
-   * Read here rather than passed by every caller: out of stock takes the
-   * controls out of use (FR-STOCK-04), and a card, a line and a product page
-   * that had to remember to say so separately would be three chances to
-   * forget.
-   */
+  /** FR-STOCK-02; null is untracked. Read here, not per caller: out of stock
+   * takes the controls out of use (FR-STOCK-04) wherever they are. */
   availability?: ProductAvailability | null;
-  /** Whether this product's line takes a free-text note (FR-CART-08), and its
-   * own wording for the question. */
+  /** FR-CART-08. */
   lineNoteEnabled: boolean;
   lineNotePrompt: string | null;
-  /**
-   * How many products this one is sold together with (FR-SET-05); zero is no
-   * marker. Optional, because the cart's own stored line predates it — a cart
-   * saved before this shipped has no figure, and no marker is the right
-   * reading of that until the next pricing call answers.
-   */
+  /** FR-SET-05; zero is no marker. Optional, as this and the three below are
+   * missing from a cart line stored before they existed. */
   pairedCount?: number;
-  /** What one piece is made of, where it is sold as a set (FR-CAT-10).
-   * Optional for the reason `pairedCount` is. */
+  /** FR-CAT-10. */
   parts?: readonly string[];
-  /** The variants and the pictures they are shown with (FR-CAT-11), recorded
-   * with the line so its mark is there from the first frame (FR-CAT-13).
-   * Optional for the reason `pairedCount` is. */
+  /** Recorded with the line, so its mark shows from the first frame
+   * (FR-CAT-11/13). */
   variants?: readonly ProductVariant[];
   images?: readonly ProductImage[];
 }
 
 /**
- * Choosing a unit, a quantity, and putting the product in the cart
- * (FR-UNIT-07, FR-CART-01) — one component for the grid tile and the product
- * page, because the two are the same decision taken at different magnifications
- * and a customer who learns it on a card must find it unchanged on the page.
+ * Unit, quantity and the way into the cart (FR-UNIT-07, FR-CART-01), the same
+ * on a tile, a row and the product page, in the order the decision is taken.
+ * The three units always stand in the same three places, so a grid lines up.
  *
- * It reads top to bottom in the order the decision is taken: what one costs,
- * which unit, how many, then whatever the caller projects (the packaging facts,
- * a line note), then the action. What the *selection* would cost is not among
- * them — it is the price and the quantity multiplied, and once the line is in
- * the cart the button's own place says it exactly.
- *
- * Every part is the full width of the block, and the three units are always in
- * the same three places, so a grid of these lines up column by column. A list
- * turns the same blocks on their side (`layout="row"`) without reordering the
- * decisions: unit and quantity in one column, price and action in the next.
- *
- * Four rules are encoded rather than stated:
- *
- * - **One price, the chosen one.** With a unit selector present, listing every
- *   unit's price beside it asks the customer to match figures to segments. The
- *   headline is the price of the unit that is selected, and changing the
- *   selection changes it.
- * - **A product is one line.** Once it is in the cart these controls edit that
- *   line rather than describing a second one: the stepper changes the cart's
- *   quantity, the selector changes the cart's unit, and the button is replaced
- *   by what the line now costs. There is nothing to confirm and nowhere to send
- *   the customer — the change they made is the feedback.
- * - **A quantity is corrected upwards, never refused,** and the correction is
- *   stated in a bubble that goes away by itself. It is feedback on something
- *   already done, not an error waiting to be cleared. Changing unit is not one
- *   of the things that can need it: a unit is a lens on a piece count, so
- *   switching to boxes re-reads the same goods as 0.2 bx rather than rounding
- *   them up to a whole one.
- * - **Down past the minimum means "take it out",** which is the one thing here
- *   worth asking about first. Everything the controls have to say arrives in
- *   the same bubble under the control it is about — a segment that is not sold,
- *   a corrected number, the question — and anywhere else the customer clicks
- *   dismisses it. For the question, that is "no".
+ * - One price, the chosen unit's.
+ * - A product is one line: once in the cart these controls edit it, and the
+ *   button gives way to what the line costs.
+ * - A quantity is corrected upwards, never refused, in a bubble that goes by
+ *   itself. Changing unit never needs it: a unit is a lens on pieces.
+ * - Down past the minimum asks to take it out; a click elsewhere is "no".
  */
 @Component({
   selector: 'app-product-buy-controls',
@@ -163,31 +116,20 @@ export interface BuyableProduct {
   ],
   host: { class: 'block' },
   template: `
-    <!-- Fragments, so the two arrangements are two orders of the same five
-         blocks rather than two copies of them. -->
+    <!-- Two arrangements are two orders of these five blocks. -->
     <ng-template #priceBlock>
-      <!-- The note shares the price's line rather than getting one of its own:
-           it is the only other thing that belongs to the line as a whole, and
-           a card has no row to spare for a control most products never show. -->
+      <!-- The note shares the price's line: a card has no row to spare. -->
       <div class="flex items-center justify-between gap-2">
         <p [class]="priceClass()">
           {{ price() }}
           <span [class]="priceUnitClass()">{{ priceUnit() }}</span>
         </p>
 
-        <!-- The glyphs as one group at the far end, so the gap between them is
-             the gap between two of the same kind of thing and the only space
-             the row shares out is the one between the price and all of them.
-             Zero, one or two of them, and the row looks the same either way. -->
         <div class="flex items-center gap-1">
-          <!-- Whatever the caller does *to the line* goes at this end of the
-               price row — the cart's bin — and it is the only place a control
-               belongs that is neither a choice nor the action. -->
+          <!-- What the caller does to the line: the cart's bin. -->
           <ng-content select="[priceAction]" />
 
-          <!-- Left of the note, which keeps its corner: a customer who learned
-               the bubble there should not find it moved because this product
-               happens to be sold with something. -->
+          <!-- Left of the note, which keeps its corner. -->
           @if (marker(); as paired) {
             <app-product-pairings [slug]="item().slug" [count]="paired" />
           }
@@ -212,9 +154,7 @@ export interface BuyableProduct {
       }
     </ng-template>
 
-    <!-- All three units, always, in the same three places: the segments divide
-         the row in proportion to their labels, and a unit the product is not
-         sold in is shown greyed and says so when pressed. -->
+    <!-- A unit not sold is greyed and says so when pressed. -->
     <ng-template #unitsBlock>
       <div
         uiSegmentGroup
@@ -223,8 +163,7 @@ export interface BuyableProduct {
         [class]="group()"
       >
         @for (option of options(); track option.unit) {
-          <!-- Flex, so the segment inside fills the share of the row it was
-               given: its own width plus an equal part of what is left over. -->
+          <!-- Flex, so the segment fills its share of the row. -->
           <div class="relative flex flex-auto">
             @if (option.available && sellable()) {
               <label
@@ -244,14 +183,9 @@ export interface BuyableProduct {
                 {{ option.label }}
               </label>
             } @else {
-              <!-- A button, not a disabled radio: it is not selectable, but it
-                   is pressable, and what it does is say why. A disabled control
-                   would take itself out of the tab order and answer nothing.
-
-                   Unless the whole line cannot be bought — withdrawn, or off
-                   the shelf — where there is nothing to explain unit by unit:
-                   the badge or the row says it once, and every segment here is
-                   genuinely disabled. -->
+              <!-- A button, not a disabled radio: pressing it says why. Only
+                   a line that cannot be bought at all disables every segment;
+                   the badge or the row says it once. -->
               <button
                 type="button"
                 uiSegment
@@ -268,11 +202,8 @@ export interface BuyableProduct {
 
             @if (popup(); as open) {
               @if (open.at === option.unit) {
-                <!-- Hung inwards from the segment it points at, which on a
-                     phone is the difference between a bubble inside the card
-                     and one hanging off the side of the page. The end segment
-                     is the box, and its bubble is the one anybody sees: a
-                     product with no box is exactly the case that greys it. -->
+                <!-- Hung inwards, or an end segment's bubble leaves the card
+                     on a phone. -->
                 <ui-popover
                   [align]="$last ? 'end' : $first ? 'start' : 'center'"
                   [duration]="noticeMs"
@@ -287,9 +218,7 @@ export interface BuyableProduct {
       </div>
     </ng-template>
 
-    <!-- One control, not three: the steppers are welded to the field's ends, so
-         it reads as a single number input rather than as a row of buttons that
-         happen to sit nearby. Square ends, and the field takes the rest. -->
+    <!-- One control: the steppers are welded to the field's ends. -->
     <ng-template #stepperBlock>
       <div [class]="stepperGroup()">
         <div class="relative flex">
@@ -307,10 +236,7 @@ export interface BuyableProduct {
             @if (open.at === 'remove') {
               <ui-popover align="start" (dismissed)="dismiss()">
                 <p>{{ open.message }}</p>
-                <!-- Keeping it first, removing it second — the order the
-                     confirmation dialog puts them in everywhere else. A yes/no
-                     pair that swaps sides between two screens is one somebody
-                     answers by position and gets wrong. -->
+                <!-- Keep first, remove second, as every confirmation. -->
                 <div class="mt-2 flex gap-2">
                   <button
                     type="button"
@@ -339,13 +265,8 @@ export interface BuyableProduct {
         </div>
 
         <div class="relative flex flex-1">
-          <!-- Decimal only where a reading can actually be one: a piece count
-               is a whole number of steps, so only a unit holding several of them
-               divides into fractions. Offering them elsewhere would invite a
-               figure that is rounded away the moment the field is left.
-
-               The value is what is being typed while the field has it, and the
-               quantity otherwise — see fieldText below. -->
+          <!-- Decimal only where a reading can be one: a unit holding several
+               pieces. The value is the draft while typing (see fieldText). -->
           <input
             uiInput
             [uiAllow]="numericRules[whole() ? 'integer' : 'decimal']"
@@ -383,17 +304,12 @@ export interface BuyableProduct {
     <ng-template #actionBlock>
       @if (canAdd()) {
         @if (inCart()) {
-          <!-- A field, not a button: it is the same size and in the same place
-               as the one it replaced, so the row does not move, but there is
-               nothing left to press — the stepper is what changes the line. -->
+          <!-- A field in the button's place and size: nothing left to press. -->
           <p uiButtonBox [class]="addedField()" role="status">
             {{ addedMessage() }}
           </p>
         } @else {
-          <!-- Switched off rather than taken away where the product cannot be
-               bought (FR-STOCK-04): the badge beside it already says why, and a
-               button that disappears leaves a card a row shorter than the ones
-               it sits next to. -->
+          <!-- Off, not gone (FR-STOCK-04), or the card is a row short. -->
           <button
             type="button"
             uiButton
@@ -414,19 +330,13 @@ export interface BuyableProduct {
       }
     </ng-template>
 
-    <!-- Projected once, placed by whichever arrangement is drawn. -->
+    <!-- Projected once, placed by either arrangement. -->
     <ng-template #extras><ng-content /></ng-template>
 
     @if (row()) {
-      <!-- One set of blocks, two arrangements, chosen by how much width the
-           row actually has (a container query, not the viewport: a listing
-           beside a filter panel is narrow at any window size).
-
-           Narrow, the blocks read in the order a card reads them — price,
-           unit, quantity, the facts, the button — because that is the order
-           the decision is taken in and the customer already knows it. Wide,
-           the same blocks fall into two columns without moving in the DOM, so
-           what a screen reader and the tab key see never changes. -->
+      <!-- By the row's own width (a container query: a listing beside a
+           filter panel is narrow at any window). Wide, the blocks fall into
+           two columns without moving in the DOM, so the tab order holds. -->
       <div [class]="rowGrid">
         <div [class]="cell.price">
           <ng-container [ngTemplateOutlet]="priceBlock" />
@@ -438,8 +348,7 @@ export interface BuyableProduct {
           <ng-container [ngTemplateOutlet]="stepperBlock" />
         </div>
         <div [class]="cell.minimum">
-          <!-- In the selected unit: it sits beside the stepper, and a stepper
-               that stops at four packs must not be explained in pieces. -->
+          <!-- In the selected unit, as the stepper beside it counts. -->
           <app-product-unit-facts
             show="minimum"
             [unit]="unit()"
@@ -479,54 +388,29 @@ export class ProductBuyControls {
   protected readonly noticeMs = NOTICE_MS;
 
   readonly item = input.required<BuyableProduct>();
-  /** The note to record with the line, where the caller offers one. */
+  /** Where the caller offers its own note field. */
   readonly note = input<string | null>(null);
-  /**
-   * The product's first photo, recorded with the line. The cart is drawn from
-   * the browser's own copy before anything is asked of the server, and a row
-   * that had to wait for the pricing call to learn its photo showed a
-   * placeholder on every load and every change of unit.
-   */
+  /** Recorded with the line: the cart draws from the browser's copy before
+   * the pricing call answers. */
   readonly image = input<CatalogImage | null>(null);
-  /**
-   * True where the caller shows a note field of its own — the product page's
-   * buying block, and the cart, which writes one under every line. The
-   * controls then record what they are given and offer no button: two ways to
-   * write the same note, side by side, is one too many.
-   */
+  /** The caller shows its own note field (product page, cart), so these
+   * controls record `note` and offer no button. */
   readonly externalNote = input(false);
-  /** False in the product editor's live preview: the block is there to show
-   * what a visitor will see, not to fill a manager's own cart. */
+  /** False in the editor's preview. */
   readonly canAdd = input(true);
-  /** Card-sized rather than page-sized: smaller type and a denser stepper. */
+  /** Card-sized: smaller type, a denser stepper. */
   readonly compact = input(false);
-  /** A line under the price — what it includes, on the product page. */
+  /** Under the price, on the product page. */
   readonly priceNote = input<string | null>(null);
-  /**
-   * False where the caller shows the counterparts itself — the product page and
-   * the cart, which give them a line and a word — and false inside the panel
-   * they open, whose rows lead back to the product it was opened from.
-   */
+  /** False where the caller shows the counterparts itself, and inside the
+   * panel they open. */
   readonly offerPairings = input(true);
-  /**
-   * False for a cart line whose product the shop can no longer price — it has
-   * been withdrawn, or repackaged out of its stored basis. The controls state
-   * no figure and take no input: the last price the browser saw is not one the
-   * shop is still offering, so there is no quantity of it to choose and no
-   * total to move. The row says why beside them, and the only thing left to do
-   * with the line is take it out.
-   */
+  /** False for a cart line the shop can no longer price (withdrawn, or
+   * repackaged): no figure, no input; the row says why. */
   readonly available = input(true);
 
-  /**
-   * Whether the product may be put in the cart at all: what the shop can price
-   * *and* has on the shelf (FR-STOCK-04).
-   *
-   * The two are not the same refusal and are not drawn the same way. A line the
-   * shop cannot price states no figure, because there is none. An empty shelf
-   * is still listed, reachable and priced — only the controls are out of use,
-   * and the badge beside them says why. "Few left" restricts nothing.
-   */
+  /** An empty shelf stays priced, only the controls are out of use
+   * (FR-STOCK-04); "few left" restricts nothing. */
   protected readonly inStock = computed(
     () => this.item().availability !== 'out',
   );
@@ -534,12 +418,7 @@ export class ProductBuyControls {
     () => this.available() && this.inStock(),
   );
 
-  /**
-   * `stack` reads top to bottom down a card or a product page; `row` lays the
-   * same blocks out as two columns of a product line — the unit, the quantity
-   * and the minimum in one, the price, the action and the packaging in the
-   * other. Same controls, same order of decisions, turned on its side.
-   */
+  /** `row` turns the blocks into a product line's two columns. */
   readonly layout = input<'stack' | 'row'>('stack');
   protected readonly row = computed(() => this.layout() === 'row');
 
@@ -550,21 +429,15 @@ export class ProductBuyControls {
     this.units.unitOptions(this.packaging()),
   );
 
-  /** The cart's line for this product, in whatever unit — the controls are a
-   * view of it wherever there is one. Not before the first render: the server
-   * drew these controls for an empty cart, and hydration has to find what it
-   * drew (see FirstRender). */
+  /** Not before the first render: the server drew an empty cart, and
+   * hydration must find it (see FirstRender). */
   protected readonly line = computed(() =>
     this.firstRender.over() ? this.cart.lineFor(this.item().slug) : undefined,
   );
   protected readonly inCart = computed(() => this.line() !== undefined);
 
-  /**
-   * How much, in which unit — the draft field and the stepper's arithmetic,
-   * which is a machine of its own (see `buy-quantity.ts`). It reads the cart's
-   * line where there is one and writes through it, so these controls edit that
-   * line rather than describing a second one.
-   */
+  /** The draft and the stepper's arithmetic (see `buy-quantity.ts`), writing
+   * through the cart's line where there is one. */
   private readonly chosen = createBuyQuantity({
     packaging: this.packaging,
     product: computed(() => this.item().slug),
@@ -578,22 +451,17 @@ export class ProductBuyControls {
   protected readonly whole = this.chosen.whole;
   protected readonly fieldText = this.chosen.fieldText;
 
-  /**
-   * The note as these controls hold it, where nothing else does. Seeded from
-   * the cart's line so the bubble opens on what was written, and reset when
-   * the product changes — a note belongs to the line it was typed for.
-   */
+  /** Seeded from the cart's line, reset with the product. */
   readonly ownNote = linkedSignal<string, string>({
     source: () => this.item().slug,
     computation: () => this.line()?.note ?? '',
   });
 
-  /** Whether these controls own the note: the product takes one and no caller
-   * has offered a field for it. */
+  /** The product takes a note and no caller offers a field. */
   protected readonly asksForNote = computed(
     () => this.item().lineNoteEnabled && !this.externalNote(),
   );
-  /** How many counterparts the marker should say, or null for no marker. */
+  /** Null is no marker. */
   protected readonly marker = computed(() => {
     const count = this.item().pairedCount ?? 0;
     return this.offerPairings() && count > 0 ? count : null;
@@ -602,50 +470,34 @@ export class ProductBuyControls {
     () => this.item().lineNotePrompt ?? this.text.notePrompt,
   );
 
-  /**
-   * Something the caller has to say about this line, shown in the same bubble
-   * under the stepper that the controls' own corrections use — the cart, whose
-   * quantities are corrected by the server rather than by a keystroke here.
-   *
-   * A correction is feedback on something already done, so it belongs in a
-   * bubble that goes away by itself rather than in a line of text under the
-   * row that has to be read and then ignored.
-   */
+  /** The caller's own correction (the cart's, from the server), in the
+   * stepper's bubble. */
   readonly notice = input<string | null>(null);
 
-  /** What the controls are saying about themselves — a correction they just
-   * made, a segment that is not sold, the question under `−`. */
+  /** A correction just made, a unit not sold, the question under `−`. */
   private readonly ownPopup = signal<Popup | null>(null);
 
-  /** What the note said when it was opened — what cancelling puts back. */
+  /** What cancelling puts back. */
   private noteAtOpen = '';
 
   /**
-   * The caller's notice, **held once it has arrived**. It is feedback on
-   * something already done, and the thing it is about is over by the time it
-   * can be read: the cart writes a corrected line straight back and asks again,
-   * so the answer that carries the notice is followed by one that does not. A
-   * bubble bound to the notice itself closed on that second answer, seconds
-   * short of the time it is given.
-   *
-   * So the source only ever opens it. It is closed by the customer, or by the
-   * bubble's own timer, and a fresh notice opens it again.
+   * Held once arrived: the cart writes the corrected line back and asks again,
+   * and the next answer carries no notice, which closed a bound bubble early.
+   * The source only opens it; the customer or the timer closes it.
    */
   private readonly heldNotice = linkedSignal<string | null, string | null>({
     source: () => this.notice(),
     computation: (notice, previous) => notice ?? previous?.value ?? null,
   });
 
-  /** The one bubble, from either source. The controls' own comes first: it is
-   * about something the customer did a moment ago. */
+  /** The controls' own first: it is about what was just done. */
   protected readonly popup = computed<Popup | null>(() => {
     const own = this.ownPopup();
     if (own !== null) return own;
     const held = this.heldNotice();
     return held === null ? null : { at: 'quantity', message: held };
   });
-  /** What the last add did, if anything — cleared by any further edit, so it
-   * never describes a selection that has since changed. */
+  /** Cleared by any edit, so it never describes a changed selection. */
   protected readonly feedback = signal<CartAddResult | null>(null);
 
   private readonly priceRow = computed(() =>
@@ -660,12 +512,7 @@ export class ProductBuyControls {
     this.available() ? (this.priceRow()?.label ?? '') : '',
   );
 
-  /**
-   * What this selection will cost — priced on the quantity that would actually
-   * be added, not on the one half-typed in the field. A number someone is still
-   * typing is not a product without a price, and saying so while they type
-   * reads as one.
-   */
+  /** On the quantity that would be added, not the half-typed draft. */
   protected readonly total = computed(() => {
     if (!this.available()) return null;
     const exact = exactLineTotal(
@@ -675,9 +522,7 @@ export class ProductBuyControls {
     return exact === null ? null : formatMoneyMinor(exact, this.currency);
   });
 
-  /** What the line costs — or, where it cannot be priced, that it cannot be:
-   * "Added for On request" is a sentence that says less than the two words in
-   * it. */
+  /** Unpriced says so alone: "Added for On request" says less. */
   protected readonly addedMessage = computed(() => {
     const total = this.total();
     return total === null
@@ -696,100 +541,56 @@ export class ProductBuyControls {
       : 'text-base font-normal text-ink-subtle',
   );
 
-  /** In a row the spacing belongs to the cells, which have to space
-   * themselves differently in each arrangement. */
+  /** In a row the cells do the spacing. */
   protected readonly group = computed(
     () => `flex w-full ${this.row() ? '' : 'mt-2'}`,
   );
 
   /**
-   * The row's grid: one column of blocks in card order until there is room for
-   * two, then two columns — which happens well before the line itself turns
-   * (ProductRow's own threshold), so a line too narrow to put the name beside
-   * the controls still puts the controls side by side under it.
-   *
-   * Measured on the column these controls were given rather than on the line,
-   * because they are not the same width: the cart's tick box comes off the
-   * line first. The threshold is exactly what two columns cost — 13.5rem each
-   * and the gap between them — so they pair the moment they fit.
-   *
-   * Stacked, the single column fills what it was given. Capping it made a line
-   * narrower than a card at the width where the two are supposed to be drawing
-   * the same thing.
+   * Two columns from exactly what they cost (2 × 13.5rem + the gap), measured
+   * on the controls' own column: the cart's tick box comes off the line. Earlier
+   * than the line itself turns (ProductRow), so the controls pair under a name.
    */
   protected readonly rowGrid = `grid grid-cols-1
                                 @min-[28.5rem]/body:grid-cols-[13.5rem_13.5rem]
                                 @min-[28.5rem]/body:gap-x-6`;
 
-  /**
-   * Where each block sits, and what it stands off from what is above it.
-   *
-   * Written out per cell rather than composed, because Tailwind reads these
-   * strings out of the source: a class assembled at runtime is a class that
-   * was never generated.
-   */
+  /** Written out per cell: Tailwind reads these strings from the source, and
+   * a class assembled at runtime is never generated. */
   protected readonly cell = {
-    // Half a step down in the two-column arrangement: the price is text where
-    // the segments beside it are a pill, and starting at the same edge is not
-    // the same as sitting on the same axis.
+    // Half a step down: text beside a pill sits on its axis, not its edge.
     price: `@min-[28.5rem]/body:col-start-2 @min-[28.5rem]/body:row-start-1
             @min-[28.5rem]/body:mt-0.5`,
     units: `mt-2
             @min-[28.5rem]/body:col-start-1 @min-[28.5rem]/body:row-start-1
             @min-[28.5rem]/body:mt-0`,
-    // The stepper follows its pill as closely as it does on a card, and the
-    // action follows the price by exactly as much — they share a grid row, so
-    // what one stands off by is what keeps the two columns on one axis.
+    // Stepper and action share a row, so equal offsets keep one axis.
     stepper: `mt-1
               @min-[28.5rem]/body:col-start-1 @min-[28.5rem]/body:row-start-2
               @min-[28.5rem]/body:mt-1`,
-    // The facts stand off the block above them by as much as a card's do,
-    // either way round: they are a caption, and a caption crowding what it
-    // captions reads as part of it.
     minimum:
       'mt-2 @min-[28.5rem]/body:col-start-1 @min-[28.5rem]/body:row-start-3',
-    // Under the minimum while the blocks are stacked (the two facts read as
-    // one small block there), under the price and the button once they are
-    // not — a packaging line qualifies the price it sits with.
+    // Under the price once in columns: it qualifies the price.
     packaging: `@min-[28.5rem]/body:col-start-2
                 @min-[28.5rem]/body:row-start-3 @min-[28.5rem]/body:mt-2`,
-    // The same offset as the stepper it sits beside, so the two start on one
-    // axis; only the price needs the half-step, being text against a pill.
     action: `mt-2
              @min-[28.5rem]/body:col-start-2 @min-[28.5rem]/body:row-start-2
              @min-[28.5rem]/body:mt-1`,
   } as const;
 
   /**
-   * The row's height is set here rather than left to the field, so the ends can
-   * be exactly as wide as they are tall. It does not clip: the keys round their
-   * own outer corners instead, and a bubble hanging out of the row has to be
-   * able to leave it.
-   *
-   * **No border of its own.** The three parts are boxes butted together, the
-   * way the navbar's search field and its submit button are (see
-   * `layout/search-field.ts`): each carries its own edge, the seam between two
-   * of them is a single line belonging to one side, and each part's highlight
-   * therefore closes around itself instead of stopping short of the seam. A
-   * border here as well was a second line outside all three, so lighting the
+   * The height is set here, so the keys are square. No clip, so a bubble can
+   * leave the row; the keys round their own corners. No border: each part
+   * carries its own edge, as the navbar's search field does, or lighting the
    * field drew a box inside a box.
-   *
-   * The keys round their own outer corners, which is also why nothing clips: a
-   * bubble hanging out of the row has to be able to leave it.
    */
   protected readonly stepperGroup = computed(
     () =>
       `${this.row() ? '' : 'mt-1'} flex w-full items-stretch
        ${this.compact() ? 'h-9' : 'h-10'}`,
   );
-  /**
-   * Square ends, so the stepper reads as a field with two keys rather than as a
-   * row of three things of different widths.
-   *
-   * The focus ring is drawn inside the key. The app's ring sits on the edge,
-   * and on a key welded into a bordered row that came out as a stray line
-   * between the key and the field beside it.
-   */
+  /** The focus ring inside the key: on the edge it was a stray line between
+   * key and field. */
   protected readonly stepperButton = computed(
     () =>
       `flex shrink-0 cursor-pointer items-center justify-center border
@@ -800,36 +601,15 @@ export class ProductBuyControls {
        focus-visible:-outline-offset-2
        disabled:cursor-not-allowed disabled:text-ink-disabled`,
   );
-  /**
-   * Everything the ends leave over, and **no border at all**.
-   *
-   * The two lines between the field and the keys are drawn by the *keys*
-   * (`border-r` / `border-l` at the call site) rather than by this field's
-   * `border-x`, which is what they were. They are structure — they say where
-   * one part of the control ends and the next begins — and as the field's own
-   * border they were recoloured by everything that recolours a field's border:
-   * the app-wide focus rule, and now hover as well. Lighting them made the
-   * keys look outlined, when the only edge that should answer is the group's.
-   *
-   * **It owns both seams**, so its own edge is the whole of what lights up: an
-   * ordinary `uiInput` border on all four sides, squared off, with the keys
-   * dropping their border on the side that meets it. Nothing here says how it
-   * answers a pointer or a caret — accent on hover and secondary on focus are
-   * what the Input directive and the app-wide focus rule already give every
-   * field, and the point of composing it this way is that they reach it.
-   */
+  /** It owns both seams, the keys dropping their border where they meet it,
+   * so its edge alone lights up with the Input directive's own hover and
+   * focus. */
   protected readonly quantityField = computed(
     () =>
       `h-full w-full min-w-0 rounded-none px-1 py-0 text-center
        ${this.compact() ? 'text-sm' : ''}`,
   );
-  /** The button's own metrics, so the row does not move when one replaces the
-   * other — the size shared from Button, including how it grows when the words
-   * do not fit on one line. Centred by flex rather than by `text-center`,
-   * because the height is now a floor the text sits inside rather than the sum
-   * of the padding and the line. In a row the cell above it already carries
-   * the spacing. Inline-flex like the button: a block-level field's margin
-   * collapses into the one above it, and the row moved up by the difference. */
+  /** The button's metrics (ButtonBox), so replacing it moves nothing. */
   protected readonly addedField = computed(
     () =>
       `${this.row() ? '' : 'mt-2'} w-full animate-field-in bg-secondary
@@ -848,40 +628,27 @@ export class ProductBuyControls {
     this.ownPopup.set({ at: 'note', message: '' });
   }
 
-  /** The modal's way out. The bubble is dismissed by clicking away from it,
-   * which takes the focus out of the field and saves on the way; a modal has
-   * no "away", so its button does both. */
+  /** A modal has no "away" to click, so its button saves and closes. */
   protected closeNote(): void {
     this.saveNote();
     this.dismiss();
   }
 
-  /**
-   * Puts back what was written before the note was opened. It saves on the way
-   * out like every other close, because it has to: pressing this button takes
-   * the focus out of the field, and leaving the field is what records a note —
-   * so the discarded text is already on its way to the cart, and what this
-   * writes is the old one over it.
-   */
+  /** Saves too: pressing it blurred the field, which already sent the
+   * discarded text, so the old one is written over it. */
   protected cancelNote(): void {
     this.ownNote.set(this.noteAtOpen);
     this.saveNote();
     this.dismiss();
   }
 
-  /**
-   * Written to the cart when the field is left, not on every keystroke: a note
-   * is a sentence, and a line rewritten letter by letter is a line the browser
-   * stores dozens of times to record one. A product not yet in the cart keeps
-   * it here until it is added.
-   */
+  /** On leaving the field, not per keystroke. Not yet in the cart, it waits
+   * here for the add. */
   protected saveNote(): void {
     if (this.inCart())
       this.cart.setNote(this.item().slug, this.effectiveNote());
   }
 
-  /** A segment the product has no price for answers for itself rather than
-   * being missing from the row. */
   protected explainUnit(unit: ProductUnit): void {
     this.ownPopup.set({ at: unit, message: this.text.unitNotSold });
   }
@@ -891,44 +658,25 @@ export class ProductBuyControls {
     this.edited();
   }
 
-  /**
-   * Up and down step the quantity, the way they would in a number field —
-   * which this is, minus the browser's spinner (see Allow on why the input is
-   * text, not `type="number"`).
-   *
-   * They go through the same `step` the keys do, so down at the minimum asks
-   * the same question the `−` key asks there: it is the same press, and a
-   * customer who learns it on one should not find the other silent.
-   */
+  /** Up and down step as in a number field, through `step`, so down at the
+   * minimum asks what `−` asks. */
   protected onQuantityKey(event: KeyboardEvent): void {
     if (event.key !== 'ArrowUp' && event.key !== 'ArrowDown') return;
-    // Otherwise the caret runs to an end of the draft, and a page with room to
-    // scroll takes the arrow as a scroll.
+    // Or the caret runs to an end, or the page scrolls.
     event.preventDefault();
     this.step(event.key === 'ArrowUp' ? 1 : -1);
-    // Written back for the reason the blur writes it back: the binding alone
-    // does not, the figure it holds not necessarily having moved. The field
-    // keeps the caret here, so there is no blur to do it.
+    // As on blur: the binding does not write back an unchanged figure.
     (event.target as HTMLInputElement).value = this.chosen.quantityText();
   }
 
-  /**
-   * Corrects on the way out, and writes the number back into the field —
-   * which the binding alone would not do, since the quantity it holds may not
-   * have moved at all. An emptied field is the plainest case: nothing was
-   * asked for, so the quantity stands, and a field left blank over it is a
-   * page disagreeing with itself.
-   */
+  /** Writes the figure back: the binding would not where the quantity did not
+   * move, and an emptied field would disagree with it. */
   protected onQuantityBlur(event: Event): void {
     this.commit();
     (event.target as HTMLInputElement).value = this.chosen.quantityText();
   }
 
-  /**
-   * There is nothing below the minimum except not buying the product at all,
-   * so that is what `−` offers there — once it is in the cart and there is
-   * something to take out.
-   */
+  /** Below the minimum is not buying it, which `−` offers once in the cart. */
   protected step(direction: 1 | -1): void {
     const outcome = this.chosen.step(direction);
     this.edited();
@@ -937,14 +685,9 @@ export class ProductBuyControls {
     }
   }
 
-  /**
-   * Settles the draft in the field. Every path out of it goes through here —
-   * leaving it, pressing a stepper key, changing unit, adding to the cart — so
-   * a draft is never abandoned and never committed twice.
-   *
-   * The correction names no figures: the field beside the bubble already shows
-   * the one that stands, and the pair it replaced read out as thirds of a pack.
-   */
+  /** Every way out of the field goes through here, so a draft is committed
+   * once. The correction names no figures: the field shows the one that
+   * stands. */
   protected commit(): void {
     if (!this.chosen.commit()) return;
     this.ownPopup.set({
@@ -955,13 +698,7 @@ export class ProductBuyControls {
 
   protected add(): void {
     this.commit();
-    this.feedback.set(
-      this.cart.add({
-        ...this.addition(),
-        unit: this.unit(),
-        pieces: this.pieces(),
-      }),
-    );
+    this.feedback.set(this.cart.add(this.addition(this.unit(), this.pieces())));
   }
 
   protected confirmRemove(): void {
@@ -969,17 +706,14 @@ export class ProductBuyControls {
     this.dismiss();
   }
 
-  /** Any click outside a bubble closes it, and for the question that counts as
-   * "no" — the line stays as it was. */
+  /** A click outside closes the bubble; for the question that is "no". */
   protected dismiss(): void {
     this.ownPopup.set(null);
     this.heldNotice.set(null);
   }
 
   protected segmentState(unit: ProductUnit): SegmentState {
-    // A line that cannot be bought is not a choice any more, but it is still a
-    // reading: the quantity beside the segments is in one of these units, and
-    // dropping the mark would leave "12" meaning nothing in particular.
+    // Not a choice any more, but still the unit "12" is read in.
     if (!this.sellable()) {
       return unit === this.unit() ? 'selected' : 'unavailable';
     }
@@ -990,40 +724,33 @@ export class ProductBuyControls {
   }
 
   private writeLine(unit: ProductUnit, pieces: number): void {
-    this.cart.setLine({ ...this.addition(), unit, pieces });
+    this.cart.setLine(this.addition(unit, pieces));
   }
 
-  /** What will be recorded with the line: the caller's note where it manages
-   * one, otherwise the controls' own. */
+  /** The caller's note where it manages one, else the controls' own. */
   private effectiveNote(): string | null {
     if (this.externalNote()) return this.note();
     const own = this.ownNote().trim();
     return own === '' ? null : own;
   }
 
-  private addition() {
+  /** No field may be undefined: `JSON.stringify` drops it, and a stored line
+   * missing one is discarded when read back. */
+  private addition(unit: ProductUnit, pieces: number) {
     const item = this.item();
     return {
       slug: item.slug,
       name: item.name,
-      unit: this.unit(),
-      pieces: this.pieces(),
+      unit,
+      pieces,
       note: this.effectiveNote(),
-      // Never undefined: callers hand over the product's first photo, and a
-      // product with none has no first element. What is written down has to
-      // survive `JSON.stringify`, which drops an undefined field — and a
-      // stored line missing one is discarded when it is read back.
       image: this.storedImage(),
       prices: item.prices,
       packaging: item.packaging,
-      // What the card or the page said when the line was written: the baseline
-      // the next visit's pricing is compared against (FR-CART-10).
+      // The baseline the next visit's pricing is compared against (FR-CART-10).
       availability: item.availability ?? null,
       lineNoteEnabled: item.lineNoteEnabled,
       lineNotePrompt: item.lineNotePrompt,
-      // Never undefined, for the reason the photo is not: an undefined field
-      // does not survive `JSON.stringify`, and a stored line missing one is
-      // discarded when it is read back.
       pairedCount: item.pairedCount ?? 0,
       parts: [...(item.parts ?? [])],
       variants: [...(item.variants ?? [])],
@@ -1031,14 +758,14 @@ export class ProductBuyControls {
     };
   }
 
-  /** The photo as a line stores it: the pair alone, since the line's own
-   * pictures carry the variant it shows. */
+  /** The pair alone: the line's own pictures carry the variant. */
   private storedImage(): CatalogImage | null {
     const image = this.image();
     return image ? { full: image.full, thumb: image.thumb } : null;
   }
 
-  /** Any change to the selection drops whatever the last action said about it. */
+  /** Any change drops what the last action said. */
+
   private edited(): void {
     this.feedback.set(null);
     this.dismiss();

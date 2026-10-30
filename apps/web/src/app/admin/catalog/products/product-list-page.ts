@@ -73,18 +73,12 @@ import {
   PRODUCT_FEATURE_GLYPHS,
   ProductFeatureGlyphs,
 } from './product-feature-glyphs';
+import { AVAILABILITY_TONES } from '../../../core/catalog/buying/product-availability-badge';
 import { plusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/plus';
 
 /** The category filter's "without subcategories" option; a uuid never ends
  * this way. */
 const DIRECT_SUFFIX = ':direct';
-
-/** Green, amber, grey: an empty shelf is a fact, never red. */
-const STOCK_TONES: Record<ProductAvailability, StatusTone> = {
-  in: 'ok',
-  low: 'waiting',
-  out: 'neutral',
-};
 
 /** The entries of a list parameter that are one of `known`, in its order. */
 
@@ -737,7 +731,7 @@ export class ProductListPage {
   protected stockTone(item: {
     availability: ProductAvailability | null;
   }): StatusTone {
-    return STOCK_TONES[item.availability ?? 'in'];
+    return AVAILABILITY_TONES[item.availability ?? 'in'];
   }
 
   protected readonly pieceSuffix = inject(SHARED_TEXT).units.piece;
