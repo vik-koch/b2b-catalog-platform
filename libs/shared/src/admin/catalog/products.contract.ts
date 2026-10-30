@@ -17,7 +17,6 @@ import { ownershipErrors } from '../../sync/ownership-constants';
 import {
   availabilitySchema,
   catalogImageSchema,
-  priceInputMinorSchema,
   priceMinorSchema,
   productAttributeSchema,
 } from '../../core/catalog/catalog.contract';
@@ -54,6 +53,13 @@ import {
 import { slugSchema } from './slug.contract';
 import { taxRateSchema } from '../../lib/config/tax-config';
 import { CATALOG_ERRORS } from './catalog-errors';
+
+/**
+ * A price as it is written. Zero is refused: a product that costs nothing has
+ * no price, which the catalog says by storing none. Reads keep
+ * `priceMinorSchema`, so zeros stored before this rule still render.
+ */
+export const priceInputMinorSchema = z.number().int().positive();
 
 /**
  * One tier's price for this product (FR-AUTH-05). Tiers are addressed by id

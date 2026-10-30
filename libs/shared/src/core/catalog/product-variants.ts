@@ -1,16 +1,13 @@
 /**
  * A product's variants (FR-CAT-11/12): the colours or designs one assorted
  * article comes in, named so its pictures can say which is which. A variant
- * sells nothing — it has no price, stock or cart line of its own.
- *
- * Import-free on purpose: the editor, the storefront and the API all read
- * these, and none of them should pull Zod in for a lookup.
+ * sells nothing: no price, stock or cart line of its own.
  */
 
-/** Most variants a product lists. The list is read at a glance, not searched. */
+/** The list is read at a glance, not searched. */
 export const PRODUCT_VARIANTS_MAX = 20;
 
-/** Longest variant name. It is a label over a picture, and has one line. */
+/** A variant name is a one-line label over a picture. */
 export const PRODUCT_VARIANT_NAME_MAX_LENGTH = 40;
 
 /** A variant as it is stored and edited. */
@@ -55,10 +52,10 @@ export function picturesNameKnownVariants(
 }
 
 /**
- * The pictures a storefront shows, in gallery order, each with the name of the
- * variant it shows: a picture of an unavailable variant is withheld (FR-CAT-12),
- * and one naming a variant that no longer exists reads as showing none, so a
- * stale reference cannot take the whole response down with it.
+ * The pictures a storefront shows, in gallery order, each with its variant's
+ * name. A picture of an unavailable variant is withheld (FR-CAT-12); one naming
+ * a variant that no longer exists shows none, so a stale reference cannot fail
+ * the response.
  */
 export function shownPictures(
   pictures: readonly StoredPicture[],

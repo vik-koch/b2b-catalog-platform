@@ -1,27 +1,24 @@
 /**
- * A product sold as a set of parts (FR-CAT-10) — a cup with its lid, listed,
- * priced and counted as one piece. The parts are a few words that say what the
- * piece is made of; they change nothing about how it is sold.
- *
- * Import-free on purpose: the editor and the storefront both read these, and
- * neither should pull Zod in for a string split.
+ * A product sold as a set of parts (FR-CAT-10): a cup with its lid, listed,
+ * priced and counted as one piece. The parts only say what the piece is made
+ * of; they change nothing about how it is sold.
  */
 
-/** Fewest parts that make a set — one part is just the product. */
+/** Fewest parts that make a set: one part is just the product. */
 export const PRODUCT_PARTS_MIN = 2;
 
-/** Most parts a set names. The badge lists them all, and it has one line. */
+/** Most parts a set names. The badge lists them all on one line. */
 export const PRODUCT_PARTS_MAX = 3;
 
-/** Longest single part name (matches `product_attributes.part`). */
+/** Matches `product_attributes.part`. */
 export const PRODUCT_PART_MAX_LENGTH = 40;
 
 /** What the editor's field separates parts with, and the marker joins them by. */
 export const PRODUCT_PARTS_SEPARATOR = '+';
 
 /**
- * Characters a part cannot contain: the separator, and the parentheses an
- * attribute key names it in — "Colour (cup)" could not be read back otherwise.
+ * The separator, and the parentheses an attribute key names a part in:
+ * "Colour (cup)" could not be read back otherwise.
  */
 const RESERVED = /[+()]/;
 
@@ -35,10 +32,7 @@ export function isValidPart(part: string): boolean {
   );
 }
 
-/**
- * Whether a list of parts can be stored: none, or two to three distinct valid
- * names.
- */
+/** Whether a list of parts can be stored: none, or two to three distinct names. */
 export function isValidPartList(parts: readonly string[]): boolean {
   if (parts.length === 0) return true;
   return (
@@ -71,38 +65,38 @@ export interface PartKey {
 /** "Colour (cup)": a name, then one parenthesised word group at the end. */
 const PART_SUFFIX = /^(.*\S)\s*\(([^()]*)\)$/;
 
+/** The name and the parenthesised word group a key ends in, if any. */
+function partSuffix(key: string): { key: string; part: string } | null {
+  const match = PART_SUFFIX.exec(key);
+  return match ? { key: match[1], part: match[2].trim() } : null;
+}
+
 /**
- * Reads the part out of an attribute key, as a save stores it. Only a
- * parenthesis naming one of *this product's* parts is a part: "Volume (ml)" on
- * a product with no part called "ml" is a key like any other, because keys are
- * matched exactly and merging two of them is not this function's call.
+ * The part an attribute key names, as a save stores it. Only one of this
+ * product's own parts counts: "Volume (ml)" on a product with no part "ml" is
+ * a key like any other, because keys match exactly.
  */
 export function splitAttributeKey(
   key: string,
   parts: readonly string[],
 ): PartKey {
   const trimmed = key.trim();
-  const match = PART_SUFFIX.exec(trimmed);
-  if (match) {
-    const part = match[2].trim();
-    if (parts.includes(part)) return { key: match[1], part };
-  }
-  return { key: trimmed, part: null };
+  const suffix = partSuffix(trimmed);
+  return suffix && parts.includes(suffix.part)
+    ? suffix
+    : { key: trimmed, part: null };
 }
 
 /**
- * A key that names a part this product does not have — "Colour (Cup)" on a
- * cup and lid — read as the name and the stray part, or null where the key
- * ends in no parenthesis or in one of the product's own parts.
+ * A key that names a part this product does not have, "Colour (Cup)" on a cup
+ * and lid, as the name and the stray part. Null for a key that is not one.
  */
 export function strayPart(
   key: string,
   parts: readonly string[],
 ): PartKey | null {
-  const match = PART_SUFFIX.exec(key.trim());
-  if (!match) return null;
-  const part = match[2].trim();
-  return parts.includes(part) ? null : { key: match[1], part };
+  const suffix = partSuffix(key.trim());
+  return suffix && !parts.includes(suffix.part) ? suffix : null;
 }
 
 /** The key as it was written, which is also how the product page shows it. */

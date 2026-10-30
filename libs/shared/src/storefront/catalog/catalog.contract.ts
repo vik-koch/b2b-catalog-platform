@@ -15,13 +15,19 @@ import { SEARCH_QUERY_MAX_LENGTH } from '../../core/catalog/search';
 import {
   attributeTypeSchema,
   type CatalogImage,
+  catalogImageSchema,
   categoryCrumbSchema,
-  categoryMarkSchema,
   productDetailSchema,
   productListItemSchema,
   shortNameSchema,
 } from '../../core/catalog/catalog.contract';
 import { CATALOG_SORTS } from './catalog-constants';
+
+/**
+ * A category's mark (FR-CAT-07): the small square image beside its name on the
+ * chip. Null for most categories.
+ */
+export const categoryMarkSchema = catalogImageSchema.nullable();
 
 /**
  * The internal read API the storefront consumes — deliberately independent of

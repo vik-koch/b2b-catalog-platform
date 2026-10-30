@@ -1,12 +1,8 @@
 /**
  * How a facet selection travels between the storefront and the API
- * (FR-ATTR-07).
- *
- * One repeated `attr` parameter, each entry `<definition-slug>:<value>`, split
- * at the first colon only. Values are freetext and may contain anything a
- * separator-joined encoding would have to escape — "1,5" is a real attribute
- * value — so nothing is packed into one parameter, and a slug can never
- * contain a colon.
+ * (FR-ATTR-07): one repeated `attr` parameter, each `<definition-slug>:<value>`,
+ * split at the first colon. A value is freetext ("1,5" is a real one), so
+ * nothing is packed into a single parameter; a slug never contains a colon.
  */
 
 import { ATTRIBUTE_NAME_MAX_LENGTH } from './attribute-value';
@@ -15,10 +11,9 @@ import { ATTRIBUTE_NAME_MAX_LENGTH } from './attribute-value';
 const SEPARATOR = ':';
 
 /**
- * Upper bound on selected values in one request, across all attributes. Far
- * above anything the filter panel can produce — it exists so a hand-written
- * URL cannot ask for an unbounded number of predicates, not to limit what a
- * visitor may tick.
+ * Selected values in one request, across all attributes. Far above what the
+ * filter panel produces: it stops a hand-written URL asking for unbounded
+ * predicates.
  */
 export const ATTRIBUTE_FILTER_MAX_PARAMS = 200;
 
@@ -45,9 +40,8 @@ export function encodeAttributeParams(
 
 /**
  * The selection an `attr` list describes, in first-seen order, duplicates
- * collapsed. Malformed entries are dropped rather than refused — a shared link
- * that lost a value must still open the listing. An empty value carries no
- * meaning: no facet offers one, and legacy rows with no value are not facets.
+ * collapsed. Malformed and empty entries are dropped rather than refused: a
+ * shared link that lost a value must still open the listing.
  */
 export function parseAttributeParams(
   params: readonly string[] | string | undefined,
