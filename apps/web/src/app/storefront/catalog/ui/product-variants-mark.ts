@@ -2,6 +2,7 @@ import { DOCUMENT } from '@angular/common';
 import {
   afterRenderEffect,
   Component,
+  computed,
   ElementRef,
   inject,
   input,
@@ -13,32 +14,23 @@ import {
   ProductImage,
   ProductVariant,
 } from '@b2b-catalog-platform/shared/core/catalog';
-import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
-import { SHARED_TEXT } from '../../../shared/config/shared-text';
-import { injectNarrowScreen } from '@b2b-catalog-platform/ui/core/narrow-screen';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
+import { Link } from '@b2b-catalog-platform/ui/actions/link';
+import { injectNarrowScreen } from '@b2b-catalog-platform/ui/core/narrow-screen';
+import { paletteIcon } from '@b2b-catalog-platform/ui/icons/glyphs/palette';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { DialogActions } from '@b2b-catalog-platform/ui/overlay/dialog-actions';
 import { DialogPanel } from '@b2b-catalog-platform/ui/overlay/dialog-panel';
-import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
-import { Link } from '@b2b-catalog-platform/ui/actions/link';
 import { Popover } from '@b2b-catalog-platform/ui/overlay/popover';
 import { ProductVariantGallery } from '../../../core/catalog/product-page/product-variant-gallery';
-import { paletteIcon } from '@b2b-catalog-platform/ui/icons/glyphs/palette';
+import { SHARED_TEXT } from '../../../shared/config/shared-text';
+import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
 
 /**
- * Says a product comes in variants, where its picture is too small to label
- * them — a row in the lines listing, a cart line (FR-CAT-13) — and opens the
- * list the product page shows, with the pictures beside it.
- *
- * Opened by a click or a tap rather than by pointing: the bubble holds
- * pictures to point at, and one that opened on hover would close as the
- * pointer crossed the gap to reach them. On a phone the same content is a
- * modal, as the line note's is: there is nothing beside anything there.
- *
- * Drawn as the pairings line is — a glyph and an underlined word — rather
- * than as a badge beside the ones it stands with: a badge on this line states
- * a fact and does nothing, and this one opens something. It keeps a badge's
- * height, so the line does not grow for it.
+ * Opens a product's variants where its picture is too small to label them: a
+ * row, a cart line (FR-CAT-13). On a click, not a hover: the bubble holds
+ * pictures to point at. A modal below `sm`. Drawn as a link, not a badge: it
+ * opens something.
  */
 @Component({
   selector: 'app-product-variants-mark',
@@ -124,16 +116,15 @@ export class ProductVariantsMark {
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly document = inject(DOCUMENT);
 
-  protected readonly label = () =>
-    fillText(this.text.markLabel, { count: String(this.variants().length) });
+  protected readonly label = computed(() =>
+    fillText(this.text.markLabel, { count: this.variants().length }),
+  );
 
-  /** Below `sm` the list is a modal rather than a bubble. Safe on an SSR page:
-   * nothing reads it until the mark is pressed. */
+  /** Safe on the server: nothing reads it until the mark is pressed. */
   protected readonly narrow = injectNarrowScreen('sm');
   private readonly dialog = viewChild<ElementRef<HTMLDialogElement>>('dialog');
 
-  /** A badge's box — its text size, padding and transparent border — with
-   * nothing drawn in it, so it sits level with the badges beside it. */
+  /** A badge's box with nothing drawn in it, level with the badges beside. */
   protected readonly trigger = `inline-flex min-w-0 cursor-pointer
                                 items-center gap-1 whitespace-nowrap border
                                 border-transparent py-0.5 text-xs text-primary
@@ -146,14 +137,8 @@ export class ProductVariantsMark {
     this.open.set(!this.open());
   }
 
-  /**
-   * Below the mark unless that would carry the bubble past the end of the
-   * page: a bubble hanging off the last row lengthened the page by its own
-   * height and left the footer stranded mid-screen. Above it then, where the
-   * rows before it are. Decided once, as it opens, from the room the page has
-   * — the bubble is not on screen yet to be measured, so its height is worked
-   * out from what it will hold.
-   */
+  /** Above only where below would run past the page's end and lengthen it.
+   * Decided as it opens, before the bubble can be measured. */
   private side(): 'below' | 'above' {
     const view = this.document.defaultView;
     if (!view) return 'below';
@@ -164,9 +149,8 @@ export class ProductVariantsMark {
     return fitsBelow || !fitsAbove ? 'below' : 'above';
   }
 
-  /** The bubble's height in pixels: the 15rem picture, a row of thumbnails
-   * for every five pictures past the first, the gap under the arrow and the
-   * panel's padding. The list beside it scrolls, so it adds nothing. */
+  /** The 15rem picture, a thumbnail row per five pictures, the arrow's gap and
+   * the padding; the list beside it scrolls. */
   private bubbleHeight(): number {
     const rem = parseFloat(
       this.document.defaultView?.getComputedStyle(this.document.documentElement)
@@ -178,18 +162,14 @@ export class ProductVariantsMark {
   }
 
   constructor() {
-    // `showModal()` is what gives the dialog its focus trap, backdrop and top
-    // layer; removing it from the template is what closes it.
+    // `showModal()` for the focus trap and top layer; removing it closes it.
     afterRenderEffect(() => {
       const dialog = this.dialog()?.nativeElement;
       if (dialog && !dialog.open) dialog.showModal();
     });
-    // A row near the bottom of the window opens a bubble below its edge. The
-    // page scrolls it into view rather than the bubble choosing a side: above
-    // the mark it would cover the row's own name.
+    // A bubble below the window's edge is scrolled into view.
     afterRenderEffect(() => {
-      // The panel, not the popover's host: the host is an anchor box with no
-      // height of its own, and the panel hangs out of it.
+      // The panel: the popover's host is an anchor box with no height.
       const host = this.popover()?.nativeElement as HTMLElement | undefined;
       host
         ?.querySelector(':scope > div')

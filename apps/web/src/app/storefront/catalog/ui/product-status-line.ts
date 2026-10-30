@@ -9,19 +9,13 @@ import { ProductAvailabilityBadge } from '../../../core/catalog/buying/product-a
 import { ProductSetBadge } from '../../../core/catalog/buying/product-set-badge';
 import { ProductVariantsMark } from './product-variants-mark';
 
-/** What the line over a listed product's name is drawn from. */
 export interface StatusLineProduct {
   availability: ProductAvailability | null;
-  /** Absent for a shape that does not carry them — a cart line's. */
+  /** Absent on a cart line. */
   parts?: readonly string[];
 }
 
-/**
- * Whether a listing should leave the line at all — true as soon as one product
- * in it has something to say there. Asked once per page rather than per card:
- * the answer is a property of the listing, and a card cannot see its
- * neighbours.
- */
+/** Asked once per listing: a card cannot see its neighbours. */
 export function anyStatus(items: readonly StatusLineProduct[]): boolean {
   return items.some((item) => item.availability !== null || isSet(item));
 }
@@ -31,23 +25,15 @@ function isSet(item: StatusLineProduct): boolean {
 }
 
 /**
- * The line over a listed product's name: whether it can be had (FR-STOCK-03),
- * then whether it is sold as a set (FR-CAT-10), then — on a row, whose photo
- * is too small to label — the mark its variants open from (FR-CAT-13). A card
- * passes no variants: its pictures carry their names themselves.
- *
- * `reserve` holds it open on a product with nothing to say, so every card's
- * name sits at one height. Both badges fit a card's 13.5rem in the wordings
- * shipped so far; a longer one wraps onto a second line rather than being cut,
- * since a cut word is worse than one name sitting a line lower than its
- * neighbours.
+ * The line over a listed product's name: stock (FR-STOCK-03), set (FR-CAT-10)
+ * and, on a row, the variants mark (FR-CAT-13); a card's pictures name their
+ * variants themselves. `reserve` holds the line open so names sit level. A
+ * long badge wraps rather than being cut.
  */
 @Component({
   selector: 'app-product-status-line',
   imports: [ProductAvailabilityBadge, ProductSetBadge, ProductVariantsMark],
   template: `
-    <!-- The stock badge keeps the line open when nothing else does; the set
-         badge holds it itself where it is there. -->
     <app-product-availability-badge
       class="shrink-0"
       [availability]="availability()"
@@ -64,8 +50,7 @@ function isSet(item: StatusLineProduct): boolean {
       />
     }
   `,
-  // Out of the flow entirely when it has nothing to render, so a margin the
-  // caller set on it does not leave a gap under a plain, untracked product.
+  // Out of the flow when empty, so the caller's margin leaves no gap.
   host: {
     class: 'flex min-w-0 flex-wrap items-start gap-0.5',
     '[style.display]':
@@ -76,7 +61,6 @@ export class ProductStatusLine {
   readonly availability = input.required<ProductAvailability | null>();
   readonly parts = input<readonly string[]>([]);
   readonly reserve = input(false);
-  /** Where given, the variants the mark opens, and the pictures they show. */
   readonly variants = input<readonly ProductVariant[]>([]);
   readonly images = input<readonly ProductImage[]>([]);
   readonly productName = input('');

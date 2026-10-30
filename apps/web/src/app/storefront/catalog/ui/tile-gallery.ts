@@ -10,36 +10,22 @@ import { ProductImage } from '@b2b-catalog-platform/shared/core/catalog';
 import { ImagePlaceholder } from '@b2b-catalog-platform/ui/content/image-placeholder';
 import { swipeStep, touchX } from '../../../core/catalog/product-page/swipe';
 
-/**
- * How soon a tile's first photo is fetched: `lazy` once it nears the viewport,
- * `eager` with the page, `high` ahead of the page's other images.
- */
+/** `lazy` near the viewport, `eager` with the page, `high` ahead of other
+ * images. Only the first photo; the rest load when wanted. */
 export type ImagePriority = 'lazy' | 'eager' | 'high';
 
 /**
- * The product-tile image slider (FR-CAT-04): no buttons.
- *
- * It fills whatever box the caller gives it (`aspect-square` on a card, the
- * height of the line beside it in a row), so the shape of the photo is the
- * caller's decision rather than one made in here. On a pointer device,
- * moving the cursor across the image scrubs through the photos — the image is
- * split into one zone per photo. On touch, a horizontal swipe steps between
- * them (and suppresses the tap so a swipe never navigates). The whole thing is
- * a link to the product, so with no JS (or before hydration) it is simply the
- * first image behind a working link.
- *
- * A picture showing one of the product's variants carries its name against
- * the photo's left edge (FR-CAT-11), so scrubbing through the pictures names
- * them. `labels` is off where the photo is too small to carry one — a row's —
- * and the variants are reached through a mark beside it instead (FR-CAT-13).
+ * A product's photos in the caller's box (FR-CAT-04), without buttons: a mouse
+ * scrubs across them, a swipe steps through them. The whole is a link, so
+ * before hydration it is the first photo behind a working one. A variant's
+ * picture carries its name (FR-CAT-11) unless `labels` is off.
  */
 @Component({
   selector: 'app-tile-gallery',
   imports: [RouterLink, ImagePlaceholder],
   host: { class: 'relative' },
   template: `
-    <!-- The link clips the photos to the caller's rounding, so the box around
-         it need not clip what hangs past its edge. -->
+    <!-- Clipped here, so the caller's box need not clip a hanging label. -->
     <a
       [routerLink]="link()"
       [attr.aria-label]="productName()"
@@ -60,11 +46,9 @@ export type ImagePriority = 'lazy' | 'eager' | 'high';
             [class.opacity-0]="$index !== selected()"
           />
         } @else {
-          <!-- attr.src, so an unrevealed photo renders with no source at all
-               rather than an empty one (which the browser would resolve against
-               the page URL and fetch). -->
-          <!-- loading before src: a browser that sees the source first may
-               start the fetch before it learns the image can wait. -->
+          <!-- No src until revealed: an empty one fetches the page URL.
+               loading before src, or the fetch may start before it learns
+               the image can wait. -->
           <img
             [attr.loading]="priority() === 'lazy' ? 'lazy' : null"
             [attr.fetchpriority]="
@@ -99,13 +83,8 @@ export type ImagePriority = 'lazy' | 'eager' | 'high';
       }
     </a>
 
-    <!-- Against the left edge and clear of the top, a ribbon pinned to the
-         picture rather than a badge floating on it; one line, shortened,
-         since the name in full is in the picture's alt text. The alt text is
-         what a screen reader gets, so this is hidden from it.
-
-         One per picture, fading with it: a single label swapping its text
-         changed a beat before the photo under it had. -->
+    <!-- Hidden from screen readers, which get the alt text. One per picture,
+         fading with it: one label swapping its text ran a beat ahead. -->
     @if (labels()) {
       @for (img of images(); track $index) {
         @if (img.variant) {
@@ -124,52 +103,38 @@ export type ImagePriority = 'lazy' | 'eager' | 'high';
   `,
 })
 export class TileGallery {
-  images = input.required<readonly ProductImage[]>();
-  /** Router commands for the product this tile links to. */
-  link = input.required<unknown[]>();
-  /** Product name — the link's accessible label and each image's alt text. */
-  productName = input.required<string>();
-  /** Whether a picture showing a variant is labelled with it. */
-  labels = input(true);
-  /** Lazy by default: a listing is mostly below the fold. A caller that is
-   * the first thing on its page says so. */
-  priority = input<ImagePriority>('lazy');
+  readonly images = input.required<readonly ProductImage[]>();
+  readonly link = input.required<unknown[]>();
+  /** The link's accessible name and each photo's alt text. */
+  readonly productName = input.required<string>();
+  /** Off where the photo is too small, as on a row (FR-CAT-13). */
+  readonly labels = input(true);
+  readonly priority = input<ImagePriority>('lazy');
+  /** The label hangs from the card's edge, for a photo inset by its padding;
+   * the caller leaves its box unclipped. */
+  readonly labelsOutside = input(false);
 
-  /** Whether the label hangs from the card's edge rather than the photo's —
-   * where the photo stands inset by the card's padding. The caller then leaves
-   * its box unclipped. */
-  labelsOutside = input(false);
-
-  /** Square against the edge and pointed at the other end — a ribbon's cut,
-   * drawn by the clip rather than a border trick, so the point is the label's
-   * own colour whatever the photo behind it is. The padding on the right is the
-   * point's depth plus the text's own. */
+  /** A ribbon's point cut by the clip, so it keeps the label's colour; the
+   * right padding is the point's depth plus the text's. */
   protected readonly labelClass = computed(
     () =>
       `pointer-events-none absolute ${this.labelsOutside() ? '-top-1 -left-3' : 'top-2 left-0'} max-w-[75%] truncate bg-secondary py-0.5 pr-3.5 pl-2 text-xs text-white transition-opacity duration-200 [clip-path:polygon(0_0,calc(100%-0.5rem)_0,100%_50%,calc(100%-0.5rem)_100%,0_100%)]`,
   );
 
-  /** The product, and the variant where the picture shows one. */
   protected altFor(image: ProductImage): string {
     return image.variant
       ? `${this.productName()} — ${image.variant}`
       : this.productName();
   }
 
-  /** Resets to the first image when the tile shows a different product. */
-  protected selected = linkedSignal<readonly ProductImage[], number>({
+  /** Back to the first photo for another product. */
+  protected readonly selected = linkedSignal<readonly ProductImage[], number>({
     source: this.images,
     computation: () => 0,
   });
 
-  /**
-   * Indices that have been asked for. Every photo of every product used to get a
-   * `src` up front — the extra copies are stacked in the viewport at
-   * `opacity: 0`, and opacity does not stop a download, so a category page
-   * fetched roughly three images per tile to show one. Only the first is
-   * fetched now; the rest are attached the moment they are wanted, which the
-   * pointer/touch entering the tile gets a head start on.
-   */
+  /** Indices asked for. The rest stack at `opacity: 0`, which does not stop a
+   * download, so each gets its `src` only when wanted. */
   private readonly revealed = linkedSignal<
     readonly ProductImage[],
     Set<number>
@@ -178,7 +143,6 @@ export class TileGallery {
     computation: () => new Set([0]),
   });
 
-  /** The image's URL once it has been revealed, else null (no src attribute). */
   protected sourceFor(index: number): string | null {
     return this.revealed().has(index)
       ? (this.images()[index]?.thumb ?? null)
@@ -201,16 +165,14 @@ export class TileGallery {
     if (this.hasMultiple()) this.reveal(this.selected() + 1);
   }
 
-  /** Selecting an image is also what makes it load. */
   private select(index: number): void {
     this.reveal(index);
     this.selected.set(index);
   }
 
-  protected hasMultiple = computed(() => this.images().length > 1);
+  protected readonly hasMultiple = computed(() => this.images().length > 1);
 
-  /** Thumb URLs that failed to load — rendered as the placeholder instead of
-   * the browser's broken-image icon. Keyed by URL. */
+  /** Shown as the placeholder, not the browser's broken icon. */
   protected readonly failed = signal(new Set<string>());
 
   protected markFailed(src: string): void {
@@ -218,12 +180,10 @@ export class TileGallery {
   }
 
   private touchStartX = 0;
-  /** True once a touch has moved far enough to be a swipe, so the tap that
-   * follows is cancelled rather than navigating. */
+  /** The tap after a swipe is cancelled, not followed. */
   private swiped = false;
 
   protected onScrub(event: PointerEvent): void {
-    // Touch scrubbing is handled as a swipe; only a real pointer scrubs.
     if (event.pointerType !== 'mouse' || !this.hasMultiple()) return;
     const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
     if (rect.width === 0) return;
@@ -231,13 +191,8 @@ export class TileGallery {
     this.select(this.clamp(Math.floor(fraction * this.images().length)));
   }
 
-  /**
-   * Only a mouse leaving resets the tile. A touch pointer fires pointerleave the
-   * moment the finger lifts — and, per the Pointer Events spec, *before* the
-   * touchend that ends the swipe. Resetting there put every swipe back at image
-   * 0 first, so the gesture could only ever reach image 1: the reported "cannot
-   * swipe past the second photo".
-   */
+  /** A mouse only: a touch fires pointerleave before the touchend that ends
+   * the swipe, and resetting there kept every swipe on the second photo. */
   protected onPointerLeave(event: PointerEvent): void {
     if (event.pointerType === 'mouse') this.selected.set(0);
   }

@@ -3,17 +3,17 @@ import { Component, computed, inject, input, resource } from '@angular/core';
 import { Params, RouterLink } from '@angular/router';
 import { fillText } from '@b2b-catalog-platform/shared';
 import { SEARCH_SORTS } from '@b2b-catalog-platform/shared/core/catalog';
-import { EditActions } from '../../../shared/edit-mode/edit-actions';
-import { editAwareContent } from '../../../shared/edit-mode/edit-aware-content';
-import { injectEditorReturnParams } from '../../../shared/edit-mode/editor-return';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
+import { Pagination } from '@b2b-catalog-platform/ui/lists/pagination';
+import { useTaxStatement } from '../../../core/catalog/pricing/tax-statement';
 import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
 import { usePageSeo } from '../../../shared/core/page-seo';
 import { stableValue } from '../../../shared/core/stable-value';
+import { EditActions } from '../../../shared/edit-mode/edit-actions';
+import { editAwareContent } from '../../../shared/edit-mode/edit-aware-content';
+import { injectEditorReturnParams } from '../../../shared/edit-mode/editor-return';
 import { LoadErrorView } from '../../pages/load-error-view';
-import { Button } from '@b2b-catalog-platform/ui/actions/button';
-import { Pagination } from '@b2b-catalog-platform/ui/lists/pagination';
 import { AppliedFilters } from '../filters/applied-filters';
-import { CatalogSearchService } from './catalog-search.service';
 import {
   FACET_COLUMN,
   FACET_HEADER_SORT,
@@ -22,19 +22,17 @@ import {
   FACET_SIBLING_ALONE,
   FacetPanel,
 } from '../filters/facet-panel';
-import { anyStatus } from '../ui/product-status-line';
+import { ProductSortSelect } from '../filters/product-sort-select';
+import { listingParams } from '../listing-params';
 import { ProductLayoutService } from '../product-layout';
 import { ProductLayoutToggle } from '../product-layout-toggle';
 import { PRODUCT_ROWS, ProductRow } from '../ui/product-row';
-import { ProductSortSelect } from '../filters/product-sort-select';
-import { listingParams } from '../listing-params';
+import { anyStatus } from '../ui/product-status-line';
 import { PRODUCT_GRID, ProductTile } from '../ui/product-tile';
-import { useTaxStatement } from '../../../core/catalog/pricing/tax-statement';
+import { CatalogSearchService } from './catalog-search.service';
 
-/**
- * Search results — the same product tiles the category grid
- * renders, in relevance order, with no category chrome around them.
- */
+/** Search results (FR-SEARCH-01…04): the category listing's cards and lines,
+ * in relevance order, without the category chrome. */
 @Component({
   selector: 'app-search-results',
   imports: [
@@ -52,23 +50,22 @@ import { useTaxStatement } from '../../../core/catalog/pricing/tax-statement';
     Pagination,
   ],
   template: `
-    <!-- Everything inside measures this container rather than the window, so
-         the heading, the chips and the listing take their narrow shape in one
-         step: a viewport breakpoint and a container query on the same page
-         disagree by the width of the frame and the scrollbar. The section's
-         own padding is the exception — no element can query its own
-         container. -->
+    <ng-template #title>
+      <h1
+        class="text-2xl font-medium tracking-tight
+               @min-[38rem]/listing:text-3xl"
+      >
+        {{ heading() }}
+      </h1>
+    </ng-template>
+    <!-- Everything inside measures this container, not the window, so all
+         of it turns narrow in one step. -->
     <section
       class="@container/listing pb-6"
       [attr.aria-busy]="results.isLoading() ? 'true' : null"
     >
       @if (results.error()) {
-        <h1
-          class="text-2xl font-medium tracking-tight
-                 @min-[38rem]/listing:text-3xl"
-        >
-          {{ heading() }}
-        </h1>
+        <ng-container [ngTemplateOutlet]="title" />
         <app-load-error-view [message]="text.loadError" />
       } @else if (visible(); as data) {
         @if (data.items.length || hasSelection()) {
@@ -79,24 +76,13 @@ import { useTaxStatement } from '../../../core/catalog/pricing/tax-statement';
               class="flex w-full flex-col justify-between
                      @min-[38rem]/listing:w-auto"
             >
-              <h1
-                class="text-2xl font-medium tracking-tight
-                       @min-[38rem]/listing:text-3xl"
-              >
-                {{ heading() }}
-              </h1>
+              <ng-container [ngTemplateOutlet]="title" />
             </div>
-            <!-- The chips share the heading's row rather than getting one of
-                 their own: a row that appears with the first selection would
-                 push the grid down as it was ticked. -->
             <app-applied-filters
               class="mt-3 hidden min-w-0 flex-1 @min-[38rem]/listing:block"
               [facets]="data.facets"
             />
           </div>
-          <!-- Filters left, listing right, from the width where the panel
-               costs the listing neither a column nor an arrangement (see
-               FACET_LAYOUT); a disclosure above it below that. -->
           <div class="mt-6" [class]="facetLayout">
             @if (data.facets.length) {
               <aside [class]="facetColumn">
@@ -112,14 +98,8 @@ import { useTaxStatement } from '../../../core/catalog/pricing/tax-statement';
               @if (!data.items.length) {
                 <p class="text-ink-subtle">{{ filterText.noMatches }}</p>
               } @else {
-                <!-- How many results there are, and the two ways of asking
-                     for them differently — over the grid and at the height of
-                     the filter column's heading, exactly as the category
-                     listing arranges them. The count lives here rather than
-                     under the heading: it is a fact about the listing below
-                     it, and the listings say it in one place. The sort keeps
-                     this row only while there is a filter column to hold the
-                     other copy of it. -->
+                <!-- The filter heading's height, so the first card starts on
+                     the first facet's line. -->
                 <div class="mb-4 flex h-8 items-center justify-between gap-4">
                   <p class="text-sm text-ink-subtle">
                     {{ resultCount(data.pagination.total) }}
@@ -136,13 +116,9 @@ import { useTaxStatement } from '../../../core/catalog/pricing/tax-statement';
                   </div>
                 </div>
               }
-              <!-- The same products, drawn the way the visitor last asked for
-                   in either listing: fitted cards, or full-width lines. -->
+              <!-- Faded while the next page, sort or filter loads. -->
               <ul [class]="list()" [class.listing-held]="results.isLoading()">
-                <!-- The same cluster the category listing puts on its items:
-                     a product found by searching is as editable as one found
-                     by browsing, and reaching it through the admin list to
-                     fix a typo is the long way round. -->
+                <!-- One cluster for a card's corner and a line's photo. -->
                 <ng-template #productEdit let-slug>
                   @if (editControls(); as editText) {
                     <app-edit-actions
@@ -153,9 +129,8 @@ import { useTaxStatement } from '../../../core/catalog/pricing/tax-statement';
                     />
                   }
                 </ng-template>
-                <!-- Asked once for the page: a listing where one product
-                     states a stock leaves the line for all of them, so the
-                     names sit level. -->
+                <!-- One product stating a stock reserves the line for all,
+                     so the names sit level. -->
                 @let reserveStatus = anyStatus(data.items);
 
                 @for (item of data.items; track item.slug) {
@@ -182,8 +157,7 @@ import { useTaxStatement } from '../../../core/catalog/pricing/tax-statement';
                   </li>
                 }
               </ul>
-              <!-- What the prices include, where the deployment says so beside
-                   them (NFR-LEGAL-11). Once for the page, naming no rate. -->
+              <!-- NFR-LEGAL-11: once per page, naming no rate. -->
               @if (taxNote && data.items.length) {
                 <p class="mt-4 text-xs text-ink-subtle">{{ taxNote }}</p>
               }
@@ -198,12 +172,7 @@ import { useTaxStatement } from '../../../core/catalog/pricing/tax-statement';
             </div>
           </div>
         } @else if (query()) {
-          <h1
-            class="text-2xl font-medium tracking-tight
-                   @min-[38rem]/listing:text-3xl"
-          >
-            {{ heading() }}
-          </h1>
+          <ng-container [ngTemplateOutlet]="title" />
           <p class="mt-4 text-ink-subtle">
             {{ noResults() }}
           </p>
@@ -219,12 +188,7 @@ import { useTaxStatement } from '../../../core/catalog/pricing/tax-statement';
           <p class="mt-8 text-ink-subtle">{{ text.emptyQuery }}</p>
         }
       } @else if (showSkeleton()) {
-        <h1
-          class="text-2xl font-medium tracking-tight
-                 @min-[38rem]/listing:text-3xl"
-        >
-          {{ heading() }}
-        </h1>
+        <ng-container [ngTemplateOutlet]="title" />
         <div class="mt-8 animate-pulse" aria-hidden="true">
           <div [class]="productGrid">
             @for (i of skeletons; track i) {
@@ -237,7 +201,6 @@ import { useTaxStatement } from '../../../core/catalog/pricing/tax-statement';
   `,
 })
 export class SearchResults {
-  /** Whether this page of products states any stock at all — see the badge. */
   protected readonly anyStatus = anyStatus;
 
   protected readonly productGrid = PRODUCT_GRID;
@@ -249,13 +212,9 @@ export class SearchResults {
   protected readonly listingColumn = FACET_SIBLING;
   protected readonly listingAlone = FACET_SIBLING_ALONE;
   private readonly productLayout = inject(ProductLayoutService);
-  /** Cards or lines — the visitor's standing choice, shared with the category
-   * listing. */
   protected readonly cards = computed(
     () => this.productLayout.layout() === 'grid',
   );
-  /** Lines, or cards — see the category listing, which makes the same
-   * choice. */
   protected list(): string {
     return this.cards() ? PRODUCT_GRID : PRODUCT_ROWS;
   }
@@ -268,10 +227,8 @@ export class SearchResults {
   protected readonly filterText = this.catalogText.filters;
   protected readonly skeletons = Array.from({ length: 10 }, (_, i) => i);
 
-  /** Bound from the `q` query param. Named for the parameter, not for what it
-   * means, because router input binding matches on the parameter's name. */
+  /** Named for the query parameter, which router input binding matches. */
   readonly q = input('');
-  /** The query as everything else should see it: never null, never padded. */
   protected readonly query = computed(() => this.q().trim());
   readonly page = input('1');
   readonly sort = input('');
@@ -287,7 +244,7 @@ export class SearchResults {
 
   protected readonly heading = computed(() =>
     this.query()
-      ? this.text.resultsTitle.replace('{query}', this.query())
+      ? fillText(this.text.resultsTitle, { query: this.query() })
       : this.text.submit,
   );
 
@@ -307,22 +264,17 @@ export class SearchResults {
       ),
   });
 
-  /** Held across reloads, so re-sorting swaps the grid instead of blanking it. */
+  /** Held across reloads, so re-sorting swaps the grid without blanking it. */
   private readonly shown = stableValue(this.results);
 
-  /** The results and the per-item edit affordances appear together, once both
-   * the search and the visitor's role are known — see editAwareContent. */
   private readonly content = editAwareContent({
     ready: computed(() => this.shown() !== undefined),
     section: 'editMode',
   });
   protected readonly editControls = this.content.controls;
-  /** The results, once they may be shown. */
   protected readonly visible = computed(() =>
     this.content.ready() ? this.shown() : undefined,
   );
-  /** Delayed so a quick search never flashes a skeleton. Only the first load
-   * can reach it — a reload still has the previous results on screen. */
   protected readonly showSkeleton = this.content.showSkeleton;
 
   protected readonly editorFrom = injectEditorReturnParams();
@@ -332,7 +284,7 @@ export class SearchResults {
   }
 
   protected readonly noResults = computed(() =>
-    this.text.noResults.replace('{query}', this.query()),
+    fillText(this.text.noResults, { query: this.query() }),
   );
 
   protected resultCount(total: number): string {
