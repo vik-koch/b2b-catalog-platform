@@ -9,8 +9,8 @@ import {
 } from '@angular/core';
 import { Router } from '@angular/router';
 import {
+  HiddenReasons,
   ProductDetail as ProductDetailModel,
-  ProductPage,
 } from '@b2b-catalog-platform/shared/core/catalog';
 import { Meta } from '@angular/platform-browser';
 import { hiddenProductText } from '../../core/catalog/hidden-product-text';
@@ -223,7 +223,7 @@ export class ProductDetail {
   /** Publish on a hidden page — unless it is deleted, which goes back through
    * the admin list — and unpublish on a live one. */
   protected publishLabel(
-    hidden: ProductPage['hidden'] | null,
+    hidden: HiddenReasons | null,
     text: { publishProduct: string; unpublishProduct: string },
   ): string | null {
     if (!hidden) return text.unpublishProduct;
@@ -239,7 +239,7 @@ export class ProductDetail {
    */
   protected async togglePublished(
     item: ProductDetailModel,
-    hidden: ProductPage['hidden'] | null,
+    hidden: HiddenReasons | null,
   ): Promise<void> {
     const text = this.editText();
     const noPrice = this.hiddenText.noPrice();
@@ -306,7 +306,7 @@ export class ProductDetail {
 /** The page, and why the public cannot see it — null for a live product. */
 interface LoadedProduct {
   item: ProductDetailModel;
-  hidden: ProductPage['hidden'] | null;
+  hidden: HiddenReasons | null;
 }
 
 /** A meta-description excerpt from a product's rich-text description: tags

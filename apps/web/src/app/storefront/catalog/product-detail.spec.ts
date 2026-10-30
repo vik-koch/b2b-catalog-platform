@@ -3,7 +3,10 @@ import { defaultSharedText } from '../../shared/config/shared-text.fixture';
 import { signal } from '@angular/core';
 import { Meta } from '@angular/platform-browser';
 import { provideRouter } from '@angular/router';
-import { ProductPage } from '@b2b-catalog-platform/shared/core/catalog';
+import {
+  HiddenReasons,
+  ProductPage,
+} from '@b2b-catalog-platform/shared/core/catalog';
 import { DeploymentConfig } from '@b2b-catalog-platform/shared';
 import { EDIT_MODE_CATALOG } from '../../core/catalog/edit-mode-catalog';
 import { AuthService } from '../../shared/auth/auth.service';
@@ -249,7 +252,7 @@ describe('ProductDetail', () => {
   });
 
   describe('a product the public cannot see (FR-ADM-06)', () => {
-    const hidden: ProductPage['hidden'] = {
+    const hidden: HiddenReasons = {
       deleted: false,
       deletedByRun: false,
       unpublished: true,

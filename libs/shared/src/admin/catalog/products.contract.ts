@@ -32,7 +32,7 @@ import {
 import {
   hiddenProductSchema,
   productPageSchema,
-} from '../../core/catalog/product-page.contract';
+} from '../../core/catalog/edit-mode.contract';
 import { PRODUCT_DOCUMENTS_MAX } from './documents';
 import { linkedDocumentSchema } from './documents.contract';
 import {
