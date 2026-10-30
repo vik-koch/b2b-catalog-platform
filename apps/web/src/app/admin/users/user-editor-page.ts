@@ -22,6 +22,7 @@ import {
 } from '../../shared/core/field-rules';
 import { usePageSeo } from '../../shared/core/page-seo';
 import { UnsavedChangesAware } from '../unsaved-changes.guard';
+import { UnsavedChanges } from '../unsaved-changes';
 import { LockedNote } from '../ownership/locked-note';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { Notice } from '@b2b-catalog-platform/ui/content/notice';
@@ -594,9 +595,7 @@ export class UserEditorPage implements UnsavedChangesAware {
     () => this.isCustomer() && this.form.customerType().value() === 'company',
   );
 
-  // JSON snapshot of the form at load, for dirty detection.
-  private original = '';
-  private navigatingAway = false;
+  private readonly unsaved = new UnsavedChanges(() => this.snapshot());
   private readonly close = injectEditorReturn();
 
   protected readonly title = computed(() => {
@@ -632,11 +631,7 @@ export class UserEditorPage implements UnsavedChangesAware {
   }
 
   hasUnsavedChanges(): boolean {
-    return (
-      !this.navigatingAway &&
-      !this.loading() &&
-      this.snapshot() !== this.original
-    );
+    return this.unsaved.any();
   }
 
   private async load(): Promise<void> {
@@ -657,7 +652,7 @@ export class UserEditorPage implements UnsavedChangesAware {
     if (this.isCustomer()) {
       this.tiers.set(await this.tiersService.list().then((r) => r.tiers));
     }
-    this.original = this.snapshot();
+    this.unsaved.loaded();
   }
 
   /** Fill the form from a stored account, undoing the canonical forms the
@@ -846,7 +841,7 @@ export class UserEditorPage implements UnsavedChangesAware {
   }
 
   private async leave(): Promise<void> {
-    this.navigatingAway = true; // let the unsaved-changes guard pass
+    this.unsaved.leave();
     await this.close(this.listUrl());
   }
 

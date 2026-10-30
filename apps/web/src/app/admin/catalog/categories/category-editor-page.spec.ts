@@ -17,7 +17,7 @@ import { CategoryEditorPage } from './category-editor-page';
 
 const text = defaultAdminText.categories.editor;
 
-async function render() {
+async function render(slug?: string) {
   let finish: (value: unknown) => void = () => undefined;
   const service = {
     list: vi.fn(async () => []),
@@ -37,7 +37,7 @@ async function render() {
         provide: ActivatedRoute,
         useValue: {
           snapshot: {
-            paramMap: convertToParamMap({}),
+            paramMap: convertToParamMap(slug ? { slug } : {}),
             queryParamMap: convertToParamMap({}),
           },
         },
@@ -76,5 +76,13 @@ describe('CategoryEditorPage', () => {
   it('shows the heading for a new category', async () => {
     const { el } = await render();
     expect(el.querySelector('h1')?.textContent).toContain(text.newTitle);
+  });
+});
+
+describe('CategoryEditorPage on a category that is gone', () => {
+  it('lets the admin leave without asking to discard anything', async () => {
+    const { fixture } = await render('gone');
+
+    expect(fixture.componentInstance.hasUnsavedChanges()).toBe(false);
   });
 });

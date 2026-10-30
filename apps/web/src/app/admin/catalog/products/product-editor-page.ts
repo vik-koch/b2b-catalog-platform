@@ -79,6 +79,7 @@ import { delayedLoading } from '../../../shared/core/delayed-loading';
 import { filled } from '../../../shared/core/field-rules';
 import { usePageSeo } from '../../../shared/core/page-seo';
 import { UnsavedChangesAware } from '../../unsaved-changes.guard';
+import { UnsavedChanges } from '../../unsaved-changes';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { Notice } from '@b2b-catalog-platform/ui/content/notice';
 import { Checkbox } from '@b2b-catalog-platform/ui/choices/checkbox';
@@ -841,9 +842,7 @@ export class ProductEditorPage implements UnsavedChangesAware, FieldAttempt {
   protected readonly saving = signal(false);
   protected readonly error = signal<string | null>(null);
 
-  /** The form at load, for the unsaved-changes guard. */
-  private original = '';
-  private navigatingAway = false;
+  private readonly unsaved = new UnsavedChanges(() => this.snapshot());
   private readonly close = injectEditorReturn();
 
   readonly attempted = computed(() => submitAttempt(this.form)());
@@ -1036,8 +1035,6 @@ export class ProductEditorPage implements UnsavedChangesAware, FieldAttempt {
     };
   });
 
-  private readonly dirty = computed(() => this.snapshot() !== this.original);
-
   constructor() {
     usePageSeo({
       name: () => (this.isNew ? this.text.newTitle : this.text.editTitle),
@@ -1057,7 +1054,7 @@ export class ProductEditorPage implements UnsavedChangesAware, FieldAttempt {
   }
 
   hasUnsavedChanges(): boolean {
-    return !this.navigatingAway && this.dirty();
+    return this.unsaved.any();
   }
 
   private async load(): Promise<void> {
@@ -1150,7 +1147,7 @@ export class ProductEditorPage implements UnsavedChangesAware, FieldAttempt {
         })),
       }));
     }
-    this.original = this.snapshot();
+    this.unsaved.loaded();
     this.loading.set(false);
   }
 
@@ -1388,7 +1385,7 @@ export class ProductEditorPage implements UnsavedChangesAware, FieldAttempt {
           return;
         }
       }
-      this.navigatingAway = true;
+      this.unsaved.leave();
       await this.leaveTo(product);
     } catch {
       this.error.set(this.text.saveError);

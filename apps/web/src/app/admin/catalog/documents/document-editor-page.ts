@@ -29,6 +29,7 @@ import { Input } from '@b2b-catalog-platform/ui/inputs/input';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import { injectEditorReturn } from '../../../shared/edit-mode/editor-return';
 import { UnsavedChangesAware } from '../../unsaved-changes.guard';
+import { UnsavedChanges } from '../../unsaved-changes';
 import {
   documentFileLabel,
   documentFileSize,
@@ -360,11 +361,8 @@ export class DocumentEditorPage implements UnsavedChangesAware, FieldAttempt {
   protected readonly link = computed(() => this.model().link);
   protected readonly linkValid = computed(() => isWebLink(this.link().trim()));
 
-  /** The form at load, for the unsaved-changes guard. */
-  private original = '';
-  private navigatingAway = false;
+  private readonly unsaved = new UnsavedChanges(() => this.snapshot());
   private readonly close = injectEditorReturn();
-  private readonly dirty = computed(() => this.snapshot() !== this.original);
 
   constructor() {
     usePageSeo({
@@ -374,7 +372,7 @@ export class DocumentEditorPage implements UnsavedChangesAware, FieldAttempt {
   }
 
   hasUnsavedChanges(): boolean {
-    return !this.navigatingAway && this.dirty();
+    return this.unsaved.any();
   }
 
   protected meta(stored: StoredDocumentFile): string {
@@ -386,7 +384,7 @@ export class DocumentEditorPage implements UnsavedChangesAware, FieldAttempt {
 
   private async load(): Promise<void> {
     if (this.isNew) {
-      this.original = this.snapshot();
+      this.unsaved.loaded();
       this.loading.set(false);
       return;
     }
@@ -400,7 +398,7 @@ export class DocumentEditorPage implements UnsavedChangesAware, FieldAttempt {
       });
       this.file.set(document.file);
       this.products.set(document.products);
-      this.original = this.snapshot();
+      this.unsaved.loaded();
       this.loaded.set(true);
     }
     this.loading.set(false);
@@ -473,7 +471,7 @@ export class DocumentEditorPage implements UnsavedChangesAware, FieldAttempt {
         this.error.set(this.text.errors[result.code]);
         return;
       }
-      this.navigatingAway = true;
+      this.unsaved.leave();
       await this.close('/admin/documents');
     } catch {
       this.error.set(this.text.saveError);
