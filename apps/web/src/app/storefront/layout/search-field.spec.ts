@@ -8,7 +8,7 @@ import { provideRouter, Router } from '@angular/router';
 import { ProductListItem } from '@b2b-catalog-platform/shared/core/catalog';
 import { SearchCategory } from '@b2b-catalog-platform/shared/storefront/catalog';
 import { CartAddition, CartService } from '../../shared/cart/cart.service';
-import { CatalogService } from '../catalog/catalog.service';
+import { CatalogSearchService } from '../catalog/search/catalog-search.service';
 import { productListItem } from '../../core/catalog/product.fixture';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { defaultStorefrontText } from '../../shared/config/storefront-text.fixture';
@@ -50,9 +50,9 @@ const cartStub = {
   },
 };
 
-/** A catalog service that answers from `suggestions`, so the field can be
+/** A search service that answers from `suggestions`, so the field can be
  * driven without an HTTP layer under it. */
-const catalogStub = {
+const searchStub = {
   getSearchSuggestions: async () => {
     if (!holdNext) return { items: suggestions, categories };
     return new Promise<{ items: Suggestion[]; categories: SearchCategory[] }>(
@@ -78,7 +78,7 @@ async function renderAt(url?: string) {
       provideRouter([{ path: '**', children: [] }]),
       { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
       { provide: SHARED_TEXT, useValue: defaultSharedText },
-      { provide: CatalogService, useValue: catalogStub },
+      { provide: CatalogSearchService, useValue: searchStub },
       { provide: CartService, useValue: cartStub },
       { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
     ],
@@ -174,7 +174,7 @@ describe('SearchField', () => {
         provideRouter([{ path: '**', children: [] }]),
         { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
         { provide: SHARED_TEXT, useValue: defaultSharedText },
-        { provide: CatalogService, useValue: catalogStub },
+        { provide: CatalogSearchService, useValue: searchStub },
         { provide: CartService, useValue: cartStub },
         { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
       ],

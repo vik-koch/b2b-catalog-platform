@@ -30,7 +30,7 @@ import {
 } from '@b2b-catalog-platform/shared/core/catalog';
 import { SearchCategory } from '@b2b-catalog-platform/shared/storefront/catalog';
 import { CartAddResult, CartService } from '../../shared/cart/cart.service';
-import { CatalogService } from '../catalog/catalog.service';
+import { CatalogSearchService } from '../catalog/search/catalog-search.service';
 import { CategoryChip } from '../catalog/ui/category-chip';
 import { ImagePlaceholder } from '@b2b-catalog-platform/ui/content/image-placeholder';
 import { useProductUnits } from '../../core/catalog/buying/product-units-view';
@@ -497,7 +497,7 @@ export class SearchField {
   /** Only to say whether the caret is here — see MobileSearch.active, which the
    * bottom bar's search tab is lit from. */
   protected readonly mobileSearch = inject(MobileSearch);
-  private readonly catalog = inject(CatalogService);
+  private readonly search = inject(CatalogSearchService);
   private readonly cart = inject(CartService);
   private readonly units = useProductUnits();
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
@@ -611,7 +611,7 @@ export class SearchField {
       const q = this.query().trim();
       return this.isBrowser && this.typing() && q ? q : undefined;
     },
-    loader: ({ params }) => this.catalog.getSearchSuggestions(params),
+    loader: ({ params }) => this.search.getSearchSuggestions(params),
   });
 
   /**

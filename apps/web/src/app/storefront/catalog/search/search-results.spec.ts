@@ -9,7 +9,7 @@ import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
 import { defaultStorefrontText } from '../../../shared/config/storefront-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
 import { defaultDeploymentConfig } from '../../../shared/config/deployment-config.fixture';
-import { CatalogService } from '../catalog.service';
+import { CatalogSearchService } from './catalog-search.service';
 import { productListItem } from '../../../core/catalog/product.fixture';
 import { SearchResults } from './search-results';
 
@@ -61,7 +61,7 @@ async function render(
       // reads as "off".
       { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
       {
-        provide: CatalogService,
+        provide: CatalogSearchService,
         useValue: {
           searchProducts: async (
             _q: string,

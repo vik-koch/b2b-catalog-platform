@@ -17,7 +17,7 @@ import { LoadErrorView } from '../../pages/load-error-view';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { Pagination } from '@b2b-catalog-platform/ui/lists/pagination';
 import { AppliedFilters } from '../filters/applied-filters';
-import { CatalogService } from '../catalog.service';
+import { CatalogSearchService } from './catalog-search.service';
 import {
   FACET_COLUMN,
   FACET_LAYOUT,
@@ -272,7 +272,7 @@ export class SearchResults {
     return this.cards() ? PRODUCT_GRID : PRODUCT_ROWS;
   }
 
-  private readonly catalog = inject(CatalogService);
+  private readonly search = inject(CatalogSearchService);
 
   protected readonly text = inject(STOREFRONT_TEXT).search;
   protected readonly catalogText = inject(STOREFRONT_TEXT).catalog;
@@ -334,7 +334,7 @@ export class SearchResults {
       attr: this.attrParams(),
     }),
     loader: ({ params }) =>
-      this.catalog.searchProducts(
+      this.search.searchProducts(
         params.q,
         params.page,
         params.sort,

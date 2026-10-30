@@ -1,10 +1,5 @@
 import { Injectable } from '@angular/core';
-import {
-  CatalogSort,
-  SearchCategory,
-} from '@b2b-catalog-platform/shared/storefront/catalog';
-import { SearchSort } from '@b2b-catalog-platform/shared/core/catalog';
-import { ProductListItem } from '@b2b-catalog-platform/shared/core/catalog';
+import { CatalogSort } from '@b2b-catalog-platform/shared/storefront/catalog';
 import { catalogContract } from '../contract-routes.generated';
 import { safe } from '@orpc/client';
 import { createOrpcClient } from '../../shared/core/orpc-client';
@@ -45,32 +40,6 @@ export class CatalogService {
     if (result.isDefined) return null;
     if (!result.isSuccess) throw result.error;
     return result.data;
-  }
-
-  /** A page of search results, best match first (FR-SEARCH-01…03). An
-   * unsearchable query is an empty page, not an error — see the contract. */
-  async searchProducts(
-    q: string,
-    page: number,
-    sort: SearchSort,
-    attr: string[] = [],
-  ) {
-    return this.client.searchProducts({ query: { q, page, sort, attr } });
-  }
-
-  /**
-   * Type-ahead suggestions for the search bar (FR-SEARCH-05/06/07). Failures are
-   * answered with an empty list rather than thrown: suggestions are an
-   * accelerator, and a dropdown that cannot load is a reason to show nothing,
-   * not to interrupt someone mid-query.
-   */
-  async getSearchSuggestions(
-    q: string,
-  ): Promise<{ items: ProductListItem[]; categories: SearchCategory[] }> {
-    const { error, data } = await safe(
-      this.client.getSearchSuggestions({ query: { q } }),
-    );
-    return error ? { items: [], categories: [] } : data;
   }
 
   /**
