@@ -261,6 +261,15 @@ export const workContract = {
     },
   },
 } as unknown as typeof shared.workContract;
+export const maintenanceContract = {
+  checkMaintenance: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: { method: 'GET', path: '/maintenance' },
+    },
+  },
+} as unknown as typeof coreSite.maintenanceContract;
 export const pageContract = {
   getPage: {
     '~orpc': {
@@ -274,12 +283,3 @@ export const pageContract = {
     },
   },
 } as unknown as typeof coreSite.pageContract;
-export const settingsContract = {
-  checkMaintenance: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: { method: 'GET', path: '/maintenance' },
-    },
-  },
-} as unknown as typeof coreSite.settingsContract;

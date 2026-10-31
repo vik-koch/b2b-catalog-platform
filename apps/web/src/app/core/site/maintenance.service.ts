@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { settingsContract } from '../../shared/core/contract-routes.generated';
+import { maintenanceContract } from '../../shared/core/contract-routes.generated';
 import { createOrpcClient } from '../../shared/core/orpc-client';
 
 /**
@@ -9,16 +9,16 @@ import { createOrpcClient } from '../../shared/core/orpc-client';
  *    decide whether to show the maintenance screen. That read hits the public,
  *    gate-exempt endpoint and is memoized for the app's lifetime — the answer
  *    only changes when an admin toggles it, and a stuck visitor reloads anyway.
- *  - the operations page reads and writes the toggle through SettingsService,
- *    which hands the new state back here so this memo does not go stale in the
- *    app instance that just changed it.
+ *  - the operations page reads and writes the toggle through the admin's
+ *    MaintenanceSwitchService, which hands the new state back here so this
+ *    memo does not go stale in the app instance that just changed it.
  *
  * As with every client-side gate, this is cosmetic. The API and SSR enforce
  * maintenance server-side regardless of what the browser believes.
  */
 @Injectable({ providedIn: 'root' })
 export class MaintenanceService {
-  private readonly client = createOrpcClient(settingsContract);
+  private readonly client = createOrpcClient(maintenanceContract);
   private enabled?: Promise<boolean>;
 
   /** Public check, memoized. Fails open (false) so a hiccup never hides a live shop. */
@@ -34,7 +34,7 @@ export class MaintenanceService {
     }
   }
 
-  /** What a settings read or write just learned, so the memo above is current. */
+  /** What an admin read or write just learned, so the memo above is current. */
   noteEnabled(enabled: boolean): void {
     this.enabled = Promise.resolve(enabled);
   }

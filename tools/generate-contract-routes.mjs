@@ -43,7 +43,7 @@ const OUTPUTS = [
         'partySuggestionContract',
         'workContract',
       ],
-      'core/site': ['pageContract', 'settingsContract'],
+      'core/site': ['maintenanceContract', 'pageContract'],
     },
   },
   {
@@ -59,7 +59,7 @@ const OUTPUTS = [
     entries: {
       admin: [
         'adminOrdersContract',
-        'adminSettingsContract',
+        'adminOwnershipContract',
         'apiTokensContract',
         'consentsContract',
         'usersContract',
@@ -71,7 +71,8 @@ const OUTPUTS = [
         'documentsContract',
         'tiersContract',
       ],
-      'admin/site': ['adminPagesContract'],
+      'admin/platform': ['adminOperationsContract'],
+      'admin/site': ['adminMaintenanceContract', 'adminPagesContract'],
       sync: ['syncContract'],
     },
   },

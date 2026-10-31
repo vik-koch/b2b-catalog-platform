@@ -36,7 +36,7 @@ import {
   StatusTone,
 } from '@b2b-catalog-platform/ui/content/status-badge';
 import { AdminOrdersService } from './orders.service';
-import { SettingsService } from '../settings/settings.service';
+import { OwnershipService } from '../settings/ownership.service';
 import { OrderDocumentsPanel } from './order-documents-panel';
 import { revisionKindLabel } from './revision-labels';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
@@ -230,7 +230,7 @@ import { Card } from '@b2b-catalog-platform/ui/content/card';
 })
 export class AdminOrderRevisionPage {
   private readonly api = inject(AdminOrdersService);
-  private readonly ownership = inject(SettingsService);
+  private readonly ownership = inject(OwnershipService);
   private readonly config = inject(DEPLOYMENT_CONFIG);
   private readonly currency = moneyFormat(this.config);
   private readonly customerLabels = injectCustomerBlockLabels();

@@ -14,7 +14,7 @@ import { AuthenticatedRequest } from '../../auth/authenticated-request';
 import { JwtPayload } from '../../auth/jwt-payload';
 import { Roles } from '../../auth/roles.decorator';
 import { UsersService } from '../../users/users.service';
-import { SettingsService } from '../../settings/settings.service';
+import { MaintenanceState } from './maintenance-state';
 import { MAINTENANCE_EXEMPT } from './maintenance-exempt.decorator';
 
 /** How long crawlers/clients are told to wait before retrying (1 hour). */
@@ -44,13 +44,13 @@ const RETRY_AFTER_SECONDS = 3600;
 export class MaintenanceGuard implements CanActivate {
   constructor(
     private readonly reflector: Reflector,
-    private readonly settings: SettingsService,
+    private readonly maintenance: MaintenanceState,
     private readonly jwt: JwtService,
     private readonly users: UsersService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    if (!this.settings.isMaintenanceEnabled()) {
+    if (!this.maintenance.isEnabled()) {
       return true;
     }
 

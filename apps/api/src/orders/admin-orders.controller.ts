@@ -7,7 +7,7 @@ import { CurrentUser } from '../auth/current-user.decorator';
 import { AuditLogger } from '../audit/audit.logger';
 import { refusals } from '../orpc/refusals';
 import { ordersExternallyOwned } from '../settings/ownership.refusals';
-import { SettingsService } from '../settings/settings.service';
+import { OwnershipState } from '../settings/ownership-state';
 import { OrderPersonalData } from './order-personal-data';
 import { OrdersService } from './orders.service';
 
@@ -26,7 +26,7 @@ export class AdminOrdersController {
   constructor(
     private readonly orders: OrdersService,
     private readonly audit: AuditLogger,
-    private readonly settings: SettingsService,
+    private readonly ownership: OwnershipState,
     private readonly personalData: OrderPersonalData,
   ) {}
 
@@ -40,7 +40,7 @@ export class AdminOrdersController {
    * open, because staff have to be able to see what the customer sees.
    */
   private refuseIfOwned(action: string): void {
-    if (this.settings.isExternallyOwned('orders')) {
+    if (this.ownership.isExternallyOwned('orders')) {
       throw ordersExternallyOwned(action);
     }
   }

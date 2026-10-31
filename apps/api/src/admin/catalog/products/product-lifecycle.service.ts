@@ -5,7 +5,7 @@ import { AdminProduct } from '@b2b-catalog-platform/shared/admin/catalog';
 import { DRIZZLE } from '../../../db/database.module';
 import * as schema from '../../../db/schema';
 import { orderItems, productPairings, products } from '../../../db/schema';
-import { SettingsService } from '../../../settings/settings.service';
+import { OwnershipState } from '../../../settings/ownership-state';
 import { catalogExternallyOwned } from '../../../settings/ownership.refusals';
 import {
   counterpartOf,
@@ -28,13 +28,13 @@ import {
 export class ProductLifecycleService {
   constructor(
     @Inject(DRIZZLE) private db: NodePgDatabase<typeof schema>,
-    private readonly settings: SettingsService,
+    private readonly ownership: OwnershipState,
     private readonly records: ProductRecords,
   ) {}
 
   /** Whether the exchange owns the catalog (FR-ADM-10); a cached read. */
   private get catalogIsOwned(): boolean {
-    return this.settings.isExternallyOwned('catalog');
+    return this.ownership.isExternallyOwned('catalog');
   }
 
   /**

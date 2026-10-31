@@ -1,6 +1,6 @@
 /**
- * Runtime-setting vocabulary. Import-free so the panel can key its wording off
- * a change's kind without pulling the settings schemas in to do it.
+ * The settings log's vocabulary. Import-free so the panel can key its wording
+ * off a change's kind without pulling the schemas in to do it.
  */
 
 /**

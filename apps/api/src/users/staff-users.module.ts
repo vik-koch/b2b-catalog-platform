@@ -12,7 +12,7 @@ import {
 } from '../config/deployment-config';
 import { ConsentModule } from '../consents/consent.module';
 import { MailModule } from '../mail/mail.module';
-import { SettingsModule } from '../settings/settings.module';
+import { OwnershipStateModule } from '../settings/ownership-state.module';
 import { AccountInvitations } from './account-invitations';
 import { StaffUsersController } from './staff-users.controller';
 import { StaffUsersService } from './staff-users.service';
@@ -29,7 +29,7 @@ import { StaffUsersService } from './staff-users.service';
   imports: [
     AuthModule,
     MailModule,
-    SettingsModule,
+    OwnershipStateModule,
     ConsentModule,
     AccountModule,
   ],

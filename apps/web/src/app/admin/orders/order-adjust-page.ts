@@ -85,7 +85,7 @@ import { AdjustLineRow, OrderAdjustLines } from './order-adjust-lines';
 import { orderBlockChanges, orderLineChanges } from './order-changes';
 import { customerQuantity } from '../../shared/orders/order-view';
 import { LockedNote } from '../ownership/locked-note';
-import { SettingsService } from '../settings/settings.service';
+import { OwnershipService } from '../settings/ownership.service';
 import { AdjustmentRefusal, AdminOrdersService } from './orders.service';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
@@ -733,7 +733,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
 export class AdminOrderAdjustPage implements FieldAttempt {
   private readonly tax = useTaxStatement();
   private readonly api = inject(AdminOrdersService);
-  private readonly ownership = inject(SettingsService);
+  private readonly ownership = inject(OwnershipService);
   private readonly tiersApi = inject(TiersService);
   private readonly confirm = inject(ConfirmService);
   private readonly router = inject(Router);

@@ -13,7 +13,7 @@ import { CurrentMachine } from '../api-tokens/current-machine.decorator';
 import { Machine } from '../api-tokens/machine.decorator';
 import { MachineClient } from '../api-tokens/machine-client';
 import { ordersNotExternallyOwned } from '../settings/ownership.refusals';
-import { SettingsService } from '../settings/settings.service';
+import { OwnershipState } from '../settings/ownership-state';
 import { MachineThrottle } from '../throttling/throttle-presets';
 import { OrderDocumentActs, orderDocumentKind } from './order-document-acts';
 import { OrdersService } from './orders.service';
@@ -54,7 +54,7 @@ export class MachineOrderDocumentsController {
   constructor(
     private readonly orders: OrdersService,
     private readonly acts: OrderDocumentActs,
-    private readonly settings: SettingsService,
+    private readonly ownership: OwnershipState,
   ) {}
 
   /**
@@ -64,7 +64,7 @@ export class MachineOrderDocumentsController {
    * credential cannot reach past the switch by a different door.
    */
   private refuseUnlessOwned(): void {
-    if (!this.settings.isExternallyOwned('orders')) {
+    if (!this.ownership.isExternallyOwned('orders')) {
       throw ordersNotExternallyOwned();
     }
   }

@@ -17,7 +17,10 @@ import { SiteModule } from '../storefront/site/site.module';
 import { AdminSiteModule } from '../admin/site/admin-site.module';
 import { MediaModule } from '../media/media.module';
 import { ThrottlingModule } from '../throttling/throttling.module';
-import { SettingsModule } from '../settings/settings.module';
+import { SettingsStoreModule } from '../platform/settings/settings-store.module';
+import { SiteCoreModule } from '../core/site/site-core.module';
+import { OwnershipModule } from '../settings/ownership.module';
+import { AdminPlatformModule } from '../admin/platform/admin-platform.module';
 import { SyncModule } from '../sync/sync.module';
 import { StaffUsersModule } from '../users/staff-users.module';
 import { WorkModule } from '../work/work.module';
@@ -34,7 +37,10 @@ import { WorkModule } from '../work/work.module';
     AdminSiteModule,
     MediaModule,
     InquiryModule,
-    SettingsModule,
+    SettingsStoreModule,
+    SiteCoreModule,
+    OwnershipModule,
+    AdminPlatformModule,
     SyncModule,
     StaffUsersModule,
     ConsentAdminModule,

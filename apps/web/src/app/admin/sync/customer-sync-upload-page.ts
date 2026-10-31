@@ -24,7 +24,7 @@ import {
 import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Link } from '@b2b-catalog-platform/ui/actions/link';
-import { SettingsService } from '../settings/settings.service';
+import { OwnershipService } from '../settings/ownership.service';
 import {
   CUSTOMER_SYNC_PRESETS,
   CustomerSyncPresetName,
@@ -222,7 +222,7 @@ import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
 export class CustomerSyncUploadPage {
   protected readonly uploadIcon = uploadIcon;
   private readonly sync = inject(SyncService);
-  private readonly ownership = inject(SettingsService);
+  private readonly ownership = inject(OwnershipService);
   protected readonly text = inject(ADMIN_TEXT).sync;
   /** Where an applied run's accounts are: the customer list, named by its own
    * heading rather than by a second word for the same screen. */

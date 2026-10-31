@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { Params, Router } from '@angular/router';
 import { adminText } from '../../../shared/config/admin-text';
 import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
-import { SettingsService } from '../../settings/settings.service';
+import { OwnershipService } from '../../settings/ownership.service';
 import { SHARED_TEXT } from '../../../shared/config/shared-text';
 
 /**
@@ -13,7 +13,7 @@ import { SHARED_TEXT } from '../../../shared/config/shared-text';
 @Injectable({ providedIn: 'root' })
 export class ProductCreateService {
   private readonly actionText = inject(SHARED_TEXT).actions;
-  private readonly ownership = inject(SettingsService);
+  private readonly ownership = inject(OwnershipService);
   private readonly confirm = inject(ConfirmService);
   private readonly router = inject(Router);
 

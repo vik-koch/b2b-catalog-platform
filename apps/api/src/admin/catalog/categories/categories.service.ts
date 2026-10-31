@@ -14,7 +14,7 @@ import {
 import { DRIZZLE } from '../../../db/database.module';
 import * as schema from '../../../db/schema';
 import { categories, products } from '../../../db/schema';
-import { SettingsService } from '../../../settings/settings.service';
+import { OwnershipState } from '../../../settings/ownership-state';
 import { catalogExternallyOwned } from '../../../settings/ownership.refusals';
 import { changedCategoryFields } from '../owned-fields';
 import { publiclyVisible } from '../../../core/catalog/product-view';
@@ -56,7 +56,7 @@ export async function assertCategoryExists(
 export class CategoriesService {
   constructor(
     @Inject(DRIZZLE) private db: NodePgDatabase<typeof schema>,
-    private readonly settings: SettingsService,
+    private readonly ownership: OwnershipState,
   ) {}
 
   async listCategories(): Promise<AdminCategory[]> {
@@ -163,7 +163,7 @@ export class CategoriesService {
 
     // Only the name and key belong to the exchange; restructuring the tree
     // stays open, since products keep hanging on the same leaves.
-    if (this.settings.isExternallyOwned('catalog')) {
+    if (this.ownership.isExternallyOwned('catalog')) {
       const moved = changedCategoryFields(existing, input);
       if (moved.length) throw catalogExternallyOwned(moved.join(', '));
     }
@@ -250,7 +250,7 @@ export class CategoriesService {
     }
     // Moving products writes the exchange's field; an empty category can
     // still be deleted, so while owned it is emptied from the source.
-    if (this.settings.isExternallyOwned('catalog')) {
+    if (this.ownership.isExternallyOwned('catalog')) {
       throw catalogExternallyOwned('reassign');
     }
     if (reassignToId === id) {

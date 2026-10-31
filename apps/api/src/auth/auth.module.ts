@@ -20,7 +20,7 @@ import { MailService } from '../mail/mail.service';
 import { MAIL_TEXT, MailText } from '../mail/mail-text';
 import { AddressBookModule } from '../addresses/address-book.module';
 import { UsersModule } from '../users/users.module';
-import { SettingsStateModule } from '../settings/settings-state.module';
+import { MaintenanceStateModule } from '../core/site/maintenance-state.module';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { RegistrationService } from './registration.service';
@@ -114,7 +114,7 @@ function signInStepSecret(): string {
     // registrant picked (FR-AUTH-10).
     AddressBookModule,
     // Whether the shop is closed, which a customer's sign-in is refused on.
-    SettingsStateModule,
+    MaintenanceStateModule,
     // The account consent, asked on registration or the first password.
     ConsentModule,
     // No default lifetime: each kind of token sets its own (Sessions,

@@ -32,7 +32,7 @@ import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';
 import { injectEditorReturnParams } from '../../shared/edit-mode/editor-return';
-import { SettingsService } from '../settings/settings.service';
+import { OwnershipService } from '../settings/ownership.service';
 import { TiersService } from '../catalog/tiers/tiers.service';
 import { StaffUsersService } from './users.service';
 import { userStatusTone } from './user-status';
@@ -284,7 +284,7 @@ export class UserDetailPage {
   private readonly service = inject(StaffUsersService);
   private readonly tiers = inject(TiersService);
   private readonly auth = inject(AuthService);
-  private readonly ownership = inject(SettingsService);
+  private readonly ownership = inject(OwnershipService);
   private readonly config = inject(DEPLOYMENT_CONFIG);
   private readonly confirm = inject(ConfirmService);
 

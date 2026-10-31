@@ -1,6 +1,6 @@
 import { Provider, signal } from '@angular/core';
 import { OwnershipArea } from '@b2b-catalog-platform/shared/sync';
-import { SettingsService } from './settings.service';
+import { OwnershipService } from './ownership.service';
 
 /**
  * A stand-in for the ownership read, for specs that render an admin screen
@@ -14,20 +14,14 @@ import { SettingsService } from './settings.service';
 export function provideOwnership(...areas: OwnershipArea[]): Provider {
   const owned = signal<readonly OwnershipArea[]>(areas);
   return {
-    provide: SettingsService,
+    provide: OwnershipService,
     useValue: {
       ownedAreas: owned.asReadonly(),
+      confirmed: owned.asReadonly(),
       owns: (area: OwnershipArea) => areas.includes(area),
       load: () => Promise.resolve(areas),
-      read: () =>
-        Promise.resolve({
-          maintenanceEnabled: false,
-          ownedAreas: areas,
-          updatedAt: new Date(0).toISOString(),
-        }),
-      setOwnership: () => Promise.reject(new Error('not stubbed')),
-      setMaintenance: () => Promise.reject(new Error('not stubbed')),
-      listChanges: () => Promise.resolve([]),
-    } satisfies Partial<SettingsService>,
+      read: () => Promise.resolve({ ownedAreas: areas }),
+      set: () => Promise.reject(new Error('not stubbed')),
+    } satisfies Partial<OwnershipService>,
   };
 }

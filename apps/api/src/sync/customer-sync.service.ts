@@ -30,7 +30,7 @@ import {
   ACCEPTED_CUSTOMER_TYPES,
   CUSTOMER_SYNC_POLICY,
 } from '../config/deployment-config';
-import { SettingsService } from '../settings/settings.service';
+import { OwnershipState } from '../settings/ownership-state';
 import {
   customersExternallyOwned,
   customersNotExternallyOwned,
@@ -112,7 +112,7 @@ export class CustomerSyncService {
     @Inject(CUSTOMER_SYNC_POLICY) private readonly policy: CustomerSyncPolicy,
     @Inject(ACCEPTED_CUSTOMER_TYPES)
     private readonly customerTypes: readonly CustomerType[],
-    private readonly settings: SettingsService,
+    private readonly ownership: OwnershipState,
     private readonly log: SyncRunLog,
     private readonly invitations: AccountInvitations,
     private readonly staffUsers: StaffUsersService,
@@ -122,7 +122,7 @@ export class CustomerSyncService {
 
   /** Whether the exchange currently holds the pen (FR-ADM-10). */
   private get customersAreOwned(): boolean {
-    return this.settings.isExternallyOwned('customers');
+    return this.ownership.isExternallyOwned('customers');
   }
 
   /**

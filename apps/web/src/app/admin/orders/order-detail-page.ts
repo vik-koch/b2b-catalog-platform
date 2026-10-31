@@ -61,7 +61,7 @@ import {
   StatusTone,
 } from '@b2b-catalog-platform/ui/content/status-badge';
 import { LockedNote } from '../ownership/locked-note';
-import { SettingsService } from '../settings/settings.service';
+import { OwnershipService } from '../settings/ownership.service';
 import { OrderAdjustChanges, OrderChange } from './order-adjust-changes';
 import { OrderDocumentsPanel } from './order-documents-panel';
 import { orderChanges } from './order-changes';
@@ -621,7 +621,7 @@ export class AdminOrderDetailPage {
   protected readonly pencilIcon = pencilIcon;
   protected readonly trash2Icon = trash2Icon;
   private readonly api = inject(AdminOrdersService);
-  private readonly ownership = inject(SettingsService);
+  private readonly ownership = inject(OwnershipService);
   private readonly confirm = inject(ConfirmService);
   private readonly auth = inject(AuthService);
   private readonly isAdmin = computed(() => this.auth.user()?.role === 'admin');

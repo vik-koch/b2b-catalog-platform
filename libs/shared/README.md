@@ -17,7 +17,8 @@ this shape one at a time; until they have, their modules stay in the last five e
 | `@b2b-catalog-platform/shared/admin/catalog` | `src/admin/catalog/` | the staff's catalog routes: products, categories, attributes, documents, tiers |
 | `@b2b-catalog-platform/shared/core/site` | `src/core/site/` | the fixed pages, the consent facts the forms ask with, the rich-text vocabulary, the page read and the maintenance check |
 | `@b2b-catalog-platform/shared/storefront/site` | `src/storefront/site/` | the inquiry |
-| `@b2b-catalog-platform/shared/admin/site` | `src/admin/site/` | the page editor's routes: saving a version, listing them |
+| `@b2b-catalog-platform/shared/admin/site` | `src/admin/site/` | the page editor's routes and the maintenance toggle |
+| `@b2b-catalog-platform/shared/admin/platform` | `src/admin/platform/` | what the admin reads that knows no area: the build info, the settings trail |
 | `@b2b-catalog-platform/shared` | `src/lib/` | the areas not yet moved: public and signed-in routes, and what every side reads |
 | `@b2b-catalog-platform/shared/storefront` | `src/storefront/` | the customer's own account, and checkout's delivery-zone and date rules |
 | `@b2b-catalog-platform/shared/admin` | `src/admin/` | the other staff routes |

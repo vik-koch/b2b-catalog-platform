@@ -18,7 +18,7 @@ import { RegistrationService } from './registration.service';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { RolesGuard } from './roles.guard';
 import { MaintenanceGuard } from '../core/site/maintenance.guard';
-import { SettingsService } from '../settings/settings.service';
+import { MaintenanceState } from '../core/site/maintenance-state';
 import { ContractErrorFilter } from '../orpc/contract-error.filter';
 import { PHONE_RULE } from '../config/deployment-config';
 import { CodeDeliveryError } from './sign-in-step/code-delivery';
@@ -98,18 +98,18 @@ describe('AuthController', () => {
         { provide: PHONE_RULE, useValue: (value: string) => value },
         { provide: APP_FILTER, useClass: ContractErrorFilter },
         {
-          provide: SettingsService,
-          useValue: { isMaintenanceEnabled: () => maintenanceOn },
+          provide: MaintenanceState,
+          useValue: { isEnabled: () => maintenanceOn },
         },
         // The real gate, with only its admin-cookie check stubbed out: what is
         // under test is whether it still finds the route metadata.
         {
           provide: APP_GUARD,
-          inject: [Reflector, SettingsService],
-          useFactory: (reflector: Reflector, settings: SettingsService) =>
+          inject: [Reflector, MaintenanceState],
+          useFactory: (reflector: Reflector, maintenance: MaintenanceState) =>
             new MaintenanceGuard(
               reflector,
-              settings,
+              maintenance,
               { verifyAsync: async () => ({}) } as never,
               { findById: async () => null } as never,
             ),

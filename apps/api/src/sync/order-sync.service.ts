@@ -18,7 +18,7 @@ import { DRIZZLE } from '../db/database.module';
 import * as schema from '../db/schema';
 import { syncRuns } from '../db/schema';
 import { OrdersService } from '../orders/orders.service';
-import { SettingsService } from '../settings/settings.service';
+import { OwnershipState } from '../settings/ownership-state';
 import { ordersNotExternallyOwned } from '../settings/ownership.refusals';
 import { Submitter } from './sync-run';
 import { SyncRunLog, toSyncRun } from './sync-run-log';
@@ -45,14 +45,14 @@ import { SyncNotifications } from './sync-notifications';
 export class OrderSyncService {
   constructor(
     @Inject(DRIZZLE) private readonly db: NodePgDatabase<typeof schema>,
-    private readonly settings: SettingsService,
+    private readonly ownership: OwnershipState,
     private readonly orders: OrdersService,
     private readonly log: SyncRunLog,
     private readonly notifications: SyncNotifications,
   ) {}
 
   private get ordersAreOwned(): boolean {
-    return this.settings.isExternallyOwned('orders');
+    return this.ownership.isExternallyOwned('orders');
   }
 
   /**

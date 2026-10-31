@@ -1,6 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { SettingsService } from '../settings/settings.service';
+import { OwnershipService } from '../settings/ownership.service';
 import { fillText } from '@b2b-catalog-platform/shared';
 import {
   CATALOG_SYNC_ALL_FIELDS,
@@ -231,7 +231,7 @@ export class SyncUploadPage {
   protected readonly uploadIcon = uploadIcon;
   private readonly sync = inject(SyncService);
   protected readonly text = inject(ADMIN_TEXT).sync;
-  private readonly ownership = inject(SettingsService);
+  private readonly ownership = inject(OwnershipService);
 
   /** Whether an external system owns the catalog (FR-ADM-10). */
   protected readonly catalogOwned = computed(

@@ -11,7 +11,7 @@ export const maintenanceCheckSchema = z.object({
 });
 export type MaintenanceCheck = z.infer<typeof maintenanceCheckSchema>;
 
-export const settingsContract = {
+export const maintenanceContract = {
   checkMaintenance: oc
     .route({
       method: 'GET',

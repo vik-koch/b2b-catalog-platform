@@ -31,7 +31,7 @@ import { PasswordResetService } from './password-reset.service';
 import { PasswordSetupService } from './password-setup.service';
 import { RegistrationService } from './registration.service';
 import { MaintenanceExempt } from '../core/site/maintenance-exempt.decorator';
-import { SettingsService } from '../settings/settings.service';
+import { MaintenanceState } from '../core/site/maintenance-state';
 import { refusals } from '../orpc/refusals';
 import { endSession } from './session-cookie';
 import { Sessions } from './sessions';
@@ -48,7 +48,7 @@ export class AuthController {
     private readonly registration: RegistrationService,
     private readonly passwordSetup: PasswordSetupService,
     private readonly passwordReset: PasswordResetService,
-    private readonly settings: SettingsService,
+    private readonly maintenance: MaintenanceState,
     private readonly step: SignInStep,
     private readonly sessions: Sessions,
     @Inject(SIGN_IN_PROOF) private readonly proof: SignInProof,
@@ -76,7 +76,7 @@ export class AuthController {
    * once their credentials or link have said whose account it is.
    */
   private closedTo(role: UserRole): boolean {
-    return this.settings.isMaintenanceEnabled() && !passesMaintenance(role);
+    return this.maintenance.isEnabled() && !passesMaintenance(role);
   }
 
   // Not maintenance-exempt, unlike login: while the storefront is down there is

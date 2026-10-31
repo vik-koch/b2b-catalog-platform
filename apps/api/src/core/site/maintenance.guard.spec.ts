@@ -6,7 +6,7 @@ import { AUTH_COOKIE } from '../../auth/auth.constants';
 import { MachineScope } from '../../api-tokens/machine-scope.decorator';
 import { Roles } from '../../auth/roles.decorator';
 import { MaintenanceGuard } from './maintenance.guard';
-import { SettingsService } from '../../settings/settings.service';
+import { MaintenanceState } from './maintenance-state';
 
 const adminRow = (overrides: Partial<UserRow> = {}): UserRow =>
   ({
@@ -46,7 +46,7 @@ describe('MaintenanceGuard', () => {
 
   const guard = new MaintenanceGuard(
     reflector,
-    { isMaintenanceEnabled } as unknown as SettingsService,
+    { isEnabled: isMaintenanceEnabled } as unknown as MaintenanceState,
     { verifyAsync } as unknown as JwtService,
     { findById } as unknown as UsersService,
   );

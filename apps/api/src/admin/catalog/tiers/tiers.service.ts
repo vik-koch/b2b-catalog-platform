@@ -20,7 +20,7 @@ import {
   products,
   users,
 } from '../../../db/schema';
-import { SettingsService } from '../../../settings/settings.service';
+import { OwnershipState } from '../../../settings/ownership-state';
 import { catalogExternallyOwned } from '../../../settings/ownership.refusals';
 import { publiclyVisible } from '../../../core/catalog/product-view';
 import { tierPriceCondition } from '../products/grid/tier-price-filter';
@@ -53,7 +53,7 @@ function unpricedLive(
 export class TiersService {
   constructor(
     @Inject(DRIZZLE) private readonly db: NodePgDatabase<typeof schema>,
-    private readonly settings: SettingsService,
+    private readonly ownership: OwnershipState,
   ) {}
 
   /**
@@ -144,7 +144,7 @@ export class TiersService {
     if (!existing) throw notFound();
 
     if (input.key !== existing.key) {
-      if (this.settings.isExternallyOwned('catalog')) {
+      if (this.ownership.isExternallyOwned('catalog')) {
         throw catalogExternallyOwned(OWNED_TIER_FIELDS.join(', '));
       }
       await this.assertKeyFree(input.key, id);

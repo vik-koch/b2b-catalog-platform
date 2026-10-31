@@ -24,7 +24,7 @@ import {
   ServedDocument,
 } from './order-documents.service';
 import { ordersExternallyOwned } from '../settings/ownership.refusals';
-import { SettingsService } from '../settings/settings.service';
+import { OwnershipState } from '../settings/ownership-state';
 import { OrdersService } from './orders.service';
 
 /**
@@ -50,7 +50,7 @@ export class OrderDocumentsController {
     private readonly orders: OrdersService,
     private readonly documents: OrderDocumentsService,
     private readonly acts: OrderDocumentActs,
-    private readonly settings: SettingsService,
+    private readonly ownership: OwnershipState,
   ) {}
 
   /**
@@ -61,7 +61,7 @@ export class OrderDocumentsController {
    * staff must be able to see.
    */
   private refuseIfOwned(action: string): void {
-    if (this.settings.isExternallyOwned('orders')) {
+    if (this.ownership.isExternallyOwned('orders')) {
       throw ordersExternallyOwned(action);
     }
   }

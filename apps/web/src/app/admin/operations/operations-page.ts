@@ -11,7 +11,7 @@ import { fillText } from '@b2b-catalog-platform/shared';
 import {
   SETTING_CHANGES_PAGE_SIZE,
   SettingChange,
-} from '@b2b-catalog-platform/shared/admin';
+} from '@b2b-catalog-platform/shared/admin/platform';
 import {
   OWNERSHIP_AREAS,
   OwnershipArea,
@@ -28,7 +28,9 @@ import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';
 import { Switch } from '@b2b-catalog-platform/ui/choices/switch';
 import { adminMomentFormat } from '../dates/admin-date';
-import { SettingsService } from '../settings/settings.service';
+import { OwnershipService } from '../settings/ownership.service';
+import { MaintenanceSwitchService } from '../site/maintenance-switch.service';
+import { SettingChangesService } from '../platform/setting-changes.service';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { Hint } from '@b2b-catalog-platform/ui/fields/hint';
@@ -76,10 +78,10 @@ import { Card } from '@b2b-catalog-platform/ui/content/card';
     </ui-page-header>
 
     <div class="max-w-3xl">
-      <!-- Everything here is one row in the database and arrives in one answer,
-           so the whole page waits for it — including the trail's lid, which is
-           a lid onto the very switches above it. No placeholder: this is a
-           short screen behind one fast read, and a skeleton that stands in for
+      <!-- Both switches arrive together, so the whole page waits for them,
+           including the trail's lid, which is a lid onto the very switches
+           above it. No placeholder: this is a short screen behind two fast
+           reads side by side, and a skeleton that stands in for
            two cards and a lid is a bigger lie than a blank moment. -->
       @if (settings.value(); as state) {
         <!-- Maintenance first: it is the one an operator reaches for in a
@@ -295,7 +297,9 @@ export class OperationsPage {
   protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
   protected readonly maintenanceText = inject(ADMIN_TEXT).maintenance;
   protected readonly adminText = inject(ADMIN_TEXT);
-  private readonly settingsService = inject(SettingsService);
+  private readonly ownership = inject(OwnershipService);
+  private readonly maintenance = inject(MaintenanceSwitchService);
+  private readonly settingChanges = inject(SettingChangesService);
   private readonly confirm = inject(ConfirmService);
   private readonly locale = inject(DEPLOYMENT_CONFIG).locale;
   private readonly moment = adminMomentFormat(this.locale);
@@ -317,15 +321,24 @@ export class OperationsPage {
   protected readonly maintenanceFailed = signal(false);
   protected readonly historyOpen = signal(false);
 
-  /** Both switches in one answer; every write hands the same shape back. */
+  /** Both switches, read together so the page paints once. */
   protected readonly settings = resource({
-    loader: () => this.settingsService.read(),
+    loader: async () => {
+      const [maintenance, ownership] = await Promise.all([
+        this.maintenance.read(),
+        this.ownership.read(),
+      ]);
+      return {
+        maintenanceEnabled: maintenance.enabled,
+        ownedAreas: ownership.ownedAreas,
+      };
+    },
   });
 
   /** Fetched on the first open, and again after a flip while it is open. */
   protected readonly changes = resource({
     params: () => (this.historyOpen() ? this.historyVersion() : undefined),
-    loader: () => this.settingsService.listChanges(),
+    loader: () => this.settingChanges.list(),
   });
 
   protected readonly showTrailSkeleton = delayedLoading(this.changes.isLoading);
@@ -403,9 +416,12 @@ export class OperationsPage {
     this.pending.set(true);
     this.maintenanceFailed.set(false);
     try {
-      // The answer is the whole row, so it replaces the page's state outright
-      // rather than prompting a second read of what was just returned.
-      this.settings.set(await this.settingsService.setMaintenance(enabled));
+      // The answer is the switch's new state, so it replaces that half of the
+      // page's state rather than prompting a second read.
+      const { enabled: now } = await this.maintenance.set(enabled);
+      this.settings.update(
+        (state) => state && { ...state, maintenanceEnabled: now },
+      );
       this.historyVersion.update((n) => n + 1);
     } catch {
       this.maintenanceFailed.set(true);
@@ -463,7 +479,8 @@ export class OperationsPage {
     this.pending.set(true);
     this.ownershipFailed.set(false);
     try {
-      this.settings.set(await this.settingsService.setOwnership(areas, owned));
+      const { ownedAreas } = await this.ownership.set(areas, owned);
+      this.settings.update((state) => state && { ...state, ownedAreas });
       this.historyVersion.update((n) => n + 1);
     } catch {
       this.ownershipFailed.set(true);
