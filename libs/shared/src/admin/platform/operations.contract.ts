@@ -4,10 +4,8 @@ import { commonAuthErrors } from '../../lib/core/api-error';
 import { SETTING_CHANGE_KINDS, SETTING_CHANGES_PAGE_SIZE } from './operations';
 
 /**
- * What is actually running, for the admin panel. Both fields are stamped onto
- * the stack at deploy time (infra/deploy.sh), not baked into the image: a
- * release retags the very image main already built, so anything baked at build
- * time could only ever report the commit sha, never the released version.
+ * Stamped onto the stack at deploy time, not baked into the image: a release
+ * retags the image main built, so a baked value could only name the commit.
  */
 export const buildInfoSchema = z.object({
   version: z.string().nullable(),
@@ -15,11 +13,7 @@ export const buildInfoSchema = z.object({
 });
 export type BuildInfo = z.infer<typeof buildInfoSchema>;
 
-/**
- * One recorded change to a runtime setting. Denormalized like every other
- * audit row here (`sync_runs.actorEmail`, `api_tokens.createdByEmail`): the
- * trail still names who did it once the account is gone.
- */
+/** `actorEmail` is copied, so the trail names who once the account is gone. */
 export const settingChangeSchema = z.object({
   id: z.uuid(),
   kind: z.enum(SETTING_CHANGE_KINDS),

@@ -14,12 +14,12 @@ import {
 import { form, hidden, maxLength, validate } from '@angular/forms/signals';
 import { filled } from '../../../shared/core/field-rules';
 import {
-  CONSENT_LABEL_MAX_LENGTH,
   consentLabelParts,
   isConsentPage,
   Page,
   PageSlug,
 } from '@b2b-catalog-platform/shared/core/site';
+import { CONSENT_LABEL_MAX_LENGTH } from '@b2b-catalog-platform/shared/admin/site';
 import { ADMIN_TEXT } from '../../../shared/config/admin-text';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { Notice } from '@b2b-catalog-platform/ui/content/notice';

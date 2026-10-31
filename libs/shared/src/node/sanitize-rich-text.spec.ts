@@ -1,4 +1,4 @@
-import { RICH_TEXT_TAGS } from '../core/site/pages';
+import { RICH_TEXT_TAGS } from '../platform/rich-text';
 import { sanitizeRichText } from './sanitize-rich-text';
 
 describe('sanitizeRichText', () => {

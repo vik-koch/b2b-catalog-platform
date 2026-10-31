@@ -8,7 +8,6 @@ export const setMaintenanceSchema = z
     enabled: z.boolean(),
   })
   .strict();
-export type SetMaintenanceRequest = z.infer<typeof setMaintenanceSchema>;
 
 export const adminMaintenanceContract = {
   getMaintenance: oc

@@ -1,13 +1,12 @@
 import { oc } from '@orpc/contract';
-import { PAGE_SLUGS } from './pages';
 import * as z from 'zod';
+import { PAGE_SLUGS } from './pages';
 
 export const pageSlugSchema = z.enum(PAGE_SLUGS);
 
 /**
- * The version of the consent text a form showed and the person ticked
- * (NFR-LEGAL-09). Absent where the form asked nothing: the deployment does not
- * publish that purpose's text.
+ * The version of the consent text the person ticked. Absent where the form
+ * asked nothing because the deployment does not ask for that purpose.
  */
 export const consentVersionField = z.number().int().positive().optional();
 
@@ -18,10 +17,7 @@ export const pageSchema = z.object({
   bodyHtml: z.string(),
   /** The wording beside the box, on a consent page only. */
   consentLabel: z.string().nullable(),
-  /**
-   * ISO 8601, when this version was saved. Public because legal pages
-   * conventionally show when they last changed; who saved it is not.
-   */
+  /** When this version was saved; who saved it stays with the staff. */
   updatedAt: z.iso.datetime(),
 });
 export type Page = z.infer<typeof pageSchema>;
@@ -35,6 +31,7 @@ export const pageContract = {
       summary: 'Get page content',
     })
     .errors({ 'page-not-found': { status: 404 } })
+    // Not the slug enum: an unknown slug is a missing page, a 404.
     .input(z.object({ params: z.object({ slug: z.string() }) }))
     .output(pageSchema),
 };

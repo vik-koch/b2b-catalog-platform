@@ -4,8 +4,8 @@ import {
   CONSENT_PAGE_SLUGS,
   ConsentPurpose,
   PageSlug,
-  STANDALONE_PAGE_SLUGS,
 } from '@b2b-catalog-platform/shared/core/site';
+import { STANDALONE_PAGE_SLUGS } from '@b2b-catalog-platform/shared/storefront/site';
 import { DEPLOYMENT_CONFIG } from '../shared/config/deployment-config';
 import {
   guestOnly,

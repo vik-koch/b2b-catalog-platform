@@ -1,6 +1,6 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { fillText } from '@b2b-catalog-platform/shared';
-import { isDatedPage } from '@b2b-catalog-platform/shared/core/site';
+import { isDatedPage } from '@b2b-catalog-platform/shared/storefront/site';
 import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
 import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
 

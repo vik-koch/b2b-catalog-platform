@@ -1,39 +1,28 @@
 import { oc } from '@orpc/contract';
-import {
-  CONSENT_LABEL_MAX_LENGTH,
-  consentLabelParts,
-  isConsentPage,
-  PAGE_BODY_MAX_LENGTH,
-  PAGE_TITLE_MAX_LENGTH,
-  RICH_TEXT_IMAGE_ALIGNMENTS,
-} from '../../core/site/pages';
 import * as z from 'zod';
 import { commonAuthErrors } from '../../lib/core/api-error';
+import { consentLabelParts, isConsentPage } from '../../core/site/pages';
 import { pageSchema, pageSlugSchema } from '../../core/site/page.contract';
+import {
+  CONSENT_LABEL_MAX_LENGTH,
+  PAGE_BODY_MAX_LENGTH,
+  PAGE_TITLE_MAX_LENGTH,
+} from './pages';
 
-/** One past save, as the editor's history lists it. */
 export const pageVersionSchema = pageSchema.extend({
   /** Null for seeded content, or a version older than the record of who. */
   editorEmail: z.string().nullable(),
 });
 export type PageVersion = z.infer<typeof pageVersionSchema>;
 
-// strict: unknown keys are rejected, not stripped (NFR-SEC-05). It also stops a
-// client from posting a read-only field (`slug`, `updatedAt`) and assuming it
-// took effect.
+// strict also refuses a read-only field (`slug`, `updatedAt`) a client might
+// believe it changed.
 export const updatePageSchema = z
   .object({
     title: z.string().trim().min(1).max(PAGE_TITLE_MAX_LENGTH),
-    /**
-     * Accepted as-is and sanitized server-side before it is stored, so what the
-     * client sent is never what gets persisted. May legitimately be empty: an
-     * emptied editor posts `''`.
-     */
+    /** Sanitized before it is stored. Empty is fine: an emptied editor. */
     bodyHtml: z.string().max(PAGE_BODY_MAX_LENGTH),
-    /**
-     * Required on a consent page, refused on any other. Marks the words that
-     * link the consent text with square brackets, exactly once.
-     */
+    /** Required on a consent page, refused on any other. */
     consentLabel: z
       .string()
       .trim()
@@ -47,9 +36,6 @@ export const updatePageSchema = z
   .strict();
 export type UpdatePageRequest = z.infer<typeof updatePageSchema>;
 
-export type RichTextImageAlignment =
-  (typeof RICH_TEXT_IMAGE_ALIGNMENTS)[number];
-
 export const adminPagesContract = {
   updatePage: oc
     .route({
@@ -62,8 +48,8 @@ export const adminPagesContract = {
     .input(
       z
         .object({
-          // The enum makes "create a page" unrepresentable: an unknown slug is a
-          // 400 from contract validation, never an insert.
+          // The enum makes creating a page unrepresentable: an unknown slug is
+          // a 400, never an insert.
           params: z.object({ slug: pageSlugSchema }),
           body: updatePageSchema,
         })
