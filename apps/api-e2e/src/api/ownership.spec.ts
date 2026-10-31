@@ -284,7 +284,7 @@ describe('External data ownership (FR-ADM-10)', () => {
 
     it('reports what it was set to, and records who set it', async () => {
       await whileOwned(async () => {
-        const status = await asAdmin('get', '/settings');
+        const status = await asAdmin('get', '/settings/ownership');
         expect(status.data.ownedAreas).toEqual(['catalog']);
 
         // This suite's own entry, found by its actor rather than taken as the
@@ -308,7 +308,7 @@ describe('External data ownership (FR-ADM-10)', () => {
       // history read those rows back as a single decision, and the shared
       // timestamp is the only thing that says they were one.
       await whileOwning(['catalog', 'customers'], async () => {
-        const status = await asAdmin('get', '/settings');
+        const status = await asAdmin('get', '/settings/ownership');
         expect(status.data.ownedAreas).toEqual(
           expect.arrayContaining(['catalog', 'customers']),
         );

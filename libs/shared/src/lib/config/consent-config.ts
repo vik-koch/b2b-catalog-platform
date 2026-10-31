@@ -1,5 +1,5 @@
 import * as z from 'zod';
-import { ConsentPurpose } from '../site/page-constants';
+import { ConsentPurpose } from '../../core/site/pages';
 
 /**
  * Which consents this deployment asks for (NFR-LEGAL-09), one switch per

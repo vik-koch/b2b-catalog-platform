@@ -24,7 +24,7 @@ import { RecordFields } from '@b2b-catalog-platform/ui/lists/record-fields';
 import { RecordFormActions } from '@b2b-catalog-platform/ui/lists/record-form-actions';
 import { RecordRow } from '@b2b-catalog-platform/ui/lists/record-row';
 import { LockedFieldMarker } from '../../ownership/locked-field-marker';
-import { SettingsService } from '../../settings/settings.service';
+import { OwnershipService } from '../../settings/ownership.service';
 import { TiersService } from './tiers.service';
 import { RouterLink } from '@angular/router';
 import { SHARED_TEXT } from '../../../shared/config/shared-text';
@@ -297,7 +297,7 @@ export class TierListPage {
   protected readonly trash2Icon = trash2Icon;
   private readonly service = inject(TiersService);
   private readonly confirm = inject(ConfirmService);
-  private readonly settings = inject(SettingsService);
+  private readonly ownership = inject(OwnershipService);
   protected readonly text = inject(ADMIN_TEXT).tiers;
   private readonly productsText = inject(ADMIN_TEXT).products;
   protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
@@ -345,7 +345,7 @@ export class TierListPage {
   protected readonly keyLocked = computed(
     () =>
       this.editing()?.id != null &&
-      (this.settings.ownedAreas()?.includes('catalog') ?? false),
+      (this.ownership.ownedAreas()?.includes('catalog') ?? false),
   );
 
   protected async saveOrder(order: SortEntry[]): Promise<void> {
@@ -528,6 +528,6 @@ export class TierListPage {
 
   constructor() {
     usePageSeo({ name: () => this.text.page.title });
-    void this.settings.load();
+    void this.ownership.load();
   }
 }

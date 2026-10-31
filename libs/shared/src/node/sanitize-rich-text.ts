@@ -3,7 +3,7 @@ import {
   RICH_TEXT_IMAGE_ALIGNMENTS,
   RICH_TEXT_LINK_SCHEMES,
   RICH_TEXT_TAGS,
-} from '../lib/site/page-constants';
+} from '../platform/rich-text';
 import { PRODUCT_RICH_TEXT_TAGS } from '../admin/catalog/products';
 import {
   MEDIA_MAX_IMAGE_WIDTH,

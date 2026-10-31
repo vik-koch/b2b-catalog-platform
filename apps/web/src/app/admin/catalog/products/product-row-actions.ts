@@ -4,7 +4,7 @@ import { ADMIN_TEXT } from '../../../shared/config/admin-text';
 import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
-import { SettingsService } from '../../settings/settings.service';
+import { OwnershipService } from '../../settings/ownership.service';
 import { mayRestore, purgeRefusal } from './product-removal';
 import { SHARED_TEXT } from '../../../shared/config/shared-text';
 import { bookCheckIcon } from '@b2b-catalog-platform/ui/icons/glyphs/book-check';
@@ -122,7 +122,7 @@ export class ProductRowActions {
   protected readonly rotateCcwIcon = rotateCcwIcon;
   protected readonly trash2Icon = trash2Icon;
   private readonly confirm = inject(ConfirmService);
-  private readonly settings = inject(SettingsService);
+  private readonly ownership = inject(OwnershipService);
   protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly editText = inject(ADMIN_TEXT).editMode;
   private readonly ownershipText = inject(ADMIN_TEXT).ownership;
@@ -142,7 +142,7 @@ export class ProductRowActions {
   /** An unknown ownership answer reads as owned, for the look of the button
    * only; the click asks for the real answer. */
   protected readonly purgeRefusal = computed(() =>
-    this.refusalFor(this.settings.ownedAreas()?.includes('catalog') ?? true),
+    this.refusalFor(this.ownership.ownedAreas()?.includes('catalog') ?? true),
   );
 
   private refusalFor(catalogOwned: boolean): string | null {
@@ -157,7 +157,7 @@ export class ProductRowActions {
   }
 
   protected async onPurgeClick(): Promise<void> {
-    const owned = (await this.settings.load()).includes('catalog');
+    const owned = (await this.ownership.load()).includes('catalog');
     const refusal = this.refusalFor(owned);
     if (refusal) {
       await this.confirm.tell({
@@ -192,7 +192,7 @@ export class ProductRowActions {
       this.ownershipText,
       this.actionText.close,
       this.product(),
-      async () => (await this.settings.load()).includes('catalog'),
+      async () => (await this.ownership.load()).includes('catalog'),
     );
     if (allowed) this.restored.emit(this.product());
   }

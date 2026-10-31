@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ApiTokensModule } from '../api-tokens/api-tokens.module';
 import { AuthModule } from '../auth/auth.module';
-import { SettingsModule } from '../settings/settings.module';
+import { OwnershipStateModule } from '../settings/ownership-state.module';
 import { CatalogSyncController } from './catalog-sync.controller';
 import { CatalogSyncService } from './catalog-sync.service';
 import { CustomerSyncController } from './customer-sync.controller';
@@ -45,7 +45,7 @@ import { AccountInvitations } from '../users/account-invitations';
   imports: [
     AuthModule,
     ApiTokensModule,
-    SettingsModule,
+    OwnershipStateModule,
     MailModule,
     // The customer exchange writes accounts, and does it through the same
     // service and the same invitation mail a manager's approval goes through —

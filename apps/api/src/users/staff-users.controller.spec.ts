@@ -13,7 +13,7 @@ import { AuditLogger } from '../audit/audit.logger';
 import { ContractErrorFilter } from '../orpc/contract-error.filter';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
-import { SettingsService } from '../settings/settings.service';
+import { OwnershipState } from '../settings/ownership-state';
 import { ConsentService } from '../consents/consent.service';
 import { AccountDeletion } from '../account/account-deletion';
 
@@ -111,7 +111,7 @@ describe('StaffUsersController', () => {
         { provide: AccountDeletion, useValue: { deleteOnRequest } },
         { provide: ConsentService, useValue: { findByAccount } },
         {
-          provide: SettingsService,
+          provide: OwnershipState,
           useValue: {
             isExternallyOwned: (area: string) => ownedAreas.includes(area),
           },

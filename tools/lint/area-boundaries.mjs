@@ -29,7 +29,7 @@ export const AREA_EDGES = {
 };
 
 /** The areas already moved; the rest join as they move. */
-const ENABLED = ['catalog'];
+const ENABLED = ['catalog', 'site'];
 
 /** The folders of the cut, relative to a layer, with the element type of each. */
 const FOLDERS = [

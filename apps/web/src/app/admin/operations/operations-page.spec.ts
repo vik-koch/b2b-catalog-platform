@@ -3,7 +3,7 @@ import { defaultSharedText } from '../../shared/config/shared-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { DeploymentConfig } from '@b2b-catalog-platform/shared';
-import { AppSettings, SettingChange } from '@b2b-catalog-platform/shared/admin';
+import { SettingChange } from '@b2b-catalog-platform/shared/admin/platform';
 import {
   OWNERSHIP_AREAS,
   OwnershipArea,
@@ -12,7 +12,9 @@ import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { defaultAdminText } from '../../shared/config/admin-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
-import { SettingsService } from '../settings/settings.service';
+import { OwnershipService } from '../settings/ownership.service';
+import { MaintenanceSwitchService } from '../site/maintenance-switch.service';
+import { SettingChangesService } from '../platform/setting-changes.service';
 import { OperationsPage } from './operations-page';
 
 const text = defaultAdminText.operations;
@@ -35,8 +37,15 @@ const change = (over: Partial<SettingChange> = {}): SettingChange => ({
   ...over,
 });
 
+/** Both switches, as the page holds them. */
+interface Switches {
+  maintenanceEnabled: boolean;
+  ownedAreas: OwnershipArea[];
+}
+
 interface Harness {
-  read: ReturnType<typeof vi.fn>;
+  readMaintenance: ReturnType<typeof vi.fn>;
+  readOwnership: ReturnType<typeof vi.fn>;
   setOwnership: ReturnType<typeof vi.fn>;
   setMaintenance: ReturnType<typeof vi.fn>;
   listChanges: ReturnType<typeof vi.fn>;
@@ -52,19 +61,28 @@ async function render(
     changes?: SettingChange[];
     confirmed?: boolean;
     /** A read left hanging, for the spec that asserts the page waits. */
-    read?: Promise<AppSettings>;
+    read?: Promise<Switches>;
   } = {},
 ) {
-  const settings: AppSettings = {
+  const settings: Switches = {
     maintenanceEnabled: options.maintenanceOn ?? false,
     ownedAreas:
       options.ownedAreas ?? (options.owned ? [...OWNERSHIP_AREAS] : []),
-    updatedAt: '2026-09-10T10:00:00.000Z',
   };
+  const answer = options.read ?? Promise.resolve(settings);
   const h: Harness = {
-    read: vi.fn(() => options.read ?? Promise.resolve(settings)),
-    setOwnership: vi.fn().mockResolvedValue(settings),
-    setMaintenance: vi.fn().mockResolvedValue(settings),
+    readMaintenance: vi.fn(() =>
+      answer.then((s) => ({ enabled: s.maintenanceEnabled })),
+    ),
+    readOwnership: vi.fn(() =>
+      answer.then((s) => ({ ownedAreas: s.ownedAreas })),
+    ),
+    setOwnership: vi
+      .fn()
+      .mockResolvedValue({ ownedAreas: settings.ownedAreas }),
+    setMaintenance: vi
+      .fn()
+      .mockResolvedValue({ enabled: settings.maintenanceEnabled }),
     listChanges: vi.fn().mockResolvedValue(options.changes ?? []),
     confirm: vi.fn().mockResolvedValue(options.confirmed ?? true),
   };
@@ -78,14 +96,14 @@ async function render(
       { provide: DEPLOYMENT_CONFIG, useValue: config },
       { provide: ConfirmService, useValue: { ask: h.confirm } },
       {
-        provide: SettingsService,
-        useValue: {
-          read: h.read,
-          listChanges: h.listChanges,
-          setMaintenance: h.setMaintenance,
-          setOwnership: h.setOwnership,
-        },
+        provide: MaintenanceSwitchService,
+        useValue: { read: h.readMaintenance, set: h.setMaintenance },
       },
+      {
+        provide: OwnershipService,
+        useValue: { read: h.readOwnership, set: h.setOwnership },
+      },
+      { provide: SettingChangesService, useValue: { list: h.listChanges } },
     ],
   });
 
@@ -140,12 +158,13 @@ const openAreas = (
 ) => openLid(fixture, el, 'areas');
 
 describe('OperationsPage', () => {
-  it('carries both switches, maintenance first, from one read', async () => {
-    // Both are one row in the database; asking twice would paint the screen in
-    // two stages for no gain.
+  it('carries both switches, maintenance first, read together', async () => {
+    // Asked side by side and painted once: two stages would be a flicker for
+    // no gain.
     const { el, h } = await render();
 
-    expect(h.read).toHaveBeenCalledTimes(1);
+    expect(h.readMaintenance).toHaveBeenCalledTimes(1);
+    expect(h.readOwnership).toHaveBeenCalledTimes(1);
     // Maintenance and the master; the per-area switches are behind their lid.
     expect(switches(el)).toHaveLength(2);
     expect(el.textContent).toContain(text.maintenanceHeading);
@@ -153,18 +172,14 @@ describe('OperationsPage', () => {
   });
 
   it('shows neither switch until the settings arrive', async () => {
-    let release: ((settings: AppSettings) => void) | undefined;
+    let release: ((settings: Switches) => void) | undefined;
     const { el, fixture } = await render({
-      read: new Promise<AppSettings>((resolve) => (release = resolve)),
+      read: new Promise<Switches>((resolve) => (release = resolve)),
     });
 
     expect(switches(el)).toHaveLength(0);
 
-    release?.({
-      maintenanceEnabled: false,
-      ownedAreas: [],
-      updatedAt: '2026-09-10T10:00:00.000Z',
-    });
+    release?.({ maintenanceEnabled: false, ownedAreas: [] });
     await fixture.whenStable();
     fixture.detectChanges();
 
@@ -183,8 +198,8 @@ describe('OperationsPage', () => {
 
       expect(h.confirm).not.toHaveBeenCalled();
       expect(h.setMaintenance).toHaveBeenCalledWith(true);
-      // The write answers with the whole row, so nothing is read back.
-      expect(h.read).toHaveBeenCalledTimes(1);
+      // The write answers with the new state, so nothing is read back.
+      expect(h.readMaintenance).toHaveBeenCalledTimes(1);
     });
 
     it('says the shop is hidden when it is on', async () => {

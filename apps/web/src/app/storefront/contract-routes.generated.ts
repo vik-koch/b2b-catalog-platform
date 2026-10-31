@@ -6,6 +6,7 @@
 
 import type * as storefront from '@b2b-catalog-platform/shared/storefront';
 import type * as storefrontCatalog from '@b2b-catalog-platform/shared/storefront/catalog';
+import type * as storefrontSite from '@b2b-catalog-platform/shared/storefront/site';
 
 export const accountContract = {
   getProfile: {
@@ -127,3 +128,12 @@ export const catalogContract = {
     },
   },
 } as unknown as typeof storefrontCatalog.catalogContract;
+export const inquiryContract = {
+  submit: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: { method: 'POST', path: '/inquiry', inputStructure: 'detailed' },
+    },
+  },
+} as unknown as typeof storefrontSite.inquiryContract;

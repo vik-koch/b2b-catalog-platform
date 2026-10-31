@@ -1,11 +1,11 @@
 import { Component, computed, inject, resource, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { fillText } from '@b2b-catalog-platform/shared';
 import {
   CONSENT_PAGE_SLUGS,
   CONSENT_PURPOSES,
   ConsentPurpose,
-  fillText,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/core/site';
 import { OWNERSHIP_AREAS } from '@b2b-catalog-platform/shared/sync';
 import { AuthService } from '../shared/auth/auth.service';
 import { SignedInAs } from '../shared/auth/signed-in-as';
@@ -17,11 +17,12 @@ import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';
 import { ActionLink } from '@b2b-catalog-platform/ui/actions/action-link';
 import { WorkService } from '../shared/work/work.service';
-import { BuildInfoService } from './build-info.service';
+import { BuildInfoService } from './platform/build-info.service';
 import { injectEditorReturnParams } from '../shared/edit-mode/editor-return';
 import { adminMomentFormat } from './dates/admin-date';
 import { PanelRow } from './panel-row';
-import { SettingsService } from './settings/settings.service';
+import { OwnershipService } from './settings/ownership.service';
+import { MaintenanceSwitchService } from './site/maintenance-switch.service';
 import { SyncService } from './sync/sync.service';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
 import { bookCheckIcon } from '@b2b-catalog-platform/ui/icons/glyphs/book-check';
@@ -584,7 +585,8 @@ export class AdminPanelPage {
   protected readonly listClass = 'divide-y divide-edge overflow-hidden';
 
   private readonly work = inject(WorkService);
-  private readonly settings = inject(SettingsService);
+  private readonly ownership = inject(OwnershipService);
+  private readonly maintenance = inject(MaintenanceSwitchService);
 
   /**
    * The runtime switches, for the chips beside the operations row. Null until
@@ -592,21 +594,19 @@ export class AdminPanelPage {
    * and is refused the endpoint behind it.
    */
   protected readonly maintenanceOn = computed(
-    () => this.settings.settings()?.maintenanceEnabled ?? false,
+    () => this.maintenance.enabled() ?? false,
   );
   protected readonly fullyOwned = computed(
-    () =>
-      new Set(this.settings.settings()?.ownedAreas ?? []).size ===
-      this.areas.length,
+    () => new Set(this.ownership.confirmed() ?? []).size === this.areas.length,
   );
   protected readonly catalogOwned = computed(
-    () => this.settings.settings()?.ownedAreas.includes('catalog') ?? false,
+    () => this.ownership.confirmed()?.includes('catalog') ?? false,
   );
   protected readonly customersOwned = computed(
-    () => this.settings.settings()?.ownedAreas.includes('customers') ?? false,
+    () => this.ownership.confirmed()?.includes('customers') ?? false,
   );
   protected readonly ordersOwned = computed(
-    () => this.settings.settings()?.ownedAreas.includes('orders') ?? false,
+    () => this.ownership.confirmed()?.includes('orders') ?? false,
   );
 
   /**
@@ -730,9 +730,13 @@ export class AdminPanelPage {
 
   constructor() {
     void this.loadBuildInfo();
-    // Admin-only, and deliberately not for a manager: the read is refused for
-    // them, and the failure is what tells the editors to lock every field.
-    if (this.isAdmin()) void this.settings.load();
+    // Admin-only, and deliberately not for a manager: the reads are refused for
+    // them, and the failed ownership read is what tells the editors to lock
+    // every field.
+    if (this.isAdmin()) {
+      void this.ownership.load();
+      void this.maintenance.load();
+    }
 
     usePageSeo({
       name: () =>

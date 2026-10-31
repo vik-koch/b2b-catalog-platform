@@ -3,9 +3,6 @@ import {
   API_TOKEN_NAME_MAX_LENGTH,
   API_TOKEN_PREFIX_LENGTH,
   API_TOKEN_SCOPES,
-  CONSENT_PURPOSES,
-  CONSENT_WITHDRAWAL_NOTE_MAX,
-  CONSENT_WITHDRAWAL_REASONS,
   FULFILMENT_METHODS,
   ORDER_ADJUSTMENT_NOTE_MAX,
   ORDER_WRITE_ACTOR_MAX,
@@ -16,12 +13,15 @@ import {
   PAYMENT_METHODS,
   PAYMENT_STATES,
   TAX_BASES,
+  CONSENT_WITHDRAWAL_NOTE_MAX,
+  CONSENT_WITHDRAWAL_REASONS,
 } from '@b2b-catalog-platform/shared';
+import { CONSENT_PURPOSES } from '@b2b-catalog-platform/shared/core/site';
 import {
   PRODUCT_AVAILABILITIES,
   PRODUCT_UNITS,
 } from '@b2b-catalog-platform/shared/core/catalog';
-import { SETTING_CHANGE_KINDS } from '@b2b-catalog-platform/shared/admin';
+import { SETTING_CHANGE_KINDS } from '@b2b-catalog-platform/shared/admin/platform';
 import {
   OWNERSHIP_AREAS,
   SYNC_AREAS,

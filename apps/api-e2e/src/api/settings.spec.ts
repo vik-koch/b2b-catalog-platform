@@ -70,31 +70,29 @@ describe('settings (maintenance toggle)', () => {
     expect(res.data).toEqual({ enabled: false });
   });
 
-  it('rejects reading the settings without a session', async () => {
-    const res = await axios.get('/settings', {
+  it('rejects reading the toggle without a session', async () => {
+    const res = await axios.get('/settings/maintenance', {
       validateStatus: () => true,
     });
     expect(res.status).toBe(401);
   });
 
-  it('rejects a non-admin reading the settings', async () => {
+  it('rejects a non-admin reading the toggle', async () => {
     const cookie = await login(USER_EMAIL);
-    const res = await axios.get('/settings', {
+    const res = await axios.get('/settings/maintenance', {
       headers: { Cookie: cookie },
       validateStatus: () => true,
     });
     expect(res.status).toBe(403);
   });
 
-  it('returns both switches to an admin in one read (off by default)', async () => {
+  it('returns the toggle to an admin (off by default)', async () => {
     const cookie = await login(ADMIN_EMAIL);
-    const res = await axios.get('/settings', {
+    const res = await axios.get('/settings/maintenance', {
       headers: { Cookie: cookie },
     });
     expect(res.status).toBe(200);
-    expect(res.data.maintenanceEnabled).toBe(false);
-    expect(res.data.ownedAreas).toEqual([]);
-    expect(typeof res.data.updatedAt).toBe('string');
+    expect(res.data).toEqual({ enabled: false });
   });
 
   it('rejects a non-admin flipping the toggle', async () => {
@@ -107,10 +105,10 @@ describe('settings (maintenance toggle)', () => {
     expect(res.status).toBe(403);
     // State is unchanged: an admin still reads it as off.
     const adminCookie = await login(ADMIN_EMAIL);
-    const check = await axios.get('/settings', {
+    const check = await axios.get('/settings/maintenance', {
       headers: { Cookie: adminCookie },
     });
-    expect(check.data.maintenanceEnabled).toBe(false);
+    expect(check.data.enabled).toBe(false);
   });
 
   it('rejects an unknown field on the toggle body (strict contract)', async () => {
@@ -133,7 +131,7 @@ describe('settings (maintenance toggle)', () => {
       { headers: { Cookie: cookie } },
     );
     expect(res.status).toBe(200);
-    expect(res.data.maintenanceEnabled).toBe(false);
+    expect(res.data).toEqual({ enabled: false });
   });
 
   describe('while the gate is on (FR-ADM-04)', () => {

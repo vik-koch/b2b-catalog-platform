@@ -32,7 +32,7 @@ import {
   products,
 } from '../../../db/schema';
 import { excluded } from '../../../db/sql-columns';
-import { SettingsService } from '../../../settings/settings.service';
+import { OwnershipState } from '../../../settings/ownership-state';
 import { catalogExternallyOwned } from '../../../settings/ownership.refusals';
 import { changedProductFields } from '../owned-fields';
 import {
@@ -74,13 +74,13 @@ export class ProductEditorService {
     @Inject(DRIZZLE) private db: NodePgDatabase<typeof schema>,
     // The deployment's "few left" fallback.
     @Inject(LOW_STOCK_THRESHOLD_PIECES) private lowStockFallback: number,
-    private readonly settings: SettingsService,
+    private readonly ownership: OwnershipState,
     private readonly records: ProductRecords,
   ) {}
 
   /** Whether the exchange owns the catalog (FR-ADM-10); a cached read. */
   private get catalogIsOwned(): boolean {
-    return this.settings.isExternallyOwned('catalog');
+    return this.ownership.isExternallyOwned('catalog');
   }
 
   async createProduct(

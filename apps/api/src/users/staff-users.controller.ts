@@ -19,7 +19,7 @@ import { CurrentUser } from '../auth/current-user.decorator';
 import { ConsentService } from '../consents/consent.service';
 import { refusals } from '../orpc/refusals';
 import { customersExternallyOwned } from '../settings/ownership.refusals';
-import { SettingsService } from '../settings/settings.service';
+import { OwnershipState } from '../settings/ownership-state';
 import { SignInStep } from '../auth/sign-in-step/sign-in-step';
 import { AccountInvitations } from './account-invitations';
 import { StaffUsersService } from './staff-users.service';
@@ -45,7 +45,7 @@ export class StaffUsersController {
     private readonly service: StaffUsersService,
     private readonly invitations: AccountInvitations,
     private readonly audit: AuditLogger,
-    private readonly settings: SettingsService,
+    private readonly ownership: OwnershipState,
     private readonly consents: ConsentService,
     private readonly deletion: AccountDeletion,
     private readonly step: SignInStep,
@@ -251,7 +251,7 @@ export class StaffUsersController {
   private refuseIfOwned(target: { role: StaffUser['role'] }, action: string) {
     if (
       target.role === 'user' &&
-      this.settings.isExternallyOwned('customers')
+      this.ownership.isExternallyOwned('customers')
     ) {
       throw customersExternallyOwned(action);
     }

@@ -14,7 +14,7 @@ import { TiersController } from './tiers/tiers.controller';
 import { TiersService } from './tiers/tiers.service';
 import { AuditLogger } from '../../audit/audit.logger';
 import { AuthModule } from '../../auth/auth.module';
-import { SettingsModule } from '../../settings/settings.module';
+import { OwnershipStateModule } from '../../settings/ownership-state.module';
 import { CatalogCoreModule } from '../../core/catalog/catalog-core.module';
 import {
   ALTERNATE_LAYOUT,
@@ -28,7 +28,7 @@ import {
  * and tiers, behind the `@Auth` guards AuthModule supplies.
  */
 @Module({
-  imports: [AuthModule, SettingsModule, CatalogCoreModule],
+  imports: [AuthModule, OwnershipStateModule, CatalogCoreModule],
   controllers: [
     ProductsController,
     CategoriesController,

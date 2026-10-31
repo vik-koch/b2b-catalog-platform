@@ -37,7 +37,7 @@ import { GridRowTemplate } from '@b2b-catalog-platform/ui/grid/grid-row-template
 import { GridTimestamp } from '../dates/grid-timestamp';
 import { RecordRow } from '@b2b-catalog-platform/ui/lists/record-row';
 import { GridHeader } from '@b2b-catalog-platform/ui/grid/grid-header';
-import { SettingsService } from '../settings/settings.service';
+import { OwnershipService } from '../settings/ownership.service';
 import { TiersService } from '../catalog/tiers/tiers.service';
 import { UserRowActions } from './user-row-actions';
 import { injectEditorReturnParams } from '../../shared/edit-mode/editor-return';
@@ -279,7 +279,7 @@ export class UserListPage {
   protected readonly searchMaxLength = SEARCH_QUERY_MAX_LENGTH;
   protected readonly plusIcon = plusIcon;
   private readonly service = inject(StaffUsersService);
-  private readonly ownership = inject(SettingsService);
+  private readonly ownership = inject(OwnershipService);
   private readonly tiers = inject(TiersService);
   protected readonly text = inject(ADMIN_TEXT).users.list;
   protected readonly fields = inject(SHARED_TEXT).fields;

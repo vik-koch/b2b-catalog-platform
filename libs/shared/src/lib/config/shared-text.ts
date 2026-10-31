@@ -1,7 +1,7 @@
 import * as z from 'zod';
 import type { DeepReadonly } from '../core/deep-readonly';
 import { refuseCountForms } from '../core/fill-text';
-import { PAGE_SLUGS } from '../site/page-constants';
+import { PAGE_SLUGS } from '../../core/site/pages';
 
 /** An order status per reading — `ready` reads by fulfilment: on its way, or
  * waiting to be collected. Customers' set here, staff's in the admin text. */

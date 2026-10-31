@@ -6,6 +6,8 @@
 
 import type * as admin from '@b2b-catalog-platform/shared/admin';
 import type * as adminCatalog from '@b2b-catalog-platform/shared/admin/catalog';
+import type * as adminPlatform from '@b2b-catalog-platform/shared/admin/platform';
+import type * as adminSite from '@b2b-catalog-platform/shared/admin/site';
 import type * as sync from '@b2b-catalog-platform/shared/sync';
 
 export const adminOrdersContract = {
@@ -120,54 +122,12 @@ export const adminOrdersContract = {
     },
   },
 } as unknown as typeof admin.adminOrdersContract;
-export const adminPagesContract = {
-  updatePage: {
+export const adminOwnershipContract = {
+  getOwnership: {
     '~orpc': {
       errorMap: {},
       meta: {},
-      route: {
-        method: 'PUT',
-        path: '/pages/{slug}',
-        inputStructure: 'detailed',
-      },
-    },
-  },
-  listPageVersions: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: {
-        method: 'GET',
-        path: '/pages/{slug}/versions',
-        inputStructure: 'detailed',
-      },
-    },
-  },
-} as unknown as typeof admin.adminPagesContract;
-export const adminSettingsContract = {
-  getBuildInfo: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: { method: 'GET', path: '/settings/build-info' },
-    },
-  },
-  getSettings: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: { method: 'GET', path: '/settings' },
-    },
-  },
-  setMaintenance: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: {
-        method: 'PUT',
-        path: '/settings/maintenance',
-        inputStructure: 'detailed',
-      },
+      route: { method: 'GET', path: '/settings/ownership' },
     },
   },
   setOwnership: {
@@ -181,14 +141,7 @@ export const adminSettingsContract = {
       },
     },
   },
-  listSettingChanges: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: { method: 'GET', path: '/settings/changes' },
-    },
-  },
-} as unknown as typeof admin.adminSettingsContract;
+} as unknown as typeof admin.adminOwnershipContract;
 export const apiTokensContract = {
   listApiTokens: {
     '~orpc': {
@@ -804,6 +757,66 @@ export const tiersContract = {
     },
   },
 } as unknown as typeof adminCatalog.tiersContract;
+export const adminOperationsContract = {
+  getBuildInfo: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: { method: 'GET', path: '/settings/build-info' },
+    },
+  },
+  listSettingChanges: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: { method: 'GET', path: '/settings/changes' },
+    },
+  },
+} as unknown as typeof adminPlatform.adminOperationsContract;
+export const adminMaintenanceContract = {
+  getMaintenance: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: { method: 'GET', path: '/settings/maintenance' },
+    },
+  },
+  setMaintenance: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'PUT',
+        path: '/settings/maintenance',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+} as unknown as typeof adminSite.adminMaintenanceContract;
+export const adminPagesContract = {
+  updatePage: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'PUT',
+        path: '/pages/{slug}',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+  listPageVersions: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'GET',
+        path: '/pages/{slug}/versions',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+} as unknown as typeof adminSite.adminPagesContract;
 export const syncContract = {
   commitRun: {
     '~orpc': {

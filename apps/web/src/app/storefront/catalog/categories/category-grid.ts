@@ -41,8 +41,8 @@ import {
 import { editAwareContent } from '../../../shared/edit-mode/edit-aware-content';
 import { EditModeService } from '../../../shared/edit-mode/edit-mode.service';
 import { injectEditorReturnParams } from '../../../shared/edit-mode/editor-return';
-import { LoadErrorView } from '../../pages/load-error-view';
-import { NotFoundView } from '../../pages/not-found-view';
+import { LoadErrorView } from '../../platform/load-error-view';
+import { NotFoundView } from '../../platform/not-found-view';
 import { CatalogService } from '../catalog.service';
 import { AppliedFilters } from '../filters/applied-filters';
 import {

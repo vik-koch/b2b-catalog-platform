@@ -17,8 +17,9 @@ import {
   storedEmailField,
 } from '../config/contact-config';
 import { commonAuthErrors, phoneFormatErrors } from '../core/api-error';
-import { consentErrors } from '../site/page-constants';
-import { consentVersionField } from '../site/page.contract';
+import { consentErrors } from '../../core/site/pages';
+import { consentVersionField } from '../../core/site/page.contract';
+import { honeypotField } from '../../platform/form-fields.contract';
 import { CUSTOMER_TYPES } from './user-constants';
 
 export type UserRole = (typeof USER_ROLES)[number];
@@ -250,11 +251,7 @@ export const registerSchema = z
         entityType: partyEntityTypeSchema,
       })
       .optional(),
-    website: z.preprocess(
-      (value) =>
-        typeof value === 'string' && value.trim() === '' ? undefined : value,
-      z.string().max(2000).optional(),
-    ),
+    website: honeypotField,
     consentVersion: consentVersionField,
   })
   // strict: unknown keys are rejected, not stripped (NFR-SEC-05).

@@ -1,13 +1,14 @@
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { TestBed } from '@angular/core/testing';
-import { Page, PartySuggestion } from '@b2b-catalog-platform/shared';
+import { PartySuggestion } from '@b2b-catalog-platform/shared';
+import { Page } from '@b2b-catalog-platform/shared/core/site';
 import { provideRouter } from '@angular/router';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { defaultStorefrontText } from '../../shared/config/storefront-text.fixture';
 import { defaultSharedText } from '../../shared/config/shared-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { defaultDeploymentConfig } from '../../shared/config/deployment-config.fixture';
-import { PageService } from '../../shared/pages/page.service';
+import { PageService } from '../../core/site/page.service';
 import { PartiesService } from '../../shared/parties/parties.service';
 import { AuthService } from '../../shared/auth/auth.service';
 import { RegisterPage } from './register-page';

@@ -69,7 +69,7 @@ import { LockedNote } from '../../ownership/locked-note';
 import { Allow } from '@b2b-catalog-platform/ui/inputs/allow';
 import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';
 import { LockedFieldMarker } from '../../ownership/locked-field-marker';
-import { SettingsService } from '../../settings/settings.service';
+import { OwnershipService } from '../../settings/ownership.service';
 import { ProductAvailabilityBadge } from '../../../core/catalog/ui/product-availability-badge';
 import { formatStoredDecimal } from '../../../core/catalog/buying/quantity';
 import { ProductDetailView } from '../../../core/catalog/product-page/ui/product-detail-view';
@@ -665,7 +665,7 @@ export class ProductEditorPage implements UnsavedChangesAware, FieldAttempt {
   protected readonly editText = inject(ADMIN_TEXT).editMode;
   protected readonly product = inject(SHARED_TEXT).product;
   protected readonly productStates = inject(ADMIN_TEXT).products;
-  private readonly ownership = inject(SettingsService);
+  private readonly ownership = inject(OwnershipService);
 
   /** FR-ADM-10. Unknown reads as not owned: the form waits for the answer,
    * and the API refuses either way. */

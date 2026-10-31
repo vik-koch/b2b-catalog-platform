@@ -5,7 +5,7 @@ import { AuditLogger } from '../audit/audit.logger';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
 import { ContractErrorFilter } from '../orpc/contract-error.filter';
-import { SettingsService } from '../settings/settings.service';
+import { OwnershipState } from '../settings/ownership-state';
 import { AdminOrdersController } from './admin-orders.controller';
 import { demoAdminOrder } from './order.fixture';
 import { OrderPersonalData } from './order-personal-data';
@@ -105,7 +105,7 @@ describe('AdminOrdersController', () => {
         { provide: OrderPersonalData, useValue: { removeOnRequest } },
         { provide: AuditLogger, useValue: { record: vi.fn() } },
         {
-          provide: SettingsService,
+          provide: OwnershipState,
           useValue: {
             isExternallyOwned: (area: string) => ownedAreas.includes(area),
           },

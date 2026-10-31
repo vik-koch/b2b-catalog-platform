@@ -1,0 +1,111 @@
+import {
+  computed,
+  effect,
+  inject,
+  resource,
+  signal,
+  Signal,
+  untracked,
+} from '@angular/core';
+import { form, required, type FieldTree } from '@angular/forms/signals';
+import {
+  CONSENT_PAGE_SLUGS,
+  ConsentPurpose,
+} from '@b2b-catalog-platform/shared/core/site';
+import { CONSENT_PATHS } from '@b2b-catalog-platform/shared/storefront/site';
+import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
+import { PageService } from '../../core/site/page.service';
+
+/**
+ * One form's consent box. The checkbox is a field of its own, so its required
+ * rule follows whether the box is asked at all.
+ */
+export interface ConsentRequest {
+  /** Where the consent text is read; the box's bracketed words link it. */
+  readonly path: string;
+  readonly asked: Signal<boolean>;
+  /** `loading` until the text arrives; `unavailable` when it has none. */
+  readonly state: Signal<'idle' | 'loading' | 'ready' | 'unavailable'>;
+  readonly label: Signal<string | null>;
+  readonly field: FieldTree<boolean>;
+  /**
+   * What the last refusal said, beside the box: the text changed under the
+   * open form, or the API has no text to hold the form to.
+   */
+  readonly notice: Signal<'changed' | 'unavailable' | null>;
+  /** Whether the form may be sent as far as consent goes. */
+  readonly sendable: Signal<boolean>;
+  /** What the form posts: the version shown, where a box was asked. */
+  version(): number | undefined;
+  /**
+   * Takes a refusal code from the API. True when it was a consent refusal,
+   * which this has already acted on: a stale text is reloaded and the box
+   * cleared, so the person reads the new wording before ticking again.
+   */
+  refused(code: string | undefined): boolean;
+}
+
+/**
+ * Asked where the deployment switches the purpose on, and where `owed` says
+ * so: the first-password form asks only an account that still owes it.
+ */
+export function useConsent(
+  purpose: ConsentPurpose,
+  owed?: Signal<boolean>,
+): ConsentRequest {
+  const pages = inject(PageService);
+  const slug = CONSENT_PAGE_SLUGS[purpose];
+  const switchedOn = inject(DEPLOYMENT_CONFIG).consent[purpose];
+  const asked = computed(() => switchedOn && (owed?.() ?? true));
+
+  const page = resource({
+    params: () => (asked() ? { slug } : undefined),
+    loader: ({ params }) => pages.getPage(params.slug),
+  });
+  const current = computed(() =>
+    page.hasValue() ? (page.value() ?? null) : undefined,
+  );
+
+  const state = computed(() => {
+    if (!asked()) return 'idle';
+    if (page.status() === 'error') return 'unavailable';
+    const value = current();
+    if (value === undefined) return 'loading';
+    return value?.consentLabel ? 'ready' : 'unavailable';
+  });
+
+  const ticked = signal(false);
+  const field = form(ticked, (box) => required(box, { when: () => asked() }), {
+    name: `consent-${purpose}`,
+  });
+
+  const notice = signal<'changed' | 'unavailable' | null>(null);
+  // Ticked again after reading the new wording: the notice has done its job.
+  effect(() => {
+    if (ticked() && untracked(notice) === 'changed') notice.set(null);
+  });
+
+  return {
+    path: CONSENT_PATHS[purpose],
+    asked,
+    state,
+    label: computed(() => current()?.consentLabel ?? null),
+    field,
+    notice: notice.asReadonly(),
+    sendable: computed(() => !asked() || state() === 'ready'),
+    version: () => (asked() ? current()?.version : undefined),
+    refused(code) {
+      if (code === 'consent-stale') {
+        field().reset(false);
+        notice.set('changed');
+        page.reload();
+        return true;
+      }
+      if (code === 'consent-unavailable') {
+        notice.set('unavailable');
+        return true;
+      }
+      return code === 'consent-required';
+    },
+  };
+}

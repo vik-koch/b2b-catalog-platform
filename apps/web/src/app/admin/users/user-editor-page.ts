@@ -34,7 +34,7 @@ import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Input } from '@b2b-catalog-platform/ui/inputs/input';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import { injectEditorReturn } from '../../shared/edit-mode/editor-return';
-import { SettingsService } from '../settings/settings.service';
+import { OwnershipService } from '../settings/ownership.service';
 import { TiersService } from '../catalog/tiers/tiers.service';
 import { StaffUsersService } from './users.service';
 import { SelectInput } from '@b2b-catalog-platform/ui/inputs/select-input';
@@ -451,7 +451,7 @@ export class UserEditorPage implements UnsavedChangesAware {
   protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly actionText = inject(SHARED_TEXT).actions;
   protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
-  private readonly ownership = inject(SettingsService);
+  private readonly ownership = inject(OwnershipService);
   /**
    * What an account with no tier of its own is charged, named: "Default
    * (Base list)". The option carries a null, which is also what a brand new

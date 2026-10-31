@@ -32,7 +32,7 @@ import { SyncCustomerPlanView } from './sync-customer-plan-view';
 import { SyncOrderPlanView } from './sync-order-plan-view';
 import { SyncPlanView } from './sync-plan-view';
 import { LockedNote } from '../ownership/locked-note';
-import { SettingsService } from '../settings/settings.service';
+import { OwnershipService } from '../settings/ownership.service';
 import { SyncService } from './sync.service';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
@@ -203,7 +203,7 @@ export class SyncRunPage {
   private readonly auth = inject(AuthService);
   private readonly sync = inject(SyncService);
   private readonly confirm = inject(ConfirmService);
-  private readonly ownership = inject(SettingsService);
+  private readonly ownership = inject(OwnershipService);
   protected readonly text = inject(ADMIN_TEXT).sync;
   private readonly adminText = inject(ADMIN_TEXT);
   protected readonly ownershipText = inject(ADMIN_TEXT).ownership;

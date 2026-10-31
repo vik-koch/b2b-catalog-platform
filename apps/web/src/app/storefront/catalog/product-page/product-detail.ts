@@ -21,8 +21,8 @@ import { usePageSeo } from '../../../shared/core/page-seo';
 import { EditActions } from '../../../shared/edit-mode/edit-actions';
 import { editAwareContent } from '../../../shared/edit-mode/edit-aware-content';
 import { injectEditorReturnParams } from '../../../shared/edit-mode/editor-return';
-import { LoadErrorView } from '../../pages/load-error-view';
-import { NotFoundView } from '../../pages/not-found-view';
+import { LoadErrorView } from '../../platform/load-error-view';
+import { NotFoundView } from '../../platform/not-found-view';
 import { CatalogService } from '../catalog.service';
 import { hiddenProductText } from './hidden-product-text';
 

@@ -358,6 +358,6 @@ export const adminRoutes: Route[] = [
     // guard runs and the editor re-reads its slug (see the strategy).
     data: { noReuse: true },
     loadComponent: () =>
-      import('./pages/page-editor-page').then((m) => m.PageEditorPage),
+      import('./site/pages/page-editor-page').then((m) => m.PageEditorPage),
   },
 ];

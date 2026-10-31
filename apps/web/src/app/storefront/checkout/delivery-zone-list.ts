@@ -7,9 +7,8 @@ import {
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { EmphasisedText } from '@b2b-catalog-platform/ui/content/emphasised-text';
-import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { mapIcon } from '@b2b-catalog-platform/ui/icons/glyphs/map';
-import { Card } from '@b2b-catalog-platform/ui/content/card';
+import { MarkedCard } from '@b2b-catalog-platform/ui/content/marked-card';
 
 /**
  * How wide a card is in a row of `n`, on a twelve-column grid. Written out so
@@ -34,28 +33,24 @@ const SPAN: Record<number, string> = {
 @Component({
   selector: 'app-delivery-zone-list',
   host: { class: 'block' },
-  imports: [Card, EmphasisedText, Icon],
+  imports: [MarkedCard, EmphasisedText],
   template: `
     <ul [class]="spread() ? 'grid gap-3 sm:grid-cols-12' : 'space-y-3'">
       @for (zone of zones; track zone.key; let i = $index) {
-        <li uiCard [class]="spread() ? 'flex gap-3 ' + spans[i] : ''">
-          @if (spread()) {
-            <ui-icon
-              [glyph]="mapIcon"
-              class="mt-0.5 size-5 shrink-0 text-ink-subtle"
-            />
+        <li
+          uiMarkedCard
+          [mark]="spread() ? mapIcon : null"
+          [class]="spread() ? spans[i] : ''"
+        >
+          <p class="font-medium">{{ zone.title }}</p>
+          @if (zone.description; as description) {
+            <p class="mt-1 text-sm text-ink-subtle">
+              <ui-emphasised [text]="description" />
+            </p>
           }
-          <div class="min-w-0 flex-1">
-            <p class="font-medium">{{ zone.title }}</p>
-            @if (zone.description; as description) {
-              <p class="mt-1 text-sm text-ink-subtle">
-                <ui-emphasised [text]="description" />
-              </p>
-            }
-            <!-- Said out loud either way: a zone with no line under it would
-                 read as an unstated free threshold rather than none. -->
-            <p class="mt-2 text-sm text-ink-subtle">{{ terms(zone) }}</p>
-          </div>
+          <!-- Said out loud either way: a zone with no line under it would
+               read as an unstated free threshold rather than none. -->
+          <p class="mt-2 text-sm text-ink-subtle">{{ terms(zone) }}</p>
         </li>
       }
     </ul>

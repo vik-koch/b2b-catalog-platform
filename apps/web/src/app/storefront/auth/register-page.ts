@@ -14,6 +14,7 @@ import {
 } from '../../shared/core/field-rules';
 import { CompanyFields } from '../../shared/parties/company-fields';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
+import { HoneypotField } from '@b2b-catalog-platform/ui/fields/honeypot-field';
 import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
 import { Input } from '@b2b-catalog-platform/ui/inputs/input';
 import { PhoneInput } from '@b2b-catalog-platform/ui/inputs/phone-input';
@@ -24,8 +25,8 @@ import {
 import { AuthCard } from './auth-card';
 import { AuthService } from '../../shared/auth/auth.service';
 import { Link } from '@b2b-catalog-platform/ui/actions/link';
-import { ConsentField } from '../pages/consent-field';
-import { useConsent } from '../pages/consent';
+import { ConsentField } from '../site/consent-field';
+import { useConsent } from '../site/consent';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
@@ -61,6 +62,7 @@ interface Registration {
 @Component({
   selector: 'app-register-page',
   imports: [
+    HoneypotField,
     AuthCard,
     ConsentField,
     FORM_FIELDS,
@@ -169,17 +171,11 @@ interface Registration {
             <ui-phone-input [field]="form.phone" [phone]="phoneInput" />
           </ui-field>
 
-          <!-- Honeypot: hidden from humans. -->
-          <div class="absolute left-[-9999px]" aria-hidden="true">
-            <label for="website">Leave this field empty</label>
-            <input
-              id="website"
-              type="text"
-              [formField]="form.website"
-              tabindex="-1"
-              autocomplete="off"
-            />
-          </div>
+          <ui-honeypot-field
+            controlId="website"
+            [field]="form.website"
+            label="Leave this field empty"
+          />
 
           <app-consent-field [consent]="consent" />
 

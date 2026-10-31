@@ -54,7 +54,7 @@ import {
   ConfirmService,
   confirmRequest,
 } from '@b2b-catalog-platform/ui/overlay/confirm.service';
-import { SettingsService } from '../settings/settings.service';
+import { OwnershipService } from '../settings/ownership.service';
 import { OrderRowActions } from './order-row-actions';
 import { AdminOrdersService, StaffOrderSummary } from './orders.service';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
@@ -252,7 +252,7 @@ import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 export class AdminOrderListPage {
   protected readonly searchMaxLength = SEARCH_QUERY_MAX_LENGTH;
   private readonly api = inject(AdminOrdersService);
-  private readonly ownership = inject(SettingsService);
+  private readonly ownership = inject(OwnershipService);
   private readonly currency = moneyFormat(inject(DEPLOYMENT_CONFIG));
 
   protected readonly text = inject(ADMIN_TEXT).orders.list;

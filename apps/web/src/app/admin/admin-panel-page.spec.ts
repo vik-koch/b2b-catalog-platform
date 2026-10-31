@@ -4,18 +4,18 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { AuthUser, WorkCounts } from '@b2b-catalog-platform/shared';
-import { BuildInfo } from '@b2b-catalog-platform/shared/admin';
-import { SyncArea } from '@b2b-catalog-platform/shared/sync';
+import { BuildInfo } from '@b2b-catalog-platform/shared/admin/platform';
+import { OwnershipArea, SyncArea } from '@b2b-catalog-platform/shared/sync';
 import { STOREFRONT_TEXT } from '../shared/config/storefront-text';
 import { ADMIN_TEXT } from '../shared/config/admin-text';
 import { defaultStorefrontText } from '../shared/config/storefront-text.fixture';
 import { defaultAdminText } from '../shared/config/admin-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../shared/config/deployment-config';
 import { defaultDeploymentConfig } from '../shared/config/deployment-config.fixture';
-import { AppSettings } from '@b2b-catalog-platform/shared/admin';
 import { AdminPanelPage } from './admin-panel-page';
-import { SettingsService } from './settings/settings.service';
-import { BuildInfoService } from './build-info.service';
+import { OwnershipService } from './settings/ownership.service';
+import { MaintenanceSwitchService } from './site/maintenance-switch.service';
+import { BuildInfoService } from './platform/build-info.service';
 import { SyncService } from './sync/sync.service';
 import { AuthService } from '../shared/auth/auth.service';
 import { adminUser, managerUser } from '../shared/auth/auth-user.fixture';
@@ -30,10 +30,22 @@ const config = defaultDeploymentConfig;
  * `user` (whose role decides how much of the panel exists at all), with `counts`
  * waiting.
  */
-/** The last settings answer the panel's chips read, and the read itself. */
-const settingsStub = (settings: AppSettings | null = null) => ({
-  load: vi.fn(async () => settings?.ownedAreas ?? []),
-  settings: signal(settings).asReadonly(),
+/** The switches as the panel's chips read them. */
+interface Switches {
+  maintenanceEnabled: boolean;
+  ownedAreas: OwnershipArea[];
+}
+
+/** The last answers the panel's chips read, and the reads themselves. */
+const settingsStub = (settings: Switches | null = null) => ({
+  ownership: {
+    load: vi.fn(async () => settings?.ownedAreas ?? []),
+    confirmed: signal(settings?.ownedAreas ?? null).asReadonly(),
+  },
+  maintenance: {
+    load: vi.fn(async () => ({ enabled: !!settings?.maintenanceEnabled })),
+    enabled: signal(settings?.maintenanceEnabled ?? null).asReadonly(),
+  },
 });
 
 /** The two logs the panel reads, answering per area so the two rows can be
@@ -80,7 +92,8 @@ async function render(
       },
       // Not under test here, and would otherwise reach the network.
       { provide: SyncService, useValue: sync },
-      { provide: SettingsService, useValue: settings },
+      { provide: OwnershipService, useValue: settings.ownership },
+      { provide: MaintenanceSwitchService, useValue: settings.maintenance },
     ],
   });
   const fixture = TestBed.createComponent(AdminPanelPage);
@@ -250,13 +263,8 @@ describe('AdminPanelPage sync rows', () => {
 describe('AdminPanelPage runtime state', () => {
   const panelText = defaultAdminText.panel;
 
-  const withSettings = (over: Partial<AppSettings>) =>
-    settingsStub({
-      maintenanceEnabled: false,
-      ownedAreas: [],
-      updatedAt: '2026-09-11T10:00:00.000Z',
-      ...over,
-    });
+  const withSettings = (over: Partial<Switches>) =>
+    settingsStub({ maintenanceEnabled: false, ownedAreas: [], ...over });
 
   it('says nothing while the shop is live and owns its own catalog', async () => {
     const el = await render(
@@ -329,14 +337,16 @@ describe('AdminPanelPage runtime state', () => {
       settings,
     );
 
-    expect(settings.load).not.toHaveBeenCalled();
+    expect(settings.ownership.load).not.toHaveBeenCalled();
+    expect(settings.maintenance.load).not.toHaveBeenCalled();
   });
 
   it('asks for them once as an admin', async () => {
     const settings = withSettings({});
     await render({ version: null, deployedAt: null }, adminUser, {}, settings);
 
-    expect(settings.load).toHaveBeenCalledTimes(1);
+    expect(settings.ownership.load).toHaveBeenCalledTimes(1);
+    expect(settings.maintenance.load).toHaveBeenCalledTimes(1);
   });
 });
 

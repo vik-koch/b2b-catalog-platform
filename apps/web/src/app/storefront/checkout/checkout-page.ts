@@ -33,6 +33,7 @@ import { usePageSeo } from '../../shared/core/page-seo';
 import { OrderReadBack } from '../../shared/orders/order-read-back';
 import { OrdersService } from '../orders/orders.service';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
+import { HoneypotField } from '@b2b-catalog-platform/ui/fields/honeypot-field';
 import { Checkbox } from '@b2b-catalog-platform/ui/choices/checkbox';
 import { TickLabel } from '@b2b-catalog-platform/ui/choices/tick-label';
 import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
@@ -58,8 +59,8 @@ import { PaymentChoice } from './payment-choice';
 import { PickupChoice } from './pickup-choice';
 import { PreferredDate } from './preferred-date';
 import { Link } from '@b2b-catalog-platform/ui/actions/link';
-import { PrivacyNotice } from '../pages/privacy-notice';
-import { TermsNotice } from '../pages/terms-notice';
+import { PrivacyNotice } from '../site/privacy-notice';
+import { TermsNotice } from '../site/terms-notice';
 import { WarningNote } from '@b2b-catalog-platform/ui/content/warning-note';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
@@ -87,6 +88,7 @@ import { shoppingBasketIcon } from '@b2b-catalog-platform/ui/icons/glyphs/shoppi
 @Component({
   selector: 'app-checkout-page',
   imports: [
+    HoneypotField,
     WarningNote,
     AddressPicker,
     Button,
@@ -276,18 +278,11 @@ import { shoppingBasketIcon } from '@b2b-catalog-platform/ui/icons/glyphs/shoppi
                     (picked)="pickParty($event)"
                   />
 
-                  <!-- ADR 0015's honeypot: off screen, never announced, and
-                       filled only by something that is not reading. -->
-                  <div class="absolute left-[-9999px]" aria-hidden="true">
-                    <label for="checkout-website">Leave this field empty</label>
-                    <input
-                      id="checkout-website"
-                      type="text"
-                      tabindex="-1"
-                      autocomplete="off"
-                      [formField]="checkoutForm.contact.website"
-                    />
-                  </div>
+                  <ui-honeypot-field
+                    controlId="checkout-website"
+                    [field]="checkoutForm.contact.website"
+                    label="Leave this field empty"
+                  />
                 }
 
                 @if (!guest()) {

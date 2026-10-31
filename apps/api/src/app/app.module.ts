@@ -7,16 +7,20 @@ import { AddressesModule } from '../addresses/addresses.module';
 import { PartiesModule } from '../parties/parties.module';
 import { AuthModule } from '../auth/auth.module';
 import { ConsentAdminModule } from '../consents/consent-admin.module';
-import { InquiryModule } from '../inquiry/inquiry.module';
+import { InquiryModule } from '../storefront/site/inquiry.module';
 import { DatabaseModule } from '../db/database.module';
 import { DestructionModule } from '../destruction/destruction.module';
 import { CatalogModule } from '../storefront/catalog/catalog.module';
 import { AdminCatalogModule } from '../admin/catalog/admin-catalog.module';
 import { OrdersModule } from '../orders/orders.module';
-import { PageModule } from '../pages/page.module';
+import { SiteModule } from '../storefront/site/site.module';
+import { AdminSiteModule } from '../admin/site/admin-site.module';
 import { MediaModule } from '../media/media.module';
 import { ThrottlingModule } from '../throttling/throttling.module';
-import { SettingsModule } from '../settings/settings.module';
+import { SettingsStoreModule } from '../platform/settings/settings-store.module';
+import { SiteCoreModule } from '../core/site/site-core.module';
+import { OwnershipModule } from '../settings/ownership.module';
+import { AdminPlatformModule } from '../admin/platform/admin-platform.module';
 import { SyncModule } from '../sync/sync.module';
 import { StaffUsersModule } from '../users/staff-users.module';
 import { WorkModule } from '../work/work.module';
@@ -29,10 +33,14 @@ import { WorkModule } from '../work/work.module';
     ApiTokensModule,
     CatalogModule,
     AdminCatalogModule,
-    PageModule,
+    SiteModule,
+    AdminSiteModule,
     MediaModule,
     InquiryModule,
-    SettingsModule,
+    SettingsStoreModule,
+    SiteCoreModule,
+    OwnershipModule,
+    AdminPlatformModule,
     SyncModule,
     StaffUsersModule,
     ConsentAdminModule,

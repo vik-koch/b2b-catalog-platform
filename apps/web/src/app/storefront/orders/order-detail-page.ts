@@ -22,7 +22,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { delayedLoading } from '../../shared/core/delayed-loading';
 import { usePageSeo } from '../../shared/core/page-seo';
-import { NotFoundView } from '../pages/not-found-view';
+import { NotFoundView } from '../platform/not-found-view';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import {
   confirmRequest,

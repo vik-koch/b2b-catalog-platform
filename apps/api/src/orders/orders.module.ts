@@ -37,7 +37,7 @@ import {
 } from '../config/deployment-config';
 import { MailModule } from '../mail/mail.module';
 import { MediaModule } from '../media/media.module';
-import { SettingsModule } from '../settings/settings.module';
+import { OwnershipStateModule } from '../settings/ownership-state.module';
 import { AdminOrdersController } from './admin-orders.controller';
 import { MachineOrderDocumentsController } from './machine-order-documents.controller';
 import { OrderDocumentActs } from './order-document-acts';
@@ -70,7 +70,7 @@ import { OrdersService } from './orders.service';
     // The guard the machine document route is checked by (NFR-SEC-09).
     ApiTokensModule,
     // Whether an external system holds order processing (FR-ADM-10).
-    SettingsModule,
+    OwnershipStateModule,
   ],
   controllers: [
     CartController,

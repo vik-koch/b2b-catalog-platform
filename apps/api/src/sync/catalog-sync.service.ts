@@ -22,7 +22,7 @@ import {
   catalogSyncOptionsSchema,
 } from '@b2b-catalog-platform/shared/sync';
 import { DRIZZLE } from '../db/database.module';
-import { SettingsService } from '../settings/settings.service';
+import { OwnershipState } from '../settings/ownership-state';
 import {
   catalogExternallyOwned,
   catalogNotExternallyOwned,
@@ -99,14 +99,14 @@ export class CatalogSyncService {
     // What this deployment lets an unattended run do to itself.
     @Inject(SYNC_POLICY)
     private readonly policy: SyncPolicy,
-    private readonly settings: SettingsService,
+    private readonly ownership: OwnershipState,
     private readonly notifications: SyncNotifications,
     private readonly log: SyncRunLog,
   ) {}
 
   /** Whether the exchange currently holds the pen (FR-ADM-10). */
   private get catalogIsOwned(): boolean {
-    return this.settings.isExternallyOwned('catalog');
+    return this.ownership.isExternallyOwned('catalog');
   }
 
   /** Parse-free entry point: rows are already validated (CSV or JSON). */

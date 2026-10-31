@@ -15,7 +15,7 @@ import { AdminCategory } from '@b2b-catalog-platform/shared/admin/catalog';
 import { slugify } from '@b2b-catalog-platform/shared/core/catalog';
 import { ADMIN_TEXT } from '../../../shared/config/admin-text';
 import { LockedFieldMarker } from '../../ownership/locked-field-marker';
-import { SettingsService } from '../../settings/settings.service';
+import { OwnershipService } from '../../settings/ownership.service';
 import { usePageSeo } from '../../../shared/core/page-seo';
 import { LockedNote } from '../../ownership/locked-note';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
@@ -226,7 +226,7 @@ export class CategoryEditorPage implements UnsavedChangesAware, FieldAttempt {
   protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly actionText = inject(SHARED_TEXT).actions;
   protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
-  private readonly ownership = inject(SettingsService);
+  private readonly ownership = inject(OwnershipService);
 
   /**
    * Only on a category the exchange knows, one with a source key. The shop
