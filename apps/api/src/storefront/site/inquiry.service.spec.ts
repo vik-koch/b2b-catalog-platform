@@ -16,8 +16,6 @@ import { MailService } from '../../mail/mail.service';
 import { ConsentService } from '../../consents/consent.service';
 import { InquiryService } from './inquiry.service';
 
-// Honeypot behaviour: the service is the last line — even if a bot
-// bypasses the client form, a filled decoy field must never send mail.
 describe('InquiryService', () => {
   const send = vi.fn<(mail: unknown) => Promise<void>>();
   const consents = {
@@ -63,14 +61,12 @@ describe('InquiryService', () => {
     await settle();
 
     expect(send).toHaveBeenCalledTimes(1);
-    // The recipient is deployment config (MAIL_STAFF_TO); this test only
-    // cares that a clean submission is delivered with the sender as reply-to.
     const [message] = send.mock.calls[0] as [{ to: string; replyTo?: string }];
     expect(message.to).toBeTruthy();
     expect(message.replyTo).toBe('jane@example.com');
   });
 
-  it('silently drops a submission with the honeypot filled — no mail sent', async () => {
+  it('silently drops a submission with the honeypot filled', async () => {
     await service.submit({ ...base, website: 'http://spam.example' });
     await settle();
 

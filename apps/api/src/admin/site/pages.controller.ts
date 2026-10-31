@@ -10,7 +10,6 @@ import { PageEditorService } from './page-editor.service';
 export class AdminPagesController {
   constructor(private readonly pageEditor: PageEditorService) {}
 
-  // The body is sanitized in the service.
   @Auth('admin')
   @Implement(adminPagesContract.updatePage)
   updatePage(@CurrentUser() user: AuthUser) {

@@ -5,12 +5,8 @@ import { PageEditorService } from './page-editor.service';
 import { JwtAuthGuard } from '../../auth/jwt-auth.guard';
 import { RolesGuard } from '../../auth/roles.guard';
 
-/**
- * The controller over a real HTTP server, because that is where the contract
- * layer actually does its work: routing, path params, request and response
- * validation, and the shape a declared refusal arrives in. A unit call on the
- * handler would exercise none of it.
- */
+/** Over a real server: routing, validation and the refusal's shape are the
+ * contract layer's work, which a call on the handler would skip. */
 describe('AdminPagesController', () => {
   let app: INestApplication;
   let baseUrl: string;
@@ -36,18 +32,12 @@ describe('AdminPagesController', () => {
         },
       ],
     })
-      // The guards are exercised in their own specs; here they only have to
-      // decide, so that this spec can prove the refusal reaches the client in
-      // the shape the contract declares.
       .overrideGuard(JwtAuthGuard)
       .useValue({
         canActivate: (context: {
           switchToHttp(): { getRequest(): { user?: unknown } };
         }) => {
-          // Throwing rather than returning false, as the real guard does: a
-          // guard that merely declines gets Nest's default 403, and the
-          // difference between "who are you" and "not you" is the difference
-          // between the sign-in form and the refusal screen.
+          // Throws like the real guard: a `false` would be a 403.
           if (!signedInAs) throw new UnauthorizedException();
           context.switchToHttp().getRequest().user = signedInAs;
           return true;
@@ -173,7 +163,6 @@ describe('AdminPagesController', () => {
     expect(listVersions).toHaveBeenCalledWith('privacy');
   });
 
-  // The slug enum is what makes "create a page" unrepresentable.
   it('rejects a slug that is not one of the fixed pages', async () => {
     signedInAs = { id: 'admin-1', role: 'admin' };
 
@@ -187,7 +176,6 @@ describe('AdminPagesController', () => {
     expect(updatePage).not.toHaveBeenCalled();
   });
 
-  // strict: unknown keys are rejected, not stripped (NFR-SEC-05).
   it('rejects a body carrying a field the contract does not declare', async () => {
     signedInAs = { id: 'admin-1', role: 'admin' };
 

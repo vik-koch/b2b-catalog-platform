@@ -17,28 +17,18 @@ import { UsersService } from '../../users/users.service';
 import { MaintenanceState } from './maintenance-state';
 import { MAINTENANCE_EXEMPT } from './maintenance-exempt.decorator';
 
-/** How long crawlers/clients are told to wait before retrying (1 hour). */
 const RETRY_AFTER_SECONDS = 3600;
 
 /**
- * Global gate for maintenance mode (FR-ADM-04, ADR 0023). The SSR tier mirrors
- * this for documents rather than API calls (see web's maintenance.server.ts);
- * an exemption added here usually needs its counterpart there. When the flag is off
- * it does nothing. When on, the shop is open to staff only, and a request is
- * answered with 503 unless it is exempt on one of these grounds:
+ * While the shop is closed, a 503 for everyone but staff, so a route nobody
+ * exempted stays hidden. Open are routes that are staff-only by their
+ * `@Auth(...)` roles, machine routes and `@MaintenanceExempt()` ones, whose
+ * own guards still authenticate, and any request with a staff session, so
+ * staff preview the shop as it will open. A bare `@Auth()` does not count:
+ * a customer's account sits behind it.
  *
- *  - route-structural: the route is staff-only by its `@Auth(...)` roles (the
- *    admin panel and its APIs), carries `@Machine(...)` scope metadata (the
- *    automated clients), or is explicitly `@MaintenanceExempt()` (login, health
- *    probes). Those routes' own guards still enforce authentication. A bare
- *    `@Auth()` does not count: a customer's account pages sit behind it.
- *  - identity: the request carries a valid staff session, so an admin or a
- *    manager previews the live storefront exactly as it will appear at launch.
- *
- * Everything else — a visitor, a crawler or a signed-in customer — is gated.
- * The default is therefore fail-safe: a route nobody exempted stays hidden.
- * This is only a bypass check; real authorization lives in JwtAuthGuard and
- * RolesGuard, which run afterwards on the routes that require them.
+ * Only a bypass, never authorization. The web's `maintenance.server.ts` gates
+ * documents the same way: an exemption here usually needs one there.
  */
 @Injectable()
 export class MaintenanceGuard implements CanActivate {
@@ -56,16 +46,12 @@ export class MaintenanceGuard implements CanActivate {
 
     const targets = [context.getHandler(), context.getClass()];
 
-    // Route-structural exemptions. `@Auth(...)` attaches Roles metadata (an
-    // array, empty for a bare `@Auth()`); a list naming staff alone means the
-    // route is out of a customer's reach and stays open.
+    // Empty for a bare `@Auth()`.
     const roles = this.reflector.getAllAndOverride(Roles, targets);
     if (roles?.length && roles.every(passesMaintenance)) {
       return true;
     }
-    // `@Machine(...)` is the same kind of proof for the other authentication
-    // path: an automated client's import is exactly the work maintenance mode
-    // is usually switched on to make room for.
+    // An import is often what the shop was closed to make room for.
     if (this.reflector.getAllAndOverride(MachineScope, targets) !== undefined) {
       return true;
     }
@@ -77,7 +63,6 @@ export class MaintenanceGuard implements CanActivate {
       return true;
     }
 
-    // Identity exemption: a valid staff session bypasses the gate everywhere.
     const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
     if (await this.isStaffRequest(request)) {
       return true;
@@ -88,12 +73,7 @@ export class MaintenanceGuard implements CanActivate {
     throw new ServiceUnavailableException('Service under maintenance');
   }
 
-  /**
-   * Best-effort check that the request comes from an authenticated staff
-   * member. Any failure — no cookie, bad signature, stale token version, gone
-   * user, or a customer's role — simply means "no bypass" and is swallowed;
-   * this grants a preview exemption, it never authorizes anything.
-   */
+  /** Any failure means no bypass, never an error. */
   private async isStaffRequest(
     request: AuthenticatedRequest,
   ): Promise<boolean> {

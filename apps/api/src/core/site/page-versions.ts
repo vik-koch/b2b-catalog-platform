@@ -9,9 +9,8 @@ export type PageVersionRow = typeof pageVersions.$inferSelect;
 type Reader = Pick<NodePgDatabase<typeof schema>, 'select'>;
 
 /**
- * A page is its latest version: the slug's highest number. A plain function
- * rather than a service method, so a module that only reads the current text
- * does not take on the page module's dependencies.
+ * A page is its slug's highest version. A function taking the db or a
+ * transaction, so orders and consents read a text without a site module.
  */
 export async function currentPageVersion(
   db: Reader,

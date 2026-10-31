@@ -2,9 +2,8 @@ import { Module } from '@nestjs/common';
 import { MaintenanceState } from './maintenance-state';
 
 /**
- * The reader on its own, with nothing it depends on but the global store, so
- * AuthModule can ask whether the shop is closed before it signs a customer in:
- * the module that holds the gate imports AuthModule for its guards.
+ * Apart from the gate's module, which imports AuthModule: AuthModule reads
+ * this before it signs a customer in.
  */
 @Module({
   providers: [MaintenanceState],

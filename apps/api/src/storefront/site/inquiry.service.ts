@@ -26,19 +26,11 @@ export class InquiryService {
   ) {}
 
   /**
-   * Queued, not sent here (FR-NOTIF-04). Nothing is stored either way, so the
-   * visitor's answer has never depended on the provider's — and making them
-   * watch a form for the seconds a real relay takes is the one thing the
-   * screen could get wrong. A message that will not go out is logged.
-   *
-   * The consent, where the deployment asks for one, is the exception: it is
-   * the shop's evidence and outlives the inquiry it came with.
+   * The mail is queued, not sent: nothing is stored, so the visitor's answer
+   * never waits on the relay. Only the consent is kept, as the shop's evidence.
    */
   async submit(submission: InquiryRequest): Promise<void> {
-    // Honeypot: drop it silently toward the caller — no mail, no error, a
-    // normal 200 with no hint the decoy tripped — but log it server-side so
-    // honeypot hits stay visible for spam monitoring. Log the fact only, no
-    // submission content (no PII in logs).
+    // A normal answer, so the bot learns nothing; logged without content.
     if (submission.website) {
       this.logger.warn('Rejected inquiry: honeypot field populated');
       return;

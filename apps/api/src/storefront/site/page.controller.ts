@@ -7,10 +7,8 @@ import { PageService } from './page.service';
 export class PageController {
   constructor(private readonly pageService: PageService) {}
 
-  // The contract's `.output()` schema is enforced on the way out — without it
-  // the raw DB row (including the internal id column) would leak.
   @Implement(pageContract.getPage)
-  getPageBySlug() {
+  getPage() {
     return implement(pageContract.getPage).handler(
       async ({ input: { params }, errors }) => {
         const page = await this.pageService.getPage(params.slug);

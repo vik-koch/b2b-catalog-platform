@@ -12,11 +12,8 @@ import { RolesGuard } from '../../auth/roles.guard';
 import { Roles } from '../../auth/roles.decorator';
 import type { UserRole } from '@b2b-catalog-platform/shared';
 
-/**
- * Over a real server, because the questions here are about what the framework
- * does around the handler rather than what the handler returns: whether the
- * role guards still stand in front of a route the contract layer registered.
- */
+/** Over a real server: the role guards must still find their metadata on a
+ * handler the contract layer registered. */
 describe('OperationsController', () => {
   let app: INestApplication;
   let baseUrl: string;
@@ -40,8 +37,7 @@ describe('OperationsController', () => {
         canActivate: (context: {
           switchToHttp(): { getRequest(): { user?: unknown } };
         }) => {
-          // Throwing rather than declining, as the real guard does: a guard
-          // that returns false gets Nest's default 403.
+          // Throws like the real guard: a `false` would be a 403.
           if (!signedInAs) throw new UnauthorizedException();
           context.switchToHttp().getRequest().user = signedInAs;
           return true;

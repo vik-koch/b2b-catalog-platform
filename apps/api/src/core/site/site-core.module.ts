@@ -5,9 +5,8 @@ import { MaintenanceGuard } from './maintenance.guard';
 import { MaintenanceStateModule } from './maintenance-state.module';
 
 /**
- * The maintenance gate, on every route of every audience. AuthModule supplies
- * the JwtService/UsersService the gate uses for its staff-session bypass. An
- * APP_GUARD runs ahead of the per-route auth guards.
+ * The maintenance gate on every route of every audience, ahead of the
+ * per-route auth guards. AuthModule supplies its staff-session check.
  */
 @Module({
   imports: [AuthModule, MaintenanceStateModule],

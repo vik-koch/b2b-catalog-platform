@@ -5,8 +5,7 @@ import { AdminMaintenanceController } from './maintenance.controller';
 import { MaintenanceSwitch } from './maintenance-switch';
 import { AuthModule } from '../../auth/auth.module';
 
-/** The admin's page editor and maintenance toggle, behind the `@Auth` guards
- * AuthModule supplies. */
+/** AuthModule supplies the `@Auth` guards. */
 @Module({
   imports: [AuthModule],
   controllers: [AdminPagesController, AdminMaintenanceController],

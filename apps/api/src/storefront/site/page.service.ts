@@ -9,7 +9,6 @@ import { currentPageVersion, toPage } from '../../core/site/page-versions';
 export class PageService {
   constructor(@Inject(DRIZZLE) private db: NodePgDatabase<typeof schema>) {}
 
-  /** The page is its latest version. */
   async getPage(slug: string): Promise<Page | undefined> {
     const row = await currentPageVersion(this.db, slug);
     return row && toPage(row);

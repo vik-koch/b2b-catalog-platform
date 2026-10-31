@@ -20,8 +20,7 @@ export class MaintenanceSwitch {
     let moved = false;
     const row = await this.store.change(actor, (before) => {
       moved = before.maintenanceMode !== enabled;
-      // Recorded only when it moved: a panel that re-sends the state it is
-      // already showing would otherwise fill the trail with non-events.
+      // A panel re-sending the state it shows is not an event.
       return {
         set: { maintenanceMode: enabled },
         record: moved ? [{ kind: 'maintenance', area: null, enabled }] : [],

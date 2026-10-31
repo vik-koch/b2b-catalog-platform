@@ -13,11 +13,8 @@ import { RolesGuard } from '../../auth/roles.guard';
 import { Roles } from '../../auth/roles.decorator';
 import type { UserRole } from '@b2b-catalog-platform/shared';
 
-/**
- * Over a real server, because the questions here are about what the framework
- * does around the handler rather than what the handler returns: whether the
- * role guards still stand in front of a route the contract layer registered, and whether the maintenance gate still finds the metadata on one.
- */
+/** Over a real server: the role guards and the gate must still find their
+ * metadata on a handler the contract layer registered. */
 describe('AdminMaintenanceController', () => {
   let app: INestApplication;
   let baseUrl: string;
@@ -33,8 +30,7 @@ describe('AdminMaintenanceController', () => {
       controllers: [AdminMaintenanceController],
       providers: [
         { provide: MaintenanceSwitch, useValue: maintenance },
-        // The real gate, with only its identity check stubbed out: the
-        // metadata lookup is the whole point of the exercise.
+        // The real gate, with no session to find.
         {
           provide: APP_GUARD,
           inject: [Reflector],
@@ -53,8 +49,7 @@ describe('AdminMaintenanceController', () => {
         canActivate: (context: {
           switchToHttp(): { getRequest(): { user?: unknown } };
         }) => {
-          // Throwing rather than declining, as the real guard does: a guard
-          // that returns false gets Nest's default 403.
+          // Throws like the real guard: a `false` would be a 403.
           if (!signedInAs) throw new UnauthorizedException();
           context.switchToHttp().getRequest().user = signedInAs;
           return true;
@@ -90,8 +85,6 @@ describe('AdminMaintenanceController', () => {
     maintenance.set.mockClear();
   });
 
-  // Its `@Auth(...)` roles metadata is the other exemption the gate looks for,
-  // and it must survive the same round trip.
   it('stays reachable to an admin while maintenance is on', async () => {
     maintenanceOn = true;
     signedInAs = { id: 'admin-1', role: 'admin' };
@@ -125,15 +118,13 @@ describe('AdminMaintenanceController', () => {
     });
 
     expect(response.status).toBe(200);
-    // The account, not just its id: the change record names who did it, and
-    // keeps the address for after the account is gone.
+    // The trail keeps the address for after the account is gone.
     expect(maintenance.set).toHaveBeenCalledWith(
       true,
       expect.objectContaining({ id: 'admin-1' }),
     );
   });
 
-  // strict: unknown keys are rejected, not stripped (NFR-SEC-05).
   it('rejects a toggle body carrying anything else', async () => {
     signedInAs = { id: 'admin-1', role: 'admin' };
 

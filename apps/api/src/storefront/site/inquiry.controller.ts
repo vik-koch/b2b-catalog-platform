@@ -9,9 +9,6 @@ import { refusals } from '../../orpc/refusals';
 export class InquiryController {
   constructor(private readonly inquiryService: InquiryService) {}
 
-  // Rate-limited per client IP; over the limit is a 429 before the handler
-  // runs. The contract then validates the body, so an invalid submission is a
-  // 400 without reaching the service.
   @PublicFormThrottle()
   @Implement(inquiryContract.submit)
   submit() {
