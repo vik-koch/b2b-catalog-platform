@@ -109,8 +109,9 @@ it replaces a release later. A migration that cannot run unattended makes the re
   ([ADR 0069](adr/0069-split-web-texts-and-contracts-by-audience.md),
   [ADR 0073](adr/0073-cut-the-code-by-area-and-audience.md)).
 - **Views in `ui/`, containers at the feature root.** A component that only draws (inputs,
-  outputs, texts and config) lives in its feature's `ui/` folder and imports no service, API
-  client or contract; pages and services stay at the root, helpers beside what uses them. Lint
+  outputs, texts and config) lives in the `ui/` folder of the nearest folder holding all its
+  users (feature, area or `core/<area>`) and imports no service, API client or contract; pages
+  and services stay at the root, helpers beside what uses them. Lint
   holds the import half; `import type` keeps a contract's shapes out of a view
   ([ADR 0072](adr/0072-keep-views-apart-from-what-loads-data.md)).
 - **Colours are roles.** A template names what a colour does (`ink`, `surface-strong`,

@@ -525,7 +525,8 @@ configs:
   # Search usage (NFR-OPS-05), the one dashboard fed by application logs rather
   # than by the edge: Traefik does not keep query strings, and no access log
   # knows how many rows a search returned. The api container emits one
-  # `[Search]` line per executed search (apps/api/src/catalog/search.logger.ts);
+  # `[Search]` line per executed search
+  # (apps/api/src/storefront/catalog/search.logger.ts);
   # the `q=/results=/ms=` shape of that line is what the regexp below parses, so
   # the two change together.
   #

@@ -78,9 +78,9 @@ export default [
   // composes both. Their wording follows the same line: each side reads its
   // own text and the shared text, and only shared and core code, showing one
   // side's view to the other, reads both; a spec may, to set the scene. Areas
-  // within them are held by tools/lint/area-boundaries.mjs. A later block replaces an earlier
-  // `no-restricted-imports` rather than adding to it, so each one repeats the
-  // server-package pattern above.
+  // within them are held by tools/lint/area-boundaries.mjs. A later block
+  // replaces an earlier `no-restricted-imports` rather than adding to it, so
+  // each one repeats the server-package pattern above.
   ...[
     {
       part: 'storefront',

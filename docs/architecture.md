@@ -165,7 +165,8 @@ by module and a barrel would carry the whole library into the first load
 
 **Views apart from what loads data.** Inside a feature folder, the routed pages, services and
 URL-state writers sit at its root; the views, which take inputs, give outputs and read only
-texts and config, sit in its `ui/` subfolder. Lint refuses a service or an API client inside
+texts and config, sit in a `ui/` subfolder: the feature's, or the area's or `core/<area>`'s
+when several features use them. Lint refuses a service or an API client inside
 `ui/` ([ADR 0072](adr/0072-keep-views-apart-from-what-loads-data.md)).
 
 **The database** is PostgreSQL with Drizzle. A few modelling rules carry most of the domain:
