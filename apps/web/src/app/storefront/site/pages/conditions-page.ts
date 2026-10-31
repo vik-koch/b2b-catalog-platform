@@ -1,0 +1,307 @@
+import { Component, computed, inject, resource } from '@angular/core';
+import { RouterLink } from '@angular/router';
+import {
+  fillText,
+  formatTaxRate,
+  DeploymentConfig,
+} from '@b2b-catalog-platform/shared';
+import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
+import { SHARED_TEXT } from '../../../shared/config/shared-text';
+import { StorefrontText } from '../../../shared/config/storefront-text.type';
+import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
+import { injectEditorReturnParams } from '../../../shared/edit-mode/editor-return';
+import { editAwareContent } from '../../../shared/edit-mode/edit-aware-content';
+import { EditActions } from '../../../shared/edit-mode/edit-actions';
+import { DeliveryZoneList } from '../../checkout/delivery-zone-list';
+import { usePageSeo } from '../../../shared/core/page-seo';
+import { RichTextLinks } from '../../../shared/core/rich-text-links';
+import { trustedRichText } from '../../../shared/core/trusted-rich-text';
+import { EmphasisedText } from '@b2b-catalog-platform/ui/content/emphasised-text';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import { TextButton } from '@b2b-catalog-platform/ui/actions/text-button';
+import { LoadErrorView } from '../../platform/load-error-view';
+import { PageService } from '../../../core/site/page.service';
+import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
+import { banknoteIcon } from '@b2b-catalog-platform/ui/icons/glyphs/banknote';
+import { landmarkIcon } from '@b2b-catalog-platform/ui/icons/glyphs/landmark';
+import { mapPinIcon } from '@b2b-catalog-platform/ui/icons/glyphs/map-pin';
+import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
+import { Card } from '@b2b-catalog-platform/ui/content/card';
+
+/**
+ * Payment and delivery conditions (FR-NAV-03) — a code route that renders an
+ * editable body, as the contact page does.
+ *
+ * The body is the shop's prose; the conditions under it are read from where
+ * checkout reads them and worded as checkout words them: the delivery zones
+ * and pickup points from deployment config, the payment methods from the
+ * platform's rule of which party pays how. Typed into the body instead, they
+ * would be a second copy free to disagree with the form that takes the order.
+ *
+ * A section the deployment has nothing for is left out — no zones, no zone
+ * list; no pickup points, no pickup; no return paragraphs and no withdrawal
+ * page, no returns.
+ *
+ * Each card is marked with a glyph, and a description — like each paragraph
+ * of the goods and returns text — may set words in bold (`<b>`, see
+ * EmphasisedText). Zones of the same level share a row.
+ */
+@Component({
+  selector: 'app-conditions-page',
+  imports: [
+    Card,
+    RichTextLinks,
+    DeliveryZoneList,
+    EditActions,
+    EmphasisedText,
+    Icon,
+    RouterLink,
+    TextButton,
+    LoadErrorView,
+    PageTitle,
+    Skeleton,
+  ],
+  template: `
+    <!-- Nothing renders before the body arrives, and a body that failed or was
+         never written takes the page down with it — the same rules, and the
+         same reasons, as the contact page. -->
+    @if (pageResource.error()) {
+      <app-load-error-view [heading]="errorText.cannotLoadTitle" />
+    } @else if (missing()) {
+      <app-load-error-view [heading]="errorText.cannotLoadTitle" />
+    } @else if (ready()) {
+      @let content = page();
+      <div class="flex items-start justify-between gap-4">
+        <h1 uiPageTitle class="mb-4">
+          {{ content?.title || navLabel }}
+        </h1>
+        @if (canEdit(); as editorText) {
+          <app-edit-actions
+            variant="inline"
+            [editLink]="['/admin/pages', 'conditions', 'edit']"
+            [editParams]="editorFrom()"
+            [editLabel]="editorText.edit"
+          />
+        }
+      </div>
+
+      @if (content) {
+        <div
+          class="prose mb-8 max-w-3xl"
+          appRichTextLinks
+          [innerHTML]="safeBody(content.bodyHtml)"
+        ></div>
+      } @else if (canEdit(); as editorText) {
+        <p class="mb-4 text-ink-subtle">{{ editorText.emptyNotice }}</p>
+      }
+
+      <div class="max-w-3xl space-y-10">
+        @if (hasZones) {
+          <section>
+            <h2 class="mb-4 text-2xl font-normal tracking-tight">
+              {{ fulfilmentText.conditionsHeading }}
+            </h2>
+            <app-delivery-zone-list [spread]="true" />
+            <p class="mt-4 text-sm text-ink-subtle">
+              {{ fulfilmentText.conditionsNote }}
+            </p>
+          </section>
+        }
+
+        @if (pickupLocations.length) {
+          <section>
+            <h2 class="text-2xl font-normal tracking-tight">
+              {{ sharedText.fulfilment.pickup }}
+            </h2>
+            <p class="mt-1 mb-4 text-ink-subtle">
+              {{ fulfilmentText.pickupDescription }}
+            </p>
+            <ul class="space-y-3">
+              @for (location of pickupLocations; track location.key) {
+                <li uiCard class="flex gap-3">
+                  <ui-icon [glyph]="mapPinIcon" [class]="cardMark" />
+                  <div class="min-w-0 flex-1">
+                    <div
+                      class="flex flex-wrap items-baseline justify-between
+                             gap-x-4"
+                    >
+                      <p class="font-medium">{{ location.name }}</p>
+                      @if (location.mapUrl) {
+                        <a
+                          uiTextButton
+                          class="text-sm"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          [href]="location.mapUrl"
+                        >
+                          {{ fulfilmentText.mapLink }}
+                        </a>
+                      }
+                    </div>
+                    <p class="mt-1 text-sm text-ink-subtle">
+                      {{ location.address }}
+                    </p>
+                    @if (location.description) {
+                      <p class="mt-2 text-sm text-ink-subtle">
+                        <ui-emphasised [text]="location.description" />
+                      </p>
+                    }
+                  </div>
+                </li>
+              }
+            </ul>
+          </section>
+        }
+
+        <!-- Both methods, each with the party it is for: checkout offers
+             exactly one of them to whoever is invoiced, and says why the other
+             is greyed in these same words. -->
+        <section>
+          <h2 class="mb-4 text-2xl font-normal tracking-tight">
+            {{ pageText.paymentHeading }}
+          </h2>
+          <ul class="space-y-3">
+            <li uiCard class="flex gap-3">
+              <ui-icon [glyph]="banknoteIcon" [class]="cardMark" />
+              <div class="min-w-0 flex-1">
+                <p class="font-medium">{{ paymentNames.cash }}</p>
+                <p class="mt-1 text-sm text-ink-subtle">
+                  {{ pageText.cashDescription }}
+                </p>
+                <p class="mt-2 text-sm text-ink-subtle">
+                  {{ paymentText.cashPersonOnly }}
+                </p>
+              </div>
+            </li>
+            <li uiCard class="flex gap-3">
+              <ui-icon [glyph]="landmarkIcon" [class]="cardMark" />
+              <div class="min-w-0 flex-1">
+                <p class="font-medium">{{ paymentNames.transfer }}</p>
+                <p class="mt-1 text-sm text-ink-subtle">
+                  {{ paymentText.transferDescription }}
+                </p>
+                <p class="mt-2 text-sm text-ink-subtle">
+                  {{ paymentText.transferCompanyOnly }}
+                </p>
+              </div>
+            </li>
+          </ul>
+        </section>
+
+        <!-- The shop's own words about its goods, then the basis every price
+             on the site is quoted on (NFR-LEGAL-11) — always, whatever the
+             paragraphs above it say. -->
+        <section>
+          <h2 class="mb-4 text-2xl font-normal tracking-tight">
+            {{ pageText.goodsHeading }}
+          </h2>
+          <div class="space-y-3 text-ink-subtle">
+            @for (paragraph of pageText.goodsParagraphs; track $index) {
+              <p><ui-emphasised [text]="paragraph" /></p>
+            }
+            <p>{{ taxSentence }}</p>
+          </div>
+        </section>
+
+        <!-- How a return works in practice. The statutory right is the
+             withdrawal page's to state, so it is linked rather than retold. -->
+        @if (pageText.returnsParagraphs.length || withdrawalPublished) {
+          <section>
+            <h2 class="mb-4 text-2xl font-normal tracking-tight">
+              {{ pageText.returnsHeading }}
+            </h2>
+            <div class="space-y-3 text-ink-subtle">
+              @for (paragraph of pageText.returnsParagraphs; track $index) {
+                <p><ui-emphasised [text]="paragraph" /></p>
+              }
+              @if (withdrawalPublished) {
+                <p>
+                  <a uiTextButton routerLink="/withdrawal">{{
+                    pageText.returnsWithdrawalLink
+                  }}</a>
+                </p>
+              }
+            </div>
+          </section>
+        }
+      </div>
+    } @else if (showSkeleton()) {
+      <ui-skeleton size="title" class="mb-4" [widths]="['33%']" />
+      <ui-skeleton [widths]="['100%', '83%']" />
+    }
+  `,
+})
+export class ConditionsPage {
+  protected readonly banknoteIcon = banknoteIcon;
+  protected readonly landmarkIcon = landmarkIcon;
+  protected readonly mapPinIcon = mapPinIcon;
+  private readonly storefrontText = inject(STOREFRONT_TEXT);
+  protected readonly sharedText = inject(SHARED_TEXT);
+  private readonly nav = this.sharedText.nav;
+  protected readonly paymentNames = this.sharedText.order.paymentMethods;
+  private readonly config = inject(DEPLOYMENT_CONFIG);
+  private readonly pageService = inject(PageService);
+
+  protected readonly cardMark = 'mt-0.5 size-5 shrink-0 text-ink-subtle';
+
+  protected readonly navLabel = this.nav.conditions;
+  protected readonly errorText = this.storefrontText.errors;
+  protected readonly pageText = this.storefrontText.conditions;
+  protected readonly fulfilmentText = this.storefrontText.checkout.fulfilment;
+  protected readonly paymentText = this.storefrontText.checkout.payment;
+
+  /** The basis in a sentence, naming the default rate where tax is charged. */
+  protected readonly taxSentence = taxSentence(this.config, this.pageText);
+
+  protected readonly hasZones = (this.config.delivery?.zones.length ?? 0) > 0;
+  protected readonly pickupLocations = this.config.pickup?.locations ?? [];
+  protected readonly withdrawalPublished =
+    this.config.pages.published.includes('withdrawal');
+
+  protected readonly editorFrom = injectEditorReturnParams();
+  /** Bypasses Angular's redundant innerHTML sanitizer for the server-sanitized
+   * page body — see trustedRichText. */
+  protected readonly safeBody = trustedRichText();
+
+  protected readonly pageResource = resource({
+    loader: () => this.pageService.getPage('conditions'),
+  });
+
+  // `undefined` while loading *or failed*, `null` when the page has no row yet.
+  // Guarded: `value()` throws on an errored resource, and an unguarded read
+  // during SSR kills the render before it can set a status.
+  protected readonly page = computed(() =>
+    this.pageResource.hasValue() ? this.pageResource.value() : undefined,
+  );
+
+  private readonly content = editAwareContent({
+    ready: computed(
+      () =>
+        !this.pageResource.isLoading() && this.pageResource.status() !== 'idle',
+    ),
+    section: 'pages',
+  });
+  protected readonly ready = this.content.ready;
+  protected readonly canEdit = this.content.controls;
+  protected readonly showSkeleton = this.content.showSkeleton;
+
+  /** No row, and nobody here who could write one: the page cannot be served. */
+  protected readonly missing = computed(
+    () => this.ready() && this.page() === null && !this.canEdit(),
+  );
+
+  constructor() {
+    usePageSeo({ name: () => this.page()?.title || this.navLabel });
+  }
+}
+
+function taxSentence(
+  config: DeploymentConfig,
+  text: StorefrontText['conditions'],
+): string {
+  const { tax } = config;
+  if (tax.basis === 'none') return text.taxNone;
+  return fillText(tax.basis === 'included' ? text.taxIncluded : text.taxAdded, {
+    rate: formatTaxRate(tax.rate, config.locale),
+  });
+}

@@ -6,7 +6,7 @@ import {
   SETTING_CHANGE_KINDS,
   SETTING_CHANGES_PAGE_SIZE,
 } from './settings-constants';
-import {} from '../lib/site/settings.contract';
+import {} from '../core/site/maintenance.contract';
 
 /**
  * The runtime settings singleton, whole — one row in the database, one shape on

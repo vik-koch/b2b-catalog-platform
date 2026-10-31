@@ -97,7 +97,7 @@ import {
 } from '../config/deployment-config';
 import { DRIZZLE } from '../db/database.module';
 import * as schema from '../db/schema';
-import { currentPageVersion } from '../pages/page-versions';
+import { currentPageVersion } from '../core/site/page-versions';
 import {
   customerTiers,
   orderItems,

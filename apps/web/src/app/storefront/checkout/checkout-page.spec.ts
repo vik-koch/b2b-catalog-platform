@@ -30,7 +30,7 @@ import {
 } from './checkout-draft.service';
 import { CheckoutPage } from './checkout-page';
 import { OrdersService, SubmitOrderResult } from '../orders/orders.service';
-import { PageService } from '../../shared/pages/page.service';
+import { PageService } from '../../core/site/page.service';
 import { provideDigitMaskFormat } from '../../shared/core/contact-fields';
 
 /** A day the form actually offers, from whenever the suite is run: a literal

@@ -1,4 +1,4 @@
-import { InquiryRequest } from '@b2b-catalog-platform/shared';
+import { InquiryRequest } from '@b2b-catalog-platform/shared/storefront/site';
 import { demoSharedText, demoMailText } from '../mail-text.fixture';
 import { inquiryMail } from './inquiry.template';
 

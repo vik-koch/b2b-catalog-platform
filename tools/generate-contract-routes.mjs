@@ -39,13 +39,11 @@ const OUTPUTS = [
         'addressesContract',
         'authContract',
         'cartContract',
-        'inquiryContract',
         'ordersContract',
-        'pageContract',
         'partySuggestionContract',
-        'settingsContract',
         'workContract',
       ],
+      'core/site': ['pageContract', 'settingsContract'],
     },
   },
   {
@@ -53,6 +51,7 @@ const OUTPUTS = [
     entries: {
       storefront: ['accountContract'],
       'storefront/catalog': ['catalogContract'],
+      'storefront/site': ['inquiryContract'],
     },
   },
   {
@@ -60,7 +59,6 @@ const OUTPUTS = [
     entries: {
       admin: [
         'adminOrdersContract',
-        'adminPagesContract',
         'adminSettingsContract',
         'apiTokensContract',
         'consentsContract',
@@ -73,6 +71,7 @@ const OUTPUTS = [
         'documentsContract',
         'tiersContract',
       ],
+      'admin/site': ['adminPagesContract'],
       sync: ['syncContract'],
     },
   },

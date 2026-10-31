@@ -7,7 +7,7 @@ import { APP_GUARD, Reflector } from '@nestjs/core';
 import { Test } from '@nestjs/testing';
 import { SettingsController } from './settings.controller';
 import { SettingsService } from './settings.service';
-import { MaintenanceGuard } from './maintenance.guard';
+import { MaintenanceGuard } from '../core/site/maintenance.guard';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';

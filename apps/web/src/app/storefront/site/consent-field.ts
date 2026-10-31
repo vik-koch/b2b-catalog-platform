@@ -1,0 +1,108 @@
+import { Component, computed, inject, input } from '@angular/core';
+import { FormField } from '@angular/forms/signals';
+import { RouterLink } from '@angular/router';
+import { consentLabelParts } from '@b2b-catalog-platform/shared/core/site';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
+import { Checkbox } from '@b2b-catalog-platform/ui/choices/checkbox';
+import { Link } from '@b2b-catalog-platform/ui/actions/link';
+import { ConsentRequest } from './consent';
+import { PrivacyNotice } from './privacy-notice';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
+import { FIELD_ATTEMPT } from '@b2b-catalog-platform/ui/fields/field-attempt';
+
+let nextId = 0;
+
+/**
+ * The consent box (NFR-LEGAL-09): unticked until the person ticks it, worded
+ * by the consent text's current version, whose bracketed words link that text.
+ * The privacy notice follows in the same sentence run but outside the label:
+ * it is information, not part of what is ticked, so it is no part of the
+ * box's accessible name either. Where no consent is asked, only the notice
+ * shows, unless the form opts out of that.
+ *
+ * Links open a new tab: following one in place would throw away what the
+ * person has typed into the form.
+ */
+@Component({
+  selector: 'app-consent-field',
+  imports: [FormField, RouterLink, Checkbox, Link, PrivacyNotice, ErrorText],
+  host: { class: 'block empty:hidden' },
+  template: `
+    @if (consent().state() === 'ready') {
+      <div class="flex items-start gap-2 text-sm">
+        <!-- Sized explicitly so the nudge is exact: a 16px box in the 20px
+             line box of text-sm sits 2px down. -->
+        <input
+          [id]="id"
+          type="checkbox"
+          uiCheckbox
+          [formField]="consent().field"
+          class="mt-0.5 shrink-0"
+          aria-required="true"
+          [attr.aria-invalid]="shown() || null"
+          [attr.aria-labelledby]="id + '-text'"
+        />
+        <p>
+          <!-- The link is not inside a label. A browser hovers a labelled
+               control whenever its label is hovered, so a link inside one lit
+               the box as if pointing at the link meant ticking it. The words
+               around it are labels of their own, so clicking them still ticks
+               the box, and the box takes its name from the whole sentence. -->
+          <span [id]="id + '-text'">
+            @if (parts(); as parts) {
+              <label [for]="id" class="cursor-pointer">{{ parts.before }}</label
+              ><a
+                uiLink
+                [routerLink]="consent().path"
+                target="_blank"
+                rel="noopener"
+                >{{ parts.link }}</a
+              ><label [for]="id" class="cursor-pointer">{{
+                parts.after
+              }}</label>
+            } @else {
+              <label [for]="id" class="cursor-pointer">{{
+                consent().label()
+              }}</label>
+            }</span
+          ><span class="text-accent" aria-hidden="true">*</span>
+          <app-privacy-notice />
+        </p>
+      </div>
+      @if (consent().notice() === 'changed') {
+        <p uiErrorText class="mt-1" role="alert">
+          {{ text.changed }}
+        </p>
+      } @else if (shown()) {
+        <p uiErrorText class="mt-1">{{ text.required }}</p>
+      }
+    } @else if (alone() && consent().state() !== 'loading') {
+      <p class="text-sm"><app-privacy-notice /></p>
+    }
+    @if (
+      consent().state() === 'unavailable' ||
+      consent().notice() === 'unavailable'
+    ) {
+      <p uiErrorText class="mt-1" role="alert">
+        {{ text.unavailable }}
+      </p>
+    }
+  `,
+})
+export class ConsentField {
+  readonly consent = input.required<ConsentRequest>();
+  /** The privacy notice in place of the box, where none is asked. */
+  readonly alone = input(true);
+
+  protected readonly id = `consent-${nextId++}`;
+  private readonly attempt = inject(FIELD_ATTEMPT, { optional: true });
+  /** Required is all the box can break, so its message waits for a submit. */
+  protected readonly shown = computed(
+    () => !!this.attempt?.attempted() && this.consent().field().invalid(),
+  );
+  protected readonly text = inject(STOREFRONT_TEXT).consentBox;
+  protected readonly parts = computed(() => {
+    const label = this.consent().label();
+    return label ? consentLabelParts(label) : null;
+  });
+}

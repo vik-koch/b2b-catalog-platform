@@ -30,7 +30,7 @@ import { PasswordRejectedError } from './password-rejected-error';
 import { PasswordResetService } from './password-reset.service';
 import { PasswordSetupService } from './password-setup.service';
 import { RegistrationService } from './registration.service';
-import { MaintenanceExempt } from '../settings/maintenance-exempt.decorator';
+import { MaintenanceExempt } from '../core/site/maintenance-exempt.decorator';
 import { SettingsService } from '../settings/settings.service';
 import { refusals } from '../orpc/refusals';
 import { endSession } from './session-cookie';

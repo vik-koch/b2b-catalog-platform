@@ -5,6 +5,7 @@
 // contract defines; the imports below are type-only and erased at build.
 
 import type * as shared from '@b2b-catalog-platform/shared';
+import type * as coreSite from '@b2b-catalog-platform/shared/core/site';
 
 export const addressSuggestionContract = {
   suggestAddresses: {
@@ -185,15 +186,6 @@ export const cartContract = {
     },
   },
 } as unknown as typeof shared.cartContract;
-export const inquiryContract = {
-  submit: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: { method: 'POST', path: '/inquiry', inputStructure: 'detailed' },
-    },
-  },
-} as unknown as typeof shared.inquiryContract;
 export const ordersContract = {
   submitOrder: {
     '~orpc': {
@@ -247,19 +239,6 @@ export const ordersContract = {
     },
   },
 } as unknown as typeof shared.ordersContract;
-export const pageContract = {
-  getPage: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: {
-        method: 'GET',
-        path: '/pages/{slug}',
-        inputStructure: 'detailed',
-      },
-    },
-  },
-} as unknown as typeof shared.pageContract;
 export const partySuggestionContract = {
   suggestParties: {
     '~orpc': {
@@ -273,15 +252,6 @@ export const partySuggestionContract = {
     },
   },
 } as unknown as typeof shared.partySuggestionContract;
-export const settingsContract = {
-  checkMaintenance: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: { method: 'GET', path: '/maintenance' },
-    },
-  },
-} as unknown as typeof shared.settingsContract;
 export const workContract = {
   getCounts: {
     '~orpc': {
@@ -291,3 +261,25 @@ export const workContract = {
     },
   },
 } as unknown as typeof shared.workContract;
+export const pageContract = {
+  getPage: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'GET',
+        path: '/pages/{slug}',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+} as unknown as typeof coreSite.pageContract;
+export const settingsContract = {
+  checkMaintenance: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: { method: 'GET', path: '/maintenance' },
+    },
+  },
+} as unknown as typeof coreSite.settingsContract;

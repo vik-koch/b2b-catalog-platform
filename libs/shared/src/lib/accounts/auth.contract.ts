@@ -17,8 +17,8 @@ import {
   storedEmailField,
 } from '../config/contact-config';
 import { commonAuthErrors, phoneFormatErrors } from '../core/api-error';
-import { consentErrors } from '../site/page-constants';
-import { consentVersionField } from '../site/page.contract';
+import { consentErrors } from '../../core/site/pages';
+import { consentVersionField } from '../../core/site/page.contract';
 import { CUSTOMER_TYPES } from './user-constants';
 
 export type UserRole = (typeof USER_ROLES)[number];

@@ -17,7 +17,7 @@ import { PasswordSetupService } from './password-setup.service';
 import { RegistrationService } from './registration.service';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { RolesGuard } from './roles.guard';
-import { MaintenanceGuard } from '../settings/maintenance.guard';
+import { MaintenanceGuard } from '../core/site/maintenance.guard';
 import { SettingsService } from '../settings/settings.service';
 import { ContractErrorFilter } from '../orpc/contract-error.filter';
 import { PHONE_RULE } from '../config/deployment-config';

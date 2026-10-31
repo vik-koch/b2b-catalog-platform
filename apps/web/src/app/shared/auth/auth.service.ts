@@ -12,8 +12,6 @@ import { safe } from '@orpc/client';
 import {
   AuthUser,
   ChangePasswordRequest,
-  ConsentRefusalCode,
-  isConsentRefusal,
   LoginRequest,
   MAINTENANCE_REFUSED,
   PasswordRejectionCode,
@@ -23,6 +21,10 @@ import {
   SetPasswordRequest,
   SignInStep,
 } from '@b2b-catalog-platform/shared';
+import {
+  ConsentRefusalCode,
+  isConsentRefusal,
+} from '@b2b-catalog-platform/shared/core/site';
 import { authContract } from '../core/contract-routes.generated';
 import { createOrpcClient } from '../core/orpc-client';
 import { sessionCookieIn } from './session-cookie';

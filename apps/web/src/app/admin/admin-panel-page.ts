@@ -1,11 +1,11 @@
 import { Component, computed, inject, resource, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { fillText } from '@b2b-catalog-platform/shared';
 import {
   CONSENT_PAGE_SLUGS,
   CONSENT_PURPOSES,
   ConsentPurpose,
-  fillText,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/core/site';
 import { OWNERSHIP_AREAS } from '@b2b-catalog-platform/shared/sync';
 import { AuthService } from '../shared/auth/auth.service';
 import { SignedInAs } from '../shared/auth/signed-in-as';

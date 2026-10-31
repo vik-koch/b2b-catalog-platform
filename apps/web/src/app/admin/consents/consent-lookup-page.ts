@@ -10,8 +10,8 @@ import {
 import { form, hidden } from '@angular/forms/signals';
 import { Router } from '@angular/router';
 import {
-  CONSENT_WITHDRAWAL_NOTE_MAX,
   fillText,
+  CONSENT_WITHDRAWAL_NOTE_MAX,
 } from '@b2b-catalog-platform/shared';
 import {
   ConsentRecord,

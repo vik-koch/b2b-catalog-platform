@@ -6,6 +6,7 @@
 
 import type * as admin from '@b2b-catalog-platform/shared/admin';
 import type * as adminCatalog from '@b2b-catalog-platform/shared/admin/catalog';
+import type * as adminSite from '@b2b-catalog-platform/shared/admin/site';
 import type * as sync from '@b2b-catalog-platform/shared/sync';
 
 export const adminOrdersContract = {
@@ -120,30 +121,6 @@ export const adminOrdersContract = {
     },
   },
 } as unknown as typeof admin.adminOrdersContract;
-export const adminPagesContract = {
-  updatePage: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: {
-        method: 'PUT',
-        path: '/pages/{slug}',
-        inputStructure: 'detailed',
-      },
-    },
-  },
-  listPageVersions: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: {
-        method: 'GET',
-        path: '/pages/{slug}/versions',
-        inputStructure: 'detailed',
-      },
-    },
-  },
-} as unknown as typeof admin.adminPagesContract;
 export const adminSettingsContract = {
   getBuildInfo: {
     '~orpc': {
@@ -804,6 +781,30 @@ export const tiersContract = {
     },
   },
 } as unknown as typeof adminCatalog.tiersContract;
+export const adminPagesContract = {
+  updatePage: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'PUT',
+        path: '/pages/{slug}',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+  listPageVersions: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'GET',
+        path: '/pages/{slug}/versions',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+} as unknown as typeof adminSite.adminPagesContract;
 export const syncContract = {
   commitRun: {
     '~orpc': {

@@ -1,11 +1,11 @@
 import { oc } from '@orpc/contract';
 import * as z from 'zod';
 import { commonAuthErrors } from '../lib/core/api-error';
+import { CONSENT_PURPOSES } from '../core/site/pages';
 import {
-  CONSENT_PURPOSES,
   CONSENT_WITHDRAWAL_NOTE_MAX,
   CONSENT_WITHDRAWAL_REASONS,
-} from '../lib/site/page-constants';
+} from '../lib/accounts/consent-constants';
 import { USER_STATUSES } from '../lib/accounts/user-constants';
 
 /**

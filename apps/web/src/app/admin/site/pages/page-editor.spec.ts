@@ -1,0 +1,265 @@
+import { SHARED_TEXT } from '../../../shared/config/shared-text';
+import { defaultSharedText } from '../../../shared/config/shared-text.fixture';
+import { TestBed } from '@angular/core/testing';
+import {
+  Page as PageContent,
+  PageSlug,
+} from '@b2b-catalog-platform/shared/core/site';
+import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
+import { ADMIN_TEXT } from '../../../shared/config/admin-text';
+import { defaultStorefrontText } from '../../../shared/config/storefront-text.fixture';
+import { defaultAdminText } from '../../../shared/config/admin-text.fixture';
+import { PageEditor } from './page-editor';
+import { PageEditingService } from './page-editing.service';
+
+const text = defaultAdminText.pages;
+
+const about: PageContent = {
+  version: 1,
+  title: 'About us',
+  bodyHtml: '<p>Original copy.</p>',
+  consentLabel: null,
+  updatedAt: '2026-07-25T10:00:00.000Z',
+};
+
+const consent: PageContent = {
+  version: 2,
+  title: 'Consent: contact form',
+  bodyHtml: '<p>What we process.</p>',
+  consentLabel: 'I [consent].',
+  updatedAt: '2026-10-04T10:00:00.000Z',
+};
+
+async function render(
+  updatePage = vi.fn(),
+  page: PageContent = about,
+  slug: PageSlug = 'about',
+) {
+  TestBed.configureTestingModule({
+    imports: [PageEditor],
+    providers: [
+      { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
+      { provide: SHARED_TEXT, useValue: defaultSharedText },
+      { provide: ADMIN_TEXT, useValue: defaultAdminText },
+      { provide: SHARED_TEXT, useValue: defaultSharedText },
+      { provide: PageEditingService, useValue: { updatePage } },
+    ],
+  });
+  const fixture = TestBed.createComponent(PageEditor);
+  fixture.componentRef.setInput('slug', slug);
+  fixture.componentRef.setInput('page', page);
+  await fixture.whenStable();
+  return { fixture, el: fixture.nativeElement as HTMLElement, updatePage };
+}
+
+function buttonNamed(el: HTMLElement, label: string): HTMLButtonElement {
+  const button = [...el.querySelectorAll('button')].find(
+    (b) => b.textContent?.trim() === label,
+  );
+  if (!button) {
+    throw new Error(`no button labelled "${label}"`);
+  }
+  return button;
+}
+
+describe('PageEditor', () => {
+  it('seeds the title field from the page', async () => {
+    const { el } = await render();
+
+    expect(el.querySelector('input')?.value).toBe('About us');
+  });
+
+  it('shows the body in a prose container when previewing', async () => {
+    const { fixture, el } = await render();
+
+    buttonNamed(el, defaultAdminText.actions.preview).click();
+    await fixture.whenStable();
+
+    expect(el.querySelector('.prose')?.innerHTML).toContain('Original copy.');
+    expect(el.textContent).toContain(text.previewNotice);
+    // The title renders as it will on the real page, not as an input.
+    expect(el.querySelector('input')).toBeNull();
+  });
+
+  it('neutralizes link clicks in the preview so navigation cannot bypass the guard', async () => {
+    const about2: PageContent = {
+      ...about,
+      bodyHtml: '<p><a href="https://elsewhere.test">Leave</a></p>',
+    };
+    TestBed.configureTestingModule({
+      imports: [PageEditor],
+      providers: [
+        { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
+        { provide: SHARED_TEXT, useValue: defaultSharedText },
+        { provide: ADMIN_TEXT, useValue: defaultAdminText },
+        { provide: SHARED_TEXT, useValue: defaultSharedText },
+        { provide: PageEditingService, useValue: { updatePage: vi.fn() } },
+      ],
+    });
+    const fixture = TestBed.createComponent(PageEditor);
+    fixture.componentRef.setInput('slug', 'about');
+    fixture.componentRef.setInput('page', about2);
+    await fixture.whenStable();
+    const el = fixture.nativeElement as HTMLElement;
+
+    buttonNamed(el, defaultAdminText.actions.preview).click();
+    await fixture.whenStable();
+
+    const link = el.querySelector('.prose a') as HTMLAnchorElement;
+    const event = new MouseEvent('click', { bubbles: true, cancelable: true });
+    link.dispatchEvent(event);
+
+    expect(event.defaultPrevented).toBe(true);
+  });
+
+  it('returns to editing from preview', async () => {
+    const { fixture, el } = await render();
+
+    buttonNamed(el, defaultAdminText.actions.preview).click();
+    await fixture.whenStable();
+    buttonNamed(el, defaultAdminText.actions.resumeEditing).click();
+    await fixture.whenStable();
+
+    expect(el.querySelector('input')?.value).toBe('About us');
+  });
+
+  it('saves the current title and body, and emits what the server stored', async () => {
+    const stored = { ...about, title: 'Renamed', bodyHtml: '<p>Clean.</p>' };
+    const { fixture, el, updatePage } = await render(
+      vi.fn().mockResolvedValue(stored),
+    );
+    const saved = vi.fn();
+    fixture.componentInstance.saved.subscribe(saved);
+
+    const input = el.querySelector('input') as HTMLInputElement;
+    input.value = 'Renamed';
+    input.dispatchEvent(new Event('input'));
+    buttonNamed(el, defaultAdminText.actions.save).click();
+    await fixture.whenStable();
+
+    expect(updatePage).toHaveBeenCalledWith('about', {
+      title: 'Renamed',
+      bodyHtml: about.bodyHtml,
+    });
+    expect(saved).toHaveBeenCalledWith(stored);
+  });
+
+  it('refuses to save a blank title and does not call the server', async () => {
+    const { fixture, el, updatePage } = await render();
+
+    const input = el.querySelector('input') as HTMLInputElement;
+    input.value = '   ';
+    input.dispatchEvent(new Event('input'));
+    buttonNamed(el, defaultAdminText.actions.save).click();
+    await fixture.whenStable();
+
+    expect(updatePage).not.toHaveBeenCalled();
+    expect(el.textContent).toContain(text.titleRequired);
+  });
+
+  it('reports a failed save and stays open', async () => {
+    const { fixture, el } = await render(
+      vi.fn().mockRejectedValue(new Error('boom')),
+    );
+
+    buttonNamed(el, defaultAdminText.actions.save).click();
+    await fixture.whenStable();
+
+    expect(el.textContent).toContain(text.saveError);
+    expect(el.querySelector('input')).not.toBeNull();
+  });
+
+  it('closes without confirmation when nothing was changed', async () => {
+    const { fixture, el } = await render();
+    const closed = vi.fn();
+    fixture.componentInstance.closed.subscribe(closed);
+    const confirm = vi.spyOn(window, 'confirm');
+
+    buttonNamed(el, defaultSharedText.actions.cancel).click();
+    await fixture.whenStable();
+
+    expect(confirm).not.toHaveBeenCalled();
+    expect(closed).toHaveBeenCalled();
+  });
+
+  it('keeps the editor open when a discard is declined', async () => {
+    const { fixture, el } = await render();
+    const closed = vi.fn();
+    fixture.componentInstance.closed.subscribe(closed);
+    vi.spyOn(window, 'confirm').mockReturnValue(false);
+
+    const input = el.querySelector('input') as HTMLInputElement;
+    input.value = 'Changed';
+    input.dispatchEvent(new Event('input'));
+    buttonNamed(el, defaultSharedText.actions.cancel).click();
+    await fixture.whenStable();
+
+    expect(closed).not.toHaveBeenCalled();
+  });
+
+  describe('on a consent page', () => {
+    const renderConsent = (updatePage = vi.fn()) =>
+      render(updatePage, consent, 'consent-contact');
+
+    it('offers no box wording on any other page', async () => {
+      const { el } = await render();
+
+      expect(el.querySelector('textarea')).toBeNull();
+    });
+
+    it('saves the box wording with the text', async () => {
+      const { fixture, el, updatePage } = await renderConsent(
+        vi.fn().mockResolvedValue(consent),
+      );
+
+      const wording = el.querySelector('textarea') as HTMLTextAreaElement;
+      expect(wording.value).toBe('I [consent].');
+      wording.value = '  I [agree].  ';
+      wording.dispatchEvent(new Event('input'));
+      buttonNamed(el, defaultAdminText.actions.save).click();
+      await fixture.whenStable();
+
+      expect(updatePage).toHaveBeenCalledWith('consent-contact', {
+        title: consent.title,
+        bodyHtml: consent.bodyHtml,
+        consentLabel: 'I [agree].',
+      });
+    });
+
+    it('refuses to save without box wording', async () => {
+      const { fixture, el, updatePage } = await renderConsent();
+
+      const wording = el.querySelector('textarea') as HTMLTextAreaElement;
+      wording.value = ' ';
+      wording.dispatchEvent(new Event('input'));
+      buttonNamed(el, defaultAdminText.actions.save).click();
+      await fixture.whenStable();
+
+      expect(updatePage).not.toHaveBeenCalled();
+      expect(el.textContent).toContain(text.consentLabelRequired);
+    });
+
+    it('refuses box wording that marks no link', async () => {
+      const { fixture, el, updatePage } = await renderConsent();
+
+      const wording = el.querySelector('textarea') as HTMLTextAreaElement;
+      wording.value = 'I agree.';
+      wording.dispatchEvent(new Event('input'));
+      buttonNamed(el, defaultAdminText.actions.save).click();
+      await fixture.whenStable();
+
+      expect(updatePage).not.toHaveBeenCalled();
+      expect(el.textContent).toContain(text.consentLabelLink);
+    });
+
+    it('previews the box as the form shows it', async () => {
+      const { fixture, el } = await renderConsent();
+
+      buttonNamed(el, defaultAdminText.actions.preview).click();
+      await fixture.whenStable();
+
+      const box = el.querySelector('input[type="checkbox"]');
+      expect(box?.closest('label')?.textContent).toContain('I consent.');
+    });
+  });
+});

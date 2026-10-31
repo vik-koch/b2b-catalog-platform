@@ -9,7 +9,7 @@ import { usePageSeo } from '../../../shared/core/page-seo';
 import { stableValue } from '../../../shared/core/stable-value';
 import { editAwareContent } from '../../../shared/edit-mode/edit-aware-content';
 import { injectEditorReturnParams } from '../../../shared/edit-mode/editor-return';
-import { LoadErrorView } from '../../pages/load-error-view';
+import { LoadErrorView } from '../../platform/load-error-view';
 import { AppliedFilters } from '../filters/applied-filters';
 import {
   FACET_COLUMN,

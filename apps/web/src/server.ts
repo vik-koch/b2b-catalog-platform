@@ -26,7 +26,7 @@ import {
   isStaffPreview,
   isGatedPath,
   isMaintenanceOn,
-} from './app/shared/config/maintenance.server';
+} from './app/storefront/site/maintenance/maintenance.server';
 import {
   injectCanonicalLink,
   injectNoindexMeta,

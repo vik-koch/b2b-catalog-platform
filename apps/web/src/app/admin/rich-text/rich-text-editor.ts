@@ -21,7 +21,7 @@ import {
   RICH_TEXT_IMAGE_SIZE_MAX_PERCENT,
   RICH_TEXT_IMAGE_SIZE_MIN_PERCENT,
   RICH_TEXT_LINK_SCHEMES,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/core/site';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { injectNarrowScreen } from '@b2b-catalog-platform/ui/core/narrow-screen';
 import { HeaderCollapse } from '../../shared/layout/header-collapse';

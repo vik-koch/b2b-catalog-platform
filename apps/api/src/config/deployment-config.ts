@@ -1,8 +1,6 @@
 import {
   AddressConfig,
   CompanyIdFormat,
-  CONSENT_PURPOSES,
-  ConsentPurpose,
   CustomerType,
   DeliveryConfig,
   deploymentConfigSchema,
@@ -14,6 +12,10 @@ import {
   SignInStepConfig,
   TaxConfig,
 } from '@b2b-catalog-platform/shared';
+import {
+  CONSENT_PURPOSES,
+  ConsentPurpose,
+} from '@b2b-catalog-platform/shared/core/site';
 import { DEFAULT_LOW_STOCK_THRESHOLD_PIECES } from '@b2b-catalog-platform/shared/core/catalog';
 import { KeyboardLayout } from '@b2b-catalog-platform/shared/platform';
 import {
@@ -25,9 +27,10 @@ import {
 import {
   DEFAULT_SESSION_IDLE_DAYS,
   RetentionConfig,
+  configPath,
+  loadConfig,
 } from '@b2b-catalog-platform/shared/node';
 import { join } from 'node:path';
-import { configPath, loadConfig } from '@b2b-catalog-platform/shared/node';
 import { loadApiConfig } from './api-config';
 import type * as z from 'zod';
 

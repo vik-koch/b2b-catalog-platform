@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthModule } from '../auth/auth.module';
-import { MaintenanceGuard } from './maintenance.guard';
+import { MaintenanceGuard } from '../core/site/maintenance.guard';
 import { SettingsController } from './settings.controller';
 import { SettingsStateModule } from './settings-state.module';
 

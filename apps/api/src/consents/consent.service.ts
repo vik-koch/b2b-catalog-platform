@@ -10,12 +10,14 @@ import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { and, desc, eq, inArray, isNull, or, SQL } from 'drizzle-orm';
 import {
   AuthUser,
+  formatPersonName,
+  ConsentWithdrawalReason,
+} from '@b2b-catalog-platform/shared';
+import {
   CONSENT_PAGE_SLUGS,
   ConsentPurpose,
   ConsentRefusalCode,
-  ConsentWithdrawalReason,
-  formatPersonName,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/core/site';
 import { ConsentRecord } from '@b2b-catalog-platform/shared/admin';
 import { CONSENT_PURPOSES_ASKED } from '../config/deployment-config';
 import { DRIZZLE } from '../db/database.module';
@@ -26,7 +28,7 @@ import {
   pageVersions,
   users,
 } from '../db/schema';
-import { currentPageVersion } from '../pages/page-versions';
+import { currentPageVersion } from '../core/site/page-versions';
 
 /** A consent that passed the check, ready to be recorded. */
 export interface CheckedConsent {

@@ -5,23 +5,23 @@ import {
   ConsentPurpose,
   PageSlug,
   STANDALONE_PAGE_SLUGS,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/core/site';
 import { DEPLOYMENT_CONFIG } from '../shared/config/deployment-config';
 import {
   guestOnly,
   requireAuth,
   staffToAdminOrder,
 } from '../shared/auth/auth.guard';
-import { maintenanceGate } from './maintenance/maintenance.guard';
-import { NotFoundPage } from './pages/not-found-page';
-import { ContactPage } from './pages/contact-page';
-import { InquiryPage } from './pages/inquiry-page';
-import { MaintenanceScreen } from './pages/maintenance-screen';
+import { maintenanceGate } from './site/maintenance/maintenance.guard';
+import { NotFoundPage } from './platform/not-found-page';
+import { ContactPage } from './site/pages/contact-page';
+import { InquiryPage } from './site/inquiry/inquiry-page';
+import { MaintenanceScreen } from './site/maintenance/maintenance-screen';
 import { Home } from './home/home';
 import { CategoryGrid } from './catalog/categories/category-grid';
 import { SearchResults } from './catalog/search/search-results';
 import { ProductDetail } from './catalog/product-page/product-detail';
-import { StaticPage } from './pages/static-page';
+import { StaticPage } from './site/pages/static-page';
 
 /**
  * The generic page route serves a slug only when the deployment publishes it,
@@ -182,7 +182,7 @@ export const storefrontRoutes: Route[] = [
     canMatch: [publishesPage('conditions')],
     canActivate: [maintenanceGate],
     loadComponent: () =>
-      import('./pages/conditions-page').then((m) => m.ConditionsPage),
+      import('./site/pages/conditions-page').then((m) => m.ConditionsPage),
   },
   { path: 'inquiry', component: InquiryPage, canActivate: [maintenanceGate] },
   // The consent texts (NFR-LEGAL-09), each under the form that asks for it.
@@ -209,7 +209,7 @@ export const storefrontRoutes: Route[] = [
     path: 'licenses',
     canActivate: [maintenanceGate],
     loadComponent: () =>
-      import('./pages/licenses-page').then((m) => m.LicensesPage),
+      import('./site/pages/licenses-page').then((m) => m.LicensesPage),
   },
   {
     path: 'catalog',
