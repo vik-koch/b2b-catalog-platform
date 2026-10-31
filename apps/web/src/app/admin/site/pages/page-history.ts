@@ -6,14 +6,15 @@ import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
 import { adminDayFormat } from '../../dates/admin-date';
 import { PageEditingService } from './page-editing.service';
 import { trustedRichText } from '../../../shared/core/trusted-rich-text';
+import { DetailsSummary } from '@b2b-catalog-platform/ui/disclosure/details-summary';
 
 /**
- * Every saved version of a page, newest first, each opening to what it said.
  * Read-only: a consent or an order points at a version, and the admin reads it
  * here; nothing is restored from it.
  */
 @Component({
   selector: 'app-page-history',
+  imports: [DetailsSummary],
   template: `
     @if (versions.hasValue() && versions.value().length > 0) {
       <section class="mt-12 max-w-3xl">
@@ -25,11 +26,8 @@ import { trustedRichText } from '../../../shared/core/trusted-rich-text';
             let first = $first
           ) {
             <li>
-              <details class="group">
-                <summary
-                  class="flex cursor-pointer flex-wrap items-baseline gap-x-3
-                         gap-y-1 py-3 text-sm"
-                >
+              <details>
+                <summary uiDetailsSummary class="text-sm">
                   <span class="font-medium">
                     {{ versionLabel(entry.version) }}
                   </span>

@@ -8,6 +8,7 @@ import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
 import { canonicalPhone } from '../../../shared/core/contact-fields';
 import { completeMask, emailAddress } from '../../../shared/core/field-rules';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
+import { HoneypotField } from '@b2b-catalog-platform/ui/fields/honeypot-field';
 import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
 import { Input } from '@b2b-catalog-platform/ui/inputs/input';
 import { PhoneInput } from '@b2b-catalog-platform/ui/inputs/phone-input';
@@ -30,18 +31,14 @@ interface Inquiry {
   phone: string;
   preferredContact: PreferredContact;
   message: string;
-  /** Honeypot. */
   website: string;
 }
 
-/**
- * Inquiry form (FR-NAV-06) — a code page, not a CMS Page. The visitor picks a
- * preferred contact channel and that channel's field becomes required.
- * The phone field's country code and mask come from deployment config.
- */
+/** The preferred contact channel's field is the required one. */
 @Component({
   selector: 'app-inquiry-page',
   imports: [
+    HoneypotField,
     ConsentField,
     FORM_FIELDS,
     RouterLink,
@@ -121,17 +118,11 @@ interface Inquiry {
             ></textarea>
           </ui-field>
 
-          <!-- Honeypot: hidden from humans. -->
-          <div class="absolute left-[-9999px]" aria-hidden="true">
-            <label for="website">Leave this field empty</label>
-            <input
-              id="website"
-              type="text"
-              [formField]="form.website"
-              tabindex="-1"
-              autocomplete="off"
-            />
-          </div>
+          <ui-honeypot-field
+            controlId="website"
+            [field]="form.website"
+            label="Leave this field empty"
+          />
 
           <app-consent-field [consent]="consent" />
 
@@ -219,7 +210,6 @@ export class InquiryPage {
       phone: canonicalPhone(value.phone, this.phoneInput) || undefined,
       preferredContact: value.preferredContact,
       message: value.message || undefined,
-      // Honeypot.
       website: value.website || undefined,
       consentVersion: this.consent.version(),
     };

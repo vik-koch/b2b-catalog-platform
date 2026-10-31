@@ -3,18 +3,13 @@ export interface LicenseNotice {
   readonly name: string;
   /** SPDX id as the package declared it, or null when it declared none. */
   readonly license: string | null;
-  /** The verbatim license text — the part that actually satisfies the clause. */
   readonly text: string;
 }
 
 /**
- * Parses `3rdpartylicenses.txt` as the Angular build writes it: blocks divided
- * by a rule of dashes, each opening with `Package:` and `License:` lines and
- * followed by the verbatim license text.
- *
- * Deliberately forgiving — a block the format changes under us still renders,
- * it just carries less structure. Silently dropping an attribution because a
- * header line moved is the one failure mode worth designing against here.
+ * Parses the build's `3rdpartylicenses.txt`. Forgiving: a block whose format
+ * changed still renders with less structure rather than dropping an
+ * attribution.
  */
 export function parseLicenseNotices(source: string): LicenseNotice[] {
   return source

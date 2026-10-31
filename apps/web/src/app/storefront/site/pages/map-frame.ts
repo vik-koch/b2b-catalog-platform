@@ -6,11 +6,8 @@ import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
 import { ConsentService } from '../../consent/consent.service';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 
-/**
- * Renders a map as an iframe — the single place map embeds are created.
- * A cookie-setting embed (map.consentRequired) shows a placeholder until
- * consent allows it; no-cookie embeds render immediately.
- */
+/** The one place a map embed is created: one that sets cookies waits for
+ * consent behind a placeholder. */
 @Component({
   selector: 'app-map-frame',
   imports: [Button],
@@ -32,9 +29,7 @@ import { Button } from '@b2b-catalog-platform/ui/actions/button';
         [class]="shapeClass()"
       >
         <p class="max-w-md">{{ notice }}</p>
-        <!-- Click-to-load: the visitor who said no to the banner, or never
-             answered it, can still choose to see the map. It is the same
-             consent, so it is recorded the same way and the banner goes. -->
+        <!-- The banner's consent, given here instead. -->
         @if (text.load; as load) {
           <button uiButton variant="secondary" (click)="consent.accept()">
             {{ load }}
@@ -50,10 +45,8 @@ export class MapFrame {
 
   readonly map = input.required<MapEmbed>();
   readonly title = input('Map');
-  /** Taller than wide on a phone. For a page with one map: a landscape frame
-   * at phone width is a strip too short to read a street in. Not as tall as
-   * the screen, so a one-finger drag past it still scrolls the page rather
-   * than panning the map. */
+  /** For a page with one map: a landscape frame on a phone is too short to
+   * read a street in. Short of the screen, so a drag past it still scrolls. */
   readonly portraitOnPhone = input(false);
 
   protected readonly shapeClass = computed(() =>
@@ -65,8 +58,7 @@ export class MapFrame {
     provider: inject(DEPLOYMENT_CONFIG).mapProvider,
   });
 
-  // URLs are deployment-owned/trusted; the URL-only contract keeps this a
-  // resource-URL trust, never script execution.
+  // Deployment-owned, and a URL only: trusted as a resource, never as script.
   protected readonly safeUrl = computed(() =>
     this.sanitizer.bypassSecurityTrustResourceUrl(this.map().url),
   );

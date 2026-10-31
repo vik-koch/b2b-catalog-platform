@@ -1,4 +1,13 @@
-import { Component, computed, inject, input, resource } from '@angular/core';
+import {
+  Component,
+  computed,
+  contentChild,
+  inject,
+  input,
+  resource,
+  TemplateRef,
+} from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
 import { PageSlug } from '@b2b-catalog-platform/shared/core/site';
 import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
 import { SHARED_TEXT } from '../../../shared/config/shared-text';
@@ -14,9 +23,15 @@ import { PageUpdated } from './page-updated';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 
+/**
+ * A page's editable prose, with what a code route states from configuration
+ * below it, given as an `<ng-template>`. Nothing renders before the body: the
+ * configured part would paint at once and be shoved down when the prose lands.
+ */
 @Component({
   selector: 'app-static-page',
   imports: [
+    NgTemplateOutlet,
     RichTextLinks,
     EditActions,
     LoadErrorView,
@@ -25,25 +40,15 @@ import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
     Skeleton,
   ],
   template: `
-    <!-- A published page with no row yet: an admin gets the shell and the
-         pencil so they can write it, everyone else gets the load error rather
-         than an empty page a crawler would index.
-         503 and not 404, matching a failed load: the route only exists because
-         the deployment publishes this slug, so the URL is real and the content
-         is missing — "temporarily unavailable" is the true answer, and it is
-         the one that shows up in the access logs as something to fix. An
-         unpublished slug never reaches here; its route does not match, and that
-         is where the honest 404 comes from. -->
-    @if (pageResource.error()) {
-      <app-load-error-view [heading]="text.cannotLoadTitle" />
-    } @else if (missing()) {
+    <!-- A body that failed or was never written takes the page down: a 503,
+         since the deployment publishes the slug and only the content is
+         missing. An admin is spared the unwritten case, to write it. -->
+    @if (pageResource.error() || missing()) {
       <app-load-error-view [heading]="text.cannotLoadTitle" />
     } @else if (ready()) {
       @let content = page();
       <div class="flex items-start justify-between gap-4">
-        <h1 uiPageTitle class="mb-4">
-          {{ content?.title || navLabel }}
-        </h1>
+        <h1 uiPageTitle class="mb-4">{{ title() }}</h1>
         @if (canEdit(); as editorText) {
           <app-edit-actions
             variant="inline"
@@ -67,6 +72,11 @@ import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
       } @else if (canEdit(); as editorText) {
         <p class="text-ink-subtle">{{ editorText.emptyNotice }}</p>
       }
+      @if (configured(); as configured) {
+        <div class="mt-8">
+          <ng-container [ngTemplateOutlet]="configured" />
+        </div>
+      }
     } @else if (showSkeleton()) {
       <ui-skeleton size="title" class="mb-4" [widths]="['33%']" />
       <ui-skeleton [widths]="['100%', '83%']" />
@@ -74,23 +84,30 @@ import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
   `,
 })
 export class StaticPage {
-  private pageService = inject(PageService);
+  private readonly pageService = inject(PageService);
+  private readonly nav = inject(SHARED_TEXT).nav;
+
+  readonly slug = input.required<PageSlug>();
 
   protected readonly text = inject(STOREFRONT_TEXT).errors;
-  private readonly navText = inject(SHARED_TEXT).nav;
+  protected readonly configured = contentChild(TemplateRef);
   protected readonly editorFrom = injectEditorReturnParams();
-  /** Bypasses Angular's redundant innerHTML sanitizer for the server-sanitized
-   * page body — see trustedRichText. */
   protected readonly safeBody = trustedRichText();
 
-  slug = input.required<PageSlug>();
-  pageResource = resource({
+  protected readonly pageResource = resource({
     params: () => ({ slug: this.slug() }),
     loader: ({ params }) => this.pageService.getPage(params.slug),
   });
 
-  /** The body and the pencil appear together, once the page and the visitor's
-   * role are both known — see editAwareContent. */
+  /**
+   * `undefined` while loading or failed, `null` with no row yet. Guarded:
+   * `value()` throws on an errored resource, which would kill an SSR render
+   * before it sets a status.
+   */
+  protected readonly page = computed(() =>
+    this.pageResource.hasValue() ? this.pageResource.value() : undefined,
+  );
+
   private readonly content = editAwareContent({
     ready: computed(() => this.page() !== undefined),
     section: 'pages',
@@ -99,28 +116,17 @@ export class StaticPage {
   protected readonly canEdit = this.content.controls;
   protected readonly showSkeleton = this.content.showSkeleton;
 
-  /** No row, and nobody here who could write one: the page cannot be served.
-   * Waits on `ready`, so an admin is never shown the error on their way to the
-   * shell they would write it in. */
+  /** Waits on `ready`, so an admin never sees the error on the way to writing. */
   protected readonly missing = computed(
     () => this.ready() && this.page() === null && !this.canEdit(),
   );
 
-  /**
-   * `undefined` while loading *or failed*, `null` when the page has no row yet.
-   * Guarded: `value()` throws on an errored resource, and an unguarded read
-   * during SSR kills the render before it can set a status.
-   */
-  protected readonly page = computed(() =>
-    this.pageResource.hasValue() ? this.pageResource.value() : undefined,
+  /** The nav label stands in until the page has a stored title. */
+  protected readonly title = computed(
+    () => this.page()?.title || (this.nav[this.slug()] ?? ''),
   );
 
-  /** Heading for a page that has no stored title yet. */
-  protected get navLabel(): string {
-    return this.navText[this.slug()] ?? '';
-  }
-
   constructor() {
-    usePageSeo({ name: () => this.page()?.title });
+    usePageSeo({ name: () => this.title() || undefined });
   }
 }

@@ -13,15 +13,9 @@ import { FIELD_ATTEMPT } from '@b2b-catalog-platform/ui/fields/field-attempt';
 let nextId = 0;
 
 /**
- * The consent box (NFR-LEGAL-09): unticked until the person ticks it, worded
- * by the consent text's current version, whose bracketed words link that text.
- * The privacy notice follows in the same sentence run but outside the label:
- * it is information, not part of what is ticked, so it is no part of the
- * box's accessible name either. Where no consent is asked, only the notice
- * shows, unless the form opts out of that.
- *
- * Links open a new tab: following one in place would throw away what the
- * person has typed into the form.
+ * The consent box, worded by the text's current version, its bracketed words
+ * linking that text in a new tab. The privacy notice follows outside the
+ * label: information, not part of what is ticked or of the box's name.
  */
 @Component({
   selector: 'app-consent-field',
@@ -30,8 +24,7 @@ let nextId = 0;
   template: `
     @if (consent().state() === 'ready') {
       <div class="flex items-start gap-2 text-sm">
-        <!-- Sized explicitly so the nudge is exact: a 16px box in the 20px
-             line box of text-sm sits 2px down. -->
+        <!-- mt-0.5: a 16px box in text-sm's 20px line sits 2px down. -->
         <input
           [id]="id"
           type="checkbox"
@@ -43,11 +36,8 @@ let nextId = 0;
           [attr.aria-labelledby]="id + '-text'"
         />
         <p>
-          <!-- The link is not inside a label. A browser hovers a labelled
-               control whenever its label is hovered, so a link inside one lit
-               the box as if pointing at the link meant ticking it. The words
-               around it are labels of their own, so clicking them still ticks
-               the box, and the box takes its name from the whole sentence. -->
+          <!-- The link sits outside the labels: hovering a label hovers its
+               box, which made pointing at the link look like ticking it. -->
           <span [id]="id + '-text'">
             @if (parts(); as parts) {
               <label [for]="id" class="cursor-pointer">{{ parts.before }}</label

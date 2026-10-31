@@ -9,11 +9,8 @@ export class PageService {
   private client = createOrpcClient(pageContract);
 
   /**
-   * The page, or null when it has no row yet. A deployment starts with an empty
-   * pages table — nothing seeds it outside the demo — so "not created yet" is an
-   * ordinary state the admin resolves by writing the page, not a failure. Any
-   * other failure still throws, so a real outage stays distinguishable from an
-   * empty page.
+   * Null for a page with no row yet, an ordinary state outside the demo; any
+   * other failure throws, so an outage stays distinct from an unwritten page.
    */
   async getPage(slug: string): Promise<Page | null> {
     const { error, data } = await safe(

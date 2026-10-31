@@ -46,9 +46,8 @@ import { CancelButton } from '../../ui/cancel-button';
 import { SHARED_TEXT } from '../../../shared/config/shared-text';
 
 /**
- * The editing surface for a static page: title, body and a preview that renders
- * through the same `prose` container the public page uses. Presentational — the
- * route around it (page-editor-page) owns loading, saving and where to go next.
+ * Title, body and a preview in the public page's `prose` measure. Saves
+ * itself; the route around it loads the page and decides where to go next.
  */
 @Component({
   selector: 'app-page-editor',
@@ -71,8 +70,6 @@ import { SHARED_TEXT } from '../../../shared/config/shared-text';
   providers: [
     { provide: FIELD_ATTEMPT, useExisting: forwardRef(() => PageEditor) },
   ],
-  // Neutralize link navigation from the preview at the host: a native click on
-  // a rendered link would leave the page without the unsaved-changes guard.
   host: { '(click)': 'onPreviewClick($event)' },
   template: `
     @if (previewing()) {
@@ -80,8 +77,6 @@ import { SHARED_TEXT } from '../../../shared/config/shared-text';
         {{ text.previewNotice }}
       </p>
       <h1 uiPageTitle class="mb-4">{{ title() }}</h1>
-      <!-- The published width, so the preview shows the line breaks the
-           visitor will get — the same measure the editing surface uses. -->
       <div class="prose max-w-3xl" [innerHTML]="safeBody(body())"></div>
       @if (isConsent()) {
         <div class="mt-8 max-w-3xl border-t border-edge pt-4">
@@ -104,9 +99,7 @@ import { SHARED_TEXT } from '../../../shared/config/shared-text';
       <h1 uiPageTitle class="mb-4">
         {{ isNew() ? text.newTitle : text.editTitle }}
       </h1>
-      <!-- The published measure, which is what the preview above uses: text
-           typed at one width and read at another breaks in different places,
-           and where a heading lands is half of what is being edited. -->
+      <!-- The published measure: where a line breaks is part of the edit. -->
       <div class="max-w-3xl">
         <ui-field
           class="mb-6"
@@ -191,8 +184,6 @@ export class PageEditor implements FieldAttempt {
   protected readonly actionText = inject(SHARED_TEXT).actions;
   protected readonly text = inject(ADMIN_TEXT).pages;
   private readonly confirmDiscard = injectConfirmDiscard();
-  /** Bypasses Angular's redundant innerHTML sanitizer for the server-sanitized
-   * preview body — see trustedRichText. */
   protected readonly safeBody = trustedRichText();
 
   readonly slug = input.required<PageSlug>();
@@ -200,7 +191,6 @@ export class PageEditor implements FieldAttempt {
   /** True when the page has no row yet, so this save creates it. */
   readonly isNew = input(false);
 
-  /** Emits the saved page so the host can render the server's stored form. */
   readonly saved = output<Page>();
   readonly closed = output<void>();
   /** Lets the host warn before a navigation abandons unsaved edits. */
@@ -253,13 +243,8 @@ export class PageEditor implements FieldAttempt {
   }
 
   /**
-   * Preview is a visual preview, not a live page. Its body renders real anchors
-   * (text links, linked images); a native click on one would leave the page
-   * *without* passing through the unsaved-changes route guard, silently dropping
-   * the edit. Neutralize link clicks while previewing — the admin resumes
-   * editing or uses the app's own navigation, which the guard protects. Scoped
-   * to preview so it never interferes with the editor or toolbar. A keyboard
-   * Enter on a link also dispatches a click, so this covers that too.
+   * A native click on a preview link would leave without the unsaved-changes
+   * guard and drop the edit. Enter on a link is a click too.
    */
   protected onPreviewClick(event: MouseEvent): void {
     if (this.previewing() && (event.target as HTMLElement).closest('a')) {

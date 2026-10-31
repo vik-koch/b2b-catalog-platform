@@ -17,11 +17,8 @@ import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { PageService } from '../../core/site/page.service';
 
 /**
- * One form's consent box (NFR-LEGAL-09): whether it is asked, the text it
- * links and the wording it shows, and the version the form posts back.
- *
- * Owns its checkbox as a field of its own, so the required rule follows
- * whether the box is asked at all, and a form checks it beside its own fields.
+ * One form's consent box. The checkbox is a field of its own, so its required
+ * rule follows whether the box is asked at all.
  */
 export interface ConsentRequest {
   /** Where the consent text is read; the box's bracketed words link it. */
@@ -49,9 +46,8 @@ export interface ConsentRequest {
 }
 
 /**
- * A purpose is asked where the deployment switches it on, unless the caller
- * knows better — the first-password form asks only when the API says the
- * account still owes it.
+ * Asked where the deployment switches the purpose on, and where `owed` says
+ * so: the first-password form asks only an account that still owes it.
  */
 export function useConsent(
   purpose: ConsentPurpose,

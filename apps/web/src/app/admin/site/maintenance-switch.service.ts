@@ -4,11 +4,7 @@ import { adminMaintenanceContract } from '../contract-routes.generated';
 import { createOrpcClient } from '../../shared/core/orpc-client';
 import { MaintenanceService } from '../../core/site/maintenance.service';
 
-/**
- * The admin's maintenance toggle (FR-ADM-04). Every answer is handed to the
- * public check's memo as well, so the app instance that just changed it does
- * not go on believing the old state.
- */
+/** Every answer goes to the public check's memo too, so this app is current. */
 @Injectable({ providedIn: 'root' })
 export class MaintenanceSwitchService {
   private readonly client = createOrpcClient(adminMaintenanceContract);
@@ -16,14 +12,10 @@ export class MaintenanceSwitchService {
   private readonly answered = signal<boolean | null>(null);
   private inFlight?: Promise<MaintenanceCheck>;
 
-  /**
-   * The last answer the API actually gave, or null: the panel says
-   * "maintenance is on" only when the API said so, because a chip claiming a
-   * mode the shop may not be in is worse than no chip.
-   */
+  /** The API's last answer, or null: no chip beats one claiming a wrong mode. */
   readonly enabled = this.answered.asReadonly();
 
-  /** Fetch once per app instance, for the panel's chip. */
+  /** Once per app, for the panel's chip. */
   load(): Promise<MaintenanceCheck> {
     return (this.inFlight ??= this.read());
   }

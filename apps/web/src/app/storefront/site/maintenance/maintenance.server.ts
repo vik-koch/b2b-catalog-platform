@@ -3,23 +3,15 @@ import { requireEnv } from '../../../../env';
 import { readSessionHint } from '../../../shared/auth/session-hint';
 
 /**
- * Server-side maintenance gate (FR-ADM-04, ADR 0023 — the SSR mirror of the
- * API's MaintenanceGuard; the two exemption lists must stay in step). The Node
- * process asks the API whether the storefront is gated and, if so, serves the
- * maintenance screen with a real 503 at the requested URL — no redirect, which
- * an SSR response cannot combine with a 503 anyway.
- *
- * The check is server-authoritative: the client-side gate is only cosmetic and
- * never runs during SSR (see maintenance.guard.ts), so this is the single place
- * that decides what a cold-loading visitor or crawler receives.
+ * The gate for a cold load: the maintenance screen with a 503 at the requested
+ * URL. Mirrors the API's MaintenanceGuard: keep the exemptions in step.
  */
 
-// Maintenance flips rarely; a short TTL keeps this off the per-request hot path
-// while bounding how long a go-live (or a lock-down) takes to reach visitors.
+/** Bounds how long a go-live or a lock-down takes to reach visitors. */
 const CACHE_TTL_MS = 5000;
 let cache: { value: boolean; at: number } | undefined;
 
-/** Fails open (false): a hiccup talking to the API must never hide a live shop. */
+/** Fails open: a hiccup must never hide a live shop. */
 export async function isMaintenanceOn(): Promise<boolean> {
   if (cache && Date.now() - cache.at < CACHE_TTL_MS) {
     return cache.value;
@@ -38,18 +30,11 @@ export async function isMaintenanceOn(): Promise<boolean> {
   return value;
 }
 
-// The staff way in plus the maintenance screen itself. Everything else the
-// Node process server-renders is gated — the storefront, and a customer's own
-// account pages with it, since the shop is closed to customers too. Keyed off
-// this small closed set rather than re-listing every public route, so a new
-// page is gated by default.
-//
-// These are prefixes, not exact paths: the admin routes are flat siblings
-// (`/admin/products/:slug/edit`, `/admin/sync`, …), and gating them would 503 a
-// cold load of an editor during exactly the window they exist for — the admin
-// populates catalog and content behind a gated storefront (FR-ADM-01…03). The
-// password links stay open because a staff member locked out needs them; the
-// API turns a customer's link away itself.
+/**
+ * The staff way in and the screen itself, as prefixes, so a new page is gated
+ * by default and every admin route stays open. The password links stay open
+ * for a locked-out staff member; the API refuses a customer's link itself.
+ */
 const UNGATED_ROOTS = [
   '/login',
   '/forgot-password',
@@ -61,25 +46,16 @@ const UNGATED_ROOTS = [
 /** Whether a request path is public storefront content that maintenance hides. */
 export function isGatedPath(path: string): boolean {
   const normalized = path !== '/' ? path.replace(/\/+$/, '') : path;
-  // `startsWith(root + '/')` and not a bare prefix test, so `/logins` — a public
-  // path that merely begins with an ungated root — stays gated.
+  // Not a bare prefix test, so `/logins` stays gated.
   return !UNGATED_ROOTS.some(
     (root) => normalized === root || normalized.startsWith(`${root}/`),
   );
 }
 
 /**
- * Whether this request's readable session hint claims staff, who preview the
- * live storefront rather than the gate (mirrors the API guard's identity
- * exemption). The httpOnly session cookie says who is really signed in, but the
- * SSR tier never forwards it, so the hint beside it is the only thing the Node
- * process can read — and, like every hint, it is a rendering decision and not
- * an authorization one. A hand-forged value buys nothing: every read the page
- * makes still goes through the API's own gate.
- *
- * Without this a staff member's cold load — the first visit, and every F5
- * after — paints the maintenance screen before the client-side gate lets them
- * through.
+ * Staff preview the shop rather than the screen. Decided before render without
+ * asking the API, so it reads the readable hint, not the session: a forged one
+ * buys nothing, as every read the page makes passes the API's own gate.
  */
 export function isStaffPreview(cookies: string | undefined): boolean {
   return passesMaintenance(readSessionHint(cookies));

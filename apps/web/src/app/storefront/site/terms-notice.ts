@@ -1,26 +1,20 @@
 import { Component, computed, inject, resource } from '@angular/core';
-import { RouterLink } from '@angular/router';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
-import { Link } from '@b2b-catalog-platform/ui/actions/link';
 import { PageService } from '../../core/site/page.service';
+import { PageLinkSentence } from './ui/page-link-sentence';
 
 /**
- * Beside checkout's submit button: sending the order accepts the terms of sale
- * (NFR-LEGAL-10). A statement, not a box, because submitting is the act.
- * Nothing where the deployment publishes no terms, or publishes a page nobody
- * has written yet: the order then records no version, so it accepts none.
+ * Beside checkout's submit: sending the order accepts the terms, so a
+ * statement rather than a box. Nothing for a page that is unpublished or
+ * unwritten: the order then records no version and accepts none.
  */
 @Component({
   selector: 'app-terms-notice',
-  imports: [RouterLink, Link],
+  imports: [PageLinkSentence],
   template: `
     @if (shown()) {
-      {{ text.text }}
-      <a uiLink routerLink="/terms" target="_blank" rel="noopener">{{
-        text.link
-      }}</a
-      >{{ text.after }}
+      <app-page-link-sentence path="/terms" [text]="text" />
     }
   `,
 })
@@ -35,9 +29,8 @@ export class TermsNotice {
     loader: ({ params }) => this.pages.getPage(params.slug),
   });
 
-  // Held back only once the page is known to be unwritten. A read that fails
-  // says nothing about that, and the order still records whatever version the
-  // server finds, so the line stays.
+  // A failed read says nothing about the page being unwritten, and the server
+  // records whatever version it finds, so the line stays.
   protected readonly shown = computed(() => {
     if (!this.published) return false;
     if (this.page.status() === 'error') return true;

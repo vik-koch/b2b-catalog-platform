@@ -13,13 +13,8 @@ import { injectEditorReturn } from '../../../shared/edit-mode/editor-return';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 
 /**
- * Edit a static page (FR-ADM-03) on its own screen at
- * `/admin/pages/:slug/edit`, mirroring the product and category editors so every
- * edit button on the panel behaves alike. Reached from the panel and from the
- * storefront's edit-mode pencil, and returns to whichever opened it.
- *
- * A page with no row yet is an ordinary starting state, not an error: only the
- * demo seeds content, so on a real deployment every page begins here, empty.
+ * Returns to whichever opened it, the panel or the storefront's pencil. A page
+ * with no row yet is where every page of a real deployment starts.
  */
 @Component({
   selector: 'app-page-editor-page',
@@ -55,11 +50,7 @@ export class PageEditorPage implements UnsavedChangesAware {
     loader: () => this.pageService.getPage(this.slug),
   });
 
-  /**
-   * The starting point for a page that does not exist yet. The title is
-   * pre-filled from the navigation label so the admin edits a named page rather
-   * than facing an empty required field; the save adds version 1.
-   */
+  /** Named from the navigation, so the required title is not left empty. */
   protected readonly blankPage: Page = {
     version: 0,
     title: inject(SHARED_TEXT).nav[this.slug] ?? '',
@@ -68,7 +59,6 @@ export class PageEditorPage implements UnsavedChangesAware {
     updatedAt: '',
   };
 
-  /** Delayed so a quick load never flashes a skeleton. */
   protected readonly showSkeleton = delayedLoading(this.page.isLoading);
 
   protected readonly editorDirty = signal(false);
@@ -79,11 +69,7 @@ export class PageEditorPage implements UnsavedChangesAware {
     return !this.navigatingAway && this.editorDirty();
   }
 
-  /**
-   * Both a save and a cancel end the same way. The editor has already asked
-   * about unsaved work by the time it emits, so the flag keeps the route guard
-   * from asking a second time.
-   */
+  /** The editor has asked about unsaved work already; the guard must not. */
   protected leave(): void {
     this.navigatingAway = true;
     void this.close('/admin');

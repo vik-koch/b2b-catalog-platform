@@ -5,10 +5,8 @@ import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
 import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
 
 /**
- * "Last updated" under a legal page's text. The date is read in the shop's own
- * timezone, so the server render and the browser agree on the day. The
- * version number stays out: it counts saves, typo fixes included, and says
- * nothing a reader can use.
+ * The date in the shop's timezone, so server and browser agree on the day. No
+ * version number: it counts saves, typo fixes included.
  */
 @Component({
   selector: 'app-page-updated',
@@ -21,7 +19,6 @@ import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
 })
 export class PageUpdated {
   readonly slug = input.required<string>();
-  /** ISO 8601, when the current version was saved. */
   readonly updatedAt = input.required<string>();
 
   private readonly text = inject(STOREFRONT_TEXT).pageUpdated;

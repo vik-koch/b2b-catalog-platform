@@ -4,12 +4,7 @@ import { usePageSeo } from '../../../shared/core/page-seo';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
 import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
 
-/**
- * The public notice shown while maintenance mode is on (FR-ADM-04). Reached by
- * the maintenance gate redirect. Deliberately self-contained — it fetches no
- * catalog data (which the API would 503 anyway), so it renders cleanly behind
- * the gate.
- */
+/** Fetches nothing: behind the gate the API would refuse it. */
 @Component({
   selector: 'app-maintenance-screen',
   imports: [PageTitle, PageIntro],
@@ -26,9 +21,7 @@ export class MaintenanceScreen {
   constructor() {
     usePageSeo({ name: () => this.text.title });
 
-    // Crawlers must receive a real 503 (temporary), never a styled 200 that
-    // would invite indexing of the placeholder. The token only exists during
-    // SSR; it is null in the browser and on client-side navigations.
+    // A 503, never a 200 a crawler would index. Present during SSR only.
     const responseInit = inject(RESPONSE_INIT, { optional: true });
     if (responseInit) {
       responseInit.status = 503;
