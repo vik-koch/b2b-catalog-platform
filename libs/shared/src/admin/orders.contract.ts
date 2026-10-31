@@ -16,8 +16,8 @@ import {
   productUnitSchema,
 } from '../lib/orders/cart.contract';
 import { CART_LINES_MAX, CART_NOTE_MAX } from '../lib/orders/cart-constants';
-import { LINE_PIECES_MAX } from '../lib/catalog/product-units';
-import { paginationSchema } from '../lib/catalog/catalog.contract';
+import { LINE_PIECES_MAX } from '../core/catalog/product-units';
+import { paginationSchema } from '../platform/pagination.contract';
 import {
   authed,
   detailsRemoved,

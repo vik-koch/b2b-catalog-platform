@@ -16,22 +16,24 @@ import {
   OrderStatus,
   OrderSubmission,
   OrderSummary,
-  Pagination,
   formatPersonName,
   PaymentMethod,
   PaymentState,
   paymentStateAfterAdjustment,
   paymentStateWithoutPayment,
-  ProductUnit,
   transitionHasReason,
   transitionNeedsReason,
-  alternateLayoutQuery,
-  KeyboardLayout,
   effectiveTaxRate,
   TaxBasis,
   TaxConfig,
   CustomerType,
 } from '@b2b-catalog-platform/shared';
+import {
+  Pagination,
+  alternateLayoutQuery,
+  KeyboardLayout,
+} from '@b2b-catalog-platform/shared/platform';
+import { ProductUnit } from '@b2b-catalog-platform/shared/core/catalog';
 import { resolveDeliveryZone } from '@b2b-catalog-platform/shared/storefront';
 import {
   AdminOrderDetail,
@@ -77,7 +79,7 @@ import {
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { alias, PgColumn } from 'drizzle-orm/pg-core';
 import { AddressesService } from '../addresses/addresses.service';
-import { publiclyVisible } from '../catalog/product-view';
+import { publiclyVisible } from '../core/catalog/product-view';
 import {
   BILLING_ADDRESS_ENABLED,
   ACCEPTED_CUSTOMER_TYPES,
@@ -112,8 +114,8 @@ import { priceAdjustment, PricedAdjustment } from './order-adjustment';
 import { OrderDocumentsService } from './order-documents.service';
 import { OrderNotifications } from './order-notifications';
 import { TermsPdf } from './terms-pdf';
+import { isUniqueViolation } from '../db/pg-errors';
 import {
-  isUniqueViolation,
   ORDER_REFERENCE_ATTEMPTS,
   orderPublicToken,
   orderReference,

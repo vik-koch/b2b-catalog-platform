@@ -1,7 +1,7 @@
 import * as z from 'zod';
-import { ACCEPTED_IMAGE_MIME_TYPES } from '../lib/catalog/media-constants';
-import { catalogImageSchema } from '../lib/catalog/catalog.contract';
-import { storedDocumentFileSchema } from './documents.contract';
+import { ACCEPTED_IMAGE_MIME_TYPES } from '../platform/media-constants';
+import { catalogImageSchema } from '../core/catalog/catalog.contract';
+import { storedDocumentFileSchema } from './catalog/documents.contract';
 
 export type AcceptedImageMime = (typeof ACCEPTED_IMAGE_MIME_TYPES)[number];
 

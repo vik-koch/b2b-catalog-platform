@@ -72,14 +72,15 @@ export default [
       ],
     },
   },
-  // The app's three parts: the storefront and the admin each import shared
-  // code and never each other, shared code imports neither, and only the root
-  // (app.ts, app.config*, app.routes*) composes both. Their wording follows
-  // the same line: each side reads its own text and the shared text, and only
-  // shared code, showing one side's view to the other, reads both; a spec may,
-  // to set the scene. A later block replaces an earlier
-  // `no-restricted-imports` rather than adding to it, so each one repeats the
-  // server-package pattern above.
+  // The audiences and what they share: the storefront and the admin each
+  // import shared and core code and never each other, shared and core code
+  // import neither, and only the root (app.ts, app.config*, app.routes*)
+  // composes both. Their wording follows the same line: each side reads its
+  // own text and the shared text, and only shared and core code, showing one
+  // side's view to the other, reads both; a spec may, to set the scene. Areas
+  // within them are held by tools/lint/area-boundaries.mjs. A later block
+  // replaces an earlier `no-restricted-imports` rather than adding to it, so
+  // each one repeats the server-package pattern above.
   ...[
     {
       part: 'storefront',
@@ -95,6 +96,11 @@ export default [
     },
     {
       part: 'shared',
+      forbidden: ['storefront', 'admin'],
+      entries: ['storefront', 'admin', 'sync', 'node'],
+    },
+    {
+      part: 'core',
       forbidden: ['storefront', 'admin'],
       entries: ['storefront', 'admin', 'sync', 'node'],
     },
@@ -147,7 +153,7 @@ function rulesFor(part, forbidden, entries, text, extra = []) {
             message: `${part} code imports shared code, not ${forbidden.join(' or ')} code (see eslint.config.mjs).`,
           },
           {
-            regex: `^@b2b-catalog-platform/shared/(${entries.join('|')})$`,
+            regex: `^@b2b-catalog-platform/shared/(${entries.join('|')})(/|$)`,
             message: `${part} code imports the shared library's root entry${part === 'shared' ? ' only' : ` and its own, not ${entries.join(' or ')}`} (see eslint.config.mjs).`,
           },
           ...(text

@@ -13,22 +13,23 @@ import {
   CartLine,
   CartPreview,
   CartPreviewLine,
-  CatalogImage,
-  correctPieces,
-  exactLineTotal,
-  LineUnitPrices,
-  PRODUCT_AVAILABILITIES,
-  ProductAvailability,
-  ProductImage,
-  ProductPackagingInfo,
-  ProductUnit,
-  ProductVariant,
   shipmentEstimate,
   ShipmentSummary,
-  UnitPrices,
   USER_ROLES,
   UserRole,
 } from '@b2b-catalog-platform/shared';
+import {
+  CatalogImage,
+  correctPieces,
+  exactLineTotal,
+  PRODUCT_AVAILABILITIES,
+  ProductAvailability,
+  ProductImage,
+  ProductPackaging,
+  ProductUnit,
+  ProductVariant,
+  UnitPrices,
+} from '@b2b-catalog-platform/shared/core/catalog';
 import { readSessionHint } from '../auth/session-hint';
 import { CART_STORAGE_KEY, CART_STORAGE_VERSION } from './cart-storage';
 
@@ -72,7 +73,7 @@ export interface CartStoredLine {
   unitPriceMinor: number | null;
   lineTotalMinor: number | null;
   prices: UnitPrices;
-  packaging: ProductPackagingInfo;
+  packaging: ProductPackaging;
   image: CatalogImage | null;
   /**
    * What one box unit of this product weighs and takes up, and how many
@@ -219,7 +220,7 @@ export interface CartAddition {
   pieces: number;
   note: string | null;
   prices: UnitPrices;
-  packaging: ProductPackagingInfo;
+  packaging: ProductPackaging;
   /** The photo the customer was looking at, so the cart can draw the line
    * before it has asked the server anything. */
   image: CatalogImage | null;
@@ -915,14 +916,14 @@ function priceLine(
   return {
     unitPriceMinor: unitPriceOf(addition.prices, addition.unit),
     lineTotalMinor: exactLineTotal(
-      addition.prices,
+      addition.prices.piece,
       correctPieces(addition.packaging, pieces),
     ),
   };
 }
 
 /** What one of a unit costs. */
-function unitPriceOf(prices: LineUnitPrices, unit: ProductUnit): number | null {
+function unitPriceOf(prices: UnitPrices, unit: ProductUnit): number | null {
   if (unit === 'pack') return prices.pack;
   if (unit === 'box') return prices.box;
   return prices.piece;
@@ -1002,8 +1003,8 @@ function isPrices(prices: unknown): prices is UnitPrices {
   );
 }
 
-function isPackaging(packaging: unknown): packaging is ProductPackagingInfo {
-  const candidate = packaging as ProductPackagingInfo | null;
+function isPackaging(packaging: unknown): packaging is ProductPackaging {
+  const candidate = packaging as ProductPackaging | null;
   return (
     !!candidate &&
     isNullableNumber(candidate.piecesPerPack) &&

@@ -1,17 +1,14 @@
-import { Component, computed, input, signal } from '@angular/core';
+import { Component, computed, input } from '@angular/core';
 import { Params, RouterLink } from '@angular/router';
 import {
   CatalogImage,
   categoryDisplayName,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/core/catalog';
 import { HighlightedLine } from '@b2b-catalog-platform/ui/suggest/highlighted-line';
-import { MatchSegmentsPipe } from '../../../shared/catalog/match-segments.pipe';
+import { MatchSegmentsPipe } from '../../../core/catalog/search/match-segments.pipe';
+import { brokenImages } from '@b2b-catalog-platform/ui/core/broken-images';
 
-/**
- * What the chip needs of a category — the shape both the public tree node and
- * the drill-down link already have, so either can be handed over as it arrives
- * from the API.
- */
+/** Both a tree node and a drill-down link fit as they arrive. */
 export interface CategoryChipTarget {
   slug: string;
   name: string;
@@ -19,24 +16,15 @@ export interface CategoryChipTarget {
   mark: CatalogImage | null;
 }
 
-/**
- * How tall a chip is drawn. `responsive` is the one every list uses: the big
- * form, dropping to the small one below the viewport's `sm`, where a chip is a
- * full-width row on a phone rather than one cell of a grid. `small` is the
- * fixed short form, for a place that shows categories beside something else.
- *
- * The two are a size apart and nothing else — same ground, same radius, same
- * type — because a chip has to be recognised as the same object wherever the
- * catalogue puts one.
- */
+/** `responsive` drops to the small form below `sm`; `small` is fixed, for
+ * categories shown beside something else. A size apart and nothing else. */
 export type CategoryChipSize = 'responsive' | 'small';
 
 const CHIP_BASE = `flex w-full items-center pl-3 overflow-hidden rounded-xl
                    bg-chip text-base tracking-tight transition-colors
                    hover:bg-chip-hover hover:text-accent-strong`;
 
-/** The mark is the chip's full height and square — the upload stores a square
- * — so nothing is cropped here; only how much of the chip it takes changes. */
+/** The mark is the chip's full height and square, as uploads are. */
 const CHIP_SIZES: Record<CategoryChipSize, { link: string; mark: string }> = {
   responsive: {
     link: 'h-16 sm:h-24',
@@ -46,28 +34,15 @@ const CHIP_SIZES: Record<CategoryChipSize, { link: string; mark: string }> = {
 };
 
 /**
- * A category as a chip: the one way the storefront draws a category — the
- * index, the main page and the subcategory navigation of a listing alike. The
- * mark (FR-CAT-07) sits beside the name rather than instead of it — a mark
- * identifies a category faster than its name does, but only once you already
- * know it, so the name never leaves, and a category with no mark is simply a
- * name in the same box.
- *
- * The mark runs edge to edge over the chip's right end and the chip's corners
- * clip it. Any margin around the artwork is the picture's own, which is what
- * lets a mark sit its drawing against the chip's bottom edge if it wants to.
- *
- * The chip has no width of its own; it fills whatever its <li> was given, which
- * is where the row decides how wide a chip is (see SUBS_LIST in CategoryGrid
- * and CATEGORY_GRID in CategoryIndex).
+ * The one way the storefront draws a category. The mark (FR-CAT-07) stands
+ * beside the name, never instead of it, edge to edge and clipped by the chip's
+ * corners. No width of its own: the grid around it decides.
  */
 @Component({
   selector: 'app-category-chip',
   imports: [RouterLink, HighlightedLine, MatchSegmentsPipe],
-  // The host is a flex item of the <li> it sits in and a flex box for the link
-  // it holds. `w-full` is what carries the item's width through to the link:
-  // without it the host collapses around its own content and the width the
-  // <li> was given turns into gap beside the chip instead of chip.
+  // `w-full` carries the <li>'s width through to the link; without it the host
+  // collapses and the width becomes a gap beside the chip.
   host: { class: 'flex w-full' },
   template: `
     <a
@@ -76,10 +51,8 @@ const CHIP_SIZES: Record<CategoryChipSize, { link: string; mark: string }> = {
       [class]="linkClass()"
     >
       @if (context(); as context) {
-        <!-- The name over the category it sits in, where the chip stands
-             away from the tree that would otherwise say so. Tighter lines
-             than a bare name, so two lines of it and the parent's fit the
-             small chip whole: 2 × 20px + 16px leaves 4px either side of 64. -->
+        <!-- Tighter lines, so two of the name and the parent's fit the small
+             chip: 2 × 20px + 16px leaves 4px either side of 64. -->
         <span [class]="contextClass()">
           <span class="line-clamp-2 leading-5">
             <ui-highlighted-line
@@ -103,7 +76,7 @@ const CHIP_SIZES: Record<CategoryChipSize, { link: string; mark: string }> = {
           alt=""
           loading="lazy"
           [class]="markClass()"
-          (error)="markFailed.set(true)"
+          (error)="broken.add(mark.thumb)"
         />
       }
     </a>
@@ -111,26 +84,22 @@ const CHIP_SIZES: Record<CategoryChipSize, { link: string; mark: string }> = {
 })
 export class CategoryChip {
   readonly category = input.required<CategoryChipTarget>();
-  /** Carried through so a chip can keep the listing's sort and filters. */
   readonly queryParams = input<Params | null>(null);
   readonly size = input<CategoryChipSize>('responsive');
-  /** Greyed like a facet value with no matches: nothing under the listing's
-   * filters is in it. Still a link — it is the category that is empty, not
-   * the way into it. */
+  /** Nothing under the listing's filters is in it. Still a link. */
   readonly muted = input(false);
-  /** The category this one sits in, as a second line — for a chip shown away
-   * from the tree, as a search suggestion is (FR-SEARCH-07). */
+  /** The parent's name as a second line, away from the tree (FR-SEARCH-07). */
   readonly context = input<string | null>(null);
   /** Marks the part of the name a query matched, as a suggestion row does. */
   readonly query = input('');
   readonly alternateQuery = input<string | null>(null);
 
-  /** A mark whose file 404s is no mark at all — the fallback is the name, not
-   * the browser's broken-image icon in a chip that says nothing else. */
-  protected readonly markFailed = signal(false);
-  protected readonly shownMark = computed(() =>
-    this.markFailed() ? null : this.category().mark,
-  );
+  /** A mark that fails to load leaves the name alone, not a broken icon. */
+  protected readonly broken = brokenImages();
+  protected readonly shownMark = computed(() => {
+    const mark = this.category().mark;
+    return mark && !this.broken.has(mark.thumb) ? mark : null;
+  });
 
   protected readonly label = computed(() =>
     categoryDisplayName(this.category()),
@@ -148,15 +117,8 @@ export class CategoryChip {
         this.muted() ? ' opacity-40' : ''
       }`,
   );
-  /**
-   * The name takes whatever the mark leaves and wraps inside it, clipped at
-   * two lines: the chip's height is fixed, so a long name has to end somewhere
-   * rather than push the row open.
-   *
-   * The name starts at the same place whether or not a mark follows it, so
-   * names line up down a column of chips. With no mark it keeps a gap off the
-   * right edge instead of running into it.
-   */
+  /** Clamped: the chip's height is fixed. Without a mark the name keeps a gap
+   * off the right edge. */
   protected readonly contextClass = computed(
     () =>
       `flex min-w-0 flex-1 flex-col [overflow-wrap:anywhere]${

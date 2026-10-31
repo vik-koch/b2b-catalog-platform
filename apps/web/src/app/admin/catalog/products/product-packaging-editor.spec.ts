@@ -1,0 +1,315 @@
+import { SHARED_TEXT } from '../../../shared/config/shared-text';
+import { defaultSharedText } from '../../../shared/config/shared-text.fixture';
+import { TestBed } from '@angular/core/testing';
+import { ComponentFixture } from '@angular/core/testing';
+import { ADMIN_TEXT } from '../../../shared/config/admin-text';
+import { defaultAdminText } from '../../../shared/config/admin-text.fixture';
+import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
+import { DeploymentConfig } from '@b2b-catalog-platform/shared';
+import {
+  emptyPackaging,
+  PackagingDraft,
+  parseCount,
+  ProductPackagingEditor,
+} from './product-packaging-editor';
+
+/** Intl separates a number from its currency symbol with a non-breaking space. */
+const plainSpaces = (text: string) => text.replace(/[\u00a0\u202f]/g, ' ');
+
+const config = {
+  locale: 'de-DE',
+  catalog: {
+    currency: { code: 'EUR' },
+    boxUnits: { volume: 'm³', weight: 'kg' },
+  },
+} as unknown as DeploymentConfig;
+
+function render(
+  value: PackagingDraft,
+  priceMinor: number | null = null,
+): {
+  fixture: ComponentFixture<ProductPackagingEditor>;
+  emitted: PackagingDraft[];
+} {
+  TestBed.configureTestingModule({
+    imports: [ProductPackagingEditor],
+    providers: [
+      { provide: ADMIN_TEXT, useValue: defaultAdminText },
+      { provide: SHARED_TEXT, useValue: defaultSharedText },
+      { provide: DEPLOYMENT_CONFIG, useValue: config },
+    ],
+  });
+  const fixture = TestBed.createComponent(ProductPackagingEditor);
+  fixture.componentRef.setInput('value', value);
+  fixture.componentRef.setInput('priceMinor', priceMinor);
+  const emitted: PackagingDraft[] = [];
+  fixture.componentInstance.valueChange.subscribe((v) => emitted.push(v));
+  fixture.detectChanges();
+  return { fixture, emitted };
+}
+
+/** Types into one of the packaging fields by its label. */
+function type(
+  fixture: ComponentFixture<ProductPackagingEditor>,
+  id: string,
+  text: string,
+): void {
+  const input: HTMLInputElement = fixture.nativeElement.querySelector(
+    `#packaging-${id}`,
+  );
+  input.value = text;
+  input.dispatchEvent(new Event('input'));
+}
+
+describe('parseCount', () => {
+  it('accepts whole numbers of one or more', () => {
+    expect(parseCount('6')).toBe(6);
+    expect(parseCount(' 100 ')).toBe(100);
+  });
+
+  it('rejects anything else, so a typo is not read as a packaging rule', () => {
+    expect(parseCount('')).toBeNull();
+    expect(parseCount('0')).toBeNull();
+    expect(parseCount('1.5')).toBeNull();
+    expect(parseCount('six')).toBeNull();
+    expect(parseCount('-6')).toBeNull();
+  });
+});
+
+describe('ProductPackagingEditor', () => {
+  it('lets the minimum follow the pack size while it is still matching', () => {
+    const { fixture, emitted } = render({
+      ...emptyPackaging(),
+      piecesPerPack: '6',
+      minPieceQty: '6',
+    });
+
+    type(fixture, 'piecesPerPack', '12');
+
+    expect(emitted.at(-1)).toMatchObject({
+      piecesPerPack: '12',
+      minPieceQty: '12',
+    });
+  });
+
+  // A minimum of 1 is a shop that sells single pieces out of a pack, which is a
+  // decision rather than an unset field — raising it to the pack silently made
+  // that shop sell packs.
+  it('leaves a minimum of one alone when a pack is added', () => {
+    const { fixture, emitted } = render(emptyPackaging());
+
+    type(fixture, 'piecesPerPack', '6');
+
+    expect(emitted.at(-1)).toMatchObject({
+      piecesPerPack: '6',
+      minPieceQty: '1',
+    });
+  });
+
+  it('leaves a minimum somebody chose alone', () => {
+    const { fixture, emitted } = render({
+      ...emptyPackaging(),
+      piecesPerPack: '6',
+      minPieceQty: '100',
+    });
+
+    type(fixture, 'piecesPerPack', '12');
+
+    expect(emitted.at(-1)).toMatchObject({
+      piecesPerPack: '12',
+      minPieceQty: '100',
+    });
+  });
+
+  it('prices each unit beside the row that defines it', () => {
+    // €1.99 a piece, ten to a pack, four packs to a box.
+    const { fixture } = render(
+      {
+        ...emptyPackaging(),
+        piecesPerPack: '10',
+        minPieceQty: '10',
+        packsPerBox: '4',
+      },
+      199,
+    );
+    const text = plainSpaces(fixture.nativeElement.textContent);
+
+    expect(text).toContain('19,90 € per pack');
+    expect(text).toContain('79,60 € per box');
+  });
+
+  // `inputmode` has `numeric`, not `integer`: a wrong value shows a phone the
+  // full keyboard.
+  it('asks a phone for the number pad on counts and the decimal one on measures', () => {
+    const { fixture } = render({ ...emptyPackaging(), packsPerBox: '4' });
+    const mode = (id: string) =>
+      fixture.nativeElement
+        .querySelector(`#packaging-${id}`)
+        ?.getAttribute('inputmode');
+
+    expect(mode('piecesPerPack')).toBe('numeric');
+    expect(mode('boxWeight')).toBe('decimal');
+  });
+
+  it('puts a required count back to 1 when it is emptied', () => {
+    const { fixture, emitted } = render({
+      ...emptyPackaging(),
+      minPieceQty: '',
+    });
+
+    const input: HTMLInputElement = fixture.nativeElement.querySelector(
+      '#packaging-minPieceQty',
+    );
+    input.dispatchEvent(new Event('blur'));
+
+    expect(emitted.at(-1)).toMatchObject({ minPieceQty: '1' });
+  });
+
+  // A piece order moves by one pack, so a minimum between two packs is not a
+  // rule the shop can keep. Raised rather than refused, and visibly, on the
+  // blur where every other count is tidied.
+  it('lifts a minimum that sits between packs to the next whole one', () => {
+    const { fixture, emitted } = render({
+      ...emptyPackaging(),
+      piecesPerPack: '6',
+      minPieceQty: '25',
+    });
+
+    const input: HTMLInputElement = fixture.nativeElement.querySelector(
+      '#packaging-minPieceQty',
+    );
+    input.dispatchEvent(new Event('blur'));
+
+    expect(emitted.at(-1)).toMatchObject({ minPieceQty: '30' });
+  });
+
+  it('lifts the minimum when the pack it sits between changes', () => {
+    const { fixture, emitted } = render({
+      ...emptyPackaging(),
+      piecesPerPack: '6',
+      minPieceQty: '25',
+    });
+
+    const input: HTMLInputElement = fixture.nativeElement.querySelector(
+      '#packaging-piecesPerPack',
+    );
+    input.dispatchEvent(new Event('blur'));
+
+    expect(emitted.at(-1)).toMatchObject({ minPieceQty: '30' });
+  });
+
+  it('leaves a minimum under one pack exactly as typed', () => {
+    const { fixture, emitted } = render({
+      ...emptyPackaging(),
+      piecesPerPack: '6',
+      minPieceQty: '2',
+    });
+
+    const input: HTMLInputElement = fixture.nativeElement.querySelector(
+      '#packaging-minPieceQty',
+    );
+    input.dispatchEvent(new Event('blur'));
+
+    expect(emitted).toEqual([]);
+  });
+
+  it('leaves a minimum that is already whole packs alone', () => {
+    const { fixture, emitted } = render({
+      ...emptyPackaging(),
+      piecesPerPack: '6',
+      minPieceQty: '24',
+    });
+
+    const input: HTMLInputElement = fixture.nativeElement.querySelector(
+      '#packaging-minPieceQty',
+    );
+    input.dispatchEvent(new Event('blur'));
+
+    expect(emitted).toEqual([]);
+  });
+
+  it('leaves an optional count empty on blur — it means "not sold that way"', () => {
+    const { fixture, emitted } = render(emptyPackaging());
+
+    const input: HTMLInputElement = fixture.nativeElement.querySelector(
+      '#packaging-piecesPerPack',
+    );
+    input.dispatchEvent(new Event('blur'));
+
+    expect(emitted).toEqual([]);
+  });
+
+  it('gives a box its first count as a real value, not a placeholder', () => {
+    const { fixture, emitted } = render({
+      ...emptyPackaging(),
+      piecesPerPack: '6',
+    });
+
+    type(fixture, 'packsPerBox', '4');
+
+    expect(emitted.at(-1)).toMatchObject({ packsPerBox: '4', boxCount: '1' });
+  });
+
+  it('leaves a box count somebody raised alone', () => {
+    const { fixture, emitted } = render({
+      ...emptyPackaging(),
+      piecesPerPack: '6',
+      packsPerBox: '4',
+      boxCount: '2',
+    });
+
+    type(fixture, 'packsPerBox', '5');
+
+    expect(emitted.at(-1)).toMatchObject({ boxCount: '2' });
+  });
+
+  it('takes the count away with the box it counted', () => {
+    const { fixture, emitted } = render({
+      ...emptyPackaging(),
+      piecesPerPack: '6',
+      packsPerBox: '4',
+      boxCount: '2',
+      boxVolume: '0,250',
+    });
+
+    type(fixture, 'packsPerBox', '');
+
+    expect(emitted.at(-1)).toMatchObject({
+      boxCount: '',
+      boxVolume: '',
+      boxWeight: '',
+    });
+  });
+
+  it('disables the count until there is a box to count, and puts it last', () => {
+    const { fixture } = render({ ...emptyPackaging(), piecesPerPack: '6' });
+
+    const count: HTMLInputElement = fixture.nativeElement.querySelector(
+      '#packaging-boxCount',
+    );
+    expect(count.disabled).toBe(true);
+    // No standing "1" to read as a rule on a product that has no box at all.
+    expect(count.placeholder).toBe('');
+
+    const ids = [...fixture.nativeElement.querySelectorAll('tbody input')].map(
+      (i: HTMLInputElement) => i.id,
+    );
+    expect(ids.at(-1)).toBe('packaging-boxCount');
+  });
+
+  it('puts the count back to 1 when it is emptied under a box', () => {
+    const { fixture, emitted } = render({
+      ...emptyPackaging(),
+      piecesPerPack: '6',
+      packsPerBox: '4',
+      boxCount: '',
+    });
+
+    const input: HTMLInputElement = fixture.nativeElement.querySelector(
+      '#packaging-boxCount',
+    );
+    input.dispatchEvent(new Event('blur'));
+
+    expect(emitted.at(-1)).toMatchObject({ boxCount: '1' });
+  });
+});

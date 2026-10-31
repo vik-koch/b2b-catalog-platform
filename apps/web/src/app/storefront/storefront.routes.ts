@@ -18,9 +18,9 @@ import { ContactPage } from './pages/contact-page';
 import { InquiryPage } from './pages/inquiry-page';
 import { MaintenanceScreen } from './pages/maintenance-screen';
 import { Home } from './home/home';
-import { CategoryGrid } from './catalog/category-grid';
-import { SearchResults } from './catalog/search-results';
-import { ProductDetail } from './catalog/product-detail';
+import { CategoryGrid } from './catalog/categories/category-grid';
+import { SearchResults } from './catalog/search/search-results';
+import { ProductDetail } from './catalog/product-page/product-detail';
 import { StaticPage } from './pages/static-page';
 
 /**

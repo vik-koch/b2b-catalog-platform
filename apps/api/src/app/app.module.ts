@@ -5,21 +5,19 @@ import { AccountModule } from '../account/account.module';
 import { ApiTokensModule } from '../api-tokens/api-tokens.module';
 import { AddressesModule } from '../addresses/addresses.module';
 import { PartiesModule } from '../parties/parties.module';
-import { AttributesModule } from '../attributes/attributes.module';
 import { AuthModule } from '../auth/auth.module';
 import { ConsentAdminModule } from '../consents/consent-admin.module';
 import { InquiryModule } from '../inquiry/inquiry.module';
 import { DatabaseModule } from '../db/database.module';
 import { DestructionModule } from '../destruction/destruction.module';
-import { CatalogModule } from '../catalog/catalog.module';
-import { DocumentsModule } from '../documents/documents.module';
+import { CatalogModule } from '../storefront/catalog/catalog.module';
+import { AdminCatalogModule } from '../admin/catalog/admin-catalog.module';
 import { OrdersModule } from '../orders/orders.module';
 import { PageModule } from '../pages/page.module';
 import { MediaModule } from '../media/media.module';
 import { ThrottlingModule } from '../throttling/throttling.module';
 import { SettingsModule } from '../settings/settings.module';
 import { SyncModule } from '../sync/sync.module';
-import { TiersModule } from '../tiers/tiers.module';
 import { StaffUsersModule } from '../users/staff-users.module';
 import { WorkModule } from '../work/work.module';
 
@@ -30,14 +28,12 @@ import { WorkModule } from '../work/work.module';
     AuthModule,
     ApiTokensModule,
     CatalogModule,
-    AttributesModule,
-    DocumentsModule,
+    AdminCatalogModule,
     PageModule,
     MediaModule,
     InquiryModule,
     SettingsModule,
     SyncModule,
-    TiersModule,
     StaffUsersModule,
     ConsentAdminModule,
     DestructionModule,

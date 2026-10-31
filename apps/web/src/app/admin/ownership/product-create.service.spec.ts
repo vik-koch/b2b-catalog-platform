@@ -6,7 +6,7 @@ import { defaultSharedText } from '../../shared/config/shared-text.fixture';
 import { loadAdminText } from '../../shared/config/admin-text';
 import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
 import { provideOwnership } from '../settings/settings.fixture';
-import { ProductCreateService } from './product-create.service';
+import { ProductCreateService } from '../catalog/products/product-create.service';
 
 describe('ProductCreateService', () => {
   // The service reads the wording as a signal, not through the token: it is

@@ -12,7 +12,7 @@ import {
 } from './sync-run.contract';
 import { commonAuthErrors } from '../lib/core/api-error';
 import { ownershipErrors } from './ownership-constants';
-import { paginationSchema } from '../lib/catalog/catalog.contract';
+import { paginationSchema } from '../platform/pagination.contract';
 /**
  * A sync run, whatever it carried: the routes that read one, apply one and
  * give up on one, and the refusals they answer with.

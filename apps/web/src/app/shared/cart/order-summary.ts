@@ -4,10 +4,10 @@ import {
   ShipmentSummary,
   TaxBasis,
   moneyFormat,
+  formatMoneyMinor,
 } from '@b2b-catalog-platform/shared';
-import { formatPriceMinor } from '../catalog/price';
-import { formatStoredDecimal } from '../catalog/quantity';
-import { useTaxStatement } from '../catalog/tax-statement';
+import { formatStoredDecimal } from '../../core/catalog/buying/quantity';
+import { useTaxStatement } from '../../core/catalog/pricing/tax-statement';
 import { STOREFRONT_TEXT } from '../config/storefront-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
@@ -111,7 +111,7 @@ export class OrderSummary {
   );
 
   protected readonly subtotal = computed(() =>
-    formatPriceMinor(this.subtotalMinor(), this.currency),
+    formatMoneyMinor(this.subtotalMinor(), this.currency),
   );
 
   protected readonly hasEstimate = computed(() => {

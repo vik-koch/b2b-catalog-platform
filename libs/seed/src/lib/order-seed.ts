@@ -2,10 +2,10 @@ import { randomBytes } from 'node:crypto';
 import { Client } from 'pg';
 import {
   ProductPackaging,
-  shipmentEstimate,
   totalMinor,
   unitQuantity,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/core/catalog';
+import { shipmentEstimate } from '@b2b-catalog-platform/shared';
 import { OrderLineSeed, OrderSeed, SeedBundle } from './bundle';
 
 /**

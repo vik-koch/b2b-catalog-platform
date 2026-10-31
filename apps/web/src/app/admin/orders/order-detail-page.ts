@@ -6,7 +6,7 @@ import {
   resource,
   signal,
 } from '@angular/core';
-import { useTaxStatement } from '../../shared/catalog/tax-statement';
+import { useTaxStatement } from '../../core/catalog/pricing/tax-statement';
 import { RouterLink } from '@angular/router';
 import { Link } from '@b2b-catalog-platform/ui/actions/link';
 import {
@@ -20,6 +20,7 @@ import {
   OrderStatus,
   transitionHasReason,
   moneyFormat,
+  formatMoneyMinor,
 } from '@b2b-catalog-platform/shared';
 import {
   AdminOrderDetail,
@@ -27,7 +28,6 @@ import {
   TransitionTarget,
 } from '@b2b-catalog-platform/shared/admin';
 import { OrderSummary } from '../../shared/cart/order-summary';
-import { formatPriceMinor } from '../../shared/catalog/price';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
@@ -714,7 +714,7 @@ export class AdminOrderDetailPage {
       note: line.note,
       href: line.linked ? `/product/${line.slug}` : null,
       quantity: this.pieceLine(line),
-      total: formatPriceMinor(line.lineTotalMinor, this.currency),
+      total: formatMoneyMinor(line.lineTotalMinor, this.currency),
       // Always, for staff: the rate is what a line reconciles against the
       // shop's own invoice by, shared with its neighbours or not.
       taxRate: this.tax.line(line.taxRate) || null,
@@ -738,7 +738,7 @@ export class AdminOrderDetailPage {
   private pieceLine(line: AdminOrderLine): string {
     return fillText(this.text.pieceLine, {
       count: line.pieces,
-      price: formatPriceMinor(line.priceMinor, this.currency),
+      price: formatMoneyMinor(line.priceMinor, this.currency),
     });
   }
 

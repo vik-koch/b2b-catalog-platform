@@ -14,6 +14,7 @@ import { DialogPanel } from '@b2b-catalog-platform/ui/overlay/dialog-panel';
 import { TextButton } from '@b2b-catalog-platform/ui/actions/text-button';
 import { DeliveryZoneList } from './delivery-zone-list';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { DialogTitle } from '@b2b-catalog-platform/ui/overlay/dialog-title';
 
 /**
  * Where this deployment delivers, and what an order has to reach for delivery
@@ -26,7 +27,14 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
  */
 @Component({
   selector: 'app-delivery-conditions-dialog',
-  imports: [Button, DeliveryZoneList, DialogPanel, RouterLink, TextButton],
+  imports: [
+    DialogTitle,
+    Button,
+    DeliveryZoneList,
+    DialogPanel,
+    RouterLink,
+    TextButton,
+  ],
   template: `
     <dialog
       #dialog
@@ -35,10 +43,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
       aria-labelledby="delivery-conditions-heading"
       (cancel)="closed.emit()"
     >
-      <h2
-        id="delivery-conditions-heading"
-        class="text-xl font-normal tracking-tight"
-      >
+      <h2 id="delivery-conditions-heading" uiDialogTitle>
         {{ text.conditionsHeading }}
       </h2>
 

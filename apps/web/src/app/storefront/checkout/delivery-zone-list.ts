@@ -1,8 +1,11 @@
 import { Component, inject, input } from '@angular/core';
-import { fillText, moneyFormat } from '@b2b-catalog-platform/shared';
+import {
+  fillText,
+  moneyFormat,
+  formatMoneyMinor,
+} from '@b2b-catalog-platform/shared';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
-import { formatPriceMinor } from '../../shared/catalog/price';
 import { EmphasisedText } from '@b2b-catalog-platform/ui/content/emphasised-text';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { mapIcon } from '@b2b-catalog-platform/ui/icons/glyphs/map';
@@ -79,7 +82,7 @@ export class DeliveryZoneList {
     return zone.freeFromMinor === undefined
       ? this.text.noFreeDelivery
       : fillText(this.text.freeFrom, {
-          amount: formatPriceMinor(zone.freeFromMinor, this.currency),
+          amount: formatMoneyMinor(zone.freeFromMinor, this.currency),
         });
   }
 }

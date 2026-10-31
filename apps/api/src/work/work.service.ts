@@ -1,10 +1,6 @@
-import {
-  AuthUser,
-  DOCUMENT_EXPIRY_WARNING_DAYS,
-  isoToday,
-  UserRole,
-  WorkCounts,
-} from '@b2b-catalog-platform/shared';
+import { AuthUser, UserRole, WorkCounts } from '@b2b-catalog-platform/shared';
+import { DOCUMENT_EXPIRY_WARNING_DAYS } from '@b2b-catalog-platform/shared/admin/catalog';
+import { isoToday } from '@b2b-catalog-platform/shared/platform';
 import { SyncArea } from '@b2b-catalog-platform/shared/sync';
 import { WorkQueue } from '@b2b-catalog-platform/shared/node';
 import { Inject, Injectable } from '@nestjs/common';
@@ -21,7 +17,7 @@ import {
 } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { DRIZZLE } from '../db/database.module';
-import { resolvedPriceMinor } from '../catalog/product-price';
+import { resolvedPriceMinor } from '../core/catalog/product-price';
 import * as schema from '../db/schema';
 
 const { documents, orderRevisions, orders, products, syncRuns, users } = schema;

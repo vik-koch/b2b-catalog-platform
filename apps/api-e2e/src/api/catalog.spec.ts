@@ -1,8 +1,8 @@
 import {
   CATALOG_PAGE_SIZE,
   FEATURED_ROW_SIZE,
-  parseAttributeNumber,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/storefront/catalog';
+import { parseAttributeNumber } from '@b2b-catalog-platform/shared/core/catalog';
 import axios from 'axios';
 import { fixtureSeed } from '../support/seed-fixture';
 
@@ -98,7 +98,6 @@ describe('GET /catalog/categories/:slug/products (FR-CAT-03/04)', () => {
       'packaging',
       'pairedCount',
       'parts',
-      'priceMinor',
       'prices',
       'slug',
       'variants',
@@ -161,7 +160,7 @@ describe('GET /catalog/categories/:slug/products (FR-CAT-03/04)', () => {
   describe('sort controls (FR-SEARCH-04)', () => {
     type Item = {
       name: string;
-      priceMinor: number;
+      prices: { piece: number };
       availability: string | null;
     };
 
@@ -185,8 +184,8 @@ describe('GET /catalog/categories/:slug/products (FR-CAT-03/04)', () => {
       items.filter((i) => i.availability !== 'out'),
       items.filter((i) => i.availability === 'out'),
     ];
-    const prices = (res: { data: { items: { priceMinor: number }[] } }) =>
-      res.data.items.map((i) => i.priceMinor);
+    const prices = (res: { data: { items: Item[] } }) =>
+      res.data.items.map((i) => i.prices.piece);
 
     it('defaults to name', async () => {
       expect(await allNames()).toEqual(await allNames('name'));
@@ -235,7 +234,7 @@ describe('GET /catalog/categories/:slug/products (FR-CAT-03/04)', () => {
 
       expect(res.status).toBe(200);
       for (const half of halves(res.data.items as Item[])) {
-        const figures = half.map((i) => i.priceMinor);
+        const figures = half.map((i) => i.prices.piece);
         expect(figures).toEqual([...figures].sort(compare));
       }
       // And the whole page is still priced — the split is about order alone.
@@ -367,14 +366,13 @@ describe('GET /catalog/products/:slug (FR-CAT-05)', () => {
       'packaging',
       'pairedCount',
       'parts',
-      'priceMinor',
       'prices',
       'slug',
       'taxRate',
       'variants',
     ]);
     expect(res.data.name).toBe(seed.name);
-    expect(res.data.priceMinor).toBe(seed.priceMinor);
+    expect(res.data.prices.piece).toBe(seed.priceMinor);
     expect(Object.keys(res.data.category).sort()).toEqual([
       'ancestors',
       'name',

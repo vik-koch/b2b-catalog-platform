@@ -11,6 +11,7 @@ import {
 import { usersContract } from '../contract-routes.generated';
 import { safe, type ClientPromiseResult } from '@orpc/client';
 import { createOrpcClient } from '../../shared/core/orpc-client';
+import { renderable } from '../../shared/core/renderable';
 import { WorkService } from '../../shared/work/work.service';
 
 /**
@@ -32,18 +33,8 @@ export type UserActionResult =
   { ok: true; user: StaffUser } | { ok: false; code: UserActionError };
 
 /**
- * Every route declares the two auth refusals alongside its own, and those two
- * are not this screen's to phrase: they mean the session itself is wrong, which
- * the guards answer with a redirect. Everything else the API declares is an
- * answer to what was asked, and has a line in the admin text.
- */
-function renderable(code: string): code is UserActionError {
-  return code !== 'not-authenticated' && code !== 'insufficient-role';
-}
-
-/**
  * The staff account client — the counterpart to the API's StaffUsersController.
- * Same discipline as AdminCatalogService: the declared refusals (404/409) come
+ * Same discipline as ProductsService: the declared refusals (404/409) come
  * back as typed results the list can render, and only the unexpected throws.
  * Filters are applied server-side; sorting is the page's own job.
  */

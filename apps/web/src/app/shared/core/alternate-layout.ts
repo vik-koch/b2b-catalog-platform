@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { alternateLayoutQuery } from '@b2b-catalog-platform/shared';
+import { alternateLayoutQuery } from '@b2b-catalog-platform/shared/platform';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 
 /**
@@ -9,8 +9,8 @@ import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
  */
 @Injectable({ providedIn: 'root' })
 export class AlternateLayout {
-  private readonly layout =
-    inject(DEPLOYMENT_CONFIG).search?.alternateLayout ?? null;
+  private readonly config = inject(DEPLOYMENT_CONFIG);
+  private readonly layout = this.config.search?.alternateLayout ?? null;
 
   /** The other reading, or null where there is none. */
   of(query: string): string | null {
@@ -21,5 +21,13 @@ export class AlternateLayout {
   readings(query: string): string[] {
     const other = this.of(query);
     return other === null ? [query] : [query, other];
+  }
+
+  /** A test for texts that hold the query in either reading, ignoring case
+   * as the deployment's language does. */
+  matches(query: string): (text: string) => boolean {
+    const lower = (text: string) => text.toLocaleLowerCase(this.config.locale);
+    const readings = this.readings(query.trim()).map(lower);
+    return (text) => readings.some((reading) => lower(text).includes(reading));
   }
 }

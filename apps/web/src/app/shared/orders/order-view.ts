@@ -1,6 +1,10 @@
-import { SharedText, fillText, OrderLine } from '@b2b-catalog-platform/shared';
-import { formatUnitQuantity } from '../catalog/quantity';
-import { CurrencyConfig } from '../catalog/price';
+import {
+  SharedText,
+  fillText,
+  OrderLine,
+  MoneyFormat,
+} from '@b2b-catalog-platform/shared';
+import { formatUnitQuantity } from '../../core/catalog/buying/quantity';
 
 /**
  * How an order reads to the customer it belongs to.
@@ -22,7 +26,7 @@ export function customerQuantity(
   // priced line rather than a placed one reads it in the same words.
   line: Pick<OrderLine, 'unit' | 'quantity' | 'pieces'>,
   common: SharedText,
-  currency: CurrencyConfig,
+  currency: MoneyFormat,
 ): string {
   const qty = formatUnitQuantity(line.quantity, currency);
   const unit = common.units[line.unit];

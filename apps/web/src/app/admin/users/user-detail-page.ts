@@ -12,11 +12,8 @@ import {
   formatPersonName,
   normalizePhone,
 } from '@b2b-catalog-platform/shared';
-import {
-  ConsentRecord,
-  CustomerTier,
-  StaffUser,
-} from '@b2b-catalog-platform/shared/admin';
+import { ConsentRecord, StaffUser } from '@b2b-catalog-platform/shared/admin';
+import { CustomerTier } from '@b2b-catalog-platform/shared/admin/catalog';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
@@ -36,7 +33,7 @@ import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';
 import { injectEditorReturnParams } from '../../shared/edit-mode/editor-return';
 import { SettingsService } from '../settings/settings.service';
-import { TiersService } from '../tiers/tiers.service';
+import { TiersService } from '../catalog/tiers/tiers.service';
 import { StaffUsersService } from './users.service';
 import { userStatusTone } from './user-status';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
@@ -46,6 +43,7 @@ import { circleCheckIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-ch
 import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
 import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
 import { Card } from '@b2b-catalog-platform/ui/content/card';
+import { SectionTitle } from '@b2b-catalog-platform/ui/content/section-title';
 
 /** One line of a details list: a label, and the value under it. */
 interface DetailRow {
@@ -73,6 +71,7 @@ interface DetailRow {
 @Component({
   selector: 'app-user-detail-page',
   imports: [
+    SectionTitle,
     Card,
     RouterLink,
     Icon,
@@ -105,7 +104,7 @@ interface DetailRow {
              space between two cards belongs to the list, not to each card. -->
         <div class="mt-7 flex flex-col gap-7">
           <section>
-            <h2 [class]="headingClass">{{ text.detailsHeading }}</h2>
+            <h2 uiSectionTitle class="mb-1.5">{{ text.detailsHeading }}</h2>
             <div uiCard>
               <dl
                 class="grid gap-x-8 mt-2 text-sm wrap-break-word
@@ -129,7 +128,7 @@ interface DetailRow {
           </section>
 
           <section>
-            <h2 [class]="headingClass">{{ text.accountHeading }}</h2>
+            <h2 uiSectionTitle class="mb-1.5">{{ text.accountHeading }}</h2>
             <div uiCard>
               <dl
                 class="grid gap-x-8 mt-2 text-sm wrap-break-word
@@ -156,7 +155,7 @@ interface DetailRow {
                after the password (FR-AUTH-12). -->
           @if (asksCode()) {
             <section>
-              <h2 [class]="headingClass">{{ text.signInHeading }}</h2>
+              <h2 uiSectionTitle class="mb-1.5">{{ text.signInHeading }}</h2>
               <div uiCard>
                 <dl
                   class="grid gap-x-8 mt-2 text-sm wrap-break-word
@@ -203,7 +202,7 @@ interface DetailRow {
                empty card would read as something missing, so it is left out. -->
           @if (showsConsents()) {
             <section>
-              <h2 [class]="headingClass">{{ text.consentsHeading }}</h2>
+              <h2 uiSectionTitle class="mb-1.5">{{ text.consentsHeading }}</h2>
               @if (consentRecords().length > 0) {
                 <app-consent-record-list
                   [records]="consentRecords()"
@@ -281,9 +280,6 @@ export class UserDetailPage {
   protected readonly circleCheckIcon = circleCheckIcon;
   protected readonly pencilIcon = pencilIcon;
   protected readonly trash2Icon = trash2Icon;
-  /** One heading treatment written once, as the account page's is. */
-  protected readonly headingClass =
-    'mb-1.5 text-xs font-medium tracking-wide text-ink-subtle uppercase';
 
   private readonly service = inject(StaffUsersService);
   private readonly tiers = inject(TiersService);

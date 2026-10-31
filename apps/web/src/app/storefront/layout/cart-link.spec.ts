@@ -4,7 +4,7 @@ import { PLATFORM_ID } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { CartAddition, CartService } from '../../shared/cart/cart.service';
-import { plainPackaging } from '../../shared/catalog/product.fixture';
+import { plainPackaging } from '../../core/catalog/product.fixture';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { defaultStorefrontText } from '../../shared/config/storefront-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';

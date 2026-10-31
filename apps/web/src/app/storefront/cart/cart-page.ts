@@ -13,10 +13,14 @@ import {
   CartLineIssue,
   fillText,
   moneyFormat,
+  formatMoneyMinor,
 } from '@b2b-catalog-platform/shared';
-import { formatPriceMinor } from '../../shared/catalog/price';
-import { ProductPairings } from '../../shared/catalog/product-pairings';
-import { PRODUCT_ROWS, ProductRow, RowProduct } from '../catalog/product-row';
+import { ProductPairings } from '../../core/catalog/buying/product-pairings';
+import {
+  PRODUCT_ROWS,
+  ProductRow,
+  RowProduct,
+} from '../catalog/ui/product-row';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
@@ -38,7 +42,7 @@ import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { LastListingService } from '../catalog/last-listing.service';
 import { CartPreviewService } from './cart-preview.service';
-import { useTaxStatement } from '../../shared/catalog/tax-statement';
+import { useTaxStatement } from '../../core/catalog/pricing/tax-statement';
 import { OrderSummary } from '../../shared/cart/order-summary';
 import { CartChange, CartService } from '../../shared/cart/cart.service';
 import { WarningNote } from '@b2b-catalog-platform/ui/content/warning-note';
@@ -830,7 +834,7 @@ export class CartPage {
   private money(minor: number | null): string {
     return minor === null
       ? this.text.noPrice
-      : formatPriceMinor(minor, this.currency);
+      : formatMoneyMinor(minor, this.currency);
   }
 
   protected removeLabel(row: CartRow): string {

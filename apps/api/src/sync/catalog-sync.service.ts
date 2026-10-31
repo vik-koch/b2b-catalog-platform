@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { eq, inArray, isNull, sql } from 'drizzle-orm';
-import { slugify } from '@b2b-catalog-platform/shared/admin';
+import { slugify } from '@b2b-catalog-platform/shared/core/catalog';
 import {
   decideAutoApply,
   SyncCommitResponse,

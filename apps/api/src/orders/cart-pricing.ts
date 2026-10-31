@@ -5,20 +5,22 @@ import {
   CartLineIssue,
   CartPreview,
   CartPreviewLine,
+  ShipmentLineInput,
+  shipmentEstimate,
+  effectiveTaxRate,
+  TaxConfig,
+} from '@b2b-catalog-platform/shared';
+import {
   ProductAvailability,
   correctPieces,
   exactLineTotal,
   piecesPerUnit,
-  ShipmentLineInput,
-  shipmentEstimate,
   unitQuantity,
-  effectiveTaxRate,
-  TaxConfig,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/core/catalog';
 import { pairingShortfalls } from '@b2b-catalog-platform/shared/node';
 import * as schema from '../db/schema';
 import { products } from '../db/schema';
-import { livePriceMinor } from '../catalog/product-price';
+import { livePriceMinor } from '../core/catalog/product-price';
 import {
   availabilityColumns,
   packagingOf,
@@ -28,8 +30,8 @@ import {
   publiclyVisible,
   unitColumns,
   unitPricesOf,
-} from '../catalog/product-view';
-import { pairedCountOf, pairingsAmong } from '../catalog/product-pairings';
+} from '../core/catalog/product-view';
+import { pairedCountOf, pairingsAmong } from '../core/catalog/product-pairings';
 
 /**
  * Pricing a cart, once, for both the preview and the submission — a submitted
@@ -300,7 +302,7 @@ function priceLine(
   const unit = sold ? line.unit : 'piece';
   if (!sold) issues.push('unit-unavailable');
 
-  const lineTotalMinor = exactLineTotal(prices, pieces);
+  const lineTotalMinor = exactLineTotal(prices.piece, pieces);
   if (lineTotalMinor === null) issues.push('price-unavailable');
 
   // The line stays exactly as it is — named, priced and orderable in every

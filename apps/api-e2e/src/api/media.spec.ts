@@ -4,7 +4,7 @@ import {
   MEDIA_CATALOG_FULL_WIDTH,
   MEDIA_CATALOG_THUMB_WIDTH,
   MEDIA_MAX_UPLOAD_BYTES,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/platform';
 import axios from 'axios';
 import { randomBytes } from 'node:crypto';
 import { readFile } from 'node:fs/promises';

@@ -5,10 +5,10 @@ import {
   OrderDocumentKind,
   OrderStatus,
   OrderSummary,
-  Pagination,
   PaymentMethod,
   orderDocumentPath,
 } from '@b2b-catalog-platform/shared';
+import { Pagination } from '@b2b-catalog-platform/shared/platform';
 import {
   AdminOrderDetail,
   OrderAdjustment,

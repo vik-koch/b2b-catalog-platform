@@ -6,11 +6,8 @@ import {
   PartySuggestion,
   UserRole,
 } from '@b2b-catalog-platform/shared';
-import {
-  CustomerTier,
-  StaffUser,
-  UserKind,
-} from '@b2b-catalog-platform/shared/admin';
+import { CustomerTier } from '@b2b-catalog-platform/shared/admin/catalog';
+import { StaffUser, UserKind } from '@b2b-catalog-platform/shared/admin';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { staffFields } from '../staff-fields';
@@ -25,6 +22,7 @@ import {
 } from '../../shared/core/field-rules';
 import { usePageSeo } from '../../shared/core/page-seo';
 import { UnsavedChangesAware } from '../unsaved-changes.guard';
+import { UnsavedChanges } from '../unsaved-changes';
 import { LockedNote } from '../ownership/locked-note';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { Notice } from '@b2b-catalog-platform/ui/content/notice';
@@ -37,7 +35,7 @@ import { Input } from '@b2b-catalog-platform/ui/inputs/input';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import { injectEditorReturn } from '../../shared/edit-mode/editor-return';
 import { SettingsService } from '../settings/settings.service';
-import { TiersService } from '../tiers/tiers.service';
+import { TiersService } from '../catalog/tiers/tiers.service';
 import { StaffUsersService } from './users.service';
 import { SelectInput } from '@b2b-catalog-platform/ui/inputs/select-input';
 import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';
@@ -53,7 +51,8 @@ import { Glyph } from '@b2b-catalog-platform/ui/icons/glyph';
 import { circleCheckIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-check';
 import { saveIcon } from '@b2b-catalog-platform/ui/icons/glyphs/save';
 import { sendIcon } from '@b2b-catalog-platform/ui/icons/glyphs/send';
-import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
+import { SaveButton } from '../ui/save-button';
+import { CancelButton } from '../ui/cancel-button';
 
 interface UserDraft {
   email: string;
@@ -89,6 +88,8 @@ interface UserDraft {
 @Component({
   selector: 'app-user-editor-page',
   imports: [
+    CancelButton,
+    SaveButton,
     FORM_FIELDS,
     LockedNote,
     Button,
@@ -169,11 +170,10 @@ interface UserDraft {
           <button
             uiButton
             variant="secondary"
+            appCancelButton
             type="button"
-            class="gap-2"
             (click)="cancel()"
           >
-            <ui-icon [glyph]="xIcon" class="size-4" />
             {{ actionText.cancel }}
           </button>
         } @else {
@@ -352,12 +352,12 @@ interface UserDraft {
               @if (!closed() && !locked()) {
                 <button
                   uiButton
+                  appSaveButton
                   type="submit"
-                  class="gap-2"
-                  [disabled]="saving()"
+                  [saving]="saving()"
+                  [glyph]="submitIcon()"
                 >
-                  <ui-icon [glyph]="submitIcon()" class="size-4" />
-                  {{ saving() ? actionText.saving : submitLabel() }}
+                  {{ submitLabel() }}
                 </button>
                 <!-- On a pending account the primary button approves, which is a
                    decision. Correcting a typo without taking that decision has
@@ -395,11 +395,10 @@ interface UserDraft {
               <button
                 uiButton
                 variant="secondary"
+                appCancelButton
                 type="button"
-                class="gap-2"
                 (click)="cancel()"
               >
-                <ui-icon [glyph]="xIcon" class="size-4" />
                 {{ actionText.cancel }}
               </button>
             </div>
@@ -412,7 +411,6 @@ interface UserDraft {
 export class UserEditorPage implements UnsavedChangesAware {
   protected readonly saveIcon = saveIcon;
   protected readonly sendIcon = sendIcon;
-  protected readonly xIcon = xIcon;
   private readonly service = inject(StaffUsersService);
   private readonly tiersService = inject(TiersService);
   private readonly route = inject(ActivatedRoute);
@@ -451,8 +449,8 @@ export class UserEditorPage implements UnsavedChangesAware {
     );
   });
   protected readonly adminText = inject(ADMIN_TEXT);
-  protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
   protected readonly actionText = inject(SHARED_TEXT).actions;
+  protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
   private readonly ownership = inject(SettingsService);
   /**
    * What an account with no tier of its own is charged, named: "Default
@@ -597,9 +595,7 @@ export class UserEditorPage implements UnsavedChangesAware {
     () => this.isCustomer() && this.form.customerType().value() === 'company',
   );
 
-  // JSON snapshot of the form at load, for dirty detection.
-  private original = '';
-  private navigatingAway = false;
+  private readonly unsaved = new UnsavedChanges(() => this.snapshot());
   private readonly close = injectEditorReturn();
 
   protected readonly title = computed(() => {
@@ -635,11 +631,7 @@ export class UserEditorPage implements UnsavedChangesAware {
   }
 
   hasUnsavedChanges(): boolean {
-    return (
-      !this.navigatingAway &&
-      !this.loading() &&
-      this.snapshot() !== this.original
-    );
+    return this.unsaved.any();
   }
 
   private async load(): Promise<void> {
@@ -660,7 +652,7 @@ export class UserEditorPage implements UnsavedChangesAware {
     if (this.isCustomer()) {
       this.tiers.set(await this.tiersService.list().then((r) => r.tiers));
     }
-    this.original = this.snapshot();
+    this.unsaved.loaded();
   }
 
   /** Fill the form from a stored account, undoing the canonical forms the
@@ -849,7 +841,7 @@ export class UserEditorPage implements UnsavedChangesAware {
   }
 
   private async leave(): Promise<void> {
-    this.navigatingAway = true; // let the unsaved-changes guard pass
+    this.unsaved.leave();
     await this.close(this.listUrl());
   }
 

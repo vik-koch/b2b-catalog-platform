@@ -1,0 +1,99 @@
+import { Controller } from '@nestjs/common';
+import { Implement, implement } from '@orpc/nest';
+import { AuthUser } from '@b2b-catalog-platform/shared';
+import { tiersContract } from '@b2b-catalog-platform/shared/admin/catalog';
+import { Auth } from '../../../auth/auth.decorator';
+import { CurrentUser } from '../../../auth/current-user.decorator';
+import { AuditLogger } from '../../../audit/audit.logger';
+import { refusals } from '../../../orpc/refusals';
+import { TiersService } from './tiers.service';
+
+/** Managers may read the lists, to assign a customer one on approval; every
+ * change is admin-only. */
+@Auth('admin', 'manager')
+@Controller()
+export class TiersController {
+  constructor(
+    private readonly service: TiersService,
+    private readonly audit: AuditLogger,
+  ) {}
+
+  // Readable by managers (the class guard); the writes below are admin-only.
+  @Implement(tiersContract.listTiers)
+  listTiers() {
+    return implement(tiersContract.listTiers).handler(() =>
+      this.service.listTiers(),
+    );
+  }
+
+  @Auth('admin')
+  @Implement(tiersContract.createTier)
+  createTier(@CurrentUser() user: AuthUser) {
+    return implement(tiersContract.createTier)
+      .use(refusals)
+      .handler(async ({ input: { body } }) => {
+        const tier = await this.service.createTier(body, user.id);
+        this.audit.record('tier.created', user, {
+          id: tier.id,
+          name: tier.label,
+        });
+        return tier;
+      });
+  }
+
+  @Auth('admin')
+  @Implement(tiersContract.updateTier)
+  updateTier(@CurrentUser() user: AuthUser) {
+    return implement(tiersContract.updateTier)
+      .use(refusals)
+      .handler(async ({ input: { params, body } }) => {
+        const tier = await this.service.updateTier(params.id, body, user.id);
+        this.audit.record('tier.updated', user, {
+          id: tier.id,
+          name: tier.label,
+        });
+        return tier;
+      });
+  }
+
+  @Auth('admin')
+  @Implement(tiersContract.reorderTiers)
+  reorderTiers(@CurrentUser() user: AuthUser) {
+    return implement(tiersContract.reorderTiers)
+      .use(refusals)
+      .handler(async ({ input: { body } }) => {
+        const result = await this.service.reorderTiers(body, user.id);
+        this.audit.record('tier.reordered', user, {});
+        return result;
+      });
+  }
+
+  @Auth('admin')
+  @Implement(tiersContract.setDefaultTier)
+  setDefaultTier(@CurrentUser() user: AuthUser) {
+    return implement(tiersContract.setDefaultTier)
+      .use(refusals)
+      .handler(async ({ input: { params } }) => {
+        const result = await this.service.setDefaultTier(params.id, user.id);
+        // The figure is part of the event: the same move made twice, a week
+        // apart, takes a different number of products off the storefront.
+        this.audit.record('tier.default-set', user, {
+          id: params.id,
+          name: String(result.unpublished),
+        });
+        return result;
+      });
+  }
+
+  @Auth('admin')
+  @Implement(tiersContract.deleteTier)
+  deleteTier(@CurrentUser() user: AuthUser) {
+    return implement(tiersContract.deleteTier)
+      .use(refusals)
+      .handler(async ({ input: { params } }) => {
+        const result = await this.service.deleteTier(params.id);
+        this.audit.record('tier.deleted', user, { id: params.id });
+        return result;
+      });
+  }
+}

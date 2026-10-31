@@ -1,9 +1,12 @@
 import { isPlatformBrowser } from '@angular/common';
 import { Component, computed, inject, input, PLATFORM_ID } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { fillText, moneyFormat } from '@b2b-catalog-platform/shared';
+import {
+  fillText,
+  moneyFormat,
+  formatMoneyMinor,
+} from '@b2b-catalog-platform/shared';
 import { CartService } from '../../shared/cart/cart.service';
-import { formatPriceMinor } from '../../shared/catalog/price';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { currentUrl } from '../../shared/core/current-url';
@@ -132,7 +135,7 @@ export class CartLink {
   protected readonly summary = computed(() =>
     fillText(this.text.summaryAria, {
       count: this.count(),
-      total: formatPriceMinor(this.cart.totalMinor(), this.currency),
+      total: formatMoneyMinor(this.cart.totalMinor(), this.currency),
     }),
   );
 }

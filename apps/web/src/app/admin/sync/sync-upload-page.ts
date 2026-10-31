@@ -240,8 +240,6 @@ export class SyncUploadPage {
   protected readonly navText = inject(SHARED_TEXT).nav;
 
   constructor() {
-    // Admin screens are client-rendered, so this is for the browser tab
-    // rather than for crawlers — but it is the same one-line contract.
     usePageSeo({ name: () => this.text.uploadTitle });
     void this.ownership.load();
   }

@@ -1,14 +1,14 @@
 import { Component, computed, inject, input, resource } from '@angular/core';
-import { useTaxStatement } from '../../shared/catalog/tax-statement';
+import { useTaxStatement } from '../../core/catalog/pricing/tax-statement';
 import { RouterLink } from '@angular/router';
 import {
   fillText,
   OrderDetail,
   moneyFormat,
+  formatMoneyMinor,
 } from '@b2b-catalog-platform/shared';
 import { AuthService } from '../../shared/auth/auth.service';
 import { OrderSummary } from '../../shared/cart/order-summary';
-import { formatPriceMinor } from '../../shared/catalog/price';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
@@ -258,7 +258,7 @@ export class OrderTokenPage {
       note: line.note,
       href: line.linked ? `/product/${line.slug}` : null,
       quantity: customerQuantity(line, this.sharedText, this.currency),
-      total: formatPriceMinor(line.lineTotalMinor, this.currency),
+      total: formatMoneyMinor(line.lineTotalMinor, this.currency),
       // Only once the lines differ: a rate the total names would otherwise
       // be said on every line for nothing.
       taxRate: perLine ? this.tax.line(line.taxRate) : null,

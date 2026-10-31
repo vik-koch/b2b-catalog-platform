@@ -7,7 +7,7 @@ import { EditModeToggle } from './admin/edit-mode-toggle';
 import { ForcePasswordChange } from './storefront/auth/force-password-change';
 import { CartFigures } from './storefront/cart/cart-figures';
 import { LastListingService } from './storefront/catalog/last-listing.service';
-import { PairingsService } from './shared/catalog/pairings.service';
+import { PairingsService } from './core/catalog/buying/pairings.service';
 import { ProductPairingsDialog } from './storefront/catalog/product-pairings-dialog';
 import { DeploymentConfig } from '@b2b-catalog-platform/shared';
 import { DEPLOYMENT_CONFIG } from './shared/config/deployment-config';

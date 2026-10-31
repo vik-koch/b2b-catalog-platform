@@ -20,7 +20,7 @@ import { SUGGESTIONS_ENABLED } from '../../shared/config/suggestions-enabled';
 import { AccountService } from '../account/account.service';
 import { AuthService } from '../../shared/auth/auth.service';
 import { AddressesService } from '../../shared/addresses/addresses.service';
-import { packagedPackaging } from '../../shared/catalog/product.fixture';
+import { packagedPackaging } from '../../core/catalog/product.fixture';
 import { CartAddition, CartService } from '../../shared/cart/cart.service';
 import {
   CHECKOUT_DRAFT_KEY,

@@ -1,8 +1,8 @@
 import {
   CATALOG_PAGE_SIZE,
-  SEARCH_QUERY_MAX_LENGTH,
   SEARCH_SUGGESTION_LIMIT,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/storefront/catalog';
+import { SEARCH_QUERY_MAX_LENGTH } from '@b2b-catalog-platform/shared/core/catalog';
 import axios from 'axios';
 import { Client } from 'pg';
 import { requireEnv } from '../support/env';
@@ -62,7 +62,6 @@ describe('GET /catalog/search (FR-SEARCH-01…03)', () => {
       'packaging',
       'pairedCount',
       'parts',
-      'priceMinor',
       'prices',
       'slug',
       'variants',
@@ -161,7 +160,7 @@ describe('GET /catalog/search (FR-SEARCH-01…03)', () => {
       const res = await sorted(sort);
 
       const prices = res.data.items.map(
-        (i: { priceMinor: number }) => i.priceMinor,
+        (i: { prices: { piece: number } }) => i.prices.piece,
       );
       expect(res.status).toBe(200);
       expect(prices).toEqual([...prices].sort(compare));

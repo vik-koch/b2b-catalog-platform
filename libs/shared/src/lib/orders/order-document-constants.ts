@@ -1,14 +1,14 @@
 /**
  * Order-document limits and kinds (FR-ORD-05, ADR 0052). Plain data with no
  * Zod import, so a screen that needs one label does not pull the order
- * schemas along with it (see `document-constants.ts`).
+ * schemas along with it (see `media-constants.ts`).
  */
 
 import {
   ACCEPTED_DOCUMENT_MIME_TYPES,
   DOCUMENT_FILE_NAME_MAX_LENGTH,
   DOCUMENT_MAX_UPLOAD_BYTES,
-} from '../catalog/document-constants';
+} from '../../platform/media-constants';
 
 /**
  * The two documents an order can carry.

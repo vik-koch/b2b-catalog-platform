@@ -10,7 +10,7 @@ import {
   signal,
   untracked,
 } from '@angular/core';
-import { useTaxStatement } from '../../shared/catalog/tax-statement';
+import { useTaxStatement } from '../../core/catalog/pricing/tax-statement';
 import { apply, form, hidden, required } from '@angular/forms/signals';
 import { Router, RouterLink } from '@angular/router';
 import {
@@ -18,15 +18,16 @@ import {
   ORDER_ADJUSTMENT_NOTE_MAX,
   PartySuggestion,
   PaymentMethod,
-  ProductUnit,
   moneyFormat,
+  formatMoneyMinor,
 } from '@b2b-catalog-platform/shared';
+import { ProductUnit } from '@b2b-catalog-platform/shared/core/catalog';
 import {
   AdminOrderDetail,
-  AdminProductListItem,
   OrderAdjustment,
   OrderAdjustmentPreview,
 } from '@b2b-catalog-platform/shared/admin';
+import { AdminProductListItem } from '@b2b-catalog-platform/shared/admin/catalog';
 import { AddressFields } from '../../shared/addresses/address-fields';
 import {
   AddressDraft,
@@ -42,10 +43,9 @@ import {
   emailAddress,
 } from '../../shared/core/field-rules';
 import {
-  formatPriceMinor,
   formatPriceInput,
   parsePriceInput,
-} from '../../shared/catalog/price';
+} from '../../core/catalog/pricing/price';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { staffBlockLabels } from './staff-block-labels';
@@ -79,7 +79,7 @@ import {
 import { SelectInput } from '@b2b-catalog-platform/ui/inputs/select-input';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import { WarningNote } from '@b2b-catalog-platform/ui/content/warning-note';
-import { TiersService } from '../tiers/tiers.service';
+import { TiersService } from '../catalog/tiers/tiers.service';
 import { OrderAdjustChanges, OrderChange } from './order-adjust-changes';
 import { AdjustLineRow, OrderAdjustLines } from './order-adjust-lines';
 import { orderBlockChanges, orderLineChanges } from './order-changes';
@@ -1141,7 +1141,7 @@ export class AdminOrderAdjustPage implements FieldAttempt {
           : '',
         note: line.note,
         totalLabel: answer
-          ? formatPriceMinor(answer.lineTotalMinor, this.currency)
+          ? formatMoneyMinor(answer.lineTotalMinor, this.currency)
           : '',
         taxLabel: answer ? this.tax.line(answer.taxRate) : '',
         flags: answer?.flags ?? [],

@@ -12,7 +12,7 @@ import {
 import {
   MEDIA_CATALOG_FULL_WIDTH,
   MEDIA_CATALOG_THUMB_WIDTH,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/platform';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { DialogActions } from '@b2b-catalog-platform/ui/overlay/dialog-actions';
@@ -29,6 +29,7 @@ import {
   ZOOM_MIN,
 } from './image-frame';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { DialogTitle } from '@b2b-catalog-platform/ui/overlay/dialog-title';
 
 /** Arrow keys move by this share of the square, Shift by five times it. */
 const KEY_STEP = 0.01;
@@ -44,7 +45,7 @@ const ZOOM_KEY_FACTOR = 1.1;
  */
 @Component({
   selector: 'app-image-framer-dialog',
-  imports: [Button, DialogActions, DialogPanel, TextButton],
+  imports: [DialogTitle, Button, DialogActions, DialogPanel, TextButton],
   template: `
     <dialog
       #dialog
@@ -53,7 +54,7 @@ const ZOOM_KEY_FACTOR = 1.1;
       aria-labelledby="image-framer-heading"
       (cancel)="cancelled.emit()"
     >
-      <h2 id="image-framer-heading" class="text-xl font-normal tracking-tight">
+      <h2 id="image-framer-heading" uiDialogTitle>
         {{ text.heading }}
       </h2>
       <p class="mt-3 text-sm text-ink-subtle">{{ text.hint }}</p>

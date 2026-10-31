@@ -1,4 +1,4 @@
-import { MEDIA_URL_PREFIX } from '@b2b-catalog-platform/shared';
+import { MEDIA_URL_PREFIX } from '@b2b-catalog-platform/shared/platform';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import * as schema from '../../db/schema';
 import {

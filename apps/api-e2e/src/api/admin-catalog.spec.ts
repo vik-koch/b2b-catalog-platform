@@ -1,5 +1,5 @@
 import { hash } from '@node-rs/argon2';
-import { ADMIN_CATALOG_PAGE_SIZE } from '@b2b-catalog-platform/shared';
+import { ADMIN_CATALOG_PAGE_SIZE } from '@b2b-catalog-platform/shared/admin/catalog';
 import axios from 'axios';
 import { Client } from 'pg';
 import { requireEnv } from '../support/env';
@@ -584,7 +584,7 @@ describe('Admin catalog (FR-ADM-01)', () => {
         `/admin/catalog/products/${created.data.slug}/page`,
       );
       expect(page.status).toBe(200);
-      expect(page.data.product.priceMinor).toBe(0);
+      expect(page.data.product.prices.piece).toBe(0);
       expect(page.data.hidden.unpriced).toBe(true);
     });
 
@@ -1159,7 +1159,6 @@ describe('Admin catalog (FR-ADM-01)', () => {
         'packaging',
         'pairedCount',
         'parts',
-        'priceMinor',
         'prices',
         'slug',
         'variants',
@@ -1755,7 +1754,6 @@ describe('Admin catalog (FR-ADM-01)', () => {
         'packaging',
         'pairedCount',
         'parts',
-        'priceMinor',
         'prices',
         'slug',
         'variants',

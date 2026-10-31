@@ -16,7 +16,7 @@ import { defaultStorefrontText } from '../../shared/config/storefront-text.fixtu
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { defaultDeploymentConfig } from '../../shared/config/deployment-config.fixture';
 import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
-import { TiersService } from '../tiers/tiers.service';
+import { TiersService } from '../catalog/tiers/tiers.service';
 import { AdminOrderAdjustPage } from './order-adjust-page';
 import { AdminOrdersService } from './orders.service';
 import { provideDigitMaskFormat } from '../../shared/core/contact-fields';

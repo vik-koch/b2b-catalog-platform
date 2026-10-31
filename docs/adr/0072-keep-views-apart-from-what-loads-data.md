@@ -24,6 +24,11 @@ UI library, the shared library's helpers and types, text and config tokens, `Rou
 and other views. It imports no service, API client or generated contract routes. A
 feature with several services may group them in `data/`.
 
+A view's `ui/` is the one in the nearest folder that holds all its users: the feature's
+(`storefront/catalog/product-page/ui/`), the area's (`storefront/catalog/ui/`) or the
+shared core's (`core/catalog/ui/`), never deeper, and with no subfolders. A view that knows
+no domain, text or deployment goes to the UI library instead.
+
 ## Rationale
 
 - **The line where the halves change for different reasons.** A view changes when the

@@ -1,7 +1,7 @@
 import {
   ProductAvailability,
   productAvailability,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/core/catalog';
 import {
   DEFAULT_PRICE_LIST_ALIAS,
   MANUAL_SOURCE_ID_PREFIX,

@@ -18,10 +18,8 @@ import {
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
-import {
-  documentFileLabel,
-  documentFileSize,
-} from '../../shared/core/document-file';
+import { AcceptedDocumentMime } from '@b2b-catalog-platform/shared/platform';
+import { documentFileCaption } from '../../shared/core/document-file';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
 import {
@@ -294,12 +292,15 @@ export class OrderDocumentsPanel {
       detail:
         document.source === 'generated'
           ? this.text.generated
-          : `${documentFileLabel(
-              document.contentType as never,
-            )} · ${documentFileSize(document.byteSize ?? 0, this.sizes)} · ${fillText(
-              this.text.supplied,
-              { date: this.day(document.suppliedAt) },
-            )}`,
+          : `${documentFileCaption(
+              {
+                contentType: document.contentType as AcceptedDocumentMime,
+                byteSize: document.byteSize ?? 0,
+              },
+              this.sizes,
+            )} · ${fillText(this.text.supplied, {
+              date: this.day(document.suppliedAt),
+            })}`,
       hint,
       href: orderDocumentPath(kind, { reference: order.reference }),
       supplied: document.source === 'supplied',

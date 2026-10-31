@@ -4,10 +4,8 @@ import {
   CONSENT_PURPOSES,
   ConsentPurpose,
   CustomerType,
-  DEFAULT_LOW_STOCK_THRESHOLD_PIECES,
   DeliveryConfig,
   deploymentConfigSchema,
-  KeyboardLayout,
   MoneyFormat,
   moneyFormat,
   normalizePhone,
@@ -16,6 +14,8 @@ import {
   SignInStepConfig,
   TaxConfig,
 } from '@b2b-catalog-platform/shared';
+import { DEFAULT_LOW_STOCK_THRESHOLD_PIECES } from '@b2b-catalog-platform/shared/core/catalog';
+import { KeyboardLayout } from '@b2b-catalog-platform/shared/platform';
 import {
   CustomerSyncPolicy,
   DEFAULT_CUSTOMER_SYNC_POLICY,

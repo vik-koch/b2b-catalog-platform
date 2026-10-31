@@ -25,9 +25,11 @@ import {
   companyIdFormatOf,
   CustomerType,
   UserRole,
+} from '@b2b-catalog-platform/shared';
+import {
   alternateLayoutQuery,
   KeyboardLayout,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/platform';
 import {
   CreateUserRequest,
   StaffUser,
@@ -52,6 +54,7 @@ import {
   REGISTRATION_CATEGORIES,
 } from '../destruction/record-destruction';
 import { UsersService } from './users.service';
+import { isUniqueViolation } from '../db/pg-errors';
 
 /**
  * The one 404 this surface has. A function rather than a constant so each throw
@@ -74,13 +77,6 @@ const sourceIdTaken = () =>
     code: 'source-id-taken',
     message: 'Another account already carries that source key',
   });
-
-/** A Postgres unique-index violation, as Drizzle hands it on: the driver's
- * error is wrapped, and its code lives on `cause`. */
-function isUniqueViolation(error: unknown): boolean {
-  const cause = (error as { cause?: unknown })?.cause ?? error;
-  return (cause as { code?: string })?.code === '23505';
-}
 
 /** What the account list and every mutation answer with. */
 const staffUserColumns = {

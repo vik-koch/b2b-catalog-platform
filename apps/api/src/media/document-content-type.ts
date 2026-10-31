@@ -1,4 +1,4 @@
-import { AcceptedDocumentMime } from '@b2b-catalog-platform/shared';
+import { AcceptedDocumentMime } from '@b2b-catalog-platform/shared/platform';
 import { sniffAcceptedImage } from './image-content-type';
 
 /** Every PDF starts with this signature, version bytes aside. */

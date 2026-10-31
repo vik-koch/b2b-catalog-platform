@@ -14,7 +14,7 @@ import {
   withInMemoryScrolling,
   withViewTransitions,
 } from '@angular/router';
-import { provideEditModeCatalog } from './admin/edit-mode-catalog';
+import { provideEditModeCatalog } from './admin/catalog/edit-mode-catalog';
 import { appRoutes } from './app.routes';
 import { BenignErrorFilter } from './shared/core/benign-errors';
 import { provideHydration } from './shared/core/hydration';

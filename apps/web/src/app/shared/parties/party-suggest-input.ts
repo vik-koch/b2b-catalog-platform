@@ -5,7 +5,7 @@ import {
   PartySuggestion,
 } from '@b2b-catalog-platform/shared';
 import { HighlightedLine } from '@b2b-catalog-platform/ui/suggest/highlighted-line';
-import { MatchSegmentsPipe } from '../catalog/match-segments.pipe';
+import { MatchSegmentsPipe } from '../../core/catalog/search/match-segments.pipe';
 import {
   SuggestList,
   SuggestListText,

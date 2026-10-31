@@ -1,9 +1,12 @@
 import { Component, computed, inject, input, resource } from '@angular/core';
-import { useTaxStatement } from '../../shared/catalog/tax-statement';
+import { useTaxStatement } from '../../core/catalog/pricing/tax-statement';
 import { RouterLink } from '@angular/router';
-import { fillText, moneyFormat } from '@b2b-catalog-platform/shared';
+import {
+  fillText,
+  moneyFormat,
+  formatMoneyMinor,
+} from '@b2b-catalog-platform/shared';
 import { OrderSummary } from '../../shared/cart/order-summary';
-import { formatPriceMinor } from '../../shared/catalog/price';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
@@ -282,7 +285,7 @@ export class AdminOrderRevisionPage {
       note: line.note,
       href: line.linked ? `/product/${line.slug}` : null,
       quantity: customerQuantity(line, this.sharedText, this.currency),
-      total: formatPriceMinor(line.lineTotalMinor, this.currency),
+      total: formatMoneyMinor(line.lineTotalMinor, this.currency),
       // Always, for staff: the rate is what a line reconciles against the
       // shop's own invoice by, shared with its neighbours or not.
       taxRate: this.tax.line(line.taxRate) || null,

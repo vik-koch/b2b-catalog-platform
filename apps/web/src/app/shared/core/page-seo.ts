@@ -21,12 +21,10 @@ export function shopTitle(branding: {
 export function usePageSeo(opts: {
   name: () => string | null | undefined;
   description?: () => string | null | undefined;
-  /**
-   * Keeps this route out of the index (NFR-SEO-04) — for views that are a lens
-   * on content indexed elsewhere, like search results. Set once per component,
-   * not reactive: a route either is such a view or it is not.
-   */
-  noindex?: boolean;
+  /** Keeps the page out of the index (NFR-SEO-04): `true` for a view that is a
+   * lens on content indexed elsewhere, a function for a page that learns it
+   * late, like a hidden product. */
+  noindex?: boolean | (() => boolean);
   /**
    * Suppresses the `Referer` header this document sends (ADR 0038). For a page
    * whose URL is itself the credential — the order token — so that following a
@@ -43,14 +41,25 @@ export function usePageSeo(opts: {
     title.setTitle(name ? `${name} — ${branding.name}` : shopTitle(branding));
   });
 
-  if (opts.noindex) {
-    // `updateTag` rather than `addTag`: a deployment that is itself
-    // non-indexable already injects a robots tag (see seo.server.ts), and two
-    // of them on one page is worse than the strictest one winning. Removed on
-    // the way out so a client-side navigation to an ordinary page does not
-    // inherit it.
-    meta.updateTag({ name: 'robots', content: 'noindex' });
-    inject(DestroyRef).onDestroy(() => meta.removeTag('name="robots"'));
+  const noindex = opts.noindex;
+  if (noindex) {
+    // Only a tag this page added is taken away: a non-indexable deployment
+    // carries its own (seo.server.ts), stricter, which must stay.
+    let added = false;
+    const unmark = () => {
+      if (added) meta.removeTag('name="robots"');
+      added = false;
+    };
+    effect(() => {
+      const wanted = noindex === true || noindex();
+      if (wanted && !meta.getTag('name="robots"')) {
+        meta.addTag({ name: 'robots', content: 'noindex' });
+        added = true;
+      } else if (!wanted) {
+        unmark();
+      }
+    });
+    inject(DestroyRef).onDestroy(unmark);
   }
 
   if (opts.noreferrer) {

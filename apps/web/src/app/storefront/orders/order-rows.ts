@@ -4,8 +4,8 @@ import {
   fillText,
   OrderSummary,
   moneyFormat,
+  formatMoneyMinor,
 } from '@b2b-catalog-platform/shared';
-import { formatPriceMinor } from '../../shared/catalog/price';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
@@ -86,7 +86,7 @@ export class OrderRows {
   readonly orders = input.required<readonly OrderSummary[]>();
 
   protected total(order: OrderSummary): string {
-    return formatPriceMinor(order.totalMinor, this.currency);
+    return formatMoneyMinor(order.totalMinor, this.currency);
   }
 
   protected lineCount(count: number): string {

@@ -20,7 +20,9 @@ export const adminRoutes: Route[] = [
     path: 'admin/products',
     canActivate: [requireAuth('admin'), adminTextGuard],
     loadComponent: () =>
-      import('./products/product-list-page').then((m) => m.ProductListPage),
+      import('./catalog/products/product-list-page').then(
+        (m) => m.ProductListPage,
+      ),
   },
   // Sync (FR-ADM-02, FR-ADM-07, FR-ADM-09). The log is the screen the panel
   // opens: runs arrive without anybody present now, so "what has happened"
@@ -97,7 +99,7 @@ export const adminRoutes: Route[] = [
     path: 'admin/attributes',
     canActivate: [requireAuth('admin'), adminTextGuard],
     loadComponent: () =>
-      import('./attributes/attribute-list-page').then(
+      import('./catalog/attributes/attribute-list-page').then(
         (m) => m.AttributeListPage,
       ),
   },
@@ -108,7 +110,7 @@ export const adminRoutes: Route[] = [
     path: 'admin/attributes/inventory',
     canActivate: [requireAuth('admin'), adminTextGuard],
     loadComponent: () =>
-      import('./attributes/attribute-inventory-page').then(
+      import('./catalog/attributes/attribute-inventory-page').then(
         (m) => m.AttributeInventoryPage,
       ),
   },
@@ -119,7 +121,9 @@ export const adminRoutes: Route[] = [
     path: 'admin/documents',
     canActivate: [requireAuth('admin'), adminTextGuard],
     loadComponent: () =>
-      import('./documents/document-list-page').then((m) => m.DocumentListPage),
+      import('./catalog/documents/document-list-page').then(
+        (m) => m.DocumentListPage,
+      ),
   },
   {
     path: 'admin/documents/new',
@@ -128,7 +132,7 @@ export const adminRoutes: Route[] = [
       unsavedChangesGuard((t) => t.documents.editor.discardConfirm),
     ],
     loadComponent: () =>
-      import('./documents/document-editor-page').then(
+      import('./catalog/documents/document-editor-page').then(
         (m) => m.DocumentEditorPage,
       ),
   },
@@ -139,7 +143,7 @@ export const adminRoutes: Route[] = [
       unsavedChangesGuard((t) => t.documents.editor.discardConfirm),
     ],
     loadComponent: () =>
-      import('./documents/document-editor-page').then(
+      import('./catalog/documents/document-editor-page').then(
         (m) => m.DocumentEditorPage,
       ),
   },
@@ -149,7 +153,7 @@ export const adminRoutes: Route[] = [
     path: 'admin/tiers',
     canActivate: [requireAuth('admin'), adminTextGuard],
     loadComponent: () =>
-      import('./tiers/tier-list-page').then((m) => m.TierListPage),
+      import('./catalog/tiers/tier-list-page').then((m) => m.TierListPage),
   },
   // Machine tokens (NFR-SEC-09). Beside the tiers rather than under the sync:
   // a token is a credential the deployment issues, and the catalog import is
@@ -274,7 +278,9 @@ export const adminRoutes: Route[] = [
     path: 'admin/categories',
     canActivate: [requireAuth('admin'), adminTextGuard],
     loadComponent: () =>
-      import('./categories/category-list-page').then((m) => m.CategoryListPage),
+      import('./catalog/categories/category-list-page').then(
+        (m) => m.CategoryListPage,
+      ),
   },
   // Creating and editing share one screen, like products.
   {
@@ -284,7 +290,7 @@ export const adminRoutes: Route[] = [
       unsavedChangesGuard((t) => t.categories.editor.discardConfirm),
     ],
     loadComponent: () =>
-      import('./categories/category-editor-page').then(
+      import('./catalog/categories/category-editor-page').then(
         (m) => m.CategoryEditorPage,
       ),
   },
@@ -295,7 +301,7 @@ export const adminRoutes: Route[] = [
       unsavedChangesGuard((t) => t.categories.editor.discardConfirm),
     ],
     loadComponent: () =>
-      import('./categories/category-editor-page').then(
+      import('./catalog/categories/category-editor-page').then(
         (m) => m.CategoryEditorPage,
       ),
   },
@@ -306,7 +312,7 @@ export const adminRoutes: Route[] = [
     path: 'admin/categories/:slug/filters',
     canActivate: [requireAuth('admin'), adminTextGuard],
     loadComponent: () =>
-      import('./attributes/category-filters-page').then(
+      import('./catalog/attributes/category-filters-page').then(
         (m) => m.CategoryFiltersPage,
       ),
   },
@@ -316,7 +322,7 @@ export const adminRoutes: Route[] = [
     path: 'admin/catalog/filters',
     canActivate: [requireAuth('admin'), adminTextGuard],
     loadComponent: () =>
-      import('./attributes/category-filters-page').then(
+      import('./catalog/attributes/category-filters-page').then(
         (m) => m.CategoryFiltersPage,
       ),
   },
@@ -327,7 +333,9 @@ export const adminRoutes: Route[] = [
       unsavedChangesGuard((t) => t.products.editor.discardConfirm),
     ],
     loadComponent: () =>
-      import('./products/product-editor-page').then((m) => m.ProductEditorPage),
+      import('./catalog/products/product-editor-page').then(
+        (m) => m.ProductEditorPage,
+      ),
   },
   {
     path: 'admin/products/:slug/edit',
@@ -336,7 +344,9 @@ export const adminRoutes: Route[] = [
       unsavedChangesGuard((t) => t.products.editor.discardConfirm),
     ],
     loadComponent: () =>
-      import('./products/product-editor-page').then((m) => m.ProductEditorPage),
+      import('./catalog/products/product-editor-page').then(
+        (m) => m.ProductEditorPage,
+      ),
   },
   // Static-page editing as an admin route, alongside the catalog editors — the
   // only way in, whether from the admin panel or the storefront pencil.

@@ -22,24 +22,24 @@ import {
   RouterLink,
 } from '@angular/router';
 import { filter } from 'rxjs';
+import { fillText } from '@b2b-catalog-platform/shared';
 import {
-  fillText,
   pieceFloor,
   ProductListItem,
   SEARCH_QUERY_MAX_LENGTH,
-  SearchCategory,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/core/catalog';
+import { SearchCategory } from '@b2b-catalog-platform/shared/storefront/catalog';
 import { CartAddResult, CartService } from '../../shared/cart/cart.service';
-import { CatalogService } from '../catalog/catalog.service';
+import { CatalogSearchService } from '../catalog/search/catalog-search.service';
 import { CategoryChip } from '../catalog/ui/category-chip';
 import { ImagePlaceholder } from '@b2b-catalog-platform/ui/content/image-placeholder';
-import { useProductUnits } from '../../shared/catalog/product-units-view';
+import { useProductUnits } from '../../core/catalog/buying/product-units-view';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { MobileSearch } from './mobile-search';
 import { currentUrl } from '../../shared/core/current-url';
 import { debounced } from '@b2b-catalog-platform/ui/core/debounced';
 import { HighlightedLine } from '@b2b-catalog-platform/ui/suggest/highlighted-line';
-import { MatchSegmentsPipe } from '../../shared/catalog/match-segments.pipe';
+import { MatchSegmentsPipe } from '../../core/catalog/search/match-segments.pipe';
 import { AlternateLayout } from '../../shared/core/alternate-layout';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
@@ -51,6 +51,7 @@ import { searchIcon } from '@b2b-catalog-platform/ui/icons/glyphs/search';
 import { shoppingBasketIcon } from '@b2b-catalog-platform/ui/icons/glyphs/shopping-basket';
 import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
 import { Frame } from '@b2b-catalog-platform/ui/content/frame';
+import { brokenImages } from '@b2b-catalog-platform/ui/core/broken-images';
 
 /** Long enough that a fast typist produces one request per word rather than
  * one per letter, short enough that a pause feels answered immediately. */
@@ -344,14 +345,13 @@ let nextId = 0;
                         <!-- Decorative: the name beside it says what it shows. -->
                         <span uiFrame [class]="thumb">
                           @if (
-                            item.images[0] &&
-                            !failed().has(item.images[0].thumb)
+                            item.images[0] && !broken.has(item.images[0].thumb)
                           ) {
                             <img
                               [src]="item.images[0].thumb"
                               alt=""
                               class="size-full bg-white object-contain"
-                              (error)="markFailed(item.images[0].thumb)"
+                              (error)="broken.add(item.images[0].thumb)"
                             />
                           } @else {
                             <ui-image-placeholder aria-hidden="true" />
@@ -497,7 +497,7 @@ export class SearchField {
   /** Only to say whether the caret is here — see MobileSearch.active, which the
    * bottom bar's search tab is lit from. */
   protected readonly mobileSearch = inject(MobileSearch);
-  private readonly catalog = inject(CatalogService);
+  private readonly search = inject(CatalogSearchService);
   private readonly cart = inject(CartService);
   private readonly units = useProductUnits();
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
@@ -573,8 +573,7 @@ export class SearchField {
    * cleared by the next keystroke. */
   protected readonly full = signal(false);
 
-  /** Photos that failed to load, drawn as the placeholder instead. */
-  protected readonly failed = signal<ReadonlySet<string>>(new Set());
+  protected readonly broken = brokenImages();
 
   protected readonly thumb = `block h-16 w-16 shrink-0 overflow-hidden
                               rounded-md`;
@@ -611,7 +610,7 @@ export class SearchField {
       const q = this.query().trim();
       return this.isBrowser && this.typing() && q ? q : undefined;
     },
-    loader: ({ params }) => this.catalog.getSearchSuggestions(params),
+    loader: ({ params }) => this.search.getSearchSuggestions(params),
   });
 
   /**
@@ -761,10 +760,6 @@ export class SearchField {
 
   protected inCartLabel(item: ProductListItem): string {
     return fillText(this.text.suggestionInCartAria, { name: item.name });
-  }
-
-  protected markFailed(src: string): void {
-    this.failed.update((failed) => new Set(failed).add(src));
   }
 
   /** The pointer takes the row, and the product cell with it: the button's

@@ -33,6 +33,7 @@ import { packageIcon } from '@b2b-catalog-platform/ui/icons/glyphs/package';
 import { usersIcon } from '@b2b-catalog-platform/ui/icons/glyphs/users';
 import { wrenchIcon } from '@b2b-catalog-platform/ui/icons/glyphs/wrench';
 import { Card } from '@b2b-catalog-platform/ui/content/card';
+import { SectionTitle } from '@b2b-catalog-platform/ui/content/section-title';
 
 /**
  * Admin panel — a small dashboard: the two staff-facing halves (orders and
@@ -44,6 +45,7 @@ import { Card } from '@b2b-catalog-platform/ui/content/card';
 @Component({
   selector: 'app-admin-panel-page',
   imports: [
+    SectionTitle,
     Card,
     SignedInAs,
     Icon,
@@ -88,7 +90,11 @@ import { Card } from '@b2b-catalog-platform/ui/content/card';
                screen is far more often answering an order than importing a
                catalog. -->
           <section class="order-1 md:order-0">
-            <h2 id="admin-orders-heading" [class]="headingClass">
+            <h2
+              id="admin-orders-heading"
+              uiSectionTitle
+              class="mb-1.5 flex items-center gap-2"
+            >
               <ui-icon [glyph]="clipboardListIcon" class="size-4" />
               {{ panelText.orders }}
             </h2>
@@ -149,7 +155,11 @@ import { Card } from '@b2b-catalog-platform/ui/content/card';
                  the sub-headings that used to separate them only repeated the
                  button underneath. -->
             <section class="order-3 md:order-0">
-              <h2 id="admin-catalog-heading" [class]="headingClass">
+              <h2
+                id="admin-catalog-heading"
+                uiSectionTitle
+                class="mb-1.5 flex items-center gap-2"
+              >
                 <ui-icon [glyph]="packageIcon" class="size-4" />
                 {{ panelText.catalog }}
               </h2>
@@ -252,7 +262,11 @@ import { Card } from '@b2b-catalog-platform/ui/content/card';
                  an admin on a read-only view whose pencil only appears when
                  storefront edit mode happens to be on. -->
             <section class="order-5 md:order-0">
-              <h2 id="admin-pages-heading" [class]="headingClass">
+              <h2
+                id="admin-pages-heading"
+                uiSectionTitle
+                class="mb-1.5 flex items-center gap-2"
+              >
                 <ui-icon [glyph]="fileTextIcon" class="size-4" />
                 {{ panelText.pages }}
               </h2>
@@ -277,7 +291,11 @@ import { Card } from '@b2b-catalog-platform/ui/content/card';
                under the pages for an admin, under the orders for a manager,
                and last of all on a phone. -->
           <section class="order-8 md:order-0">
-            <h2 id="admin-security-heading" [class]="headingClass">
+            <h2
+              id="admin-security-heading"
+              uiSectionTitle
+              class="mb-1.5 flex items-center gap-2"
+            >
               <ui-icon [glyph]="lockIcon" class="size-4" />
               {{ panelText.securityHeading }}
             </h2>
@@ -301,7 +319,11 @@ import { Card } from '@b2b-catalog-platform/ui/content/card';
                have. Only customers can be waiting — staff accounts are created
                already approved. -->
           <section class="order-2 md:order-0">
-            <h2 id="admin-accounts-heading" [class]="headingClass">
+            <h2
+              id="admin-accounts-heading"
+              uiSectionTitle
+              class="mb-1.5 flex items-center gap-2"
+            >
               <ui-icon [glyph]="usersIcon" class="size-4" />
               {{ panelText.accounts }}
             </h2>
@@ -363,7 +385,11 @@ import { Card } from '@b2b-catalog-platform/ui/content/card';
                  "Pricing" over a single row named "Customer tiers" said the
                  same thing twice. -->
             <section class="order-4 md:order-0">
-              <h2 id="admin-registries-heading" [class]="headingClass">
+              <h2
+                id="admin-registries-heading"
+                uiSectionTitle
+                class="mb-1.5 flex items-center gap-2"
+              >
                 <ui-icon [glyph]="funnelIcon" class="size-4" />
                 {{ panelText.registries }}
               </h2>
@@ -394,7 +420,11 @@ import { Card } from '@b2b-catalog-platform/ui/content/card';
                  a consent; older records stay findable at the lookup's URL. -->
             @if (consentPurposes.length > 0) {
               <section class="order-6 md:order-0">
-                <h2 id="admin-consents-heading" [class]="headingClass">
+                <h2
+                  id="admin-consents-heading"
+                  uiSectionTitle
+                  class="mb-1.5 flex items-center gap-2"
+                >
                   <ui-icon [glyph]="bookCheckIcon" class="size-4" />
                   {{ consentText.page.title }}
                 </h2>
@@ -425,7 +455,11 @@ import { Card } from '@b2b-catalog-platform/ui/content/card';
                  switches moved onto a page of their own once they had a shared
                  history to sit above. -->
             <section class="order-7 md:order-0">
-              <h2 id="admin-operations-heading" [class]="headingClass">
+              <h2
+                id="admin-operations-heading"
+                uiSectionTitle
+                class="mb-1.5 flex items-center gap-2"
+              >
                 <ui-icon [glyph]="wrenchIcon" class="size-4" />
                 {{ panelText.operations }}
               </h2>
@@ -545,11 +579,6 @@ export class AdminPanelPage {
   private readonly locale = inject(DEPLOYMENT_CONFIG).locale;
   protected readonly editorFrom = injectEditorReturnParams();
 
-  /** One heading, one card frame, written once: seven sections spelling the
-   * same two class lists is seven chances for one of them to drift. */
-  protected readonly headingClass = `mb-1.5 flex items-center gap-2 text-xs
-                                     font-medium tracking-wide text-ink-subtle
-                                     uppercase`;
   /** `overflow-hidden` because a row's hover ground is a square: without it
    * the first and last row paint their corners over the card's rounding. */
   protected readonly listClass = 'divide-y divide-edge overflow-hidden';
@@ -705,8 +734,6 @@ export class AdminPanelPage {
     // them, and the failure is what tells the editors to lock every field.
     if (this.isAdmin()) void this.settings.load();
 
-    // Admin screens are client-rendered, so this is for the browser tab
-    // rather than for crawlers — but it is the same one-line contract.
     usePageSeo({
       name: () =>
         this.isAdmin() ? this.panelText.adminPanel : this.panelText.staffArea,

@@ -11,13 +11,13 @@ import {
   fillText,
   formatTaxRate,
   moneyFormat,
+  formatMoneyMinor,
 } from '@b2b-catalog-platform/shared';
 import {
   CatalogSyncPlan,
   CatalogSyncProductChange,
   CatalogSyncRowError,
 } from '@b2b-catalog-platform/shared/sync';
-import { formatPriceMinor } from '../../shared/catalog/price';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
@@ -365,7 +365,7 @@ export class SyncPlanView {
     if (value === null) return '—';
     if (typeof value === 'number') {
       return field.startsWith('price')
-        ? formatPriceMinor(value, this.currency)
+        ? formatMoneyMinor(value, this.currency)
         : String(value);
     }
     return value;

@@ -5,182 +5,9 @@
 // contract defines; the imports below are type-only and erased at build.
 
 import type * as admin from '@b2b-catalog-platform/shared/admin';
+import type * as adminCatalog from '@b2b-catalog-platform/shared/admin/catalog';
 import type * as sync from '@b2b-catalog-platform/shared/sync';
 
-export const adminCatalogContract = {
-  listProducts: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: {
-        method: 'GET',
-        path: '/admin/catalog/products',
-        inputStructure: 'detailed',
-      },
-    },
-  },
-  getProduct: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: {
-        method: 'GET',
-        path: '/admin/catalog/products/{slug}',
-        inputStructure: 'detailed',
-      },
-    },
-  },
-  createProduct: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: {
-        method: 'POST',
-        path: '/admin/catalog/products',
-        inputStructure: 'detailed',
-      },
-    },
-  },
-  updateProduct: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: {
-        method: 'PUT',
-        path: '/admin/catalog/products/{slug}',
-        inputStructure: 'detailed',
-      },
-    },
-  },
-  deleteProduct: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: {
-        method: 'DELETE',
-        path: '/admin/catalog/products/{slug}',
-        inputStructure: 'detailed',
-      },
-    },
-  },
-  restoreProduct: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: {
-        method: 'POST',
-        path: '/admin/catalog/products/{slug}/restore',
-        inputStructure: 'detailed',
-      },
-    },
-  },
-  getProductPage: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: {
-        method: 'GET',
-        path: '/admin/catalog/products/{slug}/page',
-        inputStructure: 'detailed',
-      },
-    },
-  },
-  purgeProduct: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: {
-        method: 'DELETE',
-        path: '/admin/catalog/products/{slug}/permanent',
-        inputStructure: 'detailed',
-      },
-    },
-  },
-  setProductPublished: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: {
-        method: 'PATCH',
-        path: '/admin/catalog/products/{slug}/published',
-        inputStructure: 'detailed',
-      },
-    },
-  },
-  listStrandedPairings: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: {
-        method: 'GET',
-        path: '/admin/catalog/products/{slug}/stranded-pairings',
-        inputStructure: 'detailed',
-      },
-    },
-  },
-  listHiddenProducts: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: {
-        method: 'GET',
-        path: '/admin/catalog/categories/{slug}/hidden-products',
-        inputStructure: 'detailed',
-      },
-    },
-  },
-  listCategories: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: { method: 'GET', path: '/admin/catalog/categories' },
-    },
-  },
-  createCategory: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: {
-        method: 'POST',
-        path: '/admin/catalog/categories',
-        inputStructure: 'detailed',
-      },
-    },
-  },
-  updateCategory: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: {
-        method: 'PUT',
-        path: '/admin/catalog/categories/{id}',
-        inputStructure: 'detailed',
-      },
-    },
-  },
-  deleteCategory: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: {
-        method: 'DELETE',
-        path: '/admin/catalog/categories/{id}',
-        inputStructure: 'detailed',
-      },
-    },
-  },
-  reorderCategories: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: {
-        method: 'PATCH',
-        path: '/admin/catalog/categories/order',
-        inputStructure: 'detailed',
-      },
-    },
-  },
-} as unknown as typeof admin.adminCatalogContract;
 export const adminOrdersContract = {
   listOrders: {
     '~orpc': {
@@ -393,6 +220,329 @@ export const apiTokensContract = {
     },
   },
 } as unknown as typeof admin.apiTokensContract;
+export const consentsContract = {
+  findConsents: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'GET',
+        path: '/admin/consents',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+  withdrawConsent: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'POST',
+        path: '/admin/consents/{id}/withdrawal',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+} as unknown as typeof admin.consentsContract;
+export const usersContract = {
+  listUsers: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'GET',
+        path: '/admin/users',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+  approveUser: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'POST',
+        path: '/admin/users/{id}/approve',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+  createUser: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'POST',
+        path: '/admin/users',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+  getUser: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'GET',
+        path: '/admin/users/{id}',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+  listUserConsents: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'GET',
+        path: '/admin/users/{id}/consents',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+  updateUser: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'PATCH',
+        path: '/admin/users/{id}',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+  setUserActive: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'PATCH',
+        path: '/admin/users/{id}/active',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+  sendPasswordLink: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'POST',
+        path: '/admin/users/{id}/password-link',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+  deleteUser: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'DELETE',
+        path: '/admin/users/{id}',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+  deleteAccountOnRequest: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'POST',
+        path: '/admin/users/{id}/deletion',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+  setSignInStepExemption: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'PUT',
+        path: '/admin/users/{id}/sign-in-step-exemption',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+} as unknown as typeof admin.usersContract;
+export const adminCategoriesContract = {
+  listCategories: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: { method: 'GET', path: '/admin/catalog/categories' },
+    },
+  },
+  createCategory: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'POST',
+        path: '/admin/catalog/categories',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+  updateCategory: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'PUT',
+        path: '/admin/catalog/categories/{id}',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+  deleteCategory: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'DELETE',
+        path: '/admin/catalog/categories/{id}',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+  reorderCategories: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'PATCH',
+        path: '/admin/catalog/categories/order',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+} as unknown as typeof adminCatalog.adminCategoriesContract;
+export const adminProductsContract = {
+  listProducts: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'GET',
+        path: '/admin/catalog/products',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+  getProduct: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'GET',
+        path: '/admin/catalog/products/{slug}',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+  createProduct: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'POST',
+        path: '/admin/catalog/products',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+  updateProduct: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'PUT',
+        path: '/admin/catalog/products/{slug}',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+  deleteProduct: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'DELETE',
+        path: '/admin/catalog/products/{slug}',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+  restoreProduct: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'POST',
+        path: '/admin/catalog/products/{slug}/restore',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+  getProductPage: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'GET',
+        path: '/admin/catalog/products/{slug}/page',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+  purgeProduct: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'DELETE',
+        path: '/admin/catalog/products/{slug}/permanent',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+  setProductPublished: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'PATCH',
+        path: '/admin/catalog/products/{slug}/published',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+  listStrandedPairings: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'GET',
+        path: '/admin/catalog/products/{slug}/stranded-pairings',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+  listHiddenProducts: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'GET',
+        path: '/admin/catalog/categories/{slug}/hidden-products',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+} as unknown as typeof adminCatalog.adminProductsContract;
 export const attributesContract = {
   listAttributes: {
     '~orpc': {
@@ -536,31 +686,7 @@ export const attributesContract = {
       },
     },
   },
-} as unknown as typeof admin.attributesContract;
-export const consentsContract = {
-  findConsents: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: {
-        method: 'GET',
-        path: '/admin/consents',
-        inputStructure: 'detailed',
-      },
-    },
-  },
-  withdrawConsent: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: {
-        method: 'POST',
-        path: '/admin/consents/{id}/withdrawal',
-        inputStructure: 'detailed',
-      },
-    },
-  },
-} as unknown as typeof admin.consentsContract;
+} as unknown as typeof adminCatalog.attributesContract;
 export const documentsContract = {
   listDocuments: {
     '~orpc': {
@@ -613,7 +739,7 @@ export const documentsContract = {
       },
     },
   },
-} as unknown as typeof admin.documentsContract;
+} as unknown as typeof adminCatalog.documentsContract;
 export const tiersContract = {
   listTiers: {
     '~orpc': {
@@ -677,130 +803,7 @@ export const tiersContract = {
       },
     },
   },
-} as unknown as typeof admin.tiersContract;
-export const usersContract = {
-  listUsers: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: {
-        method: 'GET',
-        path: '/admin/users',
-        inputStructure: 'detailed',
-      },
-    },
-  },
-  approveUser: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: {
-        method: 'POST',
-        path: '/admin/users/{id}/approve',
-        inputStructure: 'detailed',
-      },
-    },
-  },
-  createUser: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: {
-        method: 'POST',
-        path: '/admin/users',
-        inputStructure: 'detailed',
-      },
-    },
-  },
-  getUser: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: {
-        method: 'GET',
-        path: '/admin/users/{id}',
-        inputStructure: 'detailed',
-      },
-    },
-  },
-  listUserConsents: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: {
-        method: 'GET',
-        path: '/admin/users/{id}/consents',
-        inputStructure: 'detailed',
-      },
-    },
-  },
-  updateUser: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: {
-        method: 'PATCH',
-        path: '/admin/users/{id}',
-        inputStructure: 'detailed',
-      },
-    },
-  },
-  setUserActive: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: {
-        method: 'PATCH',
-        path: '/admin/users/{id}/active',
-        inputStructure: 'detailed',
-      },
-    },
-  },
-  sendPasswordLink: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: {
-        method: 'POST',
-        path: '/admin/users/{id}/password-link',
-        inputStructure: 'detailed',
-      },
-    },
-  },
-  deleteUser: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: {
-        method: 'DELETE',
-        path: '/admin/users/{id}',
-        inputStructure: 'detailed',
-      },
-    },
-  },
-  deleteAccountOnRequest: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: {
-        method: 'POST',
-        path: '/admin/users/{id}/deletion',
-        inputStructure: 'detailed',
-      },
-    },
-  },
-  setSignInStepExemption: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: {
-        method: 'PUT',
-        path: '/admin/users/{id}/sign-in-step-exemption',
-        inputStructure: 'detailed',
-      },
-    },
-  },
-} as unknown as typeof admin.usersContract;
+} as unknown as typeof adminCatalog.tiersContract;
 export const syncContract = {
   commitRun: {
     '~orpc': {

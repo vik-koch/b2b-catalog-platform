@@ -1,11 +1,15 @@
-import { SharedText, OrderDetail } from '@b2b-catalog-platform/shared';
-import { CurrencyConfig, formatPriceMinor } from '../../shared/catalog/price';
+import {
+  SharedText,
+  OrderDetail,
+  MoneyFormat,
+  formatMoneyMinor,
+} from '@b2b-catalog-platform/shared';
 import {
   orderBlocks,
   OrderBlockConfig,
   OrderBlockLabels,
 } from '../../shared/orders/order-blocks';
-import { formatStoredDecimal } from '../../shared/catalog/quantity';
+import { formatStoredDecimal } from '../../core/catalog/buying/quantity';
 import { customerQuantity } from '../../shared/orders/order-view';
 import { OrderChange } from './order-adjust-changes';
 
@@ -24,7 +28,7 @@ export interface OrderChangeLabels {
 /** What the deployment decides about how a change reads: how money is
  * written, and the units its packing figures are measured in. */
 export interface OrderChangeConfig extends OrderBlockConfig {
-  readonly currency: CurrencyConfig;
+  readonly currency: MoneyFormat;
   readonly boxUnits: { readonly volume: string; readonly weight: string };
 }
 
@@ -86,7 +90,7 @@ export function orderLineChanges(
   // The customer's own reading of the quantity, unit words and all, because
   // that is the reading the rest of the order is written in.
   const line = (entry: OrderDetail['lines'][number]) =>
-    `${customerQuantity(entry, common, currency)} · ${formatPriceMinor(entry.lineTotalMinor, currency)}`;
+    `${customerQuantity(entry, common, currency)} · ${formatMoneyMinor(entry.lineTotalMinor, currency)}`;
 
   const was = new Map(before.lines.map((entry) => [entry.slug, entry]));
   const is = new Map(after.lines.map((entry) => [entry.slug, entry]));
@@ -119,8 +123,8 @@ export function orderLineChanges(
   if (before.totalMinor !== after.totalMinor) {
     changes.push({
       label: labels.total,
-      before: formatPriceMinor(before.totalMinor, currency),
-      after: formatPriceMinor(after.totalMinor, currency),
+      before: formatMoneyMinor(before.totalMinor, currency),
+      after: formatMoneyMinor(after.totalMinor, currency),
     });
   }
 

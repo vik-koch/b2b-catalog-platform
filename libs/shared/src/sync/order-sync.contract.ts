@@ -12,7 +12,7 @@ import {
   paymentStateSchema,
 } from '../lib/orders/orders.contract';
 import { ownershipErrors } from './ownership-constants';
-import { LINE_PIECES_MAX } from '../lib/catalog/product-units';
+import { LINE_PIECES_MAX } from '../core/catalog/product-units';
 import {
   SYNC_FAILURE_MESSAGE_MAX_LENGTH,
   SYNC_LABEL_MAX_LENGTH,

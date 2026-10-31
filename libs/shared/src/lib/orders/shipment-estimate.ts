@@ -1,4 +1,7 @@
-import { ProductPackaging, piecesPerUnit } from '../catalog/product-units';
+import {
+  ProductPackaging,
+  piecesPerUnit,
+} from '../../core/catalog/product-units';
 
 /**
  * The cart's shipment summary (FR-UNIT-11) — how many cartons the order is,

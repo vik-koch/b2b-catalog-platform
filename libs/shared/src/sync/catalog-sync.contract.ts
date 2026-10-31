@@ -18,14 +18,14 @@ import {
   syncSummarySchema,
 } from './sync-run.contract';
 import { machineAuthErrors } from './machine.contract';
-import { priceMinorSchema } from '../lib/catalog/catalog.contract';
+import { priceMinorSchema } from '../core/catalog/catalog.contract';
 import { taxRateSchema } from '../lib/config/tax-config';
+import { CATEGORY_NAME_MAX_LENGTH } from '../core/catalog/categories';
 import {
-  CATEGORY_NAME_MAX_LENGTH,
   PRODUCT_NAME_MAX_LENGTH,
   SOURCE_ID_MAX_LENGTH,
-} from '../lib/catalog/catalog-constants';
-import { TIER_KEY_MAX_LENGTH } from '../lib/accounts/tier-constants';
+} from '../core/catalog/products';
+import { TIER_KEY_MAX_LENGTH } from '../core/catalog/tiers';
 
 /**
  * The bulk catalog sync: the rows a run carries and the diff it computes.

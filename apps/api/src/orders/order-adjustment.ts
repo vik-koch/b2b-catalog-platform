@@ -4,21 +4,23 @@ import { BadRequestException } from '@nestjs/common';
 import {
   ProductAvailability,
   ProductUnit,
-  ShipmentLineInput,
   piecesPerUnit,
-  shipmentEstimate,
   totalMinor,
   unitQuantity,
+} from '@b2b-catalog-platform/shared/core/catalog';
+import {
+  ShipmentLineInput,
+  shipmentEstimate,
 } from '@b2b-catalog-platform/shared';
 import {
   AdjustmentLineFlag,
   OrderAdjustmentLine,
-  shownPictures,
 } from '@b2b-catalog-platform/shared/admin';
+import { shownPictures } from '@b2b-catalog-platform/shared/core/catalog';
 import * as schema from '../db/schema';
 import { products } from '../db/schema';
-import { resolvedPriceMinor } from '../catalog/product-price';
-import { packagingOf, unitColumns } from '../catalog/product-view';
+import { resolvedPriceMinor } from '../core/catalog/product-price';
+import { packagingOf, unitColumns } from '../core/catalog/product-view';
 
 /**
  * Pricing an order the way a manager writes it (FR-ORD-03), which is not the

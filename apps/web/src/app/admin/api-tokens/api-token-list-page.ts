@@ -34,9 +34,9 @@ import { circleCheckIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-ch
 import { circleSlashIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-slash';
 import { copyIcon } from '@b2b-catalog-platform/ui/icons/glyphs/copy';
 import { plusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/plus';
-import { saveIcon } from '@b2b-catalog-platform/ui/icons/glyphs/save';
-import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
 import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
+import { SaveButton } from '../ui/save-button';
+import { CancelButton } from '../ui/cancel-button';
 
 /**
  * What a new token starts out allowed to do: **nothing**, so a capability is
@@ -116,6 +116,8 @@ const SCOPE_ROWS: readonly {
 @Component({
   selector: 'app-api-token-list-page',
   imports: [
+    CancelButton,
+    SaveButton,
     PageHeader,
     FORM_FIELDS,
     Notice,
@@ -334,24 +336,22 @@ const SCOPE_ROWS: readonly {
                 <div uiRecordFormActions>
                   <button
                     uiButton
+                    appSaveButton
                     size="sm"
                     type="submit"
-                    class="gap-2"
-                    [disabled]="busy()"
+                    [saving]="busy()"
                   >
-                    <ui-icon [glyph]="saveIcon" class="size-4" />
-                    {{ busy() ? actionText.saving : text.create }}
+                    {{ text.create }}
                   </button>
                   <button
                     uiButton
                     variant="secondary"
+                    appCancelButton
                     size="sm"
                     type="button"
-                    class="gap-2"
                     [disabled]="busy()"
                     (click)="cancel()"
                   >
-                    <ui-icon [glyph]="xIcon" class="size-4" />
                     {{ actionText.cancel }}
                   </button>
                 </div>
@@ -377,8 +377,6 @@ export class ApiTokenListPage {
   protected readonly circleSlashIcon = circleSlashIcon;
   protected readonly copyIcon = copyIcon;
   protected readonly plusIcon = plusIcon;
-  protected readonly saveIcon = saveIcon;
-  protected readonly xIcon = xIcon;
   private readonly service = inject(ApiTokensService);
   private readonly confirm = inject(ConfirmService);
   protected readonly text = inject(ADMIN_TEXT).apiTokens;

@@ -8,8 +8,11 @@ import {
   productPackagingSchema,
   productVariantSchema,
   unitPricesSchema,
-} from '../catalog/catalog.contract';
-import { LINE_PIECES_MAX, PRODUCT_UNITS } from '../catalog/product-units';
+} from '../../core/catalog/catalog.contract';
+import {
+  LINE_PIECES_MAX,
+  PRODUCT_UNITS,
+} from '../../core/catalog/product-units';
 
 /**
  * Pricing a cart (FR-CART-01/02). The cart itself lives in the browser — there

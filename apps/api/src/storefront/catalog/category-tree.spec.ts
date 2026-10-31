@@ -1,0 +1,132 @@
+import { CategoryRow } from '../../core/catalog/catalog-tree';
+import {
+  buildCategoryTree,
+  categoryTreeOrder,
+  directChildren,
+  stockedCategoryIds,
+} from './category-tree';
+
+const cat = (
+  id: string,
+  slug: string,
+  parentId: string | null,
+  sortOrder: number,
+  shortName: string | null = null,
+): CategoryRow => ({
+  id,
+  slug,
+  name: slug.toUpperCase(),
+  shortName,
+  parentId,
+  mark: null,
+  sortOrder,
+});
+
+// coffee-beans › { espresso, filter }, and a flat tea category.
+const rows: CategoryRow[] = [
+  cat('cb', 'coffee-beans', null, 0),
+  cat('esp', 'espresso', 'cb', 1, 'Esp'),
+  cat('fil', 'filter', 'cb', 2),
+  cat('tea', 'tea', null, 3),
+];
+
+describe('buildCategoryTree', () => {
+  it('builds a forest with children under their parents', () => {
+    const tree = buildCategoryTree(rows);
+
+    expect(tree.map((n) => n.slug)).toEqual(['coffee-beans', 'tea']);
+    expect(tree[0].children.map((n) => n.slug)).toEqual(['espresso', 'filter']);
+    expect(tree[1].children).toEqual([]);
+  });
+
+  it('carries the short name into the tree', () => {
+    expect(buildCategoryTree(rows)[0].children[0].shortName).toBe('Esp');
+  });
+
+  it('drops a category nothing visible is filed under', () => {
+    const stocked = stockedCategoryIds(rows, ['tea']);
+    const tree = buildCategoryTree(rows.filter((r) => stocked.has(r.id)));
+
+    expect(tree.map((n) => n.slug)).toEqual(['tea']);
+  });
+});
+
+describe('categoryTreeOrder', () => {
+  it('orders categories depth-first, siblings as they arrive', () => {
+    expect(categoryTreeOrder(rows)).toEqual(['cb', 'esp', 'fil', 'tea']);
+    // A child sorted ahead of its parent still follows it.
+    expect(categoryTreeOrder([rows[1], rows[3], rows[0], rows[2]])).toEqual([
+      'tea',
+      'cb',
+      'esp',
+      'fil',
+    ]);
+  });
+
+  it('orders an orphan as a root and a loop last, never dropping one', () => {
+    const odd: CategoryRow[] = [
+      cat('a', 'a', 'b', 0),
+      cat('b', 'b', 'a', 1),
+      cat('orphan', 'orphan', 'gone', 2),
+      ...rows,
+    ];
+
+    expect(categoryTreeOrder(odd)).toEqual([
+      'orphan',
+      'cb',
+      'esp',
+      'fil',
+      'tea',
+      'a',
+      'b',
+    ]);
+  });
+});
+
+describe('directChildren', () => {
+  it('lists only direct children as subcategory links', () => {
+    expect(directChildren('cb', rows).map((c) => c.slug)).toEqual([
+      'espresso',
+      'filter',
+    ]);
+    expect(directChildren('esp', rows)).toEqual([]);
+  });
+
+  it('carries the short name through children', () => {
+    expect(directChildren('cb', rows).map((c) => c.shortName)).toEqual([
+      'Esp',
+      null,
+    ]);
+  });
+});
+
+describe('stockedCategoryIds', () => {
+  it('keeps a stocked category and every ancestor of one', () => {
+    // Products sit on the leaf; the parent is kept because of them, and the
+    // sibling leaf and the flat category are not.
+    expect(stockedCategoryIds(rows, ['esp'])).toEqual(new Set(['esp', 'cb']));
+  });
+
+  it('offers no drill-down into a branch nothing visible is under', () => {
+    const stocked = stockedCategoryIds(rows, ['tea']);
+
+    expect(
+      directChildren(
+        'cb',
+        rows.filter((r) => stocked.has(r.id)),
+      ),
+    ).toEqual([]);
+  });
+
+  it('keeps nothing when nothing is visible', () => {
+    expect(stockedCategoryIds(rows, [])).toEqual(new Set());
+  });
+
+  it('survives a parent loop rather than hanging on it', () => {
+    const looped: CategoryRow[] = [
+      { ...cat('a', 'a', 'b', 0) },
+      { ...cat('b', 'b', 'a', 1) },
+    ];
+    expect(stockedCategoryIds(looped, ['a'])).toEqual(new Set(['a', 'b']));
+  });
+});

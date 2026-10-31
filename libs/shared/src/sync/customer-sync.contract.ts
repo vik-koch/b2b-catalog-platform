@@ -21,7 +21,7 @@ import {
   syncRunSchema,
   syncSummarySchema,
 } from './sync-run.contract';
-import { TIER_KEY_MAX_LENGTH } from '../lib/accounts/tier-constants';
+import { TIER_KEY_MAX_LENGTH } from '../core/catalog/tiers';
 
 /**
  * The customer exchange (FR-ADM-11): the rows a connected system sends about

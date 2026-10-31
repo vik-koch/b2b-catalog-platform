@@ -1,0 +1,193 @@
+/**
+ * Stored product rows as the read contracts publish them, and the column
+ * groups every product read selects, so the reads cannot drift.
+ */
+
+import {
+  BoxDimensions,
+  ProductAvailability,
+  ProductListItem,
+  ProductPackaging,
+  ProductImage,
+  ProductVariant,
+  UnitPrices,
+  piecesPerUnit,
+  shownPictures,
+  totalMinor,
+} from '@b2b-catalog-platform/shared/core/catalog';
+import { and, isNotNull, isNull, SQL } from 'drizzle-orm';
+import { ProductImageRef, ProductVariantRef, products } from '../../db/schema';
+import { pairedCountOf } from './product-pairings';
+
+/** What the storefront may show: live, and published. Every public read uses
+ * it, the cart included, so there is no second copy to forget. */
+export const publiclyVisible = and(
+  isNull(products.deletedAt),
+  isNotNull(products.publishedAt),
+);
+
+export const unitColumns = {
+  piecesPerPack: products.piecesPerPack,
+  packsPerBox: products.packsPerBox,
+  minPieceQty: products.minPieceQty,
+} as const;
+
+/** What a listing needs beyond the price to sell a line the way the product
+ * page does. */
+export const noteColumns = {
+  lineNoteEnabled: products.lineNoteEnabled,
+  lineNotePrompt: products.lineNotePrompt,
+} as const;
+
+/** The gallery and its variants (FR-CAT-11), read together: the variants
+ * decide which pictures are withheld. */
+export const pictureColumns = {
+  images: products.images,
+  variants: products.variants,
+} as const;
+
+export interface PictureRow {
+  images: ProductImageRef[];
+  variants: ProductVariantRef[];
+}
+
+/** The pictures the storefront may see, labelled with their variant, and
+ * every variant by name, unavailable ones marked (FR-CAT-12). Ids stay behind. */
+export function picturesOf(row: PictureRow): {
+  images: ProductImage[];
+  variants: ProductVariant[];
+} {
+  return {
+    images: shownPictures(row.images, row.variants),
+    variants: row.variants.map(({ name, unavailable }) => ({
+      name,
+      unavailable,
+    })),
+  };
+}
+
+/** What a piece is made of, for the set marker (FR-CAT-10). */
+export const partsColumns = {
+  parts: products.parts,
+} as const;
+
+/** The stored state, never the count behind it (FR-STOCK-01). Its own group so
+ * that reading a product publicly cannot pick up the figure by accident. */
+export const availabilityColumns = {
+  availability: products.availability,
+} as const;
+
+export interface PricedProductRow {
+  /** Tier-resolved, the price of one piece. */
+  priceMinor: number;
+  piecesPerPack: number | null;
+  packsPerBox: number | null;
+  minPieceQty: number;
+}
+
+export function packagingOf(
+  row: Omit<PricedProductRow, 'priceMinor'>,
+): ProductPackaging {
+  return {
+    piecesPerPack: row.piecesPerPack,
+    packsPerBox: row.packsPerBox,
+    minPieceQty: row.minPieceQty,
+  };
+}
+
+/** Every unit's price is the piece price multiplied out, so all three are
+ * exact whole minor units and null means only that the product is not sold in
+ * that unit. */
+export function unitPricesOf(row: PricedProductRow): UnitPrices {
+  const packaging = packagingOf(row);
+  const priceFor = (unit: 'pack' | 'box'): number | null => {
+    const pieces = piecesPerUnit(packaging, unit);
+    return pieces === null ? null : totalMinor(row.priceMinor, pieces);
+  };
+
+  return {
+    piece: row.priceMinor,
+    pack: priceFor('pack'),
+    box: priceFor('box'),
+  };
+}
+
+/** What a tile is read from, `toListItem`'s input, at the price given. */
+export function listItemColumns<P extends SQL<number | null>>(price: P) {
+  return {
+    slug: products.slug,
+    name: products.name,
+    priceMinor: price,
+    ...pictureColumns,
+    ...unitColumns,
+    ...noteColumns,
+    ...availabilityColumns,
+    ...partsColumns,
+    pairedCount: pairedCountOf(),
+  };
+}
+
+export function toListItem<
+  T extends PricedProductRow & {
+    slug: string;
+    name: string;
+    images: ProductImageRef[];
+    variants: ProductVariantRef[];
+    lineNoteEnabled: boolean;
+    lineNotePrompt: string | null;
+    availability: ProductAvailability | null;
+    pairedCount: number;
+    parts: string[];
+  },
+>(row: T): ProductListItem {
+  return {
+    slug: row.slug,
+    name: row.name,
+    prices: unitPricesOf(row),
+    packaging: packagingOf(row),
+    ...picturesOf(row),
+    lineNoteEnabled: row.lineNoteEnabled,
+    lineNotePrompt: row.lineNotePrompt,
+    availability: row.availability,
+    pairedCount: row.pairedCount,
+    parts: row.parts,
+  };
+}
+
+/**
+ * The same row for a staff screen, where a product may have no price. Kept
+ * apart from `toListItem`: publication refuses an unpriced product, so the
+ * storefront's shape never carries the null.
+ */
+export function toUnpricedListItem<
+  T extends Omit<PricedProductRow, 'priceMinor'> & {
+    priceMinor: number | null;
+    slug: string;
+    name: string;
+    images: ProductImageRef[];
+    variants: ProductVariantRef[];
+    lineNoteEnabled: boolean;
+    lineNotePrompt: string | null;
+    availability: ProductAvailability | null;
+    pairedCount: number;
+    parts: string[];
+  },
+>(row: T): Omit<ProductListItem, 'prices'> & { prices: UnitPrices | null } {
+  const priceMinor = row.priceMinor;
+  return {
+    ...toListItem({ ...row, priceMinor: priceMinor ?? 0 }),
+    prices: priceMinor === null ? null : unitPricesOf({ ...row, priceMinor }),
+  };
+}
+
+/** Kept as the decimal strings Postgres returns: they are shown, not calculated
+ * with, and a float round-trip would turn 1.250 into 1.25. */
+export function boxDimensionsOf(row: {
+  packsPerBox: number | null;
+  boxVolume: string | null;
+  boxWeight: string | null;
+  boxCount: number;
+}): BoxDimensions | null {
+  if (row.packsPerBox === null) return null;
+  return { volume: row.boxVolume, weight: row.boxWeight, count: row.boxCount };
+}
