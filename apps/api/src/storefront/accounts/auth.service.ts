@@ -1,12 +1,11 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { UserRow, UsersService } from '../../core/accounts/users.service';
-import { toAuthUser } from '../../platform/auth/auth-user';
 import { PasswordPolicy } from '../../core/accounts/password-policy';
 import { PasswordRejectedError } from '../../core/accounts/password-rejected-error';
 import { PasswordService } from '../../core/accounts/password.service';
-import { WrongCurrentPasswordError } from '../../core/accounts/wrong-current-password-error';
-import { AuthUser } from '@b2b-catalog-platform/shared/platform';
+import { WrongCurrentPasswordError } from './wrong-current-password-error';
 
+/** Checking a password, and changing it. */
 @Injectable()
 export class AuthService {
   constructor(
@@ -15,19 +14,10 @@ export class AuthService {
     private readonly policy: PasswordPolicy,
   ) {}
 
-  /** The client-facing identity — never the hash or tokenVersion. */
-  toAuthUser(user: UserRow): AuthUser {
-    return toAuthUser(user);
-  }
-
   /**
-   * Verify credentials, returning the user or null. A hash is always verified —
-   * a dummy one when the email is unknown — so a wrong email and a wrong
-   * password take the same time and don't reveal which emails exist.
-   *
-   * An account that is not `active` fails the same way, for the same reason: a
-   * distinct "awaiting approval" answer would confirm the address is registered.
-   * The registration mail is where that gets explained, to the address itself.
+   * The account, or null. A hash is verified even for an unknown address, so
+   * the clock does not tell which addresses exist; an account that is not
+   * `active` fails the same way, for the same reason.
    */
   async validate(email: string, password: string): Promise<UserRow | null> {
     const user = await this.users.findByEmail(email);
@@ -37,20 +27,8 @@ export class AuthService {
     return user;
   }
 
-  /** Stamp that a session started now (see `users.lastSignInAt`). A
-   * password change re-issues the caller's own cookie and is not one. */
-  recordSignIn(user: UserRow): Promise<void> {
-    return this.users.recordSignIn(user.id);
-  }
-
-  /**
-   * Change the caller's own password. Requires the current one; on success the
-   * tokenVersion bump (in UsersService.setPassword) logs out other sessions.
-   *
-   * Returns the updated row — the caller's own session token was invalidated by
-   * that same bump, so the controller has to re-issue the cookie from it (see
-   * AuthController.changePassword) or the change would log the caller out too.
-   */
+  /** Answers the row: the change ends every session, the caller's too, so
+   * the controller reissues its cookie from it. */
   async changePassword(
     userId: string,
     currentPassword: string,
@@ -67,25 +45,19 @@ export class AuthService {
     if (!ok) {
       throw new WrongCurrentPasswordError();
     }
-    // A "change" that changes nothing is not one — and this path is what the
-    // forced first change (FR-AUTH-08) relies on, where keeping the handed-out
-    // password is exactly what must not be possible.
+    // The forced first change (FR-AUTH-08) must not keep the handed-out one.
     if (newPassword === currentPassword) {
       throw new PasswordRejectedError(
         'password-unchanged',
         'New password is the same as the current one',
       );
     }
-    // The same policy the set-a-password link applies. A password is a
-    // password wherever it is chosen, and a rule that only guards one of the
-    // two doors guards nothing.
     this.policy.assertAcceptable(newPassword, user.email);
     const passwordHash = await this.passwords.hash(newPassword);
     return this.users.setPassword(userId, passwordHash);
   }
 
-  // Computed once and reused: equalizes login timing for unknown emails without
-  // hashing a fresh dummy on every failed attempt.
+  /** Hashed once, for an unknown address to verify against. */
   private dummyHash?: Promise<string>;
   private timingDummyHash(): Promise<string> {
     return (this.dummyHash ??= this.passwords.hash('timing-equalizer'));

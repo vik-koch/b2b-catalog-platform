@@ -9,12 +9,8 @@ import { addressSuggestionSchema } from '@b2b-catalog-platform/shared/core/accou
 
 const responseSchema = z.object({ items: z.array(addressSuggestionSchema) });
 
-/**
- * Addresses from the deployment's own sidecar (ADR 0040), which speaks a fixed
- * contract — `GET {base}/suggest?q=&country=&limit=` answering `{ items: [...] }`
- * — and the provider's protocol on the other side. The provider's name, its
- * quirks and its credential stay in that container.
- */
+/** `GET {base}/suggest?q=&country=&limit=` answering `{ items }`. The
+ * provider, its quirks and its credential stay in the sidecar. */
 export class HttpAddressSuggestions implements AddressSuggestionPort {
   private readonly sidecar: SuggestionSidecar;
 

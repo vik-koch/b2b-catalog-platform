@@ -3,44 +3,25 @@ import { HttpPartySuggestions } from './http-party-suggestions';
 import { PartySuggestion } from '@b2b-catalog-platform/shared/core/accounts';
 
 /**
- * What a company-suggestion provider has to answer (ADR 0041). Its own port
- * beside `AddressSuggestionPort` rather than a widening of it: a company and an
- * address are different subjects with different answers, and a provider may
- * serve one and not the other.
- *
- * What comes back **fills** a form and never decides it — nothing downstream
- * may require that a suggestion was picked.
+ * What a company provider answers (ADR 0041), apart from addresses: a
+ * provider may serve one and not the other. A suggestion fills a form;
+ * nothing may require that one was picked.
  */
 export interface PartySuggestionPort {
-  /**
-   * @param query a name or a registration number, as typed — already trimmed
-   *   and length-bounded by the controller (NFR-SEC-08).
-   * @param limit the most rows worth returning.
-   */
+  /** `query` is a name or a registration number, trimmed and bounded. */
   suggest(query: string, limit: number): Promise<PartySuggestion[]>;
 }
 
 export const PARTY_SUGGESTION_PORT = 'PARTY_SUGGESTION_PORT';
 
-/**
- * The default, and the whole of what the public repository ships: no provider.
- * Both company fields are then ordinary typed input, and no personal data
- * leaves the deployment.
- */
+/** No provider: companies are typed, and nothing leaves the deployment. */
 export class NoPartySuggestions implements PartySuggestionPort {
   async suggest(): Promise<PartySuggestion[]> {
     return [];
   }
 }
 
-/**
- * Whether this deployment suggests companies at all, decided by the one thing
- * that decides it for addresses too: an address to send the calls to. One
- * sidecar, one variable, two subjects (ADR 0041).
- *
- * Which it chose is logged at boot, for the same reason as its twin: a
- * misspelled variable name would otherwise mean suggestions are quietly off.
- */
+/** The same sidecar URL as addresses, logged at boot for the same reason. */
 export function createPartySuggestionPort(
   url: string | undefined,
 ): PartySuggestionPort {

@@ -18,12 +18,8 @@ import { RegistrationService } from './registration.service';
   imports: [
     AccountsCoreModule,
     MailModule,
-    // Registration seeds the account's first address from the company the
-    // registrant picked (FR-AUTH-10).
     AddressBookModule,
-    // Whether the shop is closed, which a customer's sign-in is refused on.
     MaintenanceStateModule,
-    // The account consent, asked on registration or the first password.
     ConsentModule,
   ],
   controllers: [AuthController],
@@ -31,8 +27,7 @@ import { RegistrationService } from './registration.service';
     AuthService,
     RegistrationService,
     PasswordSetupService,
-    // The deployment's company-number format, compiled once at boot: a bad
-    // pattern fails the startup rather than every registration.
+    // Compiled at boot: a bad pattern fails the start, not each registration.
     { provide: COMPANY_ID_RULE, useFactory: loadCompanyIdRule },
   ],
 })

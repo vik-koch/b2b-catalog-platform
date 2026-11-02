@@ -9,15 +9,8 @@ import {
 
 const responseSchema = z.object({ items: z.array(partySuggestionSchema) });
 
-/**
- * Companies from the deployment's own sidecar (ADR 0041) — the same container
- * the addresses come from, at a second path:
- * `GET {base}/suggest-party?q=&limit=` answering `{ items: [...] }`.
- *
- * A sidecar built before that path existed answers 404, which the client turns
- * into an empty list — so an older one degrades to "no company suggestions"
- * without a capability flag to keep in step.
- */
+/** `GET {base}/suggest-party?q=&limit=` answering `{ items }`. An older
+ * sidecar answers 404, which reads as no suggestions. */
 export class HttpPartySuggestions implements PartySuggestionPort {
   private readonly sidecar: SuggestionSidecar;
 

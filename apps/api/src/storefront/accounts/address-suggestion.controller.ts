@@ -12,14 +12,9 @@ import {
 } from '@b2b-catalog-platform/shared/core/accounts';
 
 /**
- * The suggestion proxy (FR-CART-11, NFR-SEC-08). Unauthenticated, because a
- * guest fills the same address form at checkout — and throttled harder than the
- * catalog's own suggestions, because every call here may cost the deployment
- * money at a third party.
- *
- * A query shorter than the minimum answers empty rather than reaching the
- * provider: two letters match half a country and would be a paid call for
- * nothing.
+ * Address suggestions (FR-CART-11, NFR-SEC-08). Open, since a guest fills
+ * the same form at checkout, and throttled hard: each call may cost money.
+ * A short query never reaches the provider.
  */
 @Controller()
 export class AddressSuggestionController {
@@ -41,8 +36,7 @@ export class AddressSuggestionController {
           query.country,
           ADDRESS_SUGGESTION_LIMIT,
         );
-        // Trimmed here as well as asked for: the cap is the API's promise, not
-        // the provider's.
+        // The cap is the API's promise, not the provider's.
         return { items: items.slice(0, ADDRESS_SUGGESTION_LIMIT) };
       },
     );

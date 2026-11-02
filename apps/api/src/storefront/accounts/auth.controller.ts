@@ -17,7 +17,7 @@ import {
 import { Auth } from '../../platform/auth/auth.decorator';
 import { CurrentUser } from '../../platform/auth/current-user.decorator';
 import { AuthService } from './auth.service';
-import { WrongCurrentPasswordError } from '../../core/accounts/wrong-current-password-error';
+import { WrongCurrentPasswordError } from './wrong-current-password-error';
 import { PasswordRejectedError } from '../../core/accounts/password-rejected-error';
 import { PasswordResetService } from '../../core/accounts/password-reset.service';
 import { PasswordSetupService } from './password-setup.service';
@@ -34,7 +34,8 @@ import {
   SIGN_IN_PROOF,
   SignInProof,
 } from '../../core/accounts/sign-in-step/sign-in-proof';
-import { UserRow } from '../../core/accounts/users.service';
+import { UserRow, UsersService } from '../../core/accounts/users.service';
+import { toAuthUser } from '../../platform/auth/auth-user';
 import { AuthUser, UserRole } from '@b2b-catalog-platform/shared/platform';
 import { passesMaintenance } from '@b2b-catalog-platform/shared/core/site';
 import {
@@ -47,6 +48,7 @@ import {
 export class AuthController {
   constructor(
     private readonly auth: AuthService,
+    private readonly users: UsersService,
     private readonly registration: RegistrationService,
     private readonly passwordSetup: PasswordSetupService,
     private readonly passwordReset: PasswordResetService,
@@ -56,10 +58,8 @@ export class AuthController {
     @Inject(SIGN_IN_PROOF) private readonly proof: SignInProof,
   ) {}
 
-  /**
-   * The password has been accepted: start the session, or the step that
-   * stands before it (FR-AUTH-12).
-   */
+  /** After an accepted password: the session, or the step before it
+   * (FR-AUTH-12). */
   private async signIn(user: UserRow, req: Request, res: Response) {
     const pending = await sending(this.step.begin(user, req, res));
     if (pending) return pending;
@@ -67,44 +67,30 @@ export class AuthController {
   }
 
   private async startSession(user: UserRow, req: Request, res: Response) {
-    await this.auth.recordSignIn(user);
+    await this.users.recordSignIn(user.id);
     await this.sessions.start(req, res, user);
-    return this.auth.toAuthUser(user);
+    return toAuthUser(user);
   }
 
-  /**
-   * Whether this account is kept out by maintenance mode. The routes below are
-   * exempt from the gate so staff can get in; a customer is only turned away
-   * once their credentials or link have said whose account it is.
-   */
+  /** The routes below are exempt from the gate so staff get in; a customer
+   * is turned away once credentials or a link say whose account it is. */
   private closedTo(role: UserRole): boolean {
     return this.maintenance.isEnabled() && !passesMaintenance(role);
   }
 
-  // Not maintenance-exempt, unlike login: while the storefront is down there is
-  // nothing to register for, and the admin who needs to get in already can.
+  // Not maintenance-exempt: a closed shop has nothing to register for.
   @PublicFormThrottle()
   @Implement(authContract.register)
   register() {
-    return (
-      implement(authContract.register)
-        // The company-id format rule and the consent refusals are raised by
-        // the service.
-        .use(refusals)
-        .handler(async ({ input: { body } }) => {
-          await this.registration.register(body);
-          // The same answer for a new address, a known one and a honeypot hit —
-          // the response must not reveal which addresses have accounts.
-          return { ok: true as const };
-        })
-    );
+    return implement(authContract.register)
+      .use(refusals)
+      .handler(async ({ input: { body } }) => {
+        await this.registration.register(body);
+        // One answer for a new address, a known one and a honeypot hit.
+        return { ok: true as const };
+      });
   }
 
-  /**
-   * Maintenance-exempt and throttled, like login: somebody locked out while the
-   * storefront is down still needs the way back in, and an unauthenticated form
-   * that sends mail is exactly what a rate limit is for.
-   */
   @MaintenanceExempt()
   @AuthThrottle()
   @Implement(authContract.forgotPassword)
@@ -112,17 +98,13 @@ export class AuthController {
     return implement(authContract.forgotPassword).handler(
       async ({ input: { body } }) => {
         await this.passwordReset.request(body.email);
-        // Uniform by design — see the contract.
         return { ok: true as const };
       },
     );
   }
 
-  /**
-   * The link's own endpoint, so the page can tell "choose your password" from
-   * "reset your password" — and show an expired link an honest message instead
-   * of a form that will fail. Throttled: a token is a secret in a URL.
-   */
+  /** So the page knows a first password from a reset, and an expired link
+   * before the form fails. */
   @MaintenanceExempt()
   @AuthThrottle()
   @Implement(authContract.checkPasswordToken)
@@ -136,9 +118,7 @@ export class AuthController {
           });
         }
         if (this.closedTo(account.role)) {
-          throw errors[MAINTENANCE_REFUSED]({
-            message: 'Service under maintenance',
-          });
+          throw errors[MAINTENANCE_REFUSED](CLOSED);
         }
         return {
           purpose: account.purpose,
@@ -153,44 +133,36 @@ export class AuthController {
   @AuthThrottle()
   @Implement(authContract.setPassword)
   setPassword(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
-    return (
-      implement(authContract.setPassword)
-        // The consent refusals are raised by the service.
-        .use(refusals)
-        .handler(async ({ input: { body }, errors }) => {
-          // Before the link is spent, so it still works once the shop opens.
-          const account = await this.passwordSetup.describe(body.token);
-          if (account && this.closedTo(account.role)) {
-            throw errors[MAINTENANCE_REFUSED]({
-              message: 'Service under maintenance',
-            });
+    return implement(authContract.setPassword)
+      .use(refusals)
+      .handler(async ({ input: { body }, errors }) => {
+        // Before the link is spent, so it still works once the shop opens.
+        const account = await this.passwordSetup.describe(body.token);
+        if (account && this.closedTo(account.role)) {
+          throw errors[MAINTENANCE_REFUSED](CLOSED);
+        }
+        let user;
+        try {
+          user = await this.passwordSetup.redeem(
+            body.token,
+            body.password,
+            body.consentVersion,
+          );
+        } catch (error) {
+          // The link is untouched: another password can be tried.
+          if (error instanceof PasswordRejectedError) {
+            throw errors[error.code]({ message: error.message });
           }
-          let user;
-          try {
-            user = await this.passwordSetup.redeem(
-              body.token,
-              body.password,
-              body.consentVersion,
-            );
-          } catch (error) {
-            // Which rule refused; the link is untouched, so the visitor can
-            // simply try a different password.
-            if (error instanceof PasswordRejectedError) {
-              throw errors[error.code]({ message: error.message });
-            }
-            throw error;
-          }
-          if (!user) {
-            throw errors[PASSWORD_TOKEN_INVALID]({
-              message: 'This link is no longer valid',
-            });
-          }
-          // Straight into a session: they have just proved control of the address
-          // and chosen the password, so asking them to log in would be ceremony.
-          // Where a code is owed, it is asked here too.
-          return this.signIn(user, req, res);
-        })
-    );
+          throw error;
+        }
+        if (!user) {
+          throw errors[PASSWORD_TOKEN_INVALID]({
+            message: 'This link is no longer valid',
+          });
+        }
+        // The link proved the address: straight into a session, or the step.
+        return this.signIn(user, req, res);
+      });
   }
 
   @MaintenanceExempt()
@@ -202,16 +174,13 @@ export class AuthController {
       .handler(async ({ input: { body }, errors }) => {
         const user = await this.auth.validate(body.email, body.password);
         if (!user) {
-          // One answer for unknown email and wrong password alike — don't
-          // reveal which emails exist (the service also equalizes timing).
+          // One answer for an unknown address and a wrong password.
           throw errors['invalid-credentials']({
             message: 'Invalid email or password',
           });
         }
         if (this.closedTo(user.role)) {
-          throw errors[MAINTENANCE_REFUSED]({
-            message: 'Service under maintenance',
-          });
+          throw errors[MAINTENANCE_REFUSED](CLOSED);
         }
         return this.signIn(user, req, res);
       });
@@ -244,9 +213,7 @@ export class AuthController {
         if (!user) throw errors['sign-in-step-expired'](STEP_EXPIRED);
         // Asked again at the end: the shop may have closed since the password.
         if (this.closedTo(user.role)) {
-          throw errors[MAINTENANCE_REFUSED]({
-            message: 'Service under maintenance',
-          });
+          throw errors[MAINTENANCE_REFUSED](CLOSED);
         }
 
         const outcome = await this.step.complete(user, body.code);
@@ -266,11 +233,7 @@ export class AuthController {
     );
   }
 
-  /**
-   * The call screen asks here every few seconds. Until the call has come the
-   * answer is "still waiting"; once it has, the session starts as a right
-   * code's would, and `remember` counts then.
-   */
+  /** Polled by the call screen; once the call has come, as a right code. */
   @MaintenanceExempt()
   @SignInCallThrottle()
   @Implement(authContract.checkSignInCall)
@@ -284,9 +247,7 @@ export class AuthController {
         const user = await this.step.pending(req);
         if (!user) throw errors['sign-in-step-expired'](STEP_EXPIRED);
         if (this.closedTo(user.role)) {
-          throw errors[MAINTENANCE_REFUSED]({
-            message: 'Service under maintenance',
-          });
+          throw errors[MAINTENANCE_REFUSED](CLOSED);
         }
 
         const outcome = await sending(this.step.completeCall(user));
@@ -300,12 +261,8 @@ export class AuthController {
       });
   }
 
-  /**
-   * The link in the mail that stands in for a call (`SIGN_IN_MAIL_KIND=call`):
-   * opening it is the call, and the waiting page goes on by itself. Not a
-   * contract route, since a mail client opens it as a page. Absent wherever a
-   * real provider takes the call.
-   */
+  /** The stand-in mail's link (`SIGN_IN_MAIL_KIND=call`). Not a contract
+   * route: a mail client opens it as a page. 404 under a real provider. */
   @MaintenanceExempt()
   @AuthThrottle()
   @Get('auth/sign-in-step/stand-in/:reference')
@@ -331,9 +288,7 @@ export class AuthController {
     });
   }
 
-  // Exempt so a customer's session still says who it is while the shop is
-  // closed: it reveals nothing of the shop, and the web gate needs it to tell
-  // staff from customers.
+  // Exempt: the web gate needs it to tell staff from customers.
   @MaintenanceExempt()
   @Auth()
   @Implement(authContract.me)
@@ -358,9 +313,6 @@ export class AuthController {
             body.newPassword,
           );
         } catch (error) {
-          // Both are 400s, and the client has to tell them apart: one means
-          // "retype the field above", the other says which rule refused the
-          // new password.
           if (error instanceof WrongCurrentPasswordError) {
             throw errors['wrong-current-password']({
               message: 'Current password is incorrect',
@@ -371,12 +323,13 @@ export class AuthController {
           }
           throw error;
         }
-        // Update token so the user is not logged out.
+        // The change ended this session too.
         await this.sessions.start(req, res, updated);
-        return this.auth.toAuthUser(updated);
+        return toAuthUser(updated);
       },
     );
   }
 }
 
 const STEP_EXPIRED = { message: 'No sign-in is waiting for a code' };
+const CLOSED = { message: 'Service under maintenance' };

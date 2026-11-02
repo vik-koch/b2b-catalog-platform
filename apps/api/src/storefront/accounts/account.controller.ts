@@ -17,7 +17,7 @@ import {
   accountContract,
 } from '@b2b-catalog-platform/shared/storefront/accounts';
 
-/** The account holder's own view of their row — never the tier (ADR 0031). */
+/** The holder's own view of their row: never the tier. */
 function toAccountProfile(
   user: UserRow,
   openOrders: number,
@@ -38,14 +38,7 @@ function toAccountProfile(
   };
 }
 
-/**
- * The account holder's own record — the self-service counterpart to
- * StaffUsersController. `@Auth()` with no roles: every signed-in account has
- * one of these, whatever it may do elsewhere.
- *
- * The id always comes from the session, never from the request, so there is no
- * "may I see this account" question to get wrong.
- */
+/** The holder's own record, any role. The id is always the session's. */
 @Auth()
 @Controller()
 export class AccountController {
@@ -69,9 +62,7 @@ export class AccountController {
   getProfile(@CurrentUser() actor: AuthUser) {
     return implement(accountContract.getProfile).handler(async ({ errors }) => {
       const user = await this.users.findById(actor.id);
-      // The guard read this row a moment ago, so this is the account deleting
-      // itself mid-request rather than a real 404 — the session is what is
-      // gone, and 401 is what the client already knows how to handle.
+      // Gone since the guard read it: the session is what ended.
       if (!user) throw errors['not-authenticated']();
 
       return this.profileOf(user);
@@ -87,8 +78,8 @@ export class AccountController {
         if (!current) throw errors['not-authenticated']();
         const phone =
           storedPhone(this.phoneRule, body.phone, current.phone) ?? null;
-        // Where the deployment sends this account its sign-in codes, the
-        // number is how it signs in, and staff change it (FR-AUTH-12).
+        // Where the step asks this account, staff change its number
+        // (FR-AUTH-12).
         if (phone !== current.phone && this.step.asks(current)) {
           throw errors['phone-locked']({
             message: 'Staff change this number',
@@ -99,13 +90,10 @@ export class AccountController {
           ...body,
           phone,
         });
-        // No row means the account stopped being `active` between the guard and
-        // the write — deactivated or anonymized underneath the session.
+        // No longer `active` since the guard read it.
         if (!updated) throw errors['not-authenticated']();
 
-        // Its own action rather than `user.updated`: what an auditor asks about
-        // a changed phone number is whether staff changed it or the customer
-        // did, and the two stay greppable apart only if they are named apart.
+        // Not `user.updated`, so the holder's edits stay apart from staff's.
         this.audit.record('account.updated', actor, { id: updated.id });
 
         return this.profileOf(updated);
@@ -132,11 +120,9 @@ export class AccountController {
               });
         }
 
-        // Audited before the cookie goes, and with the actor as they still
-        // were: afterwards there is no address left to attribute it to.
+        // With the actor as they were: no address is left afterwards.
         this.audit.record('account.deleted', actor, { id: actor.id });
-        // The bumped tokenVersion already makes the cookie useless; clearing it
-        // is what stops the browser presenting a dead session on every request.
+        // Dead already; cleared so the browser stops sending it.
         endSession(req, res);
 
         return { message: 'Account deleted' };

@@ -4,7 +4,8 @@ import { Test } from '@nestjs/testing';
 import { ThrottlerGuard } from '@nestjs/throttler';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { WrongCurrentPasswordError } from '../../core/accounts/wrong-current-password-error';
+import { UsersService } from '../../core/accounts/users.service';
+import { WrongCurrentPasswordError } from './wrong-current-password-error';
 import { PasswordRejectedError } from '../../core/accounts/password-rejected-error';
 import { PasswordResetService } from '../../core/accounts/password-reset.service';
 import { PasswordSetupService } from './password-setup.service';
@@ -53,10 +54,9 @@ describe('AuthController', () => {
 
   const auth = {
     validate: vi.fn(),
-    recordSignIn: vi.fn(async () => undefined),
-    toAuthUser: vi.fn(() => user),
     changePassword: vi.fn(),
   };
+  const users = { recordSignIn: vi.fn(async () => undefined) };
   const registration = { register: vi.fn() };
   const passwordSetup = { describe: vi.fn(), redeem: vi.fn() };
   const passwordReset = { request: vi.fn() };
@@ -88,6 +88,7 @@ describe('AuthController', () => {
         controllers: [AuthController],
         providers: [
           { provide: AuthService, useValue: auth },
+          { provide: UsersService, useValue: users },
           { provide: RegistrationService, useValue: registration },
           { provide: PasswordSetupService, useValue: passwordSetup },
           { provide: PasswordResetService, useValue: passwordReset },
@@ -135,6 +136,7 @@ describe('AuthController', () => {
     signedInAs = null;
     for (const fn of [
       ...Object.values(auth),
+      users.recordSignIn,
       registration.register,
       passwordSetup.describe,
       passwordSetup.redeem,
@@ -148,7 +150,6 @@ describe('AuthController', () => {
     step.begin.mockReset().mockResolvedValue(null);
     step.pending.mockReset().mockResolvedValue(null);
     step.completeCall.mockReset();
-    auth.toAuthUser.mockReturnValue(user);
   });
 
   const post = (path: string, body?: unknown) =>
@@ -181,9 +182,7 @@ describe('AuthController', () => {
     // draw the account control without waiting for /auth/me.
     expect(cookies).toContain(`${SESSION_HINT_COOKIE}=user`);
     // When the account was last used (users.lastSignInAt).
-    expect(auth.recordSignIn).toHaveBeenCalledWith(
-      expect.objectContaining({ id: user.id }),
-    );
+    expect(users.recordSignIn).toHaveBeenCalledWith(user.id);
   });
 
   // Choosing a password from an invitation or a reset link starts a session
@@ -202,9 +201,7 @@ describe('AuthController', () => {
     });
 
     expect(response.status).toBe(200);
-    expect(auth.recordSignIn).toHaveBeenCalledWith(
-      expect.objectContaining({ id: user.id }),
-    );
+    expect(users.recordSignIn).toHaveBeenCalledWith(user.id);
   });
 
   // The form says the same thing to a wrong address, a wrong password and an
@@ -231,7 +228,7 @@ describe('AuthController', () => {
       expect(response.status).toBe(200);
       expect(await response.json()).toEqual(codeStep);
       expect(cookiesOf(response)).not.toContain(`${AUTH_COOKIE}=`);
-      expect(auth.recordSignIn).not.toHaveBeenCalled();
+      expect(users.recordSignIn).not.toHaveBeenCalled();
     });
 
     it('asks for the code after a chosen password too', async () => {
@@ -273,7 +270,7 @@ describe('AuthController', () => {
       expect(response.status).toBe(200);
       expect(await response.json()).toEqual(user);
       expect(cookiesOf(response)).toContain(`${AUTH_COOKIE}=a-signed-token`);
-      expect(auth.recordSignIn).toHaveBeenCalled();
+      expect(users.recordSignIn).toHaveBeenCalled();
       expect(step.end).toHaveBeenCalled();
       expect(step.remember).not.toHaveBeenCalled();
     });
@@ -455,7 +452,7 @@ describe('AuthController', () => {
       code: 'invalid-credentials',
     });
     expect(response.headers.getSetCookie()).toEqual([]);
-    expect(auth.recordSignIn).not.toHaveBeenCalled();
+    expect(users.recordSignIn).not.toHaveBeenCalled();
   });
 
   // Somebody locked out while the storefront is down still needs the way back

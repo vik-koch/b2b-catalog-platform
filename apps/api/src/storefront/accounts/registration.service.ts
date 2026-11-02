@@ -34,12 +34,9 @@ import {
 } from '@b2b-catalog-platform/shared/platform';
 
 /**
- * Self-registration (FR-AUTH-01). The account is created `pending` and cannot
- * sign in until staff approve it and assign a tier (ADR 0032).
- *
- * Every path through `register` ends the same way — a plain success — because
- * the caller must not be able to tell a new address from one that already has
- * an account. What differs is what is written and what is mailed.
+ * Self-registration (FR-AUTH-01): a `pending` account until staff approve it.
+ * Every path ends in the same plain success, so a caller cannot tell a new
+ * address from a known one; only what is written and mailed differs.
  */
 @Injectable()
 export class RegistrationService {
@@ -61,16 +58,13 @@ export class RegistrationService {
   ) {}
 
   async register(request: RegisterRequest): Promise<void> {
-    // Honeypot: drop it silently toward the caller — no account, no mail, a
-    // normal 200 with no hint the decoy tripped — but log it server-side so
-    // hits stay visible for spam monitoring. The fact only, no address.
+    // A honeypot hit: silent to the caller, logged without the address.
     if (request.website) {
       this.logger.warn('Rejected registration: honeypot field populated');
       return;
     }
 
-    // Which kinds of customer the shop sells to is deployment config
-    // (FR-AUTH-13). The form offers only those; this is the rule.
+    // FR-AUTH-13: the form offers only these; this is the rule.
     if (!this.customerTypes.includes(request.customerType)) {
       throw new BadRequestException({
         code: 'customer-type-not-accepted',
@@ -78,10 +72,7 @@ export class RegistrationService {
       });
     }
 
-    // The shared contract settles the envelope; the *format* of a registration
-    // number is jurisdiction-specific deployment config, so it is checked here
-    // as well as in the browser. A rejected format is a real 400: unlike an
-    // address that already has an account, it reveals nothing about anyone.
+    // A real refusal: unlike a known address, a format reveals nothing.
     if (
       request.companyRegistrationId &&
       !this.companyIdMatches(request.companyRegistrationId)
@@ -92,12 +83,10 @@ export class RegistrationService {
       });
     }
 
-    // The same goes for the phone, read into the one form a code can be sent
-    // to. Required by the contract, so a value always comes back.
+    // Required by the contract, so a value always comes back.
     const phone = storedPhone(this.phoneRule, request.phone) ?? '';
 
-    // Before the address is looked up, so a refusal says the same for a new
-    // address and a known one.
+    // Before the lookup, so a refusal is the same for a known address.
     const consent = await this.consents.check(
       'account',
       request.consentVersion,
@@ -105,17 +94,13 @@ export class RegistrationService {
 
     const email = request.email.trim().toLowerCase();
 
-    // A hash of a secret nobody holds — the account gets its real password when
-    // staff approve it. See UsersService.createPending. Computed before the
-    // lookup, and for a known address too: the hash is nearly all of this
-    // request's time, so skipping it would tell a known address by the clock.
+    // For a known address too: the hash is nearly all of this request's
+    // time, so skipping it would tell a known address by the clock.
     const unusablePassword = await this.passwords.unusableHash();
 
     const existing = await this.users.findByEmail(email);
     if (existing) {
-      // Neither a second row nor a mail: re-registering must not tell the
-      // sender that the address is taken, and must not let a stranger spam a
-      // real customer's inbox by submitting their address repeatedly.
+      // No mail either: a stranger must not spam a customer's inbox.
       this.logger.log(
         'Registration for an address that already has an account',
       );
@@ -141,15 +126,9 @@ export class RegistrationService {
   }
 
   /**
-   * The company's registered address as the account's first saved one
-   * (FR-AUTH-10), where the registrant picked a suggestion that carried one.
-   *
-   * Two conditions, both from ADR 0041. It is only written for a **legal
-   * entity** — an individual entrepreneur's registered address is their home,
-   * and nobody asked us to store that. And it is only written when the parts an
-   * address is actually made of arrived: a registry that answered a city and
-   * nothing else has not given us an address, and a half row in the book would
-   * be worse than none.
+   * The picked company's registered address as the first saved one
+   * (FR-AUTH-10). Only for a legal entity, since a sole trader's is their
+   * home, and only whole: half an address is worse than none.
    */
   private async seedBillingAddress(
     userId: string,
@@ -168,11 +147,8 @@ export class RegistrationService {
     }
 
     await this.addresses.seed(userId, {
-      // Unlabelled on purpose: the customer never named it, and the book shows
-      // an unnamed address by its own street.
       label: null,
-      // Already the printed line, house number and all — the adapter composed
-      // it, because where the number goes is regional typography.
+      // The adapter's printed line: where the number goes is regional.
       street: address.street,
       street2: address.unit ?? null,
       postalCode: address.postalCode,
@@ -182,12 +158,8 @@ export class RegistrationService {
     });
   }
 
-  /**
-   * The two mails a registration produces. Dispatched independently and never
-   * allowed to fail or delay the request: the account row is what matters, and
-   * staff can see and approve it from the admin panel whether or not SMTP was
-   * reachable.
-   */
+  /** Queued, so neither can fail the request: staff see the account
+   * either way. */
   private async notify(email: string, request: RegisterRequest): Promise<void> {
     await this.mail.dispatch(
       registrationReceivedMail(this.text),
@@ -205,8 +177,7 @@ export class RegistrationService {
         {
           ...request,
           email,
-          // Stored unmasked; a manager reading this on a phone gets it
-          // grouped the way this deployment writes numbers.
+          // Grouped the way this deployment writes numbers.
           phone: formatPhone(request.phone, this.phoneInput),
         },
         this.text,

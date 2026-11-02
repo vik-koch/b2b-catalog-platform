@@ -14,14 +14,9 @@ import { UserRole } from '@b2b-catalog-platform/shared/platform';
 import { PasswordTokenPurpose } from '@b2b-catalog-platform/shared/core/accounts';
 
 /**
- * Redeeming a set-a-password link — the invitation staff send, and the reset a
- * visitor asks for.
- *
- * The link is the whole credential: it went to an address only that account's
- * owner reads, it is single-use and it expires. So nothing else is asked for,
- * and the three ways a link can be no good — unknown, already used, expired —
- * are one indistinguishable answer, or a guessed token would learn from the
- * difference.
+ * Redeeming a set-a-password link, invitation or reset. The link is the whole
+ * credential, so unknown, used and expired are one answer: a guessed token
+ * learns nothing.
  */
 @Injectable()
 export class PasswordSetupService {
@@ -34,12 +29,8 @@ export class PasswordSetupService {
     @Inject(DRIZZLE) private readonly db: NodePgDatabase<typeof schema>,
   ) {}
 
-  /**
-   * What the form needs before it renders: which account, and whether this is
-   * a first password or a replacement — derived from the account's status, not
-   * from anything stored on the token. The role rides along for the caller,
-   * which turns a customer away while the shop is closed.
-   */
+  /** What the form needs first. The purpose comes from the account's status;
+   * the role lets the caller turn a customer away from a closed shop. */
   async describe(token: string): Promise<{
     purpose: PasswordTokenPurpose;
     email: string;
@@ -60,12 +51,8 @@ export class PasswordSetupService {
     };
   }
 
-  /**
-   * The account consent (NFR-LEGAL-09) is asked where a customer opened on
-   * their behalf first acts on their own: the first password. A registrant
-   * gave it on the form, so an approved registration is not asked twice.
-   * Staff are not asked: theirs is not a customer account.
-   */
+  /** The account consent (NFR-LEGAL-09), at a staff-made customer's first
+   * password. A registrant gave it on the form. */
   private async owesConsent(user: UserRow): Promise<boolean> {
     return (
       user.status === 'invited' &&
@@ -75,11 +62,8 @@ export class PasswordSetupService {
     );
   }
 
-  /**
-   * Spend the link and set the password. The policy check runs *after*
-   * redemption would be wrong — a refused password would burn the link — so it
-   * runs first, on the account the token names.
-   */
+  /** Every check runs before the link is spent, so a refusal leaves it
+   * usable. */
   async redeem(
     token: string,
     password: string,
@@ -91,28 +75,19 @@ export class PasswordSetupService {
     const user = await this.users.findById(userId);
     if (!user || user.status === 'anonymized') return null;
 
-    // Throws a 400 the form shows verbatim; the link stays usable, so the
-    // visitor can simply try a different password.
     this.policy.assertAcceptable(password, user.email);
 
-    // A refused consent leaves the link usable too.
     let consent: CheckedConsent | null = null;
     if (await this.owesConsent(user)) {
       consent = await this.consents.check('account', consentVersion);
     }
 
-    // Hashing before the link is spent, not after: it is the slowest and
-    // hungriest step here, and a failure in it would otherwise burn the link
-    // without setting a password — leaving the visitor unable to re-request
-    // one themselves.
+    // The likeliest step to fail, so before the link is spent.
     const passwordHash = await this.passwords.hash(password);
 
-    // One transaction from here: a consent record that failed after the
-    // account turned active would never be asked for again, and the visitor
-    // would hold a spent link besides.
+    // One transaction: an active account without its consent record would
+    // never be asked again.
     return this.db.transaction(async (tx) => {
-      // Only now is the link spent, and only if it is still unspent — the
-      // update is conditional, so two simultaneous submissions cannot both win.
       if (!(await this.tokens.redeem(token, tx))) return null;
 
       const updated = await this.users.setPasswordFromToken(

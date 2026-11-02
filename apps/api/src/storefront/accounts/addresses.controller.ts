@@ -8,11 +8,8 @@ import { AddressesService } from '../../core/accounts/addresses.service';
 import { addressesContract } from '@b2b-catalog-platform/shared/core/accounts';
 import { AuthUser } from '@b2b-catalog-platform/shared/platform';
 
-/**
- * The signed-in account's address book. `@Auth()` with no roles, like
- * AccountController: every account has one of these, whatever it may do
- * elsewhere. The id always comes from the session, never from the request.
- */
+/** The signed-in account's address book, any role. The id is always the
+ * session's. */
 @Auth()
 @Controller()
 export class AddressesController {
@@ -34,8 +31,7 @@ export class AddressesController {
       .use(refusals)
       .handler(async ({ input: { body } }) => {
         const address = await this.addresses.create(actor.id, body);
-        // Audited without the address itself: the trail says an account changed
-        // its book, not where the customer lives.
+        // Without the address: the trail is not where the customer lives.
         this.audit.record('address.created', actor, { id: address.id });
         return address;
       });

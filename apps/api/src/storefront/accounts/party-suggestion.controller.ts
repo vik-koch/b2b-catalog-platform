@@ -12,14 +12,9 @@ import {
 } from '@b2b-catalog-platform/shared/core/accounts';
 
 /**
- * The company-suggestion proxy (FR-AUTH-09, NFR-SEC-08). Unauthenticated,
- * because the form that uses it is the registration form — the one place where
- * nobody has an account yet — and throttled like its address twin, because
- * every call here may cost the deployment money at a third party.
- *
- * A query shorter than the minimum answers empty rather than reaching the
- * provider: two letters match half a register and would be a paid call for
- * nothing.
+ * Company suggestions (FR-AUTH-09, NFR-SEC-08). Open, since registration uses
+ * them, and throttled hard: each call may cost money. A short query never
+ * reaches the provider.
  */
 @Controller()
 export class PartySuggestionController {
@@ -37,8 +32,7 @@ export class PartySuggestionController {
         if (q.length < PARTY_QUERY_MIN_LENGTH) return { items: [] };
 
         const items = await this.parties.suggest(q, PARTY_SUGGESTION_LIMIT);
-        // Trimmed here as well as asked for: the cap is the API's promise, not
-        // the provider's.
+        // The cap is the API's promise, not the provider's.
         return { items: items.slice(0, PARTY_SUGGESTION_LIMIT) };
       },
     );
