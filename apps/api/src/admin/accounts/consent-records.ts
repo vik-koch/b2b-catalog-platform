@@ -5,6 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
+import { AnyPgColumn } from 'drizzle-orm/pg-core';
 import { desc, eq, inArray, or, SQL } from 'drizzle-orm';
 import {
   ConsentPurpose,
@@ -22,10 +23,7 @@ import { AuthUser } from '@b2b-catalog-platform/shared/platform';
 import { formatPersonName } from '@b2b-catalog-platform/shared/core/accounts';
 import { ConsentRecord } from '@b2b-catalog-platform/shared/admin/accounts';
 
-/**
- * The consent records as staff read them (NFR-LEGAL-09), with the account
- * each names, and the withdrawals staff enter.
- */
+/** Consent records as staff read them (NFR-LEGAL-09), with their accounts. */
 @Injectable()
 export class ConsentRecords {
   constructor(
@@ -33,10 +31,9 @@ export class ConsentRecords {
   ) {}
 
   /**
-   * The records naming this address or number, newest first. An address also
-   * finds the records of the account that holds it now, and a number those of
-   * the account it is stored on: a record keeps the address it was given
-   * with, and the person asking may have changed theirs since.
+   * The records naming this address or number, newest first, and those of
+   * the account holding it now: a record keeps what it was given with, and
+   * the person may have changed it since.
    */
   async findByHolder(holder: {
     email?: string;
@@ -44,32 +41,24 @@ export class ConsentRecords {
   }): Promise<ConsentRecord[]> {
     const email = holder.email?.trim().toLowerCase();
     const phone = holder.phone?.trim();
-    const condition = email
-      ? or(
-          eq(consents.email, email),
-          inArray(
-            consents.userId,
-            this.db
-              .select({ id: users.id })
-              .from(users)
-              .where(eq(users.email, email)),
-          ),
-        )
-      : phone
-        ? or(
-            eq(consents.phone, phone),
-            inArray(
-              consents.userId,
-              this.db
-                .select({ id: users.id })
-                .from(users)
-                .where(eq(users.phone, phone)),
-            ),
-          )
-        : undefined;
-    // The query schema asks for exactly one; nothing is the honest answer to
-    // neither, not every record there is.
-    return condition ? this.findWhere(condition) : [];
+    const naming = (
+      recorded: AnyPgColumn,
+      stored: AnyPgColumn,
+      value: string,
+    ) =>
+      or(
+        eq(recorded, value),
+        inArray(
+          consents.userId,
+          this.db.select({ id: users.id }).from(users).where(eq(stored, value)),
+        ),
+      );
+    if (email)
+      return this.findWhere(naming(consents.email, users.email, email));
+    if (phone)
+      return this.findWhere(naming(consents.phone, users.phone, phone));
+    // Neither: nothing, not every record there is.
+    return [];
   }
 
   /** An account's records, newest first. */
@@ -130,10 +119,9 @@ export class ConsentRecords {
   }
 
   /**
-   * Enters a withdrawal that reached the shop from outside: a letter, a mail,
-   * a call. Only a contact consent: the account consent is withdrawn by
-   * deleting the account, which writes its own. A record ends once, so a
-   * second entry is refused rather than written over the first.
+   * A withdrawal that reached the shop by letter, mail or call. Only a
+   * contact consent: the account consent ends with the account. A second
+   * entry is refused, never written over the first.
    */
   async enterWithdrawal(
     id: string,

@@ -5,10 +5,7 @@ import { OwnershipStateModule } from '../../settings/ownership-state.module';
 import { ConsentAdminModule } from './consent-admin.module';
 import { StaffUsersController } from './staff-users.controller';
 
-/**
- * Account management (FR-AUTH-03/04): the screens a manager approves and
- * re-tiers customers from, and the invitations those decisions send.
- */
+/** Account management (FR-AUTH-03/04). */
 @Module({
   imports: [AccountsCoreModule, OwnershipStateModule, ConsentAdminModule],
   controllers: [StaffUsersController],

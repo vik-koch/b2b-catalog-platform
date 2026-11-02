@@ -1,21 +1,11 @@
 import { Client } from 'pg';
 
 /**
- * Create the bootstrap admin if — and only if — no account with that email
- * exists yet. Unlike the content seed (which resets a demo stack wholesale),
- * this is **create-if-missing** and runs in every environment, prod included:
- * on the first deploy it seeds the admin, and on every deploy after it is a
- * no-op, so an admin who has since changed their password (or any real data) is
- * never clobbered. The password is already hashed by the caller — plaintext
- * never reaches this layer or the database.
- *
- * `mustChangePassword`: the deploy pipeline chose this password, not the
- * admin, so a real deployment forces a change on first sign-in and the app
- * clears the flag then; because this INSERT is create-if-missing, a later
- * deploy never re-raises it. A stack reset to a seed bundle passes false: its
- * admin is recreated on every reset and would be asked again each time.
- *
- * Returns true if a row was created, false if the admin already existed.
+ * Creates the bootstrap admin where no account has that address, on every
+ * deploy, prod included: later deploys never clobber a changed password.
+ * `mustChangePassword`, since the pipeline chose the password; a seed reset
+ * passes false, or its recreated admin would be asked on every reset.
+ * True when a row was created.
  */
 export async function bootstrapAdmin(
   client: Client,
@@ -23,12 +13,10 @@ export async function bootstrapAdmin(
   passwordHash: string,
   mustChangePassword: boolean,
 ): Promise<boolean> {
-  // Normalize to match the case-insensitive login lookup (UsersService.findByEmail).
+  // Lowercased like every stored address.
   const normalizedEmail = email.trim().toLowerCase();
   const result = await client.query(
-    // passwordSetAt: the row holds a real password from the moment it exists,
-    // which is what a later reactivation reads to put the account back where
-    // it was.
+    // A real password from the start, which a reactivation reads.
     `INSERT INTO users (email, "passwordHash", role, "mustChangePassword", status, "passwordSetAt")
      VALUES ($1, $2, 'admin', $3, 'active', now())
      ON CONFLICT (email) DO NOTHING`,
@@ -37,10 +25,7 @@ export async function bootstrapAdmin(
   return (result.rowCount ?? 0) > 0;
 }
 
-/**
- * Connect, bootstrap, disconnect — for one-shot use from the deploy pipeline,
- * after the `migrate` one-shot has created the `users` table. Mirrors runSeed.
- */
+/** For the deploy pipeline's one-shot, after `migrate`. */
 export async function runBootstrapAdmin(
   connectionString: string,
   email: string,

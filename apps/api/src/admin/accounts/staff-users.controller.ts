@@ -1,15 +1,5 @@
 import { Controller } from '@nestjs/common';
 import { Implement, implement } from '@orpc/nest';
-
-/** What a plain `user.updated` line covers — everything but role and tier. */
-const PROFILE_FIELDS = [
-  'firstName',
-  'lastName',
-  'phone',
-  'customerType',
-  'companyName',
-  'companyRegistrationId',
-] as const satisfies readonly (keyof StaffUser)[];
 import { AccountDeletion } from '../../core/accounts/account-deletion';
 import { AuditLogger } from '../../audit/audit.logger';
 import { Auth } from '../../platform/auth/auth.decorator';
@@ -25,19 +15,25 @@ import { AuthUser } from '@b2b-catalog-platform/shared/platform';
 import { StaffUser } from '@b2b-catalog-platform/shared/core/accounts';
 import { usersContract } from '@b2b-catalog-platform/shared/admin/accounts';
 
+/** What a plain `user.updated` line covers. */
+const PROFILE_FIELDS = [
+  'firstName',
+  'lastName',
+  'phone',
+  'customerType',
+  'companyName',
+  'companyRegistrationId',
+] as const satisfies readonly (keyof StaffUser)[];
+
 /** Unknown, and staff seen by a manager. One refusal for both: the list hides
  * staff from a manager, so telling them apart here would undo that. */
 const NOT_FOUND = { message: 'Account not found' };
 
 /**
- * Account management (FR-AUTH-03/04, NFR-SEC-04).
- *
- * The class guard is the *customer* permission — admin and manager both decide
- * who becomes a customer and what they pay. Deciding who is **staff** is a
- * different power, kept to admins throughout: a manager who could grant a role
- * could promote themselves out of this split. Since every handler here takes an
- * account id, that boundary is checked against the *stored* row (`mayManage`),
- * never against what the request claims the target is.
+ * Account management (FR-AUTH-03/04, NFR-SEC-04). Admin and manager manage
+ * customers; deciding who is staff is an admin's alone, or a manager could
+ * promote themselves. Checked against the stored row (`mayManage`), never
+ * against what the request claims.
  */
 @Auth('admin', 'manager')
 @Controller()
@@ -57,10 +53,7 @@ export class StaffUsersController {
     return implement(usersContract.listUsers)
       .use(refusals)
       .handler(async ({ input: { query } }) => {
-        // A manager may only ever see customers. Forced here, not just hidden
-        // in the UI: the route guard stops an honest click, this stops a
-        // crafted request that asks for `kind=staff` or filters by an admin
-        // role.
+        // Forced, not only hidden: a crafted request could ask for staff.
         const scoped =
           actor.role === 'manager'
             ? { ...query, kind: 'customer' as const, role: undefined }
@@ -95,27 +88,20 @@ export class StaffUsersController {
     return implement(usersContract.createUser)
       .use(refusals)
       .handler(async ({ input: { body }, errors }) => {
-        // The same admin-only rule as editing a role, at the other door: a
-        // manager who could *create* an admin would not need to grant one.
+        // The role rule at the other door.
         if (body.role !== 'user' && actor.role !== 'admin') {
           throw errors['staff-create-admin-only']({
             message: 'Only an admin can create a staff account',
           });
         }
-        // The source key is the other field a manager may not touch, and for a
-        // neighbouring reason: it decides which account an exchange addresses
-        // (FR-ADM-14), so typing one in is a deployment act like the ownership
-        // switch rather than the customer work a manager does. Refused outright
-        // rather than dropped, so a refusal cannot read as a save.
+        // The source key decides which account an exchange addresses
+        // (FR-ADM-14): a deployment act, not a manager's customer work.
         if (body.sourceId !== undefined && actor.role !== 'admin') {
           throw errors['source-id-change-admin-only']({
             message: 'Only an admin can change a source key',
           });
         }
-        // Checked against the role being asked for, since there is no stored
-        // row yet — the one place the rule reads the request, and safely: a
-        // request claiming a staff role is already refused above unless the
-        // actor may grant one.
+        // No stored row yet: the requested role, already checked above.
         this.refuseIfOwned({ role: body.role }, 'create a customer account');
         const user = await this.invitations.create(body, actor.id);
         this.audit.record('user.created', actor, {
@@ -132,8 +118,6 @@ export class StaffUsersController {
       .use(refusals)
       .handler(async ({ input: { params }, errors }) => {
         const user = await this.service.findById(params.id);
-        // A staff account is *not found* for a manager rather than forbidden:
-        // the list hides them, so confirming one exists here would undo that.
         if (!user || !this.mayManage(actor, user)) {
           throw errors['account-not-found'](NOT_FOUND);
         }
@@ -141,7 +125,7 @@ export class StaffUsersController {
       });
   }
 
-  // Admin only, as the lookup is: consent records are the operator's to answer for.
+  // Admin only, as the consent lookup is.
   @Auth('admin')
   @Implement(usersContract.listUserConsents)
   listUserConsents() {
@@ -164,20 +148,12 @@ export class StaffUsersController {
         if (!before || !this.mayManage(actor, before)) {
           throw errors['account-not-found'](NOT_FOUND);
         }
-        // Deciding who is *staff* is the one power this surface withholds from
-        // a manager — one who could grant a role could promote themselves. The
-        // field is refused outright, never dropped, so a refusal cannot read as
-        // a save.
+        // Refused, never dropped, so a refusal cannot read as a save.
         if (body.role !== undefined && actor.role !== 'admin') {
           throw errors['role-change-admin-only']({
             message: 'Only an admin can change a role',
           });
         }
-        // The source key is the other field a manager may not touch, and for a
-        // neighbouring reason: it decides which account an exchange addresses
-        // (FR-ADM-14), so typing one in is a deployment act like the ownership
-        // switch rather than the customer work a manager does. Refused outright
-        // rather than dropped, so a refusal cannot read as a save.
         if (body.sourceId !== undefined && actor.role !== 'admin') {
           throw errors['source-id-change-admin-only']({
             message: 'Only an admin can change a source key',
@@ -191,12 +167,8 @@ export class StaffUsersController {
       });
   }
 
-  /**
-   * One edit, up to three audit lines. Role and tier keep their own actions
-   * because they are the questions an auditor actually asks — who granted this
-   * role, who put this customer on that price list — and burying them in a
-   * generic "updated" would make them ungreppable.
-   */
+  /** Role, tier and source key get their own audit lines: they are what an
+   * auditor asks about. */
   private recordUpdate(
     actor: AuthUser,
     before: StaffUser,
@@ -212,9 +184,6 @@ export class StaffUsersController {
     if (after.tierId !== before.tierId) {
       this.audit.record('user.tierChanged', actor, entity);
     }
-    // Its own line for the reason the role and the tier have one: "who gave
-    // this account that source key" is a question an auditor asks by itself,
-    // and it is the edit that decides what an exchange may reach.
     if (after.sourceId !== before.sourceId) {
       this.audit.record('user.sourceIdChanged', actor, {
         ...entity,
@@ -226,28 +195,15 @@ export class StaffUsersController {
     }
   }
 
-  /**
-   * A manager reaches customers only. Enforced against the *stored* row, not
-   * the requested one: the list's `kind` filter is a query a crafted request
-   * can simply omit, whereas the target's own role cannot be argued with.
-   */
+  /** A manager reaches customers only, by the stored row's role. */
   private mayManage(actor: AuthUser, target: StaffUser): boolean {
     return actor.role === 'admin' || target.role === 'user';
   }
 
   /**
-   * The customer area, closed whole (FR-ADM-10, FR-AUTH-04 as amended). While
-   * an external system owns customer accounts it does everything a manager can
-   * do to one, so every write here is refused rather than a list of columns
-   * being frozen — a list would need extending each time this controller grew
-   * a handler, and the one it forgot would be the one that mattered.
-   *
-   * Two things it deliberately does not reach. Staff accounts: an admin who
-   * could not appoint another admin would have handed away more than a customer
-   * list, so the rule keys on the *target's* role, read from the stored row for
-   * the same reason `mayManage` does. And reads: the screens stay legible while
-   * the actions are refused, because staff must still be able to see what a
-   * customer sees and the work counts are read from these rows.
+   * While an external system owns customers (FR-ADM-10), every write to one
+   * is refused, not a list of columns: a list would miss the next handler.
+   * Staff accounts and reads stay open.
    */
   private refuseIfOwned(target: { role: StaffUser['role'] }, action: string) {
     if (
@@ -258,14 +214,8 @@ export class StaffUsersController {
     }
   }
 
-  /**
-   * Switching an account off, and back on.
-   *
-   * Off goes through AccountInvitations, which has the links to retire beside
-   * the status write. On is the service alone and sends nothing: the account
-   * keeps the password it had, so switching it back on is silent — its owner
-   * signs in as though nothing happened, and is never told it stopped.
-   */
+  /** Off retires the links too; on sends nothing, since the password
+   * survived. */
   @Implement(usersContract.setUserActive)
   setUserActive(@CurrentUser() actor: AuthUser) {
     return implement(usersContract.setUserActive)
@@ -301,14 +251,9 @@ export class StaffUsersController {
         if (!user || !this.mayManage(actor, user)) {
           throw errors['account-not-found'](NOT_FOUND);
         }
-        // Closed with the rest, even though it hands out no access a customer
-        // could not already ask for: the sign-in page's own "forgotten your
-        // password" still works, so nobody is locked out by this, and leaving
-        // one staff button live on an owned account would reopen the
-        // field-by-field reading the area closure exists to avoid.
+        // Closed with the rest; the holder can still ask for one themselves.
         this.refuseIfOwned(user, 'send a password link');
-        // Unlike an approval, the mail *is* the request: a failure here is
-        // reported rather than swallowed, because nothing else happened.
+        // The mail is the request, so a failure is reported.
         await this.invitations.sendPasswordLink(user);
         this.audit.record('user.invited', actor, {
           id: user.id,
@@ -336,12 +281,9 @@ export class StaffUsersController {
   }
 
   /**
-   * Deleting an account on the person's request (FR-ADM-23): the holder's own
-   * deletion, for a request that reached the shop by letter, mail or phone.
-   *
-   * An admin's alone, since it cannot be undone. Not refused while customers
-   * are externally owned: the person's right outranks the switch, and the
-   * account is reported outward as withdrawn, as a self-deleted one is.
+   * The holder's deletion, for a request that reached the shop (FR-ADM-23).
+   * An admin's alone, as it cannot be undone. Open while customers are owned
+   * elsewhere: the person's right outranks the switch.
    */
   @Auth('admin')
   @Implement(usersContract.deleteAccountOnRequest)
@@ -376,8 +318,7 @@ export class StaffUsersController {
               });
           }
         }
-        // The id only, as the holder's own deletion logs it: the address is
-        // what was just erased, and the log should not keep it.
+        // The id only: the address is what was just erased.
         this.audit.record('user.deleted', actor, {
           id: params.id,
           reason: body.reason,
@@ -388,12 +329,8 @@ export class StaffUsersController {
       });
   }
 
-  /**
-   * Exempting one account from the code after the password, or asking it
-   * again (FR-AUTH-12). An admin's alone, and only for a role the deployment
-   * lets be exempted: the rule a deployment is under decides which, so a click
-   * here can never reach past it.
-   */
+  /** Exempting one account from the sign-in step, or asking it again
+   * (FR-AUTH-12). An admin's alone, and only for an exemptable role. */
   @Auth('admin')
   @Implement(usersContract.setSignInStepExemption)
   setSignInStepExemption(@CurrentUser() actor: AuthUser) {

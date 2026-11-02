@@ -4,7 +4,7 @@ import { SessionModule } from '../../platform/auth/session.module';
 import { ConsentAdminController } from './consent-admin.controller';
 import { ConsentRecords } from './consent-records';
 
-/** The staff side of consent: the records, and the withdrawals staff enter. */
+/** The staff side of consent. */
 @Module({
   imports: [SessionModule],
   controllers: [ConsentAdminController],

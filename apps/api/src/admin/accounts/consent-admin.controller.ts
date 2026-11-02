@@ -8,12 +8,8 @@ import { ConsentRecords } from './consent-records';
 import { AuthUser } from '@b2b-catalog-platform/shared/platform';
 import { consentsContract } from '@b2b-catalog-platform/shared/admin/accounts';
 
-/**
- * Finding a person's consent records (NFR-LEGAL-09), to answer an inspection
- * or the person's own request, and entering a withdrawal that reached the
- * shop. Admin only: both are the operator's to answer, and the records name
- * people no other manager screen shows — whoever sent an inquiry.
- */
+/** A person's consent records (NFR-LEGAL-09), and withdrawals entered by
+ * staff. Admin only: they name people no manager screen shows. */
 @Auth('admin')
 @Controller()
 export class ConsentAdminController {
@@ -33,19 +29,16 @@ export class ConsentAdminController {
 
   @Implement(consentsContract.withdrawConsent)
   withdrawConsent(@CurrentUser() admin: AuthUser) {
-    return (
-      implement(consentsContract.withdrawConsent)
-        // The refusals are raised by the service.
-        .use(refusals)
-        .handler(async ({ input: { params, body } }) => {
-          const record = await this.consents.enterWithdrawal(
-            params.id,
-            admin,
-            body.note,
-          );
-          this.audit.record('consent.withdrawn', admin, { id: record.id });
-          return record;
-        })
-    );
+    return implement(consentsContract.withdrawConsent)
+      .use(refusals)
+      .handler(async ({ input: { params, body } }) => {
+        const record = await this.consents.enterWithdrawal(
+          params.id,
+          admin,
+          body.note,
+        );
+        this.audit.record('consent.withdrawn', admin, { id: record.id });
+        return record;
+      });
   }
 }
