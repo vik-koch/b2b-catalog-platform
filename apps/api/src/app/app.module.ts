@@ -9,6 +9,7 @@ import { AuthModule } from '../storefront/accounts/auth.module';
 import { ConsentAdminModule } from '../admin/accounts/consent-admin.module';
 import { InquiryModule } from '../storefront/site/inquiry.module';
 import { DatabaseModule } from '../db/database.module';
+import { AccountErasureModule } from './account-erasure.module';
 import { DestructionModule } from '../destruction/destruction.module';
 import { CatalogModule } from '../storefront/catalog/catalog.module';
 import { AdminCatalogModule } from '../admin/catalog/admin-catalog.module';
@@ -45,6 +46,7 @@ import { WorkModule } from '../work/work.module';
     StaffUsersModule,
     ConsentAdminModule,
     DestructionModule,
+    AccountErasureModule,
     AccountModule,
     OrdersModule,
     AddressesModule,

@@ -9,8 +9,8 @@ import {
   ClosedAccountSummary,
 } from '../../mail/templates/account-closed.template';
 import { accountDeletedMail } from '../../mail/templates/account-deleted.template';
-import { OrderDocumentFiles } from '../../orders/order-document-files';
 import { SharedText } from '@b2b-catalog-platform/shared';
+import { AccountErasure } from './account-erasure';
 import { UserRow, UsersService } from './users.service';
 import { LastAdminError } from './last-admin-error';
 import { env } from '../../env';
@@ -43,7 +43,7 @@ export class AccountDeletion {
     private readonly passwords: PasswordService,
     private readonly tokens: PasswordTokenService,
     private readonly mail: MailDispatcher,
-    private readonly orderDocuments: OrderDocumentFiles,
+    private readonly erasure: AccountErasure,
     @Inject(MAIL_TEXT) private readonly text: MailText,
     @Inject(SHARED_TEXT) private readonly common: SharedText,
   ) {}
@@ -131,15 +131,16 @@ export class AccountDeletion {
       }
       throw error;
     }
-    // Outside the scrub's transaction on purpose: it deletes files as well as
-    // rows, and a filesystem cannot be rolled back with a database. Run after,
-    // so a failure here leaves documents belonging to an account that is
-    // already gone rather than an account still readable with its documents
-    // deleted.
-    const removed = await this.orderDocuments.removeForUser(user.id);
-    if (removed > 0) {
-      this.logger.log(`Removed ${removed} supplied order document(s)`);
-    }
+    // Outside the scrub's transaction on purpose: it deletes files, and a
+    // filesystem cannot be rolled back with a database. Run after, so a
+    // failure here leaves files belonging to an account that is already gone
+    // rather than an account still readable with its files deleted.
+    await this.erasure.afterCommit({
+      userId: user.id,
+      kind: 'account',
+      reason: deletion.reason,
+      by: deletion.by ?? { id: user.id },
+    });
     // Any set-a-password link still out would otherwise be a way back into a
     // tombstone.
     await this.tokens.revokeOutstanding(user.id);

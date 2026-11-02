@@ -102,7 +102,7 @@ export const storefrontRoutes: Route[] = [
     path: 'account',
     canActivate: [requireAuth(), maintenanceGate],
     loadComponent: () =>
-      import('./accounts/account/account-page').then((m) => m.AccountPage),
+      import('./shell/account-home-page').then((m) => m.AccountHomePage),
   },
   {
     path: 'account/edit',

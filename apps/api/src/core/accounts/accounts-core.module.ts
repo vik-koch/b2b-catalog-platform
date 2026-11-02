@@ -17,10 +17,9 @@ import { env } from '../../env';
 import { MailModule } from '../../mail/mail.module';
 import { MailService } from '../../mail/mail.service';
 import { MAIL_TEXT, MailText } from '../../mail/mail-text';
-import { MediaModule } from '../../media/media.module';
-import { OrderDocumentFiles } from '../../orders/order-document-files';
 import { jwtSecret, SessionModule } from '../../platform/auth/session.module';
 import { AccountDeletion } from './account-deletion';
+import { AccountErasure } from './account-erasure';
 import { AccountInvitations } from './account-invitations';
 import { PasswordService } from './password.service';
 import { PasswordPolicy } from './password-policy';
@@ -38,7 +37,7 @@ import {
   SignInStep,
 } from './sign-in-step/sign-in-step';
 import { StaffUsersService } from './staff-users.service';
-import { UsersModule } from './users.module';
+import { UsersService } from './users.service';
 
 /**
  * How the step proves the number: the deployment's sidecar when it names one,
@@ -87,9 +86,8 @@ function signInStepSecret(): string {
  * `users` table, so an accounts module needs only this one.
  */
 @Module({
-  // MediaModule for the document store: closing an account deletes the files
-  // supplied for its orders, which no column-level scrub can reach.
-  imports: [SessionModule, UsersModule, MailModule, MediaModule],
+  // The erasure steps come from the app root (ACCOUNT_ERASURE_STEPS).
+  imports: [SessionModule, MailModule],
   providers: [
     // The grouping the staff notification puts back on a stored number.
     { provide: PHONE_INPUT, useFactory: loadPhoneInput },
@@ -117,12 +115,13 @@ function signInStepSecret(): string {
     PasswordResetService,
     StaffUsersService,
     AccountInvitations,
+    UsersService,
+    AccountErasure,
     AccountDeletion,
-    OrderDocumentFiles,
   ],
   exports: [
     SessionModule,
-    UsersModule,
+    UsersService,
     PHONE_INPUT,
     PHONE_RULE,
     ACCEPTED_CUSTOMER_TYPES,

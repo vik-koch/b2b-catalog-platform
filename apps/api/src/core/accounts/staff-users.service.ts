@@ -39,10 +39,7 @@ import { users } from '../../db/schema';
 import { qualified } from '../../db/sql-columns';
 import { storedPhone } from './stored-phone';
 import { withdrawAccountConsents } from '../site/consent-withdrawals';
-import {
-  recordDestruction,
-  REGISTRATION_CATEGORIES,
-} from '../../destruction/record-destruction';
+import { AccountErasure } from './account-erasure';
 import { UsersService } from './users.service';
 import { isUniqueViolation } from '../../db/pg-errors';
 import {
@@ -135,6 +132,7 @@ export class StaffUsersService {
   constructor(
     @Inject(DRIZZLE) private readonly db: NodePgDatabase<typeof schema>,
     private readonly users: UsersService,
+    private readonly erasure: AccountErasure,
     @Inject(COMPANY_ID_FORMATS)
     private readonly companyIdFormats: readonly CompanyIdFormat[],
     @Inject(ALTERNATE_LAYOUT)
@@ -598,10 +596,9 @@ export class StaffUsersService {
       // outlives the row, naming the address, for the retention period.
       if (rows.length) {
         await withdrawAccountConsents(tx, id, 'registration-declined');
-        await recordDestruction(tx, {
-          subject: 'account',
-          subjectId: id,
-          categories: REGISTRATION_CATEGORIES,
+        await this.erasure.erase(tx, {
+          userId: id,
+          kind: 'registration',
           reason: 'registration-declined',
           by,
         });

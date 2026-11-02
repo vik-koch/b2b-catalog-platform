@@ -59,12 +59,11 @@ function build(options: {
   const dispatcher = dispatcherOver(mail.send);
   const settle = () => dispatcher.flush();
 
-  // The files supplied for this account's orders (ADR 0052): bytes no
-  // column-level scrub can reach, so the deletion removes them itself.
-  const orderDocuments = {
-    removeForUser: vi.fn(async () => {
+  // The other areas' steps once the scrub has committed: the files supplied
+  // for this account's orders (ADR 0052), which no transaction can roll back.
+  const erasure = {
+    afterCommit: vi.fn(async () => {
       calls.push('documents');
-      return 0;
     }),
   };
 
@@ -73,7 +72,7 @@ function build(options: {
     passwords as never,
     tokens as never,
     dispatcher,
-    orderDocuments as never,
+    erasure as never,
     demoMailText as MailText,
     demoSharedText,
   );
@@ -84,7 +83,7 @@ function build(options: {
     passwords,
     tokens,
     mail,
-    orderDocuments,
+    erasure,
     calls,
     settle,
   };

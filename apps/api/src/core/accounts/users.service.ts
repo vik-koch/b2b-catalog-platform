@@ -5,12 +5,8 @@ import { ENDED_ORDER_STATUSES } from '@b2b-catalog-platform/shared';
 import { DRIZZLE } from '../../db/database.module';
 import * as schema from '../../db/schema';
 import { withdrawAccountConsents } from '../site/consent-withdrawals';
-import {
-  ACCOUNT_DELETION_CATEGORIES,
-  recordDestruction,
-} from '../../destruction/record-destruction';
 import { addresses, orders, signInCodes, users } from '../../db/schema';
-import { scrubOrders } from '../../orders/order-scrub';
+import { AccountErasure, Tx } from './account-erasure';
 import { LastAdminError } from './last-admin-error';
 import {
   CustomerType,
@@ -18,11 +14,6 @@ import {
 } from '@b2b-catalog-platform/shared/core/accounts';
 
 export type UserRow = typeof users.$inferSelect;
-
-/** The transaction handle Drizzle hands a `db.transaction` callback. */
-type Tx = Parameters<
-  Parameters<NodePgDatabase<typeof schema>['transaction']>[0]
->[0];
 
 /**
  * What a self-registration writes: the identity staff need to decide on it, and
@@ -43,6 +34,7 @@ export interface PendingRegistration {
 export class UsersService {
   constructor(
     @Inject(DRIZZLE) private readonly db: NodePgDatabase<typeof schema>,
+    private readonly erasure: AccountErasure,
   ) {}
 
   async findById(id: string): Promise<UserRow | undefined> {
@@ -218,8 +210,9 @@ export class UsersService {
    * `tokenVersion`), so every session issued before this stops working — the
    * caller's own included, which is why the controller clears the cookie too.
    *
-   * One transaction, because the saved addresses go with the account: an
-   * account that is half-anonymized is worse than one that is not.
+   * One transaction, the other areas' erasure steps included (their orders,
+   * the destruction record): an account that is half-anonymized is worse than
+   * one that is not.
    *
    * `by` is the admin deleting it on the person's request (FR-ADM-23), named on
    * the consent withdrawals and the destruction record the deletion writes;
@@ -242,19 +235,12 @@ export class UsersService {
       await tx.delete(addresses).where(eq(addresses.userId, id));
       // A code the account was waiting on carries the number it went to.
       await tx.delete(signInCodes).where(eq(signInCodes.userId, id));
-      // The customer-facing promise: "past orders are kept for our
-      // bookkeeping, with your details removed from them".
-      await scrubOrders(
-        tx,
-        tx.select({ id: orders.id }).from(orders).where(eq(orders.userId, id)),
-      );
       // The account consent ends with the account; its record stays, with
       // the address it was given with, for the retention period.
       await withdrawAccountConsents(tx, id, 'account-deleted', by);
-      await recordDestruction(tx, {
-        subject: 'account',
-        subjectId: id,
-        categories: ACCOUNT_DELETION_CATEGORIES,
+      await this.erasure.erase(tx, {
+        userId: id,
+        kind: 'account',
         reason,
         by: by ?? { id },
       });

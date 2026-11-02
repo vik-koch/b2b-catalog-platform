@@ -1,3 +1,4 @@
+import { AccountErasure } from './account-erasure';
 import { UsersService } from './users.service';
 import { StaffUsersService } from './staff-users.service';
 import {
@@ -15,6 +16,7 @@ describe('StaffUsersService — accepted customer types (FR-AUTH-13)', () => {
     new StaffUsersService(
       {} as never,
       {} as UsersService,
+      {} as AccountErasure,
       [],
       null,
       (value: string) => value,

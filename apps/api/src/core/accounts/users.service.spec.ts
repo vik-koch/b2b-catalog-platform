@@ -1,270 +1,7 @@
-import { getTableName } from 'drizzle-orm';
-import { drizzle, NodePgDatabase } from 'drizzle-orm/node-postgres';
-import * as schema from '../../db/schema';
+import { AccountErasure } from './account-erasure';
 import { UsersService } from './users.service';
 import { LastAdminError } from './last-admin-error';
-
-/**
- * Account deletion (FR-AUTH-06), rendered rather than executed.
- *
- * The promise the app already makes — "past orders are kept for our
- * bookkeeping, with your details removed from them" — is one UPDATE, and the
- * columns it forgets are exactly the ones nobody notices. So this asserts the
- * statement itself: which columns are scrubbed, which are deliberately left
- * alone, and that the whole thing happens inside the one transaction.
- */
-
-interface Captured {
-  table: string;
-  sql: string;
-  params: unknown[];
-}
-
-/**
- * A drizzle that builds statements for real and never runs them: every
- * terminal call renders to SQL and resolves. `select` is the genuine builder,
- * because the order scrub scopes its subquery with one.
- */
-function renderingDb(
-  captured: Captured[],
-  admins: { id: string }[] = [{ id: 'user-1' }, { id: 'other-admin' }],
-  locks: Captured[] = [],
-  reads: Captured[] = [],
-) {
-  const real = drizzle({ client: {} as never, schema });
-
-  const settle = (
-    table: string,
-    query: { toSQL: () => { sql: string; params: unknown[] } },
-  ) => {
-    const { sql, params } = query.toSQL();
-    captured.push({ table, sql, params });
-    const result = Promise.resolve() as Promise<void> & {
-      returning: () => Promise<Record<string, unknown>[]>;
-    };
-    result.returning = async () => [{ id: 'user-1' }];
-    return result;
-  };
-
-  const name = (table: unknown) => getTableName(table as never);
-
-  // The genuine builder, because the order scrub scopes its subquery with one
-  // — except for the locking read the admin guard ends with `.for('update')`,
-  // which is answered with the admin rows this test wants it to see, and the
-  // read of the account's open consents, answered with one.
-  const select = (...args: never[]) => {
-    const builder = real.select(...(args as [never]));
-    const from = builder.from.bind(builder);
-    builder.from = ((table: never) => {
-      const query = from(table);
-      const where = query.where.bind(query);
-      query.where = ((condition: never) => {
-        const filtered = where(condition);
-        if (name(table) === 'consents') {
-          const { sql, params } = filtered.toSQL();
-          reads.push({ table: name(table), sql, params });
-          filtered.then = ((resolve: (rows: unknown) => unknown) =>
-            Promise.resolve([{ id: 'consent-1' }]).then(resolve)) as never;
-        }
-        filtered.for = ((mode: string) => {
-          const { sql, params } = filtered.toSQL();
-          locks.push({ table: `${name(table)} for ${mode}`, sql, params });
-          return Promise.resolve(admins);
-        }) as never;
-        return filtered;
-      }) as never;
-      return query;
-    }) as never;
-    return builder;
-  };
-
-  const tx = {
-    select,
-    insert: (table: unknown) => ({
-      values: (values: Record<string, unknown> | Record<string, unknown>[]) =>
-        settle(name(table), real.insert(table as never).values(values)),
-    }),
-    delete: (table: unknown) => ({
-      where: (condition: unknown) =>
-        settle(
-          name(table),
-          real.delete(table as never).where(condition as never),
-        ),
-    }),
-    update: (table: unknown) => ({
-      set: (values: Record<string, unknown>) => ({
-        where: (condition: unknown) =>
-          settle(
-            name(table),
-            real
-              .update(table as never)
-              .set(values as never)
-              .where(condition as never),
-          ),
-      }),
-    }),
-  };
-
-  return {
-    select,
-    transaction: (run: (tx: unknown) => Promise<unknown>) => run(tx),
-  } as unknown as NodePgDatabase<typeof schema>;
-}
-
-describe('UsersService.anonymize', () => {
-  const captured: Captured[] = [];
-  const reads: Captured[] = [];
-  const statement = (table: string) =>
-    captured.find((entry) => entry.table === table) ?? { sql: '', params: [] };
-
-  beforeAll(async () => {
-    const service = new UsersService(
-      renderingDb(captured, undefined, [], reads),
-    );
-    await service.anonymize('user-1', 'unusable-hash', { reason: 'request' });
-  });
-
-  it('does the whole thing in one transaction', () => {
-    // Eight statements, one callback: an account that is half-anonymized is
-    // worse than one that is not, and one deleted without its record cannot
-    // be proved deleted.
-    expect(captured.map((entry) => entry.table)).toEqual([
-      'addresses',
-      // A code the account was waiting on carries a number (FR-AUTH-12).
-      'sign_in_codes',
-      'order_items',
-      // Every version of every order, not the current one alone: a superseded
-      // revision holds the same name and the same address (ADR 0051).
-      'order_revisions',
-      // The orders themselves are touched only to say they changed.
-      'orders',
-      // The account consent ends with the account (NFR-LEGAL-09).
-      'consent_withdrawals',
-      // The record that it happened (NFR-LEGAL-12).
-      'destruction_records',
-      'users',
-    ]);
-  });
-
-  it('records the destruction under the account id, by the holder', () => {
-    const { sql, params } = statement('destruction_records');
-
-    expect(sql).toContain('insert into "destruction_records"');
-    // No address anywhere: the holder's is what went.
-    expect(params).toEqual([
-      'account',
-      'user-1',
-      // As drizzle hands a varchar[] to the driver.
-      '{"account-details","addresses","order-details","order-documents"}',
-      'request',
-      'user-1',
-      null,
-    ]);
-  });
-
-  it("ends the account's consents as deleted, leaving any already ended", () => {
-    const { sql, params } = statement('consent_withdrawals');
-
-    expect(sql).toContain('insert into "consent_withdrawals"');
-    // No admin named: the holder deleted it themselves.
-    expect(params).toEqual(['consent-1', 'account-deleted', null, null]);
-    const [open] = reads;
-    expect(open.sql).toContain(
-      'where ("consents"."userId" = $1 and "consent_withdrawals"."id" is null)',
-    );
-    expect(open.params).toEqual(['user-1']);
-  });
-
-  it('marks the scrubbed orders as changed', () => {
-    // How a system that pulled these orders before the account was closed
-    // finds out the name and address it holds are gone (FR-ADM-08,
-    // NFR-LEGAL-07): the outbound read pages by this column, so an order
-    // nobody stamped never comes round again.
-    const { sql } = statement('orders');
-
-    expect(sql).toContain('"updatedAt"');
-    expect(sql).not.toContain('"status"');
-  });
-
-  it('stamps when their details went, keeping an earlier removal', () => {
-    // The retention sweep skips what is stamped (NFR-LEGAL-14), so an order
-    // it cleared last year keeps that date when its account is deleted.
-    const { sql } = statement('orders');
-
-    expect(sql).toContain(
-      '"personalDataRemovedAt" = coalesce("orders"."personalDataRemovedAt", $',
-    );
-  });
-
-  it('empties every free-text column an order can name someone in', () => {
-    const { sql } = statement('order_revisions');
-
-    for (const column of [
-      'contactName',
-      'contactEmail',
-      'contactPhone',
-      'partyName',
-      'partyRegistrationId',
-      'billingStreet',
-      'billingStreet2',
-      'billingPostalCode',
-      'billingCity',
-      'billingRegion',
-      'deliveryStreet',
-      'deliveryStreet2',
-      'deliveryPostalCode',
-      'deliveryCity',
-      'deliveryRegion',
-      'preferredDate',
-      'customerNote',
-      // A manager's account of an adjustment — their words, about this
-      // customer's order.
-      'note',
-      // What this customer was charged — the same argument that nulls tierId.
-      'tierKey',
-    ]) {
-      expect(sql).toContain(`"${column}"`);
-    }
-  });
-
-  it('leaves the bookkeeping record intact', () => {
-    const { sql } = statement('order_revisions');
-
-    // The order, its number and its money are why it is kept at all.
-    expect(sql).not.toContain('"totalMinor"');
-    expect(sql).not.toContain('"reference"');
-    expect(sql).not.toContain('"createdAt"');
-    // And it touches this account's orders only.
-    expect(sql).toContain('"orders"."userId" = $');
-  });
-
-  it('keeps a delivery order’s destination non-null, as its constraint demands', () => {
-    const { sql } = statement('order_revisions');
-
-    // `orders_fulfilment_destination` requires a delivery order to keep street,
-    // postcode, city and country — so those are overwritten where they are set
-    // and left null where they are not, rather than nulled outright.
-    expect(sql).toContain(
-      'case when "order_revisions"."deliveryStreet" is null then null else $',
-    );
-    expect(sql).toContain(
-      'case when "order_revisions"."deliveryCity" is null then null else $',
-    );
-  });
-
-  it('scrubs the customer-typed line notes, scoped to this account', () => {
-    const { sql, params } = statement('order_items');
-
-    expect(sql).toContain('set "note" = $1');
-    expect(params[0]).toBeNull();
-    // Scoped through this account's own orders, never all of them — by way of
-    // their revisions, which is what a line hangs off.
-    expect(sql).toContain(
-      '"revisionId" in (select "id" from "order_revisions"',
-    );
-    expect(sql).toContain('"orders"."userId" = $');
-  });
-});
+import { Captured, renderingDb } from './rendering-db.fixture';
 
 /**
  * The rule every admin-removal path shares: self-deletion, deactivation and a
@@ -278,7 +15,7 @@ describe('UsersService.anonymize', () => {
  */
 describe('UsersService.removingAdmin', () => {
   const service = (admins: { id: string }[]) =>
-    new UsersService(renderingDb([], admins));
+    new UsersService(renderingDb([], admins), {} as AccountErasure);
 
   it('refuses to remove the only admin who can still sign in', async () => {
     const users = service([{ id: 'admin-1' }]);
@@ -308,7 +45,10 @@ describe('UsersService.removingAdmin', () => {
    */
   it('counts only the admins who could still sign in', async () => {
     const locks: Captured[] = [];
-    const users = new UsersService(renderingDb([], [{ id: 'a' }], locks));
+    const users = new UsersService(
+      renderingDb([], [{ id: 'a' }], locks),
+      {} as AccountErasure,
+    );
 
     await users.removingAdmin('a', async () => null).catch(() => undefined);
 
@@ -325,7 +65,10 @@ describe('UsersService.removingAdmin', () => {
 
   it('locks every admin row, the removed one included', async () => {
     const locks: Captured[] = [];
-    const users = new UsersService(renderingDb([], [{ id: 'a' }], locks));
+    const users = new UsersService(
+      renderingDb([], [{ id: 'a' }], locks),
+      {} as AccountErasure,
+    );
 
     await users.removingAdmin('a', async () => null).catch(() => undefined);
 

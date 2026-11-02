@@ -2,19 +2,15 @@ import { SHARED_TEXT } from '../../../shared/config/shared-text';
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { OrderSummary } from '@b2b-catalog-platform/shared';
 import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
 import { defaultStorefrontText } from '../../../shared/config/storefront-text.fixture';
 import { defaultSharedText } from '../../../shared/config/shared-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
 import { defaultDeploymentConfig } from '../../../shared/config/deployment-config.fixture';
 import { AuthService } from '../../../shared/auth/auth.service';
-import { WorkService } from '../../../shared/work/work.service';
-import { workStub } from '../../../shared/work/work.fixture';
 import { plainUser } from '../../../shared/auth/auth-user.fixture';
 import { AccountPage } from './account-page';
 import { AddressesService } from '../../../core/accounts/addresses/addresses.service';
-import { OrdersService } from '../../orders/orders.service';
 import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
 import { AccountService } from './account.service';
 import { Address } from '@b2b-catalog-platform/shared/core/accounts';
@@ -50,20 +46,6 @@ const savedAddress: Address = {
   updatedAt: '2026-03-01T10:00:00.000Z',
 };
 
-/** One of the account's orders, as the list endpoint summarizes it. */
-function order(reference: string): OrderSummary {
-  return {
-    reference,
-    status: 'requested',
-    paymentState: 'not-due',
-    fulfilmentMethod: 'delivery',
-    createdAt: '2026-03-02T10:00:00.000Z',
-    itemCount: 3,
-    totalMinor: 12500,
-    currency: 'EUR',
-  };
-}
-
 interface AddressHarness {
   list: ReturnType<typeof vi.fn>;
   remove: ReturnType<typeof vi.fn>;
@@ -74,8 +56,6 @@ async function render(
   profile: AccountProfile | 'reject',
   addresses: Address[] | 'reject' = [],
   confirmed = true,
-  orders: OrderSummary[] | 'reject' = [],
-  waiting: { myPayments?: number; myPickups?: number } = {},
 ) {
   const h: AddressHarness = {
     list: vi.fn(() =>
@@ -98,26 +78,7 @@ async function render(
         provide: AuthService,
         useValue: { user: signal(plainUser), logout: vi.fn() },
       },
-      { provide: WorkService, useValue: workStub(waiting) },
       { provide: AddressesService, useValue: h },
-      {
-        provide: OrdersService,
-        useValue: {
-          listMine: vi.fn(() =>
-            orders === 'reject'
-              ? Promise.reject(new Error('500'))
-              : Promise.resolve({
-                  items: orders,
-                  pagination: {
-                    page: 1,
-                    pageSize: 10,
-                    total: orders.length,
-                    totalPages: 1,
-                  },
-                }),
-          ),
-        },
-      },
       { provide: ConfirmService, useValue: { ask: h.ask } },
       {
         provide: AccountService,
@@ -276,97 +237,6 @@ describe('AccountPage', () => {
 
   // FR-ACC-01, on the account page itself: the newest few, so the order
   // somebody came here to look up is on screen rather than a click away.
-  describe('the recent orders', () => {
-    it('lists the newest orders and links each of them', async () => {
-      const { el } = await render(customer, [], true, [
-        order('CK-2026-0002'),
-        order('CK-2026-0001'),
-      ]);
-
-      expect(el.textContent).toContain('CK-2026-0002');
-      expect(
-        el.querySelector('a[href="/account/orders/CK-2026-0002"]'),
-      ).not.toBeNull();
-    });
-
-    // Five on the card; the sixth is what the history page is for.
-    it('shows at most five, and offers the rest only when there are more', async () => {
-      const many = Array.from({ length: 6 }, (_, i) =>
-        order(`CK-2026-000${i + 1}`),
-      );
-      const { el } = await render(customer, [], true, many);
-
-      expect(el.querySelectorAll('a[href^="/account/orders/"]')).toHaveLength(
-        5,
-      );
-      expect(el.querySelector('a[href="/account/orders"]')).not.toBeNull();
-    });
-
-    // A button that opens the same five rows on another page is a click that
-    // changes nothing.
-    it('offers no history page when the card is already the whole of it', async () => {
-      const { el } = await render(customer, [], true, [order('CK-2026-0001')]);
-
-      expect(el.querySelector('a[href="/account/orders"]')).toBeNull();
-    });
-
-    it('says there are none yet, and where to start', async () => {
-      const { el } = await render(customer, [], true, []);
-
-      expect(el.textContent).toContain(defaultStorefrontText.orders.empty);
-      expect(el.querySelector('a[href="/catalog"]')).not.toBeNull();
-    });
-
-    it('reports orders it could not load without hiding the rest', async () => {
-      const { el } = await render(customer, [], true, 'reject');
-
-      expect(el.textContent).toContain(defaultStorefrontText.orders.error);
-      expect(el.textContent).toContain('Fischer Alex');
-    });
-
-    /*
-     * What waits on the customer (FR-WORK-03), above the rows it is about —
-     * the other end of the marker on the account control. Two queues rather
-     * than one figure: each note links to the history narrowed to exactly the
-     * orders it counted, so a customer who came to pay lands on what is owed
-     * and not on their whole history.
-     */
-    it('says what is waiting on the account holder, and links to it', async () => {
-      const { el } = await render(customer, [], true, [order('CK-2026-0001')], {
-        myPayments: 2,
-        myPickups: 1,
-      });
-
-      const notes = [...el.querySelectorAll('a[uiActionLink]')];
-      expect(notes[0].textContent).toContain('2 waiting to be paid');
-      expect(notes[0].getAttribute('href')).toBe(
-        '/account/orders?state=to-pay',
-      );
-      expect(notes[1].textContent).toContain('1 ready to collect');
-      expect(notes[1].getAttribute('href')).toBe(
-        '/account/orders?state=to-collect',
-      );
-    });
-
-    /** Each stands on its own: a customer with money owed and nothing to
-     * collect is told about the money and nothing else. */
-    it('draws only the queue that has something in it', async () => {
-      const { el } = await render(customer, [], true, [order('CK-2026-0001')], {
-        myPickups: 1,
-      });
-
-      const notes = [...el.querySelectorAll('a[uiActionLink]')];
-      expect(notes).toHaveLength(1);
-      expect(notes[0].textContent).toContain('1 ready to collect');
-    });
-
-    it('says nothing when nothing waits on them', async () => {
-      const { el } = await render(customer, [], true, [order('CK-2026-0001')]);
-
-      expect(el.querySelector('a[uiActionLink]')).toBeNull();
-    });
-  });
-
   // Two answers to one question, on two round trips: drawn as each lands, the
   // card grows a second time under somebody already reading the first half.
   it('holds the whole card back until both halves have answered', async () => {
@@ -386,21 +256,11 @@ describe('AccountPage', () => {
           provide: AuthService,
           useValue: { user: signal(plainUser), logout: vi.fn() },
         },
-        { provide: WorkService, useValue: workStub() },
         { provide: AddressesService, useValue: { list: () => pending } },
         { provide: ConfirmService, useValue: { ask: vi.fn() } },
         {
           provide: AccountService,
           useValue: { getProfile: vi.fn(async () => customer) },
-        },
-        {
-          provide: OrdersService,
-          useValue: {
-            listMine: vi.fn(async () => ({
-              items: [],
-              pagination: { page: 1, pageSize: 10, total: 0, totalPages: 1 },
-            })),
-          },
         },
       ],
     });

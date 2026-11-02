@@ -12,8 +12,6 @@ import { SHARED_TEXT } from '../../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
 import { formatPhone } from '../../../shared/core/contact-fields';
 import { usePageSeo } from '../../../shared/core/page-seo';
-import { OrderRows } from '../../orders/order-rows';
-import { OrdersService } from '../../orders/orders.service';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import {
   confirmRequest,
@@ -22,15 +20,12 @@ import {
 import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
-import { ActionLink } from '@b2b-catalog-platform/ui/actions/action-link';
-import { WorkService } from '../../../shared/work/work.service';
 import { AccountService } from './account.service';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { lockIcon } from '@b2b-catalog-platform/ui/icons/glyphs/lock';
 import { mapPinIcon } from '@b2b-catalog-platform/ui/icons/glyphs/map-pin';
 import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
-import { shoppingBasketIcon } from '@b2b-catalog-platform/ui/icons/glyphs/shopping-basket';
 import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
 import { userIcon } from '@b2b-catalog-platform/ui/icons/glyphs/user';
 import { Card } from '@b2b-catalog-platform/ui/content/card';
@@ -39,14 +34,6 @@ import {
   Address,
   formatPersonName,
 } from '@b2b-catalog-platform/shared/core/accounts';
-
-/**
- * How many of the newest orders the account page itself shows. Enough that a
- * customer who came to look up what they sent last week finds it here, few
- * enough that the card stays a card — the rest is what the history page is
- * for.
- */
-const RECENT_ORDERS = 5;
 
 /**
  * Whether a resource has an answer of any kind. `isLoading` alone is false
@@ -68,8 +55,8 @@ interface DetailRow {
 /**
  * The customer's own area, in the same section-per-topic shape as the admin
  * panel: greeting, then what is on the account. The address book is a section
- * here rather than a page of its own, and so are the newest orders — the full
- * history keeps its page, because it is paged and grows for years.
+ * here rather than a page of its own. The newest orders come first, projected
+ * by the shell.
  *
  * Details are read-only for now. Nothing here is editable by its owner yet —
  * the fields staff approved the account on are evidence for a decision, so the
@@ -84,10 +71,8 @@ interface DetailRow {
     Skeleton,
     Button,
     IconButton,
-    OrderRows,
     RouterLink,
     Icon,
-    ActionLink,
     PageTitle,
     ErrorText,
   ],
@@ -105,81 +90,9 @@ interface DetailRow {
            section: the space between two cards is a property of the list
            they are in, not of each card. -->
       <div class="mt-7 flex flex-col gap-7">
-        <!-- Order history (FR-ACC-01). The newest few, not a link to them: an
-             order history is paged and grows for years, but what somebody comes
-             here for is the one they sent last week — and it was a click away
-             behind a button that only said the list existed. The page itself is
-             still there for the rest of it. -->
-        <section>
-          <h2 uiSectionTitle class="mb-1.5 flex items-center gap-2">
-            <ui-icon [glyph]="shoppingBasketIcon" class="size-4" />
-            {{ orderText.heading }}
-          </h2>
-          <!-- As above: the frame and its bars from the first frame. -->
-          <div uiCard>
-            <!-- What waits on the account holder, above the rows it is about
-                 (FR-WORK-03): the same amber line the marker on the account
-                 control leads here for, and the link opens the history it is
-                 about. Money due from them, and an order packed for them to
-                 collect — silent when neither is true. -->
-            @if (waitingPayments() || waitingPickups()) {
-              <!-- Stacked, as the admin panel's two order notes are: money owed
-                   and a parcel on the counter are two jobs with two lists. -->
-              <div class="mb-4 flex flex-col gap-1">
-                @if (waitingPayments(); as count) {
-                  <a
-                    uiActionLink
-                    routerLink="/account/orders"
-                    [queryParams]="{ state: 'to-pay' }"
-                    >{{ fill(orderText.awaitingPayment, count) }}</a
-                  >
-                }
-                @if (waitingPickups(); as count) {
-                  <a
-                    uiActionLink
-                    routerLink="/account/orders"
-                    [queryParams]="{ state: 'to-collect' }"
-                    >{{ fill(orderText.awaitingPickup, count) }}</a
-                  >
-                }
-              </div>
-            }
-            @if (!ordersReady()) {
-              <ui-skeleton [lines]="3" />
-            } @else if (recentOrders(); as recent) {
-              @if (recent.length === 0) {
-                <p class="text-sm text-ink-subtle">{{ orderText.empty }}</p>
-                <a
-                  uiButton
-                  variant="secondary"
-                  routerLink="/catalog"
-                  class="mt-5"
-                >
-                  {{ orderText.emptyAction }}
-                </a>
-              } @else {
-                <app-order-rows [orders]="recent" />
-                <!-- Only where there is more than what is on screen: a button that
-                     opens the same five rows on another page is a click that
-                     changes nothing. -->
-                @if (hasMoreOrders()) {
-                  <a
-                    uiButton
-                    variant="secondary"
-                    routerLink="/account/orders"
-                    class="mt-5"
-                  >
-                    {{ orderText.action }}
-                  </a>
-                }
-              }
-            } @else {
-              <p uiErrorText role="alert">
-                {{ orderText.error }}
-              </p>
-            }
-          </div>
-        </section>
+        <!-- The newest orders, which the shell puts in: they are ordering's,
+             and an account page that read them would import it. -->
+        <ng-content />
 
         <!-- Section headings carry a muted glyph for the topic, as the admin
              panel's do.
@@ -399,12 +312,10 @@ export class AccountPage {
   protected readonly lockIcon = lockIcon;
   protected readonly mapPinIcon = mapPinIcon;
   protected readonly pencilIcon = pencilIcon;
-  protected readonly shoppingBasketIcon = shoppingBasketIcon;
   protected readonly trash2Icon = trash2Icon;
   protected readonly userIcon = userIcon;
 
   private readonly account = inject(AccountService);
-  private readonly api = inject(OrdersService);
   private readonly locale = inject(DEPLOYMENT_CONFIG).locale;
   private readonly phoneInput = inject(DEPLOYMENT_CONFIG).phoneInput;
 
@@ -417,25 +328,7 @@ export class AccountPage {
   private readonly sharedText = inject(SHARED_TEXT);
   protected readonly deleteText = inject(STOREFRONT_TEXT).account.delete;
   protected readonly addressText = inject(STOREFRONT_TEXT).account.addresses;
-  protected readonly orderText = inject(STOREFRONT_TEXT).orders;
   protected readonly actionText = inject(SHARED_TEXT).actions;
-
-  private readonly work = inject(WorkService);
-
-  /** `undefined` where nothing is waiting, so a line is drawn only when there
-   * is something to say. Two queues rather than one figure: paying an invoice
-   * and collecting a parcel are separate jobs, and each note links to the
-   * history narrowed to exactly the orders it counted. */
-  protected readonly waitingPayments = computed(
-    () => this.work.counts().myPayments || undefined,
-  );
-  protected readonly waitingPickups = computed(
-    () => this.work.counts().myPickups || undefined,
-  );
-
-  protected fill(template: string, count: number): string {
-    return fillText(template, { count });
-  }
 
   protected readonly profile = resource({
     loader: () => this.account.getProfile(),
@@ -453,32 +346,6 @@ export class AccountPage {
    */
   protected readonly profileReady = computed(
     () => settled(this.profile) && settled(this.addresses),
-  );
-
-  /**
-   * The order history's own first page, of which this card shows the newest
-   * few. Deliberately the same call the list page makes rather than an
-   * endpoint of its own: the count on the answer is also how this card knows
-   * whether there is anything more to send anybody to.
-   */
-  protected readonly orders = resource({
-    loader: () => this.api.listMine(1),
-  });
-  /** Whether the history card has an answer of any kind to draw. */
-  protected readonly ordersReady = computed(() => settled(this.orders));
-
-  /** Null while loading or failed — `value()` throws on an errored resource. */
-  protected readonly recentOrders = computed(() =>
-    this.orders.hasValue()
-      ? this.orders.value().items.slice(0, RECENT_ORDERS)
-      : null,
-  );
-
-  /** Whether the history holds more than this card is showing. */
-  protected readonly hasMoreOrders = computed(
-    () =>
-      this.orders.hasValue() &&
-      this.orders.value().pagination.total > RECENT_ORDERS,
   );
 
   /** Its label, or where it is when it was never given one. */
