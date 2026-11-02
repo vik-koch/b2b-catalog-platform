@@ -1,17 +1,10 @@
-import {
-  ExecutionContext,
-  INestApplication,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { INestApplication } from '@nestjs/common';
 import { APP_GUARD, Reflector } from '@nestjs/core';
 import { Test } from '@nestjs/testing';
 import { AdminMaintenanceController } from './maintenance.controller';
 import { MaintenanceSwitch } from './maintenance-switch';
 import { MaintenanceGuard } from '../../core/site/maintenance.guard';
-import { JwtAuthGuard } from '../../platform/auth/jwt-auth.guard';
-import { RolesGuard } from '../../platform/auth/roles.guard';
-import { Roles } from '../../platform/auth/roles.decorator';
-import type { UserRole } from '@b2b-catalog-platform/shared/platform';
+import { SignedInAs, withSession } from '../../platform/auth/session.fixture';
 
 /** Over a real server: the role guards and the gate must still find their
  * metadata on a handler the contract layer registered. */
@@ -23,50 +16,29 @@ describe('AdminMaintenanceController', () => {
     read: async () => ({ enabled: maintenanceOn }),
     set: vi.fn(async (enabled: boolean) => ({ enabled })),
   };
-  let signedInAs: { id: string; role: UserRole } | null = null;
+  let signedInAs: SignedInAs | null = null;
 
   beforeAll(async () => {
-    const moduleRef = await Test.createTestingModule({
-      controllers: [AdminMaintenanceController],
-      providers: [
-        { provide: MaintenanceSwitch, useValue: maintenance },
-        // The real gate, with no session to find.
-        {
-          provide: APP_GUARD,
-          inject: [Reflector],
-          useFactory: (reflector: Reflector) =>
-            new MaintenanceGuard(
-              reflector,
-              { isEnabled: () => maintenanceOn } as never,
-              { read: async () => null } as never,
-            ),
-        },
-      ],
-    })
-      .overrideGuard(JwtAuthGuard)
-      .useValue({
-        canActivate: (context: {
-          switchToHttp(): { getRequest(): { user?: unknown } };
-        }) => {
-          // Throws like the real guard: a `false` would be a 403.
-          if (!signedInAs) throw new UnauthorizedException();
-          context.switchToHttp().getRequest().user = signedInAs;
-          return true;
-        },
-      })
-      .overrideGuard(RolesGuard)
-      .useValue({
-        canActivate: (context: ExecutionContext) => {
-          const roles = new Reflector().getAllAndOverride(Roles, [
-            context.getHandler(),
-            context.getClass(),
-          ]);
-          return (
-            !!signedInAs && (!roles?.length || roles.includes(signedInAs.role))
-          );
-        },
-      })
-      .compile();
+    const moduleRef = await withSession(
+      Test.createTestingModule({
+        controllers: [AdminMaintenanceController],
+        providers: [
+          { provide: MaintenanceSwitch, useValue: maintenance },
+          // The real gate, with no session to find.
+          {
+            provide: APP_GUARD,
+            inject: [Reflector],
+            useFactory: (reflector: Reflector) =>
+              new MaintenanceGuard(
+                reflector,
+                { isEnabled: () => maintenanceOn } as never,
+                { read: async () => null } as never,
+              ),
+          },
+        ],
+      }),
+      () => signedInAs,
+    ).compile();
 
     app = moduleRef.createNestApplication();
     app.setGlobalPrefix('api');

@@ -1,8 +1,4 @@
-import {
-  ConflictException,
-  INestApplication,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { ConflictException, INestApplication } from '@nestjs/common';
 import { APP_FILTER } from '@nestjs/core';
 import { Test } from '@nestjs/testing';
 import { StaffUsersController } from './staff-users.controller';
@@ -11,11 +7,10 @@ import { SignInStep } from '../../core/accounts/sign-in-step/sign-in-step';
 import { AccountInvitations } from '../../core/accounts/account-invitations';
 import { AuditLogger } from '../../audit/audit.logger';
 import { ContractErrorFilter } from '../../orpc/contract-error.filter';
-import { JwtAuthGuard } from '../../platform/auth/jwt-auth.guard';
-import { RolesGuard } from '../../platform/auth/roles.guard';
 import { OwnershipState } from '../../settings/ownership-state';
 import { ConsentRecords } from './consent-records';
 import { AccountDeletion } from '../../core/accounts/account-deletion';
+import { SignedInAs, withSession } from '../../platform/auth/session.fixture';
 
 /**
  * The role boundary is the whole point of this surface, and it is the kind of
@@ -26,7 +21,7 @@ import { AccountDeletion } from '../../core/accounts/account-deletion';
 describe('StaffUsersController', () => {
   let app: INestApplication;
   let baseUrl: string;
-  let actor: { id: string; role: string } = { id: 'admin-1', role: 'admin' };
+  let actor: SignedInAs = { id: 'admin-1', role: 'admin' };
 
   const list = vi.fn();
   const findById = vi.fn();
@@ -84,54 +79,46 @@ describe('StaffUsersController', () => {
   };
 
   beforeAll(async () => {
-    const moduleRef = await Test.createTestingModule({
-      controllers: [StaffUsersController],
-      providers: [
-        {
-          provide: StaffUsersService,
-          useValue: {
-            list,
-            findById,
-            update,
-            purgePending,
-            approve,
-            reactivate,
-            setSignInStepExemption,
+    const moduleRef = await withSession(
+      Test.createTestingModule({
+        controllers: [StaffUsersController],
+        providers: [
+          {
+            provide: StaffUsersService,
+            useValue: {
+              list,
+              findById,
+              update,
+              purgePending,
+              approve,
+              reactivate,
+              setSignInStepExemption,
+            },
           },
-        },
-        {
-          provide: SignInStep,
-          useValue: { mayExempt: (role: string) => exemptable.includes(role) },
-        },
-        {
-          provide: AccountInvitations,
-          useValue: { create, deactivate, sendPasswordLink, send: vi.fn() },
-        },
-        { provide: AuditLogger, useValue: { record } },
-        { provide: AccountDeletion, useValue: { deleteOnRequest } },
-        { provide: ConsentRecords, useValue: { findByAccount } },
-        {
-          provide: OwnershipState,
-          useValue: {
-            isExternallyOwned: (area: string) => ownedAreas.includes(area),
+          {
+            provide: SignInStep,
+            useValue: {
+              mayExempt: (role: string) => exemptable.includes(role),
+            },
           },
-        },
-        { provide: APP_FILTER, useClass: ContractErrorFilter },
-      ],
-    })
-      .overrideGuard(JwtAuthGuard)
-      .useValue({
-        canActivate: (context: {
-          switchToHttp(): { getRequest(): { user?: unknown } };
-        }) => {
-          if (!actor) throw new UnauthorizedException();
-          context.switchToHttp().getRequest().user = actor;
-          return true;
-        },
-      })
-      .overrideGuard(RolesGuard)
-      .useValue({ canActivate: () => true })
-      .compile();
+          {
+            provide: AccountInvitations,
+            useValue: { create, deactivate, sendPasswordLink, send: vi.fn() },
+          },
+          { provide: AuditLogger, useValue: { record } },
+          { provide: AccountDeletion, useValue: { deleteOnRequest } },
+          { provide: ConsentRecords, useValue: { findByAccount } },
+          {
+            provide: OwnershipState,
+            useValue: {
+              isExternallyOwned: (area: string) => ownedAreas.includes(area),
+            },
+          },
+          { provide: APP_FILTER, useClass: ContractErrorFilter },
+        ],
+      }),
+      () => actor,
+    ).compile();
 
     app = moduleRef.createNestApplication();
     app.setGlobalPrefix('api');

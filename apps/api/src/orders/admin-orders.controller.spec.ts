@@ -1,15 +1,14 @@
-import { INestApplication, UnauthorizedException } from '@nestjs/common';
+import { INestApplication } from '@nestjs/common';
 import { APP_FILTER } from '@nestjs/core';
 import { Test } from '@nestjs/testing';
 import { AuditLogger } from '../audit/audit.logger';
-import { JwtAuthGuard } from '../platform/auth/jwt-auth.guard';
-import { RolesGuard } from '../platform/auth/roles.guard';
 import { ContractErrorFilter } from '../orpc/contract-error.filter';
 import { OwnershipState } from '../settings/ownership-state';
 import { AdminOrdersController } from './admin-orders.controller';
 import { demoAdminOrder } from './order.fixture';
 import { OrderPersonalData } from './order-personal-data';
 import { OrdersService } from './orders.service';
+import { SignedInAs, withSession } from '../platform/auth/session.fixture';
 
 /**
  * Order processing as an owned area (FR-ADM-10). The rule only shows itself
@@ -20,7 +19,7 @@ import { OrdersService } from './orders.service';
 describe('AdminOrdersController', () => {
   let app: INestApplication;
   let baseUrl: string;
-  let actor: { id: string; role: string } = { id: 'admin-1', role: 'admin' };
+  let actor: SignedInAs = { id: 'admin-1', role: 'admin' };
   /** Which areas an external system holds, per test. */
   let ownedAreas: string[] = [];
 
@@ -85,47 +84,37 @@ describe('AdminOrdersController', () => {
   };
 
   beforeAll(async () => {
-    const moduleRef = await Test.createTestingModule({
-      controllers: [AdminOrdersController],
-      providers: [
-        {
-          provide: OrdersService,
-          useValue: {
-            listAll,
-            getForStaff,
-            transitionForStaff,
-            getRevisions,
-            getRevision,
-            previewAdjustment,
-            adjust,
-            showCustomerCurrent,
-            setPayment,
+    const moduleRef = await withSession(
+      Test.createTestingModule({
+        controllers: [AdminOrdersController],
+        providers: [
+          {
+            provide: OrdersService,
+            useValue: {
+              listAll,
+              getForStaff,
+              transitionForStaff,
+              getRevisions,
+              getRevision,
+              previewAdjustment,
+              adjust,
+              showCustomerCurrent,
+              setPayment,
+            },
           },
-        },
-        { provide: OrderPersonalData, useValue: { removeOnRequest } },
-        { provide: AuditLogger, useValue: { record: vi.fn() } },
-        {
-          provide: OwnershipState,
-          useValue: {
-            isExternallyOwned: (area: string) => ownedAreas.includes(area),
+          { provide: OrderPersonalData, useValue: { removeOnRequest } },
+          { provide: AuditLogger, useValue: { record: vi.fn() } },
+          {
+            provide: OwnershipState,
+            useValue: {
+              isExternallyOwned: (area: string) => ownedAreas.includes(area),
+            },
           },
-        },
-        { provide: APP_FILTER, useClass: ContractErrorFilter },
-      ],
-    })
-      .overrideGuard(JwtAuthGuard)
-      .useValue({
-        canActivate: (context: {
-          switchToHttp(): { getRequest(): { user?: unknown } };
-        }) => {
-          if (!actor) throw new UnauthorizedException();
-          context.switchToHttp().getRequest().user = actor;
-          return true;
-        },
-      })
-      .overrideGuard(RolesGuard)
-      .useValue({ canActivate: () => true })
-      .compile();
+          { provide: APP_FILTER, useClass: ContractErrorFilter },
+        ],
+      }),
+      () => actor,
+    ).compile();
 
     app = moduleRef.createNestApplication();
     app.setGlobalPrefix('api');

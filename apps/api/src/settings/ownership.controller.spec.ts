@@ -1,16 +1,8 @@
-import {
-  ExecutionContext,
-  INestApplication,
-  UnauthorizedException,
-} from '@nestjs/common';
-import { Reflector } from '@nestjs/core';
+import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { OwnershipController } from './ownership.controller';
 import { OwnershipSwitch } from './ownership-switch';
-import { JwtAuthGuard } from '../platform/auth/jwt-auth.guard';
-import { RolesGuard } from '../platform/auth/roles.guard';
-import { Roles } from '../platform/auth/roles.decorator';
-import type { UserRole } from '@b2b-catalog-platform/shared/platform';
+import { SignedInAs, withSession } from '../platform/auth/session.fixture';
 
 /**
  * Over a real server, because the questions here are about what the framework
@@ -24,38 +16,16 @@ describe('OwnershipController (FR-ADM-10)', () => {
     read: async () => ({ ownedAreas: [] }),
     set: vi.fn(async (areas: string[]) => ({ ownedAreas: areas })),
   };
-  let signedInAs: { id: string; role: UserRole } | null = null;
+  let signedInAs: SignedInAs | null = null;
 
   beforeAll(async () => {
-    const moduleRef = await Test.createTestingModule({
-      controllers: [OwnershipController],
-      providers: [{ provide: OwnershipSwitch, useValue: ownership }],
-    })
-      .overrideGuard(JwtAuthGuard)
-      .useValue({
-        canActivate: (context: {
-          switchToHttp(): { getRequest(): { user?: unknown } };
-        }) => {
-          // Throwing rather than declining, as the real guard does: a guard
-          // that returns false gets Nest's default 403.
-          if (!signedInAs) throw new UnauthorizedException();
-          context.switchToHttp().getRequest().user = signedInAs;
-          return true;
-        },
-      })
-      .overrideGuard(RolesGuard)
-      .useValue({
-        canActivate: (context: ExecutionContext) => {
-          const roles = new Reflector().getAllAndOverride(Roles, [
-            context.getHandler(),
-            context.getClass(),
-          ]);
-          return (
-            !!signedInAs && (!roles?.length || roles.includes(signedInAs.role))
-          );
-        },
-      })
-      .compile();
+    const moduleRef = await withSession(
+      Test.createTestingModule({
+        controllers: [OwnershipController],
+        providers: [{ provide: OwnershipSwitch, useValue: ownership }],
+      }),
+      () => signedInAs,
+    ).compile();
 
     app = moduleRef.createNestApplication();
     app.setGlobalPrefix('api');

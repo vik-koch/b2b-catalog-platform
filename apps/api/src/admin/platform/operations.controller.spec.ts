@@ -1,61 +1,32 @@
-import {
-  ExecutionContext,
-  INestApplication,
-  UnauthorizedException,
-} from '@nestjs/common';
-import { Reflector } from '@nestjs/core';
+import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { OperationsController } from './operations.controller';
 import { OperationsService } from './operations.service';
-import { JwtAuthGuard } from '../../platform/auth/jwt-auth.guard';
-import { RolesGuard } from '../../platform/auth/roles.guard';
-import { Roles } from '../../platform/auth/roles.decorator';
-import type { UserRole } from '@b2b-catalog-platform/shared/platform';
+import { SignedInAs, withSession } from '../../platform/auth/session.fixture';
 
 /** Over a real server: the role guards must still find their metadata on a
  * handler the contract layer registered. */
 describe('OperationsController', () => {
   let app: INestApplication;
   let baseUrl: string;
-  let signedInAs: { id: string; role: UserRole } | null = null;
+  let signedInAs: SignedInAs | null = null;
 
   beforeAll(async () => {
-    const moduleRef = await Test.createTestingModule({
-      controllers: [OperationsController],
-      providers: [
-        {
-          provide: OperationsService,
-          useValue: {
-            getBuildInfo: () => ({ version: '1.5.3', deployedAt: null }),
-            listChanges: async () => [],
+    const moduleRef = await withSession(
+      Test.createTestingModule({
+        controllers: [OperationsController],
+        providers: [
+          {
+            provide: OperationsService,
+            useValue: {
+              getBuildInfo: () => ({ version: '1.5.3', deployedAt: null }),
+              listChanges: async () => [],
+            },
           },
-        },
-      ],
-    })
-      .overrideGuard(JwtAuthGuard)
-      .useValue({
-        canActivate: (context: {
-          switchToHttp(): { getRequest(): { user?: unknown } };
-        }) => {
-          // Throws like the real guard: a `false` would be a 403.
-          if (!signedInAs) throw new UnauthorizedException();
-          context.switchToHttp().getRequest().user = signedInAs;
-          return true;
-        },
-      })
-      .overrideGuard(RolesGuard)
-      .useValue({
-        canActivate: (context: ExecutionContext) => {
-          const roles = new Reflector().getAllAndOverride(Roles, [
-            context.getHandler(),
-            context.getClass(),
-          ]);
-          return (
-            !!signedInAs && (!roles?.length || roles.includes(signedInAs.role))
-          );
-        },
-      })
-      .compile();
+        ],
+      }),
+      () => signedInAs,
+    ).compile();
 
     app = moduleRef.createNestApplication();
     app.setGlobalPrefix('api');

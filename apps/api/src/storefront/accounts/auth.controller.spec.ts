@@ -1,4 +1,4 @@
-import { INestApplication, UnauthorizedException } from '@nestjs/common';
+import { INestApplication } from '@nestjs/common';
 import { APP_FILTER, APP_GUARD, Reflector } from '@nestjs/core';
 import { Test } from '@nestjs/testing';
 import { ThrottlerGuard } from '@nestjs/throttler';
@@ -9,8 +9,6 @@ import { PasswordRejectedError } from '../../core/accounts/password-rejected-err
 import { PasswordResetService } from '../../core/accounts/password-reset.service';
 import { PasswordSetupService } from './password-setup.service';
 import { RegistrationService } from './registration.service';
-import { JwtAuthGuard } from '../../platform/auth/jwt-auth.guard';
-import { RolesGuard } from '../../platform/auth/roles.guard';
 import { MaintenanceGuard } from '../../core/site/maintenance.guard';
 import { MaintenanceState } from '../../core/site/maintenance-state';
 import { ContractErrorFilter } from '../../orpc/contract-error.filter';
@@ -32,6 +30,7 @@ import {
   MAINTENANCE_REFUSED,
   PASSWORD_TOKEN_INVALID,
 } from '@b2b-catalog-platform/shared/core/accounts';
+import { SignedInAs, withSession } from '../../platform/auth/session.fixture';
 
 /**
  * The whole point of this surface is what it does *not* say, and what it puts
@@ -42,7 +41,7 @@ describe('AuthController', () => {
   let app: INestApplication;
   let baseUrl: string;
   let maintenanceOn = false;
-  let signedInAs: { id: string; role: string } | null = null;
+  let signedInAs: SignedInAs | null = null;
 
   const user = {
     id: '11111111-1111-4111-8111-111111111111',
@@ -84,60 +83,42 @@ describe('AuthController', () => {
   };
 
   beforeAll(async () => {
-    const moduleRef = await Test.createTestingModule({
-      controllers: [AuthController],
-      providers: [
-        { provide: AuthService, useValue: auth },
-        { provide: RegistrationService, useValue: registration },
-        { provide: PasswordSetupService, useValue: passwordSetup },
-        { provide: PasswordResetService, useValue: passwordReset },
-        { provide: SignInStep, useValue: step },
-        { provide: Sessions, useValue: sessions },
-        {
-          provide: SIGN_IN_PROOF,
-          useValue: { kind: 'call', check: standIn },
-        },
-        { provide: PHONE_RULE, useValue: (value: string) => value },
-        { provide: APP_FILTER, useClass: ContractErrorFilter },
-        {
-          provide: MaintenanceState,
-          useValue: { isEnabled: () => maintenanceOn },
-        },
-        // The real gate, with only its admin-cookie check stubbed out: what is
-        // under test is whether it still finds the route metadata.
-        {
-          provide: APP_GUARD,
-          inject: [Reflector, MaintenanceState],
-          useFactory: (reflector: Reflector, maintenance: MaintenanceState) =>
-            new MaintenanceGuard(reflector, maintenance, {
-              read: async () => null,
-            } as never),
-        },
-      ],
-    })
-      .overrideGuard(ThrottlerGuard)
-      .useValue({ canActivate: () => true })
-      .overrideGuard(JwtAuthGuard)
-      .useValue({
-        canActivate: (context: {
-          switchToHttp(): { getRequest(): { user?: unknown } };
-        }) => {
-          // The coded body the real guard throws — the filter is what turns it
-          // into the refusal the client reads, and a bare exception here would
-          // quietly test something else.
-          if (!signedInAs) {
-            throw new UnauthorizedException({
-              code: 'not-authenticated',
-              message: 'Not authenticated',
-            });
-          }
-          context.switchToHttp().getRequest().user = signedInAs;
-          return true;
-        },
+    const moduleRef = await withSession(
+      Test.createTestingModule({
+        controllers: [AuthController],
+        providers: [
+          { provide: AuthService, useValue: auth },
+          { provide: RegistrationService, useValue: registration },
+          { provide: PasswordSetupService, useValue: passwordSetup },
+          { provide: PasswordResetService, useValue: passwordReset },
+          { provide: SignInStep, useValue: step },
+          { provide: Sessions, useValue: sessions },
+          {
+            provide: SIGN_IN_PROOF,
+            useValue: { kind: 'call', check: standIn },
+          },
+          { provide: PHONE_RULE, useValue: (value: string) => value },
+          { provide: APP_FILTER, useClass: ContractErrorFilter },
+          {
+            provide: MaintenanceState,
+            useValue: { isEnabled: () => maintenanceOn },
+          },
+          // The real gate, with only its admin-cookie check stubbed out: what is
+          // under test is whether it still finds the route metadata.
+          {
+            provide: APP_GUARD,
+            inject: [Reflector, MaintenanceState],
+            useFactory: (reflector: Reflector, maintenance: MaintenanceState) =>
+              new MaintenanceGuard(reflector, maintenance, {
+                read: async () => null,
+              } as never),
+          },
+        ],
       })
-      .overrideGuard(RolesGuard)
-      .useValue({ canActivate: () => true })
-      .compile();
+        .overrideGuard(ThrottlerGuard)
+        .useValue({ canActivate: () => true }),
+      () => signedInAs,
+    ).compile();
 
     app = moduleRef.createNestApplication();
     app.setGlobalPrefix('api');

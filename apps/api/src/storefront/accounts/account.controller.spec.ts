@@ -1,11 +1,9 @@
-import { INestApplication, UnauthorizedException } from '@nestjs/common';
+import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { AccountController } from './account.controller';
 import { AccountDeletion } from '../../core/accounts/account-deletion';
 import { AuditLogger } from '../../audit/audit.logger';
 import { UsersService } from '../../core/accounts/users.service';
-import { JwtAuthGuard } from '../../platform/auth/jwt-auth.guard';
-import { RolesGuard } from '../../platform/auth/roles.guard';
 import { AUTH_COOKIE } from '@b2b-catalog-platform/shared/platform';
 import { PHONE_RULE } from '../../config/deployment-config';
 import { SignInStep } from '../../core/accounts/sign-in-step/sign-in-step';
@@ -13,6 +11,7 @@ import {
   SESSION_HINT_COOKIE,
   normalizePhone,
 } from '@b2b-catalog-platform/shared/platform';
+import { SignedInAs, withSession } from '../../platform/auth/session.fixture';
 
 /**
  * Over a real server: the refusals here are the ones a form acts on, so what
@@ -22,7 +21,7 @@ import {
 describe('AccountController', () => {
   let app: INestApplication;
   let baseUrl: string;
-  let signedInAs: { id: string; role: string } | null = null;
+  let signedInAs: SignedInAs | null = null;
 
   const findById = vi.fn();
   const updateOwnProfile = vi.fn();
@@ -61,39 +60,29 @@ describe('AccountController', () => {
   };
 
   beforeAll(async () => {
-    const moduleRef = await Test.createTestingModule({
-      controllers: [AccountController],
-      providers: [
-        {
-          provide: UsersService,
-          useValue: { findById, updateOwnProfile, countOpenOrders },
-        },
-        { provide: AccountDeletion, useValue: { delete: deleteAccount } },
-        { provide: AuditLogger, useValue: { record } },
-        { provide: SignInStep, useValue: step },
-        {
-          provide: PHONE_RULE,
-          useValue: (value: string) =>
-            normalizePhone(value, {
-              countryCode: '+49',
-              mask: '(###) ###-####',
-            }),
-        },
-      ],
-    })
-      .overrideGuard(JwtAuthGuard)
-      .useValue({
-        canActivate: (context: {
-          switchToHttp(): { getRequest(): { user?: unknown } };
-        }) => {
-          if (!signedInAs) throw new UnauthorizedException();
-          context.switchToHttp().getRequest().user = signedInAs;
-          return true;
-        },
-      })
-      .overrideGuard(RolesGuard)
-      .useValue({ canActivate: () => true })
-      .compile();
+    const moduleRef = await withSession(
+      Test.createTestingModule({
+        controllers: [AccountController],
+        providers: [
+          {
+            provide: UsersService,
+            useValue: { findById, updateOwnProfile, countOpenOrders },
+          },
+          { provide: AccountDeletion, useValue: { delete: deleteAccount } },
+          { provide: AuditLogger, useValue: { record } },
+          { provide: SignInStep, useValue: step },
+          {
+            provide: PHONE_RULE,
+            useValue: (value: string) =>
+              normalizePhone(value, {
+                countryCode: '+49',
+                mask: '(###) ###-####',
+              }),
+          },
+        ],
+      }),
+      () => signedInAs,
+    ).compile();
 
     app = moduleRef.createNestApplication();
     app.setGlobalPrefix('api');
