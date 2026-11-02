@@ -1,15 +1,15 @@
 import { Controller, Inject } from '@nestjs/common';
 import { Implement, implement } from '@orpc/nest';
-import {
-  ADDRESS_QUERY_MIN_LENGTH,
-  ADDRESS_SUGGESTION_LIMIT,
-  addressSuggestionContract,
-} from '@b2b-catalog-platform/shared';
-import { SidecarSuggestionThrottle } from '../throttling/throttle-presets';
+import { SidecarSuggestionThrottle } from '../../throttling/throttle-presets';
 import {
   ADDRESS_SUGGESTION_PORT,
   AddressSuggestionPort,
 } from './address-suggestion.port';
+import {
+  ADDRESS_QUERY_MIN_LENGTH,
+  ADDRESS_SUGGESTION_LIMIT,
+  addressSuggestionContract,
+} from '@b2b-catalog-platform/shared/core/accounts';
 
 /**
  * The suggestion proxy (FR-CART-11, NFR-SEC-08). Unauthenticated, because a

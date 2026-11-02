@@ -1,4 +1,4 @@
-import { UserRole } from '@b2b-catalog-platform/shared';
+import { UserRole } from '@b2b-catalog-platform/shared/platform';
 
 /**
  * Claims carried by the signed session token. `sub` is the user id (the JWT

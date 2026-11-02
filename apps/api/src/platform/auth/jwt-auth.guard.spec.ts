@@ -1,12 +1,12 @@
 import { ExecutionContext, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { UserRow, UsersService } from '../users/users.service';
+import { SessionUser, SessionUsers } from './session-users';
 import { AUTH_COOKIE } from './auth.constants';
 import { AuthenticatedRequest } from './authenticated-request';
 import { Sessions } from './sessions';
 import { JwtAuthGuard } from './jwt-auth.guard';
 
-const userRow = (overrides: Partial<UserRow> = {}): UserRow =>
+const userRow = (overrides: Partial<SessionUser> = {}): SessionUser =>
   ({
     id: '00000000-0000-0000-0000-000000000001',
     email: 'admin@example.com',
@@ -18,7 +18,7 @@ const userRow = (overrides: Partial<UserRow> = {}): UserRow =>
     createdAt: new Date(),
     updatedAt: new Date(),
     ...overrides,
-  }) as UserRow;
+  }) as SessionUser;
 
 const validClaims = {
   sub: userRow().id,
@@ -41,17 +41,17 @@ const contextWith = (cookies: Record<string, string>) => {
 
 describe('JwtAuthGuard', () => {
   const verifyAsync = vi.fn();
-  const findById = vi.fn();
+  const find = vi.fn();
   const renew = vi.fn();
   const guard = new JwtAuthGuard(
     { verifyAsync } as unknown as JwtService,
-    { findById } as unknown as UsersService,
+    { find } as unknown as SessionUsers,
     { renew } as unknown as Sessions,
   );
 
   beforeEach(() => {
     verifyAsync.mockReset();
-    findById.mockReset();
+    find.mockReset();
     renew.mockReset();
   });
 
@@ -71,12 +71,12 @@ describe('JwtAuthGuard', () => {
     await expect(guard.canActivate(context)).rejects.toThrow(
       UnauthorizedException,
     );
-    expect(findById).not.toHaveBeenCalled();
+    expect(find).not.toHaveBeenCalled();
   });
 
   it('rejects when the user no longer exists', async () => {
     verifyAsync.mockResolvedValue(validClaims);
-    findById.mockResolvedValue(undefined);
+    find.mockResolvedValue(undefined);
     const { context } = contextWith({ [AUTH_COOKIE]: 'token' });
 
     await expect(guard.canActivate(context)).rejects.toThrow(
@@ -86,7 +86,7 @@ describe('JwtAuthGuard', () => {
 
   it('rejects when the tokenVersion is stale (e.g. password changed)', async () => {
     verifyAsync.mockResolvedValue({ ...validClaims, tokenVersion: 0 });
-    findById.mockResolvedValue(userRow({ tokenVersion: 1 }));
+    find.mockResolvedValue(userRow({ tokenVersion: 1 }));
     const { context } = contextWith({ [AUTH_COOKIE]: 'token' });
 
     await expect(guard.canActivate(context)).rejects.toThrow(
@@ -98,7 +98,7 @@ describe('JwtAuthGuard', () => {
     'rejects a %s account holding an otherwise valid session',
     async (status) => {
       verifyAsync.mockResolvedValue(validClaims);
-      findById.mockResolvedValue(userRow({ status }));
+      find.mockResolvedValue(userRow({ status }));
       const { context } = contextWith({ [AUTH_COOKIE]: 'token' });
 
       await expect(guard.canActivate(context)).rejects.toThrow(
@@ -110,7 +110,7 @@ describe('JwtAuthGuard', () => {
   it('uses the DB role, not the token role, on success', async () => {
     // Token was issued while the user was admin; the DB has since demoted them.
     verifyAsync.mockResolvedValue({ ...validClaims, role: 'admin' });
-    findById.mockResolvedValue(userRow({ role: 'user' }));
+    find.mockResolvedValue(userRow({ role: 'user' }));
     const { context, request } = contextWith({ [AUTH_COOKIE]: 'token' });
 
     await expect(guard.canActivate(context)).resolves.toBe(true);
@@ -127,7 +127,7 @@ describe('JwtAuthGuard', () => {
     // One row for both sides: two userRow() calls can straddle a millisecond.
     const row = userRow();
     verifyAsync.mockResolvedValue(validClaims);
-    findById.mockResolvedValue(row);
+    find.mockResolvedValue(row);
     const { context, request, response } = contextWith({
       [AUTH_COOKIE]: 'token',
     });
@@ -138,7 +138,7 @@ describe('JwtAuthGuard', () => {
 
   it('renews nothing it did not accept', async () => {
     verifyAsync.mockResolvedValue({ ...validClaims, tokenVersion: 0 });
-    findById.mockResolvedValue(userRow({ tokenVersion: 1 }));
+    find.mockResolvedValue(userRow({ tokenVersion: 1 }));
     const { context } = contextWith({ [AUTH_COOKIE]: 'token' });
 
     await guard.canActivate(context).catch(() => undefined);

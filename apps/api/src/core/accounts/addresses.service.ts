@@ -7,18 +7,18 @@ import {
 } from '@nestjs/common';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { and, asc, eq } from 'drizzle-orm';
+import { AddressConfig } from '@b2b-catalog-platform/shared';
+import { ADDRESS_CONFIG } from '../../config/deployment-config';
+import { DRIZZLE } from '../../db/database.module';
+import * as schema from '../../db/schema';
+import { addresses } from '../../db/schema';
 import {
   Address,
   ADDRESS_BOOK_MAX,
-  AddressConfig,
   AddressInput,
   postalCodeMatches,
   postalCodeRuleFor,
-} from '@b2b-catalog-platform/shared';
-import { ADDRESS_CONFIG } from '../config/deployment-config';
-import { DRIZZLE } from '../db/database.module';
-import * as schema from '../db/schema';
-import { addresses } from '../db/schema';
+} from '@b2b-catalog-platform/shared/core/accounts';
 
 type AddressRow = typeof addresses.$inferSelect;
 

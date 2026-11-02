@@ -1,11 +1,9 @@
 import { oc } from '@orpc/contract';
 import * as z from 'zod';
-import { commonAuthErrors, phoneFormatErrors } from '../lib/core/api-error';
-import {
-  customerTypeSchema,
-  userRoleSchema,
-} from '../lib/accounts/auth.contract';
-import { storedEmailField } from '../lib/config/contact-config';
+import { commonAuthErrors, phoneFormatErrors } from '../../lib/core/api-error';
+import { customerTypeSchema } from '../../core/accounts/auth.contract';
+import { userRoleSchema } from '../../platform/session.contract';
+import { storedEmailField } from '../../lib/config/contact-config';
 
 /**
  * What the account holder sees of their own record (FR-AUTH-06's neighbourhood:

@@ -1,12 +1,12 @@
 import { oc } from '@orpc/contract';
 import * as z from 'zod';
-import { commonAuthErrors } from '../lib/core/api-error';
-import { CONSENT_PURPOSES } from '../core/site/pages';
+import { commonAuthErrors } from '../../lib/core/api-error';
+import { CONSENT_PURPOSES } from '../../core/site/pages';
 import {
   CONSENT_WITHDRAWAL_NOTE_MAX,
   CONSENT_WITHDRAWAL_REASONS,
-} from '../lib/accounts/consent-constants';
-import { USER_STATUSES } from '../lib/accounts/user-constants';
+} from '../../core/site/consents';
+import { USER_STATUSES } from '../../core/accounts/user-constants';
 
 /**
  * One consent as staff read it (NFR-LEGAL-09): what was consented to, when,

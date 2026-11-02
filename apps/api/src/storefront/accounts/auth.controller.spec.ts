@@ -2,34 +2,36 @@ import { INestApplication, UnauthorizedException } from '@nestjs/common';
 import { APP_FILTER, APP_GUARD, Reflector } from '@nestjs/core';
 import { Test } from '@nestjs/testing';
 import { ThrottlerGuard } from '@nestjs/throttler';
-import {
-  AUTH_COOKIE,
-  MAINTENANCE_REFUSED,
-  PASSWORD_TOKEN_INVALID,
-  SESSION_HINT_COOKIE,
-} from '@b2b-catalog-platform/shared';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { WrongCurrentPasswordError } from './wrong-current-password-error';
-import { PasswordRejectedError } from './password-rejected-error';
-import { PasswordResetService } from './password-reset.service';
+import { WrongCurrentPasswordError } from '../../core/accounts/wrong-current-password-error';
+import { PasswordRejectedError } from '../../core/accounts/password-rejected-error';
+import { PasswordResetService } from '../../core/accounts/password-reset.service';
 import { PasswordSetupService } from './password-setup.service';
 import { RegistrationService } from './registration.service';
-import { JwtAuthGuard } from './jwt-auth.guard';
-import { RolesGuard } from './roles.guard';
-import { MaintenanceGuard } from '../core/site/maintenance.guard';
-import { MaintenanceState } from '../core/site/maintenance-state';
-import { ContractErrorFilter } from '../orpc/contract-error.filter';
-import { PHONE_RULE } from '../config/deployment-config';
-import { CodeDeliveryError } from './sign-in-step/code-delivery';
-import { MailCallCheck } from './sign-in-step/mail-call-check';
-import { CodeResendLimitError } from './sign-in-step/code-resend-limit-error';
-import { SignInStep } from './sign-in-step/sign-in-step';
-import { SIGN_IN_PROOF } from './sign-in-step/sign-in-proof';
-import { MailService } from '../mail/mail.service';
-import { demoMailText } from '../mail/mail-text.fixture';
-import { issueSession } from './session-cookie';
-import { Sessions } from './sessions';
+import { JwtAuthGuard } from '../../platform/auth/jwt-auth.guard';
+import { RolesGuard } from '../../platform/auth/roles.guard';
+import { MaintenanceGuard } from '../../core/site/maintenance.guard';
+import { MaintenanceState } from '../../core/site/maintenance-state';
+import { ContractErrorFilter } from '../../orpc/contract-error.filter';
+import { PHONE_RULE } from '../../config/deployment-config';
+import { CodeDeliveryError } from '../../core/accounts/sign-in-step/code-delivery';
+import { MailCallCheck } from '../../core/accounts/sign-in-step/mail-call-check';
+import { CodeResendLimitError } from '../../core/accounts/sign-in-step/code-resend-limit-error';
+import { SignInStep } from '../../core/accounts/sign-in-step/sign-in-step';
+import { SIGN_IN_PROOF } from '../../core/accounts/sign-in-step/sign-in-proof';
+import { MailService } from '../../mail/mail.service';
+import { demoMailText } from '../../mail/mail-text.fixture';
+import { issueSession } from '../../platform/auth/session-cookie';
+import { Sessions } from '../../platform/auth/sessions';
+import {
+  AUTH_COOKIE,
+  SESSION_HINT_COOKIE,
+} from '@b2b-catalog-platform/shared/platform';
+import {
+  MAINTENANCE_REFUSED,
+  PASSWORD_TOKEN_INVALID,
+} from '@b2b-catalog-platform/shared/core/accounts';
 
 /**
  * The whole point of this surface is what it does *not* say, and what it puts

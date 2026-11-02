@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
-import { AddressBookModule } from '../addresses/address-book.module';
+import { AddressBookModule } from '../core/accounts/address-book.module';
 import { ApiTokensModule } from '../api-tokens/api-tokens.module';
 import { AuditLogger } from '../audit/audit.logger';
-import { AuthModule } from '../auth/auth.module';
+import { SessionModule } from '../platform/auth/session.module';
 import {
   ACCEPTED_CUSTOMER_TYPES,
   loadAcceptedCustomerTypes,
@@ -63,7 +63,7 @@ import { OrdersService } from './orders.service';
  */
 @Module({
   imports: [
-    AuthModule,
+    SessionModule,
     AddressBookModule,
     MailModule,
     MediaModule,

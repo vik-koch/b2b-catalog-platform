@@ -1,6 +1,6 @@
 import { oc } from '@orpc/contract';
 import * as z from 'zod';
-import { API_TOKEN_NAME_MAX_LENGTH } from '../lib/accounts/api-token-constants';
+import { API_TOKEN_NAME_MAX_LENGTH } from '../sync/api-token-constants';
 import { commonAuthErrors } from '../lib/core/api-error';
 import { storedEmailField } from '../lib/config/contact-config';
 import { apiTokenScopeSchema } from '../sync/machine.contract';

@@ -4,7 +4,7 @@
 // Typed as the real contract, so every call site keeps the types the
 // contract defines; the imports below are type-only and erased at build.
 
-import type * as storefront from '@b2b-catalog-platform/shared/storefront';
+import type * as storefrontAccounts from '@b2b-catalog-platform/shared/storefront/accounts';
 import type * as storefrontCatalog from '@b2b-catalog-platform/shared/storefront/catalog';
 import type * as storefrontSite from '@b2b-catalog-platform/shared/storefront/site';
 
@@ -38,7 +38,7 @@ export const accountContract = {
       },
     },
   },
-} as unknown as typeof storefront.accountContract;
+} as unknown as typeof storefrontAccounts.accountContract;
 export const catalogContract = {
   getCategoryTree: {
     '~orpc': {

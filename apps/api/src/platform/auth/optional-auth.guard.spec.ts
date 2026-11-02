@@ -1,6 +1,6 @@
 import { ExecutionContext } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { UserRow, UsersService } from '../users/users.service';
+import { SessionUser, SessionUsers } from './session-users';
 import { AUTH_COOKIE } from './auth.constants';
 import { AuthenticatedRequest } from './authenticated-request';
 import { Sessions } from './sessions';
@@ -8,7 +8,7 @@ import { OptionalAuthGuard } from './optional-auth.guard';
 
 const TIER = '00000000-0000-0000-0000-0000000000aa';
 
-const userRow = (overrides: Partial<UserRow> = {}): UserRow =>
+const userRow = (overrides: Partial<SessionUser> = {}): SessionUser =>
   ({
     id: '00000000-0000-0000-0000-000000000001',
     email: 'customer@example.com',
@@ -21,7 +21,7 @@ const userRow = (overrides: Partial<UserRow> = {}): UserRow =>
     createdAt: new Date(),
     updatedAt: new Date(),
     ...overrides,
-  }) as UserRow;
+  }) as SessionUser;
 
 const validClaims = {
   sub: userRow().id,
@@ -48,17 +48,17 @@ const contextWith = (cookies: Record<string, string>) => {
  */
 describe('OptionalAuthGuard', () => {
   const verifyAsync = vi.fn();
-  const findById = vi.fn();
+  const find = vi.fn();
   const renew = vi.fn();
   const guard = new OptionalAuthGuard(
     { verifyAsync } as unknown as JwtService,
-    { findById } as unknown as UsersService,
+    { find } as unknown as SessionUsers,
     { renew } as unknown as Sessions,
   );
 
   beforeEach(() => {
     verifyAsync.mockReset();
-    findById.mockReset();
+    find.mockReset();
     renew.mockReset();
   });
 
@@ -67,7 +67,7 @@ describe('OptionalAuthGuard', () => {
 
     await expect(guard.canActivate(context)).resolves.toBe(true);
     expect(verifyAsync).not.toHaveBeenCalled();
-    expect(findById).not.toHaveBeenCalled();
+    expect(find).not.toHaveBeenCalled();
     expect(request.pricingTierId).toBeNull();
     expect(request.user).toBeUndefined();
   });
@@ -77,13 +77,13 @@ describe('OptionalAuthGuard', () => {
     const { context, request } = contextWith({ [AUTH_COOKIE]: 'tampered' });
 
     await expect(guard.canActivate(context)).resolves.toBe(true);
-    expect(findById).not.toHaveBeenCalled();
+    expect(find).not.toHaveBeenCalled();
     expect(request.pricingTierId).toBeNull();
   });
 
   it('serves the default list when the account is gone', async () => {
     verifyAsync.mockResolvedValue(validClaims);
-    findById.mockResolvedValue(undefined);
+    find.mockResolvedValue(undefined);
     const { context, request } = contextWith({ [AUTH_COOKIE]: 'token' });
 
     await expect(guard.canActivate(context)).resolves.toBe(true);
@@ -92,7 +92,7 @@ describe('OptionalAuthGuard', () => {
 
   it('serves the default list when the session was revoked', async () => {
     verifyAsync.mockResolvedValue({ ...validClaims, tokenVersion: 0 });
-    findById.mockResolvedValue(userRow({ tokenVersion: 1 }));
+    find.mockResolvedValue(userRow({ tokenVersion: 1 }));
     const { context, request } = contextWith({ [AUTH_COOKIE]: 'token' });
 
     await expect(guard.canActivate(context)).resolves.toBe(true);
@@ -104,7 +104,7 @@ describe('OptionalAuthGuard', () => {
     'serves the default list to a %s account, without rejecting it',
     async (status) => {
       verifyAsync.mockResolvedValue(validClaims);
-      findById.mockResolvedValue(userRow({ status }));
+      find.mockResolvedValue(userRow({ status }));
       const { context, request } = contextWith({ [AUTH_COOKIE]: 'token' });
 
       await expect(guard.canActivate(context)).resolves.toBe(true);
@@ -116,7 +116,7 @@ describe('OptionalAuthGuard', () => {
   it('takes the tier from the database row, so a re-tiering applies at once', async () => {
     const moved = '00000000-0000-0000-0000-0000000000bb';
     verifyAsync.mockResolvedValue(validClaims);
-    findById.mockResolvedValue(userRow({ tierId: moved }));
+    find.mockResolvedValue(userRow({ tierId: moved }));
     const { context, request } = contextWith({ [AUTH_COOKIE]: 'token' });
 
     await expect(guard.canActivate(context)).resolves.toBe(true);
@@ -125,7 +125,7 @@ describe('OptionalAuthGuard', () => {
 
   it('leaves a staff or default-list account on the default list', async () => {
     verifyAsync.mockResolvedValue(validClaims);
-    findById.mockResolvedValue(userRow({ role: 'admin', tierId: null }));
+    find.mockResolvedValue(userRow({ role: 'admin', tierId: null }));
     const { context, request } = contextWith({ [AUTH_COOKIE]: 'token' });
 
     await expect(guard.canActivate(context)).resolves.toBe(true);
@@ -138,7 +138,7 @@ describe('OptionalAuthGuard', () => {
     // One row for both sides: two userRow() calls can straddle a millisecond.
     const row = userRow();
     verifyAsync.mockResolvedValue(validClaims);
-    findById.mockResolvedValue(row);
+    find.mockResolvedValue(row);
     const { context, request, response } = contextWith({
       [AUTH_COOKIE]: 'token',
     });
@@ -149,7 +149,7 @@ describe('OptionalAuthGuard', () => {
 
   it('renews nothing it did not accept', async () => {
     verifyAsync.mockResolvedValue({ ...validClaims, tokenVersion: 0 });
-    findById.mockResolvedValue(userRow({ tokenVersion: 1 }));
+    find.mockResolvedValue(userRow({ tokenVersion: 1 }));
     const { context } = contextWith({ [AUTH_COOKIE]: 'token' });
 
     await guard.canActivate(context).catch(() => undefined);

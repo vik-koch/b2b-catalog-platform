@@ -1,11 +1,11 @@
 import { Controller, ForbiddenException } from '@nestjs/common';
 import { Implement, implement } from '@orpc/nest';
-import { AuthUser, UserRole } from '@b2b-catalog-platform/shared';
 import { SyncArea, syncContract } from '@b2b-catalog-platform/shared/sync';
-import { Auth } from '../auth/auth.decorator';
-import { CurrentUser } from '../auth/current-user.decorator';
+import { Auth } from '../platform/auth/auth.decorator';
+import { CurrentUser } from '../platform/auth/current-user.decorator';
 import { refusals } from '../orpc/refusals';
 import { SyncService } from './sync.service';
+import { AuthUser, UserRole } from '@b2b-catalog-platform/shared/platform';
 
 /**
  * Which areas' runs a role may read — and decide about (FR-ADM-09).

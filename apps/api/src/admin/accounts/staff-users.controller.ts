@@ -1,7 +1,5 @@
 import { Controller } from '@nestjs/common';
 import { Implement, implement } from '@orpc/nest';
-import { AuthUser } from '@b2b-catalog-platform/shared';
-import { StaffUser, usersContract } from '@b2b-catalog-platform/shared/admin';
 
 /** What a plain `user.updated` line covers — everything but role and tier. */
 const PROFILE_FIELDS = [
@@ -12,17 +10,20 @@ const PROFILE_FIELDS = [
   'companyName',
   'companyRegistrationId',
 ] as const satisfies readonly (keyof StaffUser)[];
-import { AccountDeletion } from '../account/account-deletion';
-import { AuditLogger } from '../audit/audit.logger';
-import { Auth } from '../auth/auth.decorator';
-import { CurrentUser } from '../auth/current-user.decorator';
-import { ConsentService } from '../consents/consent.service';
-import { refusals } from '../orpc/refusals';
-import { customersExternallyOwned } from '../settings/ownership.refusals';
-import { OwnershipState } from '../settings/ownership-state';
-import { SignInStep } from '../auth/sign-in-step/sign-in-step';
-import { AccountInvitations } from './account-invitations';
-import { StaffUsersService } from './staff-users.service';
+import { AccountDeletion } from '../../core/accounts/account-deletion';
+import { AuditLogger } from '../../audit/audit.logger';
+import { Auth } from '../../platform/auth/auth.decorator';
+import { CurrentUser } from '../../platform/auth/current-user.decorator';
+import { ConsentRecords } from './consent-records';
+import { refusals } from '../../orpc/refusals';
+import { customersExternallyOwned } from '../../settings/ownership.refusals';
+import { OwnershipState } from '../../settings/ownership-state';
+import { SignInStep } from '../../core/accounts/sign-in-step/sign-in-step';
+import { AccountInvitations } from '../../core/accounts/account-invitations';
+import { StaffUsersService } from '../../core/accounts/staff-users.service';
+import { AuthUser } from '@b2b-catalog-platform/shared/platform';
+import { StaffUser } from '@b2b-catalog-platform/shared/core/accounts';
+import { usersContract } from '@b2b-catalog-platform/shared/admin/accounts';
 
 /** Unknown, and staff seen by a manager. One refusal for both: the list hides
  * staff from a manager, so telling them apart here would undo that. */
@@ -46,7 +47,7 @@ export class StaffUsersController {
     private readonly invitations: AccountInvitations,
     private readonly audit: AuditLogger,
     private readonly ownership: OwnershipState,
-    private readonly consents: ConsentService,
+    private readonly consents: ConsentRecords,
     private readonly deletion: AccountDeletion,
     private readonly step: SignInStep,
   ) {}

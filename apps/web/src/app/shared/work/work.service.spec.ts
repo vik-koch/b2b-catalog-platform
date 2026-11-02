@@ -3,10 +3,11 @@ import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
-import { AuthUser, WorkCounts } from '@b2b-catalog-platform/shared';
+import { WorkCounts } from '@b2b-catalog-platform/shared';
 import { AuthService } from '../auth/auth.service';
 import { adminUser } from '../auth/auth-user.fixture';
 import { WorkService } from './work.service';
+import { AuthUser } from '@b2b-catalog-platform/shared/platform';
 
 /**
  * The counts in the browser: when they are asked for, and what the marker makes

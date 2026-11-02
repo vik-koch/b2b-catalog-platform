@@ -2,7 +2,7 @@ import {
   Address,
   addressLines,
   streetLine,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/core/accounts';
 
 // The two rules an order's PDF prints by as well as the screens do, so a
 // document and the page it copies cannot write one address two ways.

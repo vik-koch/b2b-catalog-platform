@@ -1,6 +1,6 @@
 import { getTableName } from 'drizzle-orm';
 import { drizzle, NodePgDatabase } from 'drizzle-orm/node-postgres';
-import * as schema from '../db/schema';
+import * as schema from '../../db/schema';
 import { UsersService } from './users.service';
 import { LastAdminError } from './last-admin-error';
 

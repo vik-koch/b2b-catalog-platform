@@ -9,10 +9,9 @@ import {
   signal,
 } from '@angular/core';
 import { FormField } from '@angular/forms/signals';
-import { AddressComponents } from '@b2b-catalog-platform/shared';
-import { STOREFRONT_TEXT } from '../config/storefront-text';
-import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
-import { SHARED_TEXT } from '../config/shared-text';
+import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
+import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
+import { SHARED_TEXT } from '../../../shared/config/shared-text';
 import { DigitMask } from '@b2b-catalog-platform/ui/inputs/digit-mask';
 import { FIELD_ATTEMPT } from '@b2b-catalog-platform/ui/fields/field-attempt';
 import { Field } from '@b2b-catalog-platform/ui/fields/field';
@@ -23,6 +22,7 @@ import { SelectInput } from '@b2b-catalog-platform/ui/inputs/select-input';
 import { submitAttempt } from '@b2b-catalog-platform/ui/fields/submit-attempt';
 import { AddressForm } from './address-form';
 import { AddressSuggestInput } from './address-suggest-input';
+import { AddressComponents } from '@b2b-catalog-platform/shared/core/accounts';
 
 /** Ids have to be unique per instance: checkout draws two of these on one
  * page, and a label pointing at the wrong form's city is worse than none. */

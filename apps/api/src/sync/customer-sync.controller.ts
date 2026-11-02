@@ -8,17 +8,17 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { AuthUser } from '@b2b-catalog-platform/shared';
 import {
   CustomerSyncPreviewResponse,
   SYNC_MAX_UPLOAD_BYTES,
   customerSyncOptionsSchema,
 } from '@b2b-catalog-platform/shared/sync';
-import { Auth } from '../auth/auth.decorator';
-import { CurrentUser } from '../auth/current-user.decorator';
+import { Auth } from '../platform/auth/auth.decorator';
+import { CurrentUser } from '../platform/auth/current-user.decorator';
 import { SyncFormatError } from './csv-file';
 import { parseCustomerSyncCsv } from './customer-sync-csv';
 import { CustomerSyncService } from './customer-sync.service';
+import { AuthUser } from '@b2b-catalog-platform/shared/platform';
 
 /**
  * The operator's own way into the customer exchange: upload a file, read what

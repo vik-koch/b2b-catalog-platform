@@ -1,22 +1,22 @@
-import { SHARED_TEXT } from '../../shared/config/shared-text';
-import { defaultSharedText } from '../../shared/config/shared-text.fixture';
+import { SHARED_TEXT } from '../../../shared/config/shared-text';
+import { defaultSharedText } from '../../../shared/config/shared-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { ActivatedRoute, provideRouter, Router } from '@angular/router';
+import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
+import { defaultStorefrontText } from '../../../shared/config/storefront-text.fixture';
+import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
+import { defaultDeploymentConfig } from '../../../shared/config/deployment-config.fixture';
+import { AccountService } from '../account/account.service';
+import { AddressEditorPage } from './address-editor-page';
+import { AddressSuggestInput } from '../../../core/accounts/addresses/address-suggest-input';
+import { AddressesService } from '../../../core/accounts/addresses/addresses.service';
+import { provideDigitMaskFormat } from '../../../shared/core/contact-fields';
 import {
   Address,
   AddressComponents,
   AddressInput,
-} from '@b2b-catalog-platform/shared';
-import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
-import { defaultStorefrontText } from '../../shared/config/storefront-text.fixture';
-import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
-import { defaultDeploymentConfig } from '../../shared/config/deployment-config.fixture';
-import { AccountService } from '../account/account.service';
-import { AddressEditorPage } from './address-editor-page';
-import { AddressSuggestInput } from '../../shared/addresses/address-suggest-input';
-import { AddressesService } from '../../shared/addresses/addresses.service';
-import { provideDigitMaskFormat } from '../../shared/core/contact-fields';
+} from '@b2b-catalog-platform/shared/core/accounts';
 
 const text = defaultStorefrontText.account.addresses;
 const fieldText = defaultStorefrontText.address;

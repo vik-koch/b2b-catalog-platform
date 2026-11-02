@@ -1,12 +1,12 @@
 import { Controller } from '@nestjs/common';
 import { Implement, implement } from '@orpc/nest';
-import { AuthUser } from '@b2b-catalog-platform/shared';
 import { apiTokensContract } from '@b2b-catalog-platform/shared/admin';
-import { Auth } from '../auth/auth.decorator';
-import { CurrentUser } from '../auth/current-user.decorator';
+import { Auth } from '../platform/auth/auth.decorator';
+import { CurrentUser } from '../platform/auth/current-user.decorator';
 import { AuditLogger } from '../audit/audit.logger';
 import { refusals } from '../orpc/refusals';
 import { ApiTokensService } from './api-tokens.service';
+import { AuthUser } from '@b2b-catalog-platform/shared/platform';
 
 /**
  * Issuing and revoking machine tokens (NFR-SEC-09) — admin-only, like every

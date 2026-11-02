@@ -1,8 +1,8 @@
 import { applyDecorators, UseGuards } from '@nestjs/common';
-import { UserRole } from '@b2b-catalog-platform/shared';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { Roles } from './roles.decorator';
 import { RolesGuard } from './roles.guard';
+import { UserRole } from '@b2b-catalog-platform/shared/platform';
 
 /**
  * Guards a route in one decorator, mirroring the throttle-preset pattern.

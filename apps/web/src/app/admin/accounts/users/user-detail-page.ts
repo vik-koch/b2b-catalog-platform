@@ -7,21 +7,16 @@ import {
   signal,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import {
-  fillText,
-  formatPersonName,
-  normalizePhone,
-} from '@b2b-catalog-platform/shared';
-import { ConsentRecord, StaffUser } from '@b2b-catalog-platform/shared/admin';
+import { fillText } from '@b2b-catalog-platform/shared';
 import { CustomerTier } from '@b2b-catalog-platform/shared/admin/catalog';
-import { ADMIN_TEXT } from '../../shared/config/admin-text';
-import { SHARED_TEXT } from '../../shared/config/shared-text';
-import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
-import { AuthService } from '../../shared/auth/auth.service';
-import { formatPhone } from '../../shared/core/contact-fields';
-import { delayedLoading } from '../../shared/core/delayed-loading';
-import { usePageSeo } from '../../shared/core/page-seo';
-import { LockedNote } from '../ownership/locked-note';
+import { ADMIN_TEXT } from '../../../shared/config/admin-text';
+import { SHARED_TEXT } from '../../../shared/config/shared-text';
+import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
+import { AuthService } from '../../../shared/auth/auth.service';
+import { formatPhone } from '../../../shared/core/contact-fields';
+import { delayedLoading } from '../../../shared/core/delayed-loading';
+import { usePageSeo } from '../../../shared/core/page-seo';
+import { LockedNote } from '../../ownership/locked-note';
 import { ConsentRecordList } from '../consents/consent-record-list';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import {
@@ -31,9 +26,9 @@ import {
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';
-import { injectEditorReturnParams } from '../../shared/edit-mode/editor-return';
-import { OwnershipService } from '../settings/ownership.service';
-import { TiersService } from '../catalog/tiers/tiers.service';
+import { injectEditorReturnParams } from '../../../shared/edit-mode/editor-return';
+import { OwnershipService } from '../../settings/ownership.service';
+import { TiersService } from '../../catalog/tiers/tiers.service';
 import { StaffUsersService } from './users.service';
 import { userStatusTone } from './user-status';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
@@ -44,6 +39,12 @@ import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
 import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
 import { Card } from '@b2b-catalog-platform/ui/content/card';
 import { SectionTitle } from '@b2b-catalog-platform/ui/content/section-title';
+import {
+  formatPersonName,
+  StaffUser,
+} from '@b2b-catalog-platform/shared/core/accounts';
+import { ConsentRecord } from '@b2b-catalog-platform/shared/admin/accounts';
+import { normalizePhone } from '@b2b-catalog-platform/shared/platform';
 
 /** One line of a details list: a label, and the value under it. */
 interface DetailRow {

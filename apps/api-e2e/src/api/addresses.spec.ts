@@ -1,8 +1,8 @@
 import { hash } from '@node-rs/argon2';
 import axios from 'axios';
 import { Client } from 'pg';
-import { ADDRESS_BOOK_MAX } from '@b2b-catalog-platform/shared';
 import { requireEnv } from '../support/env';
+import { ADDRESS_BOOK_MAX } from '@b2b-catalog-platform/shared/core/accounts';
 
 /**
  * The account's address book (FR-CART-04) and the suggestion proxy

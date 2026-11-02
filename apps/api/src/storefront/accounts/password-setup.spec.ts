@@ -1,4 +1,4 @@
-import { UserRow } from '../users/users.service';
+import { UserRow } from '../../core/accounts/users.service';
 import { PasswordSetupService } from './password-setup.service';
 
 /**

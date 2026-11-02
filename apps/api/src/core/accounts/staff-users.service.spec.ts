@@ -1,7 +1,9 @@
-import { CustomerType } from '@b2b-catalog-platform/shared';
-import { StaffUser } from '@b2b-catalog-platform/shared/admin';
 import { UsersService } from './users.service';
 import { StaffUsersService } from './staff-users.service';
+import {
+  CustomerType,
+  StaffUser,
+} from '@b2b-catalog-platform/shared/core/accounts';
 
 /**
  * The staff editor's half of FR-AUTH-13: an account is only ever saved as a

@@ -12,11 +12,11 @@ import {
 } from '@nestjs/common/constants';
 import { Reflector } from '@nestjs/core';
 import { ROUTE_ACCESS } from '@b2b-catalog-platform/shared/node';
-import { AppModule } from '../app/app.module';
+import { AppModule } from './app.module';
 import { MachineScope } from '../api-tokens/machine-scope.decorator';
 import { MachineTokenGuard } from '../api-tokens/machine-token.guard';
-import { JwtAuthGuard } from './jwt-auth.guard';
-import { Roles } from './roles.decorator';
+import { JwtAuthGuard } from '../platform/auth/jwt-auth.guard';
+import { Roles } from '../platform/auth/roles.decorator';
 
 /**
  * Reads every mounted route's access off the guard metadata and holds it to

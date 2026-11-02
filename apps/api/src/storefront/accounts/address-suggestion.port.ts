@@ -1,6 +1,6 @@
 import { Logger } from '@nestjs/common';
-import { AddressComponents } from '@b2b-catalog-platform/shared';
 import { HttpAddressSuggestions } from './http-address-suggestions';
+import { AddressComponents } from '@b2b-catalog-platform/shared/core/accounts';
 
 /**
  * What a suggestion provider has to answer (ADR 0040). The interface is public,

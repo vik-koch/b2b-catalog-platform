@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
-import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
-import { usePageSeo } from '../../shared/core/page-seo';
+import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
+import { usePageSeo } from '../../../shared/core/page-seo';
 import { ChangePasswordForm } from './change-password-form';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
 

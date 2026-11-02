@@ -1,10 +1,10 @@
 import { SQL } from 'drizzle-orm';
 import { PgDialect } from 'drizzle-orm/pg-core';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { AuthUser } from '@b2b-catalog-platform/shared';
 import * as schema from '../db/schema';
 import { documents, orders, products, syncRuns, users } from '../db/schema';
 import { WorkService } from './work.service';
+import { AuthUser } from '@b2b-catalog-platform/shared/platform';
 
 /**
  * The counts, without a database. What is worth pinning is the role shaping

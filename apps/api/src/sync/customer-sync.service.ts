@@ -7,7 +7,6 @@ import {
 } from '@nestjs/common';
 import { and, eq, inArray, isNull, sql } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { CustomerType } from '@b2b-catalog-platform/shared';
 import {
   CustomerSyncOptions,
   CustomerSyncPlan,
@@ -35,9 +34,9 @@ import {
   customersExternallyOwned,
   customersNotExternallyOwned,
 } from '../settings/ownership.refusals';
-import { PasswordService } from '../auth/password.service';
-import { AccountInvitations } from '../users/account-invitations';
-import { StaffUsersService } from '../users/staff-users.service';
+import { PasswordService } from '../core/accounts/password.service';
+import { AccountInvitations } from '../core/accounts/account-invitations';
+import { StaffUsersService } from '../core/accounts/staff-users.service';
 import {
   CustomerSyncActions,
   CustomerSyncState,
@@ -47,6 +46,7 @@ import { Actor, CONFLICT_CODE, Submitter, runNotFound } from './sync-run';
 import { SyncRunLog, toSyncRun } from './sync-run-log';
 import { SyncNotifications } from './sync-notifications';
 import { StagedPayloadOf, stagedPayload } from './sync-run-payload';
+import { CustomerType } from '@b2b-catalog-platform/shared/core/accounts';
 
 /** The transaction handle Drizzle hands a `db.transaction` callback. */
 type Tx = Parameters<

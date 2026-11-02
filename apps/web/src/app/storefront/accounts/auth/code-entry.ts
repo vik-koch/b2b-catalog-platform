@@ -11,8 +11,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { form, maxLength, pattern, required } from '@angular/forms/signals';
-import { CodeSent, SIGN_IN_CODE_LENGTH } from '@b2b-catalog-platform/shared';
-import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
+import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { Checkbox } from '@b2b-catalog-platform/ui/choices/checkbox';
 import { TickLabel } from '@b2b-catalog-platform/ui/choices/tick-label';
@@ -20,7 +19,11 @@ import { CodeInput } from '@b2b-catalog-platform/ui/inputs/code-input';
 import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
 import { SubmitAttempt } from '@b2b-catalog-platform/ui/fields/submit-attempt';
 import { TextButton } from '@b2b-catalog-platform/ui/actions/text-button';
-import type { CodeResult, SendResult } from '../../shared/auth/auth.service';
+import type { CodeResult, SendResult } from '../../../shared/auth/auth.service';
+import {
+  CodeSent,
+  SIGN_IN_CODE_LENGTH,
+} from '@b2b-catalog-platform/shared/core/accounts';
 
 /** A wait as minutes and seconds: `0:42`, `27:05`. */
 export function formatWait(seconds: number): string {

@@ -7,10 +7,10 @@ import { Reflector } from '@nestjs/core';
 import { Test } from '@nestjs/testing';
 import { OwnershipController } from './ownership.controller';
 import { OwnershipSwitch } from './ownership-switch';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { RolesGuard } from '../auth/roles.guard';
-import { Roles } from '../auth/roles.decorator';
-import type { UserRole } from '@b2b-catalog-platform/shared';
+import { JwtAuthGuard } from '../platform/auth/jwt-auth.guard';
+import { RolesGuard } from '../platform/auth/roles.guard';
+import { Roles } from '../platform/auth/roles.decorator';
+import type { UserRole } from '@b2b-catalog-platform/shared/platform';
 
 /**
  * Over a real server, because the questions here are about what the framework

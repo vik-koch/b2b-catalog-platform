@@ -3,7 +3,6 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import {
-  Address,
   OrderSubmission,
   DeploymentConfig,
 } from '@b2b-catalog-platform/shared';
@@ -17,9 +16,9 @@ import { defaultSharedText } from '../../shared/config/shared-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { defaultDeploymentConfig } from '../../shared/config/deployment-config.fixture';
 import { SUGGESTIONS_ENABLED } from '../../shared/config/suggestions-enabled';
-import { AccountService } from '../account/account.service';
+import { AccountService } from '../accounts/account/account.service';
 import { AuthService } from '../../shared/auth/auth.service';
-import { AddressesService } from '../../shared/addresses/addresses.service';
+import { AddressesService } from '../../core/accounts/addresses/addresses.service';
 import { packagedPackaging } from '../../core/catalog/product.fixture';
 import { CartAddition, CartService } from '../../shared/cart/cart.service';
 import {
@@ -32,6 +31,7 @@ import { CheckoutPage } from './checkout-page';
 import { OrdersService, SubmitOrderResult } from '../orders/orders.service';
 import { PageService } from '../../core/site/page.service';
 import { provideDigitMaskFormat } from '../../shared/core/contact-fields';
+import { Address } from '@b2b-catalog-platform/shared/core/accounts';
 
 /** A day the form actually offers, from whenever the suite is run: a literal
  * date here would be a working weekday now and a past Saturday later. */

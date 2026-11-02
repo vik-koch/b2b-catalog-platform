@@ -10,36 +10,38 @@ import {
 import type { Request, Response } from 'express';
 import { Implement, implement } from '@orpc/nest';
 import {
-  authContract,
-  AuthUser,
-  MAINTENANCE_REFUSED,
-  PASSWORD_TOKEN_INVALID,
-  passesMaintenance,
-  UserRole,
-} from '@b2b-catalog-platform/shared';
-import {
   AuthThrottle,
   PublicFormThrottle,
   SignInCallThrottle,
-} from '../throttling/throttle-presets';
-import { Auth } from './auth.decorator';
-import { CurrentUser } from './current-user.decorator';
+} from '../../throttling/throttle-presets';
+import { Auth } from '../../platform/auth/auth.decorator';
+import { CurrentUser } from '../../platform/auth/current-user.decorator';
 import { AuthService } from './auth.service';
-import { WrongCurrentPasswordError } from './wrong-current-password-error';
-import { PasswordRejectedError } from './password-rejected-error';
-import { PasswordResetService } from './password-reset.service';
+import { WrongCurrentPasswordError } from '../../core/accounts/wrong-current-password-error';
+import { PasswordRejectedError } from '../../core/accounts/password-rejected-error';
+import { PasswordResetService } from '../../core/accounts/password-reset.service';
 import { PasswordSetupService } from './password-setup.service';
 import { RegistrationService } from './registration.service';
-import { MaintenanceExempt } from '../core/site/maintenance-exempt.decorator';
-import { MaintenanceState } from '../core/site/maintenance-state';
-import { refusals } from '../orpc/refusals';
-import { endSession } from './session-cookie';
-import { Sessions } from './sessions';
-import { sending } from './sign-in-step/code-refusals';
-import { MailCallCheck } from './sign-in-step/mail-call-check';
-import { SignInStep } from './sign-in-step/sign-in-step';
-import { SIGN_IN_PROOF, SignInProof } from './sign-in-step/sign-in-proof';
-import { UserRow } from '../users/users.service';
+import { MaintenanceExempt } from '../../core/site/maintenance-exempt.decorator';
+import { MaintenanceState } from '../../core/site/maintenance-state';
+import { refusals } from '../../orpc/refusals';
+import { endSession } from '../../platform/auth/session-cookie';
+import { Sessions } from '../../platform/auth/sessions';
+import { sending } from '../../core/accounts/sign-in-step/code-refusals';
+import { MailCallCheck } from '../../core/accounts/sign-in-step/mail-call-check';
+import { SignInStep } from '../../core/accounts/sign-in-step/sign-in-step';
+import {
+  SIGN_IN_PROOF,
+  SignInProof,
+} from '../../core/accounts/sign-in-step/sign-in-proof';
+import { UserRow } from '../../core/accounts/users.service';
+import {
+  authContract,
+  MAINTENANCE_REFUSED,
+  PASSWORD_TOKEN_INVALID,
+} from '@b2b-catalog-platform/shared/core/accounts';
+import { AuthUser, UserRole } from '@b2b-catalog-platform/shared/platform';
+import { passesMaintenance } from '@b2b-catalog-platform/shared/core/site';
 
 @Controller()
 export class AuthController {

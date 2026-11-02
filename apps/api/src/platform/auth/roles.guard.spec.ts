@@ -1,8 +1,8 @@
 import type { Mock } from 'vitest';
 import { ExecutionContext, ForbiddenException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { AuthUser } from '@b2b-catalog-platform/shared';
 import { RolesGuard } from './roles.guard';
+import { AuthUser } from '@b2b-catalog-platform/shared/platform';
 
 const contextWith = (user?: AuthUser): ExecutionContext =>
   ({

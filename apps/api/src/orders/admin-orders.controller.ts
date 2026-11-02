@@ -1,15 +1,15 @@
 import { Controller } from '@nestjs/common';
 import { Implement, implement } from '@orpc/nest';
-import { AuthUser } from '@b2b-catalog-platform/shared';
 import { adminOrdersContract } from '@b2b-catalog-platform/shared/admin';
-import { Auth } from '../auth/auth.decorator';
-import { CurrentUser } from '../auth/current-user.decorator';
+import { Auth } from '../platform/auth/auth.decorator';
+import { CurrentUser } from '../platform/auth/current-user.decorator';
 import { AuditLogger } from '../audit/audit.logger';
 import { refusals } from '../orpc/refusals';
 import { ordersExternallyOwned } from '../settings/ownership.refusals';
 import { OwnershipState } from '../settings/ownership-state';
 import { OrderPersonalData } from './order-personal-data';
 import { OrdersService } from './orders.service';
+import { AuthUser } from '@b2b-catalog-platform/shared/platform';
 
 /**
  * The staff view of order requests (FR-AUTH-03), and the moves a manager makes

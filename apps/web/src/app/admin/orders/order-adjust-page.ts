@@ -16,7 +16,6 @@ import { Router, RouterLink } from '@angular/router';
 import {
   fillText,
   ORDER_ADJUSTMENT_NOTE_MAX,
-  PartySuggestion,
   PaymentMethod,
   moneyFormat,
   formatMoneyMinor,
@@ -28,14 +27,14 @@ import {
   OrderAdjustmentPreview,
 } from '@b2b-catalog-platform/shared/admin';
 import { AdminProductListItem } from '@b2b-catalog-platform/shared/admin/catalog';
-import { AddressFields } from '../../shared/addresses/address-fields';
+import { AddressFields } from '../../core/accounts/addresses/address-fields';
 import {
   AddressDraft,
   AddressForm,
   blankAddress,
   injectAddressRules,
-} from '../../shared/addresses/address-form';
-import { CompanyFields } from '../../shared/parties/company-fields';
+} from '../../core/accounts/addresses/address-form';
+import { CompanyFields } from '../../core/accounts/parties/company-fields';
 import { canonicalPhone, typedPhone } from '../../shared/core/contact-fields';
 import {
   companyIdFormat,
@@ -91,6 +90,7 @@ import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { Hint } from '@b2b-catalog-platform/ui/fields/hint';
 import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
+import { PartySuggestion } from '@b2b-catalog-platform/shared/core/accounts';
 
 /** One line as the form holds it, before the server has priced it. */
 interface DraftLine {

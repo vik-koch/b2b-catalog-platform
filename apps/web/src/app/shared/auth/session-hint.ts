@@ -1,9 +1,9 @@
+import { cookieValue } from '../core/cookie';
 import {
   SESSION_HINT_COOKIE,
   USER_ROLES,
   UserRole,
-} from '@b2b-catalog-platform/shared';
-import { cookieValue } from '../core/cookie';
+} from '@b2b-catalog-platform/shared/platform';
 
 /**
  * The role from the readable session hint, or null where there is none.

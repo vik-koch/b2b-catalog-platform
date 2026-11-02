@@ -1,17 +1,17 @@
-import { SHARED_TEXT } from '../../shared/config/shared-text';
-import { defaultSharedText } from '../../shared/config/shared-text.fixture';
+import { SHARED_TEXT } from '../../../shared/config/shared-text';
+import { defaultSharedText } from '../../../shared/config/shared-text.fixture';
 import { signal, WritableSignal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
-import { AuthUser } from '@b2b-catalog-platform/shared';
-import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
-import { defaultStorefrontText } from '../../shared/config/storefront-text.fixture';
-import { adminUser } from '../../shared/auth/auth-user.fixture';
+import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
+import { defaultStorefrontText } from '../../../shared/config/storefront-text.fixture';
+import { adminUser } from '../../../shared/auth/auth-user.fixture';
 import {
   AuthService,
   ChangePasswordResult,
-} from '../../shared/auth/auth.service';
+} from '../../../shared/auth/auth.service';
 import { ForcePasswordChange } from './force-password-change';
+import { AuthUser } from '@b2b-catalog-platform/shared/platform';
 
 const text = defaultStorefrontText.auth.changePassword;
 

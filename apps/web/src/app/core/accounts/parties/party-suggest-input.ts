@@ -1,11 +1,7 @@
 import { Component, inject, input, output } from '@angular/core';
 import { FormField, type FieldTree } from '@angular/forms/signals';
-import {
-  PARTY_QUERY_MIN_LENGTH,
-  PartySuggestion,
-} from '@b2b-catalog-platform/shared';
 import { HighlightedLine } from '@b2b-catalog-platform/ui/suggest/highlighted-line';
-import { MatchSegmentsPipe } from '../../core/catalog/search/match-segments.pipe';
+import { MatchSegmentsPipe } from '../../catalog/search/match-segments.pipe';
 import {
   SuggestList,
   SuggestListText,
@@ -16,6 +12,10 @@ import { SuggestField } from '@b2b-catalog-platform/ui/suggest/suggest-field';
 import { SuggestInput } from '@b2b-catalog-platform/ui/suggest/suggest-input';
 import { SuggestRow } from '@b2b-catalog-platform/ui/suggest/suggest-row';
 import { PartiesService } from './parties.service';
+import {
+  PARTY_QUERY_MIN_LENGTH,
+  PartySuggestion,
+} from '@b2b-catalog-platform/shared/core/accounts';
 
 /**
  * A text input that suggests companies as it is typed (FR-AUTH-09, ADR 0041),

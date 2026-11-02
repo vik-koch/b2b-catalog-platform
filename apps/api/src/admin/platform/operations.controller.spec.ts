@@ -7,10 +7,10 @@ import { Reflector } from '@nestjs/core';
 import { Test } from '@nestjs/testing';
 import { OperationsController } from './operations.controller';
 import { OperationsService } from './operations.service';
-import { JwtAuthGuard } from '../../auth/jwt-auth.guard';
-import { RolesGuard } from '../../auth/roles.guard';
-import { Roles } from '../../auth/roles.decorator';
-import type { UserRole } from '@b2b-catalog-platform/shared';
+import { JwtAuthGuard } from '../../platform/auth/jwt-auth.guard';
+import { RolesGuard } from '../../platform/auth/roles.guard';
+import { Roles } from '../../platform/auth/roles.decorator';
+import type { UserRole } from '@b2b-catalog-platform/shared/platform';
 
 /** Over a real server: the role guards must still find their metadata on a
  * handler the contract layer registered. */

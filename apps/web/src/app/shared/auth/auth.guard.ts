@@ -1,7 +1,7 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
-import { UserRole } from '@b2b-catalog-platform/shared';
 import { AuthService } from './auth.service';
+import { UserRole } from '@b2b-catalog-platform/shared/platform';
 
 /**
  * Where a role belongs after signing in. Staff land in the admin panel, plain

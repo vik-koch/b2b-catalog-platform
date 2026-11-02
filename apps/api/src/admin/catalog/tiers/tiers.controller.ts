@@ -1,12 +1,12 @@
 import { Controller } from '@nestjs/common';
 import { Implement, implement } from '@orpc/nest';
-import { AuthUser } from '@b2b-catalog-platform/shared';
 import { tiersContract } from '@b2b-catalog-platform/shared/admin/catalog';
-import { Auth } from '../../../auth/auth.decorator';
-import { CurrentUser } from '../../../auth/current-user.decorator';
+import { Auth } from '../../../platform/auth/auth.decorator';
+import { CurrentUser } from '../../../platform/auth/current-user.decorator';
 import { AuditLogger } from '../../../audit/audit.logger';
 import { refusals } from '../../../orpc/refusals';
 import { TiersService } from './tiers.service';
+import { AuthUser } from '@b2b-catalog-platform/shared/platform';
 
 /** Managers may read the lists, to assign a customer one on approval; every
  * change is admin-only. */

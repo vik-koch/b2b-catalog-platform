@@ -1,12 +1,12 @@
 import { Controller } from '@nestjs/common';
 import { Implement, implement } from '@orpc/nest';
-import { AuthUser } from '@b2b-catalog-platform/shared';
-import { consentsContract } from '@b2b-catalog-platform/shared/admin';
-import { AuditLogger } from '../audit/audit.logger';
-import { Auth } from '../auth/auth.decorator';
-import { CurrentUser } from '../auth/current-user.decorator';
-import { refusals } from '../orpc/refusals';
-import { ConsentService } from './consent.service';
+import { AuditLogger } from '../../audit/audit.logger';
+import { Auth } from '../../platform/auth/auth.decorator';
+import { CurrentUser } from '../../platform/auth/current-user.decorator';
+import { refusals } from '../../orpc/refusals';
+import { ConsentRecords } from './consent-records';
+import { AuthUser } from '@b2b-catalog-platform/shared/platform';
+import { consentsContract } from '@b2b-catalog-platform/shared/admin/accounts';
 
 /**
  * Finding a person's consent records (NFR-LEGAL-09), to answer an inspection
@@ -18,7 +18,7 @@ import { ConsentService } from './consent.service';
 @Controller()
 export class ConsentAdminController {
   constructor(
-    private readonly consents: ConsentService,
+    private readonly consents: ConsentRecords,
     private readonly audit: AuditLogger,
   ) {}
 

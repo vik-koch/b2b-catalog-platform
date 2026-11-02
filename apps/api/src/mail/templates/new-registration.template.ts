@@ -1,10 +1,10 @@
-import {
-  SharedText,
-  CustomerType,
-  formatPersonName,
-} from '@b2b-catalog-platform/shared';
+import { SharedText } from '@b2b-catalog-platform/shared';
 import { MailContent } from '../mail-layout';
 import { MailText } from '../mail-text';
+import {
+  CustomerType,
+  formatPersonName,
+} from '@b2b-catalog-platform/shared/core/accounts';
 
 /** What the staff notification reports — the registration, as submitted. */
 export interface RegistrationSummary {

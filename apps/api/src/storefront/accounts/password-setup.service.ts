@@ -1,13 +1,17 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { PasswordTokenPurpose, UserRole } from '@b2b-catalog-platform/shared';
-import { CheckedConsent, ConsentService } from '../consents/consent.service';
-import { DRIZZLE } from '../db/database.module';
-import * as schema from '../db/schema';
-import { UserRow, UsersService } from '../users/users.service';
-import { PasswordPolicy } from './password-policy';
-import { PasswordTokenService } from './password-token.service';
-import { PasswordService } from './password.service';
+import {
+  CheckedConsent,
+  ConsentService,
+} from '../../core/site/consent.service';
+import { DRIZZLE } from '../../db/database.module';
+import * as schema from '../../db/schema';
+import { UserRow, UsersService } from '../../core/accounts/users.service';
+import { PasswordPolicy } from '../../core/accounts/password-policy';
+import { PasswordTokenService } from '../../core/accounts/password-token.service';
+import { PasswordService } from '../../core/accounts/password.service';
+import { PasswordTokenPurpose } from '@b2b-catalog-platform/shared/core/accounts';
+import { UserRole } from '@b2b-catalog-platform/shared/platform';
 
 /**
  * Redeeming a set-a-password link — the invitation staff send, and the reset a

@@ -1,8 +1,8 @@
 import { Controller, Inject, UseGuards } from '@nestjs/common';
 import { Implement, implement } from '@orpc/nest';
 import { cartContract, TaxConfig } from '@b2b-catalog-platform/shared';
-import { OptionalAuthGuard } from '../auth/optional-auth.guard';
-import { PricingTier } from '../auth/pricing-tier.decorator';
+import { OptionalAuthGuard } from '../platform/auth/optional-auth.guard';
+import { PricingTier } from '../platform/auth/pricing-tier.decorator';
 import { TAX_CONFIG } from '../config/deployment-config';
 import { DRIZZLE } from '../db/database.module';
 import { SearchThrottle } from '../throttling/throttle-presets';

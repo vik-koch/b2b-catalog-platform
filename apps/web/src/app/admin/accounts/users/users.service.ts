@@ -1,18 +1,20 @@
 import { inject, Injectable } from '@angular/core';
+import { usersContract } from '../../contract-routes.generated';
+import { safe, type ClientPromiseResult } from '@orpc/client';
+import { createOrpcClient } from '../../../shared/core/orpc-client';
+import { renderable } from '../../../shared/core/renderable';
+import { WorkService } from '../../../shared/work/work.service';
 import {
   AccountDeletionReason,
-  ConsentRecord,
   CreateUserRequest,
-  ListUsersQuery,
   StaffUser,
   UpdateUserRequest,
+} from '@b2b-catalog-platform/shared/core/accounts';
+import {
+  ConsentRecord,
+  ListUsersQuery,
   UserErrorCode,
-} from '@b2b-catalog-platform/shared/admin';
-import { usersContract } from '../contract-routes.generated';
-import { safe, type ClientPromiseResult } from '@orpc/client';
-import { createOrpcClient } from '../../shared/core/orpc-client';
-import { renderable } from '../../shared/core/renderable';
-import { WorkService } from '../../shared/work/work.service';
+} from '@b2b-catalog-platform/shared/admin/accounts';
 
 /**
  * The refusals a screen renders. The account codes, plus the two a manager is

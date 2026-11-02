@@ -1,22 +1,23 @@
 import { Component, effect, inject, resource, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { Address, fillText } from '@b2b-catalog-platform/shared';
-import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
-import { delayedLoading } from '../../shared/core/delayed-loading';
-import { usePageSeo } from '../../shared/core/page-seo';
+import { fillText } from '@b2b-catalog-platform/shared';
+import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
+import { delayedLoading } from '../../../shared/core/delayed-loading';
+import { usePageSeo } from '../../../shared/core/page-seo';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
-import { AddressFields } from '../../shared/addresses/address-fields';
-import { createAddressForm } from '../../shared/addresses/address-form';
+import { AddressFields } from '../../../core/accounts/addresses/address-fields';
+import { createAddressForm } from '../../../core/accounts/addresses/address-form';
 import {
   AddressesService,
   SaveAddressResult,
-} from '../../shared/addresses/addresses.service';
-import { SHARED_TEXT } from '../../shared/config/shared-text';
+} from '../../../core/accounts/addresses/addresses.service';
+import { SHARED_TEXT } from '../../../shared/config/shared-text';
 import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
+import { Address } from '@b2b-catalog-platform/shared/core/accounts';
 
 type Status = 'idle' | 'submitting' | 'error';
 

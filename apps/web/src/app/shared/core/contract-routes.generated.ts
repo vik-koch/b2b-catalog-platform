@@ -5,8 +5,84 @@
 // contract defines; the imports below are type-only and erased at build.
 
 import type * as shared from '@b2b-catalog-platform/shared';
+import type * as coreAccounts from '@b2b-catalog-platform/shared/core/accounts';
 import type * as coreSite from '@b2b-catalog-platform/shared/core/site';
 
+export const cartContract = {
+  previewCart: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'POST',
+        path: '/cart/preview',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+} as unknown as typeof shared.cartContract;
+export const ordersContract = {
+  submitOrder: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: { method: 'POST', path: '/orders', inputStructure: 'detailed' },
+    },
+  },
+  listMyOrders: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'GET',
+        path: '/account/orders',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+  getMyOrder: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'GET',
+        path: '/account/orders/{reference}',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+  getOrderByToken: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'GET',
+        path: '/orders/by-token/{token}',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+  cancelMyOrder: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'POST',
+        path: '/account/orders/{reference}/cancel',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+} as unknown as typeof shared.ordersContract;
+export const workContract = {
+  getCounts: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: { method: 'GET', path: '/work/counts' },
+    },
+  },
+} as unknown as typeof shared.workContract;
 export const addressSuggestionContract = {
   suggestAddresses: {
     '~orpc': {
@@ -19,7 +95,7 @@ export const addressSuggestionContract = {
       },
     },
   },
-} as unknown as typeof shared.addressSuggestionContract;
+} as unknown as typeof coreAccounts.addressSuggestionContract;
 export const addressesContract = {
   listAddresses: {
     '~orpc': {
@@ -61,7 +137,7 @@ export const addressesContract = {
       },
     },
   },
-} as unknown as typeof shared.addressesContract;
+} as unknown as typeof coreAccounts.addressesContract;
 export const authContract = {
   register: {
     '~orpc': {
@@ -172,73 +248,7 @@ export const authContract = {
       },
     },
   },
-} as unknown as typeof shared.authContract;
-export const cartContract = {
-  previewCart: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: {
-        method: 'POST',
-        path: '/cart/preview',
-        inputStructure: 'detailed',
-      },
-    },
-  },
-} as unknown as typeof shared.cartContract;
-export const ordersContract = {
-  submitOrder: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: { method: 'POST', path: '/orders', inputStructure: 'detailed' },
-    },
-  },
-  listMyOrders: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: {
-        method: 'GET',
-        path: '/account/orders',
-        inputStructure: 'detailed',
-      },
-    },
-  },
-  getMyOrder: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: {
-        method: 'GET',
-        path: '/account/orders/{reference}',
-        inputStructure: 'detailed',
-      },
-    },
-  },
-  getOrderByToken: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: {
-        method: 'GET',
-        path: '/orders/by-token/{token}',
-        inputStructure: 'detailed',
-      },
-    },
-  },
-  cancelMyOrder: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: {
-        method: 'POST',
-        path: '/account/orders/{reference}/cancel',
-        inputStructure: 'detailed',
-      },
-    },
-  },
-} as unknown as typeof shared.ordersContract;
+} as unknown as typeof coreAccounts.authContract;
 export const partySuggestionContract = {
   suggestParties: {
     '~orpc': {
@@ -251,16 +261,7 @@ export const partySuggestionContract = {
       },
     },
   },
-} as unknown as typeof shared.partySuggestionContract;
-export const workContract = {
-  getCounts: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: { method: 'GET', path: '/work/counts' },
-    },
-  },
-} as unknown as typeof shared.workContract;
+} as unknown as typeof coreAccounts.partySuggestionContract;
 export const maintenanceContract = {
   checkMaintenance: {
     '~orpc': {

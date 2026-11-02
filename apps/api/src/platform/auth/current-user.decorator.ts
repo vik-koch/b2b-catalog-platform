@@ -3,8 +3,8 @@ import {
   ExecutionContext,
   InternalServerErrorException,
 } from '@nestjs/common';
-import { AuthUser } from '@b2b-catalog-platform/shared';
 import { AuthenticatedRequest } from './authenticated-request';
+import { AuthUser } from '@b2b-catalog-platform/shared/platform';
 
 /**
  * Injects the authenticated user. Only valid on routes guarded by `@Auth()`,

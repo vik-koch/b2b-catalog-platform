@@ -1,9 +1,10 @@
 import type { MockInstance } from 'vitest';
 import { ConflictException, Logger } from '@nestjs/common';
-import { AddressConfig, AddressInput } from '@b2b-catalog-platform/shared';
+import { AddressConfig } from '@b2b-catalog-platform/shared';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import * as schema from '../db/schema';
+import * as schema from '../../db/schema';
 import { AddressesService } from './addresses.service';
+import { AddressInput } from '@b2b-catalog-platform/shared/core/accounts';
 
 const address: AddressInput = {
   label: null,

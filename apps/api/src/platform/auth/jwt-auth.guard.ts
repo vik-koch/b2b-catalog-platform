@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import type { Response } from 'express';
-import { UsersService } from '../users/users.service';
+import { SessionUsers } from './session-users';
 import { AUTH_COOKIE } from './auth.constants';
 import { toAuthUser } from './auth-user';
 import { AuthenticatedRequest } from './authenticated-request';
@@ -28,7 +28,7 @@ import { Sessions } from './sessions';
 export class JwtAuthGuard implements CanActivate {
   constructor(
     private readonly jwt: JwtService,
-    private readonly users: UsersService,
+    private readonly users: SessionUsers,
     private readonly sessions: Sessions,
   ) {}
 
@@ -53,7 +53,7 @@ export class JwtAuthGuard implements CanActivate {
       });
     }
 
-    const user = await this.users.findById(payload.sub);
+    const user = await this.users.find(payload.sub);
     // User gone (deleted) → reject.
     if (!user) {
       throw new UnauthorizedException({

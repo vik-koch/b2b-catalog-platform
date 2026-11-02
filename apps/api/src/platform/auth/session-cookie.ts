@@ -3,7 +3,7 @@ import {
   AUTH_COOKIE,
   SESSION_HINT_COOKIE,
   UserRole,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/platform';
 
 /**
  * How the session cookie is set, and therefore how it must be cleared — the

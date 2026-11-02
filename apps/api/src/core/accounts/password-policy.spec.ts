@@ -1,7 +1,7 @@
 import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { resetApiDeploymentConfig } from '../config/deployment-config';
+import { resetApiDeploymentConfig } from '../../config/deployment-config';
 import { PasswordPolicy } from './password-policy';
 import { PasswordRejectedError } from './password-rejected-error';
 

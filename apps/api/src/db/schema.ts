@@ -13,10 +13,12 @@ import {
   PAYMENT_METHODS,
   PAYMENT_STATES,
   TAX_BASES,
+} from '@b2b-catalog-platform/shared';
+import {
+  CONSENT_PURPOSES,
   CONSENT_WITHDRAWAL_NOTE_MAX,
   CONSENT_WITHDRAWAL_REASONS,
-} from '@b2b-catalog-platform/shared';
-import { CONSENT_PURPOSES } from '@b2b-catalog-platform/shared/core/site';
+} from '@b2b-catalog-platform/shared/core/site';
 import {
   PRODUCT_AVAILABILITIES,
   PRODUCT_UNITS,

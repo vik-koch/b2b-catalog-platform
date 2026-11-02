@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import {
   CONSENT_PURPOSES_ASKED,
   loadConsentPurposesAsked,
-} from '../config/deployment-config';
+} from '../../config/deployment-config';
 import { ConsentService } from './consent.service';
 
 @Module({

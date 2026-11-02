@@ -1,8 +1,8 @@
 import { PLATFORM_ID } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
+import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
 import { DeploymentConfig } from '@b2b-catalog-platform/shared';
-import { defaultDeploymentConfig } from '../../shared/config/deployment-config.fixture';
+import { defaultDeploymentConfig } from '../../../shared/config/deployment-config.fixture';
 import { ConsentDecision, ConsentService } from './consent.service';
 
 const STORAGE_KEY = 'cookie-consent';

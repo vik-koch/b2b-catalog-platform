@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
-import { AuditLogger } from '../audit/audit.logger';
-import { AddressBookModule } from './address-book.module';
-import { env } from '../env';
-import { AuthModule } from '../auth/auth.module';
+import { AuditLogger } from '../../audit/audit.logger';
+import { AddressBookModule } from '../../core/accounts/address-book.module';
+import { env } from '../../env';
+import { SessionModule } from '../../platform/auth/session.module';
 import { AddressSuggestionController } from './address-suggestion.controller';
 import {
   ADDRESS_SUGGESTION_PORT,
@@ -17,7 +17,7 @@ import { AddressesController } from './addresses.controller';
  * validates countries against.
  */
 @Module({
-  imports: [AuthModule, AddressBookModule],
+  imports: [SessionModule, AddressBookModule],
   controllers: [AddressesController, AddressSuggestionController],
   providers: [
     AuditLogger,

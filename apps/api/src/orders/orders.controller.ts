@@ -1,13 +1,13 @@
 import { Controller, Logger, UseGuards } from '@nestjs/common';
 import { Implement, implement } from '@orpc/nest';
-import { AuthUser, ordersContract } from '@b2b-catalog-platform/shared';
-import { Auth } from '../auth/auth.decorator';
+import { ordersContract } from '@b2b-catalog-platform/shared';
+import { Auth } from '../platform/auth/auth.decorator';
 import {
   CurrentUser,
   CurrentUserOptional,
-} from '../auth/current-user.decorator';
-import { OptionalAuthGuard } from '../auth/optional-auth.guard';
-import { PricingTier } from '../auth/pricing-tier.decorator';
+} from '../platform/auth/current-user.decorator';
+import { OptionalAuthGuard } from '../platform/auth/optional-auth.guard';
+import { PricingTier } from '../platform/auth/pricing-tier.decorator';
 import {
   OrderTokenThrottle,
   PublicFormThrottle,
@@ -17,6 +17,7 @@ import { refusals } from '../orpc/refusals';
 import { OrdersService } from './orders.service';
 import { CartChangedException } from './cart-changed-exception';
 import { PairingUnsatisfiedException } from './pairing-unsatisfied-exception';
+import { AuthUser } from '@b2b-catalog-platform/shared/platform';
 
 /**
  * Placing an order request and reading it back.

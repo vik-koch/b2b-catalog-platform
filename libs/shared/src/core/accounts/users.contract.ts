@@ -9,7 +9,7 @@ import {
   companyRegistrationIdSchema,
   emailField,
   storedEmailField,
-} from '../config/contact-config';
+} from '../../lib/config/contact-config';
 import { customerTypeSchema } from './auth.contract';
 import { userRoleSchema } from '../../platform/session.contract';
 

@@ -1,4 +1,4 @@
-import { AUTH_COOKIE } from '@b2b-catalog-platform/shared';
+import { AUTH_COOKIE } from '@b2b-catalog-platform/shared/platform';
 
 /**
  * The session cookie out of a `Cookie` header, as `name=value`, or null when

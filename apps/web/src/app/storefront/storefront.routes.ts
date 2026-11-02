@@ -66,14 +66,15 @@ export const storefrontRoutes: Route[] = [
     path: 'login',
     canActivate: [guestOnly],
     data: { layout: 'centered' },
-    loadComponent: () => import('./auth/login-page').then((m) => m.LoginPage),
+    loadComponent: () =>
+      import('./accounts/auth/login-page').then((m) => m.LoginPage),
   },
   {
     path: 'register',
     canActivate: [guestOnly],
     data: { layout: 'centered' },
     loadComponent: () =>
-      import('./auth/register-page').then((m) => m.RegisterPage),
+      import('./accounts/auth/register-page').then((m) => m.RegisterPage),
   },
   {
     // Guest-only like login: somebody already signed in has the
@@ -82,7 +83,9 @@ export const storefrontRoutes: Route[] = [
     canActivate: [guestOnly],
     data: { layout: 'centered' },
     loadComponent: () =>
-      import('./auth/forgot-password-page').then((m) => m.ForgotPasswordPage),
+      import('./accounts/auth/forgot-password-page').then(
+        (m) => m.ForgotPasswordPage,
+      ),
   },
   {
     // Reached from an invitation or a reset mail; the link is in the query
@@ -90,20 +93,24 @@ export const storefrontRoutes: Route[] = [
     path: 'set-password',
     data: { layout: 'centered' },
     loadComponent: () =>
-      import('./auth/set-password-page').then((m) => m.SetPasswordPage),
+      import('./accounts/auth/set-password-page').then(
+        (m) => m.SetPasswordPage,
+      ),
   },
   // The customer's own area closes with the shop while maintenance is on.
   {
     path: 'account',
     canActivate: [requireAuth(), maintenanceGate],
     loadComponent: () =>
-      import('./account/account-page').then((m) => m.AccountPage),
+      import('./accounts/account/account-page').then((m) => m.AccountPage),
   },
   {
     path: 'account/edit',
     canActivate: [requireAuth(), maintenanceGate],
     loadComponent: () =>
-      import('./account/account-edit-page').then((m) => m.AccountEditPage),
+      import('./accounts/account/account-edit-page').then(
+        (m) => m.AccountEditPage,
+      ),
   },
   // The account's own order history (FR-ACC-01), lazy like the rest of the
   // signed-in area. The page it lands on is read-only: an order is a request,
@@ -127,7 +134,7 @@ export const storefrontRoutes: Route[] = [
     path: 'account/addresses/new',
     canActivate: [requireAuth(), maintenanceGate],
     loadComponent: () =>
-      import('./addresses/address-editor-page').then(
+      import('./accounts/addresses/address-editor-page').then(
         (m) => m.AddressEditorPage,
       ),
   },
@@ -135,7 +142,7 @@ export const storefrontRoutes: Route[] = [
     path: 'account/addresses/:id/edit',
     canActivate: [requireAuth(), maintenanceGate],
     loadComponent: () =>
-      import('./addresses/address-editor-page').then(
+      import('./accounts/addresses/address-editor-page').then(
         (m) => m.AddressEditorPage,
       ),
   },
@@ -143,13 +150,17 @@ export const storefrontRoutes: Route[] = [
     path: 'account/delete',
     canActivate: [requireAuth(), maintenanceGate],
     loadComponent: () =>
-      import('./account/account-delete-page').then((m) => m.AccountDeletePage),
+      import('./accounts/account/account-delete-page').then(
+        (m) => m.AccountDeletePage,
+      ),
   },
   {
     path: 'change-password',
     canActivate: [requireAuth(), maintenanceGate],
     loadComponent: () =>
-      import('./auth/change-password-page').then((m) => m.ChangePasswordPage),
+      import('./accounts/auth/change-password-page').then(
+        (m) => m.ChangePasswordPage,
+      ),
   },
   // The order summary a confirmation mail links to (FR-NOTIF-06). Public by
   // capability: the token in the URL is the whole credential, so there is no

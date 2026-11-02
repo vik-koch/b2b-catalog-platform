@@ -1,19 +1,19 @@
-import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { SHARED_TEXT } from '../../../shared/config/shared-text';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
+import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
+import { defaultStorefrontText } from '../../../shared/config/storefront-text.fixture';
+import { defaultSharedText } from '../../../shared/config/shared-text.fixture';
+import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
+import { defaultDeploymentConfig } from '../../../shared/config/deployment-config.fixture';
+import { AuthService } from '../../../shared/auth/auth.service';
+import { AccountEditPage } from './account-edit-page';
+import { AccountService } from './account.service';
+import { provideDigitMaskFormat } from '../../../shared/core/contact-fields';
 import {
   AccountProfile,
   UpdateAccountProfileRequest,
-} from '@b2b-catalog-platform/shared/storefront';
-import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
-import { defaultStorefrontText } from '../../shared/config/storefront-text.fixture';
-import { defaultSharedText } from '../../shared/config/shared-text.fixture';
-import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
-import { defaultDeploymentConfig } from '../../shared/config/deployment-config.fixture';
-import { AuthService } from '../../shared/auth/auth.service';
-import { AccountEditPage } from './account-edit-page';
-import { AccountService } from './account.service';
-import { provideDigitMaskFormat } from '../../shared/core/contact-fields';
+} from '@b2b-catalog-platform/shared/storefront/accounts';
 
 const text = defaultStorefrontText.account.edit;
 const config = defaultDeploymentConfig;

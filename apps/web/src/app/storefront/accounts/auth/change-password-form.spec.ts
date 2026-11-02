@@ -1,14 +1,14 @@
-import { SHARED_TEXT } from '../../shared/config/shared-text';
-import { defaultSharedText } from '../../shared/config/shared-text.fixture';
+import { SHARED_TEXT } from '../../../shared/config/shared-text';
+import { defaultSharedText } from '../../../shared/config/shared-text.fixture';
 import { TestBed } from '@angular/core/testing';
-import { PASSWORD_MIN_LENGTH } from '@b2b-catalog-platform/shared';
-import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
-import { defaultStorefrontText } from '../../shared/config/storefront-text.fixture';
+import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
+import { defaultStorefrontText } from '../../../shared/config/storefront-text.fixture';
 import {
   AuthService,
   ChangePasswordResult,
-} from '../../shared/auth/auth.service';
+} from '../../../shared/auth/auth.service';
 import { ChangePasswordForm } from './change-password-form';
+import { PASSWORD_MIN_LENGTH } from '@b2b-catalog-platform/shared/core/accounts';
 
 const text = defaultStorefrontText.auth.changePassword;
 const validation = defaultStorefrontText.auth.validation;

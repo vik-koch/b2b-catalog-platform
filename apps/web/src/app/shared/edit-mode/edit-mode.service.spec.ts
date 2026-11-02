@@ -1,10 +1,10 @@
 import { PLATFORM_ID, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { AuthUser } from '@b2b-catalog-platform/shared';
 import { AuthService } from '../auth/auth.service';
 import { adminUser, plainUser } from '../auth/auth-user.fixture';
 import { ADMIN_TEXT_LOADED } from '../config/admin-text';
 import { EditModeService } from './edit-mode.service';
+import { AuthUser } from '@b2b-catalog-platform/shared/platform';
 
 /**
  * Guarantees the security-adjacent contract of edit mode: it is *never* enabled

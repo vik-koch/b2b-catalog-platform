@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { env } from '../env';
+import { env } from '../../env';
 import { PartySuggestionController } from './party-suggestion.controller';
 import {
   PARTY_SUGGESTION_PORT,

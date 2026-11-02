@@ -1,14 +1,14 @@
 import { ExecutionContext, ServiceUnavailableException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
-import { UserRow, UsersService } from '../../users/users.service';
-import { AUTH_COOKIE } from '../../auth/auth.constants';
+import { SessionUser, SessionUsers } from '../../platform/auth/session-users';
+import { AUTH_COOKIE } from '../../platform/auth/auth.constants';
 import { MachineScope } from '../../api-tokens/machine-scope.decorator';
-import { Roles } from '../../auth/roles.decorator';
+import { Roles } from '../../platform/auth/roles.decorator';
 import { MaintenanceGuard } from './maintenance.guard';
 import { MaintenanceState } from './maintenance-state';
 
-const adminRow = (overrides: Partial<UserRow> = {}): UserRow =>
+const adminRow = (overrides: Partial<SessionUser> = {}): SessionUser =>
   ({
     id: '00000000-0000-0000-0000-000000000001',
     email: 'admin@example.com',
@@ -19,7 +19,7 @@ const adminRow = (overrides: Partial<UserRow> = {}): UserRow =>
     createdAt: new Date(),
     updatedAt: new Date(),
     ...overrides,
-  }) as UserRow;
+  }) as SessionUser;
 
 const adminClaims = {
   sub: adminRow().id,
@@ -31,7 +31,7 @@ const adminClaims = {
 describe('MaintenanceGuard', () => {
   const isMaintenanceEnabled = vi.fn();
   const verifyAsync = vi.fn();
-  const findById = vi.fn();
+  const find = vi.fn();
   // Emulates the reflector reading metadata off the route: the roles array
   // when the route is marked as auth-guarded, the scope when it is a machine
   // route, or the exempt flag.
@@ -48,7 +48,7 @@ describe('MaintenanceGuard', () => {
     reflector,
     { isEnabled: isMaintenanceEnabled } as unknown as MaintenanceState,
     { verifyAsync } as unknown as JwtService,
-    { findById } as unknown as UsersService,
+    { find } as unknown as SessionUsers,
   );
 
   const setHeader = vi.fn();
@@ -65,7 +65,7 @@ describe('MaintenanceGuard', () => {
   beforeEach(() => {
     isMaintenanceEnabled.mockReset();
     verifyAsync.mockReset();
-    findById.mockReset();
+    find.mockReset();
     setHeader.mockReset();
     metadata.roles = undefined;
     metadata.scope = undefined;
@@ -111,7 +111,7 @@ describe('MaintenanceGuard', () => {
     isMaintenanceEnabled.mockReturnValue(true);
     metadata.roles = [];
     verifyAsync.mockResolvedValue({ ...adminClaims, role: 'user' });
-    findById.mockResolvedValue(adminRow({ role: 'user' }));
+    find.mockResolvedValue(adminRow({ role: 'user' }));
 
     await expect(
       guard.canActivate(contextWith({ [AUTH_COOKIE]: 'good' })),
@@ -122,7 +122,7 @@ describe('MaintenanceGuard', () => {
     isMaintenanceEnabled.mockReturnValue(true);
     metadata.roles = [];
     verifyAsync.mockResolvedValue({ ...adminClaims, role: 'manager' });
-    findById.mockResolvedValue(adminRow({ role: 'manager' }));
+    find.mockResolvedValue(adminRow({ role: 'manager' }));
 
     await expect(
       guard.canActivate(contextWith({ [AUTH_COOKIE]: 'good' })),
@@ -147,7 +147,7 @@ describe('MaintenanceGuard', () => {
   it('lets a valid admin session preview a public route', async () => {
     isMaintenanceEnabled.mockReturnValue(true);
     verifyAsync.mockResolvedValue(adminClaims);
-    findById.mockResolvedValue(adminRow());
+    find.mockResolvedValue(adminRow());
 
     await expect(
       guard.canActivate(contextWith({ [AUTH_COOKIE]: 'good' })),
@@ -157,7 +157,7 @@ describe('MaintenanceGuard', () => {
   it('lets a valid manager session preview a public route', async () => {
     isMaintenanceEnabled.mockReturnValue(true);
     verifyAsync.mockResolvedValue({ ...adminClaims, role: 'manager' });
-    findById.mockResolvedValue(adminRow({ role: 'manager' }));
+    find.mockResolvedValue(adminRow({ role: 'manager' }));
 
     await expect(
       guard.canActivate(contextWith({ [AUTH_COOKIE]: 'good' })),
@@ -167,7 +167,7 @@ describe('MaintenanceGuard', () => {
   it('does not exempt a customer session', async () => {
     isMaintenanceEnabled.mockReturnValue(true);
     verifyAsync.mockResolvedValue({ ...adminClaims, role: 'user' });
-    findById.mockResolvedValue(adminRow({ role: 'user' }));
+    find.mockResolvedValue(adminRow({ role: 'user' }));
 
     await expect(
       guard.canActivate(contextWith({ [AUTH_COOKIE]: 'good' })),
@@ -177,7 +177,7 @@ describe('MaintenanceGuard', () => {
   it('does not exempt a session whose token version is stale', async () => {
     isMaintenanceEnabled.mockReturnValue(true);
     verifyAsync.mockResolvedValue(adminClaims);
-    findById.mockResolvedValue(adminRow({ tokenVersion: 1 }));
+    find.mockResolvedValue(adminRow({ tokenVersion: 1 }));
 
     await expect(
       guard.canActivate(contextWith({ [AUTH_COOKIE]: 'good' })),

@@ -11,8 +11,8 @@ import { ProductLifecycleService } from './products/product-lifecycle.service';
 import { ProductRecords } from './products/product-records';
 import { AuditLogger } from '../../audit/audit.logger';
 import { ContractErrorFilter } from '../../orpc/contract-error.filter';
-import { JwtAuthGuard } from '../../auth/jwt-auth.guard';
-import { RolesGuard } from '../../auth/roles.guard';
+import { JwtAuthGuard } from '../../platform/auth/jwt-auth.guard';
+import { RolesGuard } from '../../platform/auth/roles.guard';
 
 /**
  * The write surface over a real server. The service raises its refusals as

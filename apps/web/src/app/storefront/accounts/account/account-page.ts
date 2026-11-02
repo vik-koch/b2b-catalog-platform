@@ -1,23 +1,19 @@
 import { Component, computed, inject, resource, Signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import {
-  Address,
-  fillText,
-  formatPersonName,
-} from '@b2b-catalog-platform/shared';
+import { fillText } from '@b2b-catalog-platform/shared';
 import {
   addressDetailLines,
   addressDisplayName,
-} from '../../shared/addresses/address-format';
-import { AddressesService } from '../../shared/addresses/addresses.service';
-import { SignedInAs } from '../../shared/auth/signed-in-as';
-import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
-import { SHARED_TEXT } from '../../shared/config/shared-text';
-import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
-import { formatPhone } from '../../shared/core/contact-fields';
-import { usePageSeo } from '../../shared/core/page-seo';
-import { OrderRows } from '../orders/order-rows';
-import { OrdersService } from '../orders/orders.service';
+} from '../../../core/accounts/addresses/address-format';
+import { AddressesService } from '../../../core/accounts/addresses/addresses.service';
+import { SignedInAs } from '../../../shared/auth/signed-in-as';
+import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
+import { SHARED_TEXT } from '../../../shared/config/shared-text';
+import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
+import { formatPhone } from '../../../shared/core/contact-fields';
+import { usePageSeo } from '../../../shared/core/page-seo';
+import { OrderRows } from '../../orders/order-rows';
+import { OrdersService } from '../../orders/orders.service';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import {
   confirmRequest,
@@ -27,7 +23,7 @@ import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import { ActionLink } from '@b2b-catalog-platform/ui/actions/action-link';
-import { WorkService } from '../../shared/work/work.service';
+import { WorkService } from '../../../shared/work/work.service';
 import { AccountService } from './account.service';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
@@ -39,6 +35,10 @@ import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
 import { userIcon } from '@b2b-catalog-platform/ui/icons/glyphs/user';
 import { Card } from '@b2b-catalog-platform/ui/content/card';
 import { SectionTitle } from '@b2b-catalog-platform/ui/content/section-title';
+import {
+  Address,
+  formatPersonName,
+} from '@b2b-catalog-platform/shared/core/accounts';
 
 /**
  * How many of the newest orders the account page itself shows. Enough that a

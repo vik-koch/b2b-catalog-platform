@@ -1,4 +1,4 @@
-import { PasswordRejectionCode } from '@b2b-catalog-platform/shared';
+import { PasswordRejectionCode } from '@b2b-catalog-platform/shared/core/accounts';
 
 /**
  * A password the policy refuses, carrying the rule that refused it. The code is

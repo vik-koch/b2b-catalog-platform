@@ -1,16 +1,16 @@
-import { SHARED_TEXT } from '../../shared/config/shared-text';
-import { defaultSharedText } from '../../shared/config/shared-text.fixture';
+import { SHARED_TEXT } from '../../../shared/config/shared-text';
+import { defaultSharedText } from '../../../shared/config/shared-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
-import { ConsentRecord } from '@b2b-catalog-platform/shared/admin';
-import { ADMIN_TEXT } from '../../shared/config/admin-text';
-import { defaultAdminText } from '../../shared/config/admin-text.fixture';
-import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
-import { defaultDeploymentConfig } from '../../shared/config/deployment-config.fixture';
+import { ADMIN_TEXT } from '../../../shared/config/admin-text';
+import { defaultAdminText } from '../../../shared/config/admin-text.fixture';
+import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
+import { defaultDeploymentConfig } from '../../../shared/config/deployment-config.fixture';
 import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
 import { ConsentLookupPage } from './consent-lookup-page';
 import { ConsentsService } from './consents.service';
-import { provideDigitMaskFormat } from '../../shared/core/contact-fields';
+import { provideDigitMaskFormat } from '../../../shared/core/contact-fields';
+import { ConsentRecord } from '@b2b-catalog-platform/shared/admin/accounts';
 
 const text = defaultAdminText.consents;
 

@@ -1,21 +1,21 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { and, count, eq, inArray, notInArray, sql } from 'drizzle-orm';
-import {
-  CustomerType,
-  ENDED_ORDER_STATUSES,
-} from '@b2b-catalog-platform/shared';
-import { AccountDeletionReason } from '@b2b-catalog-platform/shared/admin';
-import { DRIZZLE } from '../db/database.module';
-import * as schema from '../db/schema';
-import { withdrawAccountConsents } from '../consents/consent-withdrawals';
+import { ENDED_ORDER_STATUSES } from '@b2b-catalog-platform/shared';
+import { DRIZZLE } from '../../db/database.module';
+import * as schema from '../../db/schema';
+import { withdrawAccountConsents } from '../site/consent-withdrawals';
 import {
   ACCOUNT_DELETION_CATEGORIES,
   recordDestruction,
-} from '../destruction/record-destruction';
-import { addresses, orders, signInCodes, users } from '../db/schema';
-import { scrubOrders } from '../orders/order-scrub';
+} from '../../destruction/record-destruction';
+import { addresses, orders, signInCodes, users } from '../../db/schema';
+import { scrubOrders } from '../../orders/order-scrub';
 import { LastAdminError } from './last-admin-error';
+import {
+  CustomerType,
+  AccountDeletionReason,
+} from '@b2b-catalog-platform/shared/core/accounts';
 
 export type UserRow = typeof users.$inferSelect;
 

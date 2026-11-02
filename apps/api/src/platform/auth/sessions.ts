@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import type { Request, Response } from 'express';
-import { UserRow } from '../users/users.service';
+import { SessionUser } from './session-users';
 import { JwtPayload } from './jwt-payload';
 import { issueSession } from './session-cookie';
 
@@ -28,7 +28,7 @@ export class Sessions {
   }
 
   /** Sign a token for the account and set it, with its hint, on the response. */
-  async start(req: Request, res: Response, user: UserRow): Promise<void> {
+  async start(req: Request, res: Response, user: SessionUser): Promise<void> {
     const payload: JwtPayload = {
       sub: user.id,
       email: user.email,
@@ -51,7 +51,7 @@ export class Sessions {
     req: Request,
     res: Response | undefined,
     payload: JwtPayload,
-    user: UserRow,
+    user: SessionUser,
   ): Promise<void> {
     if (!res || payload.iat === undefined) return;
     if (Date.now() / 1000 - payload.iat < DAY_S) return;

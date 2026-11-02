@@ -1,21 +1,21 @@
 import { Controller, Inject, Req, Res } from '@nestjs/common';
 import type { Request, Response } from 'express';
 import { Implement, implement } from '@orpc/nest';
-import { AuthUser } from '@b2b-catalog-platform/shared';
+import { AuditLogger } from '../../audit/audit.logger';
+import { Auth } from '../../platform/auth/auth.decorator';
+import { CurrentUser } from '../../platform/auth/current-user.decorator';
+import { endSession } from '../../platform/auth/session-cookie';
+import { PHONE_RULE, PhoneRule } from '../../config/deployment-config';
+import { refusals } from '../../orpc/refusals';
+import { SignInStep } from '../../core/accounts/sign-in-step/sign-in-step';
+import { storedPhone } from '../../core/accounts/stored-phone';
+import { UserRow, UsersService } from '../../core/accounts/users.service';
+import { AccountDeletion } from '../../core/accounts/account-deletion';
+import { AuthUser } from '@b2b-catalog-platform/shared/platform';
 import {
   AccountProfile,
   accountContract,
-} from '@b2b-catalog-platform/shared/storefront';
-import { AuditLogger } from '../audit/audit.logger';
-import { Auth } from '../auth/auth.decorator';
-import { CurrentUser } from '../auth/current-user.decorator';
-import { endSession } from '../auth/session-cookie';
-import { PHONE_RULE, PhoneRule } from '../config/deployment-config';
-import { refusals } from '../orpc/refusals';
-import { SignInStep } from '../auth/sign-in-step/sign-in-step';
-import { storedPhone } from '../users/stored-phone';
-import { UserRow, UsersService } from '../users/users.service';
-import { AccountDeletion } from './account-deletion';
+} from '@b2b-catalog-platform/shared/storefront/accounts';
 
 /** The account holder's own view of their row — never the tier (ADR 0031). */
 function toAccountProfile(

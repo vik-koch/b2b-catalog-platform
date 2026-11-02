@@ -2,14 +2,14 @@ import { createHash, randomInt, timingSafeEqual } from 'node:crypto';
 import { Inject, Injectable } from '@nestjs/common';
 import { and, eq, gt, isNotNull, lt, sql } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { SIGN_IN_CODE_LENGTH } from '@b2b-catalog-platform/shared';
-import { DRIZZLE } from '../../db/database.module';
-import * as schema from '../../db/schema';
-import { signInCodes } from '../../db/schema';
-import { MAIL_TEXT, MailText } from '../../mail/mail-text';
-import { signInCodeText } from '../../mail/templates/sign-in-code.template';
+import { DRIZZLE } from '../../../db/database.module';
+import * as schema from '../../../db/schema';
+import { signInCodes } from '../../../db/schema';
+import { MAIL_TEXT, MailText } from '../../../mail/mail-text';
+import { signInCodeText } from '../../../mail/templates/sign-in-code.template';
 import { SIGN_IN_PROOF, SignInProof } from './sign-in-proof';
 import { CodeResendLimitError } from './code-resend-limit-error';
+import { SIGN_IN_CODE_LENGTH } from '@b2b-catalog-platform/shared/core/accounts';
 
 /** How long a code is good for. */
 export const CODE_TTL_MS = 10 * 60 * 1000;

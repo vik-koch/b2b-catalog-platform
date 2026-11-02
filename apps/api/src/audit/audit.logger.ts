@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { AuthUser } from '@b2b-catalog-platform/shared';
+import { AuthUser } from '@b2b-catalog-platform/shared/platform';
 
 /** Actions worth attributing. A closed set, so the log stays greppable. */
 export type AuditAction =

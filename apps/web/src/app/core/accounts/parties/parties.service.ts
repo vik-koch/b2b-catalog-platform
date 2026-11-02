@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { PartySuggestion } from '@b2b-catalog-platform/shared';
-import { partySuggestionContract } from '../core/contract-routes.generated';
+import { partySuggestionContract } from '../../../shared/core/contract-routes.generated';
 import { safe } from '@orpc/client';
-import { createOrpcClient } from '../core/orpc-client';
+import { createOrpcClient } from '../../../shared/core/orpc-client';
+import { PartySuggestion } from '@b2b-catalog-platform/shared/core/accounts';
 
 /**
  * Companies matching what is being typed (FR-AUTH-09). A deployment with no

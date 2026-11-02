@@ -9,7 +9,6 @@ import {
   SyncSummary,
 } from '@b2b-catalog-platform/shared/sync';
 import { signal } from '@angular/core';
-import { AuthUser } from '@b2b-catalog-platform/shared';
 import { SyncArea } from '@b2b-catalog-platform/shared/sync';
 import { AuthService } from '../../shared/auth/auth.service';
 import { adminUser, managerUser } from '../../shared/auth/auth-user.fixture';
@@ -23,6 +22,7 @@ import { defaultDeploymentConfig } from '../../shared/config/deployment-config.f
 import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
 import { SyncRunPage } from './sync-run-page';
 import { SyncService } from './sync.service';
+import { AuthUser } from '@b2b-catalog-platform/shared/platform';
 
 const text = defaultAdminText.sync;
 const ownershipText = defaultAdminText.ownership;

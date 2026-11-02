@@ -1,18 +1,17 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { form, hidden, required } from '@angular/forms/signals';
 import { RouterLink } from '@angular/router';
-import { CustomerType, PartySuggestion } from '@b2b-catalog-platform/shared';
-import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
-import { SHARED_TEXT } from '../../shared/config/shared-text';
-import { usePageSeo } from '../../shared/core/page-seo';
-import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
-import { canonicalPhone } from '../../shared/core/contact-fields';
+import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
+import { SHARED_TEXT } from '../../../shared/config/shared-text';
+import { usePageSeo } from '../../../shared/core/page-seo';
+import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
+import { canonicalPhone } from '../../../shared/core/contact-fields';
 import {
   companyIdFormat,
   completeMask,
   emailAddress,
-} from '../../shared/core/field-rules';
-import { CompanyFields } from '../../shared/parties/company-fields';
+} from '../../../shared/core/field-rules';
+import { CompanyFields } from '../../../core/accounts/parties/company-fields';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { HoneypotField } from '@b2b-catalog-platform/ui/fields/honeypot-field';
 import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
@@ -23,13 +22,17 @@ import {
   SegmentOption,
 } from '@b2b-catalog-platform/ui/choices/segmented';
 import { AuthCard } from './auth-card';
-import { AuthService } from '../../shared/auth/auth.service';
+import { AuthService } from '../../../shared/auth/auth.service';
 import { Link } from '@b2b-catalog-platform/ui/actions/link';
-import { ConsentField } from '../site/consent-field';
-import { useConsent } from '../site/consent';
+import { ConsentField } from '../../site/consent-field';
+import { useConsent } from '../../site/consent';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
+import {
+  CustomerType,
+  PartySuggestion,
+} from '@b2b-catalog-platform/shared/core/accounts';
 
 type Status = 'idle' | 'success' | 'error';
 

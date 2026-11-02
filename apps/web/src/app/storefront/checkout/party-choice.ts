@@ -1,11 +1,10 @@
 import { Component, inject, input, output } from '@angular/core';
 import { FormField, type FieldTree } from '@angular/forms/signals';
 import { NgTemplateOutlet } from '@angular/common';
-import { PartySuggestion } from '@b2b-catalog-platform/shared';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
-import { CompanyFields } from '../../shared/parties/company-fields';
+import { CompanyFields } from '../../core/accounts/parties/company-fields';
 import { ChoiceBranch } from '@b2b-catalog-platform/ui/choices/choice-branch';
 import { Field } from '@b2b-catalog-platform/ui/fields/field';
 import { FieldBinding } from '@b2b-catalog-platform/ui/fields/field-binding';
@@ -17,6 +16,7 @@ import {
 import { PartyChoice as Party } from './checkout-draft.service';
 import { PartyAnswers } from './checkout-forms';
 import { WarningNote } from '@b2b-catalog-platform/ui/content/warning-note';
+import { PartySuggestion } from '@b2b-catalog-platform/shared/core/accounts';
 
 /**
  * Who the order is invoiced to (FR-CART-09) — a field of the order, not a

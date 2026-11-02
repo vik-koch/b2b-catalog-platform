@@ -9,20 +9,14 @@ import {
   untracked,
 } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import {
-  AddressInput,
-  fillText,
-  formatPersonName,
-  FulfilmentMethod,
-  PartySuggestion,
-} from '@b2b-catalog-platform/shared';
+import { fillText, FulfilmentMethod } from '@b2b-catalog-platform/shared';
 import {
   isOrderDateAllowed,
   localToday,
 } from '@b2b-catalog-platform/shared/storefront';
-import { AccountService } from '../account/account.service';
-import { AddressForm } from '../../shared/addresses/address-form';
-import { AddressesService } from '../../shared/addresses/addresses.service';
+import { AccountService } from '../accounts/account/account.service';
+import { AddressForm } from '../../core/accounts/addresses/address-form';
+import { AddressesService } from '../../core/accounts/addresses/addresses.service';
 import { AuthService } from '../../shared/auth/auth.service';
 import { CartService } from '../../shared/cart/cart.service';
 import { OrderSummary } from '../../shared/cart/order-summary';
@@ -71,6 +65,11 @@ import { circleUserRoundIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circl
 import { lockIcon } from '@b2b-catalog-platform/ui/icons/glyphs/lock';
 import { phoneIcon } from '@b2b-catalog-platform/ui/icons/glyphs/phone';
 import { shoppingBasketIcon } from '@b2b-catalog-platform/ui/icons/glyphs/shopping-basket';
+import {
+  AddressInput,
+  formatPersonName,
+  PartySuggestion,
+} from '@b2b-catalog-platform/shared/core/accounts';
 
 /**
  * The checkout form (FR-CART-03/04/07/09): one screen covering how the goods

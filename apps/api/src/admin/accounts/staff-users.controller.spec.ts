@@ -6,16 +6,16 @@ import {
 import { APP_FILTER } from '@nestjs/core';
 import { Test } from '@nestjs/testing';
 import { StaffUsersController } from './staff-users.controller';
-import { StaffUsersService } from './staff-users.service';
-import { SignInStep } from '../auth/sign-in-step/sign-in-step';
-import { AccountInvitations } from './account-invitations';
-import { AuditLogger } from '../audit/audit.logger';
-import { ContractErrorFilter } from '../orpc/contract-error.filter';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { RolesGuard } from '../auth/roles.guard';
-import { OwnershipState } from '../settings/ownership-state';
-import { ConsentService } from '../consents/consent.service';
-import { AccountDeletion } from '../account/account-deletion';
+import { StaffUsersService } from '../../core/accounts/staff-users.service';
+import { SignInStep } from '../../core/accounts/sign-in-step/sign-in-step';
+import { AccountInvitations } from '../../core/accounts/account-invitations';
+import { AuditLogger } from '../../audit/audit.logger';
+import { ContractErrorFilter } from '../../orpc/contract-error.filter';
+import { JwtAuthGuard } from '../../platform/auth/jwt-auth.guard';
+import { RolesGuard } from '../../platform/auth/roles.guard';
+import { OwnershipState } from '../../settings/ownership-state';
+import { ConsentRecords } from './consent-records';
+import { AccountDeletion } from '../../core/accounts/account-deletion';
 
 /**
  * The role boundary is the whole point of this surface, and it is the kind of
@@ -109,7 +109,7 @@ describe('StaffUsersController', () => {
         },
         { provide: AuditLogger, useValue: { record } },
         { provide: AccountDeletion, useValue: { deleteOnRequest } },
-        { provide: ConsentService, useValue: { findByAccount } },
+        { provide: ConsentRecords, useValue: { findByAccount } },
         {
           provide: OwnershipState,
           useValue: {

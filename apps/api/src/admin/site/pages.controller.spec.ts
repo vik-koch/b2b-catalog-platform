@@ -2,8 +2,8 @@ import { INestApplication, UnauthorizedException } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { AdminPagesController } from './pages.controller';
 import { PageEditorService } from './page-editor.service';
-import { JwtAuthGuard } from '../../auth/jwt-auth.guard';
-import { RolesGuard } from '../../auth/roles.guard';
+import { JwtAuthGuard } from '../../platform/auth/jwt-auth.guard';
+import { RolesGuard } from '../../platform/auth/roles.guard';
 
 /** Over a real server: routing, validation and the refusal's shape are the
  * contract layer's work, which a call on the handler would skip. */

@@ -20,41 +20,39 @@ import {
 } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import {
-  COMPANY_ID_NONE,
-  CompanyIdFormat,
-  companyIdFormatOf,
-  CustomerType,
-  UserRole,
-} from '@b2b-catalog-platform/shared';
-import {
   alternateLayoutQuery,
   KeyboardLayout,
+  UserRole,
+  CompanyIdFormat,
+  companyIdFormatOf,
 } from '@b2b-catalog-platform/shared/platform';
-import {
-  CreateUserRequest,
-  StaffUser,
-  UpdateUserRequest,
-  UserKind,
-} from '@b2b-catalog-platform/shared/admin';
 import {
   ACCEPTED_CUSTOMER_TYPES,
   ALTERNATE_LAYOUT,
   COMPANY_ID_FORMATS,
   PHONE_RULE,
   PhoneRule,
-} from '../config/deployment-config';
-import { DRIZZLE } from '../db/database.module';
-import * as schema from '../db/schema';
-import { users } from '../db/schema';
-import { qualified } from '../db/sql-columns';
+} from '../../config/deployment-config';
+import { DRIZZLE } from '../../db/database.module';
+import * as schema from '../../db/schema';
+import { users } from '../../db/schema';
+import { qualified } from '../../db/sql-columns';
 import { storedPhone } from './stored-phone';
-import { withdrawAccountConsents } from '../consents/consent-withdrawals';
+import { withdrawAccountConsents } from '../site/consent-withdrawals';
 import {
   recordDestruction,
   REGISTRATION_CATEGORIES,
-} from '../destruction/record-destruction';
+} from '../../destruction/record-destruction';
 import { UsersService } from './users.service';
-import { isUniqueViolation } from '../db/pg-errors';
+import { isUniqueViolation } from '../../db/pg-errors';
+import {
+  COMPANY_ID_NONE,
+  CustomerType,
+  CreateUserRequest,
+  StaffUser,
+  UpdateUserRequest,
+  UserKind,
+} from '@b2b-catalog-platform/shared/core/accounts';
 
 /**
  * The one 404 this surface has. A function rather than a constant so each throw

@@ -1,15 +1,15 @@
 import { Controller, Inject } from '@nestjs/common';
 import { Implement, implement } from '@orpc/nest';
-import {
-  PARTY_QUERY_MIN_LENGTH,
-  PARTY_SUGGESTION_LIMIT,
-  partySuggestionContract,
-} from '@b2b-catalog-platform/shared';
-import { SidecarSuggestionThrottle } from '../throttling/throttle-presets';
+import { SidecarSuggestionThrottle } from '../../throttling/throttle-presets';
 import {
   PARTY_SUGGESTION_PORT,
   PartySuggestionPort,
 } from './party-suggestion.port';
+import {
+  PARTY_QUERY_MIN_LENGTH,
+  PARTY_SUGGESTION_LIMIT,
+  partySuggestionContract,
+} from '@b2b-catalog-platform/shared/core/accounts';
 
 /**
  * The company-suggestion proxy (FR-AUTH-09, NFR-SEC-08). Unauthenticated,

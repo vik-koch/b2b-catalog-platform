@@ -7,13 +7,13 @@ import {
   viewChildren,
 } from '@angular/core';
 import { type FieldTree } from '@angular/forms/signals';
-import { PartySuggestion } from '@b2b-catalog-platform/shared';
-import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
-import { STOREFRONT_TEXT } from '../config/storefront-text';
-import { companyIdExamples } from '../core/field-rules';
+import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
+import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
+import { companyIdExamples } from '../../../shared/core/field-rules';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { Field } from '@b2b-catalog-platform/ui/fields/field';
 import { PartySuggestInput } from './party-suggest-input';
+import { PartySuggestion } from '@b2b-catalog-platform/shared/core/accounts';
 
 export interface CompanyFieldsText {
   readonly idLabel: string;

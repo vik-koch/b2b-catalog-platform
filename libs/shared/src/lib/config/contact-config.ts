@@ -1,11 +1,11 @@
 // Namespace import, not `{ z }`: the named form defeats tree shaking and
 // pulls zod's 63 locale files into the bundle (colinhacks/zod#6050).
 import * as z from 'zod';
-import { EMAIL_PATTERN } from '../accounts/email-format';
+import { EMAIL_PATTERN } from '../../platform/email-format';
 import {
   normalizeCompanyId,
   type PhoneConfig,
-} from '../accounts/contact-format';
+} from '../../platform/contact-format';
 
 /**
  * The contact-field schemas: a deployment's phone rule, the company-ID formats

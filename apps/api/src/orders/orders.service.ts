@@ -1,6 +1,5 @@
 import {
   ACCEPTED_ORDER_STATUSES,
-  AddressInput,
   canTransition,
   DeliveryConfig,
   moveDirection,
@@ -16,7 +15,6 @@ import {
   OrderStatus,
   OrderSubmission,
   OrderSummary,
-  formatPersonName,
   PaymentMethod,
   PaymentState,
   paymentStateAfterAdjustment,
@@ -26,7 +24,6 @@ import {
   effectiveTaxRate,
   TaxBasis,
   TaxConfig,
-  CustomerType,
 } from '@b2b-catalog-platform/shared';
 import {
   Pagination,
@@ -78,7 +75,7 @@ import {
 } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { alias, PgColumn } from 'drizzle-orm/pg-core';
-import { AddressesService } from '../addresses/addresses.service';
+import { AddressesService } from '../core/accounts/addresses.service';
 import { publiclyVisible } from '../core/catalog/product-view';
 import {
   BILLING_ADDRESS_ENABLED,
@@ -120,6 +117,11 @@ import {
   orderPublicToken,
   orderReference,
 } from './order-reference';
+import {
+  AddressInput,
+  formatPersonName,
+  CustomerType,
+} from '@b2b-catalog-platform/shared/core/accounts';
 
 /**
  * The snapshot half of an order, ready to be spread into a projection — the

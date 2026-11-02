@@ -15,8 +15,6 @@ import {
   CartPreviewLine,
   shipmentEstimate,
   ShipmentSummary,
-  USER_ROLES,
-  UserRole,
 } from '@b2b-catalog-platform/shared';
 import {
   CatalogImage,
@@ -32,6 +30,7 @@ import {
 } from '@b2b-catalog-platform/shared/core/catalog';
 import { readSessionHint } from '../auth/session-hint';
 import { CART_STORAGE_KEY, CART_STORAGE_VERSION } from './cart-storage';
+import { USER_ROLES, UserRole } from '@b2b-catalog-platform/shared/platform';
 
 /**
  * A line as the browser keeps it. Beyond what the contract needs

@@ -1,14 +1,10 @@
 import {
   AddressConfig,
-  CompanyIdFormat,
-  CustomerType,
   DeliveryConfig,
   deploymentConfigSchema,
   MoneyFormat,
   moneyFormat,
-  normalizePhone,
   OrderReferenceConfig,
-  PhoneConfig,
   SignInStepConfig,
   TaxConfig,
 } from '@b2b-catalog-platform/shared';
@@ -17,7 +13,12 @@ import {
   ConsentPurpose,
 } from '@b2b-catalog-platform/shared/core/site';
 import { DEFAULT_LOW_STOCK_THRESHOLD_PIECES } from '@b2b-catalog-platform/shared/core/catalog';
-import { KeyboardLayout } from '@b2b-catalog-platform/shared/platform';
+import {
+  KeyboardLayout,
+  CompanyIdFormat,
+  normalizePhone,
+  PhoneConfig,
+} from '@b2b-catalog-platform/shared/platform';
 import {
   CustomerSyncPolicy,
   DEFAULT_CUSTOMER_SYNC_POLICY,
@@ -33,6 +34,7 @@ import {
 import { join } from 'node:path';
 import { loadApiConfig } from './api-config';
 import type * as z from 'zod';
+import { CustomerType } from '@b2b-catalog-platform/shared/core/accounts';
 
 /**
  * `deployment.json`, read whole and as strictly as the web reads it — one

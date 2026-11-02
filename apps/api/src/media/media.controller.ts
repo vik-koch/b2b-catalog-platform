@@ -22,7 +22,7 @@ import {
   UploadDocumentResponse,
   UploadMediaResponse,
 } from '@b2b-catalog-platform/shared/admin';
-import { Auth } from '../auth/auth.decorator';
+import { Auth } from '../platform/auth/auth.decorator';
 import { MEDIA_STORE, MediaStore } from './media-store';
 import {
   documentExtension,

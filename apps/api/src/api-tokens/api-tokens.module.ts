@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { AuditLogger } from '../audit/audit.logger';
-import { AuthModule } from '../auth/auth.module';
+import { SessionModule } from '../platform/auth/session.module';
 import { ApiTokensController } from './api-tokens.controller';
 import { ApiTokensService } from './api-tokens.service';
 import { MachineTokenGuard } from './machine-token.guard';
@@ -12,7 +12,7 @@ import { MachineController } from './machine.controller';
  * endpoint a later slice adds is guarded from here.
  */
 @Module({
-  imports: [AuthModule],
+  imports: [SessionModule],
   controllers: [ApiTokensController, MachineController],
   providers: [ApiTokensService, MachineTokenGuard, AuditLogger],
   exports: [ApiTokensService, MachineTokenGuard],

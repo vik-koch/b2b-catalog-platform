@@ -1,11 +1,11 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { AuthUser } from '@b2b-catalog-platform/shared';
-import { UserRow, UsersService } from '../users/users.service';
-import { toAuthUser } from './auth-user';
-import { PasswordPolicy } from './password-policy';
-import { PasswordRejectedError } from './password-rejected-error';
-import { PasswordService } from './password.service';
-import { WrongCurrentPasswordError } from './wrong-current-password-error';
+import { UserRow, UsersService } from '../../core/accounts/users.service';
+import { toAuthUser } from '../../platform/auth/auth-user';
+import { PasswordPolicy } from '../../core/accounts/password-policy';
+import { PasswordRejectedError } from '../../core/accounts/password-rejected-error';
+import { PasswordService } from '../../core/accounts/password.service';
+import { WrongCurrentPasswordError } from '../../core/accounts/wrong-current-password-error';
+import { AuthUser } from '@b2b-catalog-platform/shared/platform';
 
 @Injectable()
 export class AuthService {

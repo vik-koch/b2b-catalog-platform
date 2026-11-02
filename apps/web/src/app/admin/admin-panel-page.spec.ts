@@ -3,7 +3,7 @@ import { defaultSharedText } from '../shared/config/shared-text.fixture';
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { AuthUser, WorkCounts } from '@b2b-catalog-platform/shared';
+import { WorkCounts } from '@b2b-catalog-platform/shared';
 import { BuildInfo } from '@b2b-catalog-platform/shared/admin/platform';
 import { OwnershipArea, SyncArea } from '@b2b-catalog-platform/shared/sync';
 import { STOREFRONT_TEXT } from '../shared/config/storefront-text';
@@ -21,6 +21,7 @@ import { AuthService } from '../shared/auth/auth.service';
 import { adminUser, managerUser } from '../shared/auth/auth-user.fixture';
 import { WorkService } from '../shared/work/work.service';
 import { workStub } from '../shared/work/work.fixture';
+import { AuthUser } from '@b2b-catalog-platform/shared/platform';
 
 // The committed demo config — its de-DE locale is what formats the deploy date.
 const config = defaultDeploymentConfig;

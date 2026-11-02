@@ -1,9 +1,9 @@
 import { JwtService } from '@nestjs/jwt';
 import type { Request, Response } from 'express';
-import { AUTH_COOKIE } from '@b2b-catalog-platform/shared';
-import { UserRow } from '../users/users.service';
+import { SessionUser } from './session-users';
 import { JwtPayload } from './jwt-payload';
 import { Sessions } from './sessions';
+import { AUTH_COOKIE } from '@b2b-catalog-platform/shared/platform';
 
 const DAY_S = 24 * 60 * 60;
 
@@ -12,7 +12,7 @@ const user = {
   email: 'jane@example.com',
   role: 'user',
   tokenVersion: 2,
-} as UserRow;
+} as SessionUser;
 
 describe('Sessions', () => {
   const jwt = new JwtService({ secret: 'a-session-secret-0123456789abcdef' });

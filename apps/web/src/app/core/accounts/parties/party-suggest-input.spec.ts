@@ -1,9 +1,9 @@
 import { TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
 import { form } from '@angular/forms/signals';
-import { PartySuggestion } from '@b2b-catalog-platform/shared';
 import { PartiesService } from './parties.service';
 import { PartySuggestInput } from './party-suggest-input';
+import { PartySuggestion } from '@b2b-catalog-platform/shared/core/accounts';
 
 /** What the stubbed provider answers with; set per test. */
 let answers: PartySuggestion[] = [];

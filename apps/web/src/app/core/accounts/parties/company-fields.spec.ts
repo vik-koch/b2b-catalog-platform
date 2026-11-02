@@ -1,11 +1,11 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { form, required } from '@angular/forms/signals';
-import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
-import { defaultDeploymentConfig } from '../config/deployment-config.fixture';
-import { STOREFRONT_TEXT } from '../config/storefront-text';
-import { defaultStorefrontText } from '../config/storefront-text.fixture';
-import { companyIdFormat } from '../core/field-rules';
+import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
+import { defaultDeploymentConfig } from '../../../shared/config/deployment-config.fixture';
+import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
+import { defaultStorefrontText } from '../../../shared/config/storefront-text.fixture';
+import { companyIdFormat } from '../../../shared/core/field-rules';
 import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
 import { CompanyFields } from './company-fields';
 import { PartiesService } from './parties.service';

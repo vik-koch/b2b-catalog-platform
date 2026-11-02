@@ -5,4 +5,4 @@
  * app's api-client.ts) — re-exported here so the API's own code keeps one
  * import and the two can never drift.
  */
-export { AUTH_COOKIE } from '@b2b-catalog-platform/shared';
+export { AUTH_COOKIE } from '@b2b-catalog-platform/shared/platform';

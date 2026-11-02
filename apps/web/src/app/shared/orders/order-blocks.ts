@@ -5,7 +5,7 @@ import {
   OrderDetail,
 } from '@b2b-catalog-platform/shared';
 import { formatPhone } from '../core/contact-fields';
-import { addressLines } from '../addresses/address-format';
+import { addressLines } from '../../core/accounts/addresses/address-format';
 import { SHARED_TEXT } from '../config/shared-text';
 import { STOREFRONT_TEXT } from '../config/storefront-text';
 import { ReviewBlock } from './order-read-back';

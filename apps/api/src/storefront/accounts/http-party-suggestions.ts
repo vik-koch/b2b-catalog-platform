@@ -1,11 +1,11 @@
 import { Logger } from '@nestjs/common';
 import * as z from 'zod';
+import { SuggestionSidecar } from '../../suggestions/sidecar';
+import { PartySuggestionPort } from './party-suggestion.port';
 import {
   PartySuggestion,
   partySuggestionSchema,
-} from '@b2b-catalog-platform/shared';
-import { SuggestionSidecar } from '../suggestions/sidecar';
-import { PartySuggestionPort } from './party-suggestion.port';
+} from '@b2b-catalog-platform/shared/core/accounts';
 
 const responseSchema = z.object({ items: z.array(partySuggestionSchema) });
 

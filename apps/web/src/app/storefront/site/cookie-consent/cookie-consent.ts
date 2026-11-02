@@ -1,9 +1,9 @@
 import { afterNextRender, Component, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
-import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
+import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
 import { fillText } from '@b2b-catalog-platform/shared';
-import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
+import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
 import { ConsentService } from './consent.service';
 import { Link } from '@b2b-catalog-platform/ui/actions/link';
 

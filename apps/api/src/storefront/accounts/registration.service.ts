@@ -4,15 +4,9 @@ import {
   Injectable,
   Logger,
 } from '@nestjs/common';
-import {
-  SharedText,
-  CustomerType,
-  formatPhone,
-  PhoneConfig,
-  RegisterRequest,
-} from '@b2b-catalog-platform/shared';
-import { AddressesService } from '../addresses/addresses.service';
-import { ConsentService } from '../consents/consent.service';
+import { SharedText } from '@b2b-catalog-platform/shared';
+import { AddressesService } from '../../core/accounts/addresses.service';
+import { ConsentService } from '../../core/site/consent.service';
 import {
   ACCEPTED_CUSTOMER_TYPES,
   COMPANY_ID_RULE,
@@ -20,16 +14,24 @@ import {
   PHONE_INPUT,
   PHONE_RULE,
   PhoneRule,
-} from '../config/deployment-config';
-import { env } from '../env';
-import { MAIL_TEXT, MailText } from '../mail/mail-text';
-import { SHARED_TEXT } from '../config/shared-text';
-import { MailDispatcher } from '../mail/mail-dispatcher';
-import { newRegistrationMail } from '../mail/templates/new-registration.template';
-import { registrationReceivedMail } from '../mail/templates/registration-received.template';
-import { storedPhone } from '../users/stored-phone';
-import { UsersService } from '../users/users.service';
-import { PasswordService } from './password.service';
+} from '../../config/deployment-config';
+import { env } from '../../env';
+import { MAIL_TEXT, MailText } from '../../mail/mail-text';
+import { SHARED_TEXT } from '../../config/shared-text';
+import { MailDispatcher } from '../../mail/mail-dispatcher';
+import { newRegistrationMail } from '../../mail/templates/new-registration.template';
+import { registrationReceivedMail } from '../../mail/templates/registration-received.template';
+import { storedPhone } from '../../core/accounts/stored-phone';
+import { UsersService } from '../../core/accounts/users.service';
+import { PasswordService } from '../../core/accounts/password.service';
+import {
+  CustomerType,
+  RegisterRequest,
+} from '@b2b-catalog-platform/shared/core/accounts';
+import {
+  formatPhone,
+  PhoneConfig,
+} from '@b2b-catalog-platform/shared/platform';
 
 /**
  * Self-registration (FR-AUTH-01). The account is created `pending` and cannot

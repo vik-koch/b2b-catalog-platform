@@ -10,7 +10,15 @@ import {
 } from '@angular/core';
 import { safe } from '@orpc/client';
 import {
-  AuthUser,
+  ConsentRefusalCode,
+  isConsentRefusal,
+} from '@b2b-catalog-platform/shared/core/site';
+import { authContract } from '../core/contract-routes.generated';
+import { createOrpcClient } from '../core/orpc-client';
+import { sessionCookieIn } from './session-cookie';
+import { readSessionHint } from './session-hint';
+import { AuthUser } from '@b2b-catalog-platform/shared/platform';
+import {
   ChangePasswordRequest,
   LoginRequest,
   MAINTENANCE_REFUSED,
@@ -20,15 +28,7 @@ import {
   RegisterRequest,
   SetPasswordRequest,
   SignInStep,
-} from '@b2b-catalog-platform/shared';
-import {
-  ConsentRefusalCode,
-  isConsentRefusal,
-} from '@b2b-catalog-platform/shared/core/site';
-import { authContract } from '../core/contract-routes.generated';
-import { createOrpcClient } from '../core/orpc-client';
-import { sessionCookieIn } from './session-cookie';
-import { readSessionHint } from './session-hint';
+} from '@b2b-catalog-platform/shared/core/accounts';
 
 /**
  * Why a code could not be sent (FR-AUTH-12): the provider refused the number,

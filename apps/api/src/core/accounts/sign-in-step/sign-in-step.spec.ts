@@ -1,11 +1,7 @@
 import { JwtService } from '@nestjs/jwt';
 import type { Request, Response } from 'express';
-import {
-  normalizePhone,
-  PhoneConfig,
-  SignInStepConfig,
-} from '@b2b-catalog-platform/shared';
-import { UserRow, UsersService } from '../../users/users.service';
+import { SignInStepConfig } from '@b2b-catalog-platform/shared';
+import { UserRow, UsersService } from '../users.service';
 import { CodeDeliveryError } from './code-delivery';
 import { SignInCodes } from './sign-in-codes';
 import {
@@ -15,6 +11,10 @@ import {
   REMEMBERED_COOKIE,
   SignInStep,
 } from './sign-in-step';
+import {
+  normalizePhone,
+  PhoneConfig,
+} from '@b2b-catalog-platform/shared/platform';
 
 const phoneInput: PhoneConfig = { countryCode: '+49', mask: '(###) ###-####' };
 const SECRET = 'a-secret-only-the-step-uses-0123456789';

@@ -2,9 +2,9 @@ import { Inject, Injectable } from '@nestjs/common';
 import { createHash, randomBytes } from 'node:crypto';
 import { and, eq, gt, isNull } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { DRIZZLE } from '../db/database.module';
-import * as schema from '../db/schema';
-import { passwordTokens } from '../db/schema';
+import { DRIZZLE } from '../../db/database.module';
+import * as schema from '../../db/schema';
+import { passwordTokens } from '../../db/schema';
 
 /**
  * How long a link lives. An invitation waits for a person to read their mail

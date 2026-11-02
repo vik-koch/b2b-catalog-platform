@@ -1,5 +1,5 @@
 import { Reflector } from '@nestjs/core';
-import { UserRole } from '@b2b-catalog-platform/shared';
+import { UserRole } from '@b2b-catalog-platform/shared/platform';
 
 /**
  * Attaches the set of roles allowed on a route, read back by RolesGuard. An

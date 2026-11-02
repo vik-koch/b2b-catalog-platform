@@ -1,18 +1,18 @@
 import { INestApplication, UnauthorizedException } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { AccountController } from './account.controller';
-import { AccountDeletion } from './account-deletion';
-import { AuditLogger } from '../audit/audit.logger';
-import { UsersService } from '../users/users.service';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { RolesGuard } from '../auth/roles.guard';
-import { AUTH_COOKIE } from '../auth/auth.constants';
+import { AccountDeletion } from '../../core/accounts/account-deletion';
+import { AuditLogger } from '../../audit/audit.logger';
+import { UsersService } from '../../core/accounts/users.service';
+import { JwtAuthGuard } from '../../platform/auth/jwt-auth.guard';
+import { RolesGuard } from '../../platform/auth/roles.guard';
+import { AUTH_COOKIE } from '../../platform/auth/auth.constants';
+import { PHONE_RULE } from '../../config/deployment-config';
+import { SignInStep } from '../../core/accounts/sign-in-step/sign-in-step';
 import {
-  normalizePhone,
   SESSION_HINT_COOKIE,
-} from '@b2b-catalog-platform/shared';
-import { PHONE_RULE } from '../config/deployment-config';
-import { SignInStep } from '../auth/sign-in-step/sign-in-step';
+  normalizePhone,
+} from '@b2b-catalog-platform/shared/platform';
 
 /**
  * Over a real server: the refusals here are the ones a form acts on, so what

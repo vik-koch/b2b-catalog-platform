@@ -1,5 +1,5 @@
-import { AuthUser } from '@b2b-catalog-platform/shared';
-import { UserRow } from '../users/users.service';
+import { SessionUser } from './session-users';
+import { AuthUser } from '@b2b-catalog-platform/shared/platform';
 
 /**
  * The client-facing identity — never the hash, the tokenVersion or the tier.
@@ -8,7 +8,7 @@ import { UserRow } from '../users/users.service';
  * OptionalAuthGuard) and they must agree: a field added in two of the three is
  * a field that appears and disappears depending on how the session was read.
  */
-export function toAuthUser(user: UserRow): AuthUser {
+export function toAuthUser(user: SessionUser): AuthUser {
   return {
     id: user.id,
     email: user.email,

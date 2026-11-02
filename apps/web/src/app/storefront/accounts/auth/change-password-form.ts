@@ -7,12 +7,8 @@ import {
   viewChild,
 } from '@angular/core';
 import { form, required } from '@angular/forms/signals';
-import {
-  PASSWORD_MIN_LENGTH,
-  PasswordRejectionCode,
-} from '@b2b-catalog-platform/shared';
-import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
-import { confirmation, newPassword } from '../../shared/core/password';
+import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
+import { confirmation, newPassword } from '../../../shared/core/password';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
 import { Input } from '@b2b-catalog-platform/ui/inputs/input';
@@ -20,8 +16,12 @@ import { SubmitAttempt } from '@b2b-catalog-platform/ui/fields/submit-attempt';
 import {
   AuthService,
   ChangePasswordResult,
-} from '../../shared/auth/auth.service';
+} from '../../../shared/auth/auth.service';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
+import {
+  PASSWORD_MIN_LENGTH,
+  PasswordRejectionCode,
+} from '@b2b-catalog-platform/shared/core/accounts';
 
 /**
  * Reusable change-password form. No required marks: every field is required,

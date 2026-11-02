@@ -1,32 +1,35 @@
 import { Component, inject, input, OnInit, signal } from '@angular/core';
 import { form } from '@angular/forms/signals';
 import { Router, RouterLink } from '@angular/router';
-import {
-  PASSWORD_MIN_LENGTH,
-  PasswordTokenPurpose,
-} from '@b2b-catalog-platform/shared';
-import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
-import { usePageSeo } from '../../shared/core/page-seo';
+import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
+import { usePageSeo } from '../../../shared/core/page-seo';
 import {
   confirmation,
   generatePassword,
   newPassword,
-} from '../../shared/core/password';
+} from '../../../shared/core/password';
 import { AuthCard } from './auth-card';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
 import { Input } from '@b2b-catalog-platform/ui/inputs/input';
-import { AuthService, CodeSendFailure } from '../../shared/auth/auth.service';
+import {
+  AuthService,
+  CodeSendFailure,
+} from '../../../shared/auth/auth.service';
 import { formatWait, SignInStepPanel } from './sign-in-step';
-import { landingFor } from '../../shared/auth/auth.guard';
+import { landingFor } from '../../../shared/auth/auth.guard';
 import { TextButton } from '@b2b-catalog-platform/ui/actions/text-button';
-import { ConsentField } from '../site/consent-field';
-import { useConsent } from '../site/consent';
-import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { ConsentField } from '../../site/consent-field';
+import { useConsent } from '../../site/consent';
+import { SHARED_TEXT } from '../../../shared/config/shared-text';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { Hint } from '@b2b-catalog-platform/ui/fields/hint';
 import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
+import {
+  PASSWORD_MIN_LENGTH,
+  PasswordTokenPurpose,
+} from '@b2b-catalog-platform/shared/core/accounts';
 
 type Status =
   | 'checking'

@@ -1,18 +1,18 @@
-import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { SHARED_TEXT } from '../../../shared/config/shared-text';
 import { TestBed } from '@angular/core/testing';
-import { PartySuggestion } from '@b2b-catalog-platform/shared';
 import { Page } from '@b2b-catalog-platform/shared/core/site';
 import { provideRouter } from '@angular/router';
-import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
-import { defaultStorefrontText } from '../../shared/config/storefront-text.fixture';
-import { defaultSharedText } from '../../shared/config/shared-text.fixture';
-import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
-import { defaultDeploymentConfig } from '../../shared/config/deployment-config.fixture';
-import { PageService } from '../../core/site/page.service';
-import { PartiesService } from '../../shared/parties/parties.service';
-import { AuthService } from '../../shared/auth/auth.service';
+import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
+import { defaultStorefrontText } from '../../../shared/config/storefront-text.fixture';
+import { defaultSharedText } from '../../../shared/config/shared-text.fixture';
+import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
+import { defaultDeploymentConfig } from '../../../shared/config/deployment-config.fixture';
+import { PageService } from '../../../core/site/page.service';
+import { PartiesService } from '../../../core/accounts/parties/parties.service';
+import { AuthService } from '../../../shared/auth/auth.service';
 import { RegisterPage } from './register-page';
-import { provideDigitMaskFormat } from '../../shared/core/contact-fields';
+import { provideDigitMaskFormat } from '../../../shared/core/contact-fields';
+import { PartySuggestion } from '@b2b-catalog-platform/shared/core/accounts';
 
 const text = defaultStorefrontText.auth.register;
 

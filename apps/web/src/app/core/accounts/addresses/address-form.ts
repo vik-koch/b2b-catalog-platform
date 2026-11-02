@@ -9,17 +9,16 @@ import {
   type FormSubmitOptions,
   type Schema,
 } from '@angular/forms/signals';
+import { type DeploymentConfig, fillText } from '@b2b-catalog-platform/shared';
+import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
+import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
 import {
   ADDRESS_LINE_MAX_LENGTH,
   AddressComponents,
   AddressInput,
-  type DeploymentConfig,
-  fillText,
   postalCodeMatches,
   postalCodeRuleFor,
-} from '@b2b-catalog-platform/shared';
-import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
-import { STOREFRONT_TEXT } from '../config/storefront-text';
+} from '@b2b-catalog-platform/shared/core/accounts';
 
 type Countries = NonNullable<DeploymentConfig['address']>['countries'];
 

@@ -11,7 +11,7 @@ import {
   digitsOf,
   isEmailAddress,
   maskLength,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/platform';
 
 type StringPath<K extends PathKind> = SchemaPath<
   string,

@@ -1,5 +1,5 @@
 import type { Request } from 'express';
-import { AuthUser } from '@b2b-catalog-platform/shared';
+import { AuthUser } from '@b2b-catalog-platform/shared/platform';
 
 /**
  * An Express request after JwtAuthGuard has run: `user` is populated from the

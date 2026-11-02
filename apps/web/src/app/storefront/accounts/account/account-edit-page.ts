@@ -8,18 +8,18 @@ import {
 } from '@angular/core';
 import { form, required } from '@angular/forms/signals';
 import { Router, RouterLink } from '@angular/router';
-import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
-import { SHARED_TEXT } from '../../shared/config/shared-text';
-import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
+import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
+import { SHARED_TEXT } from '../../../shared/config/shared-text';
+import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
 import {
   canonicalPhone,
   formatPhone,
   typedPhone,
-} from '../../shared/core/contact-fields';
-import { delayedLoading } from '../../shared/core/delayed-loading';
-import { completeMask } from '../../shared/core/field-rules';
-import { usePageSeo } from '../../shared/core/page-seo';
-import { AuthService } from '../../shared/auth/auth.service';
+} from '../../../shared/core/contact-fields';
+import { delayedLoading } from '../../../shared/core/delayed-loading';
+import { completeMask } from '../../../shared/core/field-rules';
+import { usePageSeo } from '../../../shared/core/page-seo';
+import { AuthService } from '../../../shared/auth/auth.service';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
 import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';

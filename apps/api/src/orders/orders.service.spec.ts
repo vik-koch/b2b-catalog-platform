@@ -2,11 +2,10 @@ import type { MockInstance } from 'vitest';
 import { Logger } from '@nestjs/common';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import {
-  CustomerType,
   deliveryConfigSchema,
   OrderSubmission,
 } from '@b2b-catalog-platform/shared';
-import { AddressesService } from '../addresses/addresses.service';
+import { AddressesService } from '../core/accounts/addresses.service';
 import { PickupLocation } from '../config/deployment-config';
 import * as schema from '../db/schema';
 import {
@@ -24,6 +23,7 @@ import * as reference from './order-reference';
 import { OrdersService } from './orders.service';
 import { CartChangedException } from './cart-changed-exception';
 import { PairingUnsatisfiedException } from './pairing-unsatisfied-exception';
+import { CustomerType } from '@b2b-catalog-platform/shared/core/accounts';
 
 /**
  * Submission, without a database. What is worth pinning here is everything that

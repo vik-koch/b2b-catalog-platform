@@ -5,7 +5,6 @@ import {
   orderTaxStatement,
 } from '../mail/templates/order-items';
 import {
-  addressLines,
   SharedText,
   fillText,
   formatMoneyMinor,
@@ -27,6 +26,7 @@ import { PdfFaces } from '../pdf/pdf-faces';
 import { PDF_TEXT, PdfText } from '../pdf/pdf-text';
 import { Sheet } from '../pdf/pdf-sheet';
 import { shopDay } from './shop-day';
+import { addressLines } from '@b2b-catalog-platform/shared/core/accounts';
 
 /**
  * The order summary the platform draws for itself (FR-ORD-05, FR-ACC-02,

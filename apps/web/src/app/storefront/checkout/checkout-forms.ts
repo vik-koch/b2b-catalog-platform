@@ -1,12 +1,11 @@
 import { inject, signal, Signal } from '@angular/core';
 import { apply, form, hidden, required } from '@angular/forms/signals';
-import { PartySuggestion } from '@b2b-catalog-platform/shared';
 import {
   AddressDraft,
   AddressForm,
   addressRules,
   blankAddress,
-} from '../../shared/addresses/address-form';
+} from '../../core/accounts/addresses/address-form';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
@@ -16,6 +15,7 @@ import {
   emailAddress,
 } from '../../shared/core/field-rules';
 import { CheckoutDraft, PartyChoice } from './checkout-draft.service';
+import { PartySuggestion } from '@b2b-catalog-platform/shared/core/accounts';
 
 /** The party being invoiced where it is not the account's own. */
 export interface PartyAnswers {

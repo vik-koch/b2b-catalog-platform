@@ -1,8 +1,8 @@
 import { and, eq, isNull } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { ConsentWithdrawalReason } from '@b2b-catalog-platform/shared';
-import * as schema from '../db/schema';
-import { consents, consentWithdrawals } from '../db/schema';
+import * as schema from '../../db/schema';
+import { consents, consentWithdrawals } from '../../db/schema';
+import { ConsentWithdrawalReason } from '@b2b-catalog-platform/shared/core/site';
 
 type Writer = Pick<NodePgDatabase<typeof schema>, 'select' | 'insert'>;
 

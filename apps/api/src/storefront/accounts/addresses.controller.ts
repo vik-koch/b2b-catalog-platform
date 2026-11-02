@@ -1,11 +1,12 @@
 import { Controller } from '@nestjs/common';
 import { Implement, implement } from '@orpc/nest';
-import { addressesContract, AuthUser } from '@b2b-catalog-platform/shared';
-import { AuditLogger } from '../audit/audit.logger';
-import { Auth } from '../auth/auth.decorator';
-import { CurrentUser } from '../auth/current-user.decorator';
-import { refusals } from '../orpc/refusals';
-import { AddressesService } from './addresses.service';
+import { AuditLogger } from '../../audit/audit.logger';
+import { Auth } from '../../platform/auth/auth.decorator';
+import { CurrentUser } from '../../platform/auth/current-user.decorator';
+import { refusals } from '../../orpc/refusals';
+import { AddressesService } from '../../core/accounts/addresses.service';
+import { addressesContract } from '@b2b-catalog-platform/shared/core/accounts';
+import { AuthUser } from '@b2b-catalog-platform/shared/platform';
 
 /**
  * The signed-in account's address book. `@Auth()` with no roles, like

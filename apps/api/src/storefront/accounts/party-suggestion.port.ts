@@ -1,6 +1,6 @@
 import { Logger } from '@nestjs/common';
-import { PartySuggestion } from '@b2b-catalog-platform/shared';
 import { HttpPartySuggestions } from './http-party-suggestions';
+import { PartySuggestion } from '@b2b-catalog-platform/shared/core/accounts';
 
 /**
  * What a company-suggestion provider has to answer (ADR 0041). Its own port

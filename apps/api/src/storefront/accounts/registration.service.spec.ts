@@ -1,26 +1,29 @@
 import { Test } from '@nestjs/testing';
-import { CustomerType, RegisterRequest } from '@b2b-catalog-platform/shared';
-import { AddressesService } from '../addresses/addresses.service';
-import { ConsentService } from '../consents/consent.service';
-import { normalizePhone } from '@b2b-catalog-platform/shared';
+import { AddressesService } from '../../core/accounts/addresses.service';
+import { ConsentService } from '../../core/site/consent.service';
 import {
   ACCEPTED_CUSTOMER_TYPES,
   COMPANY_ID_RULE,
   PHONE_INPUT,
   PHONE_RULE,
-} from '../config/deployment-config';
-import { MAIL_TEXT } from '../mail/mail-text';
-import { SHARED_TEXT } from '../config/shared-text';
+} from '../../config/deployment-config';
+import { MAIL_TEXT } from '../../mail/mail-text';
+import { SHARED_TEXT } from '../../config/shared-text';
 import {
   demoSharedText,
   demoMailText,
   demoPhoneInput,
-} from '../mail/mail-text.fixture';
-import { MailDispatcher } from '../mail/mail-dispatcher';
-import { dispatcherOver } from '../mail/mail-dispatcher.fixture';
-import { UsersService } from '../users/users.service';
-import { PasswordService } from './password.service';
+} from '../../mail/mail-text.fixture';
+import { MailDispatcher } from '../../mail/mail-dispatcher';
+import { dispatcherOver } from '../../mail/mail-dispatcher.fixture';
+import { UsersService } from '../../core/accounts/users.service';
+import { PasswordService } from '../../core/accounts/password.service';
 import { RegistrationService } from './registration.service';
+import {
+  CustomerType,
+  RegisterRequest,
+} from '@b2b-catalog-platform/shared/core/accounts';
+import { normalizePhone } from '@b2b-catalog-platform/shared/platform';
 
 /**
  * The rule this service exists to keep: a caller can never tell from the

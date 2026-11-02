@@ -1,7 +1,7 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import type { Response } from 'express';
-import { UsersService } from '../users/users.service';
+import { SessionUsers } from './session-users';
 import { AUTH_COOKIE } from './auth.constants';
 import { toAuthUser } from './auth-user';
 import { AuthenticatedRequest } from './authenticated-request';
@@ -32,7 +32,7 @@ import { Sessions } from './sessions';
 export class OptionalAuthGuard implements CanActivate {
   constructor(
     private readonly jwt: JwtService,
-    private readonly users: UsersService,
+    private readonly users: SessionUsers,
     private readonly sessions: Sessions,
   ) {}
 
@@ -50,7 +50,7 @@ export class OptionalAuthGuard implements CanActivate {
       return true;
     }
 
-    const user = await this.users.findById(payload.sub);
+    const user = await this.users.find(payload.sub);
     if (!user) return true;
     if (user.tokenVersion !== payload.tokenVersion) return true;
     // Pending or anonymized: treated as a guest here, rejected in JwtAuthGuard.

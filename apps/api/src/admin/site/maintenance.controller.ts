@@ -1,10 +1,10 @@
 import { Controller } from '@nestjs/common';
 import { Implement, implement } from '@orpc/nest';
-import { AuthUser } from '@b2b-catalog-platform/shared';
 import { adminMaintenanceContract } from '@b2b-catalog-platform/shared/admin/site';
-import { Auth } from '../../auth/auth.decorator';
-import { CurrentUser } from '../../auth/current-user.decorator';
+import { Auth } from '../../platform/auth/auth.decorator';
+import { CurrentUser } from '../../platform/auth/current-user.decorator';
 import { MaintenanceSwitch } from './maintenance-switch';
+import { AuthUser } from '@b2b-catalog-platform/shared/platform';
 
 @Controller()
 export class AdminMaintenanceController {

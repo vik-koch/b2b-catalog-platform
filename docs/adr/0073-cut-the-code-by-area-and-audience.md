@@ -44,8 +44,8 @@ rules, held by `eslint-plugin-boundaries`:
 | Area | Holds | May import |
 |---|---|---|
 | catalog | products, categories, attributes, documents, tiers and their prices | exchange |
-| accounts | users, sign-up and sign-in, addresses, parties, consents | catalog, site, exchange |
-| site | pages, shop settings and switches, inquiry | — |
+| accounts | users, sign-up and sign-in, addresses, parties | catalog, site, exchange |
+| site | pages and the consents given to them, shop settings and switches, inquiry | — |
 | ordering | cart, checkout, orders and their versions, order documents and PDFs | catalog, accounts, site, exchange |
 | exchange | runs, cursors, ownership, machine tokens | — |
 | work | the staff's and the customers' queues | catalog, accounts, ordering, exchange |

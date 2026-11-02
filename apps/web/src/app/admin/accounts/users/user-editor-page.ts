@@ -1,41 +1,38 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { disabled, form, hidden, required } from '@angular/forms/signals';
 import { ActivatedRoute, Router } from '@angular/router';
-import {
-  CustomerType,
-  PartySuggestion,
-  UserRole,
-} from '@b2b-catalog-platform/shared';
 import { CustomerTier } from '@b2b-catalog-platform/shared/admin/catalog';
-import { StaffUser, UserKind } from '@b2b-catalog-platform/shared/admin';
-import { ADMIN_TEXT } from '../../shared/config/admin-text';
-import { SHARED_TEXT } from '../../shared/config/shared-text';
-import { staffFields } from '../staff-fields';
-import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
-import { AuthService } from '../../shared/auth/auth.service';
-import { canonicalPhone, typedPhone } from '../../shared/core/contact-fields';
-import { delayedLoading } from '../../shared/core/delayed-loading';
+import { ADMIN_TEXT } from '../../../shared/config/admin-text';
+import { SHARED_TEXT } from '../../../shared/config/shared-text';
+import { staffFields } from '../../staff-fields';
+import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
+import { AuthService } from '../../../shared/auth/auth.service';
+import {
+  canonicalPhone,
+  typedPhone,
+} from '../../../shared/core/contact-fields';
+import { delayedLoading } from '../../../shared/core/delayed-loading';
 import {
   companyIdFormat,
   completeMask,
   emailAddress,
-} from '../../shared/core/field-rules';
-import { usePageSeo } from '../../shared/core/page-seo';
-import { UnsavedChangesAware } from '../unsaved-changes.guard';
-import { UnsavedChanges } from '../unsaved-changes';
-import { LockedNote } from '../ownership/locked-note';
+} from '../../../shared/core/field-rules';
+import { usePageSeo } from '../../../shared/core/page-seo';
+import { UnsavedChangesAware } from '../../unsaved-changes.guard';
+import { UnsavedChanges } from '../../unsaved-changes';
+import { LockedNote } from '../../ownership/locked-note';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { Notice } from '@b2b-catalog-platform/ui/content/notice';
-import { CompanyFields } from '../../shared/parties/company-fields';
+import { CompanyFields } from '../../../core/accounts/parties/company-fields';
 import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
 import { submitAttempt } from '@b2b-catalog-platform/ui/fields/submit-attempt';
 import { PhoneInput } from '@b2b-catalog-platform/ui/inputs/phone-input';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Input } from '@b2b-catalog-platform/ui/inputs/input';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
-import { injectEditorReturn } from '../../shared/edit-mode/editor-return';
-import { OwnershipService } from '../settings/ownership.service';
-import { TiersService } from '../catalog/tiers/tiers.service';
+import { injectEditorReturn } from '../../../shared/edit-mode/editor-return';
+import { OwnershipService } from '../../settings/ownership.service';
+import { TiersService } from '../../catalog/tiers/tiers.service';
 import { StaffUsersService } from './users.service';
 import { SelectInput } from '@b2b-catalog-platform/ui/inputs/select-input';
 import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';
@@ -51,8 +48,15 @@ import { Glyph } from '@b2b-catalog-platform/ui/icons/glyph';
 import { circleCheckIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-check';
 import { saveIcon } from '@b2b-catalog-platform/ui/icons/glyphs/save';
 import { sendIcon } from '@b2b-catalog-platform/ui/icons/glyphs/send';
-import { SaveButton } from '../ui/save-button';
-import { CancelButton } from '../ui/cancel-button';
+import { SaveButton } from '../../ui/save-button';
+import { CancelButton } from '../../ui/cancel-button';
+import {
+  CustomerType,
+  PartySuggestion,
+  StaffUser,
+  UserKind,
+} from '@b2b-catalog-platform/shared/core/accounts';
+import { UserRole } from '@b2b-catalog-platform/shared/platform';
 
 interface UserDraft {
   email: string;

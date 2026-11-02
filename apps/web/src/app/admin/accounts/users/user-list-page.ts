@@ -7,24 +7,14 @@ import {
   signal,
 } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import {
-  COMPANY_ID_NONE,
-  formatPersonName,
-  userRoleSchema,
-} from '@b2b-catalog-platform/shared';
 import { SEARCH_QUERY_MAX_LENGTH } from '@b2b-catalog-platform/shared/core/catalog';
-import {
-  StaffUser,
-  UserKind,
-  userStatusSchema,
-} from '@b2b-catalog-platform/shared/admin';
-import { ADMIN_TEXT } from '../../shared/config/admin-text';
-import { SHARED_TEXT } from '../../shared/config/shared-text';
-import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
-import { formatPhone } from '../../shared/core/contact-fields';
-import { usePageSeo } from '../../shared/core/page-seo';
-import { delayedLoading } from '../../shared/core/delayed-loading';
-import { stableValue } from '../../shared/core/stable-value';
+import { ADMIN_TEXT } from '../../../shared/config/admin-text';
+import { SHARED_TEXT } from '../../../shared/config/shared-text';
+import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
+import { formatPhone } from '../../../shared/core/contact-fields';
+import { usePageSeo } from '../../../shared/core/page-seo';
+import { delayedLoading } from '../../../shared/core/delayed-loading';
+import { stableValue } from '../../../shared/core/stable-value';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
@@ -34,18 +24,26 @@ import { GridColumn } from '@b2b-catalog-platform/ui/grid/grid-column';
 import { GridFilterOption } from '@b2b-catalog-platform/ui/grid/grid-filter-select';
 import { GridCardTemplate } from '@b2b-catalog-platform/ui/grid/grid-card-template';
 import { GridRowTemplate } from '@b2b-catalog-platform/ui/grid/grid-row-template';
-import { GridTimestamp } from '../dates/grid-timestamp';
+import { GridTimestamp } from '../../dates/grid-timestamp';
 import { RecordRow } from '@b2b-catalog-platform/ui/lists/record-row';
 import { GridHeader } from '@b2b-catalog-platform/ui/grid/grid-header';
-import { OwnershipService } from '../settings/ownership.service';
-import { TiersService } from '../catalog/tiers/tiers.service';
+import { OwnershipService } from '../../settings/ownership.service';
+import { TiersService } from '../../catalog/tiers/tiers.service';
 import { UserRowActions } from './user-row-actions';
-import { injectEditorReturnParams } from '../../shared/edit-mode/editor-return';
+import { injectEditorReturnParams } from '../../../shared/edit-mode/editor-return';
 import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';
 import { StaffUsersService } from './users.service';
 import { userStatusTone } from './user-status';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { plusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/plus';
+import {
+  COMPANY_ID_NONE,
+  formatPersonName,
+  StaffUser,
+  UserKind,
+  userStatusSchema,
+} from '@b2b-catalog-platform/shared/core/accounts';
+import { userRoleSchema } from '@b2b-catalog-platform/shared/platform';
 
 /**
  * The staff account list (FR-AUTH-03/04). One component, two views chosen by the

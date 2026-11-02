@@ -1,4 +1,4 @@
-import { SESSION_HINT_COOKIE } from '@b2b-catalog-platform/shared';
+import { SESSION_HINT_COOKIE } from '@b2b-catalog-platform/shared/platform';
 
 /**
  * The inline script that tells the first paint whether anyone is signed in.
