@@ -19,8 +19,8 @@ import {
 } from '../../../shared/auth/auth.service';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import {
-  PASSWORD_MIN_LENGTH,
   PasswordRejectionCode,
+  PASSWORD_MIN_LENGTH,
 } from '@b2b-catalog-platform/shared/core/accounts';
 
 /**

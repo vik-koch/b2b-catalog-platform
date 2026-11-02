@@ -6,7 +6,7 @@
  * because a module that builds a Zod schema cannot be tree-shaken back down to
  * its helpers: `z.string()` is a call a bundler has to assume matters, so one
  * imported formatter would put the whole validation runtime in the browser's
- * first load (see `auth-constants.ts`).
+ * first load.
  */
 
 /**

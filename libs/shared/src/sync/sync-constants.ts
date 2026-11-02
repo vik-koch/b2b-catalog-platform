@@ -1,7 +1,6 @@
 /**
  * What every sync area shares, whatever it carries. Plain data with no imports,
- * so a screen can take a limit without pulling Zod into its chunk (see
- * `auth-constants.ts` for why).
+ * so a screen can take a limit without pulling Zod into its chunk.
  *
  * The line between this file and the two beside it — `catalog-sync-constants.ts`
  * and `customer-sync-constants.ts` — is the same one the run contract draws: a

@@ -14,7 +14,7 @@ import { pagesConfigSchema } from './pages-config';
 import { signInStepConfigSchema } from './sign-in-step-config';
 import { taxConfigSchema } from './tax-config';
 import { themeConfigSchema } from './theme-config';
-import { CUSTOMER_TYPES } from '../../core/accounts/user-constants';
+import { CUSTOMER_TYPES } from '../../core/accounts/users';
 
 /**
  * A map embed — restricted to an iframe URL by design.

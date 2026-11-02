@@ -19,15 +19,15 @@ import { sessionCookieIn } from './session-cookie';
 import { readSessionHint } from './session-hint';
 import { AuthUser } from '@b2b-catalog-platform/shared/platform';
 import {
+  PasswordRejectionCode,
+  SignInStep,
   ChangePasswordRequest,
   LoginRequest,
   MAINTENANCE_REFUSED,
-  PasswordRejectionCode,
   PASSWORD_TOKEN_INVALID,
   PasswordTokenPurpose,
   RegisterRequest,
   SetPasswordRequest,
-  SignInStep,
 } from '@b2b-catalog-platform/shared/core/accounts';
 
 /**

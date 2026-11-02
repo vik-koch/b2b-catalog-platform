@@ -35,13 +35,13 @@ import {
   SignInProof,
 } from '../../core/accounts/sign-in-step/sign-in-proof';
 import { UserRow } from '../../core/accounts/users.service';
+import { AuthUser, UserRole } from '@b2b-catalog-platform/shared/platform';
+import { passesMaintenance } from '@b2b-catalog-platform/shared/core/site';
 import {
   authContract,
   MAINTENANCE_REFUSED,
   PASSWORD_TOKEN_INVALID,
 } from '@b2b-catalog-platform/shared/core/accounts';
-import { AuthUser, UserRole } from '@b2b-catalog-platform/shared/platform';
-import { passesMaintenance } from '@b2b-catalog-platform/shared/core/site';
 
 @Controller()
 export class AuthController {

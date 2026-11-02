@@ -6,16 +6,12 @@ import {
   CONSENT_WITHDRAWAL_NOTE_MAX,
   CONSENT_WITHDRAWAL_REASONS,
 } from '../../core/site/consents';
-import { USER_STATUSES } from '../../core/accounts/user-constants';
+import { USER_STATUSES } from '../../core/accounts/users';
 
 /**
- * One consent as staff read it (NFR-LEGAL-09): what was consented to, when,
- * by whom, and the box wording that was ticked — the version's own, since
- * that is what the record proves.
- *
- * Loose on the holder's address and number: they are copies taken when the
- * consent was given, and a read that refused one stored before a format rule
- * tightened would take the whole list down with it.
+ * One consent as staff read it (NFR-LEGAL-09), with the box wording that was
+ * ticked. Loose on the address and number: they are copies from the day it
+ * was given, and one older than a format rule must not fail the whole list.
  */
 export const consentRecordSchema = z
   .object({
@@ -69,7 +65,6 @@ export const withdrawConsentSchema = z
       .optional(),
   })
   .strict();
-export type WithdrawConsentRequest = z.input<typeof withdrawConsentSchema>;
 
 /**
  * Why an entered withdrawal was refused. `ends-with-account`: an account's

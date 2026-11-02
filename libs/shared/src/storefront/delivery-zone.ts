@@ -3,7 +3,7 @@ import { normalizePostalCode } from '../core/accounts/postal-code';
 /**
  * Which delivery zone an address falls into. Import-free but for the postal
  * code helpers, so the storefront's zone hint does not pull the order schemas
- * — and Zod — into the first load (see `auth-constants.ts` for why).
+ * — and Zod — into the first load.
  *
  * The API re-derives the zone when the order is placed: one the browser
  * resolved and the server did not re-check would be a threshold the customer

@@ -17,40 +17,18 @@ import {
 import { ownershipErrors } from '../../sync/ownership-constants';
 import { consentRecordListSchema } from './consents.contract';
 
-/**
- * Account management (FR-AUTH-01/03/04), staff side.
- *
- * The permission split lives in the API's guards, not here, but it is the point
- * of the surface: **admin and manager** decide who is a customer and what they
- * pay (approve, tier); **admin only** decides who is staff (role). A manager
- * who could grant a role could promote themselves.
- */
-
-/**
- * Approval (FR-AUTH-03). The tier is **required and explicit**: ADR 0031
- * refuses a default tier, so there is nothing to fall back to — `null` is a
- * deliberate choice of the base price list, not an omission.
- */
+/** Approval (FR-AUTH-03). The tier is required: there is no default to fall
+ * back to, and `null` is the base price list chosen on purpose. */
 export const approveUserSchema = z
   .object({ tierId: z.uuid().nullable() })
   .strict();
-export type ApproveUserRequest = z.infer<typeof approveUserSchema>;
 
-/**
- * Switching an account off, and back on again (FR-AUTH-04). A lifecycle
- * transition rather than a field, which is why it is not part of `updateUser`:
- * it ends every session in flight, and the two directions are separate
- * decisions with separate audit lines.
- *
- * The request names the *direction*, not a target status, because switching
- * back on lands where the account can actually be used: `active` where it has a
- * password of its own — the one it had, which switching off leaves alone — and
- * `invited` where it never chose one. The response says where it ended up.
- */
+/** Switching an account off or back on (FR-AUTH-04): a transition, not a
+ * field, as it ends every session. Back on lands on `active` or `invited`,
+ * whichever its password allows; the response says which. */
 export const setUserActiveSchema = z.object({ active: z.boolean() }).strict();
-export type SetUserActiveRequest = z.infer<typeof setUserActiveSchema>;
 
-/** Filters for the account list — the admin-grid pattern (FR-ADM-05). */
+/** Filters for the account list (FR-ADM-05). */
 export const listUsersQuerySchema = z.object({
   kind: userKindSchema.optional(),
   status: userStatusSchema.optional(),
@@ -58,13 +36,8 @@ export const listUsersQuerySchema = z.object({
   role: userRoleSchema.optional(),
   /** `null` is not expressible in a query string; `default` means the base list. */
   tierId: z.union([z.uuid(), z.literal('default')]).optional(),
-  /**
-   * A `companyIdInput.formats` key: the accounts whose registration number is
-   * in that shape. Which keys exist is deployment config, so this is a plain
-   * string — an unknown one matches nothing, which is the honest answer for a
-   * format this deployment does not have. `COMPANY_ID_NONE` is the one value
-   * that is not a key: accounts carrying no number at all.
-   */
+  /** A `companyIdInput.formats` key, or `COMPANY_ID_NONE`. A plain string, as
+   * the keys are config: an unknown one matches nothing. */
   companyIdFormat: z.string().trim().max(64).optional(),
   /** Matches email, first or last name, or the registration number. */
   q: z.string().trim().max(200).optional(),
@@ -77,7 +50,7 @@ export type ListUsersQuery = z.infer<typeof listUsersQuerySchema>;
  * matching line in the admin text.
  */
 export const USER_ERROR_CODES = [
-  /** Unknown — or staff seen by a manager, which is the same answer here. */
+  /** Unknown, or staff seen by a manager: the same answer. */
   'account-not-found',
   'account-not-pending',
   'account-closed',
@@ -156,7 +129,6 @@ export const USER_FORBIDDEN_CODES = [
   /** The source key is an admin's, for the reason the ownership switch is. */
   'source-id-change-admin-only',
 ] as const;
-export type UserForbiddenCode = (typeof USER_FORBIDDEN_CODES)[number];
 
 /** Staff-only, and the two manager limits reach a screen rather than a redirect. */
 const staff = oc.errors({
@@ -297,10 +269,8 @@ export const usersContract = {
       method: 'POST',
       path: '/admin/users/{id}/password-link',
       inputStructure: 'detailed',
-      // Links expire and mail gets lost, and somebody locked out rings the
-      // shop as readily as they use the form; this is the way back without
-      // touching the account itself. Which link goes — the invitation or the
-      // reset — is the account's own status, not a choice made here.
+      // The way back in for somebody who rings the shop. The account's status
+      // decides whether the invitation or the reset goes.
       summary: 'Send the account a way back in (admin, manager)',
     })
     .errors({

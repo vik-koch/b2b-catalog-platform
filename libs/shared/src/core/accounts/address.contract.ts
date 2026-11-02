@@ -5,23 +5,15 @@ import {
   ADDRESS_LINE_MAX_LENGTH,
   ADDRESS_POSTAL_CODE_MAX_LENGTH,
   ADDRESS_QUERY_MAX_LENGTH,
-} from './address-constants';
+} from './address';
 import { commonAuthErrors } from '../../lib/core/api-error';
 
-/**
- * How many addresses one account may keep. A bound, not a business rule: a
- * customer orders to a handful of places, and an unbounded book is a write
- * endpoint with no ceiling.
- */
+/** How many addresses one account may keep: a bound against an endpoint with
+ * no ceiling, not a business rule. */
 export const ADDRESS_BOOK_MAX = 50;
 
-/**
- * ISO 3166-1 alpha-2, uppercase. A code rather than free text because it is
- * snapshotted onto orders, and a column that reads `DE` on one and
- * `Deutschland` on the next is one nobody can group by. Which codes a
- * deployment accepts is its own configuration; the shape is the same
- * everywhere.
- */
+/** ISO 3166-1 alpha-2, uppercase: a code, because it is copied onto orders
+ * and has to group. Which codes a deployment accepts is its configuration. */
 export const countryCodeSchema = z
   .string()
   .trim()
@@ -29,20 +21,10 @@ export const countryCodeSchema = z
   .regex(/^[A-Z]{2}$/);
 
 /**
- * What an address is made of — a **place**, and nothing else. `street` carries
- * the house number, as the line is printed; `street2` is the extra line (floor,
- * care-of) and `region` the province where a jurisdiction has one, which a
- * suggestion provider usually fills without anybody typing it.
- *
- * No company name, no registration number and no phone. Who an order is
- * invoiced to is the order's own field, resolved from the account or typed at
- * checkout (FR-CART-09), and the number a manager rings is the order's
- * `contact` — carrying either here as well would be a second place for a fact
- * stated somewhere authoritative, free to disagree with it.
- *
- * `label` is optional: an address is recognisable as itself, and a customer
- * saving the one address they order to should not have to invent a word for it.
- * Where it is absent, the address is named by its own first line.
+ * A place and nothing else: `street` carries the house number as printed,
+ * `street2` the extra line (floor, care-of). No company or phone: those are
+ * the order's own fields (FR-CART-09). Without a `label`, the address is named
+ * by its first line.
  */
 export const addressInputSchema = z
   .object({
@@ -67,16 +49,12 @@ export const addressSchema = addressInputSchema.extend({
 export type Address = z.infer<typeof addressSchema>;
 
 /**
- * What a provider gives back (ADR 0040): components, never one formatted line.
- * The delivery-zone rule keys off the postal code, so a single line would have
- * to be parsed back into what the provider already knew. Every part is optional
- * — providers answer at different granularities, and a partial answer still
- * fills most of the form.
+ * What a provider gives back: components, never one line, because the delivery
+ * zone keys off the postal code. Every part is optional, as providers answer at
+ * different granularities.
  *
- * Adding a component here is a change to the sidecar contract (ADR 0040): the
- * API parses an adapter's answer strictly, so the platform learns a field
- * before a sidecar may send one — and removing one runs the other way round,
- * the sidecar stopping first.
+ * This is the sidecar contract, parsed strictly: the platform learns a field
+ * before a sidecar sends it, and a sidecar stops sending one before it goes.
  */
 export const addressComponentsSchema = z
   .object({
@@ -84,21 +62,11 @@ export const addressComponentsSchema = z
     postalCode: z.string().max(ADDRESS_POSTAL_CODE_MAX_LENGTH).optional(),
     region: z.string().max(ADDRESS_LINE_MAX_LENGTH).optional(),
     city: z.string().max(ADDRESS_LINE_MAX_LENGTH).optional(),
-    /**
-     * The street line **as it is printed** (`Hafenstraße 12`), house number
-     * included. Composed by the adapter rather than here: whether the number
-     * leads or follows, what separates it from the street, and whether either
-     * carries a word naming its type are all regional typography — a separator
-     * chosen in shared code would be one jurisdiction's habit imposed on every
-     * other.
-     */
+    /** The street line as printed (`Hafenstraße 12`). The adapter composes it:
+     * where the number goes is regional typography. */
     street: z.string().max(ADDRESS_LINE_MAX_LENGTH).optional(),
-    /**
-     * Apartment, office or suite, where the provider parsed one out of what was
-     * typed. It fills the second address line rather than the street: the
-     * street line is the provider's to rewrite on every pick, and what is
-     * inside the building must survive that.
-     */
+    /** Apartment, office or suite, where the provider parsed one. It fills the
+     * second line, so a later pick rewriting the street keeps it. */
     unit: z.string().max(ADDRESS_LINE_MAX_LENGTH).optional(),
   })
   .strict();
@@ -107,19 +75,15 @@ export type AddressComponents = z.infer<typeof addressComponentsSchema>;
 /** One row of the dropdown: what to show, and what picking it fills in. */
 export const addressSuggestionSchema = z
   .object({
-    /** The provider's own one-line rendering — display only. */
+    /** The provider's own one-line rendering, for display only. */
     label: z.string(),
     components: addressComponentsSchema,
   })
   .strict();
 export type AddressSuggestion = z.infer<typeof addressSuggestionSchema>;
 
-/**
- * The signed-in account's address book. Every route is scoped to the session's
- * own user, so no route takes an account id — there is no "may I see this one"
- * question to get wrong.
- */
-/** Every route on the address book belongs to the signed-in account. */
+/** The signed-in account's address book. Scoped to the session's own user, so
+ * no route takes an account id to get wrong. */
 const account = oc.errors(commonAuthErrors);
 
 /** What a saved address can be refused for. */
@@ -192,9 +156,8 @@ export const addressesContract = {
 
 /**
  * Address suggestion (FR-CART-11), proxied so the provider credential stays
- * server-side (NFR-SEC-08). Unauthenticated on purpose: a guest fills the same
- * form at checkout. A deployment with no adapter configured answers with an
- * empty list, which is what makes the field degrade to plain typing.
+ * server-side (NFR-SEC-08). Open to guests, who fill the same form at
+ * checkout. Without an adapter the list is empty and the field is plain typing.
  */
 export const addressSuggestionContract = {
   suggestAddresses: oc

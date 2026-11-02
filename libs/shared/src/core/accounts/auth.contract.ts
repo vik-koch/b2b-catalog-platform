@@ -1,14 +1,16 @@
 import { oc } from '@orpc/contract';
+import * as z from 'zod';
+import { addressComponentsSchema } from './address.contract';
 import {
   MAINTENANCE_REFUSED,
   PASSWORD_MAX_LENGTH,
   PASSWORD_MIN_LENGTH,
   PASSWORD_TOKEN_INVALID,
+  PasswordRejectionCode,
   SIGN_IN_CODE_LENGTH,
-} from './auth-constants';
-import * as z from 'zod';
-import { addressComponentsSchema } from './address.contract';
+} from './auth';
 import { partyEntityTypeSchema } from './party.contract';
+import { customerTypeSchema } from './users.contract';
 import {
   companyNameSchema,
   companyRegistrationIdSchema,
@@ -20,7 +22,6 @@ import { consentErrors } from '../site/pages';
 import { consentVersionField } from '../site/page.contract';
 import { honeypotField } from '../../platform/form-fields.contract';
 import { authUserSchema } from '../../platform/session.contract';
-import { CUSTOMER_TYPES } from './user-constants';
 
 /** A code on its way: where it went and which number it signs in with or
  * confirms, both masked, and the seconds until another may be asked for. */
@@ -44,21 +45,10 @@ const stepCommon = {
 };
 
 /**
- * The password was right, and the step is owed before a session begins
- * (FR-AUTH-12). Answered instead of the user by every route that would
- * otherwise start a session. The deployment's provider decides the kind:
- *
- * - `code`: a code went to `sentTo` (the phone, or the email address where the
- *   deployment delivers codes by mail) and is entered on the site.
- * - `call`: the person calls `callTo` from `phone` within `expiresIn` seconds;
- *   `dial` is the same number in canonical form, for a link a phone can dial.
- *   Where the deployment stands in for the call by mail, `sentTo` names the
- *   address the stand-in link went to.
- *
- * `confirming` says completing it also confirms `phone`, which staff set and
- * nobody has confirmed yet. The number is never chosen here: staff set it,
- * and a holder who cannot use it asks the shop. `rememberDays` above 0 offers
- * to remember the browser for that long, so it skips the step next time.
+ * The step owed before a session begins (FR-AUTH-12), answered instead of the
+ * user by every route that would start one. `code`: a code went to `sentTo`
+ * (the phone, or the mailbox). `call`: the person calls `callTo` from `phone`
+ * within `expiresIn` seconds, `dial` being the number a phone link dials.
  */
 export const codeStepSchema = codeSentSchema
   .extend({ step: z.literal('code'), ...stepCommon })
@@ -93,13 +83,11 @@ export const signInCodeSchema = z
     remember: z.boolean().optional(),
   })
   .strict();
-export type SignInCodeRequest = z.infer<typeof signInCodeSchema>;
 
 /** Asking whether the call has come. `remember` counts once it has. */
 export const signInCallSchema = z
   .object({ remember: z.boolean().optional() })
   .strict();
-export type SignInCallRequest = z.infer<typeof signInCallSchema>;
 
 /** The call has not come yet; ask again in a few seconds. */
 export const callWaitingSchema = z
@@ -120,31 +108,8 @@ export const newPasswordSchema = z
   .min(PASSWORD_MIN_LENGTH)
   .max(PASSWORD_MAX_LENGTH);
 
-/**
- * Why the server refused a password. One code per rule in PasswordPolicy, so
- * the form can say what is actually wrong — somebody who typed their own email
- * address is told that, not "invalid password" — while the wording stays in the
- * deployment's own text file.
- *
- * Length is absent on purpose: the form checks the same limits
- * (`auth-constants.ts`), so it refuses a short password before there is a
- * request to answer.
- */
-export const PASSWORD_REJECTION_CODES = [
-  'password-common',
-  'password-predictable',
-  'password-contains-email',
-  'password-contains-shop-name',
-  /** Only reachable from a password *change*, which knows the old one. */
-  'password-unchanged',
-] as const;
-export type PasswordRejectionCode = (typeof PASSWORD_REJECTION_CODES)[number];
-
-/**
- * Redeeming a set-a-password link (FR-AUTH-01/02). The token is the whole
- * credential — it arrived by mail and is single-use — so nothing else is asked
- * for, not even the address it belongs to.
- */
+/** Redeeming a set-a-password link (FR-AUTH-01/02). The single-use token is
+ * the whole credential, so nothing else is asked for. */
 export const setPasswordSchema = z
   .object({
     token: z.string().min(1).max(200),
@@ -155,11 +120,8 @@ export const setPasswordSchema = z
   .strict();
 export type SetPasswordRequest = z.infer<typeof setPasswordSchema>;
 
-/**
- * What a valid link is *for*, derived from the account's state rather than
- * stored on the token: `set` for an account that has never had a password,
- * `reset` for one replacing the password it has.
- */
+/** What a valid link is for, read off the account rather than the token:
+ * `set` where it never had a password, `reset` where it replaces one. */
 export const passwordTokenPurposeSchema = z.enum(['set', 'reset']);
 export type PasswordTokenPurpose = z.infer<typeof passwordTokenPurposeSchema>;
 
@@ -171,27 +133,17 @@ export const changePasswordSchema = z
   .strict();
 export type ChangePasswordRequest = z.infer<typeof changePasswordSchema>;
 
-/**
- * Asking for a reset link (FR-AUTH-02). An address and nothing else — there is
- * nothing to prove yet, and the proof is that the mail arrives.
- */
+/** Asking for a reset link (FR-AUTH-02): the address alone, as the proof is
+ * that the mail arrives. */
 export const forgotPasswordSchema = z
   .object({ email: emailField(320) })
   .strict();
-export type ForgotPasswordRequest = z.infer<typeof forgotPasswordSchema>;
-
-export const customerTypeSchema = z.enum(CUSTOMER_TYPES);
 
 /**
- * Registration (FR-AUTH-01). A registration is a *request* to become a
- * customer, and staff have no way to ask the applicant anything — a pending
- * account cannot sign in — so it has to carry what makes the approval decision
- * possible: who this is, how to reach them to verify it, and, for a business,
- * the registration number staff match against their own records.
- *
- * What it deliberately does not carry: a tier (staff assign it on approval, ADR
- * 0031) and any delivery detail (that belongs to an order, not an account).
- * `website` is the honeypot the real form hides from humans.
+ * Registration (FR-AUTH-01): a request to become a customer, carrying what
+ * staff decide it on, as a pending account cannot be asked anything. No tier
+ * (staff assign it) and no delivery detail (an order's). `website` is the
+ * honeypot.
  */
 export const registerSchema = z
   .object({
@@ -202,25 +154,13 @@ export const registerSchema = z
     customerType: customerTypeSchema,
     companyName: companyNameSchema.optional(),
     companyRegistrationId: companyRegistrationIdSchema.optional(),
-    /**
-     * The registered address of the company the registrant **picked** from a
-     * suggestion (FR-AUTH-10), which becomes the account's first saved address.
-     * From the browser rather than a second lookup: it is the row they chose,
-     * it cannot go stale between choosing and approving, and it costs no
-     * further call at a metered provider.
-     *
-     * Optional in every sense — a registration without it is ordinary, the
-     * server takes it only when it is complete enough to be an address, and
-     * nothing about the account depends on one having arrived.
-     */
+    /** The registered address of the company picked from a suggestion
+     * (FR-AUTH-10), seeding the first saved address where it is complete. Sent
+     * by the browser: it is the row they chose, and a second lookup is paid. */
     billingAddress: addressComponentsSchema
       .extend({
-        /**
-         * Carried so the server can apply the rule rather than trusting the
-         * form to have applied it: an address is seeded only for a legal
-         * entity, because an individual entrepreneur's registered address is
-         * their home.
-         */
+        /** So the server applies the rule itself: only a legal entity's address
+         * is seeded. */
         entityType: partyEntityTypeSchema,
       })
       .optional(),
@@ -229,11 +169,8 @@ export const registerSchema = z
   })
   // strict: unknown keys are rejected, not stripped (NFR-SEC-05).
   .strict()
-  // A company is identified by its name *and* its registration number, so both
-  // are required exactly when the registrant says they are one — and refused
-  // when they do not, rather than being silently stored against a private
-  // person. Staff need both to judge the request: a number alone is a lookup,
-  // and a name alone is not evidence of anything.
+  // A name and a number exactly when the registrant is a company: staff need
+  // both to judge the request, and a private person stores neither.
   .refine(
     (data) =>
       (data.customerType === 'company') === Boolean(data.companyRegistrationId),
@@ -253,11 +190,6 @@ export const registerSchema = z
   );
 export type RegisterRequest = z.infer<typeof registerSchema>;
 
-/**
- * Session auth. Login/logout manage an httpOnly session cookie set
- * by the server, so the token never touches client JavaScript; the contract
- * carries only the user identity, not the token.
- */
 /**
  * The password policy's refusals, all 400s: the rule that refused is the whole
  * message, and the form shows its own wording for each.
@@ -305,7 +237,7 @@ export const callCheckErrors = {
   'code-delivery-unavailable': { status: 503 },
 } as const;
 
-/** A set-a-password link that is no good — unknown, used and expired alike. */
+/** A set-a-password link that is no good: unknown, used and expired alike. */
 const badToken = { [PASSWORD_TOKEN_INVALID]: { status: 404 } } as const;
 
 /**
@@ -325,10 +257,8 @@ export const authContract = {
       inputStructure: 'detailed',
       summary: 'Request an account (creates a pending registration)',
     })
-    // The one thing a registration is told outright. The number's format is
-    // deployment config, so the browser checks the same rule and this is the
-    // server having the last word — and unlike an address that already has an
-    // account, a bad format reveals nothing about anyone.
+    // The one thing a registration is told outright: a bad number format
+    // reveals nothing about anyone, unlike an address already registered.
     .errors({
       'company-id-format': { status: 400 },
       // A kind of customer the shop does not sell to (FR-AUTH-13). The form
@@ -397,9 +327,8 @@ export const authContract = {
       ...codeDeliveryErrors,
     })
     .input(z.object({ body: setPasswordSchema }))
-    // Signs the visitor in: they have just proved control of the address and
-    // chosen a password, so a login form here would be ceremony. Where the
-    // deployment asks for a code, the code comes first.
+    // Signs the visitor in, as they just proved the address and chose a
+    // password; where the deployment asks for a code, it comes first.
     .output(sessionOrStepSchema),
 
   login: oc
@@ -462,7 +391,7 @@ export const authContract = {
   logout: oc
     .route({
       method: 'POST',
-      // Idempotent and safe to call unauthenticated — it only clears the cookie.
+      // Idempotent and open: it only clears the cookie.
       path: '/auth/logout',
       summary: 'Clear the session cookie',
     })
@@ -484,16 +413,15 @@ export const authContract = {
       inputStructure: 'detailed',
       summary: "Change the current user's password",
     })
-    // Two different kinds of 400, told apart by `code` rather than by the
-    // client guessing: the current password was wrong, or the *new* one was
-    // refused by the policy — and in that case which rule refused it.
+    // Two kinds of 400 told apart by `code`: the current password was wrong,
+    // or the policy refused the new one, and by which rule.
     .errors({
       ...commonAuthErrors,
       'wrong-current-password': { status: 400 },
       ...passwordRejections,
     })
     .input(z.object({ body: changePasswordSchema }))
-    // The refreshed identity (with mustChangePassword cleared), so the client
-    // updates its session state from the response rather than re-fetching.
+    // The refreshed identity, mustChangePassword cleared, so the client needs
+    // no second fetch.
     .output(authUserSchema),
 };

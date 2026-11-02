@@ -1,16 +1,16 @@
 import * as z from 'zod';
 import {
   ACCOUNT_DELETION_REASONS,
+  CUSTOMER_TYPES,
   USER_KINDS,
   USER_STATUSES,
-} from './user-constants';
+} from './users';
 import {
   companyNameSchema,
   companyRegistrationIdSchema,
   emailField,
   storedEmailField,
 } from '../../lib/config/contact-config';
-import { customerTypeSchema } from './auth.contract';
 import { userRoleSchema } from '../../platform/session.contract';
 
 /**
@@ -18,28 +18,19 @@ import { userRoleSchema } from '../../platform/session.contract';
  * read, and the writes that create, change and delete one.
  */
 
+export const customerTypeSchema = z.enum(CUSTOMER_TYPES);
+
 export type UserStatus = (typeof USER_STATUSES)[number];
 export const userStatusSchema = z.enum(USER_STATUSES);
 
-/**
- * An account as staff see it. Carries what the approval decision needs — who
- * registered, how to reach them, what they say they are — and never the
- * password hash or anything derived from it.
- */
+/** An account as staff see it: what the approval decision needs, never the
+ * password hash or anything derived from it. */
 export const staffUserSchema = z
   .object({
     id: z.uuid(),
     email: storedEmailField,
-    /**
-     * The source system's own key for this customer (FR-ADM-14), or null for
-     * everyone who registered here and was never claimed by a run — which is
-     * everyone, on a deployment that exchanges nothing.
-     *
-     * Staff-facing and never serialized to the storefront, exactly as a
-     * product's is. It is here because an account whose key is null is an
-     * account the exchange cannot see at all, and a screen that does not show
-     * the field cannot tell anybody that is why.
-     */
+    /** The source system's key (FR-ADM-14), or null where no run claimed the
+     * account, which the exchange then cannot see. Staff-facing only. */
     sourceId: z.string().nullable(),
     role: userRoleSchema,
     status: userStatusSchema,
@@ -57,11 +48,8 @@ export const staffUserSchema = z
     approvedBy: z.uuid().nullable(),
     /** When the holder last entered a code sent to `phone` (FR-AUTH-12). */
     phoneConfirmedAt: z.iso.datetime().nullable(),
-    /**
-     * Exempt from the code after the password, set by an admin, and who that
-     * was. The address is read beside the id because a staff screen names a
-     * person, and it is kept when that admin's account is later deleted.
-     */
+    /** When an admin exempted the account from the code, and their address,
+     * kept when that admin's account is later deleted. */
     signInStepExemptAt: z.iso.datetime().nullable(),
     signInStepExemptBy: z.string().nullable(),
   })
@@ -69,18 +57,10 @@ export const staffUserSchema = z
 export type StaffUser = z.infer<typeof staffUserSchema>;
 
 /**
- * Editing an account (FR-AUTH-04). One request for the whole editable set,
- * because it is one screen: a manager correcting a mistyped digit and re-tiering
- * the same customer is a single decision, and two endpoints would make it two
- * requests with a half-applied state in between.
- *
- * **`email` is absent by design** — it is the login and the identity the audit
- * trail points at, so changing it is an account-recovery flow (with a
- * confirmation to the new address), not a field edit.
- *
- * `role` is optional because it is the one field a *manager* may not touch: the
- * API rejects it from anyone but an admin rather than silently ignoring it, so
- * a refused change is never mistaken for a saved one.
+ * Editing an account (FR-AUTH-04): the whole editable set in one request, as
+ * it is one screen. No `email`: it is the login, and changing it is recovery.
+ * `role` and `sourceId` are optional because a manager may not send them, and
+ * the API refuses rather than drops them.
  */
 export const updateUserSchema = z
   .object({
@@ -91,19 +71,11 @@ export const updateUserSchema = z
     customerType: customerTypeSchema.nullable(),
     companyName: companyNameSchema.nullable(),
     companyRegistrationId: companyRegistrationIdSchema.nullable(),
-    /** Null is the base price list — a real choice, not an omission. */
+    /** Null is the base price list: a real choice, not an omission. */
     tierId: z.uuid().nullable(),
     role: userRoleSchema.optional(),
-    /**
-     * The source key (FR-ADM-14). Optional for the reason `role` is: it is a
-     * field a *manager* may not touch, and the API refuses it from one rather
-     * than dropping it, so a refused change is never mistaken for a saved one.
-     *
-     * The manual way to give a self-registered account its key, and the escape
-     * hatch behind the run-level claim (FR-ADM-17): it needs an admin, and it
-     * needs the area handed back first, since every write to a customer account
-     * is refused while an external system owns them.
-     */
+    /** The source key (FR-ADM-14), set by hand where a run's claim cannot
+     * (FR-ADM-17). Admin only, and only while no external system owns customers. */
     sourceId: z.string().trim().min(1).max(255).nullable().optional(),
   })
   .strict()
@@ -128,12 +100,8 @@ export const updateUserSchema = z
   );
 export type UpdateUserRequest = z.infer<typeof updateUserSchema>;
 
-/**
- * An account staff create themselves — a colleague, or a customer who
- * negotiated by phone and never used the form. No password is set here and
- * none is mailed: the account is `invited` and chooses its own, exactly like an
- * approved registration.
- */
+/** An account staff create themselves. It starts `invited` and chooses its own
+ * password, as an approved registration does. */
 export const createUserSchema = z
   .object({
     email: emailField(320),

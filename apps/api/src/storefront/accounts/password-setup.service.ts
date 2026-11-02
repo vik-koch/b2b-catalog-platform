@@ -10,8 +10,8 @@ import { UserRow, UsersService } from '../../core/accounts/users.service';
 import { PasswordPolicy } from '../../core/accounts/password-policy';
 import { PasswordTokenService } from '../../core/accounts/password-token.service';
 import { PasswordService } from '../../core/accounts/password.service';
-import { PasswordTokenPurpose } from '@b2b-catalog-platform/shared/core/accounts';
 import { UserRole } from '@b2b-catalog-platform/shared/platform';
+import { PasswordTokenPurpose } from '@b2b-catalog-platform/shared/core/accounts';
 
 /**
  * Redeeming a set-a-password link — the invitation staff send, and the reset a

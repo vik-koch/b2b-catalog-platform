@@ -1,7 +1,7 @@
 import { oc } from '@orpc/contract';
 import * as z from 'zod';
 import { machineAuthErrors } from './machine.contract';
-import { customerTypeSchema } from '../core/accounts/auth.contract';
+import { customerTypeSchema } from '../core/accounts/users.contract';
 import {
   companyNameSchema,
   companyRegistrationIdSchema,

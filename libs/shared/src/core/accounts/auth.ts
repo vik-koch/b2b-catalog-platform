@@ -1,12 +1,7 @@
 /**
- * Sign-in values both sides share, kept out of `auth.contract.ts` on purpose.
- *
- * A module that builds a Zod schema cannot be tree-shaken down to its plain
- * constants: `z.string()` is a call, so a bundler has to assume it matters and
- * keeps Zod with it. Importing one cookie name from the contract would
- * therefore put the whole validation runtime in the browser's first load, so
- * everything here is plain data with no imports at all — the schemas that use
- * it live in the contract and import it from here.
+ * Sign-in values both sides share: the step, the password's bounds and the
+ * refusals a sign-in meets. Plain data with no imports, so a form that needs
+ * one of them does not pull the auth schemas, and Zod, with it.
  */
 
 /**
@@ -14,10 +9,21 @@
  * never, once to confirm the account's number, or at every sign-in.
  */
 export const SIGN_IN_STEP_MODES = ['off', 'once', 'always'] as const;
-export type SignInStepMode = (typeof SIGN_IN_STEP_MODES)[number];
 
 /** Digits in a sign-in code: short enough to type off a lock screen. */
 export const SIGN_IN_CODE_LENGTH = 6;
+
+/** Why the server refused a password, one code per rule in PasswordPolicy so
+ * the form can say which. Length is absent: the form checks it first. */
+export const PASSWORD_REJECTION_CODES = [
+  'password-common',
+  'password-predictable',
+  'password-contains-email',
+  'password-contains-shop-name',
+  /** Only reachable from a password *change*, which knows the old one. */
+  'password-unchanged',
+] as const;
+export type PasswordRejectionCode = (typeof PASSWORD_REJECTION_CODES)[number];
 
 /** The refusal a customer's sign-in meets while maintenance mode is on. */
 export const MAINTENANCE_REFUSED = 'maintenance' as const;
