@@ -28,12 +28,8 @@ export type DeleteOnRequestResult =
       reason: 'not-found' | 'self-delete' | 'closed' | 'pending' | 'last-admin';
     };
 
-/**
- * Deleting your own account (FR-AUTH-06), or an admin deleting it on your
- * request (FR-ADM-23). Anonymization, not a DELETE — the
- * reasoning is in ADR 0032; what this class owns is the order the steps happen
- * in, because two of them cannot be reordered without breaking.
- */
+/** Deleting your own account (FR-AUTH-06), or an admin deleting it on your
+ * request (FR-ADM-23): the order of the steps around the anonymization. */
 @Injectable()
 export class AccountDeletion {
   private readonly logger = new Logger('AccountDeletion');
@@ -50,8 +46,7 @@ export class AccountDeletion {
 
   async delete(userId: string, password: string): Promise<DeleteAccountResult> {
     const user = await this.users.findById(userId);
-    // The guard read this row a moment ago; if it is gone the session is, so
-    // answering "wrong password" is both true enough and the safe direction.
+    // Gone since the guard read it: the safe answer.
     if (!user) return { ok: false, reason: 'wrong-password' };
 
     if (!(await this.passwords.verify(user.passwordHash, password))) {
@@ -62,9 +57,7 @@ export class AccountDeletion {
     const result = await this.close(user, { reason: 'request' });
     if (!result.ok) return result;
 
-    // And the shop is told (FR-NOTIF-08). Separately, so one failing inbox does
-    // not swallow the other message — and after the customer's, because theirs
-    // is the one the queue should reach first.
+    // The shop is told (FR-NOTIF-08), after the customer's mail.
     const staffInbox = env.MAIL_STAFF_TO;
     if (!staffInbox) {
       // env.ts requires this in server mode; this narrows the type.
@@ -80,12 +73,8 @@ export class AccountDeletion {
     return { ok: true };
   }
 
-  /**
-   * The same deletion, done by an admin on the person's request (FR-ADM-23).
-   * No password, since the person is not the one at the keyboard; the admin
-   * is named on the consent withdrawals it writes. The shop is not mailed: it
-   * is the shop that did it, and the closure notice says a customer did.
-   */
+  /** No password, and no mail to the shop: the shop did it, and the closure
+   * notice says a customer did. */
   async deleteOnRequest(
     userId: string,
     admin: { readonly id: string; readonly email: string },
@@ -95,30 +84,20 @@ export class AccountDeletion {
     if (!user) return { ok: false, reason: 'not-found' };
     if (user.id === admin.id) return { ok: false, reason: 'self-delete' };
     if (user.status === 'anonymized') return { ok: false, reason: 'closed' };
-    // Declining removes a registration outright (FR-AUTH-11), and writes its
-    // own withdrawal: two doors to one outcome would record it two ways.
+    // Declining is the door for a registration (FR-AUTH-11).
     if (user.status === 'pending') return { ok: false, reason: 'pending' };
     return this.close(user, { reason, by: admin });
   }
 
-  /**
-   * The steps both doors share, in the order that matters. Two of them cannot
-   * be reordered without breaking.
-   */
+  /** The steps both doors share. */
   private async close(
     user: UserRow,
     deletion: Parameters<UsersService['anonymize']>[2],
   ): Promise<{ ok: true } | { ok: false; reason: 'last-admin' }> {
-    // Read the address the mail goes to *before* the write, which is what
-    // overwrites it. Sending before the write would be the other way to have
-    // it, but then a failed write leaves somebody holding a confirmation of a
-    // deletion that did not happen.
+    // Read before the write overwrites it; mailed after, so a failed write
+    // confirms nothing.
     const address = user.email;
 
-    // Staff may leave like anyone else, but not the last one who can let people
-    // back in — the same rule that guards a role change and a deactivation,
-    // and raised from inside the scrub's own transaction so that two admins
-    // leaving at once cannot both be the one who was allowed to.
     try {
       await this.users.anonymize(
         user.id,
@@ -131,23 +110,17 @@ export class AccountDeletion {
       }
       throw error;
     }
-    // Outside the scrub's transaction on purpose: it deletes files, and a
-    // filesystem cannot be rolled back with a database. Run after, so a
-    // failure here leaves files belonging to an account that is already gone
-    // rather than an account still readable with its files deleted.
+    // Files cannot roll back with the database, so after the commit: a
+    // failure leaves stray files, not a live account without its files.
     await this.erasure.afterCommit({
       userId: user.id,
       kind: 'account',
       reason: deletion.reason,
       by: deletion.by ?? { id: user.id },
     });
-    // Any set-a-password link still out would otherwise be a way back into a
-    // tombstone.
+    // A link still out would be a way back into the tombstone.
     await this.tokens.revokeOutstanding(user.id);
 
-    // The deletion is the request, not the mail — unlike an invitation, where
-    // the mail *is* the point. A mail that will not send is logged and the
-    // account stays deleted, and nobody watches a spinner while it goes.
     await this.mail.dispatch(
       accountDeletedMail(this.text),
       { to: address },
@@ -156,14 +129,18 @@ export class AccountDeletion {
     return { ok: true };
   }
 
-  /** What the shop's notification quotes, read before the scrub erases it. */
+  /** What the shop's notification quotes, read before the erasure. */
   private async closedSummary(user: UserRow): Promise<ClosedAccountSummary> {
+    const [orders, openOrders] = await Promise.all([
+      this.users.countOrders(user.id),
+      this.users.countOpenOrders(user.id),
+    ]);
     return {
       email: user.email,
       firstName: user.firstName,
       lastName: user.lastName,
-      orders: await this.users.countOrders(user.id),
-      openOrders: await this.users.countOpenOrders(user.id),
+      orders,
+      openOrders,
     };
   }
 }

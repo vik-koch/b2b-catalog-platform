@@ -2,11 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { randomBytes } from 'node:crypto';
 import { hashPassword, verifyPassword } from './password-hashing';
 
-/**
- * Injectable wrapper over the shared argon2id helpers (see ./password-hashing).
- * The raw password is never stored — only the returned self-contained hash
- * string (algorithm + parameters + random salt + digest) goes to the database.
- */
+/** The argon2id helpers, injectable. */
 @Injectable()
 export class PasswordService {
   hash(plain: string): Promise<string> {
@@ -17,13 +13,8 @@ export class PasswordService {
     return verifyPassword(hashString, plain);
   }
 
-  /**
-   * The stand-in hash for an account created before its owner has chosen a
-   * password — a pending registration or a staff-made account. A real argon2
-   * hash of a random secret nobody holds, not a sentinel: argon2 throws on a
-   * malformed hash string, so a placeholder would turn a login attempt on such
-   * an account into a 500 instead of a clean failure.
-   */
+  /** The stand-in until an owner chooses a password: a real hash of a secret
+   * nobody holds, since a sentinel would make argon2 throw at sign-in. */
   unusableHash(): Promise<string> {
     return this.hash(randomBytes(32).toString('hex'));
   }

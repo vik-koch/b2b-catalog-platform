@@ -22,7 +22,7 @@ import {
 
 type AddressRow = typeof addresses.$inferSelect;
 
-/** The one 404 here; a function so each throw carries its own stack. */
+/** A function, so each throw carries its own stack. */
 const notFound = () =>
   new NotFoundException({
     code: 'address-not-found',
@@ -44,12 +44,8 @@ function toAddress(row: AddressRow): Address {
   };
 }
 
-/**
- * One account's address book. Every query is scoped by the `userId` the session
- * carries and never by anything in the request, so "may I touch this row" is
- * not a question this service can answer wrongly — a row belonging to somebody
- * else simply does not match, and reads as a 404.
- */
+/** One account's address book. Every query is scoped by the session's
+ * account, so another's row does not match and reads as a 404. */
 @Injectable()
 export class AddressesService {
   private readonly logger = new Logger(AddressesService.name);
@@ -59,8 +55,7 @@ export class AddressesService {
     @Inject(ADDRESS_CONFIG) private readonly config: AddressConfig | undefined,
   ) {}
 
-  /** Oldest first: the book is a short list and a stable order is worth more
-   * than recency here — the picker's rows should not move under a customer. */
+  /** Oldest first, so the picker's rows never move. */
   async list(userId: string): Promise<Address[]> {
     const rows = await this.db
       .select()
@@ -73,8 +68,6 @@ export class AddressesService {
   async create(userId: string, input: AddressInput): Promise<Address> {
     this.assertValid(input);
 
-    // Checked rather than enforced by a constraint: a ceiling on a list is a
-    // refusal the form can explain, not a database error to translate.
     const count = await this.db.$count(addresses, eq(addresses.userId, userId));
     if (count >= ADDRESS_BOOK_MAX) {
       throw new ConflictException({
@@ -90,15 +83,8 @@ export class AddressesService {
     return toAddress(row);
   }
 
-  /**
-   * The first address of a brand-new account, from the company suggestion its
-   * owner picked (FR-AUTH-10). Silent on every refusal, because it is a
-   * courtesy on a path that must not fail for it: a registration is not worth
-   * less because a registry answered half an address.
-   *
-   * An ordinary row in every other respect — no verified flag, nothing locked —
-   * so the account holder edits or deletes it like any other.
-   */
+  /** A new account's first address, from its company suggestion
+   * (FR-AUTH-10). Silent on a refusal: registration must not fail for it. */
   async seed(userId: string, input: AddressInput): Promise<void> {
     try {
       await this.create(userId, input);
@@ -133,24 +119,13 @@ export class AddressesService {
     if (!row) throw notFound();
   }
 
-  /**
-   * The deployment's own rules, applied server-side: a picker and a mask are
-   * entry aids, and a rule enforced only in the browser is not a rule.
-   *
-   * Public because checkout runs it over an address that never entered the
-   * book — a guest's, typed once — and the two must be held to the same rules.
-   */
+  /** Public for checkout, which holds a guest's address to the same rules. */
   assertValid(input: AddressInput): void {
     this.assertSupportedCountry(input.country);
     this.assertPostalCode(input);
   }
 
-  /**
-   * The country list is a rule, not only a picker: the browser sends whatever
-   * it likes, and an address outside the countries a deployment ships to would
-   * become an order nobody can fulfil. A deployment that configures none takes
-   * any well-formed code.
-   */
+  /** No countries configured: any well-formed code. */
   private assertSupportedCountry(country: string): void {
     const countries = this.config?.countries;
     if (!countries) return;
@@ -162,13 +137,8 @@ export class AddressesService {
     }
   }
 
-  /**
-   * The shape of a postal code, where the country it is in has one configured.
-   * A mask in the browser caps what can be typed and says nothing about what
-   * arrives, so this is where the rule actually holds — and the delivery zone
-   * is resolved from this field, so a code in the wrong shape is an order
-   * quoted against the wrong area.
-   */
+  /** The delivery zone is read from this field, so a malformed code quotes
+   * an order against the wrong area. */
   private assertPostalCode(input: AddressInput): void {
     const rule = postalCodeRuleFor(input.country, this.config?.countries);
     if (postalCodeMatches(input.postalCode, rule)) return;

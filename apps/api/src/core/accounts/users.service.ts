@@ -43,8 +43,7 @@ export class UsersService {
   }
 
   async findByEmail(email: string): Promise<UserRow | undefined> {
-    // Logins are case-insensitive: emails are stored lowercased (see bootstrap)
-    // and looked up the same way, so `Admin@x` and `admin@x` are one account.
+    // Stored lowercased, so `Admin@x` and `admin@x` are one account.
     const rows = await this.db
       .select()
       .from(users)
@@ -52,11 +51,8 @@ export class UsersService {
     return rows[0];
   }
 
-  /**
-   * Create a self-registered account (FR-AUTH-01): `pending`, so it cannot sign
-   * in, with no tier — staff assign one when they approve it. The hash is an
-   * argon2 hash of a random secret nobody holds, rather than a placeholder.
-   */
+  /** A self-registered account (FR-AUTH-01): `pending`, without a tier until
+   * staff approve it. */
   async createPending(registration: PendingRegistration): Promise<UserRow> {
     const [created] = await this.db
       .insert(users)
@@ -71,17 +67,9 @@ export class UsersService {
   }
 
   /**
-   * Set the password behind a redeemed link, and make the account usable: an
-   * `invited` one becomes `active` here, which is the whole point of the
-   * invitation — approval decides *whether*, this decides *when*.
-   *
-   * Only an `invited` (first password) or already-`active` (reset) account is
-   * touched. That upper bound is what tokens are minted for anyway — but naming
-   * it here means a link can never move any *other* status into `active`: it
-   * cannot activate a still-`pending` registration that skipped approval, nor
-   * bring an `anonymized` tombstone back. Everything `setPassword` does applies
-   * too: the tokenVersion bump invalidates other sessions, and
-   * `mustChangePassword` clears because the account has now chosen its own.
+   * The password behind a redeemed link, which makes an `invited` account
+   * `active`. Only from `invited` or `active`, so no link can activate a
+   * `pending` registration or revive a tombstone. Otherwise as `setPassword`.
    */
   async setPasswordFromToken(
     id: string,
@@ -93,8 +81,7 @@ export class UsersService {
       .set({
         passwordHash,
         status: 'active',
-        // The account now holds a password of its own — the fact a
-        // reactivation later reads to know where to put it back.
+        // What a reactivation reads to tell `active` from `invited`.
         passwordSetAt: new Date(),
         tokenVersion: sql`${users.tokenVersion} + 1`,
         mustChangePassword: false,
@@ -107,15 +94,7 @@ export class UsersService {
     return updated;
   }
 
-  /**
-   * Replace the password hash and bump `tokenVersion` in one statement, so the
-   * change atomically invalidates every session issued before it. Clears
-   * `mustChangePassword` in the same write: whatever was handed to the account,
-   * it has now chosen its own. Returns the updated row so the caller can
-   * re-issue its own session token at the new version.
-   */
-  /** A session has just started for this account (see `users.lastSignInAt`).
-   * Not `updatedAt`: signing in changes nothing about the account. */
+  /** Not `updatedAt`: signing in changes nothing about the account. */
   async recordSignIn(id: string): Promise<void> {
     await this.db
       .update(users)
@@ -123,11 +102,8 @@ export class UsersService {
       .where(eq(users.id, id));
   }
 
-  /**
-   * The holder entered a code sent to this number (FR-AUTH-12). The number and
-   * the confirmation are written together: a write that changes the number
-   * without confirming it is unconfirmed by a trigger.
-   */
+  /** The holder proved this number (FR-AUTH-12). Written together: a trigger
+   * unconfirms any write that changes the number alone. */
   async confirmPhone(id: string, phone: string): Promise<UserRow> {
     const [updated] = await this.db
       .update(users)
@@ -137,6 +113,11 @@ export class UsersService {
     return updated;
   }
 
+  /**
+   * The hash and a `tokenVersion` bump in one statement, so every older
+   * session ends with the change. Answers the row, so the caller can reissue
+   * its own session at the new version.
+   */
   async setPassword(id: string, passwordHash: string): Promise<UserRow> {
     const [updated] = await this.db
       .update(users)
@@ -153,26 +134,11 @@ export class UsersService {
   }
 
   /**
-   * Perform a write that takes an admin away — self-deletion, deactivation, a
-   * demotion — refusing when it would leave nobody able to let people back in.
-   * The rule behind every "not the last admin" refusal, so it lives here
-   * rather than with any one of them.
-   *
-   * The check and the write share one transaction, and the check locks *every*
-   * admin row rather than only the ones it counts. Two admins removing each
-   * other at the same moment read disjoint sets — each sees the other and each
-   * proceeds — so there has to be a row they both contend for. Locked this way
-   * the second one waits, re-reads what the first committed, and is refused.
-   *
-   * Only an account that can still sign in counts. An anonymized row is a
-   * tombstone, and a disabled admin cannot switch itself back on: leaving one
-   * of those as the only admin locks the shop out just as completely as
-   * leaving none. An invited admin does count — the link in their inbox is a
-   * way in.
-   *
-   * An account that is not an admin is written straight through: there is no
-   * invariant to hold, and the role is read here rather than trusted from an
-   * earlier read, so a demotion that lands in between cannot slip past.
+   * A write that may take an admin away (deletion, deactivation, demotion),
+   * refused where it would leave no admin who can sign in; an invited one
+   * counts. Every admin row is locked, not only the counted ones: two admins
+   * removing each other read disjoint sets, so they need a row to contend
+   * for. The role is read here, so a demotion in between cannot slip past.
    */
   async removingAdmin<T>(
     removedId: string,
@@ -197,26 +163,12 @@ export class UsersService {
   }
 
   /**
-   * Self-deletion (FR-AUTH-06): the row stays, everything identifying about it
-   * goes. It is kept because `users.id` is an FK target — the audit trail's
-   * actor, the `updatedBy` columns, and the orders this deliberately does not
-   * delete — so removing it would erase who did what, not just who they were.
-   *
-   * The address is replaced rather than kept, which **frees it**: the person
-   * can register again later, as a genuinely new account with nothing linking
-   * it to this one. The tombstone keeps the unique slot instead.
-   *
-   * The credential goes the way deactivation retires it (unusable hash, bumped
-   * `tokenVersion`), so every session issued before this stops working — the
-   * caller's own included, which is why the controller clears the cookie too.
-   *
-   * One transaction, the other areas' erasure steps included (their orders,
-   * the destruction record): an account that is half-anonymized is worse than
-   * one that is not.
-   *
-   * `by` is the admin deleting it on the person's request (FR-ADM-23), named on
-   * the consent withdrawals and the destruction record the deletion writes;
-   * without one, the holder deleted it themselves, at their own request.
+   * Deletion as anonymization (FR-AUTH-06): the row stays as the target of
+   * every reference to who did what, and everything identifying goes. The
+   * address is replaced, which frees it for a new registration. One
+   * transaction with the other areas' erasure steps: half an erasure is worse
+   * than none. `by` is the admin acting on the person's request (FR-ADM-23);
+   * without it, the holder did it themselves.
    */
   async anonymize(
     id: string,
@@ -228,15 +180,12 @@ export class UsersService {
   ): Promise<UserRow> {
     const { reason, by } = deletion;
     return this.removingAdmin(id, async (tx) => {
-      // The address book is personal data with no second purpose: orders keep
-      // their own snapshot of where they went, so nothing readable is lost by
-      // removing the saved rows. The account row is never deleted, so the
-      // cascade on the foreign key never fires — this is the deletion.
+      // Orders keep their own copy of where they went. The row is never
+      // deleted, so the cascade never fires: this is the deletion.
       await tx.delete(addresses).where(eq(addresses.userId, id));
       // A code the account was waiting on carries the number it went to.
       await tx.delete(signInCodes).where(eq(signInCodes.userId, id));
-      // The account consent ends with the account; its record stays, with
-      // the address it was given with, for the retention period.
+      // The consent record stays, for the retention period.
       await withdrawAccountConsents(tx, id, 'account-deleted', by);
       await this.erasure.erase(tx, {
         userId: id,
@@ -248,16 +197,8 @@ export class UsersService {
     });
   }
 
-  /**
-   * How many of this account's orders the shop is still working on
-   * (FR-AUTH-06) — everything it has neither finished nor refused.
-   *
-   * Read on the account's own profile so the deletion page can say it. It
-   * refuses nothing: an order in flight is one the shop has agreed to fill,
-   * and the customer is entitled to close their account either way. What they
-   * are not entitled to is being surprised, afterwards, that the order they
-   * are still waiting for no longer carries their phone number.
-   */
+  /** Orders the shop is still working on (FR-AUTH-06), so the deletion page
+   * can say so. They refuse nothing. */
   async countOpenOrders(userId: string): Promise<number> {
     const [row] = await this.db
       .select({ open: count() })
@@ -271,8 +212,7 @@ export class UsersService {
     return Number(row?.open ?? 0);
   }
 
-  /** How many orders this account has at all — what a closure leaves behind
-   * (FR-NOTIF-08), counted before the scrub makes them untraceable. */
+  /** Counted before the erasure makes them untraceable (FR-NOTIF-08). */
   async countOrders(userId: string): Promise<number> {
     const [row] = await this.db
       .select({ total: count() })
@@ -290,9 +230,8 @@ export class UsersService {
       .update(users)
       .set({
         status: 'anonymized',
-        // `.invalid` is reserved and undeliverable (RFC 2606), and the dotted
-        // form is a *syntactically* valid address — which it has to be, because
-        // the tombstone still goes out over `staffUserSchema` to the staff list.
+        // Undeliverable (RFC 2606) but well-formed: the staff list's schema
+        // still reads it.
         email: sql`concat('deleted-', ${users.id}::text, '@deleted.invalid')`,
         firstName: null,
         lastName: null,
@@ -300,15 +239,10 @@ export class UsersService {
         customerType: null,
         companyName: null,
         companyRegistrationId: null,
-        // The pricing group is personal data of a kind: it says what this
-        // customer was charged.
+        // It says what this customer was charged.
         tierId: null,
         passwordHash: unusableHash,
-        // The credential is gone with everything else, so the row no longer
-        // holds a password anybody chose.
         passwordSetAt: null,
-        // When it was last used says something about the person; the
-        // tombstone keeps nothing about them.
         lastSignInAt: null,
         tokenVersion: sql`${users.tokenVersion} + 1`,
         mustChangePassword: false,
@@ -320,14 +254,9 @@ export class UsersService {
   }
 
   /**
-   * The account holder correcting their own name and phone number. Narrow by
-   * construction — the columns are named here rather than spread from the
-   * request — so this can never become the path by which a self-service form
-   * writes a role, a tier or a status.
-   *
-   * Guarded on `active`: the same accounts that may sign in are the ones that
-   * may edit, so a session in flight when staff deactivate the account cannot
-   * still write to it.
+   * The holder's own name and number. The columns are named, never spread
+   * from the request, so a self-service form cannot write a role or a tier.
+   * Only while `active`, so a session open across a deactivation cannot.
    */
   async updateOwnProfile(
     id: string,

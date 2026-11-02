@@ -79,21 +79,14 @@ function signInStepSecret(): string {
     .digest('hex');
 }
 
-/**
- * What the customer's own screens, the staff's account screens and the
- * customer exchange all act on an account through: passwords and their links,
- * the sign-in step, invitations and deletion. Re-exports the session and the
- * `users` table, so an accounts module needs only this one.
- */
+/** What every audience acts on an account through, the customer exchange
+ * included. Re-exports the session, so an accounts module needs only this. */
 @Module({
   // The erasure steps come from the app root (ACCOUNT_ERASURE_STEPS).
   imports: [SessionModule, MailModule],
   providers: [
-    // The grouping the staff notification puts back on a stored number.
     { provide: PHONE_INPUT, useFactory: loadPhoneInput },
-    // Every door that writes an account's number reads it by this rule.
     { provide: PHONE_RULE, useFactory: loadPhoneRule },
-    // The shapes the staff list's "which kind of number" filter can name.
     { provide: COMPANY_ID_FORMATS, useFactory: loadCompanyIdFormats },
     { provide: ALTERNATE_LAYOUT, useFactory: loadAlternateLayout },
     {

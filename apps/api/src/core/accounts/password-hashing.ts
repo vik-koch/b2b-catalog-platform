@@ -1,14 +1,9 @@
 import { hash, verify } from '@node-rs/argon2';
 
 /**
- * argon2id cost parameters — the single source of truth shared by the runtime
- * PasswordService and the bootstrap-admin one-shot, which hashes outside the
- * Nest DI container. OWASP baseline for argon2id: 64 MiB memory, 3 iterations,
- * 1 lane. The parameters are stored inside every hash, so raising them later
- * only affects newly created hashes; existing ones keep verifying unchanged.
- *
- * Hashing needs no secret: security comes from the function being one-way, slow,
- * and salted (a random salt is embedded in each hash), not from hiding anything.
+ * The OWASP argon2id baseline, shared with the bootstrap-admin one-shot,
+ * which hashes outside Nest. Each hash stores its parameters, so raising
+ * them later leaves existing hashes verifying.
  */
 export const ARGON2_OPTIONS = {
   memoryCost: 65536,
@@ -24,7 +19,6 @@ export function verifyPassword(
   hashString: string,
   plain: string,
 ): Promise<boolean> {
-  // Resolves false on a wrong password; rejects only if `hashString` is
-  // malformed, which would be stored-data corruption, not a failed login.
+  // Rejects only on a malformed hash: corrupt data, not a failed login.
   return verify(hashString, plain);
 }

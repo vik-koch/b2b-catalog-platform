@@ -2,14 +2,9 @@ import { BadRequestException } from '@nestjs/common';
 import type { PhoneRule } from '../../config/deployment-config';
 
 /**
- * The number to store for one a person entered on an account, through any
- * door: registration, their own profile, or the staff editor.
- *
- * `undefined` stays `undefined` (the field was not sent) and an empty value is
- * no number. A value equal to the one already stored is kept unread: a number
- * from before the rule, or from an external system, must not stop someone from
- * correcting a name beside it. Anything else is read by the deployment's rule,
- * and refused as `phone-format` where the rule cannot read it.
+ * The number to store for one entered on an account, through any door.
+ * `undefined` is not sent, empty is none. The stored value passes unread, so
+ * an old or imported number cannot block correcting a name beside it.
  */
 export function storedPhone(
   rule: PhoneRule,

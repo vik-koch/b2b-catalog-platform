@@ -11,14 +11,8 @@ import {
 } from './password-token.service';
 
 /**
- * "I cannot get in" (FR-AUTH-02). Requesting a link is deliberately the only
- * half that is new: redeeming one is `PasswordSetupService`, which already
- * serves the invitation and reads the purpose off the account's status.
- *
- * The caller learns nothing. Whether the address is known, belongs to an
- * account that may sign in, or is a stranger's, this does the same visible
- * thing — a form that answered differently would be a way to test which
- * addresses are customers.
+ * "I cannot get in" (FR-AUTH-02): asking for a link. The caller learns
+ * nothing either way, or the form would tell which addresses are customers.
  */
 @Injectable()
 export class PasswordResetService {
@@ -35,50 +29,33 @@ export class PasswordResetService {
     const user = await this.users.findByEmail(email);
     if (!user) return;
 
-    // `pending` has nobody's decision behind it yet, `disabled` was switched
-    // off on purpose, `anonymized` is a tombstone. A link to any of them would
-    // be a way back into an account that is meant to be shut.
+    // A link to any other status reopens an account meant to be shut.
     if (user.status !== 'active' && user.status !== 'invited') return;
 
     try {
       await this.sendLink(user);
     } catch (error) {
-      // Never surfaced: the response is uniform by design, so a failure here
-      // reaches the operator through the log rather than the visitor.
+      // The answer is uniform, so a failure goes to the log only.
       this.logger.error(`Could not issue a password link: ${String(error)}`);
     }
   }
 
   /**
-   * Mint a link and mail it, whichever kind the account needs — the shared
-   * half of "let this person in", asked for by the account holder from the
-   * login form and by staff from the account screen (FR-AUTH-04).
-   *
-   * An `invited` account has no password to reset: what it is missing is the
-   * invitation, so that is what it gets, at the invitation's own deadline. An
-   * `active` one gets the reset mail, whose wording — somebody asked for this,
-   * ignore it and nothing changes — is true either way round, since a manager
-   * pressing the button on somebody's behalf *is* somebody asking.
-   *
-   * What a caller is told about is the *link*, not its delivery: the token is
-   * minted here, and the message itself is queued and sent off the request
-   * (see MailDispatcher). Waiting on a provider would mean a visitor watching
-   * a form for five seconds and a customer sync stalling once per invited
-   * account, for a success that only ever meant "the relay took it". Whether
-   * the account may be sent a link at all is the caller's check — this one is
-   * only asked about accounts that passed it.
+   * Mint a link and queue its mail, for the holder at the login form and for
+   * staff alike (FR-AUTH-04). An `invited` account gets its invitation again,
+   * an `active` one the reset mail. Whether it may get one is the caller's
+   * check.
    */
   async sendLink(user: {
     id: string;
     email: string;
     status: string;
-    /** A row's timestamp or a serialized one — only its presence is read. */
+    /** A row's or a serialized timestamp; only its presence is read. */
     approvedAt: Date | string | null;
   }): Promise<void> {
     if (user.status === 'invited') {
       const token = await this.tokens.issue(user.id, INVITE_TTL_MS);
       await this.mail.dispatch(
-        // `approved` or `created`, told by how the account came about.
         invitationMail(
           token,
           this.text,

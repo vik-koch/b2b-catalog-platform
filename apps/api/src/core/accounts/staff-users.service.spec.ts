@@ -69,19 +69,24 @@ describe('StaffUsersService — accepted customer types (FR-AUTH-13)', () => {
   });
 
   it('asks nothing of a staff account, which is no kind of customer', async () => {
-    const shop = service(['company']);
     // Past the rule, the next thing create does is look the address up.
-    const lookup = vi
-      .spyOn(
-        shop as unknown as { findByEmail: () => Promise<unknown> },
-        'findByEmail',
-      )
+    const findByEmail = vi
+      .fn()
       .mockRejectedValue(new Error('reached the lookup'));
+    const shop = new StaffUsersService(
+      {} as never,
+      { findByEmail } as unknown as UsersService,
+      {} as AccountErasure,
+      [],
+      null,
+      (value: string) => value,
+      ['company'],
+    );
 
     await expect(
       shop.create({ ...customer, role: 'manager' }, 'admin-1', 'hash'),
     ).rejects.toThrow('reached the lookup');
-    expect(lookup).toHaveBeenCalled();
+    expect(findByEmail).toHaveBeenCalled();
   });
 
   it('refuses to save a person from before the rule until staff convert it', async () => {
@@ -110,5 +115,53 @@ describe('StaffUsersService — accepted customer types (FR-AUTH-13)', () => {
     ).rejects.toMatchObject({
       response: { code: 'customer-type-not-accepted' },
     });
+  });
+});
+
+describe('StaffUsersService.create', () => {
+  /** A database that keeps what is inserted. */
+  const recording = () => {
+    const inserted: Record<string, unknown>[] = [];
+    const db = {
+      insert: () => ({
+        values: (values: Record<string, unknown>) => {
+          inserted.push(values);
+          return {
+            returning: async () => [
+              { ...values, id: 'u-1', createdAt: new Date() },
+            ],
+          };
+        },
+      }),
+    };
+    const service = new StaffUsersService(
+      db as never,
+      { findByEmail: async () => undefined } as unknown as UsersService,
+      {} as AccountErasure,
+      [],
+      null,
+      (value: string) => value,
+      ['person', 'company'],
+    );
+    return { service, inserted };
+  };
+
+  it('keeps a tier and a source key off a staff account', async () => {
+    const { service, inserted } = recording();
+
+    await service.create(
+      {
+        email: 'colleague@example.com',
+        role: 'manager',
+        tierId: '00000000-0000-0000-0000-0000000000aa',
+        sourceId: 'C-1',
+        firstName: 'Ada',
+        lastName: 'Byrne',
+      },
+      'admin-1',
+      'hash',
+    );
+
+    expect(inserted[0]).toMatchObject({ tierId: null, sourceId: null });
   });
 });

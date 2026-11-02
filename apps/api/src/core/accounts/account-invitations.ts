@@ -14,9 +14,7 @@ import {
   StaffUser,
 } from '@b2b-catalog-platform/shared/core/accounts';
 
-/**
- * Turning a decision into a usable account: mint a single-use link and mail it.
- */
+/** Turning a staff decision into a usable account: a link, mailed. */
 @Injectable()
 export class AccountInvitations {
   private readonly logger = new Logger('Invitations');
@@ -41,18 +39,8 @@ export class AccountInvitations {
     return user;
   }
 
-  /**
-   * Send the way in again — the mail was lost, filed as spam, or its deadline
-   * ran out; or somebody is locked out and rang the shop instead of using the
-   * form. Issuing a new token revokes the outstanding one, so there is never
-   * more than one live link.
-   *
-   * Which mail goes is the account's own status, decided in one place for
-   * staff and for the login form alike (`PasswordResetService.sendLink`). What
-   * is refused here is an account with no sign-in to restore: a registration
-   * nobody has decided on, one switched off on purpose — switch it back on
-   * first — and a tombstone.
-   */
+  /** Send the way in again: the mail was lost, or the holder rang the shop.
+   * Refused for an account with no sign-in to restore. */
   async sendPasswordLink(user: StaffUser): Promise<void> {
     if (user.status !== 'invited' && user.status !== 'active') {
       throw new ConflictException({
@@ -63,15 +51,8 @@ export class AccountInvitations {
     await this.reset.sendLink(user);
   }
 
-  /**
-   * Switch an account off. The status write ends every session in flight; this
-   * adds the other way in — a set-your-password link sitting unused in a
-   * mailbox, which would otherwise be a working key to an account nobody may
-   * sign into any more.
-   *
-   * The password itself stays (see StaffUsersService.deactivate), so switching
-   * an account back on needs no mail and tells its owner nothing.
-   */
+  /** Switch an account off, and retire any link still out: an unused one
+   * would be a key to it. */
   async deactivate(id: string, actorId: string): Promise<StaffUser> {
     const updated = await this.users.deactivate(id, actorId);
     await this.tokens.revokeOutstanding(id);
@@ -79,14 +60,9 @@ export class AccountInvitations {
   }
 
   /**
-   * Mint the link and dispatch it. Deliberately not allowed to fail or delay
-   * the request that caused it: the account decision is already recorded, and
-   * staff can re-send from the account list. Losing the approval because SMTP
-   * hiccuped would be worse — and so would making an admin watch it.
-   *
-   * The token is minted here rather than in the queue: it is a database row
-   * the account screen shows as an outstanding link, so it belongs to the
-   * request, and only the message that carries it is deferred.
+   * Never fails the request that caused it: the decision is recorded, and
+   * staff can resend. The token is minted here and only the mail is queued,
+   * so the account screen shows the link at once.
    */
   async send(user: StaffUser, kind: InvitationKind): Promise<void> {
     try {

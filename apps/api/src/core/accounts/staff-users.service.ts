@@ -51,22 +51,15 @@ import {
   UserKind,
 } from '@b2b-catalog-platform/shared/core/accounts';
 
-/**
- * The one 404 this surface has. A function rather than a constant so each throw
- * gets its own instance — a shared exception object would carry one stack
- * around the whole process.
- */
+/** A function, so each throw carries its own stack. */
 const notFound = () =>
   new NotFoundException({
     code: 'account-not-found',
     message: 'Account not found',
   });
 
-/**
- * Somebody else already carries that source key (FR-ADM-14). The key is the
- * only identity the exchange models, so two accounts sharing one would make
- * every later run ambiguous, which is why the column is unique.
- */
+/** The source key is the exchange's only identity for an account (FR-ADM-14),
+ * so the column is unique. */
 const sourceIdTaken = () =>
   new ConflictException({
     code: 'source-id-taken',
@@ -92,10 +85,8 @@ const staffUserColumns = {
   approvedBy: users.approvedBy,
   phoneConfirmedAt: users.phoneConfirmedAt,
   signInStepExemptAt: users.signInStepExemptAt,
-  /**
-   * The exempting admin's address, beside the account. Qualified throughout:
-   * a bare id here would compare the admin's row with itself.
-   */
+  /** Qualified throughout: a bare id would compare the admin's row with
+   * itself. */
   signInStepExemptBy: sql<
     string | null
   >`(select ${qualified(users.email, 'exemptor')} from ${users} "exemptor" where ${qualified(users.id, 'exemptor')} = ${qualified(users.signInStepExemptBy)})`,
@@ -120,12 +111,9 @@ export interface ListUsersFilters {
 }
 
 /**
- * The staff view of accounts (FR-AUTH-03/04). Reads and writes the columns an
- * approving manager works with. It never touches a *password* — that is only
- * ever done by the account's own owner, through a token (see
- * PasswordTokenService), and there is nothing here that could hash one. The one
- * write near it is the placeholder a staff-made account is created with, passed
- * in rather than made here.
+ * The staff view of accounts (FR-AUTH-03/04). Never a password: only its
+ * owner sets one, through a link. A staff-made account's stand-in hash is
+ * passed in, not made here.
  */
 @Injectable()
 export class StaffUsersService {
@@ -144,23 +132,17 @@ export class StaffUsersService {
 
   async list(filters: ListUsersFilters): Promise<StaffUser[]> {
     const conditions: SQL[] = [];
-    // The customer/staff boundary. A manager only ever reaches this with
-    // `customer` (the controller forces it), so staff stay invisible to them.
     if (filters.kind === 'customer') {
       conditions.push(eq(users.role, 'user'));
     } else if (filters.kind === 'staff') {
       conditions.push(inArray(users.role, ['admin', 'manager']));
     }
-    // Tombstones are out of the default list: no row action applies to one
-    // (approve, deactivate and reactivate all refuse them), so they would be
-    // noise a manager has to scroll past. Still reachable by asking for them
-    // explicitly, which is what an auditor does.
+    // Tombstones only when asked for: no row action applies to one.
     conditions.push(
       filters.status
         ? eq(users.status, filters.status)
         : ne(users.status, 'anonymized'),
     );
-    // Narrows within the staff view; harmless-but-empty alongside `customer`.
     if (filters.role) conditions.push(eq(users.role, filters.role));
     if (filters.tierId) {
       conditions.push(
@@ -171,9 +153,6 @@ export class StaffUsersService {
     }
     if (filters.q) {
       const mapped = alternateLayoutQuery(filters.q, this.alternateLayout);
-      // The same "one box, several columns" idea as the product grid: staff
-      // look people up by whatever they happen to have — an address, a name
-      // from a phone call, a number from an invoice.
       conditions.push(
         or(
           ...[filters.q, ...(mapped === null ? [] : [mapped])].flatMap(
@@ -196,32 +175,23 @@ export class StaffUsersService {
       .select(staffUserColumns)
       .from(users)
       .where(conditions.length ? and(...conditions) : undefined)
-      // Newest first: the reason to open this screen is a registration that
-      // just arrived. `id` breaks ties so paging stays stable later.
+      // Newest first: what brings staff here is a registration just in.
       .orderBy(desc(users.createdAt), asc(users.id));
 
     return this.narrowToFormat(rows.map(toStaffUser), filters.companyIdFormat);
   }
 
   /**
-   * "Which shape is this number in" — applied here rather than in SQL on
-   * purpose. The rule is a regex a deployment wrote for a *browser*, and
-   * Postgres speaks a different dialect: handing it to `~` would work for the
-   * simple patterns and quietly mismatch on the rest. Running it in JS means
-   * the list, the editor's picker and the API's own validation all answer from
-   * one implementation.
-   *
-   * Affordable because this list is unpaginated — it is a shop's account book,
-   * not a feed. If it ever pages, this has to move into the query, and the
-   * patterns become a documented Postgres-compatible subset.
+   * In JS, not SQL: the patterns are browser regexes, which Postgres's `~`
+   * reads differently on all but the simplest. Affordable while the list is
+   * unpaged; paging it moves this into the query.
    */
   private narrowToFormat(
     accounts: StaffUser[],
     key: string | undefined,
   ): StaffUser[] {
     if (!key) return accounts;
-    // The one value that is not a format: no number at all, which no pattern
-    // can describe because there is nothing for one to match.
+    // No number at all, which no pattern can match.
     if (key === COMPANY_ID_NONE) {
       return accounts.filter((account) => !account.companyRegistrationId);
     }
@@ -233,13 +203,9 @@ export class StaffUsersService {
   }
 
   /**
-   * Approve a registration: assign the tier staff chose and move it to
-   * `invited`. Not `active` — the account has no password of its own yet, and
-   * redeeming the invitation is what makes it usable.
-   *
-   * Refuses anything that is not `pending`, so a double-click cannot re-approve
-   * an account and quietly re-tier it, and an anonymized row can never come
-   * back to life.
+   * Approve a registration with the tier staff chose. `invited`, not
+   * `active`: it has no password of its own until the invitation is redeemed.
+   * Only from `pending`, so a double click cannot re-tier it.
    */
   async approve(
     id: string,
@@ -269,11 +235,8 @@ export class StaffUsersService {
     return toStaffUser(updated);
   }
 
-  /**
-   * Whether the shop sells to this kind of customer (FR-AUTH-13). A customer
-   * without a type has no company either — the contract pairs the two — so it
-   * is held to the list as the person it is.
-   */
+  /** Whether the shop sells to this kind of customer (FR-AUTH-13). No type
+   * means no company, so it is held to the list as a person. */
   private assertCustomerType(type: CustomerType | null | undefined): void {
     if (!this.customerTypes.includes(type ?? 'person')) {
       throw new BadRequestException({
@@ -284,40 +247,38 @@ export class StaffUsersService {
   }
 
   /**
-   * Create an account outright — a colleague, or a customer who arranged
-   * everything by phone. It starts `invited` with an unusable password hash,
-   * exactly like an approved registration: staff never choose someone else's
-   * password, so there is no state where one exists that two people know.
+   * Create an account outright: a colleague, or a customer who arranged it by
+   * phone. `invited`, like an approved registration: staff never choose
+   * someone else's password.
    */
   async create(
     input: CreateUserRequest,
     createdBy: string,
     unusablePasswordHash: string,
   ): Promise<StaffUser> {
-    if (input.role === 'user') this.assertCustomerType(input.customerType);
+    const customer = input.role === 'user';
+    if (customer) this.assertCustomerType(input.customerType);
 
-    const email = input.email.trim().toLowerCase();
-    if (await this.findByEmail(email)) {
+    if (await this.users.findByEmail(input.email)) {
       throw new ConflictException({
         code: 'email-taken',
         message: 'That email address already has an account',
       });
     }
 
-    const sourceId = input.sourceId ?? null;
-    if (sourceId !== null && input.role === 'user') {
-      await this.assertSourceIdFree(sourceId, sourceId);
-    }
+    // A tier and a source key are a customer's, as in `update`.
+    const sourceId = customer ? (input.sourceId ?? null) : null;
+    if (sourceId !== null) await this.assertSourceIdFree(sourceId);
 
     const [created] = await this.db
       .insert(users)
       .values({
-        email,
+        email: input.email.trim().toLowerCase(),
         passwordHash: unusablePasswordHash,
         role: input.role,
-        sourceId: input.sourceId,
+        sourceId,
         status: 'invited',
-        tierId: input.tierId,
+        tierId: customer ? input.tierId : null,
         firstName: input.firstName,
         lastName: input.lastName,
         phone: storedPhone(this.phoneRule, input.phone) ?? null,
@@ -331,11 +292,8 @@ export class StaffUsersService {
     return toStaffUser(created);
   }
 
-  /**
-   * Exempt an account from the code after the password, or ask it again
-   * (FR-AUTH-12). Whether its role may be exempted is the caller's check,
-   * against the deployment's config; this writes who and when, or clears both.
-   */
+  /** Exempt an account from the sign-in step, or ask it again (FR-AUTH-12).
+   * Whether its role may be exempted is the caller's check. */
   async setSignInStepExemption(
     id: string,
     exempt: boolean,
@@ -355,14 +313,10 @@ export class StaffUsersService {
   }
 
   /**
-   * Edit an account: the whole editable set in one write, so the screen that
-   * shows these fields together saves them together.
-   *
-   * The role is applied only when the caller passed one — the controller has
-   * already refused it from a manager, and an omitted role means "leave it",
-   * not "make them a customer". A tier is meaningless on a staff account, so
-   * promoting one out of `user` clears it rather than leaving a price group
-   * attached to somebody who never sees prices.
+   * Edit an account: the whole editable set in one write. An omitted role
+   * keeps the stored one. A tier and a source key are a customer's, so a
+   * promotion out of `user` clears both: a staff account the exchange could
+   * address is one it could tier, disable or re-mail.
    */
   async update(
     id: string,
@@ -379,16 +333,21 @@ export class StaffUsersService {
     }
 
     const role = input.role ?? current.role;
-    if (input.role) this.assertRoleChangeAllowed(current, role, actorId);
-    // Held on every save, not only on a change: an account from before the
-    // shop narrowed its customers is put right the next time staff touch it.
+    if (
+      current.id === actorId &&
+      current.role === 'admin' &&
+      role !== 'admin'
+    ) {
+      throw new ConflictException({
+        code: 'self-demote',
+        message: 'An admin cannot take the admin role from their own account',
+      });
+    }
+    // On every save, so an account from before the shop narrowed its
+    // customers is put right the next time staff touch it.
     if (role === 'user') this.assertCustomerType(input.customerType);
     const phone = storedPhone(this.phoneRule, input.phone, current.phone);
 
-    // The source key is a customer's (FR-ADM-14), so promoting somebody out of
-    // `user` clears it for the reason a promotion clears the tier: a staff
-    // account the exchange could address would be one it could tier, disable
-    // or re-mail, and it is never allowed either.
     const sourceId =
       role === 'user'
         ? input.sourceId !== undefined
@@ -419,29 +378,23 @@ export class StaffUsersService {
       return toStaffUser(updated);
     };
 
-    // A demotion out of `admin` is an admin removal like any other, so it goes
-    // through the guard that holds the invariant against a concurrent one.
+    // A demotion out of `admin` is an admin removal like any other.
     try {
       return await (current.role === 'admin' && role !== 'admin'
         ? this.users.removingAdmin(id, apply)
         : apply(this.db));
     } catch (error) {
-      // The check above answers the ordinary case with a sentence; the unique
-      // index answers the race, and it has to arrive as the same refusal
-      // rather than as a 500 (see `drizzle` wrapping driver errors on `cause`).
+      // The race past the check above: same refusal, not a 500.
       if (isUniqueViolation(error)) throw sourceIdTaken();
       throw error;
     }
   }
 
-  /**
-   * Nobody else may already carry this key. Checked here as well as by the
-   * unique index, because "another account already has that key" is a sentence
-   * an admin can act on and a constraint violation is not.
-   */
+  /** Checked as well as indexed, so the ordinary case gets a refusal an admin
+   * can read. */
   private async assertSourceIdFree(
     sourceId: string,
-    selfId: string,
+    selfId?: string,
   ): Promise<void> {
     const [holder] = await this.db
       .select({ id: users.id })
@@ -452,31 +405,10 @@ export class StaffUsersService {
   }
 
   /**
-   * Switch an account off: the colleague who left, the customer who stopped
-   * ordering. Everything that identifies them survives, so the audit trail and
-   * every `approvedBy` reference still point at somebody — this is not
-   * anonymization (FR-AUTH-06), which is final.
-   *
-   * Two writes, and each is load-bearing. The status is what login and the
-   * guards read. The `tokenVersion` bump is the part that matters on the day
-   * it is used: somebody who has just left holds a session cookie good for
-   * another seven days, and a status change alone would not touch it.
-   *
-   * The **password is left alone**. Deactivation is access taken away, not a
-   * credential destroyed: nothing can sign in while the status says so, and an
-   * account switched back on is the same account it was, with the password its
-   * owner already chose. Retiring the credential made every reactivation an
-   * invitation — a mail to somebody who never asked for one, worded as though
-   * their account had just been created. A password that should not survive is
-   * a password *reset*, which is its own action and available at any time.
-   *
-   * Both `active` and `invited` accounts can be switched off: a colleague who
-   * never opened their invitation still needs the account stopped. A `pending`
-   * registration cannot — nobody has decided on it yet, so the actions are
-   * approve and decline. Neither can an `anonymized` one.
-   *
-   * The guards mirror the role change's: you cannot switch yourself off, and
-   * the last admin cannot be switched off by anyone.
+   * Switch an account off, `active` or `invited`. Not anonymization: the
+   * account stays whole and comes back as it was. The password stays too,
+   * so switching it back on needs no mail; the `tokenVersion` bump is what
+   * ends the sessions already open.
    */
   async deactivate(id: string, actorId: string): Promise<StaffUser> {
     const current = await this.findById(id);
@@ -493,15 +425,11 @@ export class StaffUsersService {
         message: 'An account cannot deactivate itself',
       });
     }
-    // The last-admin refusal is the guard's, and it is raised in the same
-    // transaction as the write — two admins switching each other off at once
-    // would otherwise both be allowed through.
     const updated = await this.users.removingAdmin(id, async (tx) => {
       const [row] = await tx
         .update(users)
         .set({
           status: 'disabled',
-          // Ends every session already in flight, not just the next sign-in.
           tokenVersion: sql`${users.tokenVersion} + 1`,
           updatedAt: new Date(),
         })
@@ -513,75 +441,36 @@ export class StaffUsersService {
   }
 
   /**
-   * Switch it back on, to the status the account can actually use.
-   *
-   * Almost always `active`: the password survived being switched off, so the
-   * account holder signs in exactly as before and hears nothing about any of
-   * it. An account that never chose a password — one switched off before its
-   * invitation was opened, or switched off back when deactivation retired the
-   * credential — has nothing to sign in with, so it goes to `invited` and
-   * staff send it a link. Which of the two is read off `passwordSetAt`, the
-   * only thing that can tell them apart: the stand-in hash is a real argon2
-   * hash by design, so the credential column cannot answer it.
-   *
-   * Approval is not revisited: role, tier, `approvedAt` and `approvedBy` are
-   * untouched, because none of them stopped being true. And `active` keeps
-   * meaning one thing everywhere — an account holding a password its owner
-   * chose.
+   * Switch it back on: `active` where its owner chose a password, `invited`
+   * where none was ever chosen, and staff send a link. `passwordSetAt` is the
+   * only tell: the stand-in hash is a real argon2 hash. Approval, role and
+   * tier are left as they were.
    */
   async reactivate(id: string): Promise<StaffUser> {
-    const current = await this.findById(id);
-    if (!current) throw notFound();
-    if (current.status !== 'disabled') {
-      throw new ConflictException({
-        code: 'account-not-disabled',
-        message: 'Only a deactivated account can be switched back on',
-      });
-    }
-
-    const [row] = await this.db
-      .select({ passwordSetAt: users.passwordSetAt })
-      .from(users)
-      .where(eq(users.id, id));
-
     const [updated] = await this.db
       .update(users)
       .set({
-        status: row?.passwordSetAt ? 'active' : 'invited',
+        status: sql`case when ${users.passwordSetAt} is null then 'invited' else 'active' end::user_status`,
         updatedAt: new Date(),
       })
-      .where(eq(users.id, id))
+      .where(and(eq(users.id, id), eq(users.status, 'disabled')))
       .returning(staffUserColumns);
+
+    if (!updated) {
+      throw (await this.exists(id))
+        ? new ConflictException({
+            code: 'account-not-disabled',
+            message: 'Only a deactivated account can be switched back on',
+          })
+        : notFound();
+    }
     return toStaffUser(updated);
   }
 
   /**
-   * The two refusals behind a role change, both about not locking the
-   * deployment out of its own admin panel: an admin cannot demote themselves (a
-   * slip that would take their own access with it), and the last admin cannot
-   * be demoted by anyone.
-   */
-  private assertRoleChangeAllowed(
-    current: StaffUser,
-    role: UserRole,
-    actorId: string,
-  ): void {
-    if (current.role !== 'admin' || role === 'admin') return;
-
-    if (current.id === actorId) {
-      throw new ConflictException({
-        code: 'self-demote',
-        message: 'An admin cannot take the admin role from their own account',
-      });
-    }
-  }
-
-  /**
-   * Decline a registration and remove it. Only a `pending` row: it has never
-   * been usable, so nothing references it and there is nothing to preserve —
-   * and holding a rejected stranger's name and phone number indefinitely is
-   * the wrong default. Anything that has been approved is anonymized instead
-   * (FR-AUTH-06), never deleted.
+   * Decline a registration and remove it. Only a `pending` row: nothing
+   * references it, and a declined stranger's details are not worth keeping.
+   * Anything approved is anonymized instead (FR-AUTH-06).
    */
   async purgePending(
     id: string,
@@ -592,8 +481,7 @@ export class StaffUsersService {
         .delete(users)
         .where(and(eq(users.id, id), eq(users.status, 'pending')))
         .returning({ id: users.id });
-      // The consent given on the form ends with the registration. Its record
-      // outlives the row, naming the address, for the retention period.
+      // The consent record outlives the row, for the retention period.
       if (rows.length) {
         await withdrawAccountConsents(tx, id, 'registration-declined');
         await this.erasure.erase(tx, {
@@ -623,16 +511,6 @@ export class StaffUsersService {
       .from(users)
       .where(eq(users.id, id));
     return row && toStaffUser(row);
-  }
-
-  private async findByEmail(
-    email: string,
-  ): Promise<{ id: string } | undefined> {
-    const [row] = await this.db
-      .select({ id: users.id })
-      .from(users)
-      .where(eq(users.email, email));
-    return row;
   }
 
   private async exists(id: string): Promise<boolean> {
