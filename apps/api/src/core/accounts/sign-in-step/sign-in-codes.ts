@@ -11,22 +11,17 @@ import { SIGN_IN_PROOF, SignInProof } from './sign-in-proof';
 import { CodeResendLimitError } from './code-resend-limit-error';
 import { SIGN_IN_CODE_LENGTH } from '@b2b-catalog-platform/shared/core/accounts';
 
-/** How long a code is good for. */
-export const CODE_TTL_MS = 10 * 60 * 1000;
-/** Wrong entries a code survives. Three codes of three tries each leave a
- * guesser nine chances in a million per pause. */
-export const CODE_MAX_ATTEMPTS = 3;
+const CODE_TTL_MS = 10 * 60 * 1000;
+/** Three codes of three tries leave a guesser nine in a million per pause. */
+const CODE_MAX_ATTEMPTS = 3;
 /**
- * The wait before the next code or call check, by how many have gone out: a
- * minute after the first, two after the second. Each one costs the shop
- * money, so the wait grows with them rather than with the wrong entries,
- * which are already capped per code.
+ * The wait before the next send, by how many went out. Each costs the shop
+ * money, so the wait grows with the sends, not the wrong entries. One more
+ * send than waits, then the pause.
  */
-export const CODE_WAITS_MS = [60 * 1000, 2 * 60 * 1000] as const;
-/** Codes or checks an account gets before it has to wait out the pause. */
-export const CODE_MAX_SENDS = CODE_WAITS_MS.length + 1;
-/** The pause after the last of them, counted from when it was sent. */
-export const CODE_PAUSE_MS = 30 * 60 * 1000;
+const CODE_WAITS_MS = [60 * 1000, 2 * 60 * 1000] as const;
+/** Counted from the last send. */
+const CODE_PAUSE_MS = 30 * 60 * 1000;
 
 export type CodePurpose = (typeof schema.signInCodePurpose.enumValues)[number];
 
@@ -40,11 +35,8 @@ export type CallCheckResult =
   | { result: 'pending' }
   | { result: 'expired' };
 
-/**
- * Where a code went, or which number a call check waits for, and how long
- * until another may be asked. `call` is the number to call and how long the
- * check stays open.
- */
+/** Where a code went or which number a call check waits for, and when
+ * another may be asked. `call` only for a call check. */
 export interface CodeSent {
   readonly phone: string;
   readonly resendInMs: number;
@@ -59,16 +51,15 @@ interface Recipient {
 type CodeRow = typeof signInCodes.$inferSelect;
 
 /** What a send leaves in the row: a code's hash, or a call check. */
-type Proof =
-  | { codeHash: string; callReference: null; callTo: null; ttlMs: number }
-  | { codeHash: null; callReference: string; callTo: string; ttlMs: number };
+type Proof = (
+  | { codeHash: string; callReference: null; callTo: null }
+  | { codeHash: null; callReference: string; callTo: string }
+) & { expiresAt: Date };
 
 /**
- * The code or call check an account is waiting on (FR-AUTH-12, ADR 0066). One
- * row per account, and it outlives what it holds: it remembers how many went
- * out until the pause after the last one is over, so the limits hold per
- * account however often the password is entered and whichever number is
- * named.
+ * The code or call check an account is waiting on (FR-AUTH-12). One row per
+ * account that outlives what it holds: it counts the sends until the pause
+ * is over, so the limits hold however often the password is entered.
  */
 @Injectable()
 export class SignInCodes {
@@ -79,12 +70,9 @@ export class SignInCodes {
   ) {}
 
   /**
-   * Make sure a code or call check for this purpose is open for this number.
-   * A usable one is left alone: entering the password again does not pay for
-   * another. Anything else is a new one, and waits its turn.
-   *
-   * Throws `CodeDeliveryError` when it could not be sent or started, and
-   * `CodeResendLimitError` when the account's wait is not over.
+   * An open code or call check for this number and purpose. A usable one is
+   * kept: entering the password again does not pay for another. Throws
+   * `CodeDeliveryError` or, while the wait lasts, `CodeResendLimitError`.
    */
   async issue(
     user: Recipient,
@@ -92,7 +80,7 @@ export class SignInCodes {
     purpose: CodePurpose,
   ): Promise<CodeSent> {
     const now = Date.now();
-    // Rows whose pause is over hold a number and a count nobody needs.
+    // Rows past their pause hold a number nobody needs.
     await this.db
       .delete(signInCodes)
       .where(lt(signInCodes.sentAt, new Date(now - CODE_PAUSE_MS)));
@@ -125,8 +113,8 @@ export class SignInCodes {
     return sentFrom(saved, now);
   }
 
-  /** A new code or check for the same number, once the wait is over. Null
-   * when the account is waiting on nothing at all. */
+  /** A new one for the same number once the wait is over; null when the
+   * account waits on nothing. */
   async resend(user: Recipient): Promise<CodeSent | null> {
     const row = await this.row(user.id);
     if (!row) return null;
@@ -134,10 +122,9 @@ export class SignInCodes {
   }
 
   /**
-   * Checks an entered code. The attempt is counted before the comparison, in
-   * one statement, so parallel guesses cannot share an attempt. A right code
-   * is spent at once, and with it the account's count of messages. A row
-   * holding a call check has no code to enter, and reads as expired.
+   * The attempt is counted before the comparison, in one statement, so
+   * parallel guesses cannot share one. A right code is spent with the
+   * account's count of sends. A call check has no code: expired.
    */
   async check(userId: string, code: string): Promise<CodeCheck> {
     const [counted] = await this.db
@@ -166,12 +153,10 @@ export class SignInCodes {
   }
 
   /**
-   * Asks the provider whether the call has come. A confirmed check is spent
-   * in the same statement that reads it as ours, so two tabs asking at once
+   * A confirmed check is spent in the statement that claims it, so two tabs
    * complete one sign-in between them. One the provider ended is marked
-   * expired here, so later questions need not reach the provider.
-   *
-   * Throws `CodeDeliveryError` when the provider cannot tell.
+   * here, so later polls stay off the provider. Throws `CodeDeliveryError`
+   * when the provider cannot tell.
    */
   async checkCall(userId: string): Promise<CallCheckResult> {
     if (this.proof.kind !== 'call') return { result: 'expired' };
@@ -234,12 +219,7 @@ export class SignInCodes {
     user: Recipient,
     phone: string,
     now: number,
-  ): Promise<Omit<Proof, 'ttlMs'> & { expiresAt: Date }> {
-    const { ttlMs, ...proof } = await this.prove(user, phone);
-    return { ...proof, expiresAt: new Date(now + ttlMs) };
-  }
-
-  private async prove(user: Recipient, phone: string): Promise<Proof> {
+  ): Promise<Proof> {
     if (this.proof.kind === 'call') {
       const started = await this.proof.check.start({
         phone,
@@ -249,7 +229,7 @@ export class SignInCodes {
         codeHash: null,
         callReference: started.reference,
         callTo: started.callTo,
-        ttlMs: started.expiresInMs,
+        expiresAt: new Date(now + started.expiresInMs),
       };
     }
     const code = newCode();
@@ -263,7 +243,7 @@ export class SignInCodes {
       codeHash: hashCode(sent.code),
       callReference: null,
       callTo: null,
-      ttlMs: CODE_TTL_MS,
+      expiresAt: new Date(now + CODE_TTL_MS),
     };
   }
 
@@ -316,8 +296,7 @@ function newCode(): string {
   );
 }
 
-/** SHA-256, like the password links: a code lives minutes and allows three
- * tries, so a slow hash would protect nothing the limits do not. */
+/** A fast hash suffices: the limits, not the hash, stop a guesser. */
 function hashCode(code: string): string {
   return createHash('sha256').update(code).digest('hex');
 }

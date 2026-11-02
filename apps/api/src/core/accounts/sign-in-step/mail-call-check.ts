@@ -18,13 +18,9 @@ const CHECK_TTL_MS = 5 * 60 * 1000;
 export const STAND_IN_PATH = '/api/auth/sign-in-step/stand-in/';
 
 /**
- * Stands in for a call by mail (`SIGN_IN_MAIL_KIND=call`): the account's
- * mailbox gets a link, and opening it is the call. Lets dev exercise the call
- * screen without a provider. Whoever reads the mailbox can also reset the
- * password, so this is **no second factor**.
- *
- * The checks live in this process, since only the provider would hold them
- * otherwise: a restart forgets them, and the person asks for a new one.
+ * A call stood in for by mail (`SIGN_IN_MAIL_KIND=call`): opening the link is
+ * the call. No second factor, since the mailbox can also reset the password.
+ * Checks live in this process; a restart forgets them.
  */
 export class MailCallCheck implements CallCheck {
   readonly channel = 'email';
@@ -58,8 +54,7 @@ export class MailCallCheck implements CallCheck {
     return { callTo: request.phone, reference, expiresInMs: CHECK_TTL_MS };
   }
 
-  /** A confirmed check is told once and then forgotten, as a provider's
-   * spent check is: the link stops working with it. */
+  /** Told once, then forgotten, like a provider's spent check. */
   async status(reference: string): Promise<CallCheckStatus> {
     const check = this.checks.get(reference);
     if (!check || check.expiresAt <= Date.now()) return 'expired';

@@ -3,17 +3,13 @@ import { ORPCError } from '@orpc/nest';
 import { CodeDeliveryError } from './code-delivery';
 import { CodeResendLimitError } from './code-resend-limit-error';
 
-/**
- * A step call that sends a message, with its failures restated as the
- * contract's refusals.
- */
+/** A step call that sends, its failures restated as contract refusals. */
 export async function sending<T>(work: Promise<T>): Promise<T> {
   try {
     return await work;
   } catch (error) {
     if (error instanceof CodeResendLimitError) {
-      // Thrown as the contract's own error, not a coded Nest exception: the
-      // refusal carries data, which only an ORPCError can.
+      // An ORPCError: only it can carry data.
       throw new ORPCError('code-resend-limit', {
         status: 429,
         message: 'No new code yet',

@@ -17,8 +17,7 @@ const answerSchema = z.object({
 });
 
 /**
- * Hands a code to the deployment's own sidecar, which talks to the real
- * provider (ADR 0066). The contract is the whole of what the platform knows:
+ * A code through the deployment's sidecar, which talks to the provider:
  *
  * - `POST {url}` with `{ phone, code, text }` and, where configured, a bearer
  *   token.

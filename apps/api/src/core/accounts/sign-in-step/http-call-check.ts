@@ -24,8 +24,7 @@ const statusSchema = z.object({
 });
 
 /**
- * Hands a call check to the deployment's own sidecar, which talks to the real
- * provider (ADR 0066). The contract is the whole of what the platform knows:
+ * A call check through the deployment's sidecar, which talks to the provider:
  *
  * - `POST {url}/checks` with `{ phone }` answers `{ callTo, reference,
  *   expiresIn }`, or `422` when the provider refused the number.
@@ -89,8 +88,7 @@ export class HttpCallCheck implements CallCheck {
     }
   }
 
-  /** The answer's body, where it is a success; otherwise the provider is
-   * unavailable. */
+  /** Anything but a success is the provider unavailable. */
   private async read(response: Response): Promise<unknown> {
     if (!response.ok) {
       this.logger.warn(`Call sidecar answered ${response.status}`);

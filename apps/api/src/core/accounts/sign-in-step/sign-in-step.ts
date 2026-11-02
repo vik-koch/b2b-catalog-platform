@@ -18,7 +18,6 @@ import {
   CodeSent,
   SignInCodes,
 } from './sign-in-codes';
-import { CodeResendLimitError } from './code-resend-limit-error';
 import { byMail, SIGN_IN_PROOF, SignInProof } from './sign-in-proof';
 import {
   CodeSent as CodeSentAnswer,
@@ -32,13 +31,12 @@ import {
 export const SIGN_IN_STEP_CONFIG = 'SIGN_IN_STEP_CONFIG';
 export const SIGN_IN_STEP_SECRET = 'SIGN_IN_STEP_SECRET';
 
-/** The httpOnly cookie that carries a sign-in between the password and the
- * step. It is no session: only the step's own routes read it. */
+/** Carries a sign-in from the password to the step. No session: only the
+ * step's routes read it. */
 export const PENDING_COOKIE = 'sign_in_step';
 const PENDING_TTL_S = 15 * 60;
 
-/** The httpOnly cookie that lets a browser skip the step, never the password.
- * Survives signing out and password changes; see `remember`. */
+/** Lets a browser skip the step, never the password; see `remember`. */
 export const REMEMBERED_COOKIE = 'remembered_browser';
 const DAY_S = 24 * 60 * 60;
 
@@ -58,23 +56,15 @@ interface RememberedClaims {
   at: number;
 }
 
-export { CodeDeliveryError, CodeResendLimitError };
-export type { CallCheckResult, CodeCheck };
-
 /**
- * The second sign-in step (FR-AUTH-12, ADR 0066): whether an account owes
- * proof of its number, and the sign-in that waits on it — a code entered, or
- * a call that comes.
- *
- * Between the password and the step the visitor holds a short-lived signed
- * cookie naming the account, signed with its own secret so no session check
- * can mistake it for a session. It carries the account's `tokenVersion`, so a
- * password change or a deactivation in the meantime ends it.
+ * The second sign-in step (FR-AUTH-12): whether an account owes proof of its
+ * number, and the sign-in waiting on it. The pending cookie has its own
+ * secret, so no session check reads it as a session, and carries the
+ * `tokenVersion`, so a password change in between ends it.
  */
 @Injectable()
 export class SignInStep {
-  /** Its own key, so a remembered browser is neither a pending sign-in nor a
-   * session. */
+  /** Its own key again: neither a pending sign-in nor a session. */
   private readonly rememberSecret: string;
 
   constructor(
@@ -93,11 +83,8 @@ export class SignInStep {
       .digest('hex');
   }
 
-  /**
-   * Whether this account takes the step at all: the deployment asks its
-   * role, and no admin exempted it. An exemption counts only while the role
-   * may be exempted, so narrowing that list ends every one of them at once.
-   */
+  /** Whether the account takes the step at all. An exemption counts only
+   * while its role may be exempted, so narrowing that list ends them all. */
   asks(user: Pick<UserRow, 'role' | 'signInStepExemptAt'>): boolean {
     const config = this.config;
     if (!config || config.mode === 'off') return false;
@@ -124,14 +111,9 @@ export class SignInStep {
   }
 
   /**
-   * Where a password has just been accepted. Answers null when no step is
-   * owed, and the caller starts the session; otherwise sends the code or
-   * starts the call check, sets the pending cookie and answers the step.
-   *
-   * The step uses the account's own number, which staff set. One it cannot
-   * use (none, not in a readable form, or refused by the provider) stops the
-   * sign-in: the holder asks the shop to correct it, and nobody chooses
-   * another number here.
+   * After an accepted password: null where no step is owed, otherwise the
+   * step begun and the pending cookie set. A number the step cannot use stops
+   * the sign-in: staff set it, so the holder asks the shop to correct it.
    */
   async begin(
     user: UserRow,
@@ -140,15 +122,14 @@ export class SignInStep {
   ): Promise<StepAnswer | null> {
     const need = this.need(user);
     if (need === 'none') return null;
-    // A remembered browser skips the step. A number still to be confirmed
-    // cannot have one: changing it forgot them all.
+    // A number still to be confirmed cannot have one: changing it forgot them.
     if (need === 'code' && (await this.remembered(req, user))) return null;
 
     const phone = this.readablePhone(user.phone);
     if (!phone) {
       throw new CodeDeliveryError('unreachable', 'No number the step can use');
     }
-    const answer = await this.sendTo(
+    const sent = await this.codes.issue(
       user,
       phone,
       need === 'code' ? 'sign-in' : 'confirm',
@@ -166,7 +147,7 @@ export class SignInStep {
       ...sessionCookieAttributes(req),
       maxAge: PENDING_TTL_S * 1000,
     });
-    return answer;
+    return this.codeStep(user, sent);
   }
 
   /** The account a pending sign-in is for, or null where there is none: no
@@ -199,10 +180,8 @@ export class SignInStep {
     return sent && this.codeStep(user, sent);
   }
 
-  /**
-   * Checks the code. A right one confirms the number it went to where that
-   * was its purpose, and answers the account as it now stands.
-   */
+  /** A right code confirms its number where that was its purpose, and
+   * answers the account as it now stands. */
   async complete(
     user: UserRow,
     code: string,
@@ -214,11 +193,8 @@ export class SignInStep {
     return { result: 'ok', user: await this.proven(user, check) };
   }
 
-  /**
-   * Asks whether the call has come. Once it has, it confirms the number it
-   * came from where that was its purpose, and answers the account as it now
-   * stands. Throws `CodeDeliveryError` when the provider cannot tell.
-   */
+  /** As `complete`, once the call has come. Throws `CodeDeliveryError` when
+   * the provider cannot tell. */
   async completeCall(
     user: UserRow,
   ): Promise<
@@ -238,23 +214,15 @@ export class SignInStep {
       : user;
   }
 
-  /**
-   * How long the step's screen offers to remember the browser, in days; 0
-   * hides the box. Offered only at `always`: under `once` there is no next
-   * step to skip.
-   */
+  /** Days the screen offers to remember the browser; 0 hides the box. Only
+   * at `always`: under `once` there is no next step to skip. */
   rememberDays(): number {
     const config = this.config;
     return config?.mode === 'always' ? (config.trustDeviceDays ?? 0) : 0;
   }
 
-  /**
-   * The person ticked the box and completed the step. The cookie names only the
-   * account and when it was set: it is not checked against `tokenVersion`, so
-   * signing out and changing the password leave it standing, and only a moved
-   * `devicesTrustedSince` (a changed number, a disabled or anonymized
-   * account) ends it.
-   */
+  /** Not tied to `tokenVersion`: signing out and a new password leave it,
+   * and only a moved `devicesTrustedSince` ends it. */
   async remember(req: Request, res: Response, user: UserRow): Promise<void> {
     const days = this.rememberDays();
     if (days <= 0) return;
@@ -290,14 +258,6 @@ export class SignInStep {
   /** The sign-in is over, either way. */
   end(req: Request, res: Response): void {
     res.clearCookie(PENDING_COOKIE, sessionCookieAttributes(req));
-  }
-
-  private async sendTo(
-    user: UserRow,
-    phone: string,
-    purpose: 'sign-in' | 'confirm',
-  ): Promise<StepAnswer> {
-    return this.codeStep(user, await this.codes.issue(user, phone, purpose));
   }
 
   private codeStep(user: UserRow, sent: CodeSent): StepAnswer {
@@ -336,11 +296,8 @@ export class SignInStep {
   }
 }
 
-/**
- * Hides all but the country code and the last two digits, keeping the
- * grouping: enough for the holder to recognise their number, not enough to
- * learn someone else's from a password alone.
- */
+/** All but the country code and the last two digits, grouping kept: enough
+ * to recognise one's own number, not to learn another's from a password. */
 export function maskPhone(formatted: string): string {
   const country = /^\+\d+\s/.exec(formatted)?.[0] ?? '';
   const rest = formatted.slice(country.length);

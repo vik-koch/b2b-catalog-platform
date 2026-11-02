@@ -1,9 +1,6 @@
-/**
- * Proving a number by a call from it (FR-AUTH-12, ADR 0066). The provider
- * shows a number to call, and tells whether the call came from the number it
- * was started for. The platform keeps the reference and the limits, and asks
- * for the status while the person is on the call screen.
- */
+/** Proving a number by a call from it (FR-AUTH-12): the provider names a
+ * number to call and tells whether the call came. The platform keeps the
+ * reference and the limits. */
 export interface CallCheckStarted {
   /** The number to call, canonical (`+` country code and digits). */
   readonly callTo: string;
