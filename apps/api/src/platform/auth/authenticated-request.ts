@@ -1,18 +1,12 @@
 import type { Request } from 'express';
 import { AuthUser } from '@b2b-catalog-platform/shared/platform';
 
-/**
- * An Express request after JwtAuthGuard has run: `user` is populated from the
- * verified session token. Optional because the guard may not have run (public
- * routes) — downstream code that requires it should assert its presence.
- */
+/** A request after a session guard ran; `user` is absent on a public route. */
 export interface AuthenticatedRequest extends Request {
   user?: AuthUser;
   /**
-   * The caller's pricing tier, set by OptionalAuthGuard on public routes; null
-   * means the default list. Deliberately kept off `AuthUser`: a customer's tier
-   * is staff-facing data and must never be serialized to them, and `AuthUser`
-   * is exactly what `/auth/me` returns.
+   * Set by OptionalAuthGuard; null is the default list. Kept off `AuthUser`,
+   * which `/auth/me` returns: a customer never sees their own tier.
    */
   pricingTierId?: string | null;
 }

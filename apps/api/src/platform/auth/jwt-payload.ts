@@ -1,18 +1,16 @@
 import { UserRole } from '@b2b-catalog-platform/shared/platform';
 
 /**
- * Claims carried by the signed session token. `sub` is the user id (the JWT
- * standard subject claim). Role is embedded so routine authorization checks
- * need no per-request DB lookup; a role change takes effect on the next login.
+ * The session token's claims. Role and email ride along for logs and the
+ * client; every check reads them from the row instead (see `Sessions.read`).
  */
 export interface JwtPayload {
+  /** The account id. */
   sub: string;
   email: string;
   role: UserRole;
-  // Snapshot of the user's `tokenVersion` at issue time; the guard rejects the
-  // token once the stored version moves past it (e.g. after a password change).
+  /** The row's `tokenVersion` at issue: moving it ends the session. */
   tokenVersion: number;
-  // Issued-at, in seconds, set by the signer. A session in use is reissued
-  // once this is a day old (see Sessions).
+  /** Seconds, set by the signer; a session in use renews once it is a day old. */
   iat?: number;
 }

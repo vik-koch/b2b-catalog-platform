@@ -26,8 +26,7 @@ describe('MaintenanceController', () => {
             new MaintenanceGuard(
               reflector,
               state as never,
-              { verifyAsync: async () => ({}) } as never,
-              { findById: async () => null } as never,
+              { read: async () => null } as never,
             ),
         },
       ],

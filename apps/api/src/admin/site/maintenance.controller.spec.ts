@@ -38,8 +38,7 @@ describe('AdminMaintenanceController', () => {
             new MaintenanceGuard(
               reflector,
               { isEnabled: () => maintenanceOn } as never,
-              { verifyAsync: async () => ({}) } as never,
-              { findById: async () => null } as never,
+              { read: async () => null } as never,
             ),
         },
       ],

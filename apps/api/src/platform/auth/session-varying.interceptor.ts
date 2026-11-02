@@ -9,13 +9,9 @@ import { Observable } from 'rxjs';
 import { AuthenticatedRequest } from './authenticated-request';
 
 /**
- * Caching rules for a public response that depends on the caller's session —
- * today the catalog's tier prices. Runs after OptionalAuthGuard.
- *
- * `Vary: Cookie` always, or a shared cache could serve one visitor's variant to
- * the other kind. `private, no-store` only when a session shaped the response:
- * marking the guest variant private would keep it out of the hydration transfer
- * cache too, costing every visitor a second fetch.
+ * `Vary: Cookie` always, or a shared cache could serve one visitor's variant
+ * to another. `private, no-store` only when a session shaped the response:
+ * a private guest variant would miss the hydration transfer cache too.
  */
 @Injectable()
 export class SessionVaryingInterceptor implements NestInterceptor {

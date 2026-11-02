@@ -8,11 +8,8 @@ import { Reflector } from '@nestjs/core';
 import { AuthenticatedRequest } from './authenticated-request';
 import { Roles } from './roles.decorator';
 
-/**
- * Server-side role enforcement (NFR-SEC-04). Runs after JwtAuthGuard, which
- * populates `request.user`. A route with no `@Roles` (or an empty list) passes
- * for any authenticated user; a non-empty list narrows access to those roles.
- */
+/** Role enforcement (NFR-SEC-04), after JwtAuthGuard. No roles listed: any
+ * signed-in account passes. */
 @Injectable()
 export class RolesGuard implements CanActivate {
   constructor(private readonly reflector: Reflector) {}
@@ -29,8 +26,7 @@ export class RolesGuard implements CanActivate {
 
     const { user } = context.switchToHttp().getRequest<AuthenticatedRequest>();
 
-    // No user here means RolesGuard was applied without JwtAuthGuard in front —
-    // a route misconfiguration. Fail closed rather than silently allow.
+    // Applied without JwtAuthGuard in front: fail closed.
     if (!user) {
       throw new ForbiddenException({
         code: 'not-authenticated',

@@ -1,7 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import type { Request, Response } from 'express';
-import { SessionUser } from './session-users';
+import { AUTH_COOKIE } from '@b2b-catalog-platform/shared/platform';
+import { SessionUser, SessionUsers } from './session-users';
 import { JwtPayload } from './jwt-payload';
 import { issueSession } from './session-cookie';
 
@@ -9,8 +10,14 @@ export const SESSION_IDLE_DAYS = 'SESSION_IDLE_DAYS';
 
 const DAY_S = 24 * 60 * 60;
 
+/** A session cookie that proved valid, and the row it names. */
+export interface Session {
+  readonly payload: JwtPayload;
+  readonly user: SessionUser;
+}
+
 /**
- * Starts sessions and keeps them going (FR-AUTH-12). A session ends after
+ * Starts, reads and renews sessions (FR-AUTH-12). A session ends after
  * `session.idleDays` without use rather than a fixed time after sign-in: a
  * token in use that is more than a day old is reissued, so the clock restarts
  * at most once a day per session. `tokenVersion` still ends every session at
@@ -23,6 +30,7 @@ export class Sessions {
   constructor(
     @Inject(SESSION_IDLE_DAYS) idleDays: number,
     private readonly jwt: JwtService,
+    private readonly users: SessionUsers,
   ) {
     this.lifetimeS = idleDays * DAY_S;
   }
@@ -42,16 +50,42 @@ export class Sessions {
   }
 
   /**
-   * Called by the guards once a token has proved valid for `user`. A request
-   * the server renders on the visitor's behalf drops the new cookie, which is
-   * harmless: the old one still verifies, and the browser's own next call
-   * picks the new one up.
+   * The request's session, or null for none, a forged or expired token, or an
+   * account that is gone, has moved its `tokenVersion` or may not sign in.
+   * The token proves who; the row decides what they may do, so a demotion or
+   * a deactivation counts on the next request. Without a cookie, no work.
+   */
+  async read(req: Request): Promise<Session | null> {
+    const token = req.cookies?.[AUTH_COOKIE];
+    if (!token) return null;
+
+    let payload: JwtPayload;
+    try {
+      payload = await this.jwt.verifyAsync<JwtPayload>(token);
+    } catch {
+      return null;
+    }
+
+    const user = await this.users.find(payload.sub);
+    if (
+      !user ||
+      user.tokenVersion !== payload.tokenVersion ||
+      user.status !== 'active'
+    ) {
+      return null;
+    }
+    return { payload, user };
+  }
+
+  /**
+   * Reissues a session over a day old. A request the server renders on the
+   * visitor's behalf drops the new cookie, which is harmless: the old one
+   * still verifies, and the browser's own next call picks the new one up.
    */
   async renew(
     req: Request,
     res: Response | undefined,
-    payload: JwtPayload,
-    user: SessionUser,
+    { payload, user }: Session,
   ): Promise<void> {
     if (!res || payload.iat === undefined) return;
     if (Date.now() / 1000 - payload.iat < DAY_S) return;

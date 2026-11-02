@@ -8,7 +8,7 @@ import { users } from '../../db/schema';
 /** The account row a session names. */
 export type SessionUser = typeof users.$inferSelect;
 
-/** The one lookup every session check makes: the row decides, not the token. */
+/** The row a session check reads. */
 @Injectable()
 export class SessionUsers {
   constructor(

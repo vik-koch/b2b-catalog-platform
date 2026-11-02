@@ -6,7 +6,7 @@ import { AuditLogger } from '../../audit/audit.logger';
 import { UsersService } from '../../core/accounts/users.service';
 import { JwtAuthGuard } from '../../platform/auth/jwt-auth.guard';
 import { RolesGuard } from '../../platform/auth/roles.guard';
-import { AUTH_COOKIE } from '../../platform/auth/auth.constants';
+import { AUTH_COOKIE } from '@b2b-catalog-platform/shared/platform';
 import { PHONE_RULE } from '../../config/deployment-config';
 import { SignInStep } from '../../core/accounts/sign-in-step/sign-in-step';
 import {

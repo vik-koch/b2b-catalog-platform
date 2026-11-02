@@ -1,72 +1,31 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
 import type { Response } from 'express';
-import { SessionUsers } from './session-users';
-import { AUTH_COOKIE } from './auth.constants';
 import { toAuthUser } from './auth-user';
 import { AuthenticatedRequest } from './authenticated-request';
-import { JwtPayload } from './jwt-payload';
 import { Sessions } from './sessions';
 
 /**
- * Session lookup for **public** routes that show something different to a
- * signed-in customer — today, tier prices (FR-AUTH-05). It never rejects: a
- * request with no cookie, a forged one, an expired one or one whose account has
- * since changed is simply anonymous, because the catalog has to stay open to
- * guests and crawlers.
- *
- * A request without the cookie does no work at all — no verification, no query
- * — so guest and crawler traffic costs exactly what it did before this existed.
- * Only a request that actually carries a session pays the one indexed lookup.
- *
- * That lookup is deliberate rather than reading the tier from the token: a
- * token lives for days and slides while used, so a claim would keep serving a
- * customer their old prices long after staff re-tiered them. Prices are not something to be
- * stale about.
- *
- * The validity rules below (signature, user still exists, `tokenVersion` still
- * matches) must stay in step with JwtAuthGuard — same question, different
- * answer when it fails. Anything added there belongs here too.
+ * Reads a session on a public route that shows a signed-in customer something
+ * else, their tier's prices (FR-AUTH-05). Never rejects: whatever is wrong
+ * with the cookie, the request is a guest's, because the catalog stays open
+ * to guests and crawlers. The tier comes from the row, not the token, so a
+ * re-tiering applies on the next page view.
  */
 @Injectable()
 export class OptionalAuthGuard implements CanActivate {
-  constructor(
-    private readonly jwt: JwtService,
-    private readonly users: SessionUsers,
-    private readonly sessions: Sessions,
-  ) {}
+  constructor(private readonly sessions: Sessions) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
+    const http = context.switchToHttp();
+    const request = http.getRequest<AuthenticatedRequest>();
     request.pricingTierId = null;
 
-    const token = request.cookies?.[AUTH_COOKIE];
-    if (!token) return true;
+    const session = await this.sessions.read(request);
+    if (!session) return true;
 
-    let payload: JwtPayload;
-    try {
-      payload = await this.jwt.verifyAsync<JwtPayload>(token);
-    } catch {
-      return true;
-    }
-
-    const user = await this.users.find(payload.sub);
-    if (!user) return true;
-    if (user.tokenVersion !== payload.tokenVersion) return true;
-    // Pending or anonymized: treated as a guest here, rejected in JwtAuthGuard.
-    if (user.status !== 'active') return true;
-
-    request.user = toAuthUser(user);
-    // From the database row, not the token, so a re-tiering takes effect on the
-    // customer's next page view.
-    request.pricingTierId = user.tierId;
-    // A session in use slides, browsing the catalog included.
-    await this.sessions.renew(
-      request,
-      context.switchToHttp().getResponse<Response>(),
-      payload,
-      user,
-    );
+    request.user = toAuthUser(session.user);
+    request.pricingTierId = session.user.tierId;
+    await this.sessions.renew(request, http.getResponse<Response>(), session);
     return true;
   }
 }

@@ -109,12 +109,9 @@ describe('AuthController', () => {
           provide: APP_GUARD,
           inject: [Reflector, MaintenanceState],
           useFactory: (reflector: Reflector, maintenance: MaintenanceState) =>
-            new MaintenanceGuard(
-              reflector,
-              maintenance,
-              { verifyAsync: async () => ({}) } as never,
-              { findById: async () => null } as never,
-            ),
+            new MaintenanceGuard(reflector, maintenance, {
+              read: async () => null,
+            } as never),
         },
       ],
     })

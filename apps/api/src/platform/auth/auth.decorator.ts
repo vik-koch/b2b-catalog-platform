@@ -4,11 +4,7 @@ import { Roles } from './roles.decorator';
 import { RolesGuard } from './roles.guard';
 import { UserRole } from '@b2b-catalog-platform/shared/platform';
 
-/**
- * Guards a route in one decorator, mirroring the throttle-preset pattern.
- * `@Auth()` requires any authenticated user; `@Auth('admin', 'manager')`
- * additionally restricts to those roles. Guard order matters: JwtAuthGuard runs
- * first to populate the user, then RolesGuard checks it.
- */
+/** `@Auth()` requires a session, `@Auth('admin')` also a role. The order
+ * matters: JwtAuthGuard puts the user on the request that RolesGuard reads. */
 export const Auth = (...roles: UserRole[]) =>
   applyDecorators(UseGuards(JwtAuthGuard, RolesGuard), Roles(roles));

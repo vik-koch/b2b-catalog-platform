@@ -6,14 +6,10 @@ import {
 } from '@b2b-catalog-platform/shared/platform';
 
 /**
- * How the session cookie is set, and therefore how it must be cleared — the
- * browser only drops a cookie whose attributes match. Shared, because two
- * places end a session: signing out, and deleting the account behind it.
- *
- * `req.secure` — true behind Traefik's TLS (trust proxy set), false for the
- * plain-HTTP dev/e2e server, so the cookie is usable in both. sameSite lax:
- * sent on top-level navigations (SSR sees it) but not on cross-site POSTs,
- * which blocks CSRF against the mutating endpoints.
+ * How a session cookie is set, and so how it must be cleared: the browser
+ * drops only a cookie whose attributes match. `secure` follows the request,
+ * true behind the TLS proxy and false on the plain-HTTP dev server. `lax`:
+ * sent on top-level navigations, so SSR sees it, but not on cross-site POSTs.
  */
 export function sessionCookieAttributes(req: Request) {
   return {
@@ -24,25 +20,14 @@ export function sessionCookieAttributes(req: Request) {
   };
 }
 
-/**
- * The readable companion to the session cookie: same attributes, same
- * lifetime, no `httpOnly`. It carries the role and nothing else, so the
- * browser can render the account control correctly before `/auth/me` answers
- * (see `SESSION_HINT_COOKIE`).
- */
+/** The session's readable hint: the role only, so the browser renders the
+ * account control before `/auth/me` answers. */
 function hintCookieAttributes(req: Request) {
   return { ...sessionCookieAttributes(req), httpOnly: false };
 }
 
-/**
- * Starts a session on the response: the token, and the hint that says one
- * exists. One function, because a hint written without its cookie — or left
- * behind when the cookie goes — is exactly the disagreement the hint is
- * supposed to make impossible.
- *
- * `maxAge` matches the token's expiry, so the browser drops the cookie around
- * the time the token stops verifying (see `Sessions`).
- */
+/** Sets the token and its hint together, so neither outlives the other.
+ * `maxAge` is the token's own lifetime. */
 export function issueSession(
   req: Request,
   res: Response,
@@ -57,8 +42,7 @@ export function issueSession(
   });
 }
 
-/** Ends it, clearing both. The attributes must match what set them or the
- * browser keeps the cookie. */
+/** Clears both. */
 export function endSession(req: Request, res: Response): void {
   res.clearCookie(AUTH_COOKIE, sessionCookieAttributes(req));
   res.clearCookie(SESSION_HINT_COOKIE, hintCookieAttributes(req));

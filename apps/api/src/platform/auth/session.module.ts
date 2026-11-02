@@ -9,11 +9,8 @@ import { SessionUsers } from './session-users';
 import { SessionVaryingInterceptor } from './session-varying.interceptor';
 import { SESSION_IDLE_DAYS, Sessions } from './sessions';
 
-// env.ts requires JWT_SECRET in server mode; this narrows the optional type and
-// fails fast if the module is ever instantiated without it. Called from a
-// factory, never at module-evaluation time: main.ts imports AppModule
-// unconditionally, and the one-shot RUN_MODEs (migrate, bootstrap-admin)
-// exit before Nest boots — they have no session to sign and are given no secret.
+/** Called from factories only, never at import: the one-shot run modes
+ * (migrate, bootstrap-admin) import the app module and get no secret. */
 export function jwtSecret(): string {
   if (!env.JWT_SECRET) {
     throw new Error('JWT_SECRET is not configured');
@@ -21,12 +18,8 @@ export function jwtSecret(): string {
   return env.JWT_SECRET;
 }
 
-/**
- * The session and the guards that read it. Any module whose routes use
- * `@Auth()` or `@TierPriced()` imports this one. A session slides rather than
- * expiring at a fixed time, because revocation does not rely on expiry:
- * DB-backed role checks and tokenVersion handle freshness (see JwtAuthGuard).
- */
+/** The session and the guards that read it, for any module whose routes use
+ * `@Auth()` or `@TierPriced()`. */
 @Module({
   imports: [
     // No default lifetime: each kind of token sets its own (Sessions,
@@ -47,7 +40,6 @@ export function jwtSecret(): string {
   exports: [
     JwtModule,
     Sessions,
-    SessionUsers,
     JwtAuthGuard,
     OptionalAuthGuard,
     RolesGuard,
