@@ -14,8 +14,8 @@ import { ProductUnit } from '@b2b-catalog-platform/shared/core/catalog';
 import {
   OrderSyncLine,
   OrderWrite,
-  OrderWriteResult,
-} from '@b2b-catalog-platform/shared/core/exchange';
+} from '@b2b-catalog-platform/shared/machine/exchange';
+import { OrderWriteResult } from '@b2b-catalog-platform/shared/core/exchange';
 import {
   BadRequestException,
   ConflictException,

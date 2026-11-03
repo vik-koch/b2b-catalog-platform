@@ -4,29 +4,20 @@
  * `invited` and mailed the platform's own link. It never deletes (FR-ADM-15):
  * the strongest row disables, and an account its owner closed is refused.
  */
-import { oc } from '@orpc/contract';
 import * as z from 'zod';
-import { machineAuthErrors } from './machine-auth.contract';
 import { customerTypeSchema } from '../accounts/users.contract';
 import {
   companyNameSchema,
   companyRegistrationIdSchema,
   lowercaseEmailField,
 } from '../../lib/config/contact-config';
-import { ownershipErrors } from '../../platform/ownership-constants';
 import { CUSTOMER_SYNC_FIELDS } from './customer-sync-constants';
 import {
   SYNC_FAILURE_MESSAGE_MAX_LENGTH,
   SYNC_LABEL_MAX_LENGTH,
   SYNC_MAX_ROWS,
 } from './sync-constants';
-import {
-  machineRunErrors,
-  machineSyncRunSchema,
-  syncFailureReportSchema,
-  syncRunSchema,
-  syncSummarySchema,
-} from './sync-run.contract';
+import { syncRunSchema, syncSummarySchema } from './sync-run.contract';
 import { TIER_KEY_MAX_LENGTH } from '../catalog/tiers';
 
 /**
@@ -205,7 +196,7 @@ export function isCustomerSyncPlan(plan: unknown): plan is CustomerSyncPlan {
 }
 
 /** The catalog submission's envelope around customer rows. */
-const customerSyncSubmissionSchema = z
+export const customerSyncSubmissionSchema = z
   .object({
     rows: z.array(customerSyncRowSchema).max(SYNC_MAX_ROWS),
     options: customerSyncOptionsSchema.optional(),
@@ -223,7 +214,7 @@ export type CustomerSyncSubmission = z.infer<
   typeof customerSyncSubmissionSchema
 >;
 
-const customerSyncSubmitResponseSchema = z
+export const customerSyncSubmitResponseSchema = z
   .object({ run: syncRunSchema, plan: customerSyncPlanSchema })
   .strict();
 export type CustomerSyncSubmitResponse = z.infer<
@@ -232,55 +223,3 @@ export type CustomerSyncSubmitResponse = z.infer<
 
 /** An upload's preview (FR-ADM-12): one engine, so one shape. */
 export type CustomerSyncPreviewResponse = CustomerSyncSubmitResponse;
-
-/** Token only, with its own scope; refused while the shop keeps the accounts
- * itself. */
-const machine = oc.errors({
-  ...machineAuthErrors,
-  'customers-not-externally-owned':
-    ownershipErrors['customers-not-externally-owned'],
-});
-
-/** Not gated on ownership, as on the catalog's. */
-const machineRead = oc.errors(machineAuthErrors);
-
-/** Its own paths, not an `area` field on the catalog's: the guard checks a
- * route's one scope before the body is read. No commit route, as on the
- * catalog's. */
-export const machineCustomerSyncContract = {
-  submitRun: machine
-    .route({
-      method: 'POST',
-      path: '/machine/sync/customers/runs',
-      successStatus: 201,
-      inputStructure: 'detailed',
-      summary: 'Submit customer accounts (machine)',
-    })
-    .input(z.object({ body: customerSyncSubmissionSchema }))
-    .output(customerSyncSubmitResponseSchema),
-
-  /** What became of a customer run (FR-ADM-09); a catalog run's id is not
-   * found here. */
-  getRun: machineRead
-    .route({
-      method: 'GET',
-      path: '/machine/sync/customers/runs/{id}',
-      inputStructure: 'detailed',
-      summary: 'Read back one customer run (machine)',
-    })
-    .errors(machineRunErrors)
-    .input(z.object({ params: z.object({ id: z.uuid() }) }))
-    .output(z.object({ run: machineSyncRunSchema }).strict()),
-
-  /** A run that never happened, so a broken feed is not silence. */
-  reportFailure: machine
-    .route({
-      method: 'POST',
-      path: '/machine/sync/customers/failures',
-      successStatus: 201,
-      inputStructure: 'detailed',
-      summary: 'Record a customer run that failed before it began (machine)',
-    })
-    .input(z.object({ body: syncFailureReportSchema }))
-    .output(z.object({ run: syncRunSchema }).strict()),
-};

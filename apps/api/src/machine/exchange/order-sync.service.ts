@@ -6,14 +6,16 @@ import {
   OrderSyncPlan,
   OrderSyncRowError,
   OrderSyncRowErrorCode,
-  OrderSyncSubmission,
-  OrderSyncSubmitResponse,
   OrderWriteResult,
   SYNC_PREVIEW_MAX_ITEMS,
   SyncFailureReport,
   SyncRun,
   SyncSummary,
 } from '@b2b-catalog-platform/shared/core/exchange';
+import {
+  OrderSyncSubmission,
+  OrderSyncSubmitResponse,
+} from '@b2b-catalog-platform/shared/machine/exchange';
 import { DRIZZLE } from '../../db/database.module';
 import * as schema from '../../db/schema';
 import { syncRuns } from '../../db/schema';

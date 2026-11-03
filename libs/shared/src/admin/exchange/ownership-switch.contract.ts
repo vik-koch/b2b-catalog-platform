@@ -4,17 +4,9 @@ import { commonAuthErrors } from '../../lib/core/api-error';
 import { OWNERSHIP_AREAS } from '../../platform/ownership-constants';
 import { ownedAreasSchema } from '../platform/ownership.contract';
 
-/**
- * One direction, one or more areas. A list rather than a single area because
- * the panel offers a master switch over the whole shop as well as a row per
- * area, and one request is what makes that one transaction and one audit
- * entry: a master switch that fired three requests could half-succeed and
- * leave the shop in a state nobody asked for.
- *
- * Non-empty and deduplicated: an empty list is a request that asks for
- * nothing, and a repeated area is the same question twice.
- */
-export const setOwnershipSchema = z
+/** One direction, one or more areas: the master switch is one request, so one
+ * transaction and one audit entry, never half done. */
+const setOwnershipSchema = z
   .object({
     areas: z
       .array(z.enum(OWNERSHIP_AREAS))
@@ -25,7 +17,6 @@ export const setOwnershipSchema = z
     owned: z.boolean(),
   })
   .strict();
-export type SetOwnershipRequest = z.infer<typeof setOwnershipSchema>;
 
 export const adminOwnershipSwitchContract = {
   setOwnership: oc

@@ -4,7 +4,6 @@
  * contract and the storage schema and held stable: a deployment's converter
  * absorbs a changing export. CSV and JSON are two encodings of the same rows.
  */
-import { oc } from '@orpc/contract';
 import * as z from 'zod';
 import {
   CATALOG_SYNC_ALL_FIELDS,
@@ -15,15 +14,7 @@ import {
   SYNC_LABEL_MAX_LENGTH,
   SYNC_MAX_ROWS,
 } from './sync-constants';
-import { ownershipErrors } from '../../platform/ownership-constants';
-import {
-  machineRunErrors,
-  machineSyncRunSchema,
-  syncFailureReportSchema,
-  syncRunSchema,
-  syncSummarySchema,
-} from './sync-run.contract';
-import { machineAuthErrors } from './machine-auth.contract';
+import { syncRunSchema, syncSummarySchema } from './sync-run.contract';
 import { priceMinorSchema } from '../catalog/catalog.contract';
 import { taxRateSchema } from '../../lib/config/tax-config';
 import { CATEGORY_NAME_MAX_LENGTH } from '../catalog/categories';
@@ -239,15 +230,8 @@ export const catalogSyncPlanSchema = z
   .strict();
 export type CatalogSyncPlan = z.infer<typeof catalogSyncPlanSchema>;
 
-const catalogSyncPreviewResponseSchema = z
-  .object({ run: syncRunSchema, plan: catalogSyncPlanSchema })
-  .strict();
-export type CatalogSyncPreviewResponse = z.infer<
-  typeof catalogSyncPreviewResponseSchema
->;
-
 /** A headless run (FR-ADM-07): an upload's rows and intent, as JSON. */
-const catalogSyncSubmissionSchema = z
+export const catalogSyncSubmissionSchema = z
   .object({
     rows: z.array(catalogSyncRowSchema).max(SYNC_MAX_ROWS),
     /** Absent means the defaults, as for an upload. */
@@ -271,63 +255,12 @@ export type CatalogSyncSubmission = z.infer<typeof catalogSyncSubmissionSchema>;
 
 /** `run.status` says whether it applied or waits for a person, and
  * `run.stagedReason` why. */
-const catalogSyncSubmitResponseSchema = z
+export const catalogSyncSubmitResponseSchema = z
   .object({ run: syncRunSchema, plan: catalogSyncPlanSchema })
   .strict();
 export type CatalogSyncSubmitResponse = z.infer<
   typeof catalogSyncSubmitResponseSchema
 >;
 
-/** Token only; refused while the shop writes the catalog itself. */
-const machine = oc.errors({
-  ...machineAuthErrors,
-  'catalog-not-externally-owned':
-    ownershipErrors['catalog-not-externally-owned'],
-});
-
-/** Not gated on ownership: a source refused after a hand-back most needs to
- * read why. */
-const machineRead = oc.errors(machineAuthErrors);
-
-/** No commit route: a run applies itself within the policy, or a person
- * applies it. */
-export const machineCatalogSyncContract = {
-  submitRun: machine
-    .route({
-      method: 'POST',
-      path: '/machine/sync/runs',
-      // A run is created whichever way the policy decides.
-      successStatus: 201,
-      inputStructure: 'detailed',
-      summary: 'Submit a catalog import (machine)',
-    })
-    .input(z.object({ body: catalogSyncSubmissionSchema }))
-    .output(catalogSyncSubmitResponseSchema),
-
-  /** A run that never happened, so a broken feed does not look like one
-   * with nothing to send. */
-  reportFailure: machine
-    .route({
-      method: 'POST',
-      path: '/machine/sync/failures',
-      successStatus: 201,
-      inputStructure: 'detailed',
-      summary: 'Record a run that failed before it began (machine)',
-    })
-    .input(z.object({ body: syncFailureReportSchema }))
-    .output(z.object({ run: syncRunSchema }).strict()),
-
-  /** What became of a run (FR-ADM-09): a staged run is superseded by the
-   * next submission, so a source learns here to wait for a person. Scoped to
-   * the token's area, not the token: a rotated token is the same source. */
-  getRun: machineRead
-    .route({
-      method: 'GET',
-      path: '/machine/sync/runs/{id}',
-      inputStructure: 'detailed',
-      summary: 'Read back one catalog run (machine)',
-    })
-    .errors(machineRunErrors)
-    .input(z.object({ params: z.object({ id: z.uuid() }) }))
-    .output(z.object({ run: machineSyncRunSchema }).strict()),
-};
+/** An upload's preview: one engine, so one shape. */
+export type CatalogSyncPreviewResponse = CatalogSyncSubmitResponse;

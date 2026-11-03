@@ -1,3 +1,5 @@
+/** Machine tokens (NFR-SEC-09): a row, not an account. It has no password or
+ * role and cannot sign in; the admin issues and revokes it here. */
 import { oc } from '@orpc/contract';
 import * as z from 'zod';
 import { API_TOKEN_NAME_MAX_LENGTH } from '../../platform/api-token-constants';
@@ -5,22 +7,8 @@ import { commonAuthErrors } from '../../lib/core/api-error';
 import { storedEmailField } from '../../lib/config/contact-config';
 import { apiTokenScopeSchema } from '../../core/exchange/machine-auth.contract';
 
-/**
- * Machine tokens (NFR-SEC-09): the credential an automated client presents
- * instead of a session.
- *
- * A token is a row, not an account — it has no password, no inbox and no role,
- * and cannot sign in. Two surfaces meet here: the admin screen that issues and
- * revokes them, guarded like the rest of the admin API, and the one route a
- * *machine* reaches, which the token authenticates by itself.
- */
-
-/**
- * The capabilities on one token. At least one — a token allowed nothing is a
- * row that can only mislead — and each named once, since a repeated capability
- * is a typo rather than a stronger grant.
- */
-export const apiTokenScopesSchema = z
+/** At least one, as a token allowed nothing misleads; each once. */
+const apiTokenScopesSchema = z
   .array(apiTokenScopeSchema)
   .min(1)
   .refine(
@@ -28,14 +16,8 @@ export const apiTokenScopesSchema = z
     'A capability can only be granted once',
   );
 
-/**
- * A token as the admin list shows it. No hash and no value: the value exists
- * for one response and is then unrecoverable by design.
- *
- * `lastUsedAt` is the field the screen is really for — it is what makes a token
- * nobody has retired but nobody uses either visible.
- */
-export const apiTokenSchema = z
+/** No hash, no value: the value exists for one response only. */
+const apiTokenSchema = z
   .object({
     id: z.uuid(),
     name: z.string(),
@@ -43,28 +25,22 @@ export const apiTokenSchema = z
     /** The clear head of the value, so a row is recognisable. */
     prefix: z.string(),
     createdAt: z.iso.datetime(),
-    /** Who issued it, by email. Null once that account is gone. */
+    /** Null once the issuing account is gone. */
     createdBy: storedEmailField.nullable(),
+    /** Shows a token nobody retired but nobody uses. */
     lastUsedAt: z.iso.datetime().nullable(),
-    /** Set means refused from that moment on; the row is kept for the audit. */
+    /** The row is kept for the audit. */
     revokedAt: z.iso.datetime().nullable(),
   })
   .strict();
 export type ApiToken = z.infer<typeof apiTokenSchema>;
 
 /**
- * What an admin fills in. Only a label and the capabilities — everything else
- * about a token is generated, and there is deliberately no expiry field: a
- * scheduled caller that stops working at midnight some months from now is an
- * outage nobody is on hand for, and revocation is the control that answers the
- * same threat on the operator's own timing.
- *
- * The capabilities are not editable afterwards. Widening a live credential's
- * reach in place leaves no moment at which anyone decided to, and narrowing it
- * breaks the client silently; issuing a replacement and revoking the old one
- * makes both an event with a time and a name on it.
+ * No expiry: a scheduled caller failing some midnight is an outage nobody is
+ * on hand for, and revoking answers the same threat. Scopes cannot be edited
+ * later; a replacement and a revoke leave an event with a time and a name.
  */
-export const apiTokenInputSchema = z
+const apiTokenInputSchema = z
   .object({
     name: z.string().trim().min(1).max(API_TOKEN_NAME_MAX_LENGTH),
     scopes: apiTokenScopesSchema,
@@ -72,12 +48,8 @@ export const apiTokenInputSchema = z
   .strict();
 export type ApiTokenInput = z.infer<typeof apiTokenInputSchema>;
 
-/**
- * The creating call's answer — the row, plus the only time the value is ever
- * sent. The screen shows it once and says so; there is no endpoint that reads
- * it back, because there is nothing stored to read.
- */
-export const createdApiTokenSchema = apiTokenSchema
+/** The only time the value is sent: nothing stored can be read back. */
+const createdApiTokenSchema = apiTokenSchema
   .extend({ token: z.string() })
   .strict();
 export type CreatedApiToken = z.infer<typeof createdApiTokenSchema>;
@@ -89,7 +61,7 @@ const apiTokenErrors = {
   'api-token-not-found': { status: 404 },
 } as const satisfies Record<ApiTokenErrorCode, { status: number }>;
 
-/** Issuing and revoking is admin work — a manager never holds a credential. */
+/** Admin only: a manager never holds a credential. */
 const admin = oc.errors(commonAuthErrors);
 
 export const apiTokensContract = {
@@ -112,11 +84,7 @@ export const apiTokensContract = {
     .input(z.object({ body: apiTokenInputSchema }))
     .output(createdApiTokenSchema),
 
-  /**
-   * A POST rather than a DELETE: the row survives, because the sync runs it
-   * made point at it and an audit trail with a hole in it is worse than a list
-   * with a retired row on it.
-   */
+  /** A POST, not a DELETE: the row stays, as its runs point at it. */
   revokeApiToken: admin
     .route({
       method: 'POST',

@@ -3,7 +3,7 @@ import {
   machineCatalogSyncContract,
   machineCustomerSyncContract,
   machineOrderSyncContract,
-} from '@b2b-catalog-platform/shared/core/exchange';
+} from '@b2b-catalog-platform/shared/machine/exchange';
 import { MACHINE_SYNC_RUNS_PATHS } from './machine-sync-body-paths';
 
 /**
