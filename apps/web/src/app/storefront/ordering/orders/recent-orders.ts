@@ -14,12 +14,7 @@ import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { OrderRows } from './ui/order-rows';
 import { OrdersService } from './orders.service';
 
-/**
- * How many of the newest orders the account page itself shows. Enough that a
- * customer who came to look up what they sent last week finds it here, few
- * enough that the card stays a card — the rest is what the history page is
- * for.
- */
+/** Enough to find last week's order; the history page has the rest. */
 const RECENT_ORDERS = 5;
 
 /** The account page's order section: the newest few, and what waits on them. */
@@ -37,26 +32,15 @@ const RECENT_ORDERS = 5;
     ErrorText,
   ],
   template: `
-    <!-- Order history (FR-ACC-01). The newest few, not a link to them: an
-         order history is paged and grows for years, but what somebody comes
-         here for is the one they sent last week — and it was a click away
-         behind a button that only said the list existed. The page itself is
-         still there for the rest of it. -->
     <section>
       <h2 uiSectionTitle class="mb-1.5 flex items-center gap-2">
         <ui-icon [glyph]="shoppingBasketIcon" class="size-4" />
         {{ orderText.heading }}
       </h2>
-      <!-- As above: the frame and its bars from the first frame. -->
       <div uiCard>
-        <!-- What waits on the account holder, above the rows it is about
-             (FR-WORK-03): the same amber line the marker on the account
-             control leads here for, and the link opens the history it is
-             about. Money due from them, and an order packed for them to
-             collect — silent when neither is true. -->
+        <!-- What waits on the account holder (FR-WORK-03), each linking to
+             the history narrowed to it. -->
         @if (waitingPayments() || waitingPickups()) {
-          <!-- Stacked, as the admin panel's two order notes are: money owed
-               and a parcel on the counter are two jobs with two lists. -->
           <div class="mb-4 flex flex-col gap-1">
             @if (waitingPayments(); as count) {
               <a
@@ -86,9 +70,6 @@ const RECENT_ORDERS = 5;
             </a>
           } @else {
             <app-order-rows [orders]="recent" />
-            <!-- Only where there is more than what is on screen: a button that
-                 opens the same five rows on another page is a click that
-                 changes nothing. -->
             @if (hasMoreOrders()) {
               <a
                 uiButton
@@ -116,10 +97,7 @@ export class RecentOrders {
   private readonly work = inject(WorkService);
   protected readonly orderText = inject(STOREFRONT_TEXT).orders;
 
-  /** `undefined` where nothing is waiting, so a line is drawn only when there
-   * is something to say. Two queues rather than one figure: paying an invoice
-   * and collecting a parcel are separate jobs, and each note links to the
-   * history narrowed to exactly the orders it counted. */
+  /** `undefined` at zero, so no line is drawn. */
   protected readonly waitingPayments = computed(
     () => this.work.counts().myPayments || undefined,
   );
@@ -131,29 +109,22 @@ export class RecentOrders {
     return fillText(template, { count });
   }
 
-  /**
-   * The order history's own first page, of which this card shows the newest
-   * few. Deliberately the same call the list page makes rather than an
-   * endpoint of its own: the count on the answer is also how this card knows
-   * whether there is anything more to send anybody to.
-   */
+  /** The history's first page: its total also says whether there is more. */
   protected readonly orders = resource({
     loader: () => this.api.listMine(1),
   });
-  /** Whether the card has an answer of any kind to draw. `isLoading` alone is
-   * false before the resource has started, which would count it as ready. */
+  /** `isLoading` alone is false before the resource starts. */
   protected readonly ordersReady = computed(
     () => !this.orders.isLoading() && this.orders.status() !== 'idle',
   );
 
-  /** Null while loading or failed — `value()` throws on an errored resource. */
+  /** Null while loading or failed: `value()` throws on an errored resource. */
   protected readonly recentOrders = computed(() =>
     this.orders.hasValue()
       ? this.orders.value().items.slice(0, RECENT_ORDERS)
       : null,
   );
 
-  /** Whether the history holds more than this card is showing. */
   protected readonly hasMoreOrders = computed(
     () =>
       this.orders.hasValue() &&

@@ -12,17 +12,10 @@ import { safe } from '@orpc/client';
 import { createOrpcClient } from '../../../shared/core/orpc-client';
 
 /**
- * What placing an order came to. The refusals are the ones the form has to
- * explain rather than throw: each names something on screen the customer can
- * correct.
- *
- * `cart-changed` carries the fresh pricing with it, so a cart that moved while
- * the form was being filled is shown corrected rather than answered with "try
- * again".
- *
- * `pairing-unsatisfied` only reaches a deployment that enforces pairings
- * (FR-SET-04), and only a browser out of step with the cart page, which
- * disables its own button on the same figures.
+ * What placing an order came to. Each refusal names something on screen the
+ * customer can correct; `cart-changed` carries the fresh pricing to show.
+ * `pairing-unsatisfied` reaches only a browser out of step with the cart page,
+ * which disables its button on the same figures (FR-SET-04).
  */
 export type SubmitOrderResult =
   | { ok: true; reference: string; publicToken: string }
@@ -44,13 +37,8 @@ export type SubmitOrderResult =
     }
   | { ok: false; code: 'cart-changed'; preview: CartPreview };
 
-/**
- * Placing an order request and reading one back (FR-CART-03/04, FR-ACC-01).
- *
- * Lives here rather than under `checkout/` because the reading half outlives
- * the form: the account's order history and, later, the mailed summary a guest
- * opens are the same subject and the same contract.
- */
+/** Placing an order and reading the customer's orders back (FR-CART-03/04,
+ * FR-ACC-01). */
 @Injectable({ providedIn: 'root' })
 export class OrdersService {
   private readonly client = createOrpcClient(ordersContract);
@@ -61,8 +49,6 @@ export class OrdersService {
     if (result.isSuccess) return { ok: true, ...result.data };
     if (!result.isDefined) throw result.error;
 
-    // The one refusal that carries an answer: the fresh pricing rides along as
-    // the error's own data, so the page can show what moved.
     return result.error.code === 'cart-changed'
       ? {
           ok: false,
@@ -75,18 +61,14 @@ export class OrdersService {
   /** The account's own order requests, newest first (FR-ACC-01). */
   async listMine(
     page: number,
-    /** One of the things waiting on the account holder (FR-WORK-03), or the
-     * whole history. */
+    /** A queue waiting on the account holder (FR-WORK-03); absent for all. */
     state?: MyOrderFilter,
   ): Promise<{ items: OrderSummary[]; pagination: Pagination }> {
     return this.client.listMyOrders({ query: { page, state } });
   }
 
-  /**
-   * One of the account's own orders, by its reference. Null where there is no
-   * such order *for this account* — the API answers 404 rather than 403 for
-   * somebody else's, and the page has nothing else to say about either.
-   */
+  /** Null where this account has no such order: somebody else's is a 404
+   * too. */
   async getMine(reference: string): Promise<OrderDetail | null> {
     const result = await safe(
       this.client.getMyOrder({ params: { reference } }),
@@ -98,13 +80,7 @@ export class OrdersService {
     return result.data;
   }
 
-  /**
-   * Calling off one of the account's own orders (FR-ORD-02).
-   *
-   * Whether it is still allowed is the server's answer — the button is drawn
-   * from the same shared table, but the order may have been answered while the
-   * page was open, and `false` here is that having happened.
-   */
+  /** False where the order moved on while the page was open (FR-ORD-02). */
   async cancelMine(reference: string, reason: string | null): Promise<boolean> {
     const result = await safe(
       this.client.cancelMyOrder({ params: { reference }, body: { reason } }),
@@ -114,11 +90,8 @@ export class OrdersService {
     return false;
   }
 
-  /**
-   * The summary a mailed link opens (FR-NOTIF-06). The token is the whole
-   * credential — no session is consulted, here or on the API — so a wrong or
-   * stale one is simply an order nobody can open.
-   */
+  /** The order a mailed link opens (FR-NOTIF-06); the token is the whole
+   * credential. */
   async getByToken(token: string): Promise<OrderDetail | null> {
     const result = await safe(
       this.client.getOrderByToken({ params: { token } }),

@@ -14,13 +14,8 @@ import { DocumentLink } from '@b2b-catalog-platform/ui/content/document-link';
 import { fileTextIcon } from '@b2b-catalog-platform/ui/icons/glyphs/file-text';
 import { Card } from '@b2b-catalog-platform/ui/content/card';
 
-/**
- * What a customer can open on their order (FR-ORD-05, FR-ACC-02), on the
- * account's page and on the page a mailed link opens: only the entitlement
- * differs. Drawn like a product's documents. The generated summary carries no
- * size, since it does not exist until asked for. Nothing to open, nothing
- * drawn.
- */
+/** What a customer can open on their order (FR-ORD-05, FR-ACC-02), by
+ * account or by mailed token. */
 @Component({
   selector: 'app-order-documents-list',
   imports: [Card, DocumentLink],
@@ -51,8 +46,6 @@ export class OrderDocumentsList {
   private readonly sizes = inject(SHARED_TEXT).fileSize;
 
   readonly documents = input.required<readonly OrderDocument[]>();
-  /** How this reader is entitled to the order: their own account, or the
-   * token a mailed link carries. */
   readonly by = input.required<{ reference: string } | { token: string }>();
 
   protected readonly rows = computed(() =>
@@ -67,8 +60,7 @@ export class OrderDocumentsList {
     })),
   );
 
-  /** "PDF · 240 kB" for a file the shop supplied; just the format for the one
-   * the shop system draws on demand. */
+  /** "PDF · 240 kB"; a generated summary has no size until drawn. */
   private caption(document: OrderDocument): string {
     const contentType = document.contentType as AcceptedDocumentMime;
     return document.byteSize === null

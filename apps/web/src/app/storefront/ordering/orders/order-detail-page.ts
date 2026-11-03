@@ -6,22 +6,16 @@ import {
   resource,
   signal,
 } from '@angular/core';
-import { useTaxStatement } from '../../../core/catalog/pricing/tax-statement';
 import { RouterLink } from '@angular/router';
 import {
   canTransition,
   ORDER_STATUS_REASON_MAX,
   OrderDetail,
 } from '@b2b-catalog-platform/shared/core/ordering';
-import {
-  fillText,
-  moneyFormat,
-  formatMoneyMinor,
-} from '@b2b-catalog-platform/shared';
+import { fillText } from '@b2b-catalog-platform/shared';
 import { OrderSummary } from '../../../core/ordering/ui/order-summary';
 import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
 import { SHARED_TEXT } from '../../../shared/config/shared-text';
-import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
 import { delayedLoading } from '../../../shared/core/delayed-loading';
 import { usePageSeo } from '../../../shared/core/page-seo';
 import { NotFoundView } from '../../platform/not-found-view';
@@ -31,39 +25,16 @@ import {
   ConfirmService,
 } from '@b2b-catalog-platform/ui/overlay/confirm.service';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
-import {
-  StatusBadge,
-  StatusTone,
-} from '@b2b-catalog-platform/ui/content/status-badge';
-import {
-  injectCustomerBlockLabels,
-  orderBlocks,
-} from '../../../core/ordering/order-blocks';
 import { OrderDocumentsList } from './ui/order-documents-list';
-import {
-  OrderReadBack,
-  ReadBackLine,
-  ReviewBlock,
-} from '../../../core/ordering/ui/order-read-back';
-import {
-  orderPaymentLabel,
-  orderPaymentTone,
-  orderStatusLabel,
-  orderStatusTone,
-} from '../../../core/ordering/order-status';
-import { customerQuantity } from '../../../core/ordering/order-formats';
+import { OrderReadBack } from '../../../core/ordering/ui/order-read-back';
+import { OrderHeading } from './ui/order-heading';
+import { useCustomerOrderView } from './customer-order-view';
 import { OrdersService } from './orders.service';
-import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 
 /**
- * One of the account's own orders (FR-ACC-01), read back exactly as it was
- * sent — every field on it is a snapshot, so this is the order as it stood
- * rather than what the catalogue, the address book or the config say today.
- *
- * Nearly read-only: the one thing a customer does to their own order is call
- * it off, and only while the shop has not started on it (FR-ORD-02). Changing
- * what is on an order is a conversation rather than a form.
+ * One of the account's own orders (FR-ACC-01). Read-only but for calling it
+ * off while the shop has not started on it (FR-ORD-02).
  */
 @Component({
   selector: 'app-order-detail-page',
@@ -75,61 +46,21 @@ import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
     OrderDocumentsList,
     OrderReadBack,
     OrderSummary,
-    StatusBadge,
-    PageTitle,
+    OrderHeading,
     ErrorText,
   ],
   template: `
     @if (detail(); as detail) {
-      <!-- The cart's and the checkout's two columns, at the cart's own notch
-           and measured on the page rather than the window: an order is read
-           where it was last seen, so the card must not sit beside the lines on
-           one screen and under them on the next. -->
+      <!-- The cart's two columns at the cart's notch, measured on the page,
+           so the card sits where it sat on the cart and checkout. -->
       <div class="@container/order">
         <div
           class="grid gap-10
                  @min-[63.75rem]/order:grid-cols-[36rem_20rem]
                  @min-[63.75rem]/order:justify-between"
         >
-          <!-- The track is the measure: an order is read down its left edge,
-               and a name-and-price line spanning a wide screen is one nobody
-               follows across. The same 36rem the cart gives its lines and the
-               checkout its form, so the card beside it lands in one place on
-               all three. -->
           <div class="max-w-xl">
-            <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
-              <h1 uiPageTitle>
-                {{ detail.reference }}
-              </h1>
-              <span uiStatusBadge [tone]="statusTone(detail)">
-                {{ statusLabel(detail) }}
-              </span>
-              @if (paymentLabel(detail); as payment) {
-                <span uiStatusBadge variant="dot" [tone]="paymentTone(detail)">
-                  {{ payment }}
-                </span>
-              }
-            </div>
-            <p class="mt-2 text-ink-subtle">{{ placed(detail) }}</p>
-            <!-- Why, on the line that says where the order stands: the reason
-                 is part of the status, not a fact beside it. -->
-            @if (detail.statusReason; as reason) {
-              <p class="mt-1 text-ink-subtle">
-                <span class="text-ink-subtle">{{ names.reason }}:</span>
-                {{ reason }}
-              </p>
-            }
-            <!-- And what the shop changed, on the same line, for the same
-                 reason: the order reads as it now is, and this is the sentence
-                 that says why it differs from the one that was sent. -->
-            @if (detail.changes.length) {
-              <div class="mt-1 text-ink-subtle">
-                <span class="text-ink-subtle">{{ names.changeNote }}:</span>
-                @for (change of detail.changes; track $index) {
-                  <span class="block">{{ change }}</span>
-                }
-              </div>
-            }
+            <app-order-heading [order]="detail" />
 
             <app-order-read-back
               class="mt-8"
@@ -138,9 +69,6 @@ import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
             />
           </div>
 
-          <!-- What it came to, and the way back under it: controls belong
-               below the card they act after, which is where the cart and the
-               checkout put theirs. -->
           <aside
             class="max-w-xl
                    @min-[63.75rem]/order:mt-9 @min-[63.75rem]/order:sticky
@@ -154,9 +82,6 @@ import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
               [taxRates]="taxRates()"
               [taxBasis]="detail.taxBasis"
             />
-            <!-- What the order carries (FR-ORD-05). Under the summary and
-                 above the way out: a document is a copy of what has just been
-                 read, and the controls stay last. -->
             @if (detail.documents.length) {
               <app-order-documents-list
                 class="mt-5"
@@ -165,8 +90,6 @@ import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
               />
             }
 
-            <!-- Offered from the same table the API refuses by, so the
-                 button is never drawn for a move the server would decline. -->
             @if (cancellable()) {
               <button
                 uiButton
@@ -196,9 +119,6 @@ import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
         </div>
       </div>
     } @else if (missing()) {
-      <!-- The 404 screen rather than a sentence, the same as the token page
-           and the unknown-slug pages: a reference that is not on this account
-           is a page that is not there. -->
       <app-not-found-view
         [body]="text.notFound"
         backLink="/account/orders"
@@ -217,16 +137,8 @@ import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 export class OrderDetailPage {
   private readonly api = inject(OrdersService);
   private readonly confirm = inject(ConfirmService);
-  private readonly config = inject(DEPLOYMENT_CONFIG);
-  private readonly currency = moneyFormat(this.config);
-
-  private readonly storefrontText = inject(STOREFRONT_TEXT);
-  private readonly customerLabels = injectCustomerBlockLabels();
-  private readonly sharedText = inject(SHARED_TEXT);
-  protected readonly actionText = inject(SHARED_TEXT).actions;
-  protected readonly names = this.sharedText.order;
-  private readonly orderText = this.storefrontText.orders;
-  protected readonly text = this.orderText.detail;
+  private readonly actionText = inject(SHARED_TEXT).actions;
+  protected readonly text = inject(STOREFRONT_TEXT).orders.detail;
 
   /** Bound from the route's `:reference` segment. */
   readonly reference = input.required<string>();
@@ -237,8 +149,7 @@ export class OrderDetailPage {
   });
   protected readonly showSkeleton = delayedLoading(this.order.isLoading);
 
-  /** The order, once there is one. Read through `hasValue` because a resource
-   * in an error state throws from `value()`. */
+  /** Through `hasValue`: an errored resource throws from `value()`. */
   protected readonly detail = computed(() =>
     this.order.hasValue() ? this.order.value() : null,
   );
@@ -248,75 +159,13 @@ export class OrderDetailPage {
     () => this.order.hasValue() && this.order.value() === null,
   );
 
-  private readonly tax = useTaxStatement();
-  /** What the total names, or why it names only the basis (NFR-LEGAL-11). */
-  protected readonly taxRates = computed(
-    () => this.detail()?.lines.map((line) => line.taxRate) ?? [],
-  );
+  private readonly view = useCustomerOrderView(this.detail);
+  protected readonly taxRates = this.view.taxRates;
+  protected readonly lines = this.view.lines;
+  protected readonly blocks = this.view.blocks;
 
-  protected readonly lines = computed<ReadBackLine[]>(() => {
-    const detail = this.detail();
-    if (!detail) return [];
-    const perLine = this.tax.perLine(
-      detail.lines.map((line) => line.taxRate),
-      detail.taxBasis,
-    );
-    return detail.lines.map((line, index) => ({
-      key: `${line.slug}-${index}`,
-      name: line.name,
-      note: line.note,
-      href: line.linked ? `/product/${line.slug}` : null,
-      quantity: customerQuantity(line, this.sharedText, this.currency),
-      total: formatMoneyMinor(line.lineTotalMinor, this.currency),
-      // Only once the lines differ: a rate the total names would otherwise
-      // be said on every line for nothing.
-      taxRate: perLine ? this.tax.line(line.taxRate) : null,
-    }));
-  });
-
-  /**
-   * The order's answers, headed by the same words the checkout asked the
-   * questions in — so an order reads the same before and after it was sent.
-   */
-  protected readonly blocks = computed<ReviewBlock[]>(() => {
-    const detail = this.detail();
-    if (!detail) return [];
-
-    return orderBlocks(detail, this.customerLabels, {
-      address: this.config.address,
-      phoneInput: this.config.phoneInput,
-      locale: this.config.locale,
-    });
-  });
-
-  protected placed(detail: OrderDetail): string {
-    return fillText(this.text.placed, {
-      date: this.dateFormat.format(new Date(detail.createdAt)),
-    });
-  }
-
-  protected statusLabel(detail: OrderDetail): string {
-    return orderStatusLabel(
-      detail.status,
-      detail.fulfilmentMethod,
-      this.names.statuses,
-    );
-  }
-
-  protected statusTone(detail: OrderDetail): StatusTone {
-    return orderStatusTone(detail.status, 'customer', detail.fulfilmentMethod);
-  }
-
-  protected paymentLabel(detail: OrderDetail): string | null {
-    return orderPaymentLabel(detail.paymentState, this.names.paymentStates);
-  }
-
-  protected paymentTone(detail: OrderDetail): StatusTone {
-    return orderPaymentTone(detail.paymentState);
-  }
-
-  /** The shared transition table, asked in the browser for the same reason the
-   * API asks it: there is one rule, and this is a reader of it. */
+  /** The table the API refuses by, so the button never offers a refused
+   * move. */
   protected readonly cancellable = computed(() => {
     const detail = this.detail();
     return (
@@ -328,15 +177,9 @@ export class OrderDetailPage {
   protected readonly cancelFailed = signal(false);
 
   /**
-   * Asked for with a reason, because the shop reads it — somebody may already
-   * be packing the order. A refusal here means it moved on while the page was
-   * open, so the order is reloaded rather than argued with.
-   *
-   * Where the shop has already recorded the money, the question carries a
-   * second sentence. Not a refusal: an order paid for by mistake is exactly
-   * the one somebody needs to call off, and taking the button away would leave
-   * them with nothing to do but ring. What they are owed is knowing that this
-   * click moves no money (FR-ORD-04) — a refund is arranged with the shop.
+   * Asks for an optional reason the shop reads. A refusal means the order
+   * moved on meanwhile, so it is reloaded. A paid order may still be called
+   * off; the warning says this moves no money (FR-ORD-04).
    */
   protected async cancel(detail: OrderDetail): Promise<void> {
     const reason = await this.confirm.askWithReason({
@@ -350,8 +193,6 @@ export class OrderDetailPage {
           : undefined,
       reasonLabel: this.text.cancel.reasonLabel,
       reasonMaxLength: ORDER_STATUS_REASON_MAX,
-      // Asked, not insisted on: the shop's own refusals owe the customer an
-      // explanation, and a customer changing their mind owes nobody one.
       reasonRequired: false,
     });
     if (reason === null) return;
@@ -369,10 +210,6 @@ export class OrderDetailPage {
       this.order.reload();
     }
   }
-
-  private readonly dateFormat = new Intl.DateTimeFormat(this.config.locale, {
-    dateStyle: 'long',
-  });
 
   constructor() {
     usePageSeo({ name: () => this.reference() });

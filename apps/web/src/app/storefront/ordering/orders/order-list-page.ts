@@ -22,10 +22,7 @@ import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
 import { shoppingBasketIcon } from '@b2b-catalog-platform/ui/icons/glyphs/shopping-basket';
 import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
 
-/**
- * The account's own order requests (FR-ACC-01), newest first — the whole
- * history, paged. The account page shows the newest handful of the same rows.
- */
+/** The account's whole order history, newest first, paged (FR-ACC-01). */
 @Component({
   selector: 'app-order-list-page',
   imports: [
@@ -44,11 +41,8 @@ import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
     <h1 uiPageTitle class="mb-2">{{ text.heading }}</h1>
     <p uiPageIntro class="mb-4">{{ text.intro }}</p>
 
-    <!-- What the history is narrowed to, said as the one chip that narrowed
-         it (FR-WORK-03). A chip and not a dropdown: nothing on this page
-         offers to filter — the marker on the account page does — so what is
-         needed here is a way to see the narrowing and undo it, not a control
-         for choosing one. -->
+    <!-- A chip, not a filter control: the narrowing comes from the account
+         page's marker (FR-WORK-03), and here it only needs undoing. -->
     @if (filter(); as state) {
       <div class="mb-6 flex flex-wrap items-center gap-2">
         <span
@@ -71,10 +65,8 @@ import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
 
     @if (shown(); as data) {
       @if (data.items.length === 0 && filter()) {
-        <!-- Narrowed to nothing: the queue emptied between the marker being
-             drawn and the link being followed, which is what a count over
-             current state does. The way out is the whole history, not the
-             catalog. -->
+        <!-- The queue emptied since the marker was drawn: out to the whole
+             history. -->
         <ui-empty-state
           [icon]="shoppingBasketIcon"
           [message]="text.filterEmpty"
@@ -82,10 +74,6 @@ import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
           <a uiButton routerLink="/account/orders">{{ text.action }}</a>
         </ui-empty-state>
       } @else if (data.items.length === 0) {
-        <!-- The cart's own empty panel, so an account with nothing on it and a
-             cart with nothing in it read as the same kind of screen. The two
-             actions are a row inside it rather than two buttons left touching
-             each other under a sentence. -->
         <ui-empty-state [icon]="shoppingBasketIcon" [message]="text.empty">
           <a uiButton routerLink="/catalog">{{ text.emptyAction }}</a>
           <a uiButton variant="secondary" routerLink="/account">
@@ -123,11 +111,8 @@ export class OrderListPage {
   private readonly api = inject(OrdersService);
   protected readonly text = inject(STOREFRONT_TEXT).orders;
 
-  /** Bound from the `state` query param. Absent — which arrives as
-   * `undefined`, never as the input's default — is the whole history, and so
-   * is a value the URL invented: this page offers no way to choose one, so a
-   * bad value is a stale or hand-typed link and the honest answer is
-   * everything. */
+  /** Bound from the `state` query param; absent arrives as `undefined`. An
+   * unknown value is a stale link and shows the whole history. */
   readonly state = input<string | undefined>(undefined);
   protected readonly filter = computed((): MyOrderFilter | undefined => {
     const value = this.state();
@@ -150,7 +135,6 @@ export class OrderListPage {
   protected readonly shown = stableValue(this.orders);
   protected readonly showSkeleton = delayedLoading(this.orders.isLoading);
 
-  /** The chip's words, and the words on the control that dismisses it. */
   protected readonly filterLabel = computed(() =>
     this.filter() === 'to-pay'
       ? this.text.filterToPay
@@ -160,8 +144,7 @@ export class OrderListPage {
     return fillText(this.text.filterRemoveAria, { label: this.filterLabel() });
   }
 
-  /** Paging keeps whatever the list is narrowed to: a second page of "ready to
-   * collect" is still that list. */
+  /** Paging keeps the narrowing. */
   protected readonly pageParams = (page: number): Params => {
     const state = this.filter();
     return state ? { page, state } : { page };

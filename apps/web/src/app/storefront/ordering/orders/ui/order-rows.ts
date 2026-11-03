@@ -20,16 +20,8 @@ import {
   orderStatusTone,
 } from '../../../../core/ordering/order-status';
 
-/**
- * The account's orders as rows — the whole history on its own page, and the
- * most recent handful on the account page. One component for both, because
- * they are the same list read at two lengths, and two copies of a row is how
- * the two end up disagreeing about what an order looks like.
- *
- * Rows rather than a table: the customer side reads on a phone as often as on
- * a desk, and four columns of one order each are what the account page already
- * draws for saved addresses.
- */
+/** The account's orders as rows, on the history page and the account page.
+ * Rows, not a table: customers read this on phones. */
 @Component({
   selector: 'app-order-rows',
   imports: [RouterLink, StatusBadge],
@@ -38,9 +30,6 @@ import {
     <ul class="divide-y divide-edge">
       @for (order of orders(); track order.reference) {
         <li class="-mx-2 py-3 first:pt-0 last:pb-0">
-          <!-- The whole row opens the order: the reference is the only thing on
-               it worth clicking, and a link around it is a bigger target than
-               the text. -->
           <a
             class="flex flex-wrap items-center justify-between gap-x-6 gap-y-2
                    rounded-md px-2
@@ -57,8 +46,6 @@ import {
             <div
               class="flex flex-wrap items-center justify-end gap-x-4 gap-y-1"
             >
-              <!-- Payment only where something is owed or has been paid: an
-                   order with nothing due says nothing about money at all. -->
               @if (paymentLabel(order); as payment) {
                 <span uiStatusBadge variant="dot" [tone]="paymentTone(order)">
                   {{ payment }}
