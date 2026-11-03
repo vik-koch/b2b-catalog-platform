@@ -23,9 +23,9 @@ import { CartAddition } from '../../../core/catalog/buying/product-cart';
 import {
   CHECKOUT_DRAFT_KEY,
   CHECKOUT_DRAFT_VERSION,
-  CheckoutDraftService,
   emptyDraft,
-} from './checkout-draft.service';
+} from './checkout-draft';
+import { CheckoutDraftService } from './checkout-draft.service';
 import { CheckoutPage } from './checkout-page';
 import { OrdersService, SubmitOrderResult } from '../orders/orders.service';
 import { PageService } from '../../../core/site/page.service';

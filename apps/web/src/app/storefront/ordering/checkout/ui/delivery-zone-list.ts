@@ -4,8 +4,8 @@ import {
   moneyFormat,
   formatMoneyMinor,
 } from '@b2b-catalog-platform/shared';
-import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
-import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
+import { STOREFRONT_TEXT } from '../../../../shared/config/storefront-text';
+import { DEPLOYMENT_CONFIG } from '../../../../shared/config/deployment-config';
 import { EmphasisedText } from '@b2b-catalog-platform/ui/content/emphasised-text';
 import { mapIcon } from '@b2b-catalog-platform/ui/icons/glyphs/map';
 import { MarkedCard } from '@b2b-catalog-platform/ui/content/marked-card';

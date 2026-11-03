@@ -1,10 +1,10 @@
 import { NgTemplateOutlet } from '@angular/common';
 import { Component, inject, input, output } from '@angular/core';
 import { FormField, type FieldTree } from '@angular/forms/signals';
-import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
-import { SHARED_TEXT } from '../../../shared/config/shared-text';
-import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
-import { CompanyFields } from '../../../core/accounts/parties/company-fields';
+import { STOREFRONT_TEXT } from '../../../../shared/config/storefront-text';
+import { SHARED_TEXT } from '../../../../shared/config/shared-text';
+import { DEPLOYMENT_CONFIG } from '../../../../shared/config/deployment-config';
+import { CompanyFields } from '../../../../core/accounts/parties/company-fields';
 import { Field } from '@b2b-catalog-platform/ui/fields/field';
 import { FieldBinding } from '@b2b-catalog-platform/ui/fields/field-binding';
 import { Input } from '@b2b-catalog-platform/ui/inputs/input';
@@ -13,8 +13,8 @@ import {
   Segmented,
   SegmentOption,
 } from '@b2b-catalog-platform/ui/choices/segmented';
-import { PartyChoice as Party } from './checkout-draft.service';
-import { ContactAnswers, PartyAnswers } from './checkout-forms';
+import { PartyChoice as Party } from '../checkout-draft';
+import { ContactAnswers, PartyAnswers } from '../checkout-forms';
 
 /**
  * Everything a guest is asked about themselves (FR-CART-03/09), in one block:

@@ -20,7 +20,7 @@ import {
   ReadBackLine,
   ReviewBlock,
 } from '../../../core/ordering/ui/order-read-back';
-import { CheckoutDraft } from './checkout-draft.service';
+import { CheckoutDraft } from './checkout-draft';
 
 /**
  * What the read-back has to be told, because none of it can be worked out from

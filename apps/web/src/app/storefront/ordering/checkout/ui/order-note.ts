@@ -1,10 +1,10 @@
 import { Component, inject, input, output } from '@angular/core';
 import { ORDER_NOTE_MAX } from '@b2b-catalog-platform/shared/core/ordering';
-import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
+import { STOREFRONT_TEXT } from '../../../../shared/config/storefront-text';
 import { AutoGrow } from '@b2b-catalog-platform/ui/inputs/auto-grow';
 import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
 import { Input } from '@b2b-catalog-platform/ui/inputs/input';
-import { SHARED_TEXT } from '../../../shared/config/shared-text';
+import { SHARED_TEXT } from '../../../../shared/config/shared-text';
 
 /**
  * Anything the customer wants to say in words, copied onto the order for the

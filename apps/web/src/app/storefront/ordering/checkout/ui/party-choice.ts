@@ -1,9 +1,9 @@
 import { Component, inject, input, output } from '@angular/core';
 import { FormField, type FieldTree } from '@angular/forms/signals';
 import { NgTemplateOutlet } from '@angular/common';
-import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
-import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
-import { CompanyFields } from '../../../core/accounts/parties/company-fields';
+import { STOREFRONT_TEXT } from '../../../../shared/config/storefront-text';
+import { DEPLOYMENT_CONFIG } from '../../../../shared/config/deployment-config';
+import { CompanyFields } from '../../../../core/accounts/parties/company-fields';
 import { ChoiceBranch } from '@b2b-catalog-platform/ui/choices/choice-branch';
 import { Field } from '@b2b-catalog-platform/ui/fields/field';
 import { FieldBinding } from '@b2b-catalog-platform/ui/fields/field-binding';
@@ -12,8 +12,8 @@ import {
   Segmented,
   SegmentOption,
 } from '@b2b-catalog-platform/ui/choices/segmented';
-import { PartyChoice as Party } from './checkout-draft.service';
-import { PartyAnswers } from './checkout-forms';
+import { PartyChoice as Party } from '../checkout-draft';
+import { PartyAnswers } from '../checkout-forms';
 import { WarningNote } from '@b2b-catalog-platform/ui/content/warning-note';
 
 /**

@@ -11,7 +11,7 @@ import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import { Card } from '@b2b-catalog-platform/ui/content/card';
 import { SectionTitle } from '@b2b-catalog-platform/ui/content/section-title';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
-import { OrderRows } from './order-rows';
+import { OrderRows } from './ui/order-rows';
 import { OrdersService } from './orders.service';
 
 /**

@@ -11,7 +11,7 @@ import { SHARED_TEXT } from '../../../shared/config/shared-text';
 import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
 import { completeMask, emailAddress } from '../../../shared/core/field-rules';
 import { companyIdFormat } from '../../../core/accounts/parties/company-id';
-import { CheckoutDraft, PartyChoice } from './checkout-draft.service';
+import { CheckoutDraft, PartyChoice } from './checkout-draft';
 
 /** The party being invoiced where it is not the account's own. */
 export interface PartyAnswers {

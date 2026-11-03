@@ -36,23 +36,20 @@ import { submitAttempt } from '@b2b-catalog-platform/ui/fields/submit-attempt';
 import { EmptyState } from '@b2b-catalog-platform/ui/content/empty-state';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
-import { AddressPicker } from './address-picker';
-import {
-  CheckoutDraft,
-  CheckoutDraftService,
-  PartyChoice as Party,
-} from './checkout-draft.service';
+import { AddressPicker } from './ui/address-picker';
+import { CheckoutDraft, PartyChoice as Party } from './checkout-draft';
+import { CheckoutDraftService } from './checkout-draft.service';
 import { createCheckoutForms } from './checkout-forms';
 import { createCheckoutReadBack } from './checkout-read-back';
 import { createCheckoutSubmission } from './checkout-submission';
 import { DeliveryZoneHint } from './delivery-zone-hint';
-import { FulfilmentChoice } from './fulfilment-choice';
-import { GuestDetails } from './guest-details';
-import { OrderNote } from './order-note';
-import { PartyChoice } from './party-choice';
-import { PaymentChoice } from './payment-choice';
-import { PickupChoice } from './pickup-choice';
-import { PreferredDate } from './preferred-date';
+import { FulfilmentChoice } from './ui/fulfilment-choice';
+import { GuestDetails } from './ui/guest-details';
+import { OrderNote } from './ui/order-note';
+import { PartyChoice } from './ui/party-choice';
+import { PaymentChoice } from './ui/payment-choice';
+import { PickupChoice } from './ui/pickup-choice';
+import { PreferredDate } from './ui/preferred-date';
 import { Link } from '@b2b-catalog-platform/ui/actions/link';
 import { PrivacyNotice } from '../../site/privacy-notice';
 import { TermsNotice } from '../../site/terms-notice';

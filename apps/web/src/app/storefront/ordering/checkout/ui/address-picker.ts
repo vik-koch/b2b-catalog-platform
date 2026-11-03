@@ -1,14 +1,14 @@
 import { Component, inject, input, output } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
-import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
-import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
-import { SUGGESTIONS_ENABLED } from '../../../shared/config/suggestions-enabled';
-import { AddressFields } from '../../../core/accounts/addresses/address-fields';
-import { AddressForm } from '../../../core/accounts/addresses/address-form';
+import { STOREFRONT_TEXT } from '../../../../shared/config/storefront-text';
+import { DEPLOYMENT_CONFIG } from '../../../../shared/config/deployment-config';
+import { SUGGESTIONS_ENABLED } from '../../../../shared/config/suggestions-enabled';
+import { AddressFields } from '../../../../core/accounts/addresses/address-fields';
+import { AddressForm } from '../../../../core/accounts/addresses/address-form';
 import {
   addressDetailLines,
   addressDisplayName,
-} from '../../../core/accounts/addresses/address-format';
+} from '../../../../core/accounts/addresses/address-format';
 import { Checkbox } from '@b2b-catalog-platform/ui/choices/checkbox';
 import { TickLabel } from '@b2b-catalog-platform/ui/choices/tick-label';
 import { ChoiceBranch } from '@b2b-catalog-platform/ui/choices/choice-branch';

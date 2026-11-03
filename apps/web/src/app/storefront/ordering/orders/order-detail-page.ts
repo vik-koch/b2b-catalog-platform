@@ -39,7 +39,7 @@ import {
   injectCustomerBlockLabels,
   orderBlocks,
 } from '../../../core/ordering/order-blocks';
-import { OrderDocumentsList } from './order-documents-list';
+import { OrderDocumentsList } from './ui/order-documents-list';
 import {
   OrderReadBack,
   ReadBackLine,

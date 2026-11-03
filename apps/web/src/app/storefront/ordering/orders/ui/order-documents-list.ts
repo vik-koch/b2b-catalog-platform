@@ -3,13 +3,13 @@ import {
   OrderDocument,
   orderDocumentPath,
 } from '@b2b-catalog-platform/shared/core/ordering';
-import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
-import { SHARED_TEXT } from '../../../shared/config/shared-text';
+import { STOREFRONT_TEXT } from '../../../../shared/config/storefront-text';
+import { SHARED_TEXT } from '../../../../shared/config/shared-text';
 import { AcceptedDocumentMime } from '@b2b-catalog-platform/shared/platform';
 import {
   documentFileCaption,
   documentFileLabel,
-} from '../../../shared/core/document-file';
+} from '../../../../shared/core/document-file';
 import { DocumentLink } from '@b2b-catalog-platform/ui/content/document-link';
 import { fileTextIcon } from '@b2b-catalog-platform/ui/icons/glyphs/file-text';
 import { Card } from '@b2b-catalog-platform/ui/content/card';

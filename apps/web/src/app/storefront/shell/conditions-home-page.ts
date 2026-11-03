@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { ConditionsPage } from '../site/pages/conditions-page';
-import { DeliveryZoneList } from '../ordering/checkout/delivery-zone-list';
+import { DeliveryZoneList } from '../ordering/checkout/ui/delivery-zone-list';
 
 /** `/conditions`: the editable page, with checkout's delivery zones in it. */
 @Component({

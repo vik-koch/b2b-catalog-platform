@@ -9,7 +9,7 @@ import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
 import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
 import { canonicalPhone } from '../../../shared/core/contact-fields';
 import { SubmitOrderResult } from '../orders/orders.service';
-import { CheckoutDraft } from './checkout-draft.service';
+import { CheckoutDraft } from './checkout-draft';
 import { CheckoutForms } from './checkout-forms';
 import { AddressInput } from '@b2b-catalog-platform/shared/core/accounts';
 import { AccountProfile } from '@b2b-catalog-platform/shared/storefront/accounts';

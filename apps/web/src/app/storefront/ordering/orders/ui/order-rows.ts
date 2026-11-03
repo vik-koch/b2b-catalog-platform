@@ -6,9 +6,9 @@ import {
   formatMoneyMinor,
 } from '@b2b-catalog-platform/shared';
 import { OrderSummary } from '@b2b-catalog-platform/shared/core/ordering';
-import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
-import { SHARED_TEXT } from '../../../shared/config/shared-text';
-import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
+import { STOREFRONT_TEXT } from '../../../../shared/config/storefront-text';
+import { SHARED_TEXT } from '../../../../shared/config/shared-text';
+import { DEPLOYMENT_CONFIG } from '../../../../shared/config/deployment-config';
 import {
   StatusBadge,
   StatusTone,
@@ -18,7 +18,7 @@ import {
   orderPaymentTone,
   orderStatusLabel,
   orderStatusTone,
-} from '../../../core/ordering/order-status';
+} from '../../../../core/ordering/order-status';
 
 /**
  * The account's orders as rows — the whole history on its own page, and the

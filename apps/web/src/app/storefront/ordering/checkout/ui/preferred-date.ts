@@ -4,8 +4,8 @@ import {
   firstOrderDate,
   localToday,
 } from '@b2b-catalog-platform/shared/storefront/ordering';
-import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
-import { SHARED_TEXT } from '../../../shared/config/shared-text';
+import { STOREFRONT_TEXT } from '../../../../shared/config/storefront-text';
+import { SHARED_TEXT } from '../../../../shared/config/shared-text';
 import { DateInput } from '@b2b-catalog-platform/ui/inputs/date-input';
 import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
 

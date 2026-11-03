@@ -14,7 +14,7 @@ import { Pagination } from '@b2b-catalog-platform/ui/lists/pagination';
 import { EmptyState } from '@b2b-catalog-platform/ui/content/empty-state';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
-import { OrderRows } from './order-rows';
+import { OrderRows } from './ui/order-rows';
 import { OrdersService } from './orders.service';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';

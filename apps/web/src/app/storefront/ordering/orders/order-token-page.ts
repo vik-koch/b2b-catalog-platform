@@ -22,7 +22,7 @@ import {
   orderBlocks,
 } from '../../../core/ordering/order-blocks';
 import { customerQuantity } from '../../../core/ordering/order-formats';
-import { OrderDocumentsList } from './order-documents-list';
+import { OrderDocumentsList } from './ui/order-documents-list';
 import {
   OrderReadBack,
   ReadBackLine,
