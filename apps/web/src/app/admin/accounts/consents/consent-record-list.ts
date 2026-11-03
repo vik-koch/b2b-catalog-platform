@@ -17,13 +17,9 @@ import { RecordRow } from '@b2b-catalog-platform/ui/lists/record-row';
 import { circleSlashIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-slash';
 import { ConsentRecord } from '@b2b-catalog-platform/shared/admin/accounts';
 
-/**
- * Consent records as evidence reads them (NFR-LEGAL-09): what was consented
- * to, the wording that was ticked, when, and whose consent it was. The same
- * list on the lookup and on an account's page; only the lookup names the
- * account, since on the account's page it is the page. A record that has
- * ended says when and how, since its retention runs from there.
- */
+/** Consent records as evidence reads them, on the lookup and on an account's
+ * page; only the lookup names the account. An ended record says when and how:
+ * its retention runs from there. */
 @Component({
   selector: 'app-consent-record-list',
   imports: [RouterLink, Icon, IconButton, Link, RecordRow, StatusBadge],
@@ -38,8 +34,7 @@ import { ConsentRecord } from '@b2b-catalog-platform/shared/admin/accounts';
                 <span uiStatusBadge>{{ text.withdrawn }}</span>
               }
             </ng-container>
-            <!-- What was ticked, as it read: the version's own wording, its
-                 link marks taken off. -->
+            <!-- The version's own wording, link marks off. -->
             <p recordBody class="mt-1 text-sm">{{ wording(record) }}</p>
             <ng-container recordMeta>
               <span>
@@ -69,9 +64,7 @@ import { ConsentRecord } from '@b2b-catalog-platform/shared/admin/accounts';
                   <span class="wrap-break-word">{{ withdrawal.note }}</span>
                 }
               } @else if (record.purpose === 'account' && record.account) {
-                <!-- Said rather than offered: there is no line to enter, the
-                     account is what ends it. Only while there is an account
-                     left to delete. -->
+                <!-- Said, not offered: deleting the account ends it. -->
                 <span>{{ text.endsWithAccount }}</span>
               }
             </ng-container>

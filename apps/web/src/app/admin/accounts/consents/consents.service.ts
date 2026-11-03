@@ -14,10 +14,9 @@ export type WithdrawResult =
   | { ok: true; record: ConsentRecord }
   | { ok: false; code: ConsentWithdrawalErrorCode };
 
-/** The consent lookup's client: the API's ConsentAdminController. */
 @Injectable({ providedIn: 'root' })
 export class ConsentsService {
-  private client = createOrpcClient(consentsContract);
+  private readonly client = createOrpcClient(consentsContract);
 
   async find(query: FindConsentsQuery): Promise<ConsentRecord[]> {
     return (await this.client.findConsents({ query })).consents;

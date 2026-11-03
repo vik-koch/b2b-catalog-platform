@@ -51,11 +51,8 @@ interface ConsentSearch {
   phone: string;
 }
 
-/**
- * Whose consents (NFR-LEGAL-09): an email address or a phone number in, the
- * records naming it out. The search lives in the address bar, so a result can
- * be reloaded, sent to a colleague, or come back to from an account it links.
- */
+/** The records naming an email or a phone. The search is in the URL, so a
+ * result can be reloaded, shared or come back to. */
 @Component({
   selector: 'app-consent-lookup-page',
   imports: [
@@ -146,11 +143,10 @@ export class ConsentLookupPage {
   protected readonly phoneInput = inject(DEPLOYMENT_CONFIG).phoneInput;
 
   protected readonly text = inject(ADMIN_TEXT).consents;
-  private readonly adminText = inject(ADMIN_TEXT);
   private readonly fields = inject(ADMIN_TEXT).fields;
-  protected readonly actionText = inject(SHARED_TEXT).actions;
+  private readonly actionText = inject(SHARED_TEXT).actions;
 
-  /** From the query string, by input binding; absent arrives as undefined. */
+  /** From the query string; absent is undefined. */
   readonly email = input<string | undefined>();
   readonly phone = input<string | undefined>();
 
@@ -166,8 +162,7 @@ export class ConsentLookupPage {
   protected readonly form = form(
     this.model,
     (search) => {
-      // Format only: an empty box searches for nothing, which needs no
-      // sentence. The box not shown counts for nothing.
+      // Format only; the box not shown counts for nothing.
       hidden(search.email, {
         when: ({ valueOf }) => valueOf(search.by) !== 'email',
       });
@@ -201,8 +196,7 @@ export class ConsentLookupPage {
 
   constructor() {
     usePageSeo({ name: () => this.text.page.title });
-    // A search opened from a link fills the form it would have been typed
-    // into, so changing it starts from what is shown.
+    // A linked search fills the form, so changing it starts from it.
     effect(() => {
       const query = this.query();
       if (!query) return;
@@ -229,11 +223,7 @@ export class ConsentLookupPage {
     void this.router.navigate([], { queryParams });
   }
 
-  /**
-   * A withdrawal that reached the shop from outside, entered against its
-   * record. Asked first, since it cannot be taken back; the note says how it
-   * arrived, which is what an inspection asks next.
-   */
+  /** A withdrawal that reached the shop from outside; the note says how. */
   protected async withdraw(record: ConsentRecord): Promise<void> {
     this.withdrawError.set(null);
     const holder =
@@ -244,8 +234,7 @@ export class ConsentLookupPage {
         holder,
         date: this.dayFormat.format(new Date(record.givenAt)),
       }),
-      // The platform holds the record, not the inquiry: that is a mail in
-      // the shop's inbox, and only a person can delete it there.
+      // The inquiry itself is a mail only a person can delete.
       warning: this.text.withdrawConfirm.warning,
       confirmLabel: this.text.withdrawConfirm.confirm,
       cancelLabel: this.text.withdrawConfirm.cancel ?? this.actionText.cancel,
@@ -269,7 +258,6 @@ export class ConsentLookupPage {
         return;
       }
       this.withdrawError.set(this.text.withdrawErrors[result.code]);
-      // Whatever changed under the list, show it as it now stands.
       this.results.reload();
     } catch {
       this.withdrawError.set(this.text.withdrawError);

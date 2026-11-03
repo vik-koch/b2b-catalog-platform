@@ -33,7 +33,7 @@ import { TiersService } from '../../catalog/tiers/tiers.service';
 import { StaffUsersService } from './users.service';
 import { SelectInput } from '@b2b-catalog-platform/ui/inputs/select-input';
 import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';
-import { userStatusTone } from './user-status';
+import { baseTierName, userStatusLabel, userStatusTone } from './user-status';
 import {
   Segmented,
   SegmentOption,
@@ -71,19 +71,9 @@ interface UserDraft {
 }
 
 /**
- * Add, edit and approve an account (FR-AUTH-03/04) — `/admin/users/new`,
- * `/admin/users/staff/new` and `/admin/users/:id/edit`. One screen for all
- * three because they ask the same questions of the same fields; only the verb
- * on the primary button differs.
- *
- * Approving lives here rather than in a dialog because approval *is* a review:
- * the registration form collects a name, a phone number and a registration
- * number precisely so a human can judge them, and a manager who spots a
- * transposed digit should be able to fix it in the same breath as approving.
- *
- * The email address is shown and never editable. It is the sign-in name and the
- * identity the audit trail points at, so changing it is an account-recovery
- * flow with a confirmation to the new address — not a field on this form.
+ * Adding, editing and approving an account: one screen, since all three ask
+ * the same fields. Approval is a review, so a typo can be fixed in the same
+ * breath. The email is never editable here: it is the sign-in name.
  */
 @Component({
   selector: 'app-user-editor-page',
@@ -107,8 +97,6 @@ interface UserDraft {
     Notice,
   ],
   template: `
-    <!-- One narrow column for the whole screen, heading included: a full-width
-         title over a narrow form is a third layout where two will do. -->
     <div class="max-w-xl">
       <h1 uiPageTitle class="mb-4">{{ title() }}</h1>
 
@@ -119,9 +107,6 @@ interface UserDraft {
       } @else if (notFound()) {
         <p class="text-ink-subtle" role="alert">{{ text.notFound }}</p>
       } @else {
-        <!-- The account's fixed facts: who this is and where it stands. An
-             existing account leads with them because they are the context for
-             every field below. -->
         @if (account(); as user) {
           <!-- Breaking, because an address is one word: the value track
                floors at its longest word, so an email nobody shortened widens
@@ -149,10 +134,7 @@ interface UserDraft {
           </p>
         }
 
-        <!-- One banner for the whole form rather than a lock beside each
-             field: the catalog editor marks the handful of fields an exchange
-             writes, but here the area is closed whole, and an editor in which
-             every input is greyed does not need each one labelled. -->
+        <!-- One banner, not a lock per field: the whole area is closed. -->
         @if (locked()) {
           <app-locked-note class="mb-6">
             {{
@@ -164,9 +146,7 @@ interface UserDraft {
         }
 
         @if (newAndLocked()) {
-          <!-- Nothing to fill in, so nothing is drawn: a blank form whose Save
-               is refused would only be a longer way of saying this. The way
-               back stays, as it does on the catalog's own locked route. -->
+          <!-- Nothing to fill in; the way back stays. -->
           <button
             uiButton
             variant="secondary"
@@ -200,8 +180,6 @@ interface UserDraft {
               @if (typeLeftBehind()) {
                 <ui-warning-note>{{ text.typeNotAccepted }}</ui-warning-note>
               }
-              <!-- Only where the shop sells to more than one kind of customer
-                   (FR-AUTH-13): with one, there is nothing to choose. -->
               @if (customerTypes.length > 1) {
                 <ui-field-group
                   [field]="form.customerType"
@@ -254,9 +232,7 @@ interface UserDraft {
               />
             }
 
-            <!-- Optional here, unlike on the registration form: staff often set
-               an account up from an email alone, and a phone number they do
-               not have is not a reason to block the account. -->
+            <!-- Optional here: staff often start from an email alone. -->
             <ui-field
               [field]="form.phone"
               [label]="fields.phone.label"
@@ -277,15 +253,11 @@ interface UserDraft {
               >
                 <ui-select-input class="w-full">
                   <select uiInput class="w-full" [formField]="form.tierId">
-                    <!-- No tier is a default anywhere (ADR 0031), so an approval
-                       has nothing to fall back on and must be chosen. -->
+                    <!-- An approval must choose: no tier is a default. -->
                     @if (isApproval()) {
                       <option value="">{{ text.tierChoose }}</option>
                     }
-                    <!-- The default list is offered as "no tier" and not a
-                       second time under its own id: an account on it carries a
-                       null, the same state a guest is in, and two spellings of
-                       one state is what the null is here to avoid. -->
+                    <!-- The default list once, as "default": its accounts hold null. -->
                     <option value="default">{{ baseTierLabel() }}</option>
                     @for (tier of otherTiers(); track tier.id) {
                       <option [value]="tier.id">{{ tier.label }}</option>
@@ -295,9 +267,7 @@ interface UserDraft {
               </ui-field>
             }
 
-            <!-- Admin only. A manager who could grant a role could grant it to
-               themselves, so the field is absent for them and the API refuses
-               it besides. -->
+            <!-- Admin only: a manager could grant it to themselves. -->
             @if (showsRole()) {
               <ui-field
                 [field]="form.role"
@@ -313,10 +283,7 @@ interface UserDraft {
               </ui-field>
             }
 
-            <!-- Admin only, and only on a customer: the key an exchange
-                 addresses this account by (FR-ADM-14). Shown on an existing
-                 account alone — a staff-created account has nothing to be
-                 keyed against yet, and the field would invite a guess. -->
+            <!-- On an existing customer only: a new one has nothing keyed yet. -->
             @if (showsSourceId()) {
               <ui-field
                 [field]="form.sourceId"
@@ -357,9 +324,7 @@ interface UserDraft {
                 >
                   {{ submitLabel() }}
                 </button>
-                <!-- On a pending account the primary button approves, which is a
-                   decision. Correcting a typo without taking that decision has
-                   to stay possible, so it gets its own button. -->
+                <!-- Saving without approving must stay possible. -->
                 @if (isApproval()) {
                   <button
                     uiButton
@@ -374,9 +339,7 @@ interface UserDraft {
                   </button>
                 }
               }
-              <!-- For any account that may sign in: the invitation while it has
-                 no password, the reset link once it has. Which one is the
-                 API's decision, off the account's own status. -->
+              <!-- The invitation or the reset link: the API picks by status. -->
               @if (canSendLink() && !locked()) {
                 <button
                   uiButton
@@ -422,23 +385,15 @@ export class UserEditorPage implements UnsavedChangesAware {
     inject(ADMIN_TEXT).fields,
   );
   private readonly kinds = inject(SHARED_TEXT).partyKind;
-  /** Shared vocabulary — the same words the list uses for the same things. */
   protected readonly listText = inject(ADMIN_TEXT).users.list;
-  /**
-   * The kinds of customer the shop sells to (FR-AUTH-13), in the order the
-   * deployment lists them: the first is where a new customer starts.
-   */
+  /** In the deployment's order: the first is where a form starts. */
   protected readonly customerTypes: readonly SegmentOption<CustomerType>[] =
     this.config.customerTypes.map((value) => ({
       value,
       label: this.kinds[value],
     }));
   private readonly firstType = this.config.customerTypes[0];
-  /**
-   * An account stored as a kind the shop no longer sells to. The API refuses
-   * to save it as one, so the form starts it on a kind it can be saved as and
-   * says why the fields it now asks for are there.
-   */
+  /** A kind no longer sold to: the form starts it on one it can save. */
   protected readonly typeLeftBehind = computed(() => {
     const account = this.account();
     return (
@@ -450,17 +405,8 @@ export class UserEditorPage implements UnsavedChangesAware {
   protected readonly actionText = inject(SHARED_TEXT).actions;
   protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
   private readonly ownership = inject(OwnershipService);
-  /**
-   * What an account with no tier of its own is charged, named: "Default
-   * (Base list)". The option carries a null, which is also what a brand new
-   * customer has — so it is marked as the default rather than sitting in the
-   * list looking like one choice among several.
-   */
   protected readonly baseTierLabel = computed(() =>
-    this.adminText.tiers.defaultName.replace(
-      '{list}',
-      this.tiers().find((t) => t.isDefault)?.label ?? '',
-    ),
+    baseTierName(this.adminText.tiers.defaultName, this.tiers()),
   );
   protected readonly otherTiers = computed(() =>
     this.tiers().filter((t) => !t.isDefault),
@@ -491,12 +437,7 @@ export class UserEditorPage implements UnsavedChangesAware {
   protected readonly showsRole = computed(
     () => !this.isCustomer() && this.auth.user()?.role === 'admin',
   );
-  /**
-   * Only an admin edits the source key (FR-ADM-14). A manager is refused it by
-   * the API besides — it decides what an automated exchange may reach, which is
-   * a deployment matter like the ownership switch rather than the customer
-   * work a manager does.
-   */
+  /** Admin only: it decides what an exchange may reach. */
   protected readonly showsSourceId = computed(
     () => this.isCustomer() && this.auth.user()?.role === 'admin',
   );
@@ -507,16 +448,7 @@ export class UserEditorPage implements UnsavedChangesAware {
   protected readonly closed = computed(
     () => this.account()?.status === 'anonymized',
   );
-  /**
-   * Whether an external system holds customer accounts (FR-ADM-10). Read on
-   * the same terms as the catalog editor reads its own area: the load starts
-   * in the constructor and resolves well before anyone has typed, and an
-   * answer still in flight reads as not owned rather than painting a locked
-   * form that may not be one. The API refuses the save either way.
-   *
-   * Staff accounts are never locked by it — an admin has to be able to appoint
-   * another admin whatever the exchange holds.
-   */
+  /** In flight counts as not owned: the API refuses the save anyway. */
   protected readonly locked = computed(
     () => this.isCustomer() && this.ownership.owns('customers'),
   );
@@ -574,8 +506,7 @@ export class UserEditorPage implements UnsavedChangesAware {
         this.companyIdInput?.formats,
         this.fields.companyId.format,
       );
-      // No tier is a default anywhere (ADR 0031), so an approval has nothing
-      // to fall back on. The plain save on a pending account does not ask.
+      // An approval has nothing to fall back on; a plain save does not ask.
       required(user.tierId, {
         when: () => this.isApproval(),
         message: this.text.validation.tierRequired,
@@ -640,8 +571,7 @@ export class UserEditorPage implements UnsavedChangesAware {
       this.seed(user);
       this.loading.set(false);
     }
-    // Only a customer form has a tier field, and which kind this is is only
-    // settled once the account is loaded.
+    // Which kind this is is only settled once the account loads.
     if (this.isCustomer()) {
       this.tiers.set(await this.tiersService.list().then((r) => r.tiers));
     }
@@ -662,9 +592,7 @@ export class UserEditorPage implements UnsavedChangesAware {
       lastName: user.lastName ?? '',
       phone: typedPhone(user.phone, this.phoneInput),
       companyName: user.companyName ?? '',
-      // Shown exactly as stored, whatever shape it is in — including one from
-      // before the current config, which staff must be able to read and
-      // correct rather than have silently reshaped.
+      // As stored, so an old shape can be read and corrected.
       companyRegistrationId: user.companyRegistrationId ?? '',
       // A pending account has no tier yet and must be given one explicitly.
       tierId: user.status === 'pending' ? '' : (user.tierId ?? 'default'),
@@ -677,12 +605,7 @@ export class UserEditorPage implements UnsavedChangesAware {
     return JSON.stringify(this.model());
   }
 
-  /**
-   * Send the account a way back in — the mail was lost, filed as spam, its
-   * deadline ran out, or somebody locked out rang the shop rather than using
-   * the form. Issuing a new link retires the old one, so there is never more
-   * than one live way into the account.
-   */
+  /** A new link retires the old one, so only one is ever live. */
   protected async sendPasswordLink(): Promise<void> {
     const account = this.account();
     if (!account) return;
@@ -700,28 +623,15 @@ export class UserEditorPage implements UnsavedChangesAware {
     }
   }
 
-  /** The same words and colours the list gives these states. */
   protected statusLabel(status: StaffUser['status']): string {
-    return {
-      pending: this.listText.statusPending,
-      invited: this.listText.statusInvited,
-      active: this.listText.statusActive,
-      disabled: this.listText.statusDisabled,
-      anonymized: this.listText.statusAnonymized,
-    }[status];
+    return userStatusLabel(this.listText, status);
   }
 
-  /** The shared palette; see user-status.ts. */
   protected readonly statusTone = userStatusTone;
 
-  /**
-   * Save. `approving` is what the primary button means on a pending account:
-   * corrections are written first and the approval follows, so a manager who
-   * fixed a digit on the way in does not approve the version with the typo.
-   */
+  /** Corrections are written before the approval follows. */
   protected async submit(approving = true): Promise<void> {
-    // The secondary button is no submit button, so it records the attempt
-    // that the form's own submit would.
+    // The secondary button does not submit, so it marks the attempt.
     submitAttempt(this.form).set(true);
     const approve = approving && this.isApproval();
     // A correction without the approval may leave the tier for later.
@@ -736,9 +646,7 @@ export class UserEditorPage implements UnsavedChangesAware {
       const user = this.isNew
         ? await this.createAccount()
         : await this.saveEdits();
-      // `approve` was decided before the save, from the status the screen was
-      // opened on — the update returns the same row, still pending, and
-      // re-reading it here would only invite the two to disagree.
+      // Decided from the status the screen opened on, not the reply.
       if (user && approve) {
         const approved = await this.service.approve(user.id, this.tierId());
         if (!approved.ok) {
@@ -783,8 +691,7 @@ export class UserEditorPage implements UnsavedChangesAware {
       companyName: contact.companyName ?? null,
       companyRegistrationId: contact.companyRegistrationId ?? null,
       tierId: this.isCustomer() ? this.tierId() : null,
-      // Sent only when this caller may set it, so a manager's save is never
-      // refused for a field their form does not even show.
+      // Only when this caller may set it, so a manager is never refused.
       ...(this.showsRole() ? { role: value.role } : {}),
       ...(this.showsSourceId()
         ? { sourceId: value.sourceId.trim() || null }

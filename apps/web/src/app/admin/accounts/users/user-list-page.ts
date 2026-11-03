@@ -7,6 +7,7 @@ import {
   signal,
 } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
+import { fillText } from '@b2b-catalog-platform/shared';
 import { SEARCH_QUERY_MAX_LENGTH } from '@b2b-catalog-platform/shared/core/catalog';
 import { ADMIN_TEXT } from '../../../shared/config/admin-text';
 import { SHARED_TEXT } from '../../../shared/config/shared-text';
@@ -33,35 +34,24 @@ import { UserRowActions } from './user-row-actions';
 import { injectEditorReturnParams } from '../../../shared/edit-mode/editor-return';
 import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';
 import { StaffUsersService } from './users.service';
-import { userStatusTone } from './user-status';
+import {
+  baseTierName,
+  userRoleLabel,
+  userStatusLabel,
+  userStatusTone,
+} from './user-status';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { plusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/plus';
 import {
   COMPANY_ID_NONE,
   formatPersonName,
   StaffUser,
+  USER_STATUSES,
   UserKind,
   userStatusSchema,
 } from '@b2b-catalog-platform/shared/core/accounts';
 import { userRoleSchema } from '@b2b-catalog-platform/shared/platform';
 
-/**
- * The staff account list (FR-AUTH-03/04). One component, two views chosen by the
- * route's `kind`: **Customers** (the `user` role) and **Staff** (admin and
- * manager). They are two screens reached from two buttons on the admin panel,
- * not two tabs on one screen: the split is a permission boundary, and a manager
- * who can only ever see customers should not be shown a switch that names a
- * second list they may not open — for them this is simply "Customers".
- *
- * Every row action but one is a link into the account editor, which is where
- * approving, re-tiering and correcting details all happen. Declining stays
- * here: it destroys a row rather than opening it, so a confirm is the whole
- * interaction.
- *
- * Filters and search are server-side (the URL is the state, same as the product
- * grid); sorting is done here over the fetched rows, because the list is a few
- * hundred accounts at most and unpaged, so a comparator is the whole of it.
- */
 const USER_SORTS = [
   'name',
   'name_desc',
@@ -74,14 +64,9 @@ const USER_SORTS = [
 ] as const;
 type UserSort = (typeof USER_SORTS)[number];
 
-/**
- * Registrations nobody has decided on first — the reason a manager opens this
- * list — then the accounts in use, then the ones that are over. Everything
- * else about the order is a click away in a column heading.
- */
+/** Undecided registrations first: the reason a manager opens the list. */
 const DEFAULT_USER_SORT: UserSort = 'status';
 
-/** What an account needs, as a number to sort by. */
 const STATUS_RANK: Record<StaffUser['status'], number> = {
   pending: 0,
   invited: 1,
@@ -102,6 +87,12 @@ const TYPE_RANK: Record<string, number> = { person: 0, company: 1 };
 const typeRank = (t: StaffUser['customerType']): number =>
   t ? TYPE_RANK[t] : 2;
 
+/**
+ * The account list, as two screens by the route's `kind`: customers, and
+ * staff (admin and manager). Two screens, not two tabs: the split is a
+ * permission boundary, and a manager sees only customers. Filters run on the
+ * server; sorting runs here over the whole unpaged list.
+ */
 @Component({
   selector: 'app-user-list-page',
   imports: [
@@ -136,8 +127,7 @@ const typeRank = (t: StaffUser['customerType']): number =>
       </button>
     </ui-grid-header>
 
-    <!-- Where a decline that raced with another change reports itself: every
-         other action is a navigation, and reports from the editor. -->
+    <!-- Where a raced decline or switch reports itself. -->
     @if (pageError()) {
       <p uiErrorText class="mb-4" role="alert">{{ pageError() }}</p>
     }
@@ -159,14 +149,9 @@ const typeRank = (t: StaffUser['customerType']): number =>
         [countLabel]="text.count"
       >
         <ng-template uiGridRow [of]="data" let-user>
-          <!-- Who to call, and underneath the address to write to — the same
-               pair the order list draws in one cell, for the same reason: two
-               columns of the same person cost a third of the table. -->
+          <!-- Name and email in one cell, as on the order list. The name opens
+               the account to read; the pencil opens the editor. -->
           <td class="truncate" [title]="user.email">
-            <!-- The name opens the account as it stands to be read; the
-                 pencil at the end of the row opens the screen that changes
-                 it. Two jobs, two links — most of what a manager does with a
-                 list is look somebody up. -->
             <a
               class="block truncate font-medium text-ink hover:text-accent"
               [routerLink]="['/admin/users', user.id]"
@@ -215,13 +200,8 @@ const typeRank = (t: StaffUser['customerType']): number =>
           </td>
         </ng-template>
 
-        <!-- The same account on a phone: who it is and whether it can sign in
-             on the first line, then the two ways to reach them, then what
-             prices they get — the tier is why a manager opens this list, and it
-             is invisible to the customer themselves. -->
         <ng-template uiGridCard [of]="data" let-user>
-          <!-- Only the account is greyed once it is closed, never the badge
-               that says so — the same rule the table follows cell by cell. -->
+          <!-- Greyed when closed, but never the badge that says so. -->
           <ui-record-row>
             <a
               class="truncate font-medium text-ink"
@@ -281,7 +261,6 @@ export class UserListPage {
   private readonly tiers = inject(TiersService);
   protected readonly text = inject(ADMIN_TEXT).users.list;
   protected readonly fields = inject(SHARED_TEXT).fields;
-  private readonly kinds = inject(SHARED_TEXT).partyKind;
   protected readonly defaultSort = DEFAULT_USER_SORT;
   protected readonly dash = '—';
 
@@ -299,12 +278,8 @@ export class UserListPage {
     this.isStaff() ? this.text.staffPage : this.text.customersPage,
   );
 
-  /*
-   * Grid state, bound from query parameters — the inputs are named for the
-   * parameters, since router input binding matches on the parameter's name.
-   * Each is narrowed before it reaches the API, so a hand-edited URL falls back
-   * to the default instead of a request the server would reject.
-   */
+  // Query parameters, by name. Each is narrowed before the API sees it, so a
+  // hand-edited URL falls back instead of earning a refusal.
   readonly searchTerm = input('');
   protected readonly query = computed(() =>
     this.searchTerm() ? this.searchTerm().trim() : undefined,
@@ -324,13 +299,11 @@ export class UserListPage {
   });
   protected readonly roleParam = computed(() => this.roleKey() ?? '');
 
-  /** `default` (the base price list) and any tier id pass straight through; an
-   * unknown id is a uuid the API answers with an empty page. */
+  /** `default` (the base list) or a tier id; an unknown id matches nothing. */
   readonly tier = input('');
   protected readonly tierId = computed(() => this.tier() || undefined);
 
-  /** A configured format's key. An unknown one matches nothing, which is the
-   * honest answer for a shape this deployment does not have. */
+  /** A configured format's key; an unknown one matches nothing. */
   readonly companyIdFormat = input('');
   protected readonly companyIdFormatKey = computed(
     () => this.companyIdFormat() || undefined,
@@ -339,8 +312,7 @@ export class UserListPage {
   readonly sort = input('');
   protected readonly sortKey = computed(() => resolveUserSort(this.sort()));
 
-  /** Whether anything is narrowing the list — what separates "no accounts" from
-   * "no matches". */
+  /** Separates "no accounts" from "no matches". */
   protected readonly filtered = computed(
     () =>
       !!this.query() ||
@@ -362,20 +334,16 @@ export class UserListPage {
     loader: ({ params }) => this.service.list(params),
   });
 
-  /** Held across reloads, so filtering or typing swaps the rows instead of
-   * blanking the table while the next result is in flight. */
+  /** Held across reloads, so the table swaps rows instead of blanking. */
   private readonly shown = stableValue(this.users);
 
-  /** The rows as displayed: sorted client-side, so changing the sort never
-   * re-fetches. A copy — `sort` mutates, and the resource's array is shared. */
+  /** A sorted copy: `sort` mutates, and the resource's array is shared. */
   protected readonly rows = computed<StaffUser[] | undefined>(() => {
     const data = this.shown();
     return data ? [...data].sort(this.comparator()) : undefined;
   });
 
   protected readonly showSkeleton = delayedLoading(this.users.isLoading);
-
-  // --- Tiers (for the filter options and the tier column) ----------------
 
   private readonly tierList = resource({ loader: () => this.tiers.list() });
   private readonly tierNames = computed(
@@ -385,21 +353,14 @@ export class UserListPage {
 
   protected readonly tierOptions = computed<GridFilterOption[]>(() => [
     { value: '', label: this.text.tierAll },
-    // The storefront's list under its own name, and once: an account on it is
-    // a null `tierId`, so it is the `default` option here rather than a second
-    // entry carrying its id.
+    // The default list once, as `default`: its accounts hold a null tier.
     { value: 'default', label: this.baseTierLabel() },
     ...(this.tierList.value()?.tiers ?? [])
       .filter((t) => !t.isDefault)
       .map((t) => ({ value: t.id, label: t.label })),
   ]);
 
-  /**
-   * The columns, declared once for the headings, the phone's filter sheet and
-   * the widths an admin drags. Two lists share this component, so the set
-   * differs by kind — and each kind's widths are remembered under its own id,
-   * since a column that only customers have has no width on the staff list.
-   */
+  /** Widths are remembered per kind: the two lists have different columns. */
   protected readonly gridId = computed(() => `users-${this.kind()}`);
 
   protected readonly columns = computed<GridColumn[]>(() => [
@@ -410,9 +371,6 @@ export class UserListPage {
       minWidth: 180,
     },
     { key: 'phone', label: this.fields.phone.label, minWidth: 110 },
-    // The heading itself, as with role/tier/status: its "all" option is what
-    // names the column. A plain label only where the deployment configures no
-    // formats, since then there is nothing to name.
     ...(this.isCustomers()
       ? [
           {
@@ -467,8 +425,6 @@ export class UserListPage {
       label: this.text.statusAll,
       sortName: this.text.status,
       minWidth: 110,
-      // Both a filter and a sort: what the list is narrowed by is also what a
-      // manager wants at the top when they open it.
       sort: { asc: 'status', desc: 'status_desc' },
       filter: {
         param: 'status',
@@ -483,9 +439,7 @@ export class UserListPage {
       sort: { asc: 'registered', desc: 'registered_desc', descFirst: true },
       minWidth: 110,
     },
-    // Two or three glyphs need what they need: a share of the table is the
-    // wrong way to describe a column of buttons.
-    // Two glyphs at 24px, with the gap and the cell's own padding.
+    // Two 24px glyphs, the gap and the cell's padding.
     {
       key: 'actions',
       srLabel: this.text.actionsAria,
@@ -494,35 +448,21 @@ export class UserListPage {
     },
   ]);
 
-  /**
-   * Even with the email folded into the name, this list carries a phone number,
-   * a registration number, a tier and a status beside it — seven columns that
-   * are readable on a laptop and a wall of truncation on a tablet. So it gives
-   * up on columns a whole breakpoint before the others do.
-   */
-
   protected readonly byId = (user: StaffUser): string => user.id;
 
-  /** An account that is over — switched off, or closed and anonymised. Greyed
-   * like a deleted product; a pending one is not, because it is work. */
+  /** Switched off or closed; a pending one is work, so it is not greyed. */
   protected readonly isClosed = (user: StaffUser): boolean =>
     user.status === 'disabled' || user.status === 'anonymized';
 
   protected readonly statusOptions: GridFilterOption[] = [
     { value: '', label: this.text.statusAll },
-    { value: 'pending', label: this.text.statusPending },
-    { value: 'invited', label: this.text.statusInvited },
-    { value: 'active', label: this.text.statusActive },
-    { value: 'disabled', label: this.text.statusDisabled },
-    { value: 'anonymized', label: this.text.statusAnonymized },
+    ...USER_STATUSES.map((status) => ({
+      value: status,
+      label: userStatusLabel(this.text, status),
+    })),
   ];
 
-  /**
-   * The deployment's own shapes of registration number, named as it names them,
-   * plus the one thing no format describes: an account with no number at all.
-   * That option is why a single-format deployment gets the filter too — "which
-   * of these customers is a private person" is a real question either way.
-   */
+  /** "No number" too, so one-format deployments still get the filter. */
   private readonly companyIdFormats =
     inject(DEPLOYMENT_CONFIG).companyIdInput?.formats ?? [];
   protected readonly hasCompanyIdFormats = this.companyIdFormats.length > 0;
@@ -535,58 +475,37 @@ export class UserListPage {
     })),
   ];
 
-  /** Staff are admin or manager only — the customer role is not a choice here. */
+  /** No customer role among staff. */
   protected readonly staffRoleOptions: GridFilterOption[] = [
     { value: '', label: this.text.roleAll },
     { value: 'admin', label: this.text.roleAdmin },
     { value: 'manager', label: this.text.roleManager },
   ];
 
-  /**
-   * The storefront's price list under its own name — a row like any other now,
-   * so the name comes from it rather than from the deployment's text — and
-   * marked as the default: an account here holds a null rather than a choice
-   * somebody made, and the column should not read as if one had been made.
-   */
   private readonly baseTierLabel = computed(() =>
-    this.adminText.tiers.defaultName.replace(
-      '{list}',
-      this.tierList.value()?.tiers.find((t) => t.isDefault)?.label ?? '',
+    baseTierName(
+      this.adminText.tiers.defaultName,
+      this.tierList.value()?.tiers,
     ),
   );
 
-  // --- Row actions -------------------------------------------------------
-
   private readonly confirm = inject(ConfirmService);
   private readonly router = inject(Router);
-  protected readonly adminText = inject(ADMIN_TEXT);
+  private readonly adminText = inject(ADMIN_TEXT);
   private readonly ownershipText = inject(ADMIN_TEXT).ownership;
-  protected readonly actionText = inject(SHARED_TEXT).actions;
-  /** So an editor opened from here returns to this list, filters and all. */
+  private readonly actionText = inject(SHARED_TEXT).actions;
+  /** An editor opened from here returns to this list, filters and all. */
   protected readonly editorFrom = injectEditorReturnParams();
 
-  /**
-   * While an external system owns customer accounts, both row actions are
-   * refused (FR-ADM-10) — so the dialog explains instead of asking, and the
-   * button that opened it stays where it was. The same rule the catalog
-   * screens follow: a control that vanishes teaches nobody why.
-   */
+  /** While customers are owned elsewhere, a dialog explains instead of
+   * asking: a vanished control teaches nobody why. */
   private lockedMessage(): string | null {
     return this.isCustomers() && this.ownership.owns('customers')
       ? this.ownershipText.accountActive
       : null;
   }
 
-  /**
-   * Add an account, or say why not. While an external system owns customer
-   * accounts, new ones are made there — so the button opens the explanation
-   * instead of the editor, on the same terms as the row actions: it stays
-   * where it is rather than vanishing. Staff accounts are never owned by it.
-   *
-   * The route itself stays reachable, and the editor still refuses on it: a
-   * link typed in or kept from before lands somewhere that says the same
-   * thing, rather than on a screen that has forgotten why it is empty.
-   */
+  /** While customers are owned elsewhere, explains instead of opening. */
   protected async add(): Promise<void> {
     const staff = this.isStaff();
     if (!staff && this.ownership.owns('customers')) {
@@ -603,15 +522,9 @@ export class UserListPage {
     );
   }
 
-  /** For the one action that is not a navigation: a declined row that raced. */
   protected readonly pageError = signal<string | null>(null);
 
-  /**
-   * Switch an account off or back on. Both directions are confirmed, because
-   * neither is only a flag: switching off ends the person's session mid-work
-   * and retires their password, and switching back on mails them a link. No
-   * data is destroyed either way, and the wording says so.
-   */
+  /** Confirmed both ways: off ends a session, on may mail a link. */
   protected async setActive(user: StaffUser, active: boolean): Promise<void> {
     this.pageError.set(null);
     const off = !active;
@@ -621,7 +534,7 @@ export class UserListPage {
       : this.text.reactivateConfirm;
     const ok = await this.confirm.ask({
       heading: dialog.heading,
-      message: locked ?? dialog.message.replace('{name}', this.name(user)),
+      message: locked ?? fillText(dialog.message, { name: this.name(user) }),
       confirmLabel: locked ? null : dialog.confirm,
       cancelLabel: locked
         ? this.actionText.close
@@ -639,9 +552,7 @@ export class UserListPage {
     this.users.reload();
   }
 
-  /** Decline a pending registration — a yes/no, so the shared confirm dialog.
-   * On the rare race (already approved) the reload corrects the row and the
-   * refusal shows in the page banner. */
+  /** A race (already approved) shows in the banner; the reload fixes the row. */
   protected async decline(user: StaffUser): Promise<void> {
     this.pageError.set(null);
     const locked = this.lockedMessage();
@@ -649,7 +560,9 @@ export class UserListPage {
       heading: this.text.declineConfirm.heading,
       message:
         locked === null
-          ? this.text.declineConfirm.message.replace('{name}', this.name(user))
+          ? fillText(this.text.declineConfirm.message, {
+              name: this.name(user),
+            })
           : this.ownershipText.accountDecline,
       confirmLabel: locked ? null : this.text.declineConfirm.confirm,
       cancelLabel: locked
@@ -668,19 +581,14 @@ export class UserListPage {
     this.users.reload();
   }
 
-  // --- Rendering helpers -------------------------------------------------
-
   private nameKey(user: StaffUser): string {
     return (this.name(user).trim() || user.email).toLowerCase();
   }
 
-  /** The app's one rule for writing a person's name — family name first, no
-   * comma — with a dash where the account carries none at all. */
   protected name(user: StaffUser): string {
     return formatPersonName(user.firstName, user.lastName) || this.dash;
   }
 
-  /** Stored as bare digits; the column reads it with this deployment's grouping. */
   protected phone(user: StaffUser): string {
     return formatPhone(user.phone, this.phoneInput);
   }
@@ -692,65 +600,36 @@ export class UserListPage {
   }
 
   protected roleLabel(role: StaffUser['role']): string {
-    return {
-      admin: this.text.roleAdmin,
-      manager: this.text.roleManager,
-      user: this.text.roleUser,
-    }[role];
-  }
-
-  protected typeLabel(type: StaffUser['customerType']): string {
-    if (!type) return this.dash;
-    return type === 'company' ? this.kinds.company : this.kinds.person;
+    return userRoleLabel(this.text, role);
   }
 
   protected statusLabel(status: StaffUser['status']): string {
-    return {
-      pending: this.text.statusPending,
-      invited: this.text.statusInvited,
-      active: this.text.statusActive,
-      disabled: this.text.statusDisabled,
-      anonymized: this.text.statusAnonymized,
-    }[status];
+    return userStatusLabel(this.text, status);
   }
 
-  /** The shared palette; see user-status.ts. */
   protected readonly statusTone = userStatusTone;
 
   private comparator(): (a: StaffUser, b: StaffUser) => number {
-    switch (this.sortKey()) {
-      case 'name':
-        return (a, b) =>
-          this.collator.compare(this.nameKey(a), this.nameKey(b));
-      case 'name_desc':
-        return (a, b) =>
-          this.collator.compare(this.nameKey(b), this.nameKey(a));
-      case 'type':
-        return (a, b) => typeRank(a.customerType) - typeRank(b.customerType);
-      case 'type_desc':
-        return (a, b) => typeRank(b.customerType) - typeRank(a.customerType);
-      case 'registered':
-        return (a, b) => a.createdAt.localeCompare(b.createdAt);
-      case 'registered_desc':
-        return (a, b) => b.createdAt.localeCompare(a.createdAt);
-      // Newest first inside each group: two registrations waiting since
-      // different days are not equally old news.
-      case 'status':
-        return (a, b) =>
-          STATUS_RANK[a.status] - STATUS_RANK[b.status] ||
-          b.createdAt.localeCompare(a.createdAt);
-      case 'status_desc':
-        return (a, b) =>
-          STATUS_RANK[b.status] - STATUS_RANK[a.status] ||
-          b.createdAt.localeCompare(a.createdAt);
-    }
+    const sort = this.sortKey();
+    const sign = sort.endsWith('_desc') ? -1 : 1;
+    type Compare = (a: StaffUser, b: StaffUser) => number;
+    const byField: Record<string, Compare> = {
+      name: (a, b) => this.collator.compare(this.nameKey(a), this.nameKey(b)),
+      type: (a, b) => typeRank(a.customerType) - typeRank(b.customerType),
+      registered: (a, b) => a.createdAt.localeCompare(b.createdAt),
+      status: (a, b) => STATUS_RANK[a.status] - STATUS_RANK[b.status],
+    };
+    const field = sort.replace(/_desc$/, '');
+    const compare = byField[field];
+    // Newest first inside a status group, either way round.
+    return field === 'status'
+      ? (a, b) => sign * compare(a, b) || b.createdAt.localeCompare(a.createdAt)
+      : (a, b) => sign * compare(a, b);
   }
 
   constructor() {
     usePageSeo({ name: () => this.page().title });
-    // Asked for here rather than at the click: the answer is cached for the
-    // app's lifetime, and a dialog that had to wait for it would open on a
-    // question it cannot yet word.
+    // Early, so a dialog never waits for it.
     void this.ownership.load();
   }
 }

@@ -30,7 +30,12 @@ import { injectEditorReturnParams } from '../../../shared/edit-mode/editor-retur
 import { OwnershipService } from '../../settings/ownership.service';
 import { TiersService } from '../../catalog/tiers/tiers.service';
 import { StaffUsersService } from './users.service';
-import { userStatusTone } from './user-status';
+import {
+  baseTierName,
+  userRoleLabel,
+  userStatusLabel,
+  userStatusTone,
+} from './user-status';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { arrowLeftIcon } from '@b2b-catalog-platform/ui/icons/glyphs/arrow-left';
@@ -47,28 +52,10 @@ import {
 import { ConsentRecord } from '@b2b-catalog-platform/shared/admin/accounts';
 import { normalizePhone } from '@b2b-catalog-platform/shared/platform';
 
-/** One line of a details list: a label, and the value under it. */
-interface DetailRow {
-  readonly label: string;
-  readonly value: string;
-}
-
 /**
- * One account, read rather than edited — `/admin/users/:id`, for customers and
- * staff alike.
- *
- * It is the customer's own account page seen from the other side: the same
- * facts in the same order, plus the two they are deliberately never shown —
- * the price list they are on (ADR 0031) and the key an exchange addresses them
- * by (FR-ADM-14). Most of what staff do with an account is look something up,
- * and until now the only way to read one was to open the form that changes it.
- *
- * It does **not** stand in front of the editor. `/:id/edit` is reachable as it
- * always was, including while an external system owns customer accounts, and
- * this page never redirects there or bars the way: it is a reading surface, not
- * a refusal screen. What ownership changes here is only whether the button that
- * leads to the editor is drawn, and a banner saying where the account is edited
- * instead.
+ * One account, read rather than edited: the customer's own page seen from the
+ * other side, plus the tier and the source key they never see. It never bars
+ * the way to the editor; ownership only hides the button and says why.
  */
 @Component({
   selector: 'app-user-detail-page',
@@ -87,8 +74,6 @@ interface DetailRow {
     ErrorText,
   ],
   template: `
-    <!-- The account page's own width: a column of short cards, which at the
-         full width of a desktop is a heading beside half a screen of nothing. -->
     <div class="max-w-3xl">
       @if (account.error()) {
         <p class="text-ink-subtle" role="alert">{{ text.loadError }}</p>
@@ -100,11 +85,6 @@ interface DetailRow {
           }}</span>
         </div>
 
-        <!-- The address is not repeated under the heading: it is the first
-             labelled line of the card below, and twice on one screen is twice
-             for anyone searching the page for it. -->
-        <!-- One stack with one gap rather than a margin on every section: the
-             space between two cards belongs to the list, not to each card. -->
         <div class="mt-7 flex flex-col gap-7">
           <section>
             <h2 uiSectionTitle class="mb-1.5">{{ text.detailsHeading }}</h2>
@@ -130,8 +110,6 @@ interface DetailRow {
             </div>
           </section>
 
-          <!-- Only where the deployment asks this account's role for a code
-               after the password (FR-AUTH-12). -->
           @if (asksCode()) {
             <section>
               <h2 uiSectionTitle class="mb-1.5">{{ text.signInHeading }}</h2>
@@ -163,10 +141,8 @@ interface DetailRow {
             </section>
           }
 
-          <!-- A customer's only, since staff are never asked, and an admin's.
-               Said when empty while a consent is asked: an account without a
-               record is then what a question is about. Where none is asked, an
-               empty card would read as something missing, so it is left out. -->
+          <!-- Empty is said only while a consent is asked; otherwise it would
+               read as something missing. -->
           @if (showsConsents()) {
             <section>
               <h2 uiSectionTitle class="mb-1.5">{{ text.consentsHeading }}</h2>
@@ -182,8 +158,7 @@ interface DetailRow {
           }
         </div>
 
-        <!-- The same banner the editor carries, and for the same reason: a
-             button that quietly is not there teaches nobody why. -->
+        <!-- A missing button teaches nobody why: the banner says it. -->
         @if (locked()) {
           <app-locked-note class="mt-7">{{
             ownershipText.accountLocked
@@ -191,8 +166,6 @@ interface DetailRow {
         }
 
         <div class="mt-7 flex flex-wrap gap-3">
-          <!-- Nothing to edit while the account is closed or owned elsewhere,
-               so nothing is offered; the way back stays either way. -->
           @if (canEdit()) {
             <a
               uiButton
@@ -216,7 +189,7 @@ interface DetailRow {
             <ui-icon [glyph]="arrowLeftIcon" class="size-4" />
             {{ text.back }}
           </a>
-          <!-- Set apart from the two above: it cannot be taken back. -->
+          <!-- Set apart: it cannot be taken back. -->
           @if (canDelete()) {
             <button
               type="button"
@@ -256,28 +229,22 @@ export class UserDetailPage {
   private readonly confirm = inject(ConfirmService);
 
   protected readonly text = inject(ADMIN_TEXT).users.detail;
-  /** The same words the list and the editor use for the same things. */
   protected readonly listText = inject(ADMIN_TEXT).users.list;
   protected readonly editorText = inject(ADMIN_TEXT).users.editor;
   private readonly sharedText = inject(SHARED_TEXT);
-  protected readonly adminText = inject(ADMIN_TEXT);
+  private readonly adminText = inject(ADMIN_TEXT);
   protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
-  protected readonly actionText = inject(SHARED_TEXT).actions;
+  private readonly actionText = inject(SHARED_TEXT).actions;
 
   private readonly phoneInput = this.config.phoneInput;
   private readonly dateFormat = new Intl.DateTimeFormat(this.config.locale, {
     dateStyle: 'long',
   });
 
-  /** From the route, by input binding. */
+  /** From the route. */
   readonly id = input.required<string>();
 
-  /**
-   * `null` rather than `undefined` for the API's 404 — unknown, or staff seen
-   * by a manager, which it deliberately does not distinguish. A resource whose
-   * value is `undefined` is one with no answer *yet*, so a 404 left as
-   * `undefined` is indistinguishable from still loading.
-   */
+  /** A 404 becomes `null`: `undefined` would read as still loading. */
   protected readonly account = resource({
     params: () => ({ id: this.id() }),
     loader: async ({ params }) => (await this.service.get(params.id)) ?? null,
@@ -288,7 +255,7 @@ export class UserDetailPage {
   protected readonly notFound = computed(() => this.account.value() === null);
   protected readonly showSkeleton = delayedLoading(this.account.isLoading);
 
-  /** The account's consent records: a customer's, read by an admin. */
+  /** A customer's, read by an admin. */
   protected readonly consents = resource<
     ConsentRecord[],
     { id: string; reads: boolean }
@@ -314,7 +281,7 @@ export class UserDetailPage {
       (this.consentAsked || this.consentRecords().length > 0),
   );
 
-  /** Only a customer has a tier, so only a customer's page asks for the list. */
+  /** Only a customer has a tier. */
   private readonly tierList = resource<CustomerTier[], { customer: boolean }>({
     params: () => ({ customer: this.isCustomer() }),
     loader: async ({ params }) =>
@@ -329,12 +296,7 @@ export class UserDetailPage {
     () => this.user()?.status === 'anonymized',
   );
 
-  /**
-   * Whether an external system holds customer accounts (FR-ADM-10). Read on
-   * the same terms the editor reads it: an answer still in flight counts as
-   * not owned, and the API refuses the save either way. Staff accounts are
-   * never locked by it.
-   */
+  /** In flight counts as not owned: the API refuses the save anyway. */
   protected readonly locked = computed(
     () => this.isCustomer() && this.ownership.owns('customers'),
   );
@@ -345,9 +307,8 @@ export class UserDetailPage {
   );
 
   /**
-   * Deleting on the person's request (FR-ADM-23): an admin's, never their own
-   * account, and never a registration nobody has decided on — that one is
-   * declined. Offered whatever owns customer accounts, since the person's
+   * An admin's, never on their own account or an undecided registration
+   * (that one is declined). Offered whatever owns the accounts: the person's
    * right outranks the switch.
    */
   protected readonly canDelete = computed(() => {
@@ -364,20 +325,15 @@ export class UserDetailPage {
   protected readonly deleting = signal(false);
   protected readonly deleteError = signal<string | null>(null);
 
-  /**
-   * Whether "they withdrew their consent" is a reason this account can have:
-   * where the deployment asks the account consent, or a record of one exists.
-   */
+  /** Whether "they withdrew their consent" can be this account's reason. */
   private readonly accountConsentAsked = computed(
     () =>
       this.config.consent.account ||
       this.consentRecords().some((record) => record.purpose === 'account'),
   );
 
-  /** The code after the password (FR-AUTH-12), as this deployment asks it. */
   private readonly stepConfig = this.config.signInStep;
 
-  /** The deployment asks this account's role for a code after the password. */
   protected readonly asksCode = computed(() => {
     const person = this.user();
     const step = this.stepConfig;
@@ -389,8 +345,7 @@ export class UserDetailPage {
     );
   });
 
-  /** Whether an exemption on this account counts: only while the deployment
-   * lets its role be exempted, as the API reads it. */
+  /** An exemption counts only while the role may be exempted. */
   private readonly exemptable = computed(() => {
     const person = this.user();
     return (
@@ -404,7 +359,6 @@ export class UserDetailPage {
     () => this.exemptable() && !!this.user()?.signInStepExemptAt,
   );
 
-  /** An admin's, on an account that is not closed. */
   protected readonly canExempt = computed(
     () =>
       this.exemptable() &&
@@ -414,7 +368,7 @@ export class UserDetailPage {
   protected readonly exempting = signal(false);
   protected readonly exemptError = signal<string | null>(null);
 
-  protected readonly signInRows = computed<DetailRow[]>(() => {
+  protected readonly signInRows = computed(() => {
     const person = this.user();
     if (!person || !this.asksCode()) return [];
     const text = this.text;
@@ -422,9 +376,8 @@ export class UserDetailPage {
     return [
       {
         label: text.signInPhone,
-        // A number staff set is what codes go to, and nobody can choose
-        // another at sign-in: without one that takes a code, the holder is
-        // locked out until it is entered here.
+        // Without a number that takes a code, the holder is locked out until
+        // staff enter one.
         value: !this.takesCode(person.phone)
           ? text.signInPhoneMissing
           : person.phoneConfirmedAt
@@ -486,13 +439,12 @@ export class UserDetailPage {
     }
   }
 
-  /** Only an admin sees the source key, exactly as in the editor. */
+  /** As in the editor. */
   private readonly showsSourceId = computed(
     () => this.isCustomer() && this.auth.user()?.role === 'admin',
   );
 
-  /** So the editor opened from here comes back here, and this page's own
-   * `?from=` carries the list's filters on through. */
+  /** The editor returns here, carrying the list's filters on. */
   protected readonly editorFrom = injectEditorReturnParams();
 
   protected readonly name = computed(() => {
@@ -505,28 +457,18 @@ export class UserDetailPage {
     this.isCustomer() ? '/admin/users' : '/admin/users/staff',
   );
 
-  /**
-   * How to reach them and what they say they are. Only the lines this account
-   * actually has: a staff account has no phone and a private person no
-   * registration number, and a dash against every second label reads as
-   * something missing rather than something absent.
-   */
-  protected readonly details = computed<DetailRow[]>(() => {
+  /** Only the rows this account has: a dash reads as missing, not absent. */
+  protected readonly details = computed(() => {
     const person = this.user();
     if (!person) return [];
     const editor = this.editorText;
     const fields = this.sharedText.fields;
-    const kinds = this.sharedText.partyKind;
-    const type =
-      person.customerType === 'company'
-        ? kinds.company
-        : person.customerType === 'person'
-          ? kinds.person
-          : '';
+    const type = person.customerType
+      ? this.sharedText.partyKind[person.customerType]
+      : '';
 
     return [
       { label: fields.email.label, value: person.email },
-      // Stored as bare digits; read back with the deployment's own grouping.
       {
         label: fields.phone.label,
         value: formatPhone(person.phone, this.phoneInput),
@@ -540,13 +482,8 @@ export class UserDetailPage {
     ].filter((row) => row.value !== '');
   });
 
-  /**
-   * Where the account stands — and, unlike the details above, drawn whole:
-   * every line here is a fact about the account itself, and one that is empty
-   * (no tier of its own, no source key, not approved yet) is a state worth
-   * saying rather than a row to drop.
-   */
-  protected readonly accountRows = computed<DetailRow[]>(() => {
+  /** Drawn whole, unlike the details: an empty state here is worth saying. */
+  protected readonly accountRows = computed(() => {
     const person = this.user();
     if (!person) return [];
     const editor = this.editorText;
@@ -573,38 +510,19 @@ export class UserDetailPage {
     ];
   });
 
-  /**
-   * The storefront's own list under its own name, marked as the default: an
-   * account with a null carries no choice anybody made, and the row should not
-   * read as if one had been.
-   */
   private tierName(tierId: string | null): string {
-    const tiers = this.tierList.value() ?? [];
-    if (tierId) {
-      return tiers.find((t) => t.id === tierId)?.label ?? '—';
-    }
-    return this.adminText.tiers.defaultName.replace(
-      '{list}',
-      tiers.find((t) => t.isDefault)?.label ?? '',
-    );
+    const tiers = this.tierList.value();
+    return tierId
+      ? (tiers?.find((t) => t.id === tierId)?.label ?? '—')
+      : baseTierName(this.adminText.tiers.defaultName, tiers);
   }
 
-  protected roleLabel(role: StaffUser['role']): string {
-    return {
-      admin: this.listText.roleAdmin,
-      manager: this.listText.roleManager,
-      user: this.listText.roleUser,
-    }[role];
+  private roleLabel(role: StaffUser['role']): string {
+    return userRoleLabel(this.listText, role);
   }
 
   protected statusLabel(status: StaffUser['status']): string {
-    return {
-      pending: this.listText.statusPending,
-      invited: this.listText.statusInvited,
-      active: this.listText.statusActive,
-      disabled: this.listText.statusDisabled,
-      anonymized: this.listText.statusAnonymized,
-    }[status];
+    return userStatusLabel(this.listText, status);
   }
 
   protected async deleteOnRequest(person: StaffUser): Promise<void> {
@@ -641,7 +559,6 @@ export class UserDetailPage {
         return;
       }
       this.deleteError.set(this.listText.errors[result.code]);
-      // Whatever changed under the page, show it as it now stands.
       this.account.reload();
     } catch {
       this.deleteError.set(this.text.deleteError);
@@ -650,7 +567,6 @@ export class UserDetailPage {
     }
   }
 
-  /** The shared palette; see user-status.ts. */
   protected readonly statusTone = userStatusTone;
 
   private date(iso: string): string {
@@ -661,8 +577,7 @@ export class UserDetailPage {
     usePageSeo({
       name: () => this.name() || this.listText.customersPage.title,
     });
-    // Asked for here rather than at the click: the answer is cached for the
-    // app's lifetime, and the banner must not appear a beat after the page.
+    // Early, so the banner does not appear a beat after the page.
     void this.ownership.load();
   }
 }

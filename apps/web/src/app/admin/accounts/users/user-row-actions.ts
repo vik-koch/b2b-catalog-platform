@@ -10,26 +10,15 @@ import { rotateCcwIcon } from '@b2b-catalog-platform/ui/icons/glyphs/rotate-ccw'
 import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
 import { StaffUser } from '@b2b-catalog-platform/shared/core/accounts';
 
-/**
- * What can be done to one account from the list, drawn once for both shapes it
- * appears in — a table cell on a desktop, the foot of a card on a phone.
- *
- * A component rather than a shared `<ng-template>` because the row it is given
- * has a type worth keeping: a template's context is untyped, and the states
- * these buttons switch on are exactly what a typo would get wrong.
- *
- * The decisions stay with the list: both actions here are confirmed, and a
- * confirmation belongs to the screen that reloads afterwards.
- */
+/** An account's row actions, drawn in both the table cell and the card. A
+ * component, not a template, so the row stays typed. Confirming stays with
+ * the list, which reloads after. */
 @Component({
   selector: 'app-user-row-actions',
   imports: [RouterLink, Icon, IconButton],
   host: { class: 'flex items-center justify-end gap-2 sm:gap-1' },
   template: `
-    <!-- Both open the same editor; only the glyph differs, because on a pending
-         row the job is a decision and not a correction. The check carries the
-         accent colour so that intent reads at a glance down a column of grey
-         pencils. -->
+    <!-- A pending row opens the editor as a decision, in the accent colour. -->
     @if (user().status !== 'anonymized') {
       <a
         [routerLink]="['/admin/users', user().id, 'edit']"
@@ -46,10 +35,7 @@ import { StaffUser } from '@b2b-catalog-platform/shared/core/accounts';
       </a>
     }
 
-    <!-- One slot for "stop this account", with the meaning the row's state
-         gives it: an undecided registration is thrown away, an approved account
-         is switched off (whether or not its owner ever signed in), and a
-         switched-off one is switched back on. -->
+    <!-- One slot: decline when pending, switch off, or back on. -->
     @if (user().status === 'pending') {
       <button
         type="button"
@@ -91,7 +77,7 @@ export class UserRowActions {
   protected readonly text = inject(ADMIN_TEXT).users.list;
 
   readonly user = input.required<StaffUser>();
-  /** So an editor opened from a row returns to this list, filters and all. */
+  /** The editor returns to this list, filters and all. */
   readonly returnParams = input<Params>({});
 
   readonly declined = output<StaffUser>();

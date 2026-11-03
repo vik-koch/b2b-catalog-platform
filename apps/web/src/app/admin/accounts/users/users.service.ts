@@ -17,83 +17,65 @@ import {
 } from '@b2b-catalog-platform/shared/admin/accounts';
 
 /**
- * The refusals a screen renders. The account codes, plus the two a manager is
- * refused by name — those reach a form (next to the field that was refused),
- * where the guards' own `insufficient-role` reaches a redirect instead and so
- * is left to throw like any other unexpected answer.
+ * The refusals a screen words: the account codes, plus the two a manager is
+ * refused by name next to a field. The guards' `insufficient-role` throws.
  */
 export type UserActionError =
   UserErrorCode | 'role-change-admin-only' | 'staff-create-admin-only';
 
-/**
- * The outcome of a row action: the updated account, or the code the server
- * refused with — an approval that was already done, or a role change it would
- * not make (the last admin, or your own demotion). The wording for each code is
- * the admin text's. Only the unexpected throws.
- */
 export type UserActionResult =
   { ok: true; user: StaffUser } | { ok: false; code: UserActionError };
 
-/**
- * The staff account client — the counterpart to the API's StaffUsersController.
- * Same discipline as ProductsService: the declared refusals (404/409) come
- * back as typed results the list can render, and only the unexpected throws.
- * Filters are applied server-side; sorting is the page's own job.
- */
+/** For the actions that answer with no row. */
+export type UserDoneResult =
+  { ok: true } | { ok: false; code: UserActionError };
+
+/** Declared refusals come back as codes; anything else throws. */
 @Injectable({ providedIn: 'root' })
 export class StaffUsersService {
-  private client = createOrpcClient(usersContract);
+  private readonly client = createOrpcClient(usersContract);
   private readonly work = inject(WorkService);
 
-  /**
-   * The one shape every row action shares: the account, or a code the screen
-   * knows wording for. A refusal it cannot phrase is rethrown as the fault it
-   * would be to show blank.
-   */
+  private async settle<T, TError extends Error>(
+    call: ClientPromiseResult<T, TError>,
+  ): Promise<{ ok: true; data: T } | { ok: false; code: UserActionError }> {
+    const result = await safe(call);
+    if (result.isDefined && renderable(result.error.code)) {
+      return { ok: false, code: result.error.code };
+    }
+    if (!result.isSuccess) throw result.error;
+    return { ok: true, data: result.data };
+  }
+
   private async act<TError extends Error>(
     call: ClientPromiseResult<StaffUser, TError>,
   ): Promise<UserActionResult> {
-    const result = await safe(call);
-    if (result.isDefined && renderable(result.error.code)) {
-      return { ok: false, code: result.error.code };
-    }
-    if (!result.isSuccess) throw result.error;
-    return { ok: true, user: result.data };
+    const result = await this.settle(call);
+    return result.ok ? { ok: true, user: result.data } : result;
   }
 
-  /** The same, for the actions that answer with a message rather than a row. */
-  private async confirm<TError extends Error>(
-    call: ClientPromiseResult<{ message: string }, TError>,
-  ): Promise<{ ok: true } | { ok: false; code: UserActionError }> {
-    const result = await safe(call);
-    if (result.isDefined && renderable(result.error.code)) {
-      return { ok: false, code: result.error.code };
-    }
-    if (!result.isSuccess) throw result.error;
-    return { ok: true };
+  private async done<TError extends Error>(
+    call: ClientPromiseResult<unknown, TError>,
+  ): Promise<UserDoneResult> {
+    const result = await this.settle(call);
+    return result.ok ? { ok: true } : result;
   }
 
-  /** The account list, narrowed by the grid's filters and search box. */
   async list(query: ListUsersQuery = {}): Promise<StaffUser[]> {
     return (await this.client.listUsers({ query })).users;
   }
 
-  /** Approve a pending registration onto a tier (`null` = the base list) and
-   * send its invitation. 409 when it is no longer pending (a double-click). */
+  /** `null` is the base list. Sends the invitation. */
   async approve(id: string, tierId: string | null): Promise<UserActionResult> {
     const result = await this.act(
       this.client.approveUser({ params: { id }, body: { tierId } }),
     );
-    // The list this was done from carries no count, but the marker in the
-    // navbar does — and approving the last pending registration is exactly the
-    // moment it has to go dark (FR-WORK-02).
+    // The navbar's work marker counts pending registrations.
     void this.work.refresh();
     return result;
   }
 
-  /** One account, for the editor — which is a route, so a reload of it has no
-   * list to read from. `undefined` is a 404: unknown, or staff seen by a
-   * manager, which the API deliberately does not distinguish. */
+  /** `undefined` for a 404: unknown, or staff seen by a manager. */
   async get(id: string): Promise<StaffUser | undefined> {
     const result = await safe(this.client.getUser({ params: { id } }));
     if (result.isDefined && result.error.code === 'account-not-found') {
@@ -103,7 +85,7 @@ export class StaffUsersService {
     return result.data;
   }
 
-  /** The account's consent records; empty for an account it cannot open. */
+  /** Empty for an account it cannot open. */
   async listConsents(id: string): Promise<ConsentRecord[]> {
     const result = await safe(this.client.listUserConsents({ params: { id } }));
     if (result.isDefined && result.error.code === 'account-not-found') {
@@ -113,52 +95,35 @@ export class StaffUsersService {
     return result.data.consents;
   }
 
-  /** Save the editor's whole field set. 409 is the role guard (the last admin,
-   * or your own account); 403 is a manager reaching past customers. */
   update(id: string, body: UpdateUserRequest): Promise<UserActionResult> {
     return this.act(this.client.updateUser({ params: { id }, body }));
   }
 
-  /** Create an account and send its invitation. 409 = the email is taken. */
+  /** Sends the invitation. */
   create(body: CreateUserRequest): Promise<UserActionResult> {
     return this.act(this.client.createUser({ body }));
   }
 
-  /** Switch an account off, or back on. 409 is the guard: your own account,
-   * the last admin, or one that was never approved to begin with. Switching on
-   * usually returns an `active` account — the password survived being switched
-   * off, and nothing is mailed either way; one that never chose a password
-   * comes back `invited` and needs a link. */
+  /** Switched on, an account that never chose a password is `invited`. */
   setActive(id: string, active: boolean): Promise<UserActionResult> {
     return this.act(
       this.client.setUserActive({ params: { id }, body: { active } }),
     );
   }
 
-  /** Send the account a way back in — the invitation while it has no password,
-   * the reset link once it has. 409 for an account that cannot sign in at all:
-   * a registration nobody has decided on, one switched off, a closed one. */
-  sendPasswordLink(
-    id: string,
-  ): Promise<{ ok: true } | { ok: false; code: UserActionError }> {
-    return this.confirm(this.client.sendPasswordLink({ params: { id } }));
+  /** The invitation while there is no password, else the reset link. */
+  sendPasswordLink(id: string): Promise<UserDoneResult> {
+    return this.done(this.client.sendPasswordLink({ params: { id } }));
   }
 
-  /** Decline and purge a pending registration. 409 when it is no longer
-   * pending (an approved account is anonymized, never deleted). */
-  async remove(
-    id: string,
-  ): Promise<{ ok: true } | { ok: false; code: UserActionError }> {
-    const result = await this.confirm(
-      this.client.deleteUser({ params: { id } }),
-    );
+  /** Declines and purges a pending registration. */
+  async remove(id: string): Promise<UserDoneResult> {
+    const result = await this.done(this.client.deleteUser({ params: { id } }));
     void this.work.refresh();
     return result;
   }
 
-  /** Delete an account on the person's request (FR-ADM-23), admin only.
-   * Answers with the closed row. 409 for your own account, a registration
-   * nobody has decided on, or one already closed. */
+  /** On the person's request; answers with the closed row. */
   deleteOnRequest(
     id: string,
     reason: AccountDeletionReason,
@@ -168,8 +133,6 @@ export class StaffUsersService {
     );
   }
 
-  /** Exempt an account from the code after the password, or ask it again
-   * (FR-AUTH-12), admin only. 409 where the role may not be exempted. */
   setSignInStepExemption(
     id: string,
     exempt: boolean,
