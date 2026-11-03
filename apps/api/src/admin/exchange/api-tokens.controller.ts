@@ -1,6 +1,6 @@
 import { Controller } from '@nestjs/common';
 import { Implement, implement } from '@orpc/nest';
-import { apiTokensContract } from '@b2b-catalog-platform/shared/admin/exchange';
+import { adminApiTokensContract } from '@b2b-catalog-platform/shared/admin/exchange';
 import { Auth } from '../../platform/auth/auth.decorator';
 import { CurrentUser } from '../../platform/auth/current-user.decorator';
 import { AuditLogger } from '../../audit/audit.logger';
@@ -21,20 +21,22 @@ export class ApiTokensController {
     private readonly audit: AuditLogger,
   ) {}
 
-  @Implement(apiTokensContract.listApiTokens)
+  @Implement(adminApiTokensContract.listApiTokens)
   listApiTokens() {
-    return implement(apiTokensContract.listApiTokens).handler(async () => ({
-      tokens: await this.service.listApiTokens(),
-    }));
+    return implement(adminApiTokensContract.listApiTokens).handler(
+      async () => ({
+        tokens: await this.service.listApiTokens(),
+      }),
+    );
   }
 
   /**
    * The value travels in this one response and is never stored in a form
    * anything can read back, so the audit line records the row, not the secret.
    */
-  @Implement(apiTokensContract.createApiToken)
+  @Implement(adminApiTokensContract.createApiToken)
   createApiToken(@CurrentUser() user: AuthUser) {
-    return implement(apiTokensContract.createApiToken).handler(
+    return implement(adminApiTokensContract.createApiToken).handler(
       async ({ input: { body } }) => {
         const token = await this.service.createApiToken(body, user);
         this.audit.record('apiToken.created', user, {
@@ -47,9 +49,9 @@ export class ApiTokensController {
     );
   }
 
-  @Implement(apiTokensContract.revokeApiToken)
+  @Implement(adminApiTokensContract.revokeApiToken)
   revokeApiToken(@CurrentUser() user: AuthUser) {
-    return implement(apiTokensContract.revokeApiToken)
+    return implement(adminApiTokensContract.revokeApiToken)
       .use(refusals)
       .handler(async ({ input: { params } }) => {
         const token = await this.service.revokeApiToken(params.id);

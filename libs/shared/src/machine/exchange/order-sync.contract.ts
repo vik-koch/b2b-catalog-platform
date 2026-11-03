@@ -7,7 +7,7 @@ import {
   SYNC_FAILURE_MESSAGE_MAX_LENGTH,
   SYNC_LABEL_MAX_LENGTH,
   SYNC_PREVIEW_MAX_ITEMS,
-} from '../../core/exchange/sync-constants';
+} from '../../core/exchange/sync';
 import {
   machineRunErrors,
   machineSyncRunSchema,
@@ -21,7 +21,7 @@ import {
   ORDER_WRITE_ACTOR_MAX,
 } from '../../core/ordering/orders';
 import { orderStatusSchema } from '../../core/ordering/orders.contract';
-import { ownershipErrors } from '../../platform/ownership-constants';
+import { ownershipErrors } from '../../platform/ownership';
 
 /**
  * The order write-back (FR-ADM-08): what the owning system says became of an

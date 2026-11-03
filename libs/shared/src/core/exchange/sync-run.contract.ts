@@ -5,7 +5,7 @@ import {
   SYNC_AREAS,
   SYNC_FAILURE_MESSAGE_MAX_LENGTH,
   SYNC_LABEL_MAX_LENGTH,
-} from './sync-constants';
+} from './sync';
 
 /** `previewed` is staged and applicable; `superseded` (a newer run replaced
  * it) and `discarded` (a person said no) never will be, and stay in the log. */

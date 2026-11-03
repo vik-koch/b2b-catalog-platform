@@ -5,7 +5,7 @@
  */
 import { oc } from '@orpc/contract';
 import * as z from 'zod';
-import { DEFAULT_SYNC_AREA } from '../../core/exchange/sync-constants';
+import { DEFAULT_SYNC_AREA } from '../../core/exchange/sync';
 import { catalogSyncPlanSchema } from '../../core/exchange/catalog-sync.contract';
 import { customerSyncPlanSchema } from '../../core/exchange/customer-sync.contract';
 import { orderSyncPlanSchema } from '../../core/exchange/order-sync.contract';
@@ -16,7 +16,7 @@ import {
   syncRunStatusSchema,
 } from '../../core/exchange/sync-run.contract';
 import { commonAuthErrors } from '../../lib/core/api-error';
-import { ownershipErrors } from '../../platform/ownership-constants';
+import { ownershipErrors } from '../../platform/ownership';
 import { paginationSchema } from '../../platform/pagination.contract';
 /** Why a whole uploaded file was refused. The upload is multipart, outside the
  * router, so its refusals are typed here; `params` quote the admin's own file. */
@@ -84,7 +84,7 @@ const admin = oc.errors(commonAuthErrors);
 
 /** The uploads are multipart, so plain Nest handlers like the media upload. */
 
-export const syncContract = {
+export const adminSyncContract = {
   commitRun: admin
     .route({
       method: 'POST',

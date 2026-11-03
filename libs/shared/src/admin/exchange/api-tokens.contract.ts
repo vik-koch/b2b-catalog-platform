@@ -2,7 +2,7 @@
  * role and cannot sign in; the admin issues and revokes it here. */
 import { oc } from '@orpc/contract';
 import * as z from 'zod';
-import { API_TOKEN_NAME_MAX_LENGTH } from '../../platform/api-token-constants';
+import { API_TOKEN_NAME_MAX_LENGTH } from '../../platform/api-tokens';
 import { commonAuthErrors } from '../../lib/core/api-error';
 import { storedEmailField } from '../../lib/config/contact-config';
 import { apiTokenScopeSchema } from '../../core/exchange/machine-auth.contract';
@@ -64,7 +64,7 @@ const apiTokenErrors = {
 /** Admin only: a manager never holds a credential. */
 const admin = oc.errors(commonAuthErrors);
 
-export const apiTokensContract = {
+export const adminApiTokensContract = {
   listApiTokens: admin
     .route({
       method: 'GET',

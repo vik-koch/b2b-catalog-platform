@@ -1,7 +1,7 @@
 import { oc } from '@orpc/contract';
 import * as z from 'zod';
 import { commonAuthErrors } from '../../lib/core/api-error';
-import { OWNERSHIP_AREAS } from '../../platform/ownership-constants';
+import { OWNERSHIP_AREAS } from '../../platform/ownership';
 import { ownedAreasSchema } from '../platform/ownership.contract';
 
 /** One direction, one or more areas: the master switch is one request, so one

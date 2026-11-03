@@ -66,8 +66,8 @@ const OUTPUTS = [
       ],
       'admin/exchange': [
         'adminOwnershipSwitchContract',
-        'apiTokensContract',
-        'syncContract',
+        'adminApiTokensContract',
+        'adminSyncContract',
       ],
       'admin/ordering': ['adminOrdersContract'],
       'admin/platform': ['adminOperationsContract', 'adminOwnershipContract'],

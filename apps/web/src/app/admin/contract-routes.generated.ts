@@ -608,7 +608,7 @@ export const adminOwnershipSwitchContract = {
     },
   },
 } as unknown as typeof adminExchange.adminOwnershipSwitchContract;
-export const apiTokensContract = {
+export const adminApiTokensContract = {
   listApiTokens: {
     '~orpc': {
       errorMap: {},
@@ -638,8 +638,8 @@ export const apiTokensContract = {
       },
     },
   },
-} as unknown as typeof adminExchange.apiTokensContract;
-export const syncContract = {
+} as unknown as typeof adminExchange.adminApiTokensContract;
+export const adminSyncContract = {
   commitRun: {
     '~orpc': {
       errorMap: {},
@@ -684,7 +684,7 @@ export const syncContract = {
       },
     },
   },
-} as unknown as typeof adminExchange.syncContract;
+} as unknown as typeof adminExchange.adminSyncContract;
 export const adminOrdersContract = {
   listOrders: {
     '~orpc': {

@@ -16,7 +16,7 @@ import {
   syncFormatErrorSchema,
 } from '@b2b-catalog-platform/shared/admin/exchange';
 import { SyncCommitResponse } from '@b2b-catalog-platform/shared/core/exchange';
-import { syncContract } from '../contract-routes.generated';
+import { adminSyncContract } from '../contract-routes.generated';
 import { safe } from '@orpc/client';
 import { createOrpcClient } from '../../shared/core/orpc-client';
 import { renderable } from '../../shared/core/renderable';
@@ -60,7 +60,7 @@ export type DiscardResult =
 export class SyncService {
   private readonly http = inject(HttpClient);
   private readonly document = inject(DOCUMENT);
-  private readonly client = createOrpcClient(syncContract);
+  private readonly client = createOrpcClient(adminSyncContract);
 
   /** Uploads a catalog file and returns what it would change. Writes nothing. */
   async preview(

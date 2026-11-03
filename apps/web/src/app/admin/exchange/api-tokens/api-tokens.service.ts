@@ -7,7 +7,7 @@ import {
   ApiTokenInput,
   CreatedApiToken,
 } from '@b2b-catalog-platform/shared/admin/exchange';
-import { apiTokensContract } from '../../contract-routes.generated';
+import { adminApiTokensContract } from '../../contract-routes.generated';
 import { createOrpcClient } from '../../../shared/core/orpc-client';
 
 /** A revoke the server refused — the row is gone, so the list is stale. */
@@ -25,7 +25,7 @@ function isApiTokenCode(code: string): code is ApiTokenErrorCode {
  */
 @Injectable({ providedIn: 'root' })
 export class ApiTokensService {
-  private client = createOrpcClient(apiTokensContract);
+  private client = createOrpcClient(adminApiTokensContract);
 
   async list(): Promise<ApiToken[]> {
     return (await this.client.listApiTokens()).tokens;

@@ -4,7 +4,7 @@ import {
   decideAutoApply,
   SyncPolicy,
   syncPolicySchema,
-} from './sync-config';
+} from './sync-policy';
 import { SyncSummary } from './sync-run.contract';
 
 const EMPTY: SyncSummary = {

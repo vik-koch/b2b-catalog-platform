@@ -11,12 +11,12 @@ import {
   companyRegistrationIdSchema,
   lowercaseEmailField,
 } from '../../lib/config/contact-config';
-import { CUSTOMER_SYNC_FIELDS } from './customer-sync-constants';
+import { CUSTOMER_SYNC_FIELDS } from './customer-sync';
 import {
   SYNC_FAILURE_MESSAGE_MAX_LENGTH,
   SYNC_LABEL_MAX_LENGTH,
   SYNC_MAX_ROWS,
-} from './sync-constants';
+} from './sync';
 import { syncRunSchema, syncSummarySchema } from './sync-run.contract';
 import { TIER_KEY_MAX_LENGTH } from '../catalog/tiers';
 

@@ -1,4 +1,4 @@
-/** The catalog exchange's vocabulary, import-free like `sync-constants.ts`. */
+/** The catalog exchange's vocabulary, import-free like `sync.ts`. */
 
 /** What a bare `price` column means: the default list, whatever its key. No
  * tier key may contain `*`, so the differ resolves it against the database. */

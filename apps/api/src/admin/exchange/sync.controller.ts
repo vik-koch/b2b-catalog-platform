@@ -1,7 +1,7 @@
 import { Controller, ForbiddenException } from '@nestjs/common';
 import { Implement, implement } from '@orpc/nest';
 import { SyncArea } from '@b2b-catalog-platform/shared/core/exchange';
-import { syncContract } from '@b2b-catalog-platform/shared/admin/exchange';
+import { adminSyncContract } from '@b2b-catalog-platform/shared/admin/exchange';
 import { Auth } from '../../platform/auth/auth.decorator';
 import { CurrentUser } from '../../platform/auth/current-user.decorator';
 import { refusals } from '../../orpc/refusals';
@@ -66,9 +66,9 @@ export class SyncController {
    * cannot touch a catalog one.
    */
   @Auth('admin', 'manager')
-  @Implement(syncContract.commitRun)
+  @Implement(adminSyncContract.commitRun)
   commitRun(@CurrentUser() user: AuthUser) {
-    return implement(syncContract.commitRun)
+    return implement(adminSyncContract.commitRun)
       .use(refusals)
       .handler(async ({ input: { params } }) => {
         await this.assertMayAct(user, params.id);
@@ -80,9 +80,9 @@ export class SyncController {
   }
 
   @Auth('admin', 'manager')
-  @Implement(syncContract.discardRun)
+  @Implement(adminSyncContract.discardRun)
   discardRun(@CurrentUser() user: AuthUser) {
-    return implement(syncContract.discardRun)
+    return implement(adminSyncContract.discardRun)
       .use(refusals)
       .handler(async ({ input: { params } }) => {
         await this.assertMayAct(user, params.id);
@@ -108,9 +108,9 @@ export class SyncController {
    * whoever was asked to answer it and for nobody else.
    */
   @Auth('admin', 'manager')
-  @Implement(syncContract.getRun)
+  @Implement(adminSyncContract.getRun)
   getRun(@CurrentUser() user: AuthUser) {
-    return implement(syncContract.getRun)
+    return implement(adminSyncContract.getRun)
       .use(refusals)
       .handler(async ({ input: { params } }) => {
         const result = await this.service.getRun(params.id);
@@ -120,9 +120,9 @@ export class SyncController {
   }
 
   @Auth('admin', 'manager')
-  @Implement(syncContract.listRuns)
+  @Implement(adminSyncContract.listRuns)
   listRuns(@CurrentUser() user: AuthUser) {
-    return implement(syncContract.listRuns)
+    return implement(adminSyncContract.listRuns)
       .use(refusals)
       .handler(({ input: { query } }) => {
         this.assertMayRead(user, query.area);

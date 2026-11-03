@@ -11,7 +11,7 @@ import {
   syncFailureReportSchema,
   syncRunSchema,
 } from '../../core/exchange/sync-run.contract';
-import { ownershipErrors } from '../../platform/ownership-constants';
+import { ownershipErrors } from '../../platform/ownership';
 
 /** Token only; refused while the shop writes the catalog itself. */
 const machine = oc.errors({

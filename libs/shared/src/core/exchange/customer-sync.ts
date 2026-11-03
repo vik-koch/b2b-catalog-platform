@@ -1,5 +1,5 @@
 /** The customer exchange's vocabulary (FR-ADM-11/12/18), import-free like
- * `sync-constants.ts`. */
+ * `sync.ts`. */
 
 /** What a customer run can write (FR-ADM-11). Name and phone are the holder's,
  * seeded on create only (FR-ADM-15); a password never (FR-ADM-13). */

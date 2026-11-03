@@ -11,7 +11,7 @@ import {
   syncFailureReportSchema,
   syncRunSchema,
 } from '../../core/exchange/sync-run.contract';
-import { ownershipErrors } from '../../platform/ownership-constants';
+import { ownershipErrors } from '../../platform/ownership';
 
 /** Token only, with its own scope; refused while the shop keeps the accounts
  * itself. */

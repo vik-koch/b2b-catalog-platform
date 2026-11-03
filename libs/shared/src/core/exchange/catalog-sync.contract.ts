@@ -5,12 +5,12 @@
  * absorbs a changing export. CSV and JSON are two encodings of the same rows.
  */
 import * as z from 'zod';
-import { CATALOG_SYNC_ALL_FIELDS, CATALOG_SYNC_FIELDS } from './catalog-sync-constants';
+import { CATALOG_SYNC_ALL_FIELDS, CATALOG_SYNC_FIELDS } from './catalog-sync';
 import {
   SYNC_FAILURE_MESSAGE_MAX_LENGTH,
   SYNC_LABEL_MAX_LENGTH,
   SYNC_MAX_ROWS,
-} from './sync-constants';
+} from './sync';
 import { syncRunSchema, syncSummarySchema } from './sync-run.contract';
 import { priceMinorSchema } from '../catalog/catalog.contract';
 import { taxRateSchema } from '../../lib/config/tax-config';
