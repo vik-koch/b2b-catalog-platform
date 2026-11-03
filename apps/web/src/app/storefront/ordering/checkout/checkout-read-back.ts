@@ -19,7 +19,7 @@ import { useTaxStatement } from '../../../core/catalog/pricing/tax-statement';
 import {
   ReadBackLine,
   ReviewBlock,
-} from '../../../core/ordering/order-read-back';
+} from '../../../core/ordering/ui/order-read-back';
 import { CheckoutDraft } from './checkout-draft.service';
 
 /**

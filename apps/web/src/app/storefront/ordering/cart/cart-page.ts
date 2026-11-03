@@ -43,7 +43,7 @@ import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { LastListingService } from '../../catalog/last-listing.service';
 import { CartPreviewService } from './cart-preview.service';
 import { useTaxStatement } from '../../../core/catalog/pricing/tax-statement';
-import { OrderSummary } from '../../../core/ordering/order-summary';
+import { OrderSummary } from '../../../core/ordering/ui/order-summary';
 import { CartChange, CartService } from './cart.service';
 import { WarningNote } from '@b2b-catalog-platform/ui/content/warning-note';
 import { Notice } from '@b2b-catalog-platform/ui/content/notice';

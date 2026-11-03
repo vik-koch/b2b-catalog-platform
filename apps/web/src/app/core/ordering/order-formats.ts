@@ -7,23 +7,12 @@ import { OrderLine } from '@b2b-catalog-platform/shared/core/ordering';
 import { formatUnitQuantity } from '../catalog/buying/quantity';
 
 /**
- * How an order reads to the customer it belongs to.
- *
- * Extracted because staff read it too: a manager checking what the shop sent
- * on Tuesday is asking what the customer is looking at, and a second rendering
- * of the same version would be a second opinion about it. The customer's own
- * page and the staff screen that reads a version back both come through here,
- * so the two cannot drift.
- */
-
-/**
- * The quantity in the unit the line was bought through and, where that is not
- * the piece, what it came to in pieces — both frozen with the order, so
- * repacking the product never rewrites what somebody ordered.
+ * A line's quantity as the customer reads it, which staff read too: in the
+ * unit it was bought through and, for any other unit, in pieces. Both are
+ * frozen with the order, so repacking a product never rewrites an order.
  */
 export function customerQuantity(
-  // Only the three fields a quantity is read from, so a screen holding a
-  // priced line rather than a placed one reads it in the same words.
+  // Three fields, so a priced line reads in the same words as a placed one.
   line: Pick<OrderLine, 'unit' | 'quantity' | 'pieces'>,
   common: SharedText,
   currency: MoneyFormat,
@@ -42,12 +31,9 @@ export function customerQuantity(
 }
 
 /**
- * The one clock every order screen reads.
- *
- * Numeric and short — `26.08.2026, 09:15` in a locale that writes days first —
- * because these are timestamps a manager scans down a column and compares, not
- * dates in a sentence. A spelled-out month sets each of them at a different
- * width and turns a version thread into a column nobody can line up.
+ * The timestamp format of every order screen. Numeric (`26.08.2026, 09:15`):
+ * a spelled-out month gives each a different width, and a version thread is
+ * read as a column.
  */
 export function orderDateTimeFormat(locale: string): Intl.DateTimeFormat {
   return new Intl.DateTimeFormat(locale, {

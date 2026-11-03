@@ -8,12 +8,12 @@ import { formatPhone } from '../../shared/core/contact-fields';
 import { addressLines } from '@b2b-catalog-platform/shared/core/accounts';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
-import { ReviewBlock } from './order-read-back';
+import { ReviewBlock } from './ui/order-read-back';
 
 /**
  * The wording one screen puts on an order's answers. Passed in rather than
- * injected: the customer and staff read the same order, mostly in shared
- * names, and it must not be described differently by the two.
+ * injected: customer and staff read the same order and must not see it
+ * described differently.
  */
 export interface OrderBlockLabels {
   readonly fulfilment: string;
@@ -28,18 +28,15 @@ export interface OrderBlockLabels {
   readonly payment: string;
   readonly cash: string;
   readonly transfer: string;
-  /** A card payment arranged with the manager. Staff-set — the checkout does
-   * not offer it — and it is neither of the other two, so an order paid that
-   * way must not read as one paid in cash. */
+  /** A card payment arranged with the manager. Only staff set it, and it must
+   * not read as cash. */
   readonly card: string;
   readonly contact: string;
   readonly note: string;
 }
 
-/**
- * The block labels: the shared names, plus what the reader's own text says —
- * the payment methods, the note, and the screen's two sentences.
- */
+/** The shared names, plus the payment methods, the note and the two sentences
+ * the reader's own text words. */
 export function orderBlockLabels(
   names: SharedText,
   view: Pick<
@@ -66,25 +63,16 @@ export function orderBlockLabels(
   };
 }
 
-/** The labels a customer reads an order under. */
-export function customerBlockLabels(
-  names: SharedText,
-  review: Pick<OrderBlockLabels, 'billingSame' | 'whenAny'>,
-): OrderBlockLabels {
+/** The labels a customer reads an order under; call in an injection context. */
+export function injectCustomerBlockLabels(): OrderBlockLabels {
+  const names = inject(SHARED_TEXT);
+  const review = inject(STOREFRONT_TEXT).checkout.review;
   return orderBlockLabels(names, {
     billingSame: review.billingSame,
     whenAny: review.whenAny,
     note: names.order.note,
     ...names.order.paymentMethods,
   });
-}
-
-/** The same labels, read from the deployment; called where a field is set up. */
-export function injectCustomerBlockLabels(): OrderBlockLabels {
-  return customerBlockLabels(
-    inject(SHARED_TEXT),
-    inject(STOREFRONT_TEXT).checkout.review,
-  );
 }
 
 /** What turning the order's own fields into lines needs from the deployment. */
@@ -95,17 +83,12 @@ export interface OrderBlockConfig {
 }
 
 /**
- * An order's answers as blocks, in the order checkout asked the questions —
- * reading an order back is walking down the form that was filled in.
- *
- * Every value comes off the order itself. All of them are snapshots, so this is
- * the order as it stood and not what the catalogue, the address book or the
- * deployment's config say today.
+ * An order's answers as blocks, in the order checkout asked the questions.
+ * Every value is a snapshot on the order: the order as it stood, not what the
+ * catalogue, address book or config say today.
  */
 export function orderBlocks(
-  // Everything but the documents, so one *version* of an order reads back
-  // through the same function: what an order carries is a fact about the
-  // order, not about the version being read.
+  // Without the documents, so an order version reads back through it too.
   order: Omit<OrderDetail, 'documents'>,
   labels: OrderBlockLabels,
   config: OrderBlockConfig,
@@ -120,8 +103,8 @@ export function orderBlocks(
   const party = order.party.registrationId
     ? `${order.party.name} · ${order.party.registrationId}`
     : order.party.name;
-  // Nothing at all where the order carries no invoice address — the
-  // deployment invoices none of its own, or the order predates it asking.
+  // Empty where the order carries no invoice address: the deployment asks for
+  // none, or the order predates it asking.
   const billing =
     order.deliveryAddress &&
     lines(order.deliveryAddress).join('\n') ===
@@ -151,9 +134,8 @@ export function orderBlocks(
       ],
     },
     {
-      // Not on the checkout's own read-back, where the contact is whoever is
-      // filling the form. Afterwards it is what says who takes the call — and
-      // it may well be a colleague.
+      // Not on the checkout's read-back, where the contact is whoever fills
+      // the form. Afterwards it says who takes the call: maybe a colleague.
       heading: labels.contact,
       lines: [
         order.contact.name,
@@ -173,14 +155,14 @@ export function orderBlocks(
   }));
 }
 
-/** A snapshot has no label, no id and no timestamps; the writer only wants the
+/** A snapshot has no label, id or timestamps; addressLines reads only the
  * place. */
 function asAddress(address: OrderAddress) {
   return { ...address, label: null, id: '', createdAt: '', updatedAt: '' };
 }
 
-/** An ISO date read as a day rather than as an instant: a preferred date
- * carries no time, and parsing it as one moves it a timezone either way. */
+/** A preferred date carries no time: parsed as an instant, it shifts a day
+ * with the timezone. */
 function formatDay(iso: string, locale: string): string {
   return new Intl.DateTimeFormat(locale, { dateStyle: 'long' }).format(
     new Date(`${iso}T00:00:00`),

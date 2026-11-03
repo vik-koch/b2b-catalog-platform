@@ -8,7 +8,7 @@ import {
 } from '@b2b-catalog-platform/shared';
 import { OrderDetail } from '@b2b-catalog-platform/shared/core/ordering';
 import { AuthService } from '../../../shared/auth/auth.service';
-import { OrderSummary } from '../../../core/ordering/order-summary';
+import { OrderSummary } from '../../../core/ordering/ui/order-summary';
 import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
 import { SHARED_TEXT } from '../../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
@@ -21,13 +21,13 @@ import {
   injectCustomerBlockLabels,
   orderBlocks,
 } from '../../../core/ordering/order-blocks';
-import { customerQuantity } from '../../../core/ordering/order-view';
+import { customerQuantity } from '../../../core/ordering/order-formats';
 import { OrderDocumentsList } from './order-documents-list';
 import {
   OrderReadBack,
   ReadBackLine,
   ReviewBlock,
-} from '../../../core/ordering/order-read-back';
+} from '../../../core/ordering/ui/order-read-back';
 import {
   StatusBadge,
   StatusTone,

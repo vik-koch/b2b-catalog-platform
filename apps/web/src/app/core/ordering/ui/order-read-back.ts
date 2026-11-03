@@ -1,21 +1,14 @@
 import { Component, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { SHARED_TEXT } from '../../../shared/config/shared-text';
 
 /**
- * An order read back: its lines, then one block per question it answers. Used
- * before it is sent (ADR 0039) and afterwards on the account's own order page,
- * so an order is described the same way whichever side of the send it is read
- * from.
+ * An order read back: its lines, then one block per question it answers. The
+ * same before sending and afterwards, for customer and staff.
  *
- * Everything is handed over already resolved — strings, not records. Which
- * address a picker settled on, and what a party is called, are the page's own
- * answers; working them out a second time here would be a second opinion that
- * can differ from the one being sent or the one that was stored.
- *
- * Read-only throughout, and deliberately not the cart's own row: those rows
- * carry a stepper, a unit selector and a remove button, which is the wrong
- * offer on a screen whose question is "is this right?".
+ * Takes resolved strings, not records: resolving an address or a party again
+ * here could disagree with what the page sends or stored. Read-only, so not
+ * the cart's row with its stepper and remove button.
  */
 @Component({
   selector: 'app-order-read-back',
@@ -29,9 +22,8 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
           @for (line of lines(); track line.key) {
             <li class="flex items-baseline justify-between gap-4 py-2 text-sm">
               <span class="min-w-0">
-                <!-- Linked only where there is still a product to open: a
-                     line whose product is gone reads as plain words rather
-                     than sending the customer into a 404. -->
+                <!-- A line whose product is gone is plain words, not a link
+                     into a 404. -->
                 @if (line.href) {
                   <a class="block hover:text-accent" [routerLink]="line.href">
                     {{ line.name }}
@@ -48,8 +40,6 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
               </span>
               <span class="shrink-0 text-right">
                 {{ line.total }}
-                <!-- Under the figure it qualifies, where a reader checking
-                     the line against an invoice looks for it. -->
                 @if (line.taxRate) {
                   <span class="block text-xs text-ink-subtle">{{
                     line.taxRate
@@ -61,16 +51,12 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
         </ul>
       </section>
 
-      <!-- One block per question the form asked, in the order it asked them.
-           A customer checking their answers is walking back down the same
-           page. -->
       @for (block of blocks(); track block.heading) {
         <section>
           <h2 class="mb-2 font-medium">{{ block.heading }}</h2>
           @for (line of block.lines; track $index) {
-            <!-- An answer can be one long word — an email, a company with no
-                 spaces in its name — and a block that will not break takes the
-                 page sideways on a phone. -->
+            <!-- An email is one long word: unbroken, it widens the page on a
+                 phone. -->
             <p
               class="text-sm wrap-break-word"
               [class.text-ink-subtle]="$index > 0"
@@ -86,31 +72,29 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
 export class OrderReadBack {
   protected readonly itemsDefault = inject(SHARED_TEXT).order.items;
 
-  /** The lines' heading, where the page has its own wording for it — the
-   * admin's text is a separate catalogue from the shop's. */
+  /** The lines' heading, where the page words it itself: admin text is a
+   * separate file. */
   readonly itemsHeading = input('');
 
-  /** The lines, already priced and worded by the page that holds them. */
   readonly lines = input.required<readonly ReadBackLine[]>();
-  /** The answers, resolved by the page that collected or loaded them. */
   readonly blocks = input.required<readonly ReviewBlock[]>();
 }
 
-/** One line as it is read back: what it was, how much of it, what it cost. */
+/** One line as it is read back. */
 export interface ReadBackLine {
   readonly key: string;
   readonly name: string;
   readonly quantity: string;
   readonly note: string | null;
   readonly total: string;
-  /** Where the product can still be opened, where it can. */
+  /** Where the product can still be opened. */
   readonly href?: string | null;
   /** The line's tax rate, where the reader is shown one (NFR-LEGAL-11). */
   readonly taxRate?: string | null;
 }
 
-/** One answered question: its heading, then what was answered — the first line
- * is the answer itself, the rest are its detail. */
+/** One answered question: the first line is the answer, the rest its
+ * detail. */
 export interface ReviewBlock {
   readonly heading: string;
   readonly lines: readonly string[];

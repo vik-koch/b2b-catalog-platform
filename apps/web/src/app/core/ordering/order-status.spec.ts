@@ -55,7 +55,7 @@ describe('orderStatusTone', () => {
   });
 
   /** An accepted order is open work to the shop and good news to the one who
-   * placed it — the shop's blue is the customer's green. */
+   * placed it: the shop's blue is the customer's green. */
   it('makes an acceptance blue for staff and green for a customer', () => {
     for (const status of ['approved'] as const) {
       expect(orderStatusTone(status, 'staff', 'delivery')).toBe('info');

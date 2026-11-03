@@ -11,14 +11,9 @@ import { StatusTone } from '@b2b-catalog-platform/ui/content/status-badge';
 export type OrderAudience = 'customer' | 'staff';
 
 /**
- * The words a deployment puts on the statuses — one set per reader, the
- * customer's in the common text (`order.statuses`) and staff's in the admin
- * text (`orders.statuses`), under the same keys, so one function serves both
- * and the two cannot drift into describing different workflows.
- *
- * `ready` is two keys and one state (ADR 0050): a collected order is waiting
- * to be picked up, a delivered one is on its way. Which sentence is read is
- * decided by the order's own fulfilment method, never by a second status.
+ * The status words, one set per reader under the same keys (`order.statuses`
+ * in the shared text, `orders.statuses` in the admin text). `ready` is one
+ * state with two keys: the fulfilment method picks the sentence.
  */
 export interface OrderStatusLabels {
   readonly requested: string;
@@ -42,23 +37,10 @@ export function orderStatusLabel(
 }
 
 /**
- * The badge tone per status, shared by every screen that lists orders.
- *
- * Three levels, not a ramp from yellow to green: the colour answers "is this
- * mine to move?" and nothing finer. Amber is the shop's own inbox, blue is an
- * order that is agreed and in flight, and only a settled order is green. An
- * accepted order and one waiting on a shelf share a colour — the difference
- * between them is a word to read, not a thing to count across a room.
- *
- * Amber means somebody has to act, and who that somebody is decides the
- * colour. For staff a requested order is their queue. For a customer it is a
- * fact about where the order stands — they cannot answer their own order — and
- * their amber is the one status that genuinely waits on them: an order packed
- * and waiting to be collected. An order out for delivery waits on nobody, so
- * the same state is a plain fact when it is being brought to them.
- *
- * The tone is shared; the wording is not — a customer reads "Awaiting
- * confirmation" where staff read the state itself.
+ * The badge tone per status. It answers "is this mine to move?" and nothing
+ * finer: amber when the reader has to act, blue in flight, green settled. So
+ * a requested order is amber for staff only, and `ready` is amber for a
+ * customer only when it waits for them to collect it.
  */
 export function orderStatusTone(
   status: OrderStatus,
@@ -72,9 +54,7 @@ export function orderStatusTone(
   }
   const tones: Record<Exclude<OrderStatus, 'ready'>, StatusTone> = {
     requested: audience === 'staff' ? 'waiting' : 'info',
-    // Green for the customer, blue for staff: an order the shop has taken on
-    // is good news to the one who placed it and open work to the one who has
-    // to fill it.
+    // Good news to the customer, open work to staff.
     approved: audience === 'staff' ? 'info' : 'ok',
     completed: 'ok',
     declined: 'danger',
@@ -83,26 +63,19 @@ export function orderStatusTone(
   return tones[status];
 }
 
-/**
- * The two things worth saying about the money in a listing — one set per
- * reader (`paymentStates` beside the statuses), as the statuses are.
- */
+/** The payment words, one set per reader (`paymentStates`). */
 export interface OrderPaymentLabels {
   readonly awaiting: string;
   readonly paid: string;
 }
 
-/** What staff read on top of that: the cash order nobody has ticked yet. */
+/** Plus the staff-only cash order nobody has ticked yet. */
 export interface StaffPaymentLabels extends OrderPaymentLabels {
   readonly cashOnHandover: string;
 }
 
-/**
- * What the payment badge says, or null where there is nothing to say: an
- * order with nothing due yet — a cash one, or one still waiting for an answer
- * — is not a fact about money, and a badge reading "nothing due" is a column
- * of noise to scan past.
- */
+/** The customer's payment badge, or null while nothing is due: a "nothing
+ * due" badge is noise. */
 export function orderPaymentLabel(
   state: PaymentState,
   labels: OrderPaymentLabels,
@@ -112,19 +85,8 @@ export function orderPaymentLabel(
 }
 
 /**
- * The customer's reading: amber where they still owe something, green where
- * it is settled.
- *
- * Green here and grey in the staff column, which is the one place the two
- * audiences deliberately differ. For a manager scanning a hundred rows, a paid
- * order is simply a row with nothing left on it — colouring it would spend the
- * column's only strong tone on the state most rows are in. A customer looks at
- * one order, and "we have your money" is the whole of what they came to check.
- *
- * Always drawn in the quiet `dot` variant, wherever it appears: the payment is
- * the order's second fact, and two solid pills side by side read as two
- * statuses that might disagree. The dot was written for exactly this — a
- * colour to scan down a column rather than one to shout from a card.
+ * The customer's payment tone: amber while they owe, green once paid. Drawn
+ * as a `dot`: two solid pills side by side read as statuses that disagree.
  */
 export function orderPaymentTone(state: PaymentState): StatusTone {
   if (state === 'awaiting') return 'waiting';
@@ -132,24 +94,13 @@ export function orderPaymentTone(state: PaymentState): StatusTone {
 }
 
 /**
- * The money badge as staff read it, or null where there is nothing to say.
+ * The staff payment badge, or null where there is nothing to say.
  *
- * One reading more than a customer gets: a cash order the shop has taken on
- * sits in `not-due` until somebody records the handover, which looks exactly
- * like an unanswered order does. It is the one the manager has to come back to
- * — the goods go out and the tick is the only thing left — so it is said out
- * loud rather than left as an empty cell. A cash order still waiting for an
- * answer says nothing: nothing is owed on an order the shop has not taken.
- *
- * Amber is spent on one reading only: an order **finished** and not paid for
- * (`awaitsPaymentRecord`), which is the shop's own last move and the one thing
- * in this column nobody else can finish. Everything still in flight is quiet —
- * an accepted order is owed money the whole time it is being packed, and a
- * colour that means "act now" spent on a fact that stays true for days stops
- * meaning anything. That is also why the in-flight readings are `neutral`
- * rather than `info`: now that the panel counts the finished-and-unpaid ones
- * and the badge marks them, the rest of this column is a fact to read, not a
- * state to point at.
+ * A taken cash order stays `not-due` until the handover is ticked, so it says
+ * so: otherwise it looks unanswered. Amber only for a finished, unpaid order
+ * (`awaitsPaymentRecord`), the shop's last move; everything in flight is
+ * `neutral`, as an "act now" colour that stays true for days stops meaning
+ * anything.
  */
 export function staffPaymentBadge(
   order: {
@@ -162,9 +113,7 @@ export function staffPaymentBadge(
   if (order.paymentState === 'paid') {
     return { label: labels.paid, tone: 'ok' };
   }
-  // The one call to act. Which word it wears follows the method — a finished
-  // cash order is a handover nobody ticked, an invoiced one is money that
-  // never arrived — but both are the same job and the same colour.
+  // One job either way: an unticked handover or money that never arrived.
   if (awaitsPaymentRecord(order.status, order.paymentState)) {
     return {
       label:

@@ -18,7 +18,7 @@ import {
   moneyFormat,
   formatMoneyMinor,
 } from '@b2b-catalog-platform/shared';
-import { OrderSummary } from '../../../core/ordering/order-summary';
+import { OrderSummary } from '../../../core/ordering/ui/order-summary';
 import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
 import { SHARED_TEXT } from '../../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
@@ -44,14 +44,14 @@ import {
   OrderReadBack,
   ReadBackLine,
   ReviewBlock,
-} from '../../../core/ordering/order-read-back';
+} from '../../../core/ordering/ui/order-read-back';
 import {
   orderPaymentLabel,
   orderPaymentTone,
   orderStatusLabel,
   orderStatusTone,
 } from '../../../core/ordering/order-status';
-import { customerQuantity } from '../../../core/ordering/order-view';
+import { customerQuantity } from '../../../core/ordering/order-formats';
 import { OrdersService } from './orders.service';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';

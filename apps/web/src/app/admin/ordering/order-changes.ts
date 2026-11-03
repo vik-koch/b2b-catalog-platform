@@ -10,7 +10,7 @@ import {
   OrderBlockLabels,
 } from '../../core/ordering/order-blocks';
 import { formatStoredDecimal } from '../../core/catalog/buying/quantity';
-import { customerQuantity } from '../../core/ordering/order-view';
+import { customerQuantity } from '../../core/ordering/order-formats';
 import { OrderChange } from './order-adjust-changes';
 
 /** The words a change list needs of its own. Everything else it says comes

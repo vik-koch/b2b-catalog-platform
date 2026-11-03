@@ -6,29 +6,18 @@ import {
   formatMoneyMinor,
 } from '@b2b-catalog-platform/shared';
 import { ShipmentSummary } from '@b2b-catalog-platform/shared/core/ordering';
-import { formatStoredDecimal } from '../catalog/buying/quantity';
-import { useTaxStatement } from '../catalog/pricing/tax-statement';
-import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
-import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
+import { formatStoredDecimal } from '../../catalog/buying/quantity';
+import { useTaxStatement } from '../../catalog/pricing/tax-statement';
+import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
+import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import { WarningNote } from '@b2b-catalog-platform/ui/content/warning-note';
 import { Card } from '@b2b-catalog-platform/ui/content/card';
 
 /**
- * What the order comes to — the same card on the cart, on checkout and on the
- * preview before sending, so a customer reads one summary through the whole
- * flow rather than three renderings of the same figures.
- *
- * One card, read top to bottom: what the order is, what it will weigh and take
- * up, and what it costs. Splitting the total into a card of its own made the
- * customer read two boxes to answer one question.
- *
- * It says nothing about how or when the order arrives. On the cart there is
- * nothing to say, and a row reading "confirmed with your order" against every
- * label is a table of placeholders; on checkout the form beside it is already
- * asking those questions, and reading the answers back a line later is not a
- * summary, it is an echo. What the page does have to add — the delivery area
- * and its threshold — is projected underneath.
+ * What the order comes to: the same card on the cart, checkout and the order
+ * pages. Silent on how and when it arrives: the cart has no answer yet and
+ * checkout asks it beside the card. A page adds its own lines underneath.
  */
 @Component({
   selector: 'app-order-summary',
@@ -38,8 +27,7 @@ import { Card } from '@b2b-catalog-platform/ui/content/card';
     <div uiCard>
       <h2 class="mb-3 font-medium">{{ text.summaryTitle }}</h2>
       <dl class="space-y-2 text-sm">
-        <!-- How many lines is the cart's own answer, so it is stated before
-             the estimate and whether or not one arrives. -->
+        <!-- Before the estimate, which may never arrive. -->
         <div class="flex items-baseline justify-between gap-4">
           <dt class="text-ink-subtle">{{ text.summaryLines }}</dt>
           <dd class="text-right">{{ lineCount() }}</dd>
@@ -62,7 +50,6 @@ import { Card } from '@b2b-catalog-platform/ui/content/card';
           <dd class="text-xl font-emphasis text-primary">{{ subtotal() }}</dd>
         </div>
       </dl>
-      <!-- What the figure includes, straight under it (NFR-LEGAL-11). -->
       <p class="mt-1 text-right text-xs text-ink-subtle">
         {{ taxStatement() }}
       </p>
@@ -76,13 +63,11 @@ import { Card } from '@b2b-catalog-platform/ui/content/card';
         <p class="mt-3 text-xs text-ink-subtle">
           {{ text.shipmentApproximate }}
         </p>
-        @if (uncovered(); as count) {
+        @if (uncovered()) {
           <p class="mt-1 text-xs text-warning">{{ uncoveredMessage() }}</p>
         }
       }
 
-      <!-- Whatever the page has to add under the figures — the delivery area
-           and what it takes to be free of charge, on checkout. -->
       <div class="empty:hidden"><ng-content /></div>
     </div>
   `,
@@ -100,8 +85,8 @@ export class OrderSummary {
   /** Null before a line has ever been priced: there is nothing to add up yet. */
   readonly shipment = input<ShipmentSummary | null>(null);
   readonly loading = input(false);
-  /** The rates of the lines the total adds up, which it names or, once they
-   * differ, leaves to the lines (NFR-LEGAL-11). */
+  /** The lines' rates: named under the total while they agree
+   * (NFR-LEGAL-11). */
   readonly taxRates = input<readonly (number | null)[]>([]);
   /** An order's own basis; a cart is quoted on the deployment's. */
   readonly taxBasis = input<TaxBasis | null>(null);
@@ -128,14 +113,8 @@ export class OrderSummary {
     fillText(this.text.shipmentUncovered, { count: this.uncovered() ?? 0 }),
   );
 
-  /**
-   * The estimate as labelled rows (FR-UNIT-11). A table rather than sentences:
-   * a customer checking a consignment is comparing figures against a delivery
-   * note, and figures compare by lining up.
-   *
-   * What the consignment weighs and measures first, then how many cartons that
-   * comes to — the order those figures are read in.
-   */
+  /** The shipment estimate as rows that line up against a delivery note
+   * (FR-UNIT-11). */
   protected readonly rows = computed<{ label: string; value: string }[]>(() => {
     const shipment = this.shipment();
     const rows: { label: string; value: string }[] = [];

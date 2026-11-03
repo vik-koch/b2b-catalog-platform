@@ -79,7 +79,7 @@ import { TiersService } from '../catalog/tiers/tiers.service';
 import { OrderAdjustChanges, OrderChange } from './order-adjust-changes';
 import { AdjustLineRow, OrderAdjustLines } from './order-adjust-lines';
 import { orderBlockChanges, orderLineChanges } from './order-changes';
-import { customerQuantity } from '../../core/ordering/order-view';
+import { customerQuantity } from '../../core/ordering/order-formats';
 import { LockedNote } from '../ownership/locked-note';
 import { OwnershipService } from '../settings/ownership.service';
 import { AdjustmentRefusal, AdminOrdersService } from './orders.service';
