@@ -17,17 +17,9 @@ import {
 } from '@b2b-catalog-platform/shared/core/accounts';
 
 /**
- * A text input that suggests companies as it is typed (FR-AUTH-09, ADR 0041),
- * inside a Field that names it.
- *
- * Used for **both** company fields, the name and the registration number,
- * because the provider takes either as its query and answers with the whole
- * party. Whichever the customer starts in, picking a row fills the other, which
- * is why neither field is ever disabled to steer them into the "right" one.
- *
- * An ordinary text input first: typing always works, nothing about the form
- * depends on a suggestion arriving, and a deployment with no sidecar gets an
- * empty list and therefore no dropdown.
+ * A company input for either half, name or number: the provider takes both as
+ * a query and answers with the whole party. Without a provider it is a plain
+ * input.
  */
 @Component({
   selector: 'app-party-suggest-input',
@@ -44,8 +36,7 @@ import {
   ],
   host: { class: 'block' },
   template: `
-    <!-- Wider than its column: this field shares a row with the other, which
-         is too narrow to read a company name in. -->
+    <!-- Wider than its column: the number's is too narrow for a name. -->
     <ui-suggest-field
       [list]="list"
       [text]="text"
@@ -61,8 +52,7 @@ import {
       />
       <ng-template uiSuggestRow [of]="list" let-item let-query="query">
         <ui-suggestion [segments]="item.name | matchSegments: query">
-          <!-- Marked too, because the number is a query in its own right: a
-               customer who typed one is looking for it in the row. -->
+          <!-- Marked too: a typed number is looked for in the row. -->
           @if (secondLine(item); as second) {
             <ui-highlighted-line [segments]="second | matchSegments: query" />
           }
@@ -79,7 +69,6 @@ export class PartySuggestInput {
   readonly field = input.required<FieldTree<string>>();
   readonly autocomplete = input('off');
 
-  /** The whole party the customer picked: both fields fill from it. */
   readonly picked = output<PartySuggestion>();
 
   protected readonly list = new SuggestList<PartySuggestion>({
@@ -87,11 +76,7 @@ export class PartySuggestInput {
     minLength: PARTY_QUERY_MIN_LENGTH,
   });
 
-  /**
-   * What tells two rows apart when the names look alike: the number, and where
-   * the company is registered. Absent parts are simply left out: a provider
-   * answers at whatever granularity it has.
-   */
+  /** What tells alike names apart; a provider may answer neither. */
   protected secondLine(item: PartySuggestion): string {
     return [item.registrationId, item.address?.city]
       .filter(Boolean)

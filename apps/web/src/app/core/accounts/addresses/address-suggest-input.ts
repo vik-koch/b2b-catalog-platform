@@ -17,15 +17,9 @@ import {
 } from '@b2b-catalog-platform/shared/core/accounts';
 
 /**
- * The street input inside a Field, with suggestions where a deployment
- * configures a provider (FR-CART-11, ADR 0040). Its length is the schema's
- * `maxLength`, which FormField sets on it. An ordinary text input first: typing always works,
- * nothing about the form depends on a suggestion arriving, and a deployment
- * with no adapter gets an empty list and therefore no dropdown.
- *
- * Picking a row emits the provider's **components**, which the form spreads
- * across its own controls — the postal code especially, since the delivery
- * zone is decided from it.
+ * The street input, suggesting where the deployment has a provider: without
+ * one the list stays empty and it is a plain input. A pick emits the
+ * components for the form to spread, not the row's label.
  */
 @Component({
   selector: 'app-address-suggest-input',
@@ -55,9 +49,7 @@ import {
         class="w-full"
       />
       <ng-template uiSuggestRow [of]="list" let-item let-query="query">
-        <!-- The province, where the provider named one: the line leaves it
-             out, and two streets of one name in two towns are otherwise one
-             row repeated. -->
+        <!-- The region tells apart two streets of one name in two towns. -->
         <ui-suggestion [segments]="item.label | matchSegments: query">
           @if (item.components.region; as region) {
             {{ region }}
@@ -73,10 +65,9 @@ export class AddressSuggestInput {
   protected readonly text = inject(STOREFRONT_TEXT).address.suggest;
 
   readonly field = input.required<FieldTree<string>>();
-  /** Biases the provider; the form's own country picker feeds it. */
+  /** Biases the provider. */
   readonly country = input<string | undefined>(undefined);
 
-  /** The components of the row the customer picked. */
   readonly picked = output<AddressComponents>();
 
   protected readonly list = new SuggestList<AddressSuggestion>({

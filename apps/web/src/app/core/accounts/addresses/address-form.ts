@@ -36,8 +36,6 @@ export interface AddressDraft {
 /** An address nobody has typed yet, in the deployment's first country. */
 export function blankAddress(countries: Countries | undefined): AddressDraft {
   return {
-    // Optional: an unnamed address is listed by its own first line, so nobody
-    // has to invent a word for the only address they order to.
     label: '',
     street: '',
     street2: '',
@@ -49,18 +47,13 @@ export function blankAddress(countries: Countries | undefined): AddressDraft {
 }
 
 /**
- * What an address has to answer, wherever it is typed: on its own, or as a
- * branch of a larger form (`apply(path.delivery, addressRules(…))`).
- *
- * The postcode's shape belongs to the country, so the rule reads the country
- * beside it and says the example of whichever is chosen. Empty is `required`'s
- * business: "wrong shape" about a field nobody has filled in answers a question
- * that was not asked.
+ * The rules in the deployment's countries and wording, also for an address
+ * that is a branch of a larger form. Needs an injection context. The
+ * postcode's shape is the chosen country's; empty is `required`'s.
  */
-export function addressRules(
-  text: { required: string; postalCodeFormat: string },
-  countries: Countries | undefined,
-): Schema<AddressDraft> {
+export function injectAddressRules(): Schema<AddressDraft> {
+  const text = inject(STOREFRONT_TEXT).address;
+  const countries = inject(DEPLOYMENT_CONFIG).address?.countries;
   return schema<AddressDraft>((address) => {
     required(address.street, { message: text.required });
     maxLength(address.street, ADDRESS_LINE_MAX_LENGTH);
@@ -75,28 +68,15 @@ export function addressRules(
       };
     });
     required(address.city, { message: text.required });
-    // Always answered, by the deployment's first country; marked so the
-    // select reads like the other answers it is asked beside.
+    // Always answered by the first country; marked to read like its neighbours.
     required(address.country);
   });
 }
 
 /**
- * One address being entered, wherever it is being entered: the account's own
- * editor, and the two pickers at checkout.
- *
- * The three things anybody ever does to one, kept beside its fields: fill it
- * from a saved row, fill it from a provider's suggestion, and read it back as
- * an `AddressInput`. Kept together because they have to agree about which
- * fields exist and how an empty one is spelled: two call sites re-deriving
- * "blank means null" is how one of them saves an empty string as a street 2.
- *
- * An address is a place: no company, no registration number, no phone. Who an
- * order is invoiced to is the order's own answer, and the number a manager
- * rings is its contact.
- *
- * Not a component: a page owns its form (validity, submit, unsaved changes),
- * and AddressFields only draws whatever address it is handed.
+ * An address being entered, with the three ways in and out of it kept beside
+ * the fields, so they agree on which fields exist and that blank means absent.
+ * Not a component: the page owns its form, AddressFields only draws it.
  */
 export class AddressForm {
   constructor(
@@ -104,16 +84,13 @@ export class AddressForm {
     private readonly countries: Countries | undefined,
   ) {}
 
-  /** The rule the chosen country asks for, where it has one. */
   readonly postalCodeRule = computed(() =>
     postalCodeRuleFor(this.field.country().value(), this.countries),
   );
 
   /**
-   * An address laid into the form: a saved row, or one recovered from a
-   * checkout draft, which is why this takes the input shape rather than a
-   * stored row. A reset rather than a write: this is the form's new starting
-   * point, so nothing may stay touched from before it.
+   * A saved row or a checkout draft's address. A reset, not a write: nothing
+   * may stay touched from before.
    */
   fill(address: AddressInput): void {
     this.field().reset({
@@ -127,12 +104,8 @@ export class AddressForm {
     });
   }
 
-  /**
-   * A picked address suggestion, spread across the form. Only the parts the
-   * provider actually answered are written, since a partial answer must not
-   * blank what the customer already typed, and the street line arrives
-   * already composed, in the shape the provider's own jurisdiction prints it.
-   */
+  /** Only the parts the provider answered, so a partial answer keeps what
+   * was typed. */
   applySuggestion(components: AddressComponents): void {
     const set = (
       part: keyof AddressDraft,
@@ -143,9 +116,7 @@ export class AddressForm {
     set('street', components.street);
     set('postalCode', components.postalCode);
     set('city', components.city);
-    // The apartment or office, where the provider parsed one out of what was
-    // typed. It belongs on the second line: the street line is rewritten on
-    // every pick, and this would not survive there.
+    // On line 2: the street line is rewritten on every pick.
     set('street2', components.unit);
     set('region', components.region);
     if (this.countries?.some((entry) => entry.code === components.country)) {
@@ -153,11 +124,7 @@ export class AddressForm {
     }
   }
 
-  /**
-   * The form as the contract wants it. Empty means absent, not an empty
-   * string: the columns are nullable, and an address with a blank second line
-   * is one without one.
-   */
+  /** Blank optional parts become null: the columns are nullable. */
   value(): AddressInput {
     const draft = this.field().value();
     const optional = (value: string) => value.trim() || null;
@@ -173,23 +140,7 @@ export class AddressForm {
   }
 }
 
-/**
- * The address rules with the deployment's countries and wording, for a form
- * outside the storefront, which may not read its texts itself. Must be called
- * in an injection context.
- */
-export function injectAddressRules(): Schema<AddressDraft> {
-  return addressRules(
-    inject(STOREFRONT_TEXT).address,
-    inject(DEPLOYMENT_CONFIG).address?.countries,
-  );
-}
-
-/**
- * An address that is a whole form of its own, as on the account's editor.
- * Must be called in an injection context: it reads the deployment's address
- * rules and the wording of their messages.
- */
+/** An address that is a whole form of its own. Needs an injection context. */
 export function createAddressForm(
   submission?: FormSubmitOptions<AddressDraft, unknown>,
 ): AddressForm {

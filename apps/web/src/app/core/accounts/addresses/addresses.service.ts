@@ -11,18 +11,13 @@ import {
   AddressSuggestion,
 } from '@b2b-catalog-platform/shared/core/accounts';
 
-/** The refusals the address form has to explain rather than throw. */
+/** The refusals the form explains; any other error is thrown. */
 export type SaveAddressResult =
   { ok: true; address: Address } | { ok: false; code: SaveAddressRefusal };
 
 type SaveAddressRefusal =
   'address-limit-reached' | 'unsupported-country' | 'invalid-postal-code';
 
-/**
- * Both writes also declare the two auth refusals and, on an update, a gone
- * address — none of which this form phrases: they mean the session or the row
- * is wrong rather than the input.
- */
 function explainable(code: string): code is SaveAddressRefusal {
   return (
     code === 'address-limit-reached' ||
@@ -31,11 +26,7 @@ function explainable(code: string): code is SaveAddressRefusal {
   );
 }
 
-/**
- * The account's address book, and the suggestions that fill one in. One service
- * for both, as on the API: the book is account-scoped and the suggestions are
- * not, but they are the same subject and the same form uses both.
- */
+/** The account's address book, and the suggestions that fill one in. */
 @Injectable({ providedIn: 'root' })
 export class AddressesService {
   private readonly client = createOrpcClient(addressesContract);
@@ -75,19 +66,13 @@ export class AddressesService {
     if (error) throw error;
   }
 
-  /**
-   * Addresses matching what is being typed (FR-CART-11). A deployment with no
-   * adapter configured answers with an empty list, so the field simply never
-   * offers anything — there is nothing here to switch on.
-   */
   async suggest(q: string, country?: string): Promise<AddressSuggestion[]> {
     const { error, data } = await safe(
       this.suggestions.suggestAddresses({
         query: country ? { q, country } : { q },
       }),
     );
-    // A suggestion is an accelerator, never a step: a provider that is down or
-    // rate-limiting must not take the form down with it.
+    // A provider that is down must not take the form with it.
     return error ? [] : data.items;
   }
 }

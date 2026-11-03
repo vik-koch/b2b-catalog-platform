@@ -6,7 +6,10 @@ import {
 } from '@b2b-catalog-platform/shared';
 import { unitQuantity } from '@b2b-catalog-platform/shared/core/catalog';
 import { AddressForm } from '../../core/accounts/addresses/address-form';
-import { addressLines } from '../../core/accounts/addresses/address-format';
+import {
+  addressLines,
+  AddressInput,
+} from '@b2b-catalog-platform/shared/core/accounts';
 import { CartService, CartStoredLine } from '../../shared/cart/cart.service';
 import { formatUnitQuantity } from '../../core/catalog/buying/quantity';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
@@ -15,7 +18,6 @@ import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { useTaxStatement } from '../../core/catalog/pricing/tax-statement';
 import { ReadBackLine, ReviewBlock } from '../../shared/orders/order-read-back';
 import { CheckoutDraft } from './checkout-draft.service';
-import { AddressInput } from '@b2b-catalog-platform/shared/core/accounts';
 
 /**
  * What the read-back has to be told, because none of it can be worked out from

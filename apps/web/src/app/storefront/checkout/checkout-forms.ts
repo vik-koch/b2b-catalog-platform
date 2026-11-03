@@ -3,7 +3,7 @@ import { apply, form, hidden, required } from '@angular/forms/signals';
 import {
   AddressDraft,
   AddressForm,
-  addressRules,
+  injectAddressRules,
   blankAddress,
 } from '../../core/accounts/addresses/address-form';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
@@ -59,6 +59,7 @@ export function createCheckoutForms(deps: {
   const fields = inject(SHARED_TEXT).fields;
   const text = inject(STOREFRONT_TEXT);
   const countries = config.address?.countries;
+  const address = injectAddressRules();
 
   const model = signal<CheckoutAnswers>({
     party: { personName: '', companyName: '', companyId: '' },
@@ -103,7 +104,6 @@ export function createCheckoutForms(deps: {
       );
 
       // An address is answered by its fields only while no saved row is.
-      const address = addressRules(text.address, countries);
       hidden(answers.delivery, { when: () => !deps.deliveryTyped() });
       apply(answers.delivery, address);
       hidden(answers.billing, { when: () => !deps.billingTyped() });

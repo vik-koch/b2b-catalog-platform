@@ -20,22 +20,9 @@ import { PartySuggestion } from '@b2b-catalog-platform/shared/core/accounts';
 let nextId = 0;
 
 /**
- * The two halves of the invoiced party, its registration number and its name,
- * as one row (FR-AUTH-09).
- *
- * One row because they are one answer, laid out like the postcode and the city:
- * a short fixed token beside a long free-text field. Both suggest, from the same
- * endpoint, because the provider takes either as its query, so picking a row in
- * whichever field the customer started in fills both.
- *
- * The messages sit **under the row**, spanning it, rather than inside the
- * columns: the number's column is ten characters wide, and a format message
- * wrapped into five lines under it is worse than no layout at all. It is also
- * the truth: the two fields describe one thing, and a message about either is
- * a message about the company. Each field still decides when its own message
- * is due; the line only draws what they say.
- *
- * The rules are the form's: `required` and `companyIdFormat` on its paths.
+ * A company's registration number and name as one row; a row picked in either
+ * fills both. Messages span the row: the number's column is too narrow to
+ * wrap one in. The rules are the form's (`required`, `companyIdFormat`).
  */
 @Component({
   selector: 'app-company-fields',
@@ -43,8 +30,7 @@ let nextId = 0;
   host: { class: 'block' },
   template: `
     <div>
-      <!-- A container, so a suggestion panel under the ten-character number
-           field may cross into the name's column but not past the row. -->
+      <!-- A container: a suggestion panel may cross columns, not the row. -->
       <div class="@container grid gap-6 sm:grid-cols-[10rem_1fr]">
         <ui-field
           [field]="idField()"
@@ -72,10 +58,7 @@ let nextId = 0;
         </ui-field>
       </div>
 
-      <!-- Gone entirely when there is nothing to say, rather than an empty
-           grid row: with no hint configured it would still take the row gap,
-           and the notice under a company would sit lower than under a
-           person. -->
+      <!-- Hidden when empty, so it takes no margin. -->
       <div [id]="lineId" class="empty:hidden mt-1">
         @for (message of messages(); track message) {
           <p uiErrorText>{{ message }}</p>
@@ -96,7 +79,7 @@ export class CompanyFields {
   readonly idInputId = input('companyId');
   readonly nameInputId = input('companyName');
 
-  /** The whole party the customer picked, after both fields took it. */
+  /** After both fields took it. */
   readonly picked = output<PartySuggestion>();
 
   protected readonly labels = inject(SHARED_TEXT).fields;
@@ -118,11 +101,8 @@ export class CompanyFields {
       .filter((message) => message !== null),
   );
 
-  /**
-   * Only what the provider answered is written, so a partial answer keeps what
-   * was typed, and nothing is locked: the registry fills the form, it does not
-   * decide it.
-   */
+  /** A number the provider lacks keeps the typed one. Nothing is locked:
+   * the registry fills the form, it does not decide it. */
   protected fill(party: PartySuggestion): void {
     this.nameField()().value.set(party.name);
     if (party.registrationId) {

@@ -24,29 +24,14 @@ import { AddressForm } from './address-form';
 import { AddressSuggestInput } from './address-suggest-input';
 import { AddressComponents } from '@b2b-catalog-platform/shared/core/accounts';
 
-/** Ids have to be unique per instance: checkout draws two of these on one
- * page, and a label pointing at the wrong form's city is worse than none. */
+/** Checkout draws two of these on one page, so ids are per instance. */
 let nextId = 0;
 
 /**
- * The fields an address is made of, drawn wherever one is entered: the
- * account's editor and both pickers at checkout. One vocabulary and one
- * layout, so an address does not read as a different thing depending on where
- * it is being typed.
- *
- * It draws an address it is handed; it does not own one. Validity, submission
- * and what a refusal means all belong to the page.
- *
- * `label` is drawn only where there is a book to file the address under: at
- * checkout an address is named by its own street line, and inventing a word
- * for it is a question asked for nothing.
- *
- * Where the deployment has a suggestion provider, `compact` asks for the
- * street alone and lets a pick fill the postcode, the city and the region,
- * shown back as text, because a provider is an accelerator and never an
- * authority, and an address nobody can read is one nobody can check. The full
- * fields are always one link away, so a provider that is down or silent costs
- * a click rather than the order.
+ * The fields of an address it is handed; validity and submission are the
+ * page's. `compact` asks for the street alone where a provider can fill the
+ * rest, reads the filled parts back as text, and keeps the full fields one
+ * click away for when the provider is down or silent.
  */
 @Component({
   selector: 'app-address-fields',
@@ -61,17 +46,15 @@ let nextId = 0;
     TextButton,
   ],
   host: { class: 'block' },
-  // Its own attempt, keyed by the address: where it is the whole form, that is
-  // the form's; where it is part of one, the page marks it only while the
-  // address is being typed (see FIELD_ATTEMPT).
+  // Its own attempt, keyed by the address, so a page can mark it alone while
+  // it is part of a larger form.
   providers: [
     { provide: FIELD_ATTEMPT, useExisting: forwardRef(() => AddressFields) },
   ],
   template: `
     @let address = form().field;
-    <!-- A container, for the suggestion panel under the street: it is allowed
-         to be wider than its own field, but never wider than the form it
-         drops into. -->
+    <!-- A container: the suggestion panel may grow past the street field,
+         never past the form. -->
     <div class="@container space-y-4">
       @if (showLabel()) {
         <ui-field
@@ -90,12 +73,6 @@ let nextId = 0;
         </ui-field>
       }
 
-      <!-- Collapsed, the street and what is inside the building are the whole
-           of what is being typed, so they share a row, the second field in
-           the column the postcode occupies once the fields are opened out, so
-           neither state redraws the other's grid. Expanded, they stack: there
-           are four more fields under them and a row of two would be the odd
-           one out. -->
       <div [class]="streetRow()">
         <div (focusout)="settleStreet()">
           <ui-field
@@ -109,9 +86,6 @@ let nextId = 0;
               (picked)="suggested($event)"
             />
           </ui-field>
-          <!-- What the provider filled in, read back. Not an aside: it is most
-               of the address, and the customer is the only one who can say it
-               is wrong. -->
           @if (collapsed() && filled()) {
             <p class="mt-1 text-sm text-ink-subtle">{{ filled() }}</p>
           }
@@ -133,17 +107,9 @@ let nextId = 0;
         </ui-field>
       </div>
 
-      <!-- Kept in the page while collapsed rather than dropped from it, and
-           moved off-screen instead. Browser autofill fills a form field it can
-           see in the DOM; a postcode and a city that are not there are simply
-           not filled, and the customer who let the browser type the address
-           got the street line alone. Off-screen they are filled like any
-           other, and the read-back above prints what landed in them.
-
-           Taken out of the tab order and hidden from assistive technology
-           while they are off-screen. Saying that with inert, or with a
-           display of none, would be tidier, and both are also how a browser
-           decides a field is not worth filling. -->
+      <!-- Collapsed, moved off-screen rather than removed: browser autofill
+           only fills fields in the DOM, and skips inert or display:none ones.
+           So they leave the tab order and the accessibility tree by hand. -->
       <div [class]="restClass()" [attr.aria-hidden]="collapsed() || null">
         <div class="grid gap-6 sm:grid-cols-[10rem_1fr]">
           <ui-field
@@ -151,12 +117,8 @@ let nextId = 0;
             [label]="text.postalCode"
             [controlId]="id('postalCode')"
           >
-            <!-- Two fields, one drawn at a time: the mask is a control of
-                 its own, and an empty mask means "digits only, no limit",
-                 which would quietly strip the letters out of a
-                 code in a country whose codes carry them. So a deployment
-                 that configured a digit mask gets a field that enforces it,
-                 and everyone else gets a field that takes what is typed. -->
+            <!-- Two inputs: an empty mask means "digits only", which would
+                 strip the letters from codes that carry them. -->
             @if (postalMask(); as mask) {
               <input
                 type="text"
@@ -197,8 +159,6 @@ let nextId = 0;
           </ui-field>
         </div>
 
-        <!-- Always asked for, though rarely typed by hand: a suggestion fills
-           it, and what it fills is printed on the address. -->
         <ui-field
           [field]="address.region"
           [label]="text.region"
@@ -215,8 +175,8 @@ let nextId = 0;
           />
         </ui-field>
 
-        <!-- Nothing to ask where the deployment ships to one country: the single
-           configured code is used, and the server still checks it. -->
+        <!-- One configured country is used without asking; the server still
+             checks it. -->
         @if (countries.length > 1) {
           <ui-field
             [field]="address.country"
@@ -240,8 +200,7 @@ let nextId = 0;
         }
       </div>
 
-      <!-- Always on screen, not revealed by a failure: there is then no state
-           a customer can be stuck in, and nothing here has to detect one. -->
+      <!-- Always shown, not only after a failure, so no state traps anyone. -->
       @if (collapsed()) {
         <button type="button" uiTextButton class="text-sm" (click)="expand()">
           {{ text.enterManually }}
@@ -259,22 +218,19 @@ export class AddressFields {
     inject(DEPLOYMENT_CONFIG).address?.countries ?? [];
 
   readonly form = input.required<AddressForm>();
+  /** Off where there is no address book to file it under (checkout). */
   readonly showLabel = input(true);
-  /** Ask for the street alone and let a suggestion fill the rest, only where
-   * the deployment has a provider to suggest anything. */
+  /** Only where the deployment has a suggestion provider. */
   readonly compact = input(false);
-  /** Opened from outside: the page found the address wanting and the fields
-   * that are wrong are the ones this is folding away. */
+  /** Opens the fields from outside, when the page found them wanting. */
   readonly reveal = input(false);
 
-  /** A provider filled the address in. The page hears about it because a
-   * delivery address that moves re-resolves its zone. */
+  /** A delivery address that moves re-resolves its zone. */
   readonly picked = output<AddressComponents>();
 
   readonly attempted = computed(() => submitAttempt(this.form().field)());
 
-  /** Once the fields are open they stay open: a form that folded itself back
-   * up after being corrected would hide the correction. */
+  /** Never folds back: that would hide a correction. */
   private readonly expanded = signal(false);
 
   constructor() {
@@ -287,17 +243,13 @@ export class AddressFields {
     () => this.compact() && !this.expanded(),
   );
 
-  /** The street and address line 2 side by side while the rest is collapsed,
-   * stacked once every field is on screen. The narrow column is the postcode's
-   * own, so the two states line up. */
+  /** Side by side while collapsed, in the postcode's column widths, so the
+   * two states line up. */
   protected readonly streetRow = computed(() =>
     this.collapsed() ? 'grid gap-6 sm:grid-cols-2' : 'grid gap-6',
   );
 
-  /** Where the rest of the fields sit. Off to the left of the page while the
-   * form is collapsed: still laid out, still fillable, just nowhere anyone
-   * can see them. Left rather than up: a page does not scroll to what is
-   * beyond its left edge. */
+  /** Left, not up: a page does not scroll to what is past its left edge. */
   protected readonly restClass = computed(() =>
     this.collapsed()
       ? 'absolute -left-[9999px] top-0 w-80 space-y-4'
@@ -306,9 +258,7 @@ export class AddressFields {
 
   private readonly value = computed(() => this.form().field().value());
 
-  /** The parts a suggestion filled, on one line: everything the street line
-   * does not already say. The street is in the field directly above it, and
-   * printing it twice is not a read-back. */
+  /** What a suggestion filled, minus the street the field above shows. */
   protected readonly filled = computed(() => {
     const value = this.value();
     return [
@@ -319,8 +269,6 @@ export class AddressFields {
       .join(', ');
   });
 
-  /** The digit mask the chosen country's codes are entered through, where the
-   * deployment configured one. */
   protected readonly postalMask = computed(
     () => this.form().postalCodeRule()?.mask ?? '',
   );
@@ -330,11 +278,9 @@ export class AddressFields {
   }
 
   /**
-   * Leaving the street field with nothing resolved behind it opens the rest.
-   * A pick fills the postcode before the blur, since the list commits on
-   * mousedown, so a suggestion that landed leaves this alone, and one that
-   * never came leaves a customer who would otherwise have a postcode-shaped
-   * hole in an address they cannot see.
+   * Leaving a typed street with no postcode behind it opens the rest. A pick
+   * commits on mousedown, before this blur, so a landed suggestion is left
+   * alone.
    */
   protected settleStreet(): void {
     const { street, postalCode } = this.value();
