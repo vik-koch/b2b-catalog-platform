@@ -105,7 +105,6 @@ let nextId = 0;
           >
             <app-address-suggest-input
               [field]="address.street"
-              [text]="suggestText"
               [country]="address.country().value()"
               (picked)="suggested($event)"
             />
@@ -258,8 +257,6 @@ export class AddressFields {
   protected readonly optional = inject(SHARED_TEXT).optional;
   protected readonly countries =
     inject(DEPLOYMENT_CONFIG).address?.countries ?? [];
-
-  protected readonly suggestText = this.text.suggest;
 
   readonly form = input.required<AddressForm>();
   readonly showLabel = input(true);

@@ -9,13 +9,9 @@ import {
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
-import {
-  companyIdFormat,
-  completeMask,
-  emailAddress,
-} from '../../shared/core/field-rules';
+import { completeMask, emailAddress } from '../../shared/core/field-rules';
+import { companyIdFormat } from '../../core/accounts/parties/company-id';
 import { CheckoutDraft, PartyChoice } from './checkout-draft.service';
-import { PartySuggestion } from '@b2b-catalog-platform/shared/core/accounts';
 
 /** The party being invoiced where it is not the account's own. */
 export interface PartyAnswers {
@@ -143,15 +139,6 @@ export function createCheckoutForms(deps: {
         this.delivery.fill(draft.newDeliveryAddress);
       }
       if (draft.newBillingAddress) this.billing.fill(draft.newBillingAddress);
-    },
-
-    /** A picked company fills both halves at once: the provider takes either
-     * as its query, so whichever field was being typed in, the other follows. */
-    pickParty(suggestion: PartySuggestion): void {
-      field.party.companyName().value.set(suggestion.name);
-      if (suggestion.registrationId) {
-        field.party.companyId().value.set(suggestion.registrationId);
-      }
     },
   };
 }

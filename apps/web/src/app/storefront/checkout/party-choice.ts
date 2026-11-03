@@ -2,7 +2,6 @@ import { Component, inject, input, output } from '@angular/core';
 import { FormField, type FieldTree } from '@angular/forms/signals';
 import { NgTemplateOutlet } from '@angular/common';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
-import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { CompanyFields } from '../../core/accounts/parties/company-fields';
 import { ChoiceBranch } from '@b2b-catalog-platform/ui/choices/choice-branch';
@@ -16,7 +15,6 @@ import {
 import { PartyChoice as Party } from './checkout-draft.service';
 import { PartyAnswers } from './checkout-forms';
 import { WarningNote } from '@b2b-catalog-platform/ui/content/warning-note';
-import { PartySuggestion } from '@b2b-catalog-platform/shared/core/accounts';
 
 /**
  * Who the order is invoiced to (FR-CART-09) — a field of the order, not a
@@ -120,13 +118,15 @@ import { PartySuggestion } from '@b2b-catalog-platform/shared/core/accounts';
               />
             </ui-field>
           } @else {
+            <!-- No hint, unlike registration: which numbers are accepted is
+                 something to read while opening an account, not a paragraph
+                 to step over on the way to sending an order. A wrong one
+                 still says so. -->
             <app-company-fields
               idInputId="party-companyId"
               nameInputId="party-companyName"
               [idField]="partyField().companyId"
               [nameField]="partyField().companyName"
-              [text]="companyText"
-              (picked)="picked.emit($event)"
             />
           }
 
@@ -141,11 +141,6 @@ import { PartySuggestion } from '@b2b-catalog-platform/shared/core/accounts';
   `,
 })
 export class PartyChoice {
-  /** Sign-up's wording, whole: the same pair of fields asking the same thing
-   * of the same kind of party, and a second copy of it would be two ways of
-   * saying which numbers are accepted. */
-  private readonly fields = inject(SHARED_TEXT).fields;
-
   protected readonly text = inject(STOREFRONT_TEXT).checkout.party;
   private readonly partyChoice = inject(STOREFRONT_TEXT).partyChoice;
   /** Typed as the whole choice, not just these two: the pill hands back
@@ -156,13 +151,6 @@ export class PartyChoice {
     value,
     label: this.partyChoice[value],
   }));
-  protected readonly companyText = {
-    idLabel: this.fields.companyId.label,
-    nameLabel: this.fields.companyName.label,
-    // No hint here, unlike registration: which numbers are accepted is
-    // something to read while opening an account, not a paragraph to step over
-    // on the way to sending an order. A wrong one still says so.
-  };
 
   readonly party = input.required<Party>();
   /** A visitor with no account: there is nobody to offer as the first option,
@@ -191,5 +179,4 @@ export class PartyChoice {
   readonly partyField = input.required<FieldTree<PartyAnswers>>();
 
   readonly partyChange = output<Party>();
-  readonly picked = output<PartySuggestion>();
 }

@@ -7,20 +7,14 @@ import {
   viewChildren,
 } from '@angular/core';
 import { type FieldTree } from '@angular/forms/signals';
+import { fillText } from '@b2b-catalog-platform/shared';
 import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
-import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
-import { companyIdExamples } from '../../../shared/core/field-rules';
+import { SHARED_TEXT } from '../../../shared/config/shared-text';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { Field } from '@b2b-catalog-platform/ui/fields/field';
+import { companyIdExamples } from './company-id';
 import { PartySuggestInput } from './party-suggest-input';
 import { PartySuggestion } from '@b2b-catalog-platform/shared/core/accounts';
-
-export interface CompanyFieldsText {
-  readonly idLabel: string;
-  readonly nameLabel: string;
-  /** `{examples}` is substituted with every shape the deployment accepts. */
-  readonly hint?: string;
-}
 
 /** Two pairs on one page would otherwise share the line's id. */
 let nextId = 0;
@@ -32,7 +26,7 @@ let nextId = 0;
  * One row because they are one answer, laid out like the postcode and the city:
  * a short fixed token beside a long free-text field. Both suggest, from the same
  * endpoint, because the provider takes either as its query, so picking a row in
- * whichever field the customer started in fills the other.
+ * whichever field the customer started in fills both.
  *
  * The messages sit **under the row**, spanning it, rather than inside the
  * columns: the number's column is ten characters wide, and a format message
@@ -54,28 +48,26 @@ let nextId = 0;
       <div class="@container grid gap-6 sm:grid-cols-[10rem_1fr]">
         <ui-field
           [field]="idField()"
-          [label]="text().idLabel"
+          [label]="labels.companyId.label"
           [controlId]="idInputId()"
           [sharedLine]="lineId"
         >
           <app-party-suggest-input
             [field]="idField()"
-            [text]="suggestText"
-            (picked)="picked.emit($event)"
+            (picked)="fill($event)"
           />
         </ui-field>
 
         <ui-field
           [field]="nameField()"
-          [label]="text().nameLabel"
+          [label]="labels.companyName.label"
           [controlId]="nameInputId()"
           [sharedLine]="lineId"
         >
           <app-party-suggest-input
             [field]="nameField()"
-            [text]="suggestText"
             autocomplete="organization"
-            (picked)="picked.emit($event)"
+            (picked)="fill($event)"
           />
         </ui-field>
       </div>
@@ -88,7 +80,7 @@ let nextId = 0;
         @for (message of messages(); track message) {
           <p uiErrorText>{{ message }}</p>
         } @empty {
-          @if (hint(); as hint) {
+          @if (filledHint(); as hint) {
             <p class="text-sm text-ink-subtle">{{ hint }}</p>
           }
         }
@@ -99,24 +91,24 @@ let nextId = 0;
 export class CompanyFields {
   readonly idField = input.required<FieldTree<string>>();
   readonly nameField = input.required<FieldTree<string>>();
-  readonly text = input.required<CompanyFieldsText>();
+  /** `{examples}` is filled with every shape the deployment accepts. */
+  readonly hint = input<string>();
   readonly idInputId = input('companyId');
   readonly nameInputId = input('companyName');
 
-  /** The whole party the customer picked; the form fills both fields from it. */
+  /** The whole party the customer picked, after both fields took it. */
   readonly picked = output<PartySuggestion>();
 
+  protected readonly labels = inject(SHARED_TEXT).fields;
   protected readonly lineId = `company-line-${nextId++}`;
   private readonly examples = companyIdExamples(
     inject(DEPLOYMENT_CONFIG).companyIdInput?.formats,
   );
 
-  /** The type-ahead's wording, the same wherever the pair is asked for. */
-  protected readonly suggestText = inject(STOREFRONT_TEXT).companySuggest;
-
-  protected readonly hint = computed(() =>
-    this.text().hint?.replace('{examples}', this.examples),
-  );
+  protected readonly filledHint = computed(() => {
+    const hint = this.hint();
+    return hint && fillText(hint, { examples: this.examples });
+  });
 
   private readonly fields = viewChildren(Field);
   /** What is wrong, in field order. */
@@ -125,4 +117,17 @@ export class CompanyFields {
       .map((field) => field.error())
       .filter((message) => message !== null),
   );
+
+  /**
+   * Only what the provider answered is written, so a partial answer keeps what
+   * was typed, and nothing is locked: the registry fills the form, it does not
+   * decide it.
+   */
+  protected fill(party: PartySuggestion): void {
+    this.nameField()().value.set(party.name);
+    if (party.registrationId) {
+      this.idField()().value.set(party.registrationId);
+    }
+    this.picked.emit(party);
+  }
 }

@@ -12,11 +12,8 @@ import {
   typedPhone,
 } from '../../../shared/core/contact-fields';
 import { delayedLoading } from '../../../shared/core/delayed-loading';
-import {
-  companyIdFormat,
-  completeMask,
-  emailAddress,
-} from '../../../shared/core/field-rules';
+import { completeMask, emailAddress } from '../../../shared/core/field-rules';
+import { companyIdFormat } from '../../../core/accounts/parties/company-id';
 import { usePageSeo } from '../../../shared/core/page-seo';
 import { UnsavedChangesAware } from '../../unsaved-changes.guard';
 import { UnsavedChanges } from '../../unsaved-changes';
@@ -52,7 +49,6 @@ import { SaveButton } from '../../ui/save-button';
 import { CancelButton } from '../../ui/cancel-button';
 import {
   CustomerType,
-  PartySuggestion,
   StaffUser,
   UserKind,
 } from '@b2b-catalog-platform/shared/core/accounts';
@@ -255,8 +251,6 @@ interface UserDraft {
                 idInputId="companyRegistrationId"
                 [idField]="form.companyRegistrationId"
                 [nameField]="form.companyName"
-                [text]="companyText"
-                (picked)="fillCompanyFrom($event)"
               />
             }
 
@@ -474,11 +468,6 @@ export class UserEditorPage implements UnsavedChangesAware {
 
   protected readonly phoneInput = this.config.phoneInput;
   private readonly companyIdInput = this.config.companyIdInput;
-
-  protected readonly companyText = {
-    idLabel: this.fields.companyId.label,
-    nameLabel: this.fields.companyName.label,
-  };
 
   private readonly idParam = this.route.snapshot.paramMap.get('id');
   protected readonly isNew = this.idParam === null;
@@ -830,18 +819,6 @@ export class UserEditorPage implements UnsavedChangesAware {
       ...(companyName ? { companyName } : {}),
       ...(companyId ? { companyRegistrationId: companyId } : {}),
     };
-  }
-
-  /**
-   * A picked company, across both fields. Staff get the same accelerator the
-   * customer does — a manager typing an account up from a phone call is the
-   * likeliest person to have only half the details.
-   */
-  protected fillCompanyFrom(party: PartySuggestion): void {
-    this.form.companyName().value.set(party.name);
-    if (party.registrationId) {
-      this.form.companyRegistrationId().value.set(party.registrationId);
-    }
   }
 
   private async leave(): Promise<void> {

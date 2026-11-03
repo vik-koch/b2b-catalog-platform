@@ -1,11 +1,9 @@
 import { Component, inject, input, output } from '@angular/core';
 import { FormField, type FieldTree } from '@angular/forms/signals';
+import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
 import { HighlightedLine } from '@b2b-catalog-platform/ui/suggest/highlighted-line';
 import { MatchSegmentsPipe } from '../../catalog/search/match-segments.pipe';
-import {
-  SuggestList,
-  SuggestListText,
-} from '@b2b-catalog-platform/ui/suggest/suggest-list';
+import { SuggestList } from '@b2b-catalog-platform/ui/suggest/suggest-list';
 import { FieldBinding } from '@b2b-catalog-platform/ui/fields/field-binding';
 import { Input } from '@b2b-catalog-platform/ui/inputs/input';
 import { SuggestField } from '@b2b-catalog-platform/ui/suggest/suggest-field';
@@ -45,7 +43,7 @@ import {
   template: `
     <ui-suggest-field
       [list]="list"
-      [text]="text()"
+      [text]="text"
       width="lg"
       (picked)="picked.emit($event.components)"
     >
@@ -75,8 +73,9 @@ import {
 export class AddressSuggestInput {
   private readonly addresses = inject(AddressesService);
 
+  protected readonly text = inject(STOREFRONT_TEXT).address.suggest;
+
   readonly field = input.required<FieldTree<string>>();
-  readonly text = input.required<SuggestListText>();
   /** Biases the provider; the form's own country picker feeds it. */
   readonly country = input<string | undefined>(undefined);
 

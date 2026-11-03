@@ -1,24 +1,25 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 import { form, required } from '@angular/forms/signals';
 import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
 import { defaultDeploymentConfig } from '../../../shared/config/deployment-config.fixture';
+import { SHARED_TEXT } from '../../../shared/config/shared-text';
+import { defaultSharedText } from '../../../shared/config/shared-text.fixture';
 import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
 import { defaultStorefrontText } from '../../../shared/config/storefront-text.fixture';
-import { companyIdFormat } from '../../../shared/core/field-rules';
 import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
+import { PartySuggestion } from '@b2b-catalog-platform/shared/core/accounts';
 import { CompanyFields } from './company-fields';
+import { companyIdFormat } from './company-id';
 import { PartiesService } from './parties.service';
+import { PartySuggestInput } from './party-suggest-input';
 
 const formats = defaultDeploymentConfig.companyIdInput?.formats ?? [];
 /** Both shapes the demo deployment accepts, as the row names them. */
 const examples = formats.map((format) => format.example).join(', ');
 
-const text = {
-  idLabel: 'Company ID',
-  nameLabel: 'Company name',
-  hint: 'e.g. {examples}',
-};
+const hint = 'e.g. {examples}';
 const messages = {
   idFormat: 'Please enter it in one of the expected formats, e.g. {examples}.',
   idRequired: 'Please enter your company ID.',
@@ -32,14 +33,16 @@ const messages = {
       <app-company-fields
         [idField]="form.id"
         [nameField]="form.name"
-        [text]="text"
+        [hint]="hint"
+        (picked)="picked = $event"
       />
       <button type="submit">Send</button>
     </form>
   `,
 })
 class Host {
-  protected readonly text = text;
+  protected readonly hint = hint;
+  picked: PartySuggestion | undefined;
   readonly form = form(
     signal({ id: '', name: '' }),
     (company) => {
@@ -57,6 +60,7 @@ async function render() {
     providers: [
       { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
       { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
+      { provide: SHARED_TEXT, useValue: defaultSharedText },
       { provide: PartiesService, useValue: { suggest: vi.fn(async () => []) } },
     ],
   });
@@ -72,6 +76,13 @@ async function render() {
   return {
     el,
     host: fixture.componentInstance,
+    /** A row picked in the field at `index`, as its list would emit it. */
+    pick: async (index: number, party: PartySuggestion) => {
+      fixture.debugElement
+        .queryAll(By.directive(PartySuggestInput))
+        [index].componentInstance.picked.emit(party);
+      await settle();
+    },
     type: async (selector: string, value: string) => {
       const input = el.querySelector<HTMLInputElement>(selector);
       if (!input) throw new Error(`no ${selector}`);
@@ -164,6 +175,32 @@ describe('CompanyFields', () => {
 
     expect(el.textContent).toContain(messages.idRequired);
     expect(el.textContent).not.toContain('expected formats');
+  });
+
+  // Either field takes the query, so a row picked in either fills both.
+  it('fills both fields from a row picked in either', async () => {
+    const { host, pick } = await render();
+    const party: PartySuggestion = {
+      name: 'Kontor GmbH',
+      registrationId: 'DE123456789',
+      entityType: 'legal',
+    };
+
+    await pick(0, party);
+
+    expect(host.form.name().value()).toBe('Kontor GmbH');
+    expect(host.form.id().value()).toBe('DE123456789');
+    expect(host.picked).toBe(party);
+  });
+
+  it('keeps a typed number where the picked row has none', async () => {
+    const { host, type, pick } = await render();
+
+    await type('#companyId', 'DE123456789');
+    await pick(1, { name: 'Kontor' });
+
+    expect(host.form.name().value()).toBe('Kontor');
+    expect(host.form.id().value()).toBe('DE123456789');
   });
 
   // Two fields, one message area: both mistakes have to be readable at once.

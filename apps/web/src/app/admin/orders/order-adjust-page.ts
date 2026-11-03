@@ -35,12 +35,9 @@ import {
   injectAddressRules,
 } from '../../core/accounts/addresses/address-form';
 import { CompanyFields } from '../../core/accounts/parties/company-fields';
+import { companyIdFormat } from '../../core/accounts/parties/company-id';
 import { canonicalPhone, typedPhone } from '../../shared/core/contact-fields';
-import {
-  companyIdFormat,
-  completeMask,
-  emailAddress,
-} from '../../shared/core/field-rules';
+import { completeMask, emailAddress } from '../../shared/core/field-rules';
 import {
   formatPriceInput,
   parsePriceInput,
@@ -90,7 +87,6 @@ import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { Hint } from '@b2b-catalog-platform/ui/fields/hint';
 import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
-import { PartySuggestion } from '@b2b-catalog-platform/shared/core/accounts';
 
 /** One line as the form holds it, before the server has priced it. */
 interface DraftLine {
@@ -496,8 +492,6 @@ const PREVIEW_DEBOUNCE_MS = 250;
                           nameInputId="adjust-party-name"
                           [idField]="form.party.companyId"
                           [nameField]="form.party.companyName"
-                          [text]="companyText"
-                          (picked)="pickParty($event)"
                         />
                       }
                     </section>
@@ -894,11 +888,6 @@ export class AdminOrderAdjustPage implements FieldAttempt {
     this.rememberedPayment[this.partyKind()] = method;
   }
 
-  protected readonly companyText = {
-    idLabel: this.fields.companyId.label,
-    nameLabel: this.fields.companyName.label,
-  };
-
   /** Which kind the party is; which of its fields count follows from it. */
   protected setPartyKind(kind: 'person' | 'company'): void {
     if (kind !== this.partyKind()) {
@@ -907,15 +896,6 @@ export class AdminOrderAdjustPage implements FieldAttempt {
       this.paymentMethod.set(this.rememberedPayment[kind]);
     }
     this.partyKind.set(kind);
-  }
-
-  /** A picked company fills both halves at once — the provider takes either as
-   * its query, so whichever field was being typed in, the other follows. */
-  protected pickParty(suggestion: PartySuggestion): void {
-    this.form.party.companyName().value.set(suggestion.name);
-    if (suggestion.registrationId) {
-      this.form.party.companyId().value.set(suggestion.registrationId);
-    }
   }
 
   /** What the order says its party is, whichever branch answered it. */

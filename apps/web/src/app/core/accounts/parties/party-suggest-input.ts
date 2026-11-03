@@ -1,11 +1,9 @@
 import { Component, inject, input, output } from '@angular/core';
 import { FormField, type FieldTree } from '@angular/forms/signals';
+import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
 import { HighlightedLine } from '@b2b-catalog-platform/ui/suggest/highlighted-line';
 import { MatchSegmentsPipe } from '../../catalog/search/match-segments.pipe';
-import {
-  SuggestList,
-  SuggestListText,
-} from '@b2b-catalog-platform/ui/suggest/suggest-list';
+import { SuggestList } from '@b2b-catalog-platform/ui/suggest/suggest-list';
 import { FieldBinding } from '@b2b-catalog-platform/ui/fields/field-binding';
 import { Input } from '@b2b-catalog-platform/ui/inputs/input';
 import { SuggestField } from '@b2b-catalog-platform/ui/suggest/suggest-field';
@@ -48,7 +46,7 @@ import {
          is too narrow to read a company name in. -->
     <ui-suggest-field
       [list]="list"
-      [text]="text()"
+      [text]="text"
       width="md"
       (picked)="picked.emit($event)"
     >
@@ -77,8 +75,9 @@ import {
 export class PartySuggestInput {
   private readonly parties = inject(PartiesService);
 
+  protected readonly text = inject(STOREFRONT_TEXT).companySuggest;
+
   readonly field = input.required<FieldTree<string>>();
-  readonly text = input.required<SuggestListText>();
   readonly autocomplete = input('off');
 
   /** The whole party the customer picked: both fields fill from it. */

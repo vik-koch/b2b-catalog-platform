@@ -1,6 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
 import { form } from '@angular/forms/signals';
+import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
+import { defaultStorefrontText } from '../../../shared/config/storefront-text.fixture';
 import { PartiesService } from './parties.service';
 import { PartySuggestInput } from './party-suggest-input';
 import { PartySuggestion } from '@b2b-catalog-platform/shared/core/accounts';
@@ -16,11 +18,7 @@ const kontor: PartySuggestion = {
   address: { city: 'Hamburg', postalCode: '20359' },
 };
 
-const text = {
-  suggestionsAria: 'Company suggestions',
-  noSuggestions: 'No matching companies. Carry on typing it yourself.',
-  suggestionCountAria: 'Company suggestions: {count}',
-};
+const text = defaultStorefrontText.companySuggest;
 
 async function render() {
   const suggest = vi.fn(async () => {
@@ -30,7 +28,10 @@ async function render() {
 
   TestBed.configureTestingModule({
     imports: [PartySuggestInput],
-    providers: [{ provide: PartiesService, useValue: { suggest } }],
+    providers: [
+      { provide: PartiesService, useValue: { suggest } },
+      { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
+    ],
   });
 
   const fixture = TestBed.createComponent(PartySuggestInput);
@@ -38,7 +39,6 @@ async function render() {
     'field',
     TestBed.runInInjectionContext(() => form(signal(''))),
   );
-  fixture.componentRef.setInput('text', text);
   await fixture.whenStable();
   fixture.detectChanges();
 

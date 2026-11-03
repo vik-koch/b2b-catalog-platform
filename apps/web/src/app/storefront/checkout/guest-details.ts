@@ -15,7 +15,6 @@ import {
 } from '@b2b-catalog-platform/ui/choices/segmented';
 import { PartyChoice as Party } from './checkout-draft.service';
 import { ContactAnswers, PartyAnswers } from './checkout-forms';
-import { PartySuggestion } from '@b2b-catalog-platform/shared/core/accounts';
 
 /**
  * Everything a guest is asked about themselves (FR-CART-03/09), in one block:
@@ -67,8 +66,6 @@ import { PartySuggestion } from '@b2b-catalog-platform/shared/core/accounts';
           nameInputId="party-companyName"
           [idField]="partyField().companyId"
           [nameField]="partyField().companyName"
-          [text]="companyText"
-          (picked)="picked.emit($event)"
         />
         <ng-container [ngTemplateOutlet]="reach" />
       } @else {
@@ -132,16 +129,10 @@ export class GuestDetails {
     label: this.partyChoice[value],
   }));
 
-  protected readonly companyText = {
-    idLabel: this.fields.companyId.label,
-    nameLabel: this.fields.companyName.label,
-  };
-
   readonly party = input.required<Party>();
   /** The page's form decides what each answer must be. */
   readonly partyField = input.required<FieldTree<PartyAnswers>>();
   readonly contact = input.required<FieldTree<ContactAnswers>>();
 
   readonly partyChange = output<Party>();
-  readonly picked = output<PartySuggestion>();
 }

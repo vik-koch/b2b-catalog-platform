@@ -6,12 +6,9 @@ import { SHARED_TEXT } from '../../../shared/config/shared-text';
 import { usePageSeo } from '../../../shared/core/page-seo';
 import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
 import { canonicalPhone } from '../../../shared/core/contact-fields';
-import {
-  companyIdFormat,
-  completeMask,
-  emailAddress,
-} from '../../../shared/core/field-rules';
+import { completeMask, emailAddress } from '../../../shared/core/field-rules';
 import { CompanyFields } from '../../../core/accounts/parties/company-fields';
+import { companyIdFormat } from '../../../core/accounts/parties/company-id';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { HoneypotField } from '@b2b-catalog-platform/ui/fields/honeypot-field';
 import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
@@ -147,8 +144,8 @@ interface Registration {
               idInputId="companyRegistrationId"
               [idField]="form.companyRegistrationId"
               [nameField]="form.companyName"
-              [text]="companyText"
-              (picked)="fillFrom($event)"
+              [hint]="text.register.companyIdHint"
+              (picked)="picked.set($event)"
             />
           }
 
@@ -225,16 +222,13 @@ export class RegisterPage {
   protected readonly phoneInput = this.config.phoneInput;
   private readonly companyIdInput = this.config.companyIdInput;
 
-  // Held as a field rather than built in the template, so its identity is
-  // stable across change detection.
-  protected readonly companyText = {
-    idLabel: this.fields.companyId.label,
-    nameLabel: this.fields.companyName.label,
-    hint: this.text.register.companyIdHint,
-  };
-
-  /** The company the registrant picked, if they picked one. */
-  private readonly picked = signal<PartySuggestion | undefined>(undefined);
+  /**
+   * The company the registrant picked, if they picked one. Kept for the
+   * submission, not shown: the registered address becomes the account's first
+   * saved one (FR-AUTH-10), and a registration form is no place to review an
+   * address nobody asked to enter.
+   */
+  protected readonly picked = signal<PartySuggestion | undefined>(undefined);
 
   protected readonly status = signal<Status>('idle');
   protected readonly consent = useConsent('account');
@@ -308,23 +302,6 @@ export class RegisterPage {
     }
     // A consent refusal is explained beside the box, not as a failure.
     this.status.set(this.consent.refused(result) ? 'idle' : 'error');
-  }
-
-  /**
-   * A picked company, spread across both fields. Only what the provider
-   * actually answered is written — a partial answer must not blank what the
-   * customer already typed — and neither value is locked afterwards: the
-   * registry fills the form, it does not decide it (ADR 0041).
-   */
-  protected fillFrom(party: PartySuggestion): void {
-    this.form.companyName().value.set(party.name);
-    if (party.registrationId) {
-      this.form.companyRegistrationId().value.set(party.registrationId);
-    }
-    // Kept for the submission, not shown: the registered address becomes the
-    // account's first saved one (FR-AUTH-10), and a registration form is no
-    // place to review an address nobody asked to enter.
-    this.picked.set(party);
   }
 
   /**

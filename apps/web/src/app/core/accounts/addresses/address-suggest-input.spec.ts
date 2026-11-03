@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
 import { form } from '@angular/forms/signals';
+import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
 import { defaultStorefrontText } from '../../../shared/config/storefront-text.fixture';
 import { AddressSuggestInput } from './address-suggest-input';
 import { AddressesService } from './addresses.service';
@@ -30,7 +31,10 @@ async function render() {
   });
   TestBed.configureTestingModule({
     imports: [AddressSuggestInput],
-    providers: [{ provide: AddressesService, useValue: { suggest } }],
+    providers: [
+      { provide: AddressesService, useValue: { suggest } },
+      { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
+    ],
   });
 
   const fixture = TestBed.createComponent(AddressSuggestInput);
@@ -38,7 +42,6 @@ async function render() {
     'field',
     TestBed.runInInjectionContext(() => form(signal(''))),
   );
-  fixture.componentRef.setInput('text', text.suggest);
   await fixture.whenStable();
   fixture.detectChanges();
 

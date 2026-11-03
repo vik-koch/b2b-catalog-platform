@@ -68,7 +68,6 @@ import { shoppingBasketIcon } from '@b2b-catalog-platform/ui/icons/glyphs/shoppi
 import {
   AddressInput,
   formatPersonName,
-  PartySuggestion,
 } from '@b2b-catalog-platform/shared/core/accounts';
 
 /**
@@ -274,7 +273,6 @@ import {
                     [partyField]="checkoutForm.party"
                     [contact]="checkoutForm.contact"
                     (partyChange)="chooseParty($event)"
-                    (picked)="pickParty($event)"
                   />
 
                   <ui-honeypot-field
@@ -292,7 +290,6 @@ import {
                     [lastOther]="otherParty()"
                     [partyField]="checkoutForm.party"
                     (partyChange)="chooseParty($event)"
-                    (picked)="pickParty($event)"
                   />
                 }
 
@@ -986,10 +983,6 @@ export class CheckoutPage {
   protected chooseParty(party: Party): void {
     this.drafts.patch({ party });
     if (party !== 'account') this.lastOtherParty.set(party);
-  }
-
-  protected pickParty(suggestion: PartySuggestion): void {
-    this.forms.pickParty(suggestion);
   }
 
   protected toggleSameBilling(): void {
