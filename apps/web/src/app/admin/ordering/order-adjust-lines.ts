@@ -37,51 +37,35 @@ import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
 /** `aria-controls` must name one list, and a page may hold more than one. */
 let nextId = 0;
 
-/** Enough rows to choose from without the panel becoming a listing of its own. */
+/** Enough to choose from without becoming a listing. */
 const SUGGESTIONS_SHOWN = 8;
 
 /** One line as this editor holds it: what is sent, plus how it reads. */
 export interface AdjustLineRow {
   slug: string;
   name: string;
-  /** Stable across every redraw, so a row keeps its DOM — and so the field
-   * somebody is typing in keeps its cursor — when the list is reordered or a
-   * line above it is removed. */
+  /** Stable, so a row and its cursor survive reordering and removal. */
   key: string;
-  /** How many pieces — the staff reading of a quantity. */
+  /** Pieces: the staff reading. */
   pieces: number;
-  /** The price of one piece, as typed. Empty only in the moment between a line
-   * being added and the server saying what the list charges for it: the answer
-   * is written into the field rather than shown behind it, so the figure a
-   * manager corrects is a figure they can edit. */
+  /** One piece's price as typed; empty only until the server fills the list's
+   * price. */
   priceText: string;
-  /** The customer's own reading of the quantity, and their words about the
-   * line — both carried, neither edited. */
+  /** The customer's reading and note, carried, not edited. */
   quantityLabel: string;
   note: string | null;
   totalLabel: string;
-  /** The rate the new version will state for the line (NFR-LEGAL-11), or
-   * empty where it states none. */
+  /** The rate the new version states (NFR-LEGAL-11), or empty. */
   taxLabel: string;
   flags: readonly AdjustmentLineFlag[];
-  /** Whether this line is priced away from the list it would otherwise take
-   * (FR-CART-09) — marked on the line, and counted again above the save
-   * button, because a price nobody meant to type is the one mistake this
-   * screen can make silently. */
+  /** Priced off its list (FR-CART-09): marked here and counted above the save,
+   * the screen's one silent mistake. */
   offList: boolean;
 }
 
-/**
- * The lines of an order being adjusted (FR-ORD-03).
- *
- * Counted in **pieces** rather than in the customer's own unit: it is how
- * staff read a line and how the source system prices one. What the customer
- * sees — "2 pk", their note — is shown beside it, unedited.
- *
- * Nothing here is priced on the client. The figures beside each line are the
- * server's answer to the draft as it stands, so the total a manager approves
- * is the total that gets written.
- */
+/** The lines of an order being adjusted (FR-ORD-03), in **pieces**, as staff
+ * and the source system read them; the customer's reading sits beside. Figures
+ * are the server's answer. */
 @Component({
   selector: 'app-order-adjust-lines',
   imports: [
@@ -105,10 +89,7 @@ export interface AdjustLineRow {
     <ul class="divide-y divide-edge border-b border-edge">
       @for (line of lines(); track line.key; let i = $index) {
         <li class="py-2 first:pt-0">
-          <!-- The name has the row to itself: a long one is the ordinary case
-               on a catalogue of about 1,500, and sharing the row with the
-               figures left it two words wide with the note under it wrapped
-               four times. -->
+          <!-- The name gets the row: long names are ordinary. -->
           <span class="block">{{ line.name }}</span>
           @if (line.note) {
             <span class="block text-sm text-ink-subtle italic">{{
@@ -116,12 +97,8 @@ export interface AdjustLineRow {
             }}</span>
           }
 
-          <!-- Everything the line *is*, on one row: what is being charged for,
-               what one costs, what the customer reads that as, what it comes
-               to, and the three controls. The two fields wear their own units,
-               so neither needs a caption — a label above, a unit beside and a
-               hint below would be four lines for two numbers, and a form of
-               forty lines is read by scrolling. -->
+          <!-- Everything else on one row. The fields wear their units, so no
+               captions: a forty-line form is read by scrolling. -->
           <div class="mt-1 flex flex-wrap items-center gap-2">
             <ui-unit-input class="w-28" [unit]="pieceUnit">
               <input
@@ -159,12 +136,9 @@ export interface AdjustLineRow {
             }
 
             <span class="ml-auto flex shrink-0 items-center gap-3">
-              <!-- What the customer reads the line as, over what it comes to:
-                   the two are one sentence — this much of it, for this much
-                   money — and they are the server's answer to the two fields
-                   on their left, so they end the row those fields begin.
-                   Bars until that answer arrives, so the row does not grow
-                   a line under somebody already reading it. -->
+              <!-- The customer's reading over the line total: the server's
+                   answer to the fields, ending their row. Bars until it
+                   arrives, so the row does not grow. -->
               <span class="text-right">
                 @if (line.totalLabel) {
                   <span class="block text-sm text-ink-subtle">
@@ -177,10 +151,7 @@ export interface AdjustLineRow {
                     </span>
                   }
                 } @else {
-                  <!-- Two bars the shape of the two lines they stand in for:
-                       the reading above at its size, the figure below at its
-                       own, both hung off the right edge the figures are set
-                       against. -->
+                  <!-- Bars shaped like the two lines, right-aligned. -->
                   <span class="block w-20">
                     <ui-skeleton
                       size="sm"
@@ -195,11 +166,8 @@ export interface AdjustLineRow {
                   </span>
                 }
               </span>
-              <!-- Moving a line is not a change to the order, and the change
-                   list says so. It is here because a picking list is read top
-                   to bottom, and the one thing a manager must not have to do
-                   to reorder it is delete a line and add it again — which
-                   loses its agreed price. -->
+              <!-- Reordering is not a change, but spares delete-and-re-add,
+                   which loses the price. -->
               <span class="flex shrink-0 items-center">
                 <button
                   uiIconButton
@@ -237,10 +205,8 @@ export interface AdjustLineRow {
       }
     </ul>
 
-    <!-- Adding a product: the catalog whole, published or not. An order may
-         perfectly well be filled from something the storefront does not
-         offer, and a staff screen that hides it would send somebody to
-         publish a product just to put it on one order. -->
+    <!-- The whole catalog, published or not: an order may be filled from
+         anything. -->
     <div class="mt-4">
       <label [for]="id + '-add'" uiFieldLabel>{{ text.addLabel }}</label>
       <ui-suggest-field
@@ -284,7 +250,6 @@ export class OrderAdjustLines {
   private readonly currency = moneyFormat(inject(DEPLOYMENT_CONFIG));
   protected readonly partialPrice = partialPriceRule(this.currency);
   protected readonly id = `adjust-lines-${++nextId}`;
-  /** The field's label names the list: the panel is the search's answer. */
   protected readonly suggestText = {
     suggestionsAria: this.text.addLabel,
     noSuggestions: this.text.noMatches,
@@ -306,9 +271,7 @@ export class OrderAdjustLines {
     load: (q) =>
       this.productsService.list({ q, sort: 'relevance' }).then((r) => r.items),
     minLength: 2,
-    /** A product already on the order is not offered again: a product in a
-     * given unit is one line, and a second one would be two lines to
-     * reconcile. */
+    /** Not offered twice: one product, one line. */
     shown: (answer) => {
       const taken = new Set(this.lines().map((line) => line.slug));
       return answer
@@ -321,9 +284,7 @@ export class OrderAdjustLines {
     this.layout.of(this.list.query()),
   );
 
-  /** What the price field is per, printed inside it — the currency alone,
-   * since a price is always the price of one piece. Saying it inside the box
-   * is what lets the caption above it go. */
+  /** The currency inside the field; a price is always per piece. */
   protected priceSuffix(): string {
     return currencySymbol(this.currency);
   }
@@ -348,8 +309,7 @@ export class OrderAdjustLines {
 
   protected piecesTyped(index: number, value: string): void {
     const pieces = Number(value);
-    // A field being cleared is a field mid-edit, not a line of nothing: the
-    // draft keeps the last real count until a new one is typed.
+    // A cleared field is mid-edit: the draft keeps the last count.
     if (!Number.isInteger(pieces) || pieces < 1) return;
     this.piecesChanged.emit({ index, pieces });
   }

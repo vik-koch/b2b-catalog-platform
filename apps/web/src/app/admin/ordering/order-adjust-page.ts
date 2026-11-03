@@ -90,33 +90,22 @@ import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
 
 /** One line as the form holds it, before the server has priced it. */
 interface DraftLine {
-  /** Identity for the list's own sake: a line keeps its row — and the field
-   * being typed in keeps its cursor — across reordering and removal. */
+  /** Stable, so a row and its cursor survive reordering and removal. */
   key: string;
   slug: string;
   name: string;
   pieces: number;
-  /** The customer's reading, carried. Null on a line staff just added. */
+  /** The customer's reading; null on a line staff added. */
   unit: ProductUnit | null;
   note: string | null;
-  /** What one piece costs, as the field holds it. */
   priceText: string;
-  /**
-   * Whether this line is waiting to be told what the list charges for it — a
-   * line just added, or one a reprice has just asked for.
-   *
-   * While it is set the line travels with no price of its own, which is what
-   * asks the server to price it; when the answer comes back the figure is
-   * written into the field and the flag clears. The field is filled in rather
-   * than left empty behind a placeholder, because the next thing a manager
-   * does to a repriced line is round it — and a figure you can see but not
-   * edit is one you have to retype.
-   */
+  /** Waiting for the list's price: sent without one, which asks the server to
+   * price it; the answer fills the field, so a manager rounds it rather than
+   * retyping. */
   fromList: boolean;
 }
 
-/** Which half of the form a refusal belongs to, so it is read beside the
- * fields that caused it rather than beside the save button. */
+/** Which fold a refusal is said in, beside its fields. */
 const REFUSAL_PART: Record<AdjustmentRefusal, 'lines' | 'details'> = {
   'unknown-product': 'lines',
   'unknown-tier': 'lines',
@@ -129,8 +118,7 @@ const REFUSAL_PART: Record<AdjustmentRefusal, 'lines' | 'details'> = {
   'invalid-postal-code': 'details',
   'unknown-pickup-location': 'details',
   'order-changed': 'details',
-  // Only ever raised by the save, never by the pricing, so this half is never
-  // read for it: it is said under the note instead.
+  // Raised only by the save, so said under the note.
   'no-change': 'details',
   'order-not-found': 'details',
 };
@@ -142,27 +130,14 @@ interface AdjustAnswers {
   billing: AddressDraft;
 }
 
-/** How long a manager pauses before the draft is worth pricing again. */
+/** The typing pause before re-pricing. */
 const PREVIEW_DEBOUNCE_MS = 250;
 
-/**
- * Adjusting an order (FR-ORD-03) — accepting it with changes, or changing one
- * already accepted.
- *
- * A whole form rather than an inline edit, because what it writes is a whole
- * new version of the order (ADR 0051): everything the checkout asked is here
- * and can be answered differently, and pressing save records the answer as it
- * now stands rather than patching the old one.
- *
- * **Nothing on this page prices anything.** Every figure comes from the
- * server's preview of the draft, so the total a manager approves is the total
- * that gets written — and the change list beside the form is the difference
- * between the version on file and that preview, which is exactly what the
- * customer will be told.
- *
- * What the customer wrote — their note, their line notes, the day they asked
- * for — is shown and not editable. It is their half of the record.
- */
+/** Adjusting an order (FR-ORD-03): a whole form, as it writes a whole new
+ * version. **Nothing here prices anything**: figures come from the server's
+ * preview, so the approved total is the written one, and the change list is
+ * what the customer will be told. The customer's notes and date are shown, not
+ * editable. */
 @Component({
   selector: 'app-order-adjust-page',
   imports: [
@@ -190,8 +165,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
     PageIntro,
     DisclosureFrame,
   ],
-  // No <form> element holds the fields: the save button sits in the aside,
-  // after the note, so the page says itself when the form has been sent.
+  // No <form>: the save button sits in the aside after the note.
   providers: [
     {
       provide: FIELD_ATTEMPT,
@@ -199,11 +173,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
     },
   ],
   template: `
-    <!-- An order answered by an external system has nothing to propose, so
-         this screen draws no form rather than a dead one: everything on it is
-         a field the save would refuse, and the order itself reads better one
-         route up. The same answer the account editor gives on its "new"
-         route. -->
+    <!-- No form while answered externally: every field would be refused. -->
     @if (locked()) {
       <div class="max-w-xl">
         <h1 uiPageTitle>{{ title() }}</h1>
@@ -232,8 +202,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
               <p uiPageIntro class="mt-2">{{ intro }}</p>
             }
 
-            <!-- Amber, not red: none of these refuses the adjustment. They
-                 are what a manager should have weighed before making it. -->
+            <!-- Amber: none of these refuses; they are to be weighed. -->
             @if (loaded.paymentState === 'paid') {
               <ui-warning-note class="mt-4">
                 {{ text.warnPaid }}
@@ -250,11 +219,8 @@ const PREVIEW_DEBOUNCE_MS = 250;
               </ui-warning-note>
             }
 
-            <!-- Two boxes, because an adjustment is two jobs. What was bought
-                 and what it costs is the one a manager opens this screen for;
-                 who it goes to and how it is paid is the one they scroll past
-                 on the way. Each folds, so the half being worked on is the
-                 half on screen. -->
+            <!-- Two folds for two jobs: lines and prices, then party, delivery
+                 and payment. -->
             <div class="mt-4 space-y-6">
               <section
                 class="rounded-md border"
@@ -274,9 +240,8 @@ const PREVIEW_DEBOUNCE_MS = 250;
                     [id]="itemsPanelId"
                     class="space-y-6 border-t border-edge p-4"
                   >
-                    <!-- Where the pricing itself was refused, said here rather
-                         than beside the save button: the figures on these lines
-                         are the ones that could not be worked out. -->
+                    <!-- A pricing refusal, beside the lines it could not price.
+                         -->
                     @if (refusalOn() === 'lines') {
                       <p uiErrorText role="alert">
                         {{ refusalMessage() }}
@@ -297,10 +262,8 @@ const PREVIEW_DEBOUNCE_MS = 250;
                       <label uiFieldLabel for="adjust-tier">
                         {{ ordersText.tier }}
                       </label>
-                      <!-- The list and the button that applies it, half the
-                           row each: they are one action in two parts, and the
-                           button drifting to wherever the longest tier name
-                           left it read as something else on the row. -->
+                      <!-- List and its apply button, half the row each: one
+                           action. -->
                       <div class="grid gap-6 sm:grid-cols-2">
                         <ui-select-input>
                           <select
@@ -362,11 +325,8 @@ const PREVIEW_DEBOUNCE_MS = 250;
                       <h2 class="mb-2 font-medium">
                         {{ sharedText.fulfilment.label }}
                       </h2>
-                      <!-- How it arrives and where it is collected from are one
-                           question with two halves, so they stand on one line
-                           and take half of it each: a collection point under a
-                           caption of its own read as a second decision, and
-                           the option it names says what it is. -->
+                      <!-- Method and collection point share a line: one
+                           question. -->
                       <div class="grid gap-6 sm:grid-cols-2">
                         <div>
                           <label
@@ -454,15 +414,8 @@ const PREVIEW_DEBOUNCE_MS = 250;
 
                     <section>
                       <h2 class="mb-2 font-medium">{{ names.invoicedTo }}</h2>
-                      <!-- The same switch registration and the checkout put at
-                           the top of this question, for the same reason: a
-                           person is a name, a company is a name and a number,
-                           and asking which kind afterwards puts a question
-                           about the answer beside the question it answers.
-                           Staff type this as often as the customer does, and
-                           are held to the same rules. -->
-                      <!-- Only where the shop sells to more than one kind
-                           of customer (FR-AUTH-13). -->
+                      <!-- Registration's and checkout's switch, held to the
+                           same rules. -->
                       @if (partyKinds.length > 1) {
                         <ui-segmented
                           name="adjust-party-kind"
@@ -521,11 +474,8 @@ const PREVIEW_DEBOUNCE_MS = 250;
                           [disabled]="saving()"
                           (change)="setPayment($any($event.target).value)"
                         >
-                          <!-- A company is invoiced. The two ways a private
-                               customer settles up are not offered against one,
-                               because the server refuses them and a dropdown
-                               that offers a refusal is a dropdown people
-                               learn to distrust. -->
+                          <!-- A company is invoiced: cash and card are not
+                               offered, as the server refuses them. -->
                           @for (
                             option of paymentOptions();
                             track option.value
@@ -556,10 +506,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
                             [formField]="form.contact.name"
                           />
                         </ui-field>
-                        <!-- A number in the deployment's own mask is as long
-                             as it will ever be, and the name beside it is
-                             not: the field stops where its content does and
-                             leaves the rest of the column to the row below. -->
+                        <!-- The number field is only as wide as its mask. -->
                         <ui-field
                           [field]="form.contact.phone"
                           [label]="fields.phone.label"
@@ -605,10 +552,8 @@ const PREVIEW_DEBOUNCE_MS = 250;
                    @min-[63.75rem]/adjust:top-20
                    @min-[63.75rem]/adjust:self-start"
           >
-            <!-- The customer's own words first, because they are the question
-                 everything below is an answer to: what they asked for, when
-                 they wanted it, and what they said about it. Shown and not
-                 editable — it is their half of the record. -->
+            <!-- The customer's own words first: read-only, their half of the
+                 record. -->
             <section class="mb-6">
               <h2 class="mb-2 font-medium">{{ text.customerHeading }}</h2>
               <p class="text-sm">{{ wished(loaded) }}</p>
@@ -625,19 +570,13 @@ const PREVIEW_DEBOUNCE_MS = 250;
               [loading]="pricingLoading()"
             />
 
-            <!-- Two things a manager should never find out about afterwards: a
-                 price they moved, and a price that was already off the list
-                 this order is taken from. Both are perfectly ordinary and
-                 neither is visible in a total, so they are said once, here,
-                 where the order is signed off. -->
+            <!-- A moved price, and one already off the list: invisible in a
+                 total, so said once at sign-off. -->
             @for (notice of priceNotices(); track notice) {
               <ui-warning-note class="mt-4">{{ notice }}</ui-warning-note>
             }
 
-            <!-- What the shop says it changed, beside what it changed and
-                 immediately above the button that records it: it is the last
-                 thing written before saving, and it is what the customer's
-                 mail quotes. -->
+            <!-- The change note, quoted in the mail, just above the save. -->
             <div class="mt-6">
               <label uiFieldLabel for="adjust-note">{{
                 names.changeNote
@@ -659,20 +598,16 @@ const PREVIEW_DEBOUNCE_MS = 250;
                   {{ text.noteRequired }}
                 </p>
               } @else if (noteFailure(); as message) {
-                <!-- "Nothing changed" names no field, so there is nowhere in
-                     either fold to say it. It reads here, on the last thing
-                     written before saving and beside the button that was
-                     pressed. -->
+                <!-- "Nothing changed" names no field, so it reads beside the
+                     save. -->
                 <p uiErrorText class="mt-1" role="alert">
                   {{ message }}
                 </p>
               }
             </div>
 
-            <!-- Off by default (FR-NOTIF-03). The ordinary change is agreed on
-                 the phone and then confirmed, and the confirmation is the one
-                 mail worth sending; this is for the change with no move behind
-                 it, which nothing else would ever mention. -->
+            <!-- Off by default (FR-NOTIF-03): the following move's mail carries
+                 the news; this is for a change with none. -->
             <label uiTickLabel class="mt-4">
               <input
                 uiCheckbox
@@ -748,24 +683,22 @@ export class AdminOrderAdjustPage implements FieldAttempt {
   private readonly payments = this.ordersText.paymentMethods;
   protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
-  /** Whether an external system answers orders (FR-ADM-10) — the one state in
-   * which this screen has nothing to offer at all. */
+  /** Whether an external system answers orders (FR-ADM-10): then nothing is
+   * offered. */
   protected readonly locked = computed(() => this.ownership.owns('orders'));
   protected readonly locations = this.config.pickup?.locations ?? [];
   protected readonly billingEnabled = this.config.billingAddressEnabled;
   protected readonly noteMax = ORDER_ADJUSTMENT_NOTE_MAX;
   protected readonly itemsPanelId = 'adjust-items';
   protected readonly detailsPanelId = 'adjust-details';
-  /** Both open on arrival: an adjustment starts by reading the order, and a
-   * form that opens folded is a form somebody has to unfold before they can
-   * see what they came for. */
+  /** Both open: an adjustment starts by reading. */
   protected readonly itemsOpen = signal(true);
   protected readonly detailsOpen = signal(true);
 
   readonly reference = input.required<string>();
 
-  /** A company is a party with a registration number, which is the only thing
-   * the order records. The switch is how it is asked, not a third field. */
+  /** A company is a party with a registration number; the switch only asks it.
+   * */
   protected readonly partyKind = signal<'person' | 'company'>('company');
   protected readonly fulfilmentMethod = signal<'delivery' | 'pickup'>(
     'delivery',
@@ -780,19 +713,14 @@ export class AdminOrderAdjustPage implements FieldAttempt {
     billing: blankAddress(this.countries),
   });
 
-  /**
-   * The party the order is invoiced to, who to talk to about it and where it
-   * goes: what the checkout asks, held to the same rules. The screen that
-   * changes an order cannot be laxer than the one that placed it, or a
-   * manager correcting a typo introduces one.
-   */
+  /** Party, contact and addresses, held to checkout's rules: correcting must
+   * not introduce a typo. */
   protected readonly form = form(
     this.model,
     (answers) => {
       const { party, contact } = answers;
-      // The branch that is not on screen keeps what it held, so a manager who
-      // switches to look gets the order's own answer back. Hidden, it counts
-      // for nothing and is never read (`partyValue`).
+      // The hidden branch keeps its value for switching back, and is never read
+      // (`partyValue`).
       hidden(party.personName, { when: () => this.partyKind() !== 'person' });
       required(party.personName, { message: this.fields.name.required });
       hidden(party.companyName, {
@@ -837,10 +765,9 @@ export class AdminOrderAdjustPage implements FieldAttempt {
     this.countries,
   );
 
-  /** Read by every field on the page (FIELD_ATTEMPT). */
   readonly attempted = computed(() => submitAttempt(this.form)());
 
-  /** The kinds the shop sells to (FR-AUTH-13), in the deployment's order. */
+  /** In the deployment's order (FR-AUTH-13). */
   protected readonly partyKinds: SegmentOption<'person' | 'company'>[] =
     this.config.customerTypes.map((value) => ({
       value,
@@ -849,12 +776,8 @@ export class AdminOrderAdjustPage implements FieldAttempt {
           ? this.text.partyKindPerson
           : this.text.partyKindCompany,
     }));
-  /**
-   * How this order may be paid, given who it is invoiced to. A company is
-   * invoiced: neither cash at the door nor a card arranged on the phone leaves
-   * the paper it is owed, and both are refused by the server — so they are not
-   * offered here either.
-   */
+  /** A company is invoiced only: cash and card are refused by the server, so
+   * not offered. */
   protected readonly paymentOptions = computed(() => {
     const invoiced = {
       value: 'bank-transfer',
@@ -868,16 +791,8 @@ export class AdminOrderAdjustPage implements FieldAttempt {
     ];
   });
 
-  /**
-   * What each kind of party was last paying by, so switching between them is
-   * reversible.
-   *
-   * A company can only be invoiced, so switching to one settles the method
-   * whether the manager meant to decide it or not — and switching back left a
-   * private customer on a bank transfer, which the server then refused for
-   * having no company number. The screen remembers instead: the answer that
-   * was there comes back.
-   */
+  /** Each kind's last method, so a switch to a company and back restores the
+   * method rather than leaving a person on transfer. */
   private readonly rememberedPayment: Record<
     'person' | 'company',
     PaymentMethod
@@ -888,17 +803,14 @@ export class AdminOrderAdjustPage implements FieldAttempt {
     this.rememberedPayment[this.partyKind()] = method;
   }
 
-  /** Which kind the party is; which of its fields count follows from it. */
   protected setPartyKind(kind: 'person' | 'company'): void {
     if (kind !== this.partyKind()) {
-      // The method follows the party, both ways.
       this.rememberedPayment[this.partyKind()] = this.paymentMethod();
       this.paymentMethod.set(this.rememberedPayment[kind]);
     }
     this.partyKind.set(kind);
   }
 
-  /** What the order says its party is, whichever branch answered it. */
   private partyValue(): { name: string; registrationId: string | null } {
     const { personName, companyName, companyId } = this.model().party;
     return this.partyKind() === 'person'
@@ -934,20 +846,15 @@ export class AdminOrderAdjustPage implements FieldAttempt {
   protected readonly pickupKey = signal<string | null>(null);
   protected readonly paymentMethod = signal<PaymentMethod>('bank-transfer');
   protected readonly tierKey = signal<string | null>(null);
-  /** Counts the lines added on this screen, so each gets an identity of its
-   * own even where two carry the same product across a removal. */
+  /** Gives added lines their own identity, even for a product re-added. */
   private added = 0;
   protected readonly note = signal('');
-  /** Whether to write to the customer about this change now. Off by default:
-   * the move that follows carries the news. */
+  /** Off by default: the following move carries the news. */
   protected readonly notify = signal(false);
   protected readonly saving = signal(false);
   protected readonly failed = signal<string | null>(null);
-  /**
-   * Whether that refusal is one about the save rather than about a field.
-   * Every other one names something on the form and is said beside it; this
-   * one is said under the note, where the save button is.
-   */
+  /** A refusal about the save, said under the note; the rest sit beside their
+   * fields. */
   private readonly failedAtNote = signal(false);
   protected readonly formFailure = computed(() =>
     this.failedAtNote() ? null : this.failed(),
@@ -961,9 +868,7 @@ export class AdminOrderAdjustPage implements FieldAttempt {
     void this.ownership.load();
     usePageSeo({ name: () => this.title(), noindex: true });
 
-    // Seeded once, from the version on file: everything the form starts as is
-    // what the order currently says, so an untouched form saves an unchanged
-    // order.
+    // Seeded once from the version on file: untouched saves unchanged.
     effect(() => {
       const order = this.order();
       if (!order) return;
@@ -975,8 +880,7 @@ export class AdminOrderAdjustPage implements FieldAttempt {
     return fillText(this.text.page.title, { reference: this.reference() });
   }
 
-  /** What is sent — to be priced, and then to be written. Null until the order
-   * it is based on has loaded. */
+  /** What is priced and then written; null until the order loads. */
   private readonly body = computed<OrderAdjustment | null>(() => {
     const order = this.order();
     if (!order) return null;
@@ -993,9 +897,8 @@ export class AdminOrderAdjustPage implements FieldAttempt {
       contact: {
         name: contact.name.trim(),
         email: contact.email.trim(),
-        // Back into the one form a number is stored in. The field holds the
-        // national part; the country code is the deployment's and is never
-        // typed.
+        // The field holds the national part; the country code is the
+        // deployment's.
         phone: canonicalPhone(contact.phone, this.config.phoneInput),
       },
       party: this.partyValue(),
@@ -1013,20 +916,13 @@ export class AdminOrderAdjustPage implements FieldAttempt {
 
   private readonly settledBody = debounced(this.body, PREVIEW_DEBOUNCE_MS);
 
-  /**
-   * The server's pricing of the draft. A refusal is not an error here — a
-   * half-typed company number is refused by the same rule that will refuse the
-   * save, and the manager is told about it now rather than at the end.
-   */
+  /** The server's pricing. A refusal is not an error: the save's rule, shown
+   * early. */
   private readonly previewed = resource({
-    // Nothing is priced while the area is owned: the route is refused, and the
-    // screen that would have shown the answer is not drawn.
+    // Not priced while owned elsewhere: the route is refused.
     params: () => (this.locked() ? null : this.settledBody()),
-    // The draft that was priced travels back with the pricing. Which draft an
-    // answer belongs to matters: a price is written into a field only where
-    // the field asked for one *in that draft*, and an answer overtaken by a
-    // newer draft — the price list switched while a line was waiting — must
-    // not fill a field with a figure from the list nobody chose.
+    // The priced draft travels back: a field is filled only where it asked in
+    // that draft, so a superseded answer cannot write a list nobody chose.
     loader: async ({ params }) =>
       params
         ? {
@@ -1036,21 +932,10 @@ export class AdminOrderAdjustPage implements FieldAttempt {
         : null,
   });
 
-  /**
-   * The server's last good pricing of the draft, **kept across the next one**.
-   *
-   * A plain `resource` empties its value while it reloads, and the draft is
-   * re-priced on every pause in typing — so every keystroke blanked the line
-   * totals, the quantities and the whole change list, and the screen flickered
-   * on the way to saying the same thing again. What was on screen a moment ago
-   * is still the truth about the draft a moment ago; it is replaced when there
-   * is something to replace it with.
-   *
-   * A refusal keeps it too, unless the refusal is about the pricing itself. A
-   * half-typed company number does not make the lines unknowable, and blanking
-   * every figure on the page over one is how a manager ends up being told that
-   * nothing has changed yet on a screen where they have changed six things.
-   */
+  /** The last good pricing, **kept across the next**: a plain `resource` blanks
+   * while reloading, which flickered every pause in typing. A refusal keeps it
+   * too unless it is about pricing: a half-typed number does not make the lines
+   * unknowable. */
   protected readonly preview = linkedSignal<
     | { ok: true; preview: OrderAdjustmentPreview }
     | { ok: false; code: AdjustmentRefusal }
@@ -1070,9 +955,7 @@ export class AdminOrderAdjustPage implements FieldAttempt {
     },
   });
 
-  /** Why the server refused the draft as it stands, or null while it is
-   * priceable. Kept for as long as the refusal is: it is a rule being broken
-   * on the form, not an event. */
+  /** A rule broken on the form, kept as long as it is broken. */
   protected readonly refusal = computed<AdjustmentRefusal | null>(() => {
     const answer = this.previewed.hasValue()
       ? (this.previewed.value()?.answer ?? null)
@@ -1080,7 +963,6 @@ export class AdminOrderAdjustPage implements FieldAttempt {
     return answer && !answer.ok ? answer.code : null;
   });
 
-  /** Which half of the form to say it beside. */
   protected readonly refusalOn = computed<'lines' | 'details' | null>(() => {
     const code = this.refusal();
     return code ? REFUSAL_PART[code] : null;
@@ -1095,15 +977,8 @@ export class AdminOrderAdjustPage implements FieldAttempt {
     return fillText(this.adminText.countSuffix, { count: this.lines().length });
   }
 
-  /**
-   * The draft, with the server's figures beside each line.
-   *
-   * Paired by slug rather than by position, because that is what a line *is* —
-   * a product on an order, and a product can only be on one line. Moving a
-   * line then costs nothing to draw: the figures follow the product up the
-   * page immediately, instead of every row below the move reading as somebody
-   * else's line until the next preview came back.
-   */
+  /** The draft with the server's figures, by slug, so a moved line's figures
+   * follow it at once. */
   protected readonly rows = computed<AdjustLineRow[]>(() => {
     const priced = new Map(
       (this.preview()?.lines ?? []).map((line) => [line.slug, line]),
@@ -1130,21 +1005,15 @@ export class AdminOrderAdjustPage implements FieldAttempt {
     });
   });
 
-  /**
-   * The server's answer written back into the draft, where the line was
-   * waiting to be told what it costs: what the list charges becomes what the
-   * field says, so the next thing done to it is an edit rather than a retype.
-   */
+  /** The list's price written into a waiting field, to edit rather than retype.
+   * */
   private readonly carryAnswer = effect(() => {
     const answered = this.previewed.hasValue() ? this.previewed.value() : null;
     const preview =
       answered?.answer && answered.answer.ok ? answered.answer.preview : null;
     if (!answered || !preview) return;
-    // Only the answer to the draft as it now stands fills a field in. An
-    // earlier one is still perfectly good arithmetic about an earlier draft —
-    // it is what the figures beside the lines are drawn from — but writing its
-    // prices into the form would put yesterday's price list into today's
-    // order.
+    // Only the current draft's answer fills fields: an older one would write
+    // yesterday's list.
     const current = answered.asked === untracked(this.settledBody);
     const answers = new Map(preview.lines.map((line) => [line.slug, line]));
     untracked(() =>
@@ -1154,9 +1023,8 @@ export class AdminOrderAdjustPage implements FieldAttempt {
           const answer = answers.get(line.slug);
           if (!answer) return line;
           const fill = line.fromList && current;
-          // Nothing to write back: no field is waiting to be filled. Returning
-          // the same object is what keeps this from feeding its own answer
-          // back as a new draft.
+          // Nothing waiting: the same object, so this does not feed itself a
+          // new draft.
           if (!fill) return line;
           changed = true;
           return {
@@ -1170,16 +1038,8 @@ export class AdminOrderAdjustPage implements FieldAttempt {
     );
   });
 
-  /**
-   * What is about to change, as the customer would read it — assembled in two
-   * halves, each of which answers for itself.
-   *
-   * The blocks compare the order on file with what the form now says, and need
-   * nothing from the server: a corrected address is a change whether or not
-   * the draft as a whole is priceable. The lines and the totals do need the
-   * server, since nothing here prices anything, so they appear once there is a
-   * pricing to compare against and say so when there is not.
-   */
+  /** The changes as the customer would read them: blocks from the form alone,
+   * lines and totals once priced. */
   protected readonly changes = computed<OrderChange[]>(() => {
     const order = this.order();
     if (!order) return [];
@@ -1211,38 +1071,21 @@ export class AdminOrderAdjustPage implements FieldAttempt {
     ];
   });
 
-  /**
-   * What the change list cannot say yet, and why — where the reason is that
-   * the draft cannot be priced at all. A form still being read by the server
-   * is not that: see `pricingLoading`.
-   */
+  /** Why the lines cannot be compared: the draft is unpriceable. Still loading
+   * is `pricingLoading`. */
   protected readonly changesPending = computed(() =>
     !this.preview() && this.refusalOn() === 'lines'
       ? this.text.changes.pricingPending
       : null,
   );
 
-  /**
-   * The first pricing of the draft is still in flight. Nothing is wrong and
-   * nothing can be compared yet, so the list says neither: it stood there
-   * announcing that the lines could not be worked out until the form was
-   * right, on a form nobody had touched, and then replaced itself a moment
-   * later with the answer.
-   */
+  /** The first pricing is in flight: neither "no change" nor an error. */
   protected readonly pricingLoading = computed(
     () => !this.preview() && this.refusalOn() !== 'lines',
   );
 
-  /**
-   * The two things about a price a manager should not have to notice for
-   * themselves: one they moved on this screen, and one that was already away
-   * from the list this order is taken from.
-   *
-   * Both are perfectly ordinary — a price agreed on the phone, an order priced
-   * for a buyer whose account is not the party being invoiced — and neither
-   * shows up in a total. Saying so above the save button is what turns a
-   * silent difference into a deliberate one.
-   */
+  /** A price moved here, and one already off the list (provisional pricing):
+   * neither shows in a total, so both are said above the save. */
   protected readonly priceNotices = computed<string[]>(() => {
     const order = this.order();
     const preview = this.preview();
@@ -1269,9 +1112,8 @@ export class AdminOrderAdjustPage implements FieldAttempt {
     return notices;
   });
 
-  /** Whether a priced line costs something other than what the chosen list
-   * charges for it. A line the list does not price is not "off" it — there is
-   * nothing to be off — so it is the price staff named and nothing more. */
+  /** Off the list where it differs; a line the list does not price cannot be
+   * off it. */
   private offList(line: {
     priceMinor: number;
     listPriceMinor: number | null;
@@ -1281,7 +1123,6 @@ export class AdminOrderAdjustPage implements FieldAttempt {
     );
   }
 
-  /** The chosen list, as it is named on screen. */
   private tierLabel(): string {
     const key = this.tierKey();
     if (!key) return this.ordersText.tierDefault;
@@ -1294,8 +1135,7 @@ export class AdminOrderAdjustPage implements FieldAttempt {
     );
   }
 
-  /** Typing a price answers the question a repriced line was waiting on: what
-   * was typed wins over what the list was about to say. */
+  /** Typing wins over the pending list price. */
   protected setPrice(index: number, priceText: string): void {
     this.lines.update((lines) =>
       lines.map((line, i) =>
@@ -1308,12 +1148,8 @@ export class AdminOrderAdjustPage implements FieldAttempt {
     this.lines.update((lines) => lines.filter((_, i) => i !== index));
   }
 
-  /**
-   * Move a line up or down the order. It changes nothing about what was
-   * bought — the change list ignores it, and so does the customer's mail — and
-   * it exists because the alternative was removing a line and adding it back,
-   * which loses the price it was agreed at.
-   */
+  /** Reorders lines: no change to the order or the mail, but it spares removing
+   * and re-adding, which loses the price. */
   protected moveLine(from: number, to: number): void {
     this.lines.update((lines) => {
       if (to < 0 || to >= lines.length) return lines;
@@ -1328,19 +1164,16 @@ export class AdminOrderAdjustPage implements FieldAttempt {
     this.lines.update((lines) => [
       ...lines,
       {
-        // Its own identity from the moment it exists, so removing a line above
-        // it does not hand its row — and whatever is being typed into it — to
-        // its neighbour.
+        // Its own identity, so a removal above does not hand its row to a
+        // neighbour.
         key: `added-${++this.added}-${item.slug}`,
         slug: item.slug,
         name: item.name,
         pieces: 1,
-        // Nobody has read this line in any unit yet, and it has no price of
-        // its own until somebody types one: the list prices it.
+        // No customer reading, and priced by the list.
         unit: null,
         note: null,
-        // Nothing to show until the server has said what the list charges,
-        // which it then fills in.
+        // Filled in by the server's answer.
         priceText: '',
         fromList: true,
       },
@@ -1358,26 +1191,17 @@ export class AdminOrderAdjustPage implements FieldAttempt {
     }
   }
 
-  /**
-   * Take every line's price from the chosen list (FR-CART-09) — the answer to
-   * an order priced provisionally, where the customer's account and the party
-   * being invoiced are not the same buyer.
-   *
-   * Each line is *marked* as taking the list's price rather than emptied of
-   * its own: it travels with no price, which is what asks the server to price
-   * it, and the answer is written into the field. A manager repricing an order
-   * usually then rounds one line of it, and a field they can see through but
-   * not edit would have to be retyped from the figure behind it.
-   */
+  /** Takes every price from the chosen list (FR-CART-09), for a provisional
+   * order. Each line is marked, not emptied, so the answer fills an editable
+   * field. */
   protected repriceFromList(): void {
     this.lines.update((lines) =>
       lines.map((line) => ({ ...line, fromList: true })),
     );
   }
 
-  /** An order that is over — handed over, refused or called off. Changing it
-   * is allowed, and records what the shop did, but it does not put the order
-   * back in anybody's queue and nothing tells the customer on its own. */
+  /** Ended: changing it records what the shop did, but requeues nothing and
+   * tells nobody. */
   protected ended(order: AdminOrderDetail): boolean {
     return (
       order.status === 'completed' ||
@@ -1386,8 +1210,7 @@ export class AdminOrderAdjustPage implements FieldAttempt {
     );
   }
 
-  /** The day they asked for, named as one: a date on its own under a heading
-   * about the customer read as the day they ordered. */
+  /** Named as the asked-for day: a bare date reads as the order date. */
   protected wished(order: AdminOrderDetail): string {
     return fillText(this.text.wished, { date: this.wish(order) });
   }
@@ -1404,31 +1227,27 @@ export class AdminOrderAdjustPage implements FieldAttempt {
     const body = this.body();
     if (!body || this.saving()) return;
 
-    // An order with no lines is not an order, and the contract refuses one
-    // outright — said here in the screen's own words rather than let through
-    // to come back as "that did not work". An order the shop will not fill at
-    // all is declined, not emptied.
+    // The contract refuses an empty order: said in the screen's words. An order
+    // not filled is declined, not emptied.
     if (body.lines.length === 0) {
       this.failedAtNote.set(false);
       this.failed.set(this.text.lines.empty);
       return;
     }
 
-    // Every field the checkout asked, held to the rules the checkout held it
-    // to. The screen that changes an order cannot be laxer than the one that
-    // placed it, or a manager correcting a typo introduces one.
-    // The addresses keep an attempt of their own (AddressFields).
+    // Checkout's rules: correcting must not introduce a typo. Addresses keep
+    // their own attempt (AddressFields).
     for (const sent of [this.form, this.form.delivery, this.form.billing]) {
       submitAttempt(sent).set(true);
     }
     if (this.form().invalid()) {
-      // Folded, the fields that stopped it would say so to nobody.
+      // Folded, the fields would say so to nobody.
       this.detailsOpen.set(true);
       return;
     }
 
-    // Asked for by the screen, optional in the contract: a person adjusting an
-    // order has just been on the phone and can say what was agreed.
+    // Required here, optional in the contract: the manager knows what was
+    // agreed.
     if (!body.note) {
       this.noteMissing.set(true);
       return;
@@ -1458,7 +1277,7 @@ export class AdminOrderAdjustPage implements FieldAttempt {
     }
   }
 
-  /** The order as the draft proposes it, for the block-by-block comparison. */
+  /** The proposed order, for the block comparison. */
   private proposed(
     order: AdminOrderDetail,
     preview: OrderAdjustmentPreview | null,
@@ -1488,16 +1307,14 @@ export class AdminOrderAdjustPage implements FieldAttempt {
               address: pickup.address,
             }
           : null,
-      // Where this deployment invoices no address of its own, the order keeps
-      // the one it already carried — the server carries it forward rather than
-      // dropping it, so the proposed version has to say the same.
+      // Without invoice addresses the server carries the old one forward, so
+      // this does too.
       billingAddress: this.billingEnabled
         ? this.billing.value()
         : order.billingAddress,
       paymentMethod: this.paymentMethod(),
-      // Where there is no pricing, the order's own figures stand in: the block
-      // comparison never reads them, and a caller that does is asking about
-      // the half this one cannot answer.
+      // Unpriced, the order's figures stand in; the block comparison never
+      // reads them.
       deliveryZone: preview?.deliveryZone ?? order.deliveryZone,
       lines: preview?.lines ?? order.lines,
       totalMinor: preview?.totalMinor ?? order.totalMinor,
@@ -1505,8 +1322,7 @@ export class AdminOrderAdjustPage implements FieldAttempt {
     };
   }
 
-  /** The price a line carries, or null where the field is empty — which is
-   * what asks the server to price it from the list. */
+  /** Null for an empty field, which asks the list. */
   private priceOf(line: DraftLine): number | null {
     if (line.fromList || !line.priceText.trim()) return null;
     return parsePriceInput(line.priceText, this.currency);
@@ -1525,13 +1341,10 @@ export class AdminOrderAdjustPage implements FieldAttempt {
         fromList: false,
       })),
     );
-    // A party with a registration number is a company; one without is a
-    // person. The order records no third thing, so the switch is read back
-    // from what it recorded rather than stored beside it.
+    // A registration number makes a company; the switch is read back from it.
     const company = order.party.registrationId !== null;
     const kind = company ? 'company' : 'person';
-    // An order invoiced to a kind the shop no longer sells to cannot be saved
-    // as one, so it opens on the kind it can, with that half empty.
+    // A kind no longer sold to opens on one that is, that half empty.
     this.setPartyKind(
       this.config.customerTypes.includes(kind)
         ? kind
@@ -1547,23 +1360,20 @@ export class AdminOrderAdjustPage implements FieldAttempt {
       contact: {
         name: order.contact.name,
         email: order.contact.email,
-        // Taken apart the way the field asks it: the prefix is displayed and
-        // never typed, so what the control holds is the national part.
+        // The field holds the national part; the prefix is shown, not typed.
         phone: typedPhone(order.contact.phone, this.config.phoneInput),
       },
     }));
     this.fulfilmentMethod.set(order.fulfilmentMethod);
     this.pickupKey.set(order.pickup?.key ?? this.locations[0]?.key ?? null);
     this.setPayment(order.paymentMethod);
-    // An older order pairing a company with cash or an offline card: neither
-    // is offered any more and the server refuses both, so the form corrects it
-    // and the change list says it did.
+    // An older company order on cash or card is corrected, and the change list
+    // says so.
     if (!this.paymentOptions().some((o) => o.value === this.paymentMethod())) {
       this.setPayment('bank-transfer');
     }
     this.tierKey.set(order.tierKey);
-    // An order's address snapshot has no label: it was never a row in
-    // anybody's book, and the field is not drawn here either.
+    // A snapshot has no label, and none is drawn.
     if (order.deliveryAddress) {
       this.delivery.fill({ ...order.deliveryAddress, label: null });
     }
