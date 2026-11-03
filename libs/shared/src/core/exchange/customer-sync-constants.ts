@@ -40,6 +40,3 @@ export const CUSTOMER_SYNC_FALSE_VALUES: readonly string[] = [
   'no',
   '0',
 ];
-
-/** One page of the outbound read (FR-ADM-18), and the default limit. */
-export const CUSTOMER_READ_MAX_LIMIT = 200;

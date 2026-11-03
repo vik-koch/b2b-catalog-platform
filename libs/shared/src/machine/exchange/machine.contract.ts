@@ -5,17 +5,11 @@ import {
   machineAuthErrors,
 } from '../../core/exchange/machine-auth.contract';
 
-/**
- * What a machine client learns about its own credential: enough to check at
- * boot that it holds a working token with the capabilities it needs, and
- * nothing about the deployment it could not already infer.
- */
-export const machineIdentitySchema = z
+/** Enough to check a working token at boot, nothing more. */
+const machineIdentitySchema = z
   .object({ name: z.string(), scopes: z.array(apiTokenScopeSchema) })
   .strict();
-export type MachineIdentity = z.infer<typeof machineIdentitySchema>;
 
-/** Authenticated by the token alone; a session cookie never satisfies these. */
 const machine = oc.errors(machineAuthErrors);
 
 export const machineIdentityContract = {

@@ -105,12 +105,6 @@ export const ORDER_PAGE_SIZE = 20;
 /** As long as the longest thing anybody pastes in: an email address. */
 export const ORDER_QUERY_MAX_LENGTH = 200;
 
-/**
- * One page of the outbound read (FR-ADM-08), and its default. Smaller than the
- * customer read's: an order carries its lines, addresses and contact.
- */
-export const ORDER_READ_MAX_LIMIT = 50;
-
 /** The owning system's own name for whoever acted (FR-ADM-08): an opaque
  * label, never resolved to an account. */
 export const ORDER_WRITE_ACTOR_MAX = 200;

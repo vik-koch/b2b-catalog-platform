@@ -65,21 +65,6 @@ export type SyncFormatErrorBody = z.infer<typeof syncFormatErrorSchema>;
 
 /** Why a staged run cannot be applied or discarded: a code per sentence. One
  * route serves every area, so this is the union of their refusals. */
-const SYNC_COMMIT_CODES = [
-  'run-not-found',
-  'run-already-applied',
-  'run-failed',
-  'run-no-change',
-  'run-superseded',
-  'run-discarded',
-  /** The staged rows are pruned, so the file must go up again. */
-  'run-rows-pruned',
-  /** An upload staged before the hand-over: applying is judged now. */
-  'catalog-externally-owned',
-  'customers-externally-owned',
-] as const;
-export type SyncCommitCode = (typeof SYNC_COMMIT_CODES)[number];
-
 const runActionErrors = {
   'run-not-found': { status: 404 },
   'run-already-applied': { status: 409 },
@@ -87,10 +72,13 @@ const runActionErrors = {
   'run-no-change': { status: 409 },
   'run-superseded': { status: 409 },
   'run-discarded': { status: 409 },
+  /** The staged rows are pruned, so the file must go up again. */
   'run-rows-pruned': { status: 409 },
+  /** An upload staged before the hand-over: applying is judged now. */
   'catalog-externally-owned': ownershipErrors['catalog-externally-owned'],
   'customers-externally-owned': ownershipErrors['customers-externally-owned'],
-} as const satisfies Record<SyncCommitCode, { status: number }>;
+} as const;
+export type SyncCommitCode = keyof typeof runActionErrors;
 
 const admin = oc.errors(commonAuthErrors);
 
