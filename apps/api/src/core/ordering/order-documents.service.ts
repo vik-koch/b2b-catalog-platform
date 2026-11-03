@@ -28,13 +28,9 @@ export interface ServedDocument {
 }
 
 /**
- * The documents an order carries (FR-ORD-05, ADR 0052).
- *
- * Only supplied files are rows. The summary is drawn on demand from the order
- * as the reader is entitled to read it, so this service is asked for bytes
- * with an `OrderDetail` in hand rather than with an id — who may read which
- * version is the caller's question, and answering it twice is how the two
- * answers come apart.
+ * The documents an order carries (FR-ORD-05, ADR 0052). Only supplied files are
+ * rows; the summary is drawn on demand from the `OrderDetail` the caller
+ * already resolved, so who may read which version is asked once.
  */
 @Injectable()
 export class OrderDocumentsService {
@@ -45,24 +41,10 @@ export class OrderDocumentsService {
   ) {}
 
   /**
-   * What can be opened on this order, as the customer sees it: the summary,
-   * always, and a payment instruction where the shop has supplied one and the
-   * order is still invoiced.
-   *
-   * Two things are withheld, and both are about not showing somebody a
-   * document that answers a question they have not been asked yet:
-   *
-   * - **A version they have not been shown.** A file filed against a version
-   *   the customer's own page has not reached would be the first they hear of
-   *   it (ADR 0051) — the same rule their page follows.
-   * - **Payment instructions on an order that owes nothing.** The slip is how
-   *   to pay what is due, so it appears when the money becomes due and stays
-   *   while it is owed or has been paid — a paid invoice is a receipt somebody
-   *   keeps. It is withheld before the shop has accepted the order, and after
-   *   an unpaid one ends: an order nobody is filling is not one to transfer
-   *   money for. That is the payment state's own answer (FR-ORD-04), not a
-   *   second rule about methods — a cash order never becomes due, so it never
-   *   shows one.
+   * What the customer may open: the summary always, and a supplied file unless
+   * it was filed against a version their page has not reached (ADR 0051).
+   * Payment instructions only while money is due or paid (FR-ORD-04): never
+   * before acceptance, never on an unpaid order that ended.
    */
   async listForCustomer(
     orderId: string,
@@ -73,10 +55,8 @@ export class OrderDocumentsService {
     return (
       documents
         .filter((document) => this.customerMaySee(document, seen))
-        // Everything staff-only dropped by name: which version it was filed
-        // against, whether the order has moved past it, and whether the shop
-        // has written about it. The customer's shape is strict, so a key left
-        // on is a 500 rather than a leak.
+        // Staff-only keys dropped by name. The customer's shape is strict, so a
+        // key left on is a 500 rather than a leak.
         .map(({ suppliedForRevision, outdated, notifiedAt, ...rest }) => rest)
     );
   }
@@ -94,10 +74,8 @@ export class OrderDocumentsService {
   }
 
   /**
-   * The staff list. The same documents, plus which version a supplied file was
-   * filed against and whether the order has moved past what it says — nothing
-   * checks a supplied file against the order, so this is the only warning
-   * there is.
+   * The staff list: plus the version a file was filed against and whether the
+   * order moved past it, the only warning there is.
    */
   async listForStaff(
     orderId: string,
@@ -108,11 +86,8 @@ export class OrderDocumentsService {
     const payment = documents.find(
       (document) => document.kind === 'payment-instructions',
     );
-    // A payment slip is only stale where what it *states* has changed. Every
-    // move writes a version (ADR 0051), so an order confirmed and then made
-    // ready is two versions past the slip and says exactly the same money to
-    // exactly the same party — a warning there is one nobody would act on, and
-    // one that teaches staff to ignore the next.
+    // A slip is stale only where what it states changed: every move writes a
+    // version, and a warning about nothing teaches staff to ignore the next.
     if (payment?.outdated && payment.suppliedForRevision) {
       const changed = await this.invoiceChanged(
         orderId,
@@ -125,11 +100,9 @@ export class OrderDocumentsService {
   }
 
   /**
-   * Whether anything a payment slip states differs between two versions: what
-   * is owed, who owes it, where the invoice goes, and how it is to be paid.
-   *
-   * Not the whole snapshot. A changed delivery date or a line note is a real
-   * change to the order and no reason at all to reprint an invoice.
+   * Whether what a payment slip states differs between two versions: the
+   * amount, the party, the invoice address, the method. Not a delivery date or
+   * a note.
    */
   private async invoiceChanged(
     orderId: string,
@@ -160,8 +133,7 @@ export class OrderDocumentsService {
       );
     const before = rows.find((row) => row.revisionNumber === from);
     const after = rows.find((row) => row.revisionNumber === to);
-    // A version that is not there any more is a question this cannot answer,
-    // and the safe answer is the warning.
+    // A version gone is a question this cannot answer: warn.
     if (!before || !after) return true;
     const { revisionNumber: _before, ...was } = before;
     const { revisionNumber: _after, ...is } = after;
@@ -190,9 +162,7 @@ export class OrderDocumentsService {
       notifiedAt: row.notifiedAt?.toISOString() ?? null,
     }));
 
-    // The generated summary exists unless a file has taken its place: one
-    // document per kind, and a reader offered two would have to guess which
-    // one the shop means.
+    // One document per kind: a supplied summary replaces the generated one.
     if (!supplied.some((document) => document.kind === 'order-summary')) {
       supplied.push({
         kind: 'order-summary',
@@ -210,26 +180,22 @@ export class OrderDocumentsService {
   }
 
   /**
-   * The bytes of one document, for a reader who has already been established
-   * as entitled to this order and this version of it.
-   *
-   * `order` is what the summary is drawn from — the version the caller
-   * resolved, which for a customer is the one their own page shows.
+   * The bytes of one document for a reader already entitled to the order.
+   * `order` is the version the summary is drawn from: a customer's own.
    */
   async read(
     reference: string,
     kind: OrderDocumentKind,
     order: OrderDetail,
-    /** Staff read whatever is filed. A customer reads what their own list
-     * offers — the same rule, asked in both places, so a link kept from last
-     * week does not open a document the page has stopped showing. */
+    /**
+     * Staff read whatever is filed; a customer what their own list offers, so a
+     * link kept from last week cannot open what the page stopped showing.
+     */
     as: 'staff' | 'customer' = 'staff',
   ): Promise<ServedDocument> {
     const { id } = await this.identify(reference);
     const row = await this.supplied(id, kind);
-    // The customer's own list is the rule, already applied: what they may
-    // fetch is exactly what their page offers, so a link kept from last week
-    // cannot open a document the page has stopped showing.
+    // The customer's own list, already filtered, is the rule.
     const visible =
       as === 'staff' ||
       order.documents.some((document) => document.kind === kind);
@@ -241,8 +207,7 @@ export class OrderDocumentsService {
       };
     }
     if (kind !== 'order-summary') {
-      // Payment instructions are only ever supplied: there is nothing to draw
-      // and nothing the platform could honestly say.
+      // Payment instructions are only ever supplied: nothing to draw.
       throw new NotFoundException({
         code: 'document-not-found',
         message: 'No such document on this order',
@@ -256,9 +221,8 @@ export class OrderDocumentsService {
   }
 
   /**
-   * File a document against an order, replacing whatever was there of that
-   * kind. Writes no revision (ADR 0051): a file arriving changes nothing the
-   * order says.
+   * Files a document, replacing any of that kind. Writes no version: a file
+   * changes nothing the order says (ADR 0051).
    */
   async supply(
     reference: string,
@@ -271,9 +235,8 @@ export class OrderDocumentsService {
       bytes: file.bytes,
       ext: file.ext,
     });
-    // Read the file it replaces before the write, so the bytes it leaves
-    // behind can be collected afterwards: the row is the record, and a delete
-    // that ran first would lose the old file if the write then failed.
+    // The replaced file is read first and deleted after the write: the row is
+    // the record, and a failed write must not lose the old file.
     const previous = await this.supplied(order.id, kind);
     await this.db
       .insert(orderDocuments)
@@ -297,8 +260,7 @@ export class OrderDocumentsService {
           suppliedAt: new Date(),
           suppliedBy: byUserId,
           suppliedForRevision: order.revisionNumber,
-          // A replaced file has never been sent, whatever was said about the
-          // one it replaces.
+          // A replaced file has never been sent.
           notifiedAt: null,
         },
       });
@@ -313,15 +275,15 @@ export class OrderDocumentsService {
       suppliedAt: new Date().toISOString(),
       suppliedForRevision: order.revisionNumber,
       outdated: false,
-      // A replaced file is a different document: whatever was said about the
-      // last one was said about something else.
+      // A replaced file has never been sent.
       notifiedAt: null,
     };
   }
 
-  /** Record that the customer was written to about this document. Stamped
-   * before the send, like a revision's: the mail cannot fail the record of
-   * what the shop decided to tell them. */
+  /**
+   * Records that the customer was written to about this document, once the mail
+   * is queued: a send that fails later is the log's business.
+   */
   async markNotified(orderId: string, kind: OrderDocumentKind): Promise<void> {
     await this.db
       .update(orderDocuments)
@@ -332,9 +294,8 @@ export class OrderDocumentsService {
   }
 
   /**
-   * Take a supplied file back off an order. The summary falls back to the
-   * generated one; payment instructions simply stop existing, which is the
-   * state every cash order is in.
+   * Takes a supplied file off. The summary falls back to the generated one;
+   * payment instructions stop existing, as on every cash order.
    */
   async remove(reference: string, kind: OrderDocumentKind): Promise<void> {
     const { id } = await this.identify(reference);
@@ -350,11 +311,8 @@ export class OrderDocumentsService {
   }
 
   /**
-   * The order behind a reference, the version it stands on, and the token a
-   * mailed link carries. Read here
-   * rather than handed over: the caller has already established that this
-   * reader may see this order — by having read it — and what this needs is the
-   * row's own identity, which a customer's view of an order does not carry.
+   * The row's own identity, which a customer's view of the order does not
+   * carry. The caller has already established that the reader may see it.
    */
   async identify(
     reference: string,
@@ -382,15 +340,11 @@ export class OrderDocumentsService {
   }
 
   /**
-   * The shop's payment instructions as a file to send, or nothing where the
-   * order has none (FR-ORD-05).
-   *
-   * Only ever the supplied file: the platform has nothing to say about how to
-   * pay, and nothing to attach where the shop has not said it.
+   * The supplied payment instructions as an attachment, or null (FR-ORD-05):
+   * the platform has nothing of its own to say about how to pay.
    */
-  async paymentAttachment(reference: string): Promise<MailAttachment | null> {
-    const { id } = await this.identify(reference);
-    const row = await this.supplied(id, 'payment-instructions');
+  async paymentAttachment(orderId: string): Promise<MailAttachment | null> {
+    const row = await this.supplied(orderId, 'payment-instructions');
     if (!row) return null;
     return {
       fileName: row.fileName,

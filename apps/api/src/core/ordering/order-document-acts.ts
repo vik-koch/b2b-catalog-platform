@@ -20,19 +20,6 @@ import { OrderDocumentsService } from './order-documents.service';
 import { OrderNotifications } from './order-notifications';
 import { OrderReader } from './order-reader';
 
-/**
- * The three acts on an order's documents — file one, tell the customer about
- * it, take it back off — with the caller left out of them (FR-ORD-05).
- *
- * Its own service because there are two callers with the same acts and
- * opposite gates: a manager does these while the shop owns order processing,
- * and an owning system does them while it does not (FR-ADM-10). Only *who may*
- * differs, so only that stays in the controllers; what happens, what is
- * refused and what is logged is one copy here.
- *
- * None of it writes a version (ADR 0051): a file arriving changes nothing the
- * order says.
- */
 /** The kind named in a path, or a refusal. Shared by both routes so an
  * unknown one is the same answer whoever asked. */
 export function orderDocumentKind(value: string): OrderDocumentKind {
@@ -41,6 +28,11 @@ export function orderDocumentKind(value: string): OrderDocumentKind {
   return kind;
 }
 
+/**
+ * Filing a document, telling the customer and taking it off (FR-ORD-05), for
+ * the two callers with opposite gates: a manager while the shop owns orders,
+ * an owning system while it does not (FR-ADM-10). None writes a version.
+ */
 @Injectable()
 export class OrderDocumentActs {
   constructor(
@@ -51,12 +43,8 @@ export class OrderDocumentActs {
   ) {}
 
   /**
-   * File a document against an order, optionally writing to the customer in
-   * the same breath.
-   *
-   * The bytes are sniffed rather than trusted: what a multipart part claims to
-   * be is the sender's word for it, and this store is read back out to
-   * browsers.
+   * Files a document, telling the customer in the same breath where asked. The
+   * bytes are sniffed: a multipart part's type is the sender's word for it.
    */
   async supply(
     reference: string,
@@ -83,17 +71,16 @@ export class OrderDocumentActs {
         name: file.originalname.slice(0, ORDER_DOCUMENT_FILE_NAME_MAX_LENGTH),
         contentType: mime,
       },
-      // An automated client has no account to attribute the row to. Who filed
-      // it is in the audit line instead, as the credential's own name.
+      // An automated client has no account; the audit line names its
+      // credential.
       'token' in actor ? null : actor.id,
     );
     this.audit.record('order.document.supplied', actor, {
       id: reference,
       name: kind,
     });
-    // Read again before writing to the customer, not the order the caller had
-    // in hand: `tell` decides from the order's own document list, and the
-    // document it is about is the one this call has just put there.
+    // Read again: `tell` decides from the order's own document list, which this
+    // call just changed.
     if (notify) {
       await this.tell(
         reference,
@@ -106,12 +93,9 @@ export class OrderDocumentActs {
   }
 
   /**
-   * Tell the customer about a document that is already filed.
-   *
-   * Refused while the customer's own page is behind the version the file was
-   * filed against: the message would announce a document they cannot open, and
-   * the way out of that is to bring them up to date first — which is why an
-   * owning system supplies the file *before* the version that announces it.
+   * Tells the customer about a filed document. Refused while their page is
+   * behind the version it was filed against: they could not open it. An owning
+   * system therefore supplies the file before the version that announces it.
    */
   async tell(
     reference: string,
@@ -134,11 +118,11 @@ export class OrderDocumentActs {
     }
 
     const { id, publicToken } = await this.documents.identify(reference);
-    // The instructions travel with the message; a summary is linked, so the
-    // reader always opens the version they are entitled to.
+    // The instructions travel with the message; a summary is linked, so it
+    // opens the version the reader is entitled to.
     const attachment =
       kind === 'payment-instructions'
-        ? await this.documents.paymentAttachment(reference)
+        ? await this.documents.paymentAttachment(id)
         : null;
     await this.notifications.documentSupplied(
       order,

@@ -31,17 +31,9 @@ import { shopDay } from './shop-day';
 import { addressLines } from '@b2b-catalog-platform/shared/core/accounts';
 
 /**
- * The order summary the platform draws for itself (FR-ORD-05, FR-ACC-02,
- * ADR 0052).
- *
- * Drawn from an `OrderDetail` — the version the reader is entitled to, which
- * the caller has already resolved — so the document says exactly what the
- * screen that offered it says. Nothing is stored: the same version renders the
- * same file however long afterwards.
- *
- * The layout is deliberately plain. A shop whose back-office prints its own
- * paperwork supplies that instead, and this is what a deployment without one
- * gets.
+ * The order summary the platform draws (FR-ORD-05, FR-ACC-02, ADR 0052), from
+ * the version the caller resolved, so it says what the page that offered it
+ * says. Plain on purpose: a back office with its own paperwork supplies that.
  */
 @Injectable()
 export class OrderPdf {
@@ -113,9 +105,8 @@ export class OrderPdf {
     if (order.changes.length > 0) sheet.field(names.changeNote, order.changes);
 
     sheet.gap(10);
-    // A line states its own rate only once the lines differ — the total
-    // names it otherwise — and under the name, since the figure columns hold
-    // one line each.
+    // A line names its rate only where the lines differ; the total names it
+    // otherwise.
     const perLineTax = orderLinesDifferInTax(order);
     sheet.table(
       [t.itemsLabel, t.quantityLabel, t.lineTotalLabel],
@@ -170,11 +161,7 @@ export class OrderPdf {
     return `${method} · ${state}`;
   }
 
-  /**
-   * The reading the line was bought through, and its piece count where those
-   * differ — the same two figures the order mails state, and for the same
-   * reason: the document is read beside goods somebody is counting.
-   */
+  /** The unit read and the piece count, as the mails state them. */
   private quantity(line: OrderDetail['lines'][number]): string {
     const units = this.common.units;
     return line.unit === 'piece'
@@ -191,9 +178,8 @@ export class OrderPdf {
   }
 
   /**
-   * A date as this deployment writes them, in UTC: an order's preferred date
-   * is a plain day, and reading it in the container's zone is how a document
-   * comes out a day earlier than the page that offered it.
+   * In UTC: a preferred date is a plain day, and the server's zone would shift
+   * it.
    */
   private day(iso: string): string {
     return new Intl.DateTimeFormat(this.branding.locale, {

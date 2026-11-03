@@ -8,19 +8,9 @@ import { MEDIA_STORE, MediaStore } from '../../media/media-store';
 import { OrderIds } from './order-scrub';
 
 /**
- * Erasing the documents supplied for orders whose personal details go
- * (FR-AUTH-06, NFR-LEGAL-14, ADR 0052).
- *
- * Its own small service rather than a method on `OrderDocumentsService`,
- * because it is used from the other end of the app — closing an account —
- * and needs none of what drawing a document needs. Wiring the PDF renderer
- * into the deletion path to delete a file would be a dependency nobody
- * reading either side would expect.
- *
- * Anonymization scrubs the columns it can read. A supplied PDF is bytes with
- * the customer's name, address and prices in it that no column-level scrub can
- * reach, so it goes entirely. The generated summary needs no rule of its own:
- * it is drawn from a revision that has just been scrubbed.
+ * Deletes the files supplied for orders whose personal details go (FR-AUTH-06,
+ * NFR-LEGAL-14): bytes no column-level scrub can reach. Apart from
+ * `OrderDocumentsService` so the deletion path needs no PDF renderer.
  */
 @Injectable()
 export class OrderDocumentFiles {

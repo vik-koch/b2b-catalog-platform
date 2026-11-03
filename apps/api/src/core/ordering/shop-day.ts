@@ -1,6 +1,5 @@
 /**
- * A moment as the day the shop's own pages call it, in the shop's timezone, so
- * a mail or a document names the same day as the page's "Last updated" line.
+ * A moment as the shop's own day, as the pages' "Last updated" line names it.
  */
 export function shopDay(
   iso: string,

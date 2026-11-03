@@ -2,18 +2,10 @@ import { randomBytes, randomInt } from 'node:crypto';
 import { OrderReferenceConfig } from '@b2b-catalog-platform/shared';
 
 /**
- * What an order is called, and what a mailed link to it carries.
- *
- * `{prefix}-YYMMDD-NNNN`: short enough to read down a phone, dated so staff can
- * place it at a glance, and with a **random** suffix rather than a counter —
- * a sequence would tell everyone who ever gets a reference how many orders the
- * shop takes in a day. Collisions are therefore possible and are retried
- * against the unique index rather than pre-checked; ten thousand suffixes
- * against a day's orders is a low enough chance that the retry is a formality,
- * and a bounded loop that fails loudly is better than a number that can lie.
- *
- * The date is read in the deployment's own timezone: a customer quoting
- * yesterday's order must not be told it is tomorrow's.
+ * `{prefix}-YYMMDD-NNNN`: readable down a phone, dated, and with a random
+ * suffix, so a reference does not tell how many orders a day the shop takes.
+ * Collisions are retried against the unique index. The date is the
+ * deployment's own day.
  */
 
 export const ORDER_REFERENCE_ATTEMPTS = 5;
@@ -39,9 +31,8 @@ export function orderReference(
 }
 
 /**
- * The capability a guest's mailed link carries (FR-NOTIF-06). It is the only
- * credential for that view, so it is generated like a password-reset token
- * rather than derived from anything about the order.
+ * The capability a guest's mailed link carries (FR-NOTIF-06): random, like a
+ * password-reset token.
  */
 export function orderPublicToken(): string {
   return randomBytes(24).toString('base64url');

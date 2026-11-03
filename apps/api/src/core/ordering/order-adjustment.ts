@@ -21,17 +21,9 @@ import { resolvedPriceMinor } from '../catalog/product-price';
 import { packagingOf, unitColumns } from '../catalog/product-view';
 
 /**
- * Pricing an order the way a manager writes it (FR-ORD-03), which is not the
- * way a cart is priced.
- *
- * Three differences, and each is deliberate. **A line keeps the price it
- * carries** — an adjustment re-prices only what the manager re-priced, and a
- * line nobody touched must still cost what the customer was quoted, however
- * far the catalog has moved since. **The whole catalog is in scope**, deleted
- * and unpublished included: an order may already hold a withdrawn product, and
- * a shop filling one from something it no longer lists is doing ordinary work.
- * And **quantities are counted in pieces**, the unit every price is per, so a
- * line total is a multiplication with nothing to round.
+ * Pricing an order as a manager writes it (FR-ORD-03), unlike a cart: a line
+ * keeps the price it carries, the whole catalog is in scope, and quantities are
+ * pieces, so a total is a multiplication with nothing to round.
  */
 
 export interface PricedAdjustmentLine {
@@ -49,11 +41,10 @@ export interface PricedAdjustmentLine {
   /** The rate the new version states for this line (NFR-LEGAL-11). */
   taxRate: number | null;
   flags: AdjustmentLineFlag[];
-  /** What the chosen list charges for one piece of this product today.
-   * Answered on every line, priced from the list or not: it is what lets a
-   * screen say a line was priced away from the list without working out either
-   * figure for itself. Null when no list prices the product — the line then
-   * carries a price staff typed, which is the only way it got here. */
+  /**
+   * Today's list price for one piece, priced from the list or not, so a screen
+   * can say a price is deliberate. Null where no list prices it.
+   */
   listPriceMinor: number | null;
 }
 
@@ -68,8 +59,7 @@ type ProductRow = {
   slug: string;
   name: string;
   sourceId: string;
-  /** Null where no price list prices it — staff may still order it by naming
-   * the price on the line. */
+  /** Null where no list prices it: staff name the price. */
   priceMinor: number | null;
   images: schema.ProductImageRef[];
   variants: schema.ProductVariantRef[];
@@ -86,11 +76,7 @@ type ProductRow = {
   minPieceQty: number;
 };
 
-/**
- * `taxRateOf` turns a product's own rate into the one its line states — the
- * order's basis decides whether there is one at all, and the deployment's
- * default fills in where the product has none.
- */
+/** `taxRateOf` resolves a product's rate under the order's own basis. */
 export async function priceAdjustment(
   db: NodePgDatabase<typeof schema>,
   lines: readonly OrderAdjustmentLine[],
@@ -128,8 +114,7 @@ async function loadProducts(
   const slugs = [...new Set(lines.map((line) => line.slug))];
   if (slugs.length === 0) return new Map();
 
-  // No visibility filter: staff see the catalog whole, and an order's own line
-  // may point at a product the storefront stopped offering long ago.
+  // No visibility filter: staff see the catalog whole.
   const rows = await db
     .select({
       id: products.id,
@@ -154,9 +139,8 @@ async function loadProducts(
   const found = new Map(rows.map((row) => [row.slug, row]));
   for (const slug of slugs) {
     if (found.has(slug)) continue;
-    // Its own refusal rather than a marked line: staff may add anything the
-    // catalog holds, so a slug nothing answers to is a request built against a
-    // different catalog, not a product somebody withdrew.
+    // Refused, not flagged: a slug nothing answers to was built against another
+    // catalog.
     throw new BadRequestException({
       code: 'unknown-product',
       message: `No product is called ${slug}`,
@@ -174,8 +158,7 @@ function priceLine(
   if (!product) throw new Error('an unresolved line reached the pricer');
 
   const packaging = packagingOf(product);
-  // The line's own price, or the list's. A product no list prices can still be
-  // put on an order — staff name the price — but nothing can invent one for it.
+  // The line's price or the list's; nothing can invent one.
   const priceMinor = line.priceMinor ?? product.priceMinor;
   if (priceMinor === null) {
     throw new BadRequestException({
@@ -186,9 +169,7 @@ function priceLine(
   const pieces = line.pieces;
   const lineTotalMinor = totalMinor(priceMinor, pieces);
 
-  // The lens only. A product repacked out of the unit this line was read in is
-  // still perfectly orderable, so it falls back to the one unit every product
-  // has; a line staff added has been read in no other unit yet.
+  // The unit falls back to the piece; a line staff added starts there.
   const asked = line.unit ?? 'piece';
   const unit = piecesPerUnit(packaging, asked) === null ? 'piece' : asked;
 
@@ -211,9 +192,7 @@ function priceLine(
     priceMinor,
     lineTotalMinor,
     note: line.note,
-    // Today's rate, as the list price above is today's where the line names
-    // none: a version is the order as it reads when it is written, and the
-    // shop's invoice will state the rate in force then.
+    // Today's rate: a version is the order as it reads when written.
     taxRate: taxRateOf(product.taxRate),
     flags,
     listPriceMinor: product.priceMinor,

@@ -18,13 +18,9 @@ import { OrderDocumentFiles } from './order-document-files';
 import { scrubOrders } from './order-scrub';
 
 /**
- * Removing a guest order's personal details on the guest's request
- * (NFR-LEGAL-14). A guest has no account to delete, so this is the one way
- * their request can be met before the order's retention ends.
- *
- * Refused for an account holder's order, whose details go with the account
- * (FR-ADM-23), and for an order still running, which the shop needs them to
- * fulfil.
+ * A guest's request to remove their order's details (NFR-LEGAL-14): they have
+ * no account to delete. Not an account holder's order (FR-ADM-23), and not one
+ * still running.
  */
 @Injectable()
 export class OrderPersonalData {
@@ -38,8 +34,7 @@ export class OrderPersonalData {
     admin: { readonly id: string; readonly email: string },
   ): Promise<void> {
     const id = await this.db.transaction(async (tx) => {
-      // Locked, so a manager reopening the order cannot slip in between the
-      // check that it is finished and the scrub.
+      // Locked, so a reopen cannot slip between the check and the scrub.
       const [order] = await tx
         .select({
           id: orders.id,
@@ -86,8 +81,7 @@ export class OrderPersonalData {
       });
       return order.id;
     });
-    // After the commit, as an account deletion does: a file cannot be
-    // rolled back with the rows.
+    // After the commit: a file cannot be rolled back with the rows.
     await this.documents.removeForOrders([id]);
   }
 }

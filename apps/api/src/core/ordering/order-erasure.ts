@@ -17,8 +17,7 @@ export class OrderErasure implements AccountErasureStep {
   constructor(private readonly documents: OrderDocumentFiles) {}
 
   async erase(tx: Tx, { userId }: ErasedAccount): Promise<void> {
-    // The customer-facing promise: "past orders are kept for our
-    // bookkeeping, with your details removed from them".
+    // "Past orders are kept for our bookkeeping, with your details removed."
     await scrubOrders(
       tx,
       tx

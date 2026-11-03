@@ -99,7 +99,7 @@ export class OrderWriter {
     // never on a mail that owes nothing.
     const attachment =
       row.paymentState === 'awaiting'
-        ? await this.documents.paymentAttachment(reference)
+        ? await this.documents.paymentAttachment(row.id)
         : null;
     await this.notifications.statusChanged(
       await this.reads.staffDetail(row),

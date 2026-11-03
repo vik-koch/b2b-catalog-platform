@@ -9,30 +9,15 @@ type Writer = Pick<NodePgDatabase<typeof schema>, 'update' | 'select'>;
 export type OrderIds = string[] | SQLWrapper;
 
 /**
- * Removes the personal details from orders (FR-AUTH-06, NFR-LEGAL-14), in the
- * caller's transaction. The orders stay — the line prices are what the shop's
- * figures need — and every column that could name somebody goes.
- *
- * **Every version of every order** (ADR 0051), not only the one each order
- * currently shows: a superseded revision holds the same address and the same
- * name, and a removal that left it standing would be a removal in name only.
- *
- * The address columns are overwritten rather than nulled: several are
- * `not null`, and the fulfilment check constraint requires a delivery order
- * to keep a destination. A scrubbed order still reads as an order.
- *
- * A plain function, as `recordDestruction` is: account deletion, the
- * retention sweep and a guest's request all reach it, and none of them should
- * need the others' module to do so. The supplied documents are the caller's
- * to remove after the transaction, since files cannot be rolled back.
+ * Removes the personal details from orders (FR-AUTH-06, NFR-LEGAL-14) in the
+ * caller's transaction, from every version (ADR 0051). The orders and their
+ * prices stay. Addresses are overwritten, not nulled, so the not-null columns
+ * and the fulfilment constraint hold. The caller deletes supplied files after
+ * the commit.
  */
 export async function scrubOrders(tx: Writer, ids: OrderIds): Promise<void> {
-  // Shaped like the thing it replaces, not merely labelled. `[removed]` in
-  // the email column made every anonymized order unadjustable: the order
-  // contract validates the address it reads back, and refused its own stored
-  // data. `.invalid` is reserved and undeliverable (RFC 2606), and the phone
-  // placeholder is a number nobody answers rather than a word in a number
-  // column.
+  // Shaped like what they replace, so the order contract still reads a scrubbed
+  // order back. `.invalid` is undeliverable (RFC 2606).
   const scrubbed = '[removed]';
   const scrubbedEmail = 'removed@deleted.invalid';
   const scrubbedPhone = '+00000000000';
@@ -41,8 +26,7 @@ export async function scrubOrders(tx: Writer, ids: OrderIds): Promise<void> {
     .from(orderRevisions)
     .where(inArray(orderRevisions.orderId, ids));
 
-  // Customer-typed, and perfectly capable of naming someone: "deliver to
-  // Anna, 0170…".
+  // Customer-typed: "deliver to Anna, 0170…".
   await tx
     .update(orderItems)
     .set({ note: null })
@@ -80,13 +64,8 @@ export async function scrubOrders(tx: Writer, ids: OrderIds): Promise<void> {
     })
     .where(inArray(orderRevisions.orderId, ids));
 
-  // The scrubbing is a change to every one of those orders, and the one
-  // reader that has to hear about it is the outbound read (FR-ADM-08,
-  // NFR-LEGAL-07): a system that pulled the order last week holds the name
-  // and address this just removed, and it learns they are gone by the order
-  // coming round again with them blank. The first removal's date is kept: an
-  // order swept last year and scrubbed again by an account deletion lost its
-  // details last year.
+  // `updatedAt` tells the outbound read the details went (FR-ADM-08,
+  // NFR-LEGAL-07). The first removal's date is kept.
   const now = new Date();
   await tx
     .update(orders)

@@ -32,12 +32,8 @@ function staffInbox(): string {
 }
 
 /**
- * The two mails an order request produces (FR-NOTIF-05/06).
- *
- * Dispatched rather than sent, exactly as a registration's are: the order row
- * is what matters, and it is readable in the admin panel whether or not SMTP
- * was reachable. A customer who was shown a reference has an order, mail or no
- * mail — and does not wait on a provider to say so.
+ * The mails about an order (FR-NOTIF-03/05/06/07, FR-ORD-05). Dispatched, not
+ * sent: the order stands whether or not SMTP answers, and nobody waits on it.
  */
 @Injectable()
 export class OrderNotifications {
@@ -57,12 +53,9 @@ export class OrderNotifications {
      * (NFR-LEGAL-10). */
     attachments: readonly MailAttachment[] = [],
   ): Promise<void> {
-    // To the address on the order, not to the account's: a guest has no
-    // account, and a signed-in customer may have named a colleague.
-    //
-    // The token travels only where it is the only way in. An order placed from
-    // an account is linked to that account's own order page instead, so no
-    // capability URL is mailed for something the customer can already open.
+    // To the order's contact, not the account: a guest has none, and a customer
+    // may have named a colleague. The token travels only where it is the only
+    // way in.
     await this.mail.dispatch(
       orderReceivedMail(
         order,
@@ -79,12 +72,9 @@ export class OrderNotifications {
     await this.mail.dispatch(
       newOrderMail(order, this.currency, this.text, this.common),
       {
-        // env.ts requires this in server mode; asking for it in here means a
-        // deployment that lost it still logs one failed mail rather than
-        // throwing past the customer's own.
+        // A deployment that lost it logs one failed mail, not the customer's.
         to: staffInbox(),
-        // A manager reading it on a phone replies to the customer, not to
-        // the shop's own inbox.
+        // A manager on a phone replies to the customer, not the shop's inbox.
         replyTo: order.contact.email,
       },
       'staff order notification',
@@ -92,23 +82,16 @@ export class OrderNotifications {
   }
 
   /**
-   * The shop's mail when a customer calls their own order off (FR-NOTIF-07).
-   *
-   * Only theirs. A manager cancelling an order does not need telling that they
-   * did, and the customer's own move is the one nothing else on the shop's
-   * screens announces: the order simply leaves the queue.
-   *
-   * Nothing goes to the customer here — they just did this themselves, and a
-   * confirmation of one's own click is the mail that teaches people to ignore
-   * the shop's mail.
+   * The shop's mail when a customer calls their order off (FR-NOTIF-07).
+   * Nothing to the customer: a confirmation of one's own click teaches people
+   * to ignore the shop's mail.
    */
   async cancelledByCustomer(order: AdminOrderDetail): Promise<void> {
     await this.mail.dispatch(
       orderCancelledMail(order, this.currency, this.text, this.common),
       {
         to: staffInbox(),
-        // As on the arrival notification: a manager reading it on a phone
-        // rings the customer back, not the shop's own inbox.
+        // As on the arrival notification.
         replyTo: order.contact.email,
       },
       'staff cancellation notification',
@@ -116,28 +99,16 @@ export class OrderNotifications {
   }
 
   /**
-   * The customer's mail about their order (FR-NOTIF-03).
-   *
-   * To the address on the order, like the receipt — a colleague named as the
-   * contact is the person the shop has been talking to about it.
-   *
-   * `requested` reaches this now: a finished order reopened and told about
-   * again is back where it started, and saying so is the honest mail. An order
-   * *arriving* is still the receipt's job and never comes through here.
-   *
-   * `notice` is why this message exists, which the status cannot say: a move
-   * on, a move walked back, or a change that moved nothing at all.
+   * The customer's mail about their order (FR-NOTIF-03), to the order's
+   * contact. `notice` says why it exists: a move, a step back, or a change.
    */
   async statusChanged(
     order: AdminOrderDetail,
     publicToken: string,
     notice: OrderNotice,
-    /** What the shop said about every change written since this customer was
-     * last told (FR-ORD-03), oldest first. Empty on a plain move. */
+    /** The shop's notes since they were last told (FR-ORD-03), oldest first. */
     changes: readonly string[] = [],
-    /** The shop's payment instructions, where the order has them and the
-     * customer is being asked for money (FR-ORD-05). Fetched by the caller,
-     * which is where the document store lives. */
+    /** The payment instructions where money is asked for (FR-ORD-05). */
     attachments: readonly MailAttachment[] = [],
   ): Promise<void> {
     const status = order.status;
@@ -159,13 +130,8 @@ export class OrderNotifications {
   }
 
   /**
-   * A document arriving, said on its own (FR-ORD-05).
-   *
-   * Not a status mail: nothing moved and nothing about the order changed, so
-   * it borrows none of that wording. The payment instructions travel with it —
-   * the whole point of the message is that the customer now has something to
-   * act on — while a summary is linked, because the link always shows the
-   * version they are entitled to and an attachment freezes one.
+   * A document arriving, on its own (FR-ORD-05). Payment instructions are
+   * attached; a summary is linked, since an attachment freezes one version.
    */
   async documentSupplied(
     order: AdminOrderDetail,

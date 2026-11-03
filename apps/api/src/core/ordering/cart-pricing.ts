@@ -33,25 +33,18 @@ import {
 import { pairedCountOf, pairingsAmong } from '../catalog/product-pairings';
 
 /**
- * Pricing a cart, once, for both the preview and the submission — a submitted
- * order priced by a second code path is an order priced differently from the
- * one the customer saw.
- *
- * A cart is stale by construction: it sits in a browser for weeks while the
- * catalog moves under it. So every call re-reads the products through
- * `publiclyVisible` and re-derives every total; nothing here trusts what a
- * previous preview returned, and nothing here mutates the caller's cart.
+ * Pricing a cart, once, for the preview and the submission alike. A cart is
+ * stale by construction, so every call re-reads products through
+ * `publiclyVisible` and never mutates the caller's cart.
  */
 
-/** The stored figures a submitted line needs, beside what the preview shows.
- * They never reach the response — the contract is what withholds them. */
+/** The figures an order line stores, which the contract keeps off the wire. */
 export interface PricedLineRow {
   productId: string;
   sourceId: string;
   priceMinor: number;
   pieces: number;
-  /** `pieces` read through the line's unit — the display snapshot an order
-   * line freezes, worked out here because this is where the packaging is. */
+  /** The display snapshot an order line freezes. */
   quantity: number;
   thumbnail: string | null;
   /** The rate the line is taxed at, as the preview states it. */
@@ -69,10 +62,7 @@ export interface PricedCart {
   lines: PricedLine[];
 }
 
-/**
- * The visible half of a product row. Everything else the pricer reads
- * (`sourceId`) stays inside `PricedLineRow`.
- */
+/** The product columns the pricer reads. */
 type ProductRow = {
   id: string;
   slug: string;
@@ -142,14 +132,8 @@ export async function priceCart(
 }
 
 /**
- * Fills in what each line is short of what it is sold with (FR-SET-02/03).
- *
- * Only lines the shop still offers take part: a withdrawn product is coming out
- * of the cart, and asking the customer to buy a lid for it would be advice
- * about a line they cannot order anyway.
- *
- * One query, for the edges *among* these products — a counterpart nobody added
- * covers nothing, so the wider neighbourhood has the same answer.
+ * What each line is short of what it is sold with (FR-SET-02/03), among the
+ * lines still offered: one query for the edges between them.
  */
 async function applyPairingShortfalls(
   db: NodePgDatabase<typeof schema>,
@@ -181,9 +165,8 @@ async function applyPairingShortfalls(
       offered.map(({ preview }) => ({
         slug: preview.slug,
         pieces: preview.pieces,
-        // The count the line already carries, which is the number of
-        // counterparts the shop can *sell* — so a cup whose only lid is
-        // unpublished is not reported short for something nobody can add.
+        // The sellable counterpart count: a cup whose only lid is unpublished
+        // is not short of anything.
         paired: preview.pairedCount > 0,
         counterpartSlugs: counterparts.get(preview.slug) ?? [],
       })),
@@ -236,9 +219,8 @@ function priceLine(
   const note = line.note ?? null;
   const issues: CartLineIssue[] = [];
 
-  // One code for soft-deleted, unpublished and never-existed alike: telling
-  // them apart would make this endpoint an oracle that enumerates the
-  // unpublished catalog by difference.
+  // One code for deleted, unpublished and never-existed: the endpoint must not
+  // enumerate the unpublished catalog.
   if (!product) {
     return {
       row: null,
@@ -271,32 +253,23 @@ function priceLine(
 
   const packaging = packagingOf(product);
   const prices = unitPricesOf(product);
-  // The thumbnail is the first picture the storefront shows, which is not the
-  // first stored where that one's variant is unavailable (FR-CAT-12).
+  // The first picture shown, not stored (FR-CAT-12).
   const pictures = picturesOf(product);
   const first = pictures.images[0];
   const image = first ? { full: first.full, thumb: first.thumb } : null;
 
-  // A note on a product that no longer takes one is dropped here rather than
-  // refused — the policy can be turned off after the note was written, and the
-  // rest of the line is still perfectly orderable. It is an advisory, so a
-  // *submission* carrying it still 409s like any other issue, with this
-  // stripped cart in the answer: the customer sees the note go before the order
-  // is placed without it.
+  // A note the product no longer takes is dropped and reported; a submission
+  // still refuses on it, so the customer sees it go first.
   const keptNote = product.lineNoteEnabled ? note : null;
   if (note !== null && !product.lineNoteEnabled)
     issues.push('note-not-allowed');
 
-  // The quantity is in pieces and is corrected against the piece rules, which
-  // are the only rules there are: a line stored when the minimum was six must
-  // be corrected before it is priced, or it is priced against a basis it no
-  // longer divides.
+  // Corrected against today's piece rules before pricing, or the price would
+  // not divide.
   const pieces = correctPieces(packaging, line.pieces);
   if (pieces !== line.pieces) issues.push('quantity-corrected');
 
-  // The lens, not the quantity: a product repacked out of the unit this line
-  // was being read in is still perfectly orderable — the pieces are untouched
-  // — so it falls back to the one unit every product has and says it did.
+  // The unit falls back to the piece; the pieces stand.
   const sold = piecesPerUnit(packaging, line.unit) !== null;
   const unit = sold ? line.unit : 'piece';
   if (!sold) issues.push('unit-unavailable');
@@ -304,10 +277,8 @@ function priceLine(
   const lineTotalMinor = exactLineTotal(prices.piece, pieces);
   if (lineTotalMinor === null) issues.push('price-unavailable');
 
-  // The line stays exactly as it is — named, priced and orderable in every
-  // other respect (FR-STOCK-04). What the issue does is refuse the *order*:
-  // submission takes any issue as a refusal, so nothing more is needed to stop
-  // an empty shelf being sold. "Few left" restricts nothing.
+  // The line stays as it is (FR-STOCK-04); the issue refuses the order. "Few
+  // left" restricts nothing.
   if (product.availability === 'out') issues.push('out-of-stock');
 
   const taxRate = effectiveTaxRate(tax, product.taxRate);
