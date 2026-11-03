@@ -17,7 +17,7 @@ import {
 import { DRIZZLE } from '../db/database.module';
 import * as schema from '../db/schema';
 import { syncRuns } from '../db/schema';
-import { OrdersService } from '../orders/orders.service';
+import { OrderWriteBack } from '../core/ordering/order-write-back';
 import { OwnershipState } from '../settings/ownership-state';
 import { ordersNotExternallyOwned } from '../settings/ownership.refusals';
 import { Submitter } from './sync-run';
@@ -46,7 +46,7 @@ export class OrderSyncService {
   constructor(
     @Inject(DRIZZLE) private readonly db: NodePgDatabase<typeof schema>,
     private readonly ownership: OwnershipState,
-    private readonly orders: OrdersService,
+    private readonly orders: OrderWriteBack,
     private readonly log: SyncRunLog,
     private readonly notifications: SyncNotifications,
   ) {}

@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import { IconNote } from '@b2b-catalog-platform/ui/content/icon-note';
 import { lockIcon } from '@b2b-catalog-platform/ui/icons/glyphs/lock';
 import { Notice } from '@b2b-catalog-platform/ui/content/notice';
 
@@ -10,19 +10,12 @@ import { Notice } from '@b2b-catalog-platform/ui/content/notice';
  */
 @Component({
   selector: 'app-locked-note',
-  imports: [Icon, Notice],
+  imports: [IconNote, Notice],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'block' },
   template: `
     <p uiNotice tone="neutral" role="status">
-      <span class="flex items-start gap-2.5">
-        <ui-icon
-          [glyph]="lockIcon"
-          class="mt-0.5 size-4 shrink-0"
-          aria-hidden="true"
-        />
-        <span><ng-content /></span>
-      </span>
+      <span uiIconNote [glyph]="lockIcon"><ng-content /></span>
     </p>
   `,
 })

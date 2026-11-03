@@ -36,6 +36,10 @@ export const QUANTITY_SCALE = 10 ** UNIT_QUANTITY_DECIMALS;
  */
 export const LINE_PIECES_MAX = 1_000_000;
 
+/** One note describes a whole line ("100 in colour A, 100 in colour B"), so it
+ * has room to. */
+export const CART_NOTE_MAX = 500;
+
 export function piecesPerUnit(
   sizes: UnitSizes,
   unit: ProductUnit,

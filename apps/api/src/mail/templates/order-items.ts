@@ -4,9 +4,9 @@ import {
   formatMoneyMinor,
   formatTaxRate,
   MoneyFormat,
-  OrderDetail,
   sharedTaxRate,
 } from '@b2b-catalog-platform/shared';
+import { OrderDetail } from '@b2b-catalog-platform/shared/core/ordering';
 import { MailItem } from '../mail-layout';
 
 /**

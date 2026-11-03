@@ -1,7 +1,7 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { and, eq, inArray, isNull, lt, ne, or } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { ENDED_ORDER_STATUSES } from '@b2b-catalog-platform/shared';
+import { ENDED_ORDER_STATUSES } from '@b2b-catalog-platform/shared/core/ordering';
 import { RetentionConfig } from '@b2b-catalog-platform/shared/node';
 import { RETENTION } from '../config/deployment-config';
 import { DRIZZLE } from '../db/database.module';
@@ -12,8 +12,8 @@ import {
   destructionRecords,
   orders,
 } from '../db/schema';
-import { OrderDocumentFiles } from '../orders/order-document-files';
-import { scrubOrders } from '../orders/order-scrub';
+import { OrderDocumentFiles } from '../core/ordering/order-document-files';
+import { scrubOrders } from '../core/ordering/order-scrub';
 import { ORDER_REMOVAL_CATEGORIES } from './record-destruction';
 
 const DAY_MS = 86_400_000;

@@ -12,6 +12,7 @@ import { CatalogService } from './catalog.service';
 import { PairingsService } from '../../core/catalog/buying/pairings.service';
 import { ProductPairingsDialog } from './product-pairings-dialog';
 import { productListItem } from '../../core/catalog/product.fixture';
+import { provideFakeProductCart } from '../../core/catalog/buying/product-cart.fixture';
 
 const text = defaultStorefrontText.catalog.pairings;
 
@@ -38,6 +39,7 @@ async function render(
   TestBed.configureTestingModule({
     imports: [ProductPairingsDialog],
     providers: [
+      provideFakeProductCart(),
       provideUiText(),
       provideRouter([{ path: 'product/:slug', component: Page }]),
       { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },

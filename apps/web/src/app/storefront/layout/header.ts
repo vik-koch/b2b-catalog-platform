@@ -14,12 +14,12 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { currentUrl } from '../../shared/core/current-url';
 import { AccountLink } from './account-link';
-import { CartLink } from './cart-link';
+import { CartLink } from '../ordering/cart/cart-link';
 import { CatalogLink } from './catalog-link';
 import { ContactInfo } from './contact-info';
 import { HeaderCollapse } from '../../shared/layout/header-collapse';
 import { MobileSearch, SearchAnchor } from './mobile-search';
-import { SearchField } from './search-field';
+import { SearchField } from '../catalog/search/search-field';
 
 /**
  * Two-row header, the conventional B2B/e-commerce split: a slim utility bar

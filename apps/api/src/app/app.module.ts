@@ -13,7 +13,9 @@ import { AccountErasureModule } from './account-erasure.module';
 import { DestructionModule } from '../destruction/destruction.module';
 import { CatalogModule } from '../storefront/catalog/catalog.module';
 import { AdminCatalogModule } from '../admin/catalog/admin-catalog.module';
-import { OrdersModule } from '../orders/orders.module';
+import { OrderingModule } from '../storefront/ordering/ordering.module';
+import { AdminOrderingModule } from '../admin/ordering/admin-ordering.module';
+import { MachineOrderingModule } from '../machine/ordering/machine-ordering.module';
 import { SiteModule } from '../storefront/site/site.module';
 import { AdminSiteModule } from '../admin/site/admin-site.module';
 import { MediaModule } from '../media/media.module';
@@ -48,7 +50,9 @@ import { WorkModule } from '../work/work.module';
     DestructionModule,
     AccountErasureModule,
     AccountModule,
-    OrdersModule,
+    OrderingModule,
+    AdminOrderingModule,
+    MachineOrderingModule,
     AddressesModule,
     PartiesModule,
     WorkModule,

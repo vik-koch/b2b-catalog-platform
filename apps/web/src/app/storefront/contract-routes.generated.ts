@@ -6,6 +6,7 @@
 
 import type * as storefrontAccounts from '@b2b-catalog-platform/shared/storefront/accounts';
 import type * as storefrontCatalog from '@b2b-catalog-platform/shared/storefront/catalog';
+import type * as storefrontOrdering from '@b2b-catalog-platform/shared/storefront/ordering';
 import type * as storefrontSite from '@b2b-catalog-platform/shared/storefront/site';
 
 export const accountContract = {
@@ -225,6 +226,72 @@ export const catalogContract = {
     },
   },
 } as unknown as typeof storefrontCatalog.catalogContract;
+export const cartContract = {
+  previewCart: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'POST',
+        path: '/cart/preview',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+} as unknown as typeof storefrontOrdering.cartContract;
+export const ordersContract = {
+  submitOrder: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: { method: 'POST', path: '/orders', inputStructure: 'detailed' },
+    },
+  },
+  listMyOrders: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'GET',
+        path: '/account/orders',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+  getMyOrder: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'GET',
+        path: '/account/orders/{reference}',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+  getOrderByToken: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'GET',
+        path: '/orders/by-token/{token}',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+  cancelMyOrder: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'POST',
+        path: '/account/orders/{reference}/cancel',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+} as unknown as typeof storefrontOrdering.ordersContract;
 export const inquiryContract = {
   submit: {
     '~orpc': {

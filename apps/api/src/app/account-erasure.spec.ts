@@ -2,8 +2,8 @@ import { AccountErasure } from '../core/accounts/account-erasure';
 import { Captured, renderingDb } from '../core/accounts/rendering-db.fixture';
 import { UsersService } from '../core/accounts/users.service';
 import { AccountDestruction } from '../destruction/account-destruction';
-import { OrderDocumentFiles } from '../orders/order-document-files';
-import { OrderErasure } from '../orders/order-erasure';
+import { OrderDocumentFiles } from '../core/ordering/order-document-files';
+import { OrderErasure } from '../core/ordering/order-erasure';
 
 /**
  * Account deletion (FR-AUTH-06) across the areas it reaches, rendered rather

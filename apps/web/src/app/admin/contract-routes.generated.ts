@@ -7,122 +7,11 @@
 import type * as admin from '@b2b-catalog-platform/shared/admin';
 import type * as adminAccounts from '@b2b-catalog-platform/shared/admin/accounts';
 import type * as adminCatalog from '@b2b-catalog-platform/shared/admin/catalog';
+import type * as adminOrdering from '@b2b-catalog-platform/shared/admin/ordering';
 import type * as adminPlatform from '@b2b-catalog-platform/shared/admin/platform';
 import type * as adminSite from '@b2b-catalog-platform/shared/admin/site';
 import type * as sync from '@b2b-catalog-platform/shared/sync';
 
-export const adminOrdersContract = {
-  listOrders: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: {
-        method: 'GET',
-        path: '/admin/orders',
-        inputStructure: 'detailed',
-      },
-    },
-  },
-  getOrder: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: {
-        method: 'GET',
-        path: '/admin/orders/{reference}',
-        inputStructure: 'detailed',
-      },
-    },
-  },
-  transitionOrder: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: {
-        method: 'POST',
-        path: '/admin/orders/{reference}/status',
-        inputStructure: 'detailed',
-      },
-    },
-  },
-  listOrderRevisions: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: {
-        method: 'GET',
-        path: '/admin/orders/{reference}/revisions',
-        inputStructure: 'detailed',
-      },
-    },
-  },
-  getOrderRevision: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: {
-        method: 'GET',
-        path: '/admin/orders/{reference}/revisions/{number}',
-        inputStructure: 'detailed',
-      },
-    },
-  },
-  previewOrderAdjustment: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: {
-        method: 'POST',
-        path: '/admin/orders/{reference}/adjustment/preview',
-        inputStructure: 'detailed',
-      },
-    },
-  },
-  adjustOrder: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: {
-        method: 'POST',
-        path: '/admin/orders/{reference}/adjustment',
-        inputStructure: 'detailed',
-      },
-    },
-  },
-  notifyOrderCustomer: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: {
-        method: 'POST',
-        path: '/admin/orders/{reference}/notify',
-        inputStructure: 'detailed',
-      },
-    },
-  },
-  setOrderPayment: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: {
-        method: 'POST',
-        path: '/admin/orders/{reference}/payment',
-        inputStructure: 'detailed',
-      },
-    },
-  },
-  removeOrderPersonalData: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: {
-        method: 'DELETE',
-        path: '/admin/orders/{reference}/personal-data',
-        inputStructure: 'detailed',
-      },
-    },
-  },
-} as unknown as typeof admin.adminOrdersContract;
 export const adminOwnershipContract = {
   getOwnership: {
     '~orpc': {
@@ -758,6 +647,118 @@ export const tiersContract = {
     },
   },
 } as unknown as typeof adminCatalog.tiersContract;
+export const adminOrdersContract = {
+  listOrders: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'GET',
+        path: '/admin/orders',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+  getOrder: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'GET',
+        path: '/admin/orders/{reference}',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+  transitionOrder: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'POST',
+        path: '/admin/orders/{reference}/status',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+  listOrderRevisions: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'GET',
+        path: '/admin/orders/{reference}/revisions',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+  getOrderRevision: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'GET',
+        path: '/admin/orders/{reference}/revisions/{number}',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+  previewOrderAdjustment: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'POST',
+        path: '/admin/orders/{reference}/adjustment/preview',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+  adjustOrder: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'POST',
+        path: '/admin/orders/{reference}/adjustment',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+  notifyOrderCustomer: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'POST',
+        path: '/admin/orders/{reference}/notify',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+  setOrderPayment: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'POST',
+        path: '/admin/orders/{reference}/payment',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+  removeOrderPersonalData: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'DELETE',
+        path: '/admin/orders/{reference}/personal-data',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+} as unknown as typeof adminOrdering.adminOrdersContract;
 export const adminOperationsContract = {
   getBuildInfo: {
     '~orpc': {

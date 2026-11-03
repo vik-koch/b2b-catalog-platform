@@ -34,7 +34,7 @@ const OUTPUTS = [
   {
     file: 'apps/web/src/app/shared/core/contract-routes.generated.ts',
     entries: {
-      '': ['cartContract', 'ordersContract', 'workContract'],
+      '': ['workContract'],
       'core/accounts': [
         'addressSuggestionContract',
         'addressesContract',
@@ -49,17 +49,14 @@ const OUTPUTS = [
     entries: {
       'storefront/accounts': ['accountContract', 'authContract'],
       'storefront/catalog': ['catalogContract'],
+      'storefront/ordering': ['cartContract', 'ordersContract'],
       'storefront/site': ['inquiryContract'],
     },
   },
   {
     file: 'apps/web/src/app/admin/contract-routes.generated.ts',
     entries: {
-      admin: [
-        'adminOrdersContract',
-        'adminOwnershipContract',
-        'apiTokensContract',
-      ],
+      admin: ['adminOwnershipContract', 'apiTokensContract'],
       'admin/accounts': ['consentsContract', 'usersContract'],
       'admin/catalog': [
         'adminCategoriesContract',
@@ -68,6 +65,7 @@ const OUTPUTS = [
         'documentsContract',
         'tiersContract',
       ],
+      'admin/ordering': ['adminOrdersContract'],
       'admin/platform': ['adminOperationsContract'],
       'admin/site': ['adminMaintenanceContract', 'adminPagesContract'],
       sync: ['syncContract'],

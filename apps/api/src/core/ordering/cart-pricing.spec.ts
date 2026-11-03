@@ -1,0 +1,358 @@
+import { NodePgDatabase } from 'drizzle-orm/node-postgres';
+import { TaxConfig } from '@b2b-catalog-platform/shared';
+import { PgDialect } from 'drizzle-orm/pg-core';
+import * as schema from '../../db/schema';
+import { priceCart } from './cart-pricing';
+
+/**
+ * A drizzle stand-in for the one select the pricer runs. It also records the
+ * rendered SQL, so the visibility gate can be asserted rather than assumed —
+ * a cart that prices an unpublished product is the whole trap here.
+ */
+function dbWith(rows: unknown[]) {
+  const sql: string[] = [];
+  const chain = {
+    from: () => chain,
+    where(condition: unknown) {
+      sql.push(rendered(condition));
+      return Promise.resolve(rows);
+    },
+  };
+  const db = { select: () => chain } as unknown as NodePgDatabase<
+    typeof schema
+  >;
+  return { db, sql };
+}
+
+function rendered(condition: unknown): string {
+  // drizzle's own renderer, so the assertion reads the SQL the database gets.
+  return new PgDialect().sqlToQuery(condition as never).sql;
+}
+
+/** €1.99 a piece, sold in packs of ten and boxes of four packs. */
+const coffee = {
+  id: 'product-1',
+  slug: 'hafen-espresso',
+  name: 'Hafen Espresso',
+  sourceId: 'ERP-1',
+  priceMinor: 199,
+  images: [{ full: '/media/a.jpg', thumb: '/media/a-thumb.jpg' }],
+  variants: [],
+  boxVolume: '0.240',
+  boxWeight: '12.500',
+  boxCount: 1,
+  lineNoteEnabled: true,
+  piecesPerPack: 10,
+  packsPerBox: 4,
+  minPieceQty: 10,
+};
+
+/** The demo's basis, which every case here is priced under. */
+const TAX: TaxConfig = { basis: 'included', rate: 19, statedAtPrices: true };
+
+describe('priceCart', () => {
+  it('prices a pack line exactly', async () => {
+    const { db } = dbWith([coffee]);
+
+    const { preview, lines } = await priceCart(
+      db,
+      [{ slug: 'hafen-espresso', unit: 'pack', pieces: 30 }],
+      null,
+      TAX,
+    );
+
+    expect(preview.lines[0].lineTotalMinor).toBe(5970);
+    expect(preview.totalMinor).toBe(5970);
+    expect(preview.complete).toBe(true);
+    expect(preview.lines[0].issues).toEqual([]);
+    // The stored figures the order line needs travel beside the preview.
+    expect(lines[0].row).toMatchObject({
+      productId: 'product-1',
+      sourceId: 'ERP-1',
+      priceMinor: 199,
+      pieces: 30,
+    });
+  });
+
+  it('carries the variants, and takes its photo from the pictures on show', async () => {
+    const cups = {
+      ...coffee,
+      images: [
+        {
+          full: '/media/clay.jpg',
+          thumb: '/media/clay-t.jpg',
+          variantId: 'v2',
+        },
+        {
+          full: '/media/sand.jpg',
+          thumb: '/media/sand-t.jpg',
+          variantId: 'v1',
+        },
+      ],
+      variants: [
+        { id: 'v1', name: 'Sand', unavailable: false },
+        { id: 'v2', name: 'Terracotta', unavailable: true },
+      ],
+    };
+    const { db } = dbWith([cups]);
+
+    const { preview, lines } = await priceCart(
+      db,
+      [{ slug: 'hafen-espresso', unit: 'pack', pieces: 10 }],
+      null,
+      TAX,
+    );
+
+    // The first stored picture is of a glaze that is out for now (FR-CAT-12).
+    expect(preview.lines[0].image).toEqual({
+      full: '/media/sand.jpg',
+      thumb: '/media/sand-t.jpg',
+    });
+    expect(lines[0].row?.thumbnail).toBe('/media/sand-t.jpg');
+    expect(preview.lines[0].images).toEqual([
+      { full: '/media/sand.jpg', thumb: '/media/sand-t.jpg', variant: 'Sand' },
+    ]);
+    expect(preview.lines[0].variants).toEqual([
+      { name: 'Sand', unavailable: false },
+      { name: 'Terracotta', unavailable: true },
+    ]);
+  });
+
+  // The lens cannot change what a quantity costs: the same thirty pieces
+  // bought by the piece cost what they cost bought by the pack.
+  it('prices the same pieces the same through any lens', async () => {
+    const { db } = dbWith([coffee]);
+
+    const { preview } = await priceCart(
+      db,
+      [{ slug: 'hafen-espresso', unit: 'piece', pieces: 30 }],
+      null,
+      TAX,
+    );
+
+    expect(preview.lines[0].lineTotalMinor).toBe(5970);
+  });
+
+  it('corrects a below-minimum piece quantity before pricing it', async () => {
+    const { db } = dbWith([coffee]);
+
+    const { preview } = await priceCart(
+      db,
+      [{ slug: 'hafen-espresso', unit: 'piece', pieces: 4 }],
+      null,
+      TAX,
+    );
+
+    expect(preview.lines[0]).toMatchObject({
+      pieces: 10,
+      issues: ['quantity-corrected'],
+      lineTotalMinor: 1990,
+    });
+  });
+
+  it('answers one code for a product that is gone, whichever way it is gone', async () => {
+    // The query returns nothing for soft-deleted, unpublished and
+    // never-existed alike — the pricer cannot tell them apart, which is the
+    // point: preview must not enumerate the unpublished catalog by difference.
+    const { db } = dbWith([]);
+
+    const { preview, lines } = await priceCart(
+      db,
+      [{ slug: 'ghost', unit: 'pack', pieces: 10 }],
+      null,
+      TAX,
+    );
+
+    expect(preview.lines[0]).toMatchObject({
+      slug: 'ghost',
+      name: null,
+      prices: null,
+      lineTotalMinor: null,
+      issues: ['unavailable'],
+    });
+    expect(preview.complete).toBe(false);
+    expect(lines[0].row).toBeNull();
+  });
+
+  it('states each line’s rate: the product’s own, else the default (NFR-LEGAL-11)', async () => {
+    const { db } = dbWith([
+      { ...coffee, taxRate: 7 },
+      { ...coffee, slug: 'milk-pitcher', taxRate: null },
+    ]);
+    const lines = [
+      { slug: 'hafen-espresso', unit: 'pack' as const, pieces: 30 },
+      { slug: 'milk-pitcher', unit: 'pack' as const, pieces: 30 },
+    ];
+
+    const charged = await priceCart(db, lines, null, TAX);
+    expect(charged.preview.lines.map((line) => line.taxRate)).toEqual([7, 19]);
+    expect(charged.lines.map((line) => line.row?.taxRate)).toEqual([7, 19]);
+
+    // A shop that charges none states no rate, whatever a product keeps.
+    const none = await priceCart(db, lines, null, { basis: 'none' });
+    expect(none.preview.lines.map((line) => line.taxRate)).toEqual([
+      null,
+      null,
+    ]);
+  });
+
+  it('reads only live, published products', async () => {
+    const { db, sql } = dbWith([coffee]);
+
+    await priceCart(
+      db,
+      [{ slug: 'hafen-espresso', unit: 'pack', pieces: 10 }],
+      null,
+      TAX,
+    );
+
+    expect(sql[0]).toContain('"deletedAt" is null');
+    expect(sql[0]).toContain('"publishedAt" is not null');
+  });
+
+  it('falls a line off a unit the product is no longer sold in', async () => {
+    // Repackaged out of boxes. The pieces are untouched and still orderable,
+    // so only the lens moves — to the one unit every product has.
+    const { db } = dbWith([
+      { ...coffee, piecesPerPack: null, packsPerBox: null },
+    ]);
+
+    const { preview } = await priceCart(
+      db,
+      [{ slug: 'hafen-espresso', unit: 'box', pieces: 10 }],
+      null,
+      TAX,
+    );
+
+    expect(preview.lines[0]).toMatchObject({
+      unit: 'piece',
+      pieces: 10,
+      issues: ['unit-unavailable'],
+      lineTotalMinor: 1990,
+    });
+    // The packaging is still returned, so the browser can offer another unit.
+    expect(preview.lines[0].packaging).toMatchObject({ minPieceQty: 10 });
+  });
+
+  it('drops a note the product no longer takes, and says so', async () => {
+    const { db } = dbWith([{ ...coffee, lineNoteEnabled: false }]);
+
+    const { preview } = await priceCart(
+      db,
+      [
+        {
+          slug: 'hafen-espresso',
+          unit: 'pack',
+          pieces: 10,
+          note: '100 in red',
+        },
+      ],
+      null,
+      TAX,
+    );
+
+    expect(preview.lines[0].note).toBeNull();
+    expect(preview.lines[0].issues).toEqual(['note-not-allowed']);
+    // Still priced: the note was the product's policy, not the customer's error.
+    expect(preview.lines[0].lineTotalMinor).toBe(1990);
+  });
+
+  // The case that used to be unpriceable: a repackaged product whose pack no
+  // longer divides what the price was per. A piece price divides everything.
+  it('prices a repackaged product rather than reporting no price', async () => {
+    const { db } = dbWith([
+      { ...coffee, piecesPerPack: 7, minPieceQty: 7, packsPerBox: null },
+    ]);
+
+    const { preview, lines } = await priceCart(
+      db,
+      [{ slug: 'hafen-espresso', unit: 'pack', pieces: 7 }],
+      null,
+      TAX,
+    );
+
+    expect(preview.lines[0].lineTotalMinor).toBe(1393);
+    expect(preview.lines[0].issues).toEqual([]);
+    expect(preview.complete).toBe(true);
+    expect(lines[0].row).not.toBeNull();
+  });
+
+  it('sums the shipment across the orderable lines only', async () => {
+    const { db } = dbWith([coffee]);
+
+    const { preview } = await priceCart(
+      db,
+      [
+        { slug: 'hafen-espresso', unit: 'box', pieces: 80 },
+        { slug: 'ghost', unit: 'pack', pieces: 10 },
+      ],
+      null,
+      TAX,
+    );
+
+    expect(preview.shipment).toMatchObject({
+      cartons: 2,
+      weight: '25.000',
+      coveredLines: 1,
+      uncoveredLines: 0,
+    });
+  });
+
+  it('freezes the quantity as the lens reads it, fractions and all', async () => {
+    // One pack of a four-pack box, read through the box: 0.25 bx. The order
+    // line keeps that reading; the pieces stay the ten that were ordered.
+    const { db } = dbWith([coffee]);
+
+    const { lines } = await priceCart(
+      db,
+      [{ slug: 'hafen-espresso', unit: 'box', pieces: 10 }],
+      null,
+      TAX,
+    );
+
+    expect(lines[0].row).toMatchObject({ pieces: 10, quantity: 0.25 });
+  });
+
+  it('flags an out-of-stock line without unpricing it', async () => {
+    // Listed, reachable and priced — only the order it is part of is refused
+    // (FR-STOCK-04). The count behind the state never leaves the API.
+    const { db } = dbWith([{ ...coffee, availability: 'out' }]);
+
+    const { preview, lines } = await priceCart(
+      db,
+      [{ slug: 'hafen-espresso', unit: 'pack', pieces: 10 }],
+      null,
+      TAX,
+    );
+
+    expect(preview.lines[0].issues).toEqual(['out-of-stock']);
+    expect(preview.lines[0].availability).toBe('out');
+    expect(preview.lines[0].lineTotalMinor).toBe(1990);
+    expect(preview.complete).toBe(true);
+    expect(lines[0].row).not.toBeNull();
+    expect(JSON.stringify(preview)).not.toContain('stockPieces');
+  });
+
+  it('restricts nothing where only a few are left', async () => {
+    const { db } = dbWith([{ ...coffee, availability: 'low' }]);
+
+    const { preview } = await priceCart(
+      db,
+      [{ slug: 'hafen-espresso', unit: 'pack', pieces: 10 }],
+      null,
+      TAX,
+    );
+
+    expect(preview.lines[0].issues).toEqual([]);
+    expect(preview.lines[0].availability).toBe('low');
+  });
+
+  it('asks the database nothing for an empty cart', async () => {
+    const { db, sql } = dbWith([]);
+
+    const { preview } = await priceCart(db, [], null, TAX);
+
+    expect(sql).toEqual([]);
+    expect(preview).toMatchObject({ lines: [], totalMinor: 0, complete: true });
+  });
+});

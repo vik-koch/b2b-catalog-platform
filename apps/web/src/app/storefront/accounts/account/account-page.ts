@@ -74,8 +74,7 @@ function settled(resource: {
         <ng-content />
 
         <section>
-          <h2 uiSectionTitle class="mb-1.5 flex items-center gap-2">
-            <ui-icon [glyph]="userIcon" class="size-4" />
+          <h2 uiSectionTitle class="mb-1.5" [glyph]="userIcon">
             {{ accountText.detailsHeading }}
           </h2>
           <div uiCard>
@@ -110,8 +109,7 @@ function settled(resource: {
         </section>
 
         <section>
-          <h2 uiSectionTitle class="mb-1.5 flex items-center gap-2">
-            <ui-icon [glyph]="mapPinIcon" class="size-4" />
+          <h2 uiSectionTitle class="mb-1.5" [glyph]="mapPinIcon">
             {{ addressText.heading }}
           </h2>
           <div uiCard>
@@ -182,8 +180,7 @@ function settled(resource: {
         </section>
 
         <section>
-          <h2 uiSectionTitle class="mb-1.5 flex items-center gap-2">
-            <ui-icon [glyph]="lockIcon" class="size-4" />
+          <h2 uiSectionTitle class="mb-1.5" [glyph]="lockIcon">
             {{ text.securityHeading }}
           </h2>
           <div uiCard [padded]="false">

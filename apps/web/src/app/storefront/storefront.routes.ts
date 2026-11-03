@@ -119,7 +119,7 @@ export const storefrontRoutes: Route[] = [
     path: 'account/orders',
     canActivate: [requireAuth(), staffToAdminOrder(), maintenanceGate],
     loadComponent: () =>
-      import('./orders/order-list-page').then((m) => m.OrderListPage),
+      import('./ordering/orders/order-list-page').then((m) => m.OrderListPage),
   },
   {
     // The reference is the identity a customer was quoted and a mail links to,
@@ -127,7 +127,9 @@ export const storefrontRoutes: Route[] = [
     path: 'account/orders/:reference',
     canActivate: [requireAuth(), staffToAdminOrder(), maintenanceGate],
     loadComponent: () =>
-      import('./orders/order-detail-page').then((m) => m.OrderDetailPage),
+      import('./ordering/orders/order-detail-page').then(
+        (m) => m.OrderDetailPage,
+      ),
   },
   // `new` stays ahead of `:id/edit` so it is never read as an address id.
   {
@@ -171,7 +173,9 @@ export const storefrontRoutes: Route[] = [
     path: 'orders/:token',
     canActivate: [maintenanceGate],
     loadComponent: () =>
-      import('./orders/order-token-page').then((m) => m.OrderTokenPage),
+      import('./ordering/orders/order-token-page').then(
+        (m) => m.OrderTokenPage,
+      ),
   },
   // The public maintenance screen (FR-ADM-04). Ungated — it is where the gate
   // sends visitors — and never a page slug, so it sits before the :slug route.
@@ -193,7 +197,7 @@ export const storefrontRoutes: Route[] = [
     canMatch: [publishesPage('conditions')],
     canActivate: [maintenanceGate],
     loadComponent: () =>
-      import('./site/pages/conditions-page').then((m) => m.ConditionsPage),
+      import('./shell/conditions-home-page').then((m) => m.ConditionsHomePage),
   },
   { path: 'inquiry', component: InquiryPage, canActivate: [maintenanceGate] },
   // The consent texts (NFR-LEGAL-09), each under the form that asks for it.
@@ -250,7 +254,8 @@ export const storefrontRoutes: Route[] = [
   {
     path: 'cart',
     canActivate: [maintenanceGate],
-    loadComponent: () => import('./cart/cart-page').then((m) => m.CartPage),
+    loadComponent: () =>
+      import('./ordering/cart/cart-page').then((m) => m.CartPage),
   },
   // Checkout is client-rendered like the cart, and for the same reason: it
   // orders what is in this browser's storage. Open to guests (FR-CART-03):
@@ -260,7 +265,7 @@ export const storefrontRoutes: Route[] = [
     path: 'checkout',
     canActivate: [maintenanceGate],
     loadComponent: () =>
-      import('./checkout/checkout-page').then((m) => m.CheckoutPage),
+      import('./ordering/checkout/checkout-page').then((m) => m.CheckoutPage),
   },
   {
     path: ':slug',

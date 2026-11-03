@@ -10,6 +10,10 @@ import { refusals } from '../../orpc/refusals';
 import { SignInStep } from '../../core/accounts/sign-in-step/sign-in-step';
 import { storedPhone } from '../../core/accounts/stored-phone';
 import { UserRow, UsersService } from '../../core/accounts/users.service';
+import {
+  ACCOUNT_ORDERS,
+  AccountOrders,
+} from '../../core/accounts/account-orders';
 import { AccountDeletion } from '../../core/accounts/account-deletion';
 import { AuthUser } from '@b2b-catalog-platform/shared/platform';
 import {
@@ -44,6 +48,7 @@ function toAccountProfile(
 export class AccountController {
   constructor(
     private readonly users: UsersService,
+    @Inject(ACCOUNT_ORDERS) private readonly orders: AccountOrders,
     private readonly deletion: AccountDeletion,
     private readonly audit: AuditLogger,
     @Inject(PHONE_RULE) private readonly phoneRule: PhoneRule,
@@ -53,7 +58,7 @@ export class AccountController {
   private async profileOf(user: UserRow): Promise<AccountProfile> {
     return toAccountProfile(
       user,
-      await this.users.countOpenOrders(user.id),
+      await this.orders.countOpen(user.id),
       this.step.asks(user),
     );
   }

@@ -27,10 +27,6 @@ function build(options: {
 
   const users = {
     findById: vi.fn(async () => options.user ?? row()),
-    // What the shop's own notification reports (FR-NOTIF-08): read before the
-    // scrub, since afterwards the orders name nobody.
-    countOrders: vi.fn(async () => 3),
-    countOpenOrders: vi.fn(async () => 1),
     // The last-admin rule lives inside the scrub's own transaction now, so
     // this is where the refusal comes from.
     anonymize: vi.fn(async () => {
@@ -38,6 +34,12 @@ function build(options: {
       calls.push('anonymize');
       return row({ status: 'anonymized', email: 'deleted-u1@deleted.invalid' });
     }),
+  };
+  // What the shop's own notification reports (FR-NOTIF-08): read before the
+  // scrub, since afterwards the orders name nobody.
+  const orders = {
+    count: vi.fn(async () => 3),
+    countOpen: vi.fn(async () => 1),
   };
   const passwords = {
     verify: vi.fn(async () => options.passwordOk ?? true),
@@ -73,6 +75,7 @@ function build(options: {
     tokens as never,
     dispatcher,
     erasure as never,
+    orders,
     demoMailText as MailText,
     demoSharedText,
   );

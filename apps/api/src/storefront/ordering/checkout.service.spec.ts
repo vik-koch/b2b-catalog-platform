@@ -1,0 +1,712 @@
+import type { MockInstance } from 'vitest';
+import { Logger } from '@nestjs/common';
+import { NodePgDatabase } from 'drizzle-orm/node-postgres';
+import { deliveryConfigSchema } from '@b2b-catalog-platform/shared';
+import { OrderSubmission } from '@b2b-catalog-platform/shared/core/ordering';
+import { AddressesService } from '../../core/accounts/addresses.service';
+import { PickupLocation } from '../../config/deployment-config';
+import * as schema from '../../db/schema';
+import {
+  orderItems,
+  orderRevisions,
+  orders,
+  productPairings,
+  users,
+} from '../../db/schema';
+import { OrderNotifications } from '../../core/ordering/order-notifications';
+import { TermsPdf } from '../../core/ordering/terms-pdf';
+import { demoAdminOrder } from '../../core/ordering/order.fixture';
+import * as reference from '../../core/ordering/order-reference';
+import { OrderReader } from '../../core/ordering/order-reader';
+import { OrderRules } from '../../core/ordering/order-rules';
+import { CheckoutService } from './checkout.service';
+import { CartChangedException } from '../../core/ordering/cart-changed-exception';
+import { PairingUnsatisfiedException } from '../../core/ordering/pairing-unsatisfied-exception';
+import { CustomerType } from '@b2b-catalog-platform/shared/core/accounts';
+
+/**
+ * Submission, without a database. What is worth pinning here is everything that
+ * happens between pricing the cart and writing it: which refusals come out,
+ * where the delivery zone is decided, and that a collided reference is retried
+ * with a *new* one rather than the same one.
+ */
+
+/**
+ * €19.99 per ten pieces, ten to a pack — the product the cart is priced from.
+ */
+const product = {
+  id: 'product-1',
+  slug: 'hafen-espresso',
+  name: 'Hafen Espresso',
+  sourceId: 'ERP-1',
+  priceMinor: 199,
+  images: [],
+  variants: [],
+  boxVolume: null,
+  boxWeight: null,
+  boxCount: 1,
+  lineNoteEnabled: false,
+  piecesPerPack: 10,
+  packsPerBox: 4,
+  minPieceQty: 10,
+  /** Sold alone, unless a case says otherwise (FR-SET-05). */
+  pairedCount: 0,
+};
+
+/** The account columns the party resolver reads. */
+interface AccountRow {
+  firstName: string | null;
+  lastName: string | null;
+  email: string;
+  customerType: 'person' | 'company' | null;
+  companyName: string | null;
+  companyRegistrationId: string | null;
+}
+
+interface Insert {
+  table: unknown;
+  values: Record<string, unknown> | Record<string, unknown>[];
+}
+
+/** A second product, so a cart can hold a pairing. Sold loose, and priced the
+ * same way, so nothing about the arithmetic changes with it. */
+const counterpart = {
+  ...product,
+  id: 'product-2',
+  slug: 'takeaway-lid',
+  name: 'Takeaway Lid',
+  sourceId: 'ERP-2',
+  piecesPerPack: 10,
+  minPieceQty: 10,
+};
+
+/**
+ * A drizzle stand-in: one select for the pricer, one for the pairings among
+ * what it returned, and a transaction whose first `collisions` order inserts
+ * raise Postgres' unique-violation code.
+ */
+function testDb(
+  collisions = 0,
+  accountRow: Partial<AccountRow> = {},
+  catalog: { products?: unknown[]; pairings?: { a: string; b: string }[] } = {},
+) {
+  const inserts: Insert[] = [];
+  /** Every reference the service tried, collisions included. */
+  const attempted: string[] = [];
+  let remaining = collisions;
+  const rows = catalog.products ?? [product];
+  const pairings = catalog.pairings ?? [];
+  let asked: unknown = null;
+  const select = {
+    from: (table: unknown) => {
+      if (table === users) return account;
+      asked = table;
+      return select;
+    },
+    where: () => Promise.resolve(asked === productPairings ? pairings : rows),
+  };
+  /**
+   * The party an account is registered as, for a submission that names none.
+   */
+  const account = {
+    from: () => account,
+    where: () => account,
+    limit: () =>
+      Promise.resolve([
+        {
+          firstName: 'Ada',
+          lastName: 'Byron',
+          email: 'ada@example.com',
+          customerType: 'company',
+          companyName: 'Kontor GmbH',
+          companyRegistrationId: 'DE123456789',
+          ...accountRow,
+        },
+      ]),
+  };
+
+  const db = {
+    select: () => select,
+    transaction: (run: (tx: unknown) => Promise<unknown>) =>
+      run({
+        insert: (table: unknown) => ({
+          values(values: Insert['values']) {
+            if (table === orders) {
+              attempted.push((values as Record<string, string>).reference);
+            }
+            if (table === orders && remaining > 0) {
+              remaining -= 1;
+              throw Object.assign(new Error('duplicate key'), {
+                code: '23505',
+              });
+            }
+            inserts.push({ table, values });
+            // Awaited directly for the items, and via `.returning()` for the
+            // order and the revision — which answer with their own ids, since
+            // the writes that follow are joined up by them.
+            const result = Promise.resolve() as Promise<void> & {
+              returning: () => Promise<{ id: string }[]>;
+            };
+            result.returning = async () => [
+              { id: table === orderRevisions ? 'revision-1' : 'order-1' },
+            ];
+            return result;
+          },
+        }),
+        // The pointer from the order to the revision it now shows.
+        update: () => ({ set: () => ({ where: () => Promise.resolve() }) }),
+      }) as Promise<unknown>,
+  } as unknown as NodePgDatabase<typeof schema>;
+
+  const rowsOf = (table: unknown) =>
+    inserts
+      .filter((entry) => entry.table === table)
+      .map((entry) => entry.values as Record<string, unknown>);
+  const orderRows = () => rowsOf(orders);
+  /** What the order *says* — the snapshot half, which lives on revision 1. */
+  const revisionRows = () => rowsOf(orderRevisions);
+  const itemRows = () =>
+    (inserts.find((entry) => entry.table === orderItems)?.values ??
+      []) as Record<string, unknown>[];
+
+  return { db, orderRows, revisionRows, itemRows, attempted };
+}
+
+const locations: PickupLocation[] = [
+  {
+    key: 'speicherstadt',
+    name: 'Speicherstadt Office',
+    address: 'Am Sandtorkai 30',
+  },
+];
+
+const delivery = deliveryConfigSchema.parse({
+  zones: [
+    {
+      key: 'city',
+      title: 'Hamburg city',
+      freeFromMinor: 15_000,
+      match: { postalPrefixes: ['20'] },
+    },
+    { key: 'rest', title: 'Everywhere else', match: { all: true } },
+  ],
+});
+
+function service(
+  db: NodePgDatabase<typeof schema>,
+  billingAddressEnabled = true,
+  pairingsEnforced = false,
+  customerTypes: readonly CustomerType[] = ['person', 'company'],
+) {
+  const addresses = { assertValid: vi.fn() } as unknown as AddressesService;
+  // The mails are sent from a placed order and never allowed to fail it; what
+  // they say is the templates' own suite.
+  const notifications = {
+    placed: vi.fn().mockResolvedValue(undefined),
+  } as unknown as OrderNotifications;
+  const rules = new OrderRules(
+    addresses,
+    locations,
+    delivery,
+    (value: string) => /^DE[0-9]{9}$/.test(value),
+    customerTypes,
+    billingAddressEnabled,
+  );
+  return new CheckoutService(
+    db,
+    { getForStaff: vi.fn() } as unknown as OrderReader,
+    rules,
+    notifications,
+    {} as TermsPdf,
+    { prefix: 'CK', timezone: 'UTC' },
+    'EUR',
+    pairingsEnforced,
+    false,
+    { basis: 'included', rate: 19, statedAtPrices: true },
+  );
+}
+
+const address = (overrides: Record<string, unknown> = {}) => ({
+  label: null,
+  street: 'Hafenstraße 12',
+  street2: null,
+  postalCode: '20359',
+  city: 'Hamburg',
+  region: null,
+  country: 'DE',
+  ...overrides,
+});
+
+/** What a guest submits: nobody to resolve a party from, so they name one. A
+ * private person, so cash is the method that goes with it. */
+const guestParty = { name: 'Ada Byron', registrationId: null };
+const asGuest = { party: guestParty, paymentMethod: 'cash' } as const;
+
+const submission = (overrides: Record<string, unknown> = {}): OrderSubmission =>
+  ({
+    lines: [{ slug: 'hafen-espresso', unit: 'pack', pieces: 20 }],
+    contact: { name: 'Ada', email: 'ada@example.com', phone: '+49 40 1' },
+    fulfilmentMethod: 'delivery',
+    // Null is "the party this account is registered as", which the server
+    // reads for itself — the ordinary case, so it is the fixture's default.
+    party: null,
+    deliveryAddress: address(),
+    pickupLocationKey: null,
+    billingAddress: address(),
+    // The fixture's default party is the account's own, and that account is a
+    // company — which is invoiced rather than paying cash (FR-CART-04).
+    paymentMethod: 'bank-transfer',
+    preferredDate: null,
+    customerNote: null,
+    expectedTotalMinor: 3980,
+    ...overrides,
+  }) as OrderSubmission;
+
+describe('CheckoutService.submit', () => {
+  afterEach(() => vi.restoreAllMocks());
+
+  /** A cart of both products, paired with each other, in whatever quantities.
+   * 20 pieces of each is €39.98 + €19.98 — the pricer's own arithmetic. */
+  const pairedCart = (cupPieces: number, lidPieces: number) => ({
+    db: testDb(
+      0,
+      {},
+      {
+        // Each is sold with the other, which is what makes the check run.
+        products: [
+          { ...product, pairedCount: 1 },
+          { ...counterpart, pairedCount: 1 },
+        ],
+        pairings: [{ a: product.id, b: counterpart.id }],
+      },
+    ),
+    order: submission({
+      lines: [
+        { slug: product.slug, unit: 'piece', pieces: cupPieces },
+        { slug: counterpart.slug, unit: 'piece', pieces: lidPieces },
+      ],
+      expectedTotalMinor: (cupPieces + lidPieces) * 199,
+    }),
+  });
+
+  // FR-SET-04. Advisory by default: the cart said what was short and the
+  // customer decided, and a manager reads every order.
+  it('places an order with an unsatisfied pairing where they are advisory', async () => {
+    const { db, order } = pairedCart(20, 10);
+
+    const placed = await service(db.db).submit(order, 'user-1', null);
+
+    expect(placed.reference).toMatch(/^CK-/);
+  });
+
+  it('refuses one where the deployment enforces pairings', async () => {
+    const { db, order } = pairedCart(20, 10);
+
+    // Twenty pieces of the cup can draw on ten of the lid: ten short. The lid
+    // is covered by the cup and says nothing.
+    await expect(
+      service(db.db, true, true).submit(order, 'user-1', null),
+    ).rejects.toMatchObject({
+      shortfalls: [{ slug: product.slug, shortPieces: 10 }],
+    });
+    await expect(
+      service(db.db, true, true).submit(order, 'user-1', null),
+    ).rejects.toBeInstanceOf(PairingUnsatisfiedException);
+  });
+
+  it('places a satisfied cart even where pairings are enforced', async () => {
+    const { db, order } = pairedCart(20, 20);
+
+    const placed = await service(db.db, true, true).submit(
+      order,
+      'user-1',
+      null,
+    );
+
+    expect(placed.reference).toMatch(/^CK-/);
+  });
+
+  it('writes the order and its lines, with the server’s own zone', async () => {
+    const { db, orderRows, revisionRows, itemRows } = testDb();
+
+    const placed = await service(db).submit(submission(), 'user-1', null);
+
+    expect(placed.reference).toMatch(/^CK-\d{6}-\d{4}$/);
+    expect(placed.publicToken).toMatch(/^[A-Za-z0-9_-]{32}$/);
+    // The order row is identity and workflow; what it says is its first
+    // revision (ADR 0051).
+    // The basis it is submitted under (NFR-LEGAL-11), which every later view
+    // of it states rather than the deployment's current one.
+    expect(orderRows()[0]).toMatchObject({
+      userId: 'user-1',
+      taxBasis: 'included',
+    });
+    expect(revisionRows()[0]).toMatchObject({
+      orderId: 'order-1',
+      revisionNumber: 1,
+      totalMinor: 3980,
+      currency: 'EUR',
+      // Resolved from the postal code against the deployment's zones — nothing
+      // about the zone came from the submission.
+      deliveryZoneKey: 'city',
+      deliveryFreeFromMinor: 15_000,
+      pickupLocationKey: null,
+    });
+    expect(itemRows()[0]).toMatchObject({
+      revisionId: 'revision-1',
+      productId: 'product-1',
+      productSourceId: 'ERP-1',
+      unit: 'pack',
+      quantity: 2,
+      pieces: 20,
+      priceMinor: 199,
+      lineTotalMinor: 3980,
+      // The product carries no rate of its own, so the default applies.
+      taxRate: 19,
+    });
+  });
+
+  it('snapshots the collection point and resolves no zone for a pickup', async () => {
+    const { db, revisionRows } = testDb();
+
+    await service(db).submit(
+      submission({
+        fulfilmentMethod: 'pickup',
+        deliveryAddress: null,
+        pickupLocationKey: 'speicherstadt',
+        ...asGuest,
+      }),
+      null,
+      null,
+    );
+
+    expect(revisionRows()[0]).toMatchObject({
+      pickupLocationKey: 'speicherstadt',
+      // The name and address as they read today: the config behind them is
+      // editable, and an old order must stay readable.
+      pickupLocationName: 'Speicherstadt Office',
+      pickupLocationAddress: 'Am Sandtorkai 30',
+      deliveryStreet: null,
+      deliveryZoneKey: null,
+    });
+  });
+
+  it('retries a collided reference with a new one', async () => {
+    const { db, orderRows, attempted } = testDb(1);
+    // Pinned rather than left to the generator: what this asserts is that the
+    // retry draws again, and a random suffix that happened to repeat would
+    // make the test lie about it either way.
+    vi.spyOn(reference, 'orderReference')
+      .mockReturnValueOnce('CK-260824-0001')
+      .mockReturnValueOnce('CK-260824-0002');
+
+    const placed = await service(db).submit(submission(asGuest), null, null);
+
+    expect(attempted).toEqual(['CK-260824-0001', 'CK-260824-0002']);
+    expect(placed.reference).toBe('CK-260824-0002');
+    // One rejected insert, one stored row.
+    expect(orderRows()).toHaveLength(1);
+  });
+
+  it('gives up loudly rather than looping on a broken generator', async () => {
+    const { db } = testDb(99);
+
+    await expect(
+      service(db).submit(submission(asGuest), null, null),
+    ).rejects.toThrow(/free order reference/);
+  });
+
+  it('refuses a total the browser and the server disagree about', async () => {
+    const { db, orderRows } = testDb();
+
+    await expect(
+      service(db).submit(
+        submission({ ...asGuest, expectedTotalMinor: 1990 }),
+        null,
+        null,
+      ),
+    ).rejects.toBeInstanceOf(CartChangedException);
+    expect(orderRows()).toHaveLength(0);
+  });
+
+  it('needs a company for a bank transfer, whoever is invoiced', async () => {
+    const { db } = testDb();
+
+    await expect(
+      service(db).submit(
+        submission({ paymentMethod: 'bank-transfer', party: guestParty }),
+        null,
+        null,
+      ),
+    ).rejects.toMatchObject({
+      response: { code: 'billing-details-required' },
+    });
+  });
+
+  it('refuses cash for an order invoiced to a company', async () => {
+    const { db } = testDb();
+
+    await expect(
+      service(db).submit(submission({ paymentMethod: 'cash' }), 'user-1', null),
+    ).rejects.toMatchObject({ response: { code: 'cash-not-available' } });
+  });
+
+  // The deployment's answer, not the browser's: a form drawn from an older
+  // config would send one, and the order must not carry an address the shop
+  // does not invoice to.
+  it('stores no billing address where the deployment invoices none', async () => {
+    const { db, revisionRows } = testDb();
+
+    await service(db, false).submit(submission(), 'user-1', null);
+
+    expect(revisionRows()[0]).toMatchObject({
+      billingStreet: null,
+      billingPostalCode: null,
+      billingCity: null,
+      billingCountry: null,
+    });
+  });
+
+  /**
+   * An order is a snapshot. One placed while the shop asked for an invoice
+   * address carries it for good, so a deployment that has since stopped asking
+   * must not delete it from the next version — which is what resolving the
+   * address from today's config alone would do, on every adjustment, without
+   * anybody having touched the field.
+   */
+  it('keeps an invoice address an adjustment no longer asks for', () => {
+    const { db } = testDb();
+    const carried = {
+      billingStreet: 'Hafenstraße 12',
+      billingStreet2: null,
+      billingPostalCode: '20359',
+      billingCity: 'Hamburg',
+      billingRegion: null,
+      billingCountry: 'DE',
+    };
+
+    const kept = service(db, false)['rules'].adjustedBilling(
+      { billingAddress: null } as never,
+      carried as never,
+    );
+
+    expect(kept).toMatchObject({ street: 'Hafenstraße 12', city: 'Hamburg' });
+  });
+
+  it('carries no invoice address where the order never had one', () => {
+    const { db } = testDb();
+
+    const kept = service(db, false)['rules'].adjustedBilling(
+      { billingAddress: null } as never,
+      { billingStreet: null, billingCountry: null } as never,
+    );
+
+    expect(kept).toBeNull();
+  });
+
+  it('refuses a submission with no billing address where it invoices one', async () => {
+    const { db } = testDb();
+
+    await expect(
+      service(db).submit(submission({ billingAddress: null }), 'user-1', null),
+    ).rejects.toMatchObject({ response: { code: 'billing-address-required' } });
+  });
+
+  it('reads the party off the account where the order names none', async () => {
+    const { db, revisionRows } = testDb();
+
+    await service(db).submit(submission(), 'user-1', null);
+
+    expect(revisionRows()[0]).toMatchObject({
+      partyName: 'Kontor GmbH',
+      partyRegistrationId: 'DE123456789',
+    });
+  });
+
+  it('invoices a private customer by name, whatever else their record carries', async () => {
+    // A customer who registered as a person keeps their own name on the
+    // invoice: the type is the answer, not whichever field is not empty.
+    const { db, revisionRows } = testDb(0, {
+      customerType: 'person',
+      companyRegistrationId: null,
+    });
+
+    await service(db).submit(
+      submission({ paymentMethod: 'cash' }),
+      'user-1',
+      null,
+    );
+
+    // Family name first, as the app writes every person's name.
+    expect(revisionRows()[0]).toMatchObject({ partyName: 'Byron Ada' });
+  });
+
+  it('snapshots the party the order named instead', async () => {
+    const { db, revisionRows } = testDb();
+
+    await service(db).submit(
+      submission({
+        party: { name: 'Nordwerk AG', registrationId: 'DE987654321' },
+      }),
+      'user-1',
+      null,
+    );
+
+    expect(revisionRows()[0]).toMatchObject({
+      partyName: 'Nordwerk AG',
+      partyRegistrationId: 'DE987654321',
+    });
+  });
+
+  it('refuses a registration number in no configured shape', async () => {
+    const { db } = testDb();
+
+    await expect(
+      service(db).submit(
+        submission({ party: { name: 'Nordwerk AG', registrationId: 'XX1' } }),
+        'user-1',
+        null,
+      ),
+    ).rejects.toMatchObject({ response: { code: 'invalid-company-id' } });
+  });
+
+  describe('a party of a kind the shop does not sell to (FR-AUTH-13)', () => {
+    it('refuses a person where the shop sells to companies only', async () => {
+      const { db, orderRows } = testDb();
+
+      await expect(
+        service(db, true, false, ['company']).submit(
+          submission(asGuest),
+          null,
+          null,
+        ),
+      ).rejects.toMatchObject({
+        response: { code: 'customer-type-not-accepted' },
+      });
+      expect(orderRows()).toEqual([]);
+    });
+
+    it('refuses an account whose own party is a person there', async () => {
+      const { db } = testDb(0, {
+        customerType: 'person',
+        companyRegistrationId: null,
+      });
+
+      await expect(
+        service(db, true, false, ['company']).submit(
+          submission({ paymentMethod: 'cash' }),
+          'user-1',
+          null,
+        ),
+      ).rejects.toMatchObject({
+        response: { code: 'customer-type-not-accepted' },
+      });
+    });
+
+    it('takes the same account once it invoices a company', async () => {
+      const { db, revisionRows } = testDb(0, {
+        customerType: 'person',
+        companyRegistrationId: null,
+      });
+
+      await service(db, true, false, ['company']).submit(
+        submission({
+          party: { name: 'Nordwerk AG', registrationId: 'DE987654321' },
+        }),
+        'user-1',
+        null,
+      );
+
+      expect(revisionRows()[0]).toMatchObject({ partyName: 'Nordwerk AG' });
+    });
+
+    it('refuses a company where the shop sells to persons only', async () => {
+      const { db } = testDb();
+
+      await expect(
+        service(db, true, false, ['person']).submit(
+          submission(),
+          'user-1',
+          null,
+        ),
+      ).rejects.toMatchObject({
+        response: { code: 'customer-type-not-accepted' },
+      });
+    });
+  });
+
+  it('has nobody to invoice where a guest names no party', async () => {
+    const { db } = testDb();
+
+    await expect(
+      service(db).submit(submission(), null, null),
+    ).rejects.toMatchObject({ response: { code: 'party-required' } });
+  });
+
+  it('refuses a collection point that does not exist', async () => {
+    const { db } = testDb();
+
+    await expect(
+      service(db).submit(
+        submission({
+          fulfilmentMethod: 'pickup',
+          deliveryAddress: null,
+          pickupLocationKey: 'no-such-office',
+          ...asGuest,
+        }),
+        null,
+        null,
+      ),
+    ).rejects.toMatchObject({
+      response: { code: 'unknown-pickup-location' },
+    });
+  });
+});
+
+/**
+ * The order is committed before the mails are prepared, and the customer is
+ * about to be shown its reference — so nothing in this step may fail the
+ * request. An unreachable SMTP is already swallowed by the notifier itself;
+ * what is asserted here is the rest of the step, which used to sit outside
+ * that net: the read that assembles the mails, and a deployment missing the
+ * staff inbox it sends one of them to.
+ *
+ * Failing instead would answer an error for an order that exists, and there is
+ * no submission identity to make the customer's retry the same order — they
+ * would simply place a second one.
+ */
+describe('CheckoutService.notifyPlaced', () => {
+  const placed = { reference: 'CK-0001', publicToken: 'token' };
+  let error: MockInstance;
+
+  beforeEach(() => {
+    error = vi.spyOn(Logger.prototype, 'error').mockImplementation(() => {
+      // The failure path logs; the assertion is that it does not throw.
+    });
+  });
+
+  afterEach(() => error.mockRestore());
+
+  it('swallows a read that fails after the order was committed', async () => {
+    const orders = service(testDb(0, {}).db);
+    vi.spyOn(orders['reads'], 'getForStaff').mockRejectedValue(
+      new Error('the connection went away'),
+    );
+
+    await expect(orders.notifyPlaced(placed)).resolves.toBeUndefined();
+    expect(error).toHaveBeenCalled();
+  });
+
+  it('swallows a notifier that throws for any other reason', async () => {
+    const orders = service(testDb(0, {}).db);
+    vi.spyOn(orders['reads'], 'getForStaff').mockResolvedValue(demoAdminOrder);
+    vi.spyOn(orders['notifications'], 'placed').mockImplementation(() => {
+      // Thrown, not rejected: the mails are queued, so what can still fail
+      // here is building them — a deployment with no staff inbox.
+      throw new Error('MAIL_STAFF_TO is not configured');
+    });
+
+    await expect(orders.notifyPlaced(placed)).resolves.toBeUndefined();
+    expect(error).toHaveBeenCalled();
+  });
+});

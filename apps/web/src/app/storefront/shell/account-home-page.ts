@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { AccountPage } from '../accounts/account/account-page';
-import { RecentOrders } from '../orders/recent-orders';
+import { RecentOrders } from '../ordering/orders/recent-orders';
 
 /** `/account`: the account's own page, with its newest orders in it. */
 @Component({

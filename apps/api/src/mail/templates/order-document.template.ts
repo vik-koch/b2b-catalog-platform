@@ -1,9 +1,8 @@
+import { SharedText, MoneyFormat } from '@b2b-catalog-platform/shared';
 import {
-  SharedText,
-  MoneyFormat,
   OrderDetail,
   OrderDocumentKind,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/core/ordering';
 import { orderMailTotal } from './order-items';
 import { MailContent } from '../mail-layout';
 import { MailText } from '../mail-text';

@@ -14,6 +14,7 @@ import {
   plainPrices,
 } from '../../../core/catalog/product.fixture';
 import { provideUiText } from '../../../shared/config/shared-text';
+import { provideFakeProductCart } from '../../../core/catalog/buying/product-cart.fixture';
 
 type Products = NonNullable<
   Awaited<ReturnType<CatalogService['getCategoryProducts']>>
@@ -69,6 +70,7 @@ async function render(
   TestBed.configureTestingModule({
     imports: [CategoryGrid],
     providers: [
+      provideFakeProductCart(),
       provideUiText(),
       provideRouter([]),
       { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
@@ -608,6 +610,7 @@ describe('CategoryGrid as the catalogue index (FR-CAT-02)', () => {
     TestBed.configureTestingModule({
       imports: [CategoryGrid],
       providers: [
+        provideFakeProductCart(),
         provideUiText(),
         provideRouter([]),
         { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },

@@ -10,6 +10,7 @@ import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
 import { defaultDeploymentConfig } from '../../../shared/config/deployment-config.fixture';
 import { FeaturedRow } from './featured-row';
 import { FeaturedRowService } from './featured-row.service';
+import { provideFakeProductCart } from '../../../core/catalog/buying/product-cart.fixture';
 
 const text = defaultStorefrontText.home.featured;
 
@@ -18,6 +19,7 @@ async function render(row: () => Promise<ProductListItem[] | undefined>) {
   TestBed.configureTestingModule({
     imports: [FeaturedRow],
     providers: [
+      provideFakeProductCart(),
       provideUiText(),
       provideRouter([]),
       { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
