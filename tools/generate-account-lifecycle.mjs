@@ -25,8 +25,11 @@ import { journeyLegend, journeyTables } from './lib/journey-docs.mjs';
 const DOC = 'docs/account-lifecycle.md';
 const COMMAND = 'tools/generate-account-lifecycle.mjs';
 
-const { USER_STATUSES, USER_ROLES } = await loadTypeScript(
-  'libs/shared/src/index.ts',
+const { USER_STATUSES } = await loadTypeScript(
+  'libs/shared/src/core/accounts/index.ts',
+);
+const { USER_ROLES } = await loadTypeScript(
+  'libs/shared/src/platform/index.ts',
 );
 const { accountJourneys } = await loadTypeScript(
   'apps/api-e2e/src/journeys/accounts.journeys.ts',

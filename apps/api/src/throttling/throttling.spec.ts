@@ -1,6 +1,6 @@
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
-import { ConsentService } from '../consents/consent.service';
+import { ConsentService } from '../core/site/consent.service';
 import { InquiryModule } from '../storefront/site/inquiry.module';
 import { MAILER, Mailer } from '../mail/mailer';
 import { ThrottlingModule } from './throttling.module';

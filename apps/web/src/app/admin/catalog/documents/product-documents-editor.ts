@@ -15,7 +15,7 @@ import { ADMIN_TEXT } from '../../../shared/config/admin-text';
 import { SHARED_TEXT } from '../../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
 import { adminDayFormat } from '../../dates/admin-date';
-import { HighlightedLine } from '@b2b-catalog-platform/ui/suggest/highlighted-line';
+import { Suggestion } from '@b2b-catalog-platform/ui/suggest/suggestion';
 import { MatchSegmentsPipe } from '../../../core/catalog/search/match-segments.pipe';
 import { AlternateLayout } from '../../../shared/core/alternate-layout';
 import { SuggestList } from '@b2b-catalog-platform/ui/suggest/suggest-list';
@@ -50,7 +50,7 @@ const SUGGESTIONS_SHOWN = 8;
     RouterLink,
     Icon,
     FieldLabel,
-    HighlightedLine,
+    Suggestion,
     MatchSegmentsPipe,
     IconButton,
     Input,
@@ -109,16 +109,11 @@ const SUGGESTIONS_SHOWN = 8;
             (input)="query.set($any($event.target).value)"
           />
           <ng-template uiSuggestRow [of]="list" let-item let-query="query">
-            <span class="block truncate">
-              <ui-highlighted-line
-                [segments]="
-                  item.title | matchSegments: query : alternateQuery()
-                "
-              />
-            </span>
-            <span class="block text-xs text-ink-subtle">
+            <ui-suggestion
+              [segments]="item.title | matchSegments: query : alternateQuery()"
+            >
               {{ expiry(item) }}
-            </span>
+            </ui-suggestion>
           </ng-template>
         </ui-suggest-field>
       </div>

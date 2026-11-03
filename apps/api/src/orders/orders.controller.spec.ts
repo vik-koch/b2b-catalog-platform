@@ -3,13 +3,11 @@ import { APP_FILTER } from '@nestjs/core';
 import { Test } from '@nestjs/testing';
 import { ThrottlerGuard } from '@nestjs/throttler';
 import { AuditLogger } from '../audit/audit.logger';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { OptionalAuthGuard } from '../auth/optional-auth.guard';
-import { RolesGuard } from '../auth/roles.guard';
 import { ContractErrorFilter } from '../orpc/contract-error.filter';
 import { OrdersController } from './orders.controller';
 import { OrdersService } from './orders.service';
 import { CartChangedException } from './cart-changed-exception';
+import { SignedInAs, withSession } from '../platform/auth/session.fixture';
 
 /**
  * The two refusals the controller makes on its own, before the service sees
@@ -21,7 +19,7 @@ import { CartChangedException } from './cart-changed-exception';
 describe('OrdersController', () => {
   let app: INestApplication;
   let baseUrl: string;
-  let signedInAs: { id: string; email: string; role: string } | null = null;
+  let signedInAs: SignedInAs | null = null;
 
   const submit = vi.fn();
   const notifyPlaced = vi.fn();
@@ -45,32 +43,19 @@ describe('OrdersController', () => {
   };
 
   beforeAll(async () => {
-    const moduleRef = await Test.createTestingModule({
-      controllers: [OrdersController],
-      providers: [
-        { provide: OrdersService, useValue: { submit, notifyPlaced } },
-        { provide: AuditLogger, useValue: { record: vi.fn() } },
-        { provide: APP_FILTER, useClass: ContractErrorFilter },
-      ],
-    })
-      .overrideGuard(ThrottlerGuard)
-      .useValue({ canActivate: () => true })
-      // The account's own read routes live on this controller too; only the
-      // submission is under test here.
-      .overrideGuard(JwtAuthGuard)
-      .useValue({ canActivate: () => true })
-      .overrideGuard(RolesGuard)
-      .useValue({ canActivate: () => true })
-      .overrideGuard(OptionalAuthGuard)
-      .useValue({
-        canActivate: (context: {
-          switchToHttp(): { getRequest(): { user?: unknown } };
-        }) => {
-          if (signedInAs) context.switchToHttp().getRequest().user = signedInAs;
-          return true;
-        },
+    const moduleRef = await withSession(
+      Test.createTestingModule({
+        controllers: [OrdersController],
+        providers: [
+          { provide: OrdersService, useValue: { submit, notifyPlaced } },
+          { provide: AuditLogger, useValue: { record: vi.fn() } },
+          { provide: APP_FILTER, useClass: ContractErrorFilter },
+        ],
       })
-      .compile();
+        .overrideGuard(ThrottlerGuard)
+        .useValue({ canActivate: () => true }),
+      () => signedInAs,
+    ).compile();
 
     app = moduleRef.createNestApplication();
     app.setGlobalPrefix('api');

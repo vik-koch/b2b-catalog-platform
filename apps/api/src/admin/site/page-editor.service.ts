@@ -1,7 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { desc, eq, sql } from 'drizzle-orm';
-import { AuthUser } from '@b2b-catalog-platform/shared';
 import { Page, PageSlug } from '@b2b-catalog-platform/shared/core/site';
 import {
   PageVersion,
@@ -12,6 +11,7 @@ import { DRIZZLE } from '../../db/database.module';
 import * as schema from '../../db/schema';
 import { pageVersions, users } from '../../db/schema';
 import { currentPageVersion, toPage } from '../../core/site/page-versions';
+import { AuthUser } from '@b2b-catalog-platform/shared/platform';
 
 @Injectable()
 export class PageEditorService {

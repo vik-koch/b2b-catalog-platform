@@ -16,7 +16,6 @@ import { Router, RouterLink } from '@angular/router';
 import {
   fillText,
   ORDER_ADJUSTMENT_NOTE_MAX,
-  PartySuggestion,
   PaymentMethod,
   moneyFormat,
   formatMoneyMinor,
@@ -28,20 +27,17 @@ import {
   OrderAdjustmentPreview,
 } from '@b2b-catalog-platform/shared/admin';
 import { AdminProductListItem } from '@b2b-catalog-platform/shared/admin/catalog';
-import { AddressFields } from '../../shared/addresses/address-fields';
+import { AddressFields } from '../../core/accounts/addresses/address-fields';
 import {
   AddressDraft,
   AddressForm,
   blankAddress,
   injectAddressRules,
-} from '../../shared/addresses/address-form';
-import { CompanyFields } from '../../shared/parties/company-fields';
+} from '../../core/accounts/addresses/address-form';
+import { CompanyFields } from '../../core/accounts/parties/company-fields';
+import { companyIdFormat } from '../../core/accounts/parties/company-id';
 import { canonicalPhone, typedPhone } from '../../shared/core/contact-fields';
-import {
-  companyIdFormat,
-  completeMask,
-  emailAddress,
-} from '../../shared/core/field-rules';
+import { completeMask, emailAddress } from '../../shared/core/field-rules';
 import {
   formatPriceInput,
   parsePriceInput,
@@ -496,8 +492,6 @@ const PREVIEW_DEBOUNCE_MS = 250;
                           nameInputId="adjust-party-name"
                           [idField]="form.party.companyId"
                           [nameField]="form.party.companyName"
-                          [text]="companyText"
-                          (picked)="pickParty($event)"
                         />
                       }
                     </section>
@@ -894,11 +888,6 @@ export class AdminOrderAdjustPage implements FieldAttempt {
     this.rememberedPayment[this.partyKind()] = method;
   }
 
-  protected readonly companyText = {
-    idLabel: this.fields.companyId.label,
-    nameLabel: this.fields.companyName.label,
-  };
-
   /** Which kind the party is; which of its fields count follows from it. */
   protected setPartyKind(kind: 'person' | 'company'): void {
     if (kind !== this.partyKind()) {
@@ -907,15 +896,6 @@ export class AdminOrderAdjustPage implements FieldAttempt {
       this.paymentMethod.set(this.rememberedPayment[kind]);
     }
     this.partyKind.set(kind);
-  }
-
-  /** A picked company fills both halves at once — the provider takes either as
-   * its query, so whichever field was being typed in, the other follows. */
-  protected pickParty(suggestion: PartySuggestion): void {
-    this.form.party.companyName().value.set(suggestion.name);
-    if (suggestion.registrationId) {
-      this.form.party.companyId().value.set(suggestion.registrationId);
-    }
   }
 
   /** What the order says its party is, whichever branch answered it. */

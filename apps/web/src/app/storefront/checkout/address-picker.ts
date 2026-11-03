@@ -1,18 +1,21 @@
 import { Component, inject, input, output } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
-import { Address, AddressComponents } from '@b2b-catalog-platform/shared';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { SUGGESTIONS_ENABLED } from '../../shared/config/suggestions-enabled';
-import { AddressFields } from '../../shared/addresses/address-fields';
-import { AddressForm } from '../../shared/addresses/address-form';
+import { AddressFields } from '../../core/accounts/addresses/address-fields';
+import { AddressForm } from '../../core/accounts/addresses/address-form';
 import {
   addressDetailLines,
   addressDisplayName,
-} from '../../shared/addresses/address-format';
+} from '../../core/accounts/addresses/address-format';
 import { Checkbox } from '@b2b-catalog-platform/ui/choices/checkbox';
 import { TickLabel } from '@b2b-catalog-platform/ui/choices/tick-label';
 import { ChoiceBranch } from '@b2b-catalog-platform/ui/choices/choice-branch';
+import {
+  Address,
+  AddressComponents,
+} from '@b2b-catalog-platform/shared/core/accounts';
 
 /** Ids have to be unique per instance: a delivery picker and a billing picker
  * stand on the same page. */

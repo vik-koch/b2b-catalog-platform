@@ -3,17 +3,19 @@ import { join } from 'node:path';
 import * as z from 'zod';
 import {
   API_TOKEN_SCOPES,
-  CUSTOMER_TYPES,
   ORDER_STATUSES,
   PAYMENT_METHODS,
   PAYMENT_STATES,
   TAX_BASES,
-  USER_ROLES,
-  USER_STATUSES,
 } from '@b2b-catalog-platform/shared';
 import { PAGE_SLUGS } from '@b2b-catalog-platform/shared/core/site';
 import { PRODUCT_UNITS } from '@b2b-catalog-platform/shared/core/catalog';
 import { OWNERSHIP_AREAS } from '@b2b-catalog-platform/shared/sync';
+import {
+  CUSTOMER_TYPES,
+  USER_STATUSES,
+} from '@b2b-catalog-platform/shared/core/accounts';
+import { USER_ROLES } from '@b2b-catalog-platform/shared/platform';
 
 /**
  * A seed bundle: one demo shop's content as files, so the seed carries no

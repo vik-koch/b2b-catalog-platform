@@ -1,7 +1,7 @@
 /**
  * The vocabulary of work awaiting attention (FR-WORK-01…04). Plain data with
  * no imports, so the navbar marker does not pull the work schemas — and Zod —
- * into the first load (see `auth-constants.ts` for why).
+ * into the first load.
  */
 
 /**

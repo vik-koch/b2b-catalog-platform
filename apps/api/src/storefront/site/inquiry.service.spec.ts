@@ -13,7 +13,7 @@ import {
 } from '../../mail/mail-text.fixture';
 import { MailDispatcher } from '../../mail/mail-dispatcher';
 import { MailService } from '../../mail/mail.service';
-import { ConsentService } from '../../consents/consent.service';
+import { ConsentService } from '../../core/site/consent.service';
 import { InquiryService } from './inquiry.service';
 
 describe('InquiryService', () => {

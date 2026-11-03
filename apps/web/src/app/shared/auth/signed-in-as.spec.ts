@@ -3,12 +3,12 @@ import { defaultSharedText } from '../config/shared-text.fixture';
 import { signal, WritableSignal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
-import { AuthUser } from '@b2b-catalog-platform/shared';
 import { STOREFRONT_TEXT } from '../config/storefront-text';
 import { defaultStorefrontText } from '../config/storefront-text.fixture';
 import { AuthService } from './auth.service';
 import { SignedInAs } from './signed-in-as';
 import { adminUser as admin, plainUser as customer } from './auth-user.fixture';
+import { AuthUser } from '@b2b-catalog-platform/shared/platform';
 
 const text = defaultStorefrontText.auth;
 

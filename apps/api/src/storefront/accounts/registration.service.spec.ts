@@ -1,0 +1,368 @@
+import { Test } from '@nestjs/testing';
+import { AddressesService } from '../../core/accounts/addresses.service';
+import { ConsentService } from '../../core/site/consent.service';
+import {
+  ACCEPTED_CUSTOMER_TYPES,
+  COMPANY_ID_RULE,
+  PHONE_INPUT,
+  PHONE_RULE,
+} from '../../config/deployment-config';
+import { MAIL_TEXT } from '../../mail/mail-text';
+import { SHARED_TEXT } from '../../config/shared-text';
+import {
+  demoSharedText,
+  demoMailText,
+  demoPhoneInput,
+} from '../../mail/mail-text.fixture';
+import { MailDispatcher } from '../../mail/mail-dispatcher';
+import { dispatcherOver } from '../../mail/mail-dispatcher.fixture';
+import { UsersService } from '../../core/accounts/users.service';
+import { PasswordService } from '../../core/accounts/password.service';
+import { RegistrationService } from './registration.service';
+import { CustomerType } from '@b2b-catalog-platform/shared/core/accounts';
+import { RegisterRequest } from '@b2b-catalog-platform/shared/storefront/accounts';
+import { normalizePhone } from '@b2b-catalog-platform/shared/platform';
+
+/**
+ * The rule this service exists to keep: a caller can never tell from the
+ * outside whether an address already has an account. Every test here is a
+ * variation on "what was written, and what was mailed" — the answer to the
+ * caller is always the same.
+ */
+describe('RegistrationService', () => {
+  const findByEmail = vi.fn();
+  const createPending = vi.fn();
+  const seed = vi.fn();
+  const consents = { check: vi.fn(), record: vi.fn() };
+  const unusableHash = vi.fn();
+  const send = vi.fn<(mail: unknown, to: { to: string }) => Promise<void>>();
+  let mail: MailDispatcher;
+  let service: RegistrationService;
+  /** Held by reference, so a test can narrow the shop before it registers. */
+  const customerTypes: CustomerType[] = [];
+
+  // The demo deployment's rule: a German VAT number (see config/deployment.json).
+  const companyIdMatches = (value: string) => /^DE\d{9}$/.test(value);
+
+  const person: RegisterRequest = {
+    email: 'jane@example.com',
+    firstName: 'Jane',
+    lastName: 'Doe',
+    phone: '+494012345678',
+    customerType: 'person',
+  };
+  const company: RegisterRequest = {
+    ...person,
+    customerType: 'company',
+    companyName: 'Kontor GmbH',
+    companyRegistrationId: 'DE123456789',
+  };
+
+  beforeEach(async () => {
+    findByEmail.mockReset().mockResolvedValue(undefined);
+    createPending.mockReset().mockResolvedValue({ id: 'new-id' });
+    seed.mockReset();
+    consents.check.mockReset().mockResolvedValue(null);
+    consents.record.mockReset().mockResolvedValue(undefined);
+    send.mockReset().mockResolvedValue(undefined);
+    unusableHash.mockReset().mockResolvedValue('$argon2id$generated');
+    customerTypes.splice(0, customerTypes.length, 'person', 'company');
+
+    const moduleRef = await Test.createTestingModule({
+      providers: [
+        RegistrationService,
+        { provide: UsersService, useValue: { findByEmail, createPending } },
+        { provide: MailDispatcher, useValue: dispatcherOver(send) },
+        { provide: MAIL_TEXT, useValue: demoMailText },
+        { provide: SHARED_TEXT, useValue: demoSharedText },
+        { provide: COMPANY_ID_RULE, useValue: companyIdMatches },
+        { provide: ACCEPTED_CUSTOMER_TYPES, useValue: customerTypes },
+        { provide: AddressesService, useValue: { seed } },
+        { provide: PHONE_INPUT, useValue: demoPhoneInput },
+        {
+          provide: PHONE_RULE,
+          useValue: (value: string) => normalizePhone(value, demoPhoneInput),
+        },
+        { provide: ConsentService, useValue: consents },
+        {
+          provide: PasswordService,
+          useValue: { unusableHash },
+        },
+      ],
+    }).compile();
+    service = moduleRef.get(RegistrationService);
+    mail = moduleRef.get(MailDispatcher);
+  });
+
+  /** The queue is real: registration returns before the mails go out. */
+  const settle = () => mail.flush();
+
+  const recipients = () => send.mock.calls.map(([, envelope]) => envelope.to);
+
+  it('creates a pending account and mails the registrant and the shop', async () => {
+    await service.register(person);
+    await settle();
+
+    expect(createPending).toHaveBeenCalledWith({
+      email: 'jane@example.com',
+      passwordHash: '$argon2id$generated',
+      firstName: 'Jane',
+      lastName: 'Doe',
+      phone: '+494012345678',
+      customerType: 'person',
+      companyName: null,
+      companyRegistrationId: null,
+    });
+    expect(recipients()).toEqual([
+      'jane@example.com',
+      process.env['MAIL_STAFF_TO'],
+    ]);
+  });
+
+  describe('in a shop that sells to companies only (FR-AUTH-13)', () => {
+    beforeEach(() => customerTypes.splice(0, customerTypes.length, 'company'));
+
+    it('refuses a person before anything is written or mailed', async () => {
+      await expect(service.register(person)).rejects.toMatchObject({
+        response: { code: 'customer-type-not-accepted' },
+      });
+      await settle();
+
+      expect(findByEmail).not.toHaveBeenCalled();
+      expect(createPending).not.toHaveBeenCalled();
+      expect(send).not.toHaveBeenCalled();
+    });
+
+    it('takes a company', async () => {
+      await service.register(company);
+
+      expect(createPending).toHaveBeenCalledWith(
+        expect.objectContaining({ customerType: 'company' }),
+      );
+    });
+  });
+
+  /**
+   * The number is stored unmasked, but the staff notification is read by a
+   * person — often on a phone, deciding whether to approve — so it goes out
+   * grouped the way this deployment writes numbers.
+   */
+  it('groups the phone number in the notification to the shop', async () => {
+    await service.register(person);
+    await settle();
+
+    const [staffMail] = send.mock.calls[1] as unknown as [
+      { rows?: { label: string; value: string }[] },
+    ];
+    expect(staffMail.rows).toContainEqual({
+      label: demoSharedText.fields.phone.label,
+      value: '+49 (401) 234-5678',
+    });
+  });
+
+  it('stores a company ID that matches the deployment rule', async () => {
+    await service.register(company);
+
+    // Both halves of the invoiced party: the name staff match against their own
+    // records, the number they can check it against.
+    expect(createPending).toHaveBeenCalledWith(
+      expect.objectContaining({
+        customerType: 'company',
+        companyName: 'Kontor GmbH',
+        companyRegistrationId: 'DE123456789',
+      }),
+    );
+  });
+
+  // The contract cannot know a jurisdiction's format, so the deployment's own
+  // pattern is applied here too — a client-side-only rule is not a rule.
+  it('refuses a number the deployment pattern rejects, and writes nothing', async () => {
+    await expect(
+      service.register({ ...company, companyRegistrationId: 'DE12345' }),
+    ).rejects.toThrow(/company ID/i);
+
+    expect(createPending).not.toHaveBeenCalled();
+    expect(send).not.toHaveBeenCalled();
+  });
+
+  it('stores a grouped number in the canonical form', async () => {
+    await service.register({ ...person, phone: '+49 (401) 234-5678' });
+
+    expect(createPending).toHaveBeenCalledWith(
+      expect.objectContaining({ phone: '+494012345678' }),
+    );
+  });
+
+  // The browser's field refuses the same numbers; this is an API client's.
+  it('refuses a phone number the deployment rule cannot read, and writes nothing', async () => {
+    await expect(
+      service.register({ ...person, phone: '+7 914 123-45-67' }),
+    ).rejects.toThrow(/phone number/i);
+
+    expect(findByEmail).not.toHaveBeenCalled();
+    expect(createPending).not.toHaveBeenCalled();
+    expect(send).not.toHaveBeenCalled();
+  });
+
+  it('stores the address lowercased, so it matches the login lookup', async () => {
+    await service.register({ ...person, email: '  Jane@Example.COM ' });
+
+    expect(createPending).toHaveBeenCalledWith(
+      expect.objectContaining({ email: 'jane@example.com' }),
+    );
+  });
+
+  it('writes nothing and mails nobody when the honeypot is filled', async () => {
+    await expect(
+      service.register({ ...person, website: 'http://spam.example' }),
+    ).resolves.toBeUndefined();
+
+    expect(findByEmail).not.toHaveBeenCalled();
+    expect(createPending).not.toHaveBeenCalled();
+    expect(send).not.toHaveBeenCalled();
+  });
+
+  it('treats a blank honeypot as absent and still registers', async () => {
+    await service.register({ ...person, website: '' });
+
+    expect(createPending).toHaveBeenCalled();
+  });
+
+  // Re-registering must not create a second row, must not tell the sender the
+  // address is taken, and must not let a stranger mail-bomb a real customer.
+  it('does nothing at all for an address that already has an account', async () => {
+    findByEmail.mockResolvedValue({ id: 'existing' });
+
+    await expect(service.register(person)).resolves.toBeUndefined();
+
+    expect(createPending).not.toHaveBeenCalled();
+    expect(send).not.toHaveBeenCalled();
+  });
+
+  // The hash is nearly all of a registration's time; skipped for a known
+  // address, the response time alone would say the address is taken.
+  it('spends the hash on a known address too, so the clock tells nothing', async () => {
+    findByEmail.mockResolvedValue({ id: 'existing' });
+
+    await service.register(person);
+
+    expect(unusableHash).toHaveBeenCalledTimes(1);
+  });
+
+  // The account row is what matters: staff can approve it from the panel
+  // whether or not SMTP was reachable when it was created.
+  it('keeps the account when a mail fails, and still sends the other one', async () => {
+    send.mockRejectedValueOnce(new Error('smtp down'));
+
+    await expect(service.register(person)).resolves.toBeUndefined();
+    await settle();
+
+    expect(createPending).toHaveBeenCalled();
+    expect(send).toHaveBeenCalledTimes(2);
+  });
+
+  describe('the first address (FR-AUTH-10)', () => {
+    // The street line as the adapter composed it — house number included, in
+    // the shape its own jurisdiction prints.
+    const registered = {
+      entityType: 'legal' as const,
+      street: 'Hafenstraße 12',
+      postalCode: '20359',
+      city: 'Hamburg',
+      country: 'DE',
+    };
+
+    it('seeds the registered address of the company that was picked', async () => {
+      await service.register({ ...company, billingAddress: registered });
+
+      expect(seed).toHaveBeenCalledWith(
+        'new-id',
+        expect.objectContaining({
+          // Unlabelled: the customer never named it, and the book shows an
+          // unnamed address by its own street.
+          label: null,
+          street: 'Hafenstraße 12',
+          postalCode: '20359',
+          city: 'Hamburg',
+          country: 'DE',
+          // The invoiced party is what the *account* says, not a second copy
+          // of what the registry said.
+        }),
+      );
+    });
+
+    // An individual entrepreneur's registered address is their home. The rule
+    // is applied here rather than trusted to the form.
+    it('seeds nothing for an individual', async () => {
+      await service.register({
+        ...company,
+        billingAddress: { ...registered, entityType: 'individual' },
+      });
+
+      expect(seed).not.toHaveBeenCalled();
+    });
+
+    // A registry that answered a city and nothing else has not given us an
+    // address, and half a row in the book is worse than none.
+    it.each(['street', 'postalCode', 'city', 'country'] as const)(
+      'seeds nothing when the answer has no %s',
+      async (missing) => {
+        await service.register({
+          ...company,
+          billingAddress: { ...registered, [missing]: undefined },
+        });
+
+        expect(seed).not.toHaveBeenCalled();
+      },
+    );
+
+    it('registers as usual when no company was picked', async () => {
+      await service.register(company);
+
+      expect(createPending).toHaveBeenCalled();
+      expect(seed).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('consent (NFR-LEGAL-09)', () => {
+    const checked = { purpose: 'account', pageVersionId: 'v-1' };
+
+    it('records the consent against the new account and its address', async () => {
+      consents.check.mockResolvedValue(checked);
+
+      await service.register({
+        ...person,
+        email: 'Jane@Example.com',
+        consentVersion: 1,
+      });
+
+      expect(consents.check).toHaveBeenCalledWith('account', 1);
+      expect(consents.record).toHaveBeenCalledWith(checked, {
+        userId: 'new-id',
+        email: 'jane@example.com',
+      });
+    });
+
+    // Checked before the lookup, so a refusal is the same for both addresses.
+    it('refuses before it looks the address up', async () => {
+      consents.check.mockRejectedValue(new Error('consent-required'));
+      findByEmail.mockResolvedValue({ id: 'existing' });
+
+      await expect(service.register(person)).rejects.toThrow(
+        'consent-required',
+      );
+
+      expect(findByEmail).not.toHaveBeenCalled();
+      expect(createPending).not.toHaveBeenCalled();
+    });
+
+    it('records nothing for an address that already has an account', async () => {
+      consents.check.mockResolvedValue(checked);
+      findByEmail.mockResolvedValue({ id: 'existing' });
+
+      await service.register({ ...person, consentVersion: 1 });
+
+      expect(consents.record).not.toHaveBeenCalled();
+    });
+  });
+});

@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { loadRetention, RETENTION } from '../config/deployment-config';
 import { MediaModule } from '../media/media.module';
 import { OrderDocumentFiles } from '../orders/order-document-files';
+import { AccountDestruction } from './account-destruction';
 import { RetentionSweep } from './retention-sweep';
 
 @Module({
@@ -10,9 +11,10 @@ import { RetentionSweep } from './retention-sweep';
   imports: [MediaModule],
   providers: [
     RetentionSweep,
+    AccountDestruction,
     OrderDocumentFiles,
     { provide: RETENTION, useFactory: loadRetention },
   ],
-  exports: [RetentionSweep],
+  exports: [RetentionSweep, AccountDestruction],
 })
 export class DestructionModule {}

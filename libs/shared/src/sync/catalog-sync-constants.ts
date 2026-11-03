@@ -1,7 +1,6 @@
 /**
  * Catalog-sync limits and vocabulary. Plain data with no imports, so the sync
- * screen does not pull the sync schemas — and Zod — into its chunk (see
- * `auth-constants.ts` for why).
+ * screen does not pull the sync schemas — and Zod — into its chunk.
  *
  * What every area shares is one file out, in `sync-constants.ts`; the customer
  * exchange's own is in `customer-sync-constants.ts`. Three files rather than

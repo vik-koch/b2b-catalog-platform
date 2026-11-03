@@ -1,12 +1,12 @@
 import { Controller } from '@nestjs/common';
 import { Implement, implement } from '@orpc/nest';
-import { AuthUser } from '@b2b-catalog-platform/shared';
 import { adminCategoriesContract } from '@b2b-catalog-platform/shared/admin/catalog';
-import { Auth } from '../../../auth/auth.decorator';
-import { CurrentUser } from '../../../auth/current-user.decorator';
+import { Auth } from '../../../platform/auth/auth.decorator';
+import { CurrentUser } from '../../../platform/auth/current-user.decorator';
 import { AuditLogger } from '../../../audit/audit.logger';
 import { refusals } from '../../../orpc/refusals';
 import { CategoriesService } from './categories.service';
+import { AuthUser } from '@b2b-catalog-platform/shared/platform';
 
 /**
  * The admin's category routes. The service raises the refusals the contract

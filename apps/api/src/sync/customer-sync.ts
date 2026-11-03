@@ -1,5 +1,3 @@
-import { CustomerType, UserRole } from '@b2b-catalog-platform/shared';
-import { UserStatus } from '@b2b-catalog-platform/shared/admin';
 import {
   CustomerAccountChange,
   CustomerSyncOptions,
@@ -10,6 +8,11 @@ import {
   SYNC_PREVIEW_MAX_ITEMS,
   SyncSummary,
 } from '@b2b-catalog-platform/shared/sync';
+import {
+  CustomerType,
+  UserStatus,
+} from '@b2b-catalog-platform/shared/core/accounts';
+import { UserRole } from '@b2b-catalog-platform/shared/platform';
 
 /**
  * The customer differ: rows + intent + the accounts as they stand → what would

@@ -9,387 +9,57 @@ import {
   signal,
 } from '@angular/core';
 import { safe } from '@orpc/client';
-import {
-  AuthUser,
-  ChangePasswordRequest,
-  LoginRequest,
-  MAINTENANCE_REFUSED,
-  PasswordRejectionCode,
-  PASSWORD_TOKEN_INVALID,
-  PasswordTokenPurpose,
-  RegisterRequest,
-  SetPasswordRequest,
-  SignInStep,
-} from '@b2b-catalog-platform/shared';
-import {
-  ConsentRefusalCode,
-  isConsentRefusal,
-} from '@b2b-catalog-platform/shared/core/site';
-import { authContract } from '../core/contract-routes.generated';
+import { sessionContract } from '../core/contract-routes.generated';
 import { createOrpcClient } from '../core/orpc-client';
 import { sessionCookieIn } from './session-cookie';
 import { readSessionHint } from './session-hint';
+import { AuthUser } from '@b2b-catalog-platform/shared/platform';
 
 /**
- * Why a code could not be sent (FR-AUTH-12): the provider refused the number,
- * cannot send at all right now, or the account has had all the codes it gets
- * for a while.
- */
-export type CodeSendFailure = 'unreachable' | 'unavailable' | 'limit';
-
-const CODE_SEND_FAILURES = {
-  'phone-unreachable': 'unreachable',
-  'code-delivery-unavailable': 'unavailable',
-  'code-resend-limit': 'limit',
-} as const satisfies Record<string, CodeSendFailure>;
-
-function isCodeSendFailure(
-  code: string,
-): code is keyof typeof CODE_SEND_FAILURES {
-  return Object.hasOwn(CODE_SEND_FAILURES, code);
-}
-
-/**
- * What the login form needs to distinguish: bad credentials vs. anything else.
- * `step` means the password was right and a code is owed (see `step()`).
- */
-export type LoginResult =
-  'ok' | 'step' | 'invalid' | 'closed' | 'error' | CodeSendFailure;
-
-/** What the code screen needs to distinguish. `restart`: the pending sign-in
- * is gone, and the visitor starts again from the password. */
-export type CodeResult =
-  | { result: 'ok' | 'expired' | 'restart' | 'closed' | 'error' }
-  | { result: 'wrong'; attemptsLeft: number };
-
-/** What asking for another code or call check can come back with. */
-export type SendResult = 'ok' | 'restart' | 'error' | CodeSendFailure;
-
-/** What asking whether the call has come can answer. `waiting`: not yet. */
-export type CallResult =
-  'ok' | 'waiting' | 'expired' | 'restart' | 'closed' | 'unavailable' | 'error';
-
-/**
- * What the change-password form needs to distinguish. Two of these are 400s
- * the user can act on — the current password was wrong, or the new one was
- * refused — and the API tells them apart with a `code` so the form never has
- * to guess which message to show.
- */
-export type ChangePasswordResult =
-  | { result: 'ok' }
-  | { result: 'wrong-current' }
-  /** The policy refused the *new* password; the code says which rule did. */
-  | { result: 'rejected'; code: PasswordRejectionCode }
-  | { result: 'error' };
-
-/**
- * The browser's view of the session. The token itself lives in an
- * httpOnly cookie, so page JavaScript can neither read nor forge it — asking
- * `GET /auth/me` is the only way to learn who, if anyone, is signed in. Every
- * gate this state drives is cosmetic; the API re-checks the cookie and the
- * database role on each request.
+ * The browser's view of the session. The token is an httpOnly cookie, so
+ * `/auth/me` is the only way to learn who is signed in. Every gate this drives
+ * is cosmetic: the API checks each request.
  */
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private readonly client = createOrpcClient(authContract);
+  private readonly client = createOrpcClient(sessionContract);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
   private readonly document = inject(DOCUMENT);
 
-  /**
-   * Who the browser's own cookies say is signed in, read once at start-up.
-   *
-   * The session cookie is httpOnly, so this is the readable hint beside it
-   * (`SESSION_HINT_COOKIE`) — enough to draw the account control right on the
-   * first frame instead of leaning one way for a round trip. Null on the
-   * server, which renders one document for everybody.
-   */
+  /** The readable hint cookie, read once, for a right first frame. Null on
+   * the server, which renders one document for everybody. */
   readonly hintedRole = signal(
     this.isBrowser ? readSessionHint(this.document.cookie) : null,
   ).asReadonly();
 
-  // `undefined` until /auth/me answers. Callers read it through `user()`, which
-  // folds "not known yet" into "signed out" — the state a guest's render and
-  // the first frames of any client-rendered route are drawn in.
+  // `undefined` until /auth/me answers.
   private readonly session = signal<AuthUser | null | undefined>(undefined);
 
-  /** The signed-in user, or `null` when signed out (or not yet resolved). */
+  /** Null when signed out or not yet known: what a guest's render draws. */
   readonly user = computed(() => this.session() ?? null);
 
-  /**
-   * Whether `user()` is an answer rather than a placeholder. `user()` folds
-   * "not known yet" into "signed out", which is right for chrome that must
-   * match the server's render — but a page deciding whether to show a visitor
-   * an error has to be able to wait for the real answer instead.
-   */
+  /** Whether `user()` is an answer, for a page that must wait for one. */
   readonly resolved = computed(() => this.session() !== undefined);
 
-  // Kicked off once, at app start. The server asks too, but only for a render
-  // that carries a session cookie — a guest has nothing to ask about, and the
-  // answer would be a 401 per page view. What the server learns rides to the
-  // browser in the transfer cache, so the chrome it drew is the chrome that
-  // hydrates, and the browser's own ask is answered from the document.
+  // The server asks only for a render with a session cookie (a guest's would
+  // be a 401 per view); its answer reaches the browser in the transfer cache.
   private readonly ready: Promise<void> =
     this.isBrowser ||
     sessionCookieIn(inject(REQUEST, { optional: true })?.headers.get('cookie'))
       ? this.refresh()
       : Promise.resolve();
 
-  /**
-   * The code a sign-in is waiting on (FR-AUTH-12), set when the password was
-   * right and a session is not started yet. Held here rather than by a page,
-   * because the sign-in form and the set-password page both lead to it.
-   */
-  private readonly pendingStep = signal<SignInStep | null>(null);
-  readonly step = this.pendingStep.asReadonly();
-
-  /**
-   * Seconds the last "no new code yet" refusal said to wait, as of when it
-   * arrived. The refusal reaches three screens through three result types,
-   * and only the wait itself is worth carrying beside them.
-   */
-  private readonly codeWait = signal<number | null>(null);
-  readonly retryAfter = this.codeWait.asReadonly();
-
-  /** Resolves once the session is known either way; awaited by the guards. */
+  /** Awaited by the guards. */
   whenResolved(): Promise<void> {
     return this.ready;
   }
 
-  /**
-   * Request an account (FR-AUTH-01). Deliberately learns nothing: the server
-   * answers the same whether the address was new or already registered, so
-   * there is no result to distinguish beyond "the request went through".
-   * Nothing about the session changes — the account cannot sign in until staff
-   * approve it.
-   */
-  /** A consent refusal comes back by its code: the form acts on it. */
-  async register(
-    request: RegisterRequest,
-  ): Promise<'ok' | 'error' | ConsentRefusalCode> {
-    const result = await safe(this.client.register({ body: request }));
-    if (result.isSuccess) return 'ok';
-    return result.isDefined && isConsentRefusal(result.error.code)
-      ? result.error.code
-      : 'error';
+  /** A session the API just started: a sign-in, or a re-issued one. */
+  start(user: AuthUser): void {
+    this.session.set(user);
   }
 
-  /**
-   * Ask for a reset link (FR-AUTH-02). Learns nothing, like `register`: the
-   * server answers the same for an address it knows and one it does not, so
-   * the only failure worth reporting is the request not going through at all.
-   */
-  async forgotPassword(email: string): Promise<'ok' | 'error'> {
-    const { error } = await safe(
-      this.client.forgotPassword({ body: { email } }),
-    );
-    return error ? 'error' : 'ok';
-  }
-
-  /**
-   * What a set-a-password link is for, or null when it is no good — expired,
-   * already used, or never issued, which the API deliberately does not
-   * distinguish. `closed` is a customer's link while the shop is in
-   * maintenance: good, but not usable yet.
-   */
-  async checkPasswordToken(
-    token: string,
-  ): Promise<
-    | { purpose: PasswordTokenPurpose; email: string; consentRequired: boolean }
-    | 'closed'
-    | null
-  > {
-    const result = await safe(
-      this.client.checkPasswordToken({ params: { token } }),
-    );
-    if (result.isSuccess) return result.data;
-    return result.isDefined && result.error.code === MAINTENANCE_REFUSED
-      ? 'closed'
-      : null;
-  }
-
-  /**
-   * Redeem the link. On success the server signs the visitor in, so the local
-   * session state comes straight from the response — they are already through.
-   * A rejected password comes back with the rule that refused it, because it is
-   * the one failure the visitor can act on by typing something else.
-   */
-  async setPassword(
-    request: SetPasswordRequest,
-  ): Promise<
-    | { result: 'ok' | 'step' | 'expired' | 'closed' | 'error' }
-    | { result: 'rejected'; code: PasswordRejectionCode }
-    | { result: 'consent'; code: ConsentRefusalCode }
-    | { result: 'code'; failure: CodeSendFailure }
-  > {
-    const result = await safe(this.client.setPassword({ body: request }));
-
-    if (result.isSuccess) {
-      return { result: this.signedIn(result.data) };
-    }
-    if (!result.isDefined) return { result: 'error' };
-    const { code } = result.error;
-    if (code === PASSWORD_TOKEN_INVALID) return { result: 'expired' };
-    if (code === MAINTENANCE_REFUSED) return { result: 'closed' };
-    if (isConsentRefusal(code)) return { result: 'consent', code };
-    // The password is saved; only the code could not go out, so the way on
-    // is the sign-in form.
-    if (isCodeSendFailure(code)) {
-      this.noteWait(result.error);
-      return { result: 'code', failure: CODE_SEND_FAILURES[code] };
-    }
-    return { result: 'rejected', code };
-  }
-
-  async login(credentials: LoginRequest): Promise<LoginResult> {
-    const result = await safe(this.client.login({ body: credentials }));
-    if (result.isSuccess) return this.signedIn(result.data);
-    // `invalid-credentials` is the deliberately vague "invalid email or
-    // password"; anything else (429 from the login throttle, 5xx) is not the
-    // visitor's fault and must not be phrased as though it were. A customer
-    // with the right password is told the shop is closed instead.
-    if (!result.isDefined) return 'error';
-    const { code } = result.error;
-    if (code === MAINTENANCE_REFUSED) return 'closed';
-    if (!isCodeSendFailure(code)) return 'invalid';
-    this.noteWait(result.error);
-    return CODE_SEND_FAILURES[code];
-  }
-
-  /** Enter the code. On success the session starts, as a login's would, and
-   * `remember` asks the API to remember this browser where it was offered. */
-  async submitCode(code: string, remember = false): Promise<CodeResult> {
-    const result = await safe(
-      this.client.submitSignInCode({
-        body: remember ? { code, remember } : { code },
-      }),
-    );
-    if (result.isSuccess) {
-      this.signedIn(result.data);
-      return { result: 'ok' };
-    }
-    if (!result.isDefined) return { result: 'error' };
-    const { error } = result;
-    switch (error.code) {
-      case 'code-wrong':
-        return { result: 'wrong', attemptsLeft: error.data.attemptsLeft };
-      case 'code-expired':
-        return { result: 'expired' };
-      case MAINTENANCE_REFUSED:
-        return { result: 'closed' };
-      case 'sign-in-step-expired':
-        this.pendingStep.set(null);
-        return { result: 'restart' };
-      default:
-        return { result: 'error' };
-    }
-  }
-
-  /** Ask whether the call has come. Once it has, the session starts, as a
-   * right code's would, and `remember` counts then. */
-  async checkCall(remember = false): Promise<CallResult> {
-    const result = await safe(
-      this.client.checkSignInCall({ body: remember ? { remember } : {} }),
-    );
-    if (result.isSuccess) {
-      if ('waiting' in result.data) return 'waiting';
-      this.signedIn(result.data);
-      return 'ok';
-    }
-    if (!result.isDefined) return 'error';
-    switch (result.error.code) {
-      case 'call-expired':
-        return 'expired';
-      case 'code-delivery-unavailable':
-        return 'unavailable';
-      case MAINTENANCE_REFUSED:
-        return 'closed';
-      case 'sign-in-step-expired':
-        this.pendingStep.set(null);
-        return 'restart';
-      default:
-        return 'error';
-    }
-  }
-
-  /** Send the waiting sign-in a new code, or start a new call check. */
-  async resendCode(): Promise<SendResult> {
-    return this.sent(await safe(this.client.resendSignInCode()));
-  }
-
-  private sent(result: {
-    isSuccess: boolean;
-    isDefined: boolean;
-    data: SignInStep | undefined;
-    error: unknown;
-  }): SendResult {
-    if (result.isSuccess && result.data) {
-      this.pendingStep.set(result.data);
-      return 'ok';
-    }
-    if (!result.isDefined) return 'error';
-    const { code } = result.error as { code: string };
-    if (code === 'sign-in-step-expired') {
-      this.pendingStep.set(null);
-      return 'restart';
-    }
-    if (!isCodeSendFailure(code)) return 'error';
-    this.noteWait(result.error);
-    return CODE_SEND_FAILURES[code];
-  }
-
-  /** Keeps the wait a "no new code yet" refusal names; any other clears it. */
-  private noteWait(error: unknown): void {
-    const { code, data } = error as {
-      code: string;
-      data?: { retryAfter?: number };
-    };
-    this.codeWait.set(
-      code === 'code-resend-limit' ? (data?.retryAfter ?? null) : null,
-    );
-  }
-
-  /** A session, or the step before one: both sign-in routes answer either. */
-  private signedIn(answer: AuthUser | SignInStep): 'ok' | 'step' {
-    if ('step' in answer) {
-      this.pendingStep.set(answer);
-      return 'step';
-    }
-    this.pendingStep.set(null);
-    this.session.set(answer);
-    return 'ok';
-  }
-
-  /**
-   * Change the signed-in user's own password. On success the server re-issues
-   * the session cookie at the new tokenVersion and returns the refreshed
-   * identity, so the local state (notably `mustChangePassword`) comes straight
-   * from the response — no follow-up /auth/me needed.
-   */
-  async changePassword(
-    request: ChangePasswordRequest,
-  ): Promise<ChangePasswordResult> {
-    const result = await safe(this.client.changePassword({ body: request }));
-
-    if (result.isSuccess) {
-      this.session.set(result.data);
-      return { result: 'ok' };
-    }
-    if (!result.isDefined) return { result: 'error' };
-
-    const { code } = result.error;
-    if (code === 'wrong-current-password') return { result: 'wrong-current' };
-    // The session refusals reach a redirect, not this form.
-    if (code === 'not-authenticated' || code === 'insufficient-role') {
-      return { result: 'error' };
-    }
-    return { result: 'rejected', code };
-  }
-
-  /**
-   * Clears the session. The local state is dropped even if the call fails —
-   * the cookie may well be gone already (expired, or cleared server-side), and
-   * leaving a stale "signed in" chrome behind would be the worse outcome.
-   */
+  /** The local state goes even if the call fails: stale chrome is worse. */
   async logout(): Promise<void> {
     try {
       await this.client.logout();
@@ -399,12 +69,7 @@ export class AuthService {
     }
   }
 
-  /**
-   * Re-read the identity from the server. Called at app start, and again
-   * whenever something changes what the session *says* rather than who it is —
-   * an account holder editing their own first name changes the greeting, and
-   * the response to that edit is a profile, not an identity.
-   */
+  /** Also after an edit to what the session says, such as the first name. */
   async refresh(): Promise<void> {
     try {
       const { error, data } = await safe(this.client.me());
@@ -416,14 +81,8 @@ export class AuthService {
     }
   }
 
-  /**
-   * Takes the pre-paint script's class off `<html>`, which hands the account
-   * control back to Angular's own state (see `session-shell.server.ts`).
-   *
-   * It matters in exactly one case: a hint left over from a session that was
-   * ended elsewhere. Without this the stylesheet would keep drawing the label
-   * the hint asked for, over the answer the API just gave.
-   */
+  /** Hands the account control back from the pre-paint class, so a stale
+   * hint cannot outlive the API's answer (see `session-shell.server.ts`). */
   private dropPrePaintHint(): void {
     if (!this.isBrowser) return;
     this.document.documentElement.classList.remove(

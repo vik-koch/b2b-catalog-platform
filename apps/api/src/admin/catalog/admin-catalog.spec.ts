@@ -11,8 +11,7 @@ import { ProductLifecycleService } from './products/product-lifecycle.service';
 import { ProductRecords } from './products/product-records';
 import { AuditLogger } from '../../audit/audit.logger';
 import { ContractErrorFilter } from '../../orpc/contract-error.filter';
-import { JwtAuthGuard } from '../../auth/jwt-auth.guard';
-import { RolesGuard } from '../../auth/roles.guard';
+import { withSession } from '../../platform/auth/session.fixture';
 
 /**
  * The write surface over a real server. The service raises its refusals as
@@ -54,43 +53,31 @@ describe('the admin catalog routes', () => {
   };
 
   beforeAll(async () => {
-    const moduleRef = await Test.createTestingModule({
-      controllers: [ProductsController, CategoriesController],
-      providers: [
-        {
-          provide: ProductGridService,
-          useValue: { listProducts: products.listProducts },
-        },
-        { provide: ProductRecords, useValue: { get: products.getProduct } },
-        {
-          provide: ProductEditorService,
-          useValue: {
-            createProduct: products.createProduct,
-            updateProduct: products.updateProduct,
+    const moduleRef = await withSession(
+      Test.createTestingModule({
+        controllers: [ProductsController, CategoriesController],
+        providers: [
+          {
+            provide: ProductGridService,
+            useValue: { listProducts: products.listProducts },
           },
-        },
-        { provide: ProductLifecycleService, useValue: {} },
-        { provide: CategoriesService, useValue: categories },
-        { provide: CatalogReader, useValue: {} },
-        { provide: AuditLogger, useValue: { record: vi.fn() } },
-        { provide: APP_FILTER, useClass: ContractErrorFilter },
-      ],
-    })
-      .overrideGuard(JwtAuthGuard)
-      .useValue({
-        canActivate: (context: {
-          switchToHttp(): { getRequest(): { user?: unknown } };
-        }) => {
-          context.switchToHttp().getRequest().user = {
-            id: 'admin-1',
-            role: 'admin',
-          };
-          return true;
-        },
-      })
-      .overrideGuard(RolesGuard)
-      .useValue({ canActivate: () => true })
-      .compile();
+          { provide: ProductRecords, useValue: { get: products.getProduct } },
+          {
+            provide: ProductEditorService,
+            useValue: {
+              createProduct: products.createProduct,
+              updateProduct: products.updateProduct,
+            },
+          },
+          { provide: ProductLifecycleService, useValue: {} },
+          { provide: CategoriesService, useValue: categories },
+          { provide: CatalogReader, useValue: {} },
+          { provide: AuditLogger, useValue: { record: vi.fn() } },
+          { provide: APP_FILTER, useClass: ContractErrorFilter },
+        ],
+      }),
+      () => ({ id: 'admin-1', role: 'admin' }),
+    ).compile();
 
     app = moduleRef.createNestApplication();
     app.setGlobalPrefix('api');

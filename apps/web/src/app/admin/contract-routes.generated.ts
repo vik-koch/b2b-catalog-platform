@@ -5,6 +5,7 @@
 // contract defines; the imports below are type-only and erased at build.
 
 import type * as admin from '@b2b-catalog-platform/shared/admin';
+import type * as adminAccounts from '@b2b-catalog-platform/shared/admin/accounts';
 import type * as adminCatalog from '@b2b-catalog-platform/shared/admin/catalog';
 import type * as adminPlatform from '@b2b-catalog-platform/shared/admin/platform';
 import type * as adminSite from '@b2b-catalog-platform/shared/admin/site';
@@ -196,7 +197,7 @@ export const consentsContract = {
       },
     },
   },
-} as unknown as typeof admin.consentsContract;
+} as unknown as typeof adminAccounts.consentsContract;
 export const usersContract = {
   listUsers: {
     '~orpc': {
@@ -319,7 +320,7 @@ export const usersContract = {
       },
     },
   },
-} as unknown as typeof admin.usersContract;
+} as unknown as typeof adminAccounts.usersContract;
 export const adminCategoriesContract = {
   listCategories: {
     '~orpc': {

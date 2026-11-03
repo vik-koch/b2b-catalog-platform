@@ -1,7 +1,7 @@
 /**
  * Media limits and the shapes an upload may take. Plain data with no
  * imports, so an image picker does not pull the media schemas — and Zod —
- * along with the one limit it needs (see `auth-constants.ts` for why).
+ * along with the one limit it needs.
  */
 
 /**

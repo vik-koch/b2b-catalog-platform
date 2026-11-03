@@ -5,174 +5,10 @@
 // contract defines; the imports below are type-only and erased at build.
 
 import type * as shared from '@b2b-catalog-platform/shared';
+import type * as coreAccounts from '@b2b-catalog-platform/shared/core/accounts';
 import type * as coreSite from '@b2b-catalog-platform/shared/core/site';
+import type * as platform from '@b2b-catalog-platform/shared/platform';
 
-export const addressSuggestionContract = {
-  suggestAddresses: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: {
-        method: 'GET',
-        path: '/addresses/suggestions',
-        inputStructure: 'detailed',
-      },
-    },
-  },
-} as unknown as typeof shared.addressSuggestionContract;
-export const addressesContract = {
-  listAddresses: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: { method: 'GET', path: '/account/addresses' },
-    },
-  },
-  createAddress: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: {
-        method: 'POST',
-        path: '/account/addresses',
-        inputStructure: 'detailed',
-      },
-    },
-  },
-  updateAddress: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: {
-        method: 'PUT',
-        path: '/account/addresses/{id}',
-        inputStructure: 'detailed',
-      },
-    },
-  },
-  deleteAddress: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: {
-        method: 'DELETE',
-        path: '/account/addresses/{id}',
-        inputStructure: 'detailed',
-      },
-    },
-  },
-} as unknown as typeof shared.addressesContract;
-export const authContract = {
-  register: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: {
-        method: 'POST',
-        path: '/auth/register',
-        inputStructure: 'detailed',
-      },
-    },
-  },
-  forgotPassword: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: {
-        method: 'POST',
-        path: '/auth/forgot-password',
-        inputStructure: 'detailed',
-      },
-    },
-  },
-  checkPasswordToken: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: {
-        method: 'GET',
-        path: '/auth/password-token/{token}',
-        inputStructure: 'detailed',
-      },
-    },
-  },
-  setPassword: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: {
-        method: 'POST',
-        path: '/auth/set-password',
-        inputStructure: 'detailed',
-      },
-    },
-  },
-  login: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: {
-        method: 'POST',
-        path: '/auth/login',
-        inputStructure: 'detailed',
-      },
-    },
-  },
-  resendSignInCode: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: { method: 'POST', path: '/auth/sign-in-step/resend' },
-    },
-  },
-  submitSignInCode: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: {
-        method: 'POST',
-        path: '/auth/sign-in-step/code',
-        inputStructure: 'detailed',
-      },
-    },
-  },
-  checkSignInCall: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: {
-        method: 'POST',
-        path: '/auth/sign-in-step/call',
-        inputStructure: 'detailed',
-      },
-    },
-  },
-  logout: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: { method: 'POST', path: '/auth/logout' },
-    },
-  },
-  me: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: { method: 'GET', path: '/auth/me' },
-    },
-  },
-  changePassword: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: {
-        method: 'POST',
-        path: '/auth/change-password',
-        inputStructure: 'detailed',
-      },
-    },
-  },
-} as unknown as typeof shared.authContract;
 export const cartContract = {
   previewCart: {
     '~orpc': {
@@ -239,6 +75,70 @@ export const ordersContract = {
     },
   },
 } as unknown as typeof shared.ordersContract;
+export const workContract = {
+  getCounts: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: { method: 'GET', path: '/work/counts' },
+    },
+  },
+} as unknown as typeof shared.workContract;
+export const addressSuggestionContract = {
+  suggestAddresses: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'GET',
+        path: '/addresses/suggestions',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+} as unknown as typeof coreAccounts.addressSuggestionContract;
+export const addressesContract = {
+  listAddresses: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: { method: 'GET', path: '/account/addresses' },
+    },
+  },
+  createAddress: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'POST',
+        path: '/account/addresses',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+  updateAddress: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'PUT',
+        path: '/account/addresses/{id}',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+  deleteAddress: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'DELETE',
+        path: '/account/addresses/{id}',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+} as unknown as typeof coreAccounts.addressesContract;
 export const partySuggestionContract = {
   suggestParties: {
     '~orpc': {
@@ -251,16 +151,7 @@ export const partySuggestionContract = {
       },
     },
   },
-} as unknown as typeof shared.partySuggestionContract;
-export const workContract = {
-  getCounts: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: { method: 'GET', path: '/work/counts' },
-    },
-  },
-} as unknown as typeof shared.workContract;
+} as unknown as typeof coreAccounts.partySuggestionContract;
 export const maintenanceContract = {
   checkMaintenance: {
     '~orpc': {
@@ -283,3 +174,19 @@ export const pageContract = {
     },
   },
 } as unknown as typeof coreSite.pageContract;
+export const sessionContract = {
+  logout: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: { method: 'POST', path: '/auth/logout' },
+    },
+  },
+  me: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: { method: 'GET', path: '/auth/me' },
+    },
+  },
+} as unknown as typeof platform.sessionContract;

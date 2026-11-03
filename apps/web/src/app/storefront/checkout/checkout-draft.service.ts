@@ -1,12 +1,12 @@
 import { isPlatformBrowser } from '@angular/common';
 import { inject, Injectable, PLATFORM_ID, signal } from '@angular/core';
 import {
-  AddressInput,
   FulfilmentMethod,
   OrderContact,
   PAYMENT_METHODS,
   PaymentMethod,
 } from '@b2b-catalog-platform/shared';
+import { AddressInput } from '@b2b-catalog-platform/shared/core/accounts';
 
 /** Where the checkout draft lives, named here because the specs read it too. */
 export const CHECKOUT_DRAFT_KEY = 'checkout-draft';

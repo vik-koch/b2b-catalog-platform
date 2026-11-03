@@ -1,14 +1,15 @@
 import { Module } from '@nestjs/common';
 import { APP_FILTER } from '@nestjs/core';
 import { ContractErrorFilter } from '../orpc/contract-error.filter';
-import { AccountModule } from '../account/account.module';
+import { AccountModule } from '../storefront/accounts/account.module';
 import { ApiTokensModule } from '../api-tokens/api-tokens.module';
-import { AddressesModule } from '../addresses/addresses.module';
-import { PartiesModule } from '../parties/parties.module';
-import { AuthModule } from '../auth/auth.module';
-import { ConsentAdminModule } from '../consents/consent-admin.module';
+import { AddressesModule } from '../storefront/accounts/addresses.module';
+import { PartiesModule } from '../storefront/accounts/parties.module';
+import { AuthModule } from '../storefront/accounts/auth.module';
+import { ConsentAdminModule } from '../admin/accounts/consent-admin.module';
 import { InquiryModule } from '../storefront/site/inquiry.module';
 import { DatabaseModule } from '../db/database.module';
+import { AccountErasureModule } from './account-erasure.module';
 import { DestructionModule } from '../destruction/destruction.module';
 import { CatalogModule } from '../storefront/catalog/catalog.module';
 import { AdminCatalogModule } from '../admin/catalog/admin-catalog.module';
@@ -22,7 +23,7 @@ import { SiteCoreModule } from '../core/site/site-core.module';
 import { OwnershipModule } from '../settings/ownership.module';
 import { AdminPlatformModule } from '../admin/platform/admin-platform.module';
 import { SyncModule } from '../sync/sync.module';
-import { StaffUsersModule } from '../users/staff-users.module';
+import { StaffUsersModule } from '../admin/accounts/staff-users.module';
 import { WorkModule } from '../work/work.module';
 
 @Module({
@@ -45,6 +46,7 @@ import { WorkModule } from '../work/work.module';
     StaffUsersModule,
     ConsentAdminModule,
     DestructionModule,
+    AccountErasureModule,
     AccountModule,
     OrdersModule,
     AddressesModule,

@@ -5,17 +5,13 @@ import {
   ServiceUnavailableException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { passesMaintenance } from '@b2b-catalog-platform/shared';
-import { JwtService } from '@nestjs/jwt';
-import type { Response } from 'express';
+import type { Request, Response } from 'express';
 import { MachineScope } from '../../api-tokens/machine-scope.decorator';
-import { AUTH_COOKIE } from '../../auth/auth.constants';
-import { AuthenticatedRequest } from '../../auth/authenticated-request';
-import { JwtPayload } from '../../auth/jwt-payload';
-import { Roles } from '../../auth/roles.decorator';
-import { UsersService } from '../../users/users.service';
+import { Roles } from '../../platform/auth/roles.decorator';
+import { Sessions } from '../../platform/auth/sessions';
 import { MaintenanceState } from './maintenance-state';
 import { MAINTENANCE_EXEMPT } from './maintenance-exempt.decorator';
+import { passesMaintenance } from '@b2b-catalog-platform/shared/core/site';
 
 const RETRY_AFTER_SECONDS = 3600;
 
@@ -35,8 +31,7 @@ export class MaintenanceGuard implements CanActivate {
   constructor(
     private readonly reflector: Reflector,
     private readonly maintenance: MaintenanceState,
-    private readonly jwt: JwtService,
-    private readonly users: UsersService,
+    private readonly sessions: Sessions,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -63,8 +58,7 @@ export class MaintenanceGuard implements CanActivate {
       return true;
     }
 
-    const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
-    if (await this.isStaffRequest(request)) {
+    if (await this.isStaffRequest(context.switchToHttp().getRequest())) {
       return true;
     }
 
@@ -74,21 +68,10 @@ export class MaintenanceGuard implements CanActivate {
   }
 
   /** Any failure means no bypass, never an error. */
-  private async isStaffRequest(
-    request: AuthenticatedRequest,
-  ): Promise<boolean> {
-    const token = request.cookies?.[AUTH_COOKIE];
-    if (!token) {
-      return false;
-    }
+  private async isStaffRequest(request: Request): Promise<boolean> {
     try {
-      const payload = await this.jwt.verifyAsync<JwtPayload>(token);
-      const user = await this.users.findById(payload.sub);
-      return (
-        !!user &&
-        user.tokenVersion === payload.tokenVersion &&
-        passesMaintenance(user.role)
-      );
+      const session = await this.sessions.read(request);
+      return !!session && passesMaintenance(session.user.role);
     } catch {
       return false;
     }

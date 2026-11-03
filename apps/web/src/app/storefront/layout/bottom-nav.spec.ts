@@ -3,7 +3,6 @@ import { defaultSharedText } from '../../shared/config/shared-text.fixture';
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
-import { UserRole } from '@b2b-catalog-platform/shared';
 import { AuthService } from '../../shared/auth/auth.service';
 import { WorkService } from '../../shared/work/work.service';
 import { workStub } from '../../shared/work/work.fixture';
@@ -13,6 +12,7 @@ import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { defaultDeploymentConfig } from '../../shared/config/deployment-config.fixture';
 import { BottomNav } from './bottom-nav';
 import { MobileSearch } from './mobile-search';
+import { UserRole } from '@b2b-catalog-platform/shared/platform';
 
 /** Enough of AuthService for the panel's one session-dependent row. */
 function authStub(role: UserRole | null) {

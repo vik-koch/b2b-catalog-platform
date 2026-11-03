@@ -16,7 +16,7 @@ import { TAX_BASES } from '../core/tax';
 import {
   addressInputSchema,
   countryCodeSchema,
-} from '../accounts/address.contract';
+} from '../../core/accounts/address.contract';
 import {
   companyRegistrationIdSchema,
   lowercaseEmailField,

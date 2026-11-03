@@ -1,37 +1,16 @@
 import { ExecutionContext, ServiceUnavailableException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { JwtService } from '@nestjs/jwt';
-import { UserRow, UsersService } from '../../users/users.service';
-import { AUTH_COOKIE } from '../../auth/auth.constants';
 import { MachineScope } from '../../api-tokens/machine-scope.decorator';
-import { Roles } from '../../auth/roles.decorator';
+import { Roles } from '../../platform/auth/roles.decorator';
+import { Sessions } from '../../platform/auth/sessions';
 import { MaintenanceGuard } from './maintenance.guard';
 import { MaintenanceState } from './maintenance-state';
 
-const adminRow = (overrides: Partial<UserRow> = {}): UserRow =>
-  ({
-    id: '00000000-0000-0000-0000-000000000001',
-    email: 'admin@example.com',
-    passwordHash: '$argon2id$stored',
-    role: 'admin',
-    tokenVersion: 0,
-    mustChangePassword: false,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    ...overrides,
-  }) as UserRow;
-
-const adminClaims = {
-  sub: adminRow().id,
-  email: adminRow().email,
-  role: 'admin',
-  tokenVersion: 0,
-};
+const sessionOf = (role: string) => ({ user: { role }, payload: {} });
 
 describe('MaintenanceGuard', () => {
   const isMaintenanceEnabled = vi.fn();
-  const verifyAsync = vi.fn();
-  const findById = vi.fn();
+  const read = vi.fn();
   // Emulates the reflector reading metadata off the route: the roles array
   // when the route is marked as auth-guarded, the scope when it is a machine
   // route, or the exempt flag.
@@ -47,25 +26,24 @@ describe('MaintenanceGuard', () => {
   const guard = new MaintenanceGuard(
     reflector,
     { isEnabled: isMaintenanceEnabled } as unknown as MaintenanceState,
-    { verifyAsync } as unknown as JwtService,
-    { findById } as unknown as UsersService,
+    { read } as unknown as Sessions,
   );
 
   const setHeader = vi.fn();
-  const contextWith = (cookies: Record<string, string>) =>
+  const context = () =>
     ({
       getHandler: () => undefined,
       getClass: () => undefined,
       switchToHttp: () => ({
-        getRequest: () => ({ cookies }),
+        getRequest: () => ({}),
         getResponse: () => ({ setHeader }),
       }),
     }) as unknown as ExecutionContext;
 
   beforeEach(() => {
     isMaintenanceEnabled.mockReset();
-    verifyAsync.mockReset();
-    findById.mockReset();
+    read.mockReset();
+    read.mockResolvedValue(null);
     setHeader.mockReset();
     metadata.roles = undefined;
     metadata.scope = undefined;
@@ -75,14 +53,14 @@ describe('MaintenanceGuard', () => {
   it('lets every request through when maintenance is off', async () => {
     isMaintenanceEnabled.mockReturnValue(false);
 
-    await expect(guard.canActivate(contextWith({}))).resolves.toBe(true);
-    expect(verifyAsync).not.toHaveBeenCalled();
+    await expect(guard.canActivate(context())).resolves.toBe(true);
+    expect(read).not.toHaveBeenCalled();
   });
 
   it('503s an anonymous request to a public route when maintenance is on', async () => {
     isMaintenanceEnabled.mockReturnValue(true);
 
-    await expect(guard.canActivate(contextWith({}))).rejects.toThrow(
+    await expect(guard.canActivate(context())).rejects.toThrow(
       ServiceUnavailableException,
     );
     expect(setHeader).toHaveBeenCalledWith('Retry-After', '3600');
@@ -92,8 +70,8 @@ describe('MaintenanceGuard', () => {
     isMaintenanceEnabled.mockReturnValue(true);
     metadata.roles = ['admin', 'manager'];
 
-    await expect(guard.canActivate(contextWith({}))).resolves.toBe(true);
-    expect(verifyAsync).not.toHaveBeenCalled();
+    await expect(guard.canActivate(context())).resolves.toBe(true);
+    expect(read).not.toHaveBeenCalled();
   });
 
   // A bare `@Auth()` is where a customer's account pages live: open to a
@@ -102,7 +80,7 @@ describe('MaintenanceGuard', () => {
     isMaintenanceEnabled.mockReturnValue(true);
     metadata.roles = [];
 
-    await expect(guard.canActivate(contextWith({}))).rejects.toThrow(
+    await expect(guard.canActivate(context())).rejects.toThrow(
       ServiceUnavailableException,
     );
   });
@@ -110,86 +88,73 @@ describe('MaintenanceGuard', () => {
   it('closes a bare @Auth route to a customer session', async () => {
     isMaintenanceEnabled.mockReturnValue(true);
     metadata.roles = [];
-    verifyAsync.mockResolvedValue({ ...adminClaims, role: 'user' });
-    findById.mockResolvedValue(adminRow({ role: 'user' }));
+    read.mockResolvedValue(sessionOf('user'));
 
-    await expect(
-      guard.canActivate(contextWith({ [AUTH_COOKIE]: 'good' })),
-    ).rejects.toThrow(ServiceUnavailableException);
+    await expect(guard.canActivate(context())).rejects.toThrow(
+      ServiceUnavailableException,
+    );
   });
 
   it('opens a bare @Auth route to a staff session', async () => {
     isMaintenanceEnabled.mockReturnValue(true);
     metadata.roles = [];
-    verifyAsync.mockResolvedValue({ ...adminClaims, role: 'manager' });
-    findById.mockResolvedValue(adminRow({ role: 'manager' }));
+    read.mockResolvedValue(sessionOf('manager'));
 
-    await expect(
-      guard.canActivate(contextWith({ [AUTH_COOKIE]: 'good' })),
-    ).resolves.toBe(true);
+    await expect(guard.canActivate(context())).resolves.toBe(true);
   });
 
   it('exempts a route carrying @Machine scope metadata', async () => {
     isMaintenanceEnabled.mockReturnValue(true);
     metadata.scope = 'catalog-sync';
 
-    await expect(guard.canActivate(contextWith({}))).resolves.toBe(true);
-    expect(verifyAsync).not.toHaveBeenCalled();
+    await expect(guard.canActivate(context())).resolves.toBe(true);
+    expect(read).not.toHaveBeenCalled();
   });
 
   it('exempts an explicitly @MaintenanceExempt route', async () => {
     isMaintenanceEnabled.mockReturnValue(true);
     metadata.exempt = true;
 
-    await expect(guard.canActivate(contextWith({}))).resolves.toBe(true);
+    await expect(guard.canActivate(context())).resolves.toBe(true);
   });
 
   it('lets a valid admin session preview a public route', async () => {
     isMaintenanceEnabled.mockReturnValue(true);
-    verifyAsync.mockResolvedValue(adminClaims);
-    findById.mockResolvedValue(adminRow());
+    read.mockResolvedValue(sessionOf('admin'));
 
-    await expect(
-      guard.canActivate(contextWith({ [AUTH_COOKIE]: 'good' })),
-    ).resolves.toBe(true);
+    await expect(guard.canActivate(context())).resolves.toBe(true);
   });
 
   it('lets a valid manager session preview a public route', async () => {
     isMaintenanceEnabled.mockReturnValue(true);
-    verifyAsync.mockResolvedValue({ ...adminClaims, role: 'manager' });
-    findById.mockResolvedValue(adminRow({ role: 'manager' }));
+    read.mockResolvedValue(sessionOf('manager'));
 
-    await expect(
-      guard.canActivate(contextWith({ [AUTH_COOKIE]: 'good' })),
-    ).resolves.toBe(true);
+    await expect(guard.canActivate(context())).resolves.toBe(true);
   });
 
   it('does not exempt a customer session', async () => {
     isMaintenanceEnabled.mockReturnValue(true);
-    verifyAsync.mockResolvedValue({ ...adminClaims, role: 'user' });
-    findById.mockResolvedValue(adminRow({ role: 'user' }));
+    read.mockResolvedValue(sessionOf('user'));
 
-    await expect(
-      guard.canActivate(contextWith({ [AUTH_COOKIE]: 'good' })),
-    ).rejects.toThrow(ServiceUnavailableException);
+    await expect(guard.canActivate(context())).rejects.toThrow(
+      ServiceUnavailableException,
+    );
   });
 
-  it('does not exempt a session whose token version is stale', async () => {
+  it('does not exempt a request without a valid session', async () => {
     isMaintenanceEnabled.mockReturnValue(true);
-    verifyAsync.mockResolvedValue(adminClaims);
-    findById.mockResolvedValue(adminRow({ tokenVersion: 1 }));
 
-    await expect(
-      guard.canActivate(contextWith({ [AUTH_COOKIE]: 'good' })),
-    ).rejects.toThrow(ServiceUnavailableException);
+    await expect(guard.canActivate(context())).rejects.toThrow(
+      ServiceUnavailableException,
+    );
   });
 
-  it('swallows a bad token and 503s rather than erroring', async () => {
+  it('503s rather than erroring when the session cannot be read', async () => {
     isMaintenanceEnabled.mockReturnValue(true);
-    verifyAsync.mockRejectedValue(new Error('bad signature'));
+    read.mockRejectedValue(new Error('connection refused'));
 
-    await expect(
-      guard.canActivate(contextWith({ [AUTH_COOKIE]: 'tampered' })),
-    ).rejects.toThrow(ServiceUnavailableException);
+    await expect(guard.canActivate(context())).rejects.toThrow(
+      ServiceUnavailableException,
+    );
   });
 });

@@ -1,9 +1,8 @@
-import { INestApplication, UnauthorizedException } from '@nestjs/common';
+import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { AdminPagesController } from './pages.controller';
 import { PageEditorService } from './page-editor.service';
-import { JwtAuthGuard } from '../../auth/jwt-auth.guard';
-import { RolesGuard } from '../../auth/roles.guard';
+import { SignedInAs, withSession } from '../../platform/auth/session.fixture';
 
 /** Over a real server: routing, validation and the refusal's shape are the
  * contract layer's work, which a call on the handler would skip. */
@@ -12,7 +11,7 @@ describe('AdminPagesController', () => {
   let baseUrl: string;
   const updatePage = vi.fn();
   const listVersions = vi.fn();
-  let signedInAs: { id: string; role: string } | null = null;
+  let signedInAs: SignedInAs | null = null;
 
   const page = {
     version: 1,
@@ -23,29 +22,18 @@ describe('AdminPagesController', () => {
   };
 
   beforeAll(async () => {
-    const moduleRef = await Test.createTestingModule({
-      controllers: [AdminPagesController],
-      providers: [
-        {
-          provide: PageEditorService,
-          useValue: { updatePage, listVersions },
-        },
-      ],
-    })
-      .overrideGuard(JwtAuthGuard)
-      .useValue({
-        canActivate: (context: {
-          switchToHttp(): { getRequest(): { user?: unknown } };
-        }) => {
-          // Throws like the real guard: a `false` would be a 403.
-          if (!signedInAs) throw new UnauthorizedException();
-          context.switchToHttp().getRequest().user = signedInAs;
-          return true;
-        },
-      })
-      .overrideGuard(RolesGuard)
-      .useValue({ canActivate: () => signedInAs?.role === 'admin' })
-      .compile();
+    const moduleRef = await withSession(
+      Test.createTestingModule({
+        controllers: [AdminPagesController],
+        providers: [
+          {
+            provide: PageEditorService,
+            useValue: { updatePage, listVersions },
+          },
+        ],
+      }),
+      () => signedInAs,
+    ).compile();
 
     app = moduleRef.createNestApplication();
     app.setGlobalPrefix('api');

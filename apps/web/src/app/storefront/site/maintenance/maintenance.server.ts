@@ -1,6 +1,6 @@
-import { passesMaintenance } from '@b2b-catalog-platform/shared';
 import { requireEnv } from '../../../../env';
 import { readSessionHint } from '../../../shared/auth/session-hint';
+import { passesMaintenance } from '@b2b-catalog-platform/shared/core/site';
 
 /**
  * The gate for a cold load: the maintenance screen with a 503 at the requested

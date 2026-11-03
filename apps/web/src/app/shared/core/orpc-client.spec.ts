@@ -16,12 +16,12 @@ import {
   makeStateKey,
 } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { AUTH_COOKIE } from '@b2b-catalog-platform/shared';
 import { oc } from '@orpc/contract';
 import * as z from 'zod';
 import { forwardSession } from '../auth/forward-session.server';
 import { provideHydration } from './hydration';
 import { createOrpcClient } from './orpc-client';
+import { AUTH_COOKIE } from '@b2b-catalog-platform/shared/platform';
 
 const API_ORIGIN = 'http://api.internal:3000';
 /** Mirrors the deployed `API_URL`, whose `/api` suffix matters: the transfer

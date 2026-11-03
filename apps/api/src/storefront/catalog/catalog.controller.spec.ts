@@ -3,7 +3,7 @@ import { Test } from '@nestjs/testing';
 import { CatalogController } from './catalog.controller';
 import { CatalogService } from './catalog.service';
 import { ThrottlerGuard } from '@nestjs/throttler';
-import { OptionalAuthGuard } from '../../auth/optional-auth.guard';
+import { withSession } from '../../platform/auth/session.fixture';
 
 /**
  * Over a real server, for the three things that only exist there: how the
@@ -34,46 +34,35 @@ describe('CatalogController', () => {
   };
 
   beforeAll(async () => {
-    const moduleRef = await Test.createTestingModule({
-      controllers: [CatalogController],
-      providers: [
-        {
-          provide: CatalogService,
-          useValue: {
-            getCategoryProducts,
-            getProduct,
-            getFeaturedProducts,
-            getCategoryTree: async () => [],
-            getSitemap: async () => ({
-              categories: [],
-              products: [],
-              pages: [],
-            }),
+    const moduleRef = await withSession(
+      Test.createTestingModule({
+        controllers: [CatalogController],
+        providers: [
+          {
+            provide: CatalogService,
+            useValue: {
+              getCategoryProducts,
+              getProduct,
+              getFeaturedProducts,
+              getCategoryTree: async () => [],
+              getSitemap: async () => ({
+                categories: [],
+                products: [],
+                pages: [],
+              }),
+            },
           },
-        },
-      ],
-    })
-      // The rate limits have their own spec; here they only have to let a
-      // request past.
-      .overrideGuard(ThrottlerGuard)
-      .useValue({ canActivate: () => true })
-      .overrideGuard(OptionalAuthGuard)
-      .useValue({
-        canActivate: (context: {
-          switchToHttp(): { getRequest(): { user?: unknown } };
-        }) => {
-          if (signedInTier) {
-            const request = context.switchToHttp().getRequest() as {
-              user?: unknown;
-              pricingTierId?: string;
-            };
-            request.user = { id: 'user-1', role: 'user' };
-            request.pricingTierId = signedInTier;
-          }
-          return true;
-        },
+        ],
       })
-      .compile();
+        // The rate limits have their own spec; here they only have to let a
+        // request past.
+        .overrideGuard(ThrottlerGuard)
+        .useValue({ canActivate: () => true }),
+      () =>
+        signedInTier
+          ? { id: 'user-1', role: 'user', tierId: signedInTier }
+          : null,
+    ).compile();
 
     app = moduleRef.createNestApplication();
     app.setGlobalPrefix('api');

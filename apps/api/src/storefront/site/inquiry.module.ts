@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { loadPhoneInput, PHONE_INPUT } from '../../config/deployment-config';
-import { ConsentModule } from '../../consents/consent.module';
+import { ConsentModule } from '../../core/site/consent.module';
 import { MailModule } from '../../mail/mail.module';
 import { InquiryController } from './inquiry.controller';
 import { InquiryService } from './inquiry.service';

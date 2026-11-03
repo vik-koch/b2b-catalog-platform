@@ -1,4 +1,4 @@
-import { AuthUser } from '@b2b-catalog-platform/shared';
+import { AuthUser } from '@b2b-catalog-platform/shared/platform';
 
 /**
  * Stand-in identities for tests, one per role. Shared rather than re-declared

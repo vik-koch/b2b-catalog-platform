@@ -183,14 +183,14 @@ export const adminRoutes: Route[] = [
     data: { kind: 'customer' },
     canActivate: [requireAuth('admin', 'manager'), adminTextGuard],
     loadComponent: () =>
-      import('./users/user-list-page').then((m) => m.UserListPage),
+      import('./accounts/users/user-list-page').then((m) => m.UserListPage),
   },
   {
     path: 'admin/users/staff',
     data: { kind: 'staff' },
     canActivate: [requireAuth('admin'), adminTextGuard],
     loadComponent: () =>
-      import('./users/user-list-page').then((m) => m.UserListPage),
+      import('./accounts/users/user-list-page').then((m) => m.UserListPage),
   },
   // Adding, editing and approving share one screen. The literal `staff/new`
   // stays ahead of `:id/edit` so it is never read as an account id.
@@ -200,7 +200,7 @@ export const adminRoutes: Route[] = [
     canActivate: [requireAuth('admin', 'manager'), adminTextGuard],
     canDeactivate: [unsavedChangesGuard((t) => t.users.editor.discardConfirm)],
     loadComponent: () =>
-      import('./users/user-editor-page').then((m) => m.UserEditorPage),
+      import('./accounts/users/user-editor-page').then((m) => m.UserEditorPage),
   },
   {
     path: 'admin/users/staff/new',
@@ -208,7 +208,7 @@ export const adminRoutes: Route[] = [
     canActivate: [requireAuth('admin'), adminTextGuard],
     canDeactivate: [unsavedChangesGuard((t) => t.users.editor.discardConfirm)],
     loadComponent: () =>
-      import('./users/user-editor-page').then((m) => m.UserEditorPage),
+      import('./accounts/users/user-editor-page').then((m) => m.UserEditorPage),
   },
   // Reading one account, for customers and staff alike. Kept ahead of the
   // editor for no reason but reading order — the two paths cannot collide.
@@ -218,7 +218,7 @@ export const adminRoutes: Route[] = [
     path: 'admin/users/:id',
     canActivate: [requireAuth('admin', 'manager'), adminTextGuard],
     loadComponent: () =>
-      import('./users/user-detail-page').then((m) => m.UserDetailPage),
+      import('./accounts/users/user-detail-page').then((m) => m.UserDetailPage),
   },
   {
     // Admin and manager both: which accounts a manager may open is the API's
@@ -227,7 +227,7 @@ export const adminRoutes: Route[] = [
     canActivate: [requireAuth('admin', 'manager'), adminTextGuard],
     canDeactivate: [unsavedChangesGuard((t) => t.users.editor.discardConfirm)],
     loadComponent: () =>
-      import('./users/user-editor-page').then((m) => m.UserEditorPage),
+      import('./accounts/users/user-editor-page').then((m) => m.UserEditorPage),
   },
   // A person's consent records (NFR-LEGAL-09), found by address or number.
   // Admin only: answering for them is the operator's.
@@ -235,7 +235,9 @@ export const adminRoutes: Route[] = [
     path: 'admin/consents',
     canActivate: [requireAuth('admin'), adminTextGuard],
     loadComponent: () =>
-      import('./consents/consent-lookup-page').then((m) => m.ConsentLookupPage),
+      import('./accounts/consents/consent-lookup-page').then(
+        (m) => m.ConsentLookupPage,
+      ),
   },
   // Orders, for admin and manager both (FR-AUTH-03) — a manager's daily work:
   // reading them, answering them, and writing a new version of one.

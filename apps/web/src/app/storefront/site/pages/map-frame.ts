@@ -3,7 +3,7 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
 import { fillText, MapEmbed } from '@b2b-catalog-platform/shared';
 import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
-import { ConsentService } from '../../consent/consent.service';
+import { ConsentService } from '../cookie-consent/consent.service';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 
 /** The one place a map embed is created: one that sets cookies waits for

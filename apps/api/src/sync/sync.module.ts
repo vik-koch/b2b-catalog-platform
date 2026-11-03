@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ApiTokensModule } from '../api-tokens/api-tokens.module';
-import { AuthModule } from '../auth/auth.module';
+import { AccountsCoreModule } from '../core/accounts/accounts-core.module';
 import { OwnershipStateModule } from '../settings/ownership-state.module';
 import { CatalogSyncController } from './catalog-sync.controller';
 import { CatalogSyncService } from './catalog-sync.service';
@@ -19,7 +19,6 @@ import { SyncNotifications } from './sync-notifications';
 import { CustomerSyncService } from './customer-sync.service';
 import { SyncRunLog } from './sync-run-log';
 import { OrdersModule } from '../orders/orders.module';
-import { StaffUsersModule } from '../users/staff-users.module';
 import { MailModule } from '../mail/mail.module';
 import {
   LOW_STOCK_THRESHOLD_PIECES,
@@ -31,26 +30,24 @@ import {
   ACCEPTED_CUSTOMER_TYPES,
   loadAcceptedCustomerTypes,
 } from '../config/deployment-config';
-import { AccountInvitations } from '../users/account-invitations';
 
 /**
  * The exchange, in all three of its areas: the bulk catalog sync (FR-ADM-02,
  * FR-ADM-07), the customer exchange (FR-ADM-11, FR-ADM-12) and the outbound
  * reads that go with them (FR-ADM-08, FR-ADM-18). DatabaseModule is @Global, so
- * DRIZZLE needs no import; AuthModule supplies the guards behind
+ * DRIZZLE needs no import; AccountsCoreModule supplies the guards behind
  * `@Auth('admin')` and ApiTokensModule the one behind `@Machine(...)`.
  * MailModule is what an automated run tells the shop with (FR-ADM-09).
  */
 @Module({
   imports: [
-    AuthModule,
-    ApiTokensModule,
-    OwnershipStateModule,
-    MailModule,
     // The customer exchange writes accounts, and does it through the same
     // service and the same invitation mail a manager's approval goes through —
     // there is one way to create an account here, not two.
-    StaffUsersModule,
+    AccountsCoreModule,
+    ApiTokensModule,
+    OwnershipStateModule,
+    MailModule,
     // The order write-back answers orders through the same service the admin
     // screens answer them with, for the reason the customer exchange shares
     // one: an order written a second way is an order written differently.
@@ -69,7 +66,6 @@ import { AccountInvitations } from '../users/account-invitations';
   providers: [
     SyncService,
     CatalogSyncService,
-    AccountInvitations,
     CustomerSyncService,
     CustomerReadService,
     OrderReadService,

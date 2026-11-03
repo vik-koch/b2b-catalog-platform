@@ -78,6 +78,7 @@ import { rotateCcwIcon } from '@b2b-catalog-platform/ui/icons/glyphs/rotate-ccw'
 import { sendIcon } from '@b2b-catalog-platform/ui/icons/glyphs/send';
 import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
 import { Card } from '@b2b-catalog-platform/ui/content/card';
+import { FACT_LIST } from '@b2b-catalog-platform/ui/content/fact-list';
 
 /**
  * One order as staff read it (FR-AUTH-03) — the customer's own page plus what
@@ -114,6 +115,7 @@ const MARK_PAID = 'markPaid';
 @Component({
   selector: 'app-admin-order-detail-page',
   imports: [
+    FACT_LIST,
     Card,
     RouterLink,
     Icon,
@@ -171,9 +173,9 @@ const MARK_PAID = 'markPaid';
               to read: a button is next to its own sentence.
             -->
             <section uiCard class="mt-4 text-sm">
-              <dl class="grid gap-x-6 wrap-break-word sm:grid-cols-[7rem_1fr]">
-                <dt [class]="term">{{ ordersText.account }}</dt>
-                <dd [class]="value">
+              <dl uiFactList terms="narrow">
+                <dt uiFactTerm>{{ ordersText.account }}</dt>
+                <dd uiFactValue>
                   {{ order.customerEmail ?? ordersText.guest }}
                   <!-- A guest reads this order through the link they were
                        mailed and through nothing else, so when they ring to
@@ -194,8 +196,8 @@ const MARK_PAID = 'markPaid';
                      they are (NFR-LEGAL-14). Only where there is something to
                      say: they are gone, or a guest may ask for them to go. -->
                 @if (personalData(); as data) {
-                  <dt [class]="term">{{ text.personalData.heading }}</dt>
-                  <dd [class]="row">
+                  <dt uiFactTerm>{{ text.personalData.heading }}</dt>
+                  <dd uiFactValue class="flex flex-col gap-3">
                     <p class="min-w-0">{{ data.label }}</p>
                     @if (data.removable) {
                       <div [class]="actions">
@@ -215,21 +217,21 @@ const MARK_PAID = 'markPaid';
                     }
                   </dd>
                 }
-                <dt [class]="term">{{ ordersText.tier }}</dt>
-                <dd [class]="value">
+                <dt uiFactTerm>{{ ordersText.tier }}</dt>
+                <dd uiFactValue>
                   {{ order.tierKey ?? ordersText.tierDefault }}
                 </dd>
                 @if (termsLabel(order); as terms) {
-                  <dt [class]="term">{{ pageNames.terms }}</dt>
-                  <dd [class]="value">{{ terms }}</dd>
+                  <dt uiFactTerm>{{ pageNames.terms }}</dt>
+                  <dd uiFactValue>{{ terms }}</dd>
                 }
 
                 <!-- Money before the workflow, and deliberately: recording a
                      payment moves nothing along, and the customer sees it the
                      moment it is recorded. Read under the status it used to
                      sit below, it looked like the next step of one thing. -->
-                <dt [class]="term">{{ names.payment }}</dt>
-                <dd [class]="row">
+                <dt uiFactTerm>{{ names.payment }}</dt>
+                <dd uiFactValue class="flex flex-col gap-3">
                   <p class="min-w-0">
                     {{ paymentLabel(order) }}
                   </p>
@@ -251,8 +253,8 @@ const MARK_PAID = 'markPaid';
                   }
                 </dd>
 
-                <dt [class]="term">{{ names.status }}</dt>
-                <dd [class]="row">
+                <dt uiFactTerm>{{ names.status }}</dt>
+                <dd uiFactValue class="flex flex-col gap-3">
                   <div class="min-w-0">
                     <!-- When it last moved reads as part of where it
                          stands, so it sits beside the badge and wraps under
@@ -348,8 +350,8 @@ const MARK_PAID = 'markPaid';
                      and either half can be left undone by a manager clearing a
                      tick. A screen that only drew itself when something was
                      wrong was one with no way back from that. -->
-                <dt [class]="term">{{ tellText.heading }}</dt>
-                <dd [class]="row">
+                <dt uiFactTerm>{{ tellText.heading }}</dt>
+                <dd uiFactValue class="flex flex-col gap-3">
                   <div class="min-w-0">
                     <!-- Each version the sentence names links at that version,
                          and carries the weight the rest of the line does not:
@@ -387,8 +389,8 @@ const MARK_PAID = 'markPaid';
                      system draws, and the payment details only the shop can
                      give. Here rather than beside the order, because supplying
                      one is something a manager does while answering it. -->
-                <dt [class]="term">{{ documentsText.heading }}</dt>
-                <dd [class]="value">
+                <dt uiFactTerm>{{ documentsText.heading }}</dt>
+                <dd uiFactValue>
                   <app-order-documents-panel
                     [order]="order"
                     [readOnly]="locked()"
@@ -404,8 +406,8 @@ const MARK_PAID = 'markPaid';
                    more than one version: an order nobody has adjusted has no
                    history to read. -->
                 @if (order.revisionNumber > 1) {
-                  <dt [class]="term">{{ revisionText.heading }}</dt>
-                  <dd [class]="value">
+                  <dt uiFactTerm>{{ revisionText.heading }}</dt>
+                  <dd uiFactValue>
                     <div
                       class="rounded-md border"
                       uiDisclosureFrame
@@ -649,21 +651,6 @@ export class AdminOrderDetailPage {
    * button — the documents panel already had a reading mode, and takes it.
    */
   protected readonly locked = computed(() => this.ownership.owns('orders'));
-  /**
-   * The block's rows, spelled the way the account page spells its own: no row
-   * gap, but a margin under each half, so on a narrow screen a label sits
-   * close to its own value and the space falls between the rows rather than
-   * splitting them.
-   */
-  protected readonly term =
-    'text-ink-subtle odd:mb-1 sm:odd:mb-3 nth-last-[2]:mb-0';
-  protected readonly value = 'min-w-0 even:mb-3 last:mb-0';
-  /**
-   * A fact and the control that changes it: the control under the fact it
-   * changes, rather than off to one side of it. Read down, each row is a
-   * thing the order says followed by what can be done about it.
-   */
-  protected readonly row = this.value + ' flex flex-col gap-3';
   /**
    * The controls of one row. They are as wide as their words from `sm` up,
    * and wrap onto a second line when there are more of them than fit; below

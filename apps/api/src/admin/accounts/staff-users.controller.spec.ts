@@ -1,0 +1,496 @@
+import { ConflictException, INestApplication } from '@nestjs/common';
+import { APP_FILTER } from '@nestjs/core';
+import { Test } from '@nestjs/testing';
+import { StaffUsersController } from './staff-users.controller';
+import { StaffUsersService } from '../../core/accounts/staff-users.service';
+import { SignInStep } from '../../core/accounts/sign-in-step/sign-in-step';
+import { AccountInvitations } from '../../core/accounts/account-invitations';
+import { AuditLogger } from '../../audit/audit.logger';
+import { ContractErrorFilter } from '../../orpc/contract-error.filter';
+import { OwnershipState } from '../../settings/ownership-state';
+import { ConsentRecords } from './consent-records';
+import { AccountDeletion } from '../../core/accounts/account-deletion';
+import { SignedInAs, withSession } from '../../platform/auth/session.fixture';
+
+/**
+ * The role boundary is the whole point of this surface, and it is the kind of
+ * rule that only shows itself over HTTP: a manager's refusal has to arrive as
+ * a code the editor can put next to the field, while a staff account they may
+ * not touch has to arrive as a 404 rather than a 403.
+ */
+describe('StaffUsersController', () => {
+  let app: INestApplication;
+  let baseUrl: string;
+  let actor: SignedInAs = { id: 'admin-1', role: 'admin' };
+
+  const list = vi.fn();
+  const findById = vi.fn();
+  const update = vi.fn();
+  const create = vi.fn();
+  const approve = vi.fn();
+  const deactivate = vi.fn();
+  const reactivate = vi.fn();
+  const sendPasswordLink = vi.fn();
+  const purgePending = vi.fn();
+  const findByAccount = vi.fn();
+  const deleteOnRequest = vi.fn();
+  const record = vi.fn();
+  const setSignInStepExemption = vi.fn();
+  /** The roles the deployment lets an admin exempt from the code. */
+  let exemptable: string[] = [];
+  /** Which areas an external system holds, per test. */
+  let ownedAreas: string[] = [];
+
+  const customer = {
+    id: '11111111-1111-4111-8111-111111111111',
+    email: 'jane@example.com',
+    sourceId: null,
+    role: 'user' as const,
+    status: 'active' as const,
+    firstName: 'Jane',
+    lastName: 'Doe',
+    phone: null,
+    customerType: null,
+    companyName: null,
+    companyRegistrationId: null,
+    tierId: null,
+    createdAt: '2026-01-05T09:00:00.000Z',
+    approvedAt: null,
+    approvedBy: null,
+    phoneConfirmedAt: null,
+    signInStepExemptAt: null,
+    signInStepExemptBy: null,
+  };
+  const staffMember = {
+    ...customer,
+    id: '22222222-2222-4222-8222-222222222222',
+    role: 'manager' as const,
+  };
+
+  /** A whole valid edit — the editor always posts the complete field set. */
+  const edit = {
+    firstName: 'Jane',
+    lastName: 'Doe',
+    phone: null,
+    customerType: null,
+    companyName: null,
+    companyRegistrationId: null,
+    tierId: null,
+  };
+
+  beforeAll(async () => {
+    const moduleRef = await withSession(
+      Test.createTestingModule({
+        controllers: [StaffUsersController],
+        providers: [
+          {
+            provide: StaffUsersService,
+            useValue: {
+              list,
+              findById,
+              update,
+              purgePending,
+              approve,
+              reactivate,
+              setSignInStepExemption,
+            },
+          },
+          {
+            provide: SignInStep,
+            useValue: {
+              mayExempt: (role: string) => exemptable.includes(role),
+            },
+          },
+          {
+            provide: AccountInvitations,
+            useValue: { create, deactivate, sendPasswordLink, send: vi.fn() },
+          },
+          { provide: AuditLogger, useValue: { record } },
+          { provide: AccountDeletion, useValue: { deleteOnRequest } },
+          { provide: ConsentRecords, useValue: { findByAccount } },
+          {
+            provide: OwnershipState,
+            useValue: {
+              isExternallyOwned: (area: string) => ownedAreas.includes(area),
+            },
+          },
+          { provide: APP_FILTER, useClass: ContractErrorFilter },
+        ],
+      }),
+      () => actor,
+    ).compile();
+
+    app = moduleRef.createNestApplication();
+    app.setGlobalPrefix('api');
+    await app.listen(0);
+    baseUrl = await app.getUrl();
+  });
+
+  afterAll(async () => {
+    await app.close();
+  });
+
+  beforeEach(() => {
+    actor = { id: 'admin-1', role: 'admin' };
+    ownedAreas = [];
+    list.mockReset();
+    findById.mockReset();
+    update.mockReset();
+    create.mockReset();
+    approve.mockReset();
+    deactivate.mockReset();
+    reactivate.mockReset();
+    sendPasswordLink.mockReset();
+    purgePending.mockReset();
+    findByAccount.mockReset();
+    deleteOnRequest.mockReset();
+    record.mockReset();
+    setSignInStepExemption.mockReset();
+    exemptable = ['manager'];
+  });
+
+  const send = (path: string, method: string, body?: unknown) =>
+    fetch(`${baseUrl}/api${path}`, {
+      method,
+      headers: { 'content-type': 'application/json' },
+      body: body === undefined ? undefined : JSON.stringify(body),
+    });
+
+  // A crafted request, not an honest click: the route guard lets a manager in,
+  // so the narrowing has to happen here.
+  it('forces a manager’s list query down to customers', async () => {
+    actor = { id: 'manager-1', role: 'manager' };
+    list.mockResolvedValue([]);
+
+    const response = await send('/admin/users?kind=staff&role=admin', 'GET');
+
+    expect(response.status).toBe(200);
+    expect(list).toHaveBeenCalledWith(
+      expect.objectContaining({ kind: 'customer', role: undefined }),
+    );
+  });
+
+  it('leaves an admin’s query alone', async () => {
+    list.mockResolvedValue([]);
+
+    await send('/admin/users?kind=staff', 'GET');
+
+    expect(list).toHaveBeenCalledWith(
+      expect.objectContaining({ kind: 'staff' }),
+    );
+  });
+
+  // Not found rather than forbidden: the list hides staff from a manager, so
+  // confirming one exists here would undo that.
+  it('answers 404, not 403, when a manager reaches a staff account', async () => {
+    actor = { id: 'manager-1', role: 'manager' };
+    findById.mockResolvedValue(staffMember);
+
+    const response = await send(`/admin/users/${staffMember.id}`, 'GET');
+
+    expect(response.status).toBe(404);
+    expect(await response.json()).toMatchObject({
+      code: 'account-not-found',
+    });
+  });
+
+  it("lists an account's consents for an admin", async () => {
+    findById.mockResolvedValue(customer);
+    findByAccount.mockResolvedValue([]);
+
+    const response = await send(`/admin/users/${customer.id}/consents`, 'GET');
+
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({ consents: [] });
+    expect(findByAccount).toHaveBeenCalledWith(customer.id);
+  });
+
+  // This one *is* a 403, and its code has to survive: the editor shows it next
+  // to the field that was refused rather than redirecting away from the edit.
+  it('refuses a manager’s role change by name', async () => {
+    actor = { id: 'manager-1', role: 'manager' };
+    findById.mockResolvedValue(customer);
+
+    const response = await send(`/admin/users/${customer.id}`, 'PATCH', {
+      ...edit,
+      role: 'manager',
+    });
+
+    expect(response.status).toBe(403);
+    expect(await response.json()).toMatchObject({
+      defined: true,
+      code: 'role-change-admin-only',
+    });
+    expect(update).not.toHaveBeenCalled();
+  });
+
+  it('refuses a manager creating staff by name', async () => {
+    actor = { id: 'manager-1', role: 'manager' };
+
+    const response = await send('/admin/users', 'POST', {
+      email: 'new@example.com',
+      role: 'manager',
+      tierId: null,
+      firstName: 'New',
+      lastName: 'Colleague',
+    });
+
+    expect(response.status).toBe(403);
+    expect(await response.json()).toMatchObject({
+      defined: true,
+      code: 'staff-create-admin-only',
+    });
+    expect(create).not.toHaveBeenCalled();
+  });
+
+  // The service raises its refusals as Nest exceptions, which oRPC does not
+  // recognise on its own — this is the `refusals` middleware doing its job on
+  // a real route rather than on a probe.
+  it('carries a service refusal through as its declared code', async () => {
+    findById.mockResolvedValue(customer);
+    update.mockRejectedValue(
+      new ConflictException({
+        code: 'last-admin',
+        message: 'This is the only admin account',
+      }),
+    );
+
+    const response = await send(`/admin/users/${customer.id}`, 'PATCH', {
+      ...edit,
+      firstName: 'Janet',
+    });
+
+    expect(response.status).toBe(409);
+    expect(await response.json()).toMatchObject({
+      defined: true,
+      code: 'last-admin',
+    });
+  });
+
+  it('rejects an id that is not a uuid before reaching the service', async () => {
+    const response = await send('/admin/users/not-a-uuid', 'GET');
+
+    expect(response.status).toBe(400);
+    expect(findById).not.toHaveBeenCalled();
+  });
+
+  /**
+   * The area closed whole (FR-ADM-10, FR-AUTH-04 as amended). Written as a
+   * sweep over every write rather than one case per handler, because the rule
+   * being tested is that *nothing* was missed — a per-handler test proves only
+   * the handlers somebody remembered.
+   */
+  describe('while an external system owns customer accounts', () => {
+    beforeEach(() => {
+      ownedAreas = ['customers'];
+      findById.mockResolvedValue(customer);
+    });
+
+    const writes: [string, string, string, unknown?][] = [
+      [
+        'approve',
+        `/admin/users/${customer.id}/approve`,
+        'POST',
+        { tierId: null },
+      ],
+      [
+        'create',
+        '/admin/users',
+        'POST',
+        {
+          email: 'new@example.com',
+          role: 'user',
+          tierId: null,
+          firstName: 'New',
+          lastName: 'Customer',
+        },
+      ],
+      [
+        'edit',
+        `/admin/users/${customer.id}`,
+        'PATCH',
+        { ...edit, firstName: 'Janet' },
+      ],
+      [
+        'deactivate',
+        `/admin/users/${customer.id}/active`,
+        'PATCH',
+        { active: false },
+      ],
+      [
+        'reactivate',
+        `/admin/users/${customer.id}/active`,
+        'PATCH',
+        { active: true },
+      ],
+      ['password link', `/admin/users/${customer.id}/password-link`, 'POST'],
+      ['decline', `/admin/users/${customer.id}`, 'DELETE'],
+    ];
+
+    it.each(writes)('refuses to %s', async (_what, path, method, body) => {
+      const response = await send(path, method, body);
+
+      expect(response.status).toBe(409);
+      expect(await response.json()).toMatchObject({
+        defined: true,
+        code: 'customers-externally-owned',
+      });
+      for (const call of [
+        approve,
+        create,
+        update,
+        deactivate,
+        reactivate,
+        sendPasswordLink,
+        purgePending,
+      ]) {
+        expect(call).not.toHaveBeenCalled();
+      }
+    });
+
+    // The screens stay readable while the actions are refused: staff must see
+    // what a customer sees, and the work counts are read from these rows.
+    it('still answers a read', async () => {
+      list.mockResolvedValue([]);
+
+      expect((await send('/admin/users', 'GET')).status).toBe(200);
+      expect((await send(`/admin/users/${customer.id}`, 'GET')).status).toBe(
+        200,
+      );
+    });
+
+    // An admin who could not appoint another admin would have handed away more
+    // than a customer list.
+    it('leaves staff administration alone', async () => {
+      findById.mockResolvedValue(staffMember);
+      update.mockResolvedValue({ ...staffMember, firstName: 'Janet' });
+      create.mockResolvedValue(staffMember);
+
+      const edited = await send(`/admin/users/${staffMember.id}`, 'PATCH', {
+        ...edit,
+        firstName: 'Janet',
+      });
+      const created = await send('/admin/users', 'POST', {
+        email: 'new@example.com',
+        role: 'manager',
+        tierId: null,
+        firstName: 'New',
+        lastName: 'Colleague',
+      });
+
+      expect(edited.status).toBe(200);
+      expect(created.status).toBe(201);
+    });
+  });
+
+  describe("deleting an account on the person's request (FR-ADM-23)", () => {
+    const path = `/admin/users/${customer.id}/deletion`;
+
+    // The person's right outranks the switch.
+    it('deletes while customers are externally owned, and audits why', async () => {
+      ownedAreas = ['customers'];
+      deleteOnRequest.mockResolvedValue({ ok: true });
+      findById.mockResolvedValue({ ...customer, status: 'anonymized' });
+
+      const response = await send(path, 'POST', {
+        reason: 'consent-withdrawn',
+      });
+
+      expect(response.status).toBe(200);
+      expect((await response.json()).status).toBe('anonymized');
+      expect(deleteOnRequest).toHaveBeenCalledWith(
+        customer.id,
+        actor,
+        'consent-withdrawn',
+      );
+      // The id only: the address is what was just erased.
+      expect(record).toHaveBeenCalledWith('user.deleted', actor, {
+        id: customer.id,
+        reason: 'consent-withdrawn',
+      });
+    });
+
+    it.each([
+      ['pending', 'account-pending', 409],
+      ['self-delete', 'self-delete', 409],
+      ['closed', 'account-closed', 409],
+      ['last-admin', 'last-admin', 409],
+      ['not-found', 'account-not-found', 404],
+    ])('answers %s as %s', async (reason, code, status) => {
+      deleteOnRequest.mockResolvedValue({ ok: false, reason });
+
+      const response = await send(path, 'POST', { reason: 'request' });
+
+      expect(response.status).toBe(status);
+      expect((await response.json()).code).toBe(code);
+      expect(record).not.toHaveBeenCalled();
+    });
+
+    it('rejects a reason it does not know', async () => {
+      const response = await send(path, 'POST', { reason: 'tidy-up' });
+
+      expect(response.status).toBe(400);
+      expect(deleteOnRequest).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('exempting an account from the sign-in code (FR-AUTH-12)', () => {
+    const path = `/admin/users/${staffMember.id}/sign-in-step-exemption`;
+
+    it('exempts a role the deployment allows, and audits it', async () => {
+      findById.mockResolvedValue(staffMember);
+      const exempted = {
+        ...staffMember,
+        signInStepExemptAt: '2026-10-07T10:00:00.000Z',
+        signInStepExemptBy: 'admin@example.com',
+      };
+      setSignInStepExemption.mockResolvedValue(exempted);
+
+      const response = await send(path, 'PUT', { exempt: true });
+
+      expect(response.status).toBe(200);
+      expect(await response.json()).toMatchObject({
+        signInStepExemptBy: 'admin@example.com',
+      });
+      expect(setSignInStepExemption).toHaveBeenCalledWith(
+        staffMember.id,
+        true,
+        actor?.id,
+      );
+      expect(record).toHaveBeenCalledWith('user.signInStepExempted', actor, {
+        id: staffMember.id,
+        name: staffMember.email,
+      });
+    });
+
+    // The rule a deployment is under decides; a click cannot reach past it.
+    it('refuses a role the deployment does not let be exempted', async () => {
+      findById.mockResolvedValue(customer);
+
+      const response = await send(
+        `/admin/users/${customer.id}/sign-in-step-exemption`,
+        'PUT',
+        { exempt: true },
+      );
+
+      expect(response.status).toBe(409);
+      expect((await response.json()).code).toBe('not-exemptable');
+      expect(setSignInStepExemption).not.toHaveBeenCalled();
+    });
+
+    it('always lets an exemption be taken back', async () => {
+      exemptable = [];
+      findById.mockResolvedValue(staffMember);
+      setSignInStepExemption.mockResolvedValue(staffMember);
+
+      const response = await send(path, 'PUT', { exempt: false });
+
+      expect(response.status).toBe(200);
+      expect(record).toHaveBeenCalledWith(
+        'user.signInStepRequired',
+        actor,
+        expect.anything(),
+      );
+    });
+  });
+});

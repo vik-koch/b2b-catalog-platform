@@ -1,11 +1,10 @@
 import { NgTemplateOutlet } from '@angular/common';
 import { Component, inject, input, output } from '@angular/core';
 import { FormField, type FieldTree } from '@angular/forms/signals';
-import { PartySuggestion } from '@b2b-catalog-platform/shared';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
-import { CompanyFields } from '../../shared/parties/company-fields';
+import { CompanyFields } from '../../core/accounts/parties/company-fields';
 import { Field } from '@b2b-catalog-platform/ui/fields/field';
 import { FieldBinding } from '@b2b-catalog-platform/ui/fields/field-binding';
 import { Input } from '@b2b-catalog-platform/ui/inputs/input';
@@ -67,8 +66,6 @@ import { ContactAnswers, PartyAnswers } from './checkout-forms';
           nameInputId="party-companyName"
           [idField]="partyField().companyId"
           [nameField]="partyField().companyName"
-          [text]="companyText"
-          (picked)="picked.emit($event)"
         />
         <ng-container [ngTemplateOutlet]="reach" />
       } @else {
@@ -132,16 +129,10 @@ export class GuestDetails {
     label: this.partyChoice[value],
   }));
 
-  protected readonly companyText = {
-    idLabel: this.fields.companyId.label,
-    nameLabel: this.fields.companyName.label,
-  };
-
   readonly party = input.required<Party>();
   /** The page's form decides what each answer must be. */
   readonly partyField = input.required<FieldTree<PartyAnswers>>();
   readonly contact = input.required<FieldTree<ContactAnswers>>();
 
   readonly partyChange = output<Party>();
-  readonly picked = output<PartySuggestion>();
 }

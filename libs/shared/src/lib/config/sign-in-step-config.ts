@@ -1,7 +1,8 @@
 // Namespace import, not `{ z }`: the named form defeats tree shaking and
 // pulls zod's 63 locale files into the bundle (colinhacks/zod#6050).
 import * as z from 'zod';
-import { SIGN_IN_STEP_MODES, USER_ROLES } from '../accounts/auth-constants';
+import { SIGN_IN_STEP_MODES } from '../../core/accounts/auth';
+import { USER_ROLES } from '../../platform/session';
 
 /**
  * The second sign-in step (FR-AUTH-12): how often a code is asked for, and of

@@ -12,12 +12,11 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import type { Response } from 'express';
 import {
-  AuthUser,
   ORDER_DOCUMENT_MAX_UPLOAD_BYTES,
   OrderDetail,
 } from '@b2b-catalog-platform/shared';
-import { Auth } from '../auth/auth.decorator';
-import { CurrentUser } from '../auth/current-user.decorator';
+import { Auth } from '../platform/auth/auth.decorator';
+import { CurrentUser } from '../platform/auth/current-user.decorator';
 import { OrderDocumentActs, orderDocumentKind } from './order-document-acts';
 import {
   OrderDocumentsService,
@@ -26,6 +25,7 @@ import {
 import { ordersExternallyOwned } from '../settings/ownership.refusals';
 import { OwnershipState } from '../settings/ownership-state';
 import { OrdersService } from './orders.service';
+import { AuthUser } from '@b2b-catalog-platform/shared/platform';
 
 /**
  * An order's documents (FR-ORD-05, FR-CART-05, FR-ACC-02, ADR 0052).

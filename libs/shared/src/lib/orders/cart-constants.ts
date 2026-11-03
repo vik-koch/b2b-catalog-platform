@@ -1,7 +1,7 @@
 /**
  * Cart limits both sides share. Plain data with no imports, so a component that
  * needs a maximum does not pull the cart schemas — and Zod — along with it
- * (see `auth-constants.ts` for why).
+ *.
  */
 
 /**

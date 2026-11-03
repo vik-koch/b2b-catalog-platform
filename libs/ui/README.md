@@ -48,7 +48,7 @@ by module, so a barrel would carry everything behind it into the first load.
 | --- | --- |
 | `actions/` | Buttons and links: `uiButton`, `uiIconButton`, `uiTextButton`, `uiDiscButton`, `uiLink`, `uiActionLink`, `ClearFiltersButton` and the shared `uiButtonBox` |
 | `choices/` | Inputs that pick a value: `uiCheckbox`, `uiRadio`, `Switch`, `uiTickable`, `uiTickLabel`, `ChoiceCard`, `ChoiceBranch`, `Segmented` with `uiSegment` and `uiSegmentGroup` |
-| `content/` | What a page shows rather than asks: `PageHeader`, `uiPageTitle`, `uiPageIntro`, `uiNotice`, `WarningNote`, `EmptyState`, `Skeleton`, `uiStatusBadge`, `HintBadge`, `EmphasisedText`, `uiCard`, `uiMarkedCard`, `uiFrame`, `ImagePlaceholder`, `Breadcrumbs`, `uiPageSectionTitle`, `uiSectionTitle`, `uiDocumentLink` |
+| `content/` | What a page shows rather than asks: `PageHeader`, `uiPageTitle`, `uiPageIntro`, `uiNotice`, `WarningNote`, `EmptyState`, `Skeleton`, `uiStatusBadge`, `HintBadge`, `EmphasisedText`, `uiCard`, `uiMarkedCard`, `uiFrame`, `uiFactList`, `Outcome`, `ImagePlaceholder`, `Breadcrumbs`, `uiPageSectionTitle`, `uiSectionTitle`, `uiDocumentLink` |
 | `core/` | What the pieces share and draw nothing: `fill`, the `UI_TEXT` token, `debounced`, the narrow-screen query, `brokenImages`, the swipe step |
 | `disclosure/` | What opens and closes: `DisclosureToggle`, `uiDisclosureFrame`, `disclosureState`, `Collapsible`, `ShowMoreToggle`, `ShowMoreList`, `uiDetailsSummary` |
 | `fields/` | The labelled unit around an input: `Field`, `FieldGroup`, `FieldStatus`, `FieldBinding`, `uiFieldLabel`, `uiFieldAction`, `SubmitAttempt`, `uiErrorText`, `uiHint`, `HoneypotField`, and `FORM_FIELDS` to import them with Signal Forms |
@@ -57,7 +57,7 @@ by module, so a barrel would carry everything behind it into the first load.
 | `inputs/` | What holds a typed value: `uiInput`, `SelectInput`, `DateInput`, `UnitInput` with `uiUnitInputControl`, `CodeInput`, `PhoneInput`, `uiInputPrefix`; and what shapes a control: `uiAllow` with `numericRules`, `uiDigitMask`, `uiAutoGrow`, `uiFileTarget`, `uiDropZone` |
 | `lists/` | Short lists and paging: `RecordRow`, `uiRecordFields`, `uiRecordFormActions`, `Pagination` |
 | `overlay/` | What opens over the page: `ConfirmService` with `ConfirmDialog`, `uiDialogPanel`, `uiDialogTitle`, `uiDialogActions`, `Popover` |
-| `suggest/` | The type-ahead combobox: `SuggestField` with `uiSuggestInput` and `uiSuggestRow`, the `SuggestList` state behind it, `HighlightedLine` for a matched row |
+| `suggest/` | The type-ahead combobox: `SuggestField` with `uiSuggestInput` and `uiSuggestRow`, the `SuggestList` state behind it, `Suggestion` for a row (its matched line through `HighlightedLine`, and a caption) |
 | `ui.css` | Tailwind, the breakpoints, the type weight, the colour roles and the pieces' own animations; the app's stylesheet imports it |
 
 ## Checking

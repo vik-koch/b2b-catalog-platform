@@ -1,13 +1,15 @@
 import { computed, inject, Signal } from '@angular/core';
 import {
-  AddressInput,
   fillText,
   moneyFormat,
   formatMoneyMinor,
 } from '@b2b-catalog-platform/shared';
 import { unitQuantity } from '@b2b-catalog-platform/shared/core/catalog';
-import { AddressForm } from '../../shared/addresses/address-form';
-import { addressLines } from '../../shared/addresses/address-format';
+import { AddressForm } from '../../core/accounts/addresses/address-form';
+import {
+  addressLines,
+  AddressInput,
+} from '@b2b-catalog-platform/shared/core/accounts';
 import { CartService, CartStoredLine } from '../../shared/cart/cart.service';
 import { formatUnitQuantity } from '../../core/catalog/buying/quantity';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';

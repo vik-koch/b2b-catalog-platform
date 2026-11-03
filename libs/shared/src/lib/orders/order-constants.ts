@@ -1,7 +1,7 @@
 /**
  * What an order may say and how much of it. Plain data with no imports, so
  * checkout does not pull the order schemas — and Zod — into the first load
- * (see `auth-constants.ts` for why).
+ *.
  */
 
 /**
