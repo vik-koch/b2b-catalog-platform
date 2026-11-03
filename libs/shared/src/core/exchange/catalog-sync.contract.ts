@@ -1,3 +1,9 @@
+/**
+ * The catalog import contract (FR-ADM-02, FR-ADM-07): the rows a run carries,
+ * what it may write, and the diff it computes. Kept apart from the read
+ * contract and the storage schema and held stable: a deployment's converter
+ * absorbs a changing export. CSV and JSON are two encodings of the same rows.
+ */
 import { oc } from '@orpc/contract';
 import * as z from 'zod';
 import {
@@ -27,41 +33,10 @@ import {
 } from '../catalog/products';
 import { TIER_KEY_MAX_LENGTH } from '../catalog/tiers';
 
-/**
- * The bulk catalog sync: the rows a run carries and the diff it computes.
- *
- * This file is the *import contract*: the row shape a run consumes and the
- * per-run intent that decides what a run may write. It is deliberately
- * independent of both the public read contract and the storage schema,
- * and it is the one shape promised to stay stable — a client-specific converter
- * turns the raw export into it, so a changing export costs an adapter,
- * never a contract change.
- *
- * CSV and JSON are two *encodings* of the same rows; both decode into
- * `CatalogSyncRow[]` and run through the same validator, differ and applier.
- *
- * What is **not** here is everything a run has in common with a customer run:
- * the run record, its statuses and counts (`sync-run.contract.ts`) and the
- * routes that read, apply and discard one (`sync.contract.ts`), which serve
- * every area from one screen. The seam is the same one the API draws — a
- * shared run controller over a service per area.
- */
-
-// --- The row -------------------------------------------------------------
-
-/**
- * A price-list key: `default` for the base list, otherwise a
- * `customer_tiers.key`.
- *
- * Deliberately **not** an enum. Tier keys are a deployment's own commercial
- * vocabulary, so listing them here would put client business terms in the
- * public repo and make "the client added a price list" a code change and a
- * release. This validates only the *shape* a key can have; whether it names
- * something is settled against the database by the sync validator, exactly as
- * `categorySourceId` is. That is what lets this contract stay stable for good,
- * which is what 0026 promised.
- */
-export const catalogSyncPriceListKeySchema = z
+/** A tier key, or `DEFAULT_PRICE_LIST_ALIAS`. Not an enum: keys are each
+ * deployment's own rows, so only the shape is checked here and the differ
+ * checks that one exists. */
+const catalogSyncPriceListKeySchema = z
   .string()
   .trim()
   .min(1)
@@ -69,21 +44,11 @@ export const catalogSyncPriceListKeySchema = z
 export type CatalogSyncPriceListKey = string;
 
 /**
- * One product from the source, keyed by the private `sourceId` (ADR 0022).
- * Every other field is optional: a run carrying only prices is a first-class
- * run, not a special case. Absent is *not* empty — an absent field is left
- * untouched, never cleared.
- *
- * Prices are integer **minor units** (matching the read contract and storage):
- * the API is deliberately currency-agnostic — it knows no locale, no ISO code
- * and no minor-unit exponent — so major→minor conversion belongs to the
- * converter, which does know the deployment's currency.
- *
- * A category is identified by its own private `categorySourceId`; the export
- * carries no parent path, so `categoryName` is the *leaf* name and the parent
- * is assigned by hand in the admin UI. The two travel together — an id without
- * a name cannot create the category, and a name without an id cannot say which
- * category it renames — so a row carries both or neither.
+ * One product from the source, keyed by its `sourceId`. An absent field is
+ * left untouched, never cleared, so a prices-only run is an ordinary run.
+ * Prices are minor units: the API knows no currency, so the converter scales
+ * them. A category comes as its leaf name and key, both or neither: the export
+ * has no parent path, and an admin places a new category in the tree.
  */
 export const catalogSyncRowSchema = z
   .object({
@@ -101,32 +66,15 @@ export const catalogSyncRowSchema = z
       .min(1)
       .max(CATEGORY_NAME_MAX_LENGTH)
       .optional(),
-    /**
-     * Per price list, in minor units. Only the keys present are written: a
-     * file that carries `price:wholesale` and nothing else leaves the base
-     * price and every other list untouched.
-     *
-     * A zero is refused as a row error rather than by this schema: it is a
-     * mistake in one line of a file, and one bad line never fails a whole
-     * catalog here.
-     */
+    /** Only the lists present are written. A zero is a row error, not a
+     * schema error: one bad line never fails a whole catalog. */
     prices: z
       .record(catalogSyncPriceListKeySchema, priceMinorSchema)
       .optional(),
-    /**
-     * Pieces on hand (FR-STOCK-01). Not bounded below — a stocktake correction
-     * may leave a figure negative, and the state reads that as none in stock.
-     * Absent is untouched, as everywhere else here: a run cannot stop tracking
-     * a product's stock by leaving the cell empty, only by an admin clearing
-     * the field.
-     */
+    /** Pieces on hand (FR-STOCK-01). May be negative after a stocktake
+     * correction, which reads as none in stock. */
     stockPieces: z.number().int().optional(),
-    /**
-     * The product's own tax rate, a percent (NFR-LEGAL-11). Null puts it back
-     * on the deployment's default — unlike stock, a product always has a
-     * rate, so clearing one is a value the source has to be able to send.
-     * Absent is untouched.
-     */
+    /** A percent (NFR-LEGAL-11); null is the deployment's default rate. */
     taxRate: taxRateSchema.nullable().optional(),
   })
   .strict()
@@ -141,16 +89,9 @@ export const catalogSyncRowSchema = z
   );
 export type CatalogSyncRow = z.infer<typeof catalogSyncRowSchema>;
 
-// --- CSV encoding --------------------------------------------------------
-
-/**
- * CSV column headers, so the parser, the converter and the admin help text
- * agree on one spelling. The header row is required and order-independent;
- * price columns are `price:<listKey>`, with a bare `price` accepted as an alias
- * for `price:default` so a single-price export stays readable in a spreadsheet.
- * Which list keys exist is a per-deployment question, so the parser accepts any
- * `price:` column and the validator decides whether it names a tier.
- */
+/** The CSV headers: a required header row in any order. Prices are
+ * `price:<key>`; a bare `price` means the default list. Any `price:` column
+ * parses, and the differ decides whether it names a tier. */
 export const CATALOG_SYNC_CSV_COLUMNS = {
   sourceId: 'sourceId',
   name: 'name',
@@ -162,29 +103,16 @@ export const CATALOG_SYNC_CSV_COLUMNS = {
   taxRate: 'taxRate',
 } as const;
 
-/** `price:default` etc. — the canonical spelling of a price column. */
+/** The canonical spelling of a price column. */
 export function syncPriceColumn(key: CatalogSyncPriceListKey): string {
   return `${CATALOG_SYNC_CSV_COLUMNS.pricePrefix}${key}`;
 }
 
-// --- Per-run intent ------------------------------------------------------
-
-/**
- * Non-price fields a run may write. Prices are self-describing (a run writes
- * exactly the price-list keys its rows carry), so they are not listed here.
- */
+/** The non-price fields; a run writes exactly the price lists its rows carry. */
 export const catalogSyncFieldSchema = z.enum(CATALOG_SYNC_FIELDS);
-export type CatalogSyncField = z.infer<typeof catalogSyncFieldSchema>;
 
-/**
- * What a run is allowed to do. Anything not declared here is not written, so a
- * price-only run can never clobber an admin's rename.
- *
- * The one dangerous option is gated: `softDeleteMissingProducts` requires
- * `productSetAuthoritative` — an explicit claim that the file is the *complete*
- * catalog. Authority over the product set, not the size of the field set, is
- * the precondition deletion actually needs.
- */
+/** What a run may do; nothing undeclared is written. Deleting requires the
+ * claim that the file is the complete catalog. */
 export const catalogSyncOptionsSchema = z
   .object({
     /** Non-price fields this run writes. Empty = prices only. */
@@ -195,11 +123,8 @@ export const catalogSyncOptionsSchema = z
     updateExisting: z.boolean().default(true),
     /** A soft-deleted product reappearing in the file is restored. */
     restoreReturning: z.boolean().default(true),
-    /**
-     * Create categories the file names but the catalog does not have. They are
-     * created **unparented** (as roots) for an admin to place in the tree — the
-     * export carries no hierarchy. Off means an unknown category is a row error.
-     */
+    /** Created as roots for an admin to place. Off: an unknown category is a
+     * row error. */
     createCategories: z.boolean().default(true),
     /** "This file is the complete catalog." Required to delete anything. */
     productSetAuthoritative: z.boolean().default(false),
@@ -215,11 +140,8 @@ export const catalogSyncOptionsSchema = z
   });
 export type CatalogSyncOptions = z.infer<typeof catalogSyncOptionsSchema>;
 
-// --- The diff ------------------------------------------------------------
-
-/** One field's before → after. Prices arrive as minor-unit numbers so the UI
- * can format them with the deployment's currency; everything else is text. */
-export const catalogSyncFieldChangeSchema = z
+/** Prices are minor units, for the screen to format; the rest is text. */
+const catalogSyncFieldChangeSchema = z
   .object({
     /** `name`, `category`, `stock`, `taxRate`, or `price:<listKey>`. */
     field: z.string(),
@@ -227,19 +149,16 @@ export const catalogSyncFieldChangeSchema = z
     to: z.union([z.string(), z.number(), z.null()]),
   })
   .strict();
-export type CatalogSyncFieldChange = z.infer<
-  typeof catalogSyncFieldChangeSchema
->;
 
-export const catalogSyncProductChangeSchema = z
+const catalogSyncProductChangeSchema = z
   .object({
     kind: z.enum(['create', 'update', 'softDelete', 'restore']),
     sourceId: z.string(),
     /** The product's name after the run (or its current one, for a delete). */
     name: z.string(),
-    /** Null for a product this run creates — it has no URL yet. */
+    /** Null for a product this run creates. */
     slug: z.string().nullable(),
-    /** Empty for create/softDelete/restore, which are self-describing. */
+    /** Empty for create, softDelete and restore. */
     changes: z.array(catalogSyncFieldChangeSchema),
   })
   .strict();
@@ -247,10 +166,9 @@ export type CatalogSyncProductChange = z.infer<
   typeof catalogSyncProductChangeSchema
 >;
 
-export const catalogSyncCategoryChangeSchema = z
+const catalogSyncCategoryChangeSchema = z
   .object({
-    /** `create` or `rename` — a sync never deletes a category. Renaming is
-     * safe because identity is the `categorySourceId`, not the name. */
+    /** A sync never deletes a category. */
     kind: z.enum(['create', 'rename']),
     /** The name after the run. */
     name: z.string(),
@@ -260,50 +178,38 @@ export const catalogSyncCategoryChangeSchema = z
     productCount: z.number().int().nonnegative(),
   })
   .strict();
-export type CatalogSyncCategoryChange = z.infer<
-  typeof catalogSyncCategoryChangeSchema
->;
 
-/** A category left with no live products by this run. Reported only — removal
- * is a deliberate admin action (FR-ADM-01), never a sync's. */
-export const catalogSyncEmptiedCategorySchema = z
+/** Reported only: removing it is an admin's act (FR-ADM-01). */
+const catalogSyncEmptiedCategorySchema = z
   .object({ slug: z.string(), name: z.string() })
   .strict();
 
-/**
- * Why one row was skipped. Same discipline as every other refusal: a code the
- * screen switches on, with `params` naming the things in the admin's own file
- * that the sentence has to quote back at them.
- */
-export const CATALOG_SYNC_ROW_ERROR_CODES = [
+/** Why a row was skipped; `params` quote the file back in the sentence. */
+const CATALOG_SYNC_ROW_ERROR_CODES = [
   'missing-source-id',
   /** The same sourceId twice in one file. */
   'duplicate-source-id',
-  /** `{category}` — one half of the category pair without the other. */
+  /** `{category}`: one half of the category pair without the other. */
   'category-id-without-name',
   'category-name-without-id',
   /** `{price}` and `{column}` */
   'price-not-an-integer',
-  /** `{column}` — a zero price, which is no price rather than a free product. */
+  /** `{column}` */
   'price-is-zero',
-  /** `{stock}` — a stock cell that is not a whole number. */
+  /** `{stock}` */
   'stock-not-an-integer',
-  /** `{taxRate}` — a rate cell that is not a percent from 0 to 100 with at
-   * most two decimals. */
+  /** `{taxRate}`: not a percent from 0 to 100 with two decimals at most. */
   'tax-rate-invalid',
   /** `{key}` and `{known}` */
   'unknown-price-list',
-  /** `{key}`, `{first}` and `{second}` — the file names one category twice. */
+  /** `{key}`, `{first}` and `{second}`: one category under two names. */
   'category-name-conflict',
-  /** `{name}` and `{key}` — and the run does not create categories. */
+  /** `{name}` and `{key}`, on a run that does not create categories. */
   'unknown-category',
   'cannot-create-product',
 ] as const;
-export type CatalogSyncRowErrorCode =
-  (typeof CATALOG_SYNC_ROW_ERROR_CODES)[number];
 
-/** A row that could not be applied. The run still previews and commits; these
- * rows are skipped, so one bad line never fails a whole catalog. */
+/** A skipped row; the rest of the run still applies. */
 export const catalogSyncRowErrorSchema = z
   .object({
     /** 1-based line number in the uploaded file (header excluded). */
@@ -322,7 +228,7 @@ export const catalogSyncPlanSchema = z
     products: z.array(catalogSyncProductChangeSchema),
     categories: z.array(catalogSyncCategoryChangeSchema),
     emptiedCategories: z.array(catalogSyncEmptiedCategorySchema),
-    /** Kept `manual:` products, for an informed exclusion rather than a silent one. */
+    /** `manual:` products the delete sweep kept. */
     keptManual: z.array(
       z.object({ sourceId: z.string(), name: z.string() }).strict(),
     ),
@@ -333,48 +239,26 @@ export const catalogSyncPlanSchema = z
   .strict();
 export type CatalogSyncPlan = z.infer<typeof catalogSyncPlanSchema>;
 
-/** What a preview returns: the staged run plus the plan it computed. */
-export const catalogSyncPreviewResponseSchema = z
+const catalogSyncPreviewResponseSchema = z
   .object({ run: syncRunSchema, plan: catalogSyncPlanSchema })
   .strict();
 export type CatalogSyncPreviewResponse = z.infer<
   typeof catalogSyncPreviewResponseSchema
 >;
 
-// --- The headless surface ------------------------------------------------
-
-/**
- * What an automated client submits (FR-ADM-07). The same rows and the same
- * per-run intent a manual upload carries — this is one entry point onto one
- * engine, not a second importer — encoded as JSON rather than as a file,
- * because the thing on the other end is a converter and not a spreadsheet.
- */
-export const catalogSyncSubmissionSchema = z
+/** A headless run (FR-ADM-07): an upload's rows and intent, as JSON. */
+const catalogSyncSubmissionSchema = z
   .object({
     rows: z.array(catalogSyncRowSchema).max(SYNC_MAX_ROWS),
-    /** Absent means the defaults, exactly as an upload's absent options do. */
+    /** Absent means the defaults, as for an upload. */
     options: catalogSyncOptionsSchema.optional(),
-    /**
-     * What to call this run in the log, where an upload has a filename. The
-     * caller's own words — a source file's name, an export's timestamp — kept
-     * as a label and never interpreted.
-     */
+    /** The run's name in the log, where an upload has a filename. */
     label: z.string().trim().min(1).max(SYNC_LABEL_MAX_LENGTH).optional(),
-    /**
-     * "Stage this even if it would otherwise apply." A client sets it when it
-     * cannot fully vouch for what it parsed. The platform does not ask why:
-     * knowing the reason would mean knowing the format, which is the adapter's
-     * business and deliberately not this repository's.
-     */
+    /** Stage even if the policy would apply it: the client cannot vouch for
+     * what it parsed. */
     requestReview: z.boolean().default(false),
-    /**
-     * Anything the caller wants a person to read beside this run, in its own
-     * words. It is the counterpart of a failure report for a run that did
-     * produce rows: what it had to leave out, what looked stale, why it asked
-     * to be doubted. Recorded and shown, never parsed — and on its own it
-     * decides nothing, so a client can explain itself without its run being
-     * held back for it. `requestReview` remains the only way to ask for that.
-     */
+    /** The caller's note for a person, shown beside the run. It decides
+     * nothing: only `requestReview` holds a run back. */
     notice: z
       .string()
       .trim()
@@ -385,53 +269,34 @@ export const catalogSyncSubmissionSchema = z
   .strict();
 export type CatalogSyncSubmission = z.infer<typeof catalogSyncSubmissionSchema>;
 
-/**
- * What a submitted run answers with: the run, and the diff it staged or
- * applied. `run.status` is what the caller reads — `applied` means the catalog
- * has moved, `previewed` means a person now has to look, and `run.stagedReason`
- * says which of the two reasons that was.
- */
-export const catalogSyncSubmitResponseSchema = z
+/** `run.status` says whether it applied or waits for a person, and
+ * `run.stagedReason` why. */
+const catalogSyncSubmitResponseSchema = z
   .object({ run: syncRunSchema, plan: catalogSyncPlanSchema })
   .strict();
 export type CatalogSyncSubmitResponse = z.infer<
   typeof catalogSyncSubmitResponseSchema
 >;
 
-/** Authenticated by the token alone; no cookie reaches these. */
+/** Token only; refused while the shop writes the catalog itself. */
 const machine = oc.errors({
   ...machineAuthErrors,
-  // The other half of the mutual exclusion: while nobody has handed the
-  // catalog over, the shop is writing it by hand and an automated client is
-  // not welcome to. Distinct from the auth refusals beside it — the token is
-  // good, the platform is simply not listening on this area.
   'catalog-not-externally-owned':
     ownershipErrors['catalog-not-externally-owned'],
 });
 
-/**
- * A read carries no instruction, so it is not gated on who owns the catalog.
- * Reading a run back while the shop has taken the catalog into its own hands
- * is exactly when a source most needs the answer — its last submission is
- * being refused, and the log is where it finds out that is deliberate.
- */
+/** Not gated on ownership: a source refused after a hand-back most needs to
+ * read why. */
 const machineRead = oc.errors(machineAuthErrors);
 
-/**
- * The machine half of the sync surface: submit a catalog, report that you
- * could not produce one, or read back what became of a run.
- *
- * There is deliberately no commit route here. An automated client never
- * presses apply — either its run was within the deployment's policy and
- * applied itself, or a person applies it.
- */
+/** No commit route: a run applies itself within the policy, or a person
+ * applies it. */
 export const machineCatalogSyncContract = {
   submitRun: machine
     .route({
       method: 'POST',
       path: '/machine/sync/runs',
-      // A run is created whichever way the policy decides, exactly as the
-      // upload creates one.
+      // A run is created whichever way the policy decides.
       successStatus: 201,
       inputStructure: 'detailed',
       summary: 'Submit a catalog import (machine)',
@@ -439,12 +304,8 @@ export const machineCatalogSyncContract = {
     .input(z.object({ body: catalogSyncSubmissionSchema }))
     .output(catalogSyncSubmitResponseSchema),
 
-  /**
-   * A run that never happened, recorded so that a broken exchange looks like
-   * something rather than like silence. A feed that stops sending is
-   * indistinguishable from a feed with nothing to send; this is how the
-   * difference reaches the admin panel.
-   */
+  /** A run that never happened, so a broken feed does not look like one
+   * with nothing to send. */
   reportFailure: machine
     .route({
       method: 'POST',
@@ -456,25 +317,9 @@ export const machineCatalogSyncContract = {
     .input(z.object({ body: syncFailureReportSchema }))
     .output(z.object({ run: syncRunSchema }).strict()),
 
-  /**
-   * What became of a run (FR-ADM-09).
-   *
-   * The submission's own answer is only ever the first word: a run within the
-   * deployment's policy applied itself and said so, but one outside it was
-   * staged for a person, and what happens next happens without the sender.
-   * Worse, a staged run is *superseded* by the next submission — which is the
-   * right behaviour, since only the freshest diff is worth applying — so a
-   * source polling every quarter of an hour would go on replacing the run
-   * somebody was about to read and never learn why nothing ever landed. This
-   * is how it finds out, and how it knows to stop sending until a person has
-   * answered.
-   *
-   * Scoped to this credential's **area** rather than to the credential that
-   * submitted the run. A token is rotated, and a source that rotated one last
-   * night is the same source this morning: keying the read to the submitter
-   * would need a rule about inheriting history that nothing else here has.
-   * The area is what the scope on the token already means.
-   */
+  /** What became of a run (FR-ADM-09): a staged run is superseded by the
+   * next submission, so a source learns here to wait for a person. Scoped to
+   * the token's area, not the token: a rotated token is the same source. */
   getRun: machineRead
     .route({
       method: 'GET',

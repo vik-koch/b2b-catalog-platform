@@ -1,68 +1,34 @@
 import * as z from 'zod';
 import { SyncStagedReason, SyncSummary } from './sync-run.contract';
 
-/**
- * When an automated catalog run applies itself (FR-ADM-07).
- *
- * A run is judged by its **effect**, not by its shape: the diff is computed
- * exactly as a manual upload's is, and these ceilings decide whether it is
- * committed there and then or left staged for an admin to read. A field
- * whitelist says what a run may touch, which is a statement about intent; a
- * diff says what it will do, which is the thing worth a person's attention.
- *
- * The numbers are deployment config because the right ones are a property of
- * the catalog rather than of the software — a shop adding two products a week
- * and one importing a seasonal range disagree about what a suspicious run is,
- * and neither should need a release to say so.
- */
-/**
- * A handful of new groupings is an ordinary export growing; a dozen is a
- * reorganisation, and those are worth reading before they land.
- */
+/** A handful of new categories is an export growing; a dozen is a
+ * reorganisation worth reading first. */
 const DEFAULT_MAX_CATEGORIES_CREATED = 5;
 
-/**
- * Zero for the same reason deletions are: it is an effect that takes part of
- * the storefront apart, and an operator who wants it unattended should have to
- * write the number down.
- */
+/** Zero, like deletions: an operator wanting it unattended writes the
+ * number down. */
 const DEFAULT_MAX_CATEGORIES_EMPTIED = 0;
 
+/** When an automated catalog run applies itself (FR-ADM-07), judged by its
+ * diff. Deployment config: what looks suspicious depends on the catalog. */
 export const syncPolicySchema = z
   .object({
     /** Products this run may create before it needs a person. */
     maxCreates: z.number().int().nonnegative(),
-    /**
-     * Products it may hide. Zero is a reasonable value: a sweep that removes
-     * anything is the case this whole mechanism exists for.
-     */
+    /** Products it may hide. */
     maxSoftDeletes: z.number().int().nonnegative(),
-    /**
-     * The share of the live catalog one run may touch, 0–1. Catches the export
-     * that was filtered wrongly and now rewrites everything, which no absolute
-     * ceiling notices in a catalog of about 1,500.
-     */
+    /** The share of the live catalog one run may touch, 0 to 1: catches a
+     * wrongly filtered export no absolute ceiling notices. */
     maxChangedShare: z.number().min(0).max(1),
-    /**
-     * Categories it may add. A feed that keeps adding groupings is either
-     * reorganising upstream or keying them wrongly, and the diff cannot tell
-     * the two apart — which is the argument for a person rather than a rule.
-     *
-     * Defaulted, like the ceiling below it, so a deployment that wrote its
-     * policy down before these existed keeps loading.
-     */
+    /** Categories it may add. Defaulted, like the next, so an older
+     * deployment's policy still loads. */
     maxCategoriesCreated: z
       .number()
       .int()
       .nonnegative()
       .default(DEFAULT_MAX_CATEGORIES_CREATED),
-    /**
-     * Categories it may leave empty, whether by moving their products or by
-     * sweeping them. The counterpart to `maxSoftDeletes`: a product vanishing
-     * and the group it was filed under vanishing are the same class of event
-     * from the storefront's side, and a regrouping shows up here even when
-     * every product survives and the share ceiling sees nothing.
-     */
+    /** Categories it may leave empty: a regrouping shows here even when every
+     * product survives. */
     maxCategoriesEmptied: z
       .number()
       .int()
@@ -72,16 +38,8 @@ export const syncPolicySchema = z
   .strict();
 export type SyncPolicy = z.infer<typeof syncPolicySchema>;
 
-/**
- * What a deployment that declares nothing gets: loose, except for deletions.
- *
- * Thresholds set too tight produce a standing queue of staged runs nobody
- * reads, which is worse than no policy at all — so the defaults let the boring
- * case through and are tightened once a deployment knows its own noise. The
- * exceptions are the two that take the storefront apart — hiding a product and
- * emptying a category — which stay at zero: an operator who wants either
- * unattended should have to write the number down.
- */
+/** Loose, as a standing queue nobody reads is worse than no policy, except
+ * hiding products and emptying categories. */
 export const DEFAULT_SYNC_POLICY: SyncPolicy = {
   maxCreates: 100,
   maxSoftDeletes: 0,
@@ -90,17 +48,8 @@ export const DEFAULT_SYNC_POLICY: SyncPolicy = {
   maxCategoriesEmptied: DEFAULT_MAX_CATEGORIES_EMPTIED,
 };
 
-/**
- * Whether a run applies itself, and if not, why not.
- *
- * `requested` wins over `policy` when both hold: the caller asking to be
- * doubted is a statement about whether the *input* can be trusted, which is a
- * different and more serious thing than a run being large.
- *
- * `liveProducts` is the catalog before the run. Zero — a first import into an
- * empty catalog — scores no share at all rather than a full one: there is
- * nothing there to endanger, and the creates ceiling is what judges it.
- */
+/** Null to apply, or why not; `requested` outranks `policy`. An empty
+ * catalog scores no share: the creates ceiling judges a first import. */
 export function decideAutoApply(
   summary: SyncSummary,
   liveProducts: number,
@@ -121,72 +70,30 @@ export function decideAutoApply(
   return null;
 }
 
-/**
- * When an automated **customer** run applies itself (FR-ADM-11).
- *
- * Its own ceilings rather than the catalog's, because the two areas do not
- * measure the same kind of harm. A catalog run that goes wrong mis-prices
- * things until somebody notices; a customer run that goes wrong mails a
- * hundred strangers a link to an account they never asked for, or takes a
- * hundred customers' sign-in away. Both are recoverable, and neither is
- * recoverable quietly.
- *
- * There is no share ceiling for accounts and no category one. The share
- * ceiling exists to catch an export that was filtered wrongly and now rewrites
- * everything, which is a shape a customer list does not have: the ordinary
- * run touches the handful of people whose details moved, so the absolute
- * ceilings already describe the suspicious case.
- */
-/** A first import is a few dozen people; a feed's ordinary night is one or
- * two. Above this, somebody reads it first. */
+/** A feed's ordinary night is one or two people. */
 const DEFAULT_MAX_INVITES = 25;
 
-/** See `maxDisables`. */
 const DEFAULT_MAX_DISABLES = 0;
 
-/**
- * Claims a run may make unattended (FR-ADM-17). Zero, so the default is that a
- * run adopting an account somebody registered here waits for a person — the
- * danger it guards is a mistyped address upstream taking over a real
- * customer's account and then tiering or disabling them inside a run nobody
- * read. An operator bringing a customer book in for the first time writes the
- * number down, which is the moment they decide it is safe.
- */
+/** Zero: a mistyped address upstream would take over a real customer's
+ * account in a run nobody read. */
 const DEFAULT_MAX_CLAIMS = 0;
 
-/**
- * Claims by the platform's own account identifier (FR-ADM-17). Zero as well,
- * and for a reason that is *not* "an identifier is as doubtful as an address".
- * It is not: the platform issued it, the source system can only have learned
- * it by reading the accounts out, and nobody typed it in. What it is not safe
- * against is the mistake that actually happens — a local mapping pointing at
- * the wrong account — and that mistake is as damaging either way.
- *
- * It has its own number rather than sharing `maxClaims` because the two
- * deserve different answers, which one number cannot give: a deployment that
- * trusts its source's mapping wants identifier claims to flow and every match
- * on a mere address to wait for a person.
- */
+/** Zero too: an id nobody typed can still sit in a wrong mapping upstream.
+ * Its own number, so a deployment may trust ids and not addresses. */
 const DEFAULT_MAX_ID_CLAIMS = 0;
 
+/** When an automated customer run applies itself (FR-ADM-11). No share
+ * ceiling: an ordinary run touches a handful of people. */
 export const customerSyncPolicySchema = z
   .object({
-    /**
-     * Accounts this run may invite before it needs a person. Low by default
-     * and low on purpose: every one of them is a mail to somebody, and a feed
-     * that suddenly wants to invite the whole customer list is either a first
-     * import — which an admin should watch — or a bug.
-     */
+    /** Each invite is a mail to somebody. */
     maxInvites: z.number().int().nonnegative().default(DEFAULT_MAX_INVITES),
-    /**
-     * Accounts it may switch off. Zero for the reason `maxSoftDeletes` is
-     * zero: it is the effect that takes something away from somebody, and an
-     * operator who wants it unattended should have to write the number down.
-     */
+    /** Zero by default, like `maxSoftDeletes`. */
     maxDisables: z.number().int().nonnegative().default(DEFAULT_MAX_DISABLES),
-    /** Accounts it may claim by address. See `DEFAULT_MAX_CLAIMS`. */
+    /** Claims by address. */
     maxClaims: z.number().int().nonnegative().default(DEFAULT_MAX_CLAIMS),
-    /** Accounts it may claim by identifier. See `DEFAULT_MAX_ID_CLAIMS`. */
+    /** Claims by the platform's id. */
     maxIdClaims: z.number().int().nonnegative().default(DEFAULT_MAX_ID_CLAIMS),
   })
   .strict();
@@ -199,17 +106,8 @@ export const DEFAULT_CUSTOMER_SYNC_POLICY: CustomerSyncPolicy = {
   maxIdClaims: DEFAULT_MAX_ID_CLAIMS,
 };
 
-/**
- * Whether a customer run applies itself, and if not, why not. The same shape
- * of decision the catalog's makes, and the same precedence: a caller asking to
- * be doubted outranks a run merely being large.
- *
- * Mails sent on request (`sendPasswordLink`) are deliberately not counted
- * here. A link goes to an address the person already holds an account at, says
- * nothing a stranger could act on, and is the one instruction a run carries
- * that a *person* in the other system pressed a button for — holding it for
- * review would leave somebody waiting for a mail while a queue is read.
- */
+/** As `decideAutoApply`. Requested links are not counted: they go to the
+ * account's own address, at a person's request upstream. */
 export function decideCustomerAutoApply(
   summary: SyncSummary,
   policy: CustomerSyncPolicy,
