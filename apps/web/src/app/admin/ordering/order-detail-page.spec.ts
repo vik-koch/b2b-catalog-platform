@@ -161,7 +161,8 @@ async function render(
   const get = vi.fn(() =>
     answer === 'reject'
       ? Promise.reject(new Error('500'))
-      : Promise.resolve(answer),
+      : // A copy per call, as every response off the wire is a new object.
+        Promise.resolve(answer && { ...answer }),
   );
 
   TestBed.resetTestingModule();
