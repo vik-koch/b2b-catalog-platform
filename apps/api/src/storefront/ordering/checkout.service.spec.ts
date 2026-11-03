@@ -31,7 +31,9 @@ import { CustomerType } from '@b2b-catalog-platform/shared/core/accounts';
  * with a *new* one rather than the same one.
  */
 
-/** €19.99 per ten pieces, ten to a pack — the product the cart is priced from. */
+/**
+ * €19.99 per ten pieces, ten to a pack — the product the cart is priced from.
+ */
 const product = {
   id: 'product-1',
   slug: 'hafen-espresso',
@@ -103,7 +105,9 @@ function testDb(
     },
     where: () => Promise.resolve(asked === productPairings ? pairings : rows),
   };
-  /** The party an account is registered as, for a submission that names none. */
+  /**
+   * The party an account is registered as, for a submission that names none.
+   */
   const account = {
     from: () => account,
     where: () => account,

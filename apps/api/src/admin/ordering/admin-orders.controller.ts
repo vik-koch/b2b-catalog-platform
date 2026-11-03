@@ -14,13 +14,9 @@ import { StaffOrdersService } from './staff-orders.service';
 import { AuthUser } from '@b2b-catalog-platform/shared/platform';
 
 /**
- * The staff view of order requests (FR-AUTH-03), and the moves a manager makes
- * on them (FR-ORD-01/02/04).
- *
- * The same service as the customer's own routes, so the two views cannot
- * describe an order differently; what separates them is the contract, which
- * lets only this one carry the piece price, the private source id and the tier
- * the order was priced from.
+ * Staff reading and answering orders (FR-AUTH-03, FR-ORD-01..04). The reads
+ * share the customer's projection; the contract decides that only this view
+ * carries the line prices and the price list.
  */
 @Auth('admin', 'manager')
 @Controller()
@@ -35,13 +31,9 @@ export class AdminOrdersController {
   ) {}
 
   /**
-   * Every act on an order, closed in one place while an external system owns
-   * order processing (FR-ADM-10) — the moves, the adjustment and the preview
-   * that only exists to be applied, the payment tick, and telling the customer.
-   *
-   * Not a guard: nothing about the caller decides it, and it is a state the
-   * platform is in rather than a permission they lack. The reads above it stay
-   * open, because staff have to be able to see what the customer sees.
+   * Every act on an order, closed while an external system owns order
+   * processing (FR-ADM-10). Not a guard: it is the platform's state, not the
+   * caller's permission. Reads stay open.
    */
   private refuseIfOwned(action: string): void {
     if (this.ownership.isExternallyOwned('orders')) {
@@ -74,13 +66,8 @@ export class AdminOrdersController {
   }
 
   /**
-   * Whether the move is allowed is the service's answer, not this controller's
-   * — the transition table is asked in one place for every caller. What lives
-   * here is the record of what a person did: the audit lines.
-   *
-   * The mail cannot fail the transition, exactly as the receipt cannot fail an
-   * order: the row is the record, and a manager who accepted an order accepted
-   * it whether or not SMTP was reachable.
+   * Whether the move is allowed is the service's answer; here is the audit. The
+   * mail cannot fail the move.
    */
   @Implement(adminOrdersContract.transitionOrder)
   transitionOrder(@CurrentUser() actor: AuthUser) {
@@ -98,9 +85,8 @@ export class AdminOrdersController {
           status: order.status,
           revision: order.revisionNumber,
         });
-        // A move that also recorded the money is two things a manager did, so
-        // it is two lines: a filter asking which orders were paid, and when,
-        // must not have to know that some payments arrived through a move.
+        // Two acts, two lines: a filter for payments must not need to know some
+        // arrived through a move.
         if (body.markPaid) {
           this.audit.record('order.paid', actor, {
             reference: order.reference,
@@ -142,13 +128,8 @@ export class AdminOrdersController {
   }
 
   /**
-   * A new version of the order (FR-ORD-03). Audited by the version it wrote,
-   * since that is the thing that now exists — the reference alone would not
-   * say which of an order's versions a line refers to.
-   *
-   * Nothing is mailed here. Whether the customer hears about a change is the
-   * service's decision, taken with the move that follows it or with the
-   * `notify` flag this carries.
+   * A new version of the order (FR-ORD-03), audited by its number: the
+   * reference alone does not say which version. Mails only where `notify` asks.
    */
   @Implement(adminOrdersContract.adjustOrder)
   adjustOrder(@CurrentUser() actor: AuthUser) {
@@ -170,9 +151,10 @@ export class AdminOrdersController {
       });
   }
 
-  /** Show the customer where the order got to, and tell them if asked
-   * (FR-NOTIF-03) — for the change no move will ever mention, and for the
-   * message somebody decided against and then thought better of. */
+  /**
+   * Brings the customer's page up and mails them if asked (FR-NOTIF-03): for
+   * the change no move will mention, or a mail somebody decided against.
+   */
   @Implement(adminOrdersContract.notifyOrderCustomer)
   notifyOrderCustomer(@CurrentUser() actor: AuthUser) {
     return implement(adminOrdersContract.notifyOrderCustomer)
@@ -205,18 +187,15 @@ export class AdminOrdersController {
         this.audit.record(body.paid ? 'order.paid' : 'order.unpaid', actor, {
           reference: order.reference,
         });
-        // Deliberately no mail either way: nothing about the order changed for
-        // the customer, and being written to because the shop ticked a box off
-        // — or unticked one it should not have — is noise. The order's own
-        // page says what it owes.
+        // No mail either way: a ticked or unticked box changes nothing for the
+        // customer, and their page says what is owed.
         return order;
       });
   }
 
   /**
-   * A guest's request to have their details removed (NFR-LEGAL-14). An
-   * admin's alone, since it cannot be undone, and never refused by the
-   * ownership switch: the person's right outranks it.
+   * A guest's request to remove their details (NFR-LEGAL-14): an admin's alone,
+   * and never refused by the ownership switch.
    */
   @Auth('admin')
   @Implement(adminOrdersContract.removeOrderPersonalData)

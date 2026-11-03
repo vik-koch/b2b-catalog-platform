@@ -12,19 +12,10 @@ import {
 import { OrderReader } from './order-reader';
 
 /**
- * Reading an order's documents (FR-ORD-05, FR-CART-05, FR-ACC-02, ADR 0052).
- *
- * Not an oRPC contract, for the same reason the media upload is not: what
- * travels here is raw bytes, which the JSON contracts do not model. What each
- * order *carries* is on the order itself, in the contract, so a screen knows
- * what it may open without asking here.
- *
- * The access rule is the order's own, and it is enforced by *reading the
- * order* the way this caller is entitled to read it: staff read any order,
- * a customer only their own, and a mailed link only through its token. A
- * reader who cannot get the order cannot get the document. Staff and
- * customers share the route, which is why it sits in core; supplying and
- * removing files is staff's alone.
+ * Reading an order's documents (FR-ORD-05, FR-ACC-02, ADR 0052): raw bytes, so
+ * not an oRPC contract. Access is the order's own, enforced by reading the
+ * order as this caller may: staff any, a customer their own, a link by its
+ * token. Shared by staff and customers, hence core.
  */
 @Controller('order-documents')
 export class OrderDocumentsController {
@@ -34,9 +25,8 @@ export class OrderDocumentsController {
   ) {}
 
   /**
-   * Staff and the customer who placed it. Which version the summary is drawn
-   * from follows from which read succeeded: staff get the current one, a
-   * customer the one their own page shows.
+   * Staff get the current version's summary, a customer the one their page
+   * shows.
    */
   @Auth()
   @Get(':reference/:kind')
@@ -61,9 +51,7 @@ export class OrderDocumentsController {
     );
   }
 
-  /** The mailed link's way in (FR-NOTIF-06): the token is the credential, and
-   * it resolves the same order and the same entitled version the page it came
-   * with shows. */
+  /** The mailed link's way in (FR-NOTIF-06): the version its page shows. */
   @Get('by-token/:token/:kind')
   async getByToken(
     @Param('token') token: string,
@@ -82,11 +70,7 @@ export class OrderDocumentsController {
     );
   }
 
-  /**
-   * Inline rather than as a download: a customer opening their order summary
-   * wants to look at it, and a browser that saved it instead would have them
-   * hunting in a folder for a file they meant to read.
-   */
+  /** Inline: a customer opening their summary wants to read it. */
   private serve(response: Response, document: ServedDocument): void {
     response
       .status(200)
@@ -95,9 +79,7 @@ export class OrderDocumentsController {
         'Content-Disposition',
         `inline; filename*=UTF-8''${encodeURIComponent(document.fileName)}`,
       )
-      // Nothing caches a document about one person: it is regenerated on
-      // demand and cheap, and a shared cache holding it is exactly what
-      // keeping it off the public prefix was for.
+      // A document about one person is never cached by anybody else.
       .setHeader('Cache-Control', 'private, no-store')
       .send(document.bytes);
   }

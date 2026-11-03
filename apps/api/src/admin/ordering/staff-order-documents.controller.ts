@@ -35,11 +35,8 @@ export class StaffOrderDocumentsController {
   ) {}
 
   /**
-   * Supplying a file, sending it and taking it back off are acts on the order
-   * like any other, so they close with the rest of them while an external
-   * system owns order processing (FR-ADM-10) — which is the same moment that
-   * system's own route opens. Reading stays open: the document is part of what
-   * staff must be able to see.
+   * Closed with every other act while an external system owns orders
+   * (FR-ADM-10), the moment that system's own route opens. Reading stays open.
    */
   private refuseIfOwned(action: string): void {
     if (this.ownership.isExternallyOwned('orders')) {
@@ -48,12 +45,8 @@ export class StaffOrderDocumentsController {
   }
 
   /**
-   * File a document against an order.
-   *
-   * `notify` is accepted but not what the admin screen uses — telling the
-   * customer is its own act, below, and can be repeated. It stays on the
-   * upload for the system that posts a file and a message in one exchange,
-   * which has nobody to ask.
+   * `notify` is for a system posting a file and a message in one exchange; the
+   * admin screen tells the customer as its own act.
    */
   @Auth('admin', 'manager')
   @Post(':reference/:kind')
@@ -78,13 +71,9 @@ export class StaffOrderDocumentsController {
   }
 
   /**
-   * Tell the customer about a document that is already filed (FR-ORD-05).
-   *
-   * A button of its own rather than a tick on the upload: a manager uploads a
-   * file when they have it and writes to the customer when the order is ready
-   * to be written to, and those are not always the same minute. It can be
-   * pressed again — a customer who lost the mail is asking for it a second
-   * time, not for a new document.
+   * Tells the customer about a filed document (FR-ORD-05): its own button,
+   * since a file and the moment to write about it rarely coincide. Repeatable:
+   * a lost mail is asked for again.
    */
   @Auth('admin', 'manager')
   @Post(':reference/:kind/notify')

@@ -12,17 +12,10 @@ import * as schema from '../../db/schema';
 import { priceCart } from '../../core/ordering/cart-pricing';
 
 /**
- * Pricing the browser's cart (FR-CART-01/02).
- *
- * `OptionalAuthGuard` directly rather than the `@TierPriced()` composite: that
- * one also marks the response as session-varying for shared caches, which says
- * nothing about a POST. A guest is still priced — from the default list, and
- * without ever being told tiers exist.
- *
- * Throttled like search: this is called when the cart page loads and when
- * signing in re-prices what is held, not per keystroke — and it is an
- * unauthenticated N-product lookup, which the contract's `CART_LINES_MAX`
- * bounds as well.
+ * Pricing the browser's cart (FR-CART-01/02). `OptionalAuthGuard` rather than
+ * `@TierPriced()`: a POST is not cached, so nothing varies by session. A guest
+ * is priced from the default list. Throttled like search: an unauthenticated
+ * N-product lookup.
  */
 @Controller()
 export class CartController {
@@ -43,9 +36,7 @@ export class CartController {
           tierId,
           this.tax,
         );
-        // A priced cart with advisories, never a refusal: a stale cart is a
-        // normal state to be shown, and nothing here changes what the browser
-        // holds.
+        // Advisories, never a refusal: a stale cart is a state to show.
         return preview;
       },
     );

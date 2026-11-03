@@ -22,33 +22,15 @@ import {
 import { OrderReader } from '../../core/ordering/order-reader';
 
 /**
- * The shop's own paperwork, arriving from the system that produces it
- * (FR-ORD-05, FR-ADM-08).
+ * The shop's own paperwork from the system that prints it (FR-ORD-05,
+ * FR-ADM-08).
  *
- * **Bytes, not markup.** What the source system prints — the payment invoice,
- * the delivery note — is a real document with the shop's own layout on it, and
- * the exchange format has no slot to carry it. So it is posted here as a file
- * and stored as it arrived: a PDF the platform drew from exchange data would
- * be a second lookalike of the shop's paperwork, drifting away from the first.
- * The platform draws only what it has the data for, which is the order summary
- * it already draws.
+ * - Bytes, not markup: stored as it arrived, never redrawn from exchange data.
+ * - Outside the run: no version, no `sync_runs` row (ADR 0051, ADR 0062).
+ * - The `order-sync` scope: filing the invoice is the same pen as answering.
  *
- * **Outside the run.** A document writes no version (ADR 0051) and files no
- * `sync_runs` row: nothing about the order changed, so "one exchange writes at
- * most one version" (ADR 0062) survives untouched, and the write-back next
- * door stays a pure statement about the order.
- *
- * **`order-sync`, not a capability of its own.** Filing the shop's invoice
- * against an order is the same pen as answering it — a credential trusted to
- * say an order is confirmed is trusted to say what its invoice looks like, and
- * a second scope would be one more box to tick for no decision anybody makes
- * separately.
- *
- * The ordering rule the adapter follows: **supply the file before the version
- * that announces it**, so one message carries both. Where the back office
- * cannot produce the invoice until after it has accepted the order, the
- * document's own `notify` sends it as a second message — the acceptance mail
- * is never held for a file that may never arrive.
+ * The adapter supplies the file before the version that announces it, so one
+ * mail carries both; a late invoice uses the document's own `notify`.
  */
 @Machine('order-sync')
 @MachineThrottle()
@@ -61,10 +43,8 @@ export class MachineOrderDocumentsController {
   ) {}
 
   /**
-   * The mirror of the refusal the admin panel meets (FR-ADM-10): a document is
-   * the shop's statement about an order, and while the shop is answering its
-   * own orders nobody else files one. The same pair the write-back has, so a
-   * credential cannot reach past the switch by a different door.
+   * The mirror of the admin panel's refusal (FR-ADM-10): only the side that
+   * owns orders files documents, so no credential reaches past the switch.
    */
   private refuseUnlessOwned(): void {
     if (!this.ownership.isExternallyOwned('orders')) {
@@ -73,12 +53,8 @@ export class MachineOrderDocumentsController {
   }
 
   /**
-   * File a document against an order, replacing whatever was there of that
-   * kind.
-   *
-   * `notify` is required rather than defaulted, as it is on the write-back and
-   * for the same reason: whether the customer hears about this is the shop's
-   * decision, and a default would quietly take it for them.
+   * Files a document, replacing any of that kind. `notify` is required, as on
+   * the write-back: whether the customer hears is the shop's decision.
    */
   @Post(':reference/documents/:kind')
   @UseInterceptors(
@@ -108,10 +84,8 @@ export class MachineOrderDocumentsController {
   }
 
   /**
-   * Take one back off — the correction for a file posted against the wrong
-   * order or superseded by a reprint. It exists here because while the area is
-   * owned there is nobody else who could: the admin panel's own delete is
-   * refused under exactly this setting.
+   * Takes one off: for a file on the wrong order or superseded. While orders
+   * are owned nobody else can, the panel's delete is refused.
    */
   @Delete(':reference/documents/:kind')
   async remove(

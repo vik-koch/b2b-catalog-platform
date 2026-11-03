@@ -22,11 +22,8 @@ import { PairingUnsatisfiedException } from '../../core/ordering/pairing-unsatis
 import { AuthUser } from '@b2b-catalog-platform/shared/platform';
 
 /**
- * Placing an order request and reading it back.
- *
- * Submission is public: a guest orders too (FR-CART-03), so the route reads a
- * session where one is offered — for the customer's own prices and to link the
- * order to the account — and never requires one.
+ * Placing an order and reading it back. Submission reads a session where one
+ * is offered and never requires one: a guest orders too (FR-CART-03).
  */
 @Controller()
 export class OrdersController {
@@ -49,19 +46,15 @@ export class OrdersController {
     return implement(ordersContract.submitOrder)
       .use(refusals)
       .handler(async ({ input: { body }, errors }) => {
-        // ADR 0015's honeypot: a bot fills it, a person never sees it. Refused
-        // rather than silently accepted — unlike the inquiry form, an order the
-        // customer believes was placed and was not is worse than a plain
-        // refusal.
+        // ADR 0015's honeypot. Refused, not silently accepted: an order the
+        // customer believes was placed is worse than a refusal.
         if (body.website) {
           this.logger.warn('Rejected order: honeypot field populated');
           throw errors.rejected({ message: 'Rejected' });
         }
 
-        // Staff do not buy. Role is authorization and tier is pricing (they are
-        // separate fields for exactly this reason), so a staff session has no
-        // tier to be priced at and no party to invoice — and the request would
-        // arrive in the inbox they are the ones answering.
+        // Staff do not buy: role is not a pricing tier, and nobody would be
+        // invoiced.
         if (user && user.role !== 'user') {
           throw errors['staff-cannot-order']({
             message: 'A staff account cannot place an order request',
@@ -124,11 +117,8 @@ export class OrdersController {
   }
 
   /**
-   * The customer calling their own order off (FR-ORD-02).
-   *
-   * Whether they still may is the transition table's answer, asked in the
-   * service like every other caller's — the button the page draws is that same
-   * table read in the browser, and this is what makes it a rule.
+   * The customer calling their own order off (FR-ORD-02). Whether they still
+   * may is the transition table's answer, asked in the service.
    */
   @Auth()
   @Implement(ordersContract.cancelMyOrder)
@@ -145,19 +135,15 @@ export class OrdersController {
           reference: order.reference,
           status: order.status,
         });
-        // No mail either way. The customer is the one who just did it, and
-        // the shop reads it in the order list, where a cancelled order sorts
-        // out of the queue on its own. A cancellation the shop should have
-        // heard about sooner is a mail worth adding — say so when it happens.
+        // The shop is mailed by the service (FR-NOTIF-07); the customer, who
+        // just did it, is not.
         return order;
       });
   }
 
   /**
-   * The token is the credential (FR-NOTIF-06), so no guard and no session:
-   * whoever holds the mailed link holds the order summary. Which is exactly why
-   * it is throttled (NFR-SEC-06) — an unguessable token stays unguessable, and
-   * nothing honest reads this endpoint in a loop.
+   * The token is the credential (FR-NOTIF-06): no guard, no session. Throttled
+   * (NFR-SEC-06): nothing honest reads this in a loop.
    */
   @OrderTokenThrottle()
   @Implement(ordersContract.getOrderByToken)
