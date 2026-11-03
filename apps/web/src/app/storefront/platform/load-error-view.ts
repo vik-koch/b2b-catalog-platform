@@ -1,7 +1,6 @@
 import { Component, inject, input, RESPONSE_INIT } from '@angular/core';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
-import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
-import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
+import { Outcome } from '@b2b-catalog-platform/ui/content/outcome';
 
 /**
  * Shown when a page's data could not be loaded — the API is down, or answered
@@ -17,11 +16,13 @@ import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
  */
 @Component({
   selector: 'app-load-error-view',
-  imports: [PageTitle, PageIntro],
+  imports: [Outcome],
   template: `
-    @if (heading()) {
-      <h1 uiPageTitle>{{ heading() }}</h1>
-      <p uiPageIntro class="mt-4">{{ message() ?? text.cannotLoadBody }}</p>
+    @if (heading(); as heading) {
+      <ui-outcome
+        [title]="heading"
+        [message]="message() ?? text.cannotLoadBody"
+      />
     } @else {
       <p class="text-ink-subtle">{{ message() ?? text.cannotLoadBody }}</p>
     }

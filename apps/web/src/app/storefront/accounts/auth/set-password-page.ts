@@ -23,6 +23,7 @@ import { ConsentField } from '../../site/consent-field';
 import { useConsent } from '../../site/consent';
 import { SHARED_TEXT } from '../../../shared/config/shared-text';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
+import { Outcome } from '@b2b-catalog-platform/ui/content/outcome';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { Hint } from '@b2b-catalog-platform/ui/fields/hint';
 import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
@@ -56,6 +57,7 @@ type Status =
 @Component({
   selector: 'app-set-password-page',
   imports: [
+    Outcome,
     AuthCard,
     ConsentField,
     FORM_FIELDS,
@@ -76,45 +78,34 @@ type Status =
           <app-sign-in-step (done)="land()" />
         }
         @case ('code-failed') {
-          <h1 uiPageTitle class="mb-4">
-            {{ step.codeHeading }}
-          </h1>
-          <p uiPageIntro role="alert">{{ codeFailure() }}</p>
-          <a uiButton routerLink="/login" class="mt-8">
-            {{ step.restartAction }}
-          </a>
+          <ui-outcome
+            [title]="step.codeHeading"
+            [message]="codeFailure()"
+            role="alert"
+          >
+            <a uiButton routerLink="/login">{{ step.restartAction }}</a>
+          </ui-outcome>
         }
         @case ('checking') {
           <p class="text-ink-subtle">{{ text.checking }}</p>
         }
         @case ('expired') {
-          <h1 uiPageTitle class="mb-4">
-            {{ text.expiredHeading }}
-          </h1>
-          <p uiPageIntro>{{ text.expired }}</p>
-          <!-- The copy has always told them to ask for a new link; now there
-               is one to click. Primary, because it is the way out of here —
-               signing in is what they could not do in the first place. -->
-          <div class="mt-8 flex flex-wrap items-center gap-3">
+          <!-- A new link is primary: signing in is what they could not do in
+               the first place. -->
+          <ui-outcome [title]="text.expiredHeading" [message]="text.expired">
             <a uiButton routerLink="/forgot-password">
               {{ auth.forgotPassword.submit }}
             </a>
             <a uiButton variant="secondary" routerLink="/login">
               {{ auth.login }}
             </a>
-          </div>
+          </ui-outcome>
         }
         @case ('closed') {
-          <h1 uiPageTitle class="mb-4">
-            {{ text.closedHeading }}
-          </h1>
-          <p uiPageIntro>{{ text.closed }}</p>
+          <ui-outcome [title]="text.closedHeading" [message]="text.closed" />
         }
         @case ('done') {
-          <h1 uiPageTitle class="mb-4">
-            {{ text.successHeading }}
-          </h1>
-          <p uiPageIntro>{{ text.success }}</p>
+          <ui-outcome [title]="text.successHeading" [message]="text.success" />
         }
         @default {
           <h1 uiPageTitle class="mb-2">

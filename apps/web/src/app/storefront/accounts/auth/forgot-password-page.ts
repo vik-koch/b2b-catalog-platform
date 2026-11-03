@@ -12,6 +12,7 @@ import { AuthCard } from './auth-card';
 import { AuthService } from '../../../shared/auth/auth.service';
 import { TextButton } from '@b2b-catalog-platform/ui/actions/text-button';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
+import { Outcome } from '@b2b-catalog-platform/ui/content/outcome';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
 
@@ -30,6 +31,7 @@ type Status = 'idle' | 'success' | 'error';
 @Component({
   selector: 'app-forgot-password-page',
   imports: [
+    Outcome,
     AuthCard,
     FORM_FIELDS,
     RouterLink,
@@ -43,13 +45,15 @@ type Status = 'idle' | 'success' | 'error';
   template: `
     <app-auth-card>
       @if (status() === 'success') {
-        <h1 uiPageTitle class="mb-2">
-          {{ text.successHeading }}
-        </h1>
-        <p uiPageIntro role="status">{{ text.success }}</p>
-        <a uiButton variant="secondary" routerLink="/login" class="mt-8">
-          {{ text.backToLogin }}
-        </a>
+        <ui-outcome
+          [title]="text.successHeading"
+          [message]="text.success"
+          role="status"
+        >
+          <a uiButton variant="secondary" routerLink="/login">
+            {{ text.backToLogin }}
+          </a>
+        </ui-outcome>
       } @else {
         <h1 uiPageTitle class="mb-2">
           {{ text.heading }}

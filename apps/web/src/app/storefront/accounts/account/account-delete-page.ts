@@ -11,6 +11,7 @@ import { Input } from '@b2b-catalog-platform/ui/inputs/input';
 import { AccountService } from './account.service';
 import { SHARED_TEXT } from '../../../shared/config/shared-text';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
+import { Outcome } from '@b2b-catalog-platform/ui/content/outcome';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
 
@@ -30,6 +31,7 @@ type Status = 'idle' | 'submitting' | 'wrong-password' | 'last-admin' | 'error';
 @Component({
   selector: 'app-account-delete-page',
   imports: [
+    Outcome,
     FORM_FIELDS,
     RouterLink,
     Button,
@@ -41,11 +43,9 @@ type Status = 'idle' | 'submitting' | 'wrong-password' | 'last-admin' | 'error';
   template: `
     <div class="max-w-xl">
       @if (deleted()) {
-        <h1 uiPageTitle class="mb-4">
-          {{ text.doneHeading }}
-        </h1>
-        <p uiPageIntro>{{ text.done }}</p>
-        <a uiButton routerLink="/" class="mt-8">{{ home }}</a>
+        <ui-outcome [title]="text.doneHeading" [message]="text.done">
+          <a uiButton routerLink="/">{{ home }}</a>
+        </ui-outcome>
       } @else {
         <h1 uiPageTitle class="mb-2">
           {{ text.heading }}

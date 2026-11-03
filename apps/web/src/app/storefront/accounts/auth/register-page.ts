@@ -24,6 +24,7 @@ import { Link } from '@b2b-catalog-platform/ui/actions/link';
 import { ConsentField } from '../../site/consent-field';
 import { useConsent } from '../../site/consent';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
+import { Outcome } from '@b2b-catalog-platform/ui/content/outcome';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
 import {
@@ -62,6 +63,7 @@ interface Registration {
 @Component({
   selector: 'app-register-page',
   imports: [
+    Outcome,
     HoneypotField,
     AuthCard,
     ConsentField,
@@ -80,13 +82,12 @@ interface Registration {
   template: `
     <app-auth-card>
       @if (status() === 'success') {
-        <h1 uiPageTitle class="mb-4">
-          {{ text.register.successHeading }}
-        </h1>
-        <p uiPageIntro>{{ text.register.success }}</p>
-        <a uiButton variant="secondary" routerLink="/" class="mt-8">
-          {{ home }}
-        </a>
+        <ui-outcome
+          [title]="text.register.successHeading"
+          [message]="text.register.success"
+        >
+          <a uiButton variant="secondary" routerLink="/">{{ home }}</a>
+        </ui-outcome>
       } @else {
         <h1 uiPageTitle class="mb-2">
           {{ text.register.heading }}

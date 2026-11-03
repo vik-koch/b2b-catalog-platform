@@ -13,7 +13,7 @@ import { AuthService } from '../../../shared/auth/auth.service';
 import { CallWait } from './call-wait';
 import { CodeEntry, formatWait } from './code-entry';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
-import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
+import { Outcome } from '@b2b-catalog-platform/ui/content/outcome';
 
 export { formatWait };
 
@@ -28,14 +28,12 @@ export { formatWait };
  */
 @Component({
   selector: 'app-sign-in-step',
-  imports: [RouterLink, Button, CallWait, CodeEntry, PageTitle, PageIntro],
+  imports: [Outcome, RouterLink, Button, CallWait, CodeEntry, PageTitle],
   template: `
     @if (restart()) {
-      <h1 uiPageTitle class="mb-4">
-        {{ heading() }}
-      </h1>
-      <p uiPageIntro role="alert">{{ text.restart }}</p>
-      <a uiButton routerLink="/login" class="mt-8">{{ text.restartAction }}</a>
+      <ui-outcome [title]="heading()" [message]="text.restart" role="alert">
+        <a uiButton routerLink="/login">{{ text.restartAction }}</a>
+      </ui-outcome>
     } @else if (step(); as step) {
       @if (step.step === 'call') {
         <h1 uiPageTitle class="mb-2">
