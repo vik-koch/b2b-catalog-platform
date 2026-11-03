@@ -144,12 +144,16 @@ export interface AdjustLineRow {
                   <span class="block text-sm text-ink-subtle">
                     {{ line.quantityLabel }}
                   </span>
-                  <span class="block">{{ line.totalLabel }}</span>
-                  @if (line.taxLabel) {
-                    <span class="block text-xs text-ink-subtle">
-                      {{ line.taxLabel }}
-                    </span>
-                  }
+                  <!-- The rate on the total's line, so the row keeps the two
+                       lines its bars hold. -->
+                  <span class="block">
+                    @if (line.taxLabel) {
+                      <span class="mr-1.5 text-xs text-ink-subtle">
+                        {{ line.taxLabel }}
+                      </span>
+                    }
+                    {{ line.totalLabel }}
+                  </span>
                 } @else {
                   <!-- Bars shaped like the two lines, right-aligned. -->
                   <span class="block w-20">

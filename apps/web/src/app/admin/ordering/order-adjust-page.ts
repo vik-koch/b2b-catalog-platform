@@ -25,23 +25,16 @@ import {
   OrderAdjustment,
   OrderAdjustmentPreview,
 } from '@b2b-catalog-platform/shared/core/ordering';
-import { ProductUnit } from '@b2b-catalog-platform/shared/core/catalog';
 import { AdminProductListItem } from '@b2b-catalog-platform/shared/admin/catalog';
-import { AddressFields } from '../../core/accounts/addresses/address-fields';
 import {
-  AddressDraft,
   AddressForm,
   blankAddress,
   injectAddressRules,
 } from '../../core/accounts/addresses/address-form';
-import { CompanyFields } from '../../core/accounts/parties/company-fields';
 import { companyIdFormat } from '../../core/accounts/parties/company-id';
 import { canonicalPhone, typedPhone } from '../../shared/core/contact-fields';
 import { completeMask, emailAddress } from '../../shared/core/field-rules';
-import {
-  formatPriceInput,
-  parsePriceInput,
-} from '../../core/catalog/pricing/price';
+import { formatPriceInput } from '../../core/catalog/pricing/price';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { staffBlockLabels } from './staff-block-labels';
@@ -64,20 +57,26 @@ import {
   FIELD_ATTEMPT,
 } from '@b2b-catalog-platform/ui/fields/field-attempt';
 import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
-import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
 import { Input } from '@b2b-catalog-platform/ui/inputs/input';
-import { PhoneInput } from '@b2b-catalog-platform/ui/inputs/phone-input';
 import { submitAttempt } from '@b2b-catalog-platform/ui/fields/submit-attempt';
-import {
-  SegmentOption,
-  Segmented,
-} from '@b2b-catalog-platform/ui/choices/segmented';
 import { SelectInput } from '@b2b-catalog-platform/ui/inputs/select-input';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import { WarningNote } from '@b2b-catalog-platform/ui/content/warning-note';
 import { TiersService } from '../catalog/tiers/tiers.service';
 import { OrderAdjustChanges, OrderChange } from './ui/order-adjust-changes';
 import { AdjustLineRow, OrderAdjustLines } from './order-adjust-lines';
+import { OrderAdjustDetails } from './ui/order-adjust-details';
+import {
+  AdjustAnswers,
+  DraftLine,
+  draftLines,
+  draftPrice,
+  offList,
+  PartyKind,
+  paymentOptions,
+  priceNotices,
+  REFUSAL_PART,
+} from './order-adjust-draft';
 import { orderBlockChanges, orderLineChanges } from './order-changes';
 import { customerQuantity } from '../../core/ordering/order-formats';
 import { LockedNote } from '../ownership/locked-note';
@@ -87,48 +86,6 @@ import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { Hint } from '@b2b-catalog-platform/ui/fields/hint';
 import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
-
-/** One line as the form holds it, before the server has priced it. */
-interface DraftLine {
-  /** Stable, so a row and its cursor survive reordering and removal. */
-  key: string;
-  slug: string;
-  name: string;
-  pieces: number;
-  /** The customer's reading; null on a line staff added. */
-  unit: ProductUnit | null;
-  note: string | null;
-  priceText: string;
-  /** Waiting for the list's price: sent without one, which asks the server to
-   * price it; the answer fills the field, so a manager rounds it rather than
-   * retyping. */
-  fromList: boolean;
-}
-
-/** Which fold a refusal is said in, beside its fields. */
-const REFUSAL_PART: Record<AdjustmentRefusal, 'lines' | 'details'> = {
-  'unknown-product': 'lines',
-  'unknown-tier': 'lines',
-  'invalid-company-id': 'details',
-  'billing-details-required': 'details',
-  'cash-not-available': 'details',
-  'billing-address-required': 'details',
-  'customer-type-not-accepted': 'details',
-  'unsupported-country': 'details',
-  'invalid-postal-code': 'details',
-  'unknown-pickup-location': 'details',
-  'order-changed': 'details',
-  // Raised only by the save, so said under the note.
-  'no-change': 'details',
-  'order-not-found': 'details',
-};
-
-interface AdjustAnswers {
-  party: { personName: string; companyName: string; companyId: string };
-  contact: { name: string; email: string; phone: string };
-  delivery: AddressDraft;
-  billing: AddressDraft;
-}
 
 /** The typing pause before re-pricing. */
 const PREVIEW_DEBOUNCE_MS = 250;
@@ -141,20 +98,16 @@ const PREVIEW_DEBOUNCE_MS = 250;
 @Component({
   selector: 'app-order-adjust-page',
   imports: [
-    FORM_FIELDS,
-    AddressFields,
+    OrderAdjustDetails,
     Button,
     Checkbox,
     TickLabel,
-    CompanyFields,
     DisclosureToggle,
     FieldLabel,
     Input,
     OrderAdjustChanges,
     OrderAdjustLines,
-    PhoneInput,
     RouterLink,
-    Segmented,
     SelectInput,
     Skeleton,
     WarningNote,
@@ -315,225 +268,23 @@ const PREVIEW_DEBOUNCE_MS = 250;
                     [id]="detailsPanelId"
                     class="space-y-8 border-t border-edge p-4"
                   >
-                    @if (refusalOn() === 'details') {
-                      <p uiErrorText role="alert">
-                        {{ refusalMessage() }}
-                      </p>
-                    }
-
-                    <section>
-                      <h2 class="mb-2 font-medium">
-                        {{ sharedText.fulfilment.label }}
-                      </h2>
-                      <!-- Method and collection point share a line: one
-                           question. -->
-                      <div class="grid gap-6 sm:grid-cols-2">
-                        <div>
-                          <label
-                            uiFieldLabel
-                            for="adjust-fulfilment"
-                            class="sr-only"
-                          >
-                            {{ sharedText.fulfilment.label }}
-                          </label>
-                          <ui-select-input>
-                            <select
-                              uiInput
-                              id="adjust-fulfilment"
-                              class="w-full"
-                              [disabled]="saving()"
-                              (change)="
-                                setFulfilment($any($event.target).value)
-                              "
-                            >
-                              <option
-                                value="delivery"
-                                [selected]="fulfilmentMethod() === 'delivery'"
-                              >
-                                {{ sharedText.fulfilment.delivery }}
-                              </option>
-                              @if (locations.length) {
-                                <option
-                                  value="pickup"
-                                  [selected]="fulfilmentMethod() === 'pickup'"
-                                >
-                                  {{ sharedText.fulfilment.pickup }}
-                                </option>
-                              }
-                            </select>
-                          </ui-select-input>
-                        </div>
-                        @if (fulfilmentMethod() === 'pickup') {
-                          <div>
-                            <label
-                              uiFieldLabel
-                              for="adjust-pickup"
-                              class="sr-only"
-                            >
-                              {{ ordersText.pickupPoint }}
-                            </label>
-                            <ui-select-input>
-                              <select
-                                uiInput
-                                id="adjust-pickup"
-                                class="w-full"
-                                [disabled]="saving()"
-                                (change)="
-                                  pickupKey.set($any($event.target).value)
-                                "
-                              >
-                                @for (
-                                  location of locations;
-                                  track location.key
-                                ) {
-                                  <option
-                                    [value]="location.key"
-                                    [selected]="pickupKey() === location.key"
-                                  >
-                                    {{ location.name }}
-                                  </option>
-                                }
-                              </select>
-                            </ui-select-input>
-                          </div>
-                        }
-                      </div>
-
-                      @if (fulfilmentMethod() === 'delivery') {
-                        <div class="mt-4">
-                          <h3 class="mb-2 text-sm font-medium">
-                            {{ names.deliveryAddress }}
-                          </h3>
-                          <app-address-fields
-                            [form]="delivery"
-                            [showLabel]="false"
-                          />
-                        </div>
-                      }
-                    </section>
-
-                    <section>
-                      <h2 class="mb-2 font-medium">{{ names.invoicedTo }}</h2>
-                      <!-- Registration's and checkout's switch, held to the
-                           same rules. -->
-                      @if (partyKinds.length > 1) {
-                        <ui-segmented
-                          name="adjust-party-kind"
-                          class="mb-4"
-                          [options]="partyKinds"
-                          [value]="partyKind()"
-                          (valueChange)="setPartyKind($event)"
-                        />
-                      }
-
-                      @if (partyKind() === 'person') {
-                        <ui-field
-                          [field]="form.party.personName"
-                          [label]="fields.name.label"
-                          controlId="adjust-party-person"
-                        >
-                          <input
-                            uiInput
-                            class="w-full"
-                            autocomplete="off"
-                            [formField]="form.party.personName"
-                          />
-                        </ui-field>
-                      } @else {
-                        <app-company-fields
-                          idInputId="adjust-party-id"
-                          nameInputId="adjust-party-name"
-                          [idField]="form.party.companyId"
-                          [nameField]="form.party.companyName"
-                        />
-                      }
-                    </section>
-
-                    @if (billingEnabled) {
-                      <section>
-                        <h2 class="mb-2 font-medium">
-                          {{ text.billingAddress }}
-                        </h2>
-                        <app-address-fields
-                          [form]="billing"
-                          [showLabel]="false"
-                        />
-                      </section>
-                    }
-
-                    <section>
-                      <h2 class="mb-2 font-medium">{{ names.payment }}</h2>
-                      <label uiFieldLabel for="adjust-payment" class="sr-only">
-                        {{ names.payment }}
-                      </label>
-                      <ui-select-input>
-                        <select
-                          uiInput
-                          id="adjust-payment"
-                          class="w-full"
-                          [disabled]="saving()"
-                          (change)="setPayment($any($event.target).value)"
-                        >
-                          <!-- A company is invoiced: cash and card are not
-                               offered, as the server refuses them. -->
-                          @for (
-                            option of paymentOptions();
-                            track option.value
-                          ) {
-                            <option
-                              [value]="option.value"
-                              [selected]="paymentMethod() === option.value"
-                            >
-                              {{ option.label }}
-                            </option>
-                          }
-                        </select>
-                      </ui-select-input>
-                    </section>
-
-                    <section>
-                      <h2 class="mb-2 font-medium">{{ names.contact }}</h2>
-                      <div class="grid gap-6 sm:grid-cols-[20rem_1fr]">
-                        <ui-field
-                          [field]="form.contact.name"
-                          [label]="fields.name.label"
-                          controlId="adjust-contact-name"
-                        >
-                          <input
-                            uiInput
-                            class="w-full"
-                            autocomplete="off"
-                            [formField]="form.contact.name"
-                          />
-                        </ui-field>
-                        <!-- The number field is only as wide as its mask. -->
-                        <ui-field
-                          [field]="form.contact.phone"
-                          [label]="fields.phone.label"
-                          controlId="adjust-contact-phone"
-                        >
-                          <ui-phone-input
-                            [field]="form.contact.phone"
-                            [phone]="phoneInput"
-                            autocomplete="off"
-                          />
-                        </ui-field>
-                        <ui-field
-                          class="sm:col-span-2"
-                          [field]="form.contact.email"
-                          [label]="fields.email.label"
-                          controlId="adjust-contact-email"
-                        >
-                          <input
-                            type="email"
-                            uiInput
-                            class="w-full"
-                            autocomplete="off"
-                            [formField]="form.contact.email"
-                          />
-                        </ui-field>
-                      </div>
-                    </section>
+                    <app-order-adjust-details
+                      [form]="form"
+                      [delivery]="delivery"
+                      [billing]="billing"
+                      [fulfilmentMethod]="fulfilmentMethod()"
+                      [pickupKey]="pickupKey()"
+                      [partyKind]="partyKind()"
+                      [paymentMethod]="paymentMethod()"
+                      [refusal]="
+                        refusalOn() === 'details' ? refusalMessage() : null
+                      "
+                      [disabled]="saving()"
+                      (fulfilmentChange)="setFulfilment($event)"
+                      (pickupKeyChange)="pickupKey.set($event)"
+                      (partyKindChange)="setPartyKind($event)"
+                      (paymentChange)="setPayment($event)"
+                    />
                   </div>
                 }
               </section>
@@ -699,7 +450,7 @@ export class AdminOrderAdjustPage implements FieldAttempt {
 
   /** A company is a party with a registration number; the switch only asks it.
    * */
-  protected readonly partyKind = signal<'person' | 'company'>('company');
+  protected readonly partyKind = signal<PartyKind>('company');
   protected readonly fulfilmentMethod = signal<'delivery' | 'pickup'>(
     'delivery',
   );
@@ -767,43 +518,19 @@ export class AdminOrderAdjustPage implements FieldAttempt {
 
   readonly attempted = computed(() => submitAttempt(this.form)());
 
-  /** In the deployment's order (FR-AUTH-13). */
-  protected readonly partyKinds: SegmentOption<'person' | 'company'>[] =
-    this.config.customerTypes.map((value) => ({
-      value,
-      label:
-        value === 'person'
-          ? this.text.partyKindPerson
-          : this.text.partyKindCompany,
-    }));
-  /** A company is invoiced only: cash and card are refused by the server, so
-   * not offered. */
-  protected readonly paymentOptions = computed(() => {
-    const invoiced = {
-      value: 'bank-transfer',
-      label: this.payments.transfer,
-    };
-    if (this.partyKind() === 'company') return [invoiced];
-    return [
-      { value: 'cash', label: this.payments.cash },
-      invoiced,
-      { value: 'card-later', label: this.payments.card },
-    ];
-  });
-
   /** Each kind's last method, so a switch to a company and back restores the
    * method rather than leaving a person on transfer. */
-  private readonly rememberedPayment: Record<
-    'person' | 'company',
-    PaymentMethod
-  > = { person: 'cash', company: 'bank-transfer' };
+  private readonly rememberedPayment: Record<PartyKind, PaymentMethod> = {
+    person: 'cash',
+    company: 'bank-transfer',
+  };
 
   protected setPayment(method: PaymentMethod): void {
     this.paymentMethod.set(method);
     this.rememberedPayment[this.partyKind()] = method;
   }
 
-  protected setPartyKind(kind: 'person' | 'company'): void {
+  protected setPartyKind(kind: PartyKind): void {
     if (kind !== this.partyKind()) {
       this.rememberedPayment[this.partyKind()] = this.paymentMethod();
       this.paymentMethod.set(this.rememberedPayment[kind]);
@@ -880,20 +607,12 @@ export class AdminOrderAdjustPage implements FieldAttempt {
     return fillText(this.text.page.title, { reference: this.reference() });
   }
 
-  /** What is priced and then written; null until the order loads. */
-  private readonly body = computed<OrderAdjustment | null>(() => {
-    const order = this.order();
-    if (!order) return null;
+  /** The fold's answers in the order's shape, read by the body and by the
+   * proposed order alike. */
+  private readonly details = computed(() => {
     const contact = this.model().contact;
     const delivery = this.fulfilmentMethod() === 'delivery';
     return {
-      lines: this.lines().map((line) => ({
-        slug: line.slug,
-        pieces: line.pieces,
-        unit: line.unit,
-        note: line.note,
-        priceMinor: this.priceOf(line),
-      })),
       contact: {
         name: contact.name.trim(),
         email: contact.email.trim(),
@@ -907,6 +626,22 @@ export class AdminOrderAdjustPage implements FieldAttempt {
       pickupLocationKey: delivery ? null : this.pickupKey(),
       billingAddress: this.billingEnabled ? this.billing.value() : null,
       paymentMethod: this.paymentMethod(),
+    };
+  });
+
+  /** What is priced and then written; null until the order loads. */
+  private readonly body = computed<OrderAdjustment | null>(() => {
+    const order = this.order();
+    if (!order) return null;
+    return {
+      lines: this.lines().map((line) => ({
+        slug: line.slug,
+        pieces: line.pieces,
+        unit: line.unit,
+        note: line.note,
+        priceMinor: draftPrice(line, this.currency),
+      })),
+      ...this.details(),
       tierKey: this.tierKey(),
       note: this.note().trim() || null,
       notify: this.notify(),
@@ -1000,7 +735,7 @@ export class AdminOrderAdjustPage implements FieldAttempt {
           : '',
         taxLabel: answer ? this.tax.line(answer.taxRate) : '',
         flags: answer?.flags ?? [],
-        offList: answer ? this.offList(answer) : false,
+        offList: answer ? offList(answer) : false,
       };
     });
   });
@@ -1084,44 +819,13 @@ export class AdminOrderAdjustPage implements FieldAttempt {
     () => !this.preview() && this.refusalOn() !== 'lines',
   );
 
-  /** A price moved here, and one already off the list (provisional pricing):
-   * neither shows in a total, so both are said above the save. */
   protected readonly priceNotices = computed<string[]>(() => {
     const order = this.order();
     const preview = this.preview();
-    if (!order || !preview) return [];
-    const was = new Map(order.lines.map((line) => [line.slug, line]));
-    const moved = preview.lines.filter((line) => {
-      const before = was.get(line.slug);
-      return before !== undefined && before.priceMinor !== line.priceMinor;
-    }).length;
-    const offList = preview.lines.filter((line) => this.offList(line)).length;
-
-    const notices: string[] = [];
-    if (moved > 0) {
-      notices.push(fillText(this.text.priceNotice.moved, { count: moved }));
-    }
-    if (offList > 0) {
-      notices.push(
-        fillText(this.text.priceNotice.offList, {
-          count: offList,
-          tier: this.tierLabel(),
-        }),
-      );
-    }
-    return notices;
+    return order && preview
+      ? priceNotices(order, preview, this.text.priceNotice, this.tierLabel())
+      : [];
   });
-
-  /** Off the list where it differs; a line the list does not price cannot be
-   * off it. */
-  private offList(line: {
-    priceMinor: number;
-    listPriceMinor: number | null;
-  }): boolean {
-    return (
-      line.listPriceMinor !== null && line.priceMinor !== line.listPriceMinor
-    );
-  }
 
   private tierLabel(): string {
     const key = this.tierKey();
@@ -1282,37 +986,21 @@ export class AdminOrderAdjustPage implements FieldAttempt {
     order: AdminOrderDetail,
     preview: OrderAdjustmentPreview | null,
   ): AdminOrderDetail {
-    const delivery = this.fulfilmentMethod() === 'delivery';
+    const { pickupLocationKey, billingAddress, ...details } = this.details();
     const pickup = this.locations.find(
-      (location) => location.key === this.pickupKey(),
+      (location) => location.key === pickupLocationKey,
     );
     return {
       ...order,
-      contact: {
-        name: this.model().contact.name,
-        email: this.model().contact.email,
-        phone: canonicalPhone(
-          this.model().contact.phone,
-          this.config.phoneInput,
-        ),
-      },
-      party: this.partyValue(),
-      fulfilmentMethod: this.fulfilmentMethod(),
-      deliveryAddress: delivery ? this.delivery.value() : null,
-      pickup:
-        !delivery && pickup
-          ? {
-              key: pickup.key,
-              name: pickup.name,
-              address: pickup.address,
-            }
-          : null,
+      ...details,
+      pickup: pickup
+        ? { key: pickup.key, name: pickup.name, address: pickup.address }
+        : null,
       // Without invoice addresses the server carries the old one forward, so
       // this does too.
       billingAddress: this.billingEnabled
-        ? this.billing.value()
+        ? billingAddress
         : order.billingAddress,
-      paymentMethod: this.paymentMethod(),
       // Unpriced, the order's figures stand in; the block comparison never
       // reads them.
       deliveryZone: preview?.deliveryZone ?? order.deliveryZone,
@@ -1322,25 +1010,8 @@ export class AdminOrderAdjustPage implements FieldAttempt {
     };
   }
 
-  /** Null for an empty field, which asks the list. */
-  private priceOf(line: DraftLine): number | null {
-    if (line.fromList || !line.priceText.trim()) return null;
-    return parsePriceInput(line.priceText, this.currency);
-  }
-
   private seed(order: AdminOrderDetail): void {
-    this.lines.set(
-      order.lines.map((line, index) => ({
-        key: `${index}-${line.slug}`,
-        slug: line.slug,
-        name: line.name,
-        pieces: line.pieces,
-        unit: line.unit,
-        note: line.note,
-        priceText: formatPriceInput(line.priceMinor, this.currency),
-        fromList: false,
-      })),
-    );
+    this.lines.set(draftLines(order, this.currency));
     // A registration number makes a company; the switch is read back from it.
     const company = order.party.registrationId !== null;
     const kind = company ? 'company' : 'person';
@@ -1369,7 +1040,8 @@ export class AdminOrderAdjustPage implements FieldAttempt {
     this.setPayment(order.paymentMethod);
     // An older company order on cash or card is corrected, and the change list
     // says so.
-    if (!this.paymentOptions().some((o) => o.value === this.paymentMethod())) {
+    const offered = paymentOptions(this.partyKind(), this.payments);
+    if (!offered.some((option) => option.value === this.paymentMethod())) {
       this.setPayment('bank-transfer');
     }
     this.tierKey.set(order.tierKey);
