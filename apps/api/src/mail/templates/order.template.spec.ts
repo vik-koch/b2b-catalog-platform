@@ -1,5 +1,5 @@
 import { MoneyFormat } from '@b2b-catalog-platform/shared';
-import { demoAdminOrder as order } from '../../orders/order.fixture';
+import { demoAdminOrder as order } from '../../core/ordering/order.fixture';
 import { demoSharedText, demoMailText } from '../mail-text.fixture';
 import { newOrderMail } from './new-order.template';
 import { orderReceivedMail } from './order-received.template';

@@ -13,7 +13,7 @@ import { AccountErasureModule } from './account-erasure.module';
 import { DestructionModule } from '../destruction/destruction.module';
 import { CatalogModule } from '../storefront/catalog/catalog.module';
 import { AdminCatalogModule } from '../admin/catalog/admin-catalog.module';
-import { OrdersModule } from '../orders/orders.module';
+import { OrdersModule } from '../core/ordering/orders.module';
 import { SiteModule } from '../storefront/site/site.module';
 import { AdminSiteModule } from '../admin/site/admin-site.module';
 import { MediaModule } from '../media/media.module';

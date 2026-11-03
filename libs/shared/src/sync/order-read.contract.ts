@@ -2,8 +2,8 @@ import { oc } from '@orpc/contract';
 import { TAX_BASES } from '../lib/core/tax';
 import * as z from 'zod';
 import { machineAuthErrors } from './machine.contract';
-import { productUnitSchema } from '../lib/orders/cart.contract';
-import { ORDER_READ_MAX_LIMIT } from '../lib/orders/order-constants';
+import { productUnitSchema } from '../core/ordering/cart.contract';
+import { ORDER_READ_MAX_LIMIT } from '../core/ordering/order-constants';
 import {
   fulfilmentMethodSchema,
   orderAddressSchema,
@@ -13,7 +13,7 @@ import {
   orderStatusSchema,
   paymentMethodSchema,
   paymentStateSchema,
-} from '../lib/orders/orders.contract';
+} from '../core/ordering/orders.contract';
 
 /**
  * The outbound read of orders (FR-ADM-08, first half; NFR-LEGAL-07): what a

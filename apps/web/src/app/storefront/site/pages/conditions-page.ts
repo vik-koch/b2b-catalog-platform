@@ -9,7 +9,7 @@ import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
 import { SHARED_TEXT } from '../../../shared/config/shared-text';
 import { StorefrontText } from '../../../shared/config/storefront-text.type';
 import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
-import { DeliveryZoneList } from '../../checkout/delivery-zone-list';
+import { DeliveryZoneList } from '../../ordering/checkout/delivery-zone-list';
 import { EmphasisedText } from '@b2b-catalog-platform/ui/content/emphasised-text';
 import { TextButton } from '@b2b-catalog-platform/ui/actions/text-button';
 import { banknoteIcon } from '@b2b-catalog-platform/ui/icons/glyphs/banknote';

@@ -5,7 +5,7 @@ import {
   totalMinor,
   unitQuantity,
 } from '@b2b-catalog-platform/shared/core/catalog';
-import { shipmentEstimate } from '@b2b-catalog-platform/shared';
+import { shipmentEstimate } from '@b2b-catalog-platform/shared/core/ordering';
 import { OrderLineSeed, OrderSeed, SeedBundle } from './bundle';
 
 /**

@@ -17,7 +17,7 @@ import {
   preloadAdminText,
 } from './app/shared/config/admin-text.server';
 import { preloadDeploymentConfig } from './app/shared/config/deployment-config.server';
-import { injectCartShell } from './app/storefront/cart/cart-shell.server';
+import { injectCartShell } from './app/storefront/ordering/cart/cart-shell.server';
 import { injectSessionShell } from './app/storefront/accounts/auth/session-shell.server';
 import { sessionCookieIn } from './app/shared/auth/session-cookie';
 import { injectShellState } from './app/shared/config/shell-state.server';

@@ -18,7 +18,7 @@ import { SyncService } from './sync.service';
 import { SyncNotifications } from './sync-notifications';
 import { CustomerSyncService } from './customer-sync.service';
 import { SyncRunLog } from './sync-run-log';
-import { OrdersModule } from '../orders/orders.module';
+import { OrdersModule } from '../core/ordering/orders.module';
 import { MailModule } from '../mail/mail.module';
 import {
   LOW_STOCK_THRESHOLD_PIECES,

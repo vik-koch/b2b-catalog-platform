@@ -1,0 +1,559 @@
+import {
+  Component,
+  computed,
+  inject,
+  input,
+  resource,
+  signal,
+} from '@angular/core';
+import { RouterLink } from '@angular/router';
+import {
+  fillText,
+  moneyFormat,
+  formatMoneyMinor,
+} from '@b2b-catalog-platform/shared';
+import {
+  notifyByDefault,
+  ORDER_STATUS_REASON_MAX,
+  OrderStatus,
+  orderStatusSchema,
+} from '@b2b-catalog-platform/shared/core/ordering';
+import { SEARCH_QUERY_MAX_LENGTH } from '@b2b-catalog-platform/shared/core/catalog';
+import {
+  StaffOrderSort,
+  staffOrderSortSchema,
+  StaffPaymentFilter,
+  staffPaymentFilterSchema,
+  TransitionTarget,
+} from '@b2b-catalog-platform/shared/admin/ordering';
+import { ADMIN_TEXT } from '../../shared/config/admin-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
+import { delayedLoading } from '../../shared/core/delayed-loading';
+import { usePageSeo } from '../../shared/core/page-seo';
+import { stableValue } from '../../shared/core/stable-value';
+import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
+import {
+  StatusBadge,
+  StatusTone,
+} from '@b2b-catalog-platform/ui/content/status-badge';
+import {
+  orderStatusLabel,
+  orderStatusTone,
+  staffPaymentBadge,
+} from '../../core/ordering/order-status';
+import { GridHeader } from '@b2b-catalog-platform/ui/grid/grid-header';
+import { DataGrid } from '@b2b-catalog-platform/ui/grid/data-grid';
+import { GridColumn } from '@b2b-catalog-platform/ui/grid/grid-column';
+import { GridFilterOption } from '@b2b-catalog-platform/ui/grid/grid-filter-select';
+import { GridPagination } from '@b2b-catalog-platform/ui/grid/grid-pagination';
+import { GridCardTemplate } from '@b2b-catalog-platform/ui/grid/grid-card-template';
+import { GridRowTemplate } from '@b2b-catalog-platform/ui/grid/grid-row-template';
+import { GridTimestamp } from '../dates/grid-timestamp';
+import { RecordRow } from '@b2b-catalog-platform/ui/lists/record-row';
+import { injectEditorReturnParams } from '../../shared/edit-mode/editor-return';
+import {
+  ConfirmService,
+  confirmRequest,
+} from '@b2b-catalog-platform/ui/overlay/confirm.service';
+import { OwnershipService } from '../settings/ownership.service';
+import { OrderRowActions } from './order-row-actions';
+import { AdminOrdersService, StaffOrderSummary } from './orders.service';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
+
+/**
+ * Every order request, for staff (FR-AUTH-03). An order is answered on its own
+ * page; what the list carries is the pair of moves worth making without opening
+ * one — the two the row's own state offers.
+ *
+ * Newest first, narrowed by the status and by the find-an-order box — the two
+ * questions a manager opens this list with: "what have I not answered yet?"
+ * and "where is the one they are asking about on the phone?". Both are query
+ * parameters like every other grid's, so a narrowed list is shareable and
+ * survives a reload, and both are applied server-side: the list is paged, and
+ * a box that filtered one page would be a lie.
+ */
+@Component({
+  selector: 'app-admin-order-list-page',
+  imports: [
+    RouterLink,
+    GridHeader,
+    DataGrid,
+    GridRowTemplate,
+    GridCardTemplate,
+    GridPagination,
+    GridTimestamp,
+    Skeleton,
+    StatusBadge,
+    RecordRow,
+    OrderRowActions,
+    ErrorText,
+  ],
+  template: `
+    <ui-grid-header
+      [title]="text.page.title"
+      [intro]="text.page.intro"
+      [query]="query()"
+      [searchMaxLength]="searchMaxLength"
+      [searchLabel]="text.searchAria"
+      [searchPlaceholder]="text.searchPlaceholder"
+      [clearSearchLabel]="text.clearSearch"
+      [filtered]="filtered()"
+    />
+
+    @if (pageError(); as message) {
+      <p uiErrorText class="mb-4" role="alert">{{ message }}</p>
+    }
+
+    @if (orders.error()) {
+      <p class="text-ink-subtle" role="alert">{{ text.loadError }}</p>
+    } @else if (shown(); as data) {
+      <ui-data-grid
+        gridId="orders"
+        [columns]="columns()"
+        [rows]="data.items"
+        [trackBy]="byReference"
+        [sort]="sortKey()"
+        [defaultSort]="defaultSort"
+        [muted]="isEnded"
+        [busy]="orders.isLoading()"
+        [filtered]="filtered()"
+        [emptyMessage]="filtered() ? text.noResults : text.empty"
+        [total]="data.pagination.total"
+        [countLabel]="text.count"
+      >
+        <ng-template uiGridRow [of]="data.items" let-order>
+          <!-- The reference opens the order as it stands to be read; the
+               action at the end of the row opens the screen where it is
+               answered. Two jobs, two links: most of what a manager does with
+               a list is look something up. -->
+          <td class="truncate font-medium">
+            <a class="hover:text-accent" [routerLink]="titleLink(order)">
+              {{ order.reference }}
+            </a>
+          </td>
+          <!-- Who to call, and underneath the account it came from — or
+               that it came from nobody, which is what a guest order is. -->
+          <td class="truncate" [title]="order.customerEmail ?? ''">
+            <span class="block truncate text-ink">
+              {{ order.contactName }}
+            </span>
+            <span class="block truncate text-xs text-ink-subtle">
+              {{ order.customerEmail ?? ordersText.guest }}
+            </span>
+          </td>
+          <td class="truncate text-ink-subtle">
+            {{ lineCount(order.itemCount) }}
+          </td>
+          <td class="tabular-nums">{{ total(order) }}</td>
+          <!-- The money, in the quiet badge: it is the order's second fact,
+               and two solid pills in one row read as two statuses that could
+               disagree. Empty where nothing is owed yet — a cash order says
+               nothing about money until it is handed over. -->
+          <td data-keep>
+            @if (paymentBadge(order); as badge) {
+              <span uiStatusBadge variant="dot" [tone]="badge.tone">
+                {{ badge.label }}
+              </span>
+            }
+          </td>
+          <td data-keep>
+            <span uiStatusBadge [tone]="statusTone(order)">
+              {{ statusLabel(order) }}
+            </span>
+          </td>
+          <td class="text-ink-subtle">
+            <app-grid-timestamp [value]="order.createdAt" />
+          </td>
+          <td data-keep>
+            <app-order-row-actions
+              [order]="order"
+              [locked]="locked()"
+              [returnParams]="editorFrom()"
+              (endRequested)="end($event.order, $event.to)"
+            />
+          </td>
+        </ng-template>
+
+        <!-- The same order on a phone: what it is and where it stands on the
+             first line, who to call on the second, and the two figures a
+             manager is looking for — when it came in and what it comes to — on
+             the third. The account it came from is a detail for the order's own
+             page; the name and the reference are what a phone call is about. -->
+        <ng-template uiGridCard [of]="data.items" let-order>
+          <!-- Only the order is greyed once it is over, never the badge that
+               says so — the same rule the table follows cell by cell. -->
+          <ui-record-row>
+            <a
+              class="truncate font-medium"
+              [class.opacity-50]="isEnded(order)"
+              [routerLink]="titleLink(order)"
+              >{{ order.reference }}</a
+            >
+
+            <!-- Beside the status, never instead of it, and in the quiet
+                 variant: what is owed is a second fact about the order. -->
+            @if (paymentBadge(order); as badge) {
+              <span
+                recordBadge
+                uiStatusBadge
+                variant="dot"
+                class="shrink-0"
+                [tone]="badge.tone"
+              >
+                {{ badge.label }}
+              </span>
+            }
+            <span
+              recordBadge
+              uiStatusBadge
+              class="shrink-0"
+              [tone]="statusTone(order)"
+            >
+              {{ statusLabel(order) }}
+            </span>
+            <p
+              recordBody
+              class="mt-1 truncate text-ink-subtle"
+              [class.opacity-50]="isEnded(order)"
+            >
+              {{ order.contactName }}
+            </p>
+            <!-- When it came in, what is on it and what it comes to: the three
+                 figures a manager scans a phone list for. The buttons take the
+                 slot the total used to, which is what every other card does
+                 with its bottom-right corner. -->
+            <span
+              recordMeta
+              class="flex min-w-0 items-baseline gap-1"
+              [class.opacity-50]="isEnded(order)"
+            >
+              <app-grid-timestamp [value]="order.createdAt" inline />
+              <span class="truncate">
+                · {{ lineCount(order.itemCount) }} ·
+                <span class="tabular-nums">{{ total(order) }}</span>
+              </span>
+            </span>
+            <app-order-row-actions
+              recordActions
+              [order]="order"
+              [locked]="locked()"
+              [returnParams]="editorFrom()"
+              (endRequested)="end($event.order, $event.to)"
+            />
+          </ui-record-row>
+        </ng-template>
+      </ui-data-grid>
+
+      <ui-grid-pagination [pagination]="data.pagination" />
+    } @else if (showSkeleton()) {
+      <ui-skeleton [lines]="6" />
+    }
+  `,
+})
+export class AdminOrderListPage {
+  protected readonly searchMaxLength = SEARCH_QUERY_MAX_LENGTH;
+  private readonly api = inject(AdminOrdersService);
+  private readonly ownership = inject(OwnershipService);
+  private readonly currency = moneyFormat(inject(DEPLOYMENT_CONFIG));
+
+  protected readonly text = inject(ADMIN_TEXT).orders.list;
+  protected readonly names = inject(SHARED_TEXT).order;
+  protected readonly ordersText = inject(ADMIN_TEXT).orders;
+  private readonly statuses = this.ordersText.statuses;
+
+  /** Whether an external system answers orders (FR-ADM-10). An answer still in
+   * flight counts as not owned, exactly as the account screens read it; the API
+   * refuses the move either way. */
+  protected readonly locked = computed(() => this.ownership.owns('orders'));
+
+  /** Bound from the query parameters; both are narrowed before they reach the
+   * API, so a hand-edited URL falls back to the default view. */
+  readonly page = input('1');
+  readonly status = input('');
+  /**
+   * Named for the parameter it is bound from — router input binding matches on
+   * the name, and the find-a-row box writes `searchTerm`. `q` is the navbar
+   * search's own parameter and is never read here.
+   */
+  readonly searchTerm = input('');
+
+  private readonly currentPage = computed(() => {
+    const n = Number(this.page());
+    return Number.isInteger(n) && n > 0 ? n : 1;
+  });
+  protected readonly statusKey = computed<OrderStatus | undefined>(() => {
+    const parsed = orderStatusSchema.safeParse(this.status());
+    return parsed.success ? parsed.data : undefined;
+  });
+  /** The filter's own value: the empty string is "no filter", never undefined,
+   * or the select falls back to its first option by accident rather than by
+   * agreement. */
+  protected readonly statusParam = computed(() => this.statusKey() ?? '');
+
+  /** The payment column's own narrowing, parsed the same way. */
+  readonly payment = input('');
+  protected readonly paymentKey = computed<StaffPaymentFilter | undefined>(
+    () => {
+      const parsed = staffPaymentFilterSchema.safeParse(this.payment());
+      return parsed.success ? parsed.data : undefined;
+    },
+  );
+  protected readonly paymentParam = computed(() => this.paymentKey() ?? '');
+
+  /**
+   * The three things the column says, and nothing for the orders it says
+   * nothing about: an unanswered order owes nobody anything yet.
+   */
+  protected readonly paymentOptions: GridFilterOption[] = [
+    { value: '', label: this.text.paymentAll },
+    { value: 'awaiting', label: this.ordersText.paymentStates.awaiting },
+    {
+      value: 'cash',
+      label: this.ordersText.paymentStates.cashOnHandover,
+    },
+    { value: 'unpaid', label: this.text.paymentUnpaid },
+    { value: 'paid', label: this.ordersText.paymentStates.paid },
+  ];
+
+  /**
+   * The ordering, server-side like the filter: the list is paged, and sorting
+   * one page would be sorting one twentieth of the orders. The default is
+   * unanswered-first, which is the question this screen is opened with — so it
+   * is the sort written as an *absent* parameter.
+   */
+  readonly sort = input('');
+  protected readonly defaultSort: StaffOrderSort = 'status';
+  protected readonly sortKey = computed<StaffOrderSort>(() => {
+    const parsed = staffOrderSortSchema.safeParse(this.sort());
+    return parsed.success ? parsed.data : this.defaultSort;
+  });
+
+  /**
+   * Router input binding sets an *absent* parameter to undefined, whatever the
+   * input's default says — so every one of these is read through a guard
+   * rather than used straight. A page opened from the panel carries no
+   * parameters at all.
+   */
+  protected readonly query = computed(() =>
+    this.searchTerm() ? this.searchTerm().trim() : '',
+  );
+  protected readonly filtered = computed(
+    () => !!this.statusKey() || !!this.paymentKey() || !!this.query(),
+  );
+
+  protected readonly orders = resource({
+    params: () => ({
+      page: this.currentPage(),
+      status: this.statusKey(),
+      payment: this.paymentKey(),
+      q: this.query() || undefined,
+      sort: this.sortKey(),
+    }),
+    loader: ({ params }) => this.api.list(params),
+  });
+
+  /** Held across reloads, so filtering or paging swaps the rows instead of
+   * blanking the table the filter sits in. */
+  protected readonly shown = stableValue(this.orders);
+  protected readonly showSkeleton = delayedLoading(this.orders.isLoading);
+
+  /**
+   * The columns, declared once: the headings on a desktop, the filter sheet and
+   * the sort picker on a phone, and the widths an admin drags all read the same
+   * list. A computed because the status filter's own value is part of it.
+   */
+  protected readonly columns = computed<GridColumn[]>(() => [
+    { key: 'reference', label: this.names.reference, minWidth: 140 },
+    { key: 'customer', label: this.text.customer, minWidth: 140 },
+    { key: 'items', label: this.text.items, minWidth: 80 },
+    { key: 'total', label: this.names.total, minWidth: 90 },
+    // Filtered, not sorted: an ordering of three unrelated readings is not a
+    // question anybody asks, but "what is still owed me" is — and a cash order
+    // waiting to be ticked is the one piece of work that would otherwise sit
+    // in the list looking exactly like an unanswered request.
+    {
+      key: 'payment',
+      label: this.text.paymentAll,
+      sortName: this.names.payment,
+      filter: {
+        param: 'payment',
+        options: this.paymentOptions,
+        value: this.paymentParam(),
+        label: this.text.filterPayment,
+      },
+      minWidth: 130,
+    },
+    {
+      key: 'status',
+      label: this.text.statusAll,
+      sortName: this.names.status,
+      // The one column that both filters and sorts: what a manager narrows by
+      // is also what they want at the top when they open the list.
+      sort: { asc: 'status', desc: 'status_desc' },
+      filter: {
+        param: 'status',
+        options: this.statusOptions,
+        value: this.statusParam(),
+        label: this.text.filterStatus,
+      },
+      minWidth: 110,
+    },
+    {
+      key: 'placed',
+      label: this.text.placed,
+      sort: { asc: 'placed', desc: 'placed_desc', descFirst: true },
+      minWidth: 110,
+    },
+    // Two glyphs at 24px, with the gap and the cell's own padding.
+    {
+      key: 'actions',
+      srLabel: this.text.actionsAria,
+      align: 'right',
+      fixedWidth: 64,
+    },
+  ]);
+
+  protected readonly byReference = (order: StaffOrderSummary): string =>
+    order.reference;
+
+  /** An order nobody is going to act on again, greyed the way a deleted
+   * product is: it is still listed, but it is not work. */
+  protected readonly isEnded = (order: StaffOrderSummary): boolean =>
+    order.status === 'declined' ||
+    order.status === 'cancelled' ||
+    order.status === 'completed';
+
+  /**
+   * One option per status, `ready` included once: the filter picks a state,
+   * and the two readings of that state are one thing to filter by. The label
+   * is the delivery wording, which is the one that describes the shop's own
+   * work rather than where the goods are waiting.
+   */
+  protected readonly statusOptions: GridFilterOption[] = [
+    { value: '', label: this.text.statusAll },
+    { value: 'requested', label: this.statuses.requested },
+    { value: 'approved', label: this.statuses.approved },
+    { value: 'ready', label: this.statuses.readyDelivery },
+    { value: 'completed', label: this.statuses.completed },
+    { value: 'declined', label: this.statuses.declined },
+    { value: 'cancelled', label: this.statuses.cancelled },
+  ];
+
+  protected total(order: StaffOrderSummary): string {
+    return formatMoneyMinor(order.totalMinor, this.currency);
+  }
+
+  protected lineCount(count: number): string {
+    return fillText(this.text.itemCount, { count });
+  }
+
+  protected statusLabel(order: StaffOrderSummary): string {
+    return orderStatusLabel(
+      order.status,
+      order.fulfilmentMethod,
+      this.statuses,
+    );
+  }
+
+  protected statusTone(order: StaffOrderSummary): StatusTone {
+    return orderStatusTone(order.status, 'staff', order.fulfilmentMethod);
+  }
+
+  protected paymentBadge(
+    order: StaffOrderSummary,
+  ): { label: string; tone: StatusTone } | null {
+    return staffPaymentBadge(order, this.ordersText.paymentStates);
+  }
+
+  // --- Row actions -------------------------------------------------------
+
+  private readonly confirm = inject(ConfirmService);
+  private readonly detailText = inject(ADMIN_TEXT).orders.detail;
+  protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
+  /** So the order page opened from here returns to this list, filters and
+   * all. */
+  protected readonly editorFrom = injectEditorReturnParams();
+
+  /** For the one action that is not a navigation: a row somebody else answered
+   * first. */
+  protected readonly pageError = signal<string | null>(null);
+
+  /**
+   * End an order from the list — declining a request, or cancelling one the
+   * shop had taken on. Confirmed with a reason, because both are quoted at the
+   * customer in the mail the move sends.
+   *
+   * Whether the move is allowed is still the server's answer: the row may have
+   * been answered by somebody else while this list was open, and the reload
+   * corrects it while the banner says what happened.
+   */
+  protected async end(
+    order: StaffOrderSummary,
+    to: TransitionTarget,
+  ): Promise<void> {
+    this.pageError.set(null);
+    const actions = this.detailText.actions;
+    const label = to === 'declined' ? actions.decline : actions.cancel;
+    const answer = await this.confirm.askDetailed({
+      ...confirmRequest(actions.confirm),
+      heading: fillText(actions.confirm.heading, { action: label }),
+      confirmLabel: fillText(actions.confirm.confirm, { action: label }),
+      reasonLabel: actions.reasonLabel,
+      reasonMaxLength: ORDER_STATUS_REASON_MAX,
+      // Ticked, and worked out without asking what the customer has already
+      // been told: an order is refused or called off once, and being told no
+      // is the one piece of news nobody may quietly skip. No tick for whether
+      // their page follows it either — the two moves offered here end the
+      // order, and an ended order is not one to leave somebody reading
+      // "confirmed".
+      checks: [
+        {
+          key: 'notify',
+          label: actions.notify,
+          hint: this.detailText.notifyHint,
+          checked: notifyByDefault(order.status, to, []),
+        },
+      ],
+    });
+    if (!answer) return;
+
+    try {
+      const moved = await this.api.transition(
+        order.reference,
+        to,
+        answer.reason,
+        {
+          showCustomer: true,
+          notify: answer.checks['notify'] ?? false,
+          markPaid: false,
+        },
+      );
+      if (!moved) this.pageError.set(actions.error);
+    } catch {
+      this.pageError.set(actions.error);
+    }
+    this.orders.reload();
+  }
+
+  /**
+   * Where the reference goes. Normally at the version the order stands at,
+   * rendered as the customer sees it, leaving the row's own action for the
+   * screen where it is answered — two jobs, two links.
+   *
+   * While an external system holds order processing there is no answering to
+   * do, so both go to the order itself: it is the fuller read of the two, and
+   * sending the primary link to the narrower one would cost a click for
+   * nothing. A version is still read back from the history on that page.
+   */
+  protected titleLink(order: StaffOrderSummary): unknown[] {
+    return this.locked()
+      ? ['/admin/orders', order.reference]
+      : ['/admin/orders', order.reference, 'revisions', order.revisionNumber];
+  }
+
+  constructor() {
+    usePageSeo({ name: () => this.text.page.title });
+    void this.ownership.load();
+  }
+}

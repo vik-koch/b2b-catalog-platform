@@ -20,7 +20,7 @@ import { BenignErrorFilter } from './shared/core/benign-errors';
 import { provideHydration } from './shared/core/hydration';
 import { StaticPageReuseStrategy } from './shared/core/route-reuse';
 import { ScrollRestoration } from './shared/core/scroll-restoration';
-import { CartRepricing } from './storefront/cart/cart-repricing';
+import { CartRepricing } from './storefront/ordering/cart/cart-repricing';
 import { provideStorefrontText } from './shared/config/storefront-text';
 import { provideSharedText, provideUiText } from './shared/config/shared-text';
 import { provideGridText } from './admin/provide-grid-text';

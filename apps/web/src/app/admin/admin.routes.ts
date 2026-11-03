@@ -245,7 +245,7 @@ export const adminRoutes: Route[] = [
     path: 'admin/orders',
     canActivate: [requireAuth('admin', 'manager'), adminTextGuard],
     loadComponent: () =>
-      import('./orders/order-list-page').then((m) => m.AdminOrderListPage),
+      import('./ordering/order-list-page').then((m) => m.AdminOrderListPage),
   },
   {
     // By reference, like the customer's own order page: it is the identity the
@@ -253,7 +253,9 @@ export const adminRoutes: Route[] = [
     path: 'admin/orders/:reference',
     canActivate: [requireAuth('admin', 'manager'), adminTextGuard],
     loadComponent: () =>
-      import('./orders/order-detail-page').then((m) => m.AdminOrderDetailPage),
+      import('./ordering/order-detail-page').then(
+        (m) => m.AdminOrderDetailPage,
+      ),
   },
   {
     // One version, read back (FR-ORD-03). Its own route because it is its own
@@ -263,7 +265,7 @@ export const adminRoutes: Route[] = [
     path: 'admin/orders/:reference/revisions/:number',
     canActivate: [requireAuth('admin', 'manager'), adminTextGuard],
     loadComponent: () =>
-      import('./orders/order-revision-page').then(
+      import('./ordering/order-revision-page').then(
         (m) => m.AdminOrderRevisionPage,
       ),
   },
@@ -274,7 +276,9 @@ export const adminRoutes: Route[] = [
     path: 'admin/orders/:reference/adjust',
     canActivate: [requireAuth('admin', 'manager'), adminTextGuard],
     loadComponent: () =>
-      import('./orders/order-adjust-page').then((m) => m.AdminOrderAdjustPage),
+      import('./ordering/order-adjust-page').then(
+        (m) => m.AdminOrderAdjustPage,
+      ),
   },
   {
     path: 'admin/categories',

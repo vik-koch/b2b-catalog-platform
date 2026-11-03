@@ -9,7 +9,7 @@ import {
   output,
   viewChild,
 } from '@angular/core';
-import { CART_NOTE_MAX } from '@b2b-catalog-platform/shared';
+import { CART_NOTE_MAX } from '@b2b-catalog-platform/shared/core/ordering';
 import { STOREFRONT_TEXT } from '../../../../shared/config/storefront-text';
 import { injectNarrowScreen } from '@b2b-catalog-platform/ui/core/narrow-screen';
 import { AutoGrow } from '@b2b-catalog-platform/ui/inputs/auto-grow';

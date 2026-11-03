@@ -1,0 +1,105 @@
+import { AdminOrderDetail } from '@b2b-catalog-platform/shared/admin/ordering';
+
+/**
+ * One order request, in the shape staff read it (FR-UNIT-04). Deliberately not
+ * the simplest one: two lines in different units, a line note carrying markup,
+ * a company party and a tier, so anything rendering or notifying on an order
+ * meets the awkward cases without inventing its own.
+ */
+const address = {
+  street: 'Hafenstraße 12',
+  street2: null,
+  postalCode: '20359',
+  city: 'Hamburg',
+  region: null,
+  country: 'DE' as const,
+};
+
+export const demoAdminOrder: AdminOrderDetail = {
+  reference: 'CK-260826-4831',
+  status: 'requested',
+  paymentState: 'not-due',
+  createdAt: '2026-08-26T09:15:00.000Z',
+  statusChangedAt: '2026-08-26T09:15:00.000Z',
+  revisionNumber: 1,
+  customerRevisionNumber: 1,
+  notifiedRevisionNumber: 1,
+  notifiedStatuses: ['requested'],
+  changes: [],
+  // The generated summary, which every order has and no order stores.
+  documents: [
+    {
+      kind: 'order-summary',
+      source: 'generated',
+      fileName: 'CK-260826-4831.pdf',
+      contentType: 'application/pdf',
+      byteSize: null,
+      suppliedAt: null,
+      suppliedForRevision: null,
+      outdated: false,
+      notifiedAt: null,
+    },
+  ],
+  paidAt: null,
+  personalDataRemovedAt: null,
+  totalMinor: 12600,
+  currency: 'EUR',
+  itemCount: 2,
+  contact: {
+    name: 'Alex Fischer',
+    email: 'alex@example.com',
+    phone: '+49 40 1234567',
+  },
+  party: { name: 'Kontor GmbH', registrationId: 'DE123456789' },
+  fulfilmentMethod: 'delivery',
+  deliveryAddress: address,
+  pickup: null,
+  deliveryZone: null,
+  billingAddress: address,
+  paymentMethod: 'bank-transfer',
+  preferredDate: null,
+  customerNote: null,
+  statusReason: null,
+  termsDate: '2026-09-01T08:00:00.000Z',
+  taxBasis: 'included',
+  customerEmail: 'alex@example.com',
+  publicToken: null,
+  tierKey: 'wholesale',
+  termsVersion: 3,
+  lines: [
+    {
+      name: 'Espresso cups',
+      slug: 'espresso-cups',
+      linked: true,
+      image: null,
+      unit: 'pack',
+      quantity: 2,
+      pieces: 12,
+      priceMinor: 800,
+      lineTotalMinor: 9600,
+      taxRate: 19,
+      note: '100 in <red>',
+    },
+    {
+      name: 'Saucers',
+      slug: 'saucers',
+      linked: true,
+      image: null,
+      unit: 'piece',
+      quantity: 3,
+      pieces: 3,
+      priceMinor: 1000,
+      lineTotalMinor: 3000,
+      taxRate: 19,
+      note: null,
+    },
+  ],
+  shipment: {
+    cartons: 1,
+    volume: null,
+    weight: null,
+    coveredLines: 2,
+    uncoveredLines: 0,
+    approximate: false,
+  },
+};

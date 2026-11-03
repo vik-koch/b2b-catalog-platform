@@ -3,6 +3,9 @@ import {
   API_TOKEN_NAME_MAX_LENGTH,
   API_TOKEN_PREFIX_LENGTH,
   API_TOKEN_SCOPES,
+  TAX_BASES,
+} from '@b2b-catalog-platform/shared';
+import {
   FULFILMENT_METHODS,
   ORDER_ADJUSTMENT_NOTE_MAX,
   ORDER_WRITE_ACTOR_MAX,
@@ -12,8 +15,7 @@ import {
   ORDER_STATUSES,
   PAYMENT_METHODS,
   PAYMENT_STATES,
-  TAX_BASES,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/core/ordering';
 import {
   CONSENT_PURPOSES,
   CONSENT_WITHDRAWAL_NOTE_MAX,

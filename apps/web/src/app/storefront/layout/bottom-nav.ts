@@ -14,7 +14,7 @@ import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { currentUrl } from '../../shared/core/current-url';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { AccountLink } from './account-link';
-import { CartLink } from './cart-link';
+import { CartLink } from '../ordering/cart/cart-link';
 import { CatalogLink } from './catalog-link';
 import { telHref } from './contact-info';
 import { withExitAnimation } from './leave-animation';

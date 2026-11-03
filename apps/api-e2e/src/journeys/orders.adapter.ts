@@ -1,6 +1,9 @@
 import { readFileSync } from 'node:fs';
 import axios, { AxiosResponse } from 'axios';
-import { notifyByDefault, OrderStatus } from '@b2b-catalog-platform/shared';
+import {
+  notifyByDefault,
+  OrderStatus,
+} from '@b2b-catalog-platform/shared/core/ordering';
 import { configFile } from '../support/env';
 import {
   deleteMatching,

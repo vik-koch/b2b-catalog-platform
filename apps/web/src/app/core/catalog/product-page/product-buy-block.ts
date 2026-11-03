@@ -5,9 +5,9 @@ import {
   input,
   linkedSignal,
 } from '@angular/core';
-import { CART_NOTE_MAX } from '@b2b-catalog-platform/shared';
+import { CART_NOTE_MAX } from '@b2b-catalog-platform/shared/core/ordering';
 import { ProductDetail } from '@b2b-catalog-platform/shared/core/catalog';
-import { CartService } from '../../../shared/cart/cart.service';
+import { CartService } from '../../../storefront/ordering/cart/cart.service';
 import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
 import { AutoGrow } from '@b2b-catalog-platform/ui/inputs/auto-grow';
 import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';

@@ -6,75 +6,10 @@
 
 import type * as shared from '@b2b-catalog-platform/shared';
 import type * as coreAccounts from '@b2b-catalog-platform/shared/core/accounts';
+import type * as coreOrdering from '@b2b-catalog-platform/shared/core/ordering';
 import type * as coreSite from '@b2b-catalog-platform/shared/core/site';
 import type * as platform from '@b2b-catalog-platform/shared/platform';
 
-export const cartContract = {
-  previewCart: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: {
-        method: 'POST',
-        path: '/cart/preview',
-        inputStructure: 'detailed',
-      },
-    },
-  },
-} as unknown as typeof shared.cartContract;
-export const ordersContract = {
-  submitOrder: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: { method: 'POST', path: '/orders', inputStructure: 'detailed' },
-    },
-  },
-  listMyOrders: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: {
-        method: 'GET',
-        path: '/account/orders',
-        inputStructure: 'detailed',
-      },
-    },
-  },
-  getMyOrder: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: {
-        method: 'GET',
-        path: '/account/orders/{reference}',
-        inputStructure: 'detailed',
-      },
-    },
-  },
-  getOrderByToken: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: {
-        method: 'GET',
-        path: '/orders/by-token/{token}',
-        inputStructure: 'detailed',
-      },
-    },
-  },
-  cancelMyOrder: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: {
-        method: 'POST',
-        path: '/account/orders/{reference}/cancel',
-        inputStructure: 'detailed',
-      },
-    },
-  },
-} as unknown as typeof shared.ordersContract;
 export const workContract = {
   getCounts: {
     '~orpc': {
@@ -152,6 +87,72 @@ export const partySuggestionContract = {
     },
   },
 } as unknown as typeof coreAccounts.partySuggestionContract;
+export const cartContract = {
+  previewCart: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'POST',
+        path: '/cart/preview',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+} as unknown as typeof coreOrdering.cartContract;
+export const ordersContract = {
+  submitOrder: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: { method: 'POST', path: '/orders', inputStructure: 'detailed' },
+    },
+  },
+  listMyOrders: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'GET',
+        path: '/account/orders',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+  getMyOrder: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'GET',
+        path: '/account/orders/{reference}',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+  getOrderByToken: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'GET',
+        path: '/orders/by-token/{token}',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+  cancelMyOrder: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'POST',
+        path: '/account/orders/{reference}/cancel',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+} as unknown as typeof coreOrdering.ordersContract;
 export const maintenanceContract = {
   checkMaintenance: {
     '~orpc': {

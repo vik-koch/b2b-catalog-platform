@@ -3,7 +3,7 @@ import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { withExitAnimation } from './leave-animation';
 import { MobileSearch } from './mobile-search';
-import { SearchField } from './search-field';
+import { SearchField } from '../catalog/search/search-field';
 import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
 
 /** Must match the exit animations in styles.css. */

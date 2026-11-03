@@ -5,7 +5,7 @@ import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { filter } from 'rxjs';
 import { EditModeToggle } from './admin/edit-mode-toggle';
 import { ForcePasswordChange } from './storefront/accounts/auth/force-password-change';
-import { CartFigures } from './storefront/cart/cart-figures';
+import { CartFigures } from './storefront/ordering/cart/cart-figures';
 import { LastListingService } from './storefront/catalog/last-listing.service';
 import { PairingsService } from './core/catalog/buying/pairings.service';
 import { ProductPairingsDialog } from './storefront/catalog/product-pairings-dialog';

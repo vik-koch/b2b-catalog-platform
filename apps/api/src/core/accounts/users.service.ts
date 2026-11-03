@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { and, count, eq, inArray, notInArray, sql } from 'drizzle-orm';
-import { ENDED_ORDER_STATUSES } from '@b2b-catalog-platform/shared';
+import { ENDED_ORDER_STATUSES } from '@b2b-catalog-platform/shared/core/ordering';
 import { DRIZZLE } from '../../db/database.module';
 import * as schema from '../../db/schema';
 import { withdrawAccountConsents } from '../site/consent-withdrawals';

@@ -1,0 +1,189 @@
+import { Inject, Injectable } from '@nestjs/common';
+import {
+  SharedText,
+  MoneyFormat,
+  OrderReferenceConfig,
+} from '@b2b-catalog-platform/shared';
+import { OrderDocumentKind } from '@b2b-catalog-platform/shared/core/ordering';
+import {
+  AdminOrderDetail,
+  OrderNotice,
+} from '@b2b-catalog-platform/shared/admin/ordering';
+import {
+  MONEY_FORMAT,
+  ORDER_REFERENCE_CONFIG,
+} from '../../config/deployment-config';
+import { MailDispatcher } from '../../mail/mail-dispatcher';
+import { MAIL_TEXT, MailText } from '../../mail/mail-text';
+import { SHARED_TEXT } from '../../config/shared-text';
+import { newOrderMail } from '../../mail/templates/new-order.template';
+import { orderCancelledMail } from '../../mail/templates/order-cancelled.template';
+import { orderReceivedMail } from '../../mail/templates/order-received.template';
+import { orderDocumentMail } from '../../mail/templates/order-document.template';
+import { orderStatusChangedMail } from '../../mail/templates/order-status.template';
+import { MailAttachment } from '../../mail/mailer';
+import { env } from '../../env';
+
+/** Narrows the configured staff inbox, which env.ts requires in server mode. */
+function staffInbox(): string {
+  const inbox = env.MAIL_STAFF_TO;
+  if (!inbox) throw new Error('MAIL_STAFF_TO is not configured');
+  return inbox;
+}
+
+/**
+ * The two mails an order request produces (FR-NOTIF-05/06).
+ *
+ * Dispatched rather than sent, exactly as a registration's are: the order row
+ * is what matters, and it is readable in the admin panel whether or not SMTP
+ * was reachable. A customer who was shown a reference has an order, mail or no
+ * mail — and does not wait on a provider to say so.
+ */
+@Injectable()
+export class OrderNotifications {
+  constructor(
+    private readonly mail: MailDispatcher,
+    @Inject(MAIL_TEXT) private readonly text: MailText,
+    @Inject(SHARED_TEXT) private readonly common: SharedText,
+    @Inject(MONEY_FORMAT) private readonly currency: MoneyFormat,
+    @Inject(ORDER_REFERENCE_CONFIG)
+    private readonly reference: OrderReferenceConfig,
+  ) {}
+
+  async placed(
+    order: AdminOrderDetail,
+    publicToken: string,
+    /** The accepted terms as a document, where the deployment attaches them
+     * (NFR-LEGAL-10). */
+    attachments: readonly MailAttachment[] = [],
+  ): Promise<void> {
+    // To the address on the order, not to the account's: a guest has no
+    // account, and a signed-in customer may have named a colleague.
+    //
+    // The token travels only where it is the only way in. An order placed from
+    // an account is linked to that account's own order page instead, so no
+    // capability URL is mailed for something the customer can already open.
+    await this.mail.dispatch(
+      orderReceivedMail(
+        order,
+        order.customerEmail ? null : publicToken,
+        this.currency,
+        this.text,
+        this.common,
+        this.reference.timezone,
+      ),
+      { to: order.contact.email, attachments },
+      'order confirmation',
+    );
+
+    await this.mail.dispatch(
+      newOrderMail(order, this.currency, this.text, this.common),
+      {
+        // env.ts requires this in server mode; asking for it in here means a
+        // deployment that lost it still logs one failed mail rather than
+        // throwing past the customer's own.
+        to: staffInbox(),
+        // A manager reading it on a phone replies to the customer, not to
+        // the shop's own inbox.
+        replyTo: order.contact.email,
+      },
+      'staff order notification',
+    );
+  }
+
+  /**
+   * The shop's mail when a customer calls their own order off (FR-NOTIF-07).
+   *
+   * Only theirs. A manager cancelling an order does not need telling that they
+   * did, and the customer's own move is the one nothing else on the shop's
+   * screens announces: the order simply leaves the queue.
+   *
+   * Nothing goes to the customer here — they just did this themselves, and a
+   * confirmation of one's own click is the mail that teaches people to ignore
+   * the shop's mail.
+   */
+  async cancelledByCustomer(order: AdminOrderDetail): Promise<void> {
+    await this.mail.dispatch(
+      orderCancelledMail(order, this.currency, this.text, this.common),
+      {
+        to: staffInbox(),
+        // As on the arrival notification: a manager reading it on a phone
+        // rings the customer back, not the shop's own inbox.
+        replyTo: order.contact.email,
+      },
+      'staff cancellation notification',
+    );
+  }
+
+  /**
+   * The customer's mail about their order (FR-NOTIF-03).
+   *
+   * To the address on the order, like the receipt — a colleague named as the
+   * contact is the person the shop has been talking to about it.
+   *
+   * `requested` reaches this now: a finished order reopened and told about
+   * again is back where it started, and saying so is the honest mail. An order
+   * *arriving* is still the receipt's job and never comes through here.
+   *
+   * `notice` is why this message exists, which the status cannot say: a move
+   * on, a move walked back, or a change that moved nothing at all.
+   */
+  async statusChanged(
+    order: AdminOrderDetail,
+    publicToken: string,
+    notice: OrderNotice,
+    /** What the shop said about every change written since this customer was
+     * last told (FR-ORD-03), oldest first. Empty on a plain move. */
+    changes: readonly string[] = [],
+    /** The shop's payment instructions, where the order has them and the
+     * customer is being asked for money (FR-ORD-05). Fetched by the caller,
+     * which is where the document store lives. */
+    attachments: readonly MailAttachment[] = [],
+  ): Promise<void> {
+    const status = order.status;
+    await this.mail.dispatch(
+      orderStatusChangedMail(
+        order,
+        status,
+        notice,
+        order.customerEmail ? null : publicToken,
+        this.currency,
+        this.text,
+        this.common,
+        changes,
+        attachments.length > 0,
+      ),
+      { to: order.contact.email, attachments },
+      'order status mail',
+    );
+  }
+
+  /**
+   * A document arriving, said on its own (FR-ORD-05).
+   *
+   * Not a status mail: nothing moved and nothing about the order changed, so
+   * it borrows none of that wording. The payment instructions travel with it —
+   * the whole point of the message is that the customer now has something to
+   * act on — while a summary is linked, because the link always shows the
+   * version they are entitled to and an attachment freezes one.
+   */
+  async documentSupplied(
+    order: AdminOrderDetail,
+    kind: OrderDocumentKind,
+    publicToken: string,
+    attachments: readonly MailAttachment[] = [],
+  ): Promise<void> {
+    await this.mail.dispatch(
+      orderDocumentMail(
+        order,
+        kind,
+        order.customerEmail ? null : publicToken,
+        this.currency,
+        this.text,
+        this.common,
+      ),
+      { to: order.contact.email, attachments },
+      'order document mail',
+    );
+  }
+}

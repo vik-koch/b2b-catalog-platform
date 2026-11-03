@@ -1,16 +1,16 @@
 import { oc } from '@orpc/contract';
 import * as z from 'zod';
 import { machineAuthErrors } from './machine.contract';
-import { CART_LINES_MAX } from '../lib/orders/cart-constants';
+import { CART_LINES_MAX } from '../core/ordering/cart-constants';
 import {
   ORDER_ADJUSTMENT_NOTE_MAX,
   ORDER_STATUS_REASON_MAX,
   ORDER_WRITE_ACTOR_MAX,
-} from '../lib/orders/order-constants';
+} from '../core/ordering/order-constants';
 import {
   orderStatusSchema,
   paymentStateSchema,
-} from '../lib/orders/orders.contract';
+} from '../core/ordering/orders.contract';
 import { ownershipErrors } from './ownership-constants';
 import { LINE_PIECES_MAX } from '../core/catalog/product-units';
 import {
