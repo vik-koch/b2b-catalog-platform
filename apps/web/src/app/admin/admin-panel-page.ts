@@ -13,7 +13,6 @@ import { ADMIN_TEXT } from '../shared/config/admin-text';
 import { SHARED_TEXT } from '../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../shared/config/deployment-config';
 import { usePageSeo } from '../shared/core/page-seo';
-import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';
 import { ActionLink } from '@b2b-catalog-platform/ui/actions/action-link';
 import { WorkService } from '../shared/work/work.service';
@@ -49,7 +48,6 @@ import { SectionTitle } from '@b2b-catalog-platform/ui/content/section-title';
     SectionTitle,
     Card,
     SignedInAs,
-    Icon,
     PanelRow,
     StatusBadge,
     ActionLink,
@@ -94,9 +92,9 @@ import { SectionTitle } from '@b2b-catalog-platform/ui/content/section-title';
             <h2
               id="admin-orders-heading"
               uiSectionTitle
-              class="mb-1.5 flex items-center gap-2"
+              class="mb-1.5"
+              [glyph]="clipboardListIcon"
             >
-              <ui-icon [glyph]="clipboardListIcon" class="size-4" />
               {{ panelText.orders }}
             </h2>
             <ul
@@ -159,9 +157,9 @@ import { SectionTitle } from '@b2b-catalog-platform/ui/content/section-title';
               <h2
                 id="admin-catalog-heading"
                 uiSectionTitle
-                class="mb-1.5 flex items-center gap-2"
+                class="mb-1.5"
+                [glyph]="packageIcon"
               >
-                <ui-icon [glyph]="packageIcon" class="size-4" />
                 {{ panelText.catalog }}
               </h2>
               <ul
@@ -266,9 +264,9 @@ import { SectionTitle } from '@b2b-catalog-platform/ui/content/section-title';
               <h2
                 id="admin-pages-heading"
                 uiSectionTitle
-                class="mb-1.5 flex items-center gap-2"
+                class="mb-1.5"
+                [glyph]="fileTextIcon"
               >
-                <ui-icon [glyph]="fileTextIcon" class="size-4" />
                 {{ panelText.pages }}
               </h2>
               <ul
@@ -295,9 +293,9 @@ import { SectionTitle } from '@b2b-catalog-platform/ui/content/section-title';
             <h2
               id="admin-security-heading"
               uiSectionTitle
-              class="mb-1.5 flex items-center gap-2"
+              class="mb-1.5"
+              [glyph]="lockIcon"
             >
-              <ui-icon [glyph]="lockIcon" class="size-4" />
               {{ panelText.securityHeading }}
             </h2>
             <ul
@@ -323,9 +321,9 @@ import { SectionTitle } from '@b2b-catalog-platform/ui/content/section-title';
             <h2
               id="admin-accounts-heading"
               uiSectionTitle
-              class="mb-1.5 flex items-center gap-2"
+              class="mb-1.5"
+              [glyph]="usersIcon"
             >
-              <ui-icon [glyph]="usersIcon" class="size-4" />
               {{ panelText.accounts }}
             </h2>
             <ul
@@ -389,9 +387,9 @@ import { SectionTitle } from '@b2b-catalog-platform/ui/content/section-title';
               <h2
                 id="admin-registries-heading"
                 uiSectionTitle
-                class="mb-1.5 flex items-center gap-2"
+                class="mb-1.5"
+                [glyph]="funnelIcon"
               >
-                <ui-icon [glyph]="funnelIcon" class="size-4" />
                 {{ panelText.registries }}
               </h2>
               <ul
@@ -424,9 +422,9 @@ import { SectionTitle } from '@b2b-catalog-platform/ui/content/section-title';
                 <h2
                   id="admin-consents-heading"
                   uiSectionTitle
-                  class="mb-1.5 flex items-center gap-2"
+                  class="mb-1.5"
+                  [glyph]="bookCheckIcon"
                 >
-                  <ui-icon [glyph]="bookCheckIcon" class="size-4" />
                   {{ consentText.page.title }}
                 </h2>
                 <ul
@@ -459,9 +457,9 @@ import { SectionTitle } from '@b2b-catalog-platform/ui/content/section-title';
               <h2
                 id="admin-operations-heading"
                 uiSectionTitle
-                class="mb-1.5 flex items-center gap-2"
+                class="mb-1.5"
+                [glyph]="wrenchIcon"
               >
-                <ui-icon [glyph]="wrenchIcon" class="size-4" />
                 {{ panelText.operations }}
               </h2>
               <ul

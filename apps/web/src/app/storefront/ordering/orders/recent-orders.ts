@@ -5,7 +5,6 @@ import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
 import { WorkService } from '../../../shared/work/work.service';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { ActionLink } from '@b2b-catalog-platform/ui/actions/action-link';
-import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { shoppingBasketIcon } from '@b2b-catalog-platform/ui/icons/glyphs/shopping-basket';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import { Card } from '@b2b-catalog-platform/ui/content/card';
@@ -27,14 +26,12 @@ const RECENT_ORDERS = 5;
     Button,
     OrderRows,
     RouterLink,
-    Icon,
     ActionLink,
     ErrorText,
   ],
   template: `
     <section>
-      <h2 uiSectionTitle class="mb-1.5 flex items-center gap-2">
-        <ui-icon [glyph]="shoppingBasketIcon" class="size-4" />
+      <h2 uiSectionTitle class="mb-1.5" [glyph]="shoppingBasketIcon">
         {{ orderText.heading }}
       </h2>
       <div uiCard>

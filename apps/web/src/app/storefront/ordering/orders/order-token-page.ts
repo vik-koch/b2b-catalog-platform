@@ -15,6 +15,7 @@ import { useCustomerOrderView } from './customer-order-view';
 import { OrdersService } from './orders.service';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { Card } from '@b2b-catalog-platform/ui/content/card';
+import { SummaryLayout } from '@b2b-catalog-platform/ui/content/summary-layout';
 
 /**
  * An order opened by the link its mail carries (FR-NOTIF-06). The token is the
@@ -25,6 +26,7 @@ import { Card } from '@b2b-catalog-platform/ui/content/card';
 @Component({
   selector: 'app-order-token-page',
   imports: [
+    SummaryLayout,
     Card,
     RouterLink,
     Button,
@@ -38,64 +40,52 @@ import { Card } from '@b2b-catalog-platform/ui/content/card';
   ],
   template: `
     @if (detail(); as order) {
-      <!-- The account's order page layout: the same order, read by token. -->
-      <div class="@container/order">
-        <div
-          class="grid gap-10
-                 @min-[63.75rem]/order:grid-cols-[36rem_20rem]
-                 @min-[63.75rem]/order:justify-between"
-        >
-          <div class="max-w-xl">
-            <app-order-heading [order]="order" />
-            <p class="mt-4 max-w-xl text-ink-subtle">{{ text.intro }}</p>
+      <ui-summary-layout track="measure">
+        <div class="max-w-xl">
+          <app-order-heading [order]="order" />
+          <p class="mt-4 max-w-xl text-ink-subtle">{{ text.intro }}</p>
 
-            <app-order-read-back
-              class="mt-8"
-              [lines]="lines()"
-              [blocks]="blocks()"
-            />
-          </div>
-
-          <aside
-            class="max-w-xl
-                   @min-[63.75rem]/order:mt-9 @min-[63.75rem]/order:sticky
-                   @min-[63.75rem]/order:top-20
-                   @min-[63.75rem]/order:self-start"
-          >
-            <app-order-summary
-              [lineCount]="order.lines.length"
-              [subtotalMinor]="order.totalMinor"
-              [shipment]="order.shipment"
-              [taxRates]="taxRates()"
-              [taxBasis]="order.taxBasis"
-            />
-
-            @if (order.documents.length) {
-              <app-order-documents-list
-                class="mt-5"
-                [documents]="order.documents"
-                [by]="{ token: token() }"
-              />
-            }
-
-            <!-- The account offer checkout postpones; never to somebody signed
-                 in, who may have followed a forwarded link. -->
-            @if (!signedIn()) {
-              <div uiCard class="mt-5">
-                <p class="text-sm text-ink-subtle">{{ invite.text }}</p>
-                <a
-                  uiButton
-                  variant="secondary"
-                  routerLink="/register"
-                  class="mt-4 w-full"
-                >
-                  {{ invite.action }}
-                </a>
-              </div>
-            }
-          </aside>
+          <app-order-read-back
+            class="mt-8"
+            [lines]="lines()"
+            [blocks]="blocks()"
+          />
         </div>
-      </div>
+
+        <aside summary>
+          <app-order-summary
+            [lineCount]="order.lines.length"
+            [subtotalMinor]="order.totalMinor"
+            [shipment]="order.shipment"
+            [taxRates]="taxRates()"
+            [taxBasis]="order.taxBasis"
+          />
+
+          @if (order.documents.length) {
+            <app-order-documents-list
+              class="mt-5"
+              [documents]="order.documents"
+              [by]="{ token: token() }"
+            />
+          }
+
+          <!-- The account offer checkout postpones; never to somebody signed
+                 in, who may have followed a forwarded link. -->
+          @if (!signedIn()) {
+            <div uiCard class="mt-5">
+              <p class="text-sm text-ink-subtle">{{ invite.text }}</p>
+              <a
+                uiButton
+                variant="secondary"
+                routerLink="/register"
+                class="mt-4 w-full"
+              >
+                {{ invite.action }}
+              </a>
+            </div>
+          }
+        </aside>
+      </ui-summary-layout>
     } @else if (missing()) {
       <app-not-found-view
         [body]="text.notFound"

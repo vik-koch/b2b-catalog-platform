@@ -86,6 +86,7 @@ import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { Hint } from '@b2b-catalog-platform/ui/fields/hint';
 import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
+import { SummaryLayout } from '@b2b-catalog-platform/ui/content/summary-layout';
 
 /** The typing pause before re-pricing. */
 const PREVIEW_DEBOUNCE_MS = 250;
@@ -98,6 +99,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
 @Component({
   selector: 'app-order-adjust-page',
   imports: [
+    SummaryLayout,
     OrderAdjustDetails,
     Button,
     Checkbox,
@@ -143,258 +145,245 @@ const PREVIEW_DEBOUNCE_MS = 250;
         </a>
       </div>
     } @else if (order(); as loaded) {
-      <div class="@container/adjust">
-        <div
-          class="grid gap-10
-                 @min-[63.75rem]/adjust:grid-cols-[1fr_20rem]
-                 @min-[63.75rem]/adjust:justify-between"
-        >
-          <div class="max-w-xl">
-            <h1 uiPageTitle>{{ title() }}</h1>
-            @if (text.page.intro; as intro) {
-              <p uiPageIntro class="mt-2">{{ intro }}</p>
-            }
+      <ui-summary-layout track="fill">
+        <div class="max-w-xl">
+          <h1 uiPageTitle>{{ title() }}</h1>
+          @if (text.page.intro; as intro) {
+            <p uiPageIntro class="mt-2">{{ intro }}</p>
+          }
 
-            <!-- Amber: none of these refuses; they are to be weighed. -->
-            @if (loaded.paymentState === 'paid') {
-              <ui-warning-note class="mt-4">
-                {{ text.warnPaid }}
-              </ui-warning-note>
-            }
-            @if (loaded.status === 'ready') {
-              <ui-warning-note class="mt-4">
-                {{ text.warnReady }}
-              </ui-warning-note>
-            }
-            @if (ended(loaded)) {
-              <ui-warning-note class="mt-4">
-                {{ text.warnEnded }}
-              </ui-warning-note>
-            }
+          <!-- Amber: none of these refuses; they are to be weighed. -->
+          @if (loaded.paymentState === 'paid') {
+            <ui-warning-note class="mt-4">
+              {{ text.warnPaid }}
+            </ui-warning-note>
+          }
+          @if (loaded.status === 'ready') {
+            <ui-warning-note class="mt-4">
+              {{ text.warnReady }}
+            </ui-warning-note>
+          }
+          @if (ended(loaded)) {
+            <ui-warning-note class="mt-4">
+              {{ text.warnEnded }}
+            </ui-warning-note>
+          }
 
-            <!-- Two folds for two jobs: lines and prices, then party, delivery
+          <!-- Two folds for two jobs: lines and prices, then party, delivery
                  and payment. -->
-            <div class="mt-4 space-y-6">
-              <section
-                class="rounded-md border"
-                uiDisclosureFrame
+          <div class="mt-4 space-y-6">
+            <section
+              class="rounded-md border"
+              uiDisclosureFrame
+              [open]="itemsOpen()"
+            >
+              <ui-disclosure-toggle
+                [label]="ordersText.items"
+                [count]="rows().length"
+                [countLabel]="lineCount()"
                 [open]="itemsOpen()"
-              >
-                <ui-disclosure-toggle
-                  [label]="ordersText.items"
-                  [count]="rows().length"
-                  [countLabel]="lineCount()"
-                  [open]="itemsOpen()"
-                  [panelId]="itemsPanelId"
-                  (toggled)="itemsOpen.set(!itemsOpen())"
-                />
-                @if (itemsOpen()) {
-                  <div
-                    [id]="itemsPanelId"
-                    class="space-y-6 border-t border-edge p-4"
-                  >
-                    <!-- A pricing refusal, beside the lines it could not price.
+                [panelId]="itemsPanelId"
+                (toggled)="itemsOpen.set(!itemsOpen())"
+              />
+              @if (itemsOpen()) {
+                <div
+                  [id]="itemsPanelId"
+                  class="space-y-6 border-t border-edge p-4"
+                >
+                  <!-- A pricing refusal, beside the lines it could not price.
                          -->
-                    @if (refusalOn() === 'lines') {
-                      <p uiErrorText role="alert">
-                        {{ refusalMessage() }}
-                      </p>
-                    }
-                    <app-order-adjust-lines
-                      class="mb-4"
-                      [lines]="rows()"
-                      [disabled]="saving()"
-                      (piecesChanged)="setPieces($event.index, $event.pieces)"
-                      (priceChanged)="setPrice($event.index, $event.price)"
-                      (moved)="moveLine($event.from, $event.to)"
-                      (removed)="removeLine($event)"
-                      (added)="addLine($event)"
-                    />
+                  @if (refusalOn() === 'lines') {
+                    <p uiErrorText role="alert">
+                      {{ refusalMessage() }}
+                    </p>
+                  }
+                  <app-order-adjust-lines
+                    class="mb-4"
+                    [lines]="rows()"
+                    [disabled]="saving()"
+                    (piecesChanged)="setPieces($event.index, $event.pieces)"
+                    (priceChanged)="setPrice($event.index, $event.price)"
+                    (moved)="moveLine($event.from, $event.to)"
+                    (removed)="removeLine($event)"
+                    (added)="addLine($event)"
+                  />
 
-                    <div>
-                      <label uiFieldLabel for="adjust-tier">
-                        {{ ordersText.tier }}
-                      </label>
-                      <!-- List and its apply button, half the row each: one
+                  <div>
+                    <label uiFieldLabel for="adjust-tier">
+                      {{ ordersText.tier }}
+                    </label>
+                    <!-- List and its apply button, half the row each: one
                            action. -->
-                      <div class="grid gap-6 sm:grid-cols-2">
-                        <ui-select-input>
-                          <select
-                            uiInput
-                            id="adjust-tier"
-                            class="w-full"
-                            [disabled]="saving()"
-                            [value]="tierKey() ?? ''"
-                            (change)="setTier($any($event.target).value)"
-                          >
-                            <option value="">
-                              {{ ordersText.tierDefault }}
-                            </option>
-                            @for (tier of tiers(); track tier.key) {
-                              <option [value]="tier.key">
-                                {{ tier.label }}
-                              </option>
-                            }
-                          </select>
-                        </ui-select-input>
-                        <button
-                          uiButton
-                          type="button"
-                          variant="secondary"
+                    <div class="grid gap-6 sm:grid-cols-2">
+                      <ui-select-input>
+                        <select
+                          uiInput
+                          id="adjust-tier"
+                          class="w-full"
                           [disabled]="saving()"
-                          (click)="repriceFromList()"
+                          [value]="tierKey() ?? ''"
+                          (change)="setTier($any($event.target).value)"
                         >
-                          {{ text.reprice }}
-                        </button>
-                      </div>
+                          <option value="">
+                            {{ ordersText.tierDefault }}
+                          </option>
+                          @for (tier of tiers(); track tier.key) {
+                            <option [value]="tier.key">
+                              {{ tier.label }}
+                            </option>
+                          }
+                        </select>
+                      </ui-select-input>
+                      <button
+                        uiButton
+                        type="button"
+                        variant="secondary"
+                        [disabled]="saving()"
+                        (click)="repriceFromList()"
+                      >
+                        {{ text.reprice }}
+                      </button>
                     </div>
                   </div>
-                }
-              </section>
+                </div>
+              }
+            </section>
 
-              <section
-                class="rounded-md border"
-                uiDisclosureFrame
+            <section
+              class="rounded-md border"
+              uiDisclosureFrame
+              [open]="detailsOpen()"
+            >
+              <ui-disclosure-toggle
+                [label]="text.detailsHeading"
                 [open]="detailsOpen()"
-              >
-                <ui-disclosure-toggle
-                  [label]="text.detailsHeading"
-                  [open]="detailsOpen()"
-                  [panelId]="detailsPanelId"
-                  (toggled)="detailsOpen.set(!detailsOpen())"
-                />
-                @if (detailsOpen()) {
-                  <div
-                    [id]="detailsPanelId"
-                    class="space-y-8 border-t border-edge p-4"
-                  >
-                    <app-order-adjust-details
-                      [form]="form"
-                      [delivery]="delivery"
-                      [billing]="billing"
-                      [fulfilmentMethod]="fulfilmentMethod()"
-                      [pickupKey]="pickupKey()"
-                      [partyKind]="partyKind()"
-                      [paymentMethod]="paymentMethod()"
-                      [refusal]="
-                        refusalOn() === 'details' ? refusalMessage() : null
-                      "
-                      [disabled]="saving()"
-                      (fulfilmentChange)="setFulfilment($event)"
-                      (pickupKeyChange)="pickupKey.set($event)"
-                      (partyKindChange)="setPartyKind($event)"
-                      (paymentChange)="setPayment($event)"
-                    />
-                  </div>
-                }
-              </section>
-            </div>
+                [panelId]="detailsPanelId"
+                (toggled)="detailsOpen.set(!detailsOpen())"
+              />
+              @if (detailsOpen()) {
+                <div
+                  [id]="detailsPanelId"
+                  class="space-y-8 border-t border-edge p-4"
+                >
+                  <app-order-adjust-details
+                    [form]="form"
+                    [delivery]="delivery"
+                    [billing]="billing"
+                    [fulfilmentMethod]="fulfilmentMethod()"
+                    [pickupKey]="pickupKey()"
+                    [partyKind]="partyKind()"
+                    [paymentMethod]="paymentMethod()"
+                    [refusal]="
+                      refusalOn() === 'details' ? refusalMessage() : null
+                    "
+                    [disabled]="saving()"
+                    (fulfilmentChange)="setFulfilment($event)"
+                    (pickupKeyChange)="pickupKey.set($event)"
+                    (partyKindChange)="setPartyKind($event)"
+                    (paymentChange)="setPayment($event)"
+                  />
+                </div>
+              }
+            </section>
+          </div>
 
-            @if (formFailure(); as message) {
-              <p uiErrorText class="mt-6" role="alert">
+          @if (formFailure(); as message) {
+            <p uiErrorText class="mt-6" role="alert">
+              {{ message }}
+            </p>
+          }
+        </div>
+
+        <aside summary>
+          <!-- The customer's own words first: read-only, their half of the
+                 record. -->
+          <section class="mb-6">
+            <h2 class="mb-2 font-medium">{{ text.customerHeading }}</h2>
+            <p class="text-sm">{{ wished(loaded) }}</p>
+            <p class="text-sm text-ink-subtle">
+              {{ loaded.customerNote ?? text.customerNone }}
+            </p>
+          </section>
+
+          <app-order-adjust-changes
+            [heading]="text.changes.heading"
+            [empty]="text.changes.none"
+            [changes]="changes()"
+            [pending]="changesPending()"
+            [loading]="pricingLoading()"
+          />
+
+          <!-- A moved price, and one already off the list: invisible in a
+                 total, so said once at sign-off. -->
+          @for (notice of priceNotices(); track notice) {
+            <ui-warning-note class="mt-4">{{ notice }}</ui-warning-note>
+          }
+
+          <!-- The change note, quoted in the mail, just above the save. -->
+          <div class="mt-6">
+            <label uiFieldLabel for="adjust-note">{{ names.changeNote }}</label>
+            <textarea
+              uiInput
+              id="adjust-note"
+              rows="3"
+              class="w-full"
+              [attr.maxlength]="noteMax"
+              [attr.aria-invalid]="noteMissing() || null"
+              [disabled]="saving()"
+              [value]="note()"
+              (input)="note.set($any($event.target).value)"
+            ></textarea>
+            <p uiHint class="mt-1">{{ text.noteHint }}</p>
+            @if (noteMissing()) {
+              <p uiErrorText class="mt-1" role="alert">
+                {{ text.noteRequired }}
+              </p>
+            } @else if (noteFailure(); as message) {
+              <!-- "Nothing changed" names no field, so it reads beside the
+                     save. -->
+              <p uiErrorText class="mt-1" role="alert">
                 {{ message }}
               </p>
             }
           </div>
 
-          <aside
-            class="max-w-xl
-                   @min-[63.75rem]/adjust:mt-9 @min-[63.75rem]/adjust:sticky
-                   @min-[63.75rem]/adjust:top-20
-                   @min-[63.75rem]/adjust:self-start"
-          >
-            <!-- The customer's own words first: read-only, their half of the
-                 record. -->
-            <section class="mb-6">
-              <h2 class="mb-2 font-medium">{{ text.customerHeading }}</h2>
-              <p class="text-sm">{{ wished(loaded) }}</p>
-              <p class="text-sm text-ink-subtle">
-                {{ loaded.customerNote ?? text.customerNone }}
-              </p>
-            </section>
-
-            <app-order-adjust-changes
-              [heading]="text.changes.heading"
-              [empty]="text.changes.none"
-              [changes]="changes()"
-              [pending]="changesPending()"
-              [loading]="pricingLoading()"
-            />
-
-            <!-- A moved price, and one already off the list: invisible in a
-                 total, so said once at sign-off. -->
-            @for (notice of priceNotices(); track notice) {
-              <ui-warning-note class="mt-4">{{ notice }}</ui-warning-note>
-            }
-
-            <!-- The change note, quoted in the mail, just above the save. -->
-            <div class="mt-6">
-              <label uiFieldLabel for="adjust-note">{{
-                names.changeNote
-              }}</label>
-              <textarea
-                uiInput
-                id="adjust-note"
-                rows="3"
-                class="w-full"
-                [attr.maxlength]="noteMax"
-                [attr.aria-invalid]="noteMissing() || null"
-                [disabled]="saving()"
-                [value]="note()"
-                (input)="note.set($any($event.target).value)"
-              ></textarea>
-              <p uiHint class="mt-1">{{ text.noteHint }}</p>
-              @if (noteMissing()) {
-                <p uiErrorText class="mt-1" role="alert">
-                  {{ text.noteRequired }}
-                </p>
-              } @else if (noteFailure(); as message) {
-                <!-- "Nothing changed" names no field, so it reads beside the
-                     save. -->
-                <p uiErrorText class="mt-1" role="alert">
-                  {{ message }}
-                </p>
-              }
-            </div>
-
-            <!-- Off by default (FR-NOTIF-03): the following move's mail carries
+          <!-- Off by default (FR-NOTIF-03): the following move's mail carries
                  the news; this is for a change with none. -->
-            <label uiTickLabel class="mt-4">
-              <input
-                uiCheckbox
-                type="checkbox"
-                [disabled]="saving()"
-                [checked]="notify()"
-                (change)="notify.set($any($event.target).checked)"
-              />
-              <span>
-                {{ text.notify }}
-                <span uiHint>
-                  {{ text.notifyHint }}
-                </span>
-              </span>
-            </label>
-
-            <button
-              uiButton
-              type="button"
-              class="mt-5 w-full"
+          <label uiTickLabel class="mt-4">
+            <input
+              uiCheckbox
+              type="checkbox"
               [disabled]="saving()"
-              (click)="save()"
-            >
-              {{ text.save }}
-            </button>
-            <a
-              uiButton
-              variant="secondary"
-              class="mt-3 w-full"
-              [routerLink]="['/admin/orders', reference()]"
-            >
-              {{ text.cancel }}
-            </a>
-          </aside>
-        </div>
-      </div>
+              [checked]="notify()"
+              (change)="notify.set($any($event.target).checked)"
+            />
+            <span>
+              {{ text.notify }}
+              <span uiHint>
+                {{ text.notifyHint }}
+              </span>
+            </span>
+          </label>
+
+          <button
+            uiButton
+            type="button"
+            class="mt-5 w-full"
+            [disabled]="saving()"
+            (click)="save()"
+          >
+            {{ text.save }}
+          </button>
+          <a
+            uiButton
+            variant="secondary"
+            class="mt-3 w-full"
+            [routerLink]="['/admin/orders', reference()]"
+          >
+            {{ text.cancel }}
+          </a>
+        </aside>
+      </ui-summary-layout>
     } @else if (missing()) {
       <p class="text-ink-subtle">{{ ordersText.notFound }}</p>
       <a uiButton variant="secondary" routerLink="/admin/orders" class="mt-5">

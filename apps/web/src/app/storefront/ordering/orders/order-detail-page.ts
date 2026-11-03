@@ -31,6 +31,7 @@ import { OrderHeading } from './ui/order-heading';
 import { useCustomerOrderView } from './customer-order-view';
 import { OrdersService } from './orders.service';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
+import { SummaryLayout } from '@b2b-catalog-platform/ui/content/summary-layout';
 
 /**
  * One of the account's own orders (FR-ACC-01). Read-only but for calling it
@@ -39,6 +40,7 @@ import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 @Component({
   selector: 'app-order-detail-page',
   imports: [
+    SummaryLayout,
     RouterLink,
     Button,
     NotFoundView,
@@ -51,73 +53,60 @@ import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
   ],
   template: `
     @if (detail(); as detail) {
-      <!-- The cart's two columns at the cart's notch, measured on the page,
-           so the card sits where it sat on the cart and checkout. -->
-      <div class="@container/order">
-        <div
-          class="grid gap-10
-                 @min-[63.75rem]/order:grid-cols-[36rem_20rem]
-                 @min-[63.75rem]/order:justify-between"
-        >
-          <div class="max-w-xl">
-            <app-order-heading [order]="detail" />
+      <ui-summary-layout track="measure">
+        <div class="max-w-xl">
+          <app-order-heading [order]="detail" />
 
-            <app-order-read-back
-              class="mt-8"
-              [lines]="lines()"
-              [blocks]="blocks()"
-            />
-          </div>
-
-          <aside
-            class="max-w-xl
-                   @min-[63.75rem]/order:mt-9 @min-[63.75rem]/order:sticky
-                   @min-[63.75rem]/order:top-20
-                   @min-[63.75rem]/order:self-start"
-          >
-            <app-order-summary
-              [lineCount]="detail.lines.length"
-              [subtotalMinor]="detail.totalMinor"
-              [shipment]="detail.shipment"
-              [taxRates]="taxRates()"
-              [taxBasis]="detail.taxBasis"
-            />
-            @if (detail.documents.length) {
-              <app-order-documents-list
-                class="mt-5"
-                [documents]="detail.documents"
-                [by]="{ reference: detail.reference }"
-              />
-            }
-
-            @if (cancellable()) {
-              <button
-                uiButton
-                variant="dangerOutline"
-                type="button"
-                class="mt-5 w-full"
-                [disabled]="cancelling()"
-                (click)="cancel(detail)"
-              >
-                {{ text.cancel.action }}
-              </button>
-            }
-            @if (cancelFailed()) {
-              <p uiErrorText class="mt-3" role="alert">
-                {{ text.cancel.error }}
-              </p>
-            }
-            <a
-              uiButton
-              variant="secondary"
-              routerLink="/account/orders"
-              class="mt-5 w-full"
-            >
-              {{ text.backToList }}
-            </a>
-          </aside>
+          <app-order-read-back
+            class="mt-8"
+            [lines]="lines()"
+            [blocks]="blocks()"
+          />
         </div>
-      </div>
+
+        <aside summary>
+          <app-order-summary
+            [lineCount]="detail.lines.length"
+            [subtotalMinor]="detail.totalMinor"
+            [shipment]="detail.shipment"
+            [taxRates]="taxRates()"
+            [taxBasis]="detail.taxBasis"
+          />
+          @if (detail.documents.length) {
+            <app-order-documents-list
+              class="mt-5"
+              [documents]="detail.documents"
+              [by]="{ reference: detail.reference }"
+            />
+          }
+
+          @if (cancellable()) {
+            <button
+              uiButton
+              variant="dangerOutline"
+              type="button"
+              class="mt-5 w-full"
+              [disabled]="cancelling()"
+              (click)="cancel(detail)"
+            >
+              {{ text.cancel.action }}
+            </button>
+          }
+          @if (cancelFailed()) {
+            <p uiErrorText class="mt-3" role="alert">
+              {{ text.cancel.error }}
+            </p>
+          }
+          <a
+            uiButton
+            variant="secondary"
+            routerLink="/account/orders"
+            class="mt-5 w-full"
+          >
+            {{ text.backToList }}
+          </a>
+        </aside>
+      </ui-summary-layout>
     } @else if (missing()) {
       <app-not-found-view
         [body]="text.notFound"

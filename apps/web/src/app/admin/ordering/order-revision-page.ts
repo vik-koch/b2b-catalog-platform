@@ -41,6 +41,7 @@ import { OrderDocumentsPanel } from './order-documents-panel';
 import { revisionKindLabel } from './revision-labels';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
 import { Card } from '@b2b-catalog-platform/ui/content/card';
+import { SummaryLayout } from '@b2b-catalog-platform/ui/content/summary-layout';
 
 /** One version read back (FR-ORD-03): **the customer's page on a staff
  * screen**, plus which version it is, which they are shown, and the money. No
@@ -48,6 +49,7 @@ import { Card } from '@b2b-catalog-platform/ui/content/card';
 @Component({
   selector: 'app-admin-order-revision-page',
   imports: [
+    SummaryLayout,
     Card,
     RouterLink,
     Button,
@@ -60,136 +62,120 @@ import { Card } from '@b2b-catalog-platform/ui/content/card';
   ],
   template: `
     @if (revision(); as order) {
-      <div class="@container/order">
-        <div
-          class="grid gap-10
-                 @min-[63.75rem]/order:grid-cols-[1fr_20rem]
-                 @min-[63.75rem]/order:justify-between"
-        >
-          <div class="min-w-0">
-            <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
-              <h1 uiPageTitle>
-                {{ order.reference }}
-              </h1>
-              <span uiStatusBadge [tone]="statusTone()">
-                {{ statusLabel() }}
-              </span>
-            </div>
-            <p class="mt-2 text-ink-subtle">{{ placed() }}</p>
-
-            <!-- The order page's staff block, without controls. -->
-            <section uiCard class="mt-4 text-sm">
-              <dl
-                class="grid gap-x-6 gap-y-3 wrap-break-word
-                       sm:grid-cols-[7rem_1fr]"
-              >
-                <dt class="text-ink-subtle">{{ ordersText.account }}</dt>
-                <dd>{{ order.customerEmail ?? ordersText.guest }}</dd>
-                <dt class="text-ink-subtle">{{ ordersText.tier }}</dt>
-                <dd>{{ order.tierKey ?? ordersText.tierDefault }}</dd>
-
-                <dt class="text-ink-subtle">
-                  {{ names.payment }}
-                </dt>
-                <dd>{{ paymentLabel() }}</dd>
-
-                <dt class="text-ink-subtle">{{ names.status }}</dt>
-                <dd class="min-w-0">
-                  <span uiStatusBadge [tone]="statusTone()">
-                    {{ statusLabel() }}
-                  </span>
-                  @if (order.statusReason; as reason) {
-                    <p class="mt-1">
-                      <span class="text-ink-subtle"> {{ names.reason }}: </span>
-                      {{ reason }}
-                    </p>
-                  }
-                  @if (order.changes.length) {
-                    <div class="mt-1 ">
-                      <span class="text-ink-subtle"
-                        >{{ names.changeNote }}:</span
-                      >
-                      @for (change of order.changes; track $index) {
-                        <span class="block">{{ change }}</span>
-                      }
-                    </div>
-                  }
-                </dd>
-
-                <!-- What the customer knows, above the version row as on the
-                     order page. -->
-                <dt class="text-ink-subtle">
-                  {{ detailText.tellCustomer.heading }}
-                </dt>
-                <dd>
-                  {{ order.customerView ? text.customerView : customerSees() }}
-                  @if (notified(); as notified) {
-                    <p class="mt-1 text-ink-subtle">{{ notified }}</p>
-                  }
-                </dd>
-
-                <!-- The two questions only this page is asked. -->
-                <dt class="text-ink-subtle">{{ text.heading }}</dt>
-                <dd>
-                  {{ written() }}
-                  <p class="mt-1 text-ink-subtle">{{ kindLabel() }}</p>
-                </dd>
-              </dl>
-            </section>
-
-            <app-order-read-back
-              class="mt-8 max-w-xl"
-              [lines]="lines()"
-              [blocks]="blocks()"
-            />
+      <ui-summary-layout track="fill">
+        <div class="min-w-0">
+          <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
+            <h1 uiPageTitle>
+              {{ order.reference }}
+            </h1>
+            <span uiStatusBadge [tone]="statusTone()">
+              {{ statusLabel() }}
+            </span>
           </div>
+          <p class="mt-2 text-ink-subtle">{{ placed() }}</p>
 
-          <aside
-            class="max-w-xl
-                   @min-[63.75rem]/order:mt-9 @min-[63.75rem]/order:sticky
-                   @min-[63.75rem]/order:top-20
-                   @min-[63.75rem]/order:self-start"
-          >
-            <app-order-summary
-              [lineCount]="order.lines.length"
-              [subtotalMinor]="order.totalMinor"
-              [shipment]="order.shipment"
-              [taxRates]="taxRates()"
-              [taxBasis]="order.taxBasis"
-            />
-            <!-- Documents (FR-ORD-05), stale as of this version; read-only. -->
-            @if (order.documents.length) {
-              <section uiCard class="mt-5">
-                <h2 class="font-medium">{{ documentsText.heading }}</h2>
-                <div class="mt-1 text-sm">
-                  <app-order-documents-panel
-                    [order]="order"
-                    [readOnly]="true"
-                  />
-                </div>
-              </section>
-            }
+          <!-- The order page's staff block, without controls. -->
+          <section uiCard class="mt-4 text-sm">
+            <dl
+              class="grid gap-x-6 gap-y-3 wrap-break-word
+                     sm:grid-cols-[7rem_1fr]"
+            >
+              <dt class="text-ink-subtle">{{ ordersText.account }}</dt>
+              <dd>{{ order.customerEmail ?? ordersText.guest }}</dd>
+              <dt class="text-ink-subtle">{{ ordersText.tier }}</dt>
+              <dd>{{ order.tierKey ?? ordersText.tierDefault }}</dd>
 
-            <!-- The way to the order page, which does everything; otherwise to
-                 the order as it stands. -->
-            <a
-              uiButton
-              class="mt-5 w-full"
-              [routerLink]="['/admin/orders', reference()]"
-            >
-              {{ locked() ? text.openOrder : text.openControls }}
-            </a>
-            <a
-              uiButton
-              variant="secondary"
-              routerLink="/admin/orders"
-              class="mt-3 w-full"
-            >
-              {{ detailText.back }}
-            </a>
-          </aside>
+              <dt class="text-ink-subtle">
+                {{ names.payment }}
+              </dt>
+              <dd>{{ paymentLabel() }}</dd>
+
+              <dt class="text-ink-subtle">{{ names.status }}</dt>
+              <dd class="min-w-0">
+                <span uiStatusBadge [tone]="statusTone()">
+                  {{ statusLabel() }}
+                </span>
+                @if (order.statusReason; as reason) {
+                  <p class="mt-1">
+                    <span class="text-ink-subtle"> {{ names.reason }}: </span>
+                    {{ reason }}
+                  </p>
+                }
+                @if (order.changes.length) {
+                  <div class="mt-1 ">
+                    <span class="text-ink-subtle">{{ names.changeNote }}:</span>
+                    @for (change of order.changes; track $index) {
+                      <span class="block">{{ change }}</span>
+                    }
+                  </div>
+                }
+              </dd>
+
+              <!-- What the customer knows, above the version row as on the
+                     order page. -->
+              <dt class="text-ink-subtle">
+                {{ detailText.tellCustomer.heading }}
+              </dt>
+              <dd>
+                {{ order.customerView ? text.customerView : customerSees() }}
+                @if (notified(); as notified) {
+                  <p class="mt-1 text-ink-subtle">{{ notified }}</p>
+                }
+              </dd>
+
+              <!-- The two questions only this page is asked. -->
+              <dt class="text-ink-subtle">{{ text.heading }}</dt>
+              <dd>
+                {{ written() }}
+                <p class="mt-1 text-ink-subtle">{{ kindLabel() }}</p>
+              </dd>
+            </dl>
+          </section>
+
+          <app-order-read-back
+            class="mt-8 max-w-xl"
+            [lines]="lines()"
+            [blocks]="blocks()"
+          />
         </div>
-      </div>
+
+        <aside summary>
+          <app-order-summary
+            [lineCount]="order.lines.length"
+            [subtotalMinor]="order.totalMinor"
+            [shipment]="order.shipment"
+            [taxRates]="taxRates()"
+            [taxBasis]="order.taxBasis"
+          />
+          <!-- Documents (FR-ORD-05), stale as of this version; read-only. -->
+          @if (order.documents.length) {
+            <section uiCard class="mt-5">
+              <h2 class="font-medium">{{ documentsText.heading }}</h2>
+              <div class="mt-1 text-sm">
+                <app-order-documents-panel [order]="order" [readOnly]="true" />
+              </div>
+            </section>
+          }
+
+          <!-- The way to the order page, which does everything; otherwise to
+                 the order as it stands. -->
+          <a
+            uiButton
+            class="mt-5 w-full"
+            [routerLink]="['/admin/orders', reference()]"
+          >
+            {{ locked() ? text.openOrder : text.openControls }}
+          </a>
+          <a
+            uiButton
+            variant="secondary"
+            routerLink="/admin/orders"
+            class="mt-3 w-full"
+          >
+            {{ detailText.back }}
+          </a>
+        </aside>
+      </ui-summary-layout>
     } @else if (missing()) {
       <p class="text-ink-subtle">{{ ordersText.notFound }}</p>
       <a uiButton variant="secondary" routerLink="/admin/orders" class="mt-5">

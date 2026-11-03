@@ -416,7 +416,8 @@ describe('CheckoutPage', () => {
      */
     it('keeps the summary hidden until the form is drawn', async () => {
       const page = await render({ holdProfile: true });
-      const aside = page.el.querySelector('aside');
+      // The layout holds the card's column, not the card itself.
+      const aside = page.el.querySelector('aside')?.parentElement;
 
       expect(aside?.classList).toContain('invisible');
 

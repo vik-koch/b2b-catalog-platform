@@ -50,6 +50,7 @@ import { Notice } from '@b2b-catalog-platform/ui/content/notice';
 import { shoppingBasketIcon } from '@b2b-catalog-platform/ui/icons/glyphs/shopping-basket';
 import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
 import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
+import { SummaryLayout } from '@b2b-catalog-platform/ui/content/summary-layout';
 
 /** Lines per cart page (FR-CART-02): a row is a product row, and a long scroll
  * leaves the summary behind. Not in the URL: the cart is this browser's
@@ -97,6 +98,7 @@ interface CartRow {
 @Component({
   selector: 'app-cart-page',
   imports: [
+    SummaryLayout,
     Notice,
     WarningNote,
     AutoGrow,
@@ -132,234 +134,222 @@ interface CartRow {
         </p>
       }
 
-      <!-- The card moves beside the lines where they keep their shape:
-           LISTING_NARROW plus 20rem and the gap. Measured on the page: the
-           frame's padding and scrollbar are invisible to a media query. -->
-      <div class="@container/cart">
-        <div class="grid gap-10 @min-[63.75rem]/cart:grid-cols-[1fr_20rem]">
-          <div>
-            <!-- What changed since last time (FR-CART-10): news, so
+      <ui-summary-layout track="fill">
+        <div>
+          <!-- What changed since last time (FR-CART-10): news, so
                  dismissible; each line also states its own state. -->
-            @if (changes().length) {
-              <section
-                uiNotice
-                tone="warning"
-                class="mb-6"
-                [attr.aria-label]="changeText.heading"
-              >
-                <div class="flex items-start justify-between gap-4">
-                  <h2 class="font-medium">{{ changeText.heading }}</h2>
-                  <button
-                    type="button"
-                    uiIconButton
-                    class="-mt-1 -mr-1 shrink-0"
-                    [attr.aria-label]="changeText.dismissAria"
-                    (click)="cart.dismissChanges()"
-                  >
-                    <ui-icon [glyph]="xIcon" />
-                  </button>
-                </div>
-                <ul class="mt-1 space-y-1">
-                  @for (change of changes(); track change.slug) {
-                    <li>{{ changeMessage(change) }}</li>
-                  }
-                </ul>
-              </section>
-            }
-            <!-- In the column, so the summary starts level with the heading.
+          @if (changes().length) {
+            <section
+              uiNotice
+              tone="warning"
+              class="mb-6"
+              [attr.aria-label]="changeText.heading"
+            >
+              <div class="flex items-start justify-between gap-4">
+                <h2 class="font-medium">{{ changeText.heading }}</h2>
+                <button
+                  type="button"
+                  uiIconButton
+                  class="-mt-1 -mr-1 shrink-0"
+                  [attr.aria-label]="changeText.dismissAria"
+                  (click)="cart.dismissChanges()"
+                >
+                  <ui-icon [glyph]="xIcon" />
+                </button>
+              </div>
+              <ul class="mt-1 space-y-1">
+                @for (change of changes(); track change.slug) {
+                  <li>{{ changeMessage(change) }}</li>
+                }
+              </ul>
+            </section>
+          }
+          <!-- In the column, so the summary starts level with the heading.
                  -->
-            <h1 class="mb-4 text-2xl font-medium tracking-tight sm:text-3xl">
-              {{ text.title }}
-            </h1>
+          <h1 class="mb-4 text-2xl font-medium tracking-tight sm:text-3xl">
+            {{ text.title }}
+          </h1>
 
-            <!-- Before the first row: they act on the ticks below. -->
-            <div class="flex items-center gap-4 pb-2 text-sm">
-              <!-- In the rows' tick column; indeterminate while some are
+          <!-- Before the first row: they act on the ticks below. -->
+          <div class="flex items-center gap-4 pb-2 text-sm">
+            <!-- In the rows' tick column; indeterminate while some are
                    ticked. -->
-              <label class="flex cursor-pointer items-center gap-2 text-accent">
-                <input
-                  type="checkbox"
-                  uiCheckbox
-                  [checked]="allSelected()"
-                  [indeterminate]="someSelected() && !allSelected()"
-                  (change)="toggleAll()"
-                />
-                <!-- No underline: the box is the control, not the words. -->
-                <span>
-                  {{ allSelected() ? text.clearSelection : text.selectAll }}
-                </span>
-              </label>
-              <!-- Disabled, not hidden, so the list does not move on the first
+            <label class="flex cursor-pointer items-center gap-2 text-accent">
+              <input
+                type="checkbox"
+                uiCheckbox
+                [checked]="allSelected()"
+                [indeterminate]="someSelected() && !allSelected()"
+                (change)="toggleAll()"
+              />
+              <!-- No underline: the box is the control, not the words. -->
+              <span>
+                {{ allSelected() ? text.clearSelection : text.selectAll }}
+              </span>
+            </label>
+            <!-- Disabled, not hidden, so the list does not move on the first
                    tick. -->
-              <button
-                type="button"
-                class="group flex cursor-pointer items-center gap-1.5
-                       text-danger
-                       disabled:cursor-not-allowed disabled:text-ink-disabled"
-                [disabled]="selectedCount() === 0"
-                (click)="deleteSelected()"
-              >
-                <ui-icon [glyph]="trash2Icon" class="size-4" />
-                <span class="group-enabled:group-hover:underline">
-                  {{ text.deleteSelected }}
-                </span>
-              </button>
-            </div>
-
-            <ul [class]="rowList">
-              <!-- By slug: a unit in the key would rebuild the row and refetch
-                   its photo. -->
-              @for (row of pageRows(); track row.slug) {
-                <li>
-                  <app-product-row
-                    [item]="row.item"
-                    [available]="row.available"
-                    [externalNote]="true"
-                    [offerPairings]="false"
-                    [notice]="row.notice"
-                    [priceNote]="row.taxNote"
-                  >
-                    <label
-                      rowSelect
-                      class="-mr-2 flex cursor-pointer shrink-0 items-start"
-                    >
-                      <input
-                        type="checkbox"
-                        uiCheckbox
-                        [checked]="isSelected(row.key)"
-                        [attr.aria-label]="selectLabel(row)"
-                        (change)="toggle(row.key)"
-                      />
-                    </label>
-
-                    @for (issue of row.issues; track issue) {
-                      <ui-warning-note class="mt-1">
-                        {{ issue }}
-                      </ui-warning-note>
-                    }
-
-                    @if (row.takesNote || row.pairedCount > 0) {
-                      <!-- Under the name: about the product, not the cart. Held
-                           to the photo's bottom edge unless a long name pushes
-                           them; no wider than the controls while stacked. -->
-                      <div
-                        class="mt-auto flex flex-col items-start gap-2 pt-2
-                               @max-[47.5rem]/row:max-w-114"
-                      >
-                        <!-- The shop's word above the customer's note. The
-                             shortfall replaces the offer: two links to one
-                             panel say it twice (FR-SET-03). -->
-                        @if (row.pairedCount > 0) {
-                          <!-- Shifted 2px where last on the line, so its glyph
-                               does not read high; a margin would be eaten by
-                               the auto margin above. -->
-                          <app-product-pairings
-                            variant="link"
-                            [class]="
-                              row.takesNote
-                                ? ''
-                                : '@min-[47.5rem]/row:translate-y-0.5'
-                            "
-                            [slug]="row.slug"
-                            [count]="row.pairedCount"
-                            [message]="shortMessage(row.pairingShortPieces)"
-                          />
-                        }
-                        @if (row.takesNote) {
-                          <!-- The placeholder is the label. One line deep and
-                               dense, matching the pill beside it. -->
-                          <textarea
-                            uiInput
-                            uiAutoGrow
-                            size="sm"
-                            rows="1"
-                            class="w-full"
-                            [attr.maxlength]="noteMax"
-                            [attr.placeholder]="row.notePrompt"
-                            [attr.aria-label]="text.lineNoteAria"
-                            [value]="row.note ?? ''"
-                            (change)="onNote(row, $event)"
-                          ></textarea>
-                        }
-                      </div>
-                    }
-
-                    <!-- Icon only, the name staying its accessible name; in the
-                         price row's corner, away from the stepper. No disc:
-                         that marks admin affordances. -->
-                    <button
-                      rowActions
-                      type="button"
-                      uiIconButton
-                      variant="danger"
-                      class="shrink-0"
-                      [attr.aria-label]="removeLabel(row)"
-                      (click)="remove(row)"
-                    >
-                      <ui-icon [glyph]="trash2Icon" />
-                    </button>
-                  </app-product-row>
-                </li>
-              }
-            </ul>
-
-            <!-- The listing's pager and words. Buttons: the page is not in the
-                 URL. -->
-            <ui-pagination
-              class="mt-8"
-              [page]="page()"
-              [totalPages]="totalPages()"
-              (turned)="turnTo($event)"
-            />
+            <button
+              type="button"
+              class="group flex cursor-pointer items-center gap-1.5
+                     text-danger
+                     disabled:cursor-not-allowed disabled:text-ink-disabled"
+              [disabled]="selectedCount() === 0"
+              (click)="deleteSelected()"
+            >
+              <ui-icon [glyph]="trash2Icon" class="size-4" />
+              <span class="group-enabled:group-hover:underline">
+                {{ text.deleteSelected }}
+              </span>
+            </button>
           </div>
 
-          <!-- Capped while under the lines, uncapped in the narrow shape.
-               Pinned below the header while beside them, and only as tall as
-               needed. The checkout uses the same measure. -->
-          <aside
-            class="max-w-xl
-                   @min-[63.75rem]/cart:mt-9 @min-[63.75rem]/cart:sticky
-                   @min-[63.75rem]/cart:top-20 @min-[63.75rem]/cart:self-start"
-          >
-            <app-order-summary
-              [lineCount]="cart.count()"
-              [subtotalMinor]="subtotalMinor()"
-              [complete]="complete()"
-              [shipment]="shipment()"
-              [loading]="showSkeleton()"
-              [taxRates]="cart.taxRates()"
-            />
+          <ul [class]="rowList">
+            <!-- By slug: a unit in the key would rebuild the row and refetch
+                   its photo. -->
+            @for (row of pageRows(); track row.slug) {
+              <li>
+                <app-product-row
+                  [item]="row.item"
+                  [available]="row.available"
+                  [externalNote]="true"
+                  [offerPairings]="false"
+                  [notice]="row.notice"
+                  [priceNote]="row.taxNote"
+                >
+                  <label
+                    rowSelect
+                    class="-mr-2 flex cursor-pointer shrink-0 items-start"
+                  >
+                    <input
+                      type="checkbox"
+                      uiCheckbox
+                      [checked]="isSelected(row.key)"
+                      [attr.aria-label]="selectLabel(row)"
+                      (change)="toggle(row.key)"
+                    />
+                  </label>
 
-            <!-- Over the button it bears on (FR-SET-03/04), where a scrolling
-                 customer reads it. -->
-            @if (pairingSummary(); as summary) {
-              <ui-warning-note class="mt-3">{{ summary }}</ui-warning-note>
-            }
+                  @for (issue of row.issues; track issue) {
+                    <ui-warning-note class="mt-1">
+                      {{ issue }}
+                    </ui-warning-note>
+                  }
 
-            <!-- Full width: in the narrow shape this card is the page. -->
-            @if (pairingsBlock()) {
-              <!-- Disabled, with the reason above, rather than a refusal on the
-                   next page. The API refuses it too. -->
-              <button uiButton type="button" disabled class="mt-5 w-full">
-                {{ text.checkout }}
-              </button>
-            } @else {
-              <a uiButton routerLink="/checkout" class="mt-5 w-full">
-                {{ text.checkout }}
-              </a>
+                  @if (row.takesNote || row.pairedCount > 0) {
+                    <!-- Under the name: about the product, not the cart. Held
+                           to the photo's bottom edge unless a long name pushes
+                           them; no wider than the controls while stacked. -->
+                    <div
+                      class="mt-auto flex flex-col items-start gap-2 pt-2
+                             @max-[47.5rem]/row:max-w-114"
+                    >
+                      <!-- The shop's word above the customer's note. The
+                             shortfall replaces the offer: two links to one
+                             panel say it twice (FR-SET-03). -->
+                      @if (row.pairedCount > 0) {
+                        <!-- Shifted 2px where last on the line, so its glyph
+                               does not read high; a margin would be eaten by
+                               the auto margin above. -->
+                        <app-product-pairings
+                          variant="link"
+                          [class]="
+                            row.takesNote
+                              ? ''
+                              : '@min-[47.5rem]/row:translate-y-0.5'
+                          "
+                          [slug]="row.slug"
+                          [count]="row.pairedCount"
+                          [message]="shortMessage(row.pairingShortPieces)"
+                        />
+                      }
+                      @if (row.takesNote) {
+                        <!-- The placeholder is the label. One line deep and
+                               dense, matching the pill beside it. -->
+                        <textarea
+                          uiInput
+                          uiAutoGrow
+                          size="sm"
+                          rows="1"
+                          class="w-full"
+                          [attr.maxlength]="noteMax"
+                          [attr.placeholder]="row.notePrompt"
+                          [attr.aria-label]="text.lineNoteAria"
+                          [value]="row.note ?? ''"
+                          (change)="onNote(row, $event)"
+                        ></textarea>
+                      }
+                    </div>
+                  }
+
+                  <!-- Icon only, the name staying its accessible name; in the
+                         price row's corner, away from the stepper. No disc:
+                         that marks admin affordances. -->
+                  <button
+                    rowActions
+                    type="button"
+                    uiIconButton
+                    variant="danger"
+                    class="shrink-0"
+                    [attr.aria-label]="removeLabel(row)"
+                    (click)="remove(row)"
+                  >
+                    <ui-icon [glyph]="trash2Icon" />
+                  </button>
+                </app-product-row>
+              </li>
             }
-            <!-- Back to the last listing, with its page and filters. -->
-            <a
-              uiButton
-              variant="ghost"
-              class="mt-2 w-full"
-              [routerLink]="continueShoppingUrl"
-            >
-              {{ text.continueShopping }}
-            </a>
-          </aside>
+          </ul>
+
+          <!-- The listing's pager and words. Buttons: the page is not in the
+                 URL. -->
+          <ui-pagination
+            class="mt-8"
+            [page]="page()"
+            [totalPages]="totalPages()"
+            (turned)="turnTo($event)"
+          />
         </div>
-      </div>
+
+        <aside summary>
+          <app-order-summary
+            [lineCount]="cart.count()"
+            [subtotalMinor]="subtotalMinor()"
+            [complete]="complete()"
+            [shipment]="shipment()"
+            [loading]="showSkeleton()"
+            [taxRates]="cart.taxRates()"
+          />
+
+          <!-- Over the button it bears on (FR-SET-03/04), where a scrolling
+                 customer reads it. -->
+          @if (pairingSummary(); as summary) {
+            <ui-warning-note class="mt-3">{{ summary }}</ui-warning-note>
+          }
+
+          <!-- Full width: in the narrow shape this card is the page. -->
+          @if (pairingsBlock()) {
+            <!-- Disabled, with the reason above, rather than a refusal on the
+                   next page. The API refuses it too. -->
+            <button uiButton type="button" disabled class="mt-5 w-full">
+              {{ text.checkout }}
+            </button>
+          } @else {
+            <a uiButton routerLink="/checkout" class="mt-5 w-full">
+              {{ text.checkout }}
+            </a>
+          }
+          <!-- Back to the last listing, with its page and filters. -->
+          <a
+            uiButton
+            variant="ghost"
+            class="mt-2 w-full"
+            [routerLink]="continueShoppingUrl"
+          >
+            {{ text.continueShopping }}
+          </a>
+        </aside>
+      </ui-summary-layout>
     }
   `,
 })

@@ -34,7 +34,6 @@ import { TickLabel } from '@b2b-catalog-platform/ui/choices/tick-label';
 import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
 import { submitAttempt } from '@b2b-catalog-platform/ui/fields/submit-attempt';
 import { EmptyState } from '@b2b-catalog-platform/ui/content/empty-state';
-import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import { AddressPicker } from './ui/address-picker';
 import { CheckoutDraft, PartyChoice as Party } from './checkout-draft';
@@ -67,6 +66,8 @@ import {
   AddressInput,
   formatPersonName,
 } from '@b2b-catalog-platform/shared/core/accounts';
+import { SummaryLayout } from '@b2b-catalog-platform/ui/content/summary-layout';
+import { IconNote } from '@b2b-catalog-platform/ui/content/icon-note';
 
 /** The checkout (FR-CART-03/04/07/09): one form, then a read-back and the send.
  * One form rather than a wizard, as every question has a working default. The
@@ -74,6 +75,8 @@ import {
 @Component({
   selector: 'app-checkout-page',
   imports: [
+    IconNote,
+    SummaryLayout,
     HoneypotField,
     WarningNote,
     AddressPicker,
@@ -86,7 +89,6 @@ import {
     OrderNote,
     OrderReadBack,
     GuestDetails,
-    Icon,
     OrderSummary,
     PartyChoice,
     PaymentChoice,
@@ -139,298 +141,267 @@ import {
         </a>
       </ui-empty-state>
     } @else {
-      <!-- The cart's two columns at the cart's notch (see cart-page.ts),
-           measured on the page: the frame's padding and scrollbar are invisible
-           to a media query. Below it the summary sits under the form. -->
-      <div class="@container/checkout">
-        <div
-          class="grid gap-10
-                 @min-[63.75rem]/checkout:grid-cols-[36rem_20rem]
-                 @min-[63.75rem]/checkout:justify-between"
-        >
-          <!-- In the column, so the summary starts level with the heading. -->
-          <div class="max-w-xl">
-            <div class="mb-8">
-              <h1 uiPageTitle class="mb-2">
-                {{ heading() }}
-              </h1>
-              <p uiPageIntro>
-                {{ reviewing() ? text.review.intro : text.intro }}
-              </p>
-            </div>
-
-            <!-- A guest is quoted the lowest tier. An offer, not a gate: a new
-                 account needs approving first. -->
-            @if (guest() && !placed()) {
-              <p
-                class="mb-8 flex max-w-xl items-start gap-2 text-sm
-                       text-ink-subtle"
-              >
-                <ui-icon
-                  [glyph]="circleUserRoundIcon"
-                  class="mt-0.5 size-4 shrink-0 text-ink-subtle"
-                />
-                <span>
-                  {{ text.signInPrompt }}
-                  <a
-                    uiLink
-                    [routerLink]="['/login']"
-                    [queryParams]="{ returnUrl: '/checkout' }"
-                  >
-                    {{ text.signInAction }}
-                  </a>
-                </span>
-              </p>
-            }
-
-            @if (reviewing()) {
-              <app-order-read-back
-                class="max-w-xl"
-                [lines]="reviewLines()"
-                [blocks]="reviewBlocks()"
-              />
-            } @else if (formPending()) {
-              <!-- Three rows depend on answers, not defaults: drawn early, the
-                   form would move under the reader. -->
-              @if (showFormSkeleton()) {
-                <ui-skeleton class="max-w-xl" [lines]="10" />
-              }
-            } @else {
-              <!-- A form for its fields' sake; sent by review(), not by its own
-                   submit. -->
-              <form [formRoot]="checkoutForm" class="max-w-xl space-y-8">
-                <app-fulfilment-choice
-                  [method]="draft().fulfilmentMethod"
-                  (methodChange)="chooseFulfilment($event)"
-                />
-
-                @if (isPickup()) {
-                  <app-pickup-choice
-                    [pickupKey]="draft().pickupLocationKey"
-                    [invalid]="pickupInvalid()"
-                    (pickupKeyChange)="
-                      drafts.patch({ pickupLocationKey: $event })
-                    "
-                  />
-                }
-
-                @if (addressError()) {
-                  <ui-warning-note>
-                    {{ addressText.loadError }}
-                  </ui-warning-note>
-                }
-
-                <!-- The party first: it decides what the address rows are for.
-                     For a guest, party and contact are one block; an account
-                     answers the contact itself. -->
-                @if (guest()) {
-                  <app-guest-details
-                    [party]="draft().party"
-                    [partyField]="checkoutForm.party"
-                    [contact]="checkoutForm.contact"
-                    (partyChange)="chooseParty($event)"
-                  />
-
-                  <ui-honeypot-field
-                    controlId="checkout-website"
-                    [field]="checkoutForm.contact.website"
-                    label="Leave this field empty"
-                  />
-                }
-
-                @if (!guest()) {
-                  <app-party-choice
-                    [party]="draft().party"
-                    [ownAllowed]="ownPartyAllowed()"
-                    [accountName]="accountName()"
-                    [lastOther]="otherParty()"
-                    [partyField]="checkoutForm.party"
-                    (partyChange)="chooseParty($event)"
-                  />
-                }
-
-                <!-- The zone is re-read on blur, not per keystroke: half a
-                     postcode matches the wrong zone. -->
-                @if (!isPickup()) {
-                  <app-address-picker
-                    (focusout)="commitDelivery()"
-                    (picked)="commitDelivery()"
-                    [heading]="addressText.deliveryHeading"
-                    [addresses]="addresses()"
-                    [selectedId]="draft().deliveryAddressId"
-                    [form]="deliveryForm"
-                    [canSave]="!guest()"
-                    [reveal]="revealDelivery()"
-                    [save]="saveDelivery()"
-                    (selectedIdChange)="
-                      drafts.patch({ deliveryAddressId: $event })
-                    "
-                    (saveChange)="drafts.patch({ saveDeliveryAddress: $event })"
-                  >
-                    <!-- Absent where the deployment invoices no address of its
-                         own. -->
-                    @if (billingEnabled) {
-                      <label uiTickLabel class="mt-4">
-                        <input
-                          type="checkbox"
-                          uiCheckbox
-                          [checked]="draft().billingSameAsDelivery"
-                          (change)="toggleSameBilling()"
-                        />
-                        <span>{{ addressText.sameAsDelivery }}</span>
-                      </label>
-                    }
-                  </app-address-picker>
-                }
-
-                <!-- A collected order still asks for the invoice address where
-                     the deployment invoices one. -->
-                @if (needsBillingPicker()) {
-                  <app-address-picker
-                    [heading]="
-                      isPickup()
-                        ? addressText.billingOnlyHeading
-                        : addressText.billingHeading
-                    "
-                    [addresses]="addresses()"
-                    [selectedId]="draft().billingAddressId"
-                    [form]="billingForm"
-                    [save]="saveBilling()"
-                    (selectedIdChange)="
-                      drafts.patch({ billingAddressId: $event })
-                    "
-                    (saveChange)="drafts.patch({ saveBillingAddress: $event })"
-                  />
-                }
-
-                <app-preferred-date
-                  [method]="draft().fulfilmentMethod"
-                  [date]="draft().preferredDate"
-                  [invalid]="preferredDateInvalid()"
-                  (dateChange)="drafts.patch({ preferredDate: $event })"
-                />
-
-                <app-payment-choice
-                  [method]="draft().paymentMethod"
-                  [fulfilment]="draft().fulfilmentMethod"
-                  [transferAllowed]="partyIsCompany()"
-                  [cashAllowed]="!partyIsCompany()"
-                  (methodChange)="drafts.patch({ paymentMethod: $event })"
-                />
-
-                <app-order-note
-                  [note]="draft().customerNote"
-                  (noteChange)="drafts.patch({ customerNote: $event })"
-                />
-              </form>
-            }
+      <ui-summary-layout track="measure" [holdWhileStacked]="formPending()">
+        <!-- In the column, so the summary starts level with the heading. -->
+        <div class="max-w-xl">
+          <div class="mb-8">
+            <h1 uiPageTitle class="mb-2">
+              {{ heading() }}
+            </h1>
+            <p uiPageIntro>
+              {{ reviewing() ? text.review.intro : text.intro }}
+            </p>
           </div>
 
-          <!-- Pinned beside the form. Stacked, hidden until the form arrives,
-               or it would be pushed down. -->
-          <aside
-            class="max-w-xl
-                   @min-[63.75rem]/checkout:visible
-                   @min-[63.75rem]/checkout:mt-9
-                   @min-[63.75rem]/checkout:sticky
-                   @min-[63.75rem]/checkout:top-20
-                   @min-[63.75rem]/checkout:self-start"
-            [class.invisible]="formPending()"
-          >
-            <app-order-summary
-              [lineCount]="cart.count()"
-              [subtotalMinor]="cart.totalMinor()"
-              [complete]="cart.totalComplete()"
-              [shipment]="cart.estimate()"
-              [taxRates]="cart.taxRates()"
+          <!-- A guest is quoted the lowest tier. An offer, not a gate: a new
+                 account needs approving first. -->
+          @if (guest() && !placed()) {
+            <p
+              uiIconNote
+              class="mb-8 max-w-xl text-sm text-ink-subtle"
+              [glyph]="circleUserRoundIcon"
             >
-              @if (!isPickup()) {
-                <app-delivery-zone-hint
-                  class="mt-3 border-t border-edge pt-3"
-                  [postalCode]="deliveryPostalCode()"
+              {{ text.signInPrompt }}
+              <a
+                uiLink
+                [routerLink]="['/login']"
+                [queryParams]="{ returnUrl: '/checkout' }"
+              >
+                {{ text.signInAction }}
+              </a>
+            </p>
+          }
+
+          @if (reviewing()) {
+            <app-order-read-back
+              class="max-w-xl"
+              [lines]="reviewLines()"
+              [blocks]="reviewBlocks()"
+            />
+          } @else if (formPending()) {
+            <!-- Three rows depend on answers, not defaults: drawn early, the
+                   form would move under the reader. -->
+            @if (showFormSkeleton()) {
+              <ui-skeleton class="max-w-xl" [lines]="10" />
+            }
+          } @else {
+            <!-- A form for its fields' sake; sent by review(), not by its own
+                   submit. -->
+            <form [formRoot]="checkoutForm" class="max-w-xl space-y-8">
+              <app-fulfilment-choice
+                [method]="draft().fulfilmentMethod"
+                (methodChange)="chooseFulfilment($event)"
+              />
+
+              @if (isPickup()) {
+                <app-pickup-choice
+                  [pickupKey]="draft().pickupLocationKey"
+                  [invalid]="pickupInvalid()"
+                  (pickupKeyChange)="
+                    drafts.patch({ pickupLocationKey: $event })
+                  "
                 />
               }
-            </app-order-summary>
 
-            <!-- No consent: an order's details are processed to fulfil it. -->
-            @if (reviewing()) {
-              <app-privacy-notice class="mt-5 block text-sm empty:hidden" />
-            }
+              @if (addressError()) {
+                <ui-warning-note>
+                  {{ addressText.loadError }}
+                </ui-warning-note>
+              }
 
-            <!-- Beside the button, not only at the field. -->
-            @if (error(); as message) {
-              <p uiErrorText class="mt-3" role="alert">
-                {{ message }}
-              </p>
-            }
-
-            <!-- Refusals the server would give anyway, said before the form is
-                 filled. -->
-            @if (staff()) {
-              <p class="mt-3 flex items-start gap-2 text-sm text-ink-subtle">
-                <ui-icon
-                  [glyph]="lockIcon"
-                  class="mt-0.5 size-4 shrink-0 text-ink-subtle"
+              <!-- The party first: it decides what the address rows are for.
+                     For a guest, party and contact are one block; an account
+                     answers the contact itself. -->
+              @if (guest()) {
+                <app-guest-details
+                  [party]="draft().party"
+                  [partyField]="checkoutForm.party"
+                  [contact]="checkoutForm.contact"
+                  (partyChange)="chooseParty($event)"
                 />
-                <span>{{ text.errors.staffAccount }}</span>
-              </p>
-            } @else if (accountPhoneMissing()) {
-              <p class="mt-3 flex items-start gap-2 text-sm text-ink-subtle">
-                <ui-icon
-                  [glyph]="phoneIcon"
-                  class="mt-0.5 size-4 shrink-0 text-ink-subtle"
-                />
-                <span>
-                  {{ text.phoneMissing }}
-                  <a uiLink routerLink="/account/edit">
-                    {{ text.phoneMissingAction }}
-                  </a>
-                </span>
-              </p>
-            }
 
-            @if (reviewing()) {
-              <!-- Sending accepts the terms, so it is said at the button. -->
-              <app-terms-notice class="mt-3 block text-sm empty:hidden" />
-              <button
-                uiButton
-                type="button"
-                class="mt-3 w-full"
-                [disabled]="sending() || blocked()"
-                (click)="submit()"
-              >
-                {{ sending() ? actionText.sending : text.submit }}
-              </button>
-              <button
-                uiButton
-                variant="ghost"
-                type="button"
-                class="mt-2 w-full"
-                (click)="backToForm()"
-              >
-                {{ text.review.back }}
-              </button>
-            } @else {
-              <button
-                uiButton
-                type="button"
-                class="mt-5 w-full"
-                (click)="review()"
-              >
-                {{ text.review.send }}
-              </button>
-              <a
-                uiButton
-                variant="ghost"
-                routerLink="/cart"
-                class="mt-2 w-full"
-              >
-                {{ text.review.backToCart }}
-              </a>
-            }
-          </aside>
+                <ui-honeypot-field
+                  controlId="checkout-website"
+                  [field]="checkoutForm.contact.website"
+                  label="Leave this field empty"
+                />
+              }
+
+              @if (!guest()) {
+                <app-party-choice
+                  [party]="draft().party"
+                  [ownAllowed]="ownPartyAllowed()"
+                  [accountName]="accountName()"
+                  [lastOther]="otherParty()"
+                  [partyField]="checkoutForm.party"
+                  (partyChange)="chooseParty($event)"
+                />
+              }
+
+              <!-- The zone is re-read on blur, not per keystroke: half a
+                     postcode matches the wrong zone. -->
+              @if (!isPickup()) {
+                <app-address-picker
+                  (focusout)="commitDelivery()"
+                  (picked)="commitDelivery()"
+                  [heading]="addressText.deliveryHeading"
+                  [addresses]="addresses()"
+                  [selectedId]="draft().deliveryAddressId"
+                  [form]="deliveryForm"
+                  [canSave]="!guest()"
+                  [reveal]="revealDelivery()"
+                  [save]="saveDelivery()"
+                  (selectedIdChange)="
+                    drafts.patch({ deliveryAddressId: $event })
+                  "
+                  (saveChange)="drafts.patch({ saveDeliveryAddress: $event })"
+                >
+                  <!-- Absent where the deployment invoices no address of its
+                         own. -->
+                  @if (billingEnabled) {
+                    <label uiTickLabel class="mt-4">
+                      <input
+                        type="checkbox"
+                        uiCheckbox
+                        [checked]="draft().billingSameAsDelivery"
+                        (change)="toggleSameBilling()"
+                      />
+                      <span>{{ addressText.sameAsDelivery }}</span>
+                    </label>
+                  }
+                </app-address-picker>
+              }
+
+              <!-- A collected order still asks for the invoice address where
+                     the deployment invoices one. -->
+              @if (needsBillingPicker()) {
+                <app-address-picker
+                  [heading]="
+                    isPickup()
+                      ? addressText.billingOnlyHeading
+                      : addressText.billingHeading
+                  "
+                  [addresses]="addresses()"
+                  [selectedId]="draft().billingAddressId"
+                  [form]="billingForm"
+                  [save]="saveBilling()"
+                  (selectedIdChange)="
+                    drafts.patch({ billingAddressId: $event })
+                  "
+                  (saveChange)="drafts.patch({ saveBillingAddress: $event })"
+                />
+              }
+
+              <app-preferred-date
+                [method]="draft().fulfilmentMethod"
+                [date]="draft().preferredDate"
+                [invalid]="preferredDateInvalid()"
+                (dateChange)="drafts.patch({ preferredDate: $event })"
+              />
+
+              <app-payment-choice
+                [method]="draft().paymentMethod"
+                [fulfilment]="draft().fulfilmentMethod"
+                [transferAllowed]="partyIsCompany()"
+                [cashAllowed]="!partyIsCompany()"
+                (methodChange)="drafts.patch({ paymentMethod: $event })"
+              />
+
+              <app-order-note
+                [note]="draft().customerNote"
+                (noteChange)="drafts.patch({ customerNote: $event })"
+              />
+            </form>
+          }
         </div>
-      </div>
+
+        <aside summary>
+          <app-order-summary
+            [lineCount]="cart.count()"
+            [subtotalMinor]="cart.totalMinor()"
+            [complete]="cart.totalComplete()"
+            [shipment]="cart.estimate()"
+            [taxRates]="cart.taxRates()"
+          >
+            @if (!isPickup()) {
+              <app-delivery-zone-hint
+                class="mt-3 border-t border-edge pt-3"
+                [postalCode]="deliveryPostalCode()"
+              />
+            }
+          </app-order-summary>
+
+          <!-- No consent: an order's details are processed to fulfil it. -->
+          @if (reviewing()) {
+            <app-privacy-notice class="mt-5 block text-sm empty:hidden" />
+          }
+
+          <!-- Beside the button, not only at the field. -->
+          @if (error(); as message) {
+            <p uiErrorText class="mt-3" role="alert">
+              {{ message }}
+            </p>
+          }
+
+          <!-- Refusals the server would give anyway, said before the form is
+                 filled. -->
+          @if (staff()) {
+            <p
+              uiIconNote
+              class="mt-3 text-sm text-ink-subtle"
+              [glyph]="lockIcon"
+            >
+              {{ text.errors.staffAccount }}
+            </p>
+          } @else if (accountPhoneMissing()) {
+            <p
+              uiIconNote
+              class="mt-3 text-sm text-ink-subtle"
+              [glyph]="phoneIcon"
+            >
+              {{ text.phoneMissing }}
+              <a uiLink routerLink="/account/edit">
+                {{ text.phoneMissingAction }}
+              </a>
+            </p>
+          }
+
+          @if (reviewing()) {
+            <!-- Sending accepts the terms, so it is said at the button. -->
+            <app-terms-notice class="mt-3 block text-sm empty:hidden" />
+            <button
+              uiButton
+              type="button"
+              class="mt-3 w-full"
+              [disabled]="sending() || blocked()"
+              (click)="submit()"
+            >
+              {{ sending() ? actionText.sending : text.submit }}
+            </button>
+            <button
+              uiButton
+              variant="ghost"
+              type="button"
+              class="mt-2 w-full"
+              (click)="backToForm()"
+            >
+              {{ text.review.back }}
+            </button>
+          } @else {
+            <button
+              uiButton
+              type="button"
+              class="mt-5 w-full"
+              (click)="review()"
+            >
+              {{ text.review.send }}
+            </button>
+            <a uiButton variant="ghost" routerLink="/cart" class="mt-2 w-full">
+              {{ text.review.backToCart }}
+            </a>
+          }
+        </aside>
+      </ui-summary-layout>
     }
   `,
 })

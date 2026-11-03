@@ -65,6 +65,7 @@ import { rotateCcwIcon } from '@b2b-catalog-platform/ui/icons/glyphs/rotate-ccw'
 import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
 import { Card } from '@b2b-catalog-platform/ui/content/card';
 import { FACT_LIST } from '@b2b-catalog-platform/ui/content/fact-list';
+import { SummaryLayout } from '@b2b-catalog-platform/ui/content/summary-layout';
 
 /**
  * One order as staff read it (FR-AUTH-03): the customer's page plus the price
@@ -75,6 +76,7 @@ import { FACT_LIST } from '@b2b-catalog-platform/ui/content/fact-list';
 @Component({
   selector: 'app-admin-order-detail-page',
   imports: [
+    SummaryLayout,
     FACT_LIST,
     Card,
     RouterLink,
@@ -94,90 +96,49 @@ import { FACT_LIST } from '@b2b-catalog-platform/ui/content/fact-list';
   ],
   template: `
     @if (detail(); as order) {
-      <!-- The customer's page notch, measured on the page, so both fold at one
-           width. -->
-      <div class="@container/order">
-        <div
-          class="grid gap-10
-                 @min-[63.75rem]/order:grid-cols-[1fr_20rem]
-                 @min-[63.75rem]/order:justify-between"
-        >
-          <div class="min-w-0">
-            <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
-              <h1 uiPageTitle>
-                {{ order.reference }}
-              </h1>
-            </div>
-            <p class="mt-2 text-ink-subtle">{{ placed(order) }}</p>
+      <ui-summary-layout track="fill">
+        <div class="min-w-0">
+          <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
+            <h1 uiPageTitle>
+              {{ order.reference }}
+            </h1>
+          </div>
+          <p class="mt-2 text-ink-subtle">{{ placed(order) }}</p>
 
-            <!-- Above the controls it explains: a card that silently lost its
+          <!-- Above the controls it explains: a card that silently lost its
                  buttons teaches nobody. -->
-            @if (locked()) {
-              <app-locked-note class="mt-4">{{
-                ownershipText.orderLocked
-              }}</app-locked-note>
-            }
+          @if (locked()) {
+            <app-locked-note class="mt-4">{{
+              ownershipText.orderLocked
+            }}</app-locked-note>
+          }
 
-            <!-- What only staff see and do. Each control sits under the fact it
+          <!-- What only staff see and do. Each control sits under the fact it
                  changes. -->
-            <section uiCard class="mt-4 text-sm">
-              <dl uiFactList terms="narrow">
-                <dt uiFactTerm>{{ ordersText.account }}</dt>
-                <dd uiFactValue>
-                  {{ order.customerEmail ?? ordersText.guest }}
-                  <!-- A guest's mailed link: the page they mean when they ring.
+          <section uiCard class="mt-4 text-sm">
+            <dl uiFactList terms="narrow">
+              <dt uiFactTerm>{{ ordersText.account }}</dt>
+              <dd uiFactValue>
+                {{ order.customerEmail ?? ordersText.guest }}
+                <!-- A guest's mailed link: the page they mean when they ring.
                        An account holder's version is linked below. -->
-                  @if (order.publicToken; as token) {
-                    <a
-                      uiLink
-                      class="ml-2"
-                      [routerLink]="['/orders', token]"
-                      target="_blank"
-                      >{{ text.guestView }}</a
-                    >
-                  }
-                </dd>
-                <!-- Under the owner, whose details they are (NFR-LEGAL-14);
+                @if (order.publicToken; as token) {
+                  <a
+                    uiLink
+                    class="ml-2"
+                    [routerLink]="['/orders', token]"
+                    target="_blank"
+                    >{{ text.guestView }}</a
+                  >
+                }
+              </dd>
+              <!-- Under the owner, whose details they are (NFR-LEGAL-14);
                      only where removed or removable. -->
-                @if (personalData(); as data) {
-                  <dt uiFactTerm>{{ text.personalData.heading }}</dt>
-                  <dd uiFactValue class="flex flex-col gap-3">
-                    <p class="min-w-0">{{ data.label }}</p>
-                    @if (data.removable) {
-                      <div [class]="actions">
-                        <button
-                          uiButton
-                          size="sm"
-                          variant="secondary"
-                          type="button"
-                          class="w-full gap-2 sm:w-auto"
-                          [disabled]="busy()"
-                          (click)="removePersonalData(order)"
-                        >
-                          <ui-icon [glyph]="trash2Icon" class="size-4" />
-                          {{ text.personalData.remove }}
-                        </button>
-                      </div>
-                    }
-                  </dd>
-                }
-                <dt uiFactTerm>{{ ordersText.tier }}</dt>
-                <dd uiFactValue>
-                  {{ order.tierKey ?? ordersText.tierDefault }}
-                </dd>
-                @if (termsLabel(order); as terms) {
-                  <dt uiFactTerm>{{ pageNames.terms }}</dt>
-                  <dd uiFactValue>{{ terms }}</dd>
-                }
-
-                <!-- Money before the status: recording a payment moves nothing
-                     along. -->
-                <dt uiFactTerm>{{ names.payment }}</dt>
+              @if (personalData(); as data) {
+                <dt uiFactTerm>{{ text.personalData.heading }}</dt>
                 <dd uiFactValue class="flex flex-col gap-3">
-                  <p class="min-w-0">
-                    {{ paymentLabel(order) }}
-                  </p>
-                  @if (paymentMove(); as move) {
+                  <p class="min-w-0">{{ data.label }}</p>
+                  @if (data.removable) {
                     <div [class]="actions">
                       <button
                         uiButton
@@ -186,164 +147,192 @@ import { FACT_LIST } from '@b2b-catalog-platform/ui/content/fact-list';
                         type="button"
                         class="w-full gap-2 sm:w-auto"
                         [disabled]="busy()"
-                        (click)="move.run()"
+                        (click)="removePersonalData(order)"
                       >
-                        <ui-icon [glyph]="move.icon" class="size-4" />
-                        {{ move.label }}
+                        <ui-icon [glyph]="trash2Icon" class="size-4" />
+                        {{ text.personalData.remove }}
                       </button>
                     </div>
                   }
                 </dd>
+              }
+              <dt uiFactTerm>{{ ordersText.tier }}</dt>
+              <dd uiFactValue>
+                {{ order.tierKey ?? ordersText.tierDefault }}
+              </dd>
+              @if (termsLabel(order); as terms) {
+                <dt uiFactTerm>{{ pageNames.terms }}</dt>
+                <dd uiFactValue>{{ terms }}</dd>
+              }
 
-                <dt uiFactTerm>{{ names.status }}</dt>
-                <dd uiFactValue class="flex flex-col gap-3">
-                  <div class="min-w-0">
-                    <!-- Beside the badge, wrapping under it. -->
-                    <div class="flex flex-wrap items-center gap-x-2">
-                      <span uiStatusBadge [tone]="statusTone(order)">
-                        {{ statusLabel(order) }}
-                      </span>
-                      <span class="text-ink-subtle">{{
-                        statusChanged(order)
-                      }}</span>
-                    </div>
-                    <!-- The reason is part of the status. -->
-                    @if (order.statusReason; as reason) {
-                      <p class="mt-1">
-                        <span class="text-ink-subtle">{{ names.reason }}:</span>
-                        {{ reason }}
-                      </p>
-                    }
-                    <!-- The current version's change note; the thread below is
-                         the history. -->
-                    @if (order.changes.length) {
-                      <div class="mt-1 ">
-                        <span class="text-ink-subtle"
-                          >{{ names.changeNote }}:</span
-                        >
-                        @for (change of order.changes; track $index) {
-                          <span class="block">{{ change }}</span>
-                        }
-                      </div>
-                    }
+              <!-- Money before the status: recording a payment moves nothing
+                     along. -->
+              <dt uiFactTerm>{{ names.payment }}</dt>
+              <dd uiFactValue class="flex flex-col gap-3">
+                <p class="min-w-0">
+                  {{ paymentLabel(order) }}
+                </p>
+                @if (paymentMove(); as move) {
+                  <div [class]="actions">
+                    <button
+                      uiButton
+                      size="sm"
+                      variant="secondary"
+                      type="button"
+                      class="w-full gap-2 sm:w-auto"
+                      [disabled]="busy()"
+                      (click)="move.run()"
+                    >
+                      <ui-icon [glyph]="move.icon" class="size-4" />
+                      {{ move.label }}
+                    </button>
                   </div>
+                }
+              </dd>
 
-                  <!-- No controls while answered elsewhere or erased: no empty
-                       strip. -->
-                  @if (!locked() && !order.personalDataRemovedAt) {
-                    <div [class]="actions">
-                      <!-- Changing the order is the other half of answering it,
-                           offered in any status. A link: it opens a form. -->
-                      <a
-                        uiButton
-                        size="sm"
-                        variant="secondary"
-                        class="w-full gap-2 sm:w-auto"
-                        [routerLink]="[
-                          '/admin/orders',
-                          order.reference,
-                          'adjust',
-                        ]"
+              <dt uiFactTerm>{{ names.status }}</dt>
+              <dd uiFactValue class="flex flex-col gap-3">
+                <div class="min-w-0">
+                  <!-- Beside the badge, wrapping under it. -->
+                  <div class="flex flex-wrap items-center gap-x-2">
+                    <span uiStatusBadge [tone]="statusTone(order)">
+                      {{ statusLabel(order) }}
+                    </span>
+                    <span class="text-ink-subtle">{{
+                      statusChanged(order)
+                    }}</span>
+                  </div>
+                  <!-- The reason is part of the status. -->
+                  @if (order.statusReason; as reason) {
+                    <p class="mt-1">
+                      <span class="text-ink-subtle">{{ names.reason }}:</span>
+                      {{ reason }}
+                    </p>
+                  }
+                  <!-- The current version's change note; the thread below is
+                         the history. -->
+                  @if (order.changes.length) {
+                    <div class="mt-1 ">
+                      <span class="text-ink-subtle"
+                        >{{ names.changeNote }}:</span
                       >
-                        <ui-icon [glyph]="pencilIcon" class="size-4" />
-                        {{ text.actions.adjust }}
-                      </a>
-
-                      <!-- The glyph says which way: down the chain, back up, or
-                           off. No bin: orders are never deleted. -->
-                      @for (step of moves(); track step.to) {
-                        <button
-                          uiButton
-                          size="sm"
-                          type="button"
-                          class="w-full gap-2 sm:w-auto"
-                          [variant]="step.variant"
-                          [disabled]="busy()"
-                          (click)="move(order, step.to)"
-                        >
-                          <ui-icon [glyph]="step.icon" class="size-4" />
-                          {{ step.label }}
-                        </button>
+                      @for (change of order.changes; track $index) {
+                        <span class="block">{{ change }}</span>
                       }
                     </div>
                   }
-                </dd>
+                </div>
 
-                <!-- Their page and their mail, two questions, always shown:
-                     either can be left undone. -->
-                <dt uiFactTerm>{{ tellText.heading }}</dt>
-                <dd uiFactValue>
-                  <app-order-customer-sync
-                    [order]="order"
-                    [locked]="locked()"
-                    [busy]="busy()"
-                    [actionsClass]="actions"
-                    (notify)="tellCustomer(order, $event)"
-                  />
-                </dd>
+                <!-- No controls while answered elsewhere or erased: no empty
+                       strip. -->
+                @if (!locked() && !order.personalDataRemovedAt) {
+                  <div [class]="actions">
+                    <!-- Changing the order is the other half of answering it,
+                           offered in any status. A link: it opens a form. -->
+                    <a
+                      uiButton
+                      size="sm"
+                      variant="secondary"
+                      class="w-full gap-2 sm:w-auto"
+                      [routerLink]="[
+                        '/admin/orders',
+                        order.reference,
+                        'adjust',
+                      ]"
+                    >
+                      <ui-icon [glyph]="pencilIcon" class="size-4" />
+                      {{ text.actions.adjust }}
+                    </a>
 
-                <!-- Documents (FR-ORD-05): supplied while answering, so here.
-                     -->
-                <dt uiFactTerm>{{ documentsText.heading }}</dt>
-                <dd uiFactValue>
-                  <app-order-documents-panel
-                    [order]="order"
-                    [readOnly]="locked()"
-                    (changed)="reload()"
-                  />
-                </dd>
-
-                <!-- Every version, newest first (FR-ORD-03), with its note and
-                     difference. Only where there is more than one. -->
-                @if (order.revisionNumber > 1) {
-                  <dt uiFactTerm>{{ revisionText.heading }}</dt>
-                  <dd uiFactValue>
-                    <app-order-version-history [order]="order" />
-                  </dd>
+                    <!-- The glyph says which way: down the chain, back up, or
+                           off. No bin: orders are never deleted. -->
+                    @for (step of moves(); track step.to) {
+                      <button
+                        uiButton
+                        size="sm"
+                        type="button"
+                        class="w-full gap-2 sm:w-auto"
+                        [variant]="step.variant"
+                        [disabled]="busy()"
+                        (click)="move(order, step.to)"
+                      >
+                        <ui-icon [glyph]="step.icon" class="size-4" />
+                        {{ step.label }}
+                      </button>
+                    }
+                  </div>
                 }
-              </dl>
-            </section>
+              </dd>
 
-            @if (failed(); as message) {
-              <p uiErrorText class="mt-3 max-w-xl" role="alert">
-                {{ message }}
-              </p>
-            }
+              <!-- Their page and their mail, two questions, always shown:
+                     either can be left undone. -->
+              <dt uiFactTerm>{{ tellText.heading }}</dt>
+              <dd uiFactValue>
+                <app-order-customer-sync
+                  [order]="order"
+                  [locked]="locked()"
+                  [busy]="busy()"
+                  [actionsClass]="actions"
+                  (notify)="tellCustomer(order, $event)"
+                />
+              </dd>
 
-            <!-- The order as it reads, under the block: answered first, checked
+              <!-- Documents (FR-ORD-05): supplied while answering, so here.
+                     -->
+              <dt uiFactTerm>{{ documentsText.heading }}</dt>
+              <dd uiFactValue>
+                <app-order-documents-panel
+                  [order]="order"
+                  [readOnly]="locked()"
+                  (changed)="reload()"
+                />
+              </dd>
+
+              <!-- Every version, newest first (FR-ORD-03), with its note and
+                     difference. Only where there is more than one. -->
+              @if (order.revisionNumber > 1) {
+                <dt uiFactTerm>{{ revisionText.heading }}</dt>
+                <dd uiFactValue>
+                  <app-order-version-history [order]="order" />
+                </dd>
+              }
+            </dl>
+          </section>
+
+          @if (failed(); as message) {
+            <p uiErrorText class="mt-3 max-w-xl" role="alert">
+              {{ message }}
+            </p>
+          }
+
+          <!-- The order as it reads, under the block: answered first, checked
                  second. -->
-            <app-order-read-back
-              class="mt-8 max-w-xl"
-              [itemsHeading]="ordersText.items"
-              [lines]="lines()"
-              [blocks]="blocks()"
-            />
-          </div>
-
-          <aside
-            class="max-w-xl
-                   @min-[63.75rem]/order:mt-9 @min-[63.75rem]/order:sticky
-                   @min-[63.75rem]/order:top-20
-                   @min-[63.75rem]/order:self-start"
-          >
-            <app-order-summary
-              [lineCount]="order.lines.length"
-              [subtotalMinor]="order.totalMinor"
-              [shipment]="order.shipment"
-              [taxRates]="taxRates()"
-              [taxBasis]="order.taxBasis"
-            />
-            <a
-              uiButton
-              variant="secondary"
-              routerLink="/admin/orders"
-              class="mt-5 w-full"
-            >
-              {{ text.back }}
-            </a>
-          </aside>
+          <app-order-read-back
+            class="mt-8 max-w-xl"
+            [itemsHeading]="ordersText.items"
+            [lines]="lines()"
+            [blocks]="blocks()"
+          />
         </div>
-      </div>
+
+        <aside summary>
+          <app-order-summary
+            [lineCount]="order.lines.length"
+            [subtotalMinor]="order.totalMinor"
+            [shipment]="order.shipment"
+            [taxRates]="taxRates()"
+            [taxBasis]="order.taxBasis"
+          />
+          <a
+            uiButton
+            variant="secondary"
+            routerLink="/admin/orders"
+            class="mt-5 w-full"
+          >
+            {{ text.back }}
+          </a>
+        </aside>
+      </ui-summary-layout>
     } @else if (missing()) {
       <p class="text-ink-subtle">{{ ordersText.notFound }}</p>
       <a uiButton variant="secondary" routerLink="/admin/orders" class="mt-5">
