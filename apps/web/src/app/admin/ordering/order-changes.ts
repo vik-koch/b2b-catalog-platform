@@ -11,7 +11,7 @@ import {
 } from '../../core/ordering/order-blocks';
 import { formatStoredDecimal } from '../../core/catalog/buying/quantity';
 import { customerQuantity } from '../../core/ordering/order-formats';
-import { OrderChange } from './order-adjust-changes';
+import { OrderChange } from './ui/order-adjust-changes';
 
 /** The words a change list needs of its own. Everything else it says comes
  * from the order's own vocabulary. */

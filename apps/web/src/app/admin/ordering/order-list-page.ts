@@ -21,7 +21,6 @@ import {
   staffOrderSortSchema,
   StaffPaymentFilter,
   staffPaymentFilterSchema,
-  TransitionTarget,
 } from '@b2b-catalog-platform/shared/core/ordering';
 import { SEARCH_QUERY_MAX_LENGTH } from '@b2b-catalog-platform/shared/core/catalog';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
@@ -55,8 +54,9 @@ import {
   confirmRequest,
 } from '@b2b-catalog-platform/ui/overlay/confirm.service';
 import { OwnershipService } from '../settings/ownership.service';
-import { OrderRowActions } from './order-row-actions';
-import { AdminOrdersService, StaffOrderSummary } from './orders.service';
+import { OrderRowActions } from './ui/order-row-actions';
+import { AdminOrdersService } from './orders.service';
+import { StaffOrderSummary } from '@b2b-catalog-platform/shared/admin/ordering';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 
 /**
@@ -488,7 +488,7 @@ export class AdminOrderListPage {
    */
   protected async end(
     order: StaffOrderSummary,
-    to: TransitionTarget,
+    to: OrderStatus,
   ): Promise<void> {
     this.pageError.set(null);
     const actions = this.detailText.actions;

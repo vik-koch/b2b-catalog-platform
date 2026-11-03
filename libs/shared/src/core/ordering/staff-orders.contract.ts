@@ -46,11 +46,6 @@ export type StaffOrderSort = z.infer<typeof staffOrderSortSchema>;
 export const staffPaymentFilterSchema = z.enum(STAFF_PAYMENT_FILTERS);
 export type StaffPaymentFilter = z.infer<typeof staffPaymentFilterSchema>;
 
-/** Any status, `requested` included; whether it is allowed from here is the
- * transition table's answer. */
-export const transitionTargetSchema = orderStatusSchema;
-export type TransitionTarget = z.infer<typeof transitionTargetSchema>;
-
 /** With the piece price charged, so a line reconciles against the source
  * system. */
 export const adminOrderLineSchema = orderLineSchema.extend({
@@ -219,7 +214,8 @@ export type OrderAdjustmentPreview = z.infer<
 
 export const orderTransitionSchema = z
   .object({
-    to: transitionTargetSchema,
+    // Any status; whether it is allowed from here is the transition table's.
+    to: orderStatusSchema,
     /** Required for the two endings, null otherwise. */
     reason: z.string().trim().min(1).max(ORDER_STATUS_REASON_MAX).nullable(),
     /** Stated on every move (FR-NOTIF-03): only the person clicking knows

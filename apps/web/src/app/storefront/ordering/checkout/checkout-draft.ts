@@ -1,7 +1,6 @@
 import {
   FulfilmentMethod,
   OrderContact,
-  PAYMENT_METHODS,
   PaymentMethod,
 } from '@b2b-catalog-platform/shared/core/ordering';
 import { AddressInput } from '@b2b-catalog-platform/shared/core/accounts';

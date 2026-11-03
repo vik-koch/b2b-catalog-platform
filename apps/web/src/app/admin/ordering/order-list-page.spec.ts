@@ -13,7 +13,8 @@ import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { defaultDeploymentConfig } from '../../shared/config/deployment-config.fixture';
 import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
 import { AdminOrderListPage } from './order-list-page';
-import { AdminOrdersService, StaffOrderSummary } from './orders.service';
+import { AdminOrdersService } from './orders.service';
+import { StaffOrderSummary } from '@b2b-catalog-platform/shared/admin/ordering';
 import { provideUiText } from '../../shared/config/shared-text';
 import { provideGridText } from '../provide-grid-text';
 

@@ -2,12 +2,12 @@ import { Component, computed, inject, input, output } from '@angular/core';
 import { Params, RouterLink } from '@angular/router';
 import {
   allowedTransitions,
-  TransitionTarget,
+  OrderStatus,
 } from '@b2b-catalog-platform/shared/core/ordering';
-import { ADMIN_TEXT } from '../../shared/config/admin-text';
+import { ADMIN_TEXT } from '../../../shared/config/admin-text';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
-import { StaffOrderSummary } from './orders.service';
+import { StaffOrderSummary } from '@b2b-catalog-platform/shared/admin/ordering';
 import { circleCheckIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-check';
 import { circleSlashIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-slash';
 import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
@@ -80,7 +80,7 @@ export class OrderRowActions {
 
   readonly endRequested = output<{
     order: StaffOrderSummary;
-    to: TransitionTarget;
+    to: OrderStatus;
   }>();
 
   protected readonly unanswered = computed(
@@ -96,7 +96,7 @@ export class OrderRowActions {
    * declined, everything the shop has taken on is cancelled, and an order that
    * has ended offers nothing at all.
    */
-  protected readonly ending = computed<TransitionTarget | null>(() => {
+  protected readonly ending = computed<OrderStatus | null>(() => {
     const moves = allowedTransitions('staff', this.order().status);
     if (this.unanswered())
       return moves.includes('declined') ? 'declined' : null;

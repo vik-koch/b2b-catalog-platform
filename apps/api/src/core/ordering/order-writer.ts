@@ -11,7 +11,6 @@ import {
   AdminOrderDetail,
   OrderNotice,
   OrderRevisionKind,
-  TransitionTarget,
 } from '@b2b-catalog-platform/shared/core/ordering';
 import { effectiveTaxRate, TaxConfig } from '@b2b-catalog-platform/shared';
 import {
@@ -119,7 +118,7 @@ export class OrderWriter {
   async move(
     where: ReturnType<typeof and>,
     actor: OrderActor,
-    to: TransitionTarget,
+    to: OrderStatus,
     reason: string | null,
     byUserId: string,
     told: { notify: boolean; markPaid: boolean; showCustomer: boolean } = {

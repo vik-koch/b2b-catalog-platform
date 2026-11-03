@@ -76,7 +76,7 @@ import { SelectInput } from '@b2b-catalog-platform/ui/inputs/select-input';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import { WarningNote } from '@b2b-catalog-platform/ui/content/warning-note';
 import { TiersService } from '../catalog/tiers/tiers.service';
-import { OrderAdjustChanges, OrderChange } from './order-adjust-changes';
+import { OrderAdjustChanges, OrderChange } from './ui/order-adjust-changes';
 import { AdjustLineRow, OrderAdjustLines } from './order-adjust-lines';
 import { orderBlockChanges, orderLineChanges } from './order-changes';
 import { customerQuantity } from '../../core/ordering/order-formats';

@@ -51,6 +51,18 @@ const adjustmentErrors = {
   'no-change': { status: 409 },
 } as const;
 
+/** A row of the staff list: the order, plus who it came from. */
+export const staffOrderSummarySchema = orderSummarySchema.extend({
+  customerEmail: z.string().nullable(),
+  contactName: z.string(),
+  /** A cash order awaiting its handover is `not-due` like an unanswered one;
+   * the method tells them apart. */
+  paymentMethod: paymentMethodSchema,
+  /** So a row links to the version it describes. */
+  revisionNumber: z.number().int().positive(),
+});
+export type StaffOrderSummary = z.infer<typeof staffOrderSummarySchema>;
+
 const admin = oc.errors(commonAuthErrors);
 
 export const adminOrdersContract = {
@@ -77,17 +89,7 @@ export const adminOrdersContract = {
     .output(
       z
         .object({
-          items: z.array(
-            orderSummarySchema.extend({
-              customerEmail: z.string().nullable(),
-              contactName: z.string(),
-              /** A cash order awaiting its handover is `not-due` like an
-               * unanswered one; the method tells them apart. */
-              paymentMethod: paymentMethodSchema,
-              /** So a row links to the version it describes. */
-              revisionNumber: z.number().int().positive(),
-            }),
-          ),
+          items: z.array(staffOrderSummarySchema),
           pagination: paginationSchema,
         })
         .strict(),

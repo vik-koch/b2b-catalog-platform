@@ -20,7 +20,6 @@ import {
   transitionHasReason,
   AdminOrderDetail,
   AdminOrderLine,
-  TransitionTarget,
 } from '@b2b-catalog-platform/shared/core/ordering';
 import {
   fillText,
@@ -62,7 +61,7 @@ import {
 } from '@b2b-catalog-platform/ui/content/status-badge';
 import { LockedNote } from '../ownership/locked-note';
 import { OwnershipService } from '../settings/ownership.service';
-import { OrderAdjustChanges, OrderChange } from './order-adjust-changes';
+import { OrderAdjustChanges, OrderChange } from './ui/order-adjust-changes';
 import { OrderDocumentsPanel } from './order-documents-panel';
 import { orderChanges } from './order-changes';
 import { AdminOrdersService } from './orders.service';
@@ -96,7 +95,7 @@ import { FACT_LIST } from '@b2b-catalog-platform/ui/content/fact-list';
  * it is the same question the mail and the notify tick ask, so all three read
  * one answer.
  */
-function backwards(from: OrderStatus, to: TransitionTarget): boolean {
+function backwards(from: OrderStatus, to: OrderStatus): boolean {
   return moveDirection(from, to) === 'backward';
 }
 
@@ -1071,7 +1070,7 @@ export class AdminOrderDetailPage {
    * click. A button that said "Confirm" on an order already out for delivery
    * would read as a step forward it is not.
    */
-  private moveLabel(to: TransitionTarget, order: AdminOrderDetail): string {
+  private moveLabel(to: OrderStatus, order: AdminOrderDetail): string {
     const actions = this.text.actions;
     if (backwards(order.status, to)) {
       return {
@@ -1111,10 +1110,7 @@ export class AdminOrderDetailPage {
    * the step that should never have been taken: `ready` on the wrong order,
    * put straight back.
    */
-  private moveChecks(
-    order: AdminOrderDetail,
-    to: TransitionTarget,
-  ): ConfirmCheck[] {
+  private moveChecks(order: AdminOrderDetail, to: OrderStatus): ConfirmCheck[] {
     const actions = this.text.actions;
     const checks: ConfirmCheck[] = [
       {
@@ -1166,10 +1162,7 @@ export class AdminOrderDetailPage {
    * `approved` on an invoiced order is the case this exists for — the one
    * message that both accepts the order and says how to pay for it.
    */
-  private paymentNote(
-    order: AdminOrderDetail,
-    to: TransitionTarget,
-  ): string | null {
+  private paymentNote(order: AdminOrderDetail, to: OrderStatus): string | null {
     const owing =
       nextPaymentState(order.paymentState, order.paymentMethod, to) ===
       'awaiting';
@@ -1192,10 +1185,7 @@ export class AdminOrderDetailPage {
    * customer's mail quotes it. A refusal means somebody else answered the
    * order first, so the page reloads rather than argues.
    */
-  private async move(
-    order: AdminOrderDetail,
-    to: TransitionTarget,
-  ): Promise<void> {
+  private async move(order: AdminOrderDetail, to: OrderStatus): Promise<void> {
     const actions = this.text.actions;
     const label = this.moveLabel(to, order);
     const asked = {

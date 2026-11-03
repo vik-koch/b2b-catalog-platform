@@ -4,8 +4,6 @@ import { lastValueFrom } from 'rxjs';
 import {
   OrderDocumentKind,
   OrderStatus,
-  OrderSummary,
-  PaymentMethod,
   orderDocumentPath,
   AdminOrderDetail,
   OrderAdjustment,
@@ -15,8 +13,8 @@ import {
   OrderRevisionEntry,
   StaffOrderSort,
   StaffPaymentFilter,
-  TransitionTarget,
 } from '@b2b-catalog-platform/shared/core/ordering';
+import { StaffOrderSummary } from '@b2b-catalog-platform/shared/admin/ordering';
 import { Pagination } from '@b2b-catalog-platform/shared/platform';
 import { adminOrdersContract } from '../contract-routes.generated';
 import { safe } from '@orpc/client';
@@ -44,16 +42,6 @@ export type AdjustmentRefusal =
 export type AdjustmentResult =
   | { ok: true; order: AdminOrderDetail }
   | { ok: false; code: AdjustmentRefusal };
-
-/** A row of the staff list: the order, plus who it came from. */
-export type StaffOrderSummary = OrderSummary & {
-  customerEmail: string | null;
-  contactName: string;
-  paymentMethod: PaymentMethod;
-  /** Which version the row is describing, so its title can link straight at
-   * it rather than at whatever is current when the link is followed. */
-  revisionNumber: number;
-};
 
 /**
  * The staff view of order requests (FR-AUTH-03). The customer's own routes are
@@ -95,7 +83,7 @@ export class AdminOrdersService {
    */
   async transition(
     reference: string,
-    to: TransitionTarget,
+    to: OrderStatus,
     reason: string | null,
     /** What the manager said in the confirmation: whether the move reaches the
      * customer's page, whether they hear about it, and whether the money
