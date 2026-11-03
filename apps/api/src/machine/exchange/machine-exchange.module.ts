@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ExchangeCoreModule } from '../../core/exchange/exchange-core.module';
+import { OrderingCoreModule } from '../../core/ordering/ordering-core.module';
 import { MachineAuthModule } from '../../platform/auth/machine-auth.module';
+import { OwnershipStateModule } from '../../platform/settings/ownership-state.module';
 import { CustomerReadService } from './customer-read.service';
 import { MachineCustomerReadController } from './machine-customer-read.controller';
 import { MachineCustomerSyncController } from './machine-customer-sync.controller';
@@ -14,7 +16,13 @@ import { OrderWriteBack } from './order-write-back';
 
 /** The back office's side of the exchange (FR-ADM-08, FR-ADM-18). */
 @Module({
-  imports: [MachineAuthModule, ExchangeCoreModule],
+  imports: [
+    MachineAuthModule,
+    ExchangeCoreModule,
+    // The write-back answers orders through the admin screens' own writer.
+    OrderingCoreModule,
+    OwnershipStateModule,
+  ],
   controllers: [
     MachineController,
     MachineSyncController,

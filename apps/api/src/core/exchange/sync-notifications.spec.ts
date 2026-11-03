@@ -32,8 +32,7 @@ const run = (status: SyncRunStatus, over: Partial<SyncRun> = {}): SyncRun => ({
   ...over,
 });
 
-/** The same run in another area. What it is about is the run's own field, so
- * this is the whole of the difference at this level. */
+/** The same run in another area. */
 const inArea = (area: SyncArea): Partial<SyncRun> => ({ area });
 
 const withCreates = (create: number): Partial<SyncRun> => ({
@@ -56,12 +55,8 @@ const withCreates = (create: number): Partial<SyncRun> => ({
   },
 });
 
-/**
- * What an automated feed writes to the shop, and — the substance of the file —
- * what it does *not* write. Three of the four mails are sent on a change of
- * state, so the cases that matter most here are the silent ones: a feed that
- * is still broken, and a queue that is still waiting.
- */
+/** Three of the four mails go on a change of state, so the silent cases
+ * matter most: a feed still broken, a queue still waiting. */
 describe('SyncNotifications', () => {
   let send: Mock;
   let error: MockInstance;
@@ -123,11 +118,7 @@ describe('SyncNotifications', () => {
     expect(subjects()).toEqual([t.waiting.subject]);
   });
 
-  /**
-   * The case a hold would have been built for: a staged run superseded by
-   * another staged run, every twenty minutes, is one thing waiting — and the
-   * panel says so with one count.
-   */
+  /** A staged run superseded by another is still one thing waiting. */
   it('says nothing when a staged run replaces a staged run', async () => {
     notifications.announce(run('previewed'), 'previewed');
     notifications.announce(run('previewed'), 'superseded');
@@ -158,10 +149,7 @@ describe('SyncNotifications', () => {
     expect(send).not.toHaveBeenCalled();
   });
 
-  /**
-   * An admin applying a staged run has just read the preview that says what it
-   * creates; the mail would be the same news twice.
-   */
+  /** An admin applying a staged run has just read its preview. */
   it('says nothing about creates an admin applied by hand', async () => {
     notifications.announce(
       run('applied', { ...withCreates(12), stagedReason: 'policy' }),
@@ -193,8 +181,8 @@ describe('SyncNotifications', () => {
     expect(recipients()).toEqual([ADMIN]);
   });
 
-  /** A fault reaches the operator as well, where a deployment names one — and
-   * only a fault: a staged run is nothing they can answer. */
+  /** Faults also reach the operator, where one is configured; staged runs
+   * do not. */
   it('copies the operator on a failure and on nothing else', async () => {
     mail = dispatcherOver(send);
     notifications = new SyncNotifications(
@@ -213,11 +201,7 @@ describe('SyncNotifications', () => {
     expect(recipients().sort()).toEqual([ADMIN, ADMIN, OPS]);
   });
 
-  /**
-   * The area decides the words (FR-NOTIF-09). A manager who gets "Catalog
-   * update failed" about an account import learns the wrong thing in the one
-   * line an inbox shows them.
-   */
+  /** The area decides the words (FR-NOTIF-09). */
   it('writes a customer run in the customer exchange’s own words', async () => {
     notifications.announce(run('failed', inArea('customers')), 'applied');
     notifications.announce(run('previewed', inArea('customers')), 'applied');
@@ -229,11 +213,8 @@ describe('SyncNotifications', () => {
     ]);
   });
 
-  /**
-   * No customer counterpart to "new products arrived": the accounts a run
-   * invited have already been mailed their own set-a-password link, so there
-   * is no queue on anybody's desk to announce.
-   */
+  /** No customer counterpart to "new products arrived": the invited are
+   * mailed their own link. */
   it('says nothing about accounts a customer run created', async () => {
     notifications.announce(
       run('applied', { ...inArea('customers'), ...withCreates(12) }),
@@ -244,11 +225,8 @@ describe('SyncNotifications', () => {
     expect(send).not.toHaveBeenCalled();
   });
 
-  /**
-   * The two feeds are two facts. The caller reads each area's own previous
-   * run, so a customer run recovering says nothing about a catalog feed that
-   * is still down — and cannot clear it.
-   */
+  /** A customer run recovering says nothing about a catalog feed still
+   * down. */
   it('reads each area against its own previous run', async () => {
     notifications.announce(run('applied', inArea('customers')), 'failed');
     notifications.announce(run('failed'), 'failed');

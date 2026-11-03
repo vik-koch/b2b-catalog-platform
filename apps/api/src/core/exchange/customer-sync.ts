@@ -1,3 +1,9 @@
+/**
+ * The customer differ (FR-ADM-11), pure like the catalog's. A row states
+ * access as enabled or disabled; what that means for an account (approve,
+ * reactivate, nothing) is decided here from its state, and the applier only
+ * writes it.
+ */
 import {
   CustomerAccountChange,
   CustomerSyncOptions,
@@ -14,30 +20,11 @@ import {
 } from '@b2b-catalog-platform/shared/core/accounts';
 import { UserRole } from '@b2b-catalog-platform/shared/platform';
 
-/**
- * The customer differ: rows + intent + the accounts as they stand → what would
- * change (FR-ADM-11).
- *
- * Pure, for the reason the catalog's is: the rules worth arguing about — what
- * an exchange may do to somebody's access, which row is refused, what a
- * repeated instruction comes to — are then testable without a database, and
- * preview and commit can run the identical computation rather than the commit
- * trusting a diff taken earlier.
- *
- * It decides **statuses**, not transitions. Every row says one of two things
- * about access, and what that means for an account is read off the account's
- * own state here — approving a registration, reactivating somebody who was
- * switched off, or nothing at all. The applier writes what this decided and
- * argues with nothing.
- */
-
 /** The slice of the accounts the differ needs. */
 export interface CustomerSyncState {
   accounts: ExistingAccount[];
-  /** The deployment's price lists, by the key a row names one with. */
   tiers: ExistingCustomerTier[];
-  /** The kinds of customer the shop sells to (FR-AUTH-13): a row that would
-   * make an account any other kind is refused. */
+  /** The kinds of customer the shop sells to (FR-AUTH-13). */
   customerTypes: readonly CustomerType[];
 }
 
@@ -46,15 +33,11 @@ export interface ExistingCustomerTier {
   key: string;
 }
 
-/**
- * One account as it stands. Staff accounts are in here too, and deliberately:
- * they are never customers (FR-ADM-10), but a row that names one has to be
- * refused rather than silently matched against nothing — and their addresses
- * are taken, which a row asking for that address needs to know.
- */
+/** Staff included: a row naming one is refused, and their addresses are
+ * taken. */
 export interface ExistingAccount {
   id: string;
-  /** Null for everyone who registered here and was never claimed by a run. */
+  /** Null for an account registered here and never claimed. */
   sourceId: string | null;
   email: string;
   role: UserRole;
@@ -65,12 +48,10 @@ export interface ExistingAccount {
   customerType: CustomerType | null;
   companyName: string | null;
   companyRegistrationId: string | null;
-  /** Whether this account has a password its owner chose — what decides where
-   * a reactivated one lands, exactly as it does for a manager's click. */
+  /** Whether the owner chose a password: decides where reactivation lands. */
   hasPassword: boolean;
 }
 
-/** An account this run would create, with what it is created from. */
 export interface CreateAccountAction {
   sourceId: string;
   email: string;
@@ -93,37 +74,20 @@ export interface UpdateAccountAction {
   companyRegistrationId?: string | null;
 }
 
-/**
- * What the applier executes. Separate from the presentational plan for the
- * catalog's reason: the screen's shape and the write path move independently.
- */
+/** What the applier executes, apart from the plan a screen shows. */
 export interface CustomerSyncActions {
   createAccounts: CreateAccountAction[];
   updateAccounts: UpdateAccountAction[];
-  /**
-   * The status each account this run moves should end up in, decided here.
-   * `endSessions` marks the move as one that takes access away: the applier
-   * bumps the token version and retires any outstanding set-a-password link,
-   * which is what stops a switched-off account being usable by a cookie or a
-   * mail somebody still has.
-   */
+  /** `endSessions` takes access away: the applier ends sessions and retires
+   * open set-a-password links. */
   setStatus: { id: string; status: UserStatus; endSessions: boolean }[];
-  /** Accounts that end up approved for the first time — the exchange's
-   * counterpart of a manager's approval, stamped the same way. */
+  /** First approvals, stamped like a manager's. */
   approveIds: string[];
-  /** Existing accounts to mail a set-a-password link, because their row asked
-   * for one. Accounts this run creates are mailed by virtue of being created
-   * and are not listed here — they have no id yet. */
+  /** Existing accounts to mail a link; created ones are mailed anyway and
+   * have no id yet. */
   mailLinkIds: string[];
-  /**
-   * Accounts adopted by address (FR-ADM-17): the key each one is given, and
-   * from then on the only thing it is matched by.
-   *
-   * Its own list rather than a `sourceId` on `updateAccounts`, because it is
-   * the one write here that is not an edit of the account's contents — it
-   * decides what this key *means*, and the applier has to be able to refuse it
-   * if somebody else claimed the same row in between.
-   */
+  /** Adoptions (FR-ADM-17): not an edit but what a key means, so the
+   * applier can skip one claimed in between. */
   claimAccounts: { id: string; sourceId: string }[];
 }
 
@@ -139,10 +103,8 @@ export function planCustomerSync(
   rows: CustomerSyncRow[],
   options: CustomerSyncOptions,
   state: CustomerSyncState,
-  /** Rows a file was carrying that could not be read at all (FR-ADM-12). They
-   * are the run's errors as much as the ones found here — an admin reading the
-   * preview is owed one list of what this file will not do, not two. Empty for
-   * a headless run, whose rows were a schema's to refuse. */
+  /** An uploaded file's unreadable rows (FR-ADM-12), shown in the same
+   * error list. */
   parseErrors: CustomerSyncRowError[] = [],
 ): PlanResult {
   const writes = new Set(options.fields);
@@ -194,23 +156,15 @@ export function planCustomerSync(
     }
     seenSourceIds.add(row.sourceId);
 
-    // The account this row is about: the one holding its key, or — once, and
-    // only where the run was asked to (FR-ADM-17) — the one already holding
-    // its address and carrying no key of its own. Staff and withdrawn rows are
-    // never claim candidates: the checks below have their own answers for
-    // those, and both of them are "no", not "adopt it".
+    // The account holding the key, or one the run may claim (FR-ADM-17).
     const byKey = bySourceId.get(row.sourceId);
 
-    // An account the row named outright. Read only where the key is unknown:
-    // once a key names an account, that is what the row is about, and an
-    // identifier disagreeing with it is stale rather than authoritative
+    // Only where the key is unknown: an id disagreeing with a key is stale
     // (FR-ADM-14).
     const named = !byKey && row.accountId ? byId.get(row.accountId) : undefined;
     if (!byKey && row.accountId) {
-      // What is wrong with the identifier itself, said before any option is
-      // consulted: these four are true of the row whatever the run is allowed
-      // to do, and answering them with "claiming was off" would send an
-      // operator to switch on a setting that would refuse it anyway.
+      // Before the options: "claiming was off" would send an operator to a
+      // setting that refuses these too.
       if (!named) return fail('account-unknown', { accountId: row.accountId });
       if (named.role !== 'user') return fail('staff-account');
       if (named.status === 'anonymized') return fail('account-withdrawn');
@@ -222,15 +176,12 @@ export function planCustomerSync(
 
     const unclaimed =
       !byKey && row.email ? unclaimedHolder(byEmail.get(row.email)) : undefined;
-    // The identifier wins where a row carries both and both are allowed: it is
-    // the one the sending system chose deliberately rather than the one a
-    // match happened to find.
+    // The id wins over the address: the sender chose it.
     const claimed =
       claimedById ?? (options.claimByEmail ? unclaimed : undefined);
 
-    // A perfectly good identifier on a run that may not act on it. Asked after
-    // the address, so a run allowed to claim by address is not refused for
-    // carrying an extra field that would have reached the same account.
+    // After the address, so a run claiming by address is not refused for an
+    // id reaching the same account.
     if (named && !claimed) {
       return fail('account-unclaimed-by-id', {
         accountId: row.accountId as string,
@@ -239,38 +190,23 @@ export function planCustomerSync(
     }
     const existing = byKey ?? claimed;
 
-    // A staff account is not a customer under any setting, so a run that has
-    // somehow acquired one's key is refused rather than obeyed: the alternative
-    // is an exchange that can tier, disable or re-mail an admin.
+    // Or the exchange could tier, disable or re-mail an admin.
     if (existing && existing.role !== 'user') return fail('staff-account');
 
-    // The account was closed by the person themselves (FR-AUTH-06). It kept its
-    // key so that this refusal can happen — without it the next run would meet
-    // a customer with no account and cheerfully mail them a new one.
+    // Closed by its owner (FR-AUTH-06): it kept its key for this refusal, or
+    // the next run would invite them again.
     if (existing && existing.status === 'anonymized') {
       return fail('account-withdrawn');
     }
 
-    // Which address this row is about, and whether anybody else has it. An
-    // address is checked against every account, staff included: two accounts
-    // cannot share one, whatever the roles involved.
+    // Checked against every account, staff included.
     const email = writes.has('email') || !existing ? row.email : undefined;
     if (email) {
       const holder = byEmail.get(email);
       if (holder && holder.id !== existing?.id) {
         if (holder.role !== 'user') return fail('staff-account', { email });
-        // An account this run *could* have adopted, on a run that was not
-        // allowed to, is not the collision `email-taken` describes: it is
-        // almost certainly this very person, who registered on the storefront.
-        // Saying so points at the option that was off instead of at a clash
-        // nobody can resolve.
-        //
-        // The two exclusions matter here as much as in the claim itself. A row
-        // whose own key already names another account is an ordinary collision
-        // again — claiming cannot help when the key is spoken for. And an
-        // account the person closed is refused as closed, because telling
-        // somebody to turn on an option that would also refuse it is worse
-        // than saying nothing.
+        // A claimable holder is almost certainly this person, registered on
+        // the storefront: name the option that was off, not a clash.
         if (!byKey && unclaimedHolder(holder)) {
           return fail('account-unclaimed', { email });
         }
@@ -285,9 +221,7 @@ export function planCustomerSync(
       claimedEmails.add(email);
     }
 
-    // The tier, resolved against the lists this deployment actually has. Null
-    // is the base list and always resolvable; a key nobody has is a row error
-    // rather than a silent fall back to the base price.
+    // Null is the base list; an unknown key fails rather than falling back.
     let tierId: string | null | undefined;
     if (writes.has('tier') && row.tierKey !== undefined) {
       if (row.tierKey === null) {
@@ -307,10 +241,8 @@ export function planCustomerSync(
       ? resolveCompany(row, existing)
       : null;
     if (company === 'incomplete') return fail('company-details-incomplete');
-    // Only a type the row states is held to the list: one it says nothing
-    // about stays what it was, and an account from before the list is
-    // corrected in the editor, not refused every run. "Not a company" is a
-    // person by another name, so a stated null is held to the list as one.
+    // Only a stated type is checked, so an older account is not refused every
+    // run. A stated null is a person.
     if (row.customerType !== undefined) {
       const type = row.customerType ?? 'person';
       if (!state.customerTypes.includes(type)) {
@@ -319,10 +251,7 @@ export function planCustomerSync(
     }
 
     if (!existing) {
-      // An unknown key that asks for nothing is not a customer this shop has
-      // been told to have: the exchange creates an account when it says the
-      // person may sign in, and otherwise leaves the shop with one fewer
-      // account than the other system has records.
+      // Only a row granting access creates an account.
       if (row.access !== 'enabled') {
         if (row.sendPasswordLink) fail('cannot-send-link');
         return;
@@ -358,10 +287,8 @@ export function planCustomerSync(
       return;
     }
 
-    // What this row would rewrite, and what it is worth saying about it. A
-    // field whose value already matches produces nothing at all: a feed sends
-    // its whole record every run, and a log in which every run says it wrote
-    // everything answers no question anybody has (FR-ADM-16).
+    // A matching value is no change: a feed resends its whole record every run
+    // (FR-ADM-16).
     const fieldChanges: CustomerAccountChange['changes'] = [];
     const update: UpdateAccountAction = { id: existing.id };
 
@@ -404,24 +331,17 @@ export function planCustomerSync(
       }
     }
 
-    // What the access field means for *this* account, which is the whole
-    // reason it is two values rather than five.
     const access = accessMove(row.access, existing);
 
-    // A link asked for on an account that cannot sign in — a registration
-    // nobody has decided on, or one switched off — has nowhere to land. Judged
-    // against where this run leaves the account, so a row that reactivates
-    // somebody and asks for their link in one go works.
+    // Judged by where the run leaves the account, so reactivating and asking
+    // for a link in one row works.
     const statusAfter = access?.status ?? existing.status;
     const wantsLink = row.sendPasswordLink;
     if (wantsLink && !CAN_SIGN_IN.includes(statusAfter)) {
       fail('cannot-send-link');
     }
-    // An account this run leaves able to sign in but with no password to sign
-    // in *with* is mailed the link whether or not the row asked — a manager's
-    // approval sends it (FR-AUTH-01), and the whole point of the exchange is
-    // that there is no manager. It is a consequence of the move rather than a
-    // repeatable instruction, so the next run, which moves nothing, mails
+    // Moved to `invited` without a password: mailed unasked, as a manager's
+    // approval would (FR-AUTH-01). Only on the move, so a repeat run mails
     // nothing (FR-ADM-16).
     const needsLink =
       access !== null && statusAfter === 'invited' && !existing.hasPassword;
@@ -456,10 +376,7 @@ export function planCustomerSync(
     }
 
     changes.push({
-      // A claim outranks the move it arrives with. A run that adopts somebody's
-      // registration and approves it in one row is doing both, and the one a
-      // reader has to be told about is the adoption — the approval is what
-      // every other row of the run is already doing.
+      // A claim outranks the move it arrives with: it is the news.
       kind: claims
         ? claimsById
           ? 'claim-id'
@@ -477,9 +394,7 @@ export function planCustomerSync(
     rows: rows.length,
     create: count(changes, 'invite'),
     update: count(changes, 'update'),
-    // The shared counters, read as this area reads them: an account switched
-    // off is what a hidden product is, and one switched back on is what a
-    // restored one is (ADR 0060).
+    // The shared counters: disabled counts as deleted, enabled as restored.
     softDelete: count(changes, 'disable'),
     restore: count(changes, 'enable'),
     claimed: count(changes, 'claim'),
@@ -506,17 +421,8 @@ export function planCustomerSync(
   };
 }
 
-/**
- * What one row's access field comes to for an account that exists — or null
- * where it comes to nothing, which is most rows of most runs (FR-ADM-16).
- *
- * `enabled` is three different sentences depending on where the account
- * stands: approve this registration, switch this account back on, or nothing,
- * it is already on. A reactivated account goes back to `active` when it holds
- * a password its owner chose and to `invited` when it does not — the same
- * reading `StaffUsersService.reactivate` makes, because it is the same
- * question and `active` has to keep meaning one thing everywhere.
- */
+/** A row's access for an existing account, or null for no move. A
+ * reactivated account lands where `StaffUsersService.reactivate` puts it. */
 function accessMove(
   access: CustomerSyncRow['access'],
   account: ExistingAccount,
@@ -546,15 +452,9 @@ function accessMove(
   return null;
 }
 
-/**
- * The invoiced party, as a set rather than three independent fields: a company
- * needs both a name and a registration id, and a customer who is not one has
- * neither. The pairing is the same one the registration form and the staff
- * editor enforce, checked against what the row and the account say *together*
- * so a run may send only the half that changed.
- *
- * Null means the row says nothing about any of it.
- */
+/** The invoiced party as a set: a company needs a name and an id, others
+ * have neither. Row and account are read together, so a row may send only the
+ * half that changed. Null when the row says nothing. */
 function resolveCompany(
   row: CustomerSyncRow,
   existing: ExistingAccount | undefined,
@@ -589,8 +489,7 @@ function resolveCompany(
     if (!companyName || !companyRegistrationId) return 'incomplete';
     return { customerType, companyName, companyRegistrationId };
   }
-  // Not a company: the invoiced-party fields go with it rather than being left
-  // behind on a person, where they would still be quoted on an order.
+  // Cleared, or a person's orders would still quote them.
   return {
     customerType,
     companyName: null,
@@ -598,16 +497,8 @@ function resolveCompany(
   };
 }
 
-/**
- * Whether an account already holding a row's address may be adopted by it
- * (FR-ADM-17): a customer, registered here, carrying no source key of its own,
- * and still an account at all.
- *
- * Staff are excluded because they are never customers under any setting, and a
- * withdrawn account because there is nothing left in it to claim — both fall
- * through to the refusals that say so by name rather than being quietly
- * adopted.
- */
+/** An account a row may adopt (FR-ADM-17): a keyless customer, not
+ * withdrawn. Staff and withdrawn ones meet their own refusals. */
 function unclaimedHolder(
   holder: ExistingAccount | undefined,
 ): ExistingAccount | undefined {

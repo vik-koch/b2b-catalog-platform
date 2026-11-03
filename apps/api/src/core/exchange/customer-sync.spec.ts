@@ -54,8 +54,7 @@ const row = (over: Partial<CustomerSyncRow> = {}): CustomerSyncRow => ({
 describe('planCustomerSync', () => {
   describe('rows a file could not be read at all (FR-ADM-12)', () => {
     it('carries them into the plan and counts them as errors', () => {
-      // An admin reading a preview is owed one list of what this file will not
-      // do, not one from the parser and another from here.
+      // One error list, the parser's included.
       const { plan } = planCustomerSync(
         [row({ access: 'disabled' })],
         options(),
@@ -70,8 +69,7 @@ describe('planCustomerSync', () => {
     });
 
     it('makes a file of nothing but bad rows a run that happened', () => {
-      // The opposite of a quiet night: filing it as no change would hide the
-      // one thing the log exists to show.
+      // An unreadable file is not a quiet night.
       const { plan } = planCustomerSync([], options(), state(), [
         { row: 1, sourceId: null, code: 'missing-source-id' },
       ]);
@@ -94,8 +92,7 @@ describe('planCustomerSync', () => {
       });
 
     it('refuses the row with its own code while the option is off', () => {
-      // `email-taken` would be true about the data and false about the
-      // situation: it is the same person, and what is needed is a claim.
+      // The same person: what is needed is a claim, not `email-taken`.
       const { plan, actions } = planCustomerSync(
         [
           row({
@@ -140,8 +137,7 @@ describe('planCustomerSync', () => {
       expect(actions.setStatus).toEqual([
         { id: 'u-new', status: 'invited', endSessions: false },
       ]);
-      // The kind a reader needs is the adoption, not the approval every other
-      // row of the run is also doing — and the tier still travels with it.
+      // The adoption is the news; the tier still travels with it.
       expect(plan.accounts).toEqual([
         {
           kind: 'claim',
@@ -156,8 +152,7 @@ describe('planCustomerSync', () => {
     });
 
     it('is a change in its own right, even when the row asks for nothing else', () => {
-      // Giving an account its key is what makes every later run able to reach
-      // it, so a run that does only that is not a quiet night.
+      // A key given is a change: later runs can reach the account.
       const { plan, actions } = planCustomerSync(
         [row({ sourceId: 'C-9', email: 'grace@example.com' })],
         options({ claimByEmail: true }),
@@ -169,8 +164,6 @@ describe('planCustomerSync', () => {
     });
 
     it('never claims a staff account', () => {
-      // Staff are not customers under any setting, and the refusal says so by
-      // name rather than the account being quietly adopted.
       const { plan, actions } = planCustomerSync(
         [
           row({
@@ -218,14 +211,12 @@ describe('planCustomerSync', () => {
 
       expect(actions.claimAccounts).toEqual([]);
       expect(actions.createAccounts).toEqual([]);
-      // Refused as closed, not as unclaimed: pointing at an option that would
-      // refuse it too is worse than saying nothing.
+      // Refused as closed: the claim option would refuse it too.
       expect(plan.rowErrors[0]).toMatchObject({ code: 'account-withdrawn' });
     });
 
     it("stays an ordinary collision when the row's own key is already spoken for", () => {
-      // Claiming cannot help here: this key names one account and the address
-      // names another, and only a person can say which is meant.
+      // Key and address name different accounts: only a person can decide.
       const { plan } = planCustomerSync(
         [row({ sourceId: 'C-1', email: 'grace@example.com' })],
         options({ claimByEmail: true }),
@@ -261,14 +252,12 @@ describe('planCustomerSync', () => {
 
       expect(actions.claimAccounts).toEqual([{ id: 'u-new', sourceId: 'C-9' }]);
       expect(plan.accounts[0]).toMatchObject({ kind: 'claim-id', id: 'u-new' });
-      // Its own count, because its own ceiling decides whether a run carrying
-      // it may apply itself.
+      // Its own count: its own ceiling gates auto-apply.
       expect(plan.summary).toMatchObject({ claimedById: 1, claimed: 0 });
     });
 
     it('needs no address to find the account', () => {
-      // The whole point over the address match: the source need not know, or
-      // agree about, what the person signs in with.
+      // The source need not know the sign-in address.
       const { actions } = planCustomerSync(
         [namedRow()],
         options({ claimById: true }),
@@ -297,8 +286,6 @@ describe('planCustomerSync', () => {
     });
 
     it('lets the address claim it where the row carries both and only that is on', () => {
-      // A row naming the same account twice over is not refused for carrying
-      // the extra field: the run was allowed to reach this account.
       const { plan, actions } = planCustomerSync(
         [namedRow({ email: 'grace@example.com' })],
         options({ claimByEmail: true }),
@@ -512,8 +499,7 @@ describe('planCustomerSync', () => {
         }),
       );
 
-      // A manager's approval sends this mail (FR-AUTH-01), and the point of
-      // the exchange is that there is no manager to press the button.
+      // As a manager's approval would (FR-AUTH-01).
       expect(actions.mailLinkIds).toEqual(['u-1']);
       expect(plan.summary.mailed).toBe(1);
       expect(plan.accounts[0].mailed).toBe(true);
@@ -540,8 +526,7 @@ describe('planCustomerSync', () => {
       expect(actions.setStatus).toEqual([
         { id: 'u-1', status: 'active', endSessions: false },
       ]);
-      // Nothing to approve: the account was approved when it was first let in,
-      // and none of that stopped being true.
+      // Approved when first let in; that still holds.
       expect(actions.approveIds).toEqual([]);
     });
 

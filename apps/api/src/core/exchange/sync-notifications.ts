@@ -18,22 +18,12 @@ import {
   syncWaitingMail,
 } from '../../mail/templates/sync-run.template';
 
-/**
- * Where an automated feed stands, as far as anybody has been told.
- *
- * Not a stored field. It is read off the run before this one, which is the
- * same fact and cannot drift from it — and a feed that runs every twenty
- * minutes would otherwise accumulate a flag nobody clears.
- */
+/** Where an automated feed stands, read off the run before this one rather
+ * than stored, so it cannot drift from it. */
 type FeedState = 'ok' | 'waiting' | 'failed';
 
-/**
- * What each outcome means for the feed's state.
- *
- * `superseded` is still `waiting`: the run it describes was staged and nobody
- * answered it, a later one simply took its place. `discarded` is `ok` —
- * somebody said no, which is an answer, and the next staged run is news again.
- */
+/** `superseded` is still waiting: nobody answered it, a later run took its
+ * place. `discarded` is an answer, so the next staged run is news again. */
 const STATE_OF: Record<SyncRunStatus, FeedState> = {
   applied: 'ok',
   'no-change': 'ok',
@@ -44,31 +34,12 @@ const STATE_OF: Record<SyncRunStatus, FeedState> = {
 };
 
 /**
- * What an automated exchange tells the shop (FR-ADM-07/09, FR-NOTIF-09).
- *
- * **One notifier, one area at a time.** The feed state it reads is the status
- * of the previous machine run *of that area*, which the caller supplies, so a
- * broken catalog feed and a working customer one are two independent facts and
- * neither announces the other's recovery. The wording follows the same seam:
- * the templates key their sentences off `run.area`.
- *
- * Who reads it is *not* per area. FR-NOTIF-09 names the admin, and these go to
- * the addresses the deployment configures rather than to staff accounts — a
- * manager's readership of customer runs (FR-ADM-09) is the panel, which is the
- * channel that works whether or not SMTP does.
- *
- * Three of the four mails are sent on a **change of state**, not on a run:
- * the first failure after things were working, the recovery, and the moment
- * something starts waiting for a person. A feed on a twenty-minute cadence
- * that breaks at midnight would otherwise write seventy-two identical mails
- * before anybody opened one, and the seventy-second is the one that teaches
- * people to filter the shop's mail into a folder.
- *
- * The panel is the channel that does not depend on any of this: the staged
- * count and the last-sync line are read off the runs themselves, so a mail
- * that never arrives — no SMTP, a wrong address — costs the news, never the
- * record. Which is why nothing here is retried and nothing fails a run: a
- * catalog that imported and a message about it are not the same event.
+ * What an automated exchange tells the shop (FR-ADM-07/09, FR-NOTIF-09). The
+ * feed state is per area, so one area's failure never announces another's
+ * recovery; the addresses are the deployment's, not per area. Three of the
+ * four mails go on a change of state, or a broken feed would mail on every
+ * run. Nothing is retried: the panel reads the runs themselves, so a lost
+ * mail costs the news, never the record.
  */
 @Injectable()
 export class SyncNotifications {
@@ -79,14 +50,8 @@ export class SyncNotifications {
     @Inject(MAIL_BRANDING) private readonly branding: MailBranding,
   ) {}
 
-  /**
-   * Announce one finished automated run, given the state the feed was in
-   * before it — the status of the machine run before this one, or null where
-   * this is the first one ever.
-   *
-   * Read *before* the run is written, because inserting one supersedes the
-   * staged run it overtakes: asked afterwards, the question answers itself.
-   */
+  /** `previous` is the area's previous machine run status, or null for the
+   * first run (see `SyncRunLog.previousMachineStatus`). */
   async announce(run: SyncRun, previous: SyncRunStatus | null): Promise<void> {
     const before: FeedState = previous ? STATE_OF[previous] : 'ok';
     const now = STATE_OF[run.status];
@@ -100,23 +65,16 @@ export class SyncNotifications {
         syncRecoveredMail(run, this.when(run), this.text),
         'fault',
       );
-      // A run can recover the feed and bring new products in one go. Two
-      // mails, because they are two pieces of news: one is about the
-      // connection, the other is about work on somebody's desk.
+      // A recovering run may also bring work: that is a second mail.
     }
     if (now === 'waiting' && before !== 'waiting') {
       const waiting = syncWaitingMail(run, this.when(run), this.text);
       if (waiting) await this.send(waiting, 'admins');
       return;
     }
-    // Applied and brought products nobody has published yet (FR-ADM-06). Not a
-    // transition: every such run is its own piece of news, and there is no
-    // state for it to be in. A staged run an admin applied by hand says
-    // nothing here — they have just read the preview that says it.
-    //
-    // Catalog only. A customer run that invited accounts has already mailed
-    // those people their set-a-password link; there is no queue left on
-    // anybody's desk for a fourth message to point at.
+    // New unpublished products (FR-ADM-06): news on every such run, not a
+    // state. Not for a run applied by hand, whose admin just read the preview,
+    // and catalog only: invited customers already have their own mail.
     if (
       run.area === 'catalog' &&
       run.status === 'applied' &&
@@ -137,12 +95,8 @@ export class SyncNotifications {
     }).format(new Date(run.startedAt));
   }
 
-  /**
-   * Never allowed to fail or hold up the run that caused it, exactly as an
-   * order's mails are not allowed to fail the order: the catalog is written,
-   * and the panel says so whether or not SMTP was reachable. An ERP posting a
-   * run gets its answer back without waiting on the shop's provider.
-   */
+  /** Never fails or holds up the run: the caller gets its answer without
+   * waiting on the mail provider. */
   private send(
     content: MailContent,
     audience: NotificationAudience,

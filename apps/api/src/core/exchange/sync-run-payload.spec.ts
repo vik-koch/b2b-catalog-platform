@@ -67,9 +67,7 @@ describe('stagedPayload', () => {
   });
 
   it('refuses a payload in the other area’s shape', () => {
-    // The shape a cast would have waved through, and the reason this parses:
-    // a customer row reaching the catalog differ is nonsense the compiler
-    // cannot catch, because both columns are typed as the union.
+    // A cast would let a customer row reach the catalog differ.
     expect(() =>
       stagedPayload(
         run({ area: 'catalog', rows: [{ sourceId: 'C-1', tierKey: 'trade' }] }),

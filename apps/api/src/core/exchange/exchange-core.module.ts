@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { AccountsCoreModule } from '../accounts/accounts-core.module';
-import { OrderingCoreModule } from '../ordering/ordering-core.module';
 import { OwnershipStateModule } from '../../platform/settings/ownership-state.module';
 import { MailModule } from '../../mail/mail.module';
 import {
@@ -27,9 +26,6 @@ import { SyncRunLog } from './sync-run-log';
     // The customer exchange creates accounts through the same service and
     // invitation mail a manager's approval goes through: one way, not two.
     AccountsCoreModule,
-    // The order write-back answers orders through the same writer the admin
-    // screens use, for the same reason.
-    OrderingCoreModule,
     OwnershipStateModule,
     MailModule,
   ],
@@ -54,8 +50,6 @@ import { SyncRunLog } from './sync-run-log';
     CustomerSyncService,
     SyncRunLog,
     SyncNotifications,
-    OrderingCoreModule,
-    OwnershipStateModule,
   ],
 })
 export class ExchangeCoreModule {}

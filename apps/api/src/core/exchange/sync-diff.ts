@@ -1,3 +1,8 @@
+/**
+ * The catalog differ: rows, intent and the current catalog in, what would
+ * change out. Pure, so commit can rerun it against fresh state rather than
+ * trust the preview.
+ */
 import {
   ProductAvailability,
   productAvailability,
@@ -17,28 +22,14 @@ import {
   syncPriceColumn,
 } from '@b2b-catalog-platform/shared/core/exchange';
 
-/**
- * The differ: rows + intent + current catalog → what would change. Pure, so the
- * interesting rules (what a run may write, what may be deleted, how categories
- * are matched) are unit-testable without a database, and so preview and commit
- * can run exactly the same computation — commit re-runs it against freshly read
- * state rather than trusting the preview.
- */
-
 /** The slice of the catalog the differ needs. */
 export interface SyncCatalogState {
   products: ExistingProduct[];
   categories: ExistingCategory[];
-  /** The deployment's additional price lists. The base list is not among them:
-   * it is a column, addressed by the reserved `default` key. */
+  /** Every price list, the default one included. */
   tiers: ExistingTier[];
-  /**
-   * The deployment's own "few left" figure — the last rung of the ladder, for
-   * a product with neither a box nor a pack. Deployment config rather than
-   * catalog, but the differ has to be told it: it resolves the stored
-   * availability itself, so that preview and commit agree on the badge the way
-   * they already agree on everything else.
-   */
+  /** The deployment's "few left" figure for a product with no packaging: the
+   * differ resolves availability itself, so preview and commit agree on it. */
   lowStockFallback: number;
 }
 
@@ -54,23 +45,18 @@ export interface ExistingProduct {
   sourceId: string;
   slug: string;
   name: string;
-  /** Current prices by tier key — every list that prices this product, the
-   * default one included. An absent key means that list charges the default
-   * list's price; a product absent from *every* list has no price at all and
-   * cannot be published. */
+  /** Prices by tier key. An absent key charges the default list's price. */
   tierPrices: Record<string, number>;
   categoryId: string;
   deletedAt: Date | null;
-  /** Who deleted it: null for a run, a user for a person. A run restores only
-   * what a run deleted — a product an admin hid stays hidden however often
-   * the source sends it (FR-ADM-02). */
+  /** Null when a run deleted it: a run restores only its own deletions
+   * (FR-ADM-02). */
   deletedBy: string | null;
   /** Null where this product's stock is not tracked. */
   stockPieces: number | null;
   /** Null where it is taxed at the deployment's default. */
   taxRate: number | null;
-  /** What the resolved state depends on besides the figure: the packaging the
-   * threshold is measured in, and the product's own override of it. */
+  /** The packaging the threshold is measured in, and the product's override. */
   piecesPerPack: number | null;
   packsPerBox: number | null;
   lowStockThresholdPieces: number | null;
@@ -78,19 +64,17 @@ export interface ExistingProduct {
 
 export interface ExistingCategory {
   id: string;
-  /** Null for a category the shop invented: no file names it, so no run
-   * touches it — it is here only for the emptied-category report. */
+  /** Null for a category the shop made: no run touches it, it is here only
+   * for the emptied-category report. */
   sourceId: string | null;
   slug: string;
   name: string;
 }
 
-/** What the applier executes. Kept separate from the presentational `CatalogSyncPlan`
- * so the UI shape can change without touching the write path. */
+/** What the applier executes, apart from the plan a screen shows. */
 export interface SyncActions {
   createCategories: { sourceId: string; name: string }[];
-  /** Categories the file renames. Identity is the source id, so a renamed
-   * category is updated in place rather than created anew. */
+  /** Renamed in place: a category's identity is its source id. */
   updateCategories: { id: string; name: string }[];
   createProducts: {
     sourceId: string;
@@ -99,8 +83,7 @@ export interface SyncActions {
     categoryId: string | null;
     categorySourceId: string | null;
     tierPrices: TierPriceWrite[];
-    /** Absent where the file carries no figure; the two travel together, so a
-     * row cannot leave a state without the count behind it. */
+    /** Absent where the file has no figure; always set together. */
     stockPieces?: number;
     availability?: ProductAvailability;
     /** Absent where the file says nothing; null is the default rate. */
@@ -111,15 +94,9 @@ export interface SyncActions {
     name?: string;
     categoryId?: string | null;
     categorySourceId?: string | null;
-    /**
-     * Prices to write, **upsert only**. A sync writes the lists its file
-     * carries and leaves the others alone — the same "absent is not empty"
-     * rule the rest of a row follows, and the reason this differs from the
-     * product editor, where the posted set is the whole truth.
-     */
+    /** Upsert only: lists the file leaves out are kept, unlike the product
+     * editor, where the posted set is the whole truth. */
     tierPrices?: TierPriceWrite[];
-    /** Recomputed here rather than in the applier: the threshold follows the
-     * product's packaging, which the differ has already read. */
     stockPieces?: number;
     availability?: ProductAvailability;
     taxRate?: number | null;
@@ -139,26 +116,16 @@ export interface SyncPlanResult {
   actions: SyncActions;
 }
 
-/**
- * A category's identity is its `categorySourceId`, so a name is free to change
- * — but two rows claiming the same id under *different* names contradict each
- * other. Comparing normalized names keeps the incidental differences a
- * hand-maintained source produces (surrounding space, repeated space, case)
- * from being read as a contradiction.
- */
+/** Two rows naming one category id differently contradict each other; space
+ * and case differences from a hand-kept source do not count. */
 export function normalizeCategoryName(name: string): string {
   return name.trim().replace(/\s+/g, ' ').toLowerCase();
 }
 
 /**
- * A row's prices keyed by the list they name, with the bare `price` column's
- * alias resolved to the badged list's key and every key matched
- * case-insensitively against the ones this deployment has.
- *
- * Matched here rather than in the parser because only the database knows the
- * keys, and matched in TypeScript rather than by a `lower()` index because
- * Postgres folds case by collation and a JavaScript engine folds it by the
- * Unicode default — one rule, applied once, in one place.
+ * A row's prices by tier key: the bare `price` alias becomes the default
+ * list's key, and keys match case-insensitively. Folded here, not by a
+ * `lower()` index, as Postgres folds by collation and JavaScript by Unicode.
  */
 function resolvePriceKeys(
   row: CatalogSyncRow,
@@ -178,7 +145,7 @@ function resolvePriceKeys(
   return { prices };
 }
 
-/** One spelling of a key, for comparison only — never for storage or display. */
+/** For comparison only, never for storage or display. */
 function fold(key: string): string {
   return key.normalize('NFC').toLowerCase();
 }
@@ -204,9 +171,9 @@ export function planSync(
       .map((c) => [c.sourceId as string, c]),
   );
 
-  // Price-list keys are validated here rather than in the contract: they are
-  // rows, not code, so only the database knows which exist.
+  // Validated here, not in the contract: only the database knows the keys.
   const tierIdByKey = new Map(state.tiers.map((t) => [t.key, t.id]));
+  const tierKeyById = new Map(state.tiers.map((t) => [t.id, t.key]));
   const knownPriceListKeys = state.tiers.map((t) => t.key);
   const defaultTierKey = state.tiers.find((t) => t.isDefault)?.key;
 
@@ -262,9 +229,7 @@ export function planSync(
     seenSourceIds.add(row.sourceId);
     const existing = productsBySourceId.get(row.sourceId);
 
-    // A price for a list this deployment does not have is a converter bug, not
-    // something to guess at: the row is skipped and the message names the keys
-    // that would have worked, the same treatment an unknown category gets.
+    // An unknown list is a converter bug: skip the row and name the keys.
     const { prices, unknownKey } = resolvePriceKeys(row, state.tiers);
     if (unknownKey !== undefined) {
       rowErrors.push({
@@ -279,9 +244,8 @@ export function planSync(
       continue;
     }
 
-    // A price of nothing is not a price. The shop says "this product is not
-    // priced" by leaving the column out, so a zero in it is a converter bug
-    // worth naming rather than a free product worth storing.
+    // "Not priced" is an absent column, so a zero is a converter bug, not a
+    // free product.
     const zeroKey = Object.entries(prices).find(
       ([, priceMinor]) => priceMinor === 0,
     )?.[0];
@@ -295,8 +259,7 @@ export function planSync(
       continue;
     }
 
-    // Resolve the row's category first: an unresolvable one fails the row
-    // before anything else is decided about it.
+    // An unresolvable category fails the row before anything else.
     let categoryId: string | null | undefined;
     let categorySourceId: string | null | undefined;
     // The contract guarantees the two category fields travel together.
@@ -304,8 +267,6 @@ export function planSync(
       const key = row.categorySourceId;
       const name = row.categoryName as string;
 
-      // One id, one name — a file disagreeing with itself cannot say which
-      // name it means, so the row is an error rather than a coin flip.
       const claimed = claimedNames.get(key);
       if (claimed !== undefined) {
         if (normalizeCategoryName(claimed) !== normalizeCategoryName(name)) {
@@ -324,8 +285,6 @@ export function planSync(
       const existingCategory = categoriesBySourceId.get(key);
       if (existingCategory !== undefined) {
         categoryId = existingCategory.id;
-        // A renamed category is updated in place: identity is the source id,
-        // so a new name is a rename, never a second category.
         if (name !== existingCategory.name) {
           const pending = renamedCategories.get(key);
           if (pending) pending.count += 1;
@@ -359,10 +318,8 @@ export function planSync(
         unchanged += 1;
         continue;
       }
-      // A new product needs the fields the read model cannot default: a name
-      // and a category. A price is not among them — a source that exports
-      // products and prices in separate files creates the product first, and
-      // it simply waits unpublished until a list prices it (FR-ADM-06).
+      // A name and a category, not a price: a source with a separate price
+      // file creates the product first, and it waits unpublished (FR-ADM-06).
       const name = writesName ? row.name : undefined;
       if (!name || categoryId === undefined) {
         rowErrors.push({
@@ -385,8 +342,7 @@ export function planSync(
           ? {}
           : {
               stockPieces: stock,
-              // A new product has no packaging yet — nobody has entered it —
-              // so its threshold is the deployment's own figure.
+              // No packaging yet, so the deployment's own threshold.
               availability: productAvailability(
                 stock,
                 { piecesPerPack: null, packsPerBox: null },
@@ -420,22 +376,19 @@ export function planSync(
       update.name = row.name;
     }
 
-    // Each list the file carries, against what that list charges today. A tier
-    // with no price of its own falls back to the default list's, so that is
-    // what the diff shows it moving *from* — the number the customer sees now,
-    // not a blank. Null where nothing prices the product yet.
+    // A tier with no price of its own moves *from* the default list's price:
+    // the number its customers see now.
+    const fallback =
+      defaultTierKey === undefined
+        ? undefined
+        : existing.tierPrices[defaultTierKey];
     const tierWrites = tierPricesOf(prices).filter((write) => {
-      const key = state.tiers.find((t) => t.id === write.tierId)?.key as string;
-      const fallback =
-        defaultTierKey === undefined
-          ? undefined
-          : existing.tierPrices[defaultTierKey];
+      const key = tierKeyById.get(write.tierId) as string;
       const current = existing.tierPrices[key] ?? fallback ?? null;
       if (current === write.priceMinor && key in existing.tierPrices) {
         return false;
       }
-      // A price equal to the default list's is still worth writing: it pins
-      // that tier against a later change to the default list.
+      // Equal to the default list's is still written: it pins the tier.
       changes.push({
         field: syncPriceColumn(key),
         from: current,
@@ -462,10 +415,8 @@ export function planSync(
       }
     }
 
-    // Recomputed against this product's own packaging and override, which is
-    // why the differ reads them: the same figure means "few left" for a product
-    // boxed in 24s and "in stock" for one sold loose. Written only when the
-    // file carries a figure — an absent cell leaves both columns alone.
+    // Against the product's own packaging: one figure is "few left" boxed in
+    // 24s and "in stock" sold loose.
     if (writesStock && row.stockPieces !== undefined) {
       const stock = row.stockPieces;
       if (stock !== existing.stockPieces) {
@@ -484,7 +435,7 @@ export function planSync(
       }
     }
 
-    // Null is a value here — the default rate — so only absent is skipped.
+    // Null is the default rate, a value; only absent is skipped.
     if (
       writesTaxRate &&
       row.taxRate !== undefined &&
@@ -498,11 +449,8 @@ export function planSync(
       update.taxRate = row.taxRate;
     }
 
-    // A product returning to the file is restored — the inverse of the delete
-    // sweep, and the reason a soft delete is reversible in the first place.
-    // Only the sweep's own deletion, though: one an admin made is the shop's
-    // decision about what it shows, and the file saying the product exists
-    // does not overrule it. Its fields are still written below.
+    // Restores only the sweep's own deletions: an admin's is the shop's
+    // decision, and the file does not overrule it.
     const restoring =
       Boolean(existing.deletedAt) &&
       existing.deletedBy === null &&
@@ -535,9 +483,7 @@ export function planSync(
     });
   }
 
-  // The delete sweep. Gated on authority over the product set, and blind to
-  // `manual:` products, which are absent from every real export by
-  // construction and would otherwise be wiped on the first authoritative run.
+  // The delete sweep skips `manual:` products: no export ever carries them.
   const keptManual: { sourceId: string; name: string }[] = [];
   if (options.softDeleteMissingProducts && options.productSetAuthoritative) {
     for (const product of state.products) {
@@ -558,8 +504,7 @@ export function planSync(
     }
   }
 
-  // Categories the run empties. Reported only — a sync never deletes a
-  // category (every top-level one is absent from every file by construction).
+  // Reported only: a sync never deletes a category.
   const emptiedCategories = state.categories
     .filter((category) => {
       const before = state.products.some(
@@ -587,10 +532,7 @@ export function planSync(
     categoriesRenamed: actions.updateCategories.length,
     categoriesEmptied: emptiedCategories.length,
     keptManual: keptManual.length,
-    // A catalog run tells nobody anything by mail, and adopts nobody: what it
-    // brings in is announced to the shop, never to a customer, and there is no
-    // account here to claim (ADR 0060 — the counts are shared, the areas that
-    // fill them are not).
+    // Customer-run counts: a catalog run mails and claims no one.
     mailed: 0,
     claimed: 0,
     claimedById: 0,
@@ -613,8 +555,7 @@ export function planSync(
     })),
   ];
 
-  // Lists are capped so a first import stays a response rather than a download;
-  // the summary above counts everything regardless.
+  // Capped so a first import stays a response; the summary counts all.
   const cap = <T>(items: T[]) => items.slice(0, SYNC_PREVIEW_MAX_ITEMS);
   const truncated = [
     productChanges,
@@ -638,12 +579,8 @@ export function planSync(
   };
 }
 
-/**
- * Which fields a run rewrites, in a fixed order so two runs that touch the same
- * things read the same. Taken from the changes themselves rather than from the
- * run's declared `fields`: what a run is *allowed* to write and what it turned
- * out to write are different sentences, and the log is about the second.
- */
+/** The fields the run actually changed (not the ones it may write), in a
+ * fixed order so two runs touching the same things read the same. */
 function fieldsWritten(
   changes: CatalogSyncProductChange[],
   defaultTierKey: string | undefined,
@@ -653,8 +590,7 @@ function fieldsWritten(
     for (const field of change.changes) seen.add(field.field);
   }
   const ordered = CATALOG_SYNC_FIELDS.filter((field) => seen.has(field));
-  // Price lists after the plain fields, and the default list before the rest:
-  // that is the order they are read in everywhere else.
+  // Prices last, the default list first, as everywhere else.
   const defaultColumn =
     defaultTierKey === undefined ? null : syncPriceColumn(defaultTierKey);
   const prices = [...seen]

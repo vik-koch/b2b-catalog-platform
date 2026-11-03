@@ -18,15 +18,8 @@ import { syncRuns } from '../../db/schema';
 
 type RunRow = typeof syncRuns.$inferSelect;
 
-/**
- * A staged run's payload, narrowed to the area it belongs to.
- *
- * The three staged columns are one union per column in the row type, which
- * means nothing correlates them to each other or to `area`: every reader had
- * to assert its way back to the shape it knew it was looking at. This is that
- * assertion, made once and checked — `area` is a real discriminant here, so a
- * caller writes `if (payload.area === 'catalog')` and the rest follows.
- */
+/** A staged run's payload, narrowed by `area`. The row type has one union per
+ * staged column, which nothing ties to each other or to the area. */
 export type StagedPayload =
   | {
       area: 'catalog';
@@ -41,24 +34,15 @@ export type StagedPayload =
       parseErrors: CustomerSyncRowError[];
     };
 
-/** One area's arm of the union, for a signature that takes only that area's
- * staged payload — an engine that serves one area states which it is. */
+/** One area's arm, for an engine that serves only that area. */
 export type StagedPayloadOf<A extends SyncArea> = Extract<
   StagedPayload,
   { area: A }
 >;
 
-/**
- * A staged column that came back from the database in a shape its area's
- * schema does not accept.
- *
- * Deliberately not one of the run conflicts a caller is told about: those name
- * states a run can legitimately be in, and this is not one of them. Staged rows
- * are written by the same schema that reads them here and live a day at most,
- * so failing this means the row was corrupted or hand-edited — a 500 and a log
- * line, not a sentence in the admin panel telling somebody a story that is not
- * true.
- */
+/** A staged column its area's schema refuses. Not a run conflict: the same
+ * schema wrote it a day ago at most, so the row was corrupted or hand-edited,
+ * and it is a 500 and a log line. */
 export class StagedPayloadError extends Error {
   constructor(runId: string, column: string, cause: z.ZodError) {
     super(`Run ${runId}: stored ${column} does not match its area's schema`);
@@ -68,18 +52,10 @@ export class StagedPayloadError extends Error {
 }
 
 /**
- * The staged payload of a run, or null where there is none to read — a run
- * that has been applied, was pruned, or never staged anything.
- *
- * Parsed rather than asserted, because jsonb read back from Postgres is
- * `unknown` however it was typed going in. The parse is idempotent: these rows
- * were validated by these schemas at submission, so it re-applies the same
- * defaults and trims to the same values, and its real job is to be the one
- * place that says which shapes an area's run holds.
- *
- * Only what is acted on is parsed. `plan` is not: it is finished history shown
- * on a screen, and a stored diff from an older release that no longer satisfies
- * today's schema should read as the record it is, not fail the page.
+ * A run's staged payload, or null once applied, pruned or never staged. Parsed,
+ * as jsonb comes back `unknown`; the same schemas wrote it, so the parse
+ * changes nothing. `plan` is not parsed: it is history on a screen, and an
+ * older release's diff must still show.
  */
 export function stagedPayload(run: RunRow): StagedPayload | null {
   if (!run.rows || !run.options) return null;
@@ -94,14 +70,10 @@ export function stagedPayload(run: RunRow): StagedPayload | null {
     }
     return result.data;
   };
-  // The staged errors default to none: a run submitted as JSON has no parse
-  // errors at all, and only an uploaded file can carry any.
+  // Only an uploaded file has parse errors; a JSON run has none.
   const errors = run.parseErrors ?? [];
   switch (run.area) {
-    // An order write-back is applied as it arrives and stages nothing
-    // (ADR 0062), so there is never a payload to read back. Stated rather than
-    // left to the guard above, which is about a run that *had* one and lost it
-    // to pruning.
+    // An order write-back is applied as it arrives and stages nothing.
     case 'orders':
       return null;
     case 'catalog':

@@ -15,11 +15,8 @@ import { runNotFound } from './sync-run';
 /** Staged rows and finished runs are audit data, not archive data. */
 const RUN_RETENTION_DAYS = 90;
 
-/**
- * The parts of a run's life that are the same whatever it carries (ADR 0060):
- * retention, which staged run the next one replaces, and where the feed stood
- * before it.
- */
+/** What a run's life shares across areas: retention, which staged run the
+ * next one replaces, and where the feed stood before it. */
 @Injectable()
 export class SyncRunLog {
   constructor(
@@ -27,13 +24,9 @@ export class SyncRunLog {
   ) {}
 
   /**
-   * The status of the automated run before this one in this area, or null
-   * where there has never been one. Uploads are left out: a person previewing
-   * their own file is not the feed's state, and it is their screen that
-   * answers them.
-   *
-   * Read *before* the new run is written, because inserting one supersedes the
-   * staged run it overtakes — asked afterwards, the question answers itself.
+   * The area's previous automated run's status, or null. Uploads are not the
+   * feed's state. Read before the new run is written: inserting it supersedes
+   * the staged one, and the question would answer itself.
    */
   async previousMachineStatus(area: SyncArea): Promise<SyncRunStatus | null> {
     const [row] = await this.db
@@ -46,19 +39,9 @@ export class SyncRunLog {
   }
 
   /**
-   * One run of this area, for the automated source that produced it
-   * (FR-ADM-09).
-   *
-   * Scoped by **area**, never by the token that submitted the run. A source
-   * rotates its credential and is the same source afterwards, so keying this
-   * to the submitter would need a rule about inheriting a predecessor's
-   * history — and the scope on the token already says which area's work this
-   * client does. The cost is that one source can read another's run in the
-   * same area, which is the definition of them sharing an area.
-   *
-   * A run of another area is *missing* rather than refused: telling a catalog
-   * credential that a customer run exists but is not for it is information it
-   * has no use for and no right to.
+   * One run for the automated source (FR-ADM-09), scoped by area rather than
+   * by token: a rotated credential is the same source. A run of another area
+   * is missing, not refused, so its existence does not leak.
    */
   async findForMachine(id: string, area: SyncArea): Promise<MachineSyncRun> {
     const [row] = await this.db
@@ -70,16 +53,8 @@ export class SyncRunLog {
     return toMachineSyncRun(toSyncRun(row));
   }
 
-  /**
-   * Retires whatever headless run of this area is still staged, because this
-   * one replaces it.
-   *
-   * A staged run is a snapshot of a diff that was true when it was taken. Two
-   * hour-old previews from a quarter-hourly feed are not a backlog to work
-   * through, they are noise, and only the newest is worth applying. An admin's
-   * own upload is left alone: it is theirs, and nothing a machine sends
-   * supersedes a decision a person is in the middle of.
-   */
+  /** Retires the area's staged headless run: only the newest snapshot of a
+   * feed is worth applying. An admin's own upload is left alone. */
   async supersedeStaged(area: SyncArea): Promise<void> {
     await this.db
       .update(syncRuns)
@@ -98,9 +73,8 @@ export class SyncRunLog {
       );
   }
 
-  /** Drops staged rows and whole runs past the retention window. Area-blind on
-   * purpose: age is age, whatever a run carried — except for the people a
-   * customer run carried. */
+  /** Drops staged rows and whole runs past retention, whatever the area,
+   * except that a customer run's people go sooner. */
   async prune(): Promise<void> {
     const cutoff = new Date(Date.now() - RUN_RETENTION_DAYS * 86_400_000);
     const dayAgo = new Date(Date.now() - 86_400_000);
@@ -113,10 +87,9 @@ export class SyncRunLog {
       .where(
         and(eq(syncRuns.status, 'previewed'), lt(syncRuns.startedAt, dayAgo)),
       );
-    // A customer run's diff names people by address and lists what changed
-    // about them, so it goes after a day too, applied or not (NFR-LEGAL-12):
-    // otherwise a deleted account's details outlive it here. The run and its
-    // counts stay.
+    // A customer run's diff names people, so it goes after a day, applied or
+    // not, or a deleted account outlives itself here (NFR-LEGAL-12). The run
+    // and its counts stay.
     await this.db
       .update(syncRuns)
       .set({ rows: null, parseErrors: null, plan: null })
@@ -134,8 +107,7 @@ export class SyncRunLog {
   }
 }
 
-/** One stored run as the contract describes it. Shared, because a run reads
- * the same whatever area it belongs to. */
+/** A stored run as the contract describes it, the same for every area. */
 export function toSyncRun(row: typeof syncRuns.$inferSelect): SyncRun {
   return {
     id: row.id,
@@ -155,11 +127,8 @@ export function toSyncRun(row: typeof syncRuns.$inferSelect): SyncRun {
   };
 }
 
-/**
- * The same run with the person taken out of it. An automated client is owed
- * what happened to its run, not the address of the admin who discarded it —
- * and that address would otherwise leave the shop on every poll.
- */
+/** The run without the person: a client polling its run is not owed the
+ * address of the admin who discarded it. */
 export function toMachineSyncRun(run: SyncRun): MachineSyncRun {
   const { actorEmail: _person, ...rest } = run;
   return rest;

@@ -199,9 +199,7 @@ describe('planSync', () => {
       options(),
       state(),
     );
-    // A price is *not* among them: a source that exports products and prices
-    // separately creates the product first, and it waits unpublished until
-    // something prices it.
+    // Not a price: a separate price file prices it later.
     expect(priceless.actions.createProducts).toEqual([
       {
         sourceId: 'A-9',
@@ -479,8 +477,7 @@ describe('planSync', () => {
       }),
     );
 
-    // The shop decided not to show it; the file saying it exists does not
-    // overrule that (FR-ADM-02). Its price still follows the source.
+    // The admin's hide stands (FR-ADM-02); its price still follows.
     expect(actions.restoreProductIds).toEqual([]);
     expect(actions.updateProducts).toEqual([
       { id: 'p-1', tierPrices: [{ tierId: 'tier-d', priceMinor: 1990 }] },
@@ -578,8 +575,7 @@ describe('planSync', () => {
     });
 
     it('measures the threshold in this product’s own boxes', () => {
-      // Twenty pieces is under one box of 24 and well over the ten a product
-      // sold loose is measured against — one figure, two states.
+      // 20 pieces: under one box of 24, over the loose threshold of 10.
       const boxed = planSync(
         [row({ stockPieces: 20 })],
         options(),
@@ -614,8 +610,8 @@ describe('planSync', () => {
     });
 
     it('leaves stock alone when the run does not write it', () => {
-      // A price-only file must not touch a figure it does not carry — and a
-      // stock-carrying file must not either, unless the run says so.
+      // Neither a file without a figure nor a run not writing stock touches
+      // it.
       const { plan, actions } = planSync(
         [row({ stockPieces: 4 })],
         options({ fields: ['name', 'category'] }),
@@ -683,8 +679,7 @@ describe('planSync', () => {
       expect(result.actions.updateProducts).toEqual([
         { id: 'p-1', tierPrices: [{ tierId: 'tier-w', priceMinor: 1500 }] },
       ]);
-      // The base price is absent from the file, so it is left alone — the same
-      // "absent is not empty" rule every other field follows.
+      // Absent from the file, so left alone.
       expect(result.actions.updateProducts[0]).not.toHaveProperty('priceMinor');
     });
 
@@ -695,8 +690,7 @@ describe('planSync', () => {
         state(),
       );
 
-      // A tier with no override charges the base price today, so that is the
-      // number the admin is comparing against — not a blank.
+      // A tier without an override charges the base price today.
       expect(result.plan.products[0].changes).toEqual([
         { field: 'price:wholesale', from: 1890, to: 1500 },
       ]);
@@ -720,8 +714,7 @@ describe('planSync', () => {
         state(),
       );
 
-      // Not a no-op: it pins that tier's price, so a later change to the base
-      // price leaves this list where the file put it.
+      // Not a no-op: it pins the tier against a later base price change.
       expect(result.actions.updateProducts).toEqual([
         { id: 'p-1', tierPrices: [{ tierId: 'tier-w', priceMinor: 1890 }] },
       ]);
@@ -757,8 +750,7 @@ describe('planSync', () => {
         state(),
       );
 
-      // Named, not guessed at: the params list what would have worked, the
-      // same treatment an unknown category gets.
+      // The params list the keys that would have worked.
       expect(result.plan.rowErrors[0]).toMatchObject({
         code: 'unknown-price-list',
         params: { key: 'retail' },
@@ -804,8 +796,7 @@ describe('planSync', () => {
         state(),
       );
 
-      // Half-applying a row whose converter is evidently broken would be worse
-      // than skipping it.
+      // A row from a broken converter is skipped, not half-applied.
       expect(result.actions.updateProducts).toEqual([]);
     });
   });

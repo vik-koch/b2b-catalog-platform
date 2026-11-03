@@ -19,8 +19,8 @@ import {
   CatalogSyncSubmission,
   CatalogSyncSubmitResponse,
   catalogSyncOptionsSchema,
+  SyncCommitResponse,
 } from '@b2b-catalog-platform/shared/core/exchange';
-import { SyncCommitResponse } from '@b2b-catalog-platform/shared/core/exchange';
 import { DRIZZLE } from '../../db/database.module';
 import { OwnershipState } from '../../platform/settings/ownership-state';
 import {
@@ -38,7 +38,14 @@ import {
 import { excluded } from '../../db/sql-columns';
 import { SyncActions, SyncCatalogState, planSync } from './sync-diff';
 import { StagedPayloadOf, stagedPayload } from './sync-run-payload';
-import { Actor, CONFLICT_CODE, Submitter, runNotFound } from './sync-run';
+import {
+  Actor,
+  CONFLICT_CODE,
+  Reader,
+  Submitter,
+  Tx,
+  runNotFound,
+} from './sync-run';
 import { SyncRunLog, toSyncRun } from './sync-run-log';
 import { SyncNotifications } from './sync-notifications';
 import {
@@ -46,21 +53,8 @@ import {
   SYNC_POLICY,
 } from '../../config/deployment-config';
 
-/** The transaction handle Drizzle hands a `db.transaction` callback. */
-type Tx = Parameters<
-  Parameters<NodePgDatabase<typeof schema>['transaction']>[0]
->[0];
-
-/** Anything that can read the catalog: the pool, or a transaction on it. */
-type Reader = Pick<NodePgDatabase<typeof schema>, 'select'>;
-
-/**
- * Whether a run has anything in it at all.
- *
- * Skipped rows count as something. A run whose diff is empty because the file
- * could not be read is the opposite of a quiet night, and burying it as "no
- * change" would hide the one thing the log exists to show.
- */
+/** Skipped rows count as something: an unreadable file is not a quiet
+ * night. */
 function isNoChange(plan: CatalogSyncPlan): boolean {
   const s = plan.summary;
   return (
@@ -76,27 +70,17 @@ function isNoChange(plan: CatalogSyncPlan): boolean {
 }
 
 /**
- * The catalog exchange (FR-ADM-02, FR-ADM-07). Preview and commit share one
- * differ (`planSync`); the difference is that a preview stages its rows and
- * writes nothing, while a commit re-diffs those rows against freshly read
- * state and applies the result in a single transaction — so a partially
- * imported catalog is not a state this can reach.
- *
- * A headless run is the same two halves in one request rather than a second
- * importer: it stages exactly as an upload does, and then either applies
- * itself or waits, depending on what the diff turned out to say.
- *
- * One area's engine, and only that: which area a run belongs to, who may act
- * on it and what the log reads like are `SyncService`'s (ADR 0060).
+ * The catalog exchange (FR-ADM-02, FR-ADM-07). A preview stages its rows and
+ * writes nothing; a commit re-diffs them against fresh state and applies the
+ * result in one transaction. A headless run is both halves in one request,
+ * applying itself or waiting by what the diff says.
  */
 @Injectable()
 export class CatalogSyncService {
   constructor(
     @Inject(DRIZZLE) private readonly db: NodePgDatabase<typeof schema>,
-    // Handed to the differ, which resolves the stored availability itself.
     @Inject(LOW_STOCK_THRESHOLD_PIECES)
     private readonly lowStockFallback: number,
-    // What this deployment lets an unattended run do to itself.
     @Inject(SYNC_POLICY)
     private readonly policy: SyncPolicy,
     private readonly ownership: OwnershipState,
@@ -104,12 +88,11 @@ export class CatalogSyncService {
     private readonly log: SyncRunLog,
   ) {}
 
-  /** Whether the exchange currently holds the pen (FR-ADM-10). */
   private get catalogIsOwned(): boolean {
     return this.ownership.isExternallyOwned('catalog');
   }
 
-  /** Parse-free entry point: rows are already validated (CSV or JSON). */
+  /** Rows arrive validated, from CSV or JSON. */
   async preview(
     rows: CatalogSyncRow[],
     options: CatalogSyncOptions,
@@ -117,16 +100,12 @@ export class CatalogSyncService {
     actor: Actor,
     parseErrors: CatalogSyncPlan['rowErrors'] = [],
   ): Promise<CatalogSyncPreviewResponse> {
-    // The manual upload is the operator's fallback, and it is closed exactly
-    // while somebody else is doing the job (FR-ADM-02). Refused here rather
-    // than only in the controller so the rule holds for every caller.
+    // The upload is closed while another system owns the catalog (FR-ADM-02).
     if (this.catalogIsOwned) throw catalogExternallyOwned('upload');
     const state = await this.readState();
     const { plan } = planSync(rows, options, state, parseErrors);
 
-    // Nothing to decide: the run is recorded as it stands and stages no rows,
-    // rather than waiting in a queue for somebody to press a button that is
-    // not even on the screen.
+    // Nothing to decide: recorded as it stands, staging nothing.
     const nothingToDo = isNoChange(plan);
 
     await this.log.prune();
@@ -156,23 +135,16 @@ export class CatalogSyncService {
     return { run, applied };
   }
 
-  /**
-   * Recompute a staged run's diff against the catalog as it stands now. What a
-   * staged run's page shows: the preview is advisory, and a person about to
-   * apply one has to be looking at what would happen now.
-   */
+  /** A staged run's diff against the catalog now: what its page shows, since
+   * whoever applies it must see what would happen now. */
   async replan(staged: StagedPayloadOf<'catalog'>): Promise<CatalogSyncPlan> {
     const state = await this.readState();
     return planSync(staged.rows, staged.options, state, staged.parseErrors)
       .plan;
   }
 
-  /**
-   * The commit itself, with or without a person behind it. `actor` is null for
-   * a run that applied itself: the run already records the token that
-   * submitted it, and naming an admin who was not there would be a worse lie
-   * than an empty column.
-   */
+  /** `actor` is null for a run that applied itself: the run names its token,
+   * and no admin was there. */
   private async applyRun(
     id: string,
     actor: Actor | null,
@@ -185,9 +157,6 @@ export class CatalogSyncService {
           .where(eq(syncRuns.id, id))
           .for('update');
         if (!run) throw runNotFound();
-        // Another area's run is not this engine's to apply, and saying so as a
-        // 404 keeps the one route honest: the run exists, but not for a caller
-        // that arrived here.
         if (run.area !== 'catalog') throw runNotFound();
         if (run.status !== 'previewed') {
           throw new ConflictException({
@@ -202,23 +171,15 @@ export class CatalogSyncService {
             message: 'This run’s staged rows have been pruned',
           });
         }
-        // Restates the area check above, which the compiler cannot carry
-        // across to the payload: the two columns are typed as the union of
-        // every area's shape, and this is what narrows them to this one.
+        // Narrows the payload; the compiler cannot carry the check above.
         if (staged.area !== 'catalog') throw runNotFound();
-        // Applying is the write, so it is judged by the setting in force now
-        // rather than the one in force when the file went up: a run uploaded
-        // before the catalog was handed over is not a way to get a manual
-        // write in afterwards. Machine runs are unaffected — they exist only
-        // while the catalog *is* owned, which is when applying them is right.
+        // Judged by the setting now, not at upload: an upload staged before
+        // the hand-over is no way to write by hand afterwards.
         if (run.source === 'upload' && this.catalogIsOwned) {
           throw catalogExternallyOwned('apply an uploaded run');
         }
 
-        // Re-diff against current state: the catalog may have moved since the
-        // preview (another admin edited a product), so the preview is advisory
-        // and this computation is the authoritative one. Read through the
-        // transaction, so what is planned is what is written.
+        // Through the transaction, so what is planned is what is written.
         const state = await this.readState(tx);
         const { plan, actions } = planSync(
           staged.rows,
@@ -236,10 +197,8 @@ export class CatalogSyncService {
             finishedAt: new Date(),
             summary: plan.summary,
             ...(actor ? { actorId: actor.id, actorEmail: actor.email } : {}),
-            // The staged input has served its purpose. What replaces it is the
-            // diff rather than the counts: "which products moved last night" is
-            // the question this log exists to answer, and a run nobody watched
-            // is exactly the one nobody saw the preview of.
+            // The diff replaces the input: "what moved last night" is what the
+            // log is read for.
             rows: null,
             parseErrors: null,
             plan,
@@ -250,12 +209,10 @@ export class CatalogSyncService {
         return { run: toSyncRun(updated), applied: plan.summary, plan };
       });
     } catch (error) {
-      // A refusal is not a failed run: the run is untouched and still
-      // previewed, and saying otherwise would retire a run nobody applied.
+      // A refusal leaves the run previewed; it did not fail.
       if (error instanceof HttpException) throw error;
-      // Anything else rolled the catalog back with it, so the run is recorded
-      // as failed in a write of its own — inside the transaction it would have
-      // been rolled back too.
+      // Recorded outside the rolled-back transaction, or it would roll back
+      // too.
       const message = error instanceof Error ? error.message : String(error);
       await this.db
         .update(syncRuns)
@@ -265,33 +222,20 @@ export class CatalogSyncService {
     }
   }
 
-  /**
-   * The headless run (FR-ADM-07): stage it, then let the policy decide whether
-   * it applies itself.
-   *
-   * It is staged first and unconditionally, so a run exists in the log before
-   * anything is written and whatever happens next has a row to happen to. The
-   * decision is made on the diff — what the run would *do* — rather than on
-   * what it declared it might touch: a field whitelist states an intent, a diff
-   * states an effect, and only the second is worth a person's attention.
-   */
+  /** The headless run (FR-ADM-07): always staged first, so the log has a
+   * row before anything is written; the policy then judges the diff, not the
+   * fields the run declared. */
   async submit(
     submission: CatalogSyncSubmission,
     submitter: Submitter,
   ): Promise<CatalogSyncSubmitResponse> {
-    // The other half of the mutual exclusion: nobody has handed the catalog
-    // over, so the shop is writing it by hand and a second writer is refused.
     if (!this.catalogIsOwned) throw catalogNotExternallyOwned();
-    // Absent options mean the schema's defaults, exactly as they do for an
-    // upload — parsed rather than assumed, so the delete gate is applied to a
-    // headless run's intent as well.
+    // Parsed, so the defaults and the delete gate apply as for an upload.
     const options = catalogSyncOptionsSchema.parse(submission.options ?? {});
     const state = await this.readState();
     const { plan } = planSync(submission.rows, options, state);
 
-    // A run with nothing in it is never staged and never applied — not even
-    // when the caller asked to be doubted, because doubt about a parse that
-    // produced no change is still nothing for a person to decide.
+    // Never staged, even when review was requested: nothing to decide.
     const nothingToDo = isNoChange(plan);
     const stagedReason = nothingToDo
       ? null
@@ -303,9 +247,6 @@ export class CatalogSyncService {
         );
 
     await this.log.prune();
-    // Where the feed stood before this run, read before anything is written:
-    // inserting supersedes the staged run this one overtakes, so asked
-    // afterwards the question would answer itself.
     const previous = await this.log.previousMachineStatus('catalog');
     await this.log.supersedeStaged('catalog');
     const [row] = await this.db
@@ -332,32 +273,19 @@ export class CatalogSyncService {
       return { run, plan };
     }
 
-    // The applying half re-diffs against state read inside its own
-    // transaction, so what it computed — not what was planned a moment ago —
-    // is what the caller is told about.
+    // The caller is told what the apply computed, not the plan above.
     const applied = await this.applyRun(row.id, null);
     await this.notifications.announce(applied.run, previous);
     return { run: applied.run, plan: applied.plan };
   }
 
-  /**
-   * A breakage the caller could not turn into a run. Recorded as a failed run
-   * of its own, because the alternative is silence — and a feed that has
-   * stopped working looks exactly like a feed with nothing to send.
-   *
-   * The row carries no options and no summary: nothing was ever intended and
-   * nothing was ever counted. The message is the caller's own text, kept
-   * verbatim for a person to read, like the exception text beside it.
-   */
+  /** A breakage the caller could not turn into a run, recorded as a failed
+   * one: a broken feed must not look like one with nothing to send. */
   async reportFailure(
     report: SyncFailureReport,
     submitter: Submitter,
   ): Promise<{ run: SyncRun }> {
-    // Refused for the same reason a submission is. It costs the record of a
-    // feed that is still broken while an operator has taken the catalog back —
-    // which is the right trade: they took it back *because* it is broken, and
-    // a client told plainly that the platform is not listening is better than
-    // one quietly filling a log nobody asked it to write.
+    // Refused like a submission: a catalog taken back is not listening.
     if (!this.catalogIsOwned) throw catalogNotExternallyOwned();
     const previous = await this.log.previousMachineStatus('catalog');
     const now = new Date();
@@ -379,14 +307,8 @@ export class CatalogSyncService {
     return { run };
   }
 
-  // --- Internals ---------------------------------------------------------
-
-  /**
-   * The whole catalog, in two queries. About 1,500 products and a few dozen
-   * categories fit in memory comfortably (the same reasoning that keeps the
-   * category tree in the app rather than in recursive SQL, ADR 0022), and it
-   * lets the differ stay pure.
-   */
+  /** The whole catalog in memory, which a few thousand products fit, so the
+   * differ stays pure. */
   private async readState(db: Reader = this.db): Promise<SyncCatalogState> {
     const [productRows, categoryRows, tierRows, priceRows] = await Promise.all([
       db
@@ -398,8 +320,6 @@ export class CatalogSyncService {
           categoryId: products.categoryId,
           deletedAt: products.deletedAt,
           deletedBy: products.deletedBy,
-          // Read for the availability recompute: a figure alone does not say
-          // which state it lands in.
           stockPieces: products.stockPieces,
           taxRate: products.taxRate,
           piecesPerPack: products.piecesPerPack,
@@ -422,9 +342,8 @@ export class CatalogSyncService {
           isDefault: customerTiers.isDefault,
         })
         .from(customerTiers),
-      // Every price in the catalog. Most products are priced in the default
-      // list alone — a tier carries only its exceptions — so this table stays
-      // close to the size of the product list rather than a multiple of it.
+      // A tier carries only its exceptions, so this is about one row a
+      // product.
       db
         .select({
           productId: productPrices.productId,
@@ -455,22 +374,18 @@ export class CatalogSyncService {
     };
   }
 
-  /**
-   * Applies a plan, in the caller's transaction. Categories first, because
-   * products created in the same run may reference them.
-   */
+  /** In the caller's transaction; categories first, as new products may
+   * reference them. */
   private async apply(
     tx: Tx,
     actions: SyncActions,
     state: SyncCatalogState,
   ): Promise<void> {
-    // Slugs are allocated in memory against the slugs already in use, so a run
-    // creating hundreds of products does not do a uniqueness query per row.
+    // In memory, rather than a uniqueness query per created row.
     const takenProductSlugs = new Set(state.products.map((p) => p.slug));
     const takenCategorySlugs = new Set(state.categories.map((c) => c.slug));
 
-    // New categories are created unparented — the export carries no
-    // hierarchy, so an admin places them in the tree afterwards.
+    // Unparented: the export has no hierarchy, an admin places them.
     const createdCategoryIds = new Map<string, string>();
     if (actions.createCategories.length > 0) {
       const [{ value: maxRootOrder }] = await tx
@@ -496,8 +411,7 @@ export class CatalogSyncService {
       }
     }
 
-    // A rename keeps the slug (a changed URL breaks links) and the tree
-    // position — only the display name moves.
+    // A rename keeps the slug, so links hold, and the tree position.
     for (const category of actions.updateCategories) {
       await tx
         .update(categories)
@@ -522,12 +436,8 @@ export class CatalogSyncService {
       return undefined;
     };
 
-    /**
-     * Upsert, never delete: a run writes the price lists its file carries and
-     * leaves every other list where it was. Clearing an override is an admin
-     * action in the product editor, not something a partial export does by
-     * omission.
-     */
+    /** Upsert, never delete: clearing an override is the product editor's,
+     * not a partial export's. */
     const writeTierPrices = async (
       productId: string,
       entries: { tierId: string; priceMinor: number }[],
@@ -552,16 +462,13 @@ export class CatalogSyncService {
       );
       const [created] = await tx
         .insert(products)
-        // No `publishedAt`: an imported product waits for an admin (FR-ADM-06),
-        // and one the file carries no price for could not be published anyway.
-        // An update leaves it alone, so a re-sync never hides a live product.
+        // Unpublished: an imported product waits for an admin (FR-ADM-06).
         .values({
           sourceId: product.sourceId,
           slug: allocateSlug(product.name, 'product', takenProductSlugs),
           name: product.name,
           categoryId: categoryId as string,
-          // Both or neither: the state is the figure's shadow, and the check
-          // constraint on the table says so.
+          // Both or neither, as the table's check constraint requires.
           ...(product.stockPieces === undefined
             ? {}
             : {
@@ -599,13 +506,8 @@ export class CatalogSyncService {
       await writeTierPrices(update.id, update.tierPrices ?? []);
     }
 
-    // Slug stays fixed across a rename (a changed URL breaks links), so
-    // nothing here touches it — see ADR 0022.
-    //
-    // A run signs neither its deletion nor its restore: an empty `deletedBy`
-    // is how a deletion is known to be a run's, which only a run undoes while
-    // the catalog is owned — and which the next sweep must not inherit from a
-    // person's earlier one.
+    // Unsigned: a null `deletedBy` marks a run's deletion, the only kind a
+    // run restores.
     if (actions.softDeleteProductIds.length > 0) {
       await tx
         .update(products)
@@ -621,11 +523,8 @@ export class CatalogSyncService {
   }
 }
 
-/**
- * A unique slug for a newly imported row, allocated against the slugs already
- * taken (including the ones this run just allocated). Mirrors the admin
- * editor's rule — transliterate the name, disambiguate with a numeric suffix.
- */
+/** The admin editor's slug rule, against the slugs taken so far, this run's
+ * included. */
 function allocateSlug(name: string, stem: string, taken: Set<string>): string {
   const base = slugify(name) || stem;
   let candidate = base;
