@@ -5,7 +5,8 @@ import {
   packagedPackaging,
   plainPackaging,
 } from '../../../core/catalog/product.fixture';
-import { CartAddition, CartService, CartStoredLine } from './cart.service';
+import { CartService, CartStoredLine } from './cart.service';
+import { CartAddition } from '../../../core/catalog/buying/product-cart';
 
 const STORAGE_KEY = 'cart';
 

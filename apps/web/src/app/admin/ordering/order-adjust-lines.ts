@@ -7,7 +7,7 @@ import {
   signal,
 } from '@angular/core';
 import { moneyFormat, currencySymbol } from '@b2b-catalog-platform/shared';
-import { AdjustmentLineFlag } from '@b2b-catalog-platform/shared/admin/ordering';
+import { AdjustmentLineFlag } from '@b2b-catalog-platform/shared/core/ordering';
 import { AdminProductListItem } from '@b2b-catalog-platform/shared/admin/catalog';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';

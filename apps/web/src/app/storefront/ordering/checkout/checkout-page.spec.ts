@@ -18,7 +18,8 @@ import { AccountService } from '../../accounts/account/account.service';
 import { AuthService } from '../../../shared/auth/auth.service';
 import { AddressesService } from '../../../core/accounts/addresses/addresses.service';
 import { packagedPackaging } from '../../../core/catalog/product.fixture';
-import { CartAddition, CartService } from '../cart/cart.service';
+import { CartService } from '../cart/cart.service';
+import { CartAddition } from '../../../core/catalog/buying/product-cart';
 import {
   CHECKOUT_DRAFT_KEY,
   CHECKOUT_DRAFT_VERSION,

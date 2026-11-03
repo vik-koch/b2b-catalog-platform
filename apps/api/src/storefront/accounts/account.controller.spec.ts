@@ -4,6 +4,7 @@ import { AccountController } from './account.controller';
 import { AccountDeletion } from '../../core/accounts/account-deletion';
 import { AuditLogger } from '../../audit/audit.logger';
 import { UsersService } from '../../core/accounts/users.service';
+import { ACCOUNT_ORDERS } from '../../core/accounts/account-orders';
 import { AUTH_COOKIE } from '@b2b-catalog-platform/shared/platform';
 import { PHONE_RULE } from '../../config/deployment-config';
 import { SignInStep } from '../../core/accounts/sign-in-step/sign-in-step';
@@ -66,7 +67,11 @@ describe('AccountController', () => {
         providers: [
           {
             provide: UsersService,
-            useValue: { findById, updateOwnProfile, countOpenOrders },
+            useValue: { findById, updateOwnProfile },
+          },
+          {
+            provide: ACCOUNT_ORDERS,
+            useValue: { countOpen: countOpenOrders },
           },
           { provide: AccountDeletion, useValue: { delete: deleteAccount } },
           { provide: AuditLogger, useValue: { record } },

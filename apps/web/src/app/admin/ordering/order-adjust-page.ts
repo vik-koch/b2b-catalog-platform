@@ -21,13 +21,11 @@ import {
 import {
   ORDER_ADJUSTMENT_NOTE_MAX,
   PaymentMethod,
-} from '@b2b-catalog-platform/shared/core/ordering';
-import { ProductUnit } from '@b2b-catalog-platform/shared/core/catalog';
-import {
   AdminOrderDetail,
   OrderAdjustment,
   OrderAdjustmentPreview,
-} from '@b2b-catalog-platform/shared/admin/ordering';
+} from '@b2b-catalog-platform/shared/core/ordering';
+import { ProductUnit } from '@b2b-catalog-platform/shared/core/catalog';
 import { AdminProductListItem } from '@b2b-catalog-platform/shared/admin/catalog';
 import { AddressFields } from '../../core/accounts/addresses/address-fields';
 import {

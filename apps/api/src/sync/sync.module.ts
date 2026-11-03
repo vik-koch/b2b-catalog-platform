@@ -18,7 +18,7 @@ import { SyncService } from './sync.service';
 import { SyncNotifications } from './sync-notifications';
 import { CustomerSyncService } from './customer-sync.service';
 import { SyncRunLog } from './sync-run-log';
-import { OrdersModule } from '../core/ordering/orders.module';
+import { OrderingCoreModule } from '../core/ordering/ordering-core.module';
 import { MailModule } from '../mail/mail.module';
 import {
   LOW_STOCK_THRESHOLD_PIECES,
@@ -51,7 +51,7 @@ import {
     // The order write-back answers orders through the same service the admin
     // screens answer them with, for the reason the customer exchange shares
     // one: an order written a second way is an order written differently.
-    OrdersModule,
+    OrderingCoreModule,
   ],
   controllers: [
     SyncController,

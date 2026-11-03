@@ -13,6 +13,7 @@ import {
   packagedPackaging,
   productListItem,
 } from '../../../core/catalog/product.fixture';
+import { provideFakeProductCart } from '../../../core/catalog/buying/product-cart.fixture';
 
 const text = defaultStorefrontText.cart;
 
@@ -54,6 +55,7 @@ async function render(available = true, given = item) {
   TestBed.configureTestingModule({
     imports: [Host],
     providers: [
+      provideFakeProductCart(),
       provideUiText(),
       provideRouter([]),
       { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },

@@ -1,11 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { and, count, eq, inArray, notInArray, sql } from 'drizzle-orm';
-import { ENDED_ORDER_STATUSES } from '@b2b-catalog-platform/shared/core/ordering';
+import { and, eq, inArray, sql } from 'drizzle-orm';
 import { DRIZZLE } from '../../db/database.module';
 import * as schema from '../../db/schema';
 import { withdrawAccountConsents } from '../site/consent-withdrawals';
-import { addresses, orders, signInCodes, users } from '../../db/schema';
+import { addresses, signInCodes, users } from '../../db/schema';
 import { AccountErasure, Tx } from './account-erasure';
 import { LastAdminError } from './last-admin-error';
 import {
@@ -195,30 +194,6 @@ export class UsersService {
       });
       return this.anonymizeUser(tx, id, unusableHash);
     });
-  }
-
-  /** Orders the shop is still working on (FR-AUTH-06), so the deletion page
-   * can say so. They refuse nothing. */
-  async countOpenOrders(userId: string): Promise<number> {
-    const [row] = await this.db
-      .select({ open: count() })
-      .from(orders)
-      .where(
-        and(
-          eq(orders.userId, userId),
-          notInArray(orders.status, [...ENDED_ORDER_STATUSES, 'completed']),
-        ),
-      );
-    return Number(row?.open ?? 0);
-  }
-
-  /** Counted before the erasure makes them untraceable (FR-NOTIF-08). */
-  async countOrders(userId: string): Promise<number> {
-    const [row] = await this.db
-      .select({ total: count() })
-      .from(orders)
-      .where(eq(orders.userId, userId));
-    return Number(row?.total ?? 0);
   }
 
   private async anonymizeUser(

@@ -1,70 +1,37 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Post,
-  Res,
-  UploadedFile,
-  UseInterceptors,
-} from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { Controller, Get, Param, Res } from '@nestjs/common';
 import type { Response } from 'express';
-import {
-  ORDER_DOCUMENT_MAX_UPLOAD_BYTES,
-  OrderDetail,
-} from '@b2b-catalog-platform/shared/core/ordering';
+import { OrderDetail } from '@b2b-catalog-platform/shared/core/ordering';
+import { AuthUser } from '@b2b-catalog-platform/shared/platform';
 import { Auth } from '../../platform/auth/auth.decorator';
 import { CurrentUser } from '../../platform/auth/current-user.decorator';
-import { OrderDocumentActs, orderDocumentKind } from './order-document-acts';
+import { orderDocumentKind } from './order-document-acts';
 import {
   OrderDocumentsService,
   ServedDocument,
 } from './order-documents.service';
-import { ordersExternallyOwned } from '../../settings/ownership.refusals';
-import { OwnershipState } from '../../settings/ownership-state';
 import { OrdersService } from './orders.service';
-import { AuthUser } from '@b2b-catalog-platform/shared/platform';
 
 /**
- * An order's documents (FR-ORD-05, FR-CART-05, FR-ACC-02, ADR 0052).
+ * Reading an order's documents (FR-ORD-05, FR-CART-05, FR-ACC-02, ADR 0052).
  *
  * Not an oRPC contract, for the same reason the media upload is not: what
- * travels here is raw bytes in both directions, which the JSON contracts do
- * not model. What each order *carries* is on the order itself, in the
- * contract, so a screen knows what it may open without asking here.
+ * travels here is raw bytes, which the JSON contracts do not model. What each
+ * order *carries* is on the order itself, in the contract, so a screen knows
+ * what it may open without asking here.
  *
  * The access rule is the order's own, and it is enforced by *reading the
  * order* the way this caller is entitled to read it: staff read any order,
  * a customer only their own, and a mailed link only through its token. A
- * reader who cannot get the order cannot get the document, and there is no
- * second copy of the rule to fall out of step with the first.
- *
- * What the acts themselves do lives in `OrderDocumentActs`, shared with the
- * machine route an owning system posts to (FR-ADM-08).
+ * reader who cannot get the order cannot get the document. Staff and
+ * customers share the route, which is why it sits in core; supplying and
+ * removing files is staff's alone.
  */
 @Controller('order-documents')
 export class OrderDocumentsController {
   constructor(
     private readonly orders: OrdersService,
     private readonly documents: OrderDocumentsService,
-    private readonly acts: OrderDocumentActs,
-    private readonly ownership: OwnershipState,
   ) {}
-
-  /**
-   * Supplying a file, sending it and taking it back off are acts on the order
-   * like any other, so they close with the rest of them while an external
-   * system owns order processing (FR-ADM-10) — which is the same moment that
-   * system's own route opens. Reading stays open: the document is part of what
-   * staff must be able to see.
-   */
-  private refuseIfOwned(action: string): void {
-    if (this.ownership.isExternallyOwned('orders')) {
-      throw ordersExternallyOwned(action);
-    }
-  }
 
   /**
    * Staff and the customer who placed it. Which version the summary is drawn
@@ -113,71 +80,6 @@ export class OrderDocumentsController {
         'customer',
       ),
     );
-  }
-
-  /**
-   * File a document against an order.
-   *
-   * `notify` is accepted but not what the admin screen uses — telling the
-   * customer is its own act, below, and can be repeated. It stays on the
-   * upload for the system that posts a file and a message in one exchange,
-   * which has nobody to ask.
-   */
-  @Auth('admin', 'manager')
-  @Post(':reference/:kind')
-  @UseInterceptors(
-    FileInterceptor('file', {
-      limits: { fileSize: ORDER_DOCUMENT_MAX_UPLOAD_BYTES },
-    }),
-  )
-  async supply(
-    @CurrentUser() user: AuthUser,
-    @Param('reference') reference: string,
-    @Param('kind') kindParam: string,
-    @UploadedFile() file: Express.Multer.File | undefined,
-    @Body('notify') notify: string | undefined,
-  ) {
-    const kind = orderDocumentKind(kindParam);
-    this.refuseIfOwned('supply a document');
-    // Read before the write, so the refusal for an unknown reference is the
-    // 404 the reader expects rather than a file stored against nothing.
-    await this.orders.getForStaff(reference);
-    return this.acts.supply(reference, kind, file, user, notify === 'true');
-  }
-
-  /**
-   * Tell the customer about a document that is already filed (FR-ORD-05).
-   *
-   * A button of its own rather than a tick on the upload: a manager uploads a
-   * file when they have it and writes to the customer when the order is ready
-   * to be written to, and those are not always the same minute. It can be
-   * pressed again — a customer who lost the mail is asking for it a second
-   * time, not for a new document.
-   */
-  @Auth('admin', 'manager')
-  @Post(':reference/:kind/notify')
-  async notifyAbout(
-    @CurrentUser() user: AuthUser,
-    @Param('reference') reference: string,
-    @Param('kind') kindParam: string,
-  ): Promise<void> {
-    const kind = orderDocumentKind(kindParam);
-    this.refuseIfOwned('send a document to the customer');
-    const order = await this.orders.getForStaff(reference);
-    await this.acts.tell(reference, kind, order, user);
-  }
-
-  /** Take a supplied file back off. */
-  @Auth('admin', 'manager')
-  @Delete(':reference/:kind')
-  async remove(
-    @CurrentUser() user: AuthUser,
-    @Param('reference') reference: string,
-    @Param('kind') kind: string,
-  ): Promise<void> {
-    this.refuseIfOwned('take a document off an order');
-    await this.orders.getForStaff(reference);
-    await this.acts.remove(reference, orderDocumentKind(kind), user);
   }
 
   /**

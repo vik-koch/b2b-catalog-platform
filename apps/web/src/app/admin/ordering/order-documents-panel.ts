@@ -10,11 +10,9 @@ import { fillText } from '@b2b-catalog-platform/shared';
 import {
   orderDocumentPath,
   OrderDocumentKind,
-} from '@b2b-catalog-platform/shared/core/ordering';
-import {
   AdminOrderDetail,
   AdminOrderDocument,
-} from '@b2b-catalog-platform/shared/admin/ordering';
+} from '@b2b-catalog-platform/shared/core/ordering';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';

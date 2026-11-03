@@ -12,7 +12,9 @@ import { defaultDeploymentConfig } from '../../../shared/config/deployment-confi
 import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
 import { CartPage } from './cart-page';
 import { CartPreviewService } from './cart-preview.service';
-import { CartAddition, CartService } from './cart.service';
+import { CartService } from './cart.service';
+import { CartAddition } from '../../../core/catalog/buying/product-cart';
+import { ProductCart } from '../../../core/catalog/buying/product-cart';
 
 const text = defaultStorefrontText.cart;
 
@@ -120,6 +122,7 @@ async function render(
   TestBed.configureTestingModule({
     imports: [CartPage],
     providers: [
+      { provide: ProductCart, useExisting: CartService },
       provideUiText(),
       provideRouter([]),
       { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },

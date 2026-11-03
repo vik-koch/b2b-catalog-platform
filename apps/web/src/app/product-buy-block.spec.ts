@@ -1,15 +1,19 @@
-import { SHARED_TEXT } from '../../../shared/config/shared-text';
-import { defaultSharedText } from '../../../shared/config/shared-text.fixture';
+import { SHARED_TEXT } from './shared/config/shared-text';
+import { defaultSharedText } from './shared/config/shared-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { ProductDetail } from '@b2b-catalog-platform/shared/core/catalog';
-import { CartService } from '../../../storefront/ordering/cart/cart.service';
-import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
-import { defaultStorefrontText } from '../../../shared/config/storefront-text.fixture';
-import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
-import { defaultDeploymentConfig } from '../../../shared/config/deployment-config.fixture';
-import { ProductBuyBlock } from './product-buy-block';
-import { packagedPackaging, productDetail } from '../product.fixture';
+import { CartService } from './storefront/ordering/cart/cart.service';
+import { ProductCart } from './core/catalog/buying/product-cart';
+import { STOREFRONT_TEXT } from './shared/config/storefront-text';
+import { defaultStorefrontText } from './shared/config/storefront-text.fixture';
+import { DEPLOYMENT_CONFIG } from './shared/config/deployment-config';
+import { defaultDeploymentConfig } from './shared/config/deployment-config.fixture';
+import { ProductBuyBlock } from './core/catalog/product-page/product-buy-block';
+import {
+  packagedPackaging,
+  productDetail,
+} from './core/catalog/product.fixture';
 
 const text = defaultStorefrontText.cart;
 const unitText = defaultStorefrontText.catalog.units;
@@ -44,6 +48,9 @@ async function renderKeepingCart(item: ProductDetail, canAdd = true) {
   TestBed.configureTestingModule({
     imports: [ProductBuyBlock],
     providers: [
+      // At the root because it is the real cart the controls write to, and
+      // catalog may not import ordering.
+      { provide: ProductCart, useExisting: CartService },
       provideRouter([]),
       { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
       { provide: SHARED_TEXT, useValue: defaultSharedText },

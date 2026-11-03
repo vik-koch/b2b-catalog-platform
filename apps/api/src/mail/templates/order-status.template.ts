@@ -1,6 +1,8 @@
 import { SharedText, MoneyFormat } from '@b2b-catalog-platform/shared';
-import { OrderDetail } from '@b2b-catalog-platform/shared/core/ordering';
-import { OrderNotice } from '@b2b-catalog-platform/shared/admin/ordering';
+import {
+  OrderDetail,
+  OrderNotice,
+} from '@b2b-catalog-platform/shared/core/ordering';
 import { MailContent } from '../mail-layout';
 import { MailText } from '../mail-text';
 import {

@@ -11,6 +11,7 @@ import { PairingsService } from './pairings.service';
 import { ProductBuyControls } from './product-buy-controls';
 import { ProductPairings } from './product-pairings';
 import { productDetail } from '../product.fixture';
+import { provideFakeProductCart } from './product-cart.fixture';
 
 const text = defaultStorefrontText.catalog.pairings;
 
@@ -23,6 +24,7 @@ async function render(
   TestBed.configureTestingModule({
     imports: [ProductPairings],
     providers: [
+      provideFakeProductCart(),
       { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
       { provide: SHARED_TEXT, useValue: defaultSharedText },
     ],
@@ -100,6 +102,7 @@ async function renderControls(pairedCount: number, offerPairings = true) {
   TestBed.configureTestingModule({
     imports: [ProductBuyControls],
     providers: [
+      provideFakeProductCart(),
       provideRouter([]),
       { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
       { provide: SHARED_TEXT, useValue: defaultSharedText },

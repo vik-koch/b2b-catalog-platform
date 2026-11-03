@@ -10,6 +10,7 @@ import {
 } from '../../mail/templates/account-closed.template';
 import { accountDeletedMail } from '../../mail/templates/account-deleted.template';
 import { SharedText } from '@b2b-catalog-platform/shared';
+import { ACCOUNT_ORDERS, AccountOrders } from './account-orders';
 import { AccountErasure } from './account-erasure';
 import { UserRow, UsersService } from './users.service';
 import { LastAdminError } from './last-admin-error';
@@ -40,6 +41,7 @@ export class AccountDeletion {
     private readonly tokens: PasswordTokenService,
     private readonly mail: MailDispatcher,
     private readonly erasure: AccountErasure,
+    @Inject(ACCOUNT_ORDERS) private readonly orders: AccountOrders,
     @Inject(MAIL_TEXT) private readonly text: MailText,
     @Inject(SHARED_TEXT) private readonly common: SharedText,
   ) {}
@@ -132,8 +134,8 @@ export class AccountDeletion {
   /** What the shop's notification quotes, read before the erasure. */
   private async closedSummary(user: UserRow): Promise<ClosedAccountSummary> {
     const [orders, openOrders] = await Promise.all([
-      this.users.countOrders(user.id),
-      this.users.countOpenOrders(user.id),
+      this.orders.count(user.id),
+      this.orders.countOpen(user.id),
     ]);
     return {
       email: user.email,

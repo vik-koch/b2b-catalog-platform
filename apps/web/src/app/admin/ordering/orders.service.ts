@@ -7,9 +7,6 @@ import {
   OrderSummary,
   PaymentMethod,
   orderDocumentPath,
-} from '@b2b-catalog-platform/shared/core/ordering';
-import { Pagination } from '@b2b-catalog-platform/shared/platform';
-import {
   AdminOrderDetail,
   OrderAdjustment,
   OrderAdjustmentPreview,
@@ -19,7 +16,8 @@ import {
   StaffOrderSort,
   StaffPaymentFilter,
   TransitionTarget,
-} from '@b2b-catalog-platform/shared/admin/ordering';
+} from '@b2b-catalog-platform/shared/core/ordering';
+import { Pagination } from '@b2b-catalog-platform/shared/platform';
 import { adminOrdersContract } from '../contract-routes.generated';
 import { safe } from '@orpc/client';
 import { createOrpcClient } from '../../shared/core/orpc-client';

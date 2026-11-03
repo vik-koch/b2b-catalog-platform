@@ -18,17 +18,15 @@ import {
   ORDER_STATUS_REASON_MAX,
   OrderStatus,
   transitionHasReason,
+  AdminOrderDetail,
+  AdminOrderLine,
+  TransitionTarget,
 } from '@b2b-catalog-platform/shared/core/ordering';
 import {
   fillText,
   moneyFormat,
   formatMoneyMinor,
 } from '@b2b-catalog-platform/shared';
-import {
-  AdminOrderDetail,
-  AdminOrderLine,
-  TransitionTarget,
-} from '@b2b-catalog-platform/shared/admin/ordering';
 import { OrderSummary } from '../../core/ordering/order-summary';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';

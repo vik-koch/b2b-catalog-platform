@@ -4,7 +4,7 @@ import {
   moneyFormat,
   formatMoneyMinor,
 } from '@b2b-catalog-platform/shared';
-import { resolveDeliveryZone } from '@b2b-catalog-platform/shared/storefront/ordering';
+import { resolveDeliveryZone } from '@b2b-catalog-platform/shared/core/ordering';
 import { CartService } from '../cart/cart.service';
 import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
 import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';

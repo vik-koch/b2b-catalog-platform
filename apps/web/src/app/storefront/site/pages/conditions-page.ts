@@ -9,7 +9,6 @@ import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
 import { SHARED_TEXT } from '../../../shared/config/shared-text';
 import { StorefrontText } from '../../../shared/config/storefront-text.type';
 import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
-import { DeliveryZoneList } from '../../ordering/checkout/delivery-zone-list';
 import { EmphasisedText } from '@b2b-catalog-platform/ui/content/emphasised-text';
 import { TextButton } from '@b2b-catalog-platform/ui/actions/text-button';
 import { banknoteIcon } from '@b2b-catalog-platform/ui/icons/glyphs/banknote';
@@ -23,6 +22,7 @@ import { StaticPage } from './static-page';
  * The editable prose, then the conditions read from where checkout reads them
  * and worded as checkout words them, so they cannot disagree with the form
  * that takes the order. A section the deployment has nothing for is left out.
+ * The zone list is checkout's, so the shell projects it.
  */
 @Component({
   selector: 'app-conditions-page',
@@ -30,7 +30,6 @@ import { StaticPage } from './static-page';
     StaticPage,
     MarkedCard,
     PageSectionTitle,
-    DeliveryZoneList,
     EmphasisedText,
     RouterLink,
     TextButton,
@@ -44,7 +43,7 @@ import { StaticPage } from './static-page';
               <h2 uiPageSectionTitle class="mb-4">
                 {{ fulfilmentText.conditionsHeading }}
               </h2>
-              <app-delivery-zone-list [spread]="true" />
+              <ng-content />
               <p class="mt-4 text-sm text-ink-subtle">
                 {{ fulfilmentText.conditionsNote }}
               </p>

@@ -29,7 +29,10 @@ import {
   SEARCH_QUERY_MAX_LENGTH,
 } from '@b2b-catalog-platform/shared/core/catalog';
 import { SearchCategory } from '@b2b-catalog-platform/shared/storefront/catalog';
-import { CartAddResult, CartService } from '../../ordering/cart/cart.service';
+import {
+  CartAddResult,
+  ProductCart,
+} from '../../../core/catalog/buying/product-cart';
 import { CatalogSearchService } from './catalog-search.service';
 import { CategoryChip } from '../ui/category-chip';
 import { ImagePlaceholder } from '@b2b-catalog-platform/ui/content/image-placeholder';
@@ -498,7 +501,7 @@ export class SearchField {
    * bottom bar's search tab is lit from. */
   protected readonly mobileSearch = inject(MobileSearch);
   private readonly search = inject(CatalogSearchService);
-  private readonly cart = inject(CartService);
+  private readonly cart = inject(ProductCart);
   private readonly units = useProductUnits();
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));

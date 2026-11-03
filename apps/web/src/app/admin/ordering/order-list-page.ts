@@ -17,15 +17,13 @@ import {
   ORDER_STATUS_REASON_MAX,
   OrderStatus,
   orderStatusSchema,
-} from '@b2b-catalog-platform/shared/core/ordering';
-import { SEARCH_QUERY_MAX_LENGTH } from '@b2b-catalog-platform/shared/core/catalog';
-import {
   StaffOrderSort,
   staffOrderSortSchema,
   StaffPaymentFilter,
   staffPaymentFilterSchema,
   TransitionTarget,
-} from '@b2b-catalog-platform/shared/admin/ordering';
+} from '@b2b-catalog-platform/shared/core/ordering';
+import { SEARCH_QUERY_MAX_LENGTH } from '@b2b-catalog-platform/shared/core/catalog';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';

@@ -12,6 +12,7 @@ import { defaultDeploymentConfig } from '../../../shared/config/deployment-confi
 import { CatalogSearchService } from './catalog-search.service';
 import { productListItem } from '../../../core/catalog/product.fixture';
 import { SearchResults } from './search-results';
+import { provideFakeProductCart } from '../../../core/catalog/buying/product-cart.fixture';
 
 const item = (slug: string, name: string): ProductListItem =>
   productListItem({ slug, name });
@@ -52,6 +53,7 @@ async function render(
   TestBed.configureTestingModule({
     imports: [SearchResults],
     providers: [
+      provideFakeProductCart(),
       provideUiText(),
       provideRouter([]),
       { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },

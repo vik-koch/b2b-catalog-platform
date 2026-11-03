@@ -4,11 +4,11 @@ import {
   MoneyFormat,
   OrderReferenceConfig,
 } from '@b2b-catalog-platform/shared';
-import { OrderDocumentKind } from '@b2b-catalog-platform/shared/core/ordering';
 import {
+  OrderDocumentKind,
   AdminOrderDetail,
   OrderNotice,
-} from '@b2b-catalog-platform/shared/admin/ordering';
+} from '@b2b-catalog-platform/shared/core/ordering';
 import {
   MONEY_FORMAT,
   ORDER_REFERENCE_CONFIG,

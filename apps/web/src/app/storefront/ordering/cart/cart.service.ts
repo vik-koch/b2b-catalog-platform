@@ -9,7 +9,6 @@ import {
 } from '@angular/core';
 import {
   CART_LINES_MAX,
-  CART_NOTE_MAX,
   CartLine,
   CartPreview,
   CartPreviewLine,
@@ -17,6 +16,7 @@ import {
   ShipmentSummary,
 } from '@b2b-catalog-platform/shared/core/ordering';
 import {
+  CART_NOTE_MAX,
   CatalogImage,
   correctPieces,
   exactLineTotal,
@@ -28,6 +28,11 @@ import {
   ProductVariant,
   UnitPrices,
 } from '@b2b-catalog-platform/shared/core/catalog';
+import {
+  CartAddition,
+  CartAddResult,
+  ProductCart,
+} from '../../../core/catalog/buying/product-cart';
 import { readSessionHint } from '../../../shared/auth/session-hint';
 import { CART_STORAGE_KEY, CART_STORAGE_VERSION } from './cart-storage';
 import { USER_ROLES, UserRole } from '@b2b-catalog-platform/shared/platform';
@@ -210,38 +215,6 @@ export interface CartChange {
   toMinor: number | null;
 }
 
-/** What a product page hands over to record a line: the choice, plus the
- * prices it was made against so a merged quantity re-prices exactly. */
-export interface CartAddition {
-  slug: string;
-  name: string;
-  unit: ProductUnit;
-  pieces: number;
-  note: string | null;
-  prices: UnitPrices;
-  packaging: ProductPackaging;
-  /** The photo the customer was looking at, so the cart can draw the line
-   * before it has asked the server anything. */
-  image: CatalogImage | null;
-  /** What the view it was added from said about the stock — the first baseline
-   * the line has. */
-  availability: ProductAvailability | null;
-  lineNoteEnabled: boolean;
-  lineNotePrompt: string | null;
-  /** How many products the view it was added from said this one is sold with
-   * (FR-SET-05) — the line wears the marker from the first frame. */
-  pairedCount: number;
-  /** What the view it was added from said one piece is made of (FR-CAT-10). */
-  parts: string[];
-  /** Its variants and their pictures, as that view showed them (FR-CAT-11). */
-  variants: ProductVariant[];
-  images: ProductImage[];
-}
-
-/** `full` when the cart already holds as many lines as may be priced in one
- * call, and the addition would be one more. */
-export type CartAddResult = 'added' | 'full';
-
 /**
  * The cart (FR-CART-01/02/10). It lives entirely in the browser — there is no
  * cart table — so this service is the store, and `POST /cart/preview` only
@@ -257,7 +230,7 @@ export type CartAddResult = 'added' | 'full';
  * server renders, and what the header waits for `afterNextRender` to correct.
  */
 @Injectable({ providedIn: 'root' })
-export class CartService {
+export class CartService implements ProductCart {
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
   private readonly document = inject(DOCUMENT);
   private readonly restored = this.read();

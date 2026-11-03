@@ -7,7 +7,10 @@ import { vi } from 'vitest';
 import { provideRouter, Router } from '@angular/router';
 import { ProductListItem } from '@b2b-catalog-platform/shared/core/catalog';
 import { SearchCategory } from '@b2b-catalog-platform/shared/storefront/catalog';
-import { CartAddition, CartService } from '../../ordering/cart/cart.service';
+import {
+  CartAddition,
+  ProductCart,
+} from '../../../core/catalog/buying/product-cart';
 import { CatalogSearchService } from './catalog-search.service';
 import { productListItem } from '../../../core/catalog/product.fixture';
 import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
@@ -79,7 +82,7 @@ async function renderAt(url?: string) {
       { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
       { provide: SHARED_TEXT, useValue: defaultSharedText },
       { provide: CatalogSearchService, useValue: searchStub },
-      { provide: CartService, useValue: cartStub },
+      { provide: ProductCart, useValue: cartStub },
       { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
     ],
   });
@@ -175,7 +178,7 @@ describe('SearchField', () => {
         { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
         { provide: SHARED_TEXT, useValue: defaultSharedText },
         { provide: CatalogSearchService, useValue: searchStub },
-        { provide: CartService, useValue: cartStub },
+        { provide: ProductCart, useValue: cartStub },
         { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
       ],
     });

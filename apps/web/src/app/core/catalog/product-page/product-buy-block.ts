@@ -5,9 +5,11 @@ import {
   input,
   linkedSignal,
 } from '@angular/core';
-import { CART_NOTE_MAX } from '@b2b-catalog-platform/shared/core/ordering';
-import { ProductDetail } from '@b2b-catalog-platform/shared/core/catalog';
-import { CartService } from '../../../storefront/ordering/cart/cart.service';
+import {
+  CART_NOTE_MAX,
+  ProductDetail,
+} from '@b2b-catalog-platform/shared/core/catalog';
+import { ProductCart } from '../buying/product-cart';
 import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
 import { AutoGrow } from '@b2b-catalog-platform/ui/inputs/auto-grow';
 import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
@@ -118,7 +120,7 @@ export class ProductBuyBlock {
     this.tax.atPrice(this.item().taxRate),
   );
 
-  private readonly cart = inject(CartService);
+  private readonly cart = inject(ProductCart);
 
   /** The cart line's note once the product is in the cart, so an earlier one
    * is not apparently lost; reset with the product. */

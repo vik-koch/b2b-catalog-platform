@@ -8,12 +8,14 @@ import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { defaultDeploymentConfig } from '../../shared/config/deployment-config.fixture';
 import { MobileSearch } from './mobile-search';
 import { SearchOverlay } from './search-overlay';
+import { provideFakeProductCart } from '../../core/catalog/buying/product-cart.fixture';
 
 function render() {
   TestBed.resetTestingModule();
   TestBed.configureTestingModule({
     imports: [SearchOverlay],
     providers: [
+      provideFakeProductCart(),
       provideRouter([{ path: '**', children: [] }]),
       { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
       { provide: SHARED_TEXT, useValue: defaultSharedText },

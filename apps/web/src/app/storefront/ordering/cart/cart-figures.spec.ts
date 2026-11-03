@@ -4,7 +4,8 @@ import { plainPackaging } from '../../../core/catalog/product.fixture';
 import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
 import { defaultDeploymentConfig } from '../../../shared/config/deployment-config.fixture';
 import { CartFigures } from './cart-figures';
-import { CartAddition, CartService } from './cart.service';
+import { CartService } from './cart.service';
+import { CartAddition } from '../../../core/catalog/buying/product-cart';
 
 function normalize(value: string): string {
   return value.replace(/\s+/g, ' ').trim();

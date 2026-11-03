@@ -1,5 +1,6 @@
 import { oc } from '@orpc/contract';
-import { CART_LINES_MAX, CART_NOTE_MAX } from './cart-constants';
+import { CART_LINES_MAX } from './cart-constants';
+import { CART_NOTE_MAX } from '../catalog/product-units';
 import * as z from 'zod';
 import {
   availabilitySchema,

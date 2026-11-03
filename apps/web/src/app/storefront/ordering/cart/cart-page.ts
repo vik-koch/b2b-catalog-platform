@@ -8,10 +8,8 @@ import {
   untracked,
 } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import {
-  CART_NOTE_MAX,
-  CartLineIssue,
-} from '@b2b-catalog-platform/shared/core/ordering';
+import { CartLineIssue } from '@b2b-catalog-platform/shared/core/ordering';
+import { CART_NOTE_MAX } from '@b2b-catalog-platform/shared/core/catalog';
 import {
   fillText,
   moneyFormat,

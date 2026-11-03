@@ -5,7 +5,7 @@ import { provideRouter } from '@angular/router';
 import {
   AdminOrderDetail,
   OrderRevision,
-} from '@b2b-catalog-platform/shared/admin/ordering';
+} from '@b2b-catalog-platform/shared/core/ordering';
 import { OwnershipArea } from '@b2b-catalog-platform/shared/sync';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { provideOwnership } from '../settings/settings.fixture';

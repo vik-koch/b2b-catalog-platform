@@ -7,16 +7,14 @@ import {
   piecesPerUnit,
   totalMinor,
   unitQuantity,
+  shownPictures,
 } from '@b2b-catalog-platform/shared/core/catalog';
 import {
   ShipmentLineInput,
   shipmentEstimate,
-} from '@b2b-catalog-platform/shared/core/ordering';
-import {
   AdjustmentLineFlag,
   OrderAdjustmentLine,
-} from '@b2b-catalog-platform/shared/admin/ordering';
-import { shownPictures } from '@b2b-catalog-platform/shared/core/catalog';
+} from '@b2b-catalog-platform/shared/core/ordering';
 import * as schema from '../../db/schema';
 import { products } from '../../db/schema';
 import { resolvedPriceMinor } from '../catalog/product-price';

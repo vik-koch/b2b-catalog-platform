@@ -11,8 +11,8 @@ import {
   OrderDetail,
   OrderDocument,
   OrderDocumentKind,
+  AdminOrderDocument,
 } from '@b2b-catalog-platform/shared/core/ordering';
-import { AdminOrderDocument } from '@b2b-catalog-platform/shared/admin/ordering';
 import { DRIZZLE } from '../../db/database.module';
 import * as schema from '../../db/schema';
 import { orderDocuments, orderRevisions, orders } from '../../db/schema';

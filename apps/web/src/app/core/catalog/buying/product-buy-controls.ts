@@ -23,10 +23,7 @@ import {
   moneyFormat,
   formatMoneyMinor,
 } from '@b2b-catalog-platform/shared';
-import {
-  CartAddResult,
-  CartService,
-} from '../../../storefront/ordering/cart/cart.service';
+import { CartAddResult, ProductCart } from './product-cart';
 import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
 import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
@@ -382,7 +379,7 @@ export class ProductBuyControls {
   protected readonly minusIcon = minusIcon;
   protected readonly plusIcon = plusIcon;
   protected readonly shoppingBasketIcon = shoppingBasketIcon;
-  private readonly cart = inject(CartService);
+  private readonly cart = inject(ProductCart);
   private readonly firstRender = inject(FirstRender);
   private readonly units = useProductUnits();
   private readonly currency = moneyFormat(inject(DEPLOYMENT_CONFIG));

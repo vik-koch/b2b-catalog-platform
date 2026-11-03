@@ -8,6 +8,7 @@ import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { DeploymentConfig } from '@b2b-catalog-platform/shared';
 import { defaultDeploymentConfig } from '../../shared/config/deployment-config.fixture';
 import { Header } from './header';
+import { provideFakeProductCart } from '../../core/catalog/buying/product-cart.fixture';
 
 async function render(
   url = '/',
@@ -17,6 +18,7 @@ async function render(
   TestBed.configureTestingModule({
     imports: [Header],
     providers: [
+      provideFakeProductCart(),
       provideRouter([{ path: '**', children: [] }]),
       { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
       { provide: SHARED_TEXT, useValue: defaultSharedText },

@@ -24,6 +24,7 @@ import {
   productDetail,
   plainPrices,
 } from '../../../core/catalog/product.fixture';
+import { provideFakeProductCart } from '../../../core/catalog/buying/product-cart.fixture';
 
 type Product = NonNullable<Awaited<ReturnType<CatalogService['getProduct']>>>;
 
@@ -64,6 +65,7 @@ async function render(
   TestBed.configureTestingModule({
     imports: [ProductDetail],
     providers: [
+      provideFakeProductCart(),
       provideRouter([]),
       { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
       { provide: SHARED_TEXT, useValue: defaultSharedText },

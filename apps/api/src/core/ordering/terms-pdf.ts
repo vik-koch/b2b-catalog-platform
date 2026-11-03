@@ -3,7 +3,7 @@ import {
   fillText,
   OrderReferenceConfig,
 } from '@b2b-catalog-platform/shared';
-import { AdminOrderDetail } from '@b2b-catalog-platform/shared/admin/ordering';
+import { AdminOrderDetail } from '@b2b-catalog-platform/shared/core/ordering';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { and, eq } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';

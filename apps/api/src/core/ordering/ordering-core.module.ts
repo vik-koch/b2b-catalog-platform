@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { AddressBookModule } from '../accounts/address-book.module';
-import { ApiTokensModule } from '../../api-tokens/api-tokens.module';
 import { AuditLogger } from '../../audit/audit.logger';
 import { SessionModule } from '../../platform/auth/session.module';
 import {
@@ -37,9 +36,6 @@ import {
 } from '../../config/deployment-config';
 import { MailModule } from '../../mail/mail.module';
 import { MediaModule } from '../../media/media.module';
-import { OwnershipStateModule } from '../../settings/ownership-state.module';
-import { AdminOrdersController } from '../../admin/ordering/admin-orders.controller';
-import { MachineOrderDocumentsController } from '../../machine/ordering/machine-order-documents.controller';
 import { OrderDocumentActs } from './order-document-acts';
 import { OrderDocumentsController } from './order-documents.controller';
 import { OrderDocumentsService } from './order-documents.service';
@@ -49,36 +45,21 @@ import { OrderNotifications } from './order-notifications';
 import { PdfFaces } from '../../pdf/pdf-faces';
 import { OrderPdf } from './order-pdf';
 import { TermsPdf } from './terms-pdf';
-import { CartController } from '../../storefront/ordering/cart.controller';
-import { OrdersController } from '../../storefront/ordering/orders.controller';
 import { OrdersService } from './orders.service';
 
 /**
- * The cart's pricing endpoint and the orders it turns into. One module: they
- * share the pricer, and an order priced by a second code path is an order
- * priced differently from the one the customer saw.
+ * The one order writer and what it needs, for every audience: the storefront
+ * and staff modules and the order exchange all write through `OrdersService`
+ * (FR-ADM-08), so an exchange and a manager leave the same thread behind them.
+ * The cart's pricer lives here too: an order priced by a second code path is
+ * an order priced differently from the one the customer saw.
  *
  * `AddressBookModule` rather than `AddressesModule` — checkout needs the
  * service's validation, not the account-scoped controllers.
  */
 @Module({
-  imports: [
-    SessionModule,
-    AddressBookModule,
-    MailModule,
-    MediaModule,
-    // The guard the machine document route is checked by (NFR-SEC-09).
-    ApiTokensModule,
-    // Whether an external system holds order processing (FR-ADM-10).
-    OwnershipStateModule,
-  ],
-  controllers: [
-    CartController,
-    OrdersController,
-    AdminOrdersController,
-    OrderDocumentsController,
-    MachineOrderDocumentsController,
-  ],
+  imports: [SessionModule, AddressBookModule, MailModule, MediaModule],
+  controllers: [OrderDocumentsController],
   providers: [
     OrdersService,
     OrderNotifications,
@@ -125,9 +106,6 @@ import { OrdersService } from './orders.service';
     // without one of its own is taxed at (NFR-LEGAL-11).
     { provide: TAX_CONFIG, useFactory: loadTaxConfig },
   ],
-  // The order exchange writes orders back through this same service
-  // (FR-ADM-08): one writer, so an exchange and a manager leave the same
-  // thread behind them.
-  exports: [OrdersService],
+  exports: [OrdersService, OrderDocumentActs, OrderPersonalData, TAX_CONFIG],
 })
-export class OrdersModule {}
+export class OrderingCoreModule {}

@@ -5,7 +5,8 @@ import { packagedPackaging } from '../../../core/catalog/product.fixture';
 import { AuthService } from '../../../shared/auth/auth.service';
 import { CartPreviewService } from './cart-preview.service';
 import { CartRepricing } from './cart-repricing';
-import { CartAddition, CartService } from './cart.service';
+import { CartService } from './cart.service';
+import { CartAddition } from '../../../core/catalog/buying/product-cart';
 
 /** Six to a pack at €70 a pack, four packs to a box — the same lot price
  * multiplied out, as the arithmetic requires. */

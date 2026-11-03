@@ -8,11 +8,9 @@ import {
   ORDER_DOCUMENT_FILE_NAME_MAX_LENGTH,
   ORDER_DOCUMENT_KINDS,
   OrderDocumentKind,
-} from '@b2b-catalog-platform/shared/core/ordering';
-import {
   AdminOrderDetail,
   AdminOrderDocument,
-} from '@b2b-catalog-platform/shared/admin/ordering';
+} from '@b2b-catalog-platform/shared/core/ordering';
 import { AuditActor, AuditLogger } from '../../audit/audit.logger';
 import {
   documentExtension,

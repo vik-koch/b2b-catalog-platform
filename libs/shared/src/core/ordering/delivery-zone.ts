@@ -1,4 +1,4 @@
-import { normalizePostalCode } from '../../core/accounts/postal-code';
+import { normalizePostalCode } from '../accounts/postal-code';
 
 /**
  * Which delivery zone an address falls into. Import-free but for the postal

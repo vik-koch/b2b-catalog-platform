@@ -10,7 +10,3 @@
  * must not be able to ask for ten thousand.
  */
 export const CART_LINES_MAX = 100;
-
-/** One note describes a whole line ("100 in colour A, 100 in colour B"), so it
- * has room to. */
-export const CART_NOTE_MAX = 500;

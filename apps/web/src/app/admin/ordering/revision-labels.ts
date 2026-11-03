@@ -1,4 +1,4 @@
-import { OrderRevisionKind } from '@b2b-catalog-platform/shared/admin/ordering';
+import { OrderRevisionKind } from '@b2b-catalog-platform/shared/core/ordering';
 
 /**
  * What a version was written for, in the admin's own words — the customer
