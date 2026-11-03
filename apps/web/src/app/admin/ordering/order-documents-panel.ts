@@ -37,35 +37,23 @@ import { uploadIcon } from '@b2b-catalog-platform/ui/icons/glyphs/upload';
 interface DocumentRow {
   readonly kind: OrderDocumentKind;
   readonly label: string;
-  /** What is behind it, said in one line. */
   readonly detail: string;
   readonly hint: string;
-  /** Null where nothing has been supplied and nothing is generated — the
-   * payment instructions of an invoiced order nobody has filed one for. */
+  /** Null where nothing is supplied or generated: unfiled payment instructions.
+   * */
   readonly href: string | null;
   readonly supplied: boolean;
   /** Set where a supplied file was filed against an older version. */
   readonly outdated: string | null;
   /** Whether the customer has already been written to about this file. */
   readonly sent: boolean;
-  /** Why the customer cannot be written to about this one yet — their page has
-   * not reached the version it belongs to — or null where they can. */
+  /** Why it cannot be sent yet (their page is behind its version), or null. */
   readonly behind: string | null;
 }
 
-/**
- * An order's documents, on the screen where the order is answered
- * (FR-ORD-05, FR-CART-05, ADR 0052).
- *
- * One row per kind and never two: a supplied file replaces the generated
- * summary rather than sitting beside it, and a reader offered both would have
- * to guess which one the shop means.
- *
- * The payment row appears only where the order is **invoiced**. On a cash
- * order the document cannot exist — only the shop can say what it says, and
- * there is nothing to say — so the control is absent rather than disabled: a
- * button that can never be pressed states nothing.
- */
+/** An order's documents where it is answered (FR-ORD-05, FR-CART-05). One row
+ * per kind: a supplied file replaces the generated summary. The payment row
+ * exists only for an invoiced order; on cash it is absent, not disabled. */
 @Component({
   selector: 'app-order-documents-panel',
   imports: [Button, IconButton, Icon, ErrorText],
@@ -82,18 +70,15 @@ interface DocumentRow {
     <ul class="divide-y divide-edge">
       @for (row of rows(); track row.kind) {
         <li class="py-2 first:pt-0">
-          <!-- The name and what can be done to it on one centred line; the
-               small print under it rather than beside it. The controls are a
-               group so they wrap as one — squeezed into the same row they took
-               the name down to a letter a line. -->
+          <!-- Name and controls on one line, small print under; the controls
+               wrap as a group. -->
           <div class="flex flex-wrap items-center gap-x-3 gap-y-2">
             <ui-icon
               [glyph]="fileTextIcon"
               class="size-4 shrink-0 text-ink-subtle"
             />
-            <!-- The name and what it is, together: when the controls wrap to
-                 their own line the caption must not be left under them,
-                 describing the buttons. -->
+            <!-- Name and caption together, so a wrapped group does not separate
+                 them. -->
             <span class="min-w-36 flex-1">
               <span class="block truncate">{{ row.label }}</span>
               <span class="block text-xs text-ink-subtle">{{
@@ -101,13 +86,9 @@ interface DocumentRow {
               }}</span>
             </span>
 
-            <!-- Opening the file is a sibling of the name, not a member of
-                 the button group: it is the one control that is about the
-                 document itself rather than about changing it, it costs a
-                 glyph's width, and inside the group it was dragged onto the
-                 second line by buttons it has nothing to do with. Out here it
-                 stays on the name's line for as long as a glyph fits, and the
-                 group below it wraps on its own. -->
+            <!-- Opening sits beside the name, outside the group: it is about
+                 the document, not changing it, and stays on the name's line.
+                 -->
             @if (row.href; as href) {
               <a
                 uiIconButton
@@ -122,10 +103,8 @@ interface DocumentRow {
               </a>
             }
 
-            <!-- Wrapping inside the group as well as around it: three
-                 controls do not fit a phone on one line, and a group that
-                 could only break as a whole pushed the last one off the
-                 card. -->
+            <!-- Wrapping within the group too: three controls overflow a phone.
+                 -->
             @if (!readOnly()) {
               <div class="flex flex-wrap items-center gap-2">
                 <button
@@ -147,12 +126,8 @@ interface DocumentRow {
                   }}
                 </button>
                 @if (row.supplied) {
-                  <!-- Telling the customer is its own act (ADR 0052): a file is
-                     filed when it exists and sent when the order is ready to
-                     be written about, and it can be sent again to somebody who
-                     lost the message. Absent while their page is behind the
-                     version it belongs to — the message would announce a
-                     document they cannot open. -->
+                  <!-- Sending is its own act, repeatable. Absent while their
+                       page is behind its version: they could not open it. -->
                   @if (!row.behind) {
                     <button
                       uiButton
@@ -182,16 +157,14 @@ interface DocumentRow {
             }
           </div>
 
-          <!-- Indented to the name's own edge, so the block reads as one
-               entry rather than as a list of sentences. -->
+          <!-- Indented to the name, as one entry. -->
           <div class="ps-7">
-            <!-- Nothing checks a supplied file against the order, so this is
-                 the only warning there is that it quotes an older total. -->
+            <!-- The only warning that a supplied file quotes an older total.
+                 -->
             @if (row.outdated; as warning) {
               <p class="text-xs text-warning">{{ warning }}</p>
             }
-            <!-- Why there is no send button on this row. Said rather than left
-                 to be worked out from an absence. -->
+            <!-- Why there is no send button. -->
             @if (row.behind; as waiting) {
               <p class="mt-1 text-xs text-ink-subtle">{{ waiting }}</p>
             }
@@ -214,26 +187,17 @@ export class OrderDocumentsPanel {
   private readonly confirm = inject(ConfirmService);
   protected readonly text = inject(ADMIN_TEXT).orders.detail.documents;
   protected readonly adminText = inject(ADMIN_TEXT);
-  // The two size words, which the document list already owns: a file's size
-  // reads the same wherever it is written.
+  // The size words the document list owns.
   private readonly sizes = inject(SHARED_TEXT).fileSize;
   protected readonly actionText = inject(SHARED_TEXT).actions;
   private readonly dayFormat = adminDayFormat(inject(DEPLOYMENT_CONFIG).locale);
 
   readonly order = input.required<AdminOrderDetail>();
-  /**
-   * Reading rather than answering: the same rows, with nothing to press.
-   *
-   * Set on the screen that reads back one version of an order. Supplying a
-   * file, sending it or taking it away are acts on the *order*, and offering
-   * them from a superseded version would be answering the order from a page
-   * that deliberately does not — the same rule that leaves every transition
-   * control off that screen. What stays is what the row says, including the
-   * staleness marker, which reads against the version being looked at.
-   */
+  /** Read-only, on the version screen: acting on the order from a superseded
+   * version is refused there as with transitions. The staleness marker reads
+   * against the version shown. */
   readonly readOnly = input(false);
-  /** Asks the page to re-read the order: what a document is, and whether it is
-   * behind, is the order's answer and not this component's. */
+  /** The page re-reads the order: staleness is its answer. */
   readonly changed = output<void>();
 
   protected readonly busy = signal<OrderDocumentKind | null>(null);
@@ -246,14 +210,13 @@ export class OrderDocumentsPanel {
       order.documents.find((document) => document.kind === kind);
 
     const rows: DocumentRow[] = [];
-    // Invoiced orders only: a cash order has no payment instructions to give.
+    // Invoiced only.
     if (order.paymentMethod !== 'cash') {
       rows.push(this.row('payment-instructions', of('payment-instructions')));
     }
     rows.push(this.row('order-summary', of('order-summary')));
-    // A kind with nothing behind it is an invitation to supply one, so it is
-    // drawn where a manager can — and dropped where they cannot, since a row
-    // with no file, no controls and only its hint is a line about nothing.
+    // An empty kind invites a supply where a manager can, and is dropped where
+    // not.
     return this.readOnly() ? rows.filter((row) => row.href) : rows;
   });
 
@@ -302,8 +265,7 @@ export class OrderDocumentsPanel {
       hint,
       href: orderDocumentPath(kind, { reference: order.reference }),
       supplied: document.source === 'supplied',
-      // Read off the row rather than remembered by this screen: whether the
-      // shop has sent somebody their payment details has to survive a reload.
+      // From the row, so it survives a reload.
       sent: document.notifiedAt !== null,
       outdated: document.outdated
         ? fillText(this.text.outdated, {
@@ -318,8 +280,7 @@ export class OrderDocumentsPanel {
     };
   }
 
-  /** The picker is one input for both rows, so which row asked for it is
-   * remembered here rather than duplicated into two hidden inputs. */
+  /** One file input for both rows, so the asking row is remembered. */
   protected choose(kind: OrderDocumentKind, input: HTMLInputElement): void {
     this.chosen = kind;
     this.failed.set(false);

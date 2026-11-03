@@ -79,38 +79,29 @@ import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
 import { Card } from '@b2b-catalog-platform/ui/content/card';
 import { FACT_LIST } from '@b2b-catalog-platform/ui/content/fact-list';
 
-/**
- * One order as staff read it (FR-AUTH-03) — the customer's own page plus what
- * they must never see: which price list it was taken from, whose account it
- * came from, and the lines in **basis units** (FR-UNIT-04), which is what the
- * source system prices in.
- *
- * And where an order is answered (FR-ORD-01/02/04). Which moves are offered
- * is the shared transition table's answer, not this page's: the API refuses by
- * the same table, so a button drawn here is a button the server honours.
- */
-/**
- * Whether this move runs against the chain — staff's undo rather than the next
- * step. It decides what the button is called and how loudly it is drawn, and
- * it is the same question the mail and the notify tick ask, so all three read
- * one answer.
- */
+/** Whether a move runs back up the chain: staff's undo. The button's name and
+ * weight, the mail and the notify tick all read this. */
 function backwards(from: OrderStatus, to: OrderStatus): boolean {
   return moveDirection(from, to) === 'backward';
 }
 
-/** One piece of the sentence that says how far behind the customer is: a run
- * of the deployment's own words, or a version it names. */
+/** A run of the deployment's words, or a version it names. */
 interface BehindPart {
   text: string;
   version: number | null;
 }
 
-/** The three choices a move offers, keyed so the answer can be read back. */
+/** A move's three choices, keyed to read the answer back. */
 const SHOW_CUSTOMER = 'showCustomer';
 const NOTIFY = 'notify';
 const MARK_PAID = 'markPaid';
 
+/**
+ * One order as staff read it (FR-AUTH-03): the customer's page plus the price
+ * list, the account and the lines in pieces (FR-UNIT-04). Also where it is
+ * answered (FR-ORD-01/02/04); the moves come from the shared transition table
+ * the API refuses by.
+ */
 @Component({
   selector: 'app-admin-order-detail-page',
   imports: [
@@ -134,9 +125,8 @@ const MARK_PAID = 'markPaid';
   ],
   template: `
     @if (detail(); as order) {
-      <!-- The notch the customer's own order page folds at, measured on the
-           page rather than the window: the same order must not sit beside its
-           card for staff and under it for the customer at one width. -->
+      <!-- The customer's page notch, measured on the page, so both fold at one
+           width. -->
       <div class="@container/order">
         <div
           class="grid gap-10
@@ -151,36 +141,23 @@ const MARK_PAID = 'markPaid';
             </div>
             <p class="mt-2 text-ink-subtle">{{ placed(order) }}</p>
 
-            <!-- Above the block whose controls it explains: every one of them
-                 is gone while the order is answered elsewhere, and a card that
-                 quietly lost its buttons teaches nobody why. -->
+            <!-- Above the controls it explains: a card that silently lost its
+                 buttons teaches nobody. -->
             @if (locked()) {
               <app-locked-note class="mt-4">{{
                 ownershipText.orderLocked
               }}</app-locked-note>
             }
 
-            <!--
-              What only staff see, and what only staff do, in one block: whose
-              the order is, what it was priced from, what it owes, where it
-              stands, and every version it has had.
-
-              Each control stands on the row of the fact it changes, directly
-              under it — the payment under what is owed, the moves and the
-              adjustment under the status, telling the customer under what they
-              are looking at. Nothing has to line up across the block for that
-              to read: a button is next to its own sentence.
-            -->
+            <!-- What only staff see and do. Each control sits under the fact it
+                 changes. -->
             <section uiCard class="mt-4 text-sm">
               <dl uiFactList terms="narrow">
                 <dt uiFactTerm>{{ ordersText.account }}</dt>
                 <dd uiFactValue>
                   {{ order.customerEmail ?? ordersText.guest }}
-                  <!-- A guest reads this order through the link they were
-                       mailed and through nothing else, so when they ring to
-                       say the page shows something different, this is the
-                       page they mean. An account holder needs no such link:
-                       the version they are on is already one, further down. -->
+                  <!-- A guest's mailed link: the page they mean when they ring.
+                       An account holder's version is linked below. -->
                   @if (order.publicToken; as token) {
                     <a
                       uiLink
@@ -191,9 +168,8 @@ const MARK_PAID = 'markPaid';
                     >
                   }
                 </dd>
-                <!-- Under whose order it is, since that is whose details
-                     they are (NFR-LEGAL-14). Only where there is something to
-                     say: they are gone, or a guest may ask for them to go. -->
+                <!-- Under the owner, whose details they are (NFR-LEGAL-14);
+                     only where removed or removable. -->
                 @if (personalData(); as data) {
                   <dt uiFactTerm>{{ text.personalData.heading }}</dt>
                   <dd uiFactValue class="flex flex-col gap-3">
@@ -225,10 +201,8 @@ const MARK_PAID = 'markPaid';
                   <dd uiFactValue>{{ terms }}</dd>
                 }
 
-                <!-- Money before the workflow, and deliberately: recording a
-                     payment moves nothing along, and the customer sees it the
-                     moment it is recorded. Read under the status it used to
-                     sit below, it looked like the next step of one thing. -->
+                <!-- Money before the status: recording a payment moves nothing
+                     along. -->
                 <dt uiFactTerm>{{ names.payment }}</dt>
                 <dd uiFactValue class="flex flex-col gap-3">
                   <p class="min-w-0">
@@ -255,9 +229,7 @@ const MARK_PAID = 'markPaid';
                 <dt uiFactTerm>{{ names.status }}</dt>
                 <dd uiFactValue class="flex flex-col gap-3">
                   <div class="min-w-0">
-                    <!-- When it last moved reads as part of where it
-                         stands, so it sits beside the badge and wraps under
-                         it only when there is no room. -->
+                    <!-- Beside the badge, wrapping under it. -->
                     <div class="flex flex-wrap items-center gap-x-2">
                       <span uiStatusBadge [tone]="statusTone(order)">
                         {{ statusLabel(order) }}
@@ -266,19 +238,15 @@ const MARK_PAID = 'markPaid';
                         statusChanged(order)
                       }}</span>
                     </div>
-                    <!-- Why it ended, on the line that says it ended: the
-                         reason is part of the status and not a fact of its
-                         own. -->
+                    <!-- The reason is part of the status. -->
                     @if (order.statusReason; as reason) {
                       <p class="mt-1">
                         <span class="text-ink-subtle">{{ names.reason }}:</span>
                         {{ reason }}
                       </p>
                     }
-                    <!-- And what the shop changed about the version on screen,
-                         which is the other half of why the order reads as it
-                         does. The versions below are the history; this is the
-                         current one, where a manager is already looking. -->
+                    <!-- The current version's change note; the thread below is
+                         the history. -->
                     @if (order.changes.length) {
                       <div class="mt-1 ">
                         <span class="text-ink-subtle"
@@ -291,19 +259,12 @@ const MARK_PAID = 'markPaid';
                     }
                   </div>
 
-                  <!-- Nothing to answer the order with while it is answered
-                       elsewhere, or once its personal details are gone, so the
-                       whole row of controls goes rather than leaving an empty
-                       strip under the status. -->
+                  <!-- No controls while answered elsewhere or erased: no empty
+                       strip. -->
                   @if (!locked() && !order.personalDataRemovedAt) {
                     <div [class]="actions">
-                      <!-- Changing what an order says stands with the moves
-                           because it is the other half of answering one, and it
-                           is offered wherever the order stands: a shortage
-                           found while packing, an address corrected on a van, a
-                           completed order somebody recorded wrongly. A link,
-                           not a button: it opens a form, and nothing happens
-                           until that form is saved. -->
+                      <!-- Changing the order is the other half of answering it,
+                           offered in any status. A link: it opens a form. -->
                       <a
                         uiButton
                         size="sm"
@@ -319,12 +280,8 @@ const MARK_PAID = 'markPaid';
                         {{ text.actions.adjust }}
                       </a>
 
-                      <!-- The glyph says which way the move runs: on down the
-                           chain, back up it, or off it altogether. Not a bin
-                           for the last of those — orders are never deleted
-                           (ADR 0050), and a bin standing for "decline" would
-                           one day be pressed by somebody meaning to tidy a
-                           list. -->
+                      <!-- The glyph says which way: down the chain, back up, or
+                           off. No bin: orders are never deleted. -->
                       @for (move of moves(); track move.to) {
                         <button
                           uiButton
@@ -343,21 +300,13 @@ const MARK_PAID = 'markPaid';
                   }
                 </dd>
 
-                <!-- What the customer can see, and what they have been told.
-                     Always shown, and two questions rather than one: a version
-                     reaches their page whether or not a message goes with it,
-                     and either half can be left undone by a manager clearing a
-                     tick. A screen that only drew itself when something was
-                     wrong was one with no way back from that. -->
+                <!-- Their page and their mail, two questions, always shown:
+                     either can be left undone. -->
                 <dt uiFactTerm>{{ tellText.heading }}</dt>
                 <dd uiFactValue class="flex flex-col gap-3">
                   <div class="min-w-0">
-                    <!-- Each version the sentence names links at that version,
-                         and carries the weight the rest of the line does not:
-                         which versions these are is the whole content of it.
-                         Written as one line, because a newline between the
-                         parts is a space Angular would put back — in front of
-                         the semicolon. -->
+                    <!-- Each named version links to itself. One line: a newline
+                         would put a space before the semicolon. -->
                     <!-- prettier-ignore -->
                     <p>@for (part of behind(); track $index) {@if (part.version) {<a
                       class="font-medium hover:text-accent"
@@ -384,10 +333,8 @@ const MARK_PAID = 'markPaid';
                   }
                 </dd>
 
-                <!-- What the order carries (FR-ORD-05): the summary the shop
-                     system draws, and the payment details only the shop can
-                     give. Here rather than beside the order, because supplying
-                     one is something a manager does while answering it. -->
+                <!-- Documents (FR-ORD-05): supplied while answering, so here.
+                     -->
                 <dt uiFactTerm>{{ documentsText.heading }}</dt>
                 <dd uiFactValue>
                   <app-order-documents-panel
@@ -397,13 +344,8 @@ const MARK_PAID = 'markPaid';
                   />
                 </dd>
 
-                <!-- Every version of the order, newest first (FR-ORD-03) — what
-                   the shop said it changed, and the difference from the version
-                   before it. Inside this block rather than beside it: the
-                   history is the rest of what only staff see, and the order
-                   itself reads at the width it always did. Only where there is
-                   more than one version: an order nobody has adjusted has no
-                   history to read. -->
+                <!-- Every version, newest first (FR-ORD-03), with its note and
+                     difference. Only where there is more than one. -->
                 @if (order.revisionNumber > 1) {
                   <dt uiFactTerm>{{ revisionText.heading }}</dt>
                   <dd uiFactValue>
@@ -421,18 +363,12 @@ const MARK_PAID = 'markPaid';
                         (toggled)="historyOpen.set(!historyOpen())"
                       />
                       @if (historyOpen()) {
-                        <!-- The rule that divides the panel from its lid belongs to
-                         what is under it, not to the panel: the versions are
-                         fetched when the fold opens, and a bordered box with
-                         nothing in it yet drew a stray line across the rounded
-                         bottom of the frame for as long as the request took.
-                         The bars stand in for them meanwhile, so the panel
-                         opens to its content rather than to a hairline. -->
+                        <!-- The rule belongs to the content: fetched on
+                             opening, an empty box drew a stray line. Bars
+                             meanwhile. -->
                         <div [id]="historyPanelId">
                           @if (history().length) {
-                            <!-- Ruled rather than spaced: a thread of six versions
-                             each carrying a note, a state and a fold reads as
-                             one block of text without a line between them. -->
+                            <!-- Ruled: spaced versions run into one block. -->
                             <ol
                               class="divide-y divide-edge border-t border-edge"
                             >
@@ -442,11 +378,8 @@ const MARK_PAID = 'markPaid';
                                     class="flex flex-wrap items-center gap-x-2
                                            gap-y-1"
                                   >
-                                    <!-- What the version was for and where the
-                                     order stood, first: it is the sentence the
-                                     note below explains, and the note read as
-                                     its caption when the two were the other way
-                                     round. -->
+                                    <!-- Purpose and status first: the note
+                                         below explains them. -->
                                     <a
                                       class="font-medium hover:text-accent"
                                       [routerLink]="[
@@ -459,11 +392,7 @@ const MARK_PAID = 'markPaid';
                                     >
                                       {{ entry.label }}
                                     </a>
-                                    <!-- The order's own states in the order's own
-                                     colours: a version says where the order
-                                     stood when it was written, and a manager
-                                     reading the thread should not have to learn
-                                     a second vocabulary for it. -->
+                                    <!-- The order's own status colours. -->
                                     <span uiStatusBadge [tone]="entry.tone">
                                       {{ entry.status }}
                                     </span>
@@ -475,11 +404,8 @@ const MARK_PAID = 'markPaid';
                                     {{ entry.writtenBy }}
                                   </p>
 
-                                  <!-- The two facts about the customer, in the
-                                   quiet variant: neither is a state of the
-                                   order, and drawn as solid pills beside the
-                                   status they read as three states of one
-                                   thing. -->
+                                  <!-- Quiet: solid pills beside the status read
+                                       as three states. -->
                                   @if (entry.customerView || entry.notified) {
                                     <p
                                       class="mt-1 flex flex-wrap items-center
@@ -515,12 +441,9 @@ const MARK_PAID = 'markPaid';
                                     </p>
                                   }
 
-                                  <!-- The differences fold. They are the long half
-                                   of an entry and the half nobody reads twice,
-                                   and the comparison behind them is only run
-                                   for the ones actually opened — a thread of
-                                   twenty versions is twenty diffs of a whole
-                                   order otherwise. -->
+                                  <!-- Folded, and compared only when opened:
+                                       twenty versions are twenty whole-order
+                                       diffs. -->
                                   @if (entry.kind === 'adjustment') {
                                     <div class="mt-2">
                                       <ui-disclosure-toggle
@@ -568,9 +491,8 @@ const MARK_PAID = 'markPaid';
               </p>
             }
 
-            <!-- The order as it now reads, at the width an order is read at.
-                 Below the block above rather than beside it: a manager answers
-                 the order first and checks it second. -->
+            <!-- The order as it reads, under the block: answered first, checked
+                 second. -->
             <app-order-read-back
               class="mt-8 max-w-xl"
               [itemsHeading]="ordersText.items"
@@ -640,24 +562,12 @@ export class AdminOrderDetailPage {
   protected readonly tellText = this.text.tellCustomer;
   protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
-  /**
-   * Whether an external system answers orders (FR-ADM-10). Read the way the
-   * account screens read their own: an answer still in flight counts as not
-   * owned, and the API refuses the write either way.
-   *
-   * Every control on this page is drawn from a computed that returns nothing
-   * while it holds, so the closure is one rule rather than a condition on each
-   * button — the documents panel already had a reading mode, and takes it.
-   */
+  /** Whether an external system answers orders (FR-ADM-10); in flight counts as
+   * not owned. Every control's computed returns nothing then: one rule, not a
+   * condition per button. */
   protected readonly locked = computed(() => this.ownership.owns('orders'));
-  /**
-   * The controls of one row. They are as wide as their words from `sm` up,
-   * and wrap onto a second line when there are more of them than fit; below
-   * that they are a stack of full-width buttons, which is the only shape a
-   * button reads well in on a phone. The space under them is their own: a
-   * button group needs more air before the next fact than one line of text
-   * does.
-   */
+  /** As wide as their words from `sm`, wrapping; full-width stacked below.
+   * Their own space beneath: a button group needs more air. */
   protected readonly actions =
     'mb-2 flex flex-col gap-2 sm:flex-row sm:flex-wrap';
   protected readonly historyPanelId = 'order-versions';
@@ -671,8 +581,7 @@ export class AdminOrderDetailPage {
   });
   protected readonly showSkeleton = delayedLoading(this.order.isLoading);
 
-  /** Read through `hasValue`: a resource in an error state throws from
-   * `value()`. */
+  /** Through `hasValue`: an errored resource throws from `value()`. */
   protected readonly detail = computed(() =>
     this.order.hasValue() ? this.order.value() : null,
   );
@@ -680,13 +589,9 @@ export class AdminOrderDetailPage {
     () => this.order.hasValue() && this.order.value() === null,
   );
 
-  /**
-   * The lines in pieces — "100 × 0.42". Not the customer's reading of the same
-   * line: staff work against the source system, which prices per piece, and an
-   * order that has to be checked against it reads in its numbers.
-   */
+  /** In pieces, "100 × 0.42": the source system prices per piece. */
   private readonly tax = useTaxStatement();
-  /** What the total names, or why it names only the basis (NFR-LEGAL-11). */
+  /** What the total names (NFR-LEGAL-11). */
   protected readonly taxRates = computed(
     () => this.detail()?.lines.map((line) => line.taxRate) ?? [],
   );
@@ -701,8 +606,7 @@ export class AdminOrderDetailPage {
       href: line.linked ? `/product/${line.slug}` : null,
       quantity: this.pieceLine(line),
       total: formatMoneyMinor(line.lineTotalMinor, this.currency),
-      // Always, for staff: the rate is what a line reconciles against the
-      // shop's own invoice by, shared with its neighbours or not.
+      // Always for staff: a line reconciles against the invoice by it.
       taxRate: this.tax.line(line.taxRate) || null,
     }));
   });
@@ -728,8 +632,7 @@ export class AdminOrderDetailPage {
     });
   }
 
-  /** Which terms to hand the customer when asked, as the page editor lists
-   * them. */
+  /** The terms versions, as the page editor lists them. */
   protected termsLabel(order: AdminOrderDetail): string | null {
     if (order.termsVersion === null || order.termsDate === null) return null;
     return fillText(this.ordersText.termsVersion, {
@@ -744,13 +647,8 @@ export class AdminOrderDetailPage {
     });
   }
 
-  /**
-   * When the order last moved, to the minute. Nothing records the moves before
-   * this one — an order carries where it stands, not how it got there (the
-   * audit log is that record) — so this timestamp is the whole history the
-   * page can show, and a date alone would leave a manager unable to tell two
-   * moves made the same afternoon apart.
-   */
+  /** To the minute: the order keeps no move history (the audit log does), and
+   * two moves in an afternoon must differ. */
   protected statusChanged(order: AdminOrderDetail): string {
     return this.dateTimeFormat.format(new Date(order.statusChangedAt));
   }
@@ -778,36 +676,26 @@ export class AdminOrderDetailPage {
     });
   }
 
-  /** A move is in flight, or one just failed. Both are about this page rather
-   * than about the order, so neither lives on the resource. */
+  /** About the page, not the order, so not on the resource. */
   protected readonly busy = signal(false);
   protected readonly failed = signal<string | null>(null);
 
-  /**
-   * Every version of this order, fetched only once the panel is opened: an
-   * order nobody has adjusted has one version, and a manager reading the
-   * current one is not asking about the others.
-   */
+  /** Fetched only once the panel opens. */
   protected readonly revisions = resource({
     params: () => (this.historyOpen() ? this.reference() : undefined),
     loader: ({ params }) => this.api.revisions(params),
   });
 
-  /**
-   * The history as it reads: each version, what the shop said about it, and
-   * what it changed from the one before — the same comparison the adjustment
-   * screen shows before anything is written, so what a manager approved is
-   * what the order says afterwards.
-   */
+  /** Each version, its note and its difference: the adjustment screen's
+   * comparison, so what was approved is what it says. */
   protected readonly history = computed(() => {
     if (!this.revisions.hasValue()) return [];
     const versions = this.revisions.value() ?? [];
     return versions.map((version) => ({
       number: version.revisionNumber,
       note: version.note,
-      // What the version was written for, where the order stood when it was,
-      // and whether it is the one the customer is looking at — the three
-      // things a thread of versions has to say that a diff cannot.
+      // Purpose, status at the time, and whether the customer sees it: what a
+      // diff cannot say.
       kind: version.kind,
       kindLabel: revisionKindLabel(version.kind, this.revisionText),
       status: orderStatusLabel(
@@ -817,8 +705,7 @@ export class AdminOrderDetailPage {
       ),
       tone: orderStatusTone(version.status, 'staff', version.fulfilmentMethod),
       customerView: version.customerView,
-      // Null on a version nobody was written to about, which is most of them:
-      // the shop tells the customer when there is news, not per version.
+      // Null for most: the customer hears about news, not versions.
       notified: version.notifiedAt
         ? fillText(this.revisionText.notified, {
             date: this.dateTimeFormat.format(new Date(version.notifiedAt)),
@@ -830,9 +717,8 @@ export class AdminOrderDetailPage {
       writtenBy: fillText(this.revisionText.writtenBy, {
         date: this.dateTimeFormat.format(new Date(version.revisionCreatedAt)),
         who:
-          // A person here, then the outside system that wrote it, then the
-          // two versions nobody signed: the customer's own submission, and
-          // one whose author has since been deleted.
+          // A person, then the external system, then the unsigned: the
+          // submission, or a deleted author.
           version.author ??
           version.source ??
           (version.revisionNumber === 1
@@ -842,7 +728,6 @@ export class AdminOrderDetailPage {
     }));
   });
 
-  /** Which versions have their differences unfolded. */
   protected readonly diffOpen = signal(new Set<number>());
 
   protected diffPanelId(number: number): string {
@@ -857,15 +742,8 @@ export class AdminOrderDetailPage {
     });
   }
 
-  /**
-   * What one version changed from the one before it — worked out when it is
-   * asked for rather than for the whole thread at once.
-   *
-   * Every entry is a whole order compared against a whole order, and a thread
-   * grows for as long as an order is worked on: doing all of them to render a
-   * list nobody has opened is the difference between a panel that appears and
-   * a panel that arrives.
-   */
+  /** Computed on request: a whole-order comparison per entry is too much for an
+   * unopened list. */
   protected diff(number: number): OrderChange[] {
     const versions = this.revisions.hasValue()
       ? (this.revisions.value() ?? [])
@@ -873,8 +751,7 @@ export class AdminOrderDetailPage {
     const index = versions.findIndex(
       (version) => version.revisionNumber === number,
     );
-    // The list is newest first, so the version this one superseded is the next
-    // entry along. Nothing before the first: it changed nothing, it began.
+    // Newest first, so the predecessor is next; the first began.
     const before = index >= 0 ? versions[index + 1] : undefined;
     if (!before) return [];
     return orderChanges(
@@ -893,15 +770,8 @@ export class AdminOrderDetailPage {
     );
   }
 
-  /**
-   * Which version the customer was last written to about and which one the
-   * order is on, as the pieces of one sentence: the deployment's wording, cut
-   * at its placeholders so each version it names can be a link to that version.
-   *
-   * Cut rather than composed, because the punctuation between the halves is
-   * the deployment's — a language that ends the clause differently, or writes
-   * the versions the other way round, still gets its own sentence.
-   */
+  /** The told and current versions as one sentence, cut at the placeholders so
+   * each is a link; the punctuation stays the deployment's. */
   protected readonly behind = computed((): BehindPart[] => {
     const order = this.detail();
     if (!order) return [];
@@ -909,8 +779,7 @@ export class AdminOrderDetailPage {
       '{seen}': order.customerRevisionNumber,
       '{current}': order.revisionNumber,
     };
-    // Level with the order, or behind it: the same sentence either way, so a
-    // manager reads one line and not two shapes of it.
+    // One sentence whether level or behind.
     const template =
       order.customerRevisionNumber < order.revisionNumber
         ? this.tellText.behind
@@ -930,7 +799,7 @@ export class AdminOrderDetailPage {
       );
   });
 
-  /** The second line: whether anything has ever been said, and about what. */
+  /** Whether anything was ever said, and about what. */
   protected readonly emailed = computed(() => {
     const order = this.detail();
     if (!order) return '';
@@ -943,20 +812,12 @@ export class AdminOrderDetailPage {
       : this.tellText.emailedNever;
   });
 
-  /**
-   * What is left to do about the customer, in the order it has to be done.
-   *
-   * Moving their page on comes first, because a message about a version they
-   * are not being shown would link them to something else. Once they are
-   * level, the only thing left is the message — offered whether or not one has
-   * gone already, since a mail that landed in a spam folder is one somebody
-   * has to be able to send again, and re-sending the version they hold says
-   * exactly what their page says.
-   */
+  /** What is left for the customer, in order: their page first, as a mail must
+   * not link to an unseen version; then the mail, re-sendable for a spam
+   * folder. */
   protected readonly customerAction = computed(() => {
     const order = this.detail();
-    // Nobody to write to once the details are removed: the mail would go to
-    // the placeholder left in their place.
+    // Erased: the mail would reach the placeholder.
     if (!order || this.locked() || order.personalDataRemovedAt) return null;
     if (order.customerRevisionNumber < order.revisionNumber) {
       return {
@@ -981,12 +842,8 @@ export class AdminOrderDetailPage {
     });
   }
 
-  /**
-   * Move the customer's page on, or write to them about the version they
-   * already hold. One endpoint, because they are one decision made in two
-   * halves: the update offers the message as a tick, and the message on its
-   * own is that tick with nothing to move.
-   */
+  /** Moves their page on, or writes about the version they hold: one decision,
+   * one endpoint. */
   protected async tellCustomer(
     order: AdminOrderDetail,
     kind: 'update' | 'email',
@@ -1001,9 +858,8 @@ export class AdminOrderDetailPage {
                 key: NOTIFY,
                 label: tell.updateNotify,
                 hint: this.text.notifyHint,
-                // Ticked: a version they have not been shown is news, and the
-                // manager who did not want to send one can clear it and come
-                // back to the button that stays behind.
+                // Ticked: an unseen version is news; the button stays for
+                // later.
                 checked: true,
               },
             ],
@@ -1026,33 +882,25 @@ export class AdminOrderDetailPage {
     );
   }
 
-  /**
-   * The moves this page offers: the transition table's answer for staff,
-   * narrowed to what has an endpoint today (an adjustment carries a new
-   * snapshot and is its own operation) and to what has a better word already
-   * — an unanswered order is declined, not cancelled.
-   */
+  /** The staff transition table, narrowed to what has an endpoint (an
+   * adjustment is its own) and to better words: a request is declined, not
+   * cancelled. */
   protected readonly moves = computed(() => {
     const order = this.detail();
-    // An order without its personal details is finished for good
-    // (NFR-LEGAL-14): there is nobody left to fill it for.
+    // Erased is final (NFR-LEGAL-14).
     if (!order || this.locked() || order.personalDataRemovedAt) return [];
     return allowedTransitions('staff', order.status)
       .filter((to) => !(to === 'cancelled' && order.status === 'requested'))
       .map((to) => ({
         to,
         label: this.moveLabel(to, order),
-        // Which way it runs, said in a glyph: on down the chain, back up it,
-        // or off it. The two ways an order ends share the mark the list's own
-        // row action uses for them.
+        // The glyph says which way; ending marks match the list's.
         icon: transitionHasReason(to)
           ? circleSlashIcon
           : backwards(order.status, to)
             ? arrowLeftIcon
             : arrowRightIcon,
-        // Walking an order back is a correction, not the next step in its
-        // life: it should not look like the button a manager is meant to
-        // press next.
+        // A correction, not the next step: drawn quietly.
         variant: transitionHasReason(to)
           ? ('dangerOutline' as const)
           : backwards(order.status, to)
@@ -1062,14 +910,8 @@ export class AdminOrderDetailPage {
       }));
   });
 
-  /**
-   * What a move is called, which depends on which way it runs.
-   *
-   * "Confirm" and "Back to confirmed" land on the same status and are not the
-   * same act: one is the shop answering the order, the other is undoing a
-   * click. A button that said "Confirm" on an order already out for delivery
-   * would read as a step forward it is not.
-   */
+  /** Named by direction: "Back to confirmed" undoes a click, "Confirm" answers
+   * the order. */
   private moveLabel(to: OrderStatus, order: AdminOrderDetail): string {
     const actions = this.text.actions;
     if (backwards(order.status, to)) {
@@ -1082,8 +924,7 @@ export class AdminOrderDetailPage {
     return {
       requested: actions.reopen,
       approved: actions.approve,
-      // The same lens the badge reads the state through: what the manager is
-      // about to do is put it on the shelf or send it out.
+      // Read through fulfilment, as the badge is.
       ready:
         order.fulfilmentMethod === 'pickup'
           ? actions.readyPickup
@@ -1094,22 +935,10 @@ export class AdminOrderDetailPage {
     }[to];
   }
 
-  /**
-   * What the confirmation offers besides yes and no: whether the move reaches
-   * the customer's own page, whether they are written to about it, and — on
-   * the move that is a handover — whether the money came with the goods.
-   *
-   * All three are offered with an answer already in them, because all three
-   * are almost always the same answer and none is one a manager should have to
-   * think about twice a day. None is inferred and then done silently: the mail
-   * cannot be taken back, and a payment recorded by a side effect is one
-   * nobody remembers making.
-   *
-   * The first is ticked as a matter of course — a move is where the order is,
-   * and the person waiting for it should read the truth. Clearing it is for
-   * the step that should never have been taken: `ready` on the wrong order,
-   * put straight back.
-   */
+  /** The confirmation's ticks: their page, the mail, and on handover the money.
+   * Preset, never inferred: a mail cannot be taken back, and a side-effect
+   * payment is forgotten. The page tick clears only for a step taken in error.
+   * */
   private moveChecks(order: AdminOrderDetail, to: OrderStatus): ConfirmCheck[] {
     const actions = this.text.actions;
     const checks: ConfirmCheck[] = [
@@ -1122,10 +951,8 @@ export class AdminOrderDetailPage {
       {
         key: NOTIFY,
         label: actions.notify,
-        // Said here rather than left to be discovered: the shop's payment
-        // instructions travel with a message sent while the money is owed
-        // (FR-ORD-05), and a manager choosing to write should know the
-        // customer gets the slip with it.
+        // The payment slip travels with a mail sent while money is owed (FR-
+        // ORD-05).
         hint: this.paymentNote(order, to)
           ? `${this.text.notifyHint} ${this.paymentNote(order, to)}`
           : this.text.notifyHint,
@@ -1133,35 +960,23 @@ export class AdminOrderDetailPage {
         requires: SHOW_CUSTOMER,
       },
     ];
-    // Only where there is money to record and a handover to record it with:
-    // an order that ends here owes nothing, and one already marked paid has
-    // nothing to add. Clearing a mis-tick stays the payment row's own job.
+    // Only with money owed and a handover; clearing a mis-tick stays the
+    // payment row's job.
     if (order.paymentState !== 'paid' && !transitionHasReason(to)) {
       checks.push({
         key: MARK_PAID,
         label: actions.markPaid,
         hint: actions.markPaidHint,
-        // Cash is paid at the handover — that is the whole reason the payment
-        // axis is separate — so completing a cash order is the payment. Every
-        // other method is invoiced and may well be outstanding for weeks.
+        // Cash is paid at the handover; other methods may be owed for weeks.
         checked: to === 'completed' && order.paymentMethod === 'cash',
       });
     }
     return checks;
   }
 
-  /**
-   * Whether the payment instructions on this order will ride along with the
-   * message this move sends.
-   *
-   * What to say about payment in the dialog that offers to write to them.
-   *
-   * Asked of the shared table rather than restated: the server attaches the
-   * slip to a message sent while the money is owed, and where the order will
-   * *stand* after a move is exactly what `nextPaymentState` answers.
-   * `approved` on an invoiced order is the case this exists for — the one
-   * message that both accepts the order and says how to pay for it.
-   */
+  /** What the dialog says about payment: whether the slip rides along, from
+   * `nextPaymentState`, the server's rule. `approved` on an invoiced order is
+   * the case: one message that accepts and says how to pay. */
   private paymentNote(order: AdminOrderDetail, to: OrderStatus): string | null {
     const owing =
       nextPaymentState(order.paymentState, order.paymentMethod, to) ===
@@ -1172,19 +987,14 @@ export class AdminOrderDetailPage {
         document.kind === 'payment-instructions' &&
         document.source === 'supplied',
     );
-    // Either the slip goes with the message, or there is no slip and this is
-    // the last comfortable moment to notice: the customer is about to be told
-    // they owe money.
+    // No slip is worth noticing before the customer is told they owe.
     return supplied
       ? this.text.actions.notifyAttachment
       : this.text.actions.notifyNoDocument;
   }
 
-  /**
-   * Every move is confirmed, and the two that end an order ask why — the
-   * customer's mail quotes it. A refusal means somebody else answered the
-   * order first, so the page reloads rather than argues.
-   */
+  /** Confirmed, and the two endings ask why: the mail quotes it. A refusal
+   * means somebody else answered first: reload. */
   private async move(order: AdminOrderDetail, to: OrderStatus): Promise<void> {
     const actions = this.text.actions;
     const label = this.moveLabel(to, order);
@@ -1193,10 +1003,8 @@ export class AdminOrderDetailPage {
       heading: fillText(actions.confirm.heading, { action: label }),
       confirmLabel: fillText(actions.confirm.confirm, { action: label }),
       checks: this.moveChecks(order, to),
-      // Ending an order the shop has been paid for. The move is allowed — the
-      // platform records what the shop did — but nothing here sends the money
-      // back (FR-ORD-04), and this is the moment somebody would assume it
-      // does. The customer's own cancel button carries the same sentence.
+      // Ending a paid order is allowed, but nothing refunds (FR-ORD-04); the
+      // customer's cancel says the same.
       warning:
         order.paymentState === 'paid' && transitionHasReason(to)
           ? actions.confirm.warning
@@ -1224,17 +1032,8 @@ export class AdminOrderDetailPage {
     );
   }
 
-  /**
-   * The one move the payment row offers: record it, or take that record back.
-   *
-   * Both are the same observation — a manager saying whether the money is
-   * here — and the undo exists for the same reason reopening does: a box
-   * ticked on the wrong order must not stand for good. It is not a refund;
-   * that happens in the shop's books.
-   *
-   * Neither is offered on an order that ended without being filled: nothing
-   * is owed on it and nothing arrives for it.
-   */
+  /** Records the payment or takes it back: a mis-tick must not stand. Not a
+   * refund. Not offered on an order that ended unfilled. */
   protected readonly paymentMove = computed(() => {
     const order = this.detail();
     if (!order || this.locked()) return null;
@@ -1244,21 +1043,16 @@ export class AdminOrderDetailPage {
     const paid = order.paymentState === 'paid';
     return {
       label: paid ? payment.clear : payment.record,
-      // Recording it is an observation; clearing it is an undo, and wears the
-      // mark every undo in the admin wears.
+      // Clearing wears the admin's undo mark.
       icon: paid ? rotateCcwIcon : circleCheckIcon,
       run: () => this.setPayment(order, !paid),
     };
   });
 
-  /**
-   * The personal details row (NFR-LEGAL-14): when they were removed, on any
-   * order, or on a finished guest order an admin sees, the way to remove them
-   * on the guest's request. Nothing on an order still running or carrying an
-   * account: the first needs them, and the second loses them with the
-   * account. Offered while orders are owned elsewhere too, since the guest's
-   * right outranks that switch.
-   */
+  /** Personal details (NFR-LEGAL-14): when removed, or on a finished guest
+   * order the way to remove them. Not on a running order or one with an account
+   * (erased with it). Offered while owned elsewhere: the guest's right outranks
+   * that. */
   protected readonly personalData = computed(() => {
     const order = this.detail();
     if (!order) return null;
@@ -1315,8 +1109,7 @@ export class AdminOrderDetailPage {
     );
   }
 
-  /** One shape for both: run it, say so where the server refused, and leave
-   * the page showing what the order actually is now. */
+  /** Runs it, says where refused, reloads. */
   private async run(
     call: () => Promise<AdminOrderDetail | null>,
     error: string,
@@ -1329,19 +1122,13 @@ export class AdminOrderDetailPage {
     } finally {
       this.busy.set(false);
       this.order.reload();
-      // The thread is a second resource, and a move writes a version: an open
-      // history panel that kept its old list would be describing the order as
-      // it was a click ago. Idle while the panel is shut, and reloading an
-      // idle resource fetches nothing.
+      // A move writes a version: reload the thread too (an idle one fetches
+      // nothing).
       this.revisions.reload();
     }
   }
 
-  /**
-   * Re-read the order after a document was supplied or taken back. Only the
-   * order: a document writes no version (ADR 0052), so the thread is unchanged
-   * and reloading it would fetch the same list again.
-   */
+  /** A document writes no version, so only the order reloads. */
   protected reload(): void {
     this.order.reload();
   }
@@ -1350,14 +1137,13 @@ export class AdminOrderDetailPage {
     dateStyle: 'long',
   });
 
-  /** The day a page's "Last updated" line names, in the shop's timezone. */
+  /** In the shop's timezone. */
   private readonly shopDayFormat = new Intl.DateTimeFormat(this.config.locale, {
     dateStyle: 'long',
     timeZone: this.config.orderReference?.timezone ?? 'UTC',
   });
 
-  /** For the two facts a manager reads as moments rather than as days: when
-   * the order last moved, and when the payment was recorded. */
+  /** For the last move and the payment record: moments, not days. */
   private readonly dateTimeFormat = orderDateTimeFormat(this.config.locale);
 
   constructor() {

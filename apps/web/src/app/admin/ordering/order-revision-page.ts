@@ -42,20 +42,9 @@ import { revisionKindLabel } from './revision-labels';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
 import { Card } from '@b2b-catalog-platform/ui/content/card';
 
-/**
- * One version of an order, read back (FR-ORD-03, ADR 0051).
- *
- * **The customer's own page, on a staff screen.** The same lines in the same
- * units, the same blocks under the same headings — because the question this
- * page answers is what the customer is looking at, and a staff rendering of
- * their own would be a second opinion about it. What it adds is the handful of
- * facts only the shop has: which version this is, which one they are being
- * shown, and whether the money arrived.
- *
- * And it does nothing. Every control an order has lives on the page that
- * answers it, one route up: reading a version and changing one are different
- * jobs, and a version already superseded is not a thing to press buttons at.
- */
+/** One version read back (FR-ORD-03): **the customer's page on a staff
+ * screen**, plus which version it is, which they are shown, and the money. No
+ * controls: those are on the order page, one route up. */
 @Component({
   selector: 'app-admin-order-revision-page',
   imports: [
@@ -88,11 +77,7 @@ import { Card } from '@b2b-catalog-platform/ui/content/card';
             </div>
             <p class="mt-2 text-ink-subtle">{{ placed() }}</p>
 
-            <!-- The same block staff read on the order itself, and
-                 deliberately the same: what only staff see, in the shape they
-                 see it in everywhere else. Without a single control — this
-                 page reads a version, and a version already superseded is not
-                 a thing to press buttons at. -->
+            <!-- The order page's staff block, without controls. -->
             <section uiCard class="mt-4 text-sm">
               <dl
                 class="grid gap-x-6 gap-y-3 wrap-break-word
@@ -131,10 +116,8 @@ import { Card } from '@b2b-catalog-platform/ui/content/card';
                   }
                 </dd>
 
-                <!-- What the customer knows about this version: whether it
-                     is the one they are on, and whether they were written to.
-                     Above the version row, as it is on the order itself — the
-                     two blocks list the same facts in the same order. -->
+                <!-- What the customer knows, above the version row as on the
+                     order page. -->
                 <dt class="text-ink-subtle">
                   {{ detailText.tellCustomer.heading }}
                 </dt>
@@ -145,8 +128,7 @@ import { Card } from '@b2b-catalog-platform/ui/content/card';
                   }
                 </dd>
 
-                <!-- Which version this is, and what it was written for — the
-                     two questions only this page is asked. -->
+                <!-- The two questions only this page is asked. -->
                 <dt class="text-ink-subtle">{{ text.heading }}</dt>
                 <dd>
                   {{ written() }}
@@ -175,14 +157,7 @@ import { Card } from '@b2b-catalog-platform/ui/content/card';
               [taxRates]="taxRates()"
               [taxBasis]="order.taxBasis"
             />
-            <!-- What can be opened on this version (FR-ORD-05), marked from
-                 where this page stands: a supplied file filed before this
-                 version is stale *here* even where the order has since caught
-                 up with it. Read-only, like everything else on this screen.
-
-                 Under the total and above the way out, which is where every
-                 other order screen puts it — a document is a copy of what has
-                 just been read, and the controls stay last. -->
+            <!-- Documents (FR-ORD-05), stale as of this version; read-only. -->
             @if (order.documents.length) {
               <section uiCard class="mt-5">
                 <h2 class="font-medium">{{ documentsText.heading }}</h2>
@@ -195,11 +170,8 @@ import { Card } from '@b2b-catalog-platform/ui/content/card';
               </section>
             }
 
-            <!-- The way from reading to doing, under the card it was read
-                 against: everything a manager does to an order is on that
-                 page, and this one deliberately offers none of it. Where there
-                 is nothing to do, it still leads somewhere — the order as it
-                 now stands — and says so instead. -->
+            <!-- The way to the order page, which does everything; otherwise to
+                 the order as it stands. -->
             <a
               uiButton
               class="mt-5 w-full"
@@ -242,12 +214,12 @@ export class AdminOrderRevisionPage {
   protected readonly text = this.detailText.revisions;
   protected readonly documentsText = this.detailText.documents;
   protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
-  /** Whether an external system answers orders (FR-ADM-10). This page never
-   * had controls to take away; what it has is a link that promised some. */
+  /** Whether an external system answers orders (FR-ADM-10): only the link's
+   * wording changes. */
   protected readonly locked = computed(() => this.ownership.owns('orders'));
 
   readonly reference = input.required<string>();
-  /** Bound from the route, and so a string: an unparsed segment. */
+  /** From the route, so a string. */
   readonly number = input.required<string>();
 
   private readonly loaded = resource({
@@ -260,18 +232,16 @@ export class AdminOrderRevisionPage {
   protected readonly revision = computed(() =>
     this.loaded.hasValue() ? this.loaded.value() : null,
   );
-  /** Answered, and the answer was "no such version". Read through `hasValue`
-   * so a page still loading is not a page that is not there. */
+  /** "No such version", not still loading. */
   protected readonly missing = computed(
     () =>
       this.loaded.error() != null ||
       (this.loaded.hasValue() && this.loaded.value() === null),
   );
 
-  /** The customer's own reading of the lines, deliberately: this page shows
-   * what they see, and basis units are the staff screen's business. */
+  /** The customer's reading: pieces are the order page's. */
   private readonly tax = useTaxStatement();
-  /** What the total names, or why it names only the basis (NFR-LEGAL-11). */
+  /** What the total names (NFR-LEGAL-11). */
   protected readonly taxRates = computed(
     () => this.revision()?.lines.map((line) => line.taxRate) ?? [],
   );
@@ -286,8 +256,7 @@ export class AdminOrderRevisionPage {
       href: line.linked ? `/product/${line.slug}` : null,
       quantity: customerQuantity(line, this.sharedText, this.currency),
       total: formatMoneyMinor(line.lineTotalMinor, this.currency),
-      // Always, for staff: the rate is what a line reconciles against the
-      // shop's own invoice by, shared with its neighbours or not.
+      // Always for staff: a line reconciles against the invoice by it.
       taxRate: this.tax.line(line.taxRate) || null,
     }));
   });
@@ -318,7 +287,6 @@ export class AdminOrderRevisionPage {
     return orderStatusTone(order.status, 'staff', order.fulfilmentMethod);
   }
 
-  /** When the order itself was placed, as its own page says it. */
   protected placed(): string {
     const order = this.revision();
     if (!order) return '';
@@ -334,8 +302,7 @@ export class AdminOrderRevisionPage {
       number: order.revisionNumber,
       date: this.dateTimeFormat.format(new Date(order.revisionCreatedAt)),
       who:
-        // A person here, then the outside system that wrote it, then the two
-        // versions nobody signed (FR-ADM-08).
+        // A person, then the external system, then the unsigned (FR-ADM-08).
         order.author ??
         order.source ??
         (order.revisionNumber === 1
