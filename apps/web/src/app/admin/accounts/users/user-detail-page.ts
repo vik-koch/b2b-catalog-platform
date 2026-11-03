@@ -38,6 +38,7 @@ import { circleCheckIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-ch
 import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
 import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
 import { Card } from '@b2b-catalog-platform/ui/content/card';
+import { FACT_LIST } from '@b2b-catalog-platform/ui/content/fact-list';
 import { SectionTitle } from '@b2b-catalog-platform/ui/content/section-title';
 import {
   formatPersonName,
@@ -72,6 +73,7 @@ interface DetailRow {
 @Component({
   selector: 'app-user-detail-page',
   imports: [
+    FACT_LIST,
     SectionTitle,
     Card,
     RouterLink,
@@ -107,22 +109,10 @@ interface DetailRow {
           <section>
             <h2 uiSectionTitle class="mb-1.5">{{ text.detailsHeading }}</h2>
             <div uiCard>
-              <dl
-                class="grid gap-x-8 mt-2 text-sm wrap-break-word
-                       sm:grid-cols-[12rem_1fr]"
-              >
+              <dl uiFactList class="mt-2 text-sm">
                 @for (row of details(); track row.label) {
-                  <dt
-                    class="text-ink-subtle
-                           odd:mb-1
-                           sm:odd:mb-3
-                           nth-last-[2]:mb-0"
-                  >
-                    {{ row.label }}
-                  </dt>
-                  <dd class="even:mb-3 sm:even:mb-3 last:mb-0">
-                    {{ row.value }}
-                  </dd>
+                  <dt uiFactTerm>{{ row.label }}</dt>
+                  <dd uiFactValue>{{ row.value }}</dd>
                 }
               </dl>
             </div>
@@ -131,22 +121,10 @@ interface DetailRow {
           <section>
             <h2 uiSectionTitle class="mb-1.5">{{ text.accountHeading }}</h2>
             <div uiCard>
-              <dl
-                class="grid gap-x-8 mt-2 text-sm wrap-break-word
-                       sm:grid-cols-[12rem_1fr]"
-              >
+              <dl uiFactList class="mt-2 text-sm">
                 @for (row of accountRows(); track row.label) {
-                  <dt
-                    class="text-ink-subtle
-                           odd:mb-1
-                           sm:odd:mb-3
-                           nth-last-[2]:mb-0"
-                  >
-                    {{ row.label }}
-                  </dt>
-                  <dd class="even:mb-3 sm:even:mb-3 last:mb-0">
-                    {{ row.value }}
-                  </dd>
+                  <dt uiFactTerm>{{ row.label }}</dt>
+                  <dd uiFactValue>{{ row.value }}</dd>
                 }
               </dl>
             </div>
@@ -158,22 +136,10 @@ interface DetailRow {
             <section>
               <h2 uiSectionTitle class="mb-1.5">{{ text.signInHeading }}</h2>
               <div uiCard>
-                <dl
-                  class="grid gap-x-8 mt-2 text-sm wrap-break-word
-                         sm:grid-cols-[12rem_1fr]"
-                >
+                <dl uiFactList class="mt-2 text-sm">
                   @for (row of signInRows(); track row.label) {
-                    <dt
-                      class="text-ink-subtle
-                             odd:mb-1
-                             sm:odd:mb-3
-                             nth-last-[2]:mb-0"
-                    >
-                      {{ row.label }}
-                    </dt>
-                    <dd class="even:mb-3 sm:even:mb-3 last:mb-0">
-                      {{ row.value }}
-                    </dd>
+                    <dt uiFactTerm>{{ row.label }}</dt>
+                    <dd uiFactValue>{{ row.value }}</dd>
                   }
                 </dl>
                 @if (canExempt()) {

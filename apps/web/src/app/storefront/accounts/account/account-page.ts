@@ -29,6 +29,7 @@ import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
 import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
 import { userIcon } from '@b2b-catalog-platform/ui/icons/glyphs/user';
 import { Card } from '@b2b-catalog-platform/ui/content/card';
+import { FACT_LIST } from '@b2b-catalog-platform/ui/content/fact-list';
 import { SectionTitle } from '@b2b-catalog-platform/ui/content/section-title';
 import {
   Address,
@@ -65,6 +66,7 @@ interface DetailRow {
 @Component({
   selector: 'app-account-page',
   imports: [
+    FACT_LIST,
     SectionTitle,
     Card,
     SignedInAs,
@@ -127,19 +129,10 @@ interface DetailRow {
                      would shrink it instead. -->
               <ui-skeleton [lines]="5" />
             } @else if (profile.hasValue()) {
-              <dl class="grid gap-x-8 sm:grid-cols-[12rem_1fr]">
+              <dl uiFactList class="text-sm">
                 @for (row of rows(); track row.label) {
-                  <dt
-                    class="text-sm text-ink-subtle
-                           odd:mb-1
-                           sm:odd:mb-3
-                           nth-last-[2]:mb-0"
-                  >
-                    {{ row.label }}
-                  </dt>
-                  <dd class="text-sm even:mb-3 sm:even:mb-3 last:mb-0">
-                    {{ row.value }}
-                  </dd>
+                  <dt uiFactTerm>{{ row.label }}</dt>
+                  <dd uiFactValue>{{ row.value }}</dd>
                 }
               </dl>
               <p class="mt-2 text-sm text-ink-subtle">
