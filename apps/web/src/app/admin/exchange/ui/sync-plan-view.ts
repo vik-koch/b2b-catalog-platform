@@ -18,8 +18,8 @@ import {
   CatalogSyncProductChange,
   CatalogSyncRowError,
 } from '@b2b-catalog-platform/shared/core/exchange';
-import { ADMIN_TEXT } from '../../shared/config/admin-text';
-import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
+import { ADMIN_TEXT } from '../../../shared/config/admin-text';
+import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { Input } from '@b2b-catalog-platform/ui/inputs/input';
 import { Link } from '@b2b-catalog-platform/ui/actions/link';

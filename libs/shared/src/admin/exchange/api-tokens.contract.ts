@@ -3,7 +3,7 @@ import * as z from 'zod';
 import { API_TOKEN_NAME_MAX_LENGTH } from '../../platform/api-token-constants';
 import { commonAuthErrors } from '../../lib/core/api-error';
 import { storedEmailField } from '../../lib/config/contact-config';
-import { apiTokenScopeSchema } from '../../core/exchange/machine.contract';
+import { apiTokenScopeSchema } from '../../core/exchange/machine-auth.contract';
 
 /**
  * Machine tokens (NFR-SEC-09): the credential an automated client presents

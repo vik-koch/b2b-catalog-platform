@@ -24,13 +24,13 @@ import {
 import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Link } from '@b2b-catalog-platform/ui/actions/link';
-import { OwnershipService } from '../site/ownership/ownership.service';
+import { OwnershipService } from '../platform/ownership/ownership.service';
 import {
   CUSTOMER_SYNC_PRESETS,
   CustomerSyncPresetName,
   customerPresetFor,
 } from './customer-sync-presets';
-import { SyncCustomerPlanView } from './sync-customer-plan-view';
+import { SyncCustomerPlanView } from './ui/sync-customer-plan-view';
 import { SyncService } from './sync.service';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { uploadIcon } from '@b2b-catalog-platform/ui/icons/glyphs/upload';

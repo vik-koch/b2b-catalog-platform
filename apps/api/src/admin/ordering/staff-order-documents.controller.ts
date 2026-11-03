@@ -17,8 +17,8 @@ import {
   orderDocumentKind,
 } from '../../core/ordering/order-document-acts';
 import { OrderReader } from '../../core/ordering/order-reader';
-import { ordersExternallyOwned } from '../../core/site/ownership.refusals';
-import { OwnershipState } from '../../core/site/ownership-state';
+import { ordersExternallyOwned } from '../../platform/settings/ownership.refusals';
+import { OwnershipState } from '../../platform/settings/ownership-state';
 
 /**
  * Staff acts on an order's documents: supply, send, take off. Reading them is

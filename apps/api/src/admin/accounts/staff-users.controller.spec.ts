@@ -7,7 +7,7 @@ import { SignInStep } from '../../core/accounts/sign-in-step/sign-in-step';
 import { AccountInvitations } from '../../core/accounts/account-invitations';
 import { AuditLogger } from '../../audit/audit.logger';
 import { ContractErrorFilter } from '../../orpc/contract-error.filter';
-import { OwnershipState } from '../../core/site/ownership-state';
+import { OwnershipState } from '../../platform/settings/ownership-state';
 import { ConsentRecords } from './consent-records';
 import { AccountDeletion } from '../../core/accounts/account-deletion';
 import { SignedInAs, withSession } from '../../platform/auth/session.fixture';

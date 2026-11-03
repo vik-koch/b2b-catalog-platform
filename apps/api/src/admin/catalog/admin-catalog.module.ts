@@ -14,7 +14,7 @@ import { TiersController } from './tiers/tiers.controller';
 import { TiersService } from './tiers/tiers.service';
 import { AuditLogger } from '../../audit/audit.logger';
 import { SessionModule } from '../../platform/auth/session.module';
-import { OwnershipStateModule } from '../../core/site/ownership-state.module';
+import { OwnershipStateModule } from '../../platform/settings/ownership-state.module';
 import { CatalogCoreModule } from '../../core/catalog/catalog-core.module';
 import {
   ALTERNATE_LAYOUT,

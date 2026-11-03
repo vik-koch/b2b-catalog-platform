@@ -1,6 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { OwnershipService } from '../site/ownership/ownership.service';
+import { OwnershipService } from '../platform/ownership/ownership.service';
 import { fillText } from '@b2b-catalog-platform/shared';
 import {
   CATALOG_SYNC_ALL_FIELDS,
@@ -25,7 +25,7 @@ import {
 import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Link } from '@b2b-catalog-platform/ui/actions/link';
-import { SyncPlanView } from './sync-plan-view';
+import { SyncPlanView } from './ui/sync-plan-view';
 import { presetFor, SYNC_PRESETS, SyncPresetName } from './sync-presets';
 import { SyncService } from './sync.service';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';

@@ -6,6 +6,8 @@ import { ApiTokensController } from './api-tokens.controller';
 import { ApiTokensService } from './api-tokens.service';
 import { CatalogSyncController } from './catalog-sync.controller';
 import { CustomerSyncController } from './customer-sync.controller';
+import { OwnershipSwitch } from './ownership-switch';
+import { OwnershipSwitchController } from './ownership-switch.controller';
 import { SyncController } from './sync.controller';
 import { SyncService } from './sync.service';
 
@@ -17,7 +19,8 @@ import { SyncService } from './sync.service';
     CatalogSyncController,
     CustomerSyncController,
     ApiTokensController,
+    OwnershipSwitchController,
   ],
-  providers: [SyncService, ApiTokensService, AuditLogger],
+  providers: [SyncService, ApiTokensService, OwnershipSwitch, AuditLogger],
 })
 export class AdminExchangeModule {}

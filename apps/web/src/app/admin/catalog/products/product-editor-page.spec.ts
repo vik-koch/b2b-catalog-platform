@@ -15,7 +15,7 @@ import {
 } from '@b2b-catalog-platform/shared/admin/catalog';
 import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
 import { ADMIN_TEXT } from '../../../shared/config/admin-text';
-import { provideOwnership } from '../../site/ownership/ownership.fixture';
+import { provideOwnership } from '../../platform/ownership/ownership.fixture';
 import { defaultStorefrontText } from '../../../shared/config/storefront-text.fixture';
 import { defaultAdminText } from '../../../shared/config/admin-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';

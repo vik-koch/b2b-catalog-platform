@@ -16,7 +16,7 @@ import { AuthService } from '../../../shared/auth/auth.service';
 import { formatPhone } from '../../../shared/core/contact-fields';
 import { delayedLoading } from '../../../shared/core/delayed-loading';
 import { usePageSeo } from '../../../shared/core/page-seo';
-import { LockedNote } from '../../site/ownership/locked-note';
+import { LockedNote } from '../../platform/ownership/ui/locked-note';
 import { ConsentRecordList } from '../consents/consent-record-list';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import {
@@ -27,7 +27,7 @@ import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';
 import { injectEditorReturnParams } from '../../../shared/edit-mode/editor-return';
-import { OwnershipService } from '../../site/ownership/ownership.service';
+import { OwnershipService } from '../../platform/ownership/ownership.service';
 import { TiersService } from '../../catalog/tiers/tiers.service';
 import { StaffUsersService } from './users.service';
 import {

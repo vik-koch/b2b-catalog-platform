@@ -1,5 +1,5 @@
 import { Provider, signal } from '@angular/core';
-import { OwnershipArea } from '@b2b-catalog-platform/shared/core/site';
+import { OwnershipArea } from '@b2b-catalog-platform/shared/platform';
 import { OwnershipService } from './ownership.service';
 
 /**
@@ -21,7 +21,6 @@ export function provideOwnership(...areas: OwnershipArea[]): Provider {
       owns: (area: OwnershipArea) => areas.includes(area),
       load: () => Promise.resolve(areas),
       read: () => Promise.resolve({ ownedAreas: areas }),
-      set: () => Promise.reject(new Error('not stubbed')),
     } satisfies Partial<OwnershipService>,
   };
 }

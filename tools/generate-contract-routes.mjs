@@ -64,14 +64,14 @@ const OUTPUTS = [
         'documentsContract',
         'tiersContract',
       ],
-      'admin/exchange': ['apiTokensContract', 'syncContract'],
-      'admin/ordering': ['adminOrdersContract'],
-      'admin/platform': ['adminOperationsContract'],
-      'admin/site': [
-        'adminMaintenanceContract',
-        'adminOwnershipContract',
-        'adminPagesContract',
+      'admin/exchange': [
+        'adminOwnershipSwitchContract',
+        'apiTokensContract',
+        'syncContract',
       ],
+      'admin/ordering': ['adminOrdersContract'],
+      'admin/platform': ['adminOperationsContract', 'adminOwnershipContract'],
+      'admin/site': ['adminMaintenanceContract', 'adminPagesContract'],
     },
   },
 ];

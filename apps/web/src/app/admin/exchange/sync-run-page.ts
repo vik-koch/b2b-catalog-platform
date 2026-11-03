@@ -28,11 +28,11 @@ import {
   StatusTone,
 } from '@b2b-catalog-platform/ui/content/status-badge';
 import { adminDayFormat } from '../dates/admin-date';
-import { SyncCustomerPlanView } from './sync-customer-plan-view';
-import { SyncOrderPlanView } from './sync-order-plan-view';
-import { SyncPlanView } from './sync-plan-view';
-import { LockedNote } from '../site/ownership/locked-note';
-import { OwnershipService } from '../site/ownership/ownership.service';
+import { SyncCustomerPlanView } from './ui/sync-customer-plan-view';
+import { SyncOrderPlanView } from './ui/sync-order-plan-view';
+import { SyncPlanView } from './ui/sync-plan-view';
+import { LockedNote } from '../platform/ownership/ui/locked-note';
+import { OwnershipService } from '../platform/ownership/ownership.service';
 import { SyncService } from './sync.service';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';

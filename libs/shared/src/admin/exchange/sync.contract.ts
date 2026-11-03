@@ -11,7 +11,7 @@ import {
   syncRunStatusSchema,
 } from '../../core/exchange/sync-run.contract';
 import { commonAuthErrors } from '../../lib/core/api-error';
-import { ownershipErrors } from '../../core/site/ownership-constants';
+import { ownershipErrors } from '../../platform/ownership-constants';
 import { paginationSchema } from '../../platform/pagination.contract';
 /**
  * A sync run, whatever it carried: the routes that read one, apply one and

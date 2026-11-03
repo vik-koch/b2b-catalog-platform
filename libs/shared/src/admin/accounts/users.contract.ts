@@ -14,7 +14,7 @@ import {
   deleteAccountOnRequestSchema,
   userKindSchema,
 } from '../../core/accounts/users.contract';
-import { ownershipErrors } from '../../core/site/ownership-constants';
+import { ownershipErrors } from '../../platform/ownership-constants';
 import { consentRecordListSchema } from './consents.contract';
 
 /** Approval (FR-AUTH-03). The tier is required: there is no default to fall

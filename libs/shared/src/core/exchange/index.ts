@@ -2,7 +2,7 @@ export * from './catalog-sync-constants';
 export * from './catalog-sync.contract';
 export * from './customer-sync-constants';
 export * from './customer-sync.contract';
-export * from './machine.contract';
+export * from './machine-auth.contract';
 export * from './order-sync.contract';
 export * from './sync-config';
 export * from './sync-constants';

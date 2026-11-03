@@ -1,13 +1,13 @@
 import { oc } from '@orpc/contract';
 import * as z from 'zod';
-import { machineAuthErrors } from './machine.contract';
+import { machineAuthErrors } from './machine-auth.contract';
 import { customerTypeSchema } from '../accounts/users.contract';
 import {
   companyNameSchema,
   companyRegistrationIdSchema,
   lowercaseEmailField,
 } from '../../lib/config/contact-config';
-import { ownershipErrors } from '../site/ownership-constants';
+import { ownershipErrors } from '../../platform/ownership-constants';
 import { CUSTOMER_SYNC_FIELDS } from './customer-sync-constants';
 import {
   SYNC_FAILURE_MESSAGE_MAX_LENGTH,

@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { OwnedAreas } from '@b2b-catalog-platform/shared/admin/site';
-import { OwnershipArea } from '@b2b-catalog-platform/shared/core/site';
+import { OwnedAreas } from '@b2b-catalog-platform/shared/admin/platform';
+import { OwnershipArea } from '@b2b-catalog-platform/shared/platform';
 import { SettingsStore } from '../../platform/settings/settings-store';
 
 /** The admin's ownership switch (FR-ADM-10). */
@@ -9,10 +9,6 @@ export class OwnershipSwitch {
   private readonly logger = new Logger(OwnershipSwitch.name);
 
   constructor(private readonly store: SettingsStore) {}
-
-  async read(): Promise<OwnedAreas> {
-    return { ownedAreas: (await this.store.read()).externallyOwnedAreas };
-  }
 
   /**
    * Hand areas over, or take them back. Idempotent: the areas are held as a

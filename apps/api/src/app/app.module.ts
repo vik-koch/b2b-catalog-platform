@@ -22,7 +22,6 @@ import { MediaModule } from '../media/media.module';
 import { ThrottlingModule } from '../throttling/throttling.module';
 import { SettingsStoreModule } from '../platform/settings/settings-store.module';
 import { SiteCoreModule } from '../core/site/site-core.module';
-import { OwnershipModule } from '../admin/site/ownership.module';
 import { AdminPlatformModule } from '../admin/platform/admin-platform.module';
 import { MachineExchangeModule } from '../machine/exchange/machine-exchange.module';
 import { StaffUsersModule } from '../admin/accounts/staff-users.module';
@@ -41,7 +40,6 @@ import { WorkModule } from '../work/work.module';
     InquiryModule,
     SettingsStoreModule,
     SiteCoreModule,
-    OwnershipModule,
     AdminPlatformModule,
     AdminExchangeModule,
     MachineExchangeModule,

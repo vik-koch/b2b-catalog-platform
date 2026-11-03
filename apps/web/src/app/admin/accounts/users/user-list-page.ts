@@ -28,7 +28,7 @@ import { GridRowTemplate } from '@b2b-catalog-platform/ui/grid/grid-row-template
 import { GridTimestamp } from '../../dates/grid-timestamp';
 import { RecordRow } from '@b2b-catalog-platform/ui/lists/record-row';
 import { GridHeader } from '@b2b-catalog-platform/ui/grid/grid-header';
-import { OwnershipService } from '../../site/ownership/ownership.service';
+import { OwnershipService } from '../../platform/ownership/ownership.service';
 import { TiersService } from '../../catalog/tiers/tiers.service';
 import { UserRowActions } from './user-row-actions';
 import { injectEditorReturnParams } from '../../../shared/edit-mode/editor-return';

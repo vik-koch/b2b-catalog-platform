@@ -1,6 +1,6 @@
 import { oc } from '@orpc/contract';
 import * as z from 'zod';
-import { machineAuthErrors } from '../../core/exchange/machine.contract';
+import { machineAuthErrors } from '../../core/exchange/machine-auth.contract';
 import { customerTypeSchema } from '../../core/accounts/users.contract';
 import { CUSTOMER_READ_MAX_LIMIT } from '../../core/exchange/customer-sync-constants';
 

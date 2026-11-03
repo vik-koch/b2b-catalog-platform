@@ -12,7 +12,7 @@ import { signal } from '@angular/core';
 import { SyncArea } from '@b2b-catalog-platform/shared/core/exchange';
 import { AuthService } from '../../shared/auth/auth.service';
 import { adminUser, managerUser } from '../../shared/auth/auth-user.fixture';
-import { provideOwnership } from '../site/ownership/ownership.fixture';
+import { provideOwnership } from '../platform/ownership/ownership.fixture';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { defaultAdminText } from '../../shared/config/admin-text.fixture';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';

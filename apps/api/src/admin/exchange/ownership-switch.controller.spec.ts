@@ -1,6 +1,6 @@
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
-import { OwnershipController } from './ownership.controller';
+import { OwnershipSwitchController } from './ownership-switch.controller';
 import { OwnershipSwitch } from './ownership-switch';
 import { SignedInAs, withSession } from '../../platform/auth/session.fixture';
 
@@ -9,11 +9,10 @@ import { SignedInAs, withSession } from '../../platform/auth/session.fixture';
  * does around the handler rather than what the handler returns: whether the
  * role guards still stand in front of a route the contract layer registered.
  */
-describe('OwnershipController (FR-ADM-10)', () => {
+describe('OwnershipSwitchController (FR-ADM-10)', () => {
   let app: INestApplication;
   let baseUrl: string;
   const ownership = {
-    read: async () => ({ ownedAreas: [] }),
     set: vi.fn(async (areas: string[]) => ({ ownedAreas: areas })),
   };
   let signedInAs: SignedInAs | null = null;
@@ -21,7 +20,7 @@ describe('OwnershipController (FR-ADM-10)', () => {
   beforeAll(async () => {
     const moduleRef = await withSession(
       Test.createTestingModule({
-        controllers: [OwnershipController],
+        controllers: [OwnershipSwitchController],
         providers: [{ provide: OwnershipSwitch, useValue: ownership }],
       }),
       () => signedInAs,

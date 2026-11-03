@@ -1,6 +1,6 @@
 import { Controller } from '@nestjs/common';
 import { Implement, implement } from '@orpc/nest';
-import { machineIdentityContract } from '@b2b-catalog-platform/shared/core/exchange';
+import { machineIdentityContract } from '@b2b-catalog-platform/shared/machine/exchange';
 import { MachineThrottle } from '../../throttling/throttle-presets';
 import { CurrentMachine } from '../../platform/auth/current-machine.decorator';
 import { Machine } from '../../platform/auth/machine.decorator';

@@ -9,7 +9,7 @@ import {
   SYNC_LABEL_MAX_LENGTH,
   SYNC_MAX_ROWS,
 } from './sync-constants';
-import { ownershipErrors } from '../site/ownership-constants';
+import { ownershipErrors } from '../../platform/ownership-constants';
 import {
   machineRunErrors,
   machineSyncRunSchema,
@@ -17,7 +17,7 @@ import {
   syncRunSchema,
   syncSummarySchema,
 } from './sync-run.contract';
-import { machineAuthErrors } from './machine.contract';
+import { machineAuthErrors } from './machine-auth.contract';
 import { priceMinorSchema } from '../catalog/catalog.contract';
 import { taxRateSchema } from '../../lib/config/tax-config';
 import { CATEGORY_NAME_MAX_LENGTH } from '../catalog/categories';

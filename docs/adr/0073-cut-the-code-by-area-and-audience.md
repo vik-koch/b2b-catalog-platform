@@ -43,19 +43,20 @@ rules, held by `eslint-plugin-boundaries`:
 <!-- prettier-ignore -->
 | Area | Holds | May import |
 |---|---|---|
-| catalog | products, categories, attributes, documents, tiers and their prices | exchange |
-| accounts | users, sign-up and sign-in, addresses, parties | catalog, site, exchange |
+| catalog | products, categories, attributes, documents, tiers and their prices | — |
+| accounts | users, sign-up and sign-in, addresses, parties | catalog, site |
 | site | pages and the consents given to them, shop settings and switches, inquiry | — |
-| ordering | cart, checkout, orders and their versions, order documents and PDFs | catalog, accounts, site, exchange |
-| exchange | runs, cursors, ownership, machine tokens | — |
+| ordering | cart, checkout, orders and their versions, order documents and PDFs | catalog, accounts, site |
+| exchange | runs, cursors, machine tokens, the ownership switch, and each area's engine for uploads and the back office | catalog, accounts, ordering |
 | work | the staff's and the customers' queues | catalog, accounts, ordering, exchange |
 | retention | the destruction record, retention sweeps | accounts, ordering |
 
 **Platform** holds the database, deployment config and texts, oRPC and the HTTP client,
-guards and the session, mail transport and layout, the media store, PDF rendering, audit,
-throttling and the suggestion sidecar. An area's mails live in its core; platform renders
-and sends them. Each audience may keep its own `platform/` for area-free pieces only it
-uses (the admin's grid, dates, rich text, image picker).
+guards and the session, the settings row and which areas another system owns, mail transport
+and layout, the media store, PDF rendering, audit, throttling and the suggestion sidecar. An
+area's mails live in its core; platform renders and sends them. Each audience may keep its
+own `platform/` for area-free pieces only it uses (the admin's grid, dates, rich text, image
+picker).
 
 **Contracts:** an entry point per audience and area (`@b2b-catalog-platform/shared/admin/catalog`),
 plus `/core/<area>`, `/platform` and `/node`, mapped by one wildcard path. A resource's shape
@@ -73,8 +74,10 @@ has them.
 - **The table is the domain's direction.** An order refers to products and customers;
   nothing in the catalog refers to an order. A customer is on a tier, so accounts imports
   catalog; a tier is a price list, so it is catalog's.
-- **Exchange is an area**, so its shared machinery has one home and `machine/catalog` holds
-  the catalog's exchange beside the catalog's other audiences.
+- **The exchange is an adapter** ([ADR 0054](0054-source-system-exchange-as-an-inbound-adapter.md)):
+  it imports the areas it writes into, and none of them knows it. The one thing an area asks
+  about it, whether another system owns the area, is a platform read over the settings row;
+  the switch that hands an area over is the exchange's.
 - **Core and platform are named for what they hold.** A `shared/` level says who may use
   something, not what it is, and collects what has no owner; the rule of two and an area
   per core keep that from repeating.

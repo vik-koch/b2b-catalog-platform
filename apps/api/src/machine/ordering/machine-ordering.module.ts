@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { MachineAuthModule } from '../../platform/auth/machine-auth.module';
 import { OrderingCoreModule } from '../../core/ordering/ordering-core.module';
-import { OwnershipStateModule } from '../../core/site/ownership-state.module';
+import { OwnershipStateModule } from '../../platform/settings/ownership-state.module';
 import { MachineOrderDocumentsController } from './machine-order-documents.controller';
 
 /** The documents an owning system files against an order (FR-ADM-08). */

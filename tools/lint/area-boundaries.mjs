@@ -19,11 +19,11 @@ const AUDIENCES = ['storefront', 'admin', 'machine'];
 
 /** What an area may import besides itself: the domain's direction, never both ways. */
 export const AREA_EDGES = {
-  catalog: ['site'],
+  catalog: [],
   accounts: ['catalog', 'site'],
   site: [],
   ordering: ['catalog', 'accounts', 'site'],
-  exchange: ['catalog', 'accounts', 'ordering', 'site'],
+  exchange: ['catalog', 'accounts', 'ordering'],
   work: ['catalog', 'accounts', 'ordering', 'exchange'],
   retention: ['accounts', 'ordering'],
 };

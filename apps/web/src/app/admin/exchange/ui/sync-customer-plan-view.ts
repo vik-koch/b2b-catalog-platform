@@ -13,7 +13,7 @@ import {
   CustomerSyncPlan,
   CustomerSyncRowError,
 } from '@b2b-catalog-platform/shared/core/exchange';
-import { ADMIN_TEXT } from '../../shared/config/admin-text';
+import { ADMIN_TEXT } from '../../../shared/config/admin-text';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { Input } from '@b2b-catalog-platform/ui/inputs/input';
 import { Link } from '@b2b-catalog-platform/ui/actions/link';

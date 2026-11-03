@@ -143,11 +143,11 @@ Between areas, imports run one way, in the domain's direction:
 <!-- prettier-ignore -->
 | Area | Holds | May import |
 | --- | --- | --- |
-| catalog | products, categories, attributes, documents, tiers and their prices | exchange |
-| accounts | users, sign-up and sign-in, addresses, parties | catalog, site, exchange |
+| catalog | products, categories, attributes, documents, tiers and their prices | — |
+| accounts | users, sign-up and sign-in, addresses, parties | catalog, site |
 | site | pages and the consents given to them, shop settings and switches, inquiry | — |
-| ordering | cart, checkout, orders and their versions, order documents and PDFs | catalog, accounts, site, exchange |
-| exchange | runs, cursors, ownership, machine tokens | — |
+| ordering | cart, checkout, orders and their versions, order documents and PDFs | catalog, accounts, site |
+| exchange | runs, cursors, machine tokens, the ownership switch, and each area's engine for uploads and the back office | catalog, accounts, ordering |
 | work | the staff's and the customers' queues | catalog, accounts, ordering, exchange |
 | retention | the destruction record, retention sweeps | accounts, ordering |
 

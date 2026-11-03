@@ -1,27 +1,19 @@
 import { Controller } from '@nestjs/common';
 import { Implement, implement } from '@orpc/nest';
-import { adminOwnershipContract } from '@b2b-catalog-platform/shared/admin/site';
+import { adminOwnershipSwitchContract } from '@b2b-catalog-platform/shared/admin/exchange';
 import { Auth } from '../../platform/auth/auth.decorator';
 import { CurrentUser } from '../../platform/auth/current-user.decorator';
 import { OwnershipSwitch } from './ownership-switch';
 import { AuthUser } from '@b2b-catalog-platform/shared/platform';
 
 @Controller()
-export class OwnershipController {
+export class OwnershipSwitchController {
   constructor(private readonly ownership: OwnershipSwitch) {}
 
   @Auth('admin')
-  @Implement(adminOwnershipContract.getOwnership)
-  getOwnership() {
-    return implement(adminOwnershipContract.getOwnership).handler(() =>
-      this.ownership.read(),
-    );
-  }
-
-  @Auth('admin')
-  @Implement(adminOwnershipContract.setOwnership)
+  @Implement(adminOwnershipSwitchContract.setOwnership)
   setOwnership(@CurrentUser() user: AuthUser) {
-    return implement(adminOwnershipContract.setOwnership).handler(
+    return implement(adminOwnershipSwitchContract.setOwnership).handler(
       ({ input: { body } }) => this.ownership.set(body.areas, body.owned, user),
     );
   }

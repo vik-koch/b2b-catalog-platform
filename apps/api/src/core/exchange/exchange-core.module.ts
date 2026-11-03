@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { AccountsCoreModule } from '../accounts/accounts-core.module';
 import { OrderingCoreModule } from '../ordering/ordering-core.module';
-import { OwnershipStateModule } from '../site/ownership-state.module';
+import { OwnershipStateModule } from '../../platform/settings/ownership-state.module';
 import { MailModule } from '../../mail/mail.module';
 import {
   ACCEPTED_CUSTOMER_TYPES,

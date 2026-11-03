@@ -10,7 +10,7 @@ import {
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { defaultAdminText } from '../../shared/config/admin-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
-import { provideOwnership } from '../site/ownership/ownership.fixture';
+import { provideOwnership } from '../platform/ownership/ownership.fixture';
 import { CustomerSyncUploadPage } from './customer-sync-upload-page';
 import { SyncService } from './sync.service';
 

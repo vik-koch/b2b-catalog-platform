@@ -6,7 +6,7 @@ import {
   CONSENT_PURPOSES,
   ConsentPurpose,
 } from '@b2b-catalog-platform/shared/core/site';
-import { OWNERSHIP_AREAS } from '@b2b-catalog-platform/shared/core/site';
+import { OWNERSHIP_AREAS } from '@b2b-catalog-platform/shared/platform';
 import { AuthService } from '../shared/auth/auth.service';
 import { SignedInAs } from '../shared/auth/signed-in-as';
 import { ADMIN_TEXT } from '../shared/config/admin-text';
@@ -20,7 +20,7 @@ import { BuildInfoService } from './platform/build-info.service';
 import { injectEditorReturnParams } from '../shared/edit-mode/editor-return';
 import { adminMomentFormat } from './dates/admin-date';
 import { PanelRow } from './panel-row';
-import { OwnershipService } from './site/ownership/ownership.service';
+import { OwnershipService } from './platform/ownership/ownership.service';
 import { MaintenanceSwitchService } from './site/maintenance-switch.service';
 import { SyncService } from './exchange/sync.service';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';

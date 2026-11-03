@@ -34,11 +34,11 @@ import {
   ACCEPTED_CUSTOMER_TYPES,
   CUSTOMER_SYNC_POLICY,
 } from '../../config/deployment-config';
-import { OwnershipState } from '../site/ownership-state';
+import { OwnershipState } from '../../platform/settings/ownership-state';
 import {
   customersExternallyOwned,
   customersNotExternallyOwned,
-} from '../site/ownership.refusals';
+} from '../../platform/settings/ownership.refusals';
 import { PasswordService } from '../accounts/password.service';
 import { AccountInvitations } from '../accounts/account-invitations';
 import { StaffUsersService } from '../accounts/staff-users.service';

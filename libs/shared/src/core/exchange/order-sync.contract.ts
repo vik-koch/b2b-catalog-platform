@@ -1,6 +1,6 @@
 import { oc } from '@orpc/contract';
 import * as z from 'zod';
-import { machineAuthErrors } from './machine.contract';
+import { machineAuthErrors } from './machine-auth.contract';
 import { CART_LINES_MAX } from '../ordering/cart';
 import {
   ORDER_ADJUSTMENT_NOTE_MAX,
@@ -11,7 +11,7 @@ import {
   orderStatusSchema,
   paymentStateSchema,
 } from '../ordering/orders.contract';
-import { ownershipErrors } from '../site/ownership-constants';
+import { ownershipErrors } from '../../platform/ownership-constants';
 import { LINE_PIECES_MAX } from '../catalog/product-units';
 import {
   SYNC_FAILURE_MESSAGE_MAX_LENGTH,

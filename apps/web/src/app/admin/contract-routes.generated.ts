@@ -595,6 +595,19 @@ export const tiersContract = {
     },
   },
 } as unknown as typeof adminCatalog.tiersContract;
+export const adminOwnershipSwitchContract = {
+  setOwnership: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'PUT',
+        path: '/settings/ownership',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+} as unknown as typeof adminExchange.adminOwnershipSwitchContract;
 export const apiTokensContract = {
   listApiTokens: {
     '~orpc': {
@@ -800,6 +813,15 @@ export const adminOperationsContract = {
     },
   },
 } as unknown as typeof adminPlatform.adminOperationsContract;
+export const adminOwnershipContract = {
+  getOwnership: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: { method: 'GET', path: '/settings/ownership' },
+    },
+  },
+} as unknown as typeof adminPlatform.adminOwnershipContract;
 export const adminMaintenanceContract = {
   getMaintenance: {
     '~orpc': {
@@ -820,26 +842,6 @@ export const adminMaintenanceContract = {
     },
   },
 } as unknown as typeof adminSite.adminMaintenanceContract;
-export const adminOwnershipContract = {
-  getOwnership: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: { method: 'GET', path: '/settings/ownership' },
-    },
-  },
-  setOwnership: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: {
-        method: 'PUT',
-        path: '/settings/ownership',
-        inputStructure: 'detailed',
-      },
-    },
-  },
-} as unknown as typeof adminSite.adminOwnershipContract;
 export const adminPagesContract = {
   updatePage: {
     '~orpc': {

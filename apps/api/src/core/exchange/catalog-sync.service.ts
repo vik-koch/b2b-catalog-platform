@@ -22,11 +22,11 @@ import {
 } from '@b2b-catalog-platform/shared/core/exchange';
 import { SyncCommitResponse } from '@b2b-catalog-platform/shared/core/exchange';
 import { DRIZZLE } from '../../db/database.module';
-import { OwnershipState } from '../site/ownership-state';
+import { OwnershipState } from '../../platform/settings/ownership-state';
 import {
   catalogExternallyOwned,
   catalogNotExternallyOwned,
-} from '../site/ownership.refusals';
+} from '../../platform/settings/ownership.refusals';
 import * as schema from '../../db/schema';
 import {
   categories,

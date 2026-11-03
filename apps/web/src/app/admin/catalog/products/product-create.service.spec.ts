@@ -5,7 +5,7 @@ import { SHARED_TEXT } from '../../../shared/config/shared-text';
 import { defaultSharedText } from '../../../shared/config/shared-text.fixture';
 import { loadAdminText } from '../../../shared/config/admin-text';
 import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
-import { provideOwnership } from '../../site/ownership/ownership.fixture';
+import { provideOwnership } from '../../platform/ownership/ownership.fixture';
 import { ProductCreateService } from './product-create.service';
 
 describe('ProductCreateService', () => {

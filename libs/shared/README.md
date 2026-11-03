@@ -11,20 +11,20 @@ this shape one at a time; until they have, their modules stay in the last five e
 <!-- prettier-ignore -->
 | Import | Folder | What it holds |
 | --- | --- | --- |
-| `@b2b-catalog-platform/shared/platform` | `src/platform/` | what knows no area: the session and its roles, phone and email formats, media upload facts, the rich-text vocabulary, form fields, pagination, keyboard layouts, ISO days |
+| `@b2b-catalog-platform/shared/platform` | `src/platform/` | what knows no area: the session and its roles, the areas another system may own and their refusals, phone and email formats, media upload facts, the rich-text vocabulary, form fields, pagination, keyboard layouts, ISO days |
 | `@b2b-catalog-platform/shared/core/catalog` | `src/core/catalog/` | the catalog's values and rules, and the product shapes both sides draw |
 | `@b2b-catalog-platform/shared/storefront/catalog` | `src/storefront/catalog/` | the storefront's catalog routes: tree, listings, facets, search, sitemap |
 | `@b2b-catalog-platform/shared/admin/catalog` | `src/admin/catalog/` | the staff's catalog routes: products, categories, attributes, documents, tiers |
 | `@b2b-catalog-platform/shared/core/accounts` | `src/core/accounts/` | the account's values and rules: sign-in and passwords, addresses, parties, the account shapes staff and the exchange act on |
 | `@b2b-catalog-platform/shared/storefront/accounts` | `src/storefront/accounts/` | the customer's own account |
 | `@b2b-catalog-platform/shared/admin/accounts` | `src/admin/accounts/` | the staff's account routes and the consent records |
-| `@b2b-catalog-platform/shared/core/site` | `src/core/site/` | the fixed pages, the consent facts the forms ask with and the withdrawal reasons, the page read, the maintenance check and which areas another system owns |
+| `@b2b-catalog-platform/shared/core/site` | `src/core/site/` | the fixed pages, the consent facts the forms ask with and the withdrawal reasons, the page read, the maintenance check |
 | `@b2b-catalog-platform/shared/storefront/site` | `src/storefront/site/` | the inquiry, the page routes and consent paths |
-| `@b2b-catalog-platform/shared/admin/site` | `src/admin/site/` | the page editor's routes and limits, the maintenance toggle and the ownership switch |
+| `@b2b-catalog-platform/shared/admin/site` | `src/admin/site/` | the page editor's routes and limits, and the maintenance toggle |
 | `@b2b-catalog-platform/shared/core/exchange` | `src/core/exchange/` | the runs, the catalog, customer and order exchanges an upload and the back office share, the machine identity |
-| `@b2b-catalog-platform/shared/admin/exchange` | `src/admin/exchange/` | the staff's run log, uploads and machine tokens |
+| `@b2b-catalog-platform/shared/admin/exchange` | `src/admin/exchange/` | the staff's run log, uploads, machine tokens and the ownership switch |
 | `@b2b-catalog-platform/shared/machine/exchange` | `src/machine/exchange/` | the back office's customer and order reads |
-| `@b2b-catalog-platform/shared/admin/platform` | `src/admin/platform/` | what the admin reads that knows no area: the build info, the settings trail |
+| `@b2b-catalog-platform/shared/admin/platform` | `src/admin/platform/` | what the admin reads that knows no area: the build info, the settings trail, which areas another system owns |
 | `@b2b-catalog-platform/shared` | `src/lib/` | the areas not yet moved: public and signed-in routes, and what every side reads |
 | `@b2b-catalog-platform/shared/storefront` | `src/storefront/` | checkout's delivery-zone and date rules |
 | `@b2b-catalog-platform/shared/admin` | `src/admin/` | the other staff routes |

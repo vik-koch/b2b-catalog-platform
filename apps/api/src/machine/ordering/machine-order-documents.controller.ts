@@ -12,8 +12,8 @@ import { ORDER_DOCUMENT_MAX_UPLOAD_BYTES } from '@b2b-catalog-platform/shared/co
 import { CurrentMachine } from '../../platform/auth/current-machine.decorator';
 import { Machine } from '../../platform/auth/machine.decorator';
 import { MachineClient } from '../../platform/auth/machine-client';
-import { ordersNotExternallyOwned } from '../../core/site/ownership.refusals';
-import { OwnershipState } from '../../core/site/ownership-state';
+import { ordersNotExternallyOwned } from '../../platform/settings/ownership.refusals';
+import { OwnershipState } from '../../platform/settings/ownership-state';
 import { MachineThrottle } from '../../throttling/throttle-presets';
 import {
   OrderDocumentActs,

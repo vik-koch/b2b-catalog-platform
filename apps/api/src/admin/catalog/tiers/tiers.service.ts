@@ -11,8 +11,8 @@ import {
   ReorderTiersRequest,
   TierInput,
 } from '@b2b-catalog-platform/shared/admin/catalog';
-import { OWNED_TIER_FIELDS } from '@b2b-catalog-platform/shared/core/site';
 import { DRIZZLE } from '../../../db/database.module';
+import { OWNED_TIER_FIELDS } from '../owned-fields';
 import * as schema from '../../../db/schema';
 import {
   customerTiers,
@@ -20,8 +20,8 @@ import {
   products,
   users,
 } from '../../../db/schema';
-import { OwnershipState } from '../../../core/site/ownership-state';
-import { catalogExternallyOwned } from '../../../core/site/ownership.refusals';
+import { OwnershipState } from '../../../platform/settings/ownership-state';
+import { catalogExternallyOwned } from '../../../platform/settings/ownership.refusals';
 import { publiclyVisible } from '../../../core/catalog/product-view';
 import { tierPriceCondition } from '../products/grid/tier-price-filter';
 

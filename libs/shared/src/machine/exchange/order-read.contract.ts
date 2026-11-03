@@ -1,7 +1,7 @@
 import { oc } from '@orpc/contract';
 import { TAX_BASES } from '../../lib/core/tax';
 import * as z from 'zod';
-import { machineAuthErrors } from '../../core/exchange/machine.contract';
+import { machineAuthErrors } from '../../core/exchange/machine-auth.contract';
 import { productUnitSchema } from '../../core/catalog/catalog.contract';
 import { ORDER_READ_MAX_LIMIT } from '../../core/ordering/orders';
 import {

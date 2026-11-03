@@ -1,9 +1,9 @@
 import { Injectable, signal } from '@angular/core';
-import { OwnedAreas } from '@b2b-catalog-platform/shared/admin/site';
+import { OwnedAreas } from '@b2b-catalog-platform/shared/admin/platform';
 import {
   OWNERSHIP_AREAS,
   OwnershipArea,
-} from '@b2b-catalog-platform/shared/core/site';
+} from '@b2b-catalog-platform/shared/platform';
 import { adminOwnershipContract } from '../../contract-routes.generated';
 import { createOrpcClient } from '../../../shared/core/orpc-client';
 
@@ -13,7 +13,8 @@ const ALL_AREAS: readonly OwnershipArea[] = OWNERSHIP_AREAS;
 /**
  * The admin's window onto external ownership (FR-ADM-10).
  *
- * The operations page reads and writes the switch. The editors read only
+ * The operations page reads the switch and writes it through
+ * `OwnershipSwitchService`. The editors read only
  * `ownedAreas`, so they can grey what they will not be allowed to save; that
  * read is cached for the app's lifetime, because an admin who flips the switch
  * is on the switch's own page and comes back through a fresh editor load.
@@ -76,18 +77,8 @@ export class OwnershipService {
     return this.remember(await this.client.getOwnership());
   }
 
-  /** One area or every area: the master switch is the same call with the
-   * whole list, so it lands as one transaction and one history entry. */
-  async set(
-    areas: readonly OwnershipArea[],
-    owned: boolean,
-  ): Promise<OwnedAreas> {
-    return this.remember(
-      await this.client.setOwnership({ body: { areas: [...areas], owned } }),
-    );
-  }
-
-  private remember(answer: OwnedAreas): OwnedAreas {
+  /** Takes an answer the switch returned, so the editors see it too. */
+  remember(answer: OwnedAreas): OwnedAreas {
     this.areas.set(answer.ownedAreas);
     this.answered.set(answer.ownedAreas);
     this.inFlight = Promise.resolve(answer.ownedAreas);

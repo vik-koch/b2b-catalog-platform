@@ -65,11 +65,11 @@ import {
   parsePriceInput,
   partialPriceRule,
 } from '../../../core/catalog/pricing/price';
-import { LockedNote } from '../../site/ownership/locked-note';
+import { LockedNote } from '../../platform/ownership/ui/locked-note';
 import { Allow } from '@b2b-catalog-platform/ui/inputs/allow';
 import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';
-import { LockedFieldMarker } from '../../site/ownership/locked-field-marker';
-import { OwnershipService } from '../../site/ownership/ownership.service';
+import { LockedFieldMarker } from '../../platform/ownership/ui/locked-field-marker';
+import { OwnershipService } from '../../platform/ownership/ownership.service';
 import { ProductAvailabilityBadge } from '../../../core/catalog/ui/product-availability-badge';
 import { formatStoredDecimal } from '../../../core/catalog/buying/quantity';
 import { ProductDetailView } from '../../../core/catalog/product-page/ui/product-detail-view';
