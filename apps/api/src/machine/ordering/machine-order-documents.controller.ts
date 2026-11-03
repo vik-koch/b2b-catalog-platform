@@ -9,11 +9,11 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ORDER_DOCUMENT_MAX_UPLOAD_BYTES } from '@b2b-catalog-platform/shared/core/ordering';
-import { CurrentMachine } from '../../api-tokens/current-machine.decorator';
-import { Machine } from '../../api-tokens/machine.decorator';
-import { MachineClient } from '../../api-tokens/machine-client';
-import { ordersNotExternallyOwned } from '../../settings/ownership.refusals';
-import { OwnershipState } from '../../settings/ownership-state';
+import { CurrentMachine } from '../../platform/auth/current-machine.decorator';
+import { Machine } from '../../platform/auth/machine.decorator';
+import { MachineClient } from '../../platform/auth/machine-client';
+import { ordersNotExternallyOwned } from '../../core/site/ownership.refusals';
+import { OwnershipState } from '../../core/site/ownership-state';
 import { MachineThrottle } from '../../throttling/throttle-presets';
 import {
   OrderDocumentActs,

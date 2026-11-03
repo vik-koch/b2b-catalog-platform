@@ -36,7 +36,7 @@ import {
   StatusTone,
 } from '@b2b-catalog-platform/ui/content/status-badge';
 import { AdminOrdersService } from './orders.service';
-import { OwnershipService } from '../settings/ownership.service';
+import { OwnershipService } from '../site/ownership/ownership.service';
 import { OrderDocumentsPanel } from './order-documents-panel';
 import { revisionKindLabel } from './revision-labels';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';

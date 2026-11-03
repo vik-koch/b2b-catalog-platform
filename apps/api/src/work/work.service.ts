@@ -5,7 +5,7 @@ import {
   AuthUser,
   UserRole,
 } from '@b2b-catalog-platform/shared/platform';
-import { SyncArea } from '@b2b-catalog-platform/shared/sync';
+import { SyncArea } from '@b2b-catalog-platform/shared/core/exchange';
 import { WorkQueue } from '@b2b-catalog-platform/shared/node';
 import { Inject, Injectable } from '@nestjs/common';
 import {

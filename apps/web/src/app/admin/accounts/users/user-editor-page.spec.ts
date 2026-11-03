@@ -8,7 +8,7 @@ import {
   provideRouter,
 } from '@angular/router';
 import { CustomerTier } from '@b2b-catalog-platform/shared/admin/catalog';
-import { OwnershipArea } from '@b2b-catalog-platform/shared/sync';
+import { OwnershipArea } from '@b2b-catalog-platform/shared/core/site';
 import { ADMIN_TEXT } from '../../../shared/config/admin-text';
 import { defaultAdminText } from '../../../shared/config/admin-text.fixture';
 import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
@@ -16,7 +16,7 @@ import { defaultStorefrontText } from '../../../shared/config/storefront-text.fi
 import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
 import { defaultDeploymentConfig } from '../../../shared/config/deployment-config.fixture';
 import { AuthService } from '../../../shared/auth/auth.service';
-import { provideOwnership } from '../../settings/settings.fixture';
+import { provideOwnership } from '../../site/ownership/ownership.fixture';
 import { TiersService } from '../../catalog/tiers/tiers.service';
 import { UserEditorPage } from './user-editor-page';
 import { StaffUsersService } from './users.service';

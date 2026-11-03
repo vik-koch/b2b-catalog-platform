@@ -9,7 +9,7 @@ import {
 } from '@b2b-catalog-platform/shared/core/ordering';
 import { PAGE_SLUGS } from '@b2b-catalog-platform/shared/core/site';
 import { PRODUCT_UNITS } from '@b2b-catalog-platform/shared/core/catalog';
-import { OWNERSHIP_AREAS } from '@b2b-catalog-platform/shared/sync';
+import { OWNERSHIP_AREAS } from '@b2b-catalog-platform/shared/core/site';
 import {
   CUSTOMER_TYPES,
   USER_STATUSES,

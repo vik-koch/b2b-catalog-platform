@@ -1,6 +1,6 @@
 import { ExecutionContext, ServiceUnavailableException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { MachineScope } from '../../api-tokens/machine-scope.decorator';
+import { MachineScope } from '../../platform/auth/machine-scope.decorator';
 import { Roles } from '../../platform/auth/roles.decorator';
 import { Sessions } from '../../platform/auth/sessions';
 import { MaintenanceGuard } from './maintenance.guard';

@@ -7,12 +7,12 @@ import { SettingChange } from '@b2b-catalog-platform/shared/admin/platform';
 import {
   OWNERSHIP_AREAS,
   OwnershipArea,
-} from '@b2b-catalog-platform/shared/sync';
+} from '@b2b-catalog-platform/shared/core/site';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { defaultAdminText } from '../../shared/config/admin-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
-import { OwnershipService } from '../settings/ownership.service';
+import { OwnershipService } from '../site/ownership/ownership.service';
 import { MaintenanceSwitchService } from '../site/maintenance-switch.service';
 import { SettingChangesService } from '../platform/setting-changes.service';
 import { OperationsPage } from './operations-page';

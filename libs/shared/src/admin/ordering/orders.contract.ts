@@ -20,7 +20,7 @@ import {
   staffOrderSortSchema,
   staffPaymentFilterSchema,
 } from '../../core/ordering/staff-orders.contract';
-import { ownershipErrors } from '../../sync/ownership-constants';
+import { ownershipErrors } from '../../core/site/ownership-constants';
 import { paginationSchema } from '../../platform/pagination.contract';
 import { commonAuthErrors } from '../../lib/core/api-error';
 

@@ -14,7 +14,7 @@ import {
   type ProductErrorCode,
 } from './products';
 import { commonAuthErrors } from '../../lib/core/api-error';
-import { ownershipErrors } from '../../sync/ownership-constants';
+import { ownershipErrors } from '../../core/site/ownership-constants';
 import {
   availabilitySchema,
   catalogImageSchema,

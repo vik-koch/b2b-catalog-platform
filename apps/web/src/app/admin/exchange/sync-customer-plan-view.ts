@@ -1,0 +1,379 @@
+import {
+  Component,
+  computed,
+  inject,
+  input,
+  output,
+  signal,
+} from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { fillText } from '@b2b-catalog-platform/shared';
+import {
+  CustomerAccountChange,
+  CustomerSyncPlan,
+  CustomerSyncRowError,
+} from '@b2b-catalog-platform/shared/core/exchange';
+import { ADMIN_TEXT } from '../../shared/config/admin-text';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
+import { Input } from '@b2b-catalog-platform/ui/inputs/input';
+import { Link } from '@b2b-catalog-platform/ui/actions/link';
+import {
+  StatusBadge,
+  StatusTone,
+} from '@b2b-catalog-platform/ui/content/status-badge';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
+import { Notice } from '@b2b-catalog-platform/ui/content/notice';
+
+/**
+ * What a customer run would do, or did (FR-ADM-11): the counts, the accounts,
+ * and the rows that could not be used.
+ *
+ * A sibling of `SyncPlanView` rather than a branch inside it. The two share
+ * their shape — tiles, a list, the skipped rows, and for a staged run the gate
+ * and the two buttons — and share none of their content: one lists products
+ * with prices to format, the other lists people, and every sentence on it is a
+ * different sentence. A single component would have been two templates behind
+ * an `@if` with a union it had to narrow on every line.
+ */
+@Component({
+  selector: 'app-sync-customer-plan-view',
+  imports: [Notice, Button, Input, Link, RouterLink, StatusBadge, ErrorText],
+  template: `
+    <section class="rounded-md border border-edge p-4">
+      <h2 class="mb-4 text-lg font-normal tracking-tight">{{ title() }}</h2>
+
+      <dl class="mb-6 flex flex-wrap gap-x-8 gap-y-3 text-sm">
+        @for (tile of tiles(); track tile.label) {
+          <div>
+            <dt class="text-ink-subtle">
+              {{ text.customers.count[tile.label] }}
+            </dt>
+            <dd class="text-lg font-medium" [class.text-danger]="tile.danger">
+              {{ tile.value }}
+            </dd>
+          </div>
+        }
+      </dl>
+
+      @if (isNoop()) {
+        <p class="text-ink-subtle">{{ noopText() }}</p>
+      }
+
+      @if (plan().rowErrors.length > 0) {
+        <h3 class="mt-6 mb-2 text-sm font-medium text-danger">
+          {{ text.errorsTitle }}
+        </h3>
+        <ul class="space-y-1 text-sm text-ink">
+          @for (error of plan().rowErrors; track $index) {
+            <li>
+              <span class="text-ink-subtle">{{ rowLabel(error.row) }}</span>
+              — {{ rowErrorText(error) }}
+            </li>
+          }
+        </ul>
+      }
+
+      @if (plan().accounts.length > 0) {
+        <h3 class="mt-6 mb-2 text-sm font-medium">
+          {{ text.customers.accountsTitle }}
+        </h3>
+        <ul class="divide-y divide-edge-subtle text-sm">
+          @for (account of plan().accounts; track account.sourceId) {
+            <li class="flex flex-wrap items-baseline gap-x-3 py-2">
+              <span uiStatusBadge [tone]="kindTone(account.kind)">
+                {{ text.customers.count[kindCount[account.kind]] }}
+              </span>
+              <!-- Always the account list narrowed to this address, never the
+                   account's own page: one this run creates has no page at the
+                   time the diff is taken, and one destination that is always
+                   right beats two that differ by row. -->
+              @if (account.email; as email) {
+                <a
+                  uiLink
+                  class="font-medium"
+                  routerLink="/admin/users"
+                  [queryParams]="{ searchTerm: email }"
+                  >{{ email }}</a
+                >
+              }
+              @for (change of account.changes; track change.field) {
+                <span class="text-ink-subtle">
+                  {{ fieldLabel(change.field) }}:
+                  <span class="line-through">{{ display(change.from) }}</span>
+                  →
+                  <span class="text-ink">{{ display(change.to) }}</span>
+                </span>
+              }
+              @if (account.mailed) {
+                <span class="text-ink-subtle">{{
+                  text.customers.mailedRow
+                }}</span>
+              }
+            </li>
+          }
+        </ul>
+      }
+
+      @if (plan().truncated) {
+        <p class="mt-4 text-sm text-ink-subtle">{{ text.truncated }}</p>
+      }
+
+      @if (applicable()) {
+        <!-- An adoption changes what a key means from now on, so a reader
+             about to apply one is told before they press, not after. -->
+        @if (plan().summary.claimed > 0) {
+          <p uiNotice tone="warning" class="mt-6" role="status">
+            {{ claimWarning() }}
+          </p>
+        }
+        <!-- Its own notice rather than one sentence covering both: a run may
+             carry either kind or both, and the two are told apart by which
+             evidence adopted the account. -->
+        @if (plan().summary.claimedById > 0) {
+          <p uiNotice tone="warning" class="mt-6" role="status">
+            {{ claimByIdWarning() }}
+          </p>
+        }
+
+        <!-- The gate before a run that takes people's access away: the same
+             typed confirmation a sweep of the catalog asks for, because it is
+             the same class of act. -->
+        @if (plan().summary.softDelete > 0 && !applyBlocked()) {
+          <div uiNotice tone="danger" class="mt-6">
+            <p>{{ disableWarning() }}</p>
+            <label class="mt-2 block text-sm">
+              <span class="mb-1 block">{{ confirmLabel() }}</span>
+              <input
+                type="text"
+                uiInput
+                class="font-mono"
+                [value]="confirmation()"
+                (input)="confirmation.set($any($event.target).value)"
+              />
+            </label>
+          </div>
+        }
+
+        @if ((!isNoop() && !applyBlocked()) || discardable()) {
+          <div class="mt-6 flex flex-wrap items-center gap-3">
+            @if (!isNoop() && !applyBlocked()) {
+              <button
+                uiButton
+                type="button"
+                [disabled]="!canApply() || busy()"
+                (click)="apply.emit()"
+              >
+                {{ busy() ? text.applying : text.apply }}
+              </button>
+            }
+            @if (discardable()) {
+              <button
+                uiButton
+                variant="dangerOutline"
+                type="button"
+                [disabled]="busy()"
+                (click)="discardRun.emit()"
+              >
+                {{ text.discardRun }}
+              </button>
+            }
+          </div>
+        }
+
+        @if (error(); as message) {
+          <p uiErrorText class="mt-3" role="alert">{{ message }}</p>
+        }
+      }
+    </section>
+  `,
+})
+export class SyncCustomerPlanView {
+  protected readonly text = inject(ADMIN_TEXT).sync;
+
+  readonly plan = input.required<CustomerSyncPlan>();
+  /** A staged run, which can still be acted on. False for a record. */
+  readonly applicable = input(false);
+  readonly discardable = input(false);
+
+  /**
+   * A staged run that can no longer be applied, though it is still staged: a
+   * file uploaded before its area was handed over (FR-ADM-10). Distinct from
+   * `applicable`, which is what tells the summary whether it is describing a
+   * diff about to land or one that already has — a blocked run is still the
+   * former. The apply button and its delete gate go; discarding stays, because
+   * somebody has to be able to clear it.
+   */
+  readonly applyBlocked = input(false);
+  readonly busy = input(false);
+  readonly error = input<string | null>(null);
+
+  readonly apply = output<void>();
+  readonly discardRun = output<void>();
+
+  protected readonly confirmation = signal('');
+
+  protected readonly title = computed(() =>
+    this.applicable() ? this.text.summaryTitle : this.text.summaryTitleApplied,
+  );
+
+  protected readonly noopText = computed(() =>
+    this.applicable() ? this.text.nothingToApply : this.text.nothingChanged,
+  );
+
+  /**
+   * A run with nothing in it. The mails count: a run that moved no account but
+   * sent somebody the link they rang the shop about is not one that did
+   * nothing, and the button has to stay live for it.
+   */
+  protected readonly isNoop = computed(() => {
+    const {
+      create,
+      update,
+      softDelete,
+      restore,
+      claimed,
+      claimedById,
+      mailed,
+    } = this.plan().summary;
+    return (
+      create +
+        update +
+        softDelete +
+        restore +
+        claimed +
+        claimedById +
+        mailed ===
+      0
+    );
+  });
+
+  /**
+   * Four counts are an answer even at zero — nobody invited, nothing changed,
+   * nobody switched off, nothing skipped — and hold their place so the row does
+   * not rearrange itself between runs. The rest earn a tile by happening.
+   */
+  protected readonly tiles = computed(() => {
+    const s = this.plan().summary;
+    return [
+      { label: 'create' as const, value: s.create, danger: false },
+      { label: 'update' as const, value: s.update, danger: false },
+      {
+        label: 'softDelete' as const,
+        value: s.softDelete,
+        danger: s.softDelete > 0,
+      },
+      { label: 'restore' as const, value: s.restore, danger: false },
+      // Earns its tile by happening, and never sits at zero: a claim is the
+      // exception rather than what a run is for, and a permanent zero beside
+      // the counts that matter would read as a field nobody fills.
+      { label: 'claimed' as const, value: s.claimed, danger: false },
+      { label: 'claimedById' as const, value: s.claimedById, danger: false },
+      { label: 'mailed' as const, value: s.mailed, danger: false },
+      { label: 'unchanged' as const, value: s.unchanged, danger: false },
+      { label: 'errors' as const, value: s.errors, danger: s.errors > 0 },
+    ].filter((tile) => tile.value > 0 || ALWAYS_SHOWN.has(tile.label));
+  });
+
+  /** A run that takes access away needs the confirmation word typed exactly. */
+  protected readonly canApply = computed(
+    () =>
+      this.plan().summary.softDelete === 0 ||
+      this.confirmation().trim() === this.text.deleteConfirmWord,
+  );
+
+  /** An absent value — no company, the base price list — reads as a dash
+   * rather than as an empty gap the eye skips. */
+  protected display(value: string | null): string {
+    return value ?? '—';
+  }
+
+  protected fieldLabel(field: string): string {
+    return (
+      this.text.customers.field[
+        field as keyof typeof this.text.customers.field
+      ] ?? field
+    );
+  }
+
+  protected readonly kindCount = KIND_COUNT;
+
+  protected kindTone(kind: CustomerAccountChange['kind']): StatusTone {
+    return KIND_TONE[kind];
+  }
+
+  protected rowErrorText(error: CustomerSyncRowError): string {
+    return fillText(
+      this.text.customers.rowErrors[error.code],
+      error.params ?? {},
+    );
+  }
+
+  protected rowLabel(row: number): string {
+    return fillText(this.text.errorRow, { row });
+  }
+
+  /**
+   * Said above a run that adopts accounts registered here (FR-ADM-17). A
+   * notice rather than the typed confirmation a disable asks for: the typed
+   * word is reserved for taking something away from somebody, and what a claim
+   * needs is that the reader knows it is in there — which the deployment's
+   * `maxClaims` has usually already made a person's decision by staging the run.
+   */
+  protected claimWarning(): string {
+    return fillText(this.text.customers.claimWarning, {
+      count: this.plan().summary.claimed,
+    });
+  }
+
+  /** The same notice for an adoption the source system named outright. */
+  protected claimByIdWarning(): string {
+    return fillText(this.text.customers.claimByIdWarning, {
+      count: this.plan().summary.claimedById,
+    });
+  }
+
+  protected disableWarning(): string {
+    return fillText(this.text.customers.disableWarning, {
+      count: this.plan().summary.softDelete,
+    });
+  }
+
+  protected confirmLabel(): string {
+    return fillText(this.text.deleteConfirmLabel, {
+      word: this.text.deleteConfirmWord,
+    });
+  }
+}
+
+/** The counts that are an answer even at zero. */
+const ALWAYS_SHOWN: ReadonlySet<string> = new Set([
+  'create',
+  'update',
+  'softDelete',
+  'errors',
+]);
+
+/** The tile that counts a change, whose word is the change's badge too. */
+const KIND_COUNT = {
+  invite: 'create',
+  update: 'update',
+  disable: 'softDelete',
+  enable: 'restore',
+  claim: 'claimed',
+  'claim-id': 'claimedById',
+} as const satisfies Record<CustomerAccountChange['kind'], string>;
+
+/** What the run would do to somebody, in the app's own tones: an account
+ * arriving is settled, one losing access is a refusal, one coming back is worth
+ * pointing out, and a plain edit is neither. */
+const KIND_TONE: Record<CustomerAccountChange['kind'], StatusTone> = {
+  invite: 'ok',
+  update: 'neutral',
+  disable: 'danger',
+  enable: 'info',
+  // An adoption is the one change worth stopping on: from here that key means
+  // this person, and a wrong one is not undone by the next run.
+  claim: 'waiting',
+  // The same tone: the evidence differs, the consequence does not.
+  'claim-id': 'waiting',
+};

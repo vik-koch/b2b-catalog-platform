@@ -4,65 +4,13 @@
 // Typed as the real contract, so every call site keeps the types the
 // contract defines; the imports below are type-only and erased at build.
 
-import type * as admin from '@b2b-catalog-platform/shared/admin';
 import type * as adminAccounts from '@b2b-catalog-platform/shared/admin/accounts';
 import type * as adminCatalog from '@b2b-catalog-platform/shared/admin/catalog';
+import type * as adminExchange from '@b2b-catalog-platform/shared/admin/exchange';
 import type * as adminOrdering from '@b2b-catalog-platform/shared/admin/ordering';
 import type * as adminPlatform from '@b2b-catalog-platform/shared/admin/platform';
 import type * as adminSite from '@b2b-catalog-platform/shared/admin/site';
-import type * as sync from '@b2b-catalog-platform/shared/sync';
 
-export const adminOwnershipContract = {
-  getOwnership: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: { method: 'GET', path: '/settings/ownership' },
-    },
-  },
-  setOwnership: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: {
-        method: 'PUT',
-        path: '/settings/ownership',
-        inputStructure: 'detailed',
-      },
-    },
-  },
-} as unknown as typeof admin.adminOwnershipContract;
-export const apiTokensContract = {
-  listApiTokens: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: { method: 'GET', path: '/admin/api-tokens' },
-    },
-  },
-  createApiToken: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: {
-        method: 'POST',
-        path: '/admin/api-tokens',
-        inputStructure: 'detailed',
-      },
-    },
-  },
-  revokeApiToken: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: {
-        method: 'POST',
-        path: '/admin/api-tokens/{id}/revoke',
-        inputStructure: 'detailed',
-      },
-    },
-  },
-} as unknown as typeof admin.apiTokensContract;
 export const consentsContract = {
   findConsents: {
     '~orpc': {
@@ -647,6 +595,83 @@ export const tiersContract = {
     },
   },
 } as unknown as typeof adminCatalog.tiersContract;
+export const apiTokensContract = {
+  listApiTokens: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: { method: 'GET', path: '/admin/api-tokens' },
+    },
+  },
+  createApiToken: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'POST',
+        path: '/admin/api-tokens',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+  revokeApiToken: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'POST',
+        path: '/admin/api-tokens/{id}/revoke',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+} as unknown as typeof adminExchange.apiTokensContract;
+export const syncContract = {
+  commitRun: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'POST',
+        path: '/admin/sync/runs/{id}/commit',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+  getRun: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'GET',
+        path: '/admin/sync/runs/{id}',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+  discardRun: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'POST',
+        path: '/admin/sync/runs/{id}/discard',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+  listRuns: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'GET',
+        path: '/admin/sync/runs',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+} as unknown as typeof adminExchange.syncContract;
 export const adminOrdersContract = {
   listOrders: {
     '~orpc': {
@@ -795,6 +820,26 @@ export const adminMaintenanceContract = {
     },
   },
 } as unknown as typeof adminSite.adminMaintenanceContract;
+export const adminOwnershipContract = {
+  getOwnership: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: { method: 'GET', path: '/settings/ownership' },
+    },
+  },
+  setOwnership: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'PUT',
+        path: '/settings/ownership',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+} as unknown as typeof adminSite.adminOwnershipContract;
 export const adminPagesContract = {
   updatePage: {
     '~orpc': {
@@ -819,49 +864,3 @@ export const adminPagesContract = {
     },
   },
 } as unknown as typeof adminSite.adminPagesContract;
-export const syncContract = {
-  commitRun: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: {
-        method: 'POST',
-        path: '/admin/sync/runs/{id}/commit',
-        inputStructure: 'detailed',
-      },
-    },
-  },
-  getRun: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: {
-        method: 'GET',
-        path: '/admin/sync/runs/{id}',
-        inputStructure: 'detailed',
-      },
-    },
-  },
-  discardRun: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: {
-        method: 'POST',
-        path: '/admin/sync/runs/{id}/discard',
-        inputStructure: 'detailed',
-      },
-    },
-  },
-  listRuns: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: {
-        method: 'GET',
-        path: '/admin/sync/runs',
-        inputStructure: 'detailed',
-      },
-    },
-  },
-} as unknown as typeof sync.syncContract;

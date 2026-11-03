@@ -14,8 +14,8 @@ import {
 import { DRIZZLE } from '../../../db/database.module';
 import * as schema from '../../../db/schema';
 import { categories, products } from '../../../db/schema';
-import { OwnershipState } from '../../../settings/ownership-state';
-import { catalogExternallyOwned } from '../../../settings/ownership.refusals';
+import { OwnershipState } from '../../../core/site/ownership-state';
+import { catalogExternallyOwned } from '../../../core/site/ownership.refusals';
 import { changedCategoryFields } from '../owned-fields';
 import { publiclyVisible } from '../../../core/catalog/product-view';
 import { hasCycle } from './category-cycle';

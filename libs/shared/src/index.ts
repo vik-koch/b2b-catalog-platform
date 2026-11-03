@@ -1,4 +1,4 @@
-export * from './sync/api-token-constants';
+export * from './platform/api-token-constants';
 export * from './lib/config/address-config';
 export * from './lib/config/color-contrast';
 export * from './lib/config/consent-config';

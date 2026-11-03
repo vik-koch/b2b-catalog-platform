@@ -15,7 +15,7 @@ import {
 import {
   OWNERSHIP_AREAS,
   OwnershipArea,
-} from '@b2b-catalog-platform/shared/sync';
+} from '@b2b-catalog-platform/shared/core/site';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { delayedLoading } from '../../shared/core/delayed-loading';
@@ -28,7 +28,7 @@ import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';
 import { Switch } from '@b2b-catalog-platform/ui/choices/switch';
 import { adminMomentFormat } from '../dates/admin-date';
-import { OwnershipService } from '../settings/ownership.service';
+import { OwnershipService } from '../site/ownership/ownership.service';
 import { MaintenanceSwitchService } from '../site/maintenance-switch.service';
 import { SettingChangesService } from '../platform/setting-changes.service';
 import { SHARED_TEXT } from '../../shared/config/shared-text';

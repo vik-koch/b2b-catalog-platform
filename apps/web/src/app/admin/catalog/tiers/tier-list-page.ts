@@ -23,8 +23,8 @@ import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service
 import { RecordFields } from '@b2b-catalog-platform/ui/lists/record-fields';
 import { RecordFormActions } from '@b2b-catalog-platform/ui/lists/record-form-actions';
 import { RecordRow } from '@b2b-catalog-platform/ui/lists/record-row';
-import { LockedFieldMarker } from '../../ownership/locked-field-marker';
-import { OwnershipService } from '../../settings/ownership.service';
+import { LockedFieldMarker } from '../../site/ownership/locked-field-marker';
+import { OwnershipService } from '../../site/ownership/ownership.service';
 import { TiersService } from './tiers.service';
 import { RouterLink } from '@angular/router';
 import { SHARED_TEXT } from '../../../shared/config/shared-text';

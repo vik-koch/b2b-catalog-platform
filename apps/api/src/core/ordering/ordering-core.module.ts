@@ -47,7 +47,6 @@ import { OrderPdf } from './order-pdf';
 import { TermsPdf } from './terms-pdf';
 import { OrderReader } from './order-reader';
 import { OrderRules } from './order-rules';
-import { OrderWriteBack } from './order-write-back';
 import { OrderWriter } from './order-writer';
 
 /**
@@ -64,7 +63,6 @@ import { OrderWriter } from './order-writer';
     OrderReader,
     OrderWriter,
     OrderRules,
-    OrderWriteBack,
     OrderNotifications,
     OrderDocumentsService,
     OrderDocumentActs,
@@ -113,7 +111,6 @@ import { OrderWriter } from './order-writer';
     OrderReader,
     OrderWriter,
     OrderRules,
-    OrderWriteBack,
     OrderNotifications,
     OrderDocumentsService,
     OrderDocumentActs,

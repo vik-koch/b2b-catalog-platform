@@ -50,8 +50,8 @@ import {
   StatusBadge,
   StatusTone,
 } from '@b2b-catalog-platform/ui/content/status-badge';
-import { LockedNote } from '../ownership/locked-note';
-import { OwnershipService } from '../settings/ownership.service';
+import { LockedNote } from '../site/ownership/locked-note';
+import { OwnershipService } from '../site/ownership/ownership.service';
 import { OrderDocumentsPanel } from './order-documents-panel';
 import { OrderCustomerSync } from './order-customer-sync';
 import { OrderVersionHistory } from './order-version-history';

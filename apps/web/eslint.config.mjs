@@ -86,23 +86,23 @@ export default [
       part: 'storefront',
       forbidden: ['admin'],
       text: 'admin-text',
-      entries: ['admin', 'sync', 'node'],
+      entries: ['admin', 'machine', 'node'],
     },
     {
       part: 'admin',
       forbidden: ['storefront'],
       text: 'storefront-text',
-      entries: ['storefront', 'node'],
+      entries: ['storefront', 'machine', 'node'],
     },
     {
       part: 'shared',
       forbidden: ['storefront', 'admin'],
-      entries: ['storefront', 'admin', 'sync', 'node'],
+      entries: ['storefront', 'admin', 'machine', 'node'],
     },
     {
       part: 'core',
       forbidden: ['storefront', 'admin'],
-      entries: ['storefront', 'admin', 'sync', 'node'],
+      entries: ['storefront', 'admin', 'machine', 'node'],
     },
   ].flatMap(({ part, forbidden, text, entries }) => {
     const dir = `src/app/${part}/**`;

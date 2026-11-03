@@ -11,7 +11,7 @@ import {
   OWNED_PRODUCT_FIELDS,
   OwnedCategoryField,
   OwnedProductField,
-} from '@b2b-catalog-platform/shared/sync';
+} from '@b2b-catalog-platform/shared/core/site';
 
 /** What the comparison needs from the stored product; a subset of the row. */
 export interface StoredOwnedProduct {

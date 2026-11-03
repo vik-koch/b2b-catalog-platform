@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { APP_FILTER } from '@nestjs/core';
 import { ContractErrorFilter } from '../orpc/contract-error.filter';
 import { AccountModule } from '../storefront/accounts/account.module';
-import { ApiTokensModule } from '../api-tokens/api-tokens.module';
+import { AdminExchangeModule } from '../admin/exchange/admin-exchange.module';
 import { AddressesModule } from '../storefront/accounts/addresses.module';
 import { PartiesModule } from '../storefront/accounts/parties.module';
 import { AuthModule } from '../storefront/accounts/auth.module';
@@ -22,9 +22,9 @@ import { MediaModule } from '../media/media.module';
 import { ThrottlingModule } from '../throttling/throttling.module';
 import { SettingsStoreModule } from '../platform/settings/settings-store.module';
 import { SiteCoreModule } from '../core/site/site-core.module';
-import { OwnershipModule } from '../settings/ownership.module';
+import { OwnershipModule } from '../admin/site/ownership.module';
 import { AdminPlatformModule } from '../admin/platform/admin-platform.module';
-import { SyncModule } from '../sync/sync.module';
+import { MachineExchangeModule } from '../machine/exchange/machine-exchange.module';
 import { StaffUsersModule } from '../admin/accounts/staff-users.module';
 import { WorkModule } from '../work/work.module';
 
@@ -33,7 +33,6 @@ import { WorkModule } from '../work/work.module';
     ThrottlingModule,
     DatabaseModule,
     AuthModule,
-    ApiTokensModule,
     CatalogModule,
     AdminCatalogModule,
     SiteModule,
@@ -44,7 +43,8 @@ import { WorkModule } from '../work/work.module';
     SiteCoreModule,
     OwnershipModule,
     AdminPlatformModule,
-    SyncModule,
+    AdminExchangeModule,
+    MachineExchangeModule,
     StaffUsersModule,
     ConsentAdminModule,
     DestructionModule,

@@ -56,7 +56,6 @@ const OUTPUTS = [
   {
     file: 'apps/web/src/app/admin/contract-routes.generated.ts',
     entries: {
-      admin: ['adminOwnershipContract', 'apiTokensContract'],
       'admin/accounts': ['consentsContract', 'usersContract'],
       'admin/catalog': [
         'adminCategoriesContract',
@@ -65,10 +64,14 @@ const OUTPUTS = [
         'documentsContract',
         'tiersContract',
       ],
+      'admin/exchange': ['apiTokensContract', 'syncContract'],
       'admin/ordering': ['adminOrdersContract'],
       'admin/platform': ['adminOperationsContract'],
-      'admin/site': ['adminMaintenanceContract', 'adminPagesContract'],
-      sync: ['syncContract'],
+      'admin/site': [
+        'adminMaintenanceContract',
+        'adminOwnershipContract',
+        'adminPagesContract',
+      ],
     },
   },
 ];

@@ -53,7 +53,7 @@ import {
   ConfirmService,
   confirmRequest,
 } from '@b2b-catalog-platform/ui/overlay/confirm.service';
-import { OwnershipService } from '../settings/ownership.service';
+import { OwnershipService } from '../site/ownership/ownership.service';
 import { OrderRowActions } from './ui/order-row-actions';
 import { AdminOrdersService } from './orders.service';
 import { StaffOrderSummary } from '@b2b-catalog-platform/shared/admin/ordering';
