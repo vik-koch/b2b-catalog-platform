@@ -1,6 +1,6 @@
 import { Controller, Logger, UseGuards } from '@nestjs/common';
 import { Implement, implement } from '@orpc/nest';
-import { ordersContract } from '@b2b-catalog-platform/shared/core/ordering';
+import { ordersContract } from '@b2b-catalog-platform/shared/storefront/ordering';
 import { Auth } from '../../platform/auth/auth.decorator';
 import {
   CurrentUser,

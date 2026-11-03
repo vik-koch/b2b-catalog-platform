@@ -2,7 +2,7 @@ import * as z from 'zod';
 import { ACCEPTED_DOCUMENT_MIME_TYPES } from '../../platform/media-constants';
 import { ATTRIBUTE_TYPES } from './attributes';
 import { PRODUCT_AVAILABILITIES } from './product-availability';
-import type { ProductPackaging } from './product-units';
+import { PRODUCT_UNITS, type ProductPackaging } from './product-units';
 
 export const attributeTypeSchema = z.enum(ATTRIBUTE_TYPES);
 
@@ -106,6 +106,9 @@ export const boxDimensionsSchema = z
   })
   .strict();
 export type BoxDimensions = z.infer<typeof boxDimensionsSchema>;
+
+/** The unit a line is read in: a lens on its pieces, never a second quantity. */
+export const productUnitSchema = z.enum(PRODUCT_UNITS);
 
 /**
  * The stock state a customer sees, never the count (FR-STOCK-02/03). Null

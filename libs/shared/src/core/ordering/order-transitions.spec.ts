@@ -10,7 +10,7 @@ import {
   transitionHasReason,
   transitionNeedsReason,
 } from './order-transitions';
-import { ORDER_STATUSES } from './order-constants';
+import { ORDER_STATUSES } from './orders';
 
 /**
  * The workflow rules, where they are actually decided (ADR 0050). Both sides

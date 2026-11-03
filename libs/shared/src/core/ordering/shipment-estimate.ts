@@ -1,31 +1,19 @@
 import { ProductPackaging, piecesPerUnit } from '../catalog/product-units';
 
 /**
- * The cart's shipment summary (FR-UNIT-11) — how many cartons the order is,
- * and what they weigh and take up.
- *
- * The arithmetic, once, because the two figures read as if they contradicted
- * each other: `boxVolume`/`boxWeight` are the totals for **one box unit**
- * across the `boxCount` cartons it ships as, so nothing is ever multiplied by
- * `boxCount` except the carton count itself. A line of *q* box units is
- * `q × boxCount` cartons, `q × boxVolume` and `q × boxWeight`.
- *
- * A line that does not fill whole boxes is the same figures scaled by the
- * fraction of one it does fill, with cartons rounded up to whole ones: 50
- * pieces of a 100-piece box is one carton, 101 is two. That is an estimate —
- * hence the whole summary being labelled approximate and confirmed by a
- * manager — and a product with no box defined has no shipping figures at all,
- * which the summary says rather than silently omitting.
+ * The shipment summary (FR-UNIT-11). `boxVolume` and `boxWeight` are for one
+ * box unit across its `boxCount` cartons, so only the carton count is ever
+ * multiplied by `boxCount`. A part box scales the figures and rounds cartons
+ * up, which is why the summary is approximate.
  */
 
-/** Decimals are carried as strings end to end (a float round-trip turns 1.250
- * into 1.25), so the sums are done in thousandths, the scale the columns hold. */
-export const SHIPMENT_DECIMAL_SCALE = 1000;
+/** Decimals travel as strings (a float turns 1.250 into 1.25), so sums are in
+ * thousandths, the columns' scale. */
+const SHIPMENT_DECIMAL_SCALE = 1000;
 
 export interface ShipmentLineInput {
   packaging: ProductPackaging;
-  /** The line's own quantity, which is always in pieces — the unit it is bought
-   * in is a lens on this, and lenses do not weigh anything. */
+  /** Pieces: a unit is a lens, and lenses weigh nothing. */
   pieces: number;
   /** As stored: decimal strings for one box unit, null where unknown. */
   boxVolume: string | null;
@@ -39,16 +27,13 @@ export interface ShipmentEstimate {
   /** Decimal strings again, or null where no covered line stated one. */
   volume: string | null;
   weight: string | null;
-  /** How many lines the figures cover, and how many have no box to derive
-   * from — a summary that covers half the cart must say so. */
   coveredLines: number;
   uncoveredLines: number;
   /** True where any covered line did not fill whole boxes. */
   approximate: boolean;
 }
 
-/** Null rather than zero for an unparseable or absent decimal: a missing weight
- * is not a weightless product. */
+/** Null, not zero: a missing weight is not a weightless product. */
 function toThousandths(value: string | null): number | null {
   if (value === null) return null;
   const parsed = Number(value);

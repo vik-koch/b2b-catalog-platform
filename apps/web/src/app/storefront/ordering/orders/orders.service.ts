@@ -7,7 +7,7 @@ import {
   OrderSummary,
 } from '@b2b-catalog-platform/shared/core/ordering';
 import { Pagination } from '@b2b-catalog-platform/shared/platform';
-import { ordersContract } from '../../../shared/core/contract-routes.generated';
+import { ordersContract } from '../../contract-routes.generated';
 import { safe } from '@orpc/client';
 import { createOrpcClient } from '../../../shared/core/orpc-client';
 

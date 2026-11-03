@@ -1,42 +1,19 @@
-import { oc } from '@orpc/contract';
-import { CART_LINES_MAX } from './cart-constants';
-import { CART_NOTE_MAX } from '../catalog/product-units';
 import * as z from 'zod';
 import {
   availabilitySchema,
   catalogImageSchema,
   productImageSchema,
   productPackagingSchema,
+  productUnitSchema,
   productVariantSchema,
   unitPricesSchema,
 } from '../catalog/catalog.contract';
-import { LINE_PIECES_MAX, PRODUCT_UNITS } from '../catalog/product-units';
+import { CART_NOTE_MAX, LINE_PIECES_MAX } from '../catalog/product-units';
 
 /**
- * Pricing a cart (FR-CART-01/02). The cart itself lives in the browser — there
- * is no cart table — so this endpoint takes the whole cart on every call and
- * answers with what it costs *now*.
- *
- * It answers **200 with per-line advisories**, never a refusal: a cart that has
- * gone stale while it sat is a normal state to be shown, not a request to
- * reject. Submission is the opposite (see `ordersContract`), and neither ever
- * mutates the browser's cart — a dead line is flagged, and removing it is the
- * customer's action.
- */
-
-/** The unit a line is read and stepped in. A lens on the line's piece count,
- * not a second quantity: the customer's choice of it is kept exactly as made,
- * and it changes nothing about what is ordered. */
-export const productUnitSchema = z.enum(PRODUCT_UNITS);
-
-/**
- * A line as the browser holds it: what, how many **pieces**, which unit it is
- * being read in, and the note where the product allows one.
- *
- * The quantity is always in pieces, whatever the unit says, so nothing on the
- * wire is ever fractional — 0.2 bx is two packs, and two packs of six is
- * twelve. A product is exactly one line; the note describes it rather than
- * distinguishing it.
+ * A line as the browser holds it. Always in pieces, whatever the unit says,
+ * so nothing on the wire is fractional. One product is one line; the note
+ * describes it rather than distinguishing it.
  */
 export const cartLineSchema = z
   .object({
@@ -48,34 +25,19 @@ export const cartLineSchema = z
   .strict();
 export type CartLine = z.infer<typeof cartLineSchema>;
 
-export const cartRequestSchema = z
-  .object({ lines: z.array(cartLineSchema).max(CART_LINES_MAX) })
-  .strict();
-export type CartRequest = z.infer<typeof cartRequestSchema>;
-
 /**
- * What is wrong with a line, if anything.
+ * What is wrong with a line. Advisories, never a refusal: a stale cart is a
+ * state to show.
  *
- * `unavailable` is one code for soft-deleted, unpublished **and** never-existed
- * alike: distinguishing them would make the endpoint an oracle that enumerates
- * the unpublished catalog by difference.
- *
- * `quantity-corrected` says the returned `pieces` is not the figure that was
- * sent — the line carries the corrected one, so there is nothing to read out of
- * the code itself. `unit-unavailable` says the product is no longer packed the
- * way the line was being read: the pieces are untouched and still orderable,
- * and the returned `unit` has fallen back to the piece.
- *
- * `price-unavailable` means the line cannot be priced exactly (a repackaged
- * product whose stored basis no longer divides the quantity); its total is null
- * and must never be shown as a zero.
- *
- * `out-of-stock` is the one issue on a line that is otherwise perfectly well
- * described (FR-STOCK-04): it is named, priced and still in the cart, and only
- * the order it is part of is refused. **Few left** is not an issue — a customer
- * may order more than the threshold and a manager reviews it.
+ * - `unavailable` covers deleted, unpublished and never-existed alike, so the
+ *   endpoint cannot enumerate the unpublished catalog.
+ * - `quantity-corrected`: the returned `pieces` is not what was sent.
+ * - `unit-unavailable`: the unit fell back to the piece; the pieces stand.
+ * - `price-unavailable`: no exact price, so the total is null, never zero.
+ * - `out-of-stock` (FR-STOCK-04): the line is fine, only the order is refused.
+ *   "Few left" is not an issue: a manager reviews it.
  */
-export const CART_LINE_ISSUES = [
+const CART_LINE_ISSUES = [
   'unavailable',
   'unit-unavailable',
   'quantity-corrected',
@@ -87,85 +49,50 @@ export type CartLineIssue = (typeof CART_LINE_ISSUES)[number];
 
 /**
  * A priced line. `slug` echoes what was sent, so the browser can match the
- * answer back onto its own cart even where the product is gone and every other
- * field is null.
+ * answer to its line even where every other field is null.
  */
 export const cartPreviewLineSchema = z
   .object({
     slug: z.string(),
-    /** The lens as sent, or the piece where the product is no longer sold in
-     * it (`unit-unavailable`). */
     unit: productUnitSchema,
-    /** Corrected where `quantity-corrected` is among the issues. */
     pieces: z.number().int().positive(),
     note: z.string().nullable(),
-    /** Null for an unavailable product — there is nothing to name it with
-     * beyond the slug, which the browser already has. */
+    /** Null for an unavailable product. */
     name: z.string().nullable(),
     image: catalogImageSchema.nullable(),
-    /**
-     * The product's variants and the pictures they are shown with (FR-CAT-13),
-     * so the line's mark opens the list without a second request. Both empty
-     * for a product that names none, and for a product that is gone.
-     */
+    /** So the line's mark opens the variants without a second request
+     * (FR-CAT-13). */
     variants: z.array(productVariantSchema),
     images: z.array(productImageSchema),
     packaging: productPackagingSchema.nullable(),
     prices: unitPricesSchema.nullable(),
-    /**
-     * What the shop can say about this product's stock (FR-STOCK-03) — null
-     * where it is untracked, and null throughout for a product that is gone.
-     * The count behind it never leaves the API.
-     *
-     * Carried so the cart line wears the same badge as the card it was added
-     * from, and so the browser can tell an item that has gone out of stock
-     * while the cart waited from one that has come back (FR-CART-10).
-     */
+    /** The card's badge (FR-STOCK-03), and the baseline FR-CART-10 compares. */
     availability: availabilitySchema,
     /**
-     * What one box unit weighs and takes up, and how many cartons it ships as
-     * — null where the product states none, and null throughout for a product
-     * that is gone.
-     *
-     * Sent for the same reason the prices are: with them the browser can add
-     * the estimate up itself between an edit and the answer to it, so the
-     * consignment moves with the stepper instead of a beat behind it. The
-     * figures are per box unit, never multiplied by `boxCount`
-     * (`shipmentEstimate` owns that arithmetic).
+     * Per box unit, never multiplied by `boxCount`: with them the browser adds
+     * up the shipment between an edit and its answer (`shipmentEstimate`).
      */
     boxVolume: z.string().nullable(),
     boxWeight: z.string().nullable(),
     boxCount: z.number().int().positive().nullable(),
-    /** Whether this line still takes a note (FR-CART-08) — false for a product
-     * that is gone, which is also why a note already written is reported
-     * dropped rather than silently kept. */
+    /** False for a product that is gone, which is why a note already written
+     * is reported dropped (FR-CART-08). */
     lineNoteEnabled: z.boolean(),
-    /** The product's own wording for the note; null falls back to storefront-text. */
+    /** Null falls back to the storefront text. */
     lineNotePrompt: z.string().nullable(),
-    /** Exact, or null where the line cannot be priced. */
+    /** Null where the line cannot be priced exactly. */
     lineTotalMinor: z.number().int().nonnegative().nullable(),
-    /** The rate this line is taxed at (NFR-LEGAL-11): the product's own or
-     * the deployment's default, resolved here. Null where no tax is charged,
-     * and for a product that is gone. */
+    /** The product's rate or the default (NFR-LEGAL-11); null where no tax is
+     * charged. */
     taxRate: z.number().nullable(),
-    /**
-     * How many sellable products this line is sold together with (FR-SET-05),
-     * so a cart row wears the same marker as the card it was added from. Zero
-     * for a product that is gone.
-     */
+    /** The card's sold-together marker (FR-SET-05). */
     pairedCount: z.number().int().nonnegative(),
-    /** What one piece is made of where it is sold as a set (FR-CAT-10), so the
-     * line wears the card's marker; empty for a product that is gone. */
+    /** The card's set marker (FR-CAT-10). */
     parts: z.array(z.string()),
     /**
-     * How many pieces of cover this line is missing (FR-SET-02/03), or null
-     * where it is satisfied — which includes every product that is sold with
-     * nothing.
-     *
-     * Deliberately **not** one of the `issues`: submission treats any issue as
-     * "the cart changed, re-price it and try again", and an unsatisfied pairing
-     * is advisory by default. Whether it refuses an order is a deployment's
-     * choice, made where the order is placed, not here.
+     * Pieces of cover missing (FR-SET-02/03), null where satisfied. Not an
+     * `issue`: submission re-prices on any issue, and a pairing is advisory
+     * unless the deployment enforces it.
      */
     pairingShortPieces: z.number().int().positive().nullable(),
     issues: z.array(z.enum(CART_LINE_ISSUES)),
@@ -174,11 +101,9 @@ export const cartPreviewLineSchema = z
 export type CartPreviewLine = z.infer<typeof cartPreviewLineSchema>;
 
 /**
- * The shipment summary (FR-UNIT-11), added up across the lines and labelled
- * approximate: a line that does not fill whole boxes is derived from the box
- * figures through the packaging ratios, and a manager confirms the real
- * consignment. `uncoveredLines` is how many lines have no box to derive from — a summary
- * covering half the cart says so rather than omitting the rest in silence.
+ * The shipment summary (FR-UNIT-11), labelled approximate: part boxes are
+ * derived through the packaging ratios. A line with no box is counted in
+ * `uncoveredLines` rather than left out in silence.
  */
 export const shipmentSummarySchema = z
   .object({
@@ -195,23 +120,10 @@ export type ShipmentSummary = z.infer<typeof shipmentSummarySchema>;
 export const cartPreviewSchema = z
   .object({
     lines: z.array(cartPreviewLineSchema),
-    /** The sum of the priceable lines. `complete` is false where a line had no
-     * price, so a partial total is never read as the whole cart's. */
+    /** The priceable lines' sum; `complete` is false where one had no price. */
     totalMinor: z.number().int().nonnegative(),
     complete: z.boolean(),
     shipment: shipmentSummarySchema,
   })
   .strict();
 export type CartPreview = z.infer<typeof cartPreviewSchema>;
-
-export const cartContract = {
-  previewCart: oc
-    .route({
-      method: 'POST',
-      path: '/cart/preview',
-      inputStructure: 'detailed',
-      summary: 'Price a cart as it stands, with per-line advisories',
-    })
-    .input(z.object({ body: cartRequestSchema }))
-    .output(cartPreviewSchema),
-};

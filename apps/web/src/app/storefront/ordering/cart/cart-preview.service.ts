@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { CartLine } from '@b2b-catalog-platform/shared/core/ordering';
-import { cartContract } from '../../../shared/core/contract-routes.generated';
+import { cartContract } from '../../contract-routes.generated';
 import { createOrpcClient } from '../../../shared/core/orpc-client';
 
 /**

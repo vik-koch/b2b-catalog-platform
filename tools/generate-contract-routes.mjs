@@ -40,7 +40,6 @@ const OUTPUTS = [
         'addressesContract',
         'partySuggestionContract',
       ],
-      'core/ordering': ['cartContract', 'ordersContract'],
       'core/site': ['maintenanceContract', 'pageContract'],
       platform: ['sessionContract'],
     },
@@ -50,6 +49,7 @@ const OUTPUTS = [
     entries: {
       'storefront/accounts': ['accountContract', 'authContract'],
       'storefront/catalog': ['catalogContract'],
+      'storefront/ordering': ['cartContract', 'ordersContract'],
       'storefront/site': ['inquiryContract'],
     },
   },

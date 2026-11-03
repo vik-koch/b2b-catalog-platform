@@ -1,6 +1,6 @@
 import { Controller, Inject, UseGuards } from '@nestjs/common';
 import { Implement, implement } from '@orpc/nest';
-import { cartContract } from '@b2b-catalog-platform/shared/core/ordering';
+import { cartContract } from '@b2b-catalog-platform/shared/storefront/ordering';
 import { TaxConfig } from '@b2b-catalog-platform/shared';
 import { OptionalAuthGuard } from '../../platform/auth/optional-auth.guard';
 import { PricingTier } from '../../platform/auth/pricing-tier.decorator';

@@ -1,13 +1,9 @@
 import { normalizePostalCode } from '../accounts/postal-code';
 
 /**
- * Which delivery zone an address falls into. Import-free but for the postal
- * code helpers, so the storefront's zone hint does not pull the order schemas
- * — and Zod — into the first load.
- *
- * The API re-derives the zone when the order is placed: one the browser
- * resolved and the server did not re-check would be a threshold the customer
- * could choose for themselves.
+ * Which delivery zone an address falls into, without Zod, for the checkout's
+ * hint. The API re-derives it on submission: a zone the browser chose would be
+ * a threshold the customer chose.
  */
 
 /** As much of an address as choosing a zone reads. */
@@ -15,12 +11,8 @@ export interface DeliveryZoneQuery {
   readonly postalCode: string;
 }
 
-/**
- * How a zone is matched. Prefixes cover formats that are not numeric at all;
- * a range covers a contiguous block, and only between codes of the same length
- * — a range from `1000` to `99999` compares strings of different widths and
- * would silently include or exclude by digit count. `all` is the catch-all.
- */
+/** A range compares codes of its own length only: strings of different
+ * widths would include or exclude by digit count. */
 export interface ZoneMatcher {
   readonly match: {
     readonly postalPrefixes?: readonly string[];
@@ -32,13 +24,8 @@ export interface ZoneMatcher {
   };
 }
 
-/**
- * The first zone the address falls into, or null where none does — which is a
- * normal answer: a deployment need not describe every address it ships to.
- *
- * Generic in the zone, so a caller gets its own row back with whatever else it
- * carries — the key and the threshold an order snapshots.
- */
+/** The first matching zone, or null: a deployment need not describe every
+ * address it ships to. */
 export function resolveDeliveryZone<T extends ZoneMatcher>(
   zones: readonly T[],
   address: DeliveryZoneQuery,
