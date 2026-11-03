@@ -51,40 +51,23 @@ import { shoppingBasketIcon } from '@b2b-catalog-platform/ui/icons/glyphs/shoppi
 import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
 import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
 
-/**
- * How many lines a page of the cart holds (FR-CART-02). A cart row is a
- * product row — photo, controls, note — so a long cart is a long scroll rather
- * than a long list, and the summary beside it would drift a screen away from
- * the lines it adds up.
- *
- * Not in the URL, unlike the catalog's paging: the cart is a lens on this
- * browser's own storage, so there is no page here anybody could link to.
- */
+/** Lines per cart page (FR-CART-02): a row is a product row, and a long scroll
+ * leaves the summary behind. Not in the URL: the cart is this browser's
+ * storage. */
 const CART_PAGE_SIZE = 10;
 
-/**
- * The issues that say what just happened to a line rather than what is still
- * wrong with it, most consequential first. Both are answered once and then
- * gone: the corrected line is written back and asked about again.
- */
+/** Issues that report what just happened rather than what is wrong, most
+ * consequential first: answered once, then gone. */
 const NOTICE_ISSUES: readonly CartLineIssue[] = [
   'unit-unavailable',
   'quantity-corrected',
 ];
 
-/**
- * A line as this page draws it: the product the row's controls edit, plus what
- * belongs to the line rather than to the product — its note, and whatever
- * preview had to say about it.
- *
- * `item` is built from the *stored* line, not from the priced answer: the
- * controls have to be there on the first frame and have to survive a preview
- * that fails, which is why the cart keeps a line's prices and packaging.
- */
+/** A row: the product its controls edit, plus the line's note and preview's
+ * say. `item` comes from the stored line, so controls draw on the first frame
+ * and survive a failed preview. */
 interface CartRow {
-  /** The slug, which is what identifies a line: a product is one line, in
-   * whichever unit it is currently held in. Deliberately not the unit as well
-   * — a tick has to survive the customer changing it. */
+  /** The slug, not the unit too: a tick survives a unit change. */
   key: string;
   slug: string;
   available: boolean;
@@ -94,45 +77,23 @@ interface CartRow {
   /** The product's own wording for the note, or the app's. */
   notePrompt: string;
   takesNote: boolean;
-  /** How many products this line's product is sold together with (FR-SET-05);
-   * zero is no link. */
+  /** Counterparts (FR-SET-05); zero is no link. */
   pairedCount: number;
   /** The line's own rate, where the cart's lines differ (NFR-LEGAL-11). */
   taxNote: string | null;
-  /**
-   * How many pieces of cover this line is missing (FR-SET-02/03), or null
-   * where it is satisfied.
-   *
-   * From the priced answer rather than the browser's own copy, unlike
-   * everything else the row draws: the check is over the whole cart at once and
-   * a line cannot answer it alone. So it says nothing until a preview has, and
-   * it follows an edit a beat behind — which is the right way round for an
-   * advisory, since a stale one is worse than a late one.
-   */
+  /** Missing cover in pieces (FR-SET-02/03), or null. A whole-cart check, so
+   * from the priced answer: it trails an edit, and a late advisory beats a
+   * stale one. */
   pairingShortPieces: number | null;
   issues: string[];
-  /** The advisories that are feedback rather than a state: they go in the
-   * bubble under the stepper they are about, not in the list below the name. */
+  /** Feedback, shown in the bubble under the stepper rather than the list. */
   notice: string | null;
 }
 
-/**
- * The cart page (FR-CART-01/02). The lines come from the browser; the prices,
- * the advisories and the shipment estimate come from `POST /cart/preview` on
- * every change, because a cart is stale by construction — a product can be
- * withdrawn, repriced or unpublished while it sits.
- *
- * Nothing here removes a line by itself. Preview flags a dead one and the page
- * says so; taking it out is the customer's action. A cart that quietly
- * shortened itself between two glances is worse than one that explains itself.
- *
- * A line is the same product row a listing draws, carrying the same buying
- * controls: the unit selector and the stepper edit the line in place, so there
- * is no separate way to change a cart from the way it was filled. What the row
- * adds here is a tick box and a bin — and the ticks are what "empty the cart"
- * used to be, since selecting all of them and deleting the selection says the
- * same thing without a control that only ever does one thing.
- */
+/** The cart page (FR-CART-01/02). Lines from the browser; prices, advisories
+ * and the estimate from `POST /cart/preview` on every change. Never removes a
+ * line by itself. Rows are listing rows with the same buying controls, plus a
+ * tick box and a bin; ticking all and deleting empties the cart. */
 @Component({
   selector: 'app-cart-page',
   imports: [
@@ -156,10 +117,6 @@ interface CartRow {
       <h1 class="mb-4 text-2xl font-medium tracking-tight sm:text-3xl">
         {{ text.title }}
       </h1>
-      <!-- The same panel the account draws with no orders on it and the
-           checkout draws once one has been sent: three screens that say
-           "there is nothing here, here is where to go" should not be three
-           different screens. -->
       <ui-empty-state [icon]="shoppingBasketIcon" [message]="text.empty">
         <a uiButton routerLink="/catalog">{{ text.emptyAction }}</a>
       </ui-empty-state>
@@ -175,25 +132,14 @@ interface CartRow {
         </p>
       }
 
-      <!-- The card moves out to the right exactly where the lines can keep
-           the shape they have without it: LISTING_NARROW, plus the card's
-           20rem and the gap between them. A card beside lines drawn as though
-           there were no room for it is the one arrangement that reads as a
-           mistake, and any figure above this one buys nothing — the photo
-           takes up the slack by itself. Under the card, the lines take the
-           whole page rather than lining up with a card they are no longer
-           beside.
-
-           Measured on the page rather than on the window: the frame's padding
-           and the scrollbar are most of a column of controls, and the media
-           query cannot see either. -->
+      <!-- The card moves beside the lines where they keep their shape:
+           LISTING_NARROW plus 20rem and the gap. Measured on the page: the
+           frame's padding and scrollbar are invisible to a media query. -->
       <div class="@container/cart">
         <div class="grid gap-10 @min-[63.75rem]/cart:grid-cols-[1fr_20rem]">
           <div>
-            <!-- What moved while the cart sat (FR-CART-10). Above the lines and
-           dismissible, because it is news rather than a state: every line it
-           names also says for itself what is wrong with it, and this is the
-           one place that says it happened *since last time*. -->
+            <!-- What changed since last time (FR-CART-10): news, so
+                 dismissible; each line also states its own state. -->
             @if (changes().length) {
               <section
                 uiNotice
@@ -220,21 +166,16 @@ interface CartRow {
                 </ul>
               </section>
             }
-            <!-- In the column, not above the grid: the summary beside it then
-                 starts level with the heading, and the same card sits at the
-                 same height on the cart, the checkout and the read-back. -->
+            <!-- In the column, so the summary starts level with the heading.
+                 -->
             <h1 class="mb-4 text-2xl font-medium tracking-tight sm:text-3xl">
               {{ text.title }}
             </h1>
 
-            <!-- Above the lines and left-aligned with them: what these two do is
-               done *to* the ticks below, so they read before the first row
-               rather than after the last. -->
+            <!-- Before the first row: they act on the ticks below. -->
             <div class="flex items-center gap-4 pb-2 text-sm">
-              <!-- A tick box of its own, in the column the rows' tick boxes are
-                 in: it is the same control, applied to all of them. Half
-                 ticked while only some are — the box says what the ticks below
-                 add up to. -->
+              <!-- In the rows' tick column; indeterminate while some are
+                   ticked. -->
               <label class="flex cursor-pointer items-center gap-2 text-accent">
                 <input
                   type="checkbox"
@@ -243,16 +184,13 @@ interface CartRow {
                   [indeterminate]="someSelected() && !allSelected()"
                   (change)="toggleAll()"
                 />
-                <!-- Not a link, though it reads like one: the whole label is
-                     the hit area and the box is the control, so an underline
-                     under the words would promise they go somewhere. It also
-                     sits beside a delete that deliberately has none. -->
+                <!-- No underline: the box is the control, not the words. -->
                 <span>
                   {{ allSelected() ? text.clearSelection : text.selectAll }}
                 </span>
               </label>
-              <!-- Disabled rather than hidden: a control that appears with the
-                 first tick moves the whole list down as it is ticked. -->
+              <!-- Disabled, not hidden, so the list does not move on the first
+                   tick. -->
               <button
                 type="button"
                 class="group flex cursor-pointer items-center gap-1.5
@@ -269,10 +207,8 @@ interface CartRow {
             </div>
 
             <ul [class]="rowList">
-              <!-- Tracked by the product, not by the product and its unit: one
-                 product is one line, so changing its unit edits that line. On
-                 the key it would be a different line — the row would be torn
-                 down and rebuilt, and its photo would be fetched again. -->
+              <!-- By slug: a unit in the key would rebuild the row and refetch
+                   its photo. -->
               @for (row of pageRows(); track row.slug) {
                 <li>
                   <app-product-row
@@ -283,9 +219,6 @@ interface CartRow {
                     [notice]="row.notice"
                     [priceNote]="row.taxNote"
                   >
-                    <!-- Level with the top of the photo, and as close to it as
-                       the tick above the list is to its own words, so the two
-                       read as the same control. -->
                     <label
                       rowSelect
                       class="-mr-2 flex cursor-pointer shrink-0 items-start"
@@ -306,49 +239,20 @@ interface CartRow {
                     }
 
                     @if (row.takesNote || row.pairedCount > 0) {
-                      <!-- Under the name, in the name's own column: both of
-                         these are about this product, and a field the width of
-                         the whole line read as being about the cart.
-
-                         The pair drops to the bottom of that column, which is
-                         the photo's own bottom edge — a short name leaves them
-                         there rather than hanging them under one line of text.
-                         A name long enough to need the room pushes them down
-                         instead. Whichever of the two a line has ends up on
-                         the same edge as its neighbours'.
-
-                         No wider than the controls they stand over while the
-                         line is stacked: a field that ran past their right
-                         edge read as belonging to the row, not to the column
-                         it is in. -->
+                      <!-- Under the name: about the product, not the cart. Held
+                           to the photo's bottom edge unless a long name pushes
+                           them; no wider than the controls while stacked. -->
                       <div
                         class="mt-auto flex flex-col items-start gap-2 pt-2
                                @max-[47.5rem]/row:max-w-114"
                       >
-                        <!-- Above the note, because it is something the shop
-                           says about the product and the note is something the
-                           customer writes about the line.
-
-                           One line either way: what the product is sold with,
-                           or — where the line is short of it — what it is
-                           short of, said in the same place in amber with the
-                           amount as the link. The shortfall replaces the offer
-                           rather than standing over it: two links to the same
-                           panel, one under the other, is the same sentence
-                           twice (FR-SET-03). -->
+                        <!-- The shop's word above the customer's note. The
+                             shortfall replaces the offer: two links to one
+                             panel say it twice (FR-SET-03). -->
                         @if (row.pairedCount > 0) {
-                          <!-- Two pixels down where it is the last thing on
-                               the line: on its own, beside the controls, it
-                               sits on the row's bottom edge and its glyph
-                               reads high against them. Shifted rather than
-                               given a margin — the group is held to that
-                               bottom edge by an auto margin above it, so room
-                               added at the top is room the auto margin gives
-                               back and nothing moves.
-
-                               Not where something follows it: a note under it,
-                               or the stacked shape, where the controls
-                               themselves come next. -->
+                          <!-- Shifted 2px where last on the line, so its glyph
+                               does not read high; a margin would be eaten by
+                               the auto margin above. -->
                           <app-product-pairings
                             variant="link"
                             [class]="
@@ -362,14 +266,8 @@ interface CartRow {
                           />
                         }
                         @if (row.takesNote) {
-                          <!-- The placeholder is the product's question, so it
-                             needs no label. A text area, as everywhere else a
-                             sentence is typed, one line deep until the
-                             customer drags it taller — the height of the pill
-                             of segments across from it, and dense to match:
-                             the row is a line of small controls, and a
-                             full-sized field among them reads as the thing to
-                             fill in. -->
+                          <!-- The placeholder is the label. One line deep and
+                               dense, matching the pill beside it. -->
                           <textarea
                             uiInput
                             uiAutoGrow
@@ -386,16 +284,9 @@ interface CartRow {
                       </div>
                     }
 
-                    <!-- Icon only: the product it removes is the row it sits in,
-                       so spelling the name out again made every line carry a
-                       sentence. It stays the button's accessible name.
-
-                       It rides in the price row's own corner, above the
-                       figure the line comes to and well away from the stepper
-                       and the segments it must never be pressed instead of.
-                       The glyph alone: the disc is what an admin affordance
-                       laid over content wears, and this one sits in a line of
-                       it, beside the note button it must match. -->
+                    <!-- Icon only, the name staying its accessible name; in the
+                         price row's corner, away from the stepper. No disc:
+                         that marks admin affordances. -->
                     <button
                       rowActions
                       type="button"
@@ -412,10 +303,7 @@ interface CartRow {
               }
             </ul>
 
-            <!-- The catalog's own pager, in its words: a customer meets this
-                 control on the listing first, and a second wording for the
-                 same three controls would read as a different one. Buttons
-                 rather than links, because the page they turn is not in the
+            <!-- The listing's pager and words. Buttons: the page is not in the
                  URL. -->
             <ui-pagination
               class="mt-8"
@@ -425,22 +313,9 @@ interface CartRow {
             />
           </div>
 
-          <!-- Capped at the column's own width when it sits under the lines
-             rather than beside them: a summary of four figures stretched
-             across the page is four figures with a hand's width between the
-             label and the number. The cap comes off in the narrow shape,
-             where the page is one column of its own width and a card set to
-             three quarters of it reads as unfinished.
-
-             Pinned once it is a column, because the lines beside it are as
-             long as the cart is and the total is what the customer is editing
-             them against. Clear of the header, which is pinned too — and only
-             as tall as it needs to be, or a stretched column would fill the
-             row and have nowhere to travel.
-
-             The same measure as the column it drops under, which is what the
-             checkout gives it too: stacked, the card is the page, and three
-             pages that agree about the card should agree about its width. -->
+          <!-- Capped while under the lines, uncapped in the narrow shape.
+               Pinned below the header while beside them, and only as tall as
+               needed. The checkout uses the same measure. -->
           <aside
             class="max-w-xl
                    @min-[63.75rem]/cart:mt-9 @min-[63.75rem]/cart:sticky
@@ -455,23 +330,16 @@ interface CartRow {
               [taxRates]="cart.taxRates()"
             />
 
-            <!-- Directly over the button it bears on (FR-SET-03/04), where
-                 the incomplete-total line already stands: a customer scrolling
-                 a long cart to check out reads this card, and an advisory
-                 further up the page is one they scrolled past. -->
+            <!-- Over the button it bears on (FR-SET-03/04), where a scrolling
+                 customer reads it. -->
             @if (pairingSummary(); as summary) {
               <ui-warning-note class="mt-3">{{ summary }}</ui-warning-note>
             }
 
-            <!-- Inside the summary card, under the figure they act on: the
-                 total is what somebody decides to check out against. Full
-                 width, because in the narrow shape this card is the page. -->
+            <!-- Full width: in the narrow shape this card is the page. -->
             @if (pairingsBlock()) {
-              <!-- A disabled button rather than a link that refuses on the
-                   next page: the reason is on screen right above it, and
-                   sending somebody to a form to be turned away there is a
-                   worse way of saying the same thing. The API refuses it too
-                   — this is not what makes it a rule. -->
+              <!-- Disabled, with the reason above, rather than a refusal on the
+                   next page. The API refuses it too. -->
               <button uiButton type="button" disabled class="mt-5 w-full">
                 {{ text.checkout }}
               </button>
@@ -480,8 +348,7 @@ interface CartRow {
                 {{ text.checkout }}
               </a>
             }
-            <!-- Back to the shelf the visitor was standing at, with the
-                 category, page and filters it was carrying. -->
+            <!-- Back to the last listing, with its page and filters. -->
             <a
               uiButton
               variant="ghost"
@@ -511,43 +378,27 @@ export class CartPage {
 
   protected readonly text = inject(STOREFRONT_TEXT).cart;
   protected readonly changeText = this.text.changes;
-  /** What moved while the cart waited (FR-CART-10) — the cart's own answer,
-   * reported once per visit and put away from here. */
   protected readonly changes = this.cart.changes;
-  /** Only the pager's three words: the cart turns pages the way the listing
-   * does, so it says it the way the listing does. */
+  /** The listing's pager words. */
   protected readonly rowList = PRODUCT_ROWS;
   protected readonly pairingText = this.text.pairing;
-  /** The piece abbreviation, for the sentence that names a shortfall. */
   private readonly pieceUnit = inject(SHARED_TEXT).units.piece;
   protected readonly actionText = inject(SHARED_TEXT).actions;
   /** Whether an unsatisfied pairing refuses checkout here (FR-SET-04). */
   private readonly pairingsEnforced = this.catalogConfig.pairingsEnforced;
 
-  /**
-   * Where "continue shopping" goes. A parsed tree rather than the string:
-   * a remembered listing carries the page and the filters in its query, and
-   * routerLink given a string would encode the `?` into the path.
-   */
+  /** A parsed tree: routerLink would encode a string's `?` into the path. */
   protected readonly continueShoppingUrl = this.router.parseUrl(
     this.lastListing.url(),
   );
 
   protected readonly noteMax = CART_NOTE_MAX;
 
-  /**
-   * Debounced so a run of edits — a removal, then another — costs one call
-   * rather than one each. The cart is the source of truth for *what* is in it;
-   * this only ever asks what it costs now.
-   */
+  /** Debounced, so a run of edits costs one call. */
   private readonly request = debounced(this.cart.request, 250);
 
-  /**
-   * The answer, and the cart it was an answer *to*. An edit made while a call
-   * is in flight would otherwise be undone by the reply to the cart as it was
-   * a moment ago: the rows are editable now, so an answer is only worth
-   * folding back while it still describes what is on screen.
-   */
+  /** The answer and the cart it answers: folded back only while it still
+   * describes what is on screen, or a reply would undo a newer edit. */
   protected readonly preview = resource({
     params: () => ({ lines: this.request() }),
     loader: async ({ params }) =>
@@ -559,31 +410,26 @@ export class CartPage {
           },
   });
 
-  /**
-   * Held across reloads: every edit re-prices the cart, and without this the
-   * rows would drop back to a placeholder photo and an unnamed line for the
-   * length of each call — the page blinking once per press of `+`.
-   */
+  /** Held across reloads, or each `+` would blank the rows for a call. */
   private readonly held = stableValue(this.preview);
 
-  /** The answer as the page reads it — undefined while none has arrived. */
+  /** Undefined until an answer arrives. */
   private readonly answer = computed(() => this.held()?.value);
 
-  /** True while the answer on hand was computed for the cart as it stands. */
   private readonly current = computed(
     () => this.held()?.asked === JSON.stringify(this.cart.request()),
   );
 
   protected readonly showSkeleton = delayedLoading(this.preview.isLoading);
 
-  /** The priced answer, indexed the way lines are identified. */
+  /** By slug. */
   private readonly priced = computed(() => {
     const value = this.answer();
     return new Map((value?.lines ?? []).map((line) => [line.slug, line]));
   });
 
   private readonly tax = useTaxStatement();
-  /** Whether the lines state their own rates: only once they differ. */
+  /** Lines state rates only once they differ. */
   private readonly perLineRates = computed(() =>
     this.tax.perLine(this.cart.taxRates()),
   );
@@ -593,32 +439,26 @@ export class CartPage {
       const fresh = this.priced().get(line.slug);
       return {
         key: line.slug,
-        // A product preview answered no prices for is one the shop no longer
-        // offers: the row keeps the last-known figures so its controls can be
-        // drawn, and states none of them. Until an answer arrives, what the
-        // last one said — a line already known to be withdrawn must not show
-        // its old price again for the length of a call.
+        // No prices answered means no longer offered: the row keeps the last
+        // figures for its controls and states none. Before an answer, the last
+        // one's verdict holds.
         available: fresh ? fresh.prices !== null : line.available,
         slug: line.slug,
-        // Every part of the row from the browser's own copy, photo included:
-        // preview writes what it answers back into the store, so reading the
-        // answer here too would only mean redrawing the row from nothing for
-        // as long as a call is in flight — which is what made a line blink on
-        // every edit.
+        // From the browser's copy: preview writes back to the store, and
+        // reading the answer would blank the row per call.
         item: {
           slug: line.slug,
           name: line.name,
           prices: line.prices,
           packaging: line.packaging,
-          // The badge the row wears, and what takes its controls out of use
-          // where the shelf is empty (FR-STOCK-03/04).
+          // The badge, and controls out of use on an empty shelf (FR-
+          // STOCK-03/04).
           availability: line.availability,
           lineNoteEnabled: line.noteEnabled,
           lineNotePrompt: line.notePrompt,
           pairedCount: line.pairedCount,
           parts: line.parts,
-          // The line's own pictures where it knows them — the mark opens them
-          // (FR-CAT-13) — else the one photo it was added with.
+          // Its variant pictures (FR-CAT-13), else the photo it was added with.
           images: line.images.length
             ? line.images
             : line.image
@@ -635,14 +475,9 @@ export class CartPage {
           this.perLineRates() && line.available && line.taxRate != null
             ? this.tax.line(line.taxRate)
             : null,
-        // From the browser's own copy, like everything else on the row: the
-        // shop works the shortfall out, but preview writes what it answers
-        // back into the store, so a reload states it before the call that
-        // confirms it rather than a call later.
+        // From the stored copy, so a reload states it before the call.
         pairingShortPieces: line.pairingShortPieces,
-        // Before an answer arrives, the one thing the browser wrote down about
-        // the line's state — so a withdrawn line says why it is priceless
-        // rather than showing "on request" with nothing to explain it.
+        // So a withdrawn line explains its missing price before an answer.
         issues: fresh
           ? fresh.issues
               .filter((issue) => !NOTICE_ISSUES.includes(issue))
@@ -655,25 +490,17 @@ export class CartPage {
     }),
   );
 
-  /**
-   * The lines that are short of what they are sold with (FR-SET-03). Counted
-   * from the rows rather than kept separately: they are the same figures the
-   * lines are already stating, and a card that could disagree with the list
-   * beside it would be worth nothing.
-   */
+  /** Short lines (FR-SET-03), counted from the rows so the card cannot
+   * disagree. */
   private readonly shortLines = computed(
     () => this.rows().filter((row) => row.pairingShortPieces !== null).length,
   );
 
-  /** True where this deployment refuses an unsatisfied cart (FR-SET-04) and
-   * this cart is one. */
   protected readonly pairingsBlock = computed(
     () => this.pairingsEnforced && this.shortLines() > 0,
   );
 
-  /** What the order card says about it, or null where there is nothing to
-   * say. Advisory by default; the enforced wording is the one that goes with
-   * a button that cannot be pressed. */
+  /** Advisory by default; enforced wording goes with a disabled button. */
   protected readonly pairingSummary = computed(() => {
     const count = this.shortLines();
     if (count === 0) return null;
@@ -685,14 +512,8 @@ export class CartPage {
     );
   });
 
-  /**
-   * What one line is short, in pieces — the unit every quantity here is a
-   * count of, whichever lens the line is being read in. Null where the line is
-   * short of nothing, which is the marker saying its ordinary word instead.
-   *
-   * Two halves because only the first is the link: the deployment's own text
-   * decides where the sentence breaks.
-   */
+  /** The shortfall in pieces, or null. Two halves: only the first is the link,
+   * and the text decides the break. */
   protected shortMessage(
     shortPieces: number | null,
   ): { link: string; rest: string } | null {
@@ -704,12 +525,8 @@ export class CartPage {
     };
   }
 
-  /**
-   * Which page of the cart is on screen (FR-CART-02), clamped on every read:
-   * removing the last line of the last page leaves the customer on a page that
-   * no longer exists, and a cart that answers with nothing reads as an empty
-   * one.
-   */
+  /** Clamped on every read: removing the last line of the last page leaves a
+   * page that no longer exists. */
   private readonly requestedPage = signal(1);
   protected readonly totalPages = computed(() =>
     Math.max(1, Math.ceil(this.rows().length / CART_PAGE_SIZE)),
@@ -723,15 +540,9 @@ export class CartPage {
     return this.rows().slice(from, from + CART_PAGE_SIZE);
   });
 
-  /**
-   * The ticked lines, by slug. Held here rather than on the rows so a re-priced
-   * cart does not drop the ticks, and intersected with the cart on every read
-   * so a line removed while ticked takes its tick with it.
-   *
-   * By slug, which is what identifies a line: changing a line's unit edits
-   * that line, and a key carrying the unit would quietly untick the row the
-   * customer just adjusted.
-   */
+  /** Ticked slugs, kept here so re-pricing keeps them and intersected with the
+   * cart so a removed line drops its tick. By slug, so a unit change does not
+   * untick. */
   private readonly ticked = signal<ReadonlySet<string>>(new Set());
   protected readonly selected = computed(() => {
     const keys = new Set(this.rows().map((row) => row.key));
@@ -743,13 +554,8 @@ export class CartPage {
     () => this.rows().length > 0 && this.selectedCount() === this.rows().length,
   );
 
-  /**
-   * The cart's own arithmetic whenever the answer on hand is not an answer to
-   * *this* cart — which is every moment between an edit and the call that
-   * follows it. The browser holds the prices the server last quoted, so it can
-   * add up a changed cart itself; waiting for the round trip would leave the
-   * total a step behind the line the customer just changed.
-   */
+  /** The cart's own sum between an edit and its answer, from the last quoted
+   * prices. */
   protected readonly subtotalMinor = computed(() =>
     this.current()
       ? (this.answer()?.totalMinor ?? this.cart.totalMinor())
@@ -762,15 +568,8 @@ export class CartPage {
       : this.cart.totalComplete(),
   );
 
-  /**
-   * The estimate to show: the one this cart was answered with, and the cart's
-   * own arithmetic whenever that answer describes a cart the customer has
-   * since changed — the same rule the subtotal follows, so the consignment and
-   * the total never disagree about which cart they are describing.
-   *
-   * Neither, and the card shows its skeleton, only while a line has never been
-   * priced: there is nothing to add up for it yet.
-   */
+  /** The answer's estimate, or the cart's own after an edit, by the subtotal's
+   * rule. Neither (a skeleton) while a line was never priced. */
   protected readonly shipment = computed(
     () =>
       (this.current()
@@ -779,17 +578,11 @@ export class CartPage {
   );
 
   constructor() {
-    // Nothing here is indexable: the page is a lens on the visitor's own
-    // browser state, and every visitor's is different.
+    // Not indexable: every visitor's cart differs.
     usePageSeo({ name: () => this.text.title, noindex: true });
-    // A fresh answer is also a fresh baseline: corrected quantities, dropped
-    // notes and current prices go back into the store, so the header agrees
-    // with this page and FR-CART-10 compares against what was last seen.
-    //
-    // Only while the answer still describes the cart, and never as a read of
-    // the cart itself — folding an answer in is a write, and an effect that
-    // watched what it wrote would put the reply to a stale cart back on top of
-    // the edit that made it stale.
+    // A fresh answer becomes the stored baseline (FR-CART-10). Only while it
+    // describes the cart, and untracked: watching its own write would put a
+    // stale reply over the edit.
     effect(() => {
       const value = this.answer();
       if (value && this.current())
@@ -797,16 +590,12 @@ export class CartPage {
     });
   }
 
-  /** Turns a page, from the clamped page rather than the requested one: after
-   * a removal the two can differ, and stepping off the stale figure would skip
-   * a page. */
+  /** From the clamped page: after a removal the requested one may be stale. */
   protected turnTo(page: number): void {
     this.requestedPage.set(page);
   }
 
-  /** One line of the change summary, named by its product — the summary is
-   * read above the lines it is about, so the product has to be in the
-   * sentence. */
+  /** Named by its product: the summary sits above the lines. */
   protected changeMessage(change: CartChange): string {
     const text = this.changeText;
     if (change.kind === 'unavailable') {
@@ -855,8 +644,7 @@ export class CartPage {
     this.ticked.set(next);
   }
 
-  /** One control for both directions: it offers the whole cart until the whole
-   * cart is ticked, and gives the ticks back after that. */
+  /** Ticks all until all are ticked, then clears. */
   protected toggleAll(): void {
     this.ticked.set(
       this.allSelected()
@@ -865,8 +653,7 @@ export class CartPage {
     );
   }
 
-  /** On `change`, which fires when the field is left — a note is written as a
-   * sentence, not stored letter by letter. */
+  /** On `change`, when the field is left. */
   protected onNote(row: CartRow, event: Event): void {
     this.cart.setNote(row.slug, (event.target as HTMLTextAreaElement).value);
   }
@@ -875,8 +662,7 @@ export class CartPage {
     this.cart.remove(row.slug);
   }
 
-  /** Bulk and irreversible, so it asks first — unlike the bin on a single row,
-   * where what was removed is one line the customer is looking at. */
+  /** Bulk and irreversible, so it asks; the single bin does not. */
   protected async deleteSelected(): Promise<void> {
     const keys = this.selected();
     if (keys.size === 0) return;
@@ -896,15 +682,8 @@ export class CartPage {
     this.ticked.set(new Set());
   }
 
-  /**
-   * The bubble's line, where the answer carries one of the issues that are
-   * feedback. Both are over by the time they can be read — the corrected line
-   * is written straight back and asked about again — so they belong in a bubble
-   * that says what happened rather than in the list of what is still wrong.
-   *
-   * The moved lens comes first where both arrived: it is the larger change, and
-   * the corrected figure is standing in the field beside it either way.
-   */
+  /** The bubble's line for a feedback issue: already corrected, so news, not a
+   * state. A moved lens comes first. */
   private noticeFor(issues: readonly CartLineIssue[]): string | null {
     const found = NOTICE_ISSUES.find((issue) => issues.includes(issue));
     return found === undefined ? null : this.issueText(found);

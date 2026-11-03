@@ -2,29 +2,12 @@ import { getDeploymentConfig } from '../../../shared/config/deployment-config.se
 import { CART_STORAGE_KEY, CART_STORAGE_VERSION } from './cart-storage';
 import { moneyFormat } from '@b2b-catalog-platform/shared';
 
-/**
- * The inline script that draws the navbar's cart figures before the page's
- * first paint.
- *
- * The cart lives in localStorage, which the server cannot read, so every
- * server-rendered page is HTML for an empty cart. Correcting that from Angular
- * — however early — is always a *second* picture: the visitor sees a bare
- * basket and then, a beat later, the count and total appear. The only way to
- * be right the first time is to run before anything is painted, and the only
- * code that can is a synchronous script in `<head>`.
- *
- * It therefore does not touch the header — none of it is parsed yet. It writes
- * two custom properties and a class onto `<html>`, and the stylesheet draws
- * the figures from them (see `.cart-filled` in styles.css). CartLink writes
- * the same three values for the rest of the visit, so nothing changes hands at
- * hydration and there is no second picture.
- *
- * The cost is that the total is formatted twice, here and in
- * `formatPriceMinorShort` — the two must agree, which `cart-shell.server.spec.ts`
- * is what checks. It is a deliberately small duplication: a bad reading is
- * corrected as soon as Angular boots, and a throw is swallowed, so the worst
- * case is the flash this exists to remove.
- */
+/** The inline `<head>` script that draws the navbar's cart figures before first
+ * paint: the server cannot read localStorage, and anything Angular corrects is
+ * a second picture. It writes two custom properties and a class on `<html>` for
+ * styles.css (`.cart-filled`); CartFigures keeps them. The total is formatted
+ * twice, here and in `formatPriceMinorShort`: the spec checks they agree, and a
+ * throw is swallowed. */
 function buildCartShellScript(): string {
   const { code, locale } = moneyFormat(getDeploymentConfig());
   return `<script>${cartShellSource(locale, code)}</script>`;
@@ -50,11 +33,7 @@ r.classList.add('cart-filled');
 
 let cachedScript: string | undefined;
 
-/**
- * Injects the script immediately before `</head>`, into server-rendered pages
- * and the client-rendered shell alike — the shell needs it just as much, since
- * its own first paint is also cartless.
- */
+/** Before `</head>`, in SSR pages and the client shell alike. */
 export function injectCartShell(html: string): string {
   cachedScript ??= buildCartShellScript();
   return html.replace('</head>', `${cachedScript}</head>`);

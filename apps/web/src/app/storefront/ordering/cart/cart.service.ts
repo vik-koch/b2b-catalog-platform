@@ -37,37 +37,15 @@ import { readSessionHint } from '../../../shared/auth/session-hint';
 import { CART_STORAGE_KEY, CART_STORAGE_VERSION } from './cart-storage';
 import { USER_ROLES, UserRole } from '@b2b-catalog-platform/shared/platform';
 
-/**
- * A line as the browser keeps it. Beyond what the contract needs
- * (`slug`/`unit`/`pieces`/`note`) it carries what the browser has to be able
- * to answer for itself:
- *
- * - `name`, so a line whose product has gone can still say which product it
- *   was — preview answers `null` for one, and a bare slug is not something to
- *   ask a customer to recognise.
- * - `addedAt` and the last-seen prices, which are the baseline FR-CART-10
- *   compares against on the next visit. Both are recorded from the first
- *   version that stores a cart at all: a baseline that only starts later
- *   cannot describe what changed while a cart written today waited.
- * - `prices`, `packaging` and the line's `image` as they stood when the line
- *   was last seen, which is what lets the cart page draw a whole row — photo
- *   and buying controls — from the browser alone: the unit selector and the
- *   stepper need the packaging to correct a quantity and the prices to say
- *   what the change costs, and none of it may wait for `POST /cart/preview`.
- *   A cart whose rows arrive a beat before their photos is a page that
- *   flickers on every load, and a failed preview would leave it with neither.
- * - the box figures, for the same reason one step further on: with them the
- *   browser adds up the shipment estimate itself, so what the order will weigh
- *   moves with the stepper rather than a round trip behind it.
- *
- * `unitPriceMinor` is what *one* of the chosen unit cost (for pieces, one
- * minimum lot), so a quantity change does not read as a price change;
- * `lineTotalMinor` is what the line cost, and is what the header adds up
- * without a round trip.
- */
+/** A line as the browser keeps it: beyond the contract's fields, enough to draw
+ * the whole row (photo, buying controls, shipment estimate) before `POST
+ * /cart/preview` answers, or if it fails. `name` names a line whose product is
+ * gone; `addedAt` and the last-seen figures are FR-CART-10's baseline.
+ * `unitPriceMinor` is one of the chosen unit (for pieces, one minimum lot);
+ * `lineTotalMinor` is what the header adds up. */
 export interface CartStoredLine {
   slug: string;
-  /** The lens the line is read and stepped in — never a second quantity. */
+  /** The lens the line is read and stepped in, never a second quantity. */
   unit: ProductUnit;
   /** The quantity, always in whole pieces. */
   pieces: number;
@@ -79,119 +57,52 @@ export interface CartStoredLine {
   prices: UnitPrices;
   packaging: ProductPackaging;
   image: CatalogImage | null;
-  /**
-   * What one box unit of this product weighs and takes up, and how many
-   * cartons it ships as — the last the server said, and what lets the browser
-   * add up the shipment estimate itself.
-   *
-   * `boxCount` is null until a preview has answered for the line: a product
-   * page knows nothing about cartons, so a line that has only been added has
-   * not been told. Null is "not told", not "no box" — the estimate is withheld
-   * rather than computed from a figure nobody stated.
-   */
+  /** One box unit's weight, volume and cartons, as last stated. `boxCount` is
+   * null until a preview answers: not told, so the estimate is withheld. */
   boxVolume: string | null;
   boxWeight: string | null;
   boxCount: number | null;
-  /** Whether this line takes a note, and the product's own wording for it —
-   * kept for the same reason the prices are: the cart page draws the note
-   * field with the row rather than when the pricing call answers. */
+  /** Kept so the note field draws with the row. */
   noteEnabled: boolean;
   notePrompt: string | null;
-  /**
-   * Whether the shop still offered this product the last time the cart was
-   * priced. Written down for the same reason the prices are: the row is drawn
-   * from the browser's own copy, and a withdrawn line that only remembers its
-   * last price would show it again on every visit to the cart until the
-   * pricing call answered — the figure the customer was told a moment ago was
-   * no longer valid, back on screen.
-   *
-   * True for a cart written before this was recorded, and for a line nobody
-   * has priced yet: the product page it was added from was offering it.
-   */
+  /** Whether the product was on offer at the last pricing, so a withdrawn line
+   * does not show its old price until the call answers. True for older carts
+   * and unpriced lines. */
   available: boolean;
-  /**
-   * What the shop last said about this product's stock, or null where it is
-   * untracked — the badge the row wears (FR-STOCK-03), and the baseline the
-   * next pricing is compared against: a line that went off the shelf while the
-   * cart waited, or came back onto it, is news (FR-CART-10).
-   *
-   * Null for a cart written before this was recorded, which reads as untracked
-   * and reports nothing until the shop says otherwise.
-   */
+  /** The last stock state (FR-STOCK-03), null where untracked; a change is news
+   * (FR-CART-10). Null for older carts. */
   availability: ProductAvailability | null;
-  /**
-   * The rate the shop last said this line is taxed at (NFR-LEGAL-11), null
-   * where no tax is charged. Absent until the line has been priced — a line
-   * added from a card, and every line of a cart written before this was
-   * recorded — which leaves it out of what the total names rather than
-   * guessing at it.
-   */
+  /** The last stated tax rate (NFR-LEGAL-11), null where none is charged.
+   * Absent until priced, which leaves it out of what the total names. */
   taxRate?: number | null;
-  /**
-   * How many products this one is sold together with (FR-SET-05) — what the
-   * marker on the cart's line is drawn from, before anything is priced.
-   *
-   * Zero for a cart written before this was recorded, which reads as no marker
-   * until the next pricing says otherwise. Only counterparts the shop can sell
-   * are counted, so a lid leaving the catalogue takes the marker off the cup's
-   * line by itself.
-   */
+  /** How many products this one is sold with (FR-SET-05), for the line's
+   * marker. Zero for older carts. Only sellable counterparts count. */
   pairedCount: number;
-  /**
-   * How many pieces of what this product is sold with the cart is short of
-   * (FR-SET-03), or null where it is short of nothing.
-   *
-   * Written down for the reason the prices are: the cart is drawn from the
-   * browser's own copy before anything is asked of the server, and a shortfall
-   * that only lived in the last answer vanished on every reload and came back
-   * a call later. The shop is still the one that decides it — this is the last
-   * thing it said, replaced by the next pricing and never worked out here.
-   *
-   * Null for a cart written before this was recorded, and for a line nobody
-   * has priced yet.
-   */
+  /** The pieces the cart is short of this product's counterparts (FR-SET-03),
+   * or null. Kept so it survives a reload; the shop decides it, never this
+   * code. Null for older carts and unpriced lines. */
   pairingShortPieces: number | null;
-  /**
-   * What one piece is made of where the product is sold as a set (FR-CAT-10) —
-   * the marker the line wears, as the card it was added from did.
-   *
-   * Empty for a cart written before this was recorded, which reads as no
-   * marker until the next pricing says otherwise.
-   */
+  /** What one piece is made of (FR-CAT-10), for the line's marker. Empty for
+   * older carts. */
   parts: string[];
-  /**
-   * The product's variants and the pictures they are shown with (FR-CAT-13) —
-   * what the line's mark opens, kept for the reason the parts are.
-   *
-   * Empty for a cart written before this was recorded, which reads as no mark
-   * until the next pricing says otherwise.
-   */
+  /** Variants and their pictures (FR-CAT-13), which the line's mark opens.
+   * Empty for older carts. */
   variants: ProductVariant[];
   images: ProductImage[];
 }
 
-/** The whole cart as it is written down: the lines, and whose prices they were
- * last quoted at. Everything the summary states is derived from the lines. */
+/** The stored cart. Every summary figure is derived from the lines. */
 interface StoredCart {
   version: number;
   lines: CartStoredLine[];
-  /**
-   * Who the cart was last priced for, as the readable session hint says it —
-   * `null` for a guest, absent for a cart written before this was recorded.
-   *
-   * A role rather than an account: what moves a customer's prices is signing
-   * in or out (FR-CART-10), and the hint is the one identity available while
-   * the cart is being priced — `/auth/me` answers a round trip later. Two
-   * accounts in different price groups are indistinguishable here, but
-   * reaching one from the other means signing out in between, and that
-   * transition is caught.
-   */
+  /** Who the cart was last priced for, by the session hint's role (`null` a
+   * guest; absent in older carts). A role, not an account: switching between
+   * accounts means signing out between, which is caught (FR-CART-10). */
   pricedFor?: UserRole | null;
 }
 
-/** What happened to one line while the cart waited (FR-CART-10), most
- * consequential first — one per line, so a summary reads as a list of
- * products rather than a list of faults. */
+/** What happened to a line while the cart waited (FR-CART-10): one per line,
+ * most consequential first. */
 export type CartChangeKind =
   | 'unavailable'
   | 'out-of-stock'
@@ -200,13 +111,8 @@ export type CartChangeKind =
   | 'unpriced'
   | 'price';
 
-/**
- * A line the shop no longer describes the way the browser wrote it down.
- *
- * The figures are the line's **totals**, before and after: it is what the
- * customer is about to pay, and it is comparable even where the unit the line
- * is read in has moved underneath it.
- */
+/** A line the shop now describes differently. The figures are line totals,
+ * comparable even where the unit moved. */
 export interface CartChange {
   slug: string;
   name: string;
@@ -215,20 +121,10 @@ export interface CartChange {
   toMinor: number | null;
 }
 
-/**
- * The cart (FR-CART-01/02/10). It lives entirely in the browser — there is no
- * cart table — so this service is the store, and `POST /cart/preview` only
- * says what the stored cart costs *now*.
- *
- * Identity is the `slug`: one product is one line, in whichever unit it was
- * last chosen in, and the note describes that line. A product cannot sit in the
- * cart twice as pieces and as boxes — the unit is a lens on the line, and
- * changing it changes nothing but how the line reads.
- *
- * SSR-safe the way `ConsentService` is: localStorage is touched only in the
- * browser, so on the server the cart is always empty — which is what the
- * server renders, and what the header waits for `afterNextRender` to correct.
- */
+/** The cart (FR-CART-01/02/10), stored only in the browser; `POST
+ * /cart/preview` says what it costs now. One line per slug: the unit is a lens.
+ * On the server the cart is empty; the header corrects it after the first
+ * render. */
 @Injectable({ providedIn: 'root' })
 export class CartService implements ProductCart {
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
@@ -236,69 +132,47 @@ export class CartService implements ProductCart {
   private readonly restored = this.read();
   private readonly stored = signal<CartStoredLine[]>(this.restored.lines);
 
-  /** Who the written-down prices were quoted for; see `StoredCart.pricedFor`.
-   * Undefined where the cart predates the field, which reads as "the visitor
-   * it is being priced for now". */
+  /** See `StoredCart.pricedFor`; undefined in older carts reads as the current
+   * visitor. */
   private pricedFor: UserRole | null | undefined = this.restored.pricedFor;
 
-  /** Whether the cart has been priced once in this visit. The first answer is
-   * the one that describes what changed while the cart waited; every one after
-   * it answers an edit the customer just made. */
+  /** Whether priced once this visit: only the first answer describes what
+   * changed while the cart waited. */
   private reported = false;
 
   private readonly changesState = signal<readonly CartChange[]>([]);
 
-  /**
-   * What changed while the cart waited (FR-CART-10) — empty until the first
-   * pricing of a visit says otherwise, and empty again once it is dismissed.
-   * Reported once and never rebuilt: an edit made afterwards is the customer's
-   * own doing.
-   */
+  /** What changed while the cart waited (FR-CART-10), reported once a visit. */
   readonly changes = this.changesState.asReadonly();
 
-  /** The cart, oldest line first. */
+  /** Oldest line first. */
   readonly lines = this.stored.asReadonly();
 
-  /** How many lines — not how many pieces. Lines are what the cart page shows
-   * rows of, so they are what the header counts. */
+  /** Lines, not pieces: what the cart page shows rows of. */
   readonly count = computed(() => this.stored().length);
 
-  /** The rates of the lines the total adds up (NFR-LEGAL-11) — what it
-   * names, or why it names only the basis. A line not yet priced is left
-   * out rather than guessed at. */
+  /** The priced lines' rates (NFR-LEGAL-11); an unpriced line is left out. */
   readonly taxRates = computed(() =>
     this.stored().flatMap((line) =>
       line.available && line.taxRate !== undefined ? [line.taxRate] : [],
     ),
   );
 
-  /** The sum of the lines that had a price when last seen. */
   readonly totalMinor = computed(() =>
     this.stored().reduce((sum, line) => sum + (line.lineTotalMinor ?? 0), 0),
   );
 
-  /** False while any line has no price, so a partial sum is never shown as the
-   * whole cart's total. */
+  /** False while a line is unpriced, so a partial sum never reads as the total.
+   * */
   readonly totalComplete = computed(() =>
     this.stored().every((line) => line.lineTotalMinor !== null),
   );
 
   readonly isEmpty = computed(() => this.stored().length === 0);
 
-  /**
-   * The shipment estimate (FR-UNIT-11) worked out from what is written down —
-   * the same arithmetic the server runs, on the same figures, so an edit moves
-   * the consignment the moment it is made rather than one round trip later.
-   * The summary is derived from the lines rather than stored beside them,
-   * exactly as the total is; two copies of one figure disagree the moment a
-   * quantity changes.
-   *
-   * Null until every line has been told its box figures. A cart holding one
-   * line nobody has priced yet cannot be added up honestly: the missing line
-   * would read as a weightless one, and a summary that quietly leaves a
-   * product out is worse than a summary that has not arrived — which is when
-   * the page shows its skeleton instead.
-   */
+  /** The shipment estimate (FR-UNIT-11), the server's arithmetic on the stored
+   * figures, so it moves with the stepper. Null until every line has box
+   * figures: a missing line must not weigh nothing. */
   readonly estimate = computed<ShipmentSummary | null>(() => {
     const lines = this.stored();
     if (lines.length === 0) return null;
@@ -306,8 +180,7 @@ export class CartService implements ProductCart {
     return shipmentEstimate(
       lines.map((line) => ({
         packaging: line.packaging,
-        // Corrected for the same reason the total is: a line the shop is about
-        // to correct should not be weighed as it stands.
+        // Weighed as corrected, as the total is.
         pieces: correctPieces(line.packaging, line.pieces),
         boxVolume: line.boxVolume,
         boxWeight: line.boxWeight,
@@ -316,21 +189,13 @@ export class CartService implements ProductCart {
     );
   });
 
-  /**
-   * Set when the browser refused to store the cart — a full quota, or storage
-   * disabled. The cart still works for this visit but will not survive a
-   * reload, and the page says so rather than losing it in silence.
-   */
+  /** Set when storage refused the cart: it works for this visit, and the page
+   * says it will not survive a reload. */
   private readonly persistFailedState = signal(false);
   readonly persistFailed = this.persistFailedState.asReadonly();
 
-  /**
-   * What `POST /cart/preview` is asked to price.
-   *
-   * Compared by value, not by identity. Every write produces a fresh array, and
-   * folding an answer back in is itself a write — so an identity comparison
-   * would make a re-priced cart ask to be re-priced again, forever.
-   */
+  /** What `POST /cart/preview` prices. By value: folding an answer back is a
+   * write, so identity would re-price forever. */
   readonly request = computed<CartLine[]>(
     () =>
       this.stored().map(({ slug, unit, pieces, note }) => ({
@@ -344,8 +209,7 @@ export class CartService implements ProductCart {
 
   constructor() {
     if (!this.isBrowser) return;
-    // Without this, one tab writing the whole document makes the last writer
-    // win in silence, discarding whatever another tab had added.
+    // Otherwise the last tab to write wins and drops another tab's additions.
     const onStorage = (event: StorageEvent) => {
       if (event.key !== null && event.key !== CART_STORAGE_KEY) return;
       const restored = this.read();
@@ -358,34 +222,22 @@ export class CartService implements ProductCart {
     );
   }
 
-  /**
-   * The line for a product, whatever unit it is held in — undefined where the
-   * cart has none. A product is one line: the buying controls read this to
-   * show what is already in the cart rather than offering to add it twice.
-   */
+  /** The product's line in any unit, so the buying controls never add it twice.
+   * */
   lineFor(slug: string): CartStoredLine | undefined {
     return this.stored().find((line) => line.slug === slug);
   }
 
-  /**
-   * Adds a line, or folds the addition into the one this product already has.
-   * A product occupies one line regardless of unit: adding the same unit again
-   * sums the quantities, and adding another unit moves the line to it rather
-   * than splitting the product across two rows a customer has to reconcile.
-   *
-   * The newer note is taken only where one was typed — adding again without a
-   * note does not erase the note already on the line.
-   */
+  /** Adds a line, or folds into the product's line, moving it to the new unit.
+   * A note is taken only where one was typed. */
   add(addition: CartAddition): CartAddResult {
     const lines = this.stored();
     const at = lines.findIndex((line) => line.slug === addition.slug);
     if (at === -1 && lines.length >= CART_LINES_MAX) return 'full';
 
     const note = trimNote(addition.note);
-    // Always summed, whatever unit either was chosen in: both are piece counts
-    // of the same goods, so adding two packs to a line held in boxes is simply
-    // twelve more pieces. Corrected, because a sum is the one quantity here
-    // nobody typed — it is the only way to reach the ceiling by accident.
+    // Summed as pieces whatever the units. Corrected: a sum is the one quantity
+    // nobody typed.
     const pieces =
       at === -1
         ? addition.pieces
@@ -404,7 +256,6 @@ export class CartService implements ProductCart {
           prices: addition.prices,
           packaging: addition.packaging,
           image: addition.image,
-          // Not told yet: the first preview fills these in.
           boxVolume: null,
           boxWeight: null,
           boxCount: null,
@@ -416,9 +267,7 @@ export class CartService implements ProductCart {
           parts: addition.parts,
           variants: addition.variants,
           images: addition.images,
-          // Nobody has checked the cart against its pairings yet, and this
-          // line is the reason the answer would change: the first preview
-          // says it.
+          // This line may change the pairing answer: the first preview says.
           pairingShortPieces: null,
           ...priceLine(addition, pieces),
         },
@@ -449,13 +298,8 @@ export class CartService implements ProductCart {
     return 'added';
   }
 
-  /**
-   * Sets an existing line's unit and piece count outright, re-pricing it — what
-   * the buying controls do once a product is in the cart, where the stepper and
-   * the unit selector edit the line itself rather than describing a new one.
-   *
-   * A no-op where the product is not in the cart: this edits, never creates.
-   */
+  /** Sets an existing line's unit and pieces outright, re-pricing it; never
+   * creates one. */
   setLine(addition: CartAddition): void {
     const lines = this.stored();
     const at = lines.findIndex((line) => line.slug === addition.slug);
@@ -483,12 +327,8 @@ export class CartService implements ProductCart {
     );
   }
 
-  /**
-   * Writes a line's note, or clears it. Separate from `setLine`, which takes
-   * the newer note only where one was typed — that is right for an *addition*,
-   * which must not erase what is already on the line, and wrong for an edit,
-   * where emptying the field is the edit.
-   */
+  /** Unlike `setLine`, an empty note clears it: here emptying the field is the
+   * edit. */
   setNote(slug: string, note: string | null): void {
     const lines = this.stored();
     const at = lines.findIndex((line) => line.slug === slug);
@@ -498,8 +338,7 @@ export class CartService implements ProductCart {
     this.write(replaceAt(lines, at, { ...lines[at], note: trimmed }));
   }
 
-  /** By slug alone, since that is what identifies a line — a caller holding a
-   * unit the line has since been moved off would otherwise remove nothing. */
+  /** By slug alone: the caller may hold a unit the line has since left. */
   remove(slug: string): void {
     this.write(this.stored().filter((line) => line.slug !== slug));
   }
@@ -508,40 +347,23 @@ export class CartService implements ProductCart {
     this.write([]);
   }
 
-  /**
-   * True where the prices written down were quoted to a *different* visitor
-   * than the one here now — so the header is carrying somebody else's figures
-   * until the cart is priced again (`CartRepricing`).
-   *
-   * A method rather than a signal: the session hint is a cookie, and nothing
-   * reactive fires when one changes. The caller watches the session instead.
-   */
+  /** True where the stored prices were quoted to a different visitor
+   * (`CartRepricing`). A method: the session hint is a cookie, and nothing
+   * reactive fires on it. */
   needsRepricing(): boolean {
     return this.stored().length > 0 && this.pricedFor !== this.currentRole();
   }
 
-  /** Puts the change summary away; it does not come back this visit. */
   dismissChanges(): void {
     this.changesState.set([]);
   }
 
-  /**
-   * Folds a fresh preview back onto the stored cart: corrected quantities,
-   * dropped notes, and the prices as they stand now.
-   *
-   * It never removes a line. The server flags a dead one; taking it out is the
-   * customer's action, and a cart that quietly shortened itself between two
-   * glances is worse than one that says what is wrong with it.
-   *
-   * The first answer of a visit is also what reports what changed while the
-   * cart waited (FR-CART-10): it is the last moment the baseline the shop is
-   * about to overwrite is still there to compare against.
-   */
+  /** Folds a preview onto the stored cart. Never removes a line: that is the
+   * customer's action. The visit's first answer reports what changed (FR-
+   * CART-10) while the baseline still exists. */
   applyPreview(preview: CartPreview): void {
-    // By slug alone, which is what identifies a line. The answer may carry
-    // another unit than the one that was sent — a product repacked out of it
-    // falls back to the piece — and a key holding the unit would then match
-    // nothing and drop the correction on the floor.
+    // By slug alone: a repacked product answers in pieces, and a unit in the
+    // key would drop the correction.
     const priced = new Map(preview.lines.map((line) => [line.slug, line]));
     const current = this.stored();
     const changes: CartChange[] = [];
@@ -556,32 +378,25 @@ export class CartService implements ProductCart {
         pieces: fresh.pieces,
         note: fresh.note,
         name: fresh.name ?? line.name,
-        // Kept where the answer has none: an unavailable product answers null
-        // for both, and the last-known figures are what still let the line's
-        // controls draw themselves.
+        // An unavailable product answers null; the last figures still draw the
+        // controls.
         prices: fresh.prices ?? line.prices,
         packaging: fresh.packaging ?? line.packaging,
         image: fresh.image ?? line.image,
-        // Kept where the answer has none, for the reason the prices are: an
-        // unavailable product answers null for all of them, and the last
-        // figures the shop stated are the ones the estimate was drawn from.
+        // Kept for the estimate, as the prices are.
         boxVolume: fresh.boxCount === null ? line.boxVolume : fresh.boxVolume,
         boxWeight: fresh.boxCount === null ? line.boxWeight : fresh.boxWeight,
         boxCount: fresh.boxCount ?? line.boxCount,
         noteEnabled: fresh.lineNoteEnabled,
         notePrompt: fresh.lineNotePrompt,
         pairedCount: fresh.pairedCount,
-        // Kept where the product is gone, like the photo: what the line was is
-        // still what it was.
+        // Kept where the product is gone.
         parts: fresh.name === null ? line.parts : fresh.parts,
         variants: fresh.name === null ? line.variants : fresh.variants,
         images: fresh.name === null ? line.images : fresh.images,
-        // Taken as answered, not kept: an unavailable line is short of
-        // nothing, and there is nothing in the last figure worth showing over
-        // a newer one that says so.
+        // Taken as answered: an unavailable line is short of nothing.
         pairingShortPieces: fresh.pairingShortPieces,
-        // The same reading the page makes of a fresh line: prices the shop
-        // will not state are a product it no longer offers.
+        // Unstated prices are a product no longer offered.
         available: fresh.prices !== null,
         availability: fresh.availability,
         taxRate: fresh.taxRate,
@@ -589,26 +404,19 @@ export class CartService implements ProductCart {
           fresh.prices === null ? null : unitPriceOf(fresh.prices, fresh.unit),
         lineTotalMinor: fresh.lineTotalMinor,
       };
-      // Hand back the same object where nothing moved, so an answer that only
-      // confirms the cart does not count as a change to it.
+      // The same object where nothing moved, so a confirmation is no change.
       return sameLine(line, updated) ? line : updated;
     });
     this.report(changes);
 
-    // An answer that only confirms what is written down is not a change to it,
-    // so nothing here touches storage on every reply — unless the visitor it
-    // was priced for has moved, which is itself worth writing down.
+    // Storage is written only on change, or where the priced-for visitor moved.
     const rebaselined = this.pricedFor !== this.currentRole();
     if (next.some((line, at) => line !== current[at])) this.write(next);
     else if (rebaselined) this.persist();
   }
 
-  /**
-   * Reports what the first pricing of a visit found — or says nothing at all,
-   * where the cart was last priced for somebody else. Signing in or out moves
-   * every tiered price at once, and FR-CART-10 is explicit that this is not
-   * news: the re-pricing is silent, and the visit's one report is spent on it.
-   */
+  /** Silent where the cart was priced for somebody else: signing in or out re-
+   * prices everything, which FR-CART-10 says is not news. */
   private report(changes: CartChange[]): void {
     const rebaselined =
       this.pricedFor !== undefined && this.pricedFor !== this.currentRole();
@@ -616,8 +424,7 @@ export class CartService implements ProductCart {
     this.reported = true;
   }
 
-  /** The visitor the cart is being priced for, from the readable session hint
-   * beside the httpOnly session cookie. */
+  /** From the readable hint beside the httpOnly session cookie. */
   private currentRole(): UserRole | null {
     return this.isBrowser ? readSessionHint(this.document.cookie) : null;
   }
@@ -627,11 +434,7 @@ export class CartService implements ProductCart {
     this.persist();
   }
 
-  /**
-   * Writes the cart down, recording the visitor it was priced for as it goes:
-   * every write states prices the shop quoted this visitor, whether it came
-   * from a pricing call or from the buying controls on a product page.
-   */
+  /** Every write states prices quoted to this visitor, so it records them. */
   private persist(): void {
     if (!this.isBrowser) return;
     this.pricedFor = this.currentRole();
@@ -648,9 +451,8 @@ export class CartService implements ProductCart {
     }
   }
 
-  /** Anything unreadable is discarded whole, and each surviving line is
-   * shape-checked: the payload is editable by hand, and a string quantity
-   * would otherwise reach the contract as one. */
+  /** Unreadable means discarded whole; each line is shape-checked, as the
+   * payload is hand-editable. */
   private read(): { lines: CartStoredLine[]; pricedFor?: UserRole | null } {
     if (!this.isBrowser) return { lines: [] };
     try {
@@ -681,15 +483,9 @@ export class CartService implements ProductCart {
   }
 }
 
-/**
- * What one line's fresh price says happened to it while the cart waited, or
- * null where the shop still describes it exactly as it was written down.
- *
- * One answer per line, most consequential first: a withdrawn product is not
- * also a price change, and a corrected quantity explains the total that came
- * back with it. A line that could not be priced before and can be now is no
- * news — there is no earlier figure to name, and the row states the new one.
- */
+/** A line's news from its fresh price, or null. Most consequential first: a
+ * withdrawn product is not also a price change. A line priced for the first
+ * time is no news. */
 function changeFor(
   line: CartStoredLine,
   fresh: CartPreviewLine,
@@ -703,11 +499,8 @@ function changeFor(
   if (fresh.issues.includes('unavailable')) {
     return { ...change, kind: 'unavailable' };
   }
-  // Whether the shelf emptied or filled while the cart waited (FR-STOCK-04):
-  // the first is what stops the order being placed, and the second is the news
-  // that it no longer does. Ahead of the quantity and the price, because both
-  // of those are questions of how much and this one is whether at all. "Few
-  // left" is not reported — it restricts nothing, and the badge states it.
+  // Stock emptied or refilled (FR-STOCK-04) before quantity and price: whether
+  // at all before how much. "Few left" restricts nothing.
   if (fresh.availability === 'out' && line.availability !== 'out') {
     return { ...change, kind: 'out-of-stock' };
   }
@@ -722,8 +515,7 @@ function changeFor(
     : { ...change, kind: 'price' };
 }
 
-/** The stored visitor, or undefined where the cart carries none — the payload
- * is editable by hand, and a role that is not one reads as no answer. */
+/** Undefined where absent or not a role: the payload is hand-editable. */
 function readPricedFor(value: unknown): UserRole | null | undefined {
   if (value === null) return null;
   return (USER_ROLES as readonly unknown[]).includes(value)
@@ -731,11 +523,7 @@ function readPricedFor(value: unknown): UserRole | null | undefined {
     : undefined;
 }
 
-/**
- * Fills in a line stored before availability was written down, so a cart in a
- * browser today is read rather than discarded: what it holds was on offer when
- * it was put there, and the next pricing says whether it still is.
- */
+/** Fills in older lines: they were on offer when added. */
 function withAvailability(line: unknown): unknown {
   const candidate = line as { available?: unknown } | null;
   if (!candidate || typeof candidate !== 'object') return line;
@@ -744,12 +532,7 @@ function withAvailability(line: unknown): unknown {
     : { ...candidate, available: true };
 }
 
-/**
- * Fills in a line stored before the stock state was written down. Null is
- * "nobody said", which is also what an untracked product answers — so a cart
- * in a browser today reports nothing about stock until the first pricing of
- * the visit says otherwise.
- */
+/** Fills in older lines as untracked, reporting nothing until priced. */
 function withStockState(line: unknown): unknown {
   const candidate = line as { availability?: unknown } | null;
   if (!candidate || typeof candidate !== 'object') return line;
@@ -758,8 +541,7 @@ function withStockState(line: unknown): unknown {
     : { ...candidate, availability: null };
 }
 
-/** Fills in a line stored before the pairings were written down. Zero is "no
- * marker", which is also what a product sold with nothing answers. */
+/** Fills in older lines as no marker. */
 function withPairedCount(line: unknown): unknown {
   const candidate = line as { pairedCount?: unknown } | null;
   if (!candidate || typeof candidate !== 'object') return line;
@@ -768,8 +550,7 @@ function withPairedCount(line: unknown): unknown {
     : { ...candidate, pairedCount: 0 };
 }
 
-/** Fills in a line stored before the parts were written down. Empty is "no
- * marker", which is also what a product sold as itself answers. */
+/** Fills in older lines as no marker. */
 function withParts(line: unknown): unknown {
   const candidate = line as { parts?: unknown } | null;
   if (!candidate || typeof candidate !== 'object') return line;
@@ -779,9 +560,7 @@ function withParts(line: unknown): unknown {
     : { ...candidate, parts: [] };
 }
 
-/** Fills in a line stored before the variants were written down, or one whose
- * copy of them was edited out of shape. Empty is "no mark", which is also what
- * a product that names no variants answers. */
+/** Fills in older or misshapen lines as no mark. */
 function withVariants(line: unknown): unknown {
   const candidate = line as { variants?: unknown; images?: unknown } | null;
   if (!candidate || typeof candidate !== 'object') return line;
@@ -814,10 +593,7 @@ function isLabeledImage(value: unknown): value is ProductImage {
   );
 }
 
-/** Fills in a line stored before the shortfall was written down. Null is
- * "nobody has checked", which is also what a covered line answers — so a cart
- * in a browser today warns about nothing until the first pricing of the visit
- * says otherwise. */
+/** Fills in older lines as unchecked, warning of nothing until priced. */
 function withPairingShortfall(line: unknown): unknown {
   const candidate = line as { pairingShortPieces?: unknown } | null;
   if (!candidate || typeof candidate !== 'object') return line;
@@ -847,8 +623,7 @@ function sameLine(a: CartStoredLine, b: CartStoredLine): boolean {
     a.boxVolume === b.boxVolume &&
     a.boxWeight === b.boxWeight &&
     a.boxCount === b.boxCount &&
-    // By value: preview hands back fresh objects every time, and comparing
-    // them by identity would rewrite the whole cart on every answer.
+    // By value: identity would rewrite the cart on every answer.
     same(a.prices, b.prices) &&
     same(a.packaging, b.packaging) &&
     same(a.image, b.image)
@@ -865,22 +640,16 @@ function replaceAt<T>(items: T[], at: number, item: T): T[] {
   return next;
 }
 
-/** The note as it will be stored and sent: trimmed, capped, and `null` rather
- * than empty — the contract refuses a blank string. */
+/** Trimmed, capped, and null for blank: the contract refuses an empty string.
+ * */
 function trimNote(note: string | null): string | null {
   const trimmed = note?.trim() ?? '';
   return trimmed === '' ? null : trimmed.slice(0, CART_NOTE_MAX);
 }
 
-/**
- * The two priced fields of a line, from the prices the choice was made
- * against — kept together so an edit can never re-price one without the other.
- *
- * Priced from the *corrected* count. It is the line's own count in all but one
- * case: a line written down before the product's rules changed. Pricing that
- * one as it stands answers "no price", which is a state that belongs to a
- * product the shop cannot price at all, not to one whose quantity has moved.
- */
+/** The line's two priced fields, together so neither is re-priced alone. Priced
+ * from the corrected count: a line from before a rule change would otherwise
+ * read as unpriceable. */
 function priceLine(
   addition: CartAddition,
   pieces: number,
@@ -914,12 +683,10 @@ function isStoredLine(line: unknown): line is CartStoredLine {
     candidate.pieces > 0 &&
     (candidate.note === null || typeof candidate.note === 'string') &&
     typeof candidate.name === 'string' &&
-    // Nothing reads this one yet — which is exactly why it is checked here: a
-    // line stored without it would survive until whatever finally does.
+    // Nothing reads it yet: checked so a bad line cannot wait for a reader.
     typeof candidate.addedAt === 'string' &&
-    // Both are summed on every read — the header's total and the page's — and
-    // a string among them turns the sum into concatenation rather than a
-    // wrong number. They are also the baseline FR-CART-10 reports against.
+    // Summed on every read: a string would concatenate. Also FR-CART-10's
+    // baseline.
     isNullableNumber(candidate.unitPriceMinor) &&
     isNullableNumber(candidate.lineTotalMinor) &&
     isPrices(candidate.prices) &&
@@ -932,8 +699,7 @@ function isStoredLine(line: unknown): line is CartStoredLine {
     (candidate.notePrompt === null ||
       typeof candidate.notePrompt === 'string') &&
     typeof candidate.available === 'boolean' &&
-    // Rendered as a figure in a sentence and counted into what the order card
-    // says, so a hand-edited payload must not put a string in either.
+    // Shown as a figure and counted, so no strings.
     (candidate.pairingShortPieces === null ||
       Number.isInteger(candidate.pairingShortPieces)) &&
     isAvailability(candidate.availability) &&
@@ -941,8 +707,7 @@ function isStoredLine(line: unknown): line is CartStoredLine {
   );
 }
 
-/** The stored stock state, which reaches a badge and a tone lookup — a payload
- * edited by hand must not put a fourth word in either. */
+/** Reaches a badge and a tone lookup: no fourth word. */
 function isAvailability(value: unknown): boolean {
   return (
     value === null ||

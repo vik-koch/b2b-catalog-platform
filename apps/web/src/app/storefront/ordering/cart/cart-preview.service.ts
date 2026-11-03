@@ -3,14 +3,9 @@ import { CartLine } from '@b2b-catalog-platform/shared/core/ordering';
 import { cartContract } from '../../contract-routes.generated';
 import { createOrpcClient } from '../../../shared/core/orpc-client';
 
-/**
- * Prices the browser's cart (`POST /cart/preview`). Separate from
- * `CartService`, which is the store: the store must keep working — and keep
- * showing its last-seen prices — whether or not this answers.
- *
- * The route it serves is client-rendered, so the server never calls it: the
- * request depends on localStorage, which SSR cannot read at all.
- */
+/** Prices the browser's cart (`POST /cart/preview`), apart from `CartService`
+ * so the store works whether or not this answers. Never called on the server:
+ * SSR cannot read localStorage. */
 @Injectable({ providedIn: 'root' })
 export class CartPreviewService {
   private readonly client = createOrpcClient(cartContract);
