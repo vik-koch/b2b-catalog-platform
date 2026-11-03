@@ -7,25 +7,13 @@ import { ChoiceCard } from '@b2b-catalog-platform/ui/choices/choice-card';
 import { DeliveryConditionsDialog } from './delivery-conditions-dialog';
 import { Link } from '@b2b-catalog-platform/ui/actions/link';
 
-/**
- * How the goods arrive (FR-CART-07) — the row that leads the form, because it
- * decides most of what follows it: delivery asks for an address, pickup asks
- * which office. Both of those stand *under* this row rather than inside a
- * card, so whichever is revealed occupies the same place on the page.
- *
- * Only what a *choice means* is app text. The zones the conditions dialog
- * lists and the offices the pickup section offers are deployment
- * configuration — a deployment describes its own offices, it does not
- * re-explain what delivery is.
- *
- * Pickup is offered only where offices are configured: a deployment with none
- * has nowhere to collect from, and the choice could not be completed.
- */
+/** How the goods arrive (FR-CART-07). First, as it decides what follows; the
+ * address or pickup row stands under it, so either takes the same place. Pickup
+ * only where offices are configured. */
 @Component({
   selector: 'app-fulfilment-choice',
   imports: [ChoiceCard, DeliveryConditionsDialog, Link],
-  // Block, or the page's own spacing between sections cannot reach it: a
-  // margin on an inline element does nothing.
+  // Block, so the page's section spacing applies.
   host: { class: 'block' },
   template: `
     <fieldset>
@@ -43,13 +31,10 @@ import { Link } from '@b2b-catalog-platform/ui/actions/link';
           [checked]="method() === 'delivery'"
           (chosen)="methodChange.emit('delivery')"
         >
-          <!-- Only where the deployment describes zones: a dialog listing
-               nothing is a link that answers no question. -->
+          <!-- Only where the deployment describes zones. -->
           @if (hasZones) {
-            <!-- Block, not the inline-block a button is by default: on a
-                 text baseline it carries the line box's leading with it, and
-                 sits a few pixels lower than the sentence the other card
-                 prints in the same place. -->
+            <!-- Block: inline-block on a text baseline sits a few pixels below
+                 the other card's sentence. -->
             <button
               type="button"
               uiLink

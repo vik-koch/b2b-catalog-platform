@@ -9,27 +9,10 @@ import { SHARED_TEXT } from '../../../../shared/config/shared-text';
 import { DateInput } from '@b2b-catalog-platform/ui/inputs/date-input';
 import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
 
-/**
- * When the customer would like the order (FR-CART-07) — a wish, not a booking.
- * Scheduling is settled between customer and manager, so this is a date beside
- * the order rather than a window anything reserves — which "preferred" in the
- * label already says.
- *
- * A native date field: it is one date, the browser's own picker is the one the
- * customer already knows, and it hands back an ISO day with no parsing of what
- * anybody typed. Optional throughout — an order with no date is the ordinary
- * case, meaning "whenever suits you".
- *
- * The days on offer are the ones the shop could work on (`order-dates`):
- * nothing today or earlier, and no weekend. The floor is measured from the
- * browser's own day, which is the one the customer is reading the field in.
- *
- * `min` alone does not cover it — a native picker greys out what falls before
- * the floor and offers every Saturday after it — so the rule is also said in
- * words under the field and checked when a date arrives. The message replaces
- * the hint rather than joining it: both say the same rule, and one of them is
- * about the date that is actually in the field.
- */
+/** When the customer would like the order (FR-CART-07): a wish, not a booking;
+ * optional. A native date field. Days on offer follow `order-dates` from the
+ * browser's today. `min` still offers weekends, so the rule is said under the
+ * field and checked; the error replaces the hint. */
 @Component({
   selector: 'app-preferred-date',
   imports: [DateInput, FieldLabel],
@@ -72,17 +55,15 @@ export class PreferredDate {
   protected readonly optional = inject(SHARED_TEXT).optional;
   protected readonly id = 'preferred-date';
 
-  /** Only what the label is called: a delivery is brought, a pickup collected. */
+  /** A delivery is brought, a pickup collected. */
   readonly method = input.required<FulfilmentMethod>();
-  /** ISO `YYYY-MM-DD`, or null for no date at all. */
+  /** ISO `YYYY-MM-DD`, or null. */
   readonly date = input.required<string | null>();
-  /** Whether the date in the field is one the shop does not offer — the page's
-   * answer, since it is what refuses the submission over it. */
+  /** The page's answer, as it refuses the submission. */
   readonly invalid = input(false);
 
   readonly dateChange = output<string | null>();
 
-  /** The earliest day on offer, from the customer's own today. Read once: a
-   * checkout open across midnight is not worth a ticking clock. */
+  /** Read once: midnight mid-checkout is not worth a ticking clock. */
   protected readonly floor = firstOrderDate(localToday());
 }

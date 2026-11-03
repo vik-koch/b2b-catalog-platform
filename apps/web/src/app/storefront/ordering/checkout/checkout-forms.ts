@@ -25,7 +25,7 @@ export interface ContactAnswers {
   name: string;
   email: string;
   phone: string;
-  /** ADR 0015's honeypot: a bot fills it, a person never sees it. */
+  /** A bot fills it; a person never sees it. */
   website: string;
 }
 
@@ -36,19 +36,9 @@ export interface CheckoutAnswers {
   billing: AddressDraft;
 }
 
-/**
- * The one form the checkout screen is made of, and the rules that decide
- * which of its answers have to be given.
- *
- * One form because it is answered as one and checked as one: the party's
- * fields depend on who is asking and what they chose, the contact is a guest's
- * only, and each address is asked only while it is the one being typed rather
- * than picked from the book. What does not apply is hidden: it counts for
- * nothing, and whatever was typed into it stays for a change of mind but is
- * never sent (the submission reads the chosen branch only). The page keeps
- * every decision about *when* to ask; this is what is asked, and what counts as
- * an answer.
- */
+/** The checkout's one form and what counts as an answer; the page decides when
+ * to ask. What does not apply is hidden, kept for a change of mind, and never
+ * sent. */
 export function createCheckoutForms(deps: {
   guest: Signal<boolean>;
   party: () => PartyChoice;
@@ -72,9 +62,7 @@ export function createCheckoutForms(deps: {
     model,
     (answers) => {
       const { party, contact } = answers;
-      // A guest's private party has no name field of its own: they are the
-      // contact, and asking a person for their name twice is asking one of
-      // the two for nothing.
+      // A guest's private party is the contact: one name, asked once.
       hidden(party.personName, {
         when: () => deps.party() !== 'person' || deps.guest(),
       });
@@ -123,8 +111,7 @@ export function createCheckoutForms(deps: {
       const { delivery, billing } = model();
       const other = draft.otherPartyName ?? '';
       model.set({
-        // Only the chosen party's own fields: the other branch is empty, which
-        // is what it is on a form that has never been touched.
+        // Only the chosen party's fields; the other branch stays empty.
         party: {
           personName: draft.party === 'person' ? other : '',
           companyName: draft.party === 'company' ? other : '',

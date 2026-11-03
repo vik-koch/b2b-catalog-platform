@@ -16,27 +16,10 @@ import { PartyChoice as Party } from '../checkout-draft';
 import { PartyAnswers } from '../checkout-forms';
 import { WarningNote } from '@b2b-catalog-platform/ui/content/warning-note';
 
-/**
- * Who the order is invoiced to (FR-CART-09) — a field of the order, not a
- * property of an address. An order invoiced to one party at another's address
- * is an ordinary order, and folding the identity into the address would either
- * contradict the row the customer picked or quietly rewrite it.
- *
- * Two options for a customer, not three: the account's own party, and anybody
- * else. What kind of party that second one is asks itself inside it, on the
- * same switch registration puts at the top of its own form — a person is a
- * name, a company is a name and a registration number, both required on the
- * rule registration applies, which is why no sole-trader case has to be told
- * apart. Asking the kind as a third radio put a question about the answer
- * beside the question it answers.
- *
- * A guest gets no list at all: with no account there is nobody to offer as the
- * first option, so only the switch and its fields remain.
- *
- * For a customer, anybody but the account is priced provisionally — the agreed
- * prices belong to the account and not to whoever is being invoiced. A guest
- * has no agreed prices to miss out on, so nothing is said.
- */
+/** Who is invoiced (FR-CART-09): a field of the order, not of an address. For a
+ * customer, the account's party or somebody else, whose kind (person or
+ * company) is the switch registration uses. Anybody else is priced
+ * provisionally: the agreed prices belong to the account. */
 @Component({
   selector: 'app-party-choice',
   imports: [
@@ -56,10 +39,8 @@ import { WarningNote } from '@b2b-catalog-platform/ui/content/warning-note';
       <legend class="mb-2 font-medium">{{ text.heading }}</legend>
 
       @if (guest() || !ownAllowed()) {
-        <!-- No account to offer, so no first option and no list: a guest is
-             invoicing somebody, and so is an account of a kind the shop no
-             longer sells to (FR-AUTH-13). Which kind is the only question
-             left. -->
+        <!-- No first option for a guest, nor for an account of a kind no longer
+             sold to (FR-AUTH-13). -->
         <ng-container [ngTemplateOutlet]="otherParty" />
       } @else {
         <div class="space-y-2" role="radiogroup">
@@ -69,10 +50,8 @@ import { WarningNote } from '@b2b-catalog-platform/ui/content/warning-note';
             [checked]="party() === 'account'"
             (chosen)="partyChange.emit('account')"
           >
-            <!-- The account's own name. The page holds the row back until the
-                 profile has answered, so this is never a word standing in for a
-                 name about to replace it; the neutral one is for an account
-                 that has no name to show. -->
+            <!-- The page waits for the profile; the neutral word is for an
+                 account with no name. -->
             <span branchLabel>{{ accountName() ?? text.own }}</span>
           </ui-choice-branch>
 
@@ -118,10 +97,7 @@ import { WarningNote } from '@b2b-catalog-platform/ui/content/warning-note';
               />
             </ui-field>
           } @else {
-            <!-- No hint, unlike registration: which numbers are accepted is
-                 something to read while opening an account, not a paragraph
-                 to step over on the way to sending an order. A wrong one
-                 still says so. -->
+            <!-- No hint, unlike registration: a wrong number still says so. -->
             <app-company-fields
               idInputId="party-companyId"
               nameInputId="party-companyName"
@@ -130,8 +106,8 @@ import { WarningNote } from '@b2b-catalog-platform/ui/content/warning-note';
             />
           }
 
-          <!-- Only where there is an account whose prices this order is not
-               getting. A guest has none, so there is nothing to warn them off. -->
+          <!-- Only for an account, whose agreed prices this order would not
+               get. -->
           @if (!guest()) {
             <ui-warning-note>{{ text.otherNotice }}</ui-warning-note>
           }
@@ -143,8 +119,7 @@ import { WarningNote } from '@b2b-catalog-platform/ui/content/warning-note';
 export class PartyChoice {
   protected readonly text = inject(STOREFRONT_TEXT).checkout.party;
   private readonly partyChoice = inject(STOREFRONT_TEXT).partyChoice;
-  /** Typed as the whole choice, not just these two: the pill hands back
-   * what the page holds, and the page also knows about the account. */
+  /** The whole choice type: the page holds it, account included. */
   protected readonly kinds: readonly SegmentOption<Party>[] = inject(
     DEPLOYMENT_CONFIG,
   ).customerTypes.map((value) => ({
@@ -153,29 +128,14 @@ export class PartyChoice {
   }));
 
   readonly party = input.required<Party>();
-  /** A visitor with no account: there is nobody to offer as the first option,
-   * and no agreed prices to say this order is not getting. */
   readonly guest = input(false);
-  /**
-   * Whether the account's own party may be invoiced: not where it is a kind
-   * of customer the shop no longer sells to (FR-AUTH-13), which leaves only
-   * "somebody else".
-   */
+  /** Not where the shop no longer sells to its kind (FR-AUTH-13). */
   readonly ownAllowed = input(true);
-  /**
-   * What the account is registered as — its company, or its holder's name
-   * where it registered as a person. Resolved by the page, which holds the
-   * profile.
-   */
+  /** Resolved by the page, which holds the profile. */
   readonly accountName = input<string | null>(null);
-  /** Which kind the second option falls back to, so leaving it and coming
-   * back does not undo the switch. */
+  /** So returning to the second option keeps its kind. */
   readonly lastOther = input<Party>('person');
-  /**
-   * A field per branch rather than one name shared by both: a person and a
-   * company are two answers, and typing one into the other's field because
-   * the customer changed their mind is a name nobody entered there.
-   */
+  /** A field per branch, so a changed mind carries no name across. */
   readonly partyField = input.required<FieldTree<PartyAnswers>>();
 
   readonly partyChange = output<Party>();

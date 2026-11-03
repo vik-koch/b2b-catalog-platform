@@ -21,15 +21,9 @@ const SPAN: Record<number, string> = {
   4: 'sm:col-span-3',
 };
 
-/**
- * The deployment's delivery zones, one card each (FR-CART-07) — drawn by the
- * checkout dialog and the conditions page alike, so the two cannot state a zone
- * differently.
- *
- * Spread, as the conditions page draws it, each card carries a glyph and
- * neighbouring zones of the same `level` share a row from `sm` up. The dialog
- * keeps the plain list: it is narrow, and it sits in the checkout form.
- */
+/** The delivery zones, one card each (FR-CART-07), on the dialog and the
+ * conditions page alike. Spread (the conditions page), each card has a glyph
+ * and neighbours of one `level` share a row from `sm` up. */
 @Component({
   selector: 'app-delivery-zone-list',
   host: { class: 'block' },
@@ -48,8 +42,8 @@ const SPAN: Record<number, string> = {
               <ui-emphasised [text]="description" />
             </p>
           }
-          <!-- Said out loud either way: a zone with no line under it would
-               read as an unstated free threshold rather than none. -->
+          <!-- Said either way: no line would read as an unstated free
+               threshold. -->
           <p class="mt-2 text-sm text-ink-subtle">{{ terms(zone) }}</p>
         </li>
       }

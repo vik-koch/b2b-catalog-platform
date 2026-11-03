@@ -7,26 +7,11 @@ import { STOREFRONT_TEXT } from '../../../../shared/config/storefront-text';
 import { SHARED_TEXT } from '../../../../shared/config/shared-text';
 import { ChoiceCard } from '@b2b-catalog-platform/ui/choices/choice-card';
 
-/**
- * How the order is paid (FR-CART-04) — **recorded, never executed**. Nothing
- * on this page charges anybody; the method is what the manager arranges once
- * the request is confirmed, and no wording here may suggest a transaction.
- *
- * Cards, like the fulfilment row above: both choices are worth a sentence, and
- * a dropdown has nowhere to put one.
- *
- * Two options rather than three. Card payment is reachable only after a manager
- * approves the request (FR-CART-06), so it is not a choice that can be made
- * here.
- *
- * Which of the two is on offer follows from the party being invoiced, and the
- * two rules are opposites: a bank transfer invoices a legal entity, so it needs
- * a company; cash is not taken from one, which is invoiced (FR-CART-04).
- * So a company sees one option and a private person the other —
- * each shown greyed with its reason rather than hidden, or a customer who came
- * for it would think the shop dropped it. The server re-checks both rules at
- * submission; this row only saves them the trip.
- */
+/** How the order is paid (FR-CART-04): **recorded, never executed**; no wording
+ * may suggest a transaction. Card comes only after approval (FR-CART-06). A
+ * transfer needs a company and cash a person, so each party gets one option;
+ * the other is greyed with its reason, not hidden. The server re-checks both.
+ * */
 @Component({
   selector: 'app-payment-choice',
   imports: [ChoiceCard],
@@ -68,14 +53,10 @@ export class PaymentChoice {
   protected readonly names = inject(SHARED_TEXT).order.paymentMethods;
 
   readonly method = input.required<PaymentMethod>();
-  /** Only what cash is called: it is handed over on the doorstep or at the
-   * counter, and saying "when you receive it" to someone collecting it is the
-   * wrong half of the sentence. */
+  /** Cash's wording: handed over at the door or the counter. */
   readonly fulfilment = input.required<FulfilmentMethod>();
-  /** Whether the party being invoiced is a company — the page's answer, since
-   * it is the one holding both the choice and the account. */
+  /** The page's answer: it holds the choice and the account. */
   readonly transferAllowed = input(false);
-  /** The same answer read the other way: cash is for a private person. */
   readonly cashAllowed = input(true);
 
   readonly methodChange = output<PaymentMethod>();

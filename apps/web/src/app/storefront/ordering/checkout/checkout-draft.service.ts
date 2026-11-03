@@ -17,17 +17,9 @@ interface StoredDraft {
   draft: CheckoutDraft;
 }
 
-/**
- * The checkout form's answers, kept across the two screens and across a trip
- * back to the cart.
- *
- * Session storage rather than a cookie: a cookie would be sent to the API and
- * to the rendering process on every request, and this is two addresses and a
- * note that neither has any use for. It dies with the tab, which is the right
- * lifetime — an abandoned checkout is not a promise to come back to it.
- *
- * SSR-safe the way the cart is: storage is touched only in the browser.
- */
+/** The checkout draft in session storage: a cookie would travel with every
+ * request, and an abandoned checkout should die with the tab. Touched only in
+ * the browser. */
 @Injectable({ providedIn: 'root' })
 export class CheckoutDraftService {
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
@@ -35,22 +27,20 @@ export class CheckoutDraftService {
 
   readonly draft = this.state.asReadonly();
 
-  /** Folds a few answers into the draft and writes it down. Partial, because
-   * each row of the form owns its own fields and none of them knows the rest. */
+  /** Partial: each row owns its own fields. */
   patch(changes: Partial<CheckoutDraft>): void {
     this.state.update((draft) => ({ ...draft, ...changes }));
     this.persist();
   }
 
-  /** After a submitted order: the answers described an order that now exists,
-   * and the next one starts from the account again rather than from them. */
+  /** After an order is placed, the next one starts afresh. */
   clear(): void {
     this.state.set(emptyDraft());
     if (!this.isBrowser) return;
     try {
       sessionStorage.removeItem(CHECKOUT_DRAFT_KEY);
     } catch {
-      // Nothing to do: a browser that will not forget a draft still works.
+      // Nothing to do: a browser that keeps the draft still works.
     }
   }
 
@@ -63,17 +53,13 @@ export class CheckoutDraftService {
       };
       sessionStorage.setItem(CHECKOUT_DRAFT_KEY, JSON.stringify(payload));
     } catch {
-      // A draft that cannot be written down is a form that has to be filled
-      // again — worth nothing being said about, unlike a cart that is lost.
+      // An unwritten draft only costs refilling the form.
     }
   }
 
-  /**
-   * Anything unreadable is discarded whole. Only the two enums are checked on
-   * the way in: they decide which half of the form is drawn, and a stored
-   * value outside them would draw neither. The rest reaches a form control
-   * that validates it, and the server after that.
-   */
+  /** Anything unreadable is discarded whole. Only the two enums are checked: a
+   * value outside them draws neither half of the form. The fields and server
+   * validate the rest. */
   private read(): CheckoutDraft {
     if (!this.isBrowser) return emptyDraft();
     try {

@@ -16,19 +16,9 @@ import {
 import { PartyChoice as Party } from '../checkout-draft';
 import { ContactAnswers, PartyAnswers } from '../checkout-forms';
 
-/**
- * Everything a guest is asked about themselves (FR-CART-03/09), in one block:
- * who the order is invoiced to, and how to reach whoever placed it.
- *
- * One block because for a guest they are one answer. A private person is the
- * party *and* the contact, so asking "who should we invoice" and "your name"
- * separately asked the same person for their name twice. A company is the
- * party and somebody at it is the contact, which is two answers — and exactly
- * the shape registration already uses, down to the switch at the top.
- *
- * A signed-in customer sees none of this: their account answers the contact,
- * and the party row offers it as the first of two choices.
- */
+/** What a guest is asked about themselves (FR-CART-03/09), in one block: a
+ * private person is party and contact at once; a company is the party with the
+ * guest as its contact, as registration asks it. */
 @Component({
   selector: 'app-guest-details',
   imports: [
@@ -57,9 +47,7 @@ import { ContactAnswers, PartyAnswers } from '../checkout-forms';
         />
       }
 
-      <!-- The company first, then who at it we ring: the order is invoiced to
-           the one and confirmed with the other, and that is the order they are
-           read in on the paperwork. -->
+      <!-- The company, then who at it: the paperwork's order. -->
       @if (party() === 'company') {
         <app-company-fields
           idInputId="party-companyId"
@@ -120,8 +108,7 @@ export class GuestDetails {
   protected readonly text = inject(STOREFRONT_TEXT).checkout.contact;
   private readonly partyChoice = inject(STOREFRONT_TEXT).partyChoice;
   protected readonly phoneInput = inject(DEPLOYMENT_CONFIG).phoneInput;
-  /** Typed as the whole choice, not just these two: the pill hands back
-   * what the page holds, and the page also knows about the account. */
+  /** The whole choice type: the page holds it, account included. */
   protected readonly kinds: readonly SegmentOption<Party>[] = inject(
     DEPLOYMENT_CONFIG,
   ).customerTypes.map((value) => ({
@@ -130,7 +117,6 @@ export class GuestDetails {
   }));
 
   readonly party = input.required<Party>();
-  /** The page's form decides what each answer must be. */
   readonly partyField = input.required<FieldTree<PartyAnswers>>();
   readonly contact = input.required<FieldTree<ContactAnswers>>();
 

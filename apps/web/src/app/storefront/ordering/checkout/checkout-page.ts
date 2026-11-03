@@ -68,19 +68,9 @@ import {
   formatPersonName,
 } from '@b2b-catalog-platform/shared/core/accounts';
 
-/**
- * The checkout form (FR-CART-03/04/07/09): one screen covering how the goods
- * arrive, who is invoiced and where, when it is wanted and how it is paid —
- * followed by a preview of the whole order and a send button.
- *
- * One form rather than a wizard because every question here has a working
- * default, so for most orders it arrives answered and the customer is reading
- * it back rather than filling it in.
- *
- * Every answer lives in the draft, not in this component: the customer can go
- * back to the cart to fix a line and return to a form still holding what they
- * said — the addresses they were typing included.
- */
+/** The checkout (FR-CART-03/04/07/09): one form, then a read-back and the send.
+ * One form rather than a wizard, as every question has a working default. The
+ * answers live in the draft, so a trip back to the cart keeps them. */
 @Component({
   selector: 'app-checkout-page',
   imports: [
@@ -115,11 +105,8 @@ import {
   template: `
     @if (placed(); as reference) {
       <h1 uiPageTitle class="mb-4">{{ heading() }}</h1>
-      <!-- The cart's and the account's own empty panel, read the other way
-           round: the same shape of screen says "there is nothing here" and
-           "that is done". Opening the order comes first — it is what somebody
-           who has just sent one wants, and for a guest the link is the only
-           copy they have besides the mail. -->
+      <!-- Opening the order first: for a guest the link is the only copy
+           besides the mail. -->
       <ui-empty-state
         [icon]="circleCheckIcon"
         tone="positive"
@@ -152,33 +139,17 @@ import {
         </a>
       </ui-empty-state>
     } @else {
-      <!-- Form and summary, the pair the cart already draws — and at the width
-           the cart draws it, not at whatever this page could get away with.
-           The card is the same card on both, so a customer moving from one to
-           the other at a given window size must not find it beside the content
-           on one and under it on the other. The number is the cart's own: the
-           width at which its lines still hold their shape beside the card
-           (see cart-page.ts). The form itself is narrower than the track that
-           notch buys, and the slack sits between the two columns.
-
-           Measured on the page rather than the window for the same reason it
-           is there: the frame's padding and the scrollbar are most of a
-           column, and the media query cannot see either. Below the notch the
-           summary sits under the form instead of beside it. -->
+      <!-- The cart's two columns at the cart's notch (see cart-page.ts),
+           measured on the page: the frame's padding and scrollbar are invisible
+           to a media query. Below it the summary sits under the form. -->
       <div class="@container/checkout">
         <div
           class="grid gap-10
                  @min-[63.75rem]/checkout:grid-cols-[36rem_20rem]
                  @min-[63.75rem]/checkout:justify-between"
         >
-          <!-- Heading and intro in the column, not above the grid: the summary
-               beside them then starts level with the heading, and the same card
-               sits at the same height on the cart, here, and on the read-back. -->
+          <!-- In the column, so the summary starts level with the heading. -->
           <div class="max-w-xl">
-            <!-- The heading and the line under it run the width of the column;
-                 the form itself is narrower. A sentence set to the width of a
-                 form field wraps for no reason, and the questions below want
-                 the shorter measure. -->
             <div class="mb-8">
               <h1 uiPageTitle class="mb-2">
                 {{ heading() }}
@@ -188,13 +159,9 @@ import {
               </p>
             </div>
 
-            <!-- Next to the figures it is about: prices are tiered, so a
-                 customer who checks out as a guest is quoted the lowest tier's.
-                 An offer and not a gate — an account needs approving and could
-                 not finish this order anyway. -->
+            <!-- A guest is quoted the lowest tier. An offer, not a gate: a new
+                 account needs approving first. -->
             @if (guest() && !placed()) {
-              <!-- Marked with the glyph the account control wears, so it reads
-                   as being about an account before it is read at all. -->
               <p
                 class="mb-8 flex max-w-xl items-start gap-2 text-sm
                        text-ink-subtle"
@@ -223,24 +190,20 @@ import {
                 [blocks]="reviewBlocks()"
               />
             } @else if (formPending()) {
-              <!-- The account's own party, whether a transfer can be paid and
-                   which addresses are on offer are all answers, not defaults.
-                   Drawing the form without them and correcting it a moment
-                   later moves the page under whoever is already reading it. -->
+              <!-- Three rows depend on answers, not defaults: drawn early, the
+                   form would move under the reader. -->
               @if (showFormSkeleton()) {
                 <ui-skeleton class="max-w-xl" [lines]="10" />
               }
             } @else {
-              <!-- A form for its fields' sake: they read from it when it was
-                   last sent. Sent by review(), not by its own submit. -->
+              <!-- A form for its fields' sake; sent by review(), not by its own
+                   submit. -->
               <form [formRoot]="checkoutForm" class="max-w-xl space-y-8">
                 <app-fulfilment-choice
                   [method]="draft().fulfilmentMethod"
                   (methodChange)="chooseFulfilment($event)"
                 />
 
-                <!-- Pickup's answer to the delivery address, in the place the
-                 address stands for delivery. -->
                 @if (isPickup()) {
                   <app-pickup-choice
                     [pickupKey]="draft().pickupLocationKey"
@@ -257,14 +220,9 @@ import {
                   </ui-warning-note>
                 }
 
-                <!-- Whose name the invoice carries, asked before where anything
-                 goes: the answer decides what the address rows below are for,
-                 and it is also what unchecking "the same address" falls back
-                 to — a second picker directly under the checkbox that revealed
-                 it, rather than one further down the page. -->
-                <!-- One block for a guest, where the party and the contact are
-                     the same answer for a private person; a customer's account
-                     answers the contact, and their party row offers it. -->
+                <!-- The party first: it decides what the address rows are for.
+                     For a guest, party and contact are one block; an account
+                     answers the contact itself. -->
                 @if (guest()) {
                   <app-guest-details
                     [party]="draft().party"
@@ -291,11 +249,8 @@ import {
                   />
                 }
 
-                <!-- The zone is re-read when focus leaves the picker, not on
-                 every keystroke: half a postcode resolves to whatever zone
-                 happens to start with those digits, and a hint that flickers
-                 through three areas while one is typed is worse than one that
-                 waits. -->
+                <!-- The zone is re-read on blur, not per keystroke: half a
+                     postcode matches the wrong zone. -->
                 @if (!isPickup()) {
                   <app-address-picker
                     (focusout)="commitDelivery()"
@@ -312,11 +267,8 @@ import {
                     "
                     (saveChange)="drafts.patch({ saveDeliveryAddress: $event })"
                   >
-                    <!-- Checked, because one address usually serves both.
-                     Unchecking is what reveals the second picker. Absent
-                     altogether where the deployment invoices no address of its
-                     own: there is no second address for this one to be the
-                     same as. -->
+                    <!-- Absent where the deployment invoices no address of its
+                         own. -->
                     @if (billingEnabled) {
                       <label uiTickLabel class="mt-4">
                         <input
@@ -331,12 +283,8 @@ import {
                   </app-address-picker>
                 }
 
-                <!-- Pickup asks for an address anyway, where the deployment
-                 invoices one: the one on the paperwork belongs to the order,
-                 not to whoever carries the goods — and with nothing being
-                 delivered it is the only address asked for, which is what its
-                 own heading says. A deployment that invoices no address of its
-                 own asks a collected order for none at all. -->
+                <!-- A collected order still asks for the invoice address where
+                     the deployment invoices one. -->
                 @if (needsBillingPicker()) {
                   <app-address-picker
                     [heading]="
@@ -355,9 +303,6 @@ import {
                   />
                 }
 
-                <!-- When they would like it, which belongs with the two rows that
-                 decide where it is going. A wish either way: a manager
-                 confirms the day, and nothing here reserves one. -->
                 <app-preferred-date
                   [method]="draft().fulfilmentMethod"
                   [date]="draft().preferredDate"
@@ -373,8 +318,6 @@ import {
                   (methodChange)="drafts.patch({ paymentMethod: $event })"
                 />
 
-                <!-- Last, because it is the only row with no default: everything
-                 above arrives answered. -->
                 <app-order-note
                   [note]="draft().customerNote"
                   (noteChange)="drafts.patch({ customerNote: $event })"
@@ -383,13 +326,8 @@ import {
             }
           </div>
 
-          <!-- Pinned once it is a column of its own: the form beside it is as
-               long as the answers are, and the total is what the customer is
-               reading them against.
-
-               Stacked, it waits for the form above it: drawn first, it stood
-               under the heading and was pushed down the moment the form
-               arrived. Beside the form it has nothing to wait for. -->
+          <!-- Pinned beside the form. Stacked, hidden until the form arrives,
+               or it would be pushed down. -->
           <aside
             class="max-w-xl
                    @min-[63.75rem]/checkout:visible
@@ -406,11 +344,6 @@ import {
               [shipment]="cart.estimate()"
               [taxRates]="cart.taxRates()"
             >
-              <!-- Under the figures it is about: which area the address falls
-                   in, and what this order still needs to be delivered free.
-                   The rule travels with it — the hint draws nothing until
-                   there is a postcode, and a rule over nothing is a line
-                   across the card. -->
               @if (!isPickup()) {
                 <app-delivery-zone-hint
                   class="mt-3 border-t border-edge pt-3"
@@ -419,25 +352,20 @@ import {
               }
             </app-order-summary>
 
-            <!-- The read-back is where the details are sent from, so how they
-                 are handled is said here. No consent: an order's details are
-                 processed to fulfil it. -->
+            <!-- No consent: an order's details are processed to fulfil it. -->
             @if (reviewing()) {
               <app-privacy-notice class="mt-5 block text-sm empty:hidden" />
             }
 
-            <!-- Where the ADR says a refusal belongs: beside the button, not
-                 only at the field it came from. -->
+            <!-- Beside the button, not only at the field. -->
             @if (error(); as message) {
               <p uiErrorText class="mt-3" role="alert">
                 {{ message }}
               </p>
             }
 
-            <!-- Said where the button is, and the button is dead. Both of
-                 these are refusals the server would give anyway; giving them
-                 here is the difference between a form somebody fills in for
-                 nothing and one they never start. -->
+            <!-- Refusals the server would give anyway, said before the form is
+                 filled. -->
             @if (staff()) {
               <p class="mt-3 flex items-start gap-2 text-sm text-ink-subtle">
                 <ui-icon
@@ -531,18 +459,9 @@ export class CheckoutPage {
   protected readonly actionText = inject(SHARED_TEXT).actions;
   protected readonly addressText = this.text.addresses;
 
-  /**
-   * A visitor with no session (FR-CART-03). Read through `resolved`, so the
-   * form is never drawn for a guest and then redrawn for a customer: the two
-   * ask different questions, and half of one is not a form.
-   */
   protected readonly guest = computed(() => this.auth.user() === null);
 
-  /**
-   * What the screen asks and what counts as an answer (see `checkout-forms`).
-   * Built after `guest`, because who is asking decides which of the party's
-   * fields are required.
-   */
+  /** After `guest`: who is asking decides which party fields are required. */
   private readonly forms = createCheckoutForms({
     guest: this.guest,
     party: () => this.draft().party,
@@ -554,14 +473,8 @@ export class CheckoutPage {
   protected readonly deliveryForm = this.forms.delivery;
   protected readonly billingForm = this.forms.billing;
 
-  /**
-   * The book and the account, neither of which a guest has. Idle rather than
-   * asked and refused: an anonymous call to either is a 401 the page would
-   * have to translate into "no rows", which is what not asking already says.
-   *
-   * A failure for a customer is not fatal either — the pickers fall back to
-   * their own fields, which is the same form a guest gets.
-   */
+  /** Idle for a guest, rather than a 401. A failure leaves the pickers on their
+   * own fields. */
   private readonly saved = resource({
     params: () => (this.guest() ? undefined : true),
     loader: () => this.book.list(),
@@ -577,61 +490,41 @@ export class CheckoutPage {
   protected readonly isPickup = computed(
     () => this.draft().fulfilmentMethod === 'pickup',
   );
-  /**
-   * Whether this deployment invoices an address of its own (FR-CART-07). Where
-   * it does not, no invoice address is asked for, offered or sent: a delivery
-   * gives the one address it needs and a collected order gives none.
-   */
+  /** FR-CART-07: without it, no invoice address is asked for or sent. */
   protected readonly billingEnabled = this.config.billingAddressEnabled;
 
-  /** Pickup always asks; delivery only once the invoice is said to go
-   * somewhere else. Neither, where there is no invoice address to ask for. */
+  /** Pickup always asks; delivery once the invoice goes elsewhere. */
   protected readonly needsBillingPicker = computed(
     () =>
       this.billingEnabled &&
       (this.isPickup() || !this.draft().billingSameAsDelivery),
   );
 
-  /**
-   * A date the shop does not offer — a weekend, or one too soon (`order-dates`).
-   * The field says so under itself; this is what keeps it from being sent.
-   * `today` is read once, like the field's own floor.
-   */
+  /** A weekend or too soon (`order-dates`); keeps it from being sent. `today`
+   * is read once, like the field's floor. */
   private readonly today = localToday();
   protected readonly preferredDateInvalid = computed(() => {
     const date = this.draft().preferredDate;
     return date !== null && !isOrderDateAllowed(date, this.today);
   });
 
-  /**
-   * Whether the party being invoiced is a company, which is what a bank
-   * transfer needs (FR-CART-04): its own choice says so outright, and the
-   * account's own party is one where its record carries a registration number.
-   * The server re-checks it at submission — this only keeps the customer from
-   * choosing something it would refuse.
-   */
+  /** A company may pay by transfer (FR-CART-04): the account's own party is one
+   * where its record carries a registration number. */
   protected readonly partyIsCompany = computed(() => {
     const party = this.draft().party;
     if (party !== 'account') return party === 'company';
     return Boolean(this.profile.value()?.companyRegistrationId);
   });
 
-  /** Where the send button stands: idle, in flight, or done with the
-   * reference the customer quotes when they ring about it. */
   private readonly sendingState = signal(false);
   private readonly placedState = signal<string | null>(null);
-  /**
-   * The link the confirmation mail carries (FR-NOTIF-06), kept so the screen
-   * that follows can offer it too: a guest has no account to read the order
-   * from, and telling them a reference without a way to open it leaves the
-   * mail as their only copy.
-   */
+  /** The mailed link (FR-NOTIF-06), offered on the success screen: a guest has
+   * no account to open the order from. */
   private readonly placedToken = signal<string | null>(null);
   private readonly errorState = signal<string | null>(null);
   protected readonly revealDelivery = signal(false);
   protected readonly revealBilling = signal(false);
-  /** Set when a submission was refused for want of a collection point. The
-   * radio group is no field of the form, so the form cannot say so itself. */
+  /** The radio group is no form field, so it cannot mark itself invalid. */
   private readonly pickupSubmitted = signal(false);
 
   protected readonly pickupInvalid = computed(
@@ -641,11 +534,6 @@ export class CheckoutPage {
   protected readonly sending = this.sendingState.asReadonly();
   protected readonly placed = this.placedState.asReadonly();
 
-  /**
-   * Where the order that was just sent can be read: the account's own page for
-   * a customer, the token link for a guest. The same order either way — the
-   * difference is only what the reader is holding to open it with.
-   */
   protected readonly placedLink = computed(() => {
     const reference = this.placedState();
     if (!reference) return null;
@@ -655,12 +543,8 @@ export class CheckoutPage {
   });
   protected readonly error = this.errorState.asReadonly();
 
-  /**
-   * Which of the two screens is on (ADR 0039): the form, or the read-back
-   * before sending. A query parameter rather than a field, so the browser's
-   * own Back button walks the step the customer just took — and the component
-   * is not rebuilt on the way, so the form it is holding survives.
-   */
+  /** Form or read-back. A query param, so browser Back walks the step without
+   * rebuilding the component. */
   readonly step = input<string | undefined>(undefined);
 
   protected readonly reviewing = computed(() => this.step() === 'review');
@@ -670,8 +554,7 @@ export class CheckoutPage {
     return this.reviewing() ? this.text.review.title : this.text.title;
   });
 
-  /** Which pickers are asking for a typed address rather than offering a row —
-   * the only ones whose fields have to be valid before anything is sent. */
+  /** The pickers holding a typed address: only their fields must validate. */
   private readonly deliveryTyped = computed(
     () => !this.isPickup() && this.draft().deliveryAddressId === null,
   );
@@ -679,33 +562,20 @@ export class CheckoutPage {
     () => this.needsBillingPicker() && this.draft().billingAddressId === null,
   );
 
-  /**
-   * Whether the form can be drawn yet. Three of its rows are shaped by answers
-   * rather than by defaults — what the account's own party is called, whether
-   * a bank transfer can be paid, and which addresses are on offer — so a form
-   * drawn before they arrive is a form that rearranges itself under whoever is
-   * already reading it.
-   */
   protected readonly formPending = computed(
     () =>
       !this.auth.resolved() ||
       this.profile.isLoading() ||
       this.saved.isLoading(),
   );
-  /** And only owned up to if the wait is long enough to notice. */
   protected readonly showFormSkeleton = delayedLoading(this.formPending);
 
-  /** Which kind "somebody else" was last, so leaving that option and coming
-   * back does not quietly reset the switch. */
+  /** So returning to "somebody else" keeps its kind. */
   private readonly lastOtherParty = signal<Party>(this.config.customerTypes[0]);
   protected readonly otherParty = this.lastOtherParty.asReadonly();
 
-  /**
-   * Whether the account's own party is a kind of customer the shop sells to
-   * (FR-AUTH-13), read the way the server reads it: a company where the record
-   * carries a registration number and was not declared a person. True until
-   * the profile answers, so the row is not taken away from everybody first.
-   */
+  /** Whether the shop sells to the account's own kind of party (FR-AUTH-13),
+   * read as the server reads it. True until the profile answers. */
   protected readonly ownPartyAllowed = computed(() => {
     const profile = this.profile.value();
     if (!profile) return true;
@@ -716,36 +586,20 @@ export class CheckoutPage {
     return this.config.customerTypes.includes(kind);
   });
 
-  /**
-   * Whether this account is missing the one contact detail an order cannot be
-   * placed without. A signed-in customer is never asked for their contact
-   * block — it is read from their record — and staff may create an account
-   * from an email alone, so an account can reach checkout with no number at
-   * all. The submission is then refused for a field the form never showed,
-   * which is exactly the refusal nobody can act on.
-   *
-   * False while the profile is still loading: the answer is not "no number"
-   * until the record says so.
-   */
+  /** An account made from an email alone has no phone, and the form never asks
+   * a customer for one: the refusal would name a field nobody saw. False while
+   * loading. */
   protected readonly accountPhoneMissing = computed(() => {
     if (this.guest() || this.staff() || this.profile.isLoading()) return false;
     const profile = this.profile.value();
     return !!profile && !profile.phone?.trim();
   });
 
-  /** Either reason this session cannot place an order — both of which the
-   * server enforces, and both of which the button reflects. */
   protected readonly blocked = computed(
     () => this.staff() || this.accountPhoneMissing(),
   );
 
-  /**
-   * Whether this session is staff, who do not buy. Role is authorization and
-   * tier is pricing — separate fields on purpose — so a staff session has no
-   * agreed prices, no address book worth the name and nobody to invoice, and
-   * the request would land in the very inbox they answer. The API refuses it
-   * outright; this is what keeps them from filling the form first.
-   */
+  /** Staff do not buy: the API refuses it, and this spares them the form. */
   protected readonly staff = computed(() => {
     const role = this.auth.user()?.role;
     return role === 'admin' || role === 'manager';
@@ -758,14 +612,9 @@ export class CheckoutPage {
     () => this.draft().saveBillingAddress,
   );
 
-  /**
-   * What the account is registered as: its company, unless it registered as a
-   * person — one who once gave a company name is still invoiced by name. Only
-   * a declared person is read that way, so an older account carrying a company
-   * and no type at all keeps being named by it. The server resolves the same
-   * rule when the order is placed. Null until the profile answers, which is
-   * when the row falls back to a neutral word rather than an empty one.
-   */
+  /** Its company, unless registered as a person; an older account with no type
+   * keeps its company name. The server applies the same rule. Null until the
+   * profile answers. */
   protected readonly accountName = computed(() => {
     const profile = this.profile.value();
     if (!profile) return null;
@@ -777,11 +626,7 @@ export class CheckoutPage {
     return name || null;
   });
 
-  /**
-   * The typed address as the zone last saw it: a snapshot rather than every
-   * value, because it is only re-read when focus leaves the picker or a
-   * suggestion fills it.
-   */
+  /** The typed postcode as of the last blur or suggestion. */
   private readonly committedDelivery = signal({ postalCode: '' });
 
   private readonly chosenDelivery = computed(() =>
@@ -793,20 +638,15 @@ export class CheckoutPage {
       this.chosenDelivery()?.postalCode ?? this.committedDelivery().postalCode,
   );
 
-  /** Re-reads what the picker is holding. Compared before it is written: a
-   * signal set to the value it already had would redraw the card for every
-   * field the customer tabs through. */
+  /** Compared first, so tabbing through fields does not redraw the card. */
   protected commitDelivery(): void {
     const postalCode = this.deliveryForm.field.postalCode().value();
     if (this.committedDelivery().postalCode === postalCode) return;
     this.committedDelivery.set({ postalCode });
   }
 
-  /**
-   * The answers, resolved for the read-back — the same resolutions the
-   * submission is built from, so what is shown and what is sent cannot differ
-   * (see `checkout-read-back`).
-   */
+  /** The same resolutions the submission builds from, so shown and sent cannot
+   * differ. */
   private readonly readBack = createCheckoutReadBack({
     draft: this.draft,
     isPickup: this.isPickup,
@@ -824,8 +664,6 @@ export class CheckoutPage {
   protected readonly reviewLines = this.readBack.lines;
   protected readonly reviewBlocks = this.readBack.blocks;
 
-  /** Building the order, and wording what the server says back to it (see
-   * `checkout-submission`). */
   private readonly submission = createCheckoutSubmission({
     forms: this.forms,
     draft: this.draft,
@@ -844,9 +682,8 @@ export class CheckoutPage {
   constructor() {
     usePageSeo({ name: () => this.text.title });
 
-    // A read-back reached directly — a reload, or a link — with nothing behind
-    // it. Only once both the account and the book have answered: until then
-    // there is no order to build, and bouncing would be a race, not a guard.
+    // A read-back reached directly with nothing to send goes to the form, once
+    // the account and book have answered.
     effect(() => {
       if (
         !this.reviewing() ||
@@ -858,10 +695,7 @@ export class CheckoutPage {
       if (!this.submission.build()) this.goToStep(undefined);
     });
 
-    // A draft outlives the session it was written in: signing out, or coming
-    // back as somebody else, leaves it naming book rows this visitor cannot
-    // see. An id nothing answers is not a choice — it is a picker with no row
-    // selected and a submission that quietly refuses to build — so it falls
+    // A draft outlives its session: a book row this visitor cannot see falls
     // back to the fields.
     effect(() => {
       if (!this.auth.resolved() || this.saved.isLoading()) return;
@@ -878,13 +712,8 @@ export class CheckoutPage {
       }
     });
 
-    // Who is asking decides both which party answers are possible and which of
-    // their fields are required, and it is not known on the first frame. A
-    // guest cannot invoice an account they do not have; a customer's private
-    // party owes a name a guest's does not.
-    // Nor can anybody invoice a kind of customer the shop does not sell to
-    // (FR-AUTH-13): a draft from before the rule, or an account of such a
-    // kind, starts on the kind it does.
+    // Not known on the first frame. A guest has no account to invoice, and
+    // nobody may invoice a kind the shop does not sell to (FR-AUTH-13).
     effect(() => {
       if (!this.auth.resolved()) return;
       const party = untracked(() => this.draft().party);
@@ -896,12 +725,8 @@ export class CheckoutPage {
       if (refused) untracked(() => this.chooseParty(this.lastOtherParty()));
     });
 
-    // A payment method the party can no longer take falls back to the one it
-    // can, rather than waiting to be refused: the customer changes who is
-    // invoiced, and the row below it stops offering what it just offered. The
-    // two rules are opposites (FR-CART-04) — a transfer invoices a company,
-    // cash is not taken from one — so today each party has exactly one method
-    // to fall back to.
+    // Each party has one method (FR-CART-04: transfer for a company, cash
+    // otherwise), so a change of party moves it.
     effect(() => {
       const wanted = this.partyIsCompany() ? 'bank-transfer' : 'cash';
       if (this.draft().paymentMethod !== wanted) {
@@ -909,9 +734,8 @@ export class CheckoutPage {
       }
     });
 
-    // The book decides the default only the first time it arrives: the one
-    // saved address, or the first of several. A customer who then chose "a
-    // different address" must not have that undone by a re-read.
+    // Only the first time, so a later re-read cannot undo the customer's
+    // choice.
     effect(() => {
       const rows = this.saved.value();
       if (!rows?.length || this.drafts.draft().addressesSeeded) return;
@@ -922,11 +746,8 @@ export class CheckoutPage {
       });
     });
 
-    // Pickup at a shop with one collection point answers itself: a list of one
-    // is not a question, and leaving it unanswered would fail a submission over
-    // a choice the customer was never really given. An effect rather than part
-    // of the click, because a draft restored from a previous visit arrives on
-    // pickup without ever passing through one.
+    // One collection point answers itself. An effect, as a restored draft
+    // arrives on pickup without a click.
     effect(() => {
       if (this.locations.length !== 1) return;
       if (this.draft().fulfilmentMethod !== 'pickup') return;
@@ -934,20 +755,12 @@ export class CheckoutPage {
       this.drafts.patch({ pickupLocationKey: this.locations[0].key });
     });
 
-    // The addresses being typed, and the typed party, kept in the draft so a
-    // trip back to the cart does not empty them.
     this.forms.restore(this.draft());
-    // A draft written on an earlier visit can name a date this one no longer
-    // offers — the day it was chosen for has since passed. Dropped rather than
-    // kept and refused: no date is the form's own default and the ordinary
-    // answer, and a stale one nobody chose today is not worth an error over.
+    // A restored date may have passed; dropped, as no date is the default.
     if (this.preferredDateInvalid()) this.drafts.patch({ preferredDate: null });
-    // A restored address was already finished with; the zone need not wait for
-    // a blur that has already happened once.
     this.commitDelivery();
     this.chooseParty(this.draft().party);
-    // Read through the computed so that the draft this writes does not run
-    // it again: only a change of party does.
+    // Through the computed, so the draft this writes does not rerun it.
     const party = computed(() => this.draft().party);
     effect(() => {
       const { contact, party: typed } = this.checkoutForm().value();
@@ -971,13 +784,7 @@ export class CheckoutPage {
     this.drafts.patch({ fulfilmentMethod: method });
   }
 
-  /**
-   * The party's own fields are asked only while that party is chosen (see
-   * `checkout-forms`). A person gives a name; a company gives a name and a
-   * number, on the rule registration applies, which is why a sole trader needs
-   * no case of its own. Each has its own field, so leaving one branch does not
-   * carry what was typed there into the other.
-   */
+  /** Remembers the last "somebody else" kind. */
   protected chooseParty(party: Party): void {
     this.drafts.patch({ party });
     if (party !== 'account') this.lastOtherParty.set(party);
@@ -989,10 +796,6 @@ export class CheckoutPage {
     });
   }
 
-  /**
-   * On to the read-back, once the form actually holds an order. A refusal here
-   * is the form's own — the fields have just been told to say what is wrong.
-   */
   protected review(): void {
     this.errorState.set(null);
     this.markProblems();
@@ -1004,21 +807,14 @@ export class CheckoutPage {
     this.goToStep('review');
   }
 
-  /** From here on every field says what is wrong with it, including the ones
-   * nobody visited. */
+  /** From here on every field shows its error, visited or not. */
   private markProblems(): void {
     this.pickupSubmitted.set(true);
     submitAttempt(this.checkoutForm).set(true);
-    // An address answers to the send only while it is the one being typed:
-    // one opened afterwards waits for the next.
     if (this.deliveryTyped()) submitAttempt(this.deliveryForm.field).set(true);
     if (this.billingTyped()) submitAttempt(this.billingForm.field).set(true);
 
-    // A compact address holds the postcode and the city out of sight, which is
-    // exactly where a form that never got a suggestion is wrong. Opened only
-    // where it is actually wanting: an address that resolved cleanly has
-    // nothing to correct, and unfolding it would be noise about a field the
-    // customer never had to fill.
+    // A compact address hides postcode and city: unfolded only where invalid.
     this.revealDelivery.set(
       this.deliveryTyped() && this.checkoutForm.delivery().invalid(),
     );
@@ -1038,8 +834,7 @@ export class CheckoutPage {
       queryParams: { step: step ?? null },
       queryParamsHandling: 'merge',
     });
-    // The two screens are one document; without this the second one opens
-    // wherever the first was scrolled to.
+    // One document: without this the second screen opens scrolled.
     if (typeof window !== 'undefined') window.scrollTo({ top: 0 });
   }
 
@@ -1047,22 +842,15 @@ export class CheckoutPage {
     return fillText(this.text.success, { reference });
   }
 
-  /**
-   * Send the order request (FR-CART-03/04). Everything is re-checked here that
-   * the server re-checks again: this only spares the customer a round trip.
-   *
-   * Nothing is charged and nothing is booked — the request goes to a manager,
-   * which is why the button says so and the screen that follows says it again.
-   */
+  /** Sends the order request (FR-CART-03/04); the server re-checks everything.
+   * */
   protected async submit(): Promise<void> {
     if (this.sendingState() || this.blocked()) return;
     this.errorState.set(null);
 
     const submission = this.submission.build();
     if (!submission) {
-      // Only reachable if something changed under the read-back; the form is
-      // where it can be corrected, so that is where the customer is put, with
-      // its own fields saying what is wrong.
+      // Something changed under the read-back: back to the form.
       this.markProblems();
       this.errorState.set(this.text.errors.incomplete);
       this.goToStep(undefined);
@@ -1082,8 +870,7 @@ export class CheckoutPage {
         return;
       }
       if (result.code === 'cart-changed') {
-        // The corrected figures are on screen before the message explaining
-        // them: the customer is reading a summary that is already right.
+        // Corrected figures first, then the message about them.
         this.cart.applyPreview(result.preview);
       }
       this.errorState.set(this.submission.refusal(result.code));
@@ -1106,14 +893,9 @@ export class CheckoutPage {
     return { label, street, street2, postalCode, city, region, country };
   }
 
-  /**
-   * "Save this address for next time", after the order rather than before it:
-   * a book that gained a row from an order that was then refused is a book the
-   * customer has to tidy. Best effort — the order is placed either way, and a
-   * full book is not something to interrupt a confirmation with.
-   */
+  /** After the order, so a refused one adds no rows. Best effort: the order is
+   * placed either way. */
   private async fileTypedAddresses(): Promise<void> {
-    // No account, no book: there is nowhere to keep it.
     if (this.guest()) return;
     const draft = this.draft();
     const wanted: AddressInput[] = [];
@@ -1127,7 +909,7 @@ export class CheckoutPage {
       try {
         await this.book.create(address);
       } catch {
-        // Nothing to say: the order is placed, which is what was asked for.
+        // The order is placed, which is what was asked for.
       }
     }
   }

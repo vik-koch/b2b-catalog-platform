@@ -17,25 +17,12 @@ import {
   AddressComponents,
 } from '@b2b-catalog-platform/shared/core/accounts';
 
-/** Ids have to be unique per instance: a delivery picker and a billing picker
- * stand on the same page. */
+/** Unique per instance: a delivery and a billing picker share the page. */
 let nextId = 0;
 
-/**
- * One address, chosen from the book or typed (FR-CART-04/11).
- *
- * The saved rows read the way the account page writes them — the same name and
- * the same lines — so a customer recognises the row they mean rather than
- * decoding a second rendering of it. The last option opens the ordinary
- * address fields.
- *
- * With nothing saved there is no list at all: the fields stand on their own in
- * a card with no title, because there is no option left to title it with. That
- * is what an account with an empty book sees, and what a guest will see.
- *
- * No identity is asked for here: who an order is invoiced to is one question,
- * asked once in its own row, and an address is a place.
- */
+/** One address, picked from the book or typed (FR-CART-04/11). Rows read as the
+ * account page writes them. With an empty book the fields stand alone in an
+ * untitled card. No identity here: the party is its own row. */
 @Component({
   selector: 'app-address-picker',
   imports: [AddressFields, Checkbox, TickLabel, ChoiceBranch, NgTemplateOutlet],
@@ -45,9 +32,7 @@ let nextId = 0;
       <legend class="mb-2 font-medium">{{ heading() }}</legend>
 
       @if (addresses().length === 0) {
-        <!-- Nothing to choose between, so nothing is asked: the fields are the
-             whole picker, in a card of their own with no option to tick. A
-             list of one option is not a question. -->
+        <!-- No book: the fields are the whole picker. -->
         <div class="space-y-4 rounded-md border border-edge p-4">
           <ng-container [ngTemplateOutlet]="addressFields" />
         </div>
@@ -60,8 +45,6 @@ let nextId = 0;
               [checked]="selectedId() === address.id"
               (chosen)="selectedIdChange.emit(address.id)"
             >
-              <!-- Name and lines on one axis, the way a collection point reads:
-                   what it is called, then in a quieter voice where it is. -->
               <span branchLabel>{{ name(address) }}</span>
               <span branchLabel class="text-sm text-ink-subtle">
                 {{ lines(address) }}
@@ -69,9 +52,8 @@ let nextId = 0;
             </ui-choice-branch>
           }
 
-          <!-- Framed while it is the one chosen: the fields it reveals end in a
-               tick box of their own, which without a frame would read as one
-               more option in this list. -->
+          <!-- Framed while chosen, or the save tick box below would read as one
+               more option. -->
           <ui-choice-branch
             [name]="group"
             value="new"
@@ -90,12 +72,8 @@ let nextId = 0;
         </div>
       }
 
-      <!-- The same fields either way: with a book they are what the last
-           option reveals, without one they are the whole picker. -->
       <ng-template #addressFields>
-        <!-- No label asked for here: at checkout an address is named by its own
-             street line, and inventing a word for it is a question asked for
-             nothing. -->
+        <!-- No label: at checkout an address is named by its street line. -->
         <app-address-fields
           [form]="form()"
           [showLabel]="false"
@@ -103,8 +81,7 @@ let nextId = 0;
           [reveal]="reveal()"
           (picked)="picked.emit($event)"
         />
-        <!-- Only where there is a book to save it to. Checked, because an
-             address typed at checkout is one the customer orders to. -->
+        <!-- Only where there is a book to save to. -->
         @if (canSave()) {
           <label uiTickLabel>
             <input
@@ -118,8 +95,7 @@ let nextId = 0;
         }
       </ng-template>
 
-      <!-- Whatever the page wants to say about the chosen address — the
-           delivery zone it falls in, or the invoice checkbox. -->
+      <!-- The page's additions: the zone hint or the invoice checkbox. -->
       <ng-content />
     </fieldset>
   `,
@@ -129,9 +105,8 @@ export class AddressPicker {
   private readonly addressConfig = inject(DEPLOYMENT_CONFIG).address;
 
   protected readonly text = inject(STOREFRONT_TEXT).checkout.addresses;
-  /** Where a provider can fill an address in, checkout asks for the street
-   * alone. The account's editor stays whole: that is where a book is curated,
-   * not where an order is being placed. */
+  /** With suggestions, checkout asks for the street alone; the account editor
+   * stays whole. */
   protected readonly suggests = inject(SUGGESTIONS_ENABLED);
   protected readonly group = `address-picker-${this.instance}`;
 
@@ -141,8 +116,7 @@ export class AddressPicker {
   readonly selectedId = input.required<string | null>();
   readonly form = input.required<AddressForm>();
   readonly canSave = input(true);
-  /** Open the folded-away fields: the page found the address wanting, and what
-   * is wrong with it is what the compact form is hiding. */
+  /** Unfolds the compact fields the page found invalid. */
   readonly reveal = input(false);
   readonly save = input(true);
 
@@ -154,8 +128,7 @@ export class AddressPicker {
     return addressDisplayName(address);
   }
 
-  /** The rest of the row, on one line: a picker is a list to scan, not a stack
-   * of address blocks. */
+  /** The row's lines on one line: a list to scan. */
   protected lines(address: Address): string {
     return addressDetailLines(address, this.addressConfig).join(', ');
   }

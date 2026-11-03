@@ -21,7 +21,7 @@ export interface SubmissionDeps {
   isPickup: Signal<boolean>;
   billingEnabled: boolean;
   needsBillingPicker: Signal<boolean>;
-  /** Which pickers are asking for a typed address rather than offering a row. */
+  /** The pickers holding a typed address. */
   deliveryTyped: Signal<boolean>;
   billingTyped: Signal<boolean>;
   preferredDateInvalid: Signal<boolean>;
@@ -31,24 +31,15 @@ export interface SubmissionDeps {
   addressFor: (id: string | null, form: AddressForm) => AddressInput | null;
 }
 
-/**
- * Turning the answers into the order the contract wants, and turning the
- * server's refusal back into a sentence.
- *
- * Everything checked here is re-checked by the server: this only spares the
- * customer a round trip, so a rule that lives only here is a bug rather than a
- * shortcut.
- */
+/** The answers as the contract's order, and the server's refusals as sentences.
+ * The server re-checks everything: a rule only here is a bug. */
 export function createCheckoutSubmission(deps: SubmissionDeps) {
   const cart = inject(CartService);
   const config = inject(DEPLOYMENT_CONFIG);
   const text = inject(STOREFRONT_TEXT).checkout;
 
-  /**
-   * Who to talk to about this order: the guest's own answers, or the account's
-   * record. A signed-in customer is never asked, so there is one place either
-   * can come from and no chance of the two disagreeing.
-   */
+  /** The guest's answers, or the account's record: a customer is never asked.
+   * */
   const contact = (): OrderContact => {
     if (!deps.guest()) {
       const profile = deps.profile();
@@ -62,30 +53,22 @@ export function createCheckoutSubmission(deps: SubmissionDeps) {
     return {
       name: name.trim(),
       email: email.trim(),
-      // Stored the way every other number is: the prefix the field showed plus
-      // what was typed into it.
+      // Stored like every number: the field's prefix plus what was typed.
       phone: canonicalPhone(phone, config.phoneInput),
     };
   };
 
   return {
-    /**
-     * The order as the contract wants it, or null where the form is not
-     * finished — which the fields themselves have just been told to say.
-     * Consent is not part of it: that is the send screen's own gate, asked
-     * after this has already been built once to get there.
-     */
+    /** Null where the form is unfinished. Consent is not part of it: the send
+     * screen asks that after. */
     build(): OrderSubmission | null {
       const { forms } = deps;
       const draft = deps.draft();
 
-      // What does not apply is hidden and counts for nothing: the contact for
-      // a customer, the party branch not chosen, an address picked from the
-      // book.
       if (!forms.field().valid()) return null;
       if (deps.guest()) {
-        // A filled honeypot is a bot; the form goes no further and says
-        // nothing about why (ADR 0015). The server refuses it again.
+        // A filled honeypot is a bot: silently no further. The server refuses
+        // it again.
         if (forms.field.contact.website().value().trim()) return null;
       } else if (!deps.profile()) {
         return null;
@@ -96,10 +79,8 @@ export function createCheckoutSubmission(deps: SubmissionDeps) {
       const delivery = deps.isPickup()
         ? null
         : deps.addressFor(draft.deliveryAddressId, forms.delivery);
-      // Unticked "the same address" is the only thing that makes the invoice
-      // go somewhere else; ticked, it is literally the delivery one. Null where
-      // the deployment invoices no address of its own — which is not "the
-      // delivery address", or the order would have carried it.
+      // Ticked, the invoice goes to the delivery address. Null where the
+      // deployment invoices no address.
       const billing = !deps.billingEnabled
         ? null
         : deps.needsBillingPicker()
@@ -111,9 +92,7 @@ export function createCheckoutSubmission(deps: SubmissionDeps) {
         .party()
         .value();
       const who = contact();
-      // A guest ordering as a private person *is* the party, so the one name
-      // they gave answers both. A company is its own party, with somebody at it
-      // as the contact.
+      // A private guest is the party; a company has the guest as its contact.
       const partyName =
         draft.party === 'company'
           ? companyName
@@ -125,8 +104,8 @@ export function createCheckoutSubmission(deps: SubmissionDeps) {
         lines: cart.request(),
         contact: who,
         fulfilmentMethod: draft.fulfilmentMethod,
-        // Null is "the party this account is registered as": its own record,
-        // which the server reads rather than takes from a browser.
+        // Null is the account's own party, which the server reads from its
+        // record.
         party:
           draft.party === 'account' && !deps.guest()
             ? null
@@ -145,9 +124,7 @@ export function createCheckoutSubmission(deps: SubmissionDeps) {
       };
     },
 
-    /** A refusal in the customer's words. The API answers with a code and
-     * never with a sentence, so every one of them is named in the text
-     * catalog. */
+    /** A refusal code in the customer's words. */
     refusal(code: Exclude<SubmitOrderResult, { ok: true }>['code']): string {
       const errors = text.errors;
       switch (code) {
@@ -178,9 +155,7 @@ export function createCheckoutSubmission(deps: SubmissionDeps) {
         case 'pairing-unsatisfied':
           return errors.pairingUnsatisfied;
         default:
-          // A 400 the contract does not name — a body the server rejected
-          // before any rule ran. Nothing useful to say about it, but silence is
-          // worse.
+          // A 400 the contract does not name: rejected before any rule ran.
           return errors.generic;
       }
     },

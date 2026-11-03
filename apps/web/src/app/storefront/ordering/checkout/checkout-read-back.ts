@@ -22,11 +22,8 @@ import {
 } from '../../../core/ordering/ui/order-read-back';
 import { CheckoutDraft } from './checkout-draft';
 
-/**
- * What the read-back has to be told, because none of it can be worked out from
- * the draft alone: which address a picker settled on, what the account is
- * called, and whether the invoice has an address of its own to state.
- */
+/** What the draft alone cannot say: the settled addresses, the account's name,
+ * whether an invoice address exists. */
 export interface ReadBackDeps {
   draft: Signal<CheckoutDraft>;
   isPickup: Signal<boolean>;
@@ -49,11 +46,8 @@ export interface ReadBackDeps {
   guestName: () => string;
 }
 
-/**
- * The order as the customer is shown it before sending (ADR 0039) — the same
- * answers the submission is built from, worded rather than encoded, so what is
- * shown and what is sent cannot differ.
- */
+/** The order as shown before sending, built from the same answers as the
+ * submission. */
 export function createCheckoutReadBack(deps: ReadBackDeps) {
   const cart = inject(CartService);
   const config = inject(DEPLOYMENT_CONFIG);
@@ -62,12 +56,8 @@ export function createCheckoutReadBack(deps: ReadBackDeps) {
   const names = common.order;
   const locations = config.pickup?.locations ?? [];
 
-  /**
-   * The quantity in the unit the line was bought through and, where that is
-   * not the piece, what it comes to in pieces — a unit is a lens on a piece
-   * count (FR-UNIT-01), and this is the one screen where the figure the shop
-   * actually picks is worth spelling out beside the one that was ordered.
-   */
+  /** The ordered quantity and, for another unit, its pieces (FR-UNIT-01): the
+   * figure the shop picks. */
   const lineQuantity = (line: CartStoredLine): string => {
     const units = common.units;
     const qty = formatUnitQuantity(
@@ -94,8 +84,7 @@ export function createCheckoutReadBack(deps: ReadBackDeps) {
     return point ? [point.name, point.address] : [];
   };
 
-  /** Who the invoice is made out to — the account's own party, or the one the
-   * form named. The number under the name, where there is one. */
+  /** The invoiced party, with its number under the name where there is one. */
   const partyName = (): string => {
     const draft = deps.draft();
     if (draft.party === 'account') {
@@ -134,8 +123,7 @@ export function createCheckoutReadBack(deps: ReadBackDeps) {
         name: line.name,
         note: line.note,
         quantity: lineQuantity(line),
-        // A dash rather than a zero: a line the shop cannot price yet is not a
-        // free one, and the summary beside this says so in full.
+        // A dash, not a zero: an unpriced line is not free.
         total:
           line.lineTotalMinor === null
             ? '—'
@@ -158,8 +146,7 @@ export function createCheckoutReadBack(deps: ReadBackDeps) {
             ),
           ];
 
-      // The party, and where its invoice goes — the second half only where the
-      // deployment invoices an address at all.
+      // The invoice address only where the deployment invoices one.
       const invoice = [partyName()];
       if (deps.needsBillingPicker()) {
         invoice.push(
@@ -173,8 +160,7 @@ export function createCheckoutReadBack(deps: ReadBackDeps) {
         { heading: common.fulfilment.label, lines: arrival },
         { heading: names.invoicedTo, lines: invoice },
         {
-          // The form's own words for the question, so the read-back is the
-          // same question and not a shorter one: what is recorded is a wish.
+          // The form's own words: what is recorded is a wish.
           heading: deps.isPickup()
             ? names.preferredPickup
             : names.preferredDelivery,
@@ -193,8 +179,6 @@ export function createCheckoutReadBack(deps: ReadBackDeps) {
           ],
         },
       ];
-      // Only where there is one: an empty heading is a question the customer
-      // answered by leaving it alone.
       if (draft.customerNote) {
         blocks.push({
           heading: names.note,

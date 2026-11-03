@@ -6,25 +6,12 @@ import { Radio } from '@b2b-catalog-platform/ui/choices/radio';
 import { TextButton } from '@b2b-catalog-platform/ui/actions/text-button';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 
-/**
- * Which point the order is collected from — pickup's answer to the delivery
- * address, standing in the same place on the page as one, so choosing the
- * other fulfilment swaps one section for the other.
- *
- * Plain radios, with no frame and no rule between them. The cards above
- * explain a choice that shapes the rest of the form; this one only names
- * places, and a shop with half a dozen collection points would be a wall of
- * boxes. A line each: what it is called, where it is, when it is open.
- *
- * The map is an ordinary link to somewhere else, not an embed — it is looked
- * up before ever reaching this form, and a map drawn into the page is a great
- * deal of weight for that.
- */
+/** The collection point, in the place the delivery address takes. Plain radios:
+ * a shop may have many. The map is a link, not an embed. */
 @Component({
   selector: 'app-pickup-choice',
   imports: [EmphasisedText, Radio, TextButton, ErrorText],
-  // Block, or the page's own spacing between sections cannot reach it: a
-  // margin on an inline element does nothing.
+  // Block, so the page's section spacing applies.
   host: { class: 'block' },
   template: `
     <fieldset>
@@ -37,18 +24,11 @@ import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
         [attr.aria-describedby]="invalid() ? 'pickup-error' : null"
       >
         @for (location of locations; track location.key) {
-          <!-- Three columns where they fit: the radio, the place, and the map
-               link pushed to the right edge. The link keeps its own column
-               rather than joining the wrap, so it stays with the radio however
-               many lines the place itself takes; where even that does not fit
-               it wraps under, which is the narrow layout.
-
-               Centred rather than aligned on a baseline, because the radio is:
-               a place that wraps to two lines puts both of them on the axis
-               through the middle of it, rather than on its first line. -->
+          <!-- Radio, place, map link; the link keeps its column, wrapping under
+               only when narrow. Centred, as a two-line place centres on the
+               radio. -->
           <div class="flex flex-wrap items-center justify-between gap-x-4">
-            <!-- The link stays outside the label: a label wrapping it would
-                 take the click meant for the map. -->
+            <!-- Outside the label, which would take the map's click. -->
             <label class="flex flex-1 cursor-pointer items-baseline gap-2">
               <input
                 type="radio"
@@ -100,8 +80,7 @@ export class PickupChoice {
     inject(DEPLOYMENT_CONFIG).pickup?.locations ?? [];
 
   readonly pickupKey = input.required<string | null>();
-  /** Set once the form has been submitted without an answer here. The group
-   * is not a form field, so the page passes it in. */
+  /** Set after a submit with no answer: the group is no form field. */
   readonly invalid = input(false);
   readonly pickupKeyChange = output<string>();
 }

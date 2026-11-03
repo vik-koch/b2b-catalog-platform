@@ -16,15 +16,9 @@ import { DeliveryZoneList } from './delivery-zone-list';
 import { SHARED_TEXT } from '../../../../shared/config/shared-text';
 import { DialogTitle } from '@b2b-catalog-platform/ui/overlay/dialog-title';
 
-/**
- * Where this deployment delivers, and what an order has to reach for delivery
- * inside a zone to be free (FR-CART-07).
- *
- * A dialog rather than a page, because it is read *during* checkout: sending
- * somebody to the conditions page mid-form is asking them to come back and
- * find their place again. The page draws the same zone list; this links there
- * for the pickup points, the payment rule and the shop's own prose.
- */
+/** Where the deployment delivers and the free-delivery minimums (FR-CART-07). A
+ * dialog, so the customer keeps their place in the form; it links to the
+ * conditions page for the rest. */
 @Component({
   selector: 'app-delivery-conditions-dialog',
   imports: [
@@ -83,8 +77,7 @@ export class DeliveryConditionsDialog {
 
   protected readonly text = inject(STOREFRONT_TEXT).checkout.fulfilment;
   protected readonly actionText = inject(SHARED_TEXT).actions;
-  /** Only where the deployment publishes the page — an unpublished slug is a
-   * 404, and the dialog would be linking checkout into one. */
+  /** Only where the page is published, or the link is a 404. */
   protected readonly conditionsPath = (
     this.config.pages.published as readonly string[]
   ).includes('conditions')

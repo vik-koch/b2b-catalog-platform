@@ -10,29 +10,15 @@ import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
 import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
 import { WarningNote } from '@b2b-catalog-platform/ui/content/warning-note';
 
-/**
- * Which delivery area the entered address falls into, and whether this order
- * reaches the free-delivery minimum there (FR-CART-07).
- *
- * Advisory, and says so: no order is refused for missing a threshold and no
- * delivery is priced here. The zone is resolved in the browser only to *say*
- * it — the server re-derives it from the submitted address, because a
- * threshold a customer could pick for themselves would not be one.
- *
- * Silent until there is a postcode to resolve on — and empty rather than
- * blank, so the rule the page draws above it disappears with it. A hint that
- * appears the moment the field is focused, saying nothing, is noise.
- *
- * A zone may say the deployment does not deliver there at all. That is said
- * here, in amber, while the address is being typed: it is a cheaper
- * conversation before the order than after it. It still refuses nothing —
- * the order goes through and a manager answers it.
- */
+/** The delivery area of the typed address and whether the order reaches its
+ * free-delivery minimum (FR-CART-07). Advisory: the server re-derives the zone,
+ * and nothing is refused. Empty until there is a postcode. A zone the
+ * deployment does not deliver to is said in amber while typing, still refusing
+ * nothing. */
 @Component({
   selector: 'app-delivery-zone-hint',
   imports: [WarningNote],
-  // Hidden while it has nothing to say, so whatever the page put on this
-  // element — a rule above it — goes with it.
+  // Hidden while empty, taking the page's rule above it along.
   host: { class: 'block empty:hidden' },
   template: `
     @if (zone(); as resolved) {
@@ -75,14 +61,13 @@ export class DeliveryZoneHint {
       title: fillText(this.text.resolved, { zone: match.title }),
       delivers,
       // Nothing to be short of where nothing is delivered; the config refuses
-      // the pair anyway, and reading it here would be a second opinion.
+      // the pair anyway.
       threshold: delivers ? this.threshold(match.freeFromMinor) : null,
     };
   });
 
-  /** What the order still needs to reach free delivery here, or that it
-   * already has. Nothing at all where the zone quotes no minimum: there is no
-   * threshold to be short of. */
+  /** What the order still needs for free delivery, or that it has it. Nothing
+   * where the zone quotes no minimum. */
   private threshold(freeFromMinor: number | undefined): string | null {
     if (freeFromMinor === undefined) return null;
     const total = this.cart.totalMinor();

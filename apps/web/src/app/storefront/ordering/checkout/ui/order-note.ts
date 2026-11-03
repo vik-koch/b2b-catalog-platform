@@ -6,18 +6,8 @@ import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
 import { Input } from '@b2b-catalog-platform/ui/inputs/input';
 import { SHARED_TEXT } from '../../../../shared/config/shared-text';
 
-/**
- * Anything the customer wants to say in words, copied onto the order for the
- * manager who reads it. The last row of the form, because it is the one thing
- * here with no default: everything above arrives answered.
- *
- * Not the per-line note (FR-CART-08) — that describes one product and travels
- * with it. This is about the order.
- *
- * Grows with what is written in it, and stops where the contract does: a note
- * longer than the column would be truncated by the server, which is a worse
- * answer than a field that will not take the character.
- */
+/** The order's note for the manager; per-line notes (FR-CART-08) are separate.
+ * Capped at the contract's length rather than truncated by the server. */
 @Component({
   selector: 'app-order-note',
   imports: [AutoGrow, FieldLabel, Input],
