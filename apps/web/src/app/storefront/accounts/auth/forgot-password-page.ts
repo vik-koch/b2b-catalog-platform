@@ -9,7 +9,7 @@ import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
 import { Input } from '@b2b-catalog-platform/ui/inputs/input';
 import { AuthCard } from './auth-card';
-import { AuthService } from '../../../shared/auth/auth.service';
+import { SignInService } from './sign-in.service';
 import { TextButton } from '@b2b-catalog-platform/ui/actions/text-button';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
 import { Outcome } from '@b2b-catalog-platform/ui/content/outcome';
@@ -88,7 +88,7 @@ type Status = 'idle' | 'success' | 'error';
   `,
 })
 export class ForgotPasswordPage {
-  private readonly auth = inject(AuthService);
+  private readonly auth = inject(SignInService);
 
   protected readonly text = inject(STOREFRONT_TEXT).auth.forgotPassword;
   protected readonly fields = inject(SHARED_TEXT).fields;

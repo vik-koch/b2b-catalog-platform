@@ -6,7 +6,7 @@ import { defaultStorefrontText } from '../../../shared/config/storefront-text.fi
 import { defaultSharedText } from '../../../shared/config/shared-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
 import { defaultDeploymentConfig } from '../../../shared/config/deployment-config.fixture';
-import { AuthService } from '../../../shared/auth/auth.service';
+import { SignInService } from './sign-in.service';
 import { ForgotPasswordPage } from './forgot-password-page';
 
 const text = defaultStorefrontText.auth.forgotPassword;
@@ -21,7 +21,7 @@ async function render(outcome: 'ok' | 'error' = 'ok') {
       { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
       { provide: SHARED_TEXT, useValue: defaultSharedText },
       { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
-      { provide: AuthService, useValue: { forgotPassword } },
+      { provide: SignInService, useValue: { forgotPassword } },
     ],
   });
 

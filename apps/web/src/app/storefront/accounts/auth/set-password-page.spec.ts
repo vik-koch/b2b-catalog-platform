@@ -10,6 +10,7 @@ import { defaultDeploymentConfig } from '../../../shared/config/deployment-confi
 import { defaultStorefrontText } from '../../../shared/config/storefront-text.fixture';
 import { PageService } from '../../../core/site/page.service';
 import { AuthService } from '../../../shared/auth/auth.service';
+import { SignInService } from './sign-in.service';
 import { adminUser } from '../../../shared/auth/auth-user.fixture';
 import { SetPasswordPage } from './set-password-page';
 import { AuthUser } from '@b2b-catalog-platform/shared/platform';
@@ -25,7 +26,7 @@ const consentPage: Page = {
   updatedAt: '2026-10-05T10:00:00.000Z',
 };
 
-type Account = Awaited<ReturnType<AuthService['checkPasswordToken']>>;
+type Account = Awaited<ReturnType<SignInService['checkPasswordToken']>>;
 
 function setInput(root: HTMLElement, selector: string, value: string): void {
   const input = root.querySelector<HTMLInputElement>(selector);
@@ -37,7 +38,7 @@ function setInput(root: HTMLElement, selector: string, value: string): void {
 async function render(
   options: {
     account?: Account;
-    outcome?: Awaited<ReturnType<AuthService['setPassword']>>;
+    outcome?: Awaited<ReturnType<SignInService['setPassword']>>;
   } = {},
 ) {
   const account =
@@ -50,10 +51,10 @@ async function render(
       : options.account;
   const user = signal<AuthUser | null>(null);
   const checkPasswordToken = vi
-    .fn<AuthService['checkPasswordToken']>()
+    .fn<SignInService['checkPasswordToken']>()
     .mockResolvedValue(account);
   const setPassword = vi
-    .fn<AuthService['setPassword']>()
+    .fn<SignInService['setPassword']>()
     .mockImplementation(async () => {
       const outcome = options.outcome ?? { result: 'ok' as const };
       if (outcome.result === 'ok') user.set(adminUser);
@@ -74,10 +75,8 @@ async function render(
           consent: { contact: true, account: true },
         },
       },
-      {
-        provide: AuthService,
-        useValue: { checkPasswordToken, setPassword, user },
-      },
+      { provide: AuthService, useValue: { user } },
+      { provide: SignInService, useValue: { checkPasswordToken, setPassword } },
       {
         provide: PageService,
         useValue: { getPage: vi.fn(async () => consentPage) },

@@ -1,6 +1,6 @@
 import { oc } from '@orpc/contract';
 import * as z from 'zod';
-import { addressComponentsSchema } from './address.contract';
+import { addressComponentsSchema } from '../../core/accounts/address.contract';
 import {
   MAINTENANCE_REFUSED,
   PASSWORD_MAX_LENGTH,
@@ -8,9 +8,10 @@ import {
   PASSWORD_TOKEN_INVALID,
   PasswordRejectionCode,
   SIGN_IN_CODE_LENGTH,
-} from './auth';
-import { partyEntityTypeSchema } from './party.contract';
-import { customerTypeSchema } from './users.contract';
+} from '../../core/accounts/auth';
+import { partyEntityTypeSchema } from '../../core/accounts/party.contract';
+import { signInStepSchema } from '../../core/accounts/sign-in-step.contract';
+import { customerTypeSchema } from '../../core/accounts/users.contract';
 import {
   companyNameSchema,
   companyRegistrationIdSchema,
@@ -18,57 +19,10 @@ import {
   storedEmailField,
 } from '../../lib/config/contact-config';
 import { commonAuthErrors, phoneFormatErrors } from '../../lib/core/api-error';
-import { consentErrors } from '../site/pages';
-import { consentVersionField } from '../site/page.contract';
+import { consentErrors } from '../../core/site/pages';
+import { consentVersionField } from '../../core/site/page.contract';
 import { honeypotField } from '../../platform/form-fields.contract';
 import { authUserSchema } from '../../platform/session.contract';
-
-/** A code on its way: where it went and which number it signs in with or
- * confirms, both masked, and the seconds until another may be asked for. */
-export const codeSentSchema = z
-  .object({
-    sentTo: z.string(),
-    phone: z.string(),
-    resendIn: z.number().int().nonnegative(),
-  })
-  .strict();
-export type CodeSent = z.infer<typeof codeSentSchema>;
-
-/** What both kinds of step state: the number it proves (masked), the seconds
- * until another code or check may be asked for, whether completing it also
- * confirms that number, and the days a browser may be remembered (0: never). */
-const stepCommon = {
-  phone: z.string(),
-  resendIn: z.number().int().nonnegative(),
-  confirming: z.boolean(),
-  rememberDays: z.number().int().nonnegative(),
-};
-
-/**
- * The step owed before a session begins (FR-AUTH-12), answered instead of the
- * user by every route that would start one. `code`: a code went to `sentTo`
- * (the phone, or the mailbox). `call`: the person calls `callTo` from `phone`
- * within `expiresIn` seconds, `dial` being the number a phone link dials.
- */
-export const codeStepSchema = codeSentSchema
-  .extend({ step: z.literal('code'), ...stepCommon })
-  .strict();
-export const callStepSchema = z
-  .object({
-    step: z.literal('call'),
-    callTo: z.string(),
-    dial: z.string(),
-    expiresIn: z.number().int().nonnegative(),
-    sentTo: z.string().optional(),
-    ...stepCommon,
-  })
-  .strict();
-export const signInStepSchema = z.discriminatedUnion('step', [
-  codeStepSchema,
-  callStepSchema,
-]);
-export type SignInStep = z.infer<typeof signInStepSchema>;
-export type CallStep = z.infer<typeof callStepSchema>;
 
 /** A session, or the step that stands before one. */
 export const sessionOrStepSchema = z.union([signInStepSchema, authUserSchema]);
@@ -387,24 +341,6 @@ export const authContract = {
     })
     .input(z.object({ body: signInCallSchema }))
     .output(z.union([callWaitingSchema, authUserSchema])),
-
-  logout: oc
-    .route({
-      method: 'POST',
-      // Idempotent and open: it only clears the cookie.
-      path: '/auth/logout',
-      summary: 'Clear the session cookie',
-    })
-    .output(z.object({ message: z.string() })),
-
-  me: oc
-    .route({
-      method: 'GET',
-      path: '/auth/me',
-      summary: 'Return the currently authenticated user',
-    })
-    .errors(commonAuthErrors)
-    .output(authUserSchema),
 
   changePassword: oc
     .route({

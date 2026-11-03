@@ -9,7 +9,7 @@ import {
 import { RouterLink } from '@angular/router';
 import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
-import { AuthService } from '../../../shared/auth/auth.service';
+import { SignInService } from './sign-in.service';
 import { CallWait } from './call-wait';
 import { CodeEntry } from './code-entry';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
@@ -60,7 +60,7 @@ import { Outcome } from '@b2b-catalog-platform/ui/content/outcome';
   `,
 })
 export class SignInStepPanel {
-  private readonly auth = inject(AuthService);
+  private readonly auth = inject(SignInService);
 
   protected readonly text = inject(STOREFRONT_TEXT).auth.signInStep;
 

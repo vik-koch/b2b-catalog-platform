@@ -4,16 +4,13 @@ import { form } from '@angular/forms/signals';
 import { Router, RouterLink } from '@angular/router';
 import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
 import { usePageSeo } from '../../../shared/core/page-seo';
-import {
-  confirmation,
-  generatePassword,
-  newPassword,
-} from '../../../shared/core/password';
+import { confirmation, generatePassword, newPassword } from './password';
 import { AuthCard } from './auth-card';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
 import { Input } from '@b2b-catalog-platform/ui/inputs/input';
 import { AuthService } from '../../../shared/auth/auth.service';
+import { SignInService } from './sign-in.service';
 import { SignInStepPanel } from './sign-in-step';
 import { sendFailureLine } from './send-failure-line';
 import { landingFor } from '../../../shared/auth/auth.guard';
@@ -26,10 +23,8 @@ import { Outcome } from '@b2b-catalog-platform/ui/content/outcome';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { Hint } from '@b2b-catalog-platform/ui/fields/hint';
 import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
-import {
-  PASSWORD_MIN_LENGTH,
-  PasswordTokenPurpose,
-} from '@b2b-catalog-platform/shared/core/accounts';
+import { PASSWORD_MIN_LENGTH } from '@b2b-catalog-platform/shared/core/accounts';
+import { PasswordTokenPurpose } from '@b2b-catalog-platform/shared/storefront/accounts';
 
 type Status =
   | 'checking'
@@ -181,7 +176,8 @@ type Status =
   `,
 })
 export class SetPasswordPage implements OnInit {
-  private readonly service = inject(AuthService);
+  private readonly service = inject(SignInService);
+  private readonly session = inject(AuthService);
   private readonly router = inject(Router);
 
   protected readonly auth = inject(STOREFRONT_TEXT).auth;
@@ -307,7 +303,7 @@ export class SetPasswordPage implements OnInit {
 
   /** The account is signed in: straight to its role's home. */
   protected async land(): Promise<void> {
-    const user = this.service.user();
+    const user = this.session.user();
     await this.router.navigateByUrl(user ? landingFor(user.role) : '/');
   }
 }

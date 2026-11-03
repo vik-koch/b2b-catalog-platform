@@ -10,15 +10,12 @@ import {
 import { form, required } from '@angular/forms/signals';
 import { fillText } from '@b2b-catalog-platform/shared';
 import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
-import { confirmation, newPassword } from '../../../shared/core/password';
+import { confirmation, newPassword } from './password';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
 import { Input } from '@b2b-catalog-platform/ui/inputs/input';
 import { SubmitAttempt } from '@b2b-catalog-platform/ui/fields/submit-attempt';
-import {
-  AuthService,
-  ChangePasswordResult,
-} from '../../../shared/auth/auth.service';
+import { SignInService, ChangePasswordResult } from './sign-in.service';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { PASSWORD_MIN_LENGTH } from '@b2b-catalog-platform/shared/core/accounts';
 
@@ -89,7 +86,7 @@ import { PASSWORD_MIN_LENGTH } from '@b2b-catalog-platform/shared/core/accounts'
   `,
 })
 export class ChangePasswordForm {
-  private readonly auth = inject(AuthService);
+  private readonly auth = inject(SignInService);
 
   private readonly authText = inject(STOREFRONT_TEXT).auth;
   protected readonly text = this.authText.changePassword;

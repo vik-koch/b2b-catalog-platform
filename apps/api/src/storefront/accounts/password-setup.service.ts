@@ -11,7 +11,7 @@ import { PasswordPolicy } from '../../core/accounts/password-policy';
 import { PasswordTokenService } from '../../core/accounts/password-token.service';
 import { PasswordService } from '../../core/accounts/password.service';
 import { UserRole } from '@b2b-catalog-platform/shared/platform';
-import { PasswordTokenPurpose } from '@b2b-catalog-platform/shared/core/accounts';
+import { PasswordTokenPurpose } from '@b2b-catalog-platform/shared/storefront/accounts';
 
 /**
  * Redeeming a set-a-password link, invitation or reset. The link is the whole

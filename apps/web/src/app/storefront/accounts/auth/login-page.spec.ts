@@ -7,7 +7,8 @@ import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
 import { defaultDeploymentConfig } from '../../../shared/config/deployment-config.fixture';
 import { defaultStorefrontText } from '../../../shared/config/storefront-text.fixture';
 import { defaultSharedText } from '../../../shared/config/shared-text.fixture';
-import { AuthService, LoginResult } from '../../../shared/auth/auth.service';
+import { AuthService } from '../../../shared/auth/auth.service';
+import { LoginResult, SignInService } from './sign-in.service';
 import { LoginPage } from './login-page';
 import {
   adminUser as admin,
@@ -30,7 +31,7 @@ function submitForm(root: HTMLElement): void {
 
 async function render(result: LoginResult = 'ok', signedIn: AuthUser = admin) {
   const user = signal<AuthUser | null>(null);
-  const login = vi.fn<AuthService['login']>().mockImplementation(async () => {
+  const login = vi.fn<SignInService['login']>().mockImplementation(async () => {
     if (result === 'ok') user.set(signedIn);
     return result;
   });
@@ -42,10 +43,10 @@ async function render(result: LoginResult = 'ok', signedIn: AuthUser = admin) {
       { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
       { provide: SHARED_TEXT, useValue: defaultSharedText },
       { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
+      { provide: AuthService, useValue: { user } },
       {
-        provide: AuthService,
+        provide: SignInService,
         useValue: {
-          user,
           login,
           // What a password that owes a code leaves behind (FR-AUTH-12).
           step: signal({

@@ -19,7 +19,7 @@ import {
   SegmentOption,
 } from '@b2b-catalog-platform/ui/choices/segmented';
 import { AuthCard } from './auth-card';
-import { AuthService } from '../../../shared/auth/auth.service';
+import { SignInService } from './sign-in.service';
 import { Link } from '@b2b-catalog-platform/ui/actions/link';
 import { ConsentField } from '../../site/consent-field';
 import { useConsent } from '../../site/consent';
@@ -193,7 +193,7 @@ interface Registration {
   `,
 })
 export class RegisterPage {
-  private readonly auth = inject(AuthService);
+  private readonly auth = inject(SignInService);
   private readonly config = inject(DEPLOYMENT_CONFIG);
 
   protected readonly text = inject(STOREFRONT_TEXT).auth;

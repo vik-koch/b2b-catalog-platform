@@ -6,10 +6,8 @@ import { provideRouter, Router } from '@angular/router';
 import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
 import { defaultStorefrontText } from '../../../shared/config/storefront-text.fixture';
 import { adminUser } from '../../../shared/auth/auth-user.fixture';
-import {
-  AuthService,
-  ChangePasswordResult,
-} from '../../../shared/auth/auth.service';
+import { AuthService } from '../../../shared/auth/auth.service';
+import { ChangePasswordResult, SignInService } from './sign-in.service';
 import { ForcePasswordChange } from './force-password-change';
 import { AuthUser } from '@b2b-catalog-platform/shared/platform';
 
@@ -38,7 +36,7 @@ async function render(
   // Mirrors the real service: the success response carries the refreshed
   // identity, so the flag clears as part of changing the password.
   const changePassword = vi
-    .fn<AuthService['changePassword']>()
+    .fn<SignInService['changePassword']>()
     .mockImplementation(async () => {
       if (result.result === 'ok') {
         const current = user();
@@ -56,7 +54,8 @@ async function render(
       provideRouter([]),
       { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
       { provide: SHARED_TEXT, useValue: defaultSharedText },
-      { provide: AuthService, useValue: { user, changePassword, logout } },
+      { provide: AuthService, useValue: { user, logout } },
+      { provide: SignInService, useValue: { changePassword } },
     ],
   });
 

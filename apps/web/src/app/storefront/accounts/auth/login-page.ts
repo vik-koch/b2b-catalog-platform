@@ -10,7 +10,8 @@ import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
 import { Input } from '@b2b-catalog-platform/ui/inputs/input';
 import { AuthCard } from './auth-card';
 import { landingFor } from '../../../shared/auth/auth.guard';
-import { AuthService, LoginResult } from '../../../shared/auth/auth.service';
+import { AuthService } from '../../../shared/auth/auth.service';
+import { LoginResult, SignInService } from './sign-in.service';
 import { SignInStepPanel } from './sign-in-step';
 import { sendFailureLine } from './send-failure-line';
 import { TextButton } from '@b2b-catalog-platform/ui/actions/text-button';
@@ -99,7 +100,8 @@ import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
   `,
 })
 export class LoginPage {
-  private readonly auth = inject(AuthService);
+  private readonly auth = inject(SignInService);
+  private readonly session = inject(AuthService);
   private readonly router = inject(Router);
 
   protected readonly text = inject(STOREFRONT_TEXT).auth;
@@ -160,7 +162,7 @@ export class LoginPage {
 
   /** Signed in, by the password alone or after the code. */
   protected async land(): Promise<void> {
-    const user = this.auth.user();
+    const user = this.session.user();
     await this.router.navigateByUrl(
       this.safeReturnUrl() ?? (user ? landingFor(user.role) : '/'),
     );

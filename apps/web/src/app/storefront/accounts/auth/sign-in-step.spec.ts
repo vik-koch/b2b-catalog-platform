@@ -7,7 +7,7 @@ import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
 import { defaultStorefrontText } from '../../../shared/config/storefront-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
 import { defaultDeploymentConfig } from '../../../shared/config/deployment-config.fixture';
-import { AuthService } from '../../../shared/auth/auth.service';
+import { SignInService } from './sign-in.service';
 import { SignInStepPanel } from './sign-in-step';
 import { SignInStep } from '@b2b-catalog-platform/shared/core/accounts';
 
@@ -52,9 +52,9 @@ async function render(initial: SignInStep) {
   const step = signal<SignInStep | null>(initial);
   const auth = {
     step,
-    submitCode: vi.fn<AuthService['submitCode']>(),
-    resendCode: vi.fn<AuthService['resendCode']>(),
-    checkCall: vi.fn<AuthService['checkCall']>(),
+    submitCode: vi.fn<SignInService['submitCode']>(),
+    resendCode: vi.fn<SignInService['resendCode']>(),
+    checkCall: vi.fn<SignInService['checkCall']>(),
     retryAfter: signal<number | null>(null),
   };
 
@@ -65,7 +65,7 @@ async function render(initial: SignInStep) {
       { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
       { provide: SHARED_TEXT, useValue: defaultSharedText },
       { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
-      { provide: AuthService, useValue: auth },
+      { provide: SignInService, useValue: auth },
     ],
   });
 

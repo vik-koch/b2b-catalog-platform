@@ -17,9 +17,8 @@ type StringPath<K extends PathKind> = SchemaPath<
 >;
 
 /**
- * A new password: present, and within the contract's limits, read from the
- * constants rather than its schema so the page loads no Zod. The ceiling is
- * far past anything typed, so it shares the floor's wording.
+ * Within the contract's limits, from its constants so the page loads no Zod.
+ * The ceiling is far past anything typed, so it shares the floor's wording.
  */
 export function newPassword<K extends PathKind>(
   path: StringPath<K>,
@@ -35,10 +34,7 @@ export function newPassword<K extends PathKind>(
   });
 }
 
-/**
- * The confirmation has to match the password it repeats. Required without a
- * message of its own: left empty, it is the mismatch that says why.
- */
+/** Required without a message: left empty, the mismatch says why. */
 export function confirmation<K extends PathKind>(
   path: StringPath<K>,
   password: StringPath<K>,
@@ -51,23 +47,16 @@ export function confirmation<K extends PathKind>(
 }
 
 /**
- * The alphabet a generated password is drawn from: no `l`/`I`/`1` or `O`/`0`,
- * because a generated password gets read off a screen and typed on a phone at
- * least once. No symbols either — length is what makes it strong (the server
- * enforces no composition rules, deliberately), and symbols cost more in
- * transcription errors than they add in entropy.
+ * No `l`/`I`/`1` or `O`/`0`: it gets read off a screen and typed at least
+ * once. No symbols: length makes it strong, and they cost more in typing
+ * errors than they add.
  */
 const ALPHABET = 'abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 
 /**
- * A password nobody has to invent. 20 characters of this alphabet is ~115
- * bits, far past anything guessable, and the visitor can see it (the field has
- * a reveal toggle) and paste it into their password manager.
- *
- * `crypto.getRandomValues`, never `Math.random`: the latter is predictable
- * from its own previous outputs, which is exactly the property a password
- * cannot have. Modulo bias is avoided by rejecting the tail of the byte range
- * rather than wrapping it.
+ * 20 characters of this alphabet is ~115 bits. `crypto.getRandomValues`, as
+ * `Math.random` is predictable; the tail of the byte range is rejected rather
+ * than wrapped, so there is no modulo bias.
  */
 export function generatePassword(length = 20): string {
   const limit = 256 - (256 % ALPHABET.length);

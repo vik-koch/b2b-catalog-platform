@@ -36,13 +36,17 @@ import {
 } from '../../core/accounts/sign-in-step/sign-in-proof';
 import { UserRow, UsersService } from '../../core/accounts/users.service';
 import { toAuthUser } from '../../platform/auth/auth-user';
-import { AuthUser, UserRole } from '@b2b-catalog-platform/shared/platform';
+import {
+  AuthUser,
+  sessionContract,
+  UserRole,
+} from '@b2b-catalog-platform/shared/platform';
 import { passesMaintenance } from '@b2b-catalog-platform/shared/core/site';
 import {
-  authContract,
   MAINTENANCE_REFUSED,
   PASSWORD_TOKEN_INVALID,
 } from '@b2b-catalog-platform/shared/core/accounts';
+import { authContract } from '@b2b-catalog-platform/shared/storefront/accounts';
 
 @Controller()
 export class AuthController {
@@ -280,9 +284,9 @@ export class AuthController {
   // Leaves a remembered browser standing: signing out ends the session, and
   // the next sign-in on this browser still takes the password.
   @MaintenanceExempt()
-  @Implement(authContract.logout)
+  @Implement(sessionContract.logout)
   logout(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
-    return implement(authContract.logout).handler(async () => {
+    return implement(sessionContract.logout).handler(async () => {
       endSession(req, res);
       return { message: 'Logged out' };
     });
@@ -291,9 +295,9 @@ export class AuthController {
   // Exempt: the web gate needs it to tell staff from customers.
   @MaintenanceExempt()
   @Auth()
-  @Implement(authContract.me)
+  @Implement(sessionContract.me)
   me(@CurrentUser() user: AuthUser) {
-    return implement(authContract.me).handler(async () => user);
+    return implement(sessionContract.me).handler(async () => user);
   }
 
   @Auth()

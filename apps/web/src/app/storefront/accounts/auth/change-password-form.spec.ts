@@ -3,10 +3,7 @@ import { defaultSharedText } from '../../../shared/config/shared-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
 import { defaultStorefrontText } from '../../../shared/config/storefront-text.fixture';
-import {
-  AuthService,
-  ChangePasswordResult,
-} from '../../../shared/auth/auth.service';
+import { SignInService, ChangePasswordResult } from './sign-in.service';
 import { ChangePasswordForm } from './change-password-form';
 import { PASSWORD_MIN_LENGTH } from '@b2b-catalog-platform/shared/core/accounts';
 
@@ -37,7 +34,7 @@ function fill(
 
 async function render(result: ChangePasswordResult = { result: 'ok' }) {
   const changePassword = vi
-    .fn<AuthService['changePassword']>()
+    .fn<SignInService['changePassword']>()
     .mockResolvedValue(result);
 
   TestBed.configureTestingModule({
@@ -45,7 +42,7 @@ async function render(result: ChangePasswordResult = { result: 'ok' }) {
     providers: [
       { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
       { provide: SHARED_TEXT, useValue: defaultSharedText },
-      { provide: AuthService, useValue: { changePassword } },
+      { provide: SignInService, useValue: { changePassword } },
     ],
   });
 

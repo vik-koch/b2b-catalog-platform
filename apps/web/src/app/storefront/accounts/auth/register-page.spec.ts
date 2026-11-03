@@ -9,7 +9,7 @@ import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
 import { defaultDeploymentConfig } from '../../../shared/config/deployment-config.fixture';
 import { PageService } from '../../../core/site/page.service';
 import { PartiesService } from '../../../core/accounts/parties/parties.service';
-import { AuthService } from '../../../shared/auth/auth.service';
+import { SignInService } from './sign-in.service';
 import { RegisterPage } from './register-page';
 import { provideDigitMaskFormat } from '../../../shared/core/contact-fields';
 import { PartySuggestion } from '@b2b-catalog-platform/shared/core/accounts';
@@ -67,10 +67,10 @@ const askingConfig = {
 };
 
 async function render(
-  result: Awaited<ReturnType<AuthService['register']>> = 'ok',
+  result: Awaited<ReturnType<SignInService['register']>> = 'ok',
   config = askingConfig,
 ) {
-  const register = vi.fn<AuthService['register']>().mockResolvedValue(result);
+  const register = vi.fn<SignInService['register']>().mockResolvedValue(result);
   const getPage = vi
     .fn<PageService['getPage']>()
     .mockResolvedValue(consentPage);
@@ -85,7 +85,7 @@ async function render(
       { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
       { provide: SHARED_TEXT, useValue: defaultSharedText },
       { provide: DEPLOYMENT_CONFIG, useValue: config },
-      { provide: AuthService, useValue: { register } },
+      { provide: SignInService, useValue: { register } },
       { provide: PageService, useValue: { getPage } },
     ],
   });

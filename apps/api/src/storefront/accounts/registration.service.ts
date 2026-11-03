@@ -24,10 +24,8 @@ import { registrationReceivedMail } from '../../mail/templates/registration-rece
 import { storedPhone } from '../../core/accounts/stored-phone';
 import { UsersService } from '../../core/accounts/users.service';
 import { PasswordService } from '../../core/accounts/password.service';
-import {
-  CustomerType,
-  RegisterRequest,
-} from '@b2b-catalog-platform/shared/core/accounts';
+import { CustomerType } from '@b2b-catalog-platform/shared/core/accounts';
+import { RegisterRequest } from '@b2b-catalog-platform/shared/storefront/accounts';
 import {
   formatPhone,
   PhoneConfig,

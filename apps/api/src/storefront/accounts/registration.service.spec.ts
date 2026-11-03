@@ -19,10 +19,8 @@ import { dispatcherOver } from '../../mail/mail-dispatcher.fixture';
 import { UsersService } from '../../core/accounts/users.service';
 import { PasswordService } from '../../core/accounts/password.service';
 import { RegistrationService } from './registration.service';
-import {
-  CustomerType,
-  RegisterRequest,
-} from '@b2b-catalog-platform/shared/core/accounts';
+import { CustomerType } from '@b2b-catalog-platform/shared/core/accounts';
+import { RegisterRequest } from '@b2b-catalog-platform/shared/storefront/accounts';
 import { normalizePhone } from '@b2b-catalog-platform/shared/platform';
 
 /**

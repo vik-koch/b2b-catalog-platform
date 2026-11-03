@@ -19,7 +19,7 @@ import { CodeInput } from '@b2b-catalog-platform/ui/inputs/code-input';
 import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
 import { SubmitAttempt } from '@b2b-catalog-platform/ui/fields/submit-attempt';
 import { TextButton } from '@b2b-catalog-platform/ui/actions/text-button';
-import type { CodeResult, SendResult } from '../../../shared/auth/auth.service';
+import type { CodeResult, SendResult } from './sign-in.service';
 import { formatWait, tickingNow } from './countdown';
 import { placeholderRuns } from './placeholder-runs';
 import { sendFailureLine } from './send-failure-line';

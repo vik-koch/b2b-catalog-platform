@@ -39,6 +39,103 @@ export const accountContract = {
     },
   },
 } as unknown as typeof storefrontAccounts.accountContract;
+export const authContract = {
+  register: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'POST',
+        path: '/auth/register',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+  forgotPassword: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'POST',
+        path: '/auth/forgot-password',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+  checkPasswordToken: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'GET',
+        path: '/auth/password-token/{token}',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+  setPassword: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'POST',
+        path: '/auth/set-password',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+  login: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'POST',
+        path: '/auth/login',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+  resendSignInCode: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: { method: 'POST', path: '/auth/sign-in-step/resend' },
+    },
+  },
+  submitSignInCode: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'POST',
+        path: '/auth/sign-in-step/code',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+  checkSignInCall: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'POST',
+        path: '/auth/sign-in-step/call',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+  changePassword: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'POST',
+        path: '/auth/change-password',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+} as unknown as typeof storefrontAccounts.authContract;
 export const catalogContract = {
   getCategoryTree: {
     '~orpc': {

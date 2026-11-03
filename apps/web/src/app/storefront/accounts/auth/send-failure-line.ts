@@ -1,5 +1,5 @@
 import { fillText } from '@b2b-catalog-platform/shared';
-import type { CodeSendFailure } from '../../../shared/auth/auth.service';
+import type { CodeSendFailure } from './sign-in.service';
 import { formatWait } from './countdown';
 
 interface SendFailureText {

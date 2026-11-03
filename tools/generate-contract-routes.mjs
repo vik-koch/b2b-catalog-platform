@@ -38,16 +38,16 @@ const OUTPUTS = [
       'core/accounts': [
         'addressSuggestionContract',
         'addressesContract',
-        'authContract',
         'partySuggestionContract',
       ],
       'core/site': ['maintenanceContract', 'pageContract'],
+      platform: ['sessionContract'],
     },
   },
   {
     file: 'apps/web/src/app/storefront/contract-routes.generated.ts',
     entries: {
-      'storefront/accounts': ['accountContract'],
+      'storefront/accounts': ['accountContract', 'authContract'],
       'storefront/catalog': ['catalogContract'],
       'storefront/site': ['inquiryContract'],
     },

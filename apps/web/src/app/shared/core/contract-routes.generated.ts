@@ -7,6 +7,7 @@
 import type * as shared from '@b2b-catalog-platform/shared';
 import type * as coreAccounts from '@b2b-catalog-platform/shared/core/accounts';
 import type * as coreSite from '@b2b-catalog-platform/shared/core/site';
+import type * as platform from '@b2b-catalog-platform/shared/platform';
 
 export const cartContract = {
   previewCart: {
@@ -138,117 +139,6 @@ export const addressesContract = {
     },
   },
 } as unknown as typeof coreAccounts.addressesContract;
-export const authContract = {
-  register: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: {
-        method: 'POST',
-        path: '/auth/register',
-        inputStructure: 'detailed',
-      },
-    },
-  },
-  forgotPassword: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: {
-        method: 'POST',
-        path: '/auth/forgot-password',
-        inputStructure: 'detailed',
-      },
-    },
-  },
-  checkPasswordToken: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: {
-        method: 'GET',
-        path: '/auth/password-token/{token}',
-        inputStructure: 'detailed',
-      },
-    },
-  },
-  setPassword: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: {
-        method: 'POST',
-        path: '/auth/set-password',
-        inputStructure: 'detailed',
-      },
-    },
-  },
-  login: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: {
-        method: 'POST',
-        path: '/auth/login',
-        inputStructure: 'detailed',
-      },
-    },
-  },
-  resendSignInCode: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: { method: 'POST', path: '/auth/sign-in-step/resend' },
-    },
-  },
-  submitSignInCode: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: {
-        method: 'POST',
-        path: '/auth/sign-in-step/code',
-        inputStructure: 'detailed',
-      },
-    },
-  },
-  checkSignInCall: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: {
-        method: 'POST',
-        path: '/auth/sign-in-step/call',
-        inputStructure: 'detailed',
-      },
-    },
-  },
-  logout: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: { method: 'POST', path: '/auth/logout' },
-    },
-  },
-  me: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: { method: 'GET', path: '/auth/me' },
-    },
-  },
-  changePassword: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: {
-        method: 'POST',
-        path: '/auth/change-password',
-        inputStructure: 'detailed',
-      },
-    },
-  },
-} as unknown as typeof coreAccounts.authContract;
 export const partySuggestionContract = {
   suggestParties: {
     '~orpc': {
@@ -284,3 +174,19 @@ export const pageContract = {
     },
   },
 } as unknown as typeof coreSite.pageContract;
+export const sessionContract = {
+  logout: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: { method: 'POST', path: '/auth/logout' },
+    },
+  },
+  me: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: { method: 'GET', path: '/auth/me' },
+    },
+  },
+} as unknown as typeof platform.sessionContract;
