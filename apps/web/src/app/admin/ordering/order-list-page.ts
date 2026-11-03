@@ -59,18 +59,9 @@ import { AdminOrdersService } from './orders.service';
 import { StaffOrderSummary } from '@b2b-catalog-platform/shared/admin/ordering';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 
-/**
- * Every order request, for staff (FR-AUTH-03). An order is answered on its own
- * page; what the list carries is the pair of moves worth making without opening
- * one — the two the row's own state offers.
- *
- * Newest first, narrowed by the status and by the find-an-order box — the two
- * questions a manager opens this list with: "what have I not answered yet?"
- * and "where is the one they are asking about on the phone?". Both are query
- * parameters like every other grid's, so a narrowed list is shareable and
- * survives a reload, and both are applied server-side: the list is paged, and
- * a box that filtered one page would be a lie.
- */
+/** Every order request, for staff (FR-AUTH-03); answered on its own page, with
+ * the row's two moves here. Status, search, payment and sort are query
+ * parameters applied server-side: the list is paged. */
 @Component({
   selector: 'app-admin-order-list-page',
   imports: [
@@ -121,17 +112,13 @@ import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
         [countLabel]="text.count"
       >
         <ng-template uiGridRow [of]="data.items" let-order>
-          <!-- The reference opens the order as it stands to be read; the
-               action at the end of the row opens the screen where it is
-               answered. Two jobs, two links: most of what a manager does with
-               a list is look something up. -->
+          <!-- The reference reads the order; the row's action answers it. -->
           <td class="truncate font-medium">
             <a class="hover:text-accent" [routerLink]="titleLink(order)">
               {{ order.reference }}
             </a>
           </td>
-          <!-- Who to call, and underneath the account it came from — or
-               that it came from nobody, which is what a guest order is. -->
+          <!-- Who to call, and the account, or none for a guest. -->
           <td class="truncate" [title]="order.customerEmail ?? ''">
             <span class="block truncate text-ink">
               {{ order.contactName }}
@@ -144,10 +131,8 @@ import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
             {{ lineCount(order.itemCount) }}
           </td>
           <td class="tabular-nums">{{ total(order) }}</td>
-          <!-- The money, in the quiet badge: it is the order's second fact,
-               and two solid pills in one row read as two statuses that could
-               disagree. Empty where nothing is owed yet — a cash order says
-               nothing about money until it is handed over. -->
+          <!-- The quiet badge: two solid pills read as statuses that disagree.
+               Empty while nothing is owed. -->
           <td data-keep>
             @if (paymentBadge(order); as badge) {
               <span uiStatusBadge variant="dot" [tone]="badge.tone">
@@ -173,14 +158,10 @@ import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
           </td>
         </ng-template>
 
-        <!-- The same order on a phone: what it is and where it stands on the
-             first line, who to call on the second, and the two figures a
-             manager is looking for — when it came in and what it comes to — on
-             the third. The account it came from is a detail for the order's own
-             page; the name and the reference are what a phone call is about. -->
+        <!-- On a phone: order and status, who to call, then date, lines and
+             total. -->
         <ng-template uiGridCard [of]="data.items" let-order>
-          <!-- Only the order is greyed once it is over, never the badge that
-               says so — the same rule the table follows cell by cell. -->
+          <!-- Only the order greys once over, never its badge. -->
           <ui-record-row>
             <a
               class="truncate font-medium"
@@ -189,8 +170,7 @@ import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
               >{{ order.reference }}</a
             >
 
-            <!-- Beside the status, never instead of it, and in the quiet
-                 variant: what is owed is a second fact about the order. -->
+            <!-- Beside the status, quiet: a second fact. -->
             @if (paymentBadge(order); as badge) {
               <span
                 recordBadge
@@ -217,10 +197,7 @@ import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
             >
               {{ order.contactName }}
             </p>
-            <!-- When it came in, what is on it and what it comes to: the three
-                 figures a manager scans a phone list for. The buttons take the
-                 slot the total used to, which is what every other card does
-                 with its bottom-right corner. -->
+            <!-- The buttons take the card's bottom-right corner. -->
             <span
               recordMeta
               class="flex min-w-0 items-baseline gap-1"
@@ -260,20 +237,16 @@ export class AdminOrderListPage {
   protected readonly ordersText = inject(ADMIN_TEXT).orders;
   private readonly statuses = this.ordersText.statuses;
 
-  /** Whether an external system answers orders (FR-ADM-10). An answer still in
-   * flight counts as not owned, exactly as the account screens read it; the API
-   * refuses the move either way. */
+  /** Whether an external system answers orders (FR-ADM-10); in flight counts as
+   * not owned. The API refuses either way. */
   protected readonly locked = computed(() => this.ownership.owns('orders'));
 
-  /** Bound from the query parameters; both are narrowed before they reach the
-   * API, so a hand-edited URL falls back to the default view. */
+  /** Narrowed before the API, so a hand-edited URL falls back to the default.
+   * */
   readonly page = input('1');
   readonly status = input('');
-  /**
-   * Named for the parameter it is bound from — router input binding matches on
-   * the name, and the find-a-row box writes `searchTerm`. `q` is the navbar
-   * search's own parameter and is never read here.
-   */
+  /** Named for its parameter: the find-a-row box writes `searchTerm`; `q` is
+   * the navbar search's. */
   readonly searchTerm = input('');
 
   private readonly currentPage = computed(() => {
@@ -284,12 +257,10 @@ export class AdminOrderListPage {
     const parsed = orderStatusSchema.safeParse(this.status());
     return parsed.success ? parsed.data : undefined;
   });
-  /** The filter's own value: the empty string is "no filter", never undefined,
-   * or the select falls back to its first option by accident rather than by
-   * agreement. */
+  /** Empty string, never undefined, for no filter: otherwise the select picks
+   * its first option. */
   protected readonly statusParam = computed(() => this.statusKey() ?? '');
 
-  /** The payment column's own narrowing, parsed the same way. */
   readonly payment = input('');
   protected readonly paymentKey = computed<StaffPaymentFilter | undefined>(
     () => {
@@ -299,10 +270,7 @@ export class AdminOrderListPage {
   );
   protected readonly paymentParam = computed(() => this.paymentKey() ?? '');
 
-  /**
-   * The three things the column says, and nothing for the orders it says
-   * nothing about: an unanswered order owes nobody anything yet.
-   */
+  /** The column's three readings. */
   protected readonly paymentOptions: GridFilterOption[] = [
     { value: '', label: this.text.paymentAll },
     { value: 'awaiting', label: this.ordersText.paymentStates.awaiting },
@@ -314,12 +282,8 @@ export class AdminOrderListPage {
     { value: 'paid', label: this.ordersText.paymentStates.paid },
   ];
 
-  /**
-   * The ordering, server-side like the filter: the list is paged, and sorting
-   * one page would be sorting one twentieth of the orders. The default is
-   * unanswered-first, which is the question this screen is opened with — so it
-   * is the sort written as an *absent* parameter.
-   */
+  /** Server-side, as the list is paged. Unanswered-first is the default,
+   * written as an absent parameter. */
   readonly sort = input('');
   protected readonly defaultSort: StaffOrderSort = 'status';
   protected readonly sortKey = computed<StaffOrderSort>(() => {
@@ -327,12 +291,8 @@ export class AdminOrderListPage {
     return parsed.success ? parsed.data : this.defaultSort;
   });
 
-  /**
-   * Router input binding sets an *absent* parameter to undefined, whatever the
-   * input's default says — so every one of these is read through a guard
-   * rather than used straight. A page opened from the panel carries no
-   * parameters at all.
-   */
+  /** An absent parameter arrives as undefined whatever the default, so each is
+   * guarded. */
   protected readonly query = computed(() =>
     this.searchTerm() ? this.searchTerm().trim() : '',
   );
@@ -351,25 +311,21 @@ export class AdminOrderListPage {
     loader: ({ params }) => this.api.list(params),
   });
 
-  /** Held across reloads, so filtering or paging swaps the rows instead of
-   * blanking the table the filter sits in. */
+  /** Held across reloads, so filtering swaps rows rather than blanking the
+   * table. */
   protected readonly shown = stableValue(this.orders);
   protected readonly showSkeleton = delayedLoading(this.orders.isLoading);
 
-  /**
-   * The columns, declared once: the headings on a desktop, the filter sheet and
-   * the sort picker on a phone, and the widths an admin drags all read the same
-   * list. A computed because the status filter's own value is part of it.
-   */
+  /** The columns, read by the desktop headings, the phone's filter sheet and
+   * sort picker, and the dragged widths. Computed: the status filter's value is
+   * part of it. */
   protected readonly columns = computed<GridColumn[]>(() => [
     { key: 'reference', label: this.names.reference, minWidth: 140 },
     { key: 'customer', label: this.text.customer, minWidth: 140 },
     { key: 'items', label: this.text.items, minWidth: 80 },
     { key: 'total', label: this.names.total, minWidth: 90 },
-    // Filtered, not sorted: an ordering of three unrelated readings is not a
-    // question anybody asks, but "what is still owed me" is — and a cash order
-    // waiting to be ticked is the one piece of work that would otherwise sit
-    // in the list looking exactly like an unanswered request.
+    // Filtered, not sorted: "what is still owed" is a question, and an unticked
+    // cash order otherwise looks unanswered.
     {
       key: 'payment',
       label: this.text.paymentAll,
@@ -386,8 +342,7 @@ export class AdminOrderListPage {
       key: 'status',
       label: this.text.statusAll,
       sortName: this.names.status,
-      // The one column that both filters and sorts: what a manager narrows by
-      // is also what they want at the top when they open the list.
+      // Filters and sorts: what a manager narrows by, they want on top.
       sort: { asc: 'status', desc: 'status_desc' },
       filter: {
         param: 'status',
@@ -403,7 +358,7 @@ export class AdminOrderListPage {
       sort: { asc: 'placed', desc: 'placed_desc', descFirst: true },
       minWidth: 110,
     },
-    // Two glyphs at 24px, with the gap and the cell's own padding.
+    // Two 24px glyphs, the gap and the cell padding.
     {
       key: 'actions',
       srLabel: this.text.actionsAria,
@@ -415,19 +370,13 @@ export class AdminOrderListPage {
   protected readonly byReference = (order: StaffOrderSummary): string =>
     order.reference;
 
-  /** An order nobody is going to act on again, greyed the way a deleted
-   * product is: it is still listed, but it is not work. */
+  /** Ended orders grey like a deleted product: listed, but not work. */
   protected readonly isEnded = (order: StaffOrderSummary): boolean =>
     order.status === 'declined' ||
     order.status === 'cancelled' ||
     order.status === 'completed';
 
-  /**
-   * One option per status, `ready` included once: the filter picks a state,
-   * and the two readings of that state are one thing to filter by. The label
-   * is the delivery wording, which is the one that describes the shop's own
-   * work rather than where the goods are waiting.
-   */
+  /** `ready` once, in the delivery wording, which names the shop's own work. */
   protected readonly statusOptions: GridFilterOption[] = [
     { value: '', label: this.text.statusAll },
     { value: 'requested', label: this.statuses.requested },
@@ -464,28 +413,18 @@ export class AdminOrderListPage {
     return staffPaymentBadge(order, this.ordersText.paymentStates);
   }
 
-  // --- Row actions -------------------------------------------------------
-
   private readonly confirm = inject(ConfirmService);
   private readonly detailText = inject(ADMIN_TEXT).orders.detail;
   protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
-  /** So the order page opened from here returns to this list, filters and
-   * all. */
+  /** So the order page returns to this list, filters and all. */
   protected readonly editorFrom = injectEditorReturnParams();
 
-  /** For the one action that is not a navigation: a row somebody else answered
-   * first. */
+  /** Says a row was answered by somebody else first. */
   protected readonly pageError = signal<string | null>(null);
 
-  /**
-   * End an order from the list — declining a request, or cancelling one the
-   * shop had taken on. Confirmed with a reason, because both are quoted at the
-   * customer in the mail the move sends.
-   *
-   * Whether the move is allowed is still the server's answer: the row may have
-   * been answered by somebody else while this list was open, and the reload
-   * corrects it while the banner says what happened.
-   */
+  /** Declines or cancels from the list, with a reason quoted in the customer's
+   * mail. A refusal means somebody else answered first: the reload corrects the
+   * row. */
   protected async end(
     order: StaffOrderSummary,
     to: OrderStatus,
@@ -499,12 +438,8 @@ export class AdminOrderListPage {
       confirmLabel: fillText(actions.confirm.confirm, { action: label }),
       reasonLabel: actions.reasonLabel,
       reasonMaxLength: ORDER_STATUS_REASON_MAX,
-      // Ticked, and worked out without asking what the customer has already
-      // been told: an order is refused or called off once, and being told no
-      // is the one piece of news nobody may quietly skip. No tick for whether
-      // their page follows it either — the two moves offered here end the
-      // order, and an ended order is not one to leave somebody reading
-      // "confirmed".
+      // Always told: an ending is news nobody may skip, and an ended order must
+      // reach their page.
       checks: [
         {
           key: 'notify',
@@ -534,16 +469,9 @@ export class AdminOrderListPage {
     this.orders.reload();
   }
 
-  /**
-   * Where the reference goes. Normally at the version the order stands at,
-   * rendered as the customer sees it, leaving the row's own action for the
-   * screen where it is answered — two jobs, two links.
-   *
-   * While an external system holds order processing there is no answering to
-   * do, so both go to the order itself: it is the fuller read of the two, and
-   * sending the primary link to the narrower one would cost a click for
-   * nothing. A version is still read back from the history on that page.
-   */
+  /** The reference opens the current version as the customer sees it. While an
+   * external system holds processing, both links go to the order page, the
+   * fuller read. */
   protected titleLink(order: StaffOrderSummary): unknown[] {
     return this.locked()
       ? ['/admin/orders', order.reference]

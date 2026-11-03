@@ -12,26 +12,16 @@ import { circleCheckIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-ch
 import { circleSlashIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-slash';
 import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
 
-/**
- * What can be done to one order from the list, drawn once for both shapes it
- * appears in — a table cell on a desktop, the foot of a card on a phone.
- *
- * Deliberately **not** a pencil and a bin. Orders are never deleted (ADR
- * 0050): the destructive answer to an order is declining or cancelling it, and
- * a bin standing for either would one day be clicked by somebody who meant to
- * tidy a list. What the two slots carry is the same shape the account list
- * uses — open it, and stop it — with the meaning the row's own state gives
- * them.
- */
+/** One order's list actions, as a table cell or a card's foot. Not a pencil and
+ * a bin: orders are never deleted, and a bin standing for declining would one
+ * day be clicked to tidy a list. */
 @Component({
   selector: 'app-order-row-actions',
   imports: [RouterLink, Icon, IconButton],
   host: { class: 'flex items-center justify-end gap-2 sm:gap-1' },
   template: `
-    <!-- Both open the same page; only the glyph differs, because on an
-         unanswered row the job is a decision and not a correction. The check
-         carries the accent colour so intent reads at a glance down a column of
-         grey pencils — the same rule the account list follows. -->
+    <!-- One page; on an unanswered row the glyph is an accent check, a decision
+         rather than a correction. -->
     <a
       [routerLink]="['/admin/orders', order().reference]"
       [queryParams]="returnParams()"
@@ -43,9 +33,8 @@ import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
       <ui-icon [glyph]="answerable() ? circleCheckIcon : pencilIcon" />
     </a>
 
-    <!-- One slot for "stop this order", with the word the row's state gives
-         it: a request the shop will not fill is declined, an order it has
-         already taken on is cancelled. An order that has ended has neither. -->
+    <!-- Declined while requested, cancelled once taken on, nothing once ended.
+         -->
     @if (!locked() && ending(); as ending) {
       <button
         type="button"
@@ -67,15 +56,10 @@ export class OrderRowActions {
   protected readonly text = inject(ADMIN_TEXT).orders.detail;
 
   readonly order = input.required<StaffOrderSummary>();
-  /** So the order page opened from a row returns to this list, filters and
-   * all. */
+  /** So the order page returns to this list, filters and all. */
   readonly returnParams = input<Params>({});
-  /**
-   * Whether an external system holds order processing (FR-ADM-10). What is
-   * left is the way in: the order is still read, and the glyph stops promising
-   * a decision nobody here makes — an unanswered order is not this shop's to
-   * answer, and stopping one is done over there.
-   */
+  /** Under an external system (FR-ADM-10) only the way in stays: no decision
+   * glyph, no stop. */
   readonly locked = input(false);
 
   readonly endRequested = output<{
@@ -90,12 +74,7 @@ export class OrderRowActions {
     () => this.unanswered() && !this.locked(),
   );
 
-  /**
-   * The way this order can be stopped, read off the shared transition table
-   * rather than off a list of statuses kept here: an unanswered request is
-   * declined, everything the shop has taken on is cancelled, and an order that
-   * has ended offers nothing at all.
-   */
+  /** From the shared transition table, not a status list kept here. */
   protected readonly ending = computed<OrderStatus | null>(() => {
     const moves = allowedTransitions('staff', this.order().status);
     if (this.unanswered())

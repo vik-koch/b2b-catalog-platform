@@ -13,47 +13,31 @@ import { formatStoredDecimal } from '../../core/catalog/buying/quantity';
 import { customerQuantity } from '../../core/ordering/order-formats';
 import { OrderChange } from './ui/order-adjust-changes';
 
-/** The words a change list needs of its own. Everything else it says comes
- * from the order's own vocabulary. */
+/** The change list's own words; the rest is the order's vocabulary. */
 export interface OrderChangeLabels {
   readonly line: string;
   readonly added: string;
   readonly removed: string;
   readonly total: string;
-  /** What the order is estimated to weigh and take up, where the products say
-   * enough for it to be estimated at all. */
+  /** The estimate's label, where the products allow one. */
   readonly shipment: string;
 }
 
-/** What the deployment decides about how a change reads: how money is
- * written, and the units its packing figures are measured in. */
+/** Money format and packing units. */
 export interface OrderChangeConfig extends OrderBlockConfig {
   readonly currency: MoneyFormat;
   readonly boxUnits: { readonly volume: string; readonly weight: string };
 }
 
-/**
- * What is different between two versions of an order (FR-ORD-03) — the one on
- * file and the one a manager is proposing, or two versions already written.
- *
- * Both sides are put through the **same** wording the order is read in
- * everywhere else (`orderBlocks`) and compared as text. That is the whole
- * trick: a difference here is a difference in the order and never a difference
- * in how one of the two was phrased, and nothing has to be taught separately
- * that a pickup point and a delivery address are the same question.
- *
- * Lines are matched by slug, because that is what a line *is* — a product in
- * an order. Two lines of one product cannot exist, so nothing has to decide
- * which of them moved. Their *order* is not compared: moving a line up the
- * page changes how the order reads on a picking list and changes nothing about
- * what was bought, so reporting it as a change would fill the list with rows
- * the customer must not be mailed about.
- */
-/** Two readings of an order, as this compares them. Without the documents:
- * they belong to the order rather than to either version, so a difference
- * between two versions can never be one. */
+/** Without the documents: they belong to the order, not a version. */
 type ComparedOrder = Omit<OrderDetail, 'documents'>;
 
+/**
+ * What differs between two versions of an order (FR-ORD-03). Both sides go
+ * through `orderBlocks` and compare as text, so a difference is in the order,
+ * never in its phrasing. Lines match by slug; their order is not compared, as
+ * reordering changes nothing bought and must not be mailed about.
+ */
 export function orderChanges(
   before: ComparedOrder,
   after: ComparedOrder,
@@ -68,16 +52,8 @@ export function orderChanges(
   ];
 }
 
-/**
- * The half of the comparison that is about what was bought: the lines, the
- * total, and what it comes to on a pallet.
- *
- * Its own function because it is the half that needs an order to have been
- * priced. A screen comparing a draft against the version on file can answer
- * the other half from the form alone, and should — an address corrected while
- * a company number is half-typed is still a change, and a comparison that
- * refuses to say so reports a form full of edits as an empty one.
- */
+/** Lines, total and pallet: the half that needs pricing. The blocks compare
+ * from the form alone, so edits show while a number is half-typed. */
 export function orderLineChanges(
   before: ComparedOrder,
   after: ComparedOrder,
@@ -87,8 +63,7 @@ export function orderLineChanges(
 ): OrderChange[] {
   const { currency } = config;
   const changes: OrderChange[] = [];
-  // The customer's own reading of the quantity, unit words and all, because
-  // that is the reading the rest of the order is written in.
+  // The customer's reading of the quantity, as the rest of the order.
   const line = (entry: OrderDetail['lines'][number]) =>
     `${customerQuantity(entry, common, currency)} · ${formatMoneyMinor(entry.lineTotalMinor, currency)}`;
 
@@ -128,9 +103,7 @@ export function orderLineChanges(
     });
   }
 
-  // What it comes to on a pallet. Derived rather than typed, but a real change
-  // to the order all the same: two boxes fewer is a different van, and the
-  // shop reads this figure before it books one.
+  // Derived, but a real change: two boxes fewer is a different van.
   const wasShipment = shipmentText(before, config);
   const isShipment = shipmentText(after, config);
   if (wasShipment !== isShipment) {
@@ -143,14 +116,7 @@ export function orderLineChanges(
   return changes;
 }
 
-/**
- * The other half: every block the order describes itself in.
- *
- * Block by block, in the order the checkout asked its questions. Paired by
- * position rather than by heading: the blocks are built from the same function
- * on both sides, so they arrive in the same order, and a heading that is not
- * there on one side is a block the other side dropped.
- */
+/** The blocks, paired by position: both sides come from the same function. */
 export function orderBlockChanges(
   before: ComparedOrder,
   after: ComparedOrder,
@@ -170,11 +136,8 @@ export function orderBlockChanges(
   return changes;
 }
 
-/**
- * The packing estimate as one line, or null where the products carry too
- * little to estimate from. An approximate figure says so: a change from an
- * exact estimate to a guess is itself worth seeing.
- */
+/** The packing estimate as one line, or null. An approximate one says so: exact
+ * to a guess is a change. */
 function shipmentText(
   order: ComparedOrder,
   { boxUnits, currency }: OrderChangeConfig,

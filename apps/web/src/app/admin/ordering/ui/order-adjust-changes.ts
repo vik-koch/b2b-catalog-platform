@@ -1,18 +1,10 @@
 import { Component, input } from '@angular/core';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 
-/**
- * What an adjustment is about to change (FR-ORD-03) — the whole of it, and
- * nothing else.
- *
- * A change list rather than a second copy of the order beside the first: an
- * order of forty lines with three of them moved is a screen where the answer
- * is three rows, and repeating the thirty-seven that did not move is a reading
- * exercise. What is on screen is what the manager is about to tell the
- * customer.
- */
+/** What an adjustment is about to change (FR-ORD-03), and nothing else: forty
+ * lines with three moved is three rows. */
 export interface OrderChange {
-  /** What moved, in the words the order itself uses. */
+  /** In the order's own words. */
   label: string;
   /** Null where the thing is new, or gone. */
   before: string | null;
@@ -24,15 +16,12 @@ export interface OrderChange {
   imports: [Skeleton],
   host: { class: 'block' },
   template: `
-    <!-- Headed only where it is a section of its own. Inside a fold whose lid
-         already names it, a heading is the same words twice. -->
+    <!-- Headed only as its own section: a fold's lid already names it. -->
     @if (heading()) {
       <h2 class="mb-2 font-medium">{{ heading() }}</h2>
     }
-    <!-- Bars while the first pricing is in flight. Neither answer is true
-         yet — nothing has changed *that anyone can see*, and nothing is wrong
-         either — and the list said the second of them for as long as the
-         round trip took. -->
+    <!-- Bars during the first pricing: neither "no change" nor an error is true
+         yet. -->
     @if (loading()) {
       <ui-skeleton size="sm" [lines]="1" />
     } @else if (changes().length === 0 && !pending()) {
@@ -42,9 +31,8 @@ export interface OrderChange {
         @for (change of changes(); track $index) {
           <li class="py-2 last:pb-0 text-sm">
             <span class="block text-ink-subtle">{{ change.label }}</span>
-            <!-- Old struck through, new beside it: the pair reads as one
-                 sentence, and the colours are the only thing carrying the
-                 direction, so neither side is left to them alone. -->
+            <!-- Old struck through, new beside it: colour never carries the
+                 direction alone. -->
             @if (change.before) {
               <span class="text-danger line-through">{{ change.before }}</span>
             }
@@ -56,11 +44,9 @@ export interface OrderChange {
             }
           </li>
         }
-        <!-- The part of the comparison that cannot be made yet, said in the
-             list rather than instead of it: the blocks that *can* be compared
-             are still the truth about the draft, and a screen that answers
-             "nothing has changed yet" because one field is half-typed is a
-             screen nobody believes the second time. -->
+        <!-- What cannot be compared yet, said within the list: the rest is
+             still true, and "nothing changed" over a half-typed field is not
+             believed twice. -->
         @if (pending(); as note) {
           <li class="py-2 text-sm text-ink-subtle">{{ note }}</li>
         }
@@ -72,8 +58,7 @@ export class OrderAdjustChanges {
   readonly heading = input('');
   readonly empty = input.required<string>();
   readonly changes = input.required<readonly OrderChange[]>();
-  /** What is missing from the comparison, where something is. */
   readonly pending = input<string | null>(null);
-  /** The draft has never been priced: not an answer, just not back yet. */
+  /** Never priced yet: no answer, not an empty one. */
   readonly loading = input(false);
 }

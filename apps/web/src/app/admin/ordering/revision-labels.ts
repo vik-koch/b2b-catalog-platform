@@ -1,12 +1,7 @@
 import { OrderRevisionKind } from '@b2b-catalog-platform/shared/core/ordering';
 
-/**
- * What a version was written for, in the admin's own words — the customer
- * placing the order, the shop moving it, the shop changing it.
- *
- * Shared by the thread on the order page and the screen that reads one version
- * back, so a version is described one way wherever it is met.
- */
+/** What a version was written for, in admin words: placed, moved, changed.
+ * Shared by the thread and the version screen. */
 export function revisionKindLabel(
   kind: OrderRevisionKind,
   text: { submitted: string; moved: string; changed: string },

@@ -20,10 +20,8 @@ import { adminOrdersContract } from '../contract-routes.generated';
 import { safe } from '@orpc/client';
 import { createOrpcClient } from '../../shared/core/orpc-client';
 
-/**
- * Why an adjustment was refused (FR-ORD-03). The codes the contract lists, so
- * the screen can word each one — never the exception's own text.
- */
+/** Why an adjustment was refused (FR-ORD-03), as contract codes the screen
+ * words. */
 export type AdjustmentRefusal =
   | 'order-changed'
   | 'no-change'
@@ -43,12 +41,8 @@ export type AdjustmentResult =
   | { ok: true; order: AdminOrderDetail }
   | { ok: false; code: AdjustmentRefusal };
 
-/**
- * The staff view of order requests (FR-AUTH-03). The customer's own routes are
- * a different service against the same contract, because they are a different
- * projection of the same order: only these ones carry the price basis, who
- * placed it and which list it was priced from.
- */
+/** Staff's order routes (FR-AUTH-03): a projection carrying the price list, who
+ * placed it and the lines' prices. */
 @Injectable({ providedIn: 'root' })
 export class AdminOrdersService {
   private readonly client = createOrpcClient(adminOrdersContract);
@@ -75,19 +69,13 @@ export class AdminOrdersService {
     return result.data;
   }
 
-  /**
-   * Move an order (FR-ORD-01/02), answering with it as the server now holds
-   * it. Null where the move was refused — the order was answered by somebody
-   * else while this page was open, which is not an error worth throwing over:
-   * the page reloads and shows what it actually is now.
-   */
+  /** Moves an order (FR-ORD-01/02). Null where refused: somebody else answered
+   * first, and the page reloads. */
   async transition(
     reference: string,
     to: OrderStatus,
     reason: string | null,
-    /** What the manager said in the confirmation: whether the move reaches the
-     * customer's page, whether they hear about it, and whether the money
-     * arrived with it. */
+    /** The confirmation's ticks: the customer's page, the mail, the money. */
     told: { showCustomer: boolean; notify: boolean; markPaid: boolean },
   ): Promise<AdminOrderDetail | null> {
     const result = await safe(
@@ -101,11 +89,8 @@ export class AdminOrdersService {
     return null;
   }
 
-  /**
-   * Bring the customer's view of the order up to date, and mail them if asked
-   * (FR-NOTIF-03). Null where there was nothing left to do — somebody else
-   * brought them up to date while this page was open.
-   */
+  /** Brings the customer's page up to date, mailing if asked (FR-NOTIF-03).
+   * Null where somebody else already did. */
   async notifyCustomer(
     reference: string,
     notify: boolean,
@@ -121,7 +106,7 @@ export class AdminOrdersService {
     return null;
   }
 
-  /** Every version of one order, newest first (FR-ORD-03). */
+  /** Every version, newest first (FR-ORD-03). */
   async revisions(
     reference: string | undefined,
   ): Promise<OrderRevisionEntry[]> {
@@ -132,8 +117,7 @@ export class AdminOrdersService {
     return revisions;
   }
 
-  /** One version of it, for the screen that reads a version back. Null where
-   * the order — or that version of it — is not there. */
+  /** Null where the order or that version is not there. */
   async revision(
     reference: string,
     number: number,
@@ -148,14 +132,8 @@ export class AdminOrdersService {
     return result.data;
   }
 
-  /**
-   * What the adjustment on screen would come to (FR-ORD-03) — priced by the
-   * server, which is the only thing that prices an order.
-   *
-   * Refusals come back as codes here too: a manager typing a company number
-   * into a form should see the rule the moment it is broken, not when they
-   * press save.
-   */
+  /** What the adjustment would come to (FR-ORD-03), priced by the server.
+   * Refusals as codes, so a rule shows while typing, not on save. */
   async previewAdjustment(
     reference: string,
     body: OrderAdjustment,
@@ -171,8 +149,7 @@ export class AdminOrdersService {
     return { ok: false, code: result.error.code as AdjustmentRefusal };
   }
 
-  /** Write it (FR-ORD-03): a new version of the order, answered with the
-   * order as the server now holds it. */
+  /** Writes a new version (FR-ORD-03). */
   async adjust(
     reference: string,
     body: OrderAdjustment,
@@ -185,9 +162,8 @@ export class AdminOrdersService {
     return { ok: false, code: result.error.code as AdjustmentRefusal };
   }
 
-  /** Record that the money arrived, or take that record back (FR-ORD-04).
-   * Null where there was nothing to change — already in that state, or an
-   * order that ended. */
+  /** Records the payment or takes it back (FR-ORD-04). Null where nothing
+   * changed: already so, or the order ended. */
   async setPayment(
     reference: string,
     paid: boolean,
@@ -200,9 +176,8 @@ export class AdminOrdersService {
     return null;
   }
 
-  /** Remove a finished guest order's personal details on the guest's request
-   * (NFR-LEGAL-14). Null where the server refused: the order was reopened,
-   * or somebody else got there first. */
+  /** Erases a finished guest order's personal details on request (NFR-
+   * LEGAL-14). Null where refused: reopened, or done already. */
   async removePersonalData(
     reference: string,
   ): Promise<AdminOrderDetail | null> {
@@ -214,13 +189,8 @@ export class AdminOrdersService {
     return null;
   }
 
-  /**
-   * File a document against an order (FR-ORD-05). Multipart and outside the
-   * contract, like every other upload in the app: what travels is bytes.
-   *
-   * Nothing about the order changes: the file is filed, and whether the
-   * customer hears about it is the separate call below.
-   */
+  /** Files a document (FR-ORD-05): multipart, outside the contract, like every
+   * upload. Telling the customer is the next call. */
   supplyDocument(
     reference: string,
     kind: OrderDocumentKind,
@@ -236,12 +206,8 @@ export class AdminOrdersService {
     );
   }
 
-  /**
-   * Tell the customer about a document already on the order (FR-ORD-05). Its
-   * own call rather than a flag on the upload: a file is filed when it exists
-   * and sent when the order is ready to be written about, and it can be sent
-   * again to somebody who lost the message.
-   */
+  /** Tells the customer about a filed document (FR-ORD-05); repeatable for a
+   * lost message. */
   notifyAboutDocument(
     reference: string,
     kind: OrderDocumentKind,
@@ -251,8 +217,8 @@ export class AdminOrdersService {
     );
   }
 
-  /** Take a supplied file back off. The summary falls back to the generated
-   * one; payment instructions stop existing. */
+  /** The summary falls back to the generated one; payment instructions stop
+   * existing. */
   removeDocument(reference: string, kind: OrderDocumentKind): Promise<void> {
     return lastValueFrom(
       this.http.delete<void>(this.documentUrl(reference, kind)),
