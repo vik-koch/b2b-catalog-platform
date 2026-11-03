@@ -26,7 +26,9 @@ import { eq, inArray } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import {
   refuseIfDetailsRemoved,
+  adjustedItems,
   carriedSnapshot,
+  shipmentColumns,
   OrderRow,
   OrderSnapshot,
 } from './order-rows';
@@ -46,7 +48,13 @@ function cancelledByCustomer(row: OrderRow): boolean {
   return row.revisionCreatedBy !== null && row.revisionCreatedBy === row.userId;
 }
 
-/** An owning system answering an order (FR-ADM-08). */
+/**
+ * An owning system answering an order (FR-ADM-08): a move, a re-pricing and a
+ * payment in one instruction write at most one version (ADR 0062). None where
+ * it says what the order already says (FR-ADM-16) or only records money. A
+ * customer's own cancellation is taken back only by saying so and telling them,
+ * and the customer's own words are carried across untouched.
+ */
 @Injectable()
 export class OrderWriteBack {
   constructor(
@@ -85,9 +93,8 @@ export class OrderWriteBack {
     source: string,
   ): Promise<OrderWriteResult> {
     const current = await this.reads.row(eq(orders.reference, input.reference));
-    // The version the source answered. Restated here rather than only in the
-    // write, so a stale instruction is told what it is instead of losing a
-    // race it did not know it was in.
+    // Stated up front, so a stale instruction is told so instead of losing a
+    // race.
     if (current.revisionNumber !== input.basedOnRevision) {
       throw new ConflictException({
         code: 'order-changed',
@@ -98,17 +105,9 @@ export class OrderWriteBack {
     const from = current.status as OrderStatus;
     const to = input.status ?? from;
     const moved = to !== from;
-    // Only the *customer's* cancellation stops the exchange. An order the
-    // owning system called off is its own work, and while the area is owned
-    // the panel refuses every move — so refusing this one too would leave an
-    // order cancelled by mistake with nobody at all able to reopen it. Read
-    // off the version the order stands on, which for a cancelled order is the
-    // one that cancelled it: nothing moves an order without writing a version.
-    //
-    // The customer's own may be taken back too, when they ask the shop for the
-    // order after all — but only by saying so, so that an export which never
-    // learned of the cancellation is still refused, and only out loud: they
-    // must not find an order they stopped quietly running again.
+    // Only the customer's cancellation stops the exchange: one the system made
+    // is its own to reopen, and the panel is closed while it owns orders.
+    // Taking the customer's back must say so and tell them.
     if (current.status === 'cancelled' && cancelledByCustomer(current)) {
       if (!input.restoreCustomerCancellation || !moved) {
         throw new ConflictException({
@@ -123,9 +122,7 @@ export class OrderWriteBack {
         });
       }
     }
-    // As `machine` and not as staff: an exchange reports where the order *is*,
-    // and the states it passed through between two polls were never witnessed
-    // here (see `order-transitions.ts`).
+    // As `machine`: an exchange reports a state, not one click per step.
     if (moved && !canTransition('machine', from, to)) {
       throw new ConflictException({
         code: 'transition-not-allowed',
@@ -161,16 +158,9 @@ export class OrderWriteBack {
       written !== null &&
       !(await this.writer.saysTheSame(current, snapshot, written.lines));
 
-    // A note rides on a version. These two answers write none — the first
-    // wrote nothing at all, the second recorded money, which is a fact about
-    // the order rather than a reading of it — so a note on either went
-    // nowhere and the result has to say so (`noteIgnored`).
-    //
-    // Said rather than refused, and decided by what the instruction did rather
-    // than by which fields it named. A source re-sending its whole snapshot
-    // every cycle would be refused forever for carrying a note it already
-    // delivered; a source that meant to say something new would be told
-    // `unchanged` and left believing the customer heard it.
+    // A note rides on a version, and the next two answers write none: reported
+    // (`noteIgnored`) rather than refused, so a source re-sending its whole
+    // snapshot is not refused forever.
     const droppedNote = Boolean(input.note);
 
     if (!moved && !changed && !paying && !unpaying) {
@@ -198,9 +188,7 @@ export class OrderWriteBack {
     // this is where the customer's account of the changes has to start.
     const notified = await this.reads.customerThread(current.id);
     await this.writer.appendRevision(current, {
-      // Why this version exists, in the thread's own words. A version that
-      // both moved the order and changed it is filed as the change: that is
-      // the part a reader cannot work out from the status column.
+      // A version that moved and changed the order is filed as the change.
       kind: changed ? 'adjustment' : 'transition',
       status: to,
       // Only the two refusals carry one, and a move that does not carry a
@@ -271,18 +259,9 @@ export class OrderWriteBack {
   }
 
   /**
-   * The lines an instruction asks for, priced the way a manager's adjustment
-   * is priced.
-   *
-   * The source system names products by the key it delivered them under
-   * (FR-ADM-02), so they are resolved to the catalog here and the pricer beside
-   * the admin screen is reached unchanged — an order priced by a second code
-   * path is an order priced differently from the one a manager would have
-   * written.
-   *
-   * The unit and the line note are read off the line this one replaces rather
-   * than taken from the wire: both are the customer's own reading of their own
-   * order, and neither is the owning system's to rewrite.
+   * The instruction's lines, by the source's product keys (FR-ADM-02), priced
+   * through the adjustment's pricer. The unit and line note are the customer's
+   * and are read off the line being replaced.
    */
   private async writtenBackLines(
     lines: readonly OrderSyncLine[],
@@ -301,9 +280,8 @@ export class OrderWriteBack {
       });
     }
 
-    // The whole catalog, hidden and withdrawn included: an order may already
-    // hold a product the storefront stopped offering, and the shop filling one
-    // from something it no longer lists is ordinary work.
+    // Hidden and withdrawn included: an order may hold what the shop no longer
+    // lists.
     const rows = await this.db
       .select({ sourceId: products.sourceId, slug: products.slug })
       .from(products)
@@ -343,34 +321,14 @@ export class OrderWriteBack {
     );
     return {
       priced,
-      lines: priced.lines.map((line, index) => ({
-        sortOrder: index,
-        productId: line.productId,
-        productSourceId: line.sourceId,
-        slug: line.slug,
-        name: line.name,
-        thumbnail: line.thumbnail,
-        unit: line.unit,
-        quantity: line.quantity,
-        pieces: line.pieces,
-        priceMinor: line.priceMinor,
-        lineTotalMinor: line.lineTotalMinor,
-        taxRate: line.taxRate,
-        note: line.note,
-      })),
+      lines: adjustedItems(priced),
     };
   }
 
   /**
-   * The order as a write-back leaves it: every snapshot column carried across,
-   * with the two figures the lines decide recomputed.
-   *
-   * Narrower than `adjustedSnapshot` by everything a manager's screen can
-   * touch, and that is the decision rather than an omission. What the owning
-   * system decides is what is being supplied and at what price; the contact,
-   * the party, the addresses and the fulfilment came *from* this platform in
-   * the first place and are the customer's own answers to its checkout, so a
-   * write-back that could overwrite them would be answering for them.
+   * Every snapshot column carried, with the lines' figures recomputed. Narrower
+   * than an adjustment on purpose: contact, party, addresses and fulfilment are
+   * the customer's answers, not the owning system's to overwrite.
    */
   private rewrittenSnapshot(
     current: OrderRow,
@@ -379,11 +337,7 @@ export class OrderWriteBack {
     return {
       ...carriedSnapshot(current),
       totalMinor: priced.totalMinor,
-      shipmentCartons: priced.shipment.cartons,
-      shipmentVolume: priced.shipment.volume,
-      shipmentWeight: priced.shipment.weight,
-      shipmentApproximate: priced.shipment.approximate,
-      shipmentUncoveredLines: priced.shipment.uncoveredLines,
+      ...shipmentColumns(priced.shipment),
     };
   }
 }

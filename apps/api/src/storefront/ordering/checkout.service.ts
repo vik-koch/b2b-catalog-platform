@@ -12,7 +12,12 @@ import {
 import { eq } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { formatPersonName } from '@b2b-catalog-platform/shared/core/accounts';
-import { notFound, Fulfilment } from '../../core/ordering/order-rows';
+import {
+  detailColumns,
+  Fulfilment,
+  notFound,
+  shipmentColumns,
+} from '../../core/ordering/order-rows';
 import { OrderReader } from '../../core/ordering/order-reader';
 import { OrderRules } from '../../core/ordering/order-rules';
 import {
@@ -68,12 +73,8 @@ export class CheckoutService {
   ) {}
 
   /**
-   * Places the order, or explains why it cannot be placed.
-   *
-   * The order of the checks is deliberate: the cart is priced first, because a
-   * stale cart is the refusal a customer is most likely to hit and the one that
-   * carries a screenful of corrections with it. The party checks follow, since
-   * they are about the form rather than the catalog.
+   * The cart is priced first: a stale cart is the likeliest refusal, and it
+   * carries the corrections with it.
    */
   async submit(
     submission: OrderSubmission,
@@ -103,23 +104,15 @@ export class CheckoutService {
   }
 
   /**
-   * The mails a placed order produces (FR-NOTIF-05/06), sent after it exists.
-   *
-   * A step of its own rather than the tail of `submit`, and read back from the
-   * stored order rather than assembled from the submission: the mails then say
-   * what the order *is* — snapshots, resolved zone and all — and cannot
-   * describe it differently from the pages they link to.
+   * The mails a placed order produces (FR-NOTIF-05/06), read back from the
+   * stored order so they describe what the pages they link to show.
    */
   async notifyPlaced(placed: {
     reference: string;
     publicToken: string;
   }): Promise<void> {
-    // Nothing in here may fail the request. The order is already committed and
-    // the customer is about to be shown its reference — so a read that fails
-    // after the commit, or a deployment missing its staff inbox, is logged and
-    // swallowed exactly as an unreachable SMTP already is. Failing instead
-    // would answer an error for an order that exists, and a customer who
-    // retries would place a second one.
+    // Never fails the request: the order is committed, and a customer told
+    // otherwise would place a second one.
     try {
       const order = await this.reads.getForStaff(placed.reference);
       await this.notifications.placed(
@@ -136,15 +129,8 @@ export class CheckoutService {
   }
 
   /**
-   * Refuses a cart that is missing what its products are sold with, where this
-   * deployment says so (FR-SET-04).
-   *
-   * After the pricing check and before the form's own: it is a fact about the
-   * cart, and a customer whose cart also went stale should hear about the stale
-   * cart first — that refusal carries the corrections with it.
-   *
-   * Re-checked here rather than trusted from the browser. The cart page already
-   * disables its own button; this is what makes that a rule.
+   * Refused where the deployment enforces pairings (FR-SET-04), after the
+   * pricing check: a stale cart's refusal carries the corrections.
    */
   private assertPairings(priced: PricedCart): void {
     if (!this.pairingsEnforced) return;
@@ -160,14 +146,8 @@ export class CheckoutService {
   }
 
   /**
-   * Who the order is invoiced to (FR-CART-09). A submission that names nobody
-   * means the party the account is registered as, which is read here rather
-   * than taken from the browser: it is the account's own record, and staff
-   * approved it.
-   *
-   * Bank transfer invoices a legal entity (FR-CART-04), so it is refused for a
-   * party with no registration number. The form does not offer it in that case;
-   * this is what makes that a rule rather than a courtesy.
+   * Who the order is invoiced to (FR-CART-09). Naming nobody means the
+   * account's own party, read here rather than taken from the browser.
    */
   private async resolveParty(
     submission: OrderSubmission,
@@ -178,11 +158,11 @@ export class CheckoutService {
     return party;
   }
 
-  /** The party an account is registered as: its company, unless it registered
-   * as a person — one who once gave a company name is still invoiced by name.
-   * Only a declared person is read that way, so an older account that carries
-   * a company and no type at all keeps being invoiced as one. The checkout row
-   * reads the same rule, so the order names what the customer was shown. */
+  /**
+   * The account's own party: its company, unless it registered as a person. An
+   * older account with a company and no type is invoiced as one, as the
+   * checkout row reads it.
+   */
   private async accountParty(userId: string | null): Promise<OrderingParty> {
     if (!userId) {
       // A guest has no such record, so their submission has to name the party
@@ -210,9 +190,7 @@ export class CheckoutService {
 
     const person = formatPersonName(account.firstName, account.lastName);
     return {
-      // The address is the last resort rather than an error: a staff-created
-      // account may carry no name at all, and an order must still say who it
-      // is for.
+      // The email as a last resort: a staff-created account may carry no name.
       name:
         (account.customerType !== 'person' && account.companyName) ||
         person ||
@@ -245,25 +223,17 @@ export class CheckoutService {
     },
   ): Promise<{ reference: string; publicToken: string }> {
     const billing = this.rules.billingAddress(submission);
-    const { address: delivery, pickup, zone } = context.fulfilment;
     const { shipment } = priced.preview;
-    // A random reference collides now and then by design (see order-reference).
-    // Retried against the unique index rather than pre-checked, and bounded, so
-    // a genuinely broken generator fails loudly instead of looping. Both random
-    // values are drawn again per attempt: the violation says only that *some*
-    // unique column collided, so re-using either would retry into the same one.
+    // A random reference collides now and then by design: retried against the
+    // unique index, bounded, with both random values drawn again.
     for (let attempt = 1; attempt <= ORDER_REFERENCE_ATTEMPTS; attempt += 1) {
       const reference = orderReference(this.reference);
       const publicToken = orderPublicToken();
       try {
         await this.db.transaction(async (tx) => {
-          // The order first, then what it says: the row that carries the
-          // reference has to exist before a revision can hang off it, and the
-          // pointer back is set once the revision has an id. All three in one
-          // transaction, so an order without a current revision is a state
-          // nothing outside this block can observe.
-          // Read inside the transaction, so a save landing mid-submit cannot
-          // leave the order naming a version it was not placed under.
+          // The order, its first version, then the pointer back, in one
+          // transaction. The terms are read inside it, so a save mid-submit
+          // cannot be named wrongly.
           const terms = this.termsPublished
             ? await currentPageVersion(tx, 'terms')
             : undefined;
@@ -287,45 +257,19 @@ export class CheckoutService {
               revisionNumber: 1,
               kind: 'submitted',
               status: 'requested',
-              contactName: submission.contact.name,
-              contactEmail: submission.contact.email,
-              contactPhone: submission.contact.phone,
-              paymentMethod: submission.paymentMethod,
-              fulfilmentMethod: submission.fulfilmentMethod,
-              partyName: context.party.name,
-              partyRegistrationId: context.party.registrationId,
-              billingStreet: billing?.street ?? null,
-              billingStreet2: billing?.street2 ?? null,
-              billingPostalCode: billing?.postalCode ?? null,
-              billingCity: billing?.city ?? null,
-              billingRegion: billing?.region ?? null,
-              billingCountry: billing?.country ?? null,
-              deliveryStreet: delivery?.street ?? null,
-              deliveryStreet2: delivery?.street2 ?? null,
-              deliveryPostalCode: delivery?.postalCode ?? null,
-              deliveryCity: delivery?.city ?? null,
-              deliveryRegion: delivery?.region ?? null,
-              deliveryCountry: delivery?.country ?? null,
-              deliveryZoneKey: zone?.key ?? null,
-              deliveryFreeFromMinor: zone?.freeFromMinor ?? null,
-              pickupLocationKey: pickup?.key ?? null,
-              pickupLocationName: pickup?.name ?? null,
-              pickupLocationAddress: pickup?.address ?? null,
+              ...detailColumns(
+                { ...submission, party: context.party },
+                billing,
+                context.fulfilment,
+              ),
               preferredDate: submission.preferredDate,
               customerNote: submission.customerNote,
               totalMinor: priced.preview.totalMinor,
               currency: this.currency,
               tierKey: context.tierKey,
-              shipmentCartons: shipment.cartons,
-              shipmentVolume: shipment.volume,
-              shipmentWeight: shipment.weight,
-              shipmentApproximate: shipment.approximate,
-              shipmentUncoveredLines: shipment.uncoveredLines,
-              // The receipt goes out for every order there is (FR-NOTIF-06),
-              // so version 1 is a version the customer was written to about
-              // and the thread says so. Stamped with the write for the same
-              // reason every other version is: the record is what the shop
-              // sent, not what SMTP acknowledged.
+              ...shipmentColumns(shipment),
+              // The receipt goes out for every order (FR-NOTIF-06): version 1
+              // is mailed.
               notifiedAt: new Date(),
             })
             .returning({ id: orderRevisions.id });

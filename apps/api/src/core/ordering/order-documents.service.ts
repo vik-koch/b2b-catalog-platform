@@ -74,9 +74,9 @@ export class OrderDocumentsService {
       documents
         .filter((document) => this.customerMaySee(document, seen))
         // Everything staff-only dropped by name: which version it was filed
-        // against, whether the order has moved past it, and whether the shop has
-        // written about it. The customer's shape is strict, so a key left on is
-        // a 500 rather than a leak.
+        // against, whether the order has moved past it, and whether the shop
+        // has written about it. The customer's shape is strict, so a key left
+        // on is a 500 rather than a leak.
         .map(({ suppliedForRevision, outdated, notifiedAt, ...rest }) => rest)
     );
   }

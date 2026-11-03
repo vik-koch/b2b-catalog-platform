@@ -61,33 +61,19 @@ export class OrderWriter {
   ) {}
 
   /**
-   * The customer's mail about where their order has got to (FR-NOTIF-03).
-   *
-   * Read back from the row rather than passed along: the mail says what the
-   * order is, and the row is where that is true.
-   *
-   * `since` is the version they were last written to about, which is what
-   * decides the mail's second half. Every change written between then and now
-   * is quoted — one mail for a change agreed on the phone and the confirmation
-   * that followed it, rather than one per version — and a move with no change
-   * behind it says only that the order moved.
-   *
-   * `notice` is what this message is *for*, which the status alone cannot say:
-   * the same `approved` can be the shop accepting an order, the shop walking a
-   * packed one back a step, or the shop changing one that was already accepted,
-   * and a mail that read them all the same way would tell two of the three a
-   * small lie.
+   * Writes to the customer about where their order has got to (FR-NOTIF-03),
+   * read back from the row. Every change since `since` is quoted, so one mail
+   * covers a change and its confirmation. `notice` says what the mail is for:
+   * the same status can be news, a correction or a change.
    */
   async mailCustomer(
     reference: string,
     since: number,
     notice: OrderNotice,
   ): Promise<void> {
-    // None of this may fail the move that produced it — the move is committed,
-    // the version is already stamped as written about, and the manager is
-    // owed an answer about the order, not about SMTP. The mailer swallows its
-    // own failures; this covers the rest of the step, which is real work: two
-    // reads and, for an order that owes money, a PDF built on the spot.
+    // Never fails the move: it is committed and stamped, and the manager is
+    // owed an answer about the order, not SMTP. This covers the reads and the
+    // PDF.
     try {
       await this.sendCustomerMail(reference, since, notice);
     } catch (error) {
@@ -103,19 +89,14 @@ export class OrderWriter {
     since: number,
     notice: OrderNotice,
   ): Promise<void> {
-    // Read through the customer's own projection: the mail describes the
-    // version they are shown, and reading it any other way is how a message
-    // ends up describing something the page it links to does not.
+    // The customer's own projection: the mail describes the page it links to.
     const row = await this.reads.row(
       eq(orders.reference, reference),
       'customer',
     );
     const changes = await this.reads.changesSince(row.id, since);
-    // The shop's payment instructions travel with any message sent while the
-    // money is owed (FR-ORD-05) — an accepted invoiced order whose mail said
-    // nothing about how to pay is the gap this closes. Never on an order that
-    // owes nothing: attaching a payment slip to "your order is cancelled"
-    // would read as a demand.
+    // The payment instructions ride along while money is owed (FR-ORD-05),
+    // never on a mail that owes nothing.
     const attachment =
       row.paymentState === 'awaiting'
         ? await this.documents.paymentAttachment(reference)
@@ -130,23 +111,10 @@ export class OrderWriter {
   }
 
   /**
-   * Move an order (FR-ORD-01/02).
-   *
-   * The rule lives in the shared transition table and is asked here, once, for
-   * every caller — staff, customer and whatever asks next. What the actor may
-   * do and what the order's current status permits are the same question and
-   * get the same answer: an order that has moved on is not this caller's
-   * business to be told about in detail.
-   *
-   * A move **writes a version** (ADR 0051). The snapshot is carried across
-   * word for word — a move changes where the order stands and nothing it says
-   * — so the thread of versions is the order's whole history and any point in
-   * it can be read back complete. That is what lets a customer be shown the
-   * order as they were last told it stood while staff work on a later one.
-   *
-   * The write re-states the version it read, so two managers answering the
-   * same order at the same moment cannot both succeed — the second updates
-   * nothing and is refused like any other disallowed move.
+   * Moves an order (FR-ORD-01/02), asked of the transition table for every
+   * actor. A move writes a version with the snapshot carried across word for
+   * word (ADR 0051), and restates the version it read, so the second of two
+   * managers is refused.
    */
   async move(
     where: ReturnType<typeof and>,
@@ -177,11 +145,9 @@ export class OrderWriter {
         message: 'Say why, so the customer can be told',
       });
     }
-    // The handover of a cash order is one event, so completing it and
-    // recording the money is one click. Refused rather than ignored where the
-    // order is ending: nothing is owed on an order nobody is filling, and a
-    // tick that quietly did nothing would be a manager believing they had
-    // recorded a payment.
+    // Completing a cash order and recording its money is one click. Refused on
+    // an ending: a tick that did nothing would be a payment a manager believes
+    // in.
     if (told.markPaid && transitionHasReason(to)) {
       throw new BadRequestException({
         code: 'payment-not-recordable',
@@ -205,13 +171,8 @@ export class OrderWriter {
             to,
           ),
       movedAt: new Date(),
-      // A move is where the order *is*, so the customer's page follows it by
-      // default whether or not a message goes with it — otherwise an order out
-      // for delivery would still read "confirmed" to the person waiting for
-      // it, because a manager decided one mail would do for both steps. Held
-      // back only where the caller says so: a step taken by mistake, or one of
-      // the intermediate steps an exchange collapses into a single move the
-      // customer should read.
+      // The customer's page follows a move unless the caller holds it back: a
+      // mistaken step, or a step an exchange collapses.
       showCustomer: told.showCustomer,
       notified: told.notify,
       paid: paid ? { at: new Date(), by: byUserId } : null,
@@ -223,19 +184,10 @@ export class OrderWriter {
   }
 
   /**
-   * Whether an adjustment would write a version that says exactly what the one
-   * before it says.
-   *
-   * Compared against the two things a version is made of — the snapshot a move
-   * would carry across word for word, and the lines it holds — so nothing can
-   * change without this seeing it. The manager's note is deliberately not
-   * among them: it is an account of a change rather than a change, and a
-   * version whose only content is a sentence about nothing is noise in a
-   * history rather than part of one.
-   *
-   * The refusal lives here and not in the screen because the screen is not the
-   * only writer: an exchange that re-sends an order it has already sent must
-   * not lengthen the thread by doing so.
+   * Whether a version would say exactly what the one before it says: snapshot
+   * and lines. The note does not count, a sentence about nothing is noise. Here
+   * rather than in the screen, so an exchange re-sending cannot grow the
+   * thread.
    */
   async saysTheSame(
     current: OrderRow,
@@ -270,14 +222,9 @@ export class OrderWriter {
   }
 
   /**
-   * The one write every version of an order goes through: the version, the
-   * order's pointers, and the lines — one transaction, so an order can never
-   * point at a version whose lines are half there.
-   *
-   * A move carries the snapshot and the lines across untouched; an adjustment
-   * supplies both. Nothing else distinguishes them, which is the point: two
-   * ways of writing a version would be two ways for the thread to develop a
-   * hole in it.
+   * The one write every version goes through: the version, the order's pointers
+   * and the lines in one transaction. A move carries snapshot and lines across;
+   * an adjustment supplies them.
    */
   async appendRevision(
     current: OrderRow,
@@ -298,22 +245,16 @@ export class OrderWriter {
       /** Whether this is the version the customer is now shown. */
       showCustomer: boolean;
       /**
-       * Whether a message about this version goes out.
-       *
-       * Stamped here rather than after the send, and in the same transaction
-       * as the version it describes: the mail cannot fail the write that
-       * produced it, so "we wrote to them about this version" is what the shop
-       * knows, and a silent SMTP failure is the log's business rather than the
-       * thread's.
+       * Stamped with the write, not after the send: the mail cannot fail the
+       * write, so the thread records what the shop sent.
        */
       notified: boolean;
-      /** The money, where it arrived with this version — the handover of a
-       * cash order, recorded with the move that is the handover. `by` is null
-       * where no person recorded it. */
+      /**
+       * The cash handover recorded with the move that is the handover; `by` is
+       * null where no person recorded it.
+       */
       paid: { at: Date; by: string | null } | null;
-      /** A payment recorded in error, taken back with this version. The record
-       * is cleared rather than contradicted: an order that was never paid must
-       * not keep saying when it was. */
+      /** A payment recorded in error, cleared rather than contradicted. */
       unpaid?: boolean;
     },
   ): Promise<void> {
@@ -331,9 +272,8 @@ export class OrderWriter {
             note: change.note ?? null,
             notifiedAt: change.notified ? new Date() : null,
             ...(change.snapshot ?? carriedSnapshot(current)),
-            // After the snapshot, not before it: `source` is a fact about who
-            // wrote this version rather than part of what the order says, and
-            // a snapshot must never be able to carry one across.
+            // After the snapshot: who wrote a version is not something a
+            // snapshot carries.
             source: change.source ?? null,
           })
           .returning({ id: orderRevisions.id });
@@ -342,23 +282,18 @@ export class OrderWriter {
           .update(orders)
           .set({
             currentRevisionId: revision.id,
-            // Whatever else this version did, it happened to the order: the
-            // outbound read (FR-ADM-08) orders and pages by this, so a
-            // version nobody stamped is a version nothing outside ever sees.
+            // The outbound read pages by `updatedAt` (FR-ADM-08).
             updatedAt: new Date(),
             ...(change.showCustomer ? { customerRevisionId: revision.id } : {}),
             status: change.status,
             paymentState: change.paymentState,
-            // Two facts, written together because they are one observation:
-            // a payment state of `paid` and the record of who saw the money
-            // arrive and when.
+            // `paid` and who saw the money arrive are one observation.
             ...(change.paid
               ? { paidAt: change.paid.at, paidBy: change.paid.by }
               : {}),
             ...(change.unpaid ? { paidAt: null, paidBy: null } : {}),
-            // Only a real move is a move: the line that says when the order
-            // last moved must not be restated by a change that left it where
-            // it was.
+            // An adjustment leaves where the order stands, and when it got
+            // there.
             ...(change.movedAt
               ? {
                   statusChangedAt: change.movedAt,
@@ -386,10 +321,9 @@ export class OrderWriter {
             })),
           );
         } else {
-          // Copied in the database rather than read out and written back: the
-          // lines are unchanged, and a round trip through this process is a
-          // chance for them to stop being. Drizzle inserts into every column
-          // in the table's order, which the spread keeps.
+          // Copied in the database: unchanged lines never round-trip through
+          // this process. Drizzle inserts every column in table order, which
+          // the spread keeps.
           await tx.insert(orderItems).select(
             tx
               .select({
@@ -402,19 +336,15 @@ export class OrderWriter {
         }
       });
     } catch (error) {
-      // Two writers reaching the insert together: the version number is unique
-      // per order, so the second collides on it rather than on the pointer the
-      // write also restates. Same answer either way.
+      // Two writers at once collide on the version number; same answer.
       if (!isUniqueViolation(error)) throw error;
       throw orderMovedOn();
     }
   }
 
   /**
-   * The rate a line written into this order states, from the product's own
-   * (NFR-LEGAL-11). The order's basis decides whether there is a rate at all
-   * — it never changes after submission — and the deployment's default fills
-   * in today's where the product carries none.
+   * A line's rate (NFR-LEGAL-11): none under the order's own basis `none`,
+   * otherwise the product's own or today's default.
    */
   lineTaxRate(order: OrderRow): (own: number | null) => number | null {
     return (own) =>
@@ -439,16 +369,9 @@ export class OrderWriter {
   }
 
   /**
-   * Record that the money arrived, or take that record back (FR-ORD-04) — a
-   * manager's observation, not a transaction. It moves nothing else: a cash
-   * order is recorded as paid at the handover and an invoiced one whenever the
-   * transfer lands, and neither says anything about where the order stands.
-   *
-   * Clearing it is the same correction reopening is: a box ticked by mistake
-   * must not leave an order marked paid for good, and the shop's books are
-   * where a real refund lives. What it clears *to* is not the state the order
-   * was in before — that is not recorded — but what its method and status say
-   * it owes now.
+   * Records the money as arrived, or takes that back (FR-ORD-04): an
+   * observation, not a transaction. Cleared, the order owes what its method and
+   * status say; the earlier state is not recorded.
    */
   async setPayment(
     reference: string,
@@ -483,9 +406,8 @@ export class OrderWriter {
       .where(
         and(
           eq(orders.id, current.id),
-          // Not already where it is being asked to go, and never on an order
-          // nobody owes anything on. Restated in the write rather than checked
-          // first, so two managers cannot both record the same payment.
+          // Restated in the write, so two managers cannot both record it; never
+          // on an order nobody owes anything on.
           paid
             ? sql`${orders.paymentState} <> 'paid'`
             : sql`${orders.paymentState} = 'paid'`,

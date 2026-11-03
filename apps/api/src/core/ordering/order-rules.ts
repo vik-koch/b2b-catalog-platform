@@ -54,9 +54,8 @@ export class OrderRules {
   ) {}
 
   /**
-   * The addresses an order carries, by the deployment's own country rules — the
-   * same ones a saved address is held to. A guest's address never passed
-   * through the book, so this is the only place it is checked.
+   * The addresses by the deployment's country rules, as a saved address is
+   * held: a guest's never passed through the book.
    */
   assertAddresses(order: OrderDetails): void {
     const billing = this.billingAddress(order);
@@ -67,10 +66,8 @@ export class OrderRules {
   }
 
   /**
-   * The address the invoice goes to, as this deployment answers the question.
-   * Where it invoices none of its own (FR-CART-07), a browser sending one
-   * anyway is out of step with the config its form was drawn from, and the
-   * order carries nothing rather than an address the shop does not use.
+   * The invoice address, where the deployment invoices one of its own
+   * (FR-CART-07); otherwise none, whatever a stale browser sent.
    */
   billingAddress(order: OrderDetails): AddressInput | null {
     if (!this.billingAddressEnabled) return null;
@@ -84,12 +81,8 @@ export class OrderRules {
   }
 
   /**
-   * The book refuses an address with a 409, which is this endpoint's
-   * cart-changed answer and carries a re-priced cart with it. Here the same
-   * refusals are a malformed submission, so they are re-thrown as the 400 the
-   * contract lists them under — otherwise the browser would read a refusal
-   * about a postcode as a cart that moved, and look for pricing that is not
-   * there.
+   * The book refuses with a 409, which here means a re-priced cart; re-thrown
+   * as the 400 the contract lists, so a postcode is not read as a moved cart.
    */
   private checkAddress(address: AddressInput): void {
     try {
@@ -103,15 +96,12 @@ export class OrderRules {
   }
 
   /**
-   * The two rules that tie the party to how the order is paid, asked wherever
-   * an order is written — the checkout, and a manager adjusting one. A rule
-   * only staff were held to on the way in would be a rule the shop could
-   * break on the way past.
+   * The party and payment rules, held for checkout and adjustment alike: a rule
+   * the shop could break on the way past is no rule.
    */
   assertParty(party: OrderingParty, method: PaymentMethod): void {
-    // A party with a registration number is a company and one without is a
-    // person, the same reading the payment rules below make. First, because a
-    // kind the shop does not sell to is refused whatever it pays with.
+    // A registration number makes a company. First: a kind the shop does not
+    // sell to is refused whatever it pays with.
     const kind: CustomerType = party.registrationId ? 'company' : 'person';
     if (!this.customerTypes.includes(kind)) {
       throw new BadRequestException({
@@ -137,10 +127,8 @@ export class OrderRules {
       });
     }
 
-    // A company is invoiced. Neither of the two ways a private customer
-    // settles up — cash at the door, a card arranged on the phone — leaves the
-    // paper a company is owed, and an order written either way would have to
-    // be put right before it could be invoiced at all.
+    // A company is invoiced: cash and a card by phone leave none of the paper
+    // it is owed.
     if (method !== 'bank-transfer' && party.registrationId) {
       throw new BadRequestException({
         code: 'cash-not-available',
@@ -150,18 +138,14 @@ export class OrderRules {
   }
 
   /**
-   * Where the order goes, decided **once**. The contract guarantees a
-   * submission carries exactly one destination — an address or a collection
-   * point, never both and never neither — so this is the only place that has to
-   * know which it is, and the zone is resolved from the server's own config
-   * rather than from anything the browser sent.
+   * Where the order goes, decided once: the contract guarantees one
+   * destination, and the zone comes from the server's config, never the
+   * browser.
    */
   resolveFulfilment(order: OrderDetails): Fulfilment {
     if (order.fulfilmentMethod === 'delivery') {
       const address = order.deliveryAddress;
-      // Narrowed rather than asserted: the refine is what guarantees it, and if
-      // that guarantee is ever loosened this must fail loudly, not book an
-      // order to nowhere.
+      // Narrowed, not asserted: a loosened refine must fail loudly.
       if (!address)
         throw new Error('a delivery order reached submit with no address');
       const zone = resolveDeliveryZone(this.delivery?.zones ?? [], address);
@@ -187,15 +171,9 @@ export class OrderRules {
   }
 
   /**
-   * The invoice address the new version carries. Where the deployment invoices
-   * an address of its own it is the one the form sent; where it does not, the
-   * version keeps what the order already carried.
-   *
-   * The order is a snapshot: one submitted while the shop asked for an invoice
-   * address holds the address the customer gave, and turning that question off
-   * changes what checkout asks rather than what an order already says. Nulling
-   * it here would make every adjustment of an older order silently delete an
-   * address nobody touched.
+   * The invoice address an adjusted version carries: the form's where the
+   * deployment invoices one, otherwise what the order already holds. Turning
+   * the question off changes what checkout asks, not what an order says.
    */
   adjustedBilling(
     input: OrderAdjustment,

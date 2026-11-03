@@ -5,9 +5,12 @@ import {
   OrderSummary,
   PaymentState,
   StaffOrderSort,
+  OrderContact,
+  OrderingParty,
 } from '@b2b-catalog-platform/shared/core/ordering';
 import { ConflictException, NotFoundException } from '@nestjs/common';
 import { asc, desc, getTableColumns, sql, SQL } from 'drizzle-orm';
+import { PricedAdjustment } from './order-adjustment';
 import { alias, PgColumn } from 'drizzle-orm/pg-core';
 import { AddressInput } from '@b2b-catalog-platform/shared/core/accounts';
 import { PickupLocation } from '../../config/deployment-config';
@@ -18,11 +21,7 @@ import {
   pageVersions,
 } from '../../db/schema';
 
-/**
- * The snapshot half of an order, ready to be spread into a projection — the
- * revision's own bookkeeping (which order, which number, who wrote it) taken
- * out, since a row that says what the order *is* has no use for it.
- */
+/** The snapshot columns of a version, without its bookkeeping. */
 const {
   id: _revisionId,
   orderId: _revisionOrderId,
@@ -43,17 +42,9 @@ export const customerRevision = alias(orderRevisions, 'customerRevision');
 export const acceptedTerms = alias(pageVersions, 'acceptedTerms');
 
 /**
- * An order and one version of it, read as **one flat row** (ADR 0051).
- *
- * Flattened on purpose: the snapshot columns land exactly where they used to
- * live, so everything that reads an order is untouched by the split and only
- * the write side has to know there are two tables now.
- *
- * The version's `status` and `statusReason` come last and win. That is the
- * whole of how a customer can be shown a version the order has moved past: a
- * revision is a complete reading of the order, and nothing that renders one
- * has to be told which. `orders.status` stays the column a *query* filters and
- * sorts on, and is named through `orders` where that is what is meant.
+ * An order and one of its versions as one flat row (ADR 0051). The version's
+ * `status` and `statusReason` come last and win, so a customer can be shown a
+ * version the order has moved past; queries filter on `orders.status`.
  */
 export const orderColumns = {
   ...getTableColumns(orders),
@@ -130,11 +121,8 @@ export const notFound = () =>
   });
 
 /**
- * An order whose personal details were removed (NFR-LEGAL-14) is finished for
- * good. Moving it would run an order with nobody to deliver to, and writing to
- * its customer would mail the placeholder address the removal left behind.
- * Recording money against it stays possible: that is a fact about the order,
- * not a step in it.
+ * Removed personal details (NFR-LEGAL-14) end an order for good: no moves, no
+ * mail to the placeholder address. Recording money stays possible.
  */
 export function refuseIfDetailsRemoved(row: OrderRow): void {
   if (row.personalDataRemovedAt) {
@@ -154,9 +142,8 @@ export const orderMovedOn = () =>
   });
 
 /**
- * The half of an order that is about the order rather than its lines — where
- * it goes, who it is invoiced to and how it is paid. The checkout's submission
- * and a manager's adjustment both carry it, and both are held to it.
+ * Where an order goes, who is invoiced and how it is paid: what checkout and
+ * adjustment both carry and are both held to.
  */
 export type OrderDetails = Pick<
   OrderSubmission,
@@ -175,14 +162,9 @@ export interface Fulfilment {
 }
 
 /**
- * How the staff list is ordered (FR-AUTH-03).
- *
- * By default the orders nobody has answered yet come first, then those that
- * have been approved, then the two ways an order ends — which is the order a
- * manager works down. Within a group, and for the date sort, newest first.
- *
- * Every ordering closes with the reference, so two orders placed in the same
- * millisecond cannot swap pages between requests and be shown twice.
+ * The staff list's order (FR-AUTH-03): unanswered first by default, newest
+ * first within a group. The reference closes every sort, so equal timestamps
+ * cannot swap pages.
  */
 export function orderListOrderBy(sort: StaffOrderSort): (SQL | PgColumn)[] {
   const newest = [desc(orders.createdAt), desc(orders.reference)];
@@ -199,14 +181,10 @@ export function orderListOrderBy(sort: StaffOrderSort): (SQL | PgColumn)[] {
 }
 
 /**
- * What an order needs, as a number to sort by: a request is waiting on staff,
- * an accepted or ready one is in hand, and a finished or refused one is over.
- * Three groups rather than one rank per status, because the question the sort
- * answers is what to pick up next, not how far along each order is. Columns are
- * qualified by hand — a bare name in a template binds to whatever table the
- * surrounding query happens to make available.
+ * Three groups, not a rank per status: what to pick up next. Columns are
+ * qualified by hand: a bare name binds to whatever table the query has.
  */
-export const statusPriority = sql<number>`case ${orders.status}
+const statusPriority = sql<number>`case ${orders.status}
   when 'requested' then 0
   when 'approved' then 1
   when 'ready' then 1
@@ -254,11 +232,7 @@ export function carriedSnapshot(row: OrderRow): OrderSnapshot {
   };
 }
 
-/**
- * The invoice address an order row carries, or null where it carries none —
- * a deployment that invoices no address of its own (FR-CART-07), or an order
- * from before it asked.
- */
+/** Null where the order carries no invoice address of its own (FR-CART-07). */
 export function rowBillingAddress(row: OrderRow): OrderAddress | null {
   return row.billingStreet &&
     row.billingPostalCode &&
@@ -286,4 +260,81 @@ export function toSummary(row: OrderRow, itemCount: number): OrderSummary {
     currency: row.currency,
     itemCount,
   };
+}
+
+/** Where an order goes, who is invoiced and how it is paid, as checkout and an
+ * adjustment both write it. */
+export function detailColumns(
+  order: {
+    contact: OrderContact;
+    party: OrderingParty;
+    paymentMethod: string;
+    fulfilmentMethod: string;
+  },
+  billing: AddressInput | null,
+  { address: delivery, pickup, zone }: Fulfilment,
+) {
+  return {
+    contactName: order.contact.name,
+    contactEmail: order.contact.email,
+    contactPhone: order.contact.phone,
+    paymentMethod: order.paymentMethod,
+    fulfilmentMethod: order.fulfilmentMethod,
+    partyName: order.party.name,
+    partyRegistrationId: order.party.registrationId,
+    billingStreet: billing?.street ?? null,
+    billingStreet2: billing?.street2 ?? null,
+    billingPostalCode: billing?.postalCode ?? null,
+    billingCity: billing?.city ?? null,
+    billingRegion: billing?.region ?? null,
+    billingCountry: billing?.country ?? null,
+    deliveryStreet: delivery?.street ?? null,
+    deliveryStreet2: delivery?.street2 ?? null,
+    deliveryPostalCode: delivery?.postalCode ?? null,
+    deliveryCity: delivery?.city ?? null,
+    deliveryRegion: delivery?.region ?? null,
+    deliveryCountry: delivery?.country ?? null,
+    deliveryZoneKey: zone?.key ?? null,
+    deliveryFreeFromMinor: zone?.freeFromMinor ?? null,
+    pickupLocationKey: pickup?.key ?? null,
+    pickupLocationName: pickup?.name ?? null,
+    pickupLocationAddress: pickup?.address ?? null,
+  };
+}
+
+export function shipmentColumns(shipment: {
+  cartons: number;
+  volume: string | null;
+  weight: string | null;
+  approximate: boolean;
+  uncoveredLines: number;
+}) {
+  return {
+    shipmentCartons: shipment.cartons,
+    shipmentVolume: shipment.volume,
+    shipmentWeight: shipment.weight,
+    shipmentApproximate: shipment.approximate,
+    shipmentUncoveredLines: shipment.uncoveredLines,
+  };
+}
+
+/** A priced adjustment's lines as the rows a version holds. */
+export function adjustedItems(
+  priced: PricedAdjustment,
+): Omit<typeof orderItems.$inferInsert, 'revisionId'>[] {
+  return priced.lines.map((line, index) => ({
+    sortOrder: index,
+    productId: line.productId,
+    productSourceId: line.sourceId,
+    slug: line.slug,
+    name: line.name,
+    thumbnail: line.thumbnail,
+    unit: line.unit,
+    quantity: line.quantity,
+    pieces: line.pieces,
+    priceMinor: line.priceMinor,
+    lineTotalMinor: line.lineTotalMinor,
+    taxRate: line.taxRate,
+    note: line.note,
+  }));
 }

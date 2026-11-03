@@ -35,11 +35,8 @@ export class CustomerOrdersService {
   }
 
   /**
-   * What waits on the account holder (FR-WORK-03), as the two filters their
-   * own panel links to. Each is the same question the work queue counts, so a
-   * marker and the list it opens can never disagree — and the fulfilment
-   * method is read off the version the customer is on, which is the version
-   * this list joins anyway.
+   * The two queues the customer's panel counts (FR-WORK-03), asked the same way
+   * the work queue asks, so a marker and its list agree.
    */
   private myOrderCondition(filter?: MyOrderFilter): SQL | undefined {
     if (!filter) return undefined;
@@ -52,9 +49,8 @@ export class CustomerOrdersService {
   }
 
   /**
-   * A customer calling their own order off. Scoped to their own rows in the
-   * `where`, so an order belonging to somebody else is a 404 before the
-   * transition table is even consulted.
+   * A customer calling their own order off; another's order is a 404 before the
+   * transition table is asked.
    */
   async cancelForUser(
     userId: string,
@@ -68,11 +64,8 @@ export class CustomerOrdersService {
       reason,
       userId,
     );
-    // The shop is told (FR-NOTIF-07). Read as staff, because the mail is the
-    // shop's: it states the money recorded against the order, which is not on
-    // the customer's projection at all. Swallowed like every other order mail:
-    // the customer has called their order off either way, and answering them
-    // an error for a cancellation that happened would invite them to try again.
+    // The shop is told (FR-NOTIF-07), read as staff: the mail states money the
+    // customer's view lacks. Swallowed: the cancellation happened either way.
     try {
       await this.notifications.cancelledByCustomer(
         await this.reads.staffDetail(
