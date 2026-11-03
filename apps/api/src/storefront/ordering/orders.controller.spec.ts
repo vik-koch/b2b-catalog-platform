@@ -5,7 +5,9 @@ import { ThrottlerGuard } from '@nestjs/throttler';
 import { AuditLogger } from '../../audit/audit.logger';
 import { ContractErrorFilter } from '../../orpc/contract-error.filter';
 import { OrdersController } from './orders.controller';
-import { OrdersService } from '../../core/ordering/orders.service';
+import { OrderReader } from '../../core/ordering/order-reader';
+import { CheckoutService } from './checkout.service';
+import { CustomerOrdersService } from './customer-orders.service';
 import { CartChangedException } from '../../core/ordering/cart-changed-exception';
 import { SignedInAs, withSession } from '../../platform/auth/session.fixture';
 
@@ -47,7 +49,9 @@ describe('OrdersController', () => {
       Test.createTestingModule({
         controllers: [OrdersController],
         providers: [
-          { provide: OrdersService, useValue: { submit, notifyPlaced } },
+          { provide: CheckoutService, useValue: { submit, notifyPlaced } },
+          { provide: CustomerOrdersService, useValue: {} },
+          { provide: OrderReader, useValue: {} },
           { provide: AuditLogger, useValue: { record: vi.fn() } },
           { provide: APP_FILTER, useClass: ContractErrorFilter },
         ],

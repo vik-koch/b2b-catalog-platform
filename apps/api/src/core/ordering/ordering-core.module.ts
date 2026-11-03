@@ -45,23 +45,26 @@ import { OrderNotifications } from './order-notifications';
 import { PdfFaces } from '../../pdf/pdf-faces';
 import { OrderPdf } from './order-pdf';
 import { TermsPdf } from './terms-pdf';
-import { OrdersService } from './orders.service';
+import { OrderReader } from './order-reader';
+import { OrderRules } from './order-rules';
+import { OrderWriteBack } from './order-write-back';
+import { OrderWriter } from './order-writer';
 
 /**
- * The one order writer and what it needs, for every audience: the storefront
- * and staff modules and the order exchange all write through `OrdersService`
- * (FR-ADM-08), so an exchange and a manager leave the same thread behind them.
- * The cart's pricer lives here too: an order priced by a second code path is
- * an order priced differently from the one the customer saw.
- *
- * `AddressBookModule` rather than `AddressesModule` — checkout needs the
- * service's validation, not the account-scoped controllers.
+ * What every ordering audience shares: the reads, the one writer of versions
+ * (FR-ADM-08: an exchange and a manager leave the same thread), the rules an
+ * order is held to, and the cart's pricer, so an order is never priced by a
+ * second code path. `AddressBookModule` rather than `AddressesModule`: the
+ * rules need the validation, not the account-scoped controllers.
  */
 @Module({
   imports: [SessionModule, AddressBookModule, MailModule, MediaModule],
   controllers: [OrderDocumentsController],
   providers: [
-    OrdersService,
+    OrderReader,
+    OrderWriter,
+    OrderRules,
+    OrderWriteBack,
     OrderNotifications,
     OrderDocumentsService,
     OrderDocumentActs,
@@ -106,6 +109,23 @@ import { OrdersService } from './orders.service';
     // without one of its own is taxed at (NFR-LEGAL-11).
     { provide: TAX_CONFIG, useFactory: loadTaxConfig },
   ],
-  exports: [OrdersService, OrderDocumentActs, OrderPersonalData, TAX_CONFIG],
+  exports: [
+    OrderReader,
+    OrderWriter,
+    OrderRules,
+    OrderWriteBack,
+    OrderNotifications,
+    OrderDocumentsService,
+    OrderDocumentActs,
+    OrderPersonalData,
+    TermsPdf,
+    // What the storefront's checkout and the staff screens read.
+    ORDER_REFERENCE_CONFIG,
+    ORDER_CURRENCY,
+    PAIRINGS_ENFORCED,
+    TERMS_PUBLISHED,
+    TAX_CONFIG,
+    ALTERNATE_LAYOUT,
+  ],
 })
 export class OrderingCoreModule {}

@@ -9,7 +9,7 @@ import {
   OrderDocumentsService,
   ServedDocument,
 } from './order-documents.service';
-import { OrdersService } from './orders.service';
+import { OrderReader } from './order-reader';
 
 /**
  * Reading an order's documents (FR-ORD-05, FR-CART-05, FR-ACC-02, ADR 0052).
@@ -29,7 +29,7 @@ import { OrdersService } from './orders.service';
 @Controller('order-documents')
 export class OrderDocumentsController {
   constructor(
-    private readonly orders: OrdersService,
+    private readonly orders: OrderReader,
     private readonly documents: OrderDocumentsService,
   ) {}
 

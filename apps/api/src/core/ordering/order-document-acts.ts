@@ -18,7 +18,7 @@ import {
 } from '../../media/document-content-type';
 import { OrderDocumentsService } from './order-documents.service';
 import { OrderNotifications } from './order-notifications';
-import { OrdersService } from './orders.service';
+import { OrderReader } from './order-reader';
 
 /**
  * The three acts on an order's documents — file one, tell the customer about
@@ -44,7 +44,7 @@ export function orderDocumentKind(value: string): OrderDocumentKind {
 @Injectable()
 export class OrderDocumentActs {
   constructor(
-    private readonly orders: OrdersService,
+    private readonly orders: OrderReader,
     private readonly documents: OrderDocumentsService,
     private readonly notifications: OrderNotifications,
     private readonly audit: AuditLogger,

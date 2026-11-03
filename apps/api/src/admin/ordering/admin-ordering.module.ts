@@ -3,6 +3,7 @@ import { AuditLogger } from '../../audit/audit.logger';
 import { OrderingCoreModule } from '../../core/ordering/ordering-core.module';
 import { SessionModule } from '../../platform/auth/session.module';
 import { OwnershipStateModule } from '../../settings/ownership-state.module';
+import { StaffOrdersService } from './staff-orders.service';
 import { AdminOrdersController } from './admin-orders.controller';
 import { StaffOrderDocumentsController } from './staff-order-documents.controller';
 
@@ -15,6 +16,6 @@ import { StaffOrderDocumentsController } from './staff-order-documents.controlle
     OwnershipStateModule,
   ],
   controllers: [AdminOrdersController, StaffOrderDocumentsController],
-  providers: [AuditLogger],
+  providers: [StaffOrdersService, AuditLogger],
 })
 export class AdminOrderingModule {}

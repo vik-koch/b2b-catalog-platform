@@ -19,7 +19,7 @@ import {
   OrderDocumentActs,
   orderDocumentKind,
 } from '../../core/ordering/order-document-acts';
-import { OrdersService } from '../../core/ordering/orders.service';
+import { OrderReader } from '../../core/ordering/order-reader';
 
 /**
  * The shop's own paperwork, arriving from the system that produces it
@@ -55,7 +55,7 @@ import { OrdersService } from '../../core/ordering/orders.service';
 @Controller('machine/orders')
 export class MachineOrderDocumentsController {
   constructor(
-    private readonly orders: OrdersService,
+    private readonly orders: OrderReader,
     private readonly acts: OrderDocumentActs,
     private readonly ownership: OwnershipState,
   ) {}

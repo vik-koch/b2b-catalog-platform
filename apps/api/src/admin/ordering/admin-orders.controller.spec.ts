@@ -7,7 +7,9 @@ import { OwnershipState } from '../../settings/ownership-state';
 import { AdminOrdersController } from './admin-orders.controller';
 import { demoAdminOrder } from '../../core/ordering/order.fixture';
 import { OrderPersonalData } from '../../core/ordering/order-personal-data';
-import { OrdersService } from '../../core/ordering/orders.service';
+import { OrderReader } from '../../core/ordering/order-reader';
+import { OrderWriter } from '../../core/ordering/order-writer';
+import { StaffOrdersService } from './staff-orders.service';
 import { SignedInAs, withSession } from '../../platform/auth/session.fixture';
 
 /**
@@ -89,19 +91,19 @@ describe('AdminOrdersController', () => {
         controllers: [AdminOrdersController],
         providers: [
           {
-            provide: OrdersService,
+            provide: StaffOrdersService,
             useValue: {
               listAll,
-              getForStaff,
               transitionForStaff,
               getRevisions,
               getRevision,
               previewAdjustment,
               adjust,
               showCustomerCurrent,
-              setPayment,
             },
           },
+          { provide: OrderReader, useValue: { getForStaff } },
+          { provide: OrderWriter, useValue: { setPayment } },
           { provide: OrderPersonalData, useValue: { removeOnRequest } },
           { provide: AuditLogger, useValue: { record: vi.fn() } },
           {

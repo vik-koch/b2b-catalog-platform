@@ -14,7 +14,9 @@ import {
 } from '../../throttling/throttle-presets';
 import { AuditLogger } from '../../audit/audit.logger';
 import { refusals } from '../../orpc/refusals';
-import { OrdersService } from '../../core/ordering/orders.service';
+import { OrderReader } from '../../core/ordering/order-reader';
+import { CheckoutService } from './checkout.service';
+import { CustomerOrdersService } from './customer-orders.service';
 import { CartChangedException } from '../../core/ordering/cart-changed-exception';
 import { PairingUnsatisfiedException } from '../../core/ordering/pairing-unsatisfied-exception';
 import { AuthUser } from '@b2b-catalog-platform/shared/platform';
@@ -31,7 +33,9 @@ export class OrdersController {
   private readonly logger = new Logger('Orders');
 
   constructor(
-    private readonly orders: OrdersService,
+    private readonly checkout: CheckoutService,
+    private readonly orders: CustomerOrdersService,
+    private readonly reads: OrderReader,
     private readonly audit: AuditLogger,
   ) {}
 
@@ -65,7 +69,7 @@ export class OrdersController {
         }
 
         try {
-          const placed = await this.orders.submit(
+          const placed = await this.checkout.submit(
             body,
             user?.id ?? null,
             tierId,
@@ -75,7 +79,7 @@ export class OrdersController {
           });
           // After the order exists, and never able to fail it: a customer who
           // was shown a reference has an order, mail or no mail.
-          await this.orders.notifyPlaced(placed);
+          await this.checkout.notifyPlaced(placed);
           return placed;
         } catch (error) {
           if (error instanceof PairingUnsatisfiedException) {
@@ -115,7 +119,7 @@ export class OrdersController {
     return implement(ordersContract.getMyOrder)
       .use(refusals)
       .handler(({ input: { params } }) =>
-        this.orders.getForUser(actor.id, params.reference),
+        this.reads.getForUser(actor.id, params.reference),
       );
   }
 
@@ -160,6 +164,6 @@ export class OrdersController {
   getOrderByToken() {
     return implement(ordersContract.getOrderByToken)
       .use(refusals)
-      .handler(({ input: { params } }) => this.orders.getByToken(params.token));
+      .handler(({ input: { params } }) => this.reads.getByToken(params.token));
   }
 }

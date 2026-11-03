@@ -8,7 +8,9 @@ import { refusals } from '../../orpc/refusals';
 import { ordersExternallyOwned } from '../../settings/ownership.refusals';
 import { OwnershipState } from '../../settings/ownership-state';
 import { OrderPersonalData } from '../../core/ordering/order-personal-data';
-import { OrdersService } from '../../core/ordering/orders.service';
+import { OrderReader } from '../../core/ordering/order-reader';
+import { OrderWriter } from '../../core/ordering/order-writer';
+import { StaffOrdersService } from './staff-orders.service';
 import { AuthUser } from '@b2b-catalog-platform/shared/platform';
 
 /**
@@ -24,7 +26,9 @@ import { AuthUser } from '@b2b-catalog-platform/shared/platform';
 @Controller()
 export class AdminOrdersController {
   constructor(
-    private readonly orders: OrdersService,
+    private readonly orders: StaffOrdersService,
+    private readonly reads: OrderReader,
+    private readonly writer: OrderWriter,
     private readonly audit: AuditLogger,
     private readonly ownership: OwnershipState,
     private readonly personalData: OrderPersonalData,
@@ -65,7 +69,7 @@ export class AdminOrdersController {
     return implement(adminOrdersContract.getOrder)
       .use(refusals)
       .handler(({ input: { params } }) =>
-        this.orders.getForStaff(params.reference),
+        this.reads.getForStaff(params.reference),
       );
   }
 
@@ -193,7 +197,7 @@ export class AdminOrdersController {
       .use(refusals)
       .handler(async ({ input: { params, body } }) => {
         this.refuseIfOwned('record a payment');
-        const order = await this.orders.setPayment(
+        const order = await this.writer.setPayment(
           params.reference,
           body.paid,
           actor.id,
@@ -224,7 +228,7 @@ export class AdminOrdersController {
         this.audit.record('order.personalDataRemoved', actor, {
           reference: params.reference,
         });
-        return this.orders.getForStaff(params.reference);
+        return this.reads.getForStaff(params.reference);
       });
   }
 }
