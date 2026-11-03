@@ -15,19 +15,11 @@ import { Outcome } from '@b2b-catalog-platform/ui/content/outcome';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
 
-type Status = 'idle' | 'submitting' | 'wrong-password' | 'last-admin' | 'error';
+type Status =
+  'idle' | 'submitting' | 'wrong-password' | 'last-admin' | 'error' | 'done';
 
-/**
- * Deleting your own account (FR-AUTH-06). Its own route rather than a dialog:
- * the consequences take more words than a dialog should hold, and they are the
- * substance of the decision rather than a warning attached to it.
- *
- * The copy is deliberately literal about what "delete" means here — the account
- * closes and the personal details go, but past orders stay on the books with
- * the person removed from them (ADR 0032), and registering again later starts
- * a new account rather than restoring this one. Somebody who would mind that
- * should find it out here, not afterwards.
- */
+/** Deleting your own account: a page, not a dialog, because the consequences
+ * are the decision. */
 @Component({
   selector: 'app-account-delete-page',
   imports: [
@@ -42,7 +34,7 @@ type Status = 'idle' | 'submitting' | 'wrong-password' | 'last-admin' | 'error';
   ],
   template: `
     <div class="max-w-xl">
-      @if (deleted()) {
+      @if (status() === 'done') {
         <ui-outcome [title]="text.doneHeading" [message]="text.done">
           <a uiButton routerLink="/">{{ home }}</a>
         </ui-outcome>
@@ -58,9 +50,7 @@ type Status = 'idle' | 'submitting' | 'wrong-password' | 'last-admin' | 'error';
           }
         </ul>
 
-        <!-- Only where there is something running. It is a warning rather than
-             a refusal: the orders are the shop's to fill either way, and what
-             changes is that they stop carrying the customer's details. -->
+        <!-- A warning, not a refusal: the shop fills the orders either way. -->
         @if (openOrders(); as open) {
           <p uiErrorText class="mb-8" role="status">
             {{ openOrdersWarning(open) }}
@@ -84,8 +74,6 @@ type Status = 'idle' | 'submitting' | 'wrong-password' | 'last-admin' | 'error';
           </ui-field>
 
           <div class="flex flex-wrap items-center gap-3">
-            <!-- Destructive, and styled as such: this is the one control on the
-                 account that cannot be taken back. -->
             <button
               uiButton
               variant="danger"
@@ -115,20 +103,12 @@ export class AccountDeletePage {
 
   protected readonly text = inject(STOREFRONT_TEXT).account.delete;
   protected readonly password = inject(STOREFRONT_TEXT).auth.password;
-  protected readonly validation = inject(STOREFRONT_TEXT).auth.validation;
+  private readonly validation = inject(STOREFRONT_TEXT).auth.validation;
   protected readonly home = inject(STOREFRONT_TEXT).errors.notFoundBack;
   protected readonly actionText = inject(SHARED_TEXT).actions;
   protected readonly status = signal<Status>('idle');
-  protected readonly deleted = signal(false);
 
-  /**
-   * How many orders the shop is still working on for this account. Read from
-   * the profile rather than counted here: it is a fact about the account, and
-   * the page that says the consequences of deleting one should say the whole
-   * of them.
-   */
   private readonly profile = resource({
-    params: () => true,
     loader: () => this.account.getProfile(),
   });
   protected readonly openOrders = computed(() =>
@@ -177,12 +157,10 @@ export class AccountDeletePage {
         this.status.set(result);
         return;
       }
-      // The server has already cleared the cookie and bumped tokenVersion; this
-      // drops the local session so the chrome stops claiming a signed-in user.
-      // Staying on the route rather than navigating: the guard would bounce a
-      // signed-out visitor to /login, which is a poor way to learn it worked.
+      // The server ended the session; this drops the local copy. Staying put:
+      // the guard would bounce a signed-out visitor to /login.
       await this.auth.logout();
-      this.deleted.set(true);
+      this.status.set('done');
     } catch {
       this.status.set('error');
     }

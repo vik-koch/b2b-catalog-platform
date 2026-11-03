@@ -10,47 +10,30 @@ import {
   output,
   signal,
 } from '@angular/core';
+import { fillText } from '@b2b-catalog-platform/shared';
 import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { Checkbox } from '@b2b-catalog-platform/ui/choices/checkbox';
 import { TickLabel } from '@b2b-catalog-platform/ui/choices/tick-label';
 import type { CallResult, SendResult } from '../../../shared/auth/auth.service';
-import { formatWait } from './code-entry';
+import { formatWait, tickingNow } from './countdown';
+import { placeholderRuns } from './placeholder-runs';
+import { sendFailureLine } from './send-failure-line';
 import { CallStep } from '@b2b-catalog-platform/shared/core/accounts';
 
 /** How often the screen asks whether the call has come. */
 const POLL_MS = 3000;
 
-/** The line before and after each placeholder, so values can be set apart. */
-function pieces(line: string, values: Record<string, string>) {
-  return line
-    .split(/(\{\w+\})/)
-    .filter(Boolean)
-    .map((part) => {
-      const key = /^\{(\w+)\}$/.exec(part)?.[1];
-      return key && key in values
-        ? { text: values[key], value: true }
-        : { text: part, value: false };
-    });
-}
-
 /**
- * Waiting for a call from the account's number (FR-AUTH-12): the number to
- * call as a link a phone can dial, the time left, and one message line. The
- * screen asks every few seconds whether the call has come, and goes on by
- * itself once it has. The caller supplies what asking and a new check do.
- *
- * Asking stops while the tab is hidden, and once the check is over: a new
- * number is then asked for, like a new code.
+ * Waiting for a call from the account's number, asking every few seconds
+ * whether it came; the caller supplies what asking and a new check do. Asking
+ * pauses while the tab is hidden and stops once the check is over.
  */
 @Component({
   selector: 'app-call-wait',
   imports: [Button, Checkbox, TickLabel],
   host: { class: 'block' },
   template: `
-    <!-- Each number is one unit: a number broken across two lines no longer
-         reads as a number. Every piece is a span of its own, so no line break
-         in this template turns into a space before the punctuation. -->
     <p class="text-ink-subtle">
       @for (part of intro(); track $index) {
         <span [class]="part.value ? valueClass : ''">{{ part.text }}</span>
@@ -85,7 +68,7 @@ function pieces(line: string, values: Record<string, string>) {
 
       @if (!byMail() && !over()) {
         <a uiButton [href]="'tel:' + step().dial" class="tabular-nums">
-          {{ text.callDial.replace('{callTo}', step().callTo) }}
+          {{ fillText(text.callDial, { callTo: step().callTo }) }}
         </a>
       }
 
@@ -110,7 +93,7 @@ function pieces(line: string, values: Record<string, string>) {
         >
           {{
             waitLeft() > 0
-              ? text.callNewIn.replace('{time}', wait(waitLeft()))
+              ? fillText(text.callNewIn, { time: formatWait(waitLeft()) })
               : text.callNew
           }}
         </button>
@@ -122,6 +105,8 @@ export class CallWait {
   private readonly document = inject(DOCUMENT);
   protected readonly text = inject(STOREFRONT_TEXT).auth.signInStep;
   protected readonly valueClass = 'whitespace-nowrap font-medium text-ink';
+  protected readonly fillText = fillText;
+  protected readonly formatWait = formatWait;
   private readonly closed = inject(STOREFRONT_TEXT).auth.closed;
 
   /** The check to wait on. Each new value starts the wait over. */
@@ -139,18 +124,24 @@ export class CallWait {
 
   protected readonly remember = signal(false);
   protected readonly rememberLabel = computed(() =>
-    this.text.remember.replace('{days}', String(this.step().rememberDays)),
+    fillText(this.text.remember, { days: this.step().rememberDays }),
   );
   protected readonly byMail = computed(() => this.step().sentTo !== undefined);
 
   protected readonly intro = computed(() => {
     const step = this.step();
     return step.sentTo !== undefined
-      ? pieces(this.text.callByMail, { sentTo: step.sentTo, phone: step.phone })
-      : pieces(this.text.callIntro, { callTo: step.callTo, phone: step.phone });
+      ? placeholderRuns(this.text.callByMail, {
+          sentTo: step.sentTo,
+          phone: step.phone,
+        })
+      : placeholderRuns(this.text.callIntro, {
+          callTo: step.callTo,
+          phone: step.phone,
+        });
   });
   protected readonly confirmNote = computed(() =>
-    pieces(this.text.callConfirmNote, { phone: this.step().phone }),
+    placeholderRuns(this.text.callConfirmNote, { phone: this.step().phone }),
   );
 
   protected readonly busy = signal(false);
@@ -161,7 +152,7 @@ export class CallWait {
     null,
   );
 
-  private readonly now = signal(Date.now());
+  private readonly now = tickingNow();
   private readonly expiresAt = signal(0);
   private readonly renewAt = signal(0);
   private readonly timeLeft = computed(() =>
@@ -176,7 +167,9 @@ export class CallWait {
     const notice = this.notice();
     if (notice) return notice.text;
     if (this.over()) return this.text.callExpired;
-    return this.text.callWaiting.replace('{time}', formatWait(this.timeLeft()));
+    return fillText(this.text.callWaiting, {
+      time: formatWait(this.timeLeft()),
+    });
   });
 
   /** Whether an answer is out; asking again meanwhile would only race it. */
@@ -192,21 +185,12 @@ export class CallWait {
       this.over.set(step.expiresIn <= 0);
     });
 
-    // In the browser only: a timer on the server would keep the render from
-    // settling, and there is nobody there to wait for.
+    // Browser only: a timer on the server would keep the render from settling.
     const destroyRef = inject(DestroyRef);
     afterNextRender(() => {
-      const tick = setInterval(() => this.now.set(Date.now()), 1000);
       const poll = setInterval(() => void this.ask(), POLL_MS);
-      destroyRef.onDestroy(() => {
-        clearInterval(tick);
-        clearInterval(poll);
-      });
+      destroyRef.onDestroy(() => clearInterval(poll));
     });
-  }
-
-  protected wait(seconds: number): string {
-    return formatWait(seconds);
   }
 
   private async ask(): Promise<void> {
@@ -267,11 +251,17 @@ export class CallWait {
         this.renewAt.set(Date.now() + retryAfter * 1000);
       }
     }
-    const lines: Partial<Record<SendResult, string>> = {
-      limit: this.text.callLimit.replace('{time}', formatWait(this.waitLeft())),
-      unreachable: this.text.unreachableAccount,
-      unavailable: this.text.unavailable,
-    };
-    this.notice.set({ text: lines[result] ?? this.text.error, failed: true });
+    this.notice.set({
+      text:
+        result === 'error'
+          ? this.text.error
+          : sendFailureLine(
+              this.text,
+              result,
+              this.waitLeft(),
+              this.text.callLimit,
+            ),
+      failed: true,
+    });
   }
 }

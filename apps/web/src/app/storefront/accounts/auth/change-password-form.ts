@@ -1,5 +1,6 @@
 import {
   Component,
+  computed,
   inject,
   input,
   output,
@@ -7,6 +8,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { form, required } from '@angular/forms/signals';
+import { fillText } from '@b2b-catalog-platform/shared';
 import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
 import { confirmation, newPassword } from '../../../shared/core/password';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
@@ -18,15 +20,9 @@ import {
   ChangePasswordResult,
 } from '../../../shared/auth/auth.service';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
-import {
-  PasswordRejectionCode,
-  PASSWORD_MIN_LENGTH,
-} from '@b2b-catalog-platform/shared/core/accounts';
+import { PASSWORD_MIN_LENGTH } from '@b2b-catalog-platform/shared/core/accounts';
 
-/**
- * Reusable change-password form. No required marks: every field is required,
- * and marking every field on a form marks none of them.
- */
+/** No required marks: marking every field on a form marks none. */
 @Component({
   selector: 'app-change-password-form',
   imports: [FORM_FIELDS, Button, Input, ErrorText],
@@ -47,8 +43,7 @@ import {
         />
       </ui-field>
 
-      <!-- One line, not two: the rule and the refusal are the same sentence,
-           so it changes colour rather than being printed twice. -->
+      <!-- The rule as the hint: the refusal is the same sentence. -->
       <ui-field
         [field]="form.newPassword"
         [label]="text.newPassword"
@@ -83,12 +78,12 @@ import {
       @if (failure(); as message) {
         <p uiErrorText role="alert">{{ message }}</p>
       }
-      @if (status() === 'ok') {
+      @if (outcome()?.result === 'ok') {
         <p class="text-sm text-success" role="status">{{ text.success }}</p>
       }
 
-      <button uiButton type="submit" [disabled]="status() === 'submitting'">
-        {{ status() === 'submitting' ? text.submitting : text.submit }}
+      <button uiButton type="submit" [disabled]="form().submitting()">
+        {{ form().submitting() ? text.submitting : text.submit }}
       </button>
     </form>
   `,
@@ -98,52 +93,38 @@ export class ChangePasswordForm {
 
   private readonly authText = inject(STOREFRONT_TEXT).auth;
   protected readonly text = this.authText.changePassword;
-  protected readonly validation = this.authText.validation;
-  /** One line per policy rule, so the code the API sends is the whole lookup. */
+  private readonly validation = this.authText.validation;
   private readonly rejected = this.authText.passwordRejected;
 
-  /** Emitted after the password was actually changed — the modal closes on it. */
   readonly changed = output<void>();
 
   /**
-   * Namespaces this instance's element ids. The form can be on the page while
-   * the forced modal holds a second copy, and duplicate ids would break the
-   * label/input pairing; a caller-supplied prefix keeps them apart while staying
-   * deterministic (a random one would differ between server and client markup).
+   * Keeps ids apart while the forced dialog holds a second copy. Fixed, not
+   * random, so server and client markup agree.
    */
   readonly idPrefix = input('change-password');
 
-  protected readonly status = signal<
-    'idle' | 'submitting' | ChangePasswordResult['result']
-  >('idle');
-  /** Which policy rule refused the new password, when one did. */
-  private readonly rejection = signal<PasswordRejectionCode | null>(null);
+  /** The last answer, kept while the next request is out. */
+  protected readonly outcome = signal<ChangePasswordResult | null>(null);
 
-  /**
-   * The message for whichever failure happened. `wrong-current` is about the
-   * field above and has its own wording; a refused *new* password names the
-   * rule that refused it, and the wording for each rule is the deployment's.
-   */
-  protected failure(): string | null {
-    switch (this.status()) {
+  protected readonly failure = computed(() => {
+    const outcome = this.outcome();
+    switch (outcome?.result) {
       case 'wrong-current':
         return this.text.wrongCurrent;
-      case 'rejected': {
-        const code = this.rejection();
-        return code ? this.rejected[code] : this.text.error;
-      }
+      case 'rejected':
+        return this.rejected[outcome.code];
       case 'error':
         return this.text.error;
       default:
         return null;
     }
-  }
+  });
 
-  protected readonly minLengthHint =
-    this.validation.newPasswordTooShort.replace(
-      '{min}',
-      String(PASSWORD_MIN_LENGTH),
-    );
+  protected readonly minLengthHint = fillText(
+    this.validation.newPasswordTooShort,
+    { min: PASSWORD_MIN_LENGTH },
+  );
 
   private readonly empty = {
     currentPassword: '',
@@ -172,23 +153,16 @@ export class ChangePasswordForm {
   private readonly attempt = viewChild.required(SubmitAttempt);
 
   private async send(): Promise<void> {
-    this.status.set('submitting');
-    this.rejection.set(null);
     const { currentPassword, newPassword } = this.model();
     const outcome = await this.auth.changePassword({
       currentPassword,
       newPassword,
     });
-    this.status.set(outcome.result);
-    if (outcome.result === 'rejected') {
-      this.rejection.set(outcome.code);
-    }
+    this.outcome.set(outcome);
 
     if (outcome.result === 'ok') {
-      // Nothing typed here should survive a success — least of all in a form
-      // the user may leave open. The submit is forgotten with it: the fields
-      // are empty and required, so anything still latched from it would paint
-      // the form red next to its own success message.
+      // The attempt goes too: the emptied required fields would show red
+      // beside the success.
       this.form().reset(this.empty);
       this.attempt().reset();
       this.changed.emit();

@@ -47,18 +47,9 @@ interface Registration {
 }
 
 /**
- * Self-registration (FR-AUTH-01). A registration is a *request* to become a
- * customer, and the staff member who decides on it has no way to ask the
- * applicant anything — a pending account cannot sign in. So the form collects
- * what makes that decision possible: who this is, a number to verify them on,
- * and, for a business, the registration number staff match against their own
- * records. The copy says a person reviews it, so the wait is expected rather
- * than read as a broken signup.
- *
- * The success message is deliberately non-committal ("if we can set up an
- * account for this address"), because the server answers the same way for an
- * address that already has one. Saying more here would leak what the API
- * carefully does not.
+ * A request to become a customer, decided by staff who cannot ask the
+ * applicant anything, so it collects what that decision needs. The success
+ * is non-committal: the server answers the same for a taken address.
  */
 @Component({
   selector: 'app-register-page',
@@ -208,10 +199,7 @@ export class RegisterPage {
   protected readonly text = inject(STOREFRONT_TEXT).auth;
   protected readonly fields = inject(SHARED_TEXT).fields;
   private readonly partyChoice = inject(STOREFRONT_TEXT).partyChoice;
-  /**
-   * The kinds of customer the shop sells to (FR-AUTH-13), in the order the
-   * deployment lists them: the first is where the form starts.
-   */
+  /** In the deployment's order: the first is where the form starts. */
   protected readonly customerTypes: readonly SegmentOption<CustomerType>[] =
     this.config.customerTypes.map((value) => ({
       value,
@@ -223,12 +211,8 @@ export class RegisterPage {
   protected readonly phoneInput = this.config.phoneInput;
   private readonly companyIdInput = this.config.companyIdInput;
 
-  /**
-   * The company the registrant picked, if they picked one. Kept for the
-   * submission, not shown: the registered address becomes the account's first
-   * saved one (FR-AUTH-10), and a registration form is no place to review an
-   * address nobody asked to enter.
-   */
+  /** Kept for its registered address, which becomes the account's first
+   * saved one without being shown here. */
   protected readonly picked = signal<PartySuggestion | undefined>(undefined);
 
   protected readonly status = signal<Status>('idle');
@@ -261,9 +245,8 @@ export class RegisterPage {
         this.fields.phone.incomplete,
       );
 
-      // The company is asked of a company only. Hidden, its fields count for
-      // nothing, and whatever was typed is kept for a change of mind but
-      // never sent (see toRequest).
+      // Hidden fields count for nothing; typed values stay for a change of
+      // mind but are never sent.
       hidden(registration.companyName, {
         when: ({ valueOf }) => valueOf(registration.customerType) !== 'company',
       });
@@ -305,12 +288,7 @@ export class RegisterPage {
     this.status.set(this.consent.refused(result) ? 'idle' : 'error');
   }
 
-  /**
-   * The picked company's registered address, where it still describes what is
-   * in the form. A registrant who picked a suggestion and then typed a
-   * different company over it is not offering that company's address, so the
-   * name has to still match.
-   */
+  /** Only while the typed name is still the picked company's. */
   private billingAddress(customerType: CustomerType) {
     const party = this.picked();
     const typed = this.model().companyName.trim();
@@ -331,17 +309,12 @@ export class RegisterPage {
       customerType: value.customerType,
       companyName:
         value.customerType === 'company' ? value.companyName.trim() : undefined,
-      // Sent as typed; the contract normalizes it (spaces out, upper case) so
-      // the browser and the API cannot disagree about what was entered.
+      // Sent as typed: the contract normalizes it.
       companyRegistrationId:
         value.customerType === 'company'
           ? value.companyRegistrationId.trim()
           : undefined,
-      // Only where it is the address of the company that was picked, and only
-      // for a company: everything else about this request is typed, and this is
-      // the one thing that is chosen.
       billingAddress: this.billingAddress(value.customerType),
-      // Honeypot.
       website: value.website || undefined,
       consentVersion: this.consent.version(),
     };

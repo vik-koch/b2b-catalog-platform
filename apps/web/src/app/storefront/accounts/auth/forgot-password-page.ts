@@ -19,14 +19,9 @@ import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
 type Status = 'idle' | 'success' | 'error';
 
 /**
- * Asking for a reset link (FR-AUTH-02). Only the *request* half lives here —
- * the link lands on /set-password, which already serves the invitation and
- * works out from the account's status whether this is a first password or a
- * replacement.
- *
- * The success state deliberately promises less than it knows: the server does
- * not say whether the address has an account, so neither can this page, or the
- * form becomes a way to test which addresses are customers.
+ * Asking for a reset link, which lands on /set-password. The success promises
+ * no more than the server says, or the form would tell which addresses have
+ * accounts.
  */
 @Component({
   selector: 'app-forgot-password-page',

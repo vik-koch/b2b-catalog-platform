@@ -1,8 +1,8 @@
 import {
   Component,
   computed,
-  effect,
   inject,
+  linkedSignal,
   output,
   signal,
 } from '@angular/core';
@@ -11,20 +11,13 @@ import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { AuthService } from '../../../shared/auth/auth.service';
 import { CallWait } from './call-wait';
-import { CodeEntry, formatWait } from './code-entry';
+import { CodeEntry } from './code-entry';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
 import { Outcome } from '@b2b-catalog-platform/ui/content/outcome';
 
-export { formatWait };
-
 /**
- * The step after the password (FR-AUTH-12), wherever a password leads to a
- * session: the sign-in form and the set-password page show this in place of
- * their own form once the API says the step is owed — a code to enter, or a
- * call to make, whichever the deployment's provider takes.
- *
- * The step uses the number staff set. Nobody chooses another number here: a
- * holder who cannot use it asks the shop.
+ * The step after the password, a code to enter or a call to make, shown in
+ * place of the sign-in and set-password forms once the API says it is owed.
  */
 @Component({
   selector: 'app-sign-in-step',
@@ -75,19 +68,18 @@ export class SignInStepPanel {
   readonly done = output<void>();
 
   protected readonly restart = signal(false);
-  protected readonly step = computed(() => this.auth.step());
+  protected readonly step = this.auth.step;
   /** Kept once the step is gone, so the restart says which step ran out. */
-  private readonly kind = signal<'code' | 'call'>('code');
+  private readonly kind = linkedSignal<
+    'code' | 'call' | undefined,
+    'code' | 'call'
+  >({
+    source: () => this.step()?.step,
+    computation: (kind, previous) => kind ?? previous?.value ?? 'code',
+  });
   protected readonly heading = computed(() =>
     this.kind() === 'call' ? this.text.callHeading : this.text.codeHeading,
   );
-
-  constructor() {
-    effect(() => {
-      const step = this.step();
-      if (step) this.kind.set(step.step);
-    });
-  }
 
   protected readonly submitCode = (code: string, remember: boolean) =>
     this.auth.submitCode(code, remember);

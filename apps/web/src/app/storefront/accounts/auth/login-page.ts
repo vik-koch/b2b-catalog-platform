@@ -1,4 +1,4 @@
-import { Component, inject, input, signal } from '@angular/core';
+import { Component, computed, inject, input, signal } from '@angular/core';
 import { form, required } from '@angular/forms/signals';
 import { Router, RouterLink } from '@angular/router';
 import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
@@ -11,16 +11,13 @@ import { Input } from '@b2b-catalog-platform/ui/inputs/input';
 import { AuthCard } from './auth-card';
 import { landingFor } from '../../../shared/auth/auth.guard';
 import { AuthService, LoginResult } from '../../../shared/auth/auth.service';
-import { formatWait, SignInStepPanel } from './sign-in-step';
+import { SignInStepPanel } from './sign-in-step';
+import { sendFailureLine } from './send-failure-line';
 import { TextButton } from '@b2b-catalog-platform/ui/actions/text-button';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 
-/**
- * The one login form, for every role (FR-AUTH-07). Where it lands afterwards
- * is the only role-dependent part: back to the gated page that sent us here,
- * else the role's own home (see `landingFor`).
- */
+/** The one login form for every role; only where it lands depends on it. */
 @Component({
   selector: 'app-login-page',
   imports: [
@@ -36,7 +33,7 @@ import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
   ],
   template: `
     <app-auth-card>
-      @if (status() === 'step') {
+      @if (answered() === 'step') {
         <app-sign-in-step (done)="land()" />
       } @else {
         <h1 uiPageTitle class="mb-8">
@@ -44,8 +41,7 @@ import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
         </h1>
 
         <form [formRoot]="form" class="space-y-6">
-          <!-- No required-marker beside either label: both fields are required,
-             and marking every field on a form marks none of them. -->
+          <!-- No required marks: marking every field marks none. -->
           <ui-field
             [field]="form.email"
             [label]="fields.email.label"
@@ -81,16 +77,9 @@ import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
           }
 
           <div class="flex flex-wrap items-center gap-4">
-            <button
-              uiButton
-              type="submit"
-              [disabled]="status() === 'submitting'"
-            >
-              {{ status() === 'submitting' ? text.submitting : text.submit }}
+            <button uiButton type="submit" [disabled]="form().submitting()">
+              {{ form().submitting() ? text.submitting : text.submit }}
             </button>
-            <!-- Beside the button, not under the password field: it is what you
-               reach for after the login fails, which is where the eye already
-               is. -->
             <a uiTextButton routerLink="/forgot-password" class="text-sm">
               {{ text.forgotPassword.link }}
             </a>
@@ -115,19 +104,17 @@ export class LoginPage {
 
   protected readonly text = inject(STOREFRONT_TEXT).auth;
   protected readonly fields = inject(SHARED_TEXT).fields;
-  protected readonly status = signal<'idle' | 'submitting' | LoginResult>(
-    'idle',
-  );
+  /** The last answer, kept while the next request is out so the message
+   * does not vanish and come back. */
+  protected readonly answered = signal<'idle' | LoginResult>('idle');
 
-  /**
-   * The last answer, kept while the next request is out: the message under the
-   * form stays where it is until a new one replaces it, rather than vanishing
-   * on the click and coming back a moment later.
-   */
-  private readonly answered = signal<'idle' | LoginResult>('idle');
-
-  protected failure(): string | null {
-    switch (this.answered()) {
+  protected readonly failure = computed(() => {
+    const answer = this.answered();
+    switch (answer) {
+      case 'idle':
+      case 'ok':
+      case 'step':
+        return null;
       case 'invalid':
         return this.text.invalid;
       case 'closed':
@@ -135,21 +122,16 @@ export class LoginPage {
       case 'error':
         return this.text.error;
       // The password was right, but the code could not go out.
-      case 'unreachable':
-        return this.text.signInStep.unreachableAccount;
-      case 'unavailable':
-        return this.text.signInStep.unavailable;
-      case 'limit':
-        return this.text.signInStep.limit.replace(
-          '{time}',
-          formatWait(this.auth.retryAfter() ?? 0),
-        );
       default:
-        return null;
+        return sendFailureLine(
+          this.text.signInStep,
+          answer,
+          this.auth.retryAfter() ?? 0,
+        );
     }
-  }
+  });
 
-  /** Set by the guards when they bounce a deep link here (query param). */
+  /** Set by the guards when they bounce a deep link here. */
   readonly returnUrl = input<string>();
 
   protected readonly form = form(
@@ -157,8 +139,7 @@ export class LoginPage {
     (login) => {
       required(login.email, { message: this.fields.email.required });
       emailAddress(login.email, this.fields.email.invalid);
-      // Presence only: length and strength belong to the account that owns
-      // the password, not to the form that signs in with it.
+      // Presence only: the policy is the account's, not the sign-in's.
       required(login.password, {
         message: this.text.validation.passwordRequired,
       });
@@ -171,9 +152,7 @@ export class LoginPage {
   }
 
   private async send(): Promise<void> {
-    this.status.set('submitting');
     const result = await this.auth.login(this.form().value());
-    this.status.set(result);
     this.answered.set(result);
 
     if (result === 'ok') await this.land();
@@ -187,11 +166,8 @@ export class LoginPage {
     );
   }
 
-  /**
-   * Only same-origin paths are honoured — a `returnUrl` is attacker-supplied
-   * (it rides in the URL), so anything that could name another host is an open
-   * redirect. `//evil.example` is protocol-relative, hence the second check.
-   */
+  /** Same-origin paths only: anything else is an open redirect, and
+   * `//host` is protocol-relative. */
   private safeReturnUrl(): string | null {
     const url = this.returnUrl();
     return url?.startsWith('/') && !url.startsWith('//') ? url : null;

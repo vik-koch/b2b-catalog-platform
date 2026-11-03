@@ -32,17 +32,9 @@ import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { Hint } from '@b2b-catalog-platform/ui/fields/hint';
 import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
 
-type Status = 'idle' | 'submitting' | 'error';
-
 /**
- * Correcting your own name and phone number. A route rather than an inline form
- * on the account page, the same way the admin editors are routes: an edit is a
- * place you can be, and be sent back to.
- *
- * What it does *not* offer is the point: the account type and registration
- * number are the evidence staff approved the account and its tier on, and the
- * address is the sign-in name. The intro says who to ask instead of leaving
- * them apparently uneditable for no reason.
+ * Correcting your own name and phone number. The rest is not offered: staff
+ * approved the account on it, and the email is the sign-in name.
  */
 @Component({
   selector: 'app-account-edit-page',
@@ -96,10 +88,6 @@ type Status = 'idle' | 'submitting' | 'error';
             />
           </ui-field>
 
-          <!-- Optional, as on the staff editor: a staff account often has no
-               number, and one that is gone is not a reason to refuse the save. -->
-          <!-- Where the number receives sign-in codes it is how the account
-               signs in, so staff change it (FR-AUTH-12): shown, not offered. -->
           @if (locked()) {
             <div>
               <p uiFieldLabel>{{ fields.phone.label }}</p>
@@ -117,18 +105,16 @@ type Status = 'idle' | 'submitting' | 'error';
           }
 
           <div class="flex flex-wrap items-center gap-3">
-            <button uiButton type="submit" [disabled]="submitting()">
-              {{ submitting() ? actionText.saving : text.submit }}
+            <button uiButton type="submit" [disabled]="form().submitting()">
+              {{ form().submitting() ? actionText.saving : text.submit }}
             </button>
-            <!-- A link, because it goes somewhere — styled as a button so it
-                 reads as the other half of the pair rather than as prose. -->
             <a uiButton variant="secondary" routerLink="/account">
               {{ actionText.cancel }}
             </a>
           </div>
 
-          @if (failure(); as line) {
-            <p uiErrorText role="alert">{{ line }}</p>
+          @if (failed()) {
+            <p uiErrorText role="alert">{{ text.error }}</p>
           }
         </form>
       } @else if (profile.error()) {
@@ -151,17 +137,14 @@ export class AccountEditPage {
   protected readonly fields = inject(SHARED_TEXT).fields;
   protected readonly actionText = inject(SHARED_TEXT).actions;
   protected readonly phoneInput = inject(DEPLOYMENT_CONFIG).phoneInput;
-  protected readonly status = signal<Status>('idle');
+  protected readonly failed = signal(false);
 
   protected readonly profile = resource({
     loader: () => this.account.getProfile(),
   });
   protected readonly showSkeleton = delayedLoading(this.profile.isLoading);
 
-  /**
-   * Seeded from the record rather than from the session: the greeting knows a
-   * first name, the form has to know everything it may write back.
-   */
+  /** From the record, not the session: the session knows no last name. */
   private readonly draft = linkedSignal(() => {
     const profile = this.profile.value();
     return {
@@ -190,7 +173,7 @@ export class AccountEditPage {
     usePageSeo({ name: () => this.text.heading });
   }
 
-  /** The number receives sign-in codes, so staff change it (FR-AUTH-12). */
+  /** A number that receives sign-in codes is staff's to change. */
   protected readonly locked = computed(
     () => this.profile.value()?.phoneLocked ?? false,
   );
@@ -198,37 +181,24 @@ export class AccountEditPage {
     formatPhone(this.profile.value()?.phone ?? null, this.phoneInput),
   );
 
-  protected failure(): string | null {
-    return this.status() === 'error' ? this.text.error : null;
-  }
-
-  protected submitting(): boolean {
-    return this.status() === 'submitting';
-  }
-
   private async send(): Promise<void> {
-    this.status.set('submitting');
+    this.failed.set(false);
     const value = this.form().value();
     try {
       const saved = await this.account.updateProfile({
         firstName: value.firstName.trim(),
         lastName: value.lastName.trim(),
-        // A locked number goes back as it is. Otherwise an empty field clears
-        // it; the API separates "no phone" from "unchanged" by null rather
-        // than by an empty string.
+        // An empty field clears the number: the API wants null, not ''.
         phone: this.locked()
           ? (this.profile.value()?.phone ?? null)
           : canonicalPhone(value.phone, this.phoneInput) || null,
       });
-      // The greeting is built from the session, not from this response, so a
-      // changed first name only reaches the header once /auth/me is re-asked.
+      // The header's greeting reads the session, not this response.
       await this.auth.refresh();
       this.profile.set(saved);
-      // Back to the record, with no "saved" notice: the page it lands on shows
-      // the new values, which says it better than a message about them would.
       await this.router.navigateByUrl('/account');
     } catch {
-      this.status.set('error');
+      this.failed.set(true);
     }
   }
 }

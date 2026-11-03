@@ -1,4 +1,11 @@
-import { Component, effect, inject, resource, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  effect,
+  inject,
+  resource,
+  signal,
+} from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { fillText } from '@b2b-catalog-platform/shared';
 import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
@@ -17,19 +24,8 @@ import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
-import { Address } from '@b2b-catalog-platform/shared/core/accounts';
 
-type Status = 'idle' | 'submitting' | 'error';
-
-/**
- * Adding or correcting one saved address (FR-CART-04). One screen for both,
- * like the admin editors: `/account/addresses/new` and
- * `/account/addresses/:id/edit`.
- *
- * The fields themselves are the ones checkout draws (AddressFields); what this
- * page owns is where the row comes from, what a refusal means, and where it
- * goes afterwards.
- */
+/** Adding or correcting one saved address. */
 @Component({
   selector: 'app-address-editor-page',
   imports: [
@@ -54,8 +50,12 @@ type Status = 'idle' | 'submitting' | 'error';
           <app-address-fields [form]="form" />
 
           <div class="flex flex-wrap items-center gap-3">
-            <button uiButton type="submit" [disabled]="submitting()">
-              {{ submitting() ? actionText.saving : text.submit }}
+            <button
+              uiButton
+              type="submit"
+              [disabled]="form.field().submitting()"
+            >
+              {{ form.field().submitting() ? actionText.saving : text.submit }}
             </button>
             <a uiButton variant="secondary" routerLink="/account">
               {{ actionText.cancel }}
@@ -86,36 +86,30 @@ export class AddressEditorPage {
   private readonly addressId = this.route.snapshot.paramMap.get('id');
   protected readonly isNew = this.addressId === null;
 
-  protected readonly status = signal<Status>('idle');
   protected readonly error = signal<string | null>(null);
-  protected readonly notFound = signal(false);
 
   protected readonly form = createAddressForm({ action: () => this.save() });
 
-  /**
-   * The row being corrected. There is no read-one endpoint — the book is a
-   * short list the account already has — so an edit reads the list and finds
-   * itself in it, and a new address asks for nothing.
-   */
+  /** There is no read-one route: an edit finds its row in the short list. */
   private readonly saved = resource({
     params: () => this.addressId ?? undefined,
     loader: () => this.addresses.list(),
   });
+  private readonly existing = computed(() =>
+    this.saved.hasValue()
+      ? this.saved.value().find((row) => row.id === this.addressId)
+      : undefined,
+  );
   protected readonly showSkeleton = delayedLoading(this.saved.isLoading);
-  protected readonly ready = () =>
-    (this.isNew || this.saved.hasValue()) && !this.notFound();
+  protected readonly notFound = computed(
+    () => this.saved.hasValue() && !this.existing(),
+  );
+  protected readonly ready = computed(() => this.isNew || !!this.existing());
 
   constructor() {
     effect(() => {
-      const rows = this.saved.value();
-      if (!rows) return;
-
-      const address = rows.find((row) => row.id === this.addressId);
-      if (!address) {
-        this.notFound.set(true);
-        return;
-      }
-      this.fill(address);
+      const address = this.existing();
+      if (address) this.form.fill(address);
     });
 
     usePageSeo({
@@ -123,11 +117,6 @@ export class AddressEditorPage {
     });
   }
 
-  private fill(address: Address): void {
-    this.form.fill(address);
-  }
-
-  /** The refusals the form has to explain rather than throw. */
   private refusal(
     code: Extract<SaveAddressResult, { ok: false }>['code'],
   ): string {
@@ -141,8 +130,7 @@ export class AddressEditorPage {
     }
   }
 
-  /** The postcode's own rule, in the customer's words and with the example
-   * the deployment configured — the API answers with a code alone. */
+  /** The API answers with a code alone; the example is the deployment's. */
   private postalCodeMessage(): string {
     const rule = this.form.postalCodeRule();
     return rule
@@ -150,12 +138,7 @@ export class AddressEditorPage {
       : this.fieldText.required;
   }
 
-  protected submitting(): boolean {
-    return this.status() === 'submitting';
-  }
-
   private async save(): Promise<void> {
-    this.status.set('submitting');
     this.error.set(null);
     const input = this.form.value();
 
@@ -165,15 +148,11 @@ export class AddressEditorPage {
         : await this.addresses.create(input);
 
       if (!result.ok) {
-        this.status.set('idle');
         this.error.set(this.refusal(result.code));
         return;
       }
-      // Back to the book, which shows what was saved — better than a notice
-      // about it.
       await this.router.navigateByUrl('/account');
     } catch {
-      this.status.set('idle');
       this.error.set(this.text.saveError);
     }
   }

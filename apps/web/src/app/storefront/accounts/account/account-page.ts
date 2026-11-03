@@ -36,10 +36,7 @@ import {
   formatPersonName,
 } from '@b2b-catalog-platform/shared/core/accounts';
 
-/**
- * Whether a resource has an answer of any kind. `isLoading` alone is false
- * before a resource has started, which would count an untouched one as ready.
- */
+/** An answer of any kind; `isLoading` alone is false before the start. */
 function settled(resource: {
   isLoading: Signal<boolean>;
   status: Signal<string>;
@@ -47,21 +44,9 @@ function settled(resource: {
   return !resource.isLoading() && resource.status() !== 'idle';
 }
 
-/** One line of the details list. */
-interface DetailRow {
-  readonly label: string;
-  readonly value: string;
-}
-
 /**
- * The customer's own area, in the same section-per-topic shape as the admin
- * panel: greeting, then what is on the account. The address book is a section
- * here rather than a page of its own. The newest orders come first, projected
- * by the shell.
- *
- * Details are read-only for now. Nothing here is editable by its owner yet —
- * the fields staff approved the account on are evidence for a decision, so the
- * page says who to ask rather than pretending they are fixed forever.
+ * The customer's own area, a section per topic. The newest orders are
+ * ordering's, so the shell projects them in.
  */
 @Component({
   selector: 'app-account-page',
@@ -79,54 +64,24 @@ interface DetailRow {
     ErrorText,
   ],
   template: `
-    <!-- Narrower than the shell allows, as the admin panel is: this is a
-         column of short cards, and at the full width of a desktop each one
-         was a heading and half a screen of nothing beside it. -->
     <div class="max-w-3xl">
       <h1 uiPageTitle class="mb-4">
         {{ text.account }}
       </h1>
       <app-signed-in-as />
 
-      <!-- One stack with one gap, rather than a margin repeated on every
-           section: the space between two cards is a property of the list
-           they are in, not of each card. -->
       <div class="mt-7 flex flex-col gap-7">
-        <!-- The newest orders, which the shell puts in: they are ordering's,
-             and an account page that read them would import it. -->
         <ng-content />
 
-        <!-- Section headings carry a muted glyph for the topic, as the admin
-             panel's do.
-
-             The details and the address book are two sections, one under the
-             other, rather than two tracks of one card. Side by side, each was a
-             column of a page's width divided in half — a label-and-value table
-             squeezed into one and a list of addresses and their buttons into the
-             other — and each needed a heading of its own inside the card to say
-             which was which. Down the page they have the width to be read, and
-             the section heading is that heading. -->
         <section>
           <h2 uiSectionTitle class="mb-1.5 flex items-center gap-2">
             <ui-icon [glyph]="userIcon" class="size-4" />
             {{ accountText.detailsHeading }}
           </h2>
-          <!-- The card is drawn straight away with grey bars where the values
-               will be. Nothing here waits for a delay first: the shape of this
-               card is known before the calls answer, so the bars stand in the box
-               the values will fill and the arrival is a fill rather than a jump.
-               The delayed skeleton is for regions whose height nobody can guess. -->
           <div uiCard>
-            <!-- Both halves at once, never each as it lands. They are two
-                   answers to one question arriving on two round trips, and drawn
-                   separately the card grew twice under somebody already reading
-                   the first half of it. Settled, not loaded — a column that
-                   failed says so in the same frame the other one appears in. -->
             @if (!profileReady()) {
-              <!-- Five rows: what a private account has. A company's two extra
-                     lines grow the card by that much on arrival, which is the
-                     smaller error of the two — bars for rows that never come
-                     would shrink it instead. -->
+              <!-- A private account's five rows: growing on arrival beats
+                   shrinking. -->
               <ui-skeleton [lines]="5" />
             } @else if (profile.hasValue()) {
               <dl uiFactList class="text-sm">
@@ -154,9 +109,6 @@ interface DetailRow {
           </div>
         </section>
 
-        <!-- The address book (FR-CART-04). A section here rather than a page of
-             its own: it is one short list, and checkout is where it is actually
-             used — this is where it is kept. -->
         <section>
           <h2 uiSectionTitle class="mb-1.5 flex items-center gap-2">
             <ui-icon [glyph]="mapPinIcon" class="size-4" />
@@ -171,13 +123,6 @@ interface DetailRow {
               } @else {
                 <ul class="divide-y divide-edge">
                   @for (address of addresses.value(); track address.id) {
-                    <!-- The buttons sit against the middle of the row they
-                           act on, not against its first line: an address is one
-                           or two lines deep, and a pair of buttons pinned to the
-                           top of a two-line row reads as belonging to the name
-                           alone. The last row gives up its bottom padding so
-                           "add address" stands the same distance under the list
-                           as "edit details" does under its own last line. -->
                     <li
                       class="flex flex-wrap items-center justify-between gap-4
                              py-4
@@ -194,13 +139,6 @@ interface DetailRow {
                           </p>
                         }
                       </div>
-                      <!-- Glyphs, not words: the row already says which
-                             address they act on, and two spelled-out buttons
-                             on every line read louder than the addresses. The
-                             bare glyph is the storefront's own icon control,
-                             as the cart's bin is — the disc belongs to
-                             affordances laid over content. The address is the
-                             accessible name. -->
                       <div class="flex shrink-0 gap-1">
                         <a
                           uiIconButton
@@ -243,10 +181,6 @@ interface DetailRow {
           </div>
         </section>
 
-        <!-- Everything you can do to the account itself, in one card and two
-             tracks. Deleting keeps its own column and its own heading — it is a
-             different weight of decision — and its consequences still live on
-             their own page rather than being crammed in beside the link. -->
         <section>
           <h2 uiSectionTitle class="mb-1.5 flex items-center gap-2">
             <ui-icon [glyph]="lockIcon" class="size-4" />
@@ -264,8 +198,6 @@ interface DetailRow {
                 <p class="mb-4 text-sm text-ink-subtle">
                   {{ text.changePassword.intro }}
                 </p>
-                <!-- Pinned to the bottom of its own column, so the two buttons sit
-                     on one line however long the sentences above them run. -->
                 <a
                   uiButton
                   variant="secondary"
@@ -283,8 +215,6 @@ interface DetailRow {
                 <p class="mb-4 text-sm text-ink-subtle">
                   {{ deleteText.intro }}
                 </p>
-                <!-- Outlined, not solid: this only opens the page that explains what
-                     would be lost. The solid red belongs to the click that confirms. -->
                 <a
                   uiButton
                   variant="dangerOutline"
@@ -331,29 +261,18 @@ export class AccountPage {
     loader: () => this.addressBook.list(),
   });
 
-  /**
-   * Whether the first card has both its answers — either one, since a refusal
-   * is an answer the card can draw. The two halves are one card and must
-   * arrive as one; separately, the card grows a second time under a reader who
-   * has already started on the first half.
-   */
+  /** Both cards draw at once, so neither grows under someone reading the
+   * other; a failure counts as an answer. */
   protected readonly profileReady = computed(
     () => settled(this.profile) && settled(this.addresses),
   );
 
-  /** Its label, or where it is when it was never given one. */
-  protected name(address: Address): string {
-    return addressDisplayName(address);
-  }
+  protected readonly name = addressDisplayName;
 
-  /** The rest of it, comma-separated: the card is a list of addresses, not a
-   * letter. */
   protected lines(address: Address): string {
     return addressDetailLines(address, this.addressConfig).join(', ');
   }
 
-  /** The name the icon-only buttons carry, since the row's own text is not
-   * their label. */
   protected editLabel(address: Address): string {
     return fillText(this.addressText.editAria, { label: this.name(address) });
   }
@@ -364,11 +283,6 @@ export class AccountPage {
     });
   }
 
-  /**
-   * Removing one. Confirmed first — it is the only destructive thing on this
-   * card — and the list is refreshed rather than spliced, so what is on screen
-   * is what the server has.
-   */
   protected async remove(address: Address): Promise<void> {
     const confirmed = await this.confirm.ask({
       ...confirmRequest(this.addressText.removeConfirm, this.actionText.cancel),
@@ -382,35 +296,26 @@ export class AccountPage {
     this.addresses.reload();
   }
 
-  /**
-   * Only the lines this account actually has. A staff account has no phone, a
-   * private person no registration number — and an empty dash against every
-   * second label reads as something missing rather than something absent.
-   */
-  protected readonly rows = computed<DetailRow[]>(() => {
+  /** Only the rows this account has: a dash reads as missing, not absent. */
+  protected readonly rows = computed(() => {
     const profile = this.profile.value();
     if (!profile) return [];
 
     const t = this.accountText;
     const fields = this.sharedText.fields;
-    const kinds = this.sharedText.partyKind;
     const name = formatPersonName(profile.firstName, profile.lastName);
-    const type =
-      profile.customerType === 'company'
-        ? kinds.company
-        : profile.customerType === 'person'
-          ? kinds.person
-          : null;
+    const type = profile.customerType
+      ? this.sharedText.partyKind[profile.customerType]
+      : '';
 
     return [
       { label: fields.name.label, value: name },
       { label: fields.email.label, value: profile.email },
-      // Stored as bare digits; read back with the deployment's own grouping.
       {
         label: fields.phone.label,
         value: formatPhone(profile.phone, this.phoneInput),
       },
-      { label: t.customerType, value: type ?? '' },
+      { label: t.customerType, value: type },
       {
         label: fields.companyId.label,
         value: profile.companyRegistrationId ?? '',

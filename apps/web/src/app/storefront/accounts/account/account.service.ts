@@ -10,33 +10,21 @@ import {
 /** What the delete form has to tell apart. */
 export type DeleteAccountResult = 'ok' | 'wrong-password' | 'last-admin';
 
-/**
- * The signed-in account's own record — the counterpart to the API's
- * AccountController, and the home for addresses and order history when they
- * arrive. Nothing here takes an account id: the session is the subject.
- */
+/** The signed-in account's own record: the session is the subject. */
 @Injectable({ providedIn: 'root' })
 export class AccountService {
-  private client = createOrpcClient(accountContract);
+  private readonly client = createOrpcClient(accountContract);
 
   getProfile(): Promise<AccountProfile> {
     return this.client.getProfile();
   }
 
-  /**
-   * Correct the name and phone number. Nothing here is a refusal the form can
-   * act on — the fields are validated before they are sent, and a 401 means the
-   * session is gone, which the guards handle — so anything but success throws.
-   */
+  /** No refusal here is the form's to explain, so any failure throws. */
   updateProfile(request: UpdateAccountProfileRequest): Promise<AccountProfile> {
     return this.client.updateProfile({ body: request });
   }
 
-  /**
-   * Delete this account (FR-AUTH-06). Two of the refusals are the form's to
-   * show — a mistyped password, and the last admin, which is a real answer
-   * rather than a fault — so they come back as results; anything else throws.
-   */
+  /** The two refusals the form explains come back; anything else throws. */
   async deleteAccount(password: string): Promise<DeleteAccountResult> {
     const { error } = await safe(
       this.client.deleteAccount({ body: { password } }),

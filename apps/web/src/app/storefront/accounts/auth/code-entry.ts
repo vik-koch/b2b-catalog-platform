@@ -2,7 +2,6 @@ import {
   afterNextRender,
   Component,
   computed,
-  DestroyRef,
   effect,
   inject,
   input,
@@ -11,6 +10,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { form, maxLength, pattern, required } from '@angular/forms/signals';
+import { fillText } from '@b2b-catalog-platform/shared';
 import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { Checkbox } from '@b2b-catalog-platform/ui/choices/checkbox';
@@ -20,49 +20,34 @@ import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
 import { SubmitAttempt } from '@b2b-catalog-platform/ui/fields/submit-attempt';
 import { TextButton } from '@b2b-catalog-platform/ui/actions/text-button';
 import type { CodeResult, SendResult } from '../../../shared/auth/auth.service';
+import { formatWait, tickingNow } from './countdown';
+import { placeholderRuns } from './placeholder-runs';
+import { sendFailureLine } from './send-failure-line';
 import {
   CodeSent,
   SIGN_IN_CODE_LENGTH,
 } from '@b2b-catalog-platform/shared/core/accounts';
 
-/** A wait as minutes and seconds: `0:42`, `27:05`. */
-export function formatWait(seconds: number): string {
-  const whole = Math.max(0, Math.ceil(seconds));
-  const minutes = Math.floor(whole / 60);
-  return `${minutes}:${String(whole % 60).padStart(2, '0')}`;
-}
-
-/** The line before and after a placeholder, so its value can be set apart. */
-function around(line: string, placeholder: string): [string, string] {
-  const [before, ...after] = line.split(placeholder);
-  return [before, after.join('')];
-}
-
 /**
- * Entering a code sent to a phone (FR-AUTH-12): where it went, the boxes, a
- * countdown to the next code, and one message line. The caller supplies what
- * a code and a resend do.
- *
- * A message stays until the next answer replaces it, so pressing a button
- * never makes the form jump while the request is out.
+ * Entering a code sent to a phone; the caller supplies what a code and a
+ * resend do. A message stays until the next answer replaces it, so the form
+ * never jumps while a request is out.
  */
 @Component({
   selector: 'app-code-entry',
   imports: [FORM_FIELDS, Button, Checkbox, TickLabel, CodeInput, TextButton],
   host: { class: 'block' },
   template: `
-    <!-- Each masked value is one unit: a number broken across two lines no
-         longer reads as a number. -->
-    @let lead = around(fill(intro()), '{sentTo}');
     <p class="text-ink-subtle">
-      {{ lead[0] }}<span class="whitespace-nowrap">{{ sent().sentTo }}</span
-      >{{ lead[1] }}
+      @for (run of introRuns(); track $index) {
+        <span [class.whitespace-nowrap]="run.value">{{ run.text }}</span>
+      }
     </p>
-    @if (note(); as line) {
-      @let tail = around(fill(line), '{phone}');
+    @if (noteRuns(); as runs) {
       <p class="mt-1 text-ink-subtle">
-        {{ tail[0] }}<span class="whitespace-nowrap">{{ sent().phone }}</span
-        >{{ tail[1] }}
+        @for (run of runs; track $index) {
+          <span [class.whitespace-nowrap]="run.value">{{ run.text }}</span>
+        }
       </p>
     }
 
@@ -111,10 +96,8 @@ function around(line: string, placeholder: string): [string, string] {
         {{ message() }}
       </p>
 
-      <!-- Continue on the left, the resend control on the right: its label
-           changes width as it counts and moves nothing else. One label on
-           Continue throughout: a swap shown for the length of a request would
-           change the button's width. -->
+      <!-- The resend control on the right, so its counting label moves
+           nothing; Continue keeps one label, so its width never changes. -->
       <div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
         <button
           uiButton
@@ -134,7 +117,7 @@ function around(line: string, placeholder: string): [string, string] {
         >
           {{
             waitLeft() > 0
-              ? text.resendIn.replace('{time}', wait(waitLeft()))
+              ? fillText(text.resendIn, { time: formatWait(waitLeft()) })
               : text.resend
           }}
         </button>
@@ -146,9 +129,10 @@ export class CodeEntry {
   protected readonly text = inject(STOREFRONT_TEXT).auth.signInStep;
   private readonly closed = inject(STOREFRONT_TEXT).auth.closed;
   protected readonly inputId = 'signInCode';
+  protected readonly fillText = fillText;
+  protected readonly formatWait = formatWait;
 
-  /** Where the code went and when another may be asked. Each new value
-   * starts the countdown over. */
+  /** Each new value starts the countdown over. */
   readonly sent = input.required<CodeSent>();
   /** The line above the boxes; `{sentTo}` and `{length}` are filled in. */
   readonly intro = input.required<string>();
@@ -159,7 +143,7 @@ export class CodeEntry {
   /** Above 0, a box offers to remember this browser for that many days. */
   readonly rememberDays = input(0);
   protected readonly rememberLabel = computed(() =>
-    this.text.remember.replace('{days}', String(this.rememberDays())),
+    fillText(this.text.remember, { days: this.rememberDays() }),
   );
   readonly resendCode = input.required<() => Promise<SendResult>>();
   /** The wait a "no new code yet" refusal named, in seconds. */
@@ -167,7 +151,7 @@ export class CodeEntry {
 
   /** The code was right. */
   readonly done = output<void>();
-  /** Whatever the code was for has ended, and starts over elsewhere. */
+  /** What the code was for has ended, and starts over elsewhere. */
   readonly restart = output<void>();
 
   private readonly codeInput = viewChild(CodeInput);
@@ -178,9 +162,9 @@ export class CodeEntry {
   protected readonly message = signal<string | null>(null);
   protected readonly notice = signal(false);
 
-  /** When another code may be asked for, by this browser's clock. */
+  /** By this browser's clock. */
   private readonly resendAt = signal(0);
-  private readonly now = signal(Date.now());
+  private readonly now = tickingNow();
   protected readonly waitLeft = computed(() =>
     Math.max(0, (this.resendAt() - this.now()) / 1000),
   );
@@ -192,7 +176,7 @@ export class CodeEntry {
       required(entry.code, { message: this.text.codeRequired });
       maxLength(entry.code, SIGN_IN_CODE_LENGTH);
       pattern(entry.code, new RegExp(`^\\d{${SIGN_IN_CODE_LENGTH}}$`), {
-        message: this.fill(this.text.codeFormat),
+        message: this.withLength(this.text.codeFormat),
       });
     },
     { name: 'sign-in-code', submission: { action: () => this.send() } },
@@ -200,25 +184,23 @@ export class CodeEntry {
 
   constructor() {
     effect(() => this.waitFor(this.sent().resendIn));
-
-    // A second's tick, in the browser only: an interval on the server would
-    // keep the render from settling.
-    const destroyRef = inject(DestroyRef);
-    afterNextRender(() => {
-      const tick = setInterval(() => this.now.set(Date.now()), 1000);
-      destroyRef.onDestroy(() => clearInterval(tick));
-      this.codeInput()?.focus();
-    });
+    afterNextRender(() => this.codeInput()?.focus());
   }
 
-  protected fill(line: string): string {
-    return line.replaceAll('{length}', String(SIGN_IN_CODE_LENGTH));
-  }
+  protected readonly introRuns = computed(() =>
+    placeholderRuns(this.withLength(this.intro()), {
+      sentTo: this.sent().sentTo,
+    }),
+  );
+  protected readonly noteRuns = computed(() => {
+    const note = this.note();
+    return note
+      ? placeholderRuns(this.withLength(note), { phone: this.sent().phone })
+      : null;
+  });
 
-  protected around = around;
-
-  protected wait(seconds: number): string {
-    return formatWait(seconds);
+  private withLength(line: string): string {
+    return fillText(line, { length: SIGN_IN_CODE_LENGTH });
   }
 
   private async send(): Promise<void> {
@@ -279,14 +261,15 @@ export class CodeEntry {
     }
     const lines: Partial<Record<string, string>> = {
       ok,
-      wrong: this.text.wrong.replace('{count}', String(attemptsLeft ?? 0)),
+      wrong: fillText(this.text.wrong, { count: attemptsLeft ?? 0 }),
       expired: this.text.expired,
-      limit: this.text.limit.replace('{time}', formatWait(this.waitLeft())),
-      unreachable: this.text.unreachableAccount,
-      unavailable: this.text.unavailable,
       closed: this.closed,
     };
     this.notice.set(result === 'ok');
-    this.message.set(lines[result] ?? this.text.error);
+    this.message.set(
+      result === 'unreachable' || result === 'unavailable' || result === 'limit'
+        ? sendFailureLine(this.text, result, this.waitLeft())
+        : (lines[result] ?? this.text.error),
+    );
   }
 }

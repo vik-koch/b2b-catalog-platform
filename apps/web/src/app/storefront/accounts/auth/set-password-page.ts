@@ -1,4 +1,5 @@
 import { Component, inject, input, OnInit, signal } from '@angular/core';
+import { fillText } from '@b2b-catalog-platform/shared';
 import { form } from '@angular/forms/signals';
 import { Router, RouterLink } from '@angular/router';
 import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
@@ -12,11 +13,9 @@ import { AuthCard } from './auth-card';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
 import { Input } from '@b2b-catalog-platform/ui/inputs/input';
-import {
-  AuthService,
-  CodeSendFailure,
-} from '../../../shared/auth/auth.service';
-import { formatWait, SignInStepPanel } from './sign-in-step';
+import { AuthService } from '../../../shared/auth/auth.service';
+import { SignInStepPanel } from './sign-in-step';
+import { sendFailureLine } from './send-failure-line';
 import { landingFor } from '../../../shared/auth/auth.guard';
 import { TextButton } from '@b2b-catalog-platform/ui/actions/text-button';
 import { ConsentField } from '../../site/consent-field';
@@ -38,21 +37,15 @@ type Status =
   | 'expired'
   | 'closed'
   | 'done'
-  // The password is saved and a code is owed (FR-AUTH-12)…
+  // Saved, and the step after the password is owed…
   | 'step'
-  // …or it is saved, but the code could not go out.
+  // …or saved, but its code could not go out.
   | 'code-failed';
 
 /**
- * Where an invitation or a reset mail lands (FR-AUTH-01/02). The link in the
- * URL is the whole credential, so this page asks for nothing else — no
- * address, no old password — and the account is signed in the moment the new
- * password is saved.
- *
- * The link is checked *before* the form renders, so an expired one gets an
- * honest explanation instead of a form that was always going to fail. What the
- * page calls itself follows the account's state, not the URL: an account that
- * has never had a password is choosing one, not resetting it.
+ * Where an invitation or a reset link lands: the link is the whole
+ * credential. It is checked before the form shows, and the account's state,
+ * not the URL, says whether this sets a first password or resets one.
  */
 @Component({
   selector: 'app-set-password-page',
@@ -118,9 +111,7 @@ type Status =
 
           <form [formRoot]="form" class="space-y-6">
             <div>
-              <!-- The length rule is stated up front, as on the change-password
-                   form: it is the same sentence before and after the refusal,
-                   and only its colour changes. -->
+              <!-- The rule up front: the refusal is the same sentence. -->
               <ui-field
                 [field]="form.newPassword"
                 [label]="auth.password"
@@ -173,8 +164,7 @@ type Status =
               />
             </ui-field>
 
-            <!-- The notice only beside the box: a reset owes no consent,
-                 and the account's details were collected long before. -->
+            <!-- No notice: the details were collected long before. -->
             <app-consent-field [consent]="consent" [alone]="false" />
 
             @if (rejection(); as message) {
@@ -201,26 +191,23 @@ export class SetPasswordPage implements OnInit {
   /** Why the code after the password did not go out. */
   protected readonly codeFailure = signal('');
   protected readonly validation = this.auth.validation;
-  /** One line per policy rule, so the code the API sends is the whole lookup. */
   private readonly rejected = this.auth.passwordRejected;
-  protected readonly tooShort =
-    this.auth.validation.newPasswordTooShort.replace(
-      '{min}',
-      String(PASSWORD_MIN_LENGTH),
-    );
+  protected readonly tooShort = fillText(
+    this.auth.validation.newPasswordTooShort,
+    { min: PASSWORD_MIN_LENGTH },
+  );
 
-  /** The link itself, from the query string. */
+  /** From the query string. */
   readonly token = input<string>('');
 
   protected readonly status = signal<Status>('checking');
   protected readonly purpose = signal<PasswordTokenPurpose>('set');
   protected readonly email = signal('');
-  /** The account consent is still owed, and asked on this form. */
+  /** Still owed, and asked here. */
   private readonly consentRequired = signal(false);
   protected readonly consent = useConsent('account', this.consentRequired);
   protected readonly revealed = signal(false);
   protected readonly suggested = signal(false);
-  /** The refusal to show under the field, once there is one. */
   protected readonly rejection = signal<string | null>(null);
 
   private readonly model = signal({ newPassword: '', confirmPassword: '' });
@@ -261,11 +248,7 @@ export class SetPasswordPage implements OnInit {
     this.status.set('ready');
   }
 
-  /**
-   * Fill both fields with a strong password and reveal it: a password nobody
-   * can see is a password nobody can save, and the point of suggesting one is
-   * that the visitor copies it into their manager.
-   */
+  /** Revealed, because the point is to copy it into a password manager. */
   protected suggest(): void {
     const password = generatePassword();
     this.model.set({ newPassword: password, confirmPassword: password });
@@ -276,8 +259,7 @@ export class SetPasswordPage implements OnInit {
   private async send(): Promise<void> {
     if (this.consent.field().invalid() || !this.consent.sendable()) return;
 
-    // The refusal stays until the next answer replaces it, so the form does
-    // not jump while the request is out.
+    // The refusal stays until the next answer, so the form does not jump.
     const outcome = await this.service.setPassword({
       token: this.token(),
       password: this.model().newPassword,
@@ -295,7 +277,13 @@ export class SetPasswordPage implements OnInit {
       return;
     }
     if (outcome.result === 'code') {
-      this.codeFailure.set(this.codeFailureLine(outcome.failure));
+      this.codeFailure.set(
+        sendFailureLine(
+          this.step,
+          outcome.failure,
+          this.service.retryAfter() ?? 0,
+        ),
+      );
       this.status.set('code-failed');
       return;
     }
@@ -317,23 +305,9 @@ export class SetPasswordPage implements OnInit {
     );
   }
 
-  /** Straight to where this role belongs — the account is signed in. */
+  /** The account is signed in: straight to its role's home. */
   protected async land(): Promise<void> {
     const user = this.service.user();
     await this.router.navigateByUrl(user ? landingFor(user.role) : '/');
-  }
-
-  private codeFailureLine(failure: CodeSendFailure): string {
-    switch (failure) {
-      case 'unreachable':
-        return this.step.unreachableAccount;
-      case 'unavailable':
-        return this.step.unavailable;
-      case 'limit':
-        return this.step.limit.replace(
-          '{time}',
-          formatWait(this.service.retryAfter() ?? 0),
-        );
-    }
   }
 }

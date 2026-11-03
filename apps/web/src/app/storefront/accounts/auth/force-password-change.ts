@@ -16,33 +16,17 @@ import { ChangePasswordForm } from './change-password-form';
 import { DialogTitle } from '@b2b-catalog-platform/ui/overlay/dialog-title';
 
 /**
- * Forces the change-password form on an account still using a password it was
- * handed rather than chose — in practice the bootstrap admin, whose password
- * came from the deploy pipeline's env and is therefore known to whoever can
- * read the deployment secrets.
- *
- * Lives in the app shell, not on a page, so it follows the account wherever it
- * navigates; it renders nothing for anyone who owes no change, so it costs
- * public pages nothing. The server never draws the dialog either — the block
- * is deferred — so it opens once the page has hydrated.
- *
- * A native <dialog> in modal mode: the focus trap, the inert background and the
- * top-layer stacking come from the platform. Esc is deliberately swallowed —
- * dismissing would just leave the account on the shared password. The way out,
- * for someone who cannot produce the current password, is to log out.
- *
- * It is a nudge, not a security boundary: the session is fully valid and the API
- * gates nothing on the flag. Someone determined can close the dialog from the
- * console — they would be locking *themselves* out of a prompt, which is not a
- * threat model worth serving.
+ * Forces a password change on an account still on one it was handed (the
+ * bootstrap admin's comes from the deployment secrets). In the shell, so it
+ * follows the account everywhere. Esc is swallowed; the way out is to log out.
+ * A nudge, not a boundary: the API gates nothing on the flag.
  */
 @Component({
   selector: 'app-force-password-change',
   imports: [DialogTitle, ChangePasswordForm, Button, DialogPanel],
   template: `
-    <!-- Deferred, not merely hidden: this component is mounted on every page,
-         and the form it holds carries the password schemas. A visitor who owes
-         no password change should never download them. -->
+    <!-- Deferred: mounted on every page, and the form's code is not every
+         visitor's to download. -->
     @defer (when open()) {
       @if (open()) {
         <dialog
@@ -96,28 +80,19 @@ export class ForcePasswordChange {
 
   private readonly dialog = viewChild<ElementRef<HTMLDialogElement>>('dialog');
 
-  /**
-   * Reads `user()`, which folds "session not resolved yet" into "signed out" —
-   * so the dialog cannot flash on a page load before /auth/me has answered.
-   */
+  /** `user()` is null until the session resolves, so nothing flashes. */
   private readonly mustChange = computed(
     () => this.auth.user()?.mustChangePassword ?? false,
   );
 
-  /**
-   * Set on success, cleared by the acknowledgement. Without it the dialog would
-   * disappear the instant the flag clears (it clears from the very response that
-   * confirms the change), leaving no trace that anything happened.
-   */
+  /** Holds the dialog open for the success: the flag clears with it. */
   protected readonly changed = signal(false);
 
   protected readonly open = computed(() => this.mustChange() || this.changed());
 
   constructor() {
-    // showModal() has to be called imperatively — the `open` attribute alone
-    // renders a non-modal dialog, without the focus trap or the backdrop.
-    // Closing needs no counterpart: `open()` going false removes the element,
-    // and a removed dialog is closed by definition.
+    // The `open` attribute alone is non-modal: no focus trap, no backdrop.
+    // Closing needs nothing: `open()` going false removes the element.
     effect(() => {
       const element = this.dialog()?.nativeElement;
       if (element && !element.open) {

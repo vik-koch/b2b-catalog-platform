@@ -1,12 +1,8 @@
 import { Component } from '@angular/core';
 import { Card } from '@b2b-catalog-platform/ui/content/card';
 
-/**
- * The card every signed-out screen sits in: login, register, and the two
- * password-reset steps. Pairs with the shell's grey ground on those routes
- * (`layout: 'centered'` in storefront.routes.ts), so the centred width lives
- * here rather than in the lib or in each page.
- */
+/** The card the signed-out screens sit in, on the `centered` layout's
+ * ground; the centred width belongs to that layout, so it lives here. */
 @Component({
   selector: 'app-auth-card',
   imports: [Card],

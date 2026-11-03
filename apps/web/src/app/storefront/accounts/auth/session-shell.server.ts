@@ -1,20 +1,11 @@
 import { SESSION_HINT_COOKIE } from '@b2b-catalog-platform/shared/platform';
 
 /**
- * The inline script that tells the first paint whether anyone is signed in.
- *
- * A client-rendered route's shell carries no account control at all, and
- * drawing it from Angular is always the *second* picture the visitor sees. A
- * server-rendered page already draws the right one — the render asks the API
- * as the visitor — and there the script simply agrees with it. The session
- * cookie is httpOnly and unreadable to it, but
- * its companion hint is not — so a synchronous script in `<head>` can put the
- * answer on `<html>` before anything is drawn, and the stylesheet draws the
- * right label from there (see `.session-*` in styles.css).
- *
- * The class is a starting position, not the truth: `AuthService` takes it off
- * as soon as `/auth/me` has answered, which is what stops a hint left over
- * from a session revoked elsewhere from freezing the wrong label on screen.
+ * An inline script that marks `<html>` signed in or not before the first
+ * paint, from the readable hint cookie (the session cookie is httpOnly), so
+ * the account control is right in the first picture (`.session-*` in
+ * styles.css). A starting position only: AuthService removes the class once
+ * `/auth/me` answers, so a stale hint cannot freeze the wrong label.
  */
 export function sessionShellSource(): string {
   return `(function(){try{
@@ -27,10 +18,7 @@ document.documentElement.classList.add(known?'session-known':'session-anonymous'
 
 let cachedScript: string | undefined;
 
-/** Injects it immediately before `</head>`, into server-rendered pages and the
- * client-rendered shell alike: the shell needs it, and a rendered page whose
- * session was revoked since the hint was written is drawn signed out, which
- * the hint then overrides until `/auth/me` answers — same as the shell. */
+/** Before `</head>`, on rendered pages and the client shell alike. */
 export function injectSessionShell(html: string): string {
   cachedScript ??= `<script>${sessionShellSource()}</script>`;
   return html.replace('</head>', `${cachedScript}</head>`);
