@@ -13,7 +13,7 @@ import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { partialPriceRule } from '../../core/catalog/pricing/price';
-import { HighlightedLine } from '@b2b-catalog-platform/ui/suggest/highlighted-line';
+import { Suggestion } from '@b2b-catalog-platform/ui/suggest/suggestion';
 import { MatchSegmentsPipe } from '../../core/catalog/search/match-segments.pipe';
 import { AlternateLayout } from '../../shared/core/alternate-layout';
 import { SuggestList } from '@b2b-catalog-platform/ui/suggest/suggest-list';
@@ -87,7 +87,7 @@ export interface AdjustLineRow {
   imports: [
     Icon,
     FieldLabel,
-    HighlightedLine,
+    Suggestion,
     MatchSegmentsPipe,
     IconButton,
     Input,
@@ -260,16 +260,13 @@ export interface AdjustLineRow {
           (input)="query.set($any($event.target).value)"
         />
         <ng-template uiSuggestRow [of]="list" let-item let-query="query">
-          <span class="block truncate">
-            <ui-highlighted-line
-              [segments]="item.name | matchSegments: query : alternateQuery()"
-            />
-          </span>
-          @if (item.publishedAt === null) {
-            <span class="block text-xs text-ink-subtle">
+          <ui-suggestion
+            [segments]="item.name | matchSegments: query : alternateQuery()"
+          >
+            @if (item.publishedAt === null) {
               {{ products.unpublished }}
-            </span>
-          }
+            }
+          </ui-suggestion>
         </ng-template>
       </ui-suggest-field>
     </div>

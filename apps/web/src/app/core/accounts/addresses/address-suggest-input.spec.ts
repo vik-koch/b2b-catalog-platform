@@ -125,9 +125,9 @@ describe('AddressSuggestInput (FR-CART-11)', () => {
 
     await type('Hafenstra');
 
-    expect(el.querySelector('[role="option"] > span')?.textContent).toBe(
-      'Hafenstraße 12, 20359 Hamburg',
-    );
+    expect(
+      el.querySelector('[role="option"] ui-suggestion > span')?.textContent,
+    ).toBe('Hafenstraße 12, 20359 Hamburg');
   });
 
   // Two streets of the same name in two towns are one row repeated otherwise.
@@ -155,7 +155,10 @@ describe('AddressSuggestInput (FR-CART-11)', () => {
 
     await type('Hafenstra');
 
-    expect(el.querySelectorAll('[role="option"] > span')).toHaveLength(1);
+    const caption = el.querySelectorAll(
+      '[role="option"] ui-suggestion > span',
+    )[1];
+    expect(caption?.matches(':empty')).toBe(true);
   });
 
   it('emits the picked row’s components, not its label', async () => {

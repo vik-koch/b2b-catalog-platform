@@ -2,6 +2,7 @@ import { Component, inject, input, output } from '@angular/core';
 import { FormField, type FieldTree } from '@angular/forms/signals';
 import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
 import { HighlightedLine } from '@b2b-catalog-platform/ui/suggest/highlighted-line';
+import { Suggestion } from '@b2b-catalog-platform/ui/suggest/suggestion';
 import { MatchSegmentsPipe } from '../../catalog/search/match-segments.pipe';
 import { SuggestList } from '@b2b-catalog-platform/ui/suggest/suggest-list';
 import { FieldBinding } from '@b2b-catalog-platform/ui/fields/field-binding';
@@ -35,6 +36,7 @@ import {
     FieldBinding,
     Input,
     HighlightedLine,
+    Suggestion,
     MatchSegmentsPipe,
     SuggestField,
     SuggestInput,
@@ -58,16 +60,13 @@ import {
         class="w-full"
       />
       <ng-template uiSuggestRow [of]="list" let-item let-query="query">
-        <span class="block truncate font-medium text-ink">
-          <ui-highlighted-line [segments]="item.name | matchSegments: query" />
-        </span>
-        <!-- Marked too, because the number is a query in its own right: a
-             customer who typed one is looking for it in the row. -->
-        @if (secondLine(item); as second) {
-          <span class="block truncate text-ink-subtle">
+        <ui-suggestion [segments]="item.name | matchSegments: query">
+          <!-- Marked too, because the number is a query in its own right: a
+               customer who typed one is looking for it in the row. -->
+          @if (secondLine(item); as second) {
             <ui-highlighted-line [segments]="second | matchSegments: query" />
-          </span>
-        }
+          }
+        </ui-suggestion>
       </ng-template>
     </ui-suggest-field>
   `,

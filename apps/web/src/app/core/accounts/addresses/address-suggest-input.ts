@@ -1,7 +1,7 @@
 import { Component, inject, input, output } from '@angular/core';
 import { FormField, type FieldTree } from '@angular/forms/signals';
 import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
-import { HighlightedLine } from '@b2b-catalog-platform/ui/suggest/highlighted-line';
+import { Suggestion } from '@b2b-catalog-platform/ui/suggest/suggestion';
 import { MatchSegmentsPipe } from '../../catalog/search/match-segments.pipe';
 import { SuggestList } from '@b2b-catalog-platform/ui/suggest/suggest-list';
 import { FieldBinding } from '@b2b-catalog-platform/ui/fields/field-binding';
@@ -33,7 +33,7 @@ import {
     FormField,
     FieldBinding,
     Input,
-    HighlightedLine,
+    Suggestion,
     MatchSegmentsPipe,
     SuggestField,
     SuggestInput,
@@ -55,17 +55,14 @@ import {
         class="w-full"
       />
       <ng-template uiSuggestRow [of]="list" let-item let-query="query">
-        <span class="block truncate text-ink">
-          <ui-highlighted-line [segments]="item.label | matchSegments: query" />
-        </span>
-        <!-- The province under the line, where the provider named one: it is
-             the part the line itself leaves out, and two streets of the same
-             name in two towns are otherwise one row repeated. -->
-        @if (item.components.region; as region) {
-          <span class="block truncate text-xs text-ink-subtle">{{
-            region
-          }}</span>
-        }
+        <!-- The province, where the provider named one: the line leaves it
+             out, and two streets of one name in two towns are otherwise one
+             row repeated. -->
+        <ui-suggestion [segments]="item.label | matchSegments: query">
+          @if (item.components.region; as region) {
+            {{ region }}
+          }
+        </ui-suggestion>
       </ng-template>
     </ui-suggest-field>
   `,

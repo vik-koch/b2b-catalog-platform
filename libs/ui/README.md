@@ -57,7 +57,7 @@ by module, so a barrel would carry everything behind it into the first load.
 | `inputs/` | What holds a typed value: `uiInput`, `SelectInput`, `DateInput`, `UnitInput` with `uiUnitInputControl`, `CodeInput`, `PhoneInput`, `uiInputPrefix`; and what shapes a control: `uiAllow` with `numericRules`, `uiDigitMask`, `uiAutoGrow`, `uiFileTarget`, `uiDropZone` |
 | `lists/` | Short lists and paging: `RecordRow`, `uiRecordFields`, `uiRecordFormActions`, `Pagination` |
 | `overlay/` | What opens over the page: `ConfirmService` with `ConfirmDialog`, `uiDialogPanel`, `uiDialogTitle`, `uiDialogActions`, `Popover` |
-| `suggest/` | The type-ahead combobox: `SuggestField` with `uiSuggestInput` and `uiSuggestRow`, the `SuggestList` state behind it, `HighlightedLine` for a matched row |
+| `suggest/` | The type-ahead combobox: `SuggestField` with `uiSuggestInput` and `uiSuggestRow`, the `SuggestList` state behind it, `Suggestion` for a row (its matched line through `HighlightedLine`, and a caption) |
 | `ui.css` | Tailwind, the breakpoints, the type weight, the colour roles and the pieces' own animations; the app's stylesheet imports it |
 
 ## Checking
