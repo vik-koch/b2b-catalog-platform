@@ -12,7 +12,8 @@
  * merge that may not hold in that deployment's language. `new` marks wording
  * that did not exist before; `copy` takes a value without moving it, where the
  * old key stays as it is. `moves` carries a whole block to a new place, with
- * whatever is left in it once those keys have gone — into another file too.
+ * whatever is left in it once those keys have gone — into another file too —
+ * or a single value or list.
  * `files` names the files the deployment had at the release the map starts
  * from, and where each now lives; keys name them by those names, targets by
  * the release's. A file the map does not move keeps its name.
@@ -176,10 +177,13 @@ function migrate(original) {
   }
   for (const key of map.drop) remove(files, key);
   for (const [from, to] of Object.entries(map.moves ?? {})) {
-    const block = get(files, from);
-    if (block === undefined) continue;
+    const value = get(files, from);
+    if (value === undefined) continue;
     remove(files, from);
-    merge(files, to, block);
+    // A block merges into what is already there; a list or a value moves whole.
+    if (value && typeof value === 'object' && !Array.isArray(value)) {
+      merge(files, to, value);
+    } else set(files, to, value);
   }
   for (const [from, to] of Object.entries(RENAMES)) {
     if (from === to || files[from] === undefined) continue;

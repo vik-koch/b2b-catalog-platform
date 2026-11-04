@@ -18,7 +18,7 @@ import {
   demoSharedText,
   demoMailText,
 } from '../platform/mail/mail-text.fixture';
-import { type MailText, mailTextPart } from '../platform/mail/mail-text';
+import { type MailText, mailTextBlock } from '../platform/mail/mail-text';
 import type { SiteMailText } from '../storefront/site/site-mail-text';
 import { demoAdminOrder } from '../core/ordering/order.fixture';
 import { accountDeletedMail } from '../core/accounts/mail/account-deleted.template';
@@ -43,6 +43,7 @@ import {
   syncRecoveredMail,
   syncWaitingMail,
 } from '../core/exchange/sync-run.template';
+import { SITE_AREA } from '@b2b-catalog-platform/shared/core/site';
 
 /**
  * Every message the app can send, rendered from demo wording — the readable
@@ -306,7 +307,7 @@ export function buildMailPreviews(
           preferredContact: 'email',
           message: 'Do you deliver to Altona?',
         },
-        mailTextPart<SiteMailText>(text),
+        mailTextBlock<SiteMailText>(text, SITE_AREA),
         common,
       ),
     },

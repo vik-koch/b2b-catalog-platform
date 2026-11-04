@@ -15,23 +15,6 @@
       "accent": "#b45309"
     }
   },
-  "pages": {
-    "published": [
-      "about",
-      "contact",
-      "conditions",
-      "terms",
-      "privacy",
-      "imprint",
-      "withdrawal"
-    ],
-    "headerNav": ["about", "contact", "conditions"],
-    "footerNav": ["terms", "privacy", "imprint", "withdrawal", "licenses"]
-  },
-  "consent": {
-    "contact": false,
-    "account": false
-  },
   "seller": {
     "name": "Coffee Kontor GmbH",
     "registration": ["HRB 000000 Hamburg", "USt-IdNr. DE000000000"]
@@ -41,7 +24,6 @@
     "rate": 19,
     "statedAtPrices": true
   },
-  "cookieConsentEnabled": true,
   "billingAddressEnabled": true,
   "catalog": {
     "currency": {
@@ -58,17 +40,6 @@
   "search": {
     "alternateLayout": "de"
   },
-  "locations": [
-    {
-      "name": "Büro Speicherstadt",
-      "description": "Am Sandtorkai 30, 20457 Hamburg",
-      "map": {
-        "url": "https://www.openstreetmap.org/export/embed.html?bbox=9.9820%2C53.5400%2C9.9950%2C53.5460&layer=mapnik&marker=53.5430%2C9.9880",
-        "consentRequired": true
-      }
-    }
-  ],
-  "mapProvider": "OpenStreetMap",
   "pickup": {
     "locations": [
       {
@@ -91,18 +62,6 @@
     "phone": "+49 40 1234567",
     "email": "hallo@coffee-kontor.example"
   },
-  "elsewhere": [
-    {
-      "label": "Bohnenpost",
-      "url": "https://bohnenpost.example/coffee-kontor",
-      "icon": "bohnenpost.svg"
-    },
-    {
-      "label": "Marktplatz",
-      "url": "https://marktplatz.example/shops/coffee-kontor",
-      "icon": "marktplatz.svg"
-    }
-  ],
   "notice": {
     "text": "Coffee Kontor ist ein Demo-Shop.",
     "link": {
@@ -183,5 +142,48 @@
       }
     ]
   },
-  "customerTypes": ["person", "company"]
+  "customerTypes": ["person", "company"],
+  "site": {
+    "pages": {
+      "published": [
+        "about",
+        "contact",
+        "conditions",
+        "terms",
+        "privacy",
+        "imprint",
+        "withdrawal"
+      ],
+      "headerNav": ["about", "contact", "conditions"],
+      "footerNav": ["terms", "privacy", "imprint", "withdrawal", "licenses"]
+    },
+    "consent": {
+      "contact": false,
+      "account": false
+    },
+    "cookieConsentEnabled": true,
+    "locations": [
+      {
+        "name": "Büro Speicherstadt",
+        "description": "Am Sandtorkai 30, 20457 Hamburg",
+        "map": {
+          "url": "https://www.openstreetmap.org/export/embed.html?bbox=9.9820%2C53.5400%2C9.9950%2C53.5460&layer=mapnik&marker=53.5430%2C9.9880",
+          "consentRequired": true
+        }
+      }
+    ],
+    "mapProvider": "OpenStreetMap",
+    "elsewhere": [
+      {
+        "label": "Bohnenpost",
+        "url": "https://bohnenpost.example/coffee-kontor",
+        "icon": "bohnenpost.svg"
+      },
+      {
+        "label": "Marktplatz",
+        "url": "https://marktplatz.example/shops/coffee-kontor",
+        "icon": "marktplatz.svg"
+      }
+    ]
+  }
 }

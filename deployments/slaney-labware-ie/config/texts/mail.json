@@ -13,13 +13,6 @@
       "card": "Card, arranged with the customer"
     }
   },
-  "inquiry": {
-    "subject": "Inquiry",
-    "preheader": "A visitor sent an inquiry through the contact form.",
-    "heading": "New inquiry",
-    "preferredContact": "Preferred contact",
-    "message": "Message"
-  },
   "registrationReceived": {
     "subject": "We received your registration",
     "preheader": "Your registration is with our team.",
@@ -248,6 +241,15 @@
           "body": "The connection to your system is answering orders again. Anything it worked out while it was disconnected arrives with the next update: an order carries the state it is now in rather than a list of steps."
         }
       }
+    }
+  },
+  "site": {
+    "inquiry": {
+      "subject": "Inquiry",
+      "preheader": "A visitor sent an inquiry through the contact form.",
+      "heading": "New inquiry",
+      "preferredContact": "Preferred contact",
+      "message": "Message"
     }
   }
 }

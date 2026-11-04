@@ -9,6 +9,7 @@ import { MapEmbed } from '@b2b-catalog-platform/shared/core/site';
 import { defaultDeploymentConfig } from '../../../platform/config/deployment-config.fixture';
 import { MapFrame } from './map-frame';
 import { defaultStorefrontSiteText } from '../site-text.fixture';
+import { withSite } from '../../../core/site/site-config.fixture';
 
 interface ConsentState {
   readonly enabled?: boolean;
@@ -29,10 +30,9 @@ async function render(map: MapEmbed, consent: ConsentState = {}) {
   }
   // The consent gate only applies where the deployment enforces consent, which
   // is what each case sets via `consent.enabled`.
-  const config: DeploymentConfig = {
-    ...defaultDeploymentConfig,
+  const config: DeploymentConfig = withSite({
     cookieConsentEnabled: consent.enabled ?? false,
-  };
+  });
   TestBed.configureTestingModule({
     imports: [MapFrame],
     providers: [
@@ -67,7 +67,7 @@ describe('MapFrame', () => {
     );
 
     expect(el.querySelector('iframe')).toBeNull();
-    expect(el.textContent).toContain(defaultDeploymentConfig.mapProvider);
+    expect(el.textContent).toContain(defaultDeploymentConfig.site.mapProvider);
     expect(el.textContent).not.toContain('{provider}');
   });
 

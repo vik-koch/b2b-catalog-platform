@@ -10,6 +10,7 @@ import { defaultDeploymentConfig } from '../../../platform/config/deployment-con
 import { EditModeService } from '../../../platform/edit-mode/edit-mode.service';
 import { ContactPage } from './contact-page';
 import { PageService } from '../../../core/site/page.service';
+import { withSite } from '../../../core/site/site-config.fixture';
 
 /** The page's prose is a Page body now; the locations around it stay config. */
 const contactBody = {
@@ -19,7 +20,7 @@ const contactBody = {
 };
 
 function config(locations: readonly ContactLocation[]): DeploymentConfig {
-  return { ...defaultDeploymentConfig, locations };
+  return withSite({ locations });
 }
 
 async function render(

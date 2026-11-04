@@ -9,18 +9,6 @@
       "nextAria": "Weitere Produkte"
     }
   },
-  "map": {
-    "consentNotice": "Diese Karte wird von {provider} geladen, der dabei Ihre IP-Adresse erhält. Sie bleibt ausgeblendet, bis Sie es erlauben.",
-    "load": "Karte anzeigen"
-  },
-  "consent": {
-    "message": "Diese Website setzt nur die Cookies, die sie zum Funktionieren braucht. Die Karte auf unserer Kontaktseite wird von {provider} geladen, der dabei Ihre IP-Adresse erhält – deshalb fragen wir vorher. Mehr dazu in unserer",
-    "policyLink": "Datenschutzerklärung",
-    "policyLinkAfter": ".",
-    "accept": "Akzeptieren",
-    "reject": "Ablehnen",
-    "settings": "Cookie-Einstellungen"
-  },
   "footer": {
     "copyright": "© {name} {years}"
   },
@@ -523,24 +511,6 @@
       "done": "Ihr Konto ist geschlossen, und Ihre persönlichen Angaben wurden entfernt. Eine Bestätigung haben wir an Ihre E-Mail-Adresse geschickt."
     }
   },
-  "pageUpdated": {
-    "label": "Zuletzt aktualisiert am {date}"
-  },
-  "privacyNotice": {
-    "text": "Mehr darüber, wie wir mit Ihren Angaben umgehen, lesen Sie in",
-    "link": "unserer Datenschutzerklärung",
-    "after": "."
-  },
-  "termsNotice": {
-    "text": "Mit Ihrer Bestellung akzeptieren Sie",
-    "link": "unsere AGB",
-    "after": "."
-  },
-  "consentBox": {
-    "required": "Bitte setzen Sie das Häkchen, um fortzufahren.",
-    "changed": "Der Einwilligungstext wurde gerade aktualisiert. Bitte lesen Sie ihn und setzen Sie das Häkchen erneut.",
-    "unavailable": "Dieses Formular lässt sich gerade nicht senden. Bitte versuchen Sie es später noch einmal oder erreichen Sie uns auf anderem Weg."
-  },
   "companySuggest": {
     "suggestionsAria": "Firmenvorschläge",
     "noSuggestions": "Keine passenden Firmen. Tippen Sie sie einfach selbst ein.",
@@ -569,16 +539,6 @@
     "person": "Privatperson",
     "company": "Unternehmen"
   },
-  "inquiry": {
-    "intro": "Schreiben Sie uns eine Nachricht, und wir melden uns auf dem Weg, den Sie bevorzugen.",
-    "preferredContact": "Wie sollen wir Sie erreichen?",
-    "preferredEmail": "Per E-Mail",
-    "preferredPhone": "Per Telefon",
-    "message": "Nachricht",
-    "submit": "Nachricht senden",
-    "success": "Danke – Ihre Nachricht ist bei uns, wir melden uns bald.",
-    "error": "Beim Senden Ihrer Nachricht ist etwas schiefgegangen. Bitte versuchen Sie es noch einmal."
-  },
   "conditions": {
     "paymentHeading": "Zahlung",
     "cashDescription": "Bezahlt wird bei Übergabe der Bestellung – an Ihrer Tür oder an unserem Tresen.",
@@ -604,11 +564,6 @@
       "added": "Alle Preise netto, zzgl. MwSt. und Lieferung."
     }
   },
-  "licenses": {
-    "intro": "Diese Website ist mit Open-Source-Software gebaut. Die Pakete unten sind Teil des Codes, den Ihr Browser herunterlädt, und werden unter den angegebenen Lizenzen verwendet.",
-    "unavailable": "Die Lizenzliste wird nur für Produktions-Builds erzeugt und ist hier nicht verfügbar.",
-    "unknownLicense": "Lizenz nicht angegeben"
-  },
   "errors": {
     "notFoundTitle": "Seite nicht gefunden",
     "notFoundBody": "Die gesuchte Seite gibt es nicht.",
@@ -616,8 +571,55 @@
     "cannotLoadTitle": "Seite kann nicht geladen werden",
     "cannotLoadBody": "Beim Laden dieser Seite ist etwas schiefgegangen – bitte versuchen Sie es später noch einmal."
   },
-  "maintenance": {
-    "title": "Wir sind gleich wieder da",
-    "body": "Unser Shop wird gerade eingerichtet und ist noch nicht verfügbar. Bitte schauen Sie bald wieder vorbei."
+  "site": {
+    "map": {
+      "consentNotice": "Diese Karte wird von {provider} geladen, der dabei Ihre IP-Adresse erhält. Sie bleibt ausgeblendet, bis Sie es erlauben.",
+      "load": "Karte anzeigen"
+    },
+    "consent": {
+      "message": "Diese Website setzt nur die Cookies, die sie zum Funktionieren braucht. Die Karte auf unserer Kontaktseite wird von {provider} geladen, der dabei Ihre IP-Adresse erhält – deshalb fragen wir vorher. Mehr dazu in unserer",
+      "policyLink": "Datenschutzerklärung",
+      "policyLinkAfter": ".",
+      "accept": "Akzeptieren",
+      "reject": "Ablehnen",
+      "settings": "Cookie-Einstellungen"
+    },
+    "pageUpdated": {
+      "label": "Zuletzt aktualisiert am {date}"
+    },
+    "privacyNotice": {
+      "text": "Mehr darüber, wie wir mit Ihren Angaben umgehen, lesen Sie in",
+      "link": "unserer Datenschutzerklärung",
+      "after": "."
+    },
+    "termsNotice": {
+      "text": "Mit Ihrer Bestellung akzeptieren Sie",
+      "link": "unsere AGB",
+      "after": "."
+    },
+    "consentBox": {
+      "required": "Bitte setzen Sie das Häkchen, um fortzufahren.",
+      "changed": "Der Einwilligungstext wurde gerade aktualisiert. Bitte lesen Sie ihn und setzen Sie das Häkchen erneut.",
+      "unavailable": "Dieses Formular lässt sich gerade nicht senden. Bitte versuchen Sie es später noch einmal oder erreichen Sie uns auf anderem Weg."
+    },
+    "inquiry": {
+      "intro": "Schreiben Sie uns eine Nachricht, und wir melden uns auf dem Weg, den Sie bevorzugen.",
+      "preferredContact": "Wie sollen wir Sie erreichen?",
+      "preferredEmail": "Per E-Mail",
+      "preferredPhone": "Per Telefon",
+      "message": "Nachricht",
+      "submit": "Nachricht senden",
+      "success": "Danke – Ihre Nachricht ist bei uns, wir melden uns bald.",
+      "error": "Beim Senden Ihrer Nachricht ist etwas schiefgegangen. Bitte versuchen Sie es noch einmal."
+    },
+    "licenses": {
+      "intro": "Diese Website ist mit Open-Source-Software gebaut. Die Pakete unten sind Teil des Codes, den Ihr Browser herunterlädt, und werden unter den angegebenen Lizenzen verwendet.",
+      "unavailable": "Die Lizenzliste wird nur für Produktions-Builds erzeugt und ist hier nicht verfügbar.",
+      "unknownLicense": "Lizenz nicht angegeben"
+    },
+    "maintenance": {
+      "title": "Wir sind gleich wieder da",
+      "body": "Unser Shop wird gerade eingerichtet und ist noch nicht verfügbar. Bitte schauen Sie bald wieder vorbei."
+    }
   }
 }

@@ -8,7 +8,7 @@ import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import { defaultDeploymentConfig } from '../../../platform/config/deployment-config.fixture';
 import { PageEditingService } from './page-editing.service';
 import { PageHistory } from './page-history';
-import { defaultAdminSiteText } from '../../../core/site/admin-site-text.fixture';
+import { defaultAdminSiteText } from '../site-text.fixture';
 
 const text = defaultAdminSiteText.pages.history;
 

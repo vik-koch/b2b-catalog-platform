@@ -1,7 +1,7 @@
 import type { DeepReadonly } from '@b2b-catalog-platform/shared/platform';
 import * as z from 'zod';
 
-/** The site's keys of `texts/admin.json`. */
+/** The site's block of `texts/admin.json`. */
 export const adminSiteTextShape = {
   /** Inline static-page editing (FR-ADM-03). */
   pages: z

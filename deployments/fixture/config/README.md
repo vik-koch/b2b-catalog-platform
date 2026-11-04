@@ -92,6 +92,10 @@ demo list is deliberately short; replace it, do not extend it in this repo.
 > only the API needs either. Keeping the files separate keeps that line visible
 > (ADR 0018).
 
+What belongs to one area of the shop sits in a block named after it, such as
+`site` for the pages, consent and the contact page; what the whole shop shares
+stays at the top of the file.
+
 Each file must be **complete** (no partial overrides), and an unknown key stops
 the boot as surely as a missing one. The authoritative shape of each is its Zod
 schema, put together from the parts each area of the code owns:
@@ -107,9 +111,10 @@ Most of these files are wording any shop of the kind would use. These are the
 parts that are about one shop, and a new deployment rewrites all of them:
 
 - `deployment.json`: `branding` (the name, the tagline, the logo's size, the
-  colours, the first year of the copyright), `seller`, `contact`, `locations`
-  and `mapProvider`, `pickup`, `delivery`, `elsewhere`.
-- `texts/storefront.json`: `home`, `map`, `consent` and `footer`, first in the file.
+  colours, the first year of the copyright), `seller`, `contact`, `pickup`,
+  `delivery`, and `site.locations`, `site.mapProvider` and `site.elsewhere`.
+- `texts/storefront.json`: `home` and `footer`, first in the file, and
+  `site.map` and `site.consent`.
 - `assets/`: the logo and the favicon (below).
 - The static pages — about, conditions, terms, privacy, imprint, withdrawal and
   the contact page's text — are written in the admin, not here. The privacy
@@ -118,7 +123,7 @@ parts that are about one shop, and a new deployment rewrites all of them:
 
 `branding.tagline` says what the shop is in a line. It is the landing page's
 heading, and with the name the title of every page that has none of its own:
-`Coffee Kontor — Wholesale specialty coffee`. `mapProvider` is who serves the
+`Coffee Kontor — Wholesale specialty coffee`. `site.mapProvider` is who serves the
 map embeds; the map notice and the cookie banner name it as `{provider}`.
 
 ### Colours
@@ -231,9 +236,11 @@ Where a jurisdiction wants consent asked as a statement of its own, the shop
 offers two purposes, each switched on its own:
 
 ```json
-"consent": {
-  "contact": false,
-  "account": false
+"site": {
+  "consent": {
+    "contact": false,
+    "account": false
+  }
 }
 ```
 
@@ -246,7 +253,7 @@ Both keys are required. Switch a purpose on only where the processing rests on
 consent. Leave it off where it rests on the contract or the shop's legitimate
 interest, which is the usual case in the EU: the form then shows no box. The
 demo leaves both off. A consent text is not a published page, so neither
-`consent-contact` nor `consent-account` belongs in `pages.published`, and the
+`consent-contact` nor `consent-account` belongs in `site.pages.published`, and the
 config is refused if one is listed there.
 
 The text and the wording beside the box are written in the admin page editor,
@@ -258,13 +265,13 @@ purpose switched on whose text was never written refuses its form rather than
 sending it without the consent. So write the text before switching it on.
 
 Whether or not a box is asked, the contact form, registration and checkout
-carry a line pointing at the privacy page, worded by `privacyNotice` in
+carry a line pointing at the privacy page, worded by `site.privacyNotice` in
 `texts/storefront.json`. It shows only where `privacy` is published.
 
 ### Terms of sale
 
 Publishing `terms` gives the shop a page of terms that every order accepts.
-Checkout says so beside the submit button, worded by `termsNotice` in
+Checkout says so beside the submit button, worded by `site.termsNotice` in
 `texts/storefront.json`. Each order records the version of the terms current when it
 was sent. Staff see that version on the order, and the customer's receipt and
 the order summary name its date. A deployment that does not publish `terms`
@@ -475,8 +482,8 @@ one of another shape and these two go with it.
 The **places the shop also exists** (FR-NAV-07) bring one icon each, beside the
 logo and on the same terms — a single-colour mark, painted as a mask so the row
 takes the site's own colours rather than reading as a strip of stickers. Each
-entry in `deployment.json` names the file, where it goes and the words that
-stand in for the mark:
+entry of `site.elsewhere` in `deployment.json` names the file, where it goes
+and the words that stand in for the mark:
 
 ```json
 "elsewhere": [

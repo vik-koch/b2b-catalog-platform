@@ -6,7 +6,6 @@ import { provideRouter, Router } from '@angular/router';
 import { Page } from '@b2b-catalog-platform/shared/core/site';
 import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
-import { defaultDeploymentConfig } from '../../../platform/config/deployment-config.fixture';
 import { defaultStorefrontText } from '../../../platform/config/storefront-text.fixture';
 import { PageService } from '../../../core/site/page.service';
 import { AuthService } from '../../../platform/auth/auth.service';
@@ -15,6 +14,7 @@ import { adminUser } from '../../../platform/auth/auth-user.fixture';
 import { SetPasswordPage } from './set-password-page';
 import { AuthUser } from '@b2b-catalog-platform/shared/platform';
 import { defaultStorefrontSiteText } from '../../site/site-text.fixture';
+import { withSite } from '../../../core/site/site-config.fixture';
 
 const text = defaultStorefrontText.auth.setPassword;
 const rejected = defaultStorefrontText.auth.passwordRejected;
@@ -71,10 +71,7 @@ async function render(
       // The demo asks for no consent; these specs drive the form that does.
       {
         provide: DEPLOYMENT_CONFIG,
-        useValue: {
-          ...defaultDeploymentConfig,
-          consent: { contact: true, account: true },
-        },
+        useValue: withSite({ consent: { contact: true, account: true } }),
       },
       { provide: AuthService, useValue: { user } },
       { provide: SignInService, useValue: { checkPasswordToken, setPassword } },

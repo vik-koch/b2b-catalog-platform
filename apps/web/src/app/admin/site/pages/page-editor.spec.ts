@@ -11,7 +11,7 @@ import { defaultStorefrontText } from '../../../platform/config/storefront-text.
 import { defaultAdminText } from '../../../platform/config/admin-text.fixture';
 import { PageEditor } from './page-editor';
 import { PageEditingService } from './page-editing.service';
-import { defaultAdminSiteText } from '../../../core/site/admin-site-text.fixture';
+import { defaultAdminSiteText } from '../site-text.fixture';
 
 const text = defaultAdminSiteText.pages;
 

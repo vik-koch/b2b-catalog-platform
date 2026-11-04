@@ -10,7 +10,7 @@ import { PageService } from '../../../core/site/page.service';
 import { UnsavedChangesAware } from '../../platform/unsaved-changes.guard';
 import { injectEditorReturn } from '../../../platform/edit-mode/editor-return';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
-import { ADMIN_SITE_TEXT } from '../../../core/site/admin-site-text';
+import { ADMIN_SITE_TEXT } from '../site-text';
 
 /**
  * Returns to whichever opened it, the panel or the storefront's pencil. A page

@@ -2,16 +2,8 @@ import { InjectionToken, Provider } from '@angular/core';
 import { DeploymentConfig } from '@b2b-catalog-platform/shared/platform';
 import { readShellState } from './shell-state';
 
-/** What an area reads through a token of its own is left out here. */
-type UnclaimedDeploymentConfig = Omit<
-  DeploymentConfig,
-  | 'pages'
-  | 'consent'
-  | 'cookieConsentEnabled'
-  | 'locations'
-  | 'mapProvider'
-  | 'elsewhere'
->;
+/** An area's block is read through the area's own token. */
+type UnclaimedDeploymentConfig = Omit<DeploymentConfig, 'site'>;
 
 export const DEPLOYMENT_CONFIG = new InjectionToken<UnclaimedDeploymentConfig>(
   'DEPLOYMENT_CONFIG',
@@ -25,8 +17,11 @@ export function provideDeploymentConfig(): Provider {
   };
 }
 
-/** An area's part of the deployment config. Typed apart, but the server
- * checks the file whole against every area's shape, so the part is there. */
-export function deploymentConfigPart<T>(config: UnclaimedDeploymentConfig): T {
-  return config as unknown as T;
+/** An area's block of the deployment config. Typed apart, but the server
+ * checks the file whole against every area's shape, so the block is there. */
+export function deploymentConfigBlock<T>(
+  config: UnclaimedDeploymentConfig,
+  area: string,
+): T {
+  return (config as unknown as Record<string, T>)[area];
 }

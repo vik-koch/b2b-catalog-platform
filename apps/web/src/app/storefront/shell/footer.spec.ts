@@ -9,9 +9,10 @@ import { DeploymentConfig } from '@b2b-catalog-platform/shared/platform';
 import { defaultDeploymentConfig } from '../../platform/config/deployment-config.fixture';
 import { Footer } from './footer';
 import { defaultStorefrontSiteText } from '../site/site-text.fixture';
+import { withSite } from '../../core/site/site-config.fixture';
 
 function config(cookieConsentEnabled: boolean): DeploymentConfig {
-  return { ...defaultDeploymentConfig, cookieConsentEnabled };
+  return withSite({ cookieConsentEnabled });
 }
 
 async function render(enabled: boolean) {
@@ -82,7 +83,7 @@ describe('Footer', () => {
   // the icon file reaches CSS as a custom property on the span beside them.
   it('links the places the deployment also exists, in configured order', async () => {
     const el = await render(false);
-    const configured = defaultDeploymentConfig.elsewhere ?? [];
+    const configured = defaultDeploymentConfig.site.elsewhere ?? [];
     expect(configured.length).toBeGreaterThan(0);
 
     const links = Array.from(
@@ -104,19 +105,20 @@ describe('Footer', () => {
   });
 
   it("keeps each mark's room before its file arrives", async () => {
-    const el = await renderWith({
-      ...defaultDeploymentConfig,
-      elsewhere: [
-        { label: 'Square', url: 'https://a.example', icon: 'a.svg' },
-        {
-          label: 'Wide',
-          url: 'https://b.example',
-          icon: 'b.svg',
-          width: 96,
-          height: 24,
-        },
-      ],
-    });
+    const el = await renderWith(
+      withSite({
+        elsewhere: [
+          { label: 'Square', url: 'https://a.example', icon: 'a.svg' },
+          {
+            label: 'Wide',
+            url: 'https://b.example',
+            icon: 'b.svg',
+            width: 96,
+            height: 24,
+          },
+        ],
+      }),
+    );
     const marks = Array.from(
       el.querySelectorAll<HTMLElement>('.elsewhere-mark'),
     );
@@ -127,10 +129,7 @@ describe('Footer', () => {
   });
 
   it('shows nothing beside the enquiry button when nothing is configured', async () => {
-    const el = await renderWith({
-      ...defaultDeploymentConfig,
-      elsewhere: [],
-    });
+    const el = await renderWith(withSite({ elsewhere: [] }));
     expect(el.querySelector('.elsewhere-mark')).toBeNull();
   });
 
@@ -209,14 +208,17 @@ describe('Footer', () => {
   });
 
   it('omits the license notice link when the deployment drops it', async () => {
-    const { pages } = defaultDeploymentConfig;
-    const el = await renderWith({
-      ...defaultDeploymentConfig,
-      pages: {
-        ...pages,
-        footerNav: pages.footerNav.filter((segment) => segment !== 'licenses'),
-      },
-    });
+    const { pages } = defaultDeploymentConfig.site;
+    const el = await renderWith(
+      withSite({
+        pages: {
+          ...pages,
+          footerNav: pages.footerNav.filter(
+            (segment) => segment !== 'licenses',
+          ),
+        },
+      }),
+    );
 
     expect(el.textContent).not.toContain(defaultSharedText.nav['licenses']);
   });

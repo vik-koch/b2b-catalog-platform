@@ -124,6 +124,24 @@
   "moves": {
     "texts/admin.json:pages.toolbar": "texts/admin.json:richText.toolbar",
     "texts/admin.json:pages.linkPanel": "texts/admin.json:richText.linkPanel",
-    "texts/admin.json:pages.imagePanel": "texts/admin.json:richText.imagePanel"
+    "texts/admin.json:pages.imagePanel": "texts/admin.json:richText.imagePanel",
+    "texts/app.json:map": "texts/storefront.json:site.map",
+    "texts/app.json:consent": "texts/storefront.json:site.consent",
+    "texts/app.json:pageUpdated": "texts/storefront.json:site.pageUpdated",
+    "texts/app.json:privacyNotice": "texts/storefront.json:site.privacyNotice",
+    "texts/app.json:termsNotice": "texts/storefront.json:site.termsNotice",
+    "texts/app.json:consentBox": "texts/storefront.json:site.consentBox",
+    "texts/app.json:inquiry": "texts/storefront.json:site.inquiry",
+    "texts/app.json:licenses": "texts/storefront.json:site.licenses",
+    "texts/app.json:maintenance": "texts/storefront.json:site.maintenance",
+    "texts/admin.json:pages": "texts/admin.json:site.pages",
+    "texts/admin.json:maintenance": "texts/admin.json:site.maintenance",
+    "texts/mail.json:inquiry": "texts/mail.json:site.inquiry",
+    "deployment.json:pages": "deployment.json:site.pages",
+    "deployment.json:consent": "deployment.json:site.consent",
+    "deployment.json:cookieConsentEnabled": "deployment.json:site.cookieConsentEnabled",
+    "deployment.json:locations": "deployment.json:site.locations",
+    "deployment.json:mapProvider": "deployment.json:site.mapProvider",
+    "deployment.json:elsewhere": "deployment.json:site.elsewhere"
   }
 }

@@ -5,7 +5,7 @@ import { resetApiDeploymentConfig } from './deployment-config';
 
 /** The committed demo file: every key the strict schema requires, so a test
  * states only what it is about. An `undefined` drops a key. */
-const demo = JSON.parse(
+export const demoDeployment = JSON.parse(
   readFileSync('deployments/fixture/config/deployment.json', 'utf8'),
 );
 
@@ -14,7 +14,7 @@ export function withConfig(config: Record<string, unknown>): void {
   const dir = mkdtempSync(join(tmpdir(), 'deployment-'));
   writeFileSync(
     join(dir, 'deployment.json'),
-    JSON.stringify({ ...demo, ...config }),
+    JSON.stringify({ ...demoDeployment, ...config }),
   );
   process.env['CONFIG_PATH'] = dir;
   resetApiDeploymentConfig();

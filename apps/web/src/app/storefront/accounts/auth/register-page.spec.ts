@@ -14,6 +14,7 @@ import { RegisterPage } from './register-page';
 import { provideDigitMaskFormat } from '../../../platform/contact-fields';
 import { PartySuggestion } from '@b2b-catalog-platform/shared/core/accounts';
 import { defaultStorefrontSiteText } from '../../site/site-text.fixture';
+import { withSite } from '../../../core/site/site-config.fixture';
 
 const text = defaultStorefrontText.auth.register;
 
@@ -62,10 +63,7 @@ const consentPage: Page = {
 };
 
 /** The demo asks for no consent; these specs drive the form that does. */
-const askingConfig = {
-  ...defaultDeploymentConfig,
-  consent: { contact: true, account: true },
-};
+const askingConfig = withSite({ consent: { contact: true, account: true } });
 
 async function render(
   result: Awaited<ReturnType<SignInService['register']>> = 'ok',

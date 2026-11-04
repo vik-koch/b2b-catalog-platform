@@ -9,11 +9,12 @@ import { DeploymentConfig } from '@b2b-catalog-platform/shared/platform';
 import { defaultDeploymentConfig } from '../../../platform/config/deployment-config.fixture';
 import { CookieConsent } from './cookie-consent';
 import { defaultStorefrontSiteText } from '../site-text.fixture';
+import { withSite } from '../../../core/site/site-config.fixture';
 
 const BANNER = 'aside[aria-label="Cookie consent"]';
 
 function config(cookieConsentEnabled: boolean): DeploymentConfig {
-  return { ...defaultDeploymentConfig, cookieConsentEnabled };
+  return withSite({ cookieConsentEnabled });
 }
 
 async function render(enabled: boolean) {
@@ -42,7 +43,9 @@ describe('CookieConsent', () => {
     const banner = el.querySelector(BANNER);
 
     expect(banner).not.toBeNull();
-    expect(banner?.textContent).toContain(defaultDeploymentConfig.mapProvider);
+    expect(banner?.textContent).toContain(
+      defaultDeploymentConfig.site.mapProvider,
+    );
     expect(banner?.textContent).not.toContain('{provider}');
     expect(banner?.textContent).toContain(
       defaultStorefrontSiteText.consent.accept,

@@ -36,7 +36,7 @@ import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { Hint } from '@b2b-catalog-platform/ui/fields/hint';
 import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
 import { SwitchCard } from './switch-card';
-import { ADMIN_SITE_TEXT } from '../../core/site/admin-site-text';
+import { ADMIN_SITE_TEXT } from '../site/site-text';
 
 /**
  * The two runtime switches and their one trail, read together when something

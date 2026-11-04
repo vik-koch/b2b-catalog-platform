@@ -33,22 +33,6 @@
       }
     }
   },
-  "pages": {
-    "published": [
-      "about",
-      "contact",
-      "conditions",
-      "terms",
-      "privacy",
-      "imprint"
-    ],
-    "headerNav": ["conditions", "contact"],
-    "footerNav": ["about", "terms", "privacy", "imprint", "licenses"]
-  },
-  "consent": {
-    "contact": false,
-    "account": false
-  },
   "seller": {
     "name": "Slaney Labware Ltd",
     "registration": ["Company number 000000", "VAT IE0000000X"]
@@ -58,7 +42,6 @@
     "rate": 23,
     "statedAtPrices": true
   },
-  "cookieConsentEnabled": true,
   "billingAddressEnabled": true,
   "catalog": {
     "currency": {
@@ -73,25 +56,6 @@
     "sortControlsEnabled": true
   },
   "search": {},
-  "locations": [
-    {
-      "name": "Enniscorthy Warehouse & Trade Counter",
-      "description": "Unit 7, Slaneyside Business Park, Enniscorthy, Co. Wexford, Y21 W8K4",
-      "map": {
-        "url": "https://www.openstreetmap.org/export/embed.html?bbox=-6.5725%2C52.4955%2C-6.5595%2C52.5015&layer=mapnik&marker=52.4985%2C-6.5660",
-        "consentRequired": true
-      }
-    },
-    {
-      "name": "Dublin Collection Point",
-      "description": "Unit 22, Belgard Trade Park, Dublin 24, D24 R6X5",
-      "map": {
-        "url": "https://www.openstreetmap.org/export/embed.html?bbox=-6.3705%2C53.2990%2C-6.3575%2C53.3050&layer=mapnik&marker=53.3020%2C-6.3640",
-        "consentRequired": true
-      }
-    }
-  ],
-  "mapProvider": "OpenStreetMap",
   "pickup": {
     "locations": [
       {
@@ -187,5 +151,43 @@
       }
     ]
   },
-  "customerTypes": ["company"]
+  "customerTypes": ["company"],
+  "site": {
+    "pages": {
+      "published": [
+        "about",
+        "contact",
+        "conditions",
+        "terms",
+        "privacy",
+        "imprint"
+      ],
+      "headerNav": ["conditions", "contact"],
+      "footerNav": ["about", "terms", "privacy", "imprint", "licenses"]
+    },
+    "consent": {
+      "contact": false,
+      "account": false
+    },
+    "cookieConsentEnabled": true,
+    "locations": [
+      {
+        "name": "Enniscorthy Warehouse & Trade Counter",
+        "description": "Unit 7, Slaneyside Business Park, Enniscorthy, Co. Wexford, Y21 W8K4",
+        "map": {
+          "url": "https://www.openstreetmap.org/export/embed.html?bbox=-6.5725%2C52.4955%2C-6.5595%2C52.5015&layer=mapnik&marker=52.4985%2C-6.5660",
+          "consentRequired": true
+        }
+      },
+      {
+        "name": "Dublin Collection Point",
+        "description": "Unit 22, Belgard Trade Park, Dublin 24, D24 R6X5",
+        "map": {
+          "url": "https://www.openstreetmap.org/export/embed.html?bbox=-6.3705%2C53.2990%2C-6.3575%2C53.3050&layer=mapnik&marker=53.3020%2C-6.3640",
+          "consentRequired": true
+        }
+      }
+    ],
+    "mapProvider": "OpenStreetMap"
+  }
 }

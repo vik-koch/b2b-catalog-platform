@@ -149,26 +149,6 @@
       "confirm": "Endgültig löschen"
     }
   },
-  "pages": {
-    "newTitle": "Seiteninhalt hinzufügen",
-    "editTitle": "Seite bearbeiten",
-    "pageTitle": "Seitentitel",
-    "previewNotice": "Vorschau – so sieht die Seite nach dem Speichern aus.",
-    "discardConfirm": "Ihre ungespeicherten Änderungen an dieser Seite verwerfen?",
-    "titleRequired": "Ein Seitentitel ist erforderlich.",
-    "saveError": "Beim Speichern dieser Seite ist etwas schiefgegangen. Bitte versuchen Sie es noch einmal.",
-    "consentLabel": "Text am Kästchen",
-    "consentLabelHint": "Der Satz neben dem Kästchen im Formular. Setzen Sie die Wörter, die diesen Text öffnen, einmal in eckige Klammern: Ich [willige ein], dass … Wird zusammen mit dem Text als eine Version gespeichert.",
-    "consentLabelRequired": "Der Text am Kästchen ist erforderlich.",
-    "consentLabelLink": "Setzen Sie die Wörter, die diesen Text öffnen, genau einmal in eckige Klammern.",
-    "consentPreview": "Im Formular",
-    "history": {
-      "heading": "Versionen",
-      "version": "Version {version}",
-      "current": "aktuell",
-      "consentLabel": "Text am Kästchen:"
-    }
-  },
   "richText": {
     "toolbar": {
       "labelAria": "Formatierung",
@@ -1482,14 +1462,6 @@
       "warning": "Die Anfrage selbst ist eine E-Mail im Postfach des Shops, die hiervon unberührt bleibt. Löschen Sie sie dort ebenfalls."
     }
   },
-  "maintenance": {
-    "description": "Solange er an ist, ist der öffentliche Shop für Besucher und Suchmaschinen ausgeblendet. Sie bleiben angemeldet und können ihn zur Vorschau ansehen.",
-    "statusOn": "Der Shop ist für Besucher ausgeblendet.",
-    "statusOff": "Der Shop ist live und für alle sichtbar.",
-    "enableAria": "Wartungsmodus einschalten",
-    "disableAria": "Wartungsmodus ausschalten",
-    "error": "Beim Ändern des Wartungsmodus ist etwas schiefgegangen. Bitte versuchen Sie es noch einmal."
-  },
   "ownership": {
     "intro": "Übergeben Sie einen Datenbereich des Shops an ein externes System oder holen Sie ihn zurück. Solange ein externes System einen Bereich verwaltet, schreibt nur es ihn: Der eigene Zugang des Shops ist abgeschaltet, und was es füllt, ist hier schreibgeschützt. Solange niemand ihn verwaltet, ist der Shop zuständig, und automatische Aktualisierungen werden abgewiesen.",
     "areaText": {
@@ -1583,5 +1555,35 @@
     "historyBy": "{date} von {actor}",
     "historyMore": "Gezeigt werden nur die {count} letzten Änderungen."
   },
-  "loadError": "Beim Laden des Katalogs ist etwas schiefgegangen – bitte versuchen Sie es später noch einmal."
+  "loadError": "Beim Laden des Katalogs ist etwas schiefgegangen – bitte versuchen Sie es später noch einmal.",
+  "site": {
+    "pages": {
+      "newTitle": "Seiteninhalt hinzufügen",
+      "editTitle": "Seite bearbeiten",
+      "pageTitle": "Seitentitel",
+      "previewNotice": "Vorschau – so sieht die Seite nach dem Speichern aus.",
+      "discardConfirm": "Ihre ungespeicherten Änderungen an dieser Seite verwerfen?",
+      "titleRequired": "Ein Seitentitel ist erforderlich.",
+      "saveError": "Beim Speichern dieser Seite ist etwas schiefgegangen. Bitte versuchen Sie es noch einmal.",
+      "consentLabel": "Text am Kästchen",
+      "consentLabelHint": "Der Satz neben dem Kästchen im Formular. Setzen Sie die Wörter, die diesen Text öffnen, einmal in eckige Klammern: Ich [willige ein], dass … Wird zusammen mit dem Text als eine Version gespeichert.",
+      "consentLabelRequired": "Der Text am Kästchen ist erforderlich.",
+      "consentLabelLink": "Setzen Sie die Wörter, die diesen Text öffnen, genau einmal in eckige Klammern.",
+      "consentPreview": "Im Formular",
+      "history": {
+        "heading": "Versionen",
+        "version": "Version {version}",
+        "current": "aktuell",
+        "consentLabel": "Text am Kästchen:"
+      }
+    },
+    "maintenance": {
+      "description": "Solange er an ist, ist der öffentliche Shop für Besucher und Suchmaschinen ausgeblendet. Sie bleiben angemeldet und können ihn zur Vorschau ansehen.",
+      "statusOn": "Der Shop ist für Besucher ausgeblendet.",
+      "statusOff": "Der Shop ist live und für alle sichtbar.",
+      "enableAria": "Wartungsmodus einschalten",
+      "disableAria": "Wartungsmodus ausschalten",
+      "error": "Beim Ändern des Wartungsmodus ist etwas schiefgegangen. Bitte versuchen Sie es noch einmal."
+    }
+  }
 }

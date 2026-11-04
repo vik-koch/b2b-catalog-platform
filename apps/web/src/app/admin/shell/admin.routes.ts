@@ -2,7 +2,7 @@ import { Route } from '@angular/router';
 import { requireAuth } from '../../platform/auth/auth.guard';
 import { inject } from '@angular/core';
 import { ADMIN_TEXT, adminTextGuard } from '../../platform/config/admin-text';
-import { ADMIN_SITE_TEXT } from '../../core/site/admin-site-text';
+import { ADMIN_SITE_TEXT } from '../site/site-text';
 import { unsavedChangesGuard } from '../platform/unsaved-changes.guard';
 
 /*

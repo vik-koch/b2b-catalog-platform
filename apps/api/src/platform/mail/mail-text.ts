@@ -430,8 +430,8 @@ export type MailText = DeepReadonly<z.infer<z.ZodObject<typeof mailTextShape>>>;
 
 export const MAIL_TEXT = 'MAIL_TEXT';
 
-/** An area's part of the mail text. Typed apart, but the file is checked whole
- * against every area's shape at boot, so the part is there. */
-export function mailTextPart<T>(text: MailText): T {
-  return text as unknown as T;
+/** An area's block of the mail text. Typed apart, but the file is checked
+ * whole against every area's shape at boot, so the block is there. */
+export function mailTextBlock<T>(text: MailText, area: string): T {
+  return (text as unknown as Record<string, T>)[area];
 }

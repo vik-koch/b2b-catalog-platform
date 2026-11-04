@@ -6,7 +6,7 @@ import { adminDayFormat } from '../../platform/dates/admin-date';
 import { PageEditingService } from './page-editing.service';
 import { trustedRichText } from '../../../platform/trusted-rich-text';
 import { DetailsSummary } from '@b2b-catalog-platform/ui/disclosure/details-summary';
-import { ADMIN_SITE_TEXT } from '../../../core/site/admin-site-text';
+import { ADMIN_SITE_TEXT } from '../site-text';
 
 /**
  * Read-only: a consent or an order points at a version, and the admin reads it

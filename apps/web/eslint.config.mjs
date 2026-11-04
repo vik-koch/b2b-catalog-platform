@@ -18,6 +18,10 @@ const UI_BARREL = {
     'Import a file of the UI library, not the library or a group of it (see libs/ui/README.md).',
 };
 
+/* The areas whose core code reads the shared text only; the rest join as
+ * their texts are cut. */
+const TEXT_CUT_AREAS = ['site'];
+
 /* What a view in a `ui/` folder may not reach for: data (ADR 0072). */
 const VIEW_MESSAGE =
   'A view takes inputs and gives outputs; services and API clients belong to its container (ADR 0072).';
@@ -76,9 +80,10 @@ export default [
   // import platform and core code and never each other, platform and core
   // code import neither, and only the root (app.ts, app.config*, app.routes*)
   // composes both. Their wording follows the same line: each side reads its
-  // own text and the shared text, and only platform and core code, showing
-  // one side's view to the other, reads both; a spec may, to set the scene. Areas
-  // within them are held by tools/lint/area-boundaries.mjs. A later block
+  // own text and the shared text, core code the shared text only (the areas
+  // in TEXT_CUT_AREAS so far), and platform code both; a spec may read any,
+  // to set the scene. Areas within them are held by
+  // tools/lint/area-boundaries.mjs. A later block
   // replaces an earlier `no-restricted-imports` rather than adding to it, so
   // each one repeats the server-package pattern above.
   ...[
@@ -104,6 +109,12 @@ export default [
       forbidden: ['storefront', 'admin'],
       entries: ['storefront', 'admin', 'machine', 'node'],
     },
+    ...TEXT_CUT_AREAS.map((area) => ({
+      part: `core/${area}`,
+      forbidden: ['storefront', 'admin'],
+      text: 'storefront-text|admin-text',
+      entries: ['storefront', 'admin', 'machine', 'node'],
+    })),
   ].flatMap(({ part, forbidden, text, entries }) => {
     const dir = `src/app/${part}/**`;
     const serverSide = [`${dir}/*.server.ts`, `${dir}/*.fixture.ts`];
@@ -154,13 +165,15 @@ function rulesFor(part, forbidden, entries, text, extra = []) {
           },
           {
             regex: `^@b2b-catalog-platform/shared/(${entries.join('|')})(/|$)`,
-            message: `${part} code imports the shared library's ${part === 'platform' || part === 'core' ? 'platform and core entries' : `platform, core and ${part} entries`}, not ${entries.join(' or ')} (see eslint.config.mjs).`,
+            message: `${part} code imports the shared library's ${part === 'platform' || part.startsWith('core') ? 'platform and core entries' : `platform, core and ${part} entries`}, not ${entries.join(' or ')} (see eslint.config.mjs).`,
           },
           ...(text
             ? [
                 {
-                  regex: `(^|/)config/${text}(\\.\\w+)?$`,
-                  message: `${part} code reads its own text and the shared text, not ${text} (see eslint.config.mjs).`,
+                  regex: `(^|/)config/(${text})(\\.\\w+)?$`,
+                  message: part.startsWith('core/')
+                    ? `${part} code reads the shared text only (see eslint.config.mjs).`
+                    : `${part} code reads its own text and the shared text, not ${text} (see eslint.config.mjs).`,
                 },
               ]
             : []),

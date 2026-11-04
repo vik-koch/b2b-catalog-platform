@@ -1,7 +1,7 @@
 import type { DeepReadonly } from '@b2b-catalog-platform/shared/platform';
 import * as z from 'zod';
 
-/** The site's keys of `texts/storefront.json`. */
+/** The site's block of `texts/storefront.json`. */
 export const storefrontSiteTextShape = {
   map: z
     .object({

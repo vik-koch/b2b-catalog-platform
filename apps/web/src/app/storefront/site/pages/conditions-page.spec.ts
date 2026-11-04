@@ -181,7 +181,13 @@ describe('ConditionsPage', () => {
 
   it('links the withdrawal page under the returns where it is published', async () => {
     const el = await render({
-      pages: { ...defaultDeploymentConfig.pages, published: ['withdrawal'] },
+      site: {
+        ...defaultDeploymentConfig.site,
+        pages: {
+          ...defaultDeploymentConfig.site.pages,
+          published: ['withdrawal'],
+        },
+      },
     });
 
     expect(el.textContent).toContain(
@@ -194,7 +200,12 @@ describe('ConditionsPage', () => {
 
   it('leaves out the returns with no paragraphs and no withdrawal page', async () => {
     const el = await render(
-      { pages: { ...defaultDeploymentConfig.pages, published: [] } },
+      {
+        site: {
+          ...defaultDeploymentConfig.site,
+          pages: { ...defaultDeploymentConfig.site.pages, published: [] },
+        },
+      },
       undefined,
       { returnsParagraphs: [] },
     );

@@ -105,10 +105,10 @@ served by the platform itself.
 <!-- prettier-ignore -->
 | Setting | Decides |
 | --- | --- |
-| `consent.contact`, `consent.account` | Whether consent is asked for and recorded at all ([NFR-LEGAL-09](requirements.md#nfr-legal-09)). Where it is off, the processing rests on another ground, and the privacy policy says which. |
+| `site.consent.contact`, `site.consent.account` | Whether consent is asked for and recorded at all ([NFR-LEGAL-09](requirements.md#nfr-legal-09)). Where it is off, the processing rests on another ground, and the privacy policy says which. |
 | `retention.orderDays` | How long a finished order keeps its personal details. |
 | `retention.consentRecordDays`, `retention.destructionRecordDays` | How long consent and destruction records outlive what they record. |
-| `cookieConsentEnabled`, the map's `consentRequired` | Whether non-essential cookies wait for a choice. |
+| `site.cookieConsentEnabled`, the map's `consentRequired` | Whether non-essential cookies wait for a choice. |
 | `BACKUP_KEEP_DAYS`, `BACKUP_KEEP_WEEKS`, `BACKUP_KEEP_MONTHS`, `MEDIA_BACKUP_KEEP_DAYS`, the bucket's lifecycle rule | How long a deleted person survives in backups. |
 | `MAIL_*`, `SUGGESTION_SIDECAR_URL`, `SIGN_IN_CODE_URL`, `SIGN_IN_CALL_URL`, the map's embed URL, `BACKUP_S3_ENDPOINT` | Which providers receive data. |
 | The machine credentials an admin issues | Whether an external system receives account details and orders. |

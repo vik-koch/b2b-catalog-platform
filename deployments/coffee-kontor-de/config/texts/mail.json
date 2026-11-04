@@ -13,13 +13,6 @@
       "card": "Karte, nach Absprache mit dem Kunden"
     }
   },
-  "inquiry": {
-    "subject": "Anfrage",
-    "preheader": "Über das Kontaktformular ist eine Anfrage eingegangen.",
-    "heading": "Neue Anfrage",
-    "preferredContact": "Bevorzugter Kontaktweg",
-    "message": "Nachricht"
-  },
   "registrationReceived": {
     "subject": "Ihr Kontoantrag ist bei uns",
     "preheader": "Ihr Antrag liegt bei unserem Team.",
@@ -248,6 +241,15 @@
           "body": "Die Anbindung an Ihr System beantwortet wieder Bestellungen. Was sie während der Unterbrechung bearbeitet hat, kommt mit der nächsten Aktualisierung: Eine Bestellung bringt ihren aktuellen Stand, keine Liste von Schritten."
         }
       }
+    }
+  },
+  "site": {
+    "inquiry": {
+      "subject": "Anfrage",
+      "preheader": "Über das Kontaktformular ist eine Anfrage eingegangen.",
+      "heading": "Neue Anfrage",
+      "preferredContact": "Bevorzugter Kontaktweg",
+      "message": "Nachricht"
     }
   }
 }

@@ -10,7 +10,6 @@ import {
 import { ADMIN_TEXT } from '../../../platform/config/admin-text';
 import { defaultAdminText } from '../../../platform/config/admin-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
-import { defaultDeploymentConfig } from '../../../platform/config/deployment-config.fixture';
 import { AuthService } from '../../../platform/auth/auth.service';
 import { provideOwnership } from '../../platform/ownership/ownership.fixture';
 import { TiersService } from '../../catalog/tiers/tiers.service';
@@ -20,6 +19,7 @@ import { UserDetailPage } from './user-detail-page';
 import { StaffUsersService } from './users.service';
 import { ConsentRecord } from '@b2b-catalog-platform/shared/admin/accounts';
 import { StaffUser } from '@b2b-catalog-platform/shared/core/accounts';
+import { withSite } from '../../../core/site/site-config.fixture';
 
 const text = defaultAdminText.users.detail;
 const listText = defaultAdminText.users.list;
@@ -128,11 +128,12 @@ async function render(
       {
         provide: DEPLOYMENT_CONFIG,
         useValue: {
-          ...defaultDeploymentConfig,
-          consent: {
-            contact: options.consentAsked ?? false,
-            account: options.consentAsked ?? false,
-          },
+          ...withSite({
+            consent: {
+              contact: options.consentAsked ?? false,
+              account: options.consentAsked ?? false,
+            },
+          }),
           signInStep: options.signInStep,
         },
       },

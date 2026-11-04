@@ -29,7 +29,7 @@ const OUT = 'tmp/api-e2e-config';
 const config = JSON.parse(
   readFileSync(join(SOURCE, 'deployment.json'), 'utf8'),
 );
-config.consent = { contact: true, account: true };
+config.site.consent = { contact: true, account: true };
 
 rmSync(OUT, { recursive: true, force: true });
 mkdirSync(OUT, { recursive: true });

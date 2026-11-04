@@ -149,26 +149,6 @@
       "confirm": "Delete permanently"
     }
   },
-  "pages": {
-    "newTitle": "Add page content",
-    "editTitle": "Edit page",
-    "pageTitle": "Page title",
-    "previewNotice": "Preview — this is how the page will look once saved.",
-    "discardConfirm": "Discard your unsaved changes to this page?",
-    "titleRequired": "A page title is required.",
-    "saveError": "Something went wrong saving this page. Please try again.",
-    "consentLabel": "Box wording",
-    "consentLabelHint": "The sentence beside the box on the form. Put the words that open this text in square brackets, once: I [consent] to … Saved together with the text as one version.",
-    "consentLabelRequired": "The box wording is required.",
-    "consentLabelLink": "Put the words that open this text in square brackets, exactly once.",
-    "consentPreview": "On the form",
-    "history": {
-      "heading": "Versions",
-      "version": "Version {version}",
-      "current": "current",
-      "consentLabel": "Box wording:"
-    }
-  },
   "richText": {
     "toolbar": {
       "labelAria": "Formatting",
@@ -1482,14 +1462,6 @@
       "warning": "The inquiry itself is a mail in the shop's inbox, which this does not touch. Delete it there as well."
     }
   },
-  "maintenance": {
-    "description": "While on, the public shop is hidden from visitors and search engines. You stay signed in and can browse it to preview.",
-    "statusOn": "The shop is hidden from visitors.",
-    "statusOff": "The shop is live and visible to everyone.",
-    "enableAria": "Turn on maintenance",
-    "disableAria": "Turn off maintenance",
-    "error": "Something went wrong changing maintenance mode. Please try again."
-  },
   "ownership": {
     "intro": "Hand an area of the shop's data to an external system, or take it back. While an external system owns an area, it is the only thing that writes it: the shop's own way in is turned off, and what it fills is read-only here. While nobody owns it, the shop is in charge and automated updates are refused.",
     "areaText": {
@@ -1583,5 +1555,35 @@
     "historyBy": "{date} by {actor}",
     "historyMore": "Only the {count} most recent changes are shown."
   },
-  "loadError": "Something went wrong loading the catalogue — please try again later."
+  "loadError": "Something went wrong loading the catalogue — please try again later.",
+  "site": {
+    "pages": {
+      "newTitle": "Add page content",
+      "editTitle": "Edit page",
+      "pageTitle": "Page title",
+      "previewNotice": "Preview — this is how the page will look once saved.",
+      "discardConfirm": "Discard your unsaved changes to this page?",
+      "titleRequired": "A page title is required.",
+      "saveError": "Something went wrong saving this page. Please try again.",
+      "consentLabel": "Box wording",
+      "consentLabelHint": "The sentence beside the box on the form. Put the words that open this text in square brackets, once: I [consent] to … Saved together with the text as one version.",
+      "consentLabelRequired": "The box wording is required.",
+      "consentLabelLink": "Put the words that open this text in square brackets, exactly once.",
+      "consentPreview": "On the form",
+      "history": {
+        "heading": "Versions",
+        "version": "Version {version}",
+        "current": "current",
+        "consentLabel": "Box wording:"
+      }
+    },
+    "maintenance": {
+      "description": "While on, the public shop is hidden from visitors and search engines. You stay signed in and can browse it to preview.",
+      "statusOn": "The shop is hidden from visitors.",
+      "statusOff": "The shop is live and visible to everyone.",
+      "enableAria": "Turn on maintenance",
+      "disableAria": "Turn off maintenance",
+      "error": "Something went wrong changing maintenance mode. Please try again."
+    }
+  }
 }

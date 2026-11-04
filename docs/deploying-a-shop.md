@@ -30,8 +30,8 @@ sample content; a real shop starts empty and is filled in the admin panel or by 
    [deployments/slaney-labware-ie/config](../deployments/slaney-labware-ie/config) for an
    English, companies-only shop or [coffee-kontor-de](../deployments/coffee-kontor-de/config)
    for a German one that also sells to private buyers. Then rewrite what is about one shop:
-   `branding`, `seller`, `contact`, `locations` and their map embeds, `mapProvider`, `pickup`
-   and `delivery` in `deployment.json`, the shop-specific texts at the top of
+   `branding`, `seller`, `contact`, `pickup`, `delivery`, and `site.locations` with their map
+   embeds and `site.mapProvider` in `deployment.json`, the shop-specific texts at the top of
    `texts/storefront.json`, and the assets ([what describes your shop](../deployments/fixture/config/README.md#what-describes-your-shop)).
    For another language, translate the five text files.
 3. **Make the decisions below.**
@@ -58,12 +58,12 @@ sample content; a real shop starts empty and is filled in the admin panel or by 
 | Whether an order asks for a separate invoice address | `billingAddressEnabled` | `deployment.json` |
 | How phone numbers, company numbers and addresses are checked | `phoneInput`, `companyIdInput`, `address` | `deployment.json` |
 | What an order reference looks like | `orderReference` | `deployment.json` |
-| Which pages are published, and where they are linked | `pages` | `deployment.json` |
-| The cookie banner, and consent to processing personal data | `cookieConsentEnabled`, `consent` | `deployment.json` |
+| Which pages are published, and where they are linked | `site.pages` | `deployment.json` |
+| The cookie banner, and consent to processing personal data | `site.cookieConsentEnabled`, `site.consent` | `deployment.json` |
 | A second sign-in step through the account's phone | `signInStep`, plus a provider container | `deployment.json`, environment |
 | When stock reads "few left", whether pairings are enforced, sort controls | `catalog` | `deployment.json` |
 | A second keyboard layout for search | `search.alternateLayout` | `deployment.json` |
-| A notice above every page, links to the shop elsewhere, the seller line | `notice`, `elsewhere`, `seller` | `deployment.json` |
+| A notice above every page, links to the shop elsewhere, the seller line | `notice`, `site.elsewhere`, `seller` | `deployment.json` |
 | Whether the receipt attaches the terms of sale | `terms.attachToReceipt` | `api.json` |
 | How long orders, consent records and deletion records are kept | `retention` | `api.json` |
 | How long an unused session lasts | `session` | `api.json` |

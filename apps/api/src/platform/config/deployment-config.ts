@@ -40,16 +40,8 @@ import {
  * typed by the shared schemas. */
 type ApiDeploymentConfig = z.infer<typeof deploymentConfigSchema>;
 
-/** What an area reads through a loader of its own is left out here. */
-type UnclaimedDeploymentConfig = Omit<
-  ApiDeploymentConfig,
-  | 'pages'
-  | 'consent'
-  | 'cookieConsentEnabled'
-  | 'locations'
-  | 'mapProvider'
-  | 'elsewhere'
->;
+/** An area's block is read through the area's own loader. */
+type UnclaimedDeploymentConfig = Omit<ApiDeploymentConfig, 'site'>;
 
 let cached: ApiDeploymentConfig | undefined;
 function loadWhole(): ApiDeploymentConfig {
@@ -63,9 +55,9 @@ export function loadApiDeploymentConfig(): UnclaimedDeploymentConfig {
   return loadWhole();
 }
 
-/** An area's part, checked with the whole file on first read. */
-export function loadDeploymentConfigPart<T>(): T {
-  return loadWhole() as unknown as T;
+/** An area's block, checked with the whole file on first read. */
+export function loadDeploymentConfigBlock<T>(area: string): T {
+  return (loadWhole() as unknown as Record<string, T>)[area];
 }
 
 /** Test seam: drops the memoized config so a spec can load a different file. */

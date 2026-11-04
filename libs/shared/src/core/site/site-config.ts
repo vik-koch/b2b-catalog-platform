@@ -48,7 +48,7 @@ const elsewhereLinkSchema = z
 
 export type ElsewhereLink = DeepReadonly<z.infer<typeof elsewhereLinkSchema>>;
 
-/** The site's keys of `deployment.json`. */
+/** The site's block of `deployment.json`. */
 export const siteConfigShape = {
   pages: pagesConfigSchema,
   consent: consentConfigSchema,

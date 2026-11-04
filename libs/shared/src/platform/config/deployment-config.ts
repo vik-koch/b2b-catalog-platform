@@ -9,6 +9,7 @@ import { KEYBOARD_LAYOUTS } from '../keyboard-layout';
 import { mergeShapes } from '../merge-shapes';
 import { taxConfigSchema } from '../tax-config';
 import { themeConfigSchema } from '../theme-config';
+import { SITE_AREA } from '../../core/site/site-area';
 
 /**
  * A line above every page and mail (FR-NAV-08), such as a holiday closure.
@@ -142,7 +143,7 @@ export const deploymentConfigSchema = z
   .object(
     mergeShapes(
       platformConfigShape,
-      siteConfigShape,
+      { [SITE_AREA]: z.object(siteConfigShape).strict() },
       catalogConfigShape,
       accountsConfigShape,
       orderingConfigShape,

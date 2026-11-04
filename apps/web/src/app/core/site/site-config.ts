@@ -1,11 +1,15 @@
 import { inject, InjectionToken } from '@angular/core';
-import type { SiteConfig } from '@b2b-catalog-platform/shared/core/site';
 import {
   DEPLOYMENT_CONFIG,
-  deploymentConfigPart,
+  deploymentConfigBlock,
 } from '../../platform/config/deployment-config';
+import {
+  SITE_AREA,
+  type SiteConfig,
+} from '@b2b-catalog-platform/shared/core/site';
 
 export const SITE_CONFIG = new InjectionToken<SiteConfig>('SITE_CONFIG', {
   providedIn: 'root',
-  factory: () => deploymentConfigPart<SiteConfig>(inject(DEPLOYMENT_CONFIG)),
+  factory: () =>
+    deploymentConfigBlock<SiteConfig>(inject(DEPLOYMENT_CONFIG), SITE_AREA),
 });

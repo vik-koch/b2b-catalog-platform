@@ -44,7 +44,7 @@ import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
 import { SaveButton } from '../../platform/ui/save-button';
 import { CancelButton } from '../../platform/ui/cancel-button';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
-import { ADMIN_SITE_TEXT } from '../../../core/site/admin-site-text';
+import { ADMIN_SITE_TEXT } from '../site-text';
 
 /**
  * Title, body and a preview in the public page's `prose` measure. Saves

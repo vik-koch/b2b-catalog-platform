@@ -13,15 +13,15 @@ import { InquiryService } from './inquiry.service';
 import { PageService } from '../../../core/site/page.service';
 import { provideDigitMaskFormat } from '../../../platform/contact-fields';
 import { defaultStorefrontSiteText } from '../site-text.fixture';
+import { withSite } from '../../../core/site/site-config.fixture';
 
 const text = defaultStorefrontSiteText.inquiry;
 const consentText = defaultStorefrontSiteText.consentBox;
 
 /** The demo asks for no consent; these specs drive the form that does. */
-const testConfig: DeploymentConfig = {
-  ...defaultDeploymentConfig,
+const testConfig: DeploymentConfig = withSite({
   consent: { contact: true, account: true },
-};
+});
 
 const consentPage: Page = {
   version: 3,
@@ -306,10 +306,10 @@ describe('InquiryPage', () => {
 
     it('asks nothing where the deployment does not ask for it', async () => {
       const { el, submit, getPage, sync } = await render({
-        config: {
-          ...testConfig,
-          consent: { ...testConfig.consent, contact: false },
-        },
+        config: withSite(
+          { consent: { ...testConfig.site.consent, contact: false } },
+          testConfig,
+        ),
       });
 
       expect(getPage).not.toHaveBeenCalled();

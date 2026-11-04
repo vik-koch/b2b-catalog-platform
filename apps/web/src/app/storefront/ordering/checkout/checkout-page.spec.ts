@@ -32,6 +32,7 @@ import { PageService } from '../../../core/site/page.service';
 import { provideDigitMaskFormat } from '../../../platform/contact-fields';
 import { Address } from '@b2b-catalog-platform/shared/core/accounts';
 import { defaultStorefrontSiteText } from '../../site/site-text.fixture';
+import { withSite } from '../../../core/site/site-config.fixture';
 
 /** A day the form actually offers, from whenever the suite is run: a literal
  * date here would be a working weekday now and a past Saturday later. */
@@ -1139,18 +1140,14 @@ describe('CheckoutPage', () => {
     });
 
     it('says nothing of terms a deployment does not publish', async () => {
-      const config = {
-        ...defaultDeploymentConfig,
+      const { pages } = defaultDeploymentConfig.site;
+      const config = withSite({
         pages: {
-          ...defaultDeploymentConfig.pages,
-          published: defaultDeploymentConfig.pages.published.filter(
-            (slug) => slug !== 'terms',
-          ),
-          footerNav: defaultDeploymentConfig.pages.footerNav.filter(
-            (slug) => slug !== 'terms',
-          ),
+          ...pages,
+          published: pages.published.filter((slug) => slug !== 'terms'),
+          footerNav: pages.footerNav.filter((slug) => slug !== 'terms'),
         },
-      };
+      });
       const page = await render({ config });
 
       await page.review();
