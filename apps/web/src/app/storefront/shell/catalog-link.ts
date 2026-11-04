@@ -1,7 +1,7 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { SHARED_TEXT } from '../../platform/config/shared-text';
-import { currentUrl } from '../../platform/current-url';
+import { currentPath, isUnder } from '../../platform/current-url';
 import { navActionClasses, NavVariant } from '../platform/nav-action';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { storeIcon } from '@b2b-catalog-platform/ui/icons/glyphs/store';
@@ -9,16 +9,8 @@ import { storeIcon } from '@b2b-catalog-platform/ui/icons/glyphs/store';
 /** Routes that count as "browsing the catalogue" for the navbar's active state. */
 const CATALOG_ROUTES = ['/catalog', '/product', '/search'];
 
-/**
- * The catalogue button in the main navbar — a plain link to the storefront,
- * built on the same shared look as the account link (icon over label,
- * active state driven by `aria-current="page"`).
- *
- * The active state is computed from the URL rather than left to
- * `routerLinkActive`: product pages and search results live under their own
- * top-level paths, so a prefix match on `/catalog` alone would drop the
- * highlight mid-browse.
- */
+/** The catalogue control; current under any of `CATALOG_ROUTES`, which a
+ * prefix match on `/catalog` alone would miss. */
 @Component({
   selector: 'app-catalog-link',
   imports: [RouterLink, Icon],
@@ -41,12 +33,9 @@ export class CatalogLink {
   readonly variant = input<NavVariant>('bar');
   protected readonly cls = computed(() => navActionClasses(this.variant()));
 
-  private readonly url = currentUrl();
+  private readonly path = currentPath();
   protected readonly label = inject(SHARED_TEXT).nav.catalog;
-  protected readonly active = computed(() => {
-    const path = this.url().split(/[?#]/)[0];
-    return CATALOG_ROUTES.some(
-      (route) => path === route || path.startsWith(`${route}/`),
-    );
-  });
+  protected readonly active = computed(() =>
+    CATALOG_ROUTES.some((route) => isUnder(this.path(), route)),
+  );
 }

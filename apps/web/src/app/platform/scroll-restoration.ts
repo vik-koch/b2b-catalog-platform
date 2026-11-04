@@ -9,18 +9,10 @@ const SETTLE_LIMIT_MS = 2000;
 const VISITOR_INPUT = ['wheel', 'touchstart', 'keydown', 'pointerdown'];
 
 /**
- * Back and forward return to where the visitor left the page, once the page
- * is there to return to.
- *
- * The router restores the offset a frame after the navigation ends, which is
- * before a listing has loaded: the page is still short, so the offset is
- * clamped and the visitor lands near the top. This repeats the restore once
- * the application is stable — every resource and request settled, so the page
- * is as long as it is going to be.
- *
- * It stands down if the visitor scrolls, clicks or types in the meantime, if
- * another navigation starts, or if the page takes too long: an offset applied
- * seconds later moves the page under somebody already reading it.
+ * Back and forward restore the offset again once the app is stable: the
+ * router's restore comes before a listing loads, on a page still too short.
+ * Stands down on input, another navigation or a slow page, as a late jump
+ * moves the page under a reader.
  */
 @Injectable({ providedIn: 'root' })
 export class ScrollRestoration {

@@ -15,8 +15,9 @@ import {
 import { NgTemplateOutlet } from '@angular/common';
 import { Editor } from '@tiptap/core';
 import StarterKit from '@tiptap/starter-kit';
-import { ACCEPTED_IMAGE_MIME_TYPES } from '@b2b-catalog-platform/shared/platform';
 import {
+  ACCEPTED_IMAGE_MIME_TYPES,
+  isEmailAddress,
   RICH_TEXT_IMAGE_ALIGNMENTS,
   RICH_TEXT_IMAGE_SIZE_MAX_PERCENT,
   RICH_TEXT_IMAGE_SIZE_MIN_PERCENT,
@@ -62,11 +63,8 @@ interface ToolbarAction {
   isActive?: (editor: Editor) => boolean;
 }
 
-/**
- * Rich-text editing surface, shared by static pages and (later) product copy.
- * The schema mirrors the server's allowlist exactly, so nothing the toolbar can
- * produce is stripped on save. Browser-only: created after render, never on SSR.
- */
+/** Rich-text editing for page bodies and product descriptions, its schema the
+ * server's allowlist, so nothing it writes is stripped on save. Browser-only. */
 @Component({
   selector: 'app-rich-text-editor',
   imports: [
@@ -161,12 +159,9 @@ interface ToolbarAction {
       </p>
     }
 
-    <!-- Two shapes for one panel. On a pointer it is a box floated over the
-           corner of the editor: what it is about — the selected link, the
-           selected image and the slider that resizes it — is on the page
-           behind it, and a modal covers the very thing being adjusted. Below
-           the phone line there is no room beside anything and the software keyboard
-           takes half of what there is, so the same fields are a modal. -->
+    <!-- A box over the editor's corner on a pointer, as a modal would cover
+         what is adjusted; a modal below the phone line, where the keyboard
+         takes half the room. -->
     <ng-template #linkBody>
       <label class="block">
         <span uiFieldLabel>{{ link.urlLabel }}</span>
@@ -330,11 +325,8 @@ export class RichTextEditor {
   protected readonly link = this.text.linkPanel;
   /** Which shape the two panels take — see the template. */
   protected readonly narrow = injectNarrowScreen('sm');
-  /**
-   * The floating panel, above `sm`. Pinned under the toolbar at whichever
-   * corner of the editor its button is on, and wide enough for the row of
-   * answers at its foot — the old 18rem left them wrapping.
-   */
+  /** Above `sm`, under the toolbar at its button's corner, wide enough for the
+   * row of answers at its foot. */
   protected readonly panelClass = `absolute top-full mt-2 z-10 w-80
                                    max-w-[calc(100%-1rem)] rounded-md border
                                    border-edge-strong bg-white p-3 shadow-lg`;
@@ -375,13 +367,8 @@ export class RichTextEditor {
   readonly value = input<string>('');
   readonly contentChange = output<string>();
 
-  /**
-   * Which vocabulary the editor exposes. `page` (default) is the full static-page
-   * set; `product` is the product-description set (PRODUCT_RICH_TEXT_TAGS: the
-   * page set minus headings, links and images). The preset gates both the
-   * toolbar and the tiptap schema, so a product editor cannot even produce markup
-   * the server would strip on save.
-   */
+  /** `product` drops headings, links and images (PRODUCT_RICH_TEXT_TAGS) from
+   * the toolbar and the schema alike. */
   readonly preset = input<'page' | 'product'>('page');
 
   /** Toolbar buttons the product preset hides (everything else stays). */
@@ -865,20 +852,21 @@ export class RichTextEditor {
   }
 }
 
-/**
- * Turns friendly input into an allowed URL: a path from the site root stays
- * as typed, bare addresses get mailto:, bare phone numbers tel: and anything
- * else https://. Anything already carrying an accepted scheme is left as-is;
- * the sanitizer is still the final authority.
- */
+const ALLOWED_SCHEME = new RegExp(
+  `^(${RICH_TEXT_LINK_SCHEMES.join('|')}):`,
+  'i',
+);
+
+/** A root path and an allowed scheme stay; a bare address gets mailto:, a
+ * bare number tel:, anything else https://. The sanitizer still decides. */
 function normalizeHref(value: string): string {
   if (!value) {
     return '';
   }
-  if (/^(https?:|mailto:|tel:)/i.test(value) || /^\/(?!\/)/.test(value)) {
+  if (ALLOWED_SCHEME.test(value) || /^\/(?!\/)/.test(value)) {
     return value;
   }
-  if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+  if (isEmailAddress(value)) {
     return `mailto:${value}`;
   }
   // A leading plus or a run of digits with the usual separators; a domain has

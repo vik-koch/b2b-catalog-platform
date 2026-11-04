@@ -8,19 +8,10 @@ import {
 } from '@angular/core';
 
 /**
- * Whether the browser's first render is behind us — the one that claims the
- * server's markup.
- *
- * State the server cannot know (the cart in localStorage) must not reach that
- * render. Where it does, Angular draws a different branch from the one the
- * server sent and keeps the server's until the app is stable, so for a moment
- * both are on screen: an "Added" label stacked on the "Add to cart" it
- * replaces, a card a row taller than its neighbours. Held back until this is
- * true, the first render matches the markup, and the browser's own state
- * arrives in the next one — before anything is painted, since Angular renders
- * again within the same tick when an after-render hook changes a signal.
- *
- * True from the start on the server, which has none of that state to hold.
+ * Whether the browser's first render, the one that claims the server's
+ * markup, is done. State the server cannot know (the cart) waits for it, or
+ * both branches show at once; Angular renders again in the same tick, so
+ * nothing paints in between. True from the start on the server.
  */
 @Injectable({ providedIn: 'root' })
 export class FirstRender {

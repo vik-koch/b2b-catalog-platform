@@ -4,20 +4,11 @@ import { getSharedText } from './shared-text.server';
 import { getDeploymentConfig } from './deployment-config.server';
 import { getSuggestionsEnabled } from './suggestions-enabled.server';
 
-/**
- * Serialized once per process: the sources are immutable mounted files and the
- * process environment, so the payload is identical for every request and every
- * visitor.
- */
+/** The same for every request: mounted files and the environment. */
 let cachedScript: string | undefined;
 
-/**
- * The `<script>` tag carrying the per-deployment state (see shell-state.ts).
- *
- * `<` is escaped so no string in the config or text catalog can close the tag
- * early and inject markup — the values come from a trusted mounted file, but
- * the tag is emitted into every page and must not depend on that trust.
- */
+/** `<` is escaped, so no string in a trusted file can close the tag early:
+ * every page carries it. */
 function getShellStateScript(): string {
   if (!cachedScript) {
     const state: ShellState = {
@@ -32,12 +23,7 @@ function getShellStateScript(): string {
   return cachedScript;
 }
 
-/**
- * Injects the state into a document the Angular engine produced, immediately
- * before `</head>` so it is parsed before the app bundle runs. Applied to both
- * server-rendered pages and the client-rendered shell — the shell is a build
- * artifact and cannot carry per-deployment values any other way.
- */
+/** Before `</head>`, so it is parsed before the bundle runs. */
 export function injectShellState(html: string): string {
   return html.replace('</head>', `${getShellStateScript()}</head>`);
 }

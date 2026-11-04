@@ -5,20 +5,13 @@ import { STOREFRONT_TEXT } from '../../platform/config/storefront-text';
 import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
 import { usePageSeo } from '../../platform/page-seo';
 
-/**
- * The white band the intro and the row stand on, from the top of the page to
- * a soft edge under the row, out to both edges of the window. Painted as a
- * border image pushed out past the element rather than by widening it:
- * anything sized to the viewport counts the scrollbar, and the page would
- * scroll sideways by its width. The outset is paint, not layout; its top
- * reaches over the page's own padding to meet the header.
- */
+/** The white band out to the window's edges, as a border image's outset:
+ * paint, not layout, as a box sized to the viewport counts the scrollbar. */
 const BAND =
   'bg-white [border-image:linear-gradient(#fff,#fff_calc(100%_-_5px),var(--color-surface))_fill_0/1/1rem_100vmax_0]';
 
-// The storefront landing in two parts: a brief intro and a row of products
-// (FR-CAT-09) on a white band, then the categories — the same index /catalog
-// shows (FR-CAT-01).
+/** The landing: an intro and featured products (FR-CAT-09) on the band,
+ * then /catalog's category index (FR-CAT-01). */
 @Component({
   imports: [CategoryIndex, FeaturedRow],
   selector: 'app-home',
@@ -56,12 +49,10 @@ const BAND =
 export class Home {
   protected readonly text = inject(STOREFRONT_TEXT);
   protected readonly tagline = inject(DEPLOYMENT_CONFIG).branding.tagline;
-  /** The room under the row is the band's, so the edge sits clear of the
-   * cards and the categories start below it. */
+  /** The band's own margin, so its edge clears the cards. */
   protected readonly band = 'mb-4 ' + BAND;
 
   constructor() {
-    // Landing page keeps the bare shop title (name null); adds a description.
     usePageSeo({ name: () => null, description: () => this.text.home.intro });
   }
 }

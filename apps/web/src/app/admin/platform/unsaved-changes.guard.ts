@@ -8,11 +8,7 @@ export interface UnsavedChangesAware {
   hasUnsavedChanges(): boolean;
 }
 
-/**
- * Confirms before a navigation drops unsaved edits. Every editor asks the same
- * question about its own kind of record, so the guard is given the wording to
- * ask it with rather than existing once per editor.
- */
+/** Confirms before a navigation drops unsaved edits, in the editor's words. */
 export function unsavedChangesGuard(
   message: (text: AdminText) => string,
 ): CanDeactivateFn<UnsavedChangesAware> {

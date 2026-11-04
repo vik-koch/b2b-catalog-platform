@@ -1,16 +1,6 @@
-/**
- * The day, as every admin list writes it.
- *
- * All-numeric rather than `dateStyle`, and the fields are named rather than
- * asked for as `short`: a spelled-out month is a different width in every
- * locale — some render a date column half again as wide as the date needs —
- * and `short` buys a two-digit year in others, which a list holding rows years
- * apart cannot afford. Named fields give one fixed-width day in every locale,
- * in that locale's own order and separators.
- *
- * Detail screens keep their long forms: they have one date to show and room to
- * spell it out. This is the one that is scanned down a column.
- */
+/** The day as an admin column writes it: named numeric fields, one width in
+ * every locale's own order, where a spelled month varies and `short` gives a
+ * two-digit year. Detail screens keep their long forms. */
 export function adminDayFormat(locale: string): Intl.DateTimeFormat {
   return new Intl.DateTimeFormat(locale, {
     year: 'numeric',
@@ -19,8 +9,7 @@ export function adminDayFormat(locale: string): Intl.DateTimeFormat {
   });
 }
 
-/** The same day with the time on it, for the places that report a single
- * moment rather than a column of days. Named fields for the same reason. */
+/** The same, with the time, for a single moment. */
 export function adminMomentFormat(locale: string): Intl.DateTimeFormat {
   return new Intl.DateTimeFormat(locale, {
     year: 'numeric',

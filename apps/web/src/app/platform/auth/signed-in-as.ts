@@ -2,16 +2,11 @@ import { Component, computed, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { STOREFRONT_TEXT } from '../config/storefront-text';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
 import { AuthService } from './auth.service';
 
-/**
- * Who you are and the way out — shared by /admin and /account, which greet the
- * account holder the same way whatever they may do once inside. Renders nothing
- * until /auth/me has answered, which matches the server.
- *
- * Identity and sign-out only: everything you can *do* with the account is a
- * section of the page below, so this block stays the same on both.
- */
+/** Who is signed in, and the way out, on /admin and /account alike. Nothing
+ * until /auth/me answers, as on the server. */
 @Component({
   selector: 'app-signed-in-as',
   imports: [Button],
@@ -23,8 +18,7 @@ import { AuthService } from './auth.service';
       >
         <div>
           <p class="font-medium text-ink">{{ greeting() }}</p>
-          <!-- Only when the greeting used a name; otherwise it *is* the
-               address, and repeating it says nothing. -->
+          <!-- Without a name, the greeting already is the address. -->
           @if (user.firstName) {
             <p class="text-sm text-ink-subtle">{{ user.email }}</p>
           }
@@ -42,22 +36,16 @@ export class SignedInAs {
   protected readonly auth = inject(AuthService);
   protected readonly text = inject(STOREFRONT_TEXT).auth;
 
-  /**
-   * By first name where there is one, by address otherwise — staff accounts are
-   * created by other staff and describe nobody, and the bootstrap admin is a
-   * config value rather than a person.
-   */
+  /** By address where there is no first name, as for most staff. */
   protected readonly greeting = computed(() => {
     const user = this.auth.user();
-    return this.text.greeting.replace(
-      '{name}',
-      user?.firstName ?? user?.email ?? '',
-    );
+    return fillText(this.text.greeting, {
+      name: user?.firstName ?? user?.email ?? '',
+    });
   });
 
   protected async logout(): Promise<void> {
     await this.auth.logout();
-    // Leave the gated page we are on; the guards would bounce us anyway.
     await this.router.navigateByUrl('/');
   }
 }

@@ -5,8 +5,7 @@ import { readShellState } from './shell-state';
 
 export const SHARED_TEXT = new InjectionToken<SharedText>('SHARED_TEXT');
 
-/** Browser provider: reads the shared names the server injected into the
- * document, beside the app text. */
+/** In the browser, from the document (see shell-state.ts). */
 export function provideSharedText(): Provider {
   return {
     provide: SHARED_TEXT,

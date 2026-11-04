@@ -10,26 +10,16 @@ export function shopTitle(branding: {
   return `${branding.name} — ${branding.tagline}`;
 }
 
-/**
- * Keeps the document `<title>` (and optional meta description) in sync with the
- * current page, for SSR and client navigation alike (NFR-SEO-01). The page name
- * is composed with the shop's name — `"<page> — <shop>"` — falling back to the
- * shop's own title while the name is still null/undefined (e.g. a resource
- * loading or a not-found). Call from a component's injection context;
- * the reactive `name`/`description` getters re-run as their signals settle.
- */
+/** The `<title>` as `"<page> — <shop>"` and the meta description, for SSR and
+ * navigation alike (NFR-SEO-01); the shop's own title while the name is null.
+ * Call in an injection context. */
 export function usePageSeo(opts: {
   name: () => string | null | undefined;
   description?: () => string | null | undefined;
-  /** Keeps the page out of the index (NFR-SEO-04): `true` for a view that is a
-   * lens on content indexed elsewhere, a function for a page that learns it
-   * late, like a hidden product. */
+  /** Out of the index (NFR-SEO-04); a function for a page that learns it late. */
   noindex?: boolean | (() => boolean);
-  /**
-   * Suppresses the `Referer` header this document sends (ADR 0038). For a page
-   * whose URL is itself the credential — the order token — so that following a
-   * link off it cannot hand the token to whoever is on the other end.
-   */
+  /** For a page whose URL is the credential, so a link off it cannot pass the
+   * token on in `Referer`. */
   noreferrer?: boolean;
 }): void {
   const title = inject(Title);
@@ -43,8 +33,7 @@ export function usePageSeo(opts: {
 
   const noindex = opts.noindex;
   if (noindex) {
-    // Only a tag this page added is taken away: a non-indexable deployment
-    // carries its own (seo.server.ts), stricter, which must stay.
+    // Only its own tag: a non-indexable deployment's stays.
     let added = false;
     const unmark = () => {
       if (added) meta.removeTag('name="robots"');
@@ -63,8 +52,7 @@ export function usePageSeo(opts: {
   }
 
   if (opts.noreferrer) {
-    // Removed on the way out for the same reason as the robots tag: a
-    // client-side navigation away must not leave the whole app referrer-less.
+    // Removed on leaving, or the whole app would go referrer-less.
     meta.updateTag({ name: 'referrer', content: 'no-referrer' });
     inject(DestroyRef).onDestroy(() => meta.removeTag('name="referrer"'));
   }

@@ -5,17 +5,8 @@ import {
   UserRole,
 } from '@b2b-catalog-platform/shared/platform';
 
-/**
- * The role from the readable session hint, or null where there is none.
- *
- * This is what lets the browser draw the account control right on the first
- * frame instead of leaning one way until `/auth/me` answers. It is a hint and
- * is treated as one: `AuthService` replaces it with the real identity as soon
- * as the API answers, and every gate that matters is the API's.
- *
- * Anything unrecognised reads as signed out. The cookie is editable by hand,
- * and a value that is not a role is not one.
- */
+/** The hint's role, for a right first frame before `/auth/me` answers; an
+ * unrecognised value reads as signed out. */
 export function readSessionHint(cookies: string | undefined): UserRole | null {
   const value = cookieValue(cookies, SESSION_HINT_COOKIE);
   return (USER_ROLES as readonly string[]).includes(value)

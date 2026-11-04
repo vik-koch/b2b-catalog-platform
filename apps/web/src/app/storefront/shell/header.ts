@@ -12,7 +12,9 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
 import { STOREFRONT_TEXT } from '../../platform/config/storefront-text';
 import { SHARED_TEXT } from '../../platform/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
-import { currentUrl } from '../../platform/current-url';
+import { currentPath } from '../../platform/current-url';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
+import { PAGE_LINK } from '../platform/nav-action';
 import { AccountLink } from './account-link';
 import { CartLink } from '../ordering/cart/cart-link';
 import { CatalogLink } from './catalog-link';
@@ -22,26 +24,10 @@ import { MobileSearch, SearchAnchor } from '../platform/mobile-search';
 import { SearchField } from '../catalog/search/search-field';
 
 /**
- * Two-row header, the conventional B2B/e-commerce split: a slim utility bar
- * above a main bar that carries the brand and the primary actions.
- *
- * Which two rows depends on the width. From `sm` the top row is company pages
- * and contact details, and the main bar is brand, search and the actions —
- * search takes the space between them, because it is the primary way into a
- * catalogue this size. Below `sm` the actions move to the bottom bar, the top
- * row becomes the brand and the contact details, and search takes the main bar
- * to itself.
- *
- * **Below `sm` the header does not stick.** It is the page's masthead there
- * and it scrolls away with the page, which leaves the bottom bar as the only
- * permanent chrome on the smallest screens. Search loses nothing by it: the
- * bottom bar's search tab scrolls this field back into view while any of it is
- * still showing, and opens the same field over the page once it is not.
- *
- * The exception is the results page, where the field carries the query being
- * viewed and is the one thing a visitor came to adjust. There it sticks at
- * every width, and the brand row above it slides away on scroll the way the
- * utility bar does on desktop.
+ * Two rows. From `sm`: company pages and contact, then brand, search and the
+ * actions. Below it: brand and contact, then search alone, with the actions in
+ * the bottom bar, and the header scrolls away. The results page sticks it at
+ * every width, its top row sliding away on scroll.
  */
 @Component({
   imports: [
@@ -53,28 +39,19 @@ import { SearchField } from '../catalog/search/search-field';
     ContactInfo,
     SearchField,
   ],
-  // display:contents so the sticky <header> is a direct child of the tall page
-  // column — otherwise the host box is only header-height and sticky can't move.
+  // contents, so the sticky <header> moves within the tall page column.
   host: { class: 'contents' },
   selector: 'app-header',
   template: `
-    <!-- Collapsing slides the whole header up by the top row's height rather
-         than shrinking it. Its box in the layout therefore always reserves
-         both rows, so the page content below never moves: collapsed, the freed
-         strip simply sits empty above the main bar, and expanding slides the
-         header back down over it. Transform only — no reflow. It only ever
-         happens where the header sticks, and the distance is the height of the
-         row being hidden — which is the same 40px either way, the phone's
-         brand row on the results page and the utility bar from "sm". -->
+    <!-- Collapsing slides the header up by its 40px top row, a transform
+         that reserves both rows, so nothing below reflows. -->
     <header
       class="z-20 border-b border-edge bg-surface-subtle/85 backdrop-blur-sm
              transition-transform duration-300
              sm:sticky sm:top-0"
       [class]="headerClasses()"
     >
-      <!-- The phone's top row. Everything in it is reachable further down the
-           page or from the bottom bar's panel, which is what makes hiding it
-           on scroll safe. -->
+      <!-- The phone's top row; all of it is reachable from the panel too. -->
       <div
         class="flex mt-2 h-8 w-full items-center justify-between gap-4 px-4
                sm:hidden"
@@ -89,9 +66,8 @@ import { SearchField } from '../catalog/search/search-field';
         <app-contact-info class="-mr-2 min-w-0 flex-1 justify-end" />
       </div>
 
-      <!-- The utility bar, from "sm". The page links keep their width and the
-           contact pills take what is left, which at 640px is not much — the
-           address ends in an ellipsis rather than the row losing a channel. -->
+      <!-- The utility bar: the links keep their width, the pills take the
+           rest. -->
       <div class="hidden sm:block">
         <div
           class="mx-auto flex mt-2 h-8 w-full max-w-328 items-center
@@ -107,12 +83,7 @@ import { SearchField } from '../catalog/search/search-field';
                 routerLinkActive
                 ariaCurrentWhenActive="page"
                 [attr.data-label]="nav[route]"
-                class="text-stable text-center text-ink-subtle
-                       transition-colors
-                       hover:text-accent
-                       active:text-primary-press
-                       aria-[current=page]:font-medium
-                       aria-[current=page]:text-primary"
+                [class]="pageLink + ' text-center text-ink-subtle'"
               >
                 {{ nav[route] }}
               </a>
@@ -124,19 +95,12 @@ import { SearchField } from '../catalog/search/search-field';
         </div>
       </div>
 
-      <!-- The main bar. On a phone it is the search field and nothing else. -->
       <div
         #searchRow
         class="mx-auto flex h-15 w-full max-w-328 items-center justify-between
                px-4"
       >
-        <!-- The mark is a mask, not an <img>, so it can take the accent on
-             hover like everything else in this row (see .logo-mark in
-             styles.css). Its
-             ratio comes from the deployment's config rather than being written
-             here, because the asset it describes is the deployment's too — and
-             it is never the drawn size, only what reserves the space while the
-             file is on its way. -->
+        <!-- A mask, so it takes the accent on hover (.logo-mark). -->
         <a
           [routerLink]="'/'"
           [attr.aria-label]="homeLabel"
@@ -151,9 +115,7 @@ import { SearchField } from '../catalog/search/search-field';
 
         <app-search-field #field class="min-w-0 flex-1 sm:mx-3" />
 
-        <!-- The primary actions, from "sm". Below it the same three controls
-             are drawn by the bottom bar; only one of the two groups is ever in
-             the document, so nothing is announced twice. -->
+        <!-- From "sm"; below it the bottom bar draws them. -->
         <div class="hidden items-center sm:flex">
           <app-catalog-link />
           <app-cart-link />
@@ -165,17 +127,13 @@ import { SearchField } from '../catalog/search/search-field';
 })
 export class Header {
   private readonly config = inject(DEPLOYMENT_CONFIG);
-  private readonly url = currentUrl();
+  private readonly path = currentPath();
 
   private readonly headerCollapse = inject(HeaderCollapse);
   protected readonly collapsed = this.headerCollapse.collapsed;
 
-  /** On the results page the field is the page's own control, not an optional
-   * extra: it carries the query that produced the results and is where a
-   * refinement gets typed, so it stays on screen at every width. */
-  private readonly onSearchPage = computed(
-    () => this.url().split(/[?#]/)[0] === '/search',
-  );
+  /** There the field holds the query being refined, so it stays on screen. */
+  private readonly onSearchPage = computed(() => this.path() === '/search');
 
   protected readonly headerClasses = computed(() => {
     const sticky = this.onSearchPage() ? 'sticky top-0' : '';
@@ -188,23 +146,16 @@ export class Header {
   protected readonly nav = inject(SHARED_TEXT).nav;
   protected readonly branding = this.config.branding;
   protected readonly logo = this.branding.logo;
-  /** The mark is painted through a mask (see `.logo-mark`), so it has no
-   * intrinsic size: the height comes from the class and the width from the
-   * asset's own ratio, which is what keeps the space reserved before the file
-   * arrives. */
+  /** A mask has no size of its own: the ratio reserves the box before load. */
   protected readonly logoRatio = `${this.logo.width} / ${this.logo.height}`;
   protected readonly contact = this.config.contact;
   protected readonly a11y = this.text.a11y;
-  protected readonly homeLabel = this.text.a11y.homeLink.replace(
-    '{name}',
-    this.config.branding.name,
-  );
-  /** Which company pages sit in the utility bar, and in what order. */
+  protected readonly homeLabel = fillText(this.text.a11y.homeLink, {
+    name: this.config.branding.name,
+  });
   protected readonly utilityRoutes = this.config.pages.headerNav;
+  protected readonly pageLink = PAGE_LINK;
 
-  // The rule itself lives in HeaderCollapse, which the footer's back-to-top
-  // button reads too; the header is only what listens. Never fires on the
-  // server.
   @HostListener('window:scroll')
   protected onScroll(): void {
     this.headerCollapse.update(window.scrollY);
@@ -218,8 +169,7 @@ export class Header {
     const mobileSearch = inject(MobileSearch);
     const destroyRef = inject(DestroyRef);
 
-    // Lent to the bottom bar's search tab for as long as this header is on the
-    // page, so a tap down there can answer with the field up here.
+    // Lent to the bottom bar's search tab while this header is on the page.
     afterNextRender(() => {
       const anchor: SearchAnchor = {
         row: this.searchRow().nativeElement,

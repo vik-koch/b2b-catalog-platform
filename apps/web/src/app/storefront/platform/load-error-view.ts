@@ -1,19 +1,10 @@
-import { Component, inject, input, RESPONSE_INIT } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import { STOREFRONT_TEXT } from '../../platform/config/storefront-text';
+import { setResponseStatus } from '../../platform/response-status';
 import { Outcome } from '@b2b-catalog-platform/ui/content/outcome';
 
-/**
- * Shown when a page's data could not be loaded — the API is down, or answered
- * something the client cannot use. The sibling of NotFoundView, and it exists
- * for the same reason: something has to own the response status.
- *
- * Without it these branches rendered an apology inside a **200**. That is wrong
- * twice over: a crawler is invited to index the error page as if it were the
- * content, and every status-based monitor — including the Traefik access logs
- * that are this platform's request-level signal (ADR 0016) — reports the site
- * healthy while it is broken. 503 says "temporarily unavailable, come back",
- * which is both true and the thing that makes an outage visible.
- */
+/** A page whose data could not be loaded, as a 503: a 200 would invite a
+ * crawler to index the apology and tell every monitor the site is healthy. */
 @Component({
   selector: 'app-load-error-view',
   imports: [Outcome],
@@ -36,11 +27,6 @@ export class LoadErrorView {
   readonly message = input<string | null>(null);
 
   constructor() {
-    // Only present during SSR; null in the browser and on client-side
-    // navigations, where the status line has already gone out.
-    const responseInit = inject(RESPONSE_INIT, { optional: true });
-    if (responseInit) {
-      responseInit.status = 503;
-    }
+    setResponseStatus(503);
   }
 }

@@ -26,7 +26,6 @@ import { DisclosureToggle } from '@b2b-catalog-platform/ui/disclosure/disclosure
 import { DisclosureFrame } from '@b2b-catalog-platform/ui/disclosure/disclosure-frame';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';
-import { Switch } from '@b2b-catalog-platform/ui/choices/switch';
 import { adminMomentFormat } from '../platform/dates/admin-date';
 import { OwnershipService } from '../platform/ownership/ownership.service';
 import { OwnershipSwitchService } from '../exchange/ownership-switch.service';
@@ -36,42 +35,28 @@ import { SHARED_TEXT } from '../../platform/config/shared-text';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { Hint } from '@b2b-catalog-platform/ui/fields/hint';
 import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
-import { Card } from '@b2b-catalog-platform/ui/content/card';
+import { SwitchCard } from './switch-card';
 
 /**
- * The two runtime switches, and the trail of changes to both.
- *
- * One page rather than two, because the trail is one trail: maintenance mode
- * and external ownership are the only settings an operator flips at runtime,
- * they are read in the same breath when something looks wrong, and a history
- * split across two screens is one nobody reads. It also takes maintenance mode
- * off the admin panel, where it was a card with bespoke height machinery
- * holding a single switch.
- *
- * Ownership is confirmed in both directions — each way turns something off,
- * and neither is obvious from the switch alone. Maintenance mode is not, as it
- * was not on the panel: it is the switch reached in a hurry, it is reversed by
- * the same click, and what it did is on every page behind it.
+ * The two runtime switches and their one trail, read together when something
+ * looks wrong. Ownership is confirmed both ways, as each turns something off;
+ * maintenance is not: it is reached in a hurry and undone by the same click.
  */
 @Component({
   selector: 'app-operations-page',
   imports: [
-    Card,
     PageHeader,
     RouterLink,
     Button,
     DisclosureToggle,
     Skeleton,
     StatusBadge,
-    Switch,
+    SwitchCard,
     ErrorText,
     Hint,
     DisclosureFrame,
   ],
   template: `
-    <!-- Wrapping, unlike the token list's heading row: this title is several
-         words longer, and at 375 the pair squeezed into two ragged columns
-         instead of letting the button take a line of its own. -->
     <ui-page-header [title]="text.page.title" [intro]="text.page.intro">
       <a uiButton variant="secondary" routerLink="/admin">
         {{ text.backToPanel }}
@@ -79,39 +64,32 @@ import { Card } from '@b2b-catalog-platform/ui/content/card';
     </ui-page-header>
 
     <div class="max-w-3xl">
-      <!-- Both switches arrive together, so the whole page waits for them,
-           including the trail's lid, which is a lid onto the very switches
-           above it. No placeholder: this is a short screen behind two fast
-           reads side by side, and a skeleton that stands in for
-           two cards and a lid is a bigger lie than a blank moment. -->
+      <!-- Both reads arrive together and the page waits for them, with no
+           skeleton: two fast reads, and a blank moment is the smaller lie. -->
       @if (settings.value(); as state) {
-        <!-- Maintenance first: it is the one an operator reaches for in a
-             hurry, and the one that changes what the public sees. -->
+        <!-- First: reached for in a hurry, and what the public sees. -->
         <section class="mb-8">
           <h2 class="mb-3 text-base font-medium">
             {{ text.maintenanceHeading }}
           </h2>
 
-          <div uiCard>
-            <div class="flex items-center justify-between gap-4">
-              <p class="text-sm font-medium">
-                {{
-                  state.maintenanceEnabled
-                    ? maintenanceText.statusOn
-                    : maintenanceText.statusOff
-                }}
-              </p>
-              <ui-switch
-                [checked]="state.maintenanceEnabled"
-                [label]="
-                  state.maintenanceEnabled
-                    ? maintenanceText.disableAria
-                    : maintenanceText.enableAria
-                "
-                [disabled]="pending()"
-                (toggled)="flipMaintenance($event)"
-              />
-            </div>
+          <app-switch-card
+            [checked]="state.maintenanceEnabled"
+            [label]="
+              state.maintenanceEnabled
+                ? maintenanceText.disableAria
+                : maintenanceText.enableAria
+            "
+            [disabled]="pending()"
+            (toggled)="flipMaintenance($event)"
+          >
+            <p switchCardTitle class="text-sm font-medium">
+              {{
+                state.maintenanceEnabled
+                  ? maintenanceText.statusOn
+                  : maintenanceText.statusOff
+              }}
+            </p>
             <p class="mt-3 text-sm text-ink-subtle">
               {{ maintenanceText.description }}
             </p>
@@ -121,7 +99,7 @@ import { Card } from '@b2b-catalog-platform/ui/content/card';
                 {{ maintenanceText.error }}
               </p>
             }
-          </div>
+          </app-switch-card>
         </section>
 
         <section class="mb-8">
@@ -130,20 +108,18 @@ import { Card } from '@b2b-catalog-platform/ui/content/card';
           </h2>
           <p class="mb-3 text-sm text-ink-subtle">{{ ownershipText.intro }}</p>
 
-          <!-- One shop above, areas beneath it. The master is a read over the
-               areas and an action across them, never a fourth stored flag: a
-               stored answer to "is everything owned" could disagree with the
-               three switches under it, and then neither would be believable. -->
-          <div uiCard class="mb-4">
-            <div class="flex items-center justify-between gap-4">
-              <h3 class="text-sm font-medium">{{ allText.heading }}</h3>
-              <ui-switch
-                [checked]="allOwned()"
-                [label]="allOwned() ? allText.take : allText.hand"
-                [disabled]="pending()"
-                (toggled)="flipEverything($event)"
-              />
-            </div>
+          <!-- The master is a read over the areas, never a fourth stored flag
+               that could disagree with them. -->
+          <app-switch-card
+            class="mb-4"
+            [checked]="allOwned()"
+            [label]="allOwned() ? allText.take : allText.hand"
+            [disabled]="pending()"
+            (toggled)="flipEverything($event)"
+          >
+            <h3 switchCardTitle class="text-sm font-medium">
+              {{ allText.heading }}
+            </h3>
 
             <p uiHint class="mt-1">{{ allText.description }}</p>
 
@@ -153,12 +129,10 @@ import { Card } from '@b2b-catalog-platform/ui/content/card';
                 <p class="text-sm text-ink-subtle">{{ mixedEffect() }}</p>
               }
             </div>
-          </div>
+          </app-switch-card>
 
-          <!-- Collapsed while the areas agree, because then the badge above has
-               already said everything the rows would: three cards repeating one
-               sentence is how a screen teaches an operator to stop reading it.
-               Open when they disagree, where "partly" is not an answer. -->
+          <!-- Shut while the areas agree, as the badge above says it all; open
+               when they disagree. -->
           <section
             class="mb-4 rounded-md border"
             uiDisclosureFrame
@@ -174,30 +148,24 @@ import { Card } from '@b2b-catalog-platform/ui/content/card';
             @if (areasOpen()) {
               <div [id]="areasPanelId" class="border-t border-edge p-4">
                 @for (area of areas; track area) {
-                  <div uiCard class="mb-4 last:mb-0">
-                    <div class="flex items-center justify-between gap-4">
-                      <h3 class="text-sm font-medium">
-                        {{ areaText(area).name }}
-                      </h3>
-                      <ui-switch
-                        [checked]="isOwned(area)"
-                        [label]="
-                          isOwned(area)
-                            ? ownershipText.take
-                            : ownershipText.hand
-                        "
-                        [disabled]="pending()"
-                        (toggled)="flipOwnership(area, $event)"
-                      />
-                    </div>
+                  <app-switch-card
+                    class="mb-4 last:mb-0"
+                    [checked]="isOwned(area)"
+                    [label]="
+                      isOwned(area) ? ownershipText.take : ownershipText.hand
+                    "
+                    [disabled]="pending()"
+                    (toggled)="flipOwnership(area, $event)"
+                  >
+                    <h3 switchCardTitle class="text-sm font-medium">
+                      {{ areaText(area).name }}
+                    </h3>
 
                     <p uiHint class="mt-1">
                       {{ areaText(area).description }}
                     </p>
 
-                    <!-- What is true now, then what follows from it. Two
-                         sentences rather than one: the state is the answer, the
-                         effect is what an admin came here to change. -->
+                    <!-- The state, then what follows from it. -->
                     <div
                       class="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1"
                     >
@@ -219,7 +187,7 @@ import { Card } from '@b2b-catalog-platform/ui/content/card';
                         }}
                       </p>
                     </div>
-                  </div>
+                  </app-switch-card>
                 }
               </div>
             }
@@ -229,9 +197,7 @@ import { Card } from '@b2b-catalog-platform/ui/content/card';
             <p uiErrorText>{{ ownershipText.error }}</p>
           }
         </section>
-        <!-- Behind a lid, and not fetched until it is opened: the switches
-             above are why an operator came, and the trail is what they consult
-             when the answer to "since when" matters. -->
+        <!-- Fetched on opening: the trail answers "since when". -->
         <section
           class="rounded-md border"
           uiDisclosureFrame
@@ -263,10 +229,8 @@ import { Card } from '@b2b-catalog-platform/ui/content/card';
                       </li>
                     }
                   </ul>
-                  <!-- Said only when the list came back full, because only then
-                       is anything missing from it. There is no paging: this is a
-                       recency question, and a settings trail that needed pages
-                       would be a shop with a much stranger problem. -->
+                  <!-- Only a full list can be missing anything; no paging, as
+                       this is a recency question. -->
                   @if (recordCount() >= pageSize) {
                     <p class="px-4 py-2.5 text-xs text-ink-subtle">
                       {{ moreLabel }}
@@ -278,10 +242,7 @@ import { Card } from '@b2b-catalog-platform/ui/content/card';
                   </p>
                 }
               } @else if (showTrailSkeleton()) {
-                <!-- The one placeholder left, and only once the fetch has
-                     lasted a noticeable moment: an opened lid onto an empty
-                     box reads as "nothing has been changed yet", which is a
-                     sentence this panel can actually say. -->
+                <!-- An empty box would read as "nothing changed yet". -->
                 <ui-skeleton class="m-4" [lines]="3" />
               }
             </div>
@@ -305,7 +266,7 @@ export class OperationsPage {
   private readonly confirm = inject(ConfirmService);
   private readonly locale = inject(DEPLOYMENT_CONFIG).locale;
   private readonly moment = adminMomentFormat(this.locale);
-  /** "Catalog and Customer accounts", in the deployment's own locale. */
+  /** "Catalog and Customer accounts", in the deployment's locale. */
   private readonly areaJoin = new Intl.ListFormat(this.locale, {
     style: 'long',
     type: 'conjunction',
@@ -352,7 +313,6 @@ export class OperationsPage {
     () => new Set(this.settings.value()?.ownedAreas ?? []),
   );
 
-  /** The master's state, derived — see the template's note on the fourth flag. */
   protected readonly allOwned = computed(
     () => this.owned().size === this.areas.length,
   );
@@ -369,16 +329,8 @@ export class OperationsPage {
         ? this.allText.statusMixed
         : this.ownershipText.statusOwn,
   );
-  /**
-   * The rows open on arrival only where the badge above cannot answer on its
-   * own — a shop whose areas disagree.
-   *
-   * Seeded from the *first* answer the API gives rather than from `mixed()`
-   * directly: before the read resolves nothing is owned, and a lid that took
-   * that for an answer would decide to stay shut a moment before learning that
-   * the areas disagree. Afterwards the operator's own open or close stands,
-   * through every flip they make from here.
-   */
+  /** Open on arrival where the areas disagree, seeded from the first answer,
+   * not the empty state before it; the operator's own choice stands after. */
   protected readonly areasOpen = linkedSignal<boolean, boolean>({
     source: () => this.settings.value() !== undefined,
     computation: (loaded, previous) =>
@@ -418,8 +370,7 @@ export class OperationsPage {
     this.pending.set(true);
     this.maintenanceFailed.set(false);
     try {
-      // The answer is the switch's new state, so it replaces that half of the
-      // page's state rather than prompting a second read.
+      // The answer replaces that half of the state; no second read.
       const { enabled: now } = await this.maintenance.set(enabled);
       this.settings.update(
         (state) => state && { ...state, maintenanceEnabled: now },
@@ -432,46 +383,50 @@ export class OperationsPage {
     }
   }
 
-  /**
-   * Both directions are confirmed. Handing over turns the upload off and locks
-   * fields; taking back starts refusing the external system. Neither is
-   * something to discover afterwards.
-   */
+  /** Handing over locks fields; taking back refuses the external system. */
   protected async flipOwnership(
     area: OwnershipArea,
     owned: boolean,
   ): Promise<void> {
     const text = this.areaText(area);
-    const confirmed = await this.confirm.ask({
+    const labels = {
+      hand: this.ownershipText.hand,
+      take: this.ownershipText.take,
+    };
+    if (await this.confirmFlip({ ...text, ...labels }, owned)) {
+      await this.write([area], owned);
+    }
+  }
+
+  /** Every area in one request, one transaction and one decision; the API
+   * records nothing for an area already where it is sent. */
+  protected async flipEverything(owned: boolean): Promise<void> {
+    if (await this.confirmFlip(this.allText, owned)) {
+      await this.write(this.areas, owned);
+    }
+  }
+
+  private confirmFlip(
+    text: {
+      handTitle: string;
+      takeTitle: string;
+      handConfirm: string;
+      takeConfirm: string;
+      handWarning: string;
+      takeWarning: string;
+      hand: string;
+      take: string;
+    },
+    owned: boolean,
+  ): Promise<boolean> {
+    return this.confirm.ask({
       heading: owned ? text.handTitle : text.takeTitle,
       message: owned ? text.handConfirm : text.takeConfirm,
       warning: owned ? text.handWarning : text.takeWarning,
-      confirmLabel: owned ? this.ownershipText.hand : this.ownershipText.take,
+      confirmLabel: owned ? text.hand : text.take,
       cancelLabel: this.actionText.cancel,
       confirmVariant: 'danger',
     });
-    if (!confirmed) return;
-    await this.write([area], owned);
-  }
-
-  /**
-   * The master switch: the same request with every area in it, so the shop
-   * moves in one transaction and the trail shows one decision. Areas already
-   * where they are being sent are sent anyway and record nothing — the switch
-   * says "make this true of everything", and the API is what knows which of
-   * them it was already true of.
-   */
-  protected async flipEverything(owned: boolean): Promise<void> {
-    const confirmed = await this.confirm.ask({
-      heading: owned ? this.allText.handTitle : this.allText.takeTitle,
-      message: owned ? this.allText.handConfirm : this.allText.takeConfirm,
-      warning: owned ? this.allText.handWarning : this.allText.takeWarning,
-      confirmLabel: owned ? this.allText.hand : this.allText.take,
-      cancelLabel: this.actionText.cancel,
-      confirmVariant: 'danger',
-    });
-    if (!confirmed) return;
-    await this.write(this.areas, owned);
   }
 
   private async write(
@@ -491,14 +446,8 @@ export class OperationsPage {
     }
   }
 
-  /**
-   * The trail, as decisions rather than as rows. One flip of the master switch
-   * writes a record per area — the record has to name its area, or that area's
-   * own history has a gap in it — but it was one decision, so the reader is
-   * shown one line. Rows written by the same person, in the same direction, in
-   * the same transaction share a timestamp exactly, which is what makes the
-   * grouping safe: two flips a second apart do not collide.
-   */
+  /** The trail as decisions: a master flip writes a record per area, all with
+   * the transaction's one timestamp, which is what groups them safely. */
   protected readonly entries = computed(() => {
     const rows = this.changes.value();
     if (!rows) return null;
@@ -525,8 +474,7 @@ export class OperationsPage {
     }));
   });
 
-  /** How many records the page holds, which is what "only the 20 most recent"
-   * counts — the grouping is a way of reading them, not fewer of them. */
+  /** Records, not groups: what "only the 20 most recent" counts. */
   protected readonly recordCount = computed(
     () => this.changes.value()?.length ?? 0,
   );
@@ -538,9 +486,6 @@ export class OperationsPage {
         ? this.text.historyMaintenanceOn
         : this.text.historyMaintenanceOff;
     }
-    // Joined by the deployment's own locale rather than by a hard-coded comma:
-    // "Catalog and Customer accounts" is one decision read aloud, and the list
-    // is at most as long as there are areas.
     const areas = this.areaJoin.format(
       group.map(
         (row) =>

@@ -1,16 +1,11 @@
 import { AuthUser } from '@b2b-catalog-platform/shared/platform';
 
-/**
- * Stand-in identities for tests, one per role. Shared rather than re-declared
- * per spec so a new field on AuthUser (the contract grows) is added in one place
- * instead of every file that happens to need a signed-in user.
- */
+/** One identity per role, for specs. */
 export const adminUser: AuthUser = {
   id: 'a',
   email: 'admin@example.com',
   role: 'admin',
-  // Staff accounts often carry no name — the bootstrap admin is a config value,
-  // not a person — so the default identity is the one that has to fall back.
+  // Staff often have no name, so this one exercises the fallback.
   firstName: null,
   mustChangePassword: false,
 };
@@ -23,8 +18,7 @@ export const plainUser: AuthUser = {
   mustChangePassword: false,
 };
 
-/** A manager: staff, but without the catalog — what half the admin screens
- * and every role-shaped count have to be checked against. */
+/** Staff without the catalog. */
 export const managerUser: AuthUser = {
   id: 'm',
   email: 'manager@example.com',

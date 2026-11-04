@@ -4,13 +4,7 @@ import {
   deploymentConfigSchema,
 } from '@b2b-catalog-platform/shared/platform';
 
-/**
- * Complete, schema-shaped demo deployment config for tests only — the sibling
- * of `storefront-text.fixture`, loaded from the test fixture's config the same way.
- *
- * Specs that used to hand-build a config literal drifted every time the schema
- * grew a required field. Start from this and override the one or two values the
- * test is actually about:
+/** The fixture's config, for specs to override what they test:
  *
  *   { ...defaultDeploymentConfig, cookieConsentEnabled: true }
  */

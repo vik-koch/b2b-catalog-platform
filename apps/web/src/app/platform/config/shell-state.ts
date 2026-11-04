@@ -4,35 +4,23 @@ import {
 } from '@b2b-catalog-platform/shared/platform';
 import { StorefrontText } from './storefront-text.type';
 
-/**
- * Per-deployment values the browser needs before it can render any chrome.
- *
- * They cannot be baked into the bundle and there is no config endpoint, so the
- * Node process injects them into every HTML document it serves —
- * server-rendered pages and the client-rendered shell alike.
- * That is deliberately *not* TransferState.
- */
+/** What the browser needs before it draws any chrome. Not in the bundle and
+ * not TransferState: the Node process writes it into every document it serves,
+ * the client-rendered shell included. */
 export interface ShellState {
   deploymentConfig: DeploymentConfig;
   storefrontText: StorefrontText;
   sharedText: SharedText;
-  /** Whether a suggestion provider is configured — an environment variable
-   * rather than a config file, so it travels here (see
-   * suggestions-enabled.ts). */
+  /** From the environment, not a config file (see suggestions-enabled.ts). */
   suggestionsEnabled: boolean;
 }
 
 /** The `<script type="application/json">` the server writes into `<head>`. */
 export const SHELL_STATE_ELEMENT_ID = 'app-shell-state';
 
-// Parsed once: two providers read from it, and the document never changes it.
 let parsed: ShellState | undefined;
 
-/**
- * Reads one slice of the injected state. No baked fallback — the server always
- * writes the script, so a missing element is a bug, surfaced loudly rather than
- * rendered as empty chrome.
- */
+/** No fallback: a missing element is a bug, not empty chrome. */
 export function readShellState<K extends keyof ShellState>(
   key: K,
 ): ShellState[K] {

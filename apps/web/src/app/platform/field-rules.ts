@@ -17,11 +17,8 @@ type StringPath<K extends PathKind> = SchemaPath<
   K
 >;
 
-/**
- * Required, with spaces alone counting as nothing: `required` takes any
- * non-empty string, and a name of three spaces is saved trimmed to none. Both
- * errors are of the `required` kind, so the field treats them alike.
- */
+/** Required, with spaces alone counting as nothing, as the save trims them.
+ * Both errors are of the `required` kind. */
 export function filled<K extends PathKind>(
   path: StringPath<K>,
   message: string,
@@ -34,11 +31,7 @@ export function filled<K extends PathKind>(
   );
 }
 
-/**
- * The email rule the API applies, from the shared pattern rather than the
- * contract's schema, so a form that checks an address loads no Zod. Empty is
- * left to `required`: skipped and malformed are two different messages.
- */
+/** The API's email rule, without Zod. Empty is `required`'s message. */
 export function emailAddress<K extends PathKind>(
   path: StringPath<K>,
   message: string,
@@ -51,10 +44,7 @@ export function emailAddress<K extends PathKind>(
   });
 }
 
-/**
- * A masked number must be filled to the mask's length, even where it is
- * optional: empty is a choice, half a number is a typo. No mask, no rule.
- */
+/** Filled to the mask, even where optional: half a number is a typo. */
 export function completeMask<K extends PathKind>(
   path: StringPath<K>,
   mask: string | undefined,

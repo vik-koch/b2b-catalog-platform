@@ -4,24 +4,9 @@ import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { HeaderCollapse } from '../../platform/header-collapse';
 import { chevronUpIcon } from '@b2b-catalog-platform/ui/icons/glyphs/chevron-up';
 
-/**
- * Back to the top of the page, closing the footer's action row — which is
- * where a reader who has run out of page already is.
- *
- * It is always drawn, and drawn the same: a row that gains and loses a control
- * as the page moves would reflow under the cursor, and a control that greys out
- * and back reads as something breaking rather than as a state. What changes is
- * only whether it answers — it is live from the moment the header collapses,
- * which is exactly the moment there is a top to go back to, and inert while the
- * reader is still up there. Hover is what tells the two apart: the hint and the
- * colour change appear only while there is something to click.
- *
- * Outlined rather than a bare glyph, and a plain chevron rather than a circled
- * one: the navbar's controls are unboxed icons in the brand colour, and this
- * is not one of them — it acts on the page rather than going anywhere. An
- * outlined disc is what the app's other quiet controls look like, and it gives
- * a finger something 36px to land on.
- */
+/** Back to the top, always drawn so the row never reflows, and live once the
+ * header has collapsed. An outlined disc: it acts on the page, unlike the
+ * navbar's bare glyphs. */
 @Component({
   selector: 'app-scroll-to-top',
   imports: [Icon],

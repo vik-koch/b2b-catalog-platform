@@ -1,18 +1,13 @@
-import { Component, inject, input, RESPONSE_INIT } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { STOREFRONT_TEXT } from '../../platform/config/storefront-text';
+import { setResponseStatus } from '../../platform/response-status';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
 import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
 
-/**
- * The one 404 screen: the "404" eyebrow, a heading, an explanation and a way
- * back. Used by the catch-all route and by the resource-level misses (unknown
- * product / category slug), which differ only in their wording and back link.
- *
- * It also owns the response status, so every one of those cases sends crawlers
- * a real 404 rather than a styled 200.
- */
+/** The one 404 screen, for the catch-all route and an unknown slug alike, and
+ * a real 404 status rather than a styled 200. */
 @Component({
   selector: 'app-not-found-view',
   imports: [RouterLink, Button, PageTitle, PageIntro],
@@ -38,11 +33,6 @@ export class NotFoundView {
   readonly backLabel = input<string | null>(null);
 
   constructor() {
-    // The token only exists during SSR; it is null in the browser and on
-    // client-side navigations, where the status line has already been sent.
-    const responseInit = inject(RESPONSE_INIT, { optional: true });
-    if (responseInit) {
-      responseInit.status = 404;
-    }
+    setResponseStatus(404);
   }
 }

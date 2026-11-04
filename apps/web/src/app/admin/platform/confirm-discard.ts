@@ -2,14 +2,8 @@ import { inject } from '@angular/core';
 import { ADMIN_TEXT } from '../../platform/config/admin-text';
 import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
 
-/**
- * The one discard-unsaved-changes prompt, shared by the editors' Cancel buttons
- * and the canDeactivate guards. Only the message differs per editor; the
- * heading and the two labels are the admin text's `discard`.
- *
- * Must be called in an injection context — a guard body, or a component field
- * initialiser, which is what `injectConfirmDiscard` is for.
- */
+/** The discard-changes prompt for an editor's Cancel and its guard; only the
+ * message differs. Call in an injection context. */
 export function confirmDiscard(message: string): Promise<boolean> {
   return injectConfirmDiscard()(message);
 }

@@ -7,23 +7,17 @@ import {
   untracked,
 } from '@angular/core';
 
+/** The exit animations' length in styles.css, which hold their last frame. */
+const EXIT_MS = 150;
+
 /**
- * Keeps a panel in the document for the length of its exit animation.
- *
- * An element the template has already removed has nothing left to animate, so
- * a `@if` on the open state alone can only ever animate an arrival. This
- * follows the state on the way in and trails it on the way out: render on
- * `shown`, and pick the entry or exit animation off `leaving`.
- *
- * `leaveMs` must match the exit animation's duration in styles.css, and that
- * animation must hold its last frame — the element is still there while it
- * runs.
- *
- * Call it from an injection context.
+ * Keeps a panel in the document through its exit animation, which a removed
+ * element cannot run: render on `shown`, animate off `leaving`. Call in an
+ * injection context.
  */
 export function withExitAnimation(
   open: Signal<boolean>,
-  leaveMs: number,
+  leaveMs = EXIT_MS,
 ): { shown: Signal<boolean>; leaving: Signal<boolean> } {
   const shown = signal(false);
   const leaving = signal(false);
@@ -35,10 +29,8 @@ export function withExitAnimation(
     const isOpen = open();
     clearTimeout(timer);
 
-    // Untracked throughout: these two are this effect's own output, and
-    // reading them as inputs would have it re-run on what it just wrote.
-    // Reopening mid-exit therefore lands back on the entry animation rather
-    // than stacking a second panel behind the first.
+    // Untracked: its own output, so a reopening mid-exit lands back on the
+    // entry rather than stacking a second panel.
     if (isOpen) {
       untracked(() => {
         leaving.set(false);

@@ -1,3 +1,4 @@
+import { fillText } from '@b2b-catalog-platform/shared/platform';
 import { inject, Injectable } from '@angular/core';
 import {
   ProductAvailability,
@@ -138,14 +139,13 @@ export class ProductsService implements EditModeCatalog {
       unpublishStranded: string;
     },
   ): Promise<string> {
-    const message = text.unpublishConfirm.message.replace(
-      '{name}',
-      product.name,
-    );
+    const message = fillText(text.unpublishConfirm.message, {
+      name: product.name,
+    });
     const stranded = await this.strandedPairingNames(product.slug);
     return stranded.length === 0
       ? message
-      : `${message} ${text.unpublishStranded.replace('{names}', stranded.join(', '))}`;
+      : `${message} ${fillText(text.unpublishStranded, { names: stranded.join(', ') })}`;
   }
 
   /** Empty when the question cannot be answered: a missing line in a

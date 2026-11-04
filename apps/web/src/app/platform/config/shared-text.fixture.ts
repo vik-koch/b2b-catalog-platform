@@ -4,7 +4,7 @@ import {
 } from '@b2b-catalog-platform/shared/platform';
 import { loadConfig } from '@b2b-catalog-platform/shared/node';
 
-/** The committed demo glossary, for tests only (see storefront-text.fixture.ts). */
+/** The fixture's shared text, for specs. */
 export const defaultSharedText: SharedText = loadConfig(
   sharedTextSchema,
   'texts/shared.json',

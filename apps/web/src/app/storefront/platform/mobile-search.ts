@@ -20,25 +20,10 @@ export interface SearchAnchor {
 }
 
 /**
- * How the bottom bar's search tab reaches a search field, below `sm`.
- *
- * Two answers, because the header is not sticky there: while any part of its
- * search row is still on screen the tap belongs to that field and simply puts
- * the caret in it, which is what a visitor who can see the field expects a
- * search button to do. Once the row has scrolled away there is nothing to
- * focus, so the tap opens the field over the page instead, with the page held
- * still behind it.
- *
- * The overlay closes on the navigation that a search causes, so submitting a
- * query or picking a suggestion needs no separate dismissal.
- *
- * Android's back closes the keyboard and then leaves the page: the overlay is
- * not a history entry of its own. It was, briefly — and popping that entry
- * made the router navigate, which this app answers by scrolling to the top
- * (see `withInMemoryScrolling` in app.config.ts), so every dismissal threw
- * away the visitor's place. Giving the gesture something to consume means
- * teaching the router that this particular navigation keeps its scroll, which
- * is a bigger change than the gesture is worth.
+ * How the bottom bar's search tab reaches a field below `sm`, where the header
+ * scrolls away: the header's own field while any of its row shows, else the
+ * field over the page, which the search's navigation closes. Not a history
+ * entry: popping one navigates, and the router then scrolls to the top.
  */
 @Injectable({ providedIn: 'root' })
 export class MobileSearch {
@@ -53,12 +38,8 @@ export class MobileSearch {
   readonly open = signal(false);
   /** Whether a search field has the caret — set by the field itself. */
   private readonly focused = signal(false);
-  /**
-   * Whether searching is what the visitor is currently doing, either way the
-   * tab can answer: the field over the page, or the header's own field with
-   * the caret in it. The bottom bar lights its search tab from this — the tab
-   * is not a route, so there is no URL to read it off.
-   */
+  /** Whether the visitor is searching, either way: lights the tab, which is
+   * not a route. */
   readonly active = computed(() => this.open() || this.focused());
 
   constructor() {
@@ -71,9 +52,7 @@ export class MobileSearch {
 
     if (!this.isBrowser) return;
 
-    // The page behind the overlay must not move: a page that scrolls under a
-    // keyboard takes the field with it, which is the whole reason the field
-    // left the header.
+    // A page scrolling under the keyboard would take the field with it.
     effect(() => this.hold(this.open()));
   }
 
@@ -95,41 +74,23 @@ export class MobileSearch {
   activate(): void {
     const row = this.anchor?.row;
     const rect = row?.getBoundingClientRect();
-    // Partly on screen counts: the visitor can see the field, so taking them
-    // to it reads as the page answering rather than as a new surface.
+    // Partly on screen counts: the visitor can see the field.
     if (rect && rect.bottom > 0) {
-      // Synchronously, and inside the gesture: a mobile browser opens its
-      // keyboard for a focus that happened in the tap and not for one a tick
-      // later.
+      // Inside the gesture, or a mobile browser opens no keyboard.
       this.anchor?.focus();
-      // Only where the row is not already whole. Half of it showing means the
-      // page has moved on and the rest of the header is worth uncovering; on
-      // the results page, where the field is sticky and always whole, a scroll
-      // to the top would be the button throwing away the visitor's place for
-      // nothing.
+      // Only for a half-hidden row: the results page's sticky field is whole.
       if (rect.top < 0) this.scrollToTop();
       return;
     }
 
-    // Read here rather than where the page is actually held: by then the
-    // overlay has been rendered and its field focused, and a browser will
-    // scroll a focused field into view — so the offset to give back would be
-    // the one after that scroll rather than the one the visitor was at.
+    // Read now: by the time the page is held, the focused field has scrolled
+    // it.
     this.heldAt = window.scrollY;
     this.open.set(true);
   }
 
-  /**
-   * Holds the page still behind the overlay, and puts it back exactly where it
-   * was afterwards.
-   *
-   * `overflow: hidden` alone is not enough: taking the scrollability off the
-   * document loses the offset with it, so the page jumps to its top — visibly,
-   * through the dimming — and stays there once the field is dismissed. So the
-   * body is lifted by the offset it was scrolled to and fixed there, which
-   * leaves the same pixels on screen, and the offset is scrolled back on the
-   * way out.
-   */
+  /** Fixes the body at its offset and scrolls it back after: `overflow:
+   * hidden` alone loses the offset and jumps the page to its top. */
   private hold(open: boolean): void {
     if (open === this.held) return;
     this.held = open;
@@ -144,8 +105,7 @@ export class MobileSearch {
 
     root.classList.remove('search-locked');
     body.style.top = '';
-    // Instant, and not through scrollToTop: this is not a journey, it is the
-    // page being handed back unchanged.
+    // Instant: the page is handed back, not travelled.
     window.scrollTo({ top: this.heldAt, behavior: 'auto' });
   }
 

@@ -4,6 +4,7 @@ import {
   API_TOKEN_NAME_MAX_LENGTH,
   API_TOKEN_SCOPES,
   ApiTokenScope,
+  fillText,
 } from '@b2b-catalog-platform/shared/platform';
 import {
   ApiToken,
@@ -350,7 +351,7 @@ export class ApiTokenListPage {
   }
 
   protected fill(template: string, value: string): string {
-    return template.replace('{name}', value);
+    return fillText(template, { name: value });
   }
 
   protected scopeLabel(scope: ApiTokenScope): string {
@@ -375,9 +376,10 @@ export class ApiTokenListPage {
   }
 
   protected createdLine(token: ApiToken): string {
-    return this.text.created
-      .replace('{date}', this.moment().format(new Date(token.createdAt)))
-      .replace('{actor}', token.createdBy ?? this.adminText.actorGone);
+    return fillText(this.text.created, {
+      date: this.moment().format(new Date(token.createdAt)),
+      actor: token.createdBy ?? this.adminText.actorGone,
+    });
   }
 
   /** A token nobody uses looks like a working one until this line says so. */

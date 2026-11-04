@@ -2,15 +2,9 @@ import { mergeAttributes } from '@tiptap/core';
 import Image from '@tiptap/extension-image';
 import { DOMOutputSpec } from '@tiptap/pm/model';
 
-/**
- * The editor's image node, extending the stock Image with the attributes the
- * server allows: `data-align` (an enum), `data-width` (a pixel width of the
- * image), and an optional link. Width renders as `data-width` plus an inline
- * `width` style so the size is visible while editing — the same style the
- * sanitizer reconstructs on save. A link renders as a wrapping `<a>` (a mark
- * cannot apply to a block node), which the server sanitizer treats exactly like
- * any other link. Nothing here is trusted: the server re-validates everything.
- */
+/** The stock Image with what the sanitizer allows: `data-align`, `data-width`
+ * with the inline width it rebuilds, and a link as a wrapping `<a>`, as a mark
+ * cannot apply to a block node. */
 export const RichTextImage = Image.extend({
   addAttributes() {
     return {
@@ -31,8 +25,7 @@ export const RichTextImage = Image.extend({
             : {};
         },
       },
-      // Read from the wrapping <a> when there is one; rendered by the node's
-      // renderHTML below (as the <a>), never as an attribute on the <img>.
+      // From the wrapping <a>; rendered as that <a>, never on the <img>.
       href: {
         default: null,
         parseHTML: (element) =>
@@ -44,25 +37,19 @@ export const RichTextImage = Image.extend({
     };
   },
 
-  // Export markup (what getHTML serializes and the server stores): a linked
-  // image is a wrapping <a>. This is NOT used for the editing view — see the
-  // NodeView below — so the anchor never gets in the way of selecting the image.
+  // The stored markup; the editing view below never draws the <a>.
   renderHTML({ node, HTMLAttributes }) {
     const img: DOMOutputSpec = [
       'img',
       mergeAttributes(this.options.HTMLAttributes, HTMLAttributes),
     ];
     const href = node.attrs['href'];
-    // rel matches the text-link policy; the sanitizer re-forces it anyway.
     return href
       ? (['a', { href, rel: 'noopener noreferrer' }, img] as DOMOutputSpec)
       : img;
   },
 
-  // Editing view: always a bare <img> so the node stays directly selectable and
-  // the placement panel keeps working after a link is applied. The link is a
-  // non-interactive affordance (data-linked) here; it only becomes a real <a>
-  // in the exported HTML above.
+  // A bare <img> while editing, so a linked image stays selectable.
   addNodeView() {
     return ({ node, HTMLAttributes }) => {
       const dom = document.createElement('img');

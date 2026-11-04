@@ -6,27 +6,9 @@ import { MobileSearch } from '../platform/mobile-search';
 import { SearchField } from '../catalog/search/search-field';
 import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
 
-/** Must match the exit animations in styles.css. */
-const LEAVE_MS = 150;
-
-/**
- * The search field over the page, below `sm` — what the bottom bar's search
- * tab opens once the header's own field has scrolled away.
- *
- * It is a surface rather than a bar: the page behind it is dimmed and held
- * still under it, so it is plain that the field is what is being answered and there is
- * nothing to lose by typing. The row is the height the header's is, and in the
- * same place, and it drops in from the top edge — so opening it reads as the
- * header being fetched back rather than as arriving somewhere new. It is also
- * where suggestions, and later the things a search screen can offer that a bar
- * cannot, have room to sit.
- *
- * It goes back the way it came, which is why what is rendered is not the open
- * state itself: an element the template has already removed has nothing left
- * to animate, so the row outlives the state by the length of its exit and
- * leaves under its own animation. Faster on the way out than in — a dismissal
- * is the direction where waiting is felt as lag.
- */
+/** The search field over the dimmed, held page below `sm`, once the header's
+ * has scrolled away: the header's height and place, dropping in from the top
+ * as the header fetched back. */
 @Component({
   selector: 'app-search-overlay',
   imports: [Icon, SearchField],
@@ -51,14 +33,8 @@ const LEAVE_MS = 150;
           <span class="sr-only">{{ text.closeSearchAria }}</span>
         </button>
       </div>
-      <!-- The dimmed page is also the way out: tapping it is a decision not to
-           search. A button rather than a div with a handler, because that is
-           what it is — and after the row in the document, so the caret and the
-           tab order reach the field first while it still paints beneath.
-
-           Above everything the page puts along its edges — the bottom bar, the
-           consent banner, the admin edit-mode toggle — because all of them
-           belong to the page that is being held still. -->
+      <!-- The dimmed page is a way out too: a button, after the row so focus
+           reaches the field first, and above everything on the page's edges. -->
       <button type="button" [class]="scrimClasses()" (click)="search.close()">
         <span class="sr-only">{{ text.closeSearchAria }}</span>
       </button>
@@ -70,8 +46,7 @@ export class SearchOverlay {
   protected readonly search = inject(MobileSearch);
   protected readonly text = inject(STOREFRONT_TEXT).search;
 
-  /** In the document while open, and for as long as it takes to leave. */
-  private readonly exit = withExitAnimation(this.search.open, LEAVE_MS);
+  private readonly exit = withExitAnimation(this.search.open);
   protected readonly shown = this.exit.shown;
   private readonly leaving = this.exit.leaving;
 

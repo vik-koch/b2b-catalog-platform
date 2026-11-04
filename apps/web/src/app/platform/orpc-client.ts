@@ -19,11 +19,7 @@ import type {
 import { lastValueFrom } from 'rxjs';
 import { requireEnv } from '../../env';
 
-/**
- * Marks a request as one of ours to the API. The hydration transfer cache
- * carries only these (hydration.ts): its widened rules are about what our API
- * marks, and should not reach anything else the app happens to fetch.
- */
+/** A request to our API: the only kind the widened transfer cache carries. */
 export const API_REQUEST = new HttpContextToken<boolean>(() => false);
 
 /** oRPC's header bag → Angular's, dropping the ones it leaves unset. */
@@ -48,13 +44,8 @@ function toStandardHeaders(headers: HttpHeaders): StandardHeaders {
   return result;
 }
 
-/**
- * oRPC's transport seam, implemented over Angular's HttpClient rather than
- * `fetch`. Going through HttpClient is not a preference: the SSR transfer
- * cache is an HttpClient interceptor, so a request made with `fetch` is
- * invisible to it and every server-rendered response would be refetched on
- * hydration.
- */
+/** oRPC over HttpClient, not `fetch`: the transfer cache is an HttpClient
+ * interceptor, and a `fetch` would be asked again on hydration. */
 class HttpClientLink implements StandardLinkClient<Record<never, never>> {
   constructor(private readonly http: HttpClient) {}
 
@@ -62,9 +53,8 @@ class HttpClientLink implements StandardLinkClient<Record<never, never>> {
     request: StandardRequest,
     _options: ClientOptions<Record<never, never>>,
   ): Promise<StandardLazyResponse> {
-    // The whole URL goes through as one string and the query is never lifted
-    // into HttpParams: the transfer cache keys on both, and the two platforms
-    // must produce byte-identical keys.
+    // One string, never HttpParams: both platforms must make identical
+    // cache keys.
     const url = request.url.href;
 
     try {
@@ -75,9 +65,8 @@ class HttpClientLink implements StandardLinkClient<Record<never, never>> {
           context: new HttpContext().set(API_REQUEST, true),
           observe: 'response',
           responseType: 'json',
-          // Deliberately no `withCredentials`/`credentials`: the API is
-          // same-origin, so the browser attaches the session cookie anyway,
-          // and either flag makes Angular skip the transfer cache entirely.
+          // No `withCredentials`: same-origin sends the cookie anyway, and
+          // the flag makes Angular skip the transfer cache.
         }),
       );
       return {
@@ -86,10 +75,8 @@ class HttpClientLink implements StandardLinkClient<Record<never, never>> {
         body: async () => response.body ?? undefined,
       };
     } catch (error) {
-      // HttpClient rejects every non-2xx, but oRPC expects a declared error
-      // status to arrive as a *response* — that is what makes typed errors
-      // reachable at the call site. Only genuine transport failures, which
-      // carry no status, still throw.
+      // oRPC reads a declared error from a response; only a transport
+      // failure, which has no status, throws.
       if (error instanceof HttpErrorResponse && error.status > 0) {
         return {
           status: error.status,
@@ -102,14 +89,9 @@ class HttpClientLink implements StandardLinkClient<Record<never, never>> {
   }
 }
 
-/**
- * Builds an oRPC client over Angular's HttpClient. Must be called in an
- * injection context (e.g. a service field initializer).
- *
- * URLs are absolute on both platforms on purpose: the SSR transfer cache keys
- * responses by the full URL string, with the server-side origin rewritten via
- * HTTP_TRANSFER_CACHE_ORIGIN_MAP (see app.config.server.ts).
- */
+/** Absolute URLs on both platforms, as the transfer cache keys on them (the
+ * server's origin is mapped in app.config.server.ts). Call in an injection
+ * context. */
 export function createOrpcClient<T extends AnyContractRouter>(
   contract: T,
 ): ContractRouterClient<T> {
@@ -118,17 +100,14 @@ export function createOrpcClient<T extends AnyContractRouter>(
   const document = inject(DOCUMENT);
   let origin: string | undefined;
 
-  // Resolved on the first request, not when the service is built: API_URL
-  // exists only in a running Node process, and the build's route extraction
-  // boots the app — and every service its guards inject — where none is.
+  // On the first request: the build's route extraction boots the app where
+  // no API_URL exists.
   const baseUrl = () =>
     (origin ??= onServer
       ? requireEnv('API_URL')
       : `${document.location.origin}/api`);
 
   const link = new StandardOpenAPILink(contract, new HttpClientLink(http), {
-    // A function, so the origin is resolved per request rather than when the
-    // client is built.
     url: () => baseUrl(),
   });
 

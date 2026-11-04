@@ -1,13 +1,8 @@
 import { Directive, inject } from '@angular/core';
 import { Router } from '@angular/router';
 
-/**
- * Sends a click on a root-relative link inside a rich-text body through the
- * router. The body is plain HTML, so its anchors carry no routerLink, and
- * without this a link to `/catalog` reloads the whole app. Anything the
- * browser should handle itself — another site, mail, phone, a new tab — is
- * left alone.
- */
+/** A root-relative link in a rich-text body goes through the router instead
+ * of reloading the app; other sites, mail, phone and new tabs are left alone. */
 @Directive({
   selector: '[appRichTextLinks]',
   host: { '(click)': 'onClick($event)' },

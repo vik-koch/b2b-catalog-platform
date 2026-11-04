@@ -1,11 +1,6 @@
 import { AUTH_COOKIE } from '@b2b-catalog-platform/shared/platform';
 
-/**
- * The session cookie out of a `Cookie` header, as `name=value`, or null when
- * the visitor has none. Only this one pair is ever passed on: the rest of the
- * jar (consent, layout preference, the session hint) is the browser's business,
- * not the API's.
- */
+/** The session's `name=value` pair, the only one passed on to the API. */
 export function sessionCookieIn(
   header: string | null | undefined,
 ): string | null {

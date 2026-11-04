@@ -8,23 +8,13 @@ import {
   signal,
 } from '@angular/core';
 
-/**
- * How long a load may take before it is worth admitting to. Under this, the
- * content usually arrives within a frame or two of the skeleton, and the
- * skeleton reads as a flicker rather than as feedback.
- */
-export const LOADING_FEEDBACK_DELAY_MS = 500;
+/** Under this, a skeleton reads as a flicker rather than as feedback. */
+const LOADING_FEEDBACK_DELAY_MS = 500;
 
 /**
- * Wraps a loading flag so it only turns true once loading has actually lasted a
- * noticeable moment — the standard fix for skeletons that flash and vanish on
- * fast navigations. Falling edges are immediate: the instant data arrives, the
- * skeleton goes, whether or not it ever appeared.
- *
- * Always false on the server. SSR waits for the data before it serialises, so
- * the rendered HTML carries real content and never a skeleton.
- *
- * Must be called in an injection context (a field initialiser or a constructor).
+ * A loading flag that turns true only once a load has lasted, and false the
+ * moment it ends. Always false on the server, which renders the data. Call in
+ * an injection context:
  *
  *   protected readonly showSkeleton = delayedLoading(this.data.isLoading);
  */
@@ -40,8 +30,7 @@ export function delayedLoading(
   let timer: ReturnType<typeof setTimeout> | undefined;
   effect(() => {
     if (loading()) {
-      // Already counting down: let the original deadline stand, so a flapping
-      // source cannot keep pushing the skeleton further away.
+      // A flapping source must not keep pushing the deadline away.
       timer ??= setTimeout(() => visible.set(true), delayMs);
     } else {
       clearTimeout(timer);

@@ -4,48 +4,21 @@ import { getDeploymentConfig } from '../../platform/config/deployment-config.ser
 import { isMaintenanceOn } from '../site/maintenance/maintenance.server';
 
 /**
- * Server-side SEO surface: robots.txt, sitemap.xml, and the environment-level
- * `noindex` switch. Lives with the other `.server.ts` config so the browser
- * bundle never imports it.
- *
- * Two independent suppression axes combine here: `SEO_INDEXABLE` (permanent,
- * per-deployment — dev and the demo stay out of the index) and maintenance mode
- * (temporary, runtime). Either one disallows crawling.
+ * robots.txt, sitemap.xml and the `noindex` switch. Two things keep crawlers
+ * out: `SEO_INDEXABLE`, per deployment, and maintenance mode, for a while.
  */
 
-/** Whether this deployment opts in to being indexed. Defaults to false so a new
- * or misconfigured host is never accidentally crawled. */
-export function isIndexable(): boolean {
+/** Off by default, so a new or misconfigured host is never crawled. */
+function isIndexable(): boolean {
   return process.env['SEO_INDEXABLE'] === 'true';
 }
 
-// Code routes that belong in the sitemap but have no content timestamp, so
-// they carry no <lastmod> (deliberately — see the DB-backed entries below,
-// which do). The page slugs are not here: they come from the API with their
-// real updatedAt.
-const CODE_PATHS = ['/', '/catalog'];
-
-// Session/admin routes: client-rendered shells with no crawler value. Kept out
-// of the sitemap and explicitly disallowed in robots.txt as defence-in-depth.
-const PRIVATE_PATHS = ['/admin', '/account', '/login', '/change-password'];
-
-/**
- * robots.txt body. Disallows everything unless the deployment is indexable and
- * not under maintenance; otherwise allows all but the private/session routes
- * and advertises the sitemap.
- */
-export async function renderRobots(): Promise<string> {
-  const blocked = !isIndexable() || (await isMaintenanceOn());
-  if (blocked) {
-    return 'User-agent: *\nDisallow: /\n';
-  }
-  const origin = requireEnv('APP_ORIGIN').replace(/\/+$/, '');
-  const disallow = PRIVATE_PATHS.map((p) => `Disallow: ${p}`).join('\n');
-  return `User-agent: *\nAllow: /\n${disallow}\nSitemap: ${origin}/sitemap.xml\n`;
+function publicOrigin(): string {
+  return requireEnv('APP_ORIGIN').replace(/\/+$/, '');
 }
 
-/** Escapes the five XML entities in a URL before it goes into <loc>. */
-function xmlEscape(value: string): string {
+/** For a URL in XML or in a double-quoted attribute. */
+function escapeMarkup(value: string): string {
   return value
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
@@ -54,24 +27,34 @@ function xmlEscape(value: string): string {
     .replace(/'/g, '&apos;');
 }
 
+// Routes with no content timestamp, so no <lastmod>; pages come from the API.
+const CODE_PATHS = ['/', '/catalog'];
+
+// No crawler value: out of the sitemap, and disallowed as well.
+const PRIVATE_PATHS = ['/admin', '/account', '/login', '/change-password'];
+
+export async function renderRobots(): Promise<string> {
+  const blocked = !isIndexable() || (await isMaintenanceOn());
+  if (blocked) {
+    return 'User-agent: *\nDisallow: /\n';
+  }
+  const origin = publicOrigin();
+  const disallow = PRIVATE_PATHS.map((p) => `Disallow: ${p}`).join('\n');
+  return `User-agent: *\nAllow: /\n${disallow}\nSitemap: ${origin}/sitemap.xml\n`;
+}
+
 function urlEntry(origin: string, path: string, lastmod?: string): string {
-  const loc = xmlEscape(`${origin}${path}`);
+  const loc = escapeMarkup(`${origin}${path}`);
   const mod = lastmod ? `\n    <lastmod>${lastmod}</lastmod>` : '';
   return `  <url>\n    <loc>${loc}</loc>${mod}\n  </url>`;
 }
 
-// The rendered XML is cached in-process behind a short TTL rather than a
-// sync-invalidation hook: the URL set changes only on catalog sync,
-// so a brief staleness window is acceptable and keeps this off the hot path.
+// A short TTL rather than an invalidation hook: the URLs change on a sync.
 const SITEMAP_TTL_MS = 5 * 60 * 1000;
 let sitemapCache: { xml: string; at: number } | undefined;
 
-/**
- * Result of a sitemap request: either the rendered document, or a status the
- * route should return in place of it — `503` while maintenance gates the API,
- * `404` when the deployment is not indexable.
- */
-export type SitemapResult =
+/** 503 while maintenance gates the API, 404 where nothing is indexable. */
+type SitemapResult =
   { kind: 'xml'; body: string } | { kind: 'status'; status: 404 | 503 };
 
 function publishes(slug: string): boolean {
@@ -89,8 +72,7 @@ export async function renderSitemap(): Promise<SitemapResult> {
   }
 
   const response = await fetch(`${requireEnv('API_URL')}/catalog/sitemap`);
-  // The maintenance guard 503s this endpoint like the rest of the read API;
-  // surface it so crawlers back off instead of caching an empty sitemap.
+  // Passed on, so crawlers back off rather than cache an empty sitemap.
   if (response.status === 503) {
     return { kind: 'status', status: 503 };
   }
@@ -103,13 +85,10 @@ export async function renderSitemap(): Promise<SitemapResult> {
     pages: SitemapEntry[];
   };
 
-  const origin = requireEnv('APP_ORIGIN').replace(/\/+$/, '');
+  const origin = publicOrigin();
   const urls = [
     ...CODE_PATHS.map((path) => urlEntry(origin, path)),
-    // The API returns every page row; only the ones this deployment publishes
-    // belong in the sitemap. Without this filter an unpublished page would keep
-    // being advertised to crawlers while its route 404s. Every page is served
-    // at its slug, by the generic route or its own code route alike.
+    // Every page row comes back; an unpublished one's route 404s.
     ...data.pages
       .filter((p) => publishes(p.slug))
       .map((p) => urlEntry(origin, `/${p.slug}`, p.updatedAt)),
@@ -131,59 +110,25 @@ export async function renderSitemap(): Promise<SitemapResult> {
 }
 
 /**
- * Escapes the characters that could break out of a double-quoted HTML
- * attribute. The path comes from the request line, so it is not ours.
- */
-function attrEscape(value: string): string {
-  return value
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
-}
-
-/**
- * Injects `<link rel="canonical">` naming the requested path, without its query
- * string (NFR-SEO-04). Sort, page and attribute filters each turn one category
- * into an arbitrary number of URLs — filters combinatorially many — and every
- * one of them is the same content seen through a lens, so they all point at the
- * plain category.
- *
- * Written here rather than by the component that renders the page, for the same
- * reason the sitemap is: only the SSR tier knows the public origin the document
- * is reached at, and a crawler only ever reads the initial HTML of the URL it
- * fetched. A client-side navigation therefore leaves the tag alone — the
- * document it would update is one no crawler has.
- *
- * Two documents get none. A view that has already marked itself `noindex`
- * (search results, FR-SEARCH-\*) needs no preferred URL, and this runs before
- * `injectNoindexMeta` so that check sees only the page's own tag, never the
- * deployment-level one. And the session routes have no crawler value at all.
+ * `<link rel="canonical">` for the path without its query (NFR-SEO-04): sort,
+ * page and filters are lenses on one category. Here, as only SSR knows the
+ * public origin. None for a page marked `noindex` (run before
+ * `injectNoindexMeta`, so that is the page's own tag) or a session route.
  */
 export function injectCanonicalLink(html: string, path: string): string {
   if (html.includes('name="robots"')) return html;
   if (PRIVATE_PATHS.some((p) => path === p || path.startsWith(`${p}/`))) {
     return html;
   }
-  const origin = requireEnv('APP_ORIGIN').replace(/\/+$/, '');
-  const href = attrEscape(`${origin}${path}`);
+  const href = escapeMarkup(`${publicOrigin()}${path}`);
   return html.replace(
     '</head>',
     `<link rel="canonical" href="${href}"></head>`,
   );
 }
 
-/**
- * Injects `<meta name="robots" content="noindex, nofollow">` into an SSR
- * document when the deployment is not indexable — belt-and-braces alongside
- * robots.txt so a directly-fetched page is also marked.
- *
- * A page that marked *itself* `noindex` (usePageSeo) already rendered a robots
- * tag into this document, and a second one is not additive — a crawler reading
- * two disagreeing tags is the one case both of them were written to avoid. The
- * existing tag is rewritten instead, since the deployment's is the stricter of
- * the two.
- */
+/** Beside robots.txt, for a page fetched directly. A page's own robots tag is
+ * rewritten rather than joined by a second: the deployment's is stricter. */
 const ROBOTS_META = /<meta[^>]*\bname="robots"[^>]*>/i;
 
 export function injectNoindexMeta(html: string): string {

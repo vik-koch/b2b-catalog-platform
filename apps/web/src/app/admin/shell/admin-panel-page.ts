@@ -5,8 +5,10 @@ import {
   CONSENT_PURPOSES,
   ConsentPurpose,
 } from '@b2b-catalog-platform/shared/core/site';
+import { SyncArea } from '@b2b-catalog-platform/shared/core/exchange';
 import {
   OWNERSHIP_AREAS,
+  OwnershipArea,
   fillText,
 } from '@b2b-catalog-platform/shared/platform';
 import { AuthService } from '../../platform/auth/auth.service';
@@ -21,6 +23,7 @@ import { WorkService } from '../../core/work/work.service';
 import { BuildInfoService } from '../platform/build-info.service';
 import { injectEditorReturnParams } from '../../platform/edit-mode/editor-return';
 import { adminMomentFormat } from '../platform/dates/admin-date';
+import { PanelCard } from './panel-card';
 import { PanelRow } from './panel-row';
 import { OwnershipService } from '../platform/ownership/ownership.service';
 import { MaintenanceSwitchService } from '../site/maintenance-switch.service';
@@ -34,22 +37,16 @@ import { lockIcon } from '@b2b-catalog-platform/ui/icons/glyphs/lock';
 import { packageIcon } from '@b2b-catalog-platform/ui/icons/glyphs/package';
 import { usersIcon } from '@b2b-catalog-platform/ui/icons/glyphs/users';
 import { wrenchIcon } from '@b2b-catalog-platform/ui/icons/glyphs/wrench';
-import { Card } from '@b2b-catalog-platform/ui/content/card';
-import { SectionTitle } from '@b2b-catalog-platform/ui/content/section-title';
 
 /**
- * Admin panel — a small dashboard: the two staff-facing halves (orders and
- * accounts) side by side, then everything that changes shop content (the
- * catalog import, products and categories, the fixed static pages), then site
- * state. Everything an admin can change is discoverable
- * from here, consistent with the storefront edit-mode affordances.
+ * The staff's first screen: orders and accounts, then what changes the shop's
+ * content, then how it runs. A manager sees orders, accounts and security.
  */
 @Component({
   selector: 'app-admin-panel-page',
   imports: [
-    SectionTitle,
-    Card,
     SignedInAs,
+    PanelCard,
     PanelRow,
     StatusBadge,
     ActionLink,
@@ -57,463 +54,285 @@ import { SectionTitle } from '@b2b-catalog-platform/ui/content/section-title';
     RouterLink,
   ],
   template: `
-    <!-- Narrower than the shell allows. The panel is a column of short lists,
-         and at the full width of a desktop each card was a name on the left
-         and half a screen of nothing beside it. -->
+    <!-- Narrower than the shell: at full width a card is a name and half a
+         screen of nothing. -->
     <div class="max-w-3xl">
-      <h1 uiPageTitle class="mb-4">
-        {{ isAdmin() ? panelText.adminPanel : panelText.staffArea }}
-      </h1>
+      <h1 uiPageTitle class="mb-4">{{ title() }}</h1>
       <app-signed-in-as />
 
-      <!-- Every section is a heading with a glyph and a card of rows beneath
-           it, and every card puts what it has to say on its own right-hand
-           axis.
-
-           Two columns that fill independently, not a grid of aligned rows:
-           aligned, every card started on the line the tallest card of its row
-           ended on, so the one-row orders card left a hole beneath it as deep
-           as the two-row accounts card beside it. Two columns rather than a
-           multi-column flow, because which card sits under which is the point
-           — the catalog belongs under the orders, not wherever a balancing
-           algorithm puts it.
-
-           Below md the columns are display: contents, so every section becomes
-           a child of this grid and the order property interleaves them — orders
-           then accounts, catalog then registries. Stacked a whole column at a
-           time, the second column's first card only arrived after the first
-           column's last one. -->
+      <!-- Two columns that fill independently, so a short card leaves no hole
+           beside a tall one, and keep which card sits under which. Below md
+           they dissolve (contents) and \`order\` interleaves the cards. -->
       <div class="mt-7 grid items-start gap-x-6 gap-y-6.5 md:grid-cols-2">
         <div class="contents md:flex md:flex-col md:gap-6.5">
-          <!-- Orders first, and in the panel's only filled button: answering
-               today's requests is the work. A manager has nothing here but this
-               card and the accounts beside it, and an admin arriving at this
-               screen is far more often answering an order than importing a
-               catalog. -->
-          <section class="order-1 md:order-0">
-            <h2
-              id="admin-orders-heading"
-              uiSectionTitle
-              class="mb-1.5"
-              [glyph]="clipboardListIcon"
+          <app-panel-card
+            key="orders"
+            class="order-1 md:order-0"
+            [heading]="panelText.orders"
+            [glyph]="clipboardListIcon"
+          >
+            <app-panel-row
+              stacked
+              [label]="orderText.page.title"
+              link="/admin/orders"
             >
-              {{ panelText.orders }}
-            </h2>
-            <ul
-              uiCard
-              [padded]="false"
-              [class]="listClass"
-              aria-labelledby="admin-orders-heading"
+              @if (counts().orders; as count) {
+                <a
+                  uiActionLink
+                  routerLink="/admin/orders"
+                  [queryParams]="{ status: 'requested' }"
+                  >{{ fill(panelText.workOrders, count) }}</a
+                >
+              }
+              @if (counts().unpaidOrders; as count) {
+                <a
+                  uiActionLink
+                  routerLink="/admin/orders"
+                  [queryParams]="{ status: 'completed', payment: 'unpaid' }"
+                  >{{ fill(panelText.workUnpaid, count) }}</a
+                >
+              }
+            </app-panel-row>
+            <!-- No waiting count: an order update applies as it arrives. -->
+            <app-panel-row
+              [label]="syncText.areas.orders.title"
+              link="/admin/sync/orders"
             >
-              <app-panel-row
-                [label]="orderText.page.title"
-                link="/admin/orders"
-              >
-                <!-- Two jobs with two lists, so two notes, not one figure.
-                     Their own column: sentences read down at any width. -->
-                <div class="flex flex-col items-end gap-0.5">
-                  @if (counts().orders; as count) {
-                    <a
-                      uiActionLink
-                      routerLink="/admin/orders"
-                      [queryParams]="{ status: 'requested' }"
-                      >{{ fill(panelText.workOrders, count) }}</a
-                    >
-                  }
-                  @if (counts().unpaidOrders; as count) {
-                    <a
-                      uiActionLink
-                      routerLink="/admin/orders"
-                      [queryParams]="{ status: 'completed', payment: 'unpaid' }"
-                      >{{ fill(panelText.workUnpaid, count) }}</a
-                    >
-                  }
-                </div>
-              </app-panel-row>
-              <!-- No waiting count: an order update applies as it arrives,
-                   so there is nothing to decide. -->
-              <app-panel-row
-                [label]="syncText.areas.orders.title"
-                link="/admin/sync/orders"
-              >
-                @if (lastOrderSync(); as moment) {
-                  <span class="flex text-xs text-ink-subtle">{{ moment }}</span>
-                }
-              </app-panel-row>
-            </ul>
-          </section>
+              @if (lastSync().orders; as moment) {
+                <span class="flex text-xs text-ink-subtle">{{ moment }}</span>
+              }
+            </app-panel-row>
+          </app-panel-card>
 
           @if (isAdmin()) {
-            <!-- What the shop sells and the papers that go with it, with the
-                 import that fills it at the foot: the four are one topic, and
-                 the sub-headings that used to separate them only repeated the
-                 button underneath. -->
-            <section class="order-3 md:order-0">
-              <h2
-                id="admin-catalog-heading"
-                uiSectionTitle
-                class="mb-1.5"
-                [glyph]="packageIcon"
-              >
-                {{ panelText.catalog }}
-              </h2>
-              <ul
-                uiCard
-                [padded]="false"
-                [class]="listClass"
-                aria-labelledby="admin-catalog-heading"
-              >
-                <app-panel-row
-                  [label]="categoryText.page.title"
-                  link="/admin/categories"
-                />
-                <app-panel-row
-                  [label]="productText.page.title"
-                  link="/admin/products"
-                >
-                  <div class="flex flex-col items-end gap-0.5">
-                    @if (counts().unpublishedProducts; as count) {
-                      <a
-                        uiActionLink
-                        routerLink="/admin/products"
-                        [queryParams]="{ state: 'unpublished' }"
-                        >{{ fill(panelText.workProducts, count) }}</a
-                      >
-                    }
-                    <!-- Its own note: these need a price before anyone can
-                         publish them. -->
-                    @if (counts().unpricedProducts; as count) {
-                      <a
-                        uiActionLink
-                        routerLink="/admin/products"
-                        [queryParams]="{ missing: 'price' }"
-                        >{{ fill(panelText.workUnpricedProducts, count) }}</a
-                      >
-                    }
-                  </div>
-                </app-panel-row>
-                <!-- Lapsed and about to lapse apart: each opens its own
-                     filter. -->
-                <app-panel-row
-                  [label]="documentText.page.title"
-                  link="/admin/documents"
-                >
-                  <div class="flex flex-col items-end gap-0.5">
-                    @if (counts().expiredDocuments; as count) {
-                      <a
-                        uiActionLink
-                        routerLink="/admin/documents"
-                        [queryParams]="{ status: 'expired' }"
-                        >{{ fill(panelText.workDocumentsExpired, count) }}</a
-                      >
-                    }
-                    @if (counts().expiringDocuments; as count) {
-                      <a
-                        uiActionLink
-                        routerLink="/admin/documents"
-                        [queryParams]="{ status: 'expiring' }"
-                        >{{ fill(panelText.workDocuments, count) }}</a
-                      >
-                    }
-                  </div>
-                </app-panel-row>
-                <!-- Two readings on one right-hand axis, as the documents
-                     row has: what is waiting to be decided, over when the
-                     catalog last moved. The run it reports is the one this row
-                     starts again. Nothing until the audit trail answers, and
-                     nothing where no run was ever applied: the row's name
-                     already says what the date would be of. -->
-                <app-panel-row
-                  [label]="syncText.areas.catalog.title"
-                  link="/admin/sync/catalog"
-                >
-                  <div class="flex flex-col items-end gap-0.5">
-                    @if (counts().stagedCatalogRuns; as count) {
-                      <a
-                        uiActionLink
-                        routerLink="/admin/sync/catalog"
-                        [queryParams]="{ status: 'previewed' }"
-                        >{{ fill(panelText.workSyncRuns, count) }}</a
-                      >
-                    }
-                    @if (lastSync(); as moment) {
-                      <span class="flex text-xs text-ink-subtle">{{
-                        moment
-                      }}</span>
-                    }
-                  </div>
-                </app-panel-row>
-              </ul>
-            </section>
-
-            <!-- The static pages, their own section with their own glyph: they
-                 are a different kind of content from the catalog, and there are
-                 more of them than belong at the foot of another card.
-                 Straight into the editor: linking to the public page would land
-                 an admin on a read-only view whose pencil only appears when
-                 storefront edit mode happens to be on. -->
-            <section class="order-5 md:order-0">
-              <h2
-                id="admin-pages-heading"
-                uiSectionTitle
-                class="mb-1.5"
-                [glyph]="fileTextIcon"
-              >
-                {{ panelText.pages }}
-              </h2>
-              <ul
-                uiCard
-                [padded]="false"
-                [class]="listClass"
-                aria-labelledby="admin-pages-heading"
-              >
-                @for (slug of pageSlugs; track slug) {
-                  <app-panel-row
-                    [label]="navText[slug]"
-                    [link]="['/admin/pages', slug, 'edit']"
-                    [queryParams]="editorFrom()"
-                  />
-                }
-              </ul>
-            </section>
-          }
-
-          <!-- The session's own password, at the foot of the left column:
-               under the pages for an admin, under the orders for a manager,
-               and last of all on a phone. -->
-          <section class="order-8 md:order-0">
-            <h2
-              id="admin-security-heading"
-              uiSectionTitle
-              class="mb-1.5"
-              [glyph]="lockIcon"
-            >
-              {{ panelText.securityHeading }}
-            </h2>
-            <ul
-              uiCard
-              [padded]="false"
-              [class]="listClass"
-              aria-labelledby="admin-security-heading"
+            <app-panel-card
+              key="catalog"
+              class="order-3 md:order-0"
+              [heading]="panelText.catalog"
+              [glyph]="packageIcon"
             >
               <app-panel-row
-                [label]="panelText.changePassword"
-                link="/change-password"
+                [label]="categoryText.page.title"
+                link="/admin/categories"
               />
-            </ul>
-          </section>
-        </div>
-
-        <div class="contents md:flex md:flex-col md:gap-6.5">
-          <!-- Two rows rather than one screen with tabs: they are two
-               permissions, and a manager is only ever offered the one they
-               have. Only customers can be waiting — staff accounts are created
-               already approved. -->
-          <section class="order-2 md:order-0">
-            <h2
-              id="admin-accounts-heading"
-              uiSectionTitle
-              class="mb-1.5"
-              [glyph]="usersIcon"
-            >
-              {{ panelText.accounts }}
-            </h2>
-            <ul
-              uiCard
-              [padded]="false"
-              [class]="listClass"
-              aria-labelledby="admin-accounts-heading"
-            >
               <app-panel-row
-                [label]="userText.customersPage.title"
-                link="/admin/users"
+                stacked
+                [label]="productText.page.title"
+                link="/admin/products"
               >
-                @if (counts().registrations; as count) {
+                @if (counts().unpublishedProducts; as count) {
                   <a
                     uiActionLink
-                    routerLink="/admin/users"
-                    [queryParams]="{ status: 'pending' }"
-                    >{{ fill(panelText.workRegistrations, count) }}</a
+                    routerLink="/admin/products"
+                    [queryParams]="{ state: 'unpublished' }"
+                    >{{ fill(panelText.workProducts, count) }}</a
+                  >
+                }
+                @if (counts().unpricedProducts; as count) {
+                  <a
+                    uiActionLink
+                    routerLink="/admin/products"
+                    [queryParams]="{ missing: 'price' }"
+                    >{{ fill(panelText.workUnpricedProducts, count) }}</a
                   >
                 }
               </app-panel-row>
-              @if (isAdmin()) {
+              <app-panel-row
+                stacked
+                [label]="documentText.page.title"
+                link="/admin/documents"
+              >
+                @if (counts().expiredDocuments; as count) {
+                  <a
+                    uiActionLink
+                    routerLink="/admin/documents"
+                    [queryParams]="{ status: 'expired' }"
+                    >{{ fill(panelText.workDocumentsExpired, count) }}</a
+                  >
+                }
+                @if (counts().expiringDocuments; as count) {
+                  <a
+                    uiActionLink
+                    routerLink="/admin/documents"
+                    [queryParams]="{ status: 'expiring' }"
+                    >{{ fill(panelText.workDocuments, count) }}</a
+                  >
+                }
+              </app-panel-row>
+              <!-- What waits, over when the catalog last moved; no date where
+                   no run was ever applied. -->
+              <app-panel-row
+                stacked
+                [label]="syncText.areas.catalog.title"
+                link="/admin/sync/catalog"
+              >
+                @if (counts().stagedCatalogRuns; as count) {
+                  <a
+                    uiActionLink
+                    routerLink="/admin/sync/catalog"
+                    [queryParams]="{ status: 'previewed' }"
+                    >{{ fill(panelText.workSyncRuns, count) }}</a
+                  >
+                }
+                @if (lastSync().catalog; as moment) {
+                  <span class="flex text-xs text-ink-subtle">{{ moment }}</span>
+                }
+              </app-panel-row>
+            </app-panel-card>
+
+            <!-- Straight into the editor: the public page shows a pencil only
+                 in edit mode. -->
+            <app-panel-card
+              key="pages"
+              class="order-5 md:order-0"
+              [heading]="panelText.pages"
+              [glyph]="fileTextIcon"
+            >
+              @for (slug of pageSlugs; track slug) {
                 <app-panel-row
-                  [label]="userText.staffPage.title"
-                  link="/admin/users/staff"
+                  [label]="navText[slug]"
+                  [link]="['/admin/pages', slug, 'edit']"
+                  [queryParams]="editorFrom()"
                 />
               }
-              <!-- The customer sync sits with the accounts it writes, not with
-                   the catalog import: it is the same work a manager does on
-                   this card by hand, arriving from somewhere else. -->
+            </app-panel-card>
+          }
+
+          <app-panel-card
+            key="security"
+            class="order-8 md:order-0"
+            [heading]="panelText.securityHeading"
+            [glyph]="lockIcon"
+          >
+            <app-panel-row
+              [label]="panelText.changePassword"
+              link="/change-password"
+            />
+          </app-panel-card>
+        </div>
+
+        <div class="contents md:flex md:flex-col md:gap-6.5">
+          <!-- Two rows, as two permissions: a manager is offered the one they
+               have. Only customers wait; staff are created approved. -->
+          <app-panel-card
+            key="accounts"
+            class="order-2 md:order-0"
+            [heading]="panelText.accounts"
+            [glyph]="usersIcon"
+          >
+            <app-panel-row
+              [label]="userText.customersPage.title"
+              link="/admin/users"
+            >
+              @if (counts().registrations; as count) {
+                <a
+                  uiActionLink
+                  routerLink="/admin/users"
+                  [queryParams]="{ status: 'pending' }"
+                  >{{ fill(panelText.workRegistrations, count) }}</a
+                >
+              }
+            </app-panel-row>
+            @if (isAdmin()) {
               <app-panel-row
-                [label]="syncText.areas.customers.title"
-                link="/admin/sync/customers"
-              >
-                <div class="flex flex-col items-end gap-0.5">
-                  @if (counts().stagedCustomerRuns; as count) {
-                    <a
-                      uiActionLink
-                      routerLink="/admin/sync/customers"
-                      [queryParams]="{ status: 'previewed' }"
-                      >{{ fill(panelText.workSyncRuns, count) }}</a
-                    >
-                  }
-                  @if (lastCustomerSync(); as moment) {
-                    <span class="flex text-xs text-ink-subtle">{{
-                      moment
-                    }}</span>
-                  }
-                </div>
-              </app-panel-row>
-            </ul>
-          </section>
+                [label]="userText.staffPage.title"
+                link="/admin/users/staff"
+              />
+            }
+            <!-- With the accounts it writes: the same work, from elsewhere. -->
+            <app-panel-row
+              stacked
+              [label]="syncText.areas.customers.title"
+              link="/admin/sync/customers"
+            >
+              @if (counts().stagedCustomerRuns; as count) {
+                <a
+                  uiActionLink
+                  routerLink="/admin/sync/customers"
+                  [queryParams]="{ status: 'previewed' }"
+                  >{{ fill(panelText.workSyncRuns, count) }}</a
+                >
+              }
+              @if (lastSync().customers; as moment) {
+                <span class="flex text-xs text-ink-subtle">{{ moment }}</span>
+              }
+            </app-panel-row>
+          </app-panel-card>
 
           @if (isAdmin()) {
-            <!-- The registries behind the catalog: what the shop filters by, and
-                 what it charges. Settings rather than places an admin goes
-                 daily, and one card because that is what they have in common —
-                 "Pricing" over a single row named "Customer tiers" said the
-                 same thing twice. -->
-            <section class="order-4 md:order-0">
-              <h2
-                id="admin-registries-heading"
-                uiSectionTitle
-                class="mb-1.5"
-                [glyph]="funnelIcon"
-              >
-                {{ panelText.registries }}
-              </h2>
-              <ul
-                uiCard
-                [padded]="false"
-                [class]="listClass"
-                aria-labelledby="admin-registries-heading"
-              >
-                <app-panel-row
-                  [label]="attributeText.page.title"
-                  link="/admin/attributes"
-                />
-                <app-panel-row
-                  [label]="inventoryText.page.title"
-                  link="/admin/attributes/inventory"
-                />
-                <app-panel-row
-                  [label]="tierText.page.title"
-                  link="/admin/tiers"
-                />
-              </ul>
-            </section>
+            <app-panel-card
+              key="registries"
+              class="order-4 md:order-0"
+              [heading]="panelText.registries"
+              [glyph]="funnelIcon"
+            >
+              <app-panel-row
+                [label]="attributeText.page.title"
+                link="/admin/attributes"
+              />
+              <app-panel-row
+                [label]="inventoryText.page.title"
+                link="/admin/attributes/inventory"
+              />
+              <app-panel-row
+                [label]="tierText.page.title"
+                link="/admin/tiers"
+              />
+            </app-panel-card>
 
-            <!-- Consent (NFR-LEGAL-09), apart from the content pages: its texts
-                 are what a record proves, and finding a person's records is the
-                 other half of the same duty. Only while the deployment asks for
-                 a consent; older records stay findable at the lookup's URL. -->
+            <!-- Only while the deployment asks for a consent; older records
+                 stay findable at the lookup's URL. -->
             @if (consentPurposes.length > 0) {
-              <section class="order-6 md:order-0">
-                <h2
-                  id="admin-consents-heading"
-                  uiSectionTitle
-                  class="mb-1.5"
-                  [glyph]="bookCheckIcon"
-                >
-                  {{ consentText.page.title }}
-                </h2>
-                <ul
-                  uiCard
-                  [padded]="false"
-                  [class]="listClass"
-                  aria-labelledby="admin-consents-heading"
-                >
+              <app-panel-card
+                key="consents"
+                class="order-6 md:order-0"
+                [heading]="consentText.page.title"
+                [glyph]="bookCheckIcon"
+              >
+                <app-panel-row
+                  [label]="consentText.panelLookup"
+                  link="/admin/consents"
+                />
+                @for (purpose of consentPurposes; track purpose) {
                   <app-panel-row
-                    [label]="consentText.panelLookup"
-                    link="/admin/consents"
+                    [label]="consentTextLabel(purpose)"
+                    [link]="['/admin/pages', consentSlugs[purpose], 'edit']"
+                    [queryParams]="editorFrom()"
                   />
-                  @for (purpose of consentPurposes; track purpose) {
-                    <app-panel-row
-                      [label]="consentTextLabel(purpose)"
-                      [link]="['/admin/pages', consentSlugs[purpose], 'edit']"
-                      [queryParams]="editorFrom()"
-                    />
-                  }
-                </ul>
-              </section>
+                }
+              </app-panel-card>
             }
 
-            <!-- How the shop is running, and what it lets in from outside.
-                 One section rather than two: "Maintenance mode" was a heading
-                 that could only ever name the single card under it, and the
-                 switches moved onto a page of their own once they had a shared
-                 history to sit above. -->
-            <section class="order-7 md:order-0">
-              <h2
-                id="admin-operations-heading"
-                uiSectionTitle
-                class="mb-1.5"
-                [glyph]="wrenchIcon"
+            <app-panel-card
+              key="operations"
+              class="order-7 md:order-0"
+              [heading]="panelText.operations"
+              [glyph]="wrenchIcon"
+            >
+              <!-- The two states an admin can forget they left on, only while
+                   true: the panel opens every admin session. -->
+              <app-panel-row
+                [label]="operationsText.page.title"
+                link="/admin/operations"
               >
-                {{ panelText.operations }}
-              </h2>
-              <ul
-                uiCard
-                [padded]="false"
-                [class]="listClass"
-                aria-labelledby="admin-operations-heading"
-              >
-                <!-- The only two runtime states an admin can forget they
-                     left on, said where they will be seen without going
-                     looking: the panel is the first screen of every admin
-                     session. Shown only while true — a row that always
-                     carries "maintenance off" is a row nobody reads. -->
-                <!-- Bare into the slot, with no stacking of their own: the
-                     row lays them out on one line where it is wide enough and
-                     wraps them where it is not, and takes a second row's worth
-                     of floor when they wrap. -->
-                <app-panel-row
-                  [label]="operationsText.page.title"
-                  link="/admin/operations"
-                >
-                  @if (maintenanceOn()) {
-                    <span uiStatusBadge tone="danger">
-                      {{ panelText.maintenanceOn }}
-                    </span>
-                  }
-                  @if (fullyOwned()) {
-                    <span uiStatusBadge tone="info">
-                      {{ panelText.fullyOwned }}
-                    </span>
-                  } @else {
-                    @if (catalogOwned()) {
-                      <span uiStatusBadge tone="info">
-                        {{ panelText.catalogOwned }}
-                      </span>
-                    }
-                    @if (customersOwned()) {
-                      <span uiStatusBadge tone="info">
-                        {{ panelText.customersOwned }}
-                      </span>
-                    }
-                    @if (ordersOwned()) {
-                      <span uiStatusBadge tone="info">
-                        {{ panelText.ordersOwned }}
-                      </span>
-                    }
-                  }
-                </app-panel-row>
-                <app-panel-row
-                  [label]="apiTokenText.page.title"
-                  link="/admin/api-tokens"
-                />
-              </ul>
-            </section>
+                @if (maintenanceOn()) {
+                  <span uiStatusBadge tone="danger">
+                    {{ panelText.maintenanceOn }}
+                  </span>
+                }
+                @for (label of ownedLabels(); track label) {
+                  <span uiStatusBadge tone="info">{{ label }}</span>
+                }
+              </app-panel-row>
+              <app-panel-row
+                [label]="apiTokenText.page.title"
+                link="/admin/api-tokens"
+              />
+            </app-panel-card>
           }
         </div>
       </div>
 
-      <!-- What is running, in the quietest possible place: nobody comes to the
-           panel for it, but it is the first thing asked when reporting a
-           problem. Absent until it arrives — an empty footer line needs no
-           placeholder. -->
       @if (buildInfo(); as info) {
         <p class="mt-10 text-xs text-ink-subtle" [title]="info.title">
           {{ info.line }}
@@ -534,11 +353,13 @@ export class AdminPanelPage {
   private readonly sync = inject(SyncService);
   private readonly build = inject(BuildInfoService);
   private readonly auth = inject(AuthService);
-  // A manager's panel is only the accounts card; everything else is admin-only.
   protected readonly isAdmin = computed(
     () => this.auth.user()?.role === 'admin',
   );
   protected readonly panelText = inject(ADMIN_TEXT).panel;
+  protected readonly title = computed(() =>
+    this.isAdmin() ? this.panelText.adminPanel : this.panelText.staffArea,
+  );
   protected readonly productText = inject(ADMIN_TEXT).products.list;
   protected readonly categoryText = inject(ADMIN_TEXT).categories.list;
   protected readonly documentText = inject(ADMIN_TEXT).documents.list;
@@ -552,12 +373,9 @@ export class AdminPanelPage {
   protected readonly orderText = inject(ADMIN_TEXT).orders.list;
   protected readonly navText = inject(SHARED_TEXT).nav;
   protected readonly syncText = inject(ADMIN_TEXT).sync;
-  protected readonly areas = OWNERSHIP_AREAS;
-  // Only what this deployment publishes: an unpublished page has no route to
-  // edit it against, so offering it here would be a dead end.
+  /** Only what is published has a route to edit it against. */
   protected readonly pageSlugs = inject(DEPLOYMENT_CONFIG).pages.published;
   private readonly consentAsked = inject(DEPLOYMENT_CONFIG).consent;
-  /** The consents this deployment asks for, each with its own text. */
   protected readonly consentPurposes = CONSENT_PURPOSES.filter(
     (purpose) => this.consentAsked[purpose],
   );
@@ -568,35 +386,33 @@ export class AdminPanelPage {
     });
   }
   private readonly locale = inject(DEPLOYMENT_CONFIG).locale;
+  private readonly moment = adminMomentFormat(this.locale);
   protected readonly editorFrom = injectEditorReturnParams();
-
-  /** `overflow-hidden` because a row's hover ground is a square: without it
-   * the first and last row paint their corners over the card's rounding. */
-  protected readonly listClass = 'divide-y divide-edge overflow-hidden';
 
   private readonly ownership = inject(OwnershipService);
   private readonly maintenance = inject(MaintenanceSwitchService);
 
-  /**
-   * The runtime switches, for the chips beside the operations row. Null until
-   * the read lands, and null forever for a manager — who never sees that card
-   * and is refused the endpoint behind it.
-   */
+  /** Null until read, and for a manager, whom the endpoints refuse. */
   protected readonly maintenanceOn = computed(
     () => this.maintenance.enabled() ?? false,
   );
-  protected readonly fullyOwned = computed(
-    () => new Set(this.ownership.confirmed() ?? []).size === this.areas.length,
-  );
-  protected readonly catalogOwned = computed(
-    () => this.ownership.confirmed()?.includes('catalog') ?? false,
-  );
-  protected readonly customersOwned = computed(
-    () => this.ownership.confirmed()?.includes('customers') ?? false,
-  );
-  protected readonly ordersOwned = computed(
-    () => this.ownership.confirmed()?.includes('orders') ?? false,
-  );
+
+  private readonly ownedText: Record<OwnershipArea, string> = {
+    catalog: this.panelText.catalogOwned,
+    customers: this.panelText.customersOwned,
+    orders: this.panelText.ordersOwned,
+  };
+
+  /** One chip for the whole shop, else one per owned area. */
+  protected readonly ownedLabels = computed(() => {
+    const owned = new Set(this.ownership.confirmed() ?? []);
+    if (owned.size === OWNERSHIP_AREAS.length) {
+      return [this.panelText.fullyOwned];
+    }
+    return OWNERSHIP_AREAS.filter((area) => owned.has(area)).map(
+      (area) => this.ownedText[area],
+    );
+  });
 
   /** Per queue; a zero or absent count draws no note. */
   protected readonly counts = inject(WorkService).counts;
@@ -605,53 +421,31 @@ export class AdminPanelPage {
     return fillText(template, { count });
   }
 
-  // Managers reach this page too, but the sync is admin-only — a 403 here is
-  // expected, not an error, so the line simply stays absent for them.
-  protected readonly runs = resource({
-    loader: () => this.sync.listRuns({ area: 'catalog' }).catch(() => null),
-  });
-
-  // The customer log, which a manager may read too (FR-ADM-09) — so unlike the
-  // catalog line above, this one does arrive for them.
-  protected readonly customerRuns = resource({
-    loader: () => this.sync.listRuns({ area: 'customers' }).catch(() => null),
-  });
-
-  /**
-   * When the catalog was last synced — the timestamp and nothing else.
-   *
-   * No "Last sync:" in front of it: the row it sits on is already the sync
-   * row, and the label would be the row's own name said twice. Null — and no
-   * line at all — while it loads and where nothing was ever applied.
-   */
-  protected readonly lastSync = computed(() =>
-    this.syncMoment(this.runs.value()?.lastApplied?.finishedAt),
-  );
-
-  /** The same reading for the customer row: both areas answer "when did this
-   * last move", and neither says so in more words than a date. */
-  protected readonly lastCustomerSync = computed(() =>
-    this.syncMoment(this.customerRuns.value()?.lastApplied?.finishedAt),
-  );
-
-  /** A manager reads this one too — the order log is theirs as well
-   * (FR-ADM-09) — so unlike the catalog's it is not an admin-only line. */
-  protected readonly orderRuns = resource({
-    loader: () => this.sync.listRuns({ area: 'orders' }).catch(() => null),
-  });
-
-  protected readonly lastOrderSync = computed(() =>
-    this.syncMoment(this.orderRuns.value()?.lastApplied?.finishedAt),
-  );
-
-  private syncMoment(finishedAt: string | null | undefined): string | null {
-    if (!finishedAt) return null;
-    return adminMomentFormat(this.locale).format(new Date(finishedAt));
+  /** A manager is refused the catalog log, so its line stays absent. */
+  private lastApplied(area: SyncArea) {
+    return resource({
+      loader: () => this.sync.listRuns({ area }).catch(() => null),
+    });
   }
 
-  // A dev deployment's version is the full `sha-<40 hex>` image tag — unreadable
-  // inline, so it is shortened to the length people actually quote, with the
-  // whole tag kept in the title for copying.
+  private readonly runs = {
+    catalog: this.lastApplied('catalog'),
+    customers: this.lastApplied('customers'),
+    orders: this.lastApplied('orders'),
+  };
+
+  /** When each area last moved, without a "Last sync:" the row already says. */
+  protected readonly lastSync = computed(() => ({
+    catalog: this.when(this.runs.catalog.value()?.lastApplied?.finishedAt),
+    customers: this.when(this.runs.customers.value()?.lastApplied?.finishedAt),
+    orders: this.when(this.runs.orders.value()?.lastApplied?.finishedAt),
+  }));
+
+  private when(finishedAt: string | null | undefined): string | null {
+    return finishedAt ? this.moment.format(new Date(finishedAt)) : null;
+  }
+
+  // A dev image tag is `sha-<40 hex>`: shortened, whole in the title.
   private shorten(version: string): string {
     const sha = /^sha-([0-9a-f]{40})$/.exec(version);
     return sha ? `sha-${sha[1].slice(0, 7)}` : version;
@@ -663,21 +457,21 @@ export class AdminPanelPage {
   } | null>(null);
 
   private async loadBuildInfo(): Promise<void> {
-    // Never worth an error state: the panel's own job is unaffected.
     const info = await this.build.get().catch(() => null);
     if (!info) return;
 
     const version = info.version
-      ? this.panelText.version.replace('{version}', this.shorten(info.version))
+      ? fillText(this.panelText.version, {
+          version: this.shorten(info.version),
+        })
       : this.panelText.versionUnknown;
     const deployed = info.deployedAt
-      ? this.panelText.deployedAt.replace(
-          '{date}',
-          new Intl.DateTimeFormat(this.locale, {
+      ? fillText(this.panelText.deployedAt, {
+          date: new Intl.DateTimeFormat(this.locale, {
             dateStyle: 'medium',
             timeStyle: 'short',
           }).format(new Date(info.deployedAt)),
-        )
+        })
       : null;
 
     this.buildInfo.set({
@@ -688,17 +482,13 @@ export class AdminPanelPage {
 
   constructor() {
     void this.loadBuildInfo();
-    // Admin-only, and deliberately not for a manager: the reads are refused for
-    // them, and the failed ownership read is what tells the editors to lock
-    // every field.
+    // Not for a manager: the reads are refused, and a failed ownership read
+    // tells the editors to lock every field.
     if (this.isAdmin()) {
       void this.ownership.load();
       void this.maintenance.load();
     }
 
-    usePageSeo({
-      name: () =>
-        this.isAdmin() ? this.panelText.adminPanel : this.panelText.staffArea,
-    });
+    usePageSeo({ name: () => this.title() });
   }
 }

@@ -11,12 +11,12 @@ import { AuthService } from '../../platform/auth/auth.service';
 import { STOREFRONT_TEXT } from '../../platform/config/storefront-text';
 import { SHARED_TEXT } from '../../platform/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
-import { currentUrl } from '../../platform/current-url';
+import { currentPath } from '../../platform/current-url';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { AccountLink } from './account-link';
 import { CartLink } from '../ordering/cart/cart-link';
 import { CatalogLink } from './catalog-link';
-import { telHref } from './contact-info';
+import { mailHref, telHref } from './contact-info';
 import { withExitAnimation } from './leave-animation';
 import { MobileSearch } from '../platform/mobile-search';
 import { navActionClasses, TAB_CURRENT } from '../platform/nav-action';
@@ -26,69 +26,37 @@ import { phoneIcon } from '@b2b-catalog-platform/ui/icons/glyphs/phone';
 import { searchIcon } from '@b2b-catalog-platform/ui/icons/glyphs/search';
 import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
 
-/** Must match the exit animation in styles.css. */
-const LEAVE_MS = 150;
-
 /**
- * The phone's primary navigation: a fixed bar along the bottom edge, below
- * `sm`. It exists so the header above it can be brand, contact and a search
- * field rather than a row of glyphs competing with all three — and it keeps
- * the cart's badge on screen for the whole visit, which is the one thing a
- * shop wants a customer never to have to look for.
- *
- * Five glyphs, evenly divided, with the cart in the middle. All five are there
- * for everybody: a tab that appears on sign-in would shift every other tab
- * under the thumb that had learned where they were, so what a session adds
- * (the order history) goes in the panel instead, where appearing costs
- * nothing.
- *
- * Search is a tab rather than a bar in the header, which is what lets the
- * header scroll away with the page — see MobileSearch for what the tap does
- * with the field it finds. Home is not a tab: the wordmark at the top of the
- * page is the way home, and the shelf is where a customer of a catalogue this
- * size actually returns to.
- *
- * The three action controls are the same components the header draws — one
- * shape each, chosen by `variant`. Both groups are always in the document and
- * the unused one is `display:none`, so only one is ever in the accessibility
- * tree.
+ * The phone's navigation below `sm`, keeping the cart in view for the whole
+ * visit. Five tabs for everybody, as one appearing on sign-in would move the
+ * others under a learned thumb; what a session adds goes in the panel. Search
+ * is a tab so the header can scroll away (see MobileSearch).
  */
 @Component({
   selector: 'app-bottom-nav',
   imports: [RouterLink, AccountLink, CartLink, CatalogLink, Icon],
   host: { class: 'sm:hidden' },
-  // The browser's own grey flash would land on top of the tabs' press tint,
-  // a beat later and in a colour the app does not own. Inherited, so this one
-  // declaration covers the bar and the panel above it.
+  // The browser's grey flash would land on the press tint; inherited.
   styles: `
     :host {
       -webkit-tap-highlight-color: transparent;
     }
   `,
   template: `
-    <!-- Fixed, and deliberately not a descendant of the header: a
-         backdrop-filter makes an element the containing block for its fixed
-         descendants, so a bar nested in the blurred header would anchor to the
-         header rather than to the viewport. -->
+    <!-- Not inside the header: its backdrop-filter would anchor a fixed
+         descendant to itself. -->
     <nav
       class="fixed inset-x-0 bottom-0 z-30"
       [attr.aria-label]="a11y.primaryNav"
     >
-      <!-- The panel rides above the bar rather than beside it, so the bar it
-           was opened from stays put and stays visible. Absolute inside the
-           fixed bar, which puts it above the safe-area padding too, and it
-           rises out of that bar and sinks back into it. Translucent over a
-           blur, as the header's own bars are: what is behind it is the page it
-           belongs to, not a separate surface. -->
+      <!-- Above the bar, which stays put, rising out of it and sinking back. -->
       @if (menuShown()) {
         <nav
           id="more-menu"
           [attr.aria-label]="a11y.utilityNav"
           [class]="panelClasses()"
         >
-          <!-- Home leads the panel: the wordmark is the way home and the
-               wordmark scrolls away with the header, so this is where home is
-               reachable from the rest of the page. -->
+          <!-- Home leads, as the wordmark scrolls away with the header. -->
           <a
             routerLink="/"
             [attr.aria-current]="isCurrent('/') ? 'page' : null"
@@ -107,8 +75,7 @@ const LEAVE_MS = 150;
               {{ nav[route] }}
             </a>
           }
-          <!-- What a session adds. Staff order histories are their own list in
-               the admin panel, so this is the customer's own. -->
+          <!-- A customer's own; staff's are in the admin panel. -->
           @if (isCustomer()) {
             <a
               routerLink="/account/orders"
@@ -119,8 +86,6 @@ const LEAVE_MS = 150;
               {{ orders.heading }}
             </a>
           }
-          <!-- The contact details. The header shows one channel beside the
-               wordmark; this is where the other one lives on a phone. -->
           @if (contact?.phone; as phone) {
             <a [href]="telHref(phone)" [class]="menuRow" (click)="close()">
               <ui-icon [glyph]="phoneIcon" class="size-4" />
@@ -128,7 +93,7 @@ const LEAVE_MS = 150;
             </a>
           }
           @if (contact?.email; as email) {
-            <a [href]="'mailto:' + email" [class]="menuRow" (click)="close()">
+            <a [href]="mailHref(email)" [class]="menuRow" (click)="close()">
               <ui-icon [glyph]="mailIcon" class="size-4" />
               {{ email }}
             </a>
@@ -136,41 +101,22 @@ const LEAVE_MS = 150;
         </nav>
       }
 
-      <!-- The bar carries its own surface rather than the <nav> doing it, for
-           two reasons that both bite the panel above. A backdrop-filter
-           isolates the backdrop for everything inside it, so a panel nested
-           under a blurred <nav> would have nothing of the page left to blur;
-           as siblings, each blurs the page for itself. And "relative" puts the
-           bar back above the panel in paint order — a positioned element
-           otherwise paints over a static one whatever the document order says
-           — so the panel rises from the bar's top edge instead of sliding
-           across it from the bottom of the screen.
-
-           The row's height is set here rather than by the tabs' padding, so
-           the reserve the shell leaves under the page can be written as the
-           same number. -->
+      <!-- Its own surface beside the panel, so each blurs the page; "relative"
+           paints it over the panel. The height is here, so the shell's
+           reserve under the page is the same number. -->
       <div
         class="relative border-t border-edge bg-surface-subtle/85
                backdrop-blur-sm pb-[env(safe-area-inset-bottom)]"
       >
         <div class="flex h-14 items-stretch px-1">
-          <!-- Reaching for any of these is a decision to go somewhere else, so
-               the panel, if it is open, has been abandoned. Bound on the host
-               element of each control rather than inside it: the link they each
-               draw is the interactive thing, and its click bubbles.
-
-               The share of the width is claimed by the control inside, so its
-               host has to be a flex item of this row and hand the share on;
-               without that the three of them shrink to their glyphs and the row
-               bunches around the cart. -->
+          <!-- A tab closes the panel; the host is a flex item that hands its
+               control the share. -->
           <app-catalog-link
             variant="tab"
             class="flex flex-1"
             (click)="close()"
           />
-          <!-- Lit for as long as the field it opens is the thing being
-               answered, whether that is the overlay or the header's own field.
-               Not aria-current: the tab goes nowhere. -->
+          <!-- Lit while searching; not aria-current, as it goes nowhere. -->
           <button
             type="button"
             [class]="searchClasses()"
@@ -187,8 +133,7 @@ const LEAVE_MS = 150;
             class="flex flex-1"
             (click)="close()"
           />
-          <!-- Open, the button carries the current tab's own tint: the panel
-               is where you are, and it is what the next tap closes. -->
+          <!-- Open, it carries the current tab's tint. -->
           <button
             type="button"
             [class]="moreClasses()"
@@ -220,17 +165,13 @@ export class BottomNav {
   private readonly host = inject(ElementRef<HTMLElement>);
   private readonly auth = inject(AuthService);
   private readonly mobileSearch = inject(MobileSearch);
-  private readonly url = currentUrl();
+  private readonly path = currentPath();
 
   protected readonly menuOpen = signal(false);
-  /** In the document while open, and for as long as it takes to leave. */
-  private readonly exit = withExitAnimation(this.menuOpen, LEAVE_MS);
+  private readonly exit = withExitAnimation(this.menuOpen);
   protected readonly menuShown = this.exit.shown;
 
-  /** `-mb-px` sits the panel one pixel *into* the bar rather than exactly on
-   * its edge: at a fractional device pixel ratio the two boxes rounded apart
-   * and the page showed through the hairline between them. The bar is the
-   * positioned sibling, so it keeps painting over that pixel. */
+  /** `-mb-px`: at a fractional pixel ratio the two boxes round apart. */
   private readonly panel = `absolute inset-x-0 bottom-full -mb-px
                             max-h-[60dvh] overflow-y-auto border-t border-edge
                             bg-surface-subtle/85 backdrop-blur
@@ -259,9 +200,9 @@ export class BottomNav {
   private tabButton(current: boolean): string {
     return `${this.tab.action} cursor-pointer${current ? ` ${TAB_CURRENT}` : ''}`;
   }
-  /** The company pages, in the order the deployment lists them for the header. */
+  /** In the header's order. */
   protected readonly menuRoutes = this.config.pages.headerNav;
-  /** One row of the panel — page links and contact details alike. */
+
   protected readonly menuRow = `flex items-center gap-2 px-4 py-3
                                 text-ink-subtle transition-colors
                                 hover:bg-surface-subtle-hover
@@ -269,21 +210,16 @@ export class BottomNav {
                                 aria-[current=page]:font-medium
                                 aria-[current=page]:text-primary`;
 
-  /** Signed in as a customer — the answer once there is one, the browser's own
-   * hint until then, exactly as the account control decides its destination. */
+  /** The answer once there is one, the hint until then, as AccountLink. */
   protected readonly isCustomer = computed(() => {
     const role = this.auth.user()?.role ?? this.auth.hintedRole();
     return role === 'user';
   });
 
-  private readonly path = computed(() => this.url().split(/[?#]/)[0]);
-
   protected isCurrent(route: string): boolean {
     return this.path() === route;
   }
 
-  // The panel is an overlay over a row of destinations, so it dismisses the
-  // way the header's did. Neither listener ever fires on the server.
   @HostListener('document:click', ['$event.target'])
   protected onDocumentClick(target: EventTarget | null): void {
     if (target instanceof Node && !this.host.nativeElement.contains(target)) {
@@ -310,6 +246,6 @@ export class BottomNav {
     this.menuOpen.set(false);
   }
 
-  /** The panel's call row dials the configured number. */
   protected readonly telHref = telHref;
+  protected readonly mailHref = mailHref;
 }

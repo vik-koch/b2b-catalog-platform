@@ -2,11 +2,8 @@ import { inject, Injectable } from '@angular/core';
 import { alternateLayoutQuery } from '@b2b-catalog-platform/shared/platform';
 import { DEPLOYMENT_CONFIG } from './config/deployment-config';
 
-/**
- * A query as it reads on the deployment's second keyboard layout
- * (FR-SEARCH-08) — the same reading the API searches with, so a filter in the
- * browser and the highlight on a server's answer agree with it.
- */
+/** A query on the deployment's second keyboard layout (FR-SEARCH-08), read
+ * as the API reads it, so a browser filter and a server's highlight agree. */
 @Injectable({ providedIn: 'root' })
 export class AlternateLayout {
   private readonly config = inject(DEPLOYMENT_CONFIG);

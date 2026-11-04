@@ -3,14 +3,12 @@ import {
   fillText,
 } from '@b2b-catalog-platform/shared/platform';
 
-/** What a stored file is, in one word: "PDF", "PNG". Derived from the sniffed
- * type rather than worded per deployment — these are the formats' own names. */
+/** "PDF", "PNG": the formats' own names, never worded per deployment. */
 export function documentFileLabel(contentType: AcceptedDocumentMime): string {
   return contentType.split('/')[1].toUpperCase();
 }
 
-/** Where a document's link leads, as a reader recognises it: "example.org",
- * not the whole URL. Falls back to the link itself if it does not parse. */
+/** "example.org" rather than the whole URL; the link itself if unparsable. */
 export function documentLinkHost(link: string): string {
   try {
     return new URL(link).host.replace(/^www\./, '');
@@ -19,8 +17,7 @@ export function documentLinkHost(link: string): string {
   }
 }
 
-/** The size, in the unit that reads as a number rather than as a digit count.
- * kB below a megabyte, MB above it, one decimal either way. */
+/** kB below a megabyte, MB from one up. */
 export function documentFileSize(
   bytes: number,
   text: { kb: string; mb: string },

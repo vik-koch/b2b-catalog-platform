@@ -1,23 +1,11 @@
 import { Provider } from '@angular/core';
-import {
-  SharedText,
-  sharedTextSchema,
-} from '@b2b-catalog-platform/shared/platform';
-import { loadConfig } from '@b2b-catalog-platform/shared/node';
+import { sharedTextSchema } from '@b2b-catalog-platform/shared/platform';
+import { mountedFile } from './mounted-file.server';
 import { SHARED_TEXT } from './shared-text';
 
-// Read once per process and lazily, like the app text: the production build
-// imports this module without any runtime environment.
-let cachedSharedText: SharedText | undefined;
+export const getSharedText = mountedFile(sharedTextSchema, 'texts/shared.json');
 
-export function getSharedText(): SharedText {
-  return (cachedSharedText ??= loadConfig(
-    sharedTextSchema,
-    'texts/shared.json',
-  ));
-}
-
-/** Called at startup so a missing or invalid file fails the boot. */
+/** At boot, so a bad file stops the start. */
 export function preloadSharedText(): void {
   getSharedText();
 }

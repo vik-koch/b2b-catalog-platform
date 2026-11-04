@@ -6,11 +6,7 @@ export const STOREFRONT_TEXT = new InjectionToken<StorefrontText>(
   'STOREFRONT_TEXT',
 );
 
-/**
- * Browser provider: reads the text the server injected into the document (see
- * shell-state.ts). No baked fallback — a missing payload is a bug, surfaced
- * loudly rather than rendered as empty chrome.
- */
+/** In the browser, from the document (see shell-state.ts). */
 export function provideStorefrontText(): Provider {
   return {
     provide: STOREFRONT_TEXT,

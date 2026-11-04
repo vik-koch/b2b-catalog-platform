@@ -8,24 +8,12 @@ import {
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import { adminDayFormat } from './admin-date';
 
-/**
- * When something happened, in an admin grid's column: the day, and under it the
- * time of day.
- *
- * One component for all three lists because they were three different answers
- * to one question — the product list showed a time, while an order's date and
- * an account's registration showed only a day. The time is what separates two
- * orders placed on the same morning, which is the case a manager on the phone
- * is actually looking at; the day above it is what the column is scanned by.
- *
- * The deployment's locale, like every other date and every price.
- */
+/** A grid column's moment: the day it is scanned by, and under it the time
+ * that tells two orders of one morning apart. */
 @Component({
   selector: 'app-grid-timestamp',
   template: `
-    <!-- A record on a phone reads the two as one sentence, at one size; only
-         the table shrinks the time, where it is a second line under the day
-         rather than a phrase beside it. -->
+    <!-- On a phone's record one line at one size; the table shrinks the time. -->
     @if (inline()) {
       <span class="truncate">{{ day() }}</span>
       <span class="shrink-0">{{ time() }}</span>
@@ -41,8 +29,7 @@ export class GridTimestamp {
 
   /** An ISO instant, as every API here returns one. */
   readonly value = input.required<string>();
-  /** One line rather than two, for a record on a phone — where this shares a
-   * line with whatever else is worth saying about the row. */
+  /** One line, for a record on a phone. */
   readonly inline = input(false, { transform: booleanAttribute });
 
   private readonly parsed = computed(() => new Date(this.value()));
@@ -51,8 +38,7 @@ export class GridTimestamp {
     this.timeFormat.format(this.parsed()),
   );
 
-  /** Built once per component: a formatter is expensive to construct, and a
-   * grid renders one of these per row. */
+  /** Once per component: a grid renders one per row. */
   private readonly dayFormat = adminDayFormat(this.locale);
   private readonly timeFormat = new Intl.DateTimeFormat(this.locale, {
     timeStyle: 'medium',

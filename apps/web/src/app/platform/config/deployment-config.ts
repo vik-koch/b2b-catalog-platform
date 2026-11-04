@@ -6,11 +6,7 @@ export const DEPLOYMENT_CONFIG = new InjectionToken<DeploymentConfig>(
   'DEPLOYMENT_CONFIG',
 );
 
-/**
- * Browser provider: reads the config the server injected into the document (see
- * shell-state.ts). No baked fallback — a missing payload is a bug, surfaced
- * loudly rather than rendered as empty chrome.
- */
+/** In the browser, from the document (see shell-state.ts). */
 export function provideDeploymentConfig(): Provider {
   return {
     provide: DEPLOYMENT_CONFIG,

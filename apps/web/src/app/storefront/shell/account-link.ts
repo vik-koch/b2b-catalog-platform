@@ -3,7 +3,7 @@ import { RouterLink } from '@angular/router';
 import { STOREFRONT_TEXT } from '../../platform/config/storefront-text';
 import { AuthService } from '../../platform/auth/auth.service';
 import { landingFor } from '../../platform/auth/auth.guard';
-import { currentUrl } from '../../platform/current-url';
+import { currentPath, isUnder } from '../../platform/current-url';
 import { navActionClasses, NavVariant } from '../platform/nav-action';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { fillText } from '@b2b-catalog-platform/shared/platform';
@@ -13,29 +13,11 @@ import { circleUserRoundIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circl
 import { userIcon } from '@b2b-catalog-platform/ui/icons/glyphs/user';
 
 /**
- * The account control in the main navbar — one control for every role, and a
- * plain link in every state: to the login page while signed out, to that role's
- * one destination once signed in. Logging out lives on the destination page
- * (SignedInAs), so this needs no menu, no open state, and no JavaScript.
- *
- * **Both the glyph and the label carry the state**: the enclosed
- * `circle-user-round` once signed in, the plain `user` while signed out. The
- * label is what actually names the destination, in both navbars. The identity
- * itself is shown on the page the link leads to.
- *
- * **The unresolved state is answered rather than guessed.** A server-rendered
- * page draws it from the session the render asked about (see AuthService), but
- * a client-rendered route's shell has no render to draw it from. What the
- * browser does know, before `/auth/me` answers, is the readable session hint
- * beside the httpOnly cookie: it decides the label on the first frame, via the pre-paint
- * script for the paint itself (`session-shell.server.ts`) and `hintedRole` for
- * everything Angular renders after it.
- *
- * The cross-fade stays, for the one case the hint cannot cover: a session
- * ended somewhere else, where `/auth/me` contradicts a hint that is still in
- * the jar. Both labels are stacked in the same cell, so nothing moves and
- * nothing blinks, and the fade is held back a beat so the swap reads as the
- * page finishing rather than as the app signing someone out.
+ * The account control, a plain link for every role: to sign in, or to the
+ * role's landing page, where signing out lives. Before `/auth/me` answers, the
+ * session hint decides it (the pre-paint script in `session-shell.server.ts`,
+ * then `hintedRole`). Glyphs and labels are stacked and cross-faded a beat
+ * late, for a session ended elsewhere that the hint still claims.
  */
 @Component({
   selector: 'app-account-link',
@@ -46,16 +28,10 @@ import { userIcon } from '@b2b-catalog-platform/ui/icons/glyphs/user';
       [attr.aria-current]="active() ? 'page' : null"
       [class]="cls().action"
     >
-      <!-- Both glyphs in one cell, swapped the way the labels are: nothing
-           moves, and the pre-paint stylesheet can pick one before Angular has
-           rendered anything (see session-shell.server.ts). -->
+      <!-- Both glyphs in one cell, so the pre-paint stylesheet can pick one. -->
       <span class="relative grid">
-        <!-- The signed-in glyph is two glyphs, stacked and cross-faded: the
-             one with a gap for the marker cannot be tweened out of the one
-             without, and the counts arrive after the page has drawn, so
-             swapping the name outright opened the arc in a single frame. The
-             pair fades on the marker; the wrapper around them fades on the
-             session, so neither timing has to serve both. -->
+        <!-- Two glyphs, with and without the marker's gap, cross-faded on the
+             marker; the wrapper fades on the session. -->
         <span
           data-session="known"
           class="col-start-1 row-start-1 grid transition-opacity delay-300
@@ -82,10 +58,8 @@ import { userIcon } from '@b2b-catalog-platform/ui/icons/glyphs/user';
                  duration-200"
           [class.opacity-0]="!signedOut()"
         />
-        <!-- The marker (FR-WORK-01): a dot, never a figure, since an admin's
-             queues do not add up. The glyph leaves a gap for it: a ring
-             would paint a disc over the translucent navbar. It pops in
-             because the counts land after the page. -->
+        <!-- The marker (FR-WORK-01): a dot, never a figure, as an admin's
+             queues do not add up. -->
         @if (waiting()) {
           <span
             aria-hidden="true"
@@ -94,17 +68,13 @@ import { userIcon } from '@b2b-catalog-platform/ui/icons/glyphs/user';
           ></span>
         }
       </span>
-      <!-- The dot is decoration; this is what a screen reader hears, and it
-           carries the figure the dot deliberately does not show. -->
       @if (waiting()) {
         <span class="sr-only">{{ markerLabel() }}</span>
       }
       <span [class]="cls().labelRow">
         <span [class]="cls().label" [attr.data-label]="widestLabel">
-          <!-- One grid cell holding both labels: the column is as wide as the
-               longer of the two, so the fade never resizes the control, and
-               the hidden one is taken out of the accessible name rather than
-               merely made transparent. -->
+          <!-- One cell as wide as the longer label; the hidden one leaves the
+               accessible name. -->
           <span class="grid text-center">
             <span
               data-session="known"
@@ -138,9 +108,8 @@ export class AccountLink {
 
   private readonly auth = inject(AuthService);
   private readonly work = inject(WorkService);
-  private readonly url = currentUrl();
+  private readonly path = currentPath();
 
-  /** Browser only: the server renders one document for everybody. */
   protected readonly waiting = this.work.waiting;
 
   protected readonly text = inject(STOREFRONT_TEXT).auth;
@@ -159,8 +128,7 @@ export class AccountLink {
       : this.auth.hintedRole() === null,
   );
 
-  /** The hint carries the role, so even an unresolved control points at the
-   * right destination rather than at the login page. */
+  /** The hint carries the role, so even an unresolved control points right. */
   protected readonly target = computed(() => {
     const role = this.auth.user()?.role ?? this.auth.hintedRole();
     return role && !this.signedOut() ? landingFor(role) : '/login';
@@ -171,15 +139,8 @@ export class AccountLink {
     fillText(this.text.workMarkerAria, { count: this.work.total() }),
   );
 
-  /**
-   * Computed from the URL rather than left to `routerLinkActive`, which sets
-   * `aria-current` only after the first render — so the label was drawn at its
-   * resting weight and went medium a frame later, most visibly on a reload of
-   * the login page. `currentUrl` has the answer before anything is drawn.
-   */
-  protected readonly active = computed(() => {
-    const path = this.url().split(/[?#]/)[0];
-    const target = this.target();
-    return path === target || path.startsWith(`${target}/`);
-  });
+  /** From the URL, as `routerLinkActive` sets `aria-current` a frame late. */
+  protected readonly active = computed(() =>
+    isUnder(this.path(), this.target()),
+  );
 }

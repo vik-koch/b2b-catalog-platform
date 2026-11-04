@@ -9,7 +9,7 @@ import { ImageFramerDialog } from './image-framer-dialog';
 
 /** What the framer answers with: the framed picture, the picture untouched,
  * or null where it was cancelled. */
-export type FramerAnswer = Blob | 'original' | null;
+type FramerAnswer = Blob | 'original' | null;
 
 /**
  * Opens the framer on a picture and resolves once it is answered. Attached to

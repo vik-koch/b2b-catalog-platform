@@ -3,10 +3,14 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
 import { STOREFRONT_TEXT } from '../../platform/config/storefront-text';
 import { SHARED_TEXT } from '../../platform/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
-import { type ElsewhereLink } from '@b2b-catalog-platform/shared/platform';
+import {
+  type ElsewhereLink,
+  fillText,
+} from '@b2b-catalog-platform/shared/platform';
 import { ConsentService } from '../site/cookie-consent/consent.service';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
-import { telHref } from './contact-info';
+import { mailHref, telHref } from './contact-info';
+import { PAGE_LINK } from '../platform/nav-action';
 import { ScrollToTop } from './scroll-to-top';
 
 @Component({
@@ -19,17 +23,9 @@ import { ScrollToTop } from './scroll-to-top';
       [class.border-edge]="!seamless()"
     >
       <div class="mx-auto w-full max-w-328 p-4 sm:py-6 text-sm">
-        <!-- A column below "sm", and in it the copyright comes last, where a
-             copyright line belongs and where it is not standing between a
-             reader and the links they came down here for.
-
-             From "sm", with a seller line, a two-by-two grid: the seller line
-             beside the legal links, the copyright beside the enquiry button.
-             The wrappers below are only the phone's column and dissolve
-             (display:contents) so their children land in it; the seller line
-             keeps a floor so a long list of links cannot squeeze it to one
-             word a line. Without one, the copyright is a single line and the
-             footer one row, wrapping only when the links run out of room. -->
+        <!-- A column below "sm", the copyright last. From "sm" with a seller
+             line, a two-by-two grid the wrappers dissolve into (contents), the
+             seller line with a floor; without one, a single row. -->
         <div
           class="flex flex-col-reverse gap-5 sm:gap-1"
           [class]="
@@ -38,29 +34,19 @@ import { ScrollToTop } from './scroll-to-top';
               : 'sm:flex-row sm:items-center sm:justify-between'
           "
         >
-          <!-- On a phone the way back to the top rides the copyright line,
-               which is the last thing on the page and the one row down here
-               with space to spare. It is only ever in the document once: the
-               shape that does not apply is display:none, so a screen reader
-               is never offered two of them. -->
+          <!-- On a phone, back-to-top rides the copyright line; only one of
+               the two is ever displayed. -->
           <div
             class="flex items-center justify-between gap-4"
             [class]="seller ? 'sm:contents' : ''"
           >
-            <!-- Wider than the seller line's own leading, so a wrapped
-                 seller line does not read as running on into the copyright. -->
             <div
               class="flex min-w-0 flex-col gap-2"
               [class]="seller ? 'sm:contents' : ''"
             >
-              <!-- Who sells, where the jurisdiction wants it on every page:
-                   who they are on one line, how to reach them on the next.
-                   Each part keeps its words together and the line breaks
-                   between parts; the no-break space before a separator keeps
-                   it off the start of a line. -->
+              <!-- Who sells, then how to reach them; the no-break space keeps
+                   a separator off the start of a line. -->
               @if (seller; as seller) {
-                <!-- Baseline-aligned with the links: its first line reads
-                     as the same row however many lines it wraps to. -->
                 <address
                   class="text-xs not-italic text-ink-subtle
                          sm:col-start-1 sm:row-start-1 sm:self-baseline"
@@ -86,7 +72,7 @@ import { ScrollToTop } from './scroll-to-top';
                       }
                       @if (contact.email; as email) {
                         <a
-                          [href]="'mailto:' + email"
+                          [href]="mailHref(email)"
                           class="whitespace-nowrap transition-colors
                                  hover:text-accent
                                  active:text-primary-press"
@@ -106,9 +92,7 @@ import { ScrollToTop } from './scroll-to-top';
             </div>
             <span class="sm:hidden"><app-scroll-to-top /></span>
           </div>
-          <!-- The call to action sits under the legal links, outside the
-               <nav>: it is not a legal link. It closes the footer on the
-               right, where the eye lands last. -->
+          <!-- The call to action, outside the legal <nav>. -->
           <div
             class="flex flex-col items-start gap-5"
             [class]="
@@ -117,11 +101,8 @@ import { ScrollToTop } from './scroll-to-top';
                 : 'sm:flex-row sm:flex-wrap sm:items-center sm:justify-end sm:gap-x-4'
             "
           >
-            <!-- Stacked on a phone: four quiet links wrapped across two lines
-                 are a paragraph, and these are the ones a reader scans for by
-                 name. No disclosure over them — a legal link behind a toggle
-                 is one that is not readily reachable, and folding away four
-                 lines is not worth that. -->
+            <!-- Stacked on a phone and never behind a toggle: a legal link
+                 must be readily reachable. -->
             <nav
               class="flex flex-col gap-2 text-ink-subtle
                      sm:col-start-2 sm:row-start-1 sm:flex-row sm:flex-wrap
@@ -135,18 +116,12 @@ import { ScrollToTop } from './scroll-to-top';
                   routerLinkActive
                   ariaCurrentWhenActive="page"
                   [attr.data-label]="nav[slug]"
-                  class="text-stable transition-colors
-                         sm:text-center
-                         hover:text-accent
-                         active:text-primary-press
-                         aria-[current=page]:font-medium
-                         aria-[current=page]:text-primary"
+                  [class]="pageLink + ' sm:text-center'"
                 >
                   {{ nav[slug] }}
                 </a>
               }
-              <!-- Consent withdrawal must be as easy as giving it; shown only
-                   when the deployment runs the consent banner at all. -->
+              <!-- Withdrawing is as easy as giving. -->
               @if (consent.enabled) {
                 <button
                   type="button"
@@ -163,11 +138,7 @@ import { ScrollToTop } from './scroll-to-top';
               class="flex items-center gap-4
                      sm:col-start-2 sm:row-start-2 sm:justify-self-end"
             >
-              <!-- The places the shop also exists ride the enquiry button's
-                   line: they are the same kind of thing — a way to reach the
-                   business — and they are squares the height of the button, so
-                   however many a deployment lists, the row keeps its shape.
-                   An empty list leaves the group out entirely. -->
+              <!-- Where else the shop exists, as marks the button's height. -->
               <div class="flex flex-wrap items-center gap-4">
                 <a uiButton routerLink="/inquiry">{{ nav['inquiry'] }}</a>
                 @for (link of elsewhere; track link.url) {
@@ -178,14 +149,8 @@ import { ScrollToTop } from './scroll-to-top';
                     class="flex h-9 w-auto shrink-0 items-center
                            justify-center"
                   >
-                    <!-- The words come first and are only hidden while the
-                         mark is there to stand in for them: a screen reader
-                         announces them, and a stylesheet that never arrived
-                         leaves them on the page to read. -->
                     <span class="sr-only">{{ link.label }}</span>
-                    <!-- Sized from config, not from the file: the box is
-                         there at first paint, so neither the mark nor the
-                         button beside it moves when the file arrives. -->
+                    <!-- Sized from config, so nothing moves when it loads. -->
                     <span
                       aria-hidden="true"
                       class="elsewhere-mark block h-6"
@@ -204,11 +169,7 @@ import { ScrollToTop } from './scroll-to-top';
   `,
 })
 export class Footer {
-  /**
-   * Drops the top border, for the pages whose own background is already the
-   * footer's grey (the signed-out screens). Set by the shell, which is the
-   * only thing that knows which those are.
-   */
+  /** No top border, for a page already on the footer's grey. */
   readonly seamless = input(false);
 
   private readonly config = inject(DEPLOYMENT_CONFIG);
@@ -217,22 +178,17 @@ export class Footer {
   protected readonly nav = inject(SHARED_TEXT).nav;
   protected readonly consent = inject(ConsentService);
   protected readonly branding = this.config.branding;
-  /** Which pages the legal nav links, and in what order. */
   protected readonly legalSlugs = this.config.pages.footerNav;
-  /** Where else the shop is, in the order configured (FR-NAV-07). */
+  /** FR-NAV-07. */
   protected readonly elsewhere = this.config.elsewhere ?? [];
-  /** The seller line (NFR-LEGAL-02), reached by its own contact or the
-   * header's. */
+  /** NFR-LEGAL-02: its own contact, or the header's. */
   protected readonly seller = this.config.seller;
   protected readonly contact = this.seller?.contact ?? this.config.contact;
   protected readonly telHref = telHref;
+  protected readonly mailHref = mailHref;
+  protected readonly pageLink = PAGE_LINK;
 
-  /**
-   * The mark is painted through a mask, so the file is a CSS url rather than a
-   * src: the icon sits in the assets mount served from the site root, like the
-   * logo. Quoted, so a file name with a space or a parenthesis stays one
-   * token.
-   */
+  /** A mask's CSS url, quoted so a space in the name stays one token. */
   protected iconUrl(icon: string): string {
     return `url("/${icon}")`;
   }
@@ -241,20 +197,16 @@ export class Footer {
     return link.width && link.height ? `${link.width} / ${link.height}` : '1';
   }
 
-  /**
-   * "© Coffee Kontor 2025–2026" — the end of the range is always the current
-   * year, so nothing has to be updated in January. Rendered on the server and
-   * again on hydration; the two agree except for the one second a year in which
-   * they don't.
-   */
+  /** The range ends this year, so nothing needs updating in January. */
   protected readonly copyright = this.buildCopyright();
 
   private buildCopyright(): string {
     const start = this.branding.startYear;
     const now = new Date().getFullYear();
     const years = now > start ? `${start}–${now}` : `${start}`;
-    return this.text.footer.copyright
-      .replace('{name}', this.branding.name)
-      .replace('{years}', years);
+    return fillText(this.text.footer.copyright, {
+      name: this.branding.name,
+      years,
+    });
   }
 }

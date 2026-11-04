@@ -1,27 +1,16 @@
 import { Location } from '@angular/common';
-import { inject, Signal } from '@angular/core';
+import { computed, inject, Signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router } from '@angular/router';
 import { filter, map } from 'rxjs';
 
 /**
- * The current URL as a signal, correct from the very first render — for
- * components that live outside the router outlet and so cannot take route
- * inputs.
+ * The current URL as a signal, right from the first render, for components
+ * outside the router outlet. The first navigation does not block, so the root
+ * renders once while `router.url` still says `/`; `Location` has the real URL
+ * on both platforms until `NavigationEnd` takes over.
  *
- * The initial navigation is non-blocking, so on the client the root component
- * (the header, and everything in it) renders once before it completes. At that
- * point `router.url` still says `/` and `ActivatedRoute` reports empty params —
- * it emits its blank initial state synchronously, which is worse than not
- * emitting at all. Anything read from the router there renders wrong for a
- * frame and then corrects itself: a visible flash, and a mismatch against the
- * server, where the same render happened after navigation.
- *
- * `Location` has the answer from the start on both platforms — the browser URL
- * in the client, the request URL under SSR — and `NavigationEnd` takes over
- * once the router is actually moving.
- *
- * Must be called in an injection context.
+ * Call in an injection context.
  */
 export function currentUrl(): Signal<string> {
   const router = inject(Router);
@@ -32,4 +21,20 @@ export function currentUrl(): Signal<string> {
     ),
     { initialValue: inject(Location).path() },
   );
+}
+
+/** A URL's path, without its query or fragment. */
+export function pathOf(url: string): string {
+  return url.split(/[?#]/)[0];
+}
+
+/** `currentUrl`'s path. Call in an injection context. */
+export function currentPath(): Signal<string> {
+  const url = currentUrl();
+  return computed(() => pathOf(url()));
+}
+
+/** Whether `path` is `route` or below it. */
+export function isUnder(path: string, route: string): boolean {
+  return path === route || path.startsWith(`${route}/`);
 }
