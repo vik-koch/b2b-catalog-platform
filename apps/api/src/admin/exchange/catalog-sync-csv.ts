@@ -13,17 +13,8 @@ import {
   requireColumn,
 } from './csv-file';
 
-/**
- * CSV → `CatalogSyncRow[]`. One of the two encodings of the import contract;
- * the JSON encoding needs no parser at all. Pure and synchronous — a
- * complete catalog is about 1,500 rows, so streaming buys nothing.
- *
- * What a file has to be to be read at all lives in `csv-file.ts` and is the
- * same for every area; what a column *means* is here. Anything structurally
- * wrong throws `SyncFormatError` (the whole file is refused) while anything
- * wrong with a single row becomes a `CatalogSyncRowError` (that row is skipped, the
- * run proceeds).
- */
+/** CSV → `CatalogSyncRow[]`. Synchronous: a whole catalog is about 1,500
+ * rows, so streaming buys nothing. */
 
 export interface ParsedCatalogSyncRows {
   rows: CatalogSyncRow[];
@@ -41,26 +32,15 @@ const FIXED_COLUMNS = new Set<string>([
 ]);
 
 /**
- * The price list a header addresses, or null if it is not a price column.
- *
- * Price columns cannot be enumerated here: their keys are `customer_tiers`
- * rows, which differ per deployment and change without a release (ADR 0031).
- * So the parser settles the *shape* — `price` or `price:<key>` — and the
- * validator, which can see the database, decides whether the key names a list.
- *
- * The key keeps the case it was written in — keys may be mixed-case, and in
- * scripts whose case-folding a database and a JavaScript engine do not agree
- * on, so the *matching* is done once, against the tier list, by the differ.
- * What is settled here is that `price:Wholesale` and `price:wholesale` are the
- * duplicate they are, and that a key is NFC-normalized: two spellings of the
- * same letter look identical in a spreadsheet and would otherwise address
- * different lists.
+ * The price list a header addresses, or null. Only the shape is settled here;
+ * keys are tier rows, so the differ decides whether one names a list. A key
+ * keeps its case (the differ matches it against the tiers) and is NFC
+ * normalized, since two spellings of a letter look the same in a spreadsheet.
  */
 function priceListKeyOf(header: string): CatalogSyncPriceListKey | null {
   const normalized = header.trim().normalize('NFC');
   const lowered = normalized.toLowerCase();
-  // A bare `price` is the alias for the badged list, so a single-price export
-  // stays readable in a spreadsheet and needs no knowledge of its name.
+  // A bare `price` is the badged list, so a single-price export needs no key.
   if (lowered === CATALOG_SYNC_CSV_COLUMNS.price)
     return DEFAULT_PRICE_LIST_ALIAS;
   if (!lowered.startsWith(CATALOG_SYNC_CSV_COLUMNS.pricePrefix)) return null;
@@ -80,9 +60,6 @@ export function parseCatalogSyncCsv(text: string): ParsedCatalogSyncRows {
   const canonical = canonicalColumns(
     headers,
     (header) => {
-      // Header names are matched case-insensitively; a key keeps the case it
-      // was written in, because the *matching* of a key to a price list is done
-      // once, against the tier list, by the differ.
       const fixed = [...FIXED_COLUMNS].find(
         (known) => known.toLowerCase() === header.toLowerCase(),
       );
@@ -102,7 +79,7 @@ export function parseCatalogSyncCsv(text: string): ParsedCatalogSyncRows {
   const seen = new Set<string>();
 
   records.forEach((record, index) => {
-    // 1-based, header excluded — what the admin sees in a spreadsheet minus one.
+    // 1-based, header excluded.
     const rowNumber = index + 1;
     const value = cellReader(canonical, record);
 
@@ -123,14 +100,11 @@ export function parseCatalogSyncCsv(text: string): ParsedCatalogSyncRows {
 
     const row: CatalogSyncRow = { sourceId };
 
-    // An empty cell means "not in this file", never "clear this field" — a
-    // sync can set a value or leave it alone, never blank it.
+    // An empty cell is "not in this file", never "clear this field".
     const name = value(CATALOG_SYNC_CSV_COLUMNS.name);
     if (name) row.name = name;
 
-    // A category is identified by its own source id and named by the file;
-    // half of that pair says nothing usable, so it is a row error rather than
-    // a silently ignored cell.
+    // Half of the category pair says nothing usable.
     const categorySourceId = value(CATALOG_SYNC_CSV_COLUMNS.categorySourceId);
     const categoryName = value(CATALOG_SYNC_CSV_COLUMNS.categoryName);
     if (Boolean(categorySourceId) !== Boolean(categoryName)) {
@@ -140,7 +114,6 @@ export function parseCatalogSyncCsv(text: string): ParsedCatalogSyncRows {
         code: categorySourceId
           ? 'category-id-without-name'
           : 'category-name-without-id',
-        // The half that *is* there — the other one is what is missing.
         params: { category: (categorySourceId || categoryName) as string },
       });
       return;
@@ -155,8 +128,7 @@ export function parseCatalogSyncCsv(text: string): ParsedCatalogSyncRows {
     for (const [column, key] of priceKeys) {
       const raw = value(column);
       if (raw === undefined || raw === '') continue;
-      // Minor units, so an integer: the API is currency-agnostic and does no
-      // decimal scaling (ADR 0026) — "18.90" is the converter's job to resolve.
+      // Minor units: "18.90" is the converter's to resolve.
       if (!/^\d+$/.test(raw)) {
         priceError = { price: raw, column };
         break;
@@ -174,9 +146,7 @@ export function parseCatalogSyncCsv(text: string): ParsedCatalogSyncRows {
     }
     if (Object.keys(prices).length > 0) row.prices = prices;
 
-    // Pieces, so a plain integer — and a signed one: a stocktake correction can
-    // leave the figure below zero, which reads as none in stock rather than as
-    // a bad cell. An empty cell is "not in this file", like every other column.
+    // Signed: a stocktake correction can leave the figure below zero.
     const stock = value(CATALOG_SYNC_CSV_COLUMNS.stock);
     if (stock !== undefined && stock !== '') {
       if (!/^-?\d+$/.test(stock)) {
@@ -191,10 +161,8 @@ export function parseCatalogSyncCsv(text: string): ParsedCatalogSyncRows {
       row.stockPieces = Number(stock);
     }
 
-    // Unlike stock, an empty cell is a value: it puts the product back on the
-    // deployment's default rate, since a product always has some rate and a
-    // source must be able to say "the usual one". A file without the column
-    // leaves every rate alone.
+    // Unlike stock, an empty cell is a value: the deployment's default rate.
+    // A file without the column leaves every rate alone.
     const taxRateCell = value(CATALOG_SYNC_CSV_COLUMNS.taxRate);
     if (taxRateCell !== undefined) {
       const taxRate = parseTaxRate(taxRateCell);

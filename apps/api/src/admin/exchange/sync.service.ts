@@ -3,36 +3,34 @@ import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { and, count, desc, eq } from 'drizzle-orm';
 import { Pagination } from '@b2b-catalog-platform/shared/platform';
 import {
+  CatalogSyncPlan,
+  CustomerSyncPlan,
+  OrderSyncPlan,
   SYNC_RUNS_PAGE_SIZE,
   SyncArea,
-  CustomerSyncPlan,
-  CatalogSyncPlan,
-  OrderSyncPlan,
+  SyncCommitResponse,
   SyncRun,
   SyncRunStatus,
 } from '@b2b-catalog-platform/shared/core/exchange';
-import { SyncCommitResponse } from '@b2b-catalog-platform/shared/core/exchange';
 import { DRIZZLE } from '../../db/database.module';
 import * as schema from '../../db/schema';
 import { syncRuns } from '../../db/schema';
-import { stagedPayload } from '../../core/exchange/sync-run-payload';
+import { CatalogSyncService } from '../../core/exchange/catalog-sync.service';
+import { CustomerSyncService } from '../../core/exchange/customer-sync.service';
 import {
   Actor,
   CONFLICT_CODE,
   runNotFound,
 } from '../../core/exchange/sync-run';
-import { CatalogSyncService } from '../../core/exchange/catalog-sync.service';
-import { CustomerSyncService } from '../../core/exchange/customer-sync.service';
 import { toSyncRun } from '../../core/exchange/sync-run-log';
+import { stagedPayload } from '../../core/exchange/sync-run-payload';
+
+/** Refuses a reader the run's area is not open to; called before any work. */
+export type AreaCheck = (area: SyncArea) => void;
 
 /**
- * A run, whatever it carries: which area it belongs to, what its page shows,
- * what the log reads like, and the two decisions a person makes on a staged
- * one (ADR 0060).
- *
- * Area-blind by construction — it holds no differ and writes nothing an area
- * owns. Where an area's own engine is needed it is asked, and the arrow points
- * one way only: an engine never reaches back here.
+ * A run of any area: its page, the log, and the decisions on a staged one.
+ * Holds no differ: an area's own engine is asked where one is needed.
  */
 @Injectable()
 export class SyncService {
@@ -42,22 +40,20 @@ export class SyncService {
     private readonly customers: CustomerSyncService,
   ) {}
 
-  /**
-   * Apply a previewed run, through the engine of the area it belongs to. The
-   * area is read here rather than in the controller because it is a property
-   * of the run and not of the request: one route serves them all, and the id
-   * is what says which.
-   */
-  async commit(id: string, actor: Actor): Promise<SyncCommitResponse> {
+  /** Applies a staged run through its own area's engine. */
+  async commit(
+    id: string,
+    actor: Actor,
+    check: AreaCheck,
+  ): Promise<SyncCommitResponse> {
     const area = await this.areaOf(id);
+    check(area);
     switch (area) {
       case 'customers':
         return this.customers.commit(id, actor);
       case 'catalog':
         return this.catalog.commit(id, actor);
-      // An order run is applied as it arrives and never staged (ADR 0062), so
-      // there is nothing here to press. Answered as the state conflict it is:
-      // the run exists and is readable, it is simply already finished.
+      // An order run is applied as it arrives, so it is never staged.
       case 'orders':
         throw new ConflictException({
           code: CONFLICT_CODE['applied'],
@@ -66,25 +62,13 @@ export class SyncService {
     }
   }
 
-  /** Which area a run belongs to, or a 404 where there is no such run. The
-   * cheapest read of a run there is — the controller asks it to decide whether
-   * this reader may act at all, before anything recomputes a diff. */
-  async areaOf(id: string): Promise<SyncArea> {
-    const [row] = await this.db
-      .select({ area: syncRuns.area })
-      .from(syncRuns)
-      .where(eq(syncRuns.id, id));
-    if (!row) throw runNotFound();
-    return row.area;
-  }
-
-  /**
-   * An admin deciding against a staged run. The row stays, marked as the
-   * decision it was: a preview nobody applied is part of the record, and a
-   * queue that can only be cleared by the next run arriving is a queue nobody
-   * reads.
-   */
-  async discard(id: string, actor: Actor): Promise<{ run: SyncRun }> {
+  /** The row stays, marked discarded: a preview nobody applied is part of
+   * the record. */
+  async discard(
+    id: string,
+    actor: Actor,
+    check: AreaCheck,
+  ): Promise<{ run: SyncRun }> {
     return this.db.transaction(async (tx) => {
       const [run] = await tx
         .select()
@@ -92,6 +76,7 @@ export class SyncService {
         .where(eq(syncRuns.id, id))
         .for('update');
       if (!run) throw runNotFound();
+      check(run.area);
       if (run.status !== 'previewed') {
         throw new ConflictException({
           code: CONFLICT_CODE[run.status],
@@ -115,7 +100,12 @@ export class SyncService {
     });
   }
 
-  async getRun(id: string): Promise<{
+  /** A staged run's plan is recomputed, since it must describe what would
+   * happen now; a finished run shows the plan it stored. */
+  async getRun(
+    id: string,
+    check: AreaCheck,
+  ): Promise<{
     run: SyncRun;
     plan: CatalogSyncPlan | CustomerSyncPlan | OrderSyncPlan | null;
   }> {
@@ -124,20 +114,12 @@ export class SyncService {
       .from(syncRuns)
       .where(eq(syncRuns.id, id));
     if (!run) throw runNotFound();
+    check(run.area);
 
-    // A staged run recomputes its diff, because the world may have moved since
-    // it was taken and a preview has to describe what would happen now. A
-    // finished one shows the diff it stored — that one is history and must not
-    // be recomputed. A run that failed before it had either shows nothing.
     const staged = stagedPayload(run);
     if (!staged) {
       return { run: toSyncRun(run), plan: run.plan ?? null };
     }
-    // Which differ recomputes it is the run's own area. This one method serves
-    // every area, because a run id is unique across them and a link to a
-    // staged run has to work for whoever was asked to answer it (ADR 0060).
-    // Each arm is handed rows already narrowed to the shape its engine works
-    // in.
     switch (staged.area) {
       case 'customers':
         return {
@@ -149,11 +131,7 @@ export class SyncService {
     }
   }
 
-  /**
-   * One area's log. The area is a filter and never a default here: every
-   * screen asks about one area, and a list mixing them would be unreadable by
-   * whoever may read only one of them (FR-ADM-09).
-   */
+  /** One area's log; never a mix, which a reader of one area could not read. */
   async listRuns(
     page: number,
     area: SyncArea,
@@ -165,23 +143,24 @@ export class SyncService {
   }> {
     const inArea = eq(syncRuns.area, area);
     const filter = status ? and(inArea, eq(syncRuns.status, status)) : inArea;
-    const [{ value: total }] = await this.db
-      .select({ value: count() })
-      .from(syncRuns)
-      .where(filter);
-    const rows = await this.db
-      .select()
-      .from(syncRuns)
-      .where(filter)
-      .orderBy(desc(syncRuns.seq))
-      .limit(SYNC_RUNS_PAGE_SIZE)
-      .offset((page - 1) * SYNC_RUNS_PAGE_SIZE);
-    const [applied] = await this.db
-      .select()
-      .from(syncRuns)
-      .where(and(inArea, eq(syncRuns.status, 'applied')))
-      .orderBy(desc(syncRuns.finishedAt))
-      .limit(1);
+    const [[{ value: total }], rows, [applied]] = await Promise.all([
+      this.db.select({ value: count() }).from(syncRuns).where(filter),
+      this.db
+        .select()
+        .from(syncRuns)
+        .where(filter)
+        .orderBy(desc(syncRuns.seq))
+        .limit(SYNC_RUNS_PAGE_SIZE)
+        .offset((page - 1) * SYNC_RUNS_PAGE_SIZE),
+      // By finish, not insertion: a run staged earlier and applied later is
+      // the latest applied.
+      this.db
+        .select()
+        .from(syncRuns)
+        .where(and(inArea, eq(syncRuns.status, 'applied')))
+        .orderBy(desc(syncRuns.finishedAt))
+        .limit(1),
+    ]);
 
     return {
       runs: rows.map(toSyncRun),
@@ -193,5 +172,14 @@ export class SyncService {
       },
       lastApplied: applied ? toSyncRun(applied) : null,
     };
+  }
+
+  private async areaOf(id: string): Promise<SyncArea> {
+    const [row] = await this.db
+      .select({ area: syncRuns.area })
+      .from(syncRuns)
+      .where(eq(syncRuns.id, id));
+    if (!row) throw runNotFound();
+    return row.area;
   }
 }

@@ -1,18 +1,14 @@
 import { Controller } from '@nestjs/common';
 import { Implement, implement } from '@orpc/nest';
 import { adminApiTokensContract } from '@b2b-catalog-platform/shared/admin/exchange';
-import { Auth } from '../../platform/auth/auth.decorator';
-import { CurrentUser } from '../../platform/auth/current-user.decorator';
+import { AuthUser } from '@b2b-catalog-platform/shared/platform';
 import { AuditLogger } from '../../audit/audit.logger';
 import { refusals } from '../../orpc/refusals';
+import { Auth } from '../../platform/auth/auth.decorator';
+import { CurrentUser } from '../../platform/auth/current-user.decorator';
 import { ApiTokensService } from './api-tokens.service';
-import { AuthUser } from '@b2b-catalog-platform/shared/platform';
 
-/**
- * Issuing and revoking machine tokens (NFR-SEC-09) — admin-only, like every
- * other credential decision. A manager approves customers; a manager does not
- * hand out keys to the catalog.
- */
+/** Machine tokens (NFR-SEC-09): admin-only, like every credential decision. */
 @Auth('admin')
 @Controller()
 export class ApiTokensController {
@@ -30,10 +26,7 @@ export class ApiTokensController {
     );
   }
 
-  /**
-   * The value travels in this one response and is never stored in a form
-   * anything can read back, so the audit line records the row, not the secret.
-   */
+  /** The audit line records the row, never the value. */
   @Implement(adminApiTokensContract.createApiToken)
   createApiToken(@CurrentUser() user: AuthUser) {
     return implement(adminApiTokensContract.createApiToken).handler(

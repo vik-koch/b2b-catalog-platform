@@ -3,23 +3,13 @@ import { SyncFormatCode } from '@b2b-catalog-platform/shared/admin/exchange';
 import Papa from 'papaparse';
 
 /**
- * Reading a CSV upload as a table, before anybody asks what its columns mean.
- *
- * Everything here is the same question whatever area the file belongs to: is
- * this a CSV at all, does it have a header row, are its columns ones we know,
- * is it within the row bound. What a column *means* is the area's own business
- * and lives in its parser — this file would not know a price from a price list.
- *
- * The dialect is UTF-8 (BOM tolerated), RFC-4180 quoting, a required header
- * row; the delimiter is the one Papaparse finds, so a spreadsheet that writes
- * semicolons or tabs is read as well as a comma-separated one. Guessing at a
- * malformed file is how a sync silently writes nonsense, so anything
- * structurally wrong throws `SyncFormatError` — the whole file is refused —
- * while anything wrong with a single row is the caller's to report as a row
- * error and skip.
+ * A CSV upload as a table, whatever its area: UTF-8 (BOM tolerated), RFC 4180
+ * quoting, a header row, the delimiter Papaparse finds. Anything structurally
+ * wrong refuses the whole file, since guessing is how a sync writes nonsense;
+ * a bad row is the area parser's to report and skip.
  */
 
-/** The file as a whole is unusable — no header, wrong columns, not CSV. */
+/** The file as a whole is unusable. */
 export class SyncFormatError extends Error {
   constructor(
     readonly code: SyncFormatCode,
@@ -40,8 +30,7 @@ export interface CsvTable {
 
 /** The file as a table: structurally sound, and nothing more is claimed. */
 export function parseCsvFile(text: string): CsvTable {
-  // Strip a UTF-8 BOM: Excel writes one, and it would otherwise become part of
-  // the first header's name.
+  // Excel writes a BOM, which would otherwise join the first header's name.
   const source = text.replace(/^\uFEFF/, '').trim();
   if (!source) {
     throw new SyncFormatError('file-empty', 'The file is empty');
@@ -50,22 +39,16 @@ export function parseCsvFile(text: string): CsvTable {
   const parsed = Papa.parse<Record<string, string>>(source, {
     header: true,
     skipEmptyLines: 'greedy',
-    // Values are validated per column by the caller; a global trim is safe and
-    // spares every rule from re-doing it.
     transform: (value) => value.trim(),
     transformHeader: (header) => header.trim(),
   });
 
-  // Papaparse recovers from a broken quote rather than failing: it reads to the
-  // end of the file looking for the closing mark and hands back one enormous
-  // field, silently losing every row after the break. Refuse the file instead —
-  // a quote nobody closed is exactly the case where guessing writes nonsense.
-  // Field-count mismatches are left alone: a short or long row is ordinary, and
-  // the per-column rules already say what they make of it.
+  // Papaparse recovers from an unclosed quote by reading to the end as one
+  // field, silently losing every row after it. A short or long row is
+  // ordinary, so field-count errors are left alone.
   const quoteError = parsed.errors.find((error) => error.type === 'Quotes');
   if (quoteError) {
-    // Papa counts data rows from zero and excludes the header; +2 makes it the
-    // line number a spreadsheet or an editor shows.
+    // Papa counts data rows from zero; +2 is the line an editor shows.
     const line = String((quoteError.row ?? 0) + 2);
     throw new SyncFormatError(
       'malformed-quotes',
@@ -91,18 +74,9 @@ export function parseCsvFile(text: string): CsvTable {
 }
 
 /**
- * The file's headers, resolved to the names the parser works in.
- *
- * `match` is the area's own question — it turns one header as written into the
- * canonical column it addresses, or null for one nobody recognises. What is
- * shared is what happens to the answers: a *duplicated* column is ambiguous
- * (which one wins?) and a typo'd one is almost certainly a converter bug, so
- * both refuse the file rather than being quietly ignored.
- *
- * Matching is the area's to define but duplication is judged case-insensitively
- * here, because two headers differing only in case address one column whatever
- * the area, and which of them wins is exactly the question this refusal exists
- * to avoid asking.
+ * Header as written → canonical column, by the area's `match`. A duplicated
+ * column (judged case-insensitively) is ambiguous and an unknown one is
+ * almost certainly a converter bug, so both refuse the file.
  */
 export function canonicalColumns(
   headers: string[],
@@ -147,8 +121,7 @@ export function canonicalColumns(
   return canonical;
 }
 
-/** The column a file cannot be read without, refused by name where it is
- * missing so the admin is told which one rather than that something is. */
+/** Refuses a file without `column`, naming it. */
 export function requireColumn(
   canonical: Map<string, string>,
   column: string,
@@ -162,8 +135,7 @@ export function requireColumn(
   }
 }
 
-/** Reads one canonical column out of a record, whatever the header it arrived
- * under. */
+/** Reads a canonical column out of a record, whatever its header. */
 export function cellReader(
   canonical: Map<string, string>,
   record: Record<string, string>,

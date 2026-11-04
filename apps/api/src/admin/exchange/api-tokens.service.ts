@@ -9,6 +9,7 @@ import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { DRIZZLE } from '../../db/database.module';
 import * as schema from '../../db/schema';
 import { apiTokens } from '../../db/schema';
+import { Actor } from '../../core/exchange/sync-run';
 import { generateToken } from '../../platform/auth/api-token-value';
 
 const notFound = () =>
@@ -19,7 +20,7 @@ const notFound = () =>
 
 type ApiTokenRow = typeof apiTokens.$inferSelect;
 
-/** The row as the contract shows it — never the hash, never the value. */
+/** Never the hash, never the value. */
 function toApiToken(row: ApiTokenRow): ApiToken {
   return {
     id: row.id,
@@ -49,14 +50,10 @@ export class ApiTokensService {
     return rows.map(toApiToken);
   }
 
-  /**
-   * The only moment the value exists outside the caller's own storage. It is
-   * hashed on the way into the row and returned once; there is no path that
-   * reads it back, because there is nothing stored to read.
-   */
+  /** The value is returned this once; only its hash is stored. */
   async createApiToken(
     input: ApiTokenInput,
-    actor: { id: string; email: string },
+    actor: Actor,
   ): Promise<CreatedApiToken> {
     const generated = generateToken();
     const [row] = await this.db
@@ -73,10 +70,7 @@ export class ApiTokensService {
     return { ...toApiToken(row), token: generated.value };
   }
 
-  /**
-   * Revoking twice is not an error — the operator's intent is already the
-   * state, and the first revocation's timestamp is the true one, so it stands.
-   */
+  /** Revoking twice is not an error; the first revocation's time stands. */
   async revokeApiToken(id: string): Promise<ApiToken> {
     const [row] = await this.db
       .update(apiTokens)

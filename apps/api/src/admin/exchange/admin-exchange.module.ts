@@ -11,7 +11,7 @@ import { OwnershipSwitchController } from './ownership-switch.controller';
 import { SyncController } from './sync.controller';
 import { SyncService } from './sync.service';
 
-/** The staff's side of the exchange: uploads, the run log, machine tokens. */
+/** The staff's side of the exchange: uploads, runs, tokens, ownership. */
 @Module({
   imports: [SessionModule, ExchangeCoreModule],
   controllers: [

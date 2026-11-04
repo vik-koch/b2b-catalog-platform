@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { OwnedAreas } from '@b2b-catalog-platform/shared/admin/platform';
 import { OwnershipArea } from '@b2b-catalog-platform/shared/platform';
+import { Actor } from '../../core/exchange/sync-run';
 import { SettingsStore } from '../../platform/settings/settings-store';
 
 /** The admin's ownership switch (FR-ADM-10). */
@@ -11,17 +12,13 @@ export class OwnershipSwitch {
   constructor(private readonly store: SettingsStore) {}
 
   /**
-   * Hand areas over, or take them back. Idempotent: the areas are held as a
-   * set, and an area already where it is asked to be records nothing.
-   *
-   * One change for the whole request, which is what lets the panel offer a
-   * master switch without storing a fourth flag: the areas move together or
-   * not at all.
+   * Idempotent: an area already where it is asked to be records nothing. One
+   * change for the whole request, so the areas move together or not at all.
    */
   async set(
     areas: readonly OwnershipArea[],
     owned: boolean,
-    actor: { id: string; email: string },
+    actor: Actor,
   ): Promise<OwnedAreas> {
     let moved: OwnershipArea[] = [];
     const row = await this.store.change(actor, (before) => {
@@ -33,8 +30,7 @@ export class OwnershipSwitch {
       }
       return {
         set: { externallyOwnedAreas: [...current] },
-        // One record per area that moved, never one naming the group: a record
-        // naming no area would leave a gap in that area's own history.
+        // One record per area, so each area's own history stays whole.
         record: moved.map((area) => ({
           kind: 'ownership' as const,
           area,
