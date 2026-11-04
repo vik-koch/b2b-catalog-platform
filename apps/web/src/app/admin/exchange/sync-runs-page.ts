@@ -30,26 +30,19 @@ import { GridRowTemplate } from '@b2b-catalog-platform/ui/grid/grid-row-template
 import { GridTimestamp } from '../dates/grid-timestamp';
 import { GridHeader } from '@b2b-catalog-platform/ui/grid/grid-header';
 import { RecordRow } from '@b2b-catalog-platform/ui/lists/record-row';
+import {
+  SYNC_RUN_TONE,
+  syncChangeSummary,
+  syncRunActor,
+} from './sync-run-format';
 import { SyncService } from './sync.service';
 import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
 import { uploadIcon } from '@b2b-catalog-platform/ui/icons/glyphs/upload';
 
 /**
- * One area's runs, newest first (FR-ADM-09) — the screen
- * `/admin/sync/<area>` opens on.
- *
- * One component for every area rather than one per area, and one screen per
- * area rather than one screen with an area filter (ADR 0060). Both halves
- * matter: a run reads the same whatever it carries, and who may read it does
- * not — the catalog is an admin's and a customer run is a manager's too, so a
- * single log would open on rows half its readers are refused.
- *
- * It used to be a five-column block under the upload form, which was enough
- * while an admin had just watched the only run there was. A run can now arrive
- * without anybody present and can be left waiting for a decision, so the log
- * is the screen and the upload is a page reached from it: the question this
- * panel answers most often is no longer "what am I about to apply" but "what
- * has been happening, and is any of it waiting for me".
+ * One area's runs, newest first (FR-ADM-09), at `/admin/sync/<area>`. One
+ * screen per area rather than an area filter: who may read a run depends on
+ * its area, so a mixed log would open on rows half its readers are refused.
  */
 @Component({
   selector: 'app-sync-runs-page',
@@ -75,12 +68,8 @@ import { uploadIcon } from '@b2b-catalog-platform/ui/icons/glyphs/upload';
       [searchable]="false"
       [filtered]="filtered()"
     >
-      <!-- Both areas take a file (FR-ADM-02, FR-ADM-12), and both uploads are
-           an admin's: a manager reading this log sees no button, which is the
-           same rule the routes behind them enforce. It stays while the area is
-           owned: the upload behind it is refused (FR-ADM-10) and says so on
-           arrival, which is a better place to learn it than a button that
-           quietly is not there. -->
+      <!-- Kept while the area is owned: the upload page says why it is
+           closed, which a missing button would not. -->
       @if (canUpload()) {
         <a uiButton class="gap-2" [routerLink]="uploadLink()">
           <ui-icon [glyph]="uploadIcon" class="size-4" />
@@ -108,8 +97,7 @@ import { uploadIcon } from '@b2b-catalog-platform/ui/icons/glyphs/upload';
         [countLabel]="text.historyCount"
       >
         <ng-template uiGridRow [of]="data.runs" let-run>
-          <!-- When it ran is what a run is called: there is no other name for
-               it, and it is the way into the run itself. -->
+          <!-- When it ran is the run's only name, and the way into it. -->
           <td class="truncate">
             <a
               class="font-medium text-ink hover:text-accent"
@@ -138,8 +126,6 @@ import { uploadIcon } from '@b2b-catalog-platform/ui/icons/glyphs/upload';
           </td>
         </ng-template>
 
-        <!-- The same run on a phone: when it ran and how it ended, with what
-             sent it and what it came to underneath. -->
         <ng-template uiGridCard [of]="data.runs" let-run>
           <ui-record-row>
             <a
@@ -173,8 +159,7 @@ import { uploadIcon } from '@b2b-catalog-platform/ui/icons/glyphs/upload';
       <ui-skeleton [lines]="6" />
     }
 
-    <!-- One badge for both shapes. A run held for review says so in its title:
-         the badge has room for the word, not for the reason. -->
+    <!-- A held run's reason goes in the title: the badge has room for a word. -->
     <ng-template #state let-run>
       <span uiStatusBadge [tone]="tone(run)" [title]="reason(run)">
         {{ statusLabel(run) }}
@@ -186,23 +171,14 @@ export class SyncRunsPage {
   protected readonly uploadIcon = uploadIcon;
   private readonly sync = inject(SyncService);
   protected readonly text = inject(ADMIN_TEXT).sync;
-  protected readonly adminText = inject(ADMIN_TEXT);
   private readonly auth = inject(AuthService);
 
-  /**
-   * Whether this reader may upload into this area. Both uploads are an
-   * admin's, so a manager — who may read and answer a customer run — is shown
-   * no button rather than one that leads to a guarded route.
-   */
+  /** Uploads are an admin's, so a manager gets no button to a guarded route. */
   protected readonly canUpload = computed(
     () => this.auth.user()?.role === 'admin' && this.uploadLink() !== null,
   );
 
-  /**
-   * Where this area's manual import lives, or null where it has none. Orders
-   * have none and never will: an order is answered, and a file of answers to
-   * orders is not a thing anybody has.
-   */
+  /** This area's upload, or null: orders are answered, never uploaded. */
   protected readonly uploadLink = computed(() => {
     switch (this.area()) {
       case 'customers':
@@ -218,20 +194,13 @@ export class SyncRunsPage {
     usePageSeo({ name: () => this.areaText().title });
   }
 
-  /**
-   * Which area's log this is. Bound from the route's own data rather than a
-   * query parameter: it is which screen you are on, not how you narrowed it,
-   * and the guard on the route is chosen to match it.
-   */
+  /** From the route's data, which its guard is chosen to match. */
   readonly area = input.required<SyncArea>();
 
   protected readonly areaText = computed(() => this.text.areas[this.area()]);
 
-  /**
-   * Bound from the query parameters. Router input binding hands an absent one
-   * over as `undefined` whatever the default here says, so both are read
-   * through a guard rather than used straight.
-   */
+  /** Router input binding hands an absent param over as `undefined`
+   * whatever the default says, so both are read through a guard. */
   readonly page = input('1');
   readonly status = input('');
 
@@ -292,20 +261,12 @@ export class SyncRunsPage {
 
   protected readonly byId = (run: SyncRun): string => run.id;
 
-  /**
-   * Who or what ran it. A machine run has no person behind it and says so with
-   * the credential's name, which is the only identity there is — and the one
-   * an operator revokes if it turns out to be misbehaving.
-   */
   protected who(run: SyncRun): string {
-    return run.tokenName ?? run.actorEmail ?? this.text.sourceUpload;
+    return syncRunActor(run, this.text);
   }
 
-  /**
-   * What the run rewrote, under what it came to. The counts answer "how much";
-   * for a feed that runs every twenty minutes, "which fields" is the question
-   * actually being asked of the log.
-   */
+  /** Which fields it wrote: for a frequent feed, the question asked of the
+   * log. */
   protected fieldsLine(run: SyncRun): string {
     const fields = run.summary?.fields ?? [];
     const shown = fields.slice(0, FIELDS_SHOWN).map((f) => this.fieldLabel(f));
@@ -324,8 +285,7 @@ export class SyncRunsPage {
       .join(' · ');
   }
 
-  /** A field in the words of the area whose log this is. An unknown one
-   * reads as itself rather than as nothing. */
+  /** An unknown field reads as itself rather than as nothing. */
   private fieldLabel(field: string): string {
     switch (this.area()) {
       case 'customers':
@@ -342,9 +302,7 @@ export class SyncRunsPage {
   }
 
   private catalogFieldLabel(field: string): string {
-    // Every price column names its list now, the storefront's included: the
-    // run wrote `price:<key>`, and printing a generic word for one of them
-    // would be the screen inventing a name the file never used.
+    // A price column names its list, as the file did.
     if (field.startsWith(CATALOG_SYNC_CSV_COLUMNS.pricePrefix)) {
       return fillText(this.text.field.priceList, {
         key: field.slice(CATALOG_SYNC_CSV_COLUMNS.pricePrefix.length),
@@ -361,37 +319,14 @@ export class SyncRunsPage {
     return run.stagedReason ? this.text.stagedReason[run.stagedReason] : '';
   }
 
-  /** Amber where somebody has to act, green for what went through, red for
-   * what broke, grey for a run that is simply over. */
   protected tone(run: SyncRun): StatusTone {
-    return STATUS_TONE[run.status];
+    return SYNC_RUN_TONE[run.status];
   }
 
   protected changeSummary(run: SyncRun): string {
-    const summary = run.summary;
-    if (!summary) return '';
-    // Only what actually happened: a row of zeros is three figures to read
-    // past before finding the one that moved.
-    return [
-      summary.create > 0 ? `+${summary.create}` : '',
-      summary.update > 0 ? `~${summary.update}` : '',
-      summary.softDelete > 0 ? `−${summary.softDelete}` : '',
-      summary.errors > 0 ? `!${summary.errors}` : '',
-    ]
-      .filter(Boolean)
-      .join(' ');
+    return syncChangeSummary(run.summary);
   }
 }
 
 /** How many field names the column shows before it starts counting them. */
 const FIELDS_SHOWN = 3;
-
-const STATUS_TONE: Record<SyncRunStatus, StatusTone> = {
-  previewed: 'waiting',
-  applied: 'ok',
-  failed: 'danger',
-  // Nothing happened, and nothing was wrong with that.
-  'no-change': 'neutral',
-  superseded: 'neutral',
-  discarded: 'neutral',
-};

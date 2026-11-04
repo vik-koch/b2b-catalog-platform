@@ -2,15 +2,8 @@ import { Provider, signal } from '@angular/core';
 import { OwnershipArea } from '@b2b-catalog-platform/shared/platform';
 import { OwnershipService } from './ownership.service';
 
-/**
- * A stand-in for the ownership read, for specs that render an admin screen
- * without an HTTP layer behind it.
- *
- * It is needed rather than optional because the real service fails *closed*: a
- * read that throws — which is what an unstubbed call does under TestBed — is
- * taken as "everything is owned", and the screen under test renders its locked
- * shape instead of the one the spec meant to assert on.
- */
+/** The ownership read for specs. Required: unstubbed, the real one fails
+ * closed and every screen renders locked. */
 export function provideOwnership(...areas: OwnershipArea[]): Provider {
   const owned = signal<readonly OwnershipArea[]>(areas);
   return {

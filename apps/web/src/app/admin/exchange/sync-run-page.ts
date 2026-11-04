@@ -33,6 +33,7 @@ import { SyncOrderPlanView } from './ui/sync-order-plan-view';
 import { SyncCatalogPlanView } from './ui/sync-catalog-plan-view';
 import { LockedNote } from '../platform/ownership/ui/locked-note';
 import { OwnershipService } from '../platform/ownership/ownership.service';
+import { SYNC_RUN_TONE, syncRunActor } from './sync-run-format';
 import { SyncService } from './sync.service';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
@@ -42,14 +43,8 @@ import { Notice } from '@b2b-catalog-platform/ui/content/notice';
 type AreaPlan = CatalogSyncPlan | CustomerSyncPlan | OrderSyncPlan | null;
 
 /**
- * One run: what it was, what it did or would do, and — while it is still
- * waiting — the two decisions left to make about it.
- *
- * The reason this page exists is the run nobody watched. A manual upload has
- * always shown its diff to the person who made it; a run that arrived on its
- * own and stopped short of applying itself has to be readable later, by
- * somebody who was not there, which also makes it the place a finished run's
- * record is read back.
+ * One run: what it was, what it did or would do, and while it waits the two
+ * decisions left. Above all for the run nobody watched arrive.
  */
 @Component({
   selector: 'app-sync-run-page',
@@ -73,8 +68,6 @@ type AreaPlan = CatalogSyncPlan | CustomerSyncPlan | OrderSyncPlan | null;
       </a>
     } @else if (run.value(); as data) {
       <div>
-        <!-- Title left, way back right: the same shape as every list heading,
-             and the counterpart of the button that opened this page. -->
         <div class="mb-4 flex flex-wrap items-center gap-3">
           <h1 uiPageTitle>
             {{ text.runTitle }}
@@ -92,8 +85,6 @@ type AreaPlan = CatalogSyncPlan | CustomerSyncPlan | OrderSyncPlan | null;
           </a>
         </div>
         <div class="max-w-3xl">
-          <!-- The facts a person needs before reading the diff: when, who or
-             what, and what it was called. -->
           <dl class="mb-6 grid gap-x-8 gap-y-2 text-sm sm:grid-cols-2">
             <div class="flex gap-2">
               <dt class="text-ink-subtle">{{ text.startedLabel }}</dt>
@@ -117,19 +108,14 @@ type AreaPlan = CatalogSyncPlan | CustomerSyncPlan | OrderSyncPlan | null;
             }
           </dl>
 
-          <!-- Why it is waiting. Said in full here, where there is room for the
-             sentence the log's badge only had a word for. -->
           @if (stagedReason(data.run); as reason) {
             <p uiNotice tone="warning" class="mb-6">
               {{ reason }}
             </p>
           }
 
-          <!-- Something the sending system wanted said about a run that
-             worked anyway — a file it read only part of, an export that looked
-             stale. Its own words, like the failure box below, but neither a
-             refusal nor a reason to wait: it is shown on a run of any status,
-             including one that applied itself hours ago. -->
+          <!-- The sender's own note on a run that worked anyway, on any
+               status. -->
           @if (data.run.notice; as note) {
             <section uiNotice tone="info" class="mb-6">
               <h2 class="mb-1 font-medium">
@@ -141,8 +127,7 @@ type AreaPlan = CatalogSyncPlan | CustomerSyncPlan | OrderSyncPlan | null;
             </section>
           }
 
-          <!-- A failure the sending system reported: its own words, kept as a
-             diagnostic rather than turned into wording of ours. -->
+          <!-- The sender's own words, kept as a diagnostic. -->
           @if (data.run.error; as failure) {
             <section uiNotice tone="danger" class="mb-6">
               <h2 class="mb-1 font-medium">
@@ -154,9 +139,6 @@ type AreaPlan = CatalogSyncPlan | CustomerSyncPlan | OrderSyncPlan | null;
             </section>
           }
 
-          <!-- Which diff this run holds. One page for every area (ADR 0060),
-               and the two plans are disjoint shapes, so the answer comes from
-               the plan itself rather than from a second field beside it. -->
           @if (strandedByOwnership(data.run)) {
             <app-locked-note class="mb-4">
               {{ ownershipText.runStranded }}
@@ -175,8 +157,7 @@ type AreaPlan = CatalogSyncPlan | CustomerSyncPlan | OrderSyncPlan | null;
               (discardRun)="discard(data.run.id)"
             />
           } @else if (orderPlan(data.plan); as plan) {
-            <!-- Nothing to apply and nothing to discard: an order run is
-                 applied as it arrives (ADR 0062), so this is always a record. -->
+            <!-- An order run is applied as it arrives: always a record. -->
             <app-sync-order-plan-view [plan]="plan" />
           } @else if (catalogPlan(data.plan); as plan) {
             <app-sync-catalog-plan-view
@@ -205,26 +186,20 @@ export class SyncRunPage {
   private readonly confirm = inject(ConfirmService);
   private readonly ownership = inject(OwnershipService);
   protected readonly text = inject(ADMIN_TEXT).sync;
-  private readonly adminText = inject(ADMIN_TEXT);
   protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
   protected readonly actionText = inject(SHARED_TEXT).actions;
   private readonly locale = inject(DEPLOYMENT_CONFIG).locale;
 
   constructor() {
     usePageSeo({ name: () => this.text.runTitle });
-    // Admins only — the read is theirs and fails closed, so a manager asking
-    // would come back believing every area is owned. See `strandedByOwnership`.
+    // Admins only: the read is theirs and fails closed, so a manager would
+    // believe every area owned.
     if (this.auth.user()?.role === 'admin') void this.ownership.load();
   }
 
-  /** The run's id, from the route. */
   readonly id = input.required<string>();
 
-  /**
-   * Where "back" goes when the run itself could not be read: there is no area
-   * to return to, so it is the one log this reader certainly has. A manager
-   * has no catalog log to be sent to.
-   */
+  /** "Back" for a run that could not be read: a log this reader has. */
   protected readonly fallbackLog = computed(() =>
     this.auth.user()?.role === 'manager'
       ? '/admin/sync/customers'
@@ -248,8 +223,7 @@ export class SyncRunPage {
     return plan && isOrderSyncPlan(plan) ? plan : null;
   }
 
-  /** The catalog's is the one with no shape of its own to ask about — every
-   * plan that is neither of the other two is one. */
+  /** The plan that is neither of the other two. */
   protected catalogPlan(plan: AreaPlan): CatalogSyncPlan | null {
     return plan && !isCustomerSyncPlan(plan) && !isOrderSyncPlan(plan)
       ? plan
@@ -265,42 +239,32 @@ export class SyncRunPage {
   }
 
   /**
-   * A staged run that can no longer be applied: a file uploaded before the
-   * area was handed over, now that it has been (FR-ADM-10). The API judges an
-   * apply by the setting in force *now*, so the button would only earn a
-   * refusal.
-   *
-   * Narrow on purpose. A run the connected system sent stays appliable — that
-   * is the whole of staging: a run that exceeded the policy waits for a person
-   * to answer it here, and it can only ever exist while the area is owned.
-   * Discarding stays possible either way; it writes nothing to the area, and
-   * without it a stranded run would sit in the log with no way to clear it.
-   * Only an admin is asked, because the settings read is admin-only and fails
-   * closed; a manager keeps the button and meets the API's refusal, which the
-   * apply errors already word.
+   * An uploaded run whose area has since been handed over (FR-ADM-10): the
+   * API would refuse the apply. A machine run stays appliable, since it only
+   * exists while the area is owned, and discarding stays for both. Asked for
+   * an admin only; a manager meets the API's worded refusal.
    */
   protected strandedByOwnership(run: SyncRun): boolean {
     return (
       this.isStaged(run) &&
       run.source === 'upload' &&
       this.auth.user()?.role === 'admin' &&
-      (this.ownership.ownedAreas()?.includes(run.area) ?? false)
+      this.ownership.owns(run.area)
     );
   }
 
   protected stagedReason(run: SyncRun): string {
-    // Only while it is still waiting: on a run that ended, the status says
-    // what happened and the reason it once waited is no longer the point.
+    // Only while it waits: on a finished run the status says what happened.
     if (!this.isStaged(run) || !run.stagedReason) return '';
     return this.text.stagedReason[run.stagedReason];
   }
 
   protected who(run: SyncRun): string {
-    return run.tokenName ?? run.actorEmail ?? this.text.sourceUpload;
+    return syncRunActor(run, this.text);
   }
 
   protected tone(run: SyncRun): StatusTone {
-    return STATUS_TONE[run.status];
+    return SYNC_RUN_TONE[run.status];
   }
 
   protected moment(iso: string): string {
@@ -318,13 +282,8 @@ export class SyncRunPage {
     this.actionError.set(null);
     try {
       const result = await this.sync.commit(id);
-      if (!result.ok) {
-        this.actionError.set(this.text.applyErrors[result.code]);
-        // The run moved under us — what it says now is the answer, not what
-        // this page was showing.
-        this.run.reload();
-        return;
-      }
+      if (!result.ok) this.actionError.set(this.text.applyErrors[result.code]);
+      // Refused or not, what the run says now is the answer.
       this.run.reload();
     } finally {
       this.busy.set(false);
@@ -352,13 +311,3 @@ export class SyncRunPage {
     }
   }
 }
-
-const STATUS_TONE: Record<SyncRun['status'], StatusTone> = {
-  previewed: 'waiting',
-  applied: 'ok',
-  failed: 'danger',
-  // Nothing happened, and nothing was wrong with that.
-  'no-change': 'neutral',
-  superseded: 'neutral',
-  discarded: 'neutral',
-};

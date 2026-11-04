@@ -1,12 +1,14 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { DOCUMENT, inject, Injectable } from '@angular/core';
+import { safe } from '@orpc/client';
 import { lastValueFrom } from 'rxjs';
 import {
-  CustomerSyncOptions,
-  CustomerSyncPreviewResponse,
   CatalogSyncOptions,
   CatalogSyncPreviewResponse,
+  CustomerSyncOptions,
+  CustomerSyncPreviewResponse,
   SyncArea,
+  SyncCommitResponse,
   SyncRun,
   SyncRunStatus,
 } from '@b2b-catalog-platform/shared/core/exchange';
@@ -15,46 +17,23 @@ import {
   SyncFormatErrorBody,
   syncFormatErrorSchema,
 } from '@b2b-catalog-platform/shared/admin/exchange';
-import { SyncCommitResponse } from '@b2b-catalog-platform/shared/core/exchange';
 import { adminSyncContract } from '../contract-routes.generated';
-import { safe } from '@orpc/client';
 import { createOrpcClient } from '../../shared/core/orpc-client';
 import { renderable } from '../../shared/core/renderable';
 
-/**
- * A preview the server refused — a malformed file, a file too large, or refused
- * options. `failure` carries the code and the names from the admin's own file;
- * the page turns it into a sentence out of the admin text.
- */
-export type PreviewResult =
-  | { ok: true; preview: CatalogSyncPreviewResponse }
-  | { ok: false; failure: SyncFormatErrorBody | null };
+/** A preview, or the refusal the page words from its code; null for a body
+ * that is not the API's. */
+export type PreviewResult<T> =
+  { ok: true; preview: T } | { ok: false; failure: SyncFormatErrorBody | null };
 
-/** The same, for a customer file (FR-ADM-12): one refusal channel, one shape,
- * a different diff. */
-export type CustomerPreviewResult =
-  | { ok: true; preview: CustomerSyncPreviewResponse }
-  | { ok: false; failure: SyncFormatErrorBody | null };
-
-/** A commit that could not be applied (already applied, or its rows expired). */
-export type CommitResult =
-  | { ok: true; result: SyncCommitResponse }
-  | { ok: false; code: SyncCommitCode };
-
-/** Giving up on a staged run answers with the same refusals applying does:
- * both need a run that is still staged. */
-export type DiscardResult =
-  { ok: true; run: SyncRun } | { ok: false; code: SyncCommitCode };
+/** An action on a staged run, or why the run no longer allows it. */
+export type RunActionResult<T> =
+  ({ ok: true } & T) | { ok: false; code: SyncCommitCode };
 
 /**
- * The bulk-sync client. The upload is multipart, so it goes through HttpClient
- * directly (like the media upload) while commit and the run history use the
- * contract client; both halves share the contract's types, so the screen never
- * restates a shape.
- *
- * The server's rejections are returned as typed results rather than thrown:
- * a bad file and a refused option combination are things the admin fixes and
- * retries, not application errors.
+ * The sync client. The uploads are multipart, so they go through HttpClient;
+ * the rest through the contract. Refusals come back as results, since the
+ * admin fixes and retries them.
  */
 @Injectable({ providedIn: 'root' })
 export class SyncService {
@@ -62,47 +41,26 @@ export class SyncService {
   private readonly document = inject(DOCUMENT);
   private readonly client = createOrpcClient(adminSyncContract);
 
-  /** Uploads a catalog file and returns what it would change. Writes nothing. */
-  async previewCatalog(
+  previewCatalog(
     file: File,
     options: CatalogSyncOptions,
-  ): Promise<PreviewResult> {
-    return this.upload<CatalogSyncPreviewResponse>(
-      '/api/admin/sync/preview',
-      file,
-      options,
-    );
+  ): Promise<PreviewResult<CatalogSyncPreviewResponse>> {
+    return this.upload('/api/admin/sync/preview', file, options);
   }
 
-  /**
-   * Uploads a customer file and returns what it would do to people's accounts
-   * (FR-ADM-12). Writes nothing, and mails nobody: the links go out when the
-   * staged run is applied.
-   */
-  async previewCustomers(
+  /** Mails nobody: the links go out when the staged run is applied. */
+  previewCustomers(
     file: File,
     options: CustomerSyncOptions,
-  ): Promise<CustomerPreviewResult> {
-    return this.upload<CustomerSyncPreviewResponse>(
-      '/api/admin/sync/customers/preview',
-      file,
-      options,
-    );
+  ): Promise<PreviewResult<CustomerSyncPreviewResponse>> {
+    return this.upload('/api/admin/sync/customers/preview', file, options);
   }
 
-  /**
-   * The multipart half, which the JSON contracts do not model — one upload, one
-   * refusal channel, whatever the file carries. The plan's shape is the
-   * caller's to name, which is the only thing that differs between the areas.
-   */
   private async upload<T>(
     path: string,
     file: File,
     options: CatalogSyncOptions | CustomerSyncOptions,
-  ): Promise<
-    | { ok: true; preview: T }
-    | { ok: false; failure: SyncFormatErrorBody | null }
-  > {
+  ): Promise<PreviewResult<T>> {
     const form = new FormData();
     form.append('file', file);
     form.append('options', JSON.stringify(options));
@@ -112,16 +70,13 @@ export class SyncService {
       const preview = await lastValueFrom(this.http.post<T>(url, form));
       return { ok: true, preview };
     } catch (error) {
-      // 413 comes from the size guard, which the browser cannot pre-empt for a
-      // file picked before the limit is known. 409 is the area having been
-      // handed over since the screen loaded — not a fault in the file, but the
-      // admin's to understand and the same sentence-from-a-code as the rest.
+      // 409: the area was handed over since the screen loaded. 413: the size
+      // guard, which the browser cannot pre-empt.
       if (
         error instanceof HttpErrorResponse &&
         (error.status === 400 || error.status === 409 || error.status === 413)
       ) {
-        // A body that does not parse is a proxy's error page, not the API's;
-        // null lands on the page's generic wording rather than throwing.
+        // A body that does not parse is a proxy's error page.
         const parsed = syncFormatErrorSchema.safeParse(error.error);
         return { ok: false, failure: parsed.success ? parsed.data : null };
       }
@@ -129,10 +84,10 @@ export class SyncService {
     }
   }
 
-  /** Applies a previewed run. */
-  async commit(id: string): Promise<CommitResult> {
+  async commit(
+    id: string,
+  ): Promise<RunActionResult<{ result: SyncCommitResponse }>> {
     const result = await safe(this.client.commitRun({ params: { id } }));
-
     if (result.isSuccess) return { ok: true, result: result.data };
     if (result.isDefined && renderable(result.error.code)) {
       return { ok: false, code: result.error.code };
@@ -140,10 +95,8 @@ export class SyncService {
     throw result.error;
   }
 
-  /** Gives up on a staged run. */
-  async discard(id: string): Promise<DiscardResult> {
+  async discard(id: string): Promise<RunActionResult<{ run: SyncRun }>> {
     const result = await safe(this.client.discardRun({ params: { id } }));
-
     if (result.isSuccess) return { ok: true, run: result.data.run };
     if (result.isDefined && renderable(result.error.code)) {
       return { ok: false, code: result.error.code };
@@ -151,9 +104,6 @@ export class SyncService {
     throw result.error;
   }
 
-  /** One area's log. The area is always sent: the screen asking is always
-   * about one of them, and the server's default is there for callers written
-   * before areas existed, not for this one. */
   listRuns(params: { area: SyncArea; page?: number; status?: SyncRunStatus }) {
     return this.client.listRuns({
       query: {
@@ -164,9 +114,8 @@ export class SyncService {
     });
   }
 
-  /** One run and the diff it stands for: recomputed while it is staged, stored
-   * once it has been applied, and absent for a run that failed before it had
-   * one. */
+  /** The plan is recomputed while the run is staged, stored once it is
+   * finished, and absent for a run that failed before it had one. */
   getRun(id: string) {
     return this.client.getRun({ params: { id } });
   }

@@ -10,7 +10,7 @@ import {
 import { adminApiTokensContract } from '../../contract-routes.generated';
 import { createOrpcClient } from '../../../shared/core/orpc-client';
 
-/** A revoke the server refused — the row is gone, so the list is stale. */
+/** A revoke the server refused: the row is gone, the list stale. */
 export type RevokeResult =
   { ok: true; token: ApiToken } | { ok: false; code: ApiTokenErrorCode };
 
@@ -18,11 +18,8 @@ function isApiTokenCode(code: string): code is ApiTokenErrorCode {
   return (API_TOKEN_ERROR_CODES as readonly string[]).includes(code);
 }
 
-/**
- * The machine-token admin client (NFR-SEC-09). The create call is the only one
- * whose answer carries the value; nothing here keeps it, because the screen
- * shows it once and the browser is not where a credential should linger.
- */
+/** The machine-token client (NFR-SEC-09). Nothing keeps a created value:
+ * a browser is no place for a credential to linger. */
 @Injectable({ providedIn: 'root' })
 export class ApiTokensService {
   private client = createOrpcClient(adminApiTokensContract);

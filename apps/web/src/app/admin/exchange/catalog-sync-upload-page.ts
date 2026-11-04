@@ -31,6 +31,7 @@ import {
   CATALOG_SYNC_PRESETS,
   CatalogSyncPresetName,
 } from './catalog-sync-presets';
+import { syncChangeSummary } from './sync-run-format';
 import { SyncService } from './sync.service';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { uploadIcon } from '@b2b-catalog-platform/ui/icons/glyphs/upload';
@@ -238,8 +239,8 @@ export class CatalogSyncUploadPage {
   private readonly ownership = inject(OwnershipService);
 
   /** Whether an external system owns the catalog (FR-ADM-10). */
-  protected readonly catalogOwned = computed(
-    () => this.ownership.ownedAreas()?.includes('catalog') ?? false,
+  protected readonly catalogOwned = computed(() =>
+    this.ownership.owns('catalog'),
   );
   protected readonly navText = inject(SHARED_TEXT).nav;
 
@@ -363,18 +364,8 @@ export class CatalogSyncUploadPage {
     this.applyError.set(null);
   }
 
-  /** What a finished run came to, in the four figures worth one line. */
   protected changeSummary(run: SyncRun): string {
-    const s = run.summary;
-    if (!s) return '';
-    return [
-      s.create > 0 ? `+${s.create}` : '',
-      s.update > 0 ? `~${s.update}` : '',
-      s.softDelete > 0 ? `−${s.softDelete}` : '',
-      s.errors > 0 ? `!${s.errors}` : '',
-    ]
-      .filter(Boolean)
-      .join(' ');
+    return syncChangeSummary(run.summary);
   }
 }
 

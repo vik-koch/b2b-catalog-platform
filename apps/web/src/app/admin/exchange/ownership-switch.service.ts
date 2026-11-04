@@ -11,8 +11,7 @@ export class OwnershipSwitchService {
   private readonly client = createOrpcClient(adminOwnershipSwitchContract);
   private readonly ownership = inject(OwnershipService);
 
-  /** One area or every area: the master switch is the same call with the
-   * whole list, so it lands as one transaction and one history entry. */
+  /** The master switch sends the whole list: one transaction. */
   async set(
     areas: readonly OwnershipArea[],
     owned: boolean,

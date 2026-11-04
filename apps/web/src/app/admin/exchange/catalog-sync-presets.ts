@@ -4,11 +4,9 @@ import {
 } from '@b2b-catalog-platform/shared/core/exchange';
 
 /**
- * Named intents over the raw run options. The flag space is larger than anyone
- * should reason about while holding a catalog file, and only three
- * combinations are actually used: a complete export, a price refresh and a
- * stock refresh. The presets make the safe one the default and keep the
- * dangerous option out of reach of the ones that must never delete.
+ * Named intents over the run options: the three combinations actually used.
+ * The safe one is the default, and the ones that must never delete cannot
+ * reach the option that does.
  */
 export type CatalogSyncPresetName = 'full' | 'prices' | 'stock' | 'custom';
 
@@ -26,11 +24,8 @@ export const CATALOG_SYNC_PRESETS: CatalogSyncPreset[] = [
   { name: 'custom', label: 'custom' },
 ];
 
-/**
- * The options a preset stands for. "Complete catalog export" claims authority
- * over the product set but still leaves the actual hiding switched off — the
- * claim is what makes the option *available*, not what enables it.
- */
+/** A complete export claims the product set but leaves hiding off: the
+ * claim makes the option available, not enabled. */
 export function catalogPresetFor(
   name: CatalogSyncPresetName,
 ): CatalogSyncOptions {
@@ -44,9 +39,7 @@ export function catalogPresetFor(
     softDeleteMissingProducts: false,
   };
 
-  // The two partial refreshes are the same shape — touch what is already
-  // there, add nothing, hide nothing — and differ only in which field they
-  // carry. A stock file is the one a shop sends daily.
+  // Both refreshes touch what is there, add nothing, hide nothing.
   if (name === 'prices' || name === 'stock') {
     return {
       ...base,

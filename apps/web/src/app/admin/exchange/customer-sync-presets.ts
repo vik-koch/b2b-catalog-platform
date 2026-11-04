@@ -4,21 +4,10 @@ import {
 } from '@b2b-catalog-platform/shared/core/exchange';
 
 /**
- * Named intents over a customer run's options (FR-ADM-12), the way the
- * catalog's presets sit over its own.
- *
- * Two of them, because two things are actually done with a file of customers.
- * A **go-live** brings a customer book into a shop that has none: it creates
- * accounts, which means mailing every one of those people a set-a-password
- * link, and it is the reason this upload exists at all. A **tier update**
- * touches nobody's access and nobody's inbox — it writes the one field
- * iteration 12 left assigned by hand.
- *
- * The risky one is the default here, unlike the catalog's, and that is
- * deliberate rather than an oversight: the risk in a customer file is the mail
- * it sends, which the preview counts before anything is applied, and a
- * go-live that quietly declined to create the accounts would be a screen that
- * did nothing and said it worked.
+ * Named intents over a customer run's options (FR-ADM-12): a go-live, which
+ * creates accounts and mails each a link, and a tier update, which touches
+ * nobody's access or inbox. The go-live is the default on purpose: the
+ * preview counts its mails, and one that created nobody would do nothing.
  */
 export type CustomerSyncPresetName = 'full' | 'tiers' | 'custom';
 
@@ -43,22 +32,14 @@ export function customerPresetFor(
     fields: [...CUSTOMER_SYNC_FIELDS],
     createMissing: true,
     updateExisting: true,
-    // Off in both presets, and ticked by hand on the one run that wants it.
-    // A go-live file is exactly where a claim is useful — half the customer
-    // book may already have registered on the storefront — and exactly where
-    // a wrong address in it would adopt the wrong person's account. The
-    // decision is worth one tick (FR-ADM-17).
+    // Ticked by hand: a wrong address would adopt the wrong person's account
+    // (FR-ADM-17).
     claimByEmail: false,
-    // Never offered on an upload, and so always off here: the identifier a
-    // claim by ID names is one the machine exchange read out of this shop
-    // (FR-ADM-18), and a person filling in a spreadsheet does not have it.
-    // There is no column for it either.
+    // Never on an upload: the ID comes from the machine read (FR-ADM-18).
     claimById: false,
   };
 
-  // A tier file is about people the shop already has. Creating nobody is what
-  // makes it safe to run against an export that happens to carry more rows
-  // than the shop has customers.
+  // Creating nobody keeps it safe against an export with extra rows.
   if (name === 'tiers') {
     return { ...base, fields: ['tier'], createMissing: false };
   }

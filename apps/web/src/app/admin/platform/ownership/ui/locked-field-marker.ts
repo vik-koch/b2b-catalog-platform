@@ -5,25 +5,10 @@ import { Popover } from '@b2b-catalog-platform/ui/overlay/popover';
 import { lockIcon } from '@b2b-catalog-platform/ui/icons/glyphs/lock';
 
 /**
- * The mark beside a field an external system owns (FR-ADM-10) — a lock the
- * admin can ask about.
- *
- * Drawn while the field is disabled with a reason, and the reason is what it
- * says: the rule that locks the field is the only place that decides it. A
- * field disabled without one, such as a threshold with nothing to measure
- * against, is not locked by anyone and shows no lock.
- *
- * It sits next to the label rather than repeating the explanation under every
- * field: the banner at the top of the editor says what is going on and where
- * to change it, and this says which fields it is about. Six copies of the same
- * paragraph in one form is noise, and noise is what stops the sentence being
- * read at all.
- *
- * One trigger for both pointers rather than a hover tooltip and a tap variant.
- * A `disabled` input fires no pointer events in Chrome or Firefox, so the
- * hover target could not be the field itself in any case; making it a real
- * button means it answers a tap, a click and the keyboard with one code path,
- * and screen readers get a name for it.
+ * The lock beside a field an external system owns (FR-ADM-10), shown while the
+ * field is disabled with a reason, and saying that reason. A button rather
+ * than a tooltip: a disabled input fires no pointer events, and a button
+ * answers tap, click and keyboard alike.
  */
 @Component({
   selector: 'app-locked-field-marker',

@@ -3,11 +3,8 @@ import { IconNote } from '@b2b-catalog-platform/ui/content/icon-note';
 import { lockIcon } from '@b2b-catalog-platform/ui/icons/glyphs/lock';
 import { Notice } from '@b2b-catalog-platform/ui/content/notice';
 
-/**
- * Why something on this screen cannot be changed here: an area handed to an
- * external system, said once at the top of what it explains. The lock is the
- * glyph the greyed fields under it carry. The margin is the caller's.
- */
+/** Why something here cannot be changed, said once above what it covers.
+ * The margin is the caller's. */
 @Component({
   selector: 'app-locked-note',
   imports: [IconNote, Notice],

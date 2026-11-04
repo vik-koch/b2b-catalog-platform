@@ -31,6 +31,7 @@ import {
   customerPresetFor,
 } from './customer-sync-presets';
 import { SyncCustomerPlanView } from './ui/sync-customer-plan-view';
+import { syncChangeSummary } from './sync-run-format';
 import { SyncService } from './sync.service';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { uploadIcon } from '@b2b-catalog-platform/ui/icons/glyphs/upload';
@@ -229,8 +230,8 @@ export class CustomerSyncUploadPage {
   protected readonly usersText = inject(ADMIN_TEXT).users.list;
 
   /** Whether an external system owns the customer accounts (FR-ADM-10). */
-  protected readonly customersOwned = computed(
-    () => this.ownership.ownedAreas()?.includes('customers') ?? false,
+  protected readonly customersOwned = computed(() =>
+    this.ownership.owns('customers'),
   );
 
   constructor() {
@@ -351,20 +352,8 @@ export class CustomerSyncUploadPage {
     this.applyError.set(null);
   }
 
-  /** What a finished run came to, in the figures worth one line. The mail
-   * count is one of them here: it is the figure somebody will be asked about. */
   protected changeSummary(run: SyncRun): string {
-    const s = run.summary;
-    if (!s) return '';
-    return [
-      s.create > 0 ? `+${s.create}` : '',
-      s.update > 0 ? `~${s.update}` : '',
-      s.softDelete > 0 ? `−${s.softDelete}` : '',
-      s.mailed > 0 ? `✉${s.mailed}` : '',
-      s.errors > 0 ? `!${s.errors}` : '',
-    ]
-      .filter(Boolean)
-      .join(' ');
+    return syncChangeSummary(run.summary, { mailed: true });
   }
 }
 

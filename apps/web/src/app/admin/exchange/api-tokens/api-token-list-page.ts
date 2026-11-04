@@ -15,7 +15,6 @@ import { delayedLoading } from '../../../shared/core/delayed-loading';
 import { usePageSeo } from '../../../shared/core/page-seo';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
-import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
 import { filled } from '../../../shared/core/field-rules';
 import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
 import { submitAttempt } from '@b2b-catalog-platform/ui/fields/submit-attempt';
@@ -41,37 +40,11 @@ import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
 import { SaveButton } from '../../ui/save-button';
 import { CancelButton } from '../../ui/cancel-button';
 
-/**
- * What a new token starts out allowed to do: **nothing**, so a capability is
- * only ever on the token because somebody ticked it. The exception is a
- * deployment with a single capability to give, where there is no choice to
- * make and an empty form would be asking the operator to confirm the only
- * answer.
- */
-function defaultScopes(): ApiTokenScope[] {
-  // Widened deliberately: `API_TOKEN_SCOPES` is `as const`, so its length is a
-  // literal type and the comparison would be a compile error the day a second
-  // capability is added — exactly the day this branch starts to matter.
-  const available: readonly ApiTokenScope[] = API_TOKEN_SCOPES;
-  return available.length === 1 ? [...available] : [];
-}
-
-/**
- * The areas a capability can be about, in the order the form lists them — the
- * catalog first because it is where a deployment's exchange starts, then the
- * customers it sells to, then the orders they place.
- */
+/** The form's rows, in the order a deployment's exchange grows. */
 const SCOPE_AREAS = ['catalog', 'customers', 'orders'] as const;
 type ScopeArea = (typeof SCOPE_AREAS)[number];
 
-/**
- * Where each capability sits in that grid.
- *
- * A total map rather than a rule about how a scope is spelled: adding a
- * capability is a release (see `API_TOKEN_SCOPES`), and this is what makes the
- * compiler say so — a new scope with no square to sit in is a checkbox nobody
- * can tick, which would be invisible in a screenshot and obvious to nobody.
- */
+/** A total map, so a new scope cannot compile without a square to sit in. */
 const SCOPE_PLACE: Record<
   ApiTokenScope,
   { area: ScopeArea; kind: 'read' | 'submit' }
@@ -83,12 +56,8 @@ const SCOPE_PLACE: Record<
   'order-sync': { area: 'orders', kind: 'submit' },
 };
 
-/**
- * One row per area, reading then writing. A null cell is a capability that
- * does not exist: the catalog travels inward only, so there is nothing to
- * grant a reader of it, and an empty square says that better than a row with
- * one tick in a column of two.
- */
+/** One row per area, reading then writing; null where a capability does not
+ * exist, as nothing reads the catalog outward. */
 const SCOPE_ROWS: readonly {
   area: ScopeArea;
   cells: readonly (ApiTokenScope | null)[];
@@ -104,17 +73,8 @@ const SCOPE_ROWS: readonly {
 }));
 
 /**
- * Machine tokens (NFR-SEC-09) — the credentials automated clients present
- * instead of signing in.
- *
- * A token is a name and a set of capabilities, so it edits like a tier does:
- * no editor screen, an inline form, rows in place. The one thing this screen has that no
- * other admin list has is a value it can never show again, which is why the
- * created token gets a panel of its own rather than a line in the list — an
- * admin who scrolls past it has lost it.
- *
- * Revoked rows stay listed. They are what a sync run made months ago points
- * at, and a list that forgets them cannot answer "which credential did this".
+ * Machine tokens (NFR-SEC-09), edited inline like tiers. A new value is shown
+ * once, in its own panel. Revoked rows stay listed: old runs name them.
  */
 @Component({
   selector: 'app-api-token-list-page',
@@ -128,7 +88,6 @@ const SCOPE_ROWS: readonly {
     IconButton,
     Icon,
     Input,
-    FieldLabel,
     Checkbox,
     Skeleton,
     StatusBadge,
@@ -152,10 +111,7 @@ const SCOPE_ROWS: readonly {
     </ui-page-header>
 
     <div class="max-w-3xl">
-      <!-- The value, once. Amber rather than a plain card: this is the only
-           panel in the admin that is worth interrupting for, and it stays put
-           until it is dismissed — an admin who navigates away has not lost a
-           step, they have lost the credential. -->
+      <!-- Stays until dismissed: leaving loses the credential, not a step. -->
       @if (created(); as token) {
         <div uiNotice tone="warning" class="mb-6" role="status">
           <p class="font-medium">
@@ -203,9 +159,6 @@ const SCOPE_ROWS: readonly {
         <div class="divide-y divide-edge border-y border-edge">
           @for (token of tokens.value(); track token.id) {
             <div class="py-3">
-              <!-- Three sentences, not three figures: what this credential
-                   may do, who issued it when, and whether anything has used
-                   it. Each on its own line. -->
               <ui-record-row [stackMeta]="true">
                 <span
                   class="font-medium"
@@ -254,9 +207,7 @@ const SCOPE_ROWS: readonly {
 
           @if (adding()) {
             <div class="py-3">
-              <!-- Name and capabilities, and nothing else: a token has no
-                   expiry to set (revocation is the control) and no value to
-                   choose. -->
+              <!-- No expiry: revocation is the control. -->
               <form uiRecordFields [formRoot]="form" (submit)="save()">
                 <ui-field
                   [field]="form.name"
@@ -272,67 +223,40 @@ const SCOPE_ROWS: readonly {
                     [formField]="form.name"
                   />
                 </ui-field>
-                <!-- One token, however many capabilities: the automated
-                     client a deployment runs is usually one process doing
-                     several things, and two credentials for it would be two
-                     things to rotate and two to mix up.
-
-                     A tick apiece rather than a multi-select, which hides
-                     what is not chosen — laid out as the grid the capabilities
-                     actually form: an area per row, reading and writing as the
-                     two columns. Reading first, because it is the lesser of
-                     the two and the one a client is given while it is being
-                     brought up. A blank cell is a capability that does not
-                     exist rather than one left unticked: nothing reads the
-                     catalog outward, so the exchange that receives it has no
-                     read to grant.
-
-                     While only one capability exists there is nothing to ask,
-                     so it is stated instead; the ticks appear on their own
-                     when a second one is added. -->
-                @if (scopes.length > 1) {
-                  <ui-field-group [field]="form.scopes" [label]="text.scope">
-                    <!-- Columns as wide as their heading, not as wide as the
-                         form: a tick belongs beside the words that name it,
-                         and two stretched columns put it halfway across the
-                         screen from both. -->
-                    <div
-                      class="grid grid-cols-[auto_auto_auto] justify-start
-                             items-center gap-x-8 gap-y-1.5 text-sm"
-                    >
-                      <span aria-hidden="true"></span>
-                      <span class="justify-self-center text-xs text-ink-subtle">
-                        {{ text.scopeKind.read }}
-                      </span>
-                      <span class="justify-self-center text-xs text-ink-subtle">
-                        {{ text.scopeKind.submit }}
-                      </span>
-                      @for (row of scopeRows; track row.area) {
-                        <span>{{ text.scopeArea[row.area] }}</span>
-                        @for (cell of row.cells; track $index) {
-                          <span class="justify-self-center">
-                            @if (cell; as scope) {
-                              <input
-                                type="checkbox"
-                                uiCheckbox
-                                [checked]="draft().scopes.includes(scope)"
-                                [attr.aria-label]="scopeLabel(scope)"
-                                (change)="toggleScope(scope)"
-                              />
-                            }
-                          </span>
-                        }
+                <!-- One token for several capabilities, laid out as the grid
+                     they form; a blank cell is one that does not exist. -->
+                <ui-field-group [field]="form.scopes" [label]="text.scope">
+                  <!-- Columns as wide as their heading, so a tick sits by
+                       its words. -->
+                  <div
+                    class="grid grid-cols-[auto_auto_auto] justify-start
+                           items-center gap-x-8 gap-y-1.5 text-sm"
+                  >
+                    <span aria-hidden="true"></span>
+                    <span class="justify-self-center text-xs text-ink-subtle">
+                      {{ text.scopeKind.read }}
+                    </span>
+                    <span class="justify-self-center text-xs text-ink-subtle">
+                      {{ text.scopeKind.submit }}
+                    </span>
+                    @for (row of scopeRows; track row.area) {
+                      <span>{{ text.scopeArea[row.area] }}</span>
+                      @for (cell of row.cells; track $index) {
+                        <span class="justify-self-center">
+                          @if (cell; as scope) {
+                            <input
+                              type="checkbox"
+                              uiCheckbox
+                              [checked]="draft().scopes.includes(scope)"
+                              [attr.aria-label]="scopeLabel(scope)"
+                              (change)="toggleScope(scope)"
+                            />
+                          }
+                        </span>
                       }
-                    </div>
-                  </ui-field-group>
-                } @else {
-                  <div>
-                    <span uiFieldLabel>{{ text.scope }}</span>
-                    <p class="pt-1.5 text-sm">
-                      {{ scopeList(draft().scopes) }}
-                    </p>
+                    }
                   </div>
-                }
+                </ui-field-group>
                 <p class="text-xs text-ink-subtle sm:col-span-full">
                   {{ text.scopeHint }}
                 </p>
@@ -387,9 +311,6 @@ export class ApiTokenListPage {
   protected readonly actionText = inject(SHARED_TEXT).actions;
   private readonly locale = inject(DEPLOYMENT_CONFIG).locale;
 
-  /** Widened for the same reason `defaultScopes` widens: the template asks
-   * how many there are. */
-  protected readonly scopes: readonly ApiTokenScope[] = API_TOKEN_SCOPES;
   protected readonly scopeRows = SCOPE_ROWS;
 
   protected readonly tokens = resource({ loader: () => this.service.list() });
@@ -398,16 +319,14 @@ export class ApiTokenListPage {
   protected readonly adding = signal(false);
   protected readonly draft = signal({
     name: '',
-    scopes: defaultScopes(),
+    scopes: [] as ApiTokenScope[],
   });
   protected readonly form = form(
     this.draft,
     (token) => {
       filled(token.name, this.text.nameRequired);
       maxLength(token.name, API_TOKEN_NAME_MAX_LENGTH);
-      // A token allowed nothing is a row that can only mislead; the API
-      // refuses one too. `required` takes an empty list as given, so the
-      // count says it, as the same kind.
+      // `required` takes an empty list as given, so the count says it.
       required(token.scopes);
       validate(token.scopes, ({ value }) =>
         value().length === 0
@@ -438,9 +357,7 @@ export class ApiTokenListPage {
     return this.text.scopes[scope];
   }
 
-  /** The capabilities on one row, in the order they are declared in rather
-   * than the order they were stored in, so two tokens with the same grant read
-   * the same. */
+  /** In declared order, so two tokens with the same grant read the same. */
   protected scopeList(scopes: readonly ApiTokenScope[]): string {
     return API_TOKEN_SCOPES.filter((scope) => scopes.includes(scope))
       .map((scope) => this.scopeLabel(scope))
@@ -463,11 +380,7 @@ export class ApiTokenListPage {
       .replace('{actor}', token.createdBy ?? this.adminText.actorGone);
   }
 
-  /**
-   * The field this screen is really for: a token nobody has retired and nobody
-   * uses is the one worth asking about, and it looks identical to a working
-   * one until this line says otherwise.
-   */
+  /** A token nobody uses looks like a working one until this line says so. */
   protected usedLine(token: ApiToken): string {
     if (!token.lastUsedAt) return this.text.neverUsed;
     return this.text.lastUsed.replace(
@@ -477,7 +390,7 @@ export class ApiTokenListPage {
   }
 
   protected startAdd(): void {
-    this.draft.set({ name: '', scopes: defaultScopes() });
+    this.draft.set({ name: '', scopes: [] });
     submitAttempt(this.form).set(false);
     this.formError.set(null);
     this.adding.set(true);
@@ -498,8 +411,7 @@ export class ApiTokenListPage {
       await navigator.clipboard.writeText(value);
       this.copied.set(true);
     } catch {
-      // Clipboard access can be refused outright. The value is on screen and
-      // selectable, so there is nothing to say and nothing to recover from.
+      // Refused clipboard: the value is on screen and selectable.
     }
   }
 
