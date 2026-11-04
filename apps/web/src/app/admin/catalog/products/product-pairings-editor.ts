@@ -14,7 +14,6 @@ import {
   PRODUCT_PAIRINGS_MAX,
 } from '@b2b-catalog-platform/shared/admin/catalog';
 import { ADMIN_TEXT } from '../../../platform/config/admin-text';
-import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { Suggestion } from '@b2b-catalog-platform/ui/suggest/suggestion';
 import { MatchSegmentsPipe } from '../../../core/catalog/search/match-segments.pipe';
 import { AlternateLayout } from '../../../platform/alternate-layout';
@@ -34,6 +33,7 @@ import {
   linkedProductState,
   ProductStateBadge,
 } from '../ui/product-state-badge';
+import { SHARED_CATALOG_TEXT } from '../../../core/catalog/catalog-text';
 
 /** `aria-controls` must name one list, and a page may hold more than one. */
 let nextId = 0;
@@ -126,7 +126,7 @@ export class ProductPairingsEditor implements OnInit {
   private readonly service = inject(ProductsService);
   protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly text = inject(ADMIN_TEXT).products.editor.pairings;
-  protected readonly product = inject(SHARED_TEXT).product;
+  protected readonly product = inject(SHARED_CATALOG_TEXT).product;
   protected readonly productStates = inject(ADMIN_TEXT).products;
   protected readonly linkedState = linkedProductState;
   protected readonly glyph = PRODUCT_FEATURE_GLYPHS.pairings;

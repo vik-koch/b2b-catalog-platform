@@ -62,6 +62,7 @@ import { PRODUCT_GRID } from '../ui/product-tile';
 import { ProductListing } from '../ui/product-listing';
 import { CATEGORY_GRID } from './category-index';
 import { HiddenProductsSection } from './hidden-products-section';
+import { SHARED_CATALOG_TEXT } from '../../../core/catalog/catalog-text';
 
 /** The phone's clip (SUBS_CLIPPED) in px: four `h-16` chip rows, their
  * `gap-3`s and SUBS_LIST's 4px inset. The CSS clips; this only asks whether
@@ -167,10 +168,12 @@ interface Listing {
                offers every value the narrower one did. -->
           <ui-breadcrumbs
             [class]="editControls() ? editActionsInset : ''"
-            [label]="text.catalogRoot"
+            [label]="catalogText.catalogRoot"
             [crumbs]="crumbs()"
             [current]="
-              data.category ? displayName(data.category) : text.catalogRoot
+              data.category
+                ? displayName(data.category)
+                : catalogText.catalogRoot
             "
           />
 
@@ -182,7 +185,7 @@ interface Listing {
               class="text-2xl font-medium tracking-tight
                      @min-[38rem]/listing:text-3xl"
             >
-              {{ data.category?.name ?? text.catalogRoot }}
+              {{ data.category?.name ?? catalogText.catalogRoot }}
             </h1>
 
             <app-applied-filters
@@ -332,6 +335,7 @@ export class CategoryGrid {
   private readonly productLayout = inject(ProductLayoutService);
   protected readonly editMode = inject(EditModeService);
   protected readonly text = inject(STOREFRONT_TEXT).catalog;
+  protected readonly catalogText = inject(SHARED_CATALOG_TEXT);
   protected readonly filterText = this.text.filters;
   protected readonly editorFrom = injectEditorReturnParams();
   protected readonly skeletons = Array.from({ length: 8 }, (_, i) => i);
@@ -362,7 +366,7 @@ export class CategoryGrid {
     if (!category) return [];
     const queryParams = { sort: this.sortParam(), attr: this.attrParam() };
     return [
-      { label: this.text.catalogRoot, link: '/catalog' },
+      { label: this.catalogText.catalogRoot, link: '/catalog' },
       ...category.ancestors.map((crumb) => ({
         label: categoryDisplayName(crumb),
         link: ['/catalog', crumb.slug],
@@ -466,7 +470,7 @@ export class CategoryGrid {
     usePageSeo({
       // Guarded: `value()` throws on an errored resource.
       name: () => {
-        if (!this.slug()) return this.text.catalogRoot;
+        if (!this.slug()) return this.catalogText.catalogRoot;
         return this.products.hasValue()
           ? this.products.value()?.category?.name
           : undefined;

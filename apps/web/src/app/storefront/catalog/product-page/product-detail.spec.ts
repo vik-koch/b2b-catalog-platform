@@ -25,6 +25,7 @@ import {
   plainPrices,
 } from '../../../core/catalog/product.fixture';
 import { provideFakeProductCart } from '../../../core/catalog/buying/product-cart.fixture';
+import { defaultSharedCatalogText } from '../../../core/catalog/catalog-text.fixture';
 
 type Product = NonNullable<Awaited<ReturnType<CatalogService['getProduct']>>>;
 
@@ -130,7 +131,7 @@ describe('ProductDetail', () => {
       .map((n) => n.textContent?.trim())
       .filter((text) => text);
     expect(crumbs).toEqual([
-      defaultStorefrontText.catalog.catalogRoot,
+      defaultSharedCatalogText.catalogRoot,
       'Coffee',
       'Beans',
       'Roasts',
@@ -160,7 +161,9 @@ describe('ProductDetail', () => {
       }),
     );
 
-    expect(root.textContent).toContain(defaultSharedText.product.documents);
+    expect(root.textContent).toContain(
+      defaultSharedCatalogText.product.documents,
+    );
     expect(
       root.querySelector('a[href="/documents/aaaaaaaaaaaa.pdf"]')?.textContent,
     ).toContain('Certificate of analysis');
@@ -169,7 +172,9 @@ describe('ProductDetail', () => {
   it('heads no document section when there is nothing current to show', async () => {
     const root = el(await render({ ...product, documents: [] }));
 
-    expect(root.textContent).not.toContain(defaultSharedText.product.documents);
+    expect(root.textContent).not.toContain(
+      defaultSharedCatalogText.product.documents,
+    );
   });
 
   it('renders the attributes as a specifications table', async () => {
@@ -244,7 +249,7 @@ describe('ProductDetail', () => {
       ),
     ).toEqual(['Net weight', 'Count per package']);
     expect(root.textContent).toContain(
-      defaultStorefrontText.catalog.allSpecifications,
+      defaultSharedCatalogText.allSpecifications,
     );
   });
 

@@ -15,6 +15,7 @@ import {
 } from '../../../core/catalog/product.fixture';
 import { provideUiText } from '../../../platform/config/shared-text';
 import { provideFakeProductCart } from '../../../core/catalog/buying/product-cart.fixture';
+import { defaultSharedCatalogText } from '../../../core/catalog/catalog-text.fixture';
 
 type Products = NonNullable<
   Awaited<ReturnType<CatalogService['getCategoryProducts']>>
@@ -669,16 +670,16 @@ describe('CategoryGrid as the catalogue index (FR-CAT-02)', () => {
   it('heads the page as the catalogue, under a trail of one', async () => {
     const root = el(await renderCatalog(catalog()));
     const nav = root.querySelector(
-      `nav[aria-label="${defaultStorefrontText.catalog.catalogRoot}"]`,
+      `nav[aria-label="${defaultSharedCatalogText.catalogRoot}"]`,
     );
 
     expect(root.querySelector('h1')?.textContent).toContain(
-      defaultStorefrontText.catalog.catalogRoot,
+      defaultSharedCatalogText.catalogRoot,
     );
     // Where a category's breadcrumb stands, so nothing moves on the way down —
     // the current page, not a link to itself.
     expect(nav?.querySelector('[aria-current="page"]')?.textContent).toContain(
-      defaultStorefrontText.catalog.catalogRoot,
+      defaultSharedCatalogText.catalogRoot,
     );
     expect(nav?.querySelector('a')).toBeNull();
     expect(

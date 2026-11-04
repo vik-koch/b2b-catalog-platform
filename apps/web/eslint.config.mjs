@@ -20,7 +20,7 @@ const UI_BARREL = {
 
 /* The areas whose core code reads the shared text only; the rest join as
  * their texts are cut. */
-const TEXT_CUT_AREAS = ['site'];
+const TEXT_CUT_AREAS = ['site', 'catalog'];
 
 /* What a view in a `ui/` folder may not reach for: data (ADR 0072). */
 const VIEW_MESSAGE =

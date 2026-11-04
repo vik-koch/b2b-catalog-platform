@@ -21,6 +21,7 @@ import { defaultStorefrontText } from '../../../platform/config/storefront-text.
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import { defaultDeploymentConfig } from '../../../platform/config/deployment-config.fixture';
 import { SearchField } from './search-field';
+import { defaultSharedCatalogText } from '../../../core/catalog/catalog-text.fixture';
 
 type Suggestion = ProductListItem;
 
@@ -411,7 +412,7 @@ describe('SearchField suggestions (FR-SEARCH-05/06)', () => {
     addButtons(el)[0].click();
     await fixture.whenStable();
 
-    expect(el.textContent).toContain(defaultStorefrontText.cart.full);
+    expect(el.textContent).toContain(defaultSharedCatalogText.buying.full);
   });
 
   it('reaches the add button from the keyboard with the right arrow', async () => {

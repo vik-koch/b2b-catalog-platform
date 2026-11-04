@@ -31,6 +31,11 @@ import {
   addressLines,
   type AddressConfig,
 } from '@b2b-catalog-platform/shared/core/accounts';
+import {
+  CATALOG_AREA,
+  type SharedCatalogText,
+} from '@b2b-catalog-platform/shared/core/catalog';
+import { sharedTextBlock } from '../../platform/config/shared-text';
 
 /**
  * The order summary the platform draws (FR-ORD-05, FR-ACC-02, ADR 0052), from
@@ -165,7 +170,10 @@ export class OrderPdf {
 
   /** The unit read and the piece count, as the mails state them. */
   private quantity(line: OrderDetail['lines'][number]): string {
-    const units = this.common.units;
+    const { units } = sharedTextBlock<SharedCatalogText>(
+      this.common,
+      CATALOG_AREA,
+    );
     return line.unit === 'piece'
       ? fillText(this.common.quantity, {
           qty: line.quantity,

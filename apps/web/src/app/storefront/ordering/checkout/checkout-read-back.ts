@@ -15,12 +15,13 @@ import { formatUnitQuantity } from '../../../core/catalog/buying/quantity';
 import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
-import { useTaxStatement } from '../../../core/catalog/pricing/tax-statement';
+import { useTaxStatement } from '../../../platform/tax-statement';
 import {
   ReadBackLine,
   ReviewBlock,
 } from '../../../core/ordering/ui/order-read-back';
 import { CheckoutDraft } from './checkout-draft';
+import { SHARED_CATALOG_TEXT } from '../../../core/catalog/catalog-text';
 
 /** What the draft alone cannot say: the settled addresses, the account's name,
  * whether an invoice address exists. */
@@ -53,13 +54,13 @@ export function createCheckoutReadBack(deps: ReadBackDeps) {
   const config = inject(DEPLOYMENT_CONFIG);
   const text = inject(STOREFRONT_TEXT).checkout;
   const common = inject(SHARED_TEXT);
+  const units = inject(SHARED_CATALOG_TEXT).units;
   const names = common.order;
   const locations = config.pickup?.locations ?? [];
 
   /** The ordered quantity and, for another unit, its pieces (FR-UNIT-01): the
    * figure the shop picks. */
   const lineQuantity = (line: CartStoredLine): string => {
-    const units = common.units;
     const qty = formatUnitQuantity(
       unitQuantity(line.packaging, line.unit, line.pieces) ?? line.pieces,
       moneyFormat(config),

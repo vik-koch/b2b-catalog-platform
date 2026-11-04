@@ -28,6 +28,7 @@ import { TiersService } from '../tiers/tiers.service';
 import { AttributesService } from '../attributes/attributes.service';
 import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
 import { ProductEditorPage } from './product-editor-page';
+import { defaultSharedCatalogText } from '../../../core/catalog/catalog-text.fixture';
 
 const text = defaultAdminText.products.editor;
 
@@ -837,7 +838,7 @@ describe('ProductEditorPage', () => {
 
       // The note's box beside it, opened while the note is still off.
       buttonByText(el, text.lineNote.heading).click();
-      buttonByText(el, defaultSharedText.product.variants).click();
+      buttonByText(el, defaultSharedCatalogText.product.variants).click();
       fixture.detectChanges();
       setInput(
         box(el).querySelector(

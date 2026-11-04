@@ -5,9 +5,8 @@ import {
   sharedTaxRate,
   TaxBasis,
 } from '@b2b-catalog-platform/shared/platform';
-import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
-import { SHARED_TEXT } from '../../../platform/config/shared-text';
-import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
+import { SHARED_TEXT } from './config/shared-text';
+import { DEPLOYMENT_CONFIG } from './config/deployment-config';
 
 /**
  * The tax basis in words (NFR-LEGAL-11), for every place that states it, so
@@ -18,7 +17,6 @@ export function useTaxStatement() {
   const config = inject(DEPLOYMENT_CONFIG);
   const tax = config.tax;
   const locale = config.locale;
-  const text = inject(STOREFRONT_TEXT).tax;
   const statements = inject(SHARED_TEXT).tax;
 
   const rateText = (rate: number) => formatTaxRate(rate, locale);
@@ -64,13 +62,15 @@ export function useTaxStatement() {
     atPrice(rate: number | null): string | null {
       if (tax.basis === 'none' || !tax.statedAtPrices) return null;
       const said = statement(tax.basis, rate ?? tax.rate);
-      return text.atPrice ? fillText(text.atPrice, { statement: said }) : said;
+      return statements.atPrice
+        ? fillText(statements.atPrice, { statement: said })
+        : said;
     },
 
     /** Under a listing, naming no rate: one page may hold goods at two. */
     listing(): string | null {
       return tax.basis !== 'none' && tax.statedAtPrices
-        ? text.listing[tax.basis]
+        ? statements.listing[tax.basis]
         : null;
     },
   };

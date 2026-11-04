@@ -13,8 +13,9 @@ import { PairingsService } from '../../core/catalog/buying/pairings.service';
 import { ProductPairingsDialog } from './product-pairings-dialog';
 import { productListItem } from '../../core/catalog/product.fixture';
 import { provideFakeProductCart } from '../../core/catalog/buying/product-cart.fixture';
+import { defaultSharedCatalogText } from '../../core/catalog/catalog-text.fixture';
 
-const text = defaultStorefrontText.catalog.pairings;
+const text = defaultSharedCatalogText.pairings;
 
 /** jsdom's <dialog> has neither; the panel opens itself once it has content. */
 beforeAll(() => {

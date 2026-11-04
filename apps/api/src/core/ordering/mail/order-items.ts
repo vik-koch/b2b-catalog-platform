@@ -8,6 +8,11 @@ import {
 } from '@b2b-catalog-platform/shared/platform';
 import { OrderDetail } from '@b2b-catalog-platform/shared/core/ordering';
 import { MailItem } from '../../../platform/mail/mail-layout';
+import {
+  CATALOG_AREA,
+  type SharedCatalogText,
+} from '@b2b-catalog-platform/shared/core/catalog';
+import { sharedTextBlock } from '../../../platform/config/shared-text';
 
 /**
  * A line as both order mails state it, from the order's own snapshots: the
@@ -22,7 +27,7 @@ export function orderMailItem(
   /** Whether the order's lines differ in rate, so each states its own. */
   perLineTax = false,
 ): MailItem {
-  const units = common.units;
+  const { units } = sharedTextBlock<SharedCatalogText>(common, CATALOG_AREA);
   const quantity =
     line.unit === 'piece'
       ? fillText(common.quantity, {

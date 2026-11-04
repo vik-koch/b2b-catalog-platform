@@ -5,6 +5,11 @@ import {
 } from '@b2b-catalog-platform/shared/platform';
 import { OrderLine } from '@b2b-catalog-platform/shared/core/ordering';
 import { formatUnitQuantity } from '../catalog/buying/quantity';
+import {
+  CATALOG_AREA,
+  type SharedCatalogText,
+} from '@b2b-catalog-platform/shared/core/catalog';
+import { sharedTextBlock } from '../../platform/config/shared-text';
 
 /**
  * A line's quantity as the customer reads it, which staff read too: in the
@@ -18,7 +23,8 @@ export function customerQuantity(
   currency: MoneyFormat,
 ): string {
   const qty = formatUnitQuantity(line.quantity, currency);
-  const unit = common.units[line.unit];
+  const { units } = sharedTextBlock<SharedCatalogText>(common, CATALOG_AREA);
+  const unit = units[line.unit];
   if (line.unit === 'piece') {
     return fillText(common.quantity, { qty, unit });
   }
@@ -26,7 +32,7 @@ export function customerQuantity(
     qty,
     unit,
     pieces: formatUnitQuantity(line.pieces, currency),
-    pieceUnit: common.units.piece,
+    pieceUnit: units.piece,
   });
 }
 

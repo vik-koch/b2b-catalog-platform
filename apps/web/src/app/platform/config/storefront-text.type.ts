@@ -74,43 +74,12 @@ export const storefrontTextShape = {
     .object({
       emptyCategories: z.string(),
       loadError: z.string(),
-      /** Category grid (FR-CAT-03/04). */
-      catalogRoot: z.string(),
       emptyProducts: z.string(),
       /** How many products the listing is showing, above the grid. Counts,
        * so it may carry both forms; `{count}` substituted at render. */
       productCount: z.string(),
-      /**
-       * The cards/lines toggle (FR-CAT-04). Two glyphs, so these are the
-       * buttons' accessible names rather than visible labels.
-       */
-      /**
-       * The marker of a product sold as a set of parts (FR-CAT-10). `short`
-       * is the badge on a card or a line, `full` the product page's and the
-       * short badge's tooltip, `{parts}` the parts joined by " + ".
-       */
-      set: z
-        .object({
-          short: z.string(),
-          full: z.string(),
-        })
-        .strict(),
-      /**
-       * A product's variants (FR-CAT-11/12/13). `heading` names the list
-       * beside the product page's gallery; `unavailable` is appended to a
-       * variant marked currently unavailable; `note` stands under the list,
-       * saying availability is confirmed after ordering; `mark` is the badge a row
-       * opens the list with, and `markLabel` its accessible name, where
-       * `{count}` is how many variants there are; `close` ends the list's
-       * dialog on a phone.
-       */
-      variants: z
-        .object({
-          unavailable: z.string(),
-          note: z.string(),
-          markLabel: z.string(),
-        })
-        .strict(),
+      /** The cards/lines toggle (FR-CAT-04): two glyphs, so these are the
+       * buttons' accessible names. */
       layout: z
         .object({
           labelAria: z.string(),
@@ -172,80 +141,10 @@ export const storefrontTextShape = {
           noMatches: z.string(),
         })
         .strict(),
-      specifications: z.string(),
-      /** Heads the four facts beside the photo, and the link under them
-       * goes to the whole table. */
-      mainSpecifications: z.string(),
-      allSpecifications: z.string(),
       productNotFound: z.string(),
       categoryNotFound: z.string(),
       /** Back link on the catalogue's 404 screens. */
       backToCatalog: z.string(),
-      /** Gallery thumbnail label; `{n}` is substituted. */
-      viewImageAria: z.string(),
-      /**
-       * Sold-together pairings (FR-SET-05). `label` names the thing
-       * everywhere it appears — the marker's accessible name, the link on a
-       * product page and in the cart, and the panel's own heading — so a
-       * customer meets one word for it. `{count}` in `marker` is how many
-       * counterparts there are.
-       */
-      pairings: z
-        .object({
-          marker: z.string(),
-          /** Read under the heading, once the panel is open. */
-          intro: z.string(),
-          /** Where the counterparts could not be fetched. */
-          loadError: z.string(),
-        })
-        .strict(),
-      /**
-       * The documents a product page lists (FR-DOC-03). `hintAria` is the
-       * description every link carries, because each one leaves the page
-       * for a file.
-       */
-      documents: z
-        .object({
-          hintAria: z.string(),
-          /** The accessible name of a document's link beside its file
-           * (FR-DOC-05); must contain `{host}`, which is what it shows. */
-          linkAria: z.string(),
-        })
-        .strict(),
-      /**
-       * Units of sale (FR-UNIT-*). The unit words are **abbreviations** —
-       * they follow a number and are never inflected, so a full word here
-       * would read wrongly after some quantities ("4 pack × 1 pieces").
-       */
-      units: z
-        .object({
-          /** Price labels; `{unit}` is one of the abbreviations above. */
-          perUnit: z.string(),
-          /**
-           * The summary itself. `{packs}`/`{pieces}`/`{total}` are counts and
-           * `{packUnit}`/`{pieceUnit}` the abbreviations, so a deployment can
-           * reorder them: "4 pk × 6 pcs = 24 pcs".
-           */
-          packagingFormula: z.string(),
-          /** Used where a product has packs but no box. */
-          packagingPerPack: z.string(),
-          minQuantity: z.string(),
-          boxCountSuffix: z.string(),
-          /**
-           * The unit selector's own labels. Separate from the words below on
-           * purpose: these sit in a segment whose width they decide, and a
-           * deployment may want them shorter than the words the cart uses in
-           * a sentence.
-           */
-          select: z
-            .object({
-              piece: z.string(),
-              pack: z.string(),
-              box: z.string(),
-            })
-            .strict(),
-        })
-        .strict(),
     })
     .strict(),
   /**
@@ -268,40 +167,10 @@ export const storefrontTextShape = {
        * turned off. Said out loud rather than losing the cart in silence. */
       storageFailed: z.string(),
 
-      /** The buying block on the product page. */
-      unitAria: z.string(),
-      quantityAria: z.string(),
-      /** Said in the bubble under a unit the product is not sold in — the
-       * segment is shown rather than hidden, so it has to answer for itself. */
-      unitNotSold: z.string(),
-      /** The stepper buttons' accessible names — their content is an icon. */
-      decreaseAria: z.string(),
-      increaseAria: z.string(),
-      noteLabel: z.string(),
-      /** Fallback prompt where the product names none of its own. */
-      notePrompt: z.string(),
-      /** The note button beside the price on a card or a row, named for what
-       * pressing it does — there is no room there for a labelled field. */
-      noteAdd: z.string(),
-      noteEdit: z.string(),
-      add: z.string(),
-      /** Replaces the add button once the product is in the cart, so the
-       * controls above read as an edit of that line; `{total}` is what the
-       * line costs. */
-      addedFor: z.string(),
-      /** Refused because the cart already holds as many lines as may be
-       * priced in one call (`CART_LINES_MAX`). */
-      full: z.string(),
-
       /** The cart page. */
       lineNoteAria: z.string(),
       /** `{name}` is the product. */
       removeAria: z.string(),
-      /** Asked in the bubble under the stepper when `−` goes below the
-       * smallest quantity the product is sold in, and the two answers. */
-      removeQuestion: z.string(),
-      removeYes: z.string(),
-      removeNo: z.string(),
       /** A row's tick box, named by the product it selects: `{name}`. */
       selectLineAria: z.string(),
       /** The two controls above the lines. The first toggles: it offers the
@@ -313,8 +182,6 @@ export const storefrontTextShape = {
       /** `{count}` lines in the message. */
       deleteSelectedConfirm: confirmText,
       subtotal: z.string(),
-      /** Shown instead of a figure where a line cannot be priced. */
-      noPrice: z.string(),
       /** The subtotal covers only the priceable lines. */
       totalIncomplete: z.string(),
 
@@ -1247,21 +1114,6 @@ export const storefrontTextShape = {
       /** Link text to the withdrawal page, under the returns where the
        * deployment publishes that page. */
       returnsWithdrawalLink: z.string(),
-    })
-    .strict(),
-  /**
-   * The tax basis prices are quoted on (NFR-LEGAL-11) — a statement, never a
-   * figure: the shop's own invoice states the amount.
-   */
-  tax: z
-    .object({
-      /** Under a listing, which may hold goods at different rates and so
-       * names none. Nothing is said where no tax is charged. */
-      listing: z.object({ included: z.string(), added: z.string() }).strict(),
-      /** Beside a price only, where a deployment says more there than the
-       * statement, such as that delivery comes on top; `{statement}`. Not
-       * under a total, which a pickup order has no delivery on. */
-      atPrice: z.string().optional(),
     })
     .strict(),
   errors: z

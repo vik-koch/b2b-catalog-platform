@@ -10,7 +10,6 @@ import {
   ProductDetail,
 } from '@b2b-catalog-platform/shared/core/catalog';
 import { ProductCart } from '../buying/product-cart';
-import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
 import { AutoGrow } from '@b2b-catalog-platform/ui/inputs/auto-grow';
 import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
 import { Input } from '@b2b-catalog-platform/ui/inputs/input';
@@ -19,8 +18,9 @@ import { ProductBuyControls } from '../buying/product-buy-controls';
 import { ProductPairings } from '../buying/product-pairings';
 import { ProductSetBadge } from '../ui/product-set-badge';
 import { ProductUnitFacts } from '../ui/product-unit-facts';
-import { useTaxStatement } from '../pricing/tax-statement';
+import { useTaxStatement } from '../../../platform/tax-statement';
 import { Card } from '@b2b-catalog-platform/ui/content/card';
+import { SHARED_CATALOG_TEXT } from '../catalog-text';
 
 /**
  * The product page's buying panel (FR-UNIT-07, FR-CART-01/08): a tile's own
@@ -108,7 +108,7 @@ import { Card } from '@b2b-catalog-platform/ui/content/card';
   `,
 })
 export class ProductBuyBlock {
-  protected readonly text = inject(STOREFRONT_TEXT).cart;
+  protected readonly text = inject(SHARED_CATALOG_TEXT).buying;
   protected readonly noteMax = CART_NOTE_MAX;
   private readonly tax = useTaxStatement();
 

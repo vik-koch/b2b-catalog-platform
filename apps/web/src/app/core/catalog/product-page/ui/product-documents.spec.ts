@@ -5,8 +5,9 @@ import { PublicDocument } from '@b2b-catalog-platform/shared/core/catalog';
 import { STOREFRONT_TEXT } from '../../../../platform/config/storefront-text';
 import { defaultStorefrontText } from '../../../../platform/config/storefront-text.fixture';
 import { ProductDocuments } from './product-documents';
+import { defaultSharedCatalogText } from '../../catalog-text.fixture';
 
-const text = defaultStorefrontText.catalog.documents;
+const text = defaultSharedCatalogText.documents;
 
 function file(
   overrides: Partial<NonNullable<PublicDocument['file']>> = {},

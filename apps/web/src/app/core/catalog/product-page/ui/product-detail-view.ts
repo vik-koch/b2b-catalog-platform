@@ -19,8 +19,6 @@ import {
   ProductDetail,
 } from '@b2b-catalog-platform/shared/core/catalog';
 import { EDIT_ACTIONS_INSET } from '../../../../platform/edit-mode/edit-actions';
-import { STOREFRONT_TEXT } from '../../../../platform/config/storefront-text';
-import { SHARED_TEXT } from '../../../../platform/config/shared-text';
 import { trustedRichText } from '../../../../platform/trusted-rich-text';
 import { disclosureState } from '@b2b-catalog-platform/ui/disclosure/disclosure-state';
 import { ShowMoreToggle } from '@b2b-catalog-platform/ui/disclosure/show-more-toggle';
@@ -36,6 +34,7 @@ import { ProductDocuments } from './product-documents';
 import { ProductVariantGallery } from './product-variant-gallery';
 import { ProductVariantList } from './product-variant-list';
 import { useProductUnits } from '../../buying/product-units-view';
+import { SHARED_CATALOG_TEXT } from '../../catalog-text';
 
 /**
  * The product page's band: photo, main facts, buying panel; the readings go
@@ -317,8 +316,8 @@ const NARROW = '(width < 40rem)';
   `,
 })
 export class ProductDetailView {
-  protected readonly text = inject(STOREFRONT_TEXT).catalog;
-  protected readonly product = inject(SHARED_TEXT).product;
+  protected readonly text = inject(SHARED_CATALOG_TEXT);
+  protected readonly product = inject(SHARED_CATALOG_TEXT).product;
   protected readonly columnsClass = `${PRODUCT_PAGE_COLUMNS} mt-6`;
   /** The gallery caps itself; see ProductGallery. */
   protected readonly imageColumnClass = 'min-w-0 w-full';

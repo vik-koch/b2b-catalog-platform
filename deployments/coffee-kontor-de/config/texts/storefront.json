@@ -23,18 +23,8 @@
   "catalog": {
     "emptyCategories": "Unser Katalog wird gerade eingerichtet – bitte schauen Sie bald wieder vorbei.",
     "loadError": "Beim Laden des Katalogs ist etwas schiefgegangen – bitte versuchen Sie es später noch einmal.",
-    "catalogRoot": "Katalog",
     "emptyProducts": "In dieser Kategorie gibt es noch keine Produkte.",
     "productCount": "Produkte: {count}",
-    "set": {
-      "short": "Set",
-      "full": "Wird als Set verkauft: {parts}"
-    },
-    "variants": {
-      "unavailable": "derzeit nicht verfügbar",
-      "note": "Varianten haben keinen eigenen Bestand; welche verfügbar sind, bestätigen wir Ihnen nach Eingang der Bestellung.",
-      "markLabel": "Varianten anzeigen ({count})"
-    },
     "layout": {
       "labelAria": "Ansicht",
       "grid": "Als Kacheln anzeigen",
@@ -63,34 +53,9 @@
       "removeAria": "Filter {label} entfernen",
       "noMatches": "Kein Produkt passt zu den gewählten Filtern."
     },
-    "specifications": "Merkmale",
-    "mainSpecifications": "Wichtigste Merkmale",
-    "allSpecifications": "Alle Merkmale",
     "productNotFound": "Dieses Produkt wurde nicht gefunden. Vielleicht wurde es entfernt.",
     "categoryNotFound": "Diese Kategorie wurde nicht gefunden. Vielleicht wurde sie entfernt.",
-    "backToCatalog": "Zurück zum Katalog",
-    "viewImageAria": "Bild {n} anzeigen",
-    "pairings": {
-      "marker": "Wird zusammen mit anderen Produkten verkauft ({count})",
-      "intro": "Diese Produkte werden zusammen mit diesem verkauft. Legen Sie in den Warenkorb, was Sie brauchen, ohne die Seite zu verlassen.",
-      "loadError": "Beim Laden ist etwas schiefgegangen – bitte versuchen Sie es später noch einmal."
-    },
-    "documents": {
-      "hintAria": "Öffnet in einem neuen Tab",
-      "linkAria": "Bei {host} nachsehen"
-    },
-    "units": {
-      "perUnit": "pro {unit}",
-      "packagingFormula": "{packs} {packUnit} × {pieces} {pieceUnit} = {total} {pieceUnit}",
-      "packagingPerPack": "{pieces} {pieceUnit} pro {packUnit}",
-      "minQuantity": "Mindestbestellmenge",
-      "boxCountSuffix": "(für {count})",
-      "select": {
-        "piece": "Stück",
-        "pack": "Packung",
-        "box": "Karton"
-      }
-    }
+    "backToCatalog": "Zurück zum Katalog"
   },
   "cart": {
     "navLabel": "Warenkorb",
@@ -100,23 +65,8 @@
     "emptyAction": "Zum Katalog",
     "loadError": "Beim Berechnen Ihres Warenkorbs ist etwas schiefgegangen – bitte versuchen Sie es später noch einmal.",
     "storageFailed": "Dieser Browser speichert Ihren Warenkorb nicht – er ist weg, sobald Sie diese Seite schließen.",
-    "unitAria": "Einheit",
-    "quantityAria": "Menge",
-    "unitNotSold": "Dieses Produkt wird in dieser Einheit nicht verkauft.",
-    "decreaseAria": "Menge verringern",
-    "increaseAria": "Menge erhöhen",
-    "noteLabel": "Anmerkung",
-    "notePrompt": "Gibt es zu dieser Position etwas, das wir wissen sollten?",
-    "noteAdd": "Anmerkung zu dieser Position hinzufügen",
-    "noteEdit": "Anmerkung zu dieser Position bearbeiten",
-    "add": "In den Warenkorb",
-    "addedFor": "Hinzugefügt für {total}",
-    "full": "Ihr Warenkorb ist voll – bitte schicken Sie diese Bestellung ab, bevor Sie weitere Produkte hinzufügen.",
     "lineNoteAria": "Anmerkung",
     "removeAria": "{name} entfernen",
-    "removeQuestion": "Aus dem Warenkorb nehmen?",
-    "removeYes": "Entfernen",
-    "removeNo": "Behalten",
     "selectLineAria": "{name} auswählen",
     "selectAll": "Alle auswählen",
     "clearSelection": "Auswahl aufheben",
@@ -127,7 +77,6 @@
       "confirm": "Auswahl löschen"
     },
     "subtotal": "Zwischensumme",
-    "noPrice": "Auf Anfrage",
     "totalIncomplete": "Einige Positionen konnten nicht berechnet werden – die Zwischensumme umfasst die übrigen.",
     "checkout": "Zur Kasse",
     "continueShopping": "Weiter einkaufen",
@@ -556,13 +505,6 @@
       "Wenn Sie Ware zurückgeben möchten, melden Sie sich zuerst bei uns: Wir sagen Ihnen, wohin Sie sie schicken oder bringen. Bitte senden Sie sie vollständig und, wo möglich, in der Originalverpackung zurück."
     ],
     "returnsWithdrawalLink": "Ihr Widerrufsrecht"
-  },
-  "tax": {
-    "atPrice": "{statement}, zzgl. Lieferung",
-    "listing": {
-      "included": "Alle Preise inkl. MwSt., zzgl. Lieferung.",
-      "added": "Alle Preise netto, zzgl. MwSt. und Lieferung."
-    }
   },
   "errors": {
     "notFoundTitle": "Seite nicht gefunden",

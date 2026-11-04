@@ -55,6 +55,7 @@ import { shoppingBasketIcon } from '@b2b-catalog-platform/ui/icons/glyphs/shoppi
 import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
 import { Frame } from '@b2b-catalog-platform/ui/content/frame';
 import { brokenImages } from '@b2b-catalog-platform/ui/core/broken-images';
+import { SHARED_CATALOG_TEXT } from '../../../core/catalog/catalog-text';
 
 /** Long enough that a fast typist produces one request per word rather than
  * one per letter, short enough that a pause feels answered immediately. */
@@ -440,7 +441,7 @@ let nextId = 0;
 
             @if (full()) {
               <ui-warning-note class="mx-3 my-2" role="status">
-                {{ cartText.full }}
+                {{ buyText.full }}
               </ui-warning-note>
             }
 
@@ -521,7 +522,7 @@ export class SearchField {
   });
 
   protected readonly text = inject(STOREFRONT_TEXT).search;
-  protected readonly cartText = inject(STOREFRONT_TEXT).cart;
+  protected readonly buyText = inject(SHARED_CATALOG_TEXT).buying;
   protected readonly maxLength = SEARCH_QUERY_MAX_LENGTH;
   protected readonly listId = `search-suggestions-${nextId++}`;
 

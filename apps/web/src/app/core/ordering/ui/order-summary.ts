@@ -7,7 +7,7 @@ import {
 } from '@b2b-catalog-platform/shared/platform';
 import { ShipmentSummary } from '@b2b-catalog-platform/shared/core/ordering';
 import { formatStoredDecimal } from '../../catalog/buying/quantity';
-import { useTaxStatement } from '../../catalog/pricing/tax-statement';
+import { useTaxStatement } from '../../../platform/tax-statement';
 import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';

@@ -17,8 +17,9 @@ import {
   productListItem,
 } from '../../../core/catalog/product.fixture';
 import { provideFakeProductCart } from '../../../core/catalog/buying/product-cart.fixture';
+import { defaultSharedCatalogText } from '../../../core/catalog/catalog-text.fixture';
 
-const text = defaultStorefrontText.cart;
+const text = defaultSharedCatalogText.buying;
 
 const item = productListItem({
   slug: 'filter-roast',
@@ -172,7 +173,7 @@ describe('ProductRow', () => {
         { name: 'Terracotta', unavailable: true },
       ],
     });
-    const variantsText = defaultStorefrontText.catalog.variants;
+    const variantsText = defaultSharedCatalogText.variants;
 
     it('labels no picture and offers the mark instead', async () => {
       const el = await render(true, cups);
@@ -181,7 +182,9 @@ describe('ProductRow', () => {
       const mark = el.querySelector<HTMLButtonElement>(
         'app-product-variants-mark button',
       );
-      expect(mark?.textContent).toContain(defaultSharedText.product.variants);
+      expect(mark?.textContent).toContain(
+        defaultSharedCatalogText.product.variants,
+      );
       expect(mark?.getAttribute('aria-expanded')).toBe('false');
     });
 

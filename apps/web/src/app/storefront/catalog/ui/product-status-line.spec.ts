@@ -7,8 +7,9 @@ import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
 import { defaultStorefrontText } from '../../../platform/config/storefront-text.fixture';
 import { ProductSetBadge } from '../../../core/catalog/ui/product-set-badge';
 import { anyStatus, ProductStatusLine } from './product-status-line';
+import { defaultSharedCatalogText } from '../../../core/catalog/catalog-text.fixture';
 
-const text = defaultStorefrontText.catalog;
+const text = defaultSharedCatalogText;
 
 @Component({
   imports: [ProductStatusLine, ProductSetBadge],
@@ -61,7 +62,7 @@ describe('ProductStatusLine', () => {
 
     const el = line(fixture);
     expect(el.textContent).toContain(
-      defaultSharedText.product.availability.low,
+      defaultSharedCatalogText.product.availability.low,
     );
     expect(el.textContent).toContain(text.set.short);
     expect(el.className).toContain('flex-wrap');

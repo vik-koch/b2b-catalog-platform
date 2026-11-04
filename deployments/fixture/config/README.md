@@ -326,7 +326,7 @@ say what it includes, as the demo does as an EU shop. The product page then
 states the basis under the price, and the listings once under the products.
 With it off, only the totals and the conditions page state the basis.
 Where the price beside a product should say more, such as that delivery comes
-on top, the optional app text `tax.atPrice` wraps the statement there
+on top, the optional `tax.atPrice` in `texts/shared.json` wraps the statement there
 (`{statement}`); the demo's reads "{statement}, plus delivery", and its listing
 lines say the same. Totals never carry it, since a pickup order has no
 delivery.

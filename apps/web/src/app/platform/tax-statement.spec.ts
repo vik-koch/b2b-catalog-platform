@@ -1,17 +1,14 @@
-import { SHARED_TEXT } from '../../../platform/config/shared-text';
-import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
+import { SHARED_TEXT } from './config/shared-text';
+import { defaultSharedText } from './config/shared-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import { TaxConfig } from '@b2b-catalog-platform/shared/platform';
-import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
-import { defaultStorefrontText } from '../../../platform/config/storefront-text.fixture';
-import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
-import { defaultDeploymentConfig } from '../../../platform/config/deployment-config.fixture';
+import { DEPLOYMENT_CONFIG } from './config/deployment-config';
+import { defaultDeploymentConfig } from './config/deployment-config.fixture';
 import { useTaxStatement } from './tax-statement';
 
 function statement(tax: TaxConfig) {
   TestBed.configureTestingModule({
     providers: [
-      { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
       { provide: SHARED_TEXT, useValue: defaultSharedText },
       {
         provide: DEPLOYMENT_CONFIG,
@@ -22,7 +19,7 @@ function statement(tax: TaxConfig) {
   return TestBed.runInInjectionContext(() => useTaxStatement());
 }
 
-const text = defaultStorefrontText.tax;
+const text = defaultSharedText.tax;
 
 describe('useTaxStatement', () => {
   it('names the default rate under a total and beside a price', () => {
@@ -60,13 +57,12 @@ describe('useTaxStatement', () => {
     TestBed.configureTestingModule({
       providers: [
         {
-          provide: STOREFRONT_TEXT,
+          provide: SHARED_TEXT,
           useValue: {
-            ...defaultStorefrontText,
-            tax: { ...defaultStorefrontText.tax, atPrice: undefined },
+            ...defaultSharedText,
+            tax: { ...defaultSharedText.tax, atPrice: undefined },
           },
         },
-        { provide: SHARED_TEXT, useValue: defaultSharedText },
         {
           provide: DEPLOYMENT_CONFIG,
           useValue: {

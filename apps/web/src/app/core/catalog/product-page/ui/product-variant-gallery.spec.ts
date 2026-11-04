@@ -8,8 +8,9 @@ import {
 import { STOREFRONT_TEXT } from '../../../../platform/config/storefront-text';
 import { defaultStorefrontText } from '../../../../platform/config/storefront-text.fixture';
 import { ProductVariantGallery } from './product-variant-gallery';
+import { defaultSharedCatalogText } from '../../catalog-text.fixture';
 
-const text = defaultStorefrontText.catalog.variants;
+const text = defaultSharedCatalogText.variants;
 
 const picture = (n: number, variant: string | null): ProductImage => ({
   full: `https://img.example/full/${n}.jpg`,

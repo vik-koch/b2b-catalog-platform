@@ -1,5 +1,5 @@
 import { Component, computed, inject, input, resource } from '@angular/core';
-import { useTaxStatement } from '../../core/catalog/pricing/tax-statement';
+import { useTaxStatement } from '../../platform/tax-statement';
 import { RouterLink } from '@angular/router';
 import {
   fillText,

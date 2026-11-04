@@ -115,6 +115,10 @@
     },
     "texts/admin.json:editMode.emptyPage": {
       "from": ["texts/admin.json:pages.emptyNotice"]
+    },
+    "texts/shared.json:catalog.buying.quantityCorrected": {
+      "from": ["texts/app.json:cart.issues.quantityCorrected"],
+      "copy": true
     }
   },
   "drop": [
@@ -142,6 +146,37 @@
     "deployment.json:cookieConsentEnabled": "deployment.json:site.cookieConsentEnabled",
     "deployment.json:locations": "deployment.json:site.locations",
     "deployment.json:mapProvider": "deployment.json:site.mapProvider",
-    "deployment.json:elsewhere": "deployment.json:site.elsewhere"
+    "deployment.json:elsewhere": "deployment.json:site.elsewhere",
+    "texts/common.json:units": "texts/shared.json:catalog.units",
+    "texts/common.json:packaging": "texts/shared.json:catalog.packaging",
+    "texts/common.json:product": "texts/shared.json:catalog.product",
+    "texts/app.json:catalog.set": "texts/shared.json:catalog.set",
+    "texts/app.json:catalog.variants": "texts/shared.json:catalog.variants",
+    "texts/app.json:catalog.pairings": "texts/shared.json:catalog.pairings",
+    "texts/app.json:catalog.documents": "texts/shared.json:catalog.documents",
+    "texts/app.json:catalog.units": "texts/shared.json:catalog.unitFacts",
+    "texts/app.json:catalog.specifications": "texts/shared.json:catalog.specifications",
+    "texts/app.json:catalog.mainSpecifications": "texts/shared.json:catalog.mainSpecifications",
+    "texts/app.json:catalog.allSpecifications": "texts/shared.json:catalog.allSpecifications",
+    "texts/app.json:catalog.catalogRoot": "texts/shared.json:catalog.catalogRoot",
+    "texts/app.json:catalog.viewImageAria": "texts/shared.json:catalog.viewImageAria",
+    "texts/app.json:cart.unitAria": "texts/shared.json:catalog.buying.unitAria",
+    "texts/app.json:cart.quantityAria": "texts/shared.json:catalog.buying.quantityAria",
+    "texts/app.json:cart.unitNotSold": "texts/shared.json:catalog.buying.unitNotSold",
+    "texts/app.json:cart.decreaseAria": "texts/shared.json:catalog.buying.decreaseAria",
+    "texts/app.json:cart.increaseAria": "texts/shared.json:catalog.buying.increaseAria",
+    "texts/app.json:cart.noteLabel": "texts/shared.json:catalog.buying.noteLabel",
+    "texts/app.json:cart.notePrompt": "texts/shared.json:catalog.buying.notePrompt",
+    "texts/app.json:cart.noteAdd": "texts/shared.json:catalog.buying.noteAdd",
+    "texts/app.json:cart.noteEdit": "texts/shared.json:catalog.buying.noteEdit",
+    "texts/app.json:cart.add": "texts/shared.json:catalog.buying.add",
+    "texts/app.json:cart.addedFor": "texts/shared.json:catalog.buying.addedFor",
+    "texts/app.json:cart.full": "texts/shared.json:catalog.buying.full",
+    "texts/app.json:cart.removeQuestion": "texts/shared.json:catalog.buying.removeQuestion",
+    "texts/app.json:cart.removeYes": "texts/shared.json:catalog.buying.removeYes",
+    "texts/app.json:cart.removeNo": "texts/shared.json:catalog.buying.removeNo",
+    "texts/app.json:cart.noPrice": "texts/shared.json:catalog.buying.noPrice",
+    "texts/app.json:tax.listing": "texts/shared.json:tax.listing",
+    "texts/app.json:tax.atPrice": "texts/shared.json:tax.atPrice"
   }
 }

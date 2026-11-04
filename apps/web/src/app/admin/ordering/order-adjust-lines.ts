@@ -13,7 +13,6 @@ import {
 import { AdjustmentLineFlag } from '@b2b-catalog-platform/shared/core/ordering';
 import { AdminProductListItem } from '@b2b-catalog-platform/shared/admin/catalog';
 import { ADMIN_TEXT } from '../../platform/config/admin-text';
-import { SHARED_TEXT } from '../../platform/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
 import { partialPriceRule } from '../../core/catalog/pricing/price';
 import { Suggestion } from '@b2b-catalog-platform/ui/suggest/suggestion';
@@ -36,6 +35,7 @@ import { UnitInputControl } from '@b2b-catalog-platform/ui/inputs/unit-input-con
 import { chevronDownIcon } from '@b2b-catalog-platform/ui/icons/glyphs/chevron-down';
 import { chevronUpIcon } from '@b2b-catalog-platform/ui/icons/glyphs/chevron-up';
 import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
+import { SHARED_CATALOG_TEXT } from '../../core/catalog/catalog-text';
 
 /** `aria-controls` must name one list, and a page may hold more than one. */
 let nextId = 0;
@@ -252,8 +252,9 @@ export class OrderAdjustLines {
   private readonly productsService = inject(ProductsService);
   protected readonly text = inject(ADMIN_TEXT).orders.adjust.lines;
   protected readonly products = inject(ADMIN_TEXT).products;
-  protected readonly pieceUnit = inject(SHARED_TEXT).units.piece;
-  private readonly availability = inject(SHARED_TEXT).product.availability;
+  protected readonly pieceUnit = inject(SHARED_CATALOG_TEXT).units.piece;
+  private readonly availability =
+    inject(SHARED_CATALOG_TEXT).product.availability;
   private readonly currency = moneyFormat(inject(DEPLOYMENT_CONFIG));
   protected readonly partialPrice = partialPriceRule(this.currency);
   protected readonly id = `adjust-lines-${++nextId}`;

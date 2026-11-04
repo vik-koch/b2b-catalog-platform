@@ -3,9 +3,8 @@ import {
   ProductPackaging,
   ProductUnit,
 } from '@b2b-catalog-platform/shared/core/catalog';
-import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
-import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { useProductUnits } from '../buying/product-units-view';
+import { SHARED_CATALOG_TEXT } from '../catalog-text';
 
 /**
  * The minimum order and the packaging, worded alike on a tile and the product
@@ -37,8 +36,8 @@ export class ProductUnitFacts {
   readonly unit = input<ProductUnit>('piece');
 
   private readonly units = useProductUnits();
-  private readonly text = inject(STOREFRONT_TEXT).catalog.units;
-  private readonly packing = inject(SHARED_TEXT).packaging;
+  private readonly text = inject(SHARED_CATALOG_TEXT).unitFacts;
+  private readonly packing = inject(SHARED_CATALOG_TEXT).packaging;
 
   protected shows(fact: 'minimum' | 'packaging'): boolean {
     return this.show() === 'both' || this.show() === fact;

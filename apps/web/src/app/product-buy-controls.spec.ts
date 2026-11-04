@@ -15,6 +15,7 @@ import {
   packagedPackaging,
   productDetail,
 } from './core/catalog/product.fixture';
+import { defaultSharedCatalogText } from './core/catalog/catalog-text.fixture';
 
 /** jsdom's <dialog> has no showModal/close; the note opens itself on render. */
 beforeAll(() => {
@@ -45,10 +46,10 @@ function onNarrowScreen(): void {
       : realMatchMedia.call(window, query)) as typeof window.matchMedia;
 }
 
-const text = defaultStorefrontText.cart;
-const unitText = defaultStorefrontText.catalog.units;
+const text = defaultSharedCatalogText.buying;
+const unitText = defaultSharedCatalogText.unitFacts;
 /** One sentence, whatever was corrected and whichever unit it was typed in. */
-const corrected = text.issues.quantityCorrected;
+const corrected = text.quantityCorrected;
 
 /**
  * Ten to a pack, four packs to a box (so forty pieces), and a hundred-piece
@@ -316,14 +317,14 @@ describe('ProductBuyControls', () => {
     const view = await render(packaged, true, false, 'row');
 
     expect(view.text()).toContain(
-      `${unitText.minQuantity}: 100 ${defaultSharedText.units.piece}`,
+      `${unitText.minQuantity}: 100 ${defaultSharedCatalogText.units.piece}`,
     );
 
     await view.chooseUnit(unitText.select.pack);
 
     // The same minimum, in the words the stepper stops in.
     expect(view.text()).toContain(
-      `${unitText.minQuantity}: 10 ${defaultSharedText.units.pack}`,
+      `${unitText.minQuantity}: 10 ${defaultSharedCatalogText.units.pack}`,
     );
   });
 
@@ -783,12 +784,12 @@ describe('ProductBuyControls, a product that takes a note', () => {
       expect(view.quantityInput().disabled).toBe(true);
       expect(
         view.el.querySelector<HTMLButtonElement>(
-          `[aria-label="${defaultStorefrontText.cart.increaseAria}"]`,
+          `[aria-label="${defaultSharedCatalogText.buying.increaseAria}"]`,
         )?.disabled,
       ).toBe(true);
       expect(
         view.el.querySelector<HTMLButtonElement>(
-          `[aria-label="${defaultStorefrontText.cart.decreaseAria}"]`,
+          `[aria-label="${defaultSharedCatalogText.buying.decreaseAria}"]`,
         )?.disabled,
       ).toBe(true);
     });
@@ -798,7 +799,9 @@ describe('ProductBuyControls, a product that takes a note', () => {
 
       // Priced, as the requirement says: what is refused is the buying, not
       // the telling.
-      expect(view.text()).not.toContain(defaultStorefrontText.cart.noPrice);
+      expect(view.text()).not.toContain(
+        defaultSharedCatalogText.buying.noPrice,
+      );
 
       const add = [...view.el.querySelectorAll('button')].find((button) =>
         (button.textContent ?? '').includes(text.add),

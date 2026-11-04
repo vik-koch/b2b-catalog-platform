@@ -1,9 +1,9 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { fillText } from '@b2b-catalog-platform/shared/platform';
 import { formatPartList } from '@b2b-catalog-platform/shared/core/catalog';
-import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { layers2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/layers-2';
+import { SHARED_CATALOG_TEXT } from '../catalog-text';
 
 /**
  * A product sold as a set of parts (FR-CAT-10): a fact, not a state, so no
@@ -36,7 +36,7 @@ export class ProductSetBadge {
   readonly parts = input.required<readonly string[]>();
   readonly variant = input<'short' | 'full'>('short');
 
-  protected readonly text = inject(STOREFRONT_TEXT).catalog.set;
+  protected readonly text = inject(SHARED_CATALOG_TEXT).set;
 
   protected readonly full = computed(() =>
     fillText(this.text.full, { parts: formatPartList(this.parts()) }),

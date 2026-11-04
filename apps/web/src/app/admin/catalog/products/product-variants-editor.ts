@@ -25,7 +25,6 @@ import {
   ProductVariantInput,
 } from '@b2b-catalog-platform/shared/admin/catalog';
 import { ADMIN_TEXT } from '../../../platform/config/admin-text';
-import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { Checkbox } from '@b2b-catalog-platform/ui/choices/checkbox';
 import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
@@ -38,6 +37,7 @@ import { imageIcon } from '@b2b-catalog-platform/ui/icons/glyphs/image';
 import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
 import { DragGrip } from '../ui/drag-grip';
 import { SubEditorFrame } from '../ui/sub-editor-frame';
+import { SHARED_CATALOG_TEXT } from '../../../core/catalog/catalog-text';
 
 /** `aria-controls` must name one panel, and a page may hold more than one. */
 let nextId = 0;
@@ -206,7 +206,7 @@ export class ProductVariantsEditor implements OnInit {
   protected readonly xIcon = xIcon;
   protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly text = inject(ADMIN_TEXT).products.editor.variants;
-  protected readonly product = inject(SHARED_TEXT).product;
+  protected readonly product = inject(SHARED_CATALOG_TEXT).product;
   protected readonly glyph = PRODUCT_FEATURE_GLYPHS.variants;
 
   readonly value = input.required<readonly ProductVariantInput[]>();

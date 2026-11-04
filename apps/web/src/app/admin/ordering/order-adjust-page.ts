@@ -10,7 +10,7 @@ import {
   signal,
   untracked,
 } from '@angular/core';
-import { useTaxStatement } from '../../core/catalog/pricing/tax-statement';
+import { useTaxStatement } from '../../platform/tax-statement';
 import { apply, form, hidden, required } from '@angular/forms/signals';
 import { Router, RouterLink } from '@angular/router';
 import {

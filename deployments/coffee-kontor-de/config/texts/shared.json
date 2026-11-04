@@ -29,11 +29,6 @@
   "imagePlaceholder": "Kein Bild vorhanden",
   "showMore": "Mehr anzeigen",
   "showLess": "Weniger anzeigen",
-  "units": {
-    "piece": "Stk.",
-    "pack": "Pck.",
-    "box": "Ktn."
-  },
   "quantity": "{qty} {unit}",
   "quantityPieces": "{qty} {unit} ({pieces} {pieceUnit})",
   "tax": {
@@ -44,25 +39,12 @@
       "included": "inkl. MwSt. zum jeweils angegebenen Satz",
       "added": "zzgl. MwSt. zum jeweils angegebenen Satz"
     },
-    "line": "{rate} % MwSt."
-  },
-  "packaging": {
-    "heading": "Verpackung",
-    "packContains": "Inhalt der Packung",
-    "boxContains": "Inhalt des Kartons",
-    "boxVolume": "Volumen des Kartons",
-    "boxWeight": "Gewicht des Kartons"
-  },
-  "product": {
-    "description": "Beschreibung",
-    "documents": "Dokumente",
-    "variants": "Varianten",
-    "pairings": "Zusammen verkauft",
-    "availability": {
-      "in": "Vorrätig",
-      "low": "Nur noch wenige",
-      "out": "Ausverkauft"
-    }
+    "line": "{rate} % MwSt.",
+    "listing": {
+      "included": "Alle Preise inkl. MwSt., zzgl. Lieferung.",
+      "added": "Alle Preise netto, zzgl. MwSt. und Lieferung."
+    },
+    "atPrice": "{statement}, zzgl. Lieferung"
   },
   "fileSize": {
     "kb": "{size} kB",
@@ -150,5 +132,84 @@
     "previous": "Zurück",
     "next": "Weiter",
     "status": "Seite {page} von {total}"
+  },
+  "catalog": {
+    "units": {
+      "piece": "Stk.",
+      "pack": "Pck.",
+      "box": "Ktn."
+    },
+    "packaging": {
+      "heading": "Verpackung",
+      "packContains": "Inhalt der Packung",
+      "boxContains": "Inhalt des Kartons",
+      "boxVolume": "Volumen des Kartons",
+      "boxWeight": "Gewicht des Kartons"
+    },
+    "product": {
+      "description": "Beschreibung",
+      "documents": "Dokumente",
+      "variants": "Varianten",
+      "pairings": "Zusammen verkauft",
+      "availability": {
+        "in": "Vorrätig",
+        "low": "Nur noch wenige",
+        "out": "Ausverkauft"
+      }
+    },
+    "set": {
+      "short": "Set",
+      "full": "Wird als Set verkauft: {parts}"
+    },
+    "variants": {
+      "unavailable": "derzeit nicht verfügbar",
+      "note": "Varianten haben keinen eigenen Bestand; welche verfügbar sind, bestätigen wir Ihnen nach Eingang der Bestellung.",
+      "markLabel": "Varianten anzeigen ({count})"
+    },
+    "pairings": {
+      "marker": "Wird zusammen mit anderen Produkten verkauft ({count})",
+      "intro": "Diese Produkte werden zusammen mit diesem verkauft. Legen Sie in den Warenkorb, was Sie brauchen, ohne die Seite zu verlassen.",
+      "loadError": "Beim Laden ist etwas schiefgegangen – bitte versuchen Sie es später noch einmal."
+    },
+    "documents": {
+      "hintAria": "Öffnet in einem neuen Tab",
+      "linkAria": "Bei {host} nachsehen"
+    },
+    "unitFacts": {
+      "perUnit": "pro {unit}",
+      "packagingFormula": "{packs} {packUnit} × {pieces} {pieceUnit} = {total} {pieceUnit}",
+      "packagingPerPack": "{pieces} {pieceUnit} pro {packUnit}",
+      "minQuantity": "Mindestbestellmenge",
+      "boxCountSuffix": "(für {count})",
+      "select": {
+        "piece": "Stück",
+        "pack": "Packung",
+        "box": "Karton"
+      }
+    },
+    "specifications": "Merkmale",
+    "mainSpecifications": "Wichtigste Merkmale",
+    "allSpecifications": "Alle Merkmale",
+    "catalogRoot": "Katalog",
+    "viewImageAria": "Bild {n} anzeigen",
+    "buying": {
+      "unitAria": "Einheit",
+      "quantityAria": "Menge",
+      "unitNotSold": "Dieses Produkt wird in dieser Einheit nicht verkauft.",
+      "decreaseAria": "Menge verringern",
+      "increaseAria": "Menge erhöhen",
+      "noteLabel": "Anmerkung",
+      "notePrompt": "Gibt es zu dieser Position etwas, das wir wissen sollten?",
+      "noteAdd": "Anmerkung zu dieser Position hinzufügen",
+      "noteEdit": "Anmerkung zu dieser Position bearbeiten",
+      "add": "In den Warenkorb",
+      "addedFor": "Hinzugefügt für {total}",
+      "full": "Ihr Warenkorb ist voll – bitte schicken Sie diese Bestellung ab, bevor Sie weitere Produkte hinzufügen.",
+      "removeQuestion": "Aus dem Warenkorb nehmen?",
+      "removeYes": "Entfernen",
+      "removeNo": "Behalten",
+      "noPrice": "Auf Anfrage",
+      "quantityCorrected": "Die Menge wurde auf die nächste lieferbare angepasst."
+    }
   }
 }

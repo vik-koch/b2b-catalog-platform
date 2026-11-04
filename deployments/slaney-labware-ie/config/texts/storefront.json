@@ -23,18 +23,8 @@
   "catalog": {
     "emptyCategories": "Our catalogue is being set up — please check back soon.",
     "loadError": "Something went wrong loading the catalogue — please try again later.",
-    "catalogRoot": "Catalogue",
     "emptyProducts": "No products in this category yet.",
     "productCount": "Products: {count}",
-    "set": {
-      "short": "Set",
-      "full": "Sold as a set: {parts}"
-    },
-    "variants": {
-      "unavailable": "currently unavailable",
-      "note": "Variants carry no stock of their own; which are available is confirmed with you after the order is placed.",
-      "markLabel": "Show the variants ({count})"
-    },
     "layout": {
       "labelAria": "Layout",
       "grid": "Show as cards",
@@ -63,34 +53,9 @@
       "removeAria": "Remove the filter {label}",
       "noMatches": "No products match the selected filters."
     },
-    "specifications": "Specifications",
-    "mainSpecifications": "Main specifications",
-    "allSpecifications": "All specifications",
     "productNotFound": "This product could not be found. It may have been removed.",
     "categoryNotFound": "This category could not be found. It may have been removed.",
-    "backToCatalog": "Back to the catalogue",
-    "viewImageAria": "Show image {n}",
-    "pairings": {
-      "marker": "Sold together with other products ({count})",
-      "intro": "These are sold with this product. Add what you need without leaving the page.",
-      "loadError": "Something went wrong loading these — please try again later."
-    },
-    "documents": {
-      "hintAria": "Opens in a new tab",
-      "linkAria": "Look it up at {host}"
-    },
-    "units": {
-      "perUnit": "per {unit}",
-      "packagingFormula": "{packs} {packUnit} × {pieces} {pieceUnit} = {total} {pieceUnit}",
-      "packagingPerPack": "{pieces} {pieceUnit} per {packUnit}",
-      "minQuantity": "Minimum order",
-      "boxCountSuffix": "(for {count})",
-      "select": {
-        "piece": "Piece",
-        "pack": "Pack",
-        "box": "Box"
-      }
-    }
+    "backToCatalog": "Back to the catalogue"
   },
   "cart": {
     "navLabel": "Cart",
@@ -100,23 +65,8 @@
     "emptyAction": "Browse the catalogue",
     "loadError": "Something went wrong pricing your cart — please try again later.",
     "storageFailed": "This browser will not keep your cart — it will be gone when you close this page.",
-    "unitAria": "Unit",
-    "quantityAria": "Quantity",
-    "unitNotSold": "This product is not sold in this unit.",
-    "decreaseAria": "Decrease the quantity",
-    "increaseAria": "Increase the quantity",
-    "noteLabel": "Note",
-    "notePrompt": "Anything we should know about this line?",
-    "noteAdd": "Add a note to this line",
-    "noteEdit": "Edit the note on this line",
-    "add": "Add to cart",
-    "addedFor": "Added for {total}",
-    "full": "Your cart is full — please place this order before adding more products.",
     "lineNoteAria": "Note",
     "removeAria": "Remove {name}",
-    "removeQuestion": "Take this out of the cart?",
-    "removeYes": "Remove",
-    "removeNo": "Keep",
     "selectLineAria": "Select {name}",
     "selectAll": "Select all",
     "clearSelection": "Clear selection",
@@ -127,7 +77,6 @@
       "confirm": "Delete selection"
     },
     "subtotal": "Subtotal",
-    "noPrice": "On request",
     "totalIncomplete": "Some lines could not be priced — the subtotal covers the rest.",
     "checkout": "Proceed to checkout",
     "continueShopping": "Continue shopping",
@@ -556,13 +505,6 @@
       "To return goods, contact us first: we will tell you where to send or bring them. Please send them back complete and, where you can, in their original packaging."
     ],
     "returnsWithdrawalLink": "Your right of withdrawal"
-  },
-  "tax": {
-    "atPrice": "{statement}, plus delivery",
-    "listing": {
-      "included": "All prices include VAT, plus delivery.",
-      "added": "All prices are net, plus VAT and delivery."
-    }
   },
   "errors": {
     "notFoundTitle": "Page not found",
