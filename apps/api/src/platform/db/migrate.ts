@@ -8,11 +8,8 @@ import { env } from '../env';
 const MAX_ATTEMPTS = 30;
 const RETRY_DELAY_MS = 1000;
 
-/**
- * Applies pending migrations before the app starts serving. The migrations
- * folder is copied next to the bundle at build time (see webpack.config.js).
- * Retries while Postgres is still starting (compose brings both up together).
- */
+/** The migrations sit beside the bundle (webpack.config.js). Retries while
+ * Postgres starts, as compose brings both up together. */
 export async function runMigrations(): Promise<void> {
   const logger = new Logger('Migrations');
   const migrationsFolder = join(__dirname, 'db/migrations');

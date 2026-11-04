@@ -40,13 +40,8 @@ describe('LocalMediaStore', () => {
     expect(await readdir(root)).toHaveLength(1);
   });
 
-  /**
-   * Private files (ADR 0052) — an order's documents, which name a customer.
-   *
-   * Random names rather than content hashes, unlike everything above: these
-   * are deleted when they are replaced and when an account closes, and
-   * de-duplication would make one order's deletion another order's problem.
-   */
+  /** Private files are named at random, not by hash: deleting one order's
+   * document must not delete another's. */
   describe('private files', () => {
     it('stores and reads back the exact bytes, under a random key', async () => {
       const { key } = await store.putPrivate({

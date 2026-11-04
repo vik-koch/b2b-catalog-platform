@@ -31,29 +31,20 @@ export interface SettingsDecision {
   record: SettingChangeRecord[];
 }
 
-/**
- * The seed migration guarantees the row; this is the safe state a missing row
- * or an unreadable table reads as: not in maintenance, nothing handed over.
- */
+/** What a missing row or an unreadable table reads as: not in maintenance,
+ * nothing handed over. */
 const SAFE_DEFAULT: SettingsRow = {
   maintenanceMode: false,
   externallyOwnedAreas: [],
 };
 
-// Boot-time cache warm-up tolerance for a not-yet-migrated table (see onModuleInit).
 const WARM_CACHE_ATTEMPTS = 15;
 const WARM_CACHE_RETRY_MS = 1000;
 
 /**
- * The runtime settings row and its trail, with no opinion on what any switch
- * means: each area reads its switch through its own reader and writes it with
- * its own rules, through `change`.
- *
- * The row is read on every request (the maintenance gate) and on every guarded
- * write (ownership), so it is cached in-process and refreshed on each write and
- * once at boot. The cache is per API instance, matching the single-container
- * deployment; a shared cache is the upgrade once the API runs more than one
- * replica.
+ * The runtime settings row and its trail, with no opinion on what a switch
+ * means: each area reads its own and writes it through `change`. Read on every
+ * request, so cached in process, refreshed at boot and on each write.
  */
 @Injectable()
 export class SettingsStore implements OnModuleInit {
@@ -65,9 +56,8 @@ export class SettingsStore implements OnModuleInit {
   ) {}
 
   async onModuleInit(): Promise<void> {
-    // A real deployment migrates in a one-shot that finishes before the server
-    // starts. The e2e harness starts both together, so a missing table must not
-    // fail the boot: retry in the background, on the safe default meanwhile.
+    // The e2e harness migrates while the server starts, so a missing table
+    // retries in the background on the safe default.
     await this.warmCache(1);
   }
 
@@ -89,7 +79,7 @@ export class SettingsStore implements OnModuleInit {
     }
   }
 
-  /** Synchronous cached read for the hot paths. */
+  /** The cache, for the hot paths. */
   current(): Readonly<SettingsRow> {
     return this.cached;
   }
@@ -103,12 +93,9 @@ export class SettingsStore implements OnModuleInit {
     return row ?? SAFE_DEFAULT;
   }
 
-  /**
-   * One write: the row is locked, `decide` sees it as it stands and names the
-   * columns to set and the records to append, and all of it lands in one
-   * transaction. Records share the transaction's timestamp, which is what lets
-   * the trail show a master switch's several records as one decision.
-   */
+  /** `decide` sees the locked row and names what to set and record, all in
+   * one transaction, whose shared timestamp shows several records as one
+   * decision. */
   async change(
     actor: { id: string; email: string },
     decide: (before: Readonly<SettingsRow>) => SettingsDecision,

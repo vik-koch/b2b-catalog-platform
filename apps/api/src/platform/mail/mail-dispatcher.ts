@@ -3,37 +3,15 @@ import { env } from '../env';
 import { MailContent } from './mail-layout';
 import { MailEnvelope, MailService } from './mail.service';
 
-/**
- * How many messages may be in flight at once.
- *
- * Not one: a single chain means every message waits behind the slowest one
- * before it, so a run that invites fifty accounts leaves the last one minutes
- * late. Not unbounded either — a burst would open a connection per message and
- * a real provider rate-limits that. A handful keeps a normal request's mail
- * immediate and a bulk run polite.
- */
+/** Not one, or a bulk run's last mail waits minutes; not unbounded, or a
+ * provider rate-limits a connection per message. */
 const MAX_IN_FLIGHT = 4;
 
 /**
- * Sending mail without making somebody wait for it.
- *
- * A real SMTP provider takes seconds to accept a message — long enough that a
- * customer pressing "send order" sat looking at a disabled button while the
- * order had already been written. Nothing on those paths reads the result:
- * every one of them logged a failure and carried on, because the row is what
- * matters and staff can see it whether or not SMTP was reachable. So the send
- * is handed here and the request returns.
- *
- * Order is not promised. The messages one request produces go to different
- * inboxes, and no reader of one is waiting on the other.
- *
- * Use `MailService` directly where the mail *is* the answer — a screen whose
- * whole point is "did it go out?" has to wait and be told.
- *
- * `MAIL_DELIVERY=inline` makes a dispatch send before it returns. That is the
- * e2e suite's setting and nothing else's: those specs assert *which* mails a
- * move produces, and an inbox read for a message still in a queue is a race
- * rather than a test.
+ * Sends mail off the request path: a provider takes seconds, and no caller
+ * acts on the result, as the row is what matters. Order is not promised. Where
+ * the mail is the answer ("did it go out?"), use `MailService` and wait.
+ * `MAIL_DELIVERY=inline` sends before returning, for the e2e suite.
  */
 @Injectable()
 export class MailDispatcher implements OnApplicationShutdown {
@@ -43,13 +21,8 @@ export class MailDispatcher implements OnApplicationShutdown {
 
   constructor(private readonly mail: MailService) {}
 
-  /**
-   * Hand over one message. `what` names it in the log if it does not go out.
-   *
-   * Awaited by its callers, and under `queued` that await costs nothing: the
-   * promise is already resolved by the time they have it. Under `inline` the
-   * same await is what holds the request until the message has gone.
-   */
+  /** `what` names the mail in the log if it fails. Awaiting costs nothing when
+   * queued, and holds the request when inline. */
   dispatch(
     content: MailContent,
     envelope: MailEnvelope,
@@ -59,9 +32,7 @@ export class MailDispatcher implements OnApplicationShutdown {
       try {
         await this.mail.send(content, envelope);
       } catch (error) {
-        // Nothing waits on this any more, so the log is the whole report. A
-        // message dropped on a provider blip is gone: this is a queue that
-        // gets out of the way, not one that guarantees delivery.
+        // The log is the whole report: no retry, no delivery guarantee.
         this.logger.error(`Could not send the ${what} mail`, error);
       }
     };
@@ -84,7 +55,7 @@ export class MailDispatcher implements OnApplicationShutdown {
     for (const to of addresses) await this.dispatch(content, { to }, what);
   }
 
-  /** How many are still waiting or in flight — for a spec, and the log below. */
+  /** Waiting or in flight. */
   pending(): number {
     return this.queued.length + this.inFlight.size;
   }
@@ -96,10 +67,7 @@ export class MailDispatcher implements OnApplicationShutdown {
     }
   }
 
-  /**
-   * A deploy replaces the container seconds after the last request; without
-   * this, whatever was still queued would go down with it.
-   */
+  /** A deploy replaces the container seconds after the last request. */
   async onApplicationShutdown(): Promise<void> {
     const left = this.pending();
     if (left > 0) this.logger.log(`Flushing ${left} queued message(s)`);

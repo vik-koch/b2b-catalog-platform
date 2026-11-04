@@ -1,13 +1,6 @@
-/**
- * MediaStore port. Uploaded editor/catalog images and product documents go
- * through this interface; the concrete backend is a per-deployment adapter (a
- * mounted volume by default). Inject with the MEDIA_STORE token.
- *
- * The port takes already-processed bytes — role, content sniffing, size cap and
- * re-encoding are the caller's job — and owns storage identity: it
- * content-hashes the bytes so the same image is stored once and its URL is
- * immutable.
- */
+/** The store for uploaded images and documents. It takes checked, final bytes
+ * and owns their names; sniffing, size caps and re-encoding are the caller's. */
+
 export interface StoredImage {
   /** Same-origin URL under /media/, e.g. "/media/9f3ac1b20e4d.webp". */
   readonly url: string;
@@ -19,56 +12,29 @@ export interface StoredDocument {
 }
 
 export interface MediaStore {
-  /**
-   * Persists an image and returns its stable URL. `bytes` are the final,
-   * processed bytes; `ext` the extension they were encoded to (`webp`). The
-   * stored filename is `<contenthash>.<ext>`.
-   */
+  /** Stored as `<contenthash>.<ext>`. */
   put(input: { bytes: Buffer; ext: string }): Promise<StoredImage>;
 
-  /**
-   * Persists a document's bytes **exactly as received** and returns its stable
-   * URL. A document that is not byte-identical is not a certificate, so this is
-   * a second method rather than a flag on `put`: the pipeline whose whole job
-   * is to touch the bytes never sees them.
-   */
+  /** Stored exactly as received: a certificate that is not byte-identical is
+   * not the certificate. */
   putDocument(input: { bytes: Buffer; ext: string }): Promise<StoredDocument>;
 
-  /**
-   * Persists bytes nobody may fetch by URL and returns the key they were
-   * filed under (ADR 0052). Order documents name a customer, so they go to a
-   * subdirectory no web server routes and come back only through the API.
-   *
-   * The key is random rather than a content hash — the other two methods
-   * de-duplicate deliberately, and a private file is deleted when it is
-   * replaced or its account is closed, which de-duplication would make one
-   * order's business to do to another's.
-   */
+  /** Bytes no URL reaches, such as order documents naming a customer: only
+   * the API reads them back, by key. */
   putPrivate(input: { bytes: Buffer; ext: string }): Promise<{ key: string }>;
 
   /** Reads a private file back. Rejects if the key names nothing. */
   readPrivate(key: string): Promise<Buffer>;
 
-  /** Removes a private file. Succeeds where it is already gone: the row is
-   * the record that it existed, and a delete that fails halfway must not
-   * leave the row behind. */
+  /** Succeeds where the file is already gone, so a half-failed delete never
+   * leaves its row behind. */
   deletePrivate(key: string): Promise<void>;
 }
 
 export const MEDIA_STORE = 'MEDIA_STORE';
 
-/**
- * The subdirectory of the store's root that documents are written to. A
- * directory rather than a second volume: both kinds are backed up, restored and
- * served by the same machinery, and only their URL prefix and their pipeline
- * differ. The prune sweep needs it too, which is why it lives with the port
- * rather than inside the local adapter.
- */
+/** Beside the port rather than in the adapter, as the prune sweep reads it. */
 export const DOCUMENT_SUBDIR = 'documents';
 
-/**
- * The subdirectory private files are written to. Deliberately **not** routed
- * by the media server: the image sweep skips directories, so the only way to
- * one of these files is the API asking for it by key.
- */
+/** Not routed by the media server, and skipped by the sweep. */
 export const PRIVATE_SUBDIR = 'private';

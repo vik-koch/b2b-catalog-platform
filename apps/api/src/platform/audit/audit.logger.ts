@@ -2,15 +2,13 @@ import { Injectable, Logger } from '@nestjs/common';
 import { AuthUser } from '@b2b-catalog-platform/shared/platform';
 
 /** Actions worth attributing. A closed set, so the log stays greppable. */
-export type AuditAction =
+type AuditAction =
   | 'product.created'
   | 'product.updated'
   | 'product.deleted'
   | 'product.restored'
-  // Deleted permanently (FR-ADM-21): the one removal that cannot be undone,
-  // and the only record left that the product existed.
+  // The only record left that the product existed (FR-ADM-21).
   | 'product.purged'
-  // Publication (FR-ADM-06) — who let a price reach the storefront.
   | 'product.published'
   | 'product.unpublished'
   | 'category.created'
@@ -21,15 +19,12 @@ export type AuditAction =
   | 'attribute.updated'
   | 'attribute.reordered'
   | 'attribute.deleted'
-  // Which filters one category offers (FR-ATTR-11).
   | 'category.filtersSaved'
   | 'catalog.filtersSaved'
   | 'category.filtersReset'
-  // Renames rewrite product data across the whole catalog in one statement.
+  // A rename rewrites product data across the whole catalog.
   | 'attribute.keyRenamed'
   | 'attribute.valueRenamed'
-  // Product documents (FR-DOC-01). A replaced file is an update like any
-  // other: which bytes a document now shows is in its content-hashed URL.
   | 'document.created'
   | 'document.updated'
   | 'document.deleted'
@@ -37,12 +32,7 @@ export type AuditAction =
   | 'tier.updated'
   | 'tier.reordered'
   | 'tier.deleted'
-  // Which price list the storefront quotes — a commercial decision, and one
-  // that can take products off the shop front, so it is recorded with the
-  // number it moved.
   | 'tier.default-set'
-  // Account management (FR-AUTH-03/04). Who let a customer in, who priced
-  // them, and — the one an auditor actually asks about — who granted a role.
   | 'user.approved'
   | 'user.created'
   | 'user.updated'
@@ -50,73 +40,40 @@ export type AuditAction =
   | 'user.deactivated'
   | 'user.reactivated'
   | 'user.tierChanged'
-  // Who gave this account the key an exchange addresses it by (FR-ADM-14).
   | 'user.sourceIdChanged'
   | 'user.roleChanged'
   | 'user.declined'
-  // Deleted by an admin on the person's request (FR-ADM-23), with why.
   | 'user.deleted'
-  // An admin let an account sign in without the code, or asked it again
-  // (FR-AUTH-12).
   | 'user.signInStepExempted'
   | 'user.signInStepRequired'
-  // Self-service (FR-AUTH-06's neighbourhood). Named apart from `user.updated`
-  // so the log distinguishes staff correcting a customer's details from the
-  // customer correcting their own.
+  // The holder's own change, apart from staff's `user.updated`.
   | 'account.updated'
-  // A number the holder replaced by entering a code sent to it (FR-AUTH-12).
   | 'account.phone-confirmed'
   | 'account.deleted'
-  // The account's own address book. The id only — where a customer lives is
-  // not something the log needs to repeat.
+  // By id only: the log does not repeat where a customer lives.
   | 'address.created'
   | 'address.updated'
   | 'address.deleted'
-  // An order request, by its reference. The one audited event a guest can
-  // cause, which is why the actor is optional below.
+  // The one event a guest can cause, hence the optional actor.
   | 'order.placed'
-  // Order processing (FR-ORD-01/02/04). One event for every move, with the
-  // status it landed on, rather than an event per transition: the question
-  // asked later is who answered this order and when, and a name per state
-  // would have to be extended every time the vocabulary grows.
+  // Every move, with the status it landed on.
   | 'order.status'
-  // A new version of an order (FR-ORD-03), named by the version it wrote.
   | 'order.adjusted'
-  // A manager deliberately bringing the customer's view of a finished order up
-  // to date (FR-NOTIF-03). Audited because it is a mail somebody chose to
-  // send, on an order the platform had stopped writing about on its own.
   | 'order.customer_notified'
-  // The money arrived, or that observation was taken back — a mis-tick, not a
-  // refund. Both are audited: the record of what a manager said is the point.
+  // `unpaid` takes back a mis-tick; it is not a refund.
   | 'order.paid'
   | 'order.unpaid'
-  // A document filed against an order, or taken back off it (FR-ORD-05). The
-  // bytes are opaque to the platform, so who put them there is the only thing
-  // it can say about them.
   | 'order.document.supplied'
   | 'order.document.removed'
-  // The customer was told about one. Its own event because it can happen more
-  // than once and later than the upload.
   | 'order.document.sent'
-  // A guest order's personal details removed on the guest's request
-  // (NFR-LEGAL-14). By reference only: the details are what went.
+  // By reference only: the details are what went (NFR-LEGAL-14).
   | 'order.personalDataRemoved'
-  // Machine credentials (NFR-SEC-09). Issuing one hands an automated client
-  // the ability to rewrite the catalog, so both ends of its life are named.
   | 'apiToken.created'
   | 'apiToken.revoked'
-  // A withdrawal entered by hand: the consent record keeps who, this keeps it
-  // beside everything else that admin did.
   | 'consent.withdrawn';
 
-/**
- * Who did it.
- *
- * Usually the account behind the cookie. An automated client has no account at
- * all (NFR-SEC-09) — it presents a credential, and the credential's name is the
- * only thing the platform can honestly say about it, so it is logged as such
- * rather than resolved to somebody who was not there.
- */
+/** An automated client has no account (NFR-SEC-09): it is logged by its
+ * token's name, the only thing known about it. */
 export type AuditActor = AuthUser | { readonly token: string };
 
 /** The `actor=` value, in a shape that stays one `key=value` token: a token's
@@ -129,21 +86,11 @@ function actorLabel(actor: AuditActor | null): string {
 }
 
 /**
- * Domain events for admin mutations — who changed what.
- *
- * Deliberately *not* request logging: Traefik already records method, path,
- * status and latency for every request that reaches it (ADR 0016), and
- * duplicating that in the app buys noise. What no access log can answer is
- * "who deleted this product, and which one was it" — the path carries a slug,
- * not a name, and the actor is inside a cookie. That is what this records.
- *
- * One line per event, `key=value` after a stable prefix, so Loki can filter on
- * the action without structured parsing:
+ * Who changed what, which no access log can say: the path holds a slug and the
+ * actor is in a cookie. One `key=value` line per event, so Loki filters on the
+ * action without parsing:
  *
  *   [Audit] product.deleted actor=admin@example.com id=… slug=… name="…"
- *
- * The database keeps its own trail in parallel (`updatedBy`/`deletedBy`), which
- * outlives Loki's retention window; this is the searchable, time-ordered half.
  */
 @Injectable()
 export class AuditLogger {
@@ -151,23 +98,18 @@ export class AuditLogger {
 
   record(
     action: AuditAction,
-    /** Null where the event has no account behind it — a guest's order. */
+    /** Null for a guest's order. */
     actor: AuditActor | null,
     entity: {
       id?: string;
       slug?: string;
       name?: string;
       reference?: string;
-      /** Where an order landed. Its own key rather than folded into `name`,
-       * so a filter can ask for every order that was declined. */
+      /** Its own key, so a filter can ask for every declined order. */
       status?: string;
-      /** Which version of an order was written (FR-ORD-03): a reference names
-       * the order, and an adjustment is a thing that happened to one of its
-       * versions. */
+      /** The order version written (FR-ORD-03). */
       revision?: number;
-      /** What a machine token may do, comma-separated. Its own key so the log
-       * can be asked for every credential ever issued against one
-       * capability. */
+      /** A machine token's scopes, comma-separated. */
       scope?: string;
       /** Why an admin did something the person asked for (FR-ADM-23). */
       reason?: string;
@@ -181,8 +123,7 @@ export class AuditLogger {
     if (entity.revision) parts.push(`revision=${entity.revision}`);
     if (entity.id) parts.push(`id=${entity.id}`);
     if (entity.slug) parts.push(`slug=${entity.slug}`);
-    // Quoted: names contain spaces, and an unquoted one would split the line's
-    // key=value shape.
+    // Quoted, as a name with spaces would split the key=value line.
     if (entity.name) parts.push(`name=${JSON.stringify(entity.name)}`);
     this.logger.log(parts.join(' '));
   }

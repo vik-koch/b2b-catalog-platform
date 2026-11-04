@@ -1,6 +1,6 @@
 import { runMediaPrune, type PruneResult } from './prune-media';
 
-export interface MediaPruneScheduleOptions {
+interface MediaPruneScheduleOptions {
   connectionString: string;
   mediaRoot: string;
   graceMs: number;
@@ -15,14 +15,8 @@ export interface MediaPruneScheduleOptions {
   run?: typeof runMediaPrune;
 }
 
-/**
- * Start the in-process media prune. Returns a stop function (used by tests; the
- * server keeps it running for its whole lifetime). Runs are serialized by a
- * re-entrancy guard, so a slow sweep can never overlap the next tick, and every
- * run's errors are swallowed — a transient DB blip must not crash the server the
- * timer lives in. Timers are unref'd so the schedule never keeps the process
- * alive on its own.
- */
+/** Returns a stop function, for tests. A slow sweep never overlaps the next,
+ * and a failed one is logged, never thrown into the server it runs in. */
 export function scheduleMediaPrune(
   options: MediaPruneScheduleOptions,
 ): () => void {

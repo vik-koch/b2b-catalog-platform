@@ -26,14 +26,8 @@ const INK = rgb(0.1, 0.1, 0.1);
 const MUTED = rgb(0.42, 0.42, 0.42);
 const RULE = rgb(0.85, 0.85, 0.85);
 
-/**
- * A page being written down, top to bottom.
- *
- * Deliberately small: pdf-lib draws text at a coordinate and nothing else, so
- * what a layout needs is a cursor, wrapping, and a rule for when to start a new
- * page. Anything richer would be a layout engine, which is what ADR 0052 chose
- * a library over a browser to avoid.
- */
+/** A page written top to bottom: pdf-lib draws text at a point and nothing
+ * more, so this is a cursor, wrapping and a page break, not a layout engine. */
 export class Sheet {
   private page: PDFPage;
   private y = PAGE_HEIGHT - MARGIN;
@@ -42,16 +36,14 @@ export class Sheet {
   constructor(
     private readonly pdf: PDFDocument,
     private readonly faces: Faces,
-    /** Applied to every string before it is drawn, where the face cannot
-     * write everything: a standard face throws on a character it has no
-     * encoding for, and one product name must not cost the whole document. */
+    /** For a face that cannot write everything: a standard face throws on a
+     * character it cannot encode, and one name must not cost the document. */
     private readonly encode: ((text: string) => string) | null,
   ) {
     this.page = this.newPage();
   }
 
-  /** One place where text meets the page, so the encoding guard cannot be
-   * forgotten at a call site. */
+  /** The one place text meets the page, so no call site skips the guard. */
   private write(
     text: string,
     options: Parameters<PDFPage['drawText']>[1],
@@ -59,14 +51,12 @@ export class Sheet {
     this.page.drawText(this.plain(text), options);
   }
 
-  /** Measured on the same string that will be drawn — a character replaced
-   * after it was measured puts every column out. */
+  /** On the string as drawn: a character replaced after measuring puts every
+   * column out. */
   private widthOf(text: string, font: PDFFont, size: number): number {
     return font.widthOfTextAtSize(this.plain(text), size);
   }
 
-  /** Every string entering the page passes through here first, so wrapping
-   * measures exactly what will be drawn. */
   private plain(text: string): string {
     return this.encode ? this.encode(text) : text;
   }
@@ -79,8 +69,7 @@ export class Sheet {
     this.y -= points;
   }
 
-  /** A label and its value, as one row: the label on the left in muted small
-   * caps-height text, the value wrapped in the column beside it. */
+  /** A muted label, and its value wrapped in the column beside it. */
   field(label: string, value: string | string[]): void {
     const values = (Array.isArray(value) ? value : [value])
       .filter(Boolean)
@@ -112,19 +101,12 @@ export class Sheet {
         color: INK,
       });
     });
-    // A gap between fields, not only between the lines inside one: the block
-    // is a list of answers to different questions, and set solid it reads as
-    // one paragraph of them.
+    // Set solid, the fields would read as one paragraph.
     this.y = top - wrapped.length * LINE_HEIGHT - FIELD_GAP;
   }
 
-  /**
-   * The lines. Three columns — what it was, how much of it, what it came to —
-   * with the two numeric ones right-aligned, because a column of figures is
-   * read by comparing them.
-   */
+  /** Three columns, the two numeric ones right-aligned for comparing. */
   table(headings: string[], rows: string[][]): void {
-    // caller's array is a literal built for this call.
     const columns = [this.width - 200, 110, 90];
     const x = [MARGIN, MARGIN + columns[0], MARGIN + columns[0] + columns[1]];
     this.ensure(LINE_HEIGHT * 2);
@@ -132,8 +114,6 @@ export class Sheet {
     headings.forEach((heading, index) => {
       const width = this.widthOf(heading, this.faces.bold, BODY_SIZE);
       this.write(heading, {
-        // The first column reads left to right; the other two end where the
-        // figures under them end.
         x: index === 0 ? x[index] : x[index] + columns[index] - width,
         y: this.y,
         size: BODY_SIZE,
@@ -141,8 +121,7 @@ export class Sheet {
         color: INK,
       });
     });
-    // Clear of the headings' descenders before the rule is drawn: a line at
-    // the baseline strikes the words through.
+    // Below the descenders, or the rule strikes the headings through.
     this.y -= 14;
     this.rule();
 
@@ -193,8 +172,7 @@ export class Sheet {
     }
   }
 
-  /** The bold total line, and under its figure, in small print, what that
-   * figure includes. */
+  /** The bold total, with what it includes in small print under its figure. */
   total(label: string, value: string, note?: string): void {
     this.ensure(LINE_HEIGHT * (note ? 3 : 2));
     this.y -= 4;
@@ -228,8 +206,7 @@ export class Sheet {
     }
   }
 
-  /** Written on every page as it is finished, so a page that was started by an
-   * overflowing table carries it too. */
+  /** On every page, including one an overflowing table started. */
   footer(text: string): void {
     for (const page of this.pdf.getPages()) {
       page.drawText(this.plain(text), {
@@ -242,11 +219,8 @@ export class Sheet {
     }
   }
 
-  /**
-   * Running text whose words may differ in weight, wrapped across the width
-   * less `indent`. A `marker` — a bullet, a number — hangs in the indent beside
-   * the first line.
-   */
+  /** Running text of mixed weight, wrapped inside `indent`; a `marker` hangs
+   * in the indent beside the first line. */
   runs(
     runs: readonly TextRun[],
     options: {
@@ -383,17 +357,10 @@ export class Sheet {
   }
 }
 
-/**
- * What a standard face can write: the Latin alphabets, their accents and
- * umlauts, and the punctuation and currency marks around them (WinAnsi).
- *
- * Anything else becomes a question mark rather than an exception — pdf-lib
- * refuses to draw a character it cannot encode, and one product name in
- * another script would otherwise cost the customer their whole document. A
- * deployment writing in another script names its own face
- * (`branding.font.pdf`); this is the honest failure for one that has not.
- */
 const WIN_ANSI_EXTRAS = '€‚ƒ„…†‡ˆ‰Š‹ŒŽ‘’“”•–—˜™š›œžŸ';
+
+/** What a standard face can write (WinAnsi), with `?` for anything else; a
+ * deployment in another script names its own face (`branding.font.pdf`). */
 export function winAnsi(text: string): string {
   return [...text]
     .map((character) =>
@@ -404,12 +371,8 @@ export function winAnsi(text: string): string {
     .join('');
 }
 
-/**
- * Greedy word wrap against the embedded face's own metrics. A word longer than
- * the column — a URL, a part number — is left to overhang rather than broken:
- * a document is a thing somebody reads back to somebody else, and a hyphen
- * this inserted would be read out as part of the code.
- */
+/** Greedy, by the face's metrics. An overlong word (a URL, a part number)
+ * overhangs: an inserted hyphen would be read out as part of the code. */
 function wrap(
   text: string,
   font: PDFFont,

@@ -13,54 +13,31 @@ import {
   products,
 } from '../../db/schema';
 
-export type MediaReferenceDb = NodePgDatabase<typeof schema>;
+type MediaReferenceDb = NodePgDatabase<typeof schema>;
 
-// Matches every /media/<filename> occurrence in a stored string. The filename
-// charset mirrors the sanitizer's src guard, so extraction and validation can
-// never disagree about what a valid reference looks like.
-const MEDIA_REFERENCE = new RegExp(
-  `${MEDIA_URL_PREFIX}/([A-Za-z0-9._-]+)`,
-  'g',
-);
+/** The filenames under `prefix` in a stored string, in the charset the
+ * sanitizer's src check admits. */
+const filenamesUnder = (prefix: string) => {
+  const reference = new RegExp(`${prefix}/([A-Za-z0-9._-]+)`, 'g');
+  return (text: string): string[] =>
+    [...text.matchAll(reference)].map((match) => match[1]);
+};
 
-/** The same, for the /documents subtree — a document's URL is a column, not
- * prose, but the extraction is the one already proven here. */
-const DOCUMENT_REFERENCE = new RegExp(
-  `${DOCUMENT_URL_PREFIX}/([A-Za-z0-9._-]+)`,
-  'g',
-);
+export const mediaFilenamesInHtml = filenamesUnder(MEDIA_URL_PREFIX);
 
-/** Every stored media filename referenced by a blob of HTML (or plain text). */
-export function mediaFilenamesInHtml(html: string): string[] {
-  return [...html.matchAll(MEDIA_REFERENCE)].map((match) => match[1]);
-}
+export const documentFilenames = filenamesUnder(DOCUMENT_URL_PREFIX);
 
-/** Every stored document filename referenced by a stored string. */
-export function documentFilenames(text: string): string[] {
-  return [...text.matchAll(DOCUMENT_REFERENCE)].map((match) => match[1]);
-}
-
-/**
- * A place stored content can reference an uploaded media file. The prune sweep
- * (prune-media.ts) treats the union of every source's filenames as "in use" and
- * deletes only files no source references.
- */
+/** A place stored content can reference an uploaded file. */
 export interface MediaReferenceSource {
   readonly name: string;
   collect(db: MediaReferenceDb): Promise<string[]>;
 }
 
-/**
- * THE registry of media reference sources. This is a safety boundary, not a
- * convenience: a `/media` URL that can be stored but is NOT covered here will be
- * treated as an orphan and DELETED by the sweep. So whenever a new column or
- * entity can hold media (e.g. product rich descriptions or a product image
- * column when the catalog lands), it MUST be added here.
- */
+/** Every place a `/media` URL can be stored. A column missing here has its
+ * files DELETED by the sweep as orphans. */
 export const MEDIA_REFERENCE_SOURCES: readonly MediaReferenceSource[] = [
   {
-    // Every version, not only the current: an old text must still render as
-    // it was published.
+    // Every version: an old text must still render as it was published.
     name: 'page bodies',
     async collect(db) {
       const rows = await db
@@ -70,8 +47,7 @@ export const MEDIA_REFERENCE_SOURCES: readonly MediaReferenceSource[] = [
     },
   },
   {
-    // The images jsonb holds { full, thumb } URL pairs; scanning its text form
-    // captures both filenames per image.
+    // `{ full, thumb }` pairs; the text form holds both.
     name: 'product images',
     async collect(db) {
       const rows = await db.select({ images: products.images }).from(products);
@@ -81,10 +57,7 @@ export const MEDIA_REFERENCE_SOURCES: readonly MediaReferenceSource[] = [
     },
   },
   {
-    // An order line keeps the thumbnail the product had when it was ordered.
-    // The product may since have been re-imaged or soft-deleted, so this is
-    // the one source whose files nothing else references any more — and an
-    // order that loses its picture loses part of what was ordered.
+    // The thumbnail at ordering time, which the product may no longer hold.
     name: 'order line thumbnails',
     async collect(db) {
       const rows = await db
@@ -95,8 +68,7 @@ export const MEDIA_REFERENCE_SOURCES: readonly MediaReferenceSource[] = [
     },
   },
   {
-    // The chip mark (FR-CAT-07) is a jsonb { full, thumb } pair; scanning its
-    // text form captures both filenames.
+    // A `{ full, thumb }` pair (FR-CAT-07).
     name: 'category marks',
     async collect(db) {
       const rows = await db
@@ -110,15 +82,8 @@ export const MEDIA_REFERENCE_SOURCES: readonly MediaReferenceSource[] = [
   },
 ];
 
-/**
- * The same registry for the /documents subtree, which is swept separately
- * because it is a directory of its own with its own URL prefix. The same safety
- * boundary applies: a document URL that can be stored and is not collected here
- * is an orphan as far as the sweep is concerned, and gets DELETED.
- *
- * A replaced file leaves its predecessor referenced by nothing, which is
- * exactly what this deletes — there is no supersession chain to keep it alive.
- */
+/** The same for `/documents`, swept on its own. A replaced file is referenced
+ * by nothing, which is what the sweep deletes. */
 export const DOCUMENT_REFERENCE_SOURCES: readonly MediaReferenceSource[] = [
   {
     name: 'document files',

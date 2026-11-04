@@ -8,11 +8,7 @@ const HTML_ESCAPES: Record<string, string> = {
   "'": '&#39;',
 };
 
-/**
- * Everything a template produces passes through here, so no template can forget
- * it: user input (an inquiry message, an email address) ends up in an HTML mail
- * and must not be able to inject markup.
- */
+/** Applied by the layout to everything, so no template can forget it. */
 const escapeHtml = (value: string): string =>
   value.replace(/[&<>"']/g, (ch) => HTML_ESCAPES[ch] ?? ch);
 
@@ -22,11 +18,8 @@ export interface MailRow {
   readonly value: string;
 }
 
-/**
- * One ordered line, as a mail states it: what it was, how much of it, and what
- * it came to. The amounts arrive formatted — the template knows the currency
- * the order was priced in, the layout knows nothing about money.
- */
+/** One ordered line, its amounts already formatted: the layout knows nothing
+ * of money. */
 export interface MailItem {
   readonly name: string;
   readonly quantity: string;
@@ -35,31 +28,22 @@ export interface MailItem {
   readonly total: string;
 }
 
-/** A single call to action. At most one per message, by design. */
-export interface MailAction {
+/** At most one per message. */
+interface MailAction {
   readonly label: string;
-  /**
-   * A path in the app, like `/admin/users`. The layout resolves it against the
-   * deployment's public origin, for the same reason it escapes: mail is read
-   * outside the app, where nothing relative works, and a template that had to
-   * build the absolute URL itself is a template that can get it wrong.
-   */
+  /** A path in the app (`/admin/users`), made absolute by the layout. */
   readonly path: string;
 }
 
-/**
- * What a template produces: the content of one message, with no markup in it.
- * Templates decide *what* is said; this module decides how it looks, so the
- * whole app's mail stays one design and a new message is a small object.
- */
+/** One message's content, with no markup: the layout decides how it looks. */
 export interface MailContent {
   readonly subject: string;
-  /** Inbox preview line — hidden in the body, shown next to the subject. */
+  /** The inbox preview beside the subject, hidden in the body. */
   readonly preheader: string;
   readonly heading: string;
   readonly paragraphs?: readonly string[];
   readonly rows?: readonly MailRow[];
-  /** An order's lines, under their own heading (ADR 0033, amended). */
+  /** An order's lines, under their own heading. */
   readonly items?: readonly MailItem[];
   readonly itemsHeading?: string;
   readonly action?: MailAction;
@@ -72,17 +56,9 @@ export interface RenderedMail {
 }
 
 /**
- * The branded layout, shared by every message.
- *
- * Table-based with inline styles, because email clients are not browsers: no
- * flexbox, no grid, no `<style>` block worth relying on, and Outlook renders
- * through Word. Nothing external is referenced — no web font, no image, no
- * tracking pixel — so the message renders the same whether or not the client
- * blocks remote content, which by default it does.
- *
- * Branding is therefore typographic: the shop name as a wordmark on a band in
- * the deployment's primary colour. A logo image would be invisible in exactly
- * the clients that matter most until the reader opts in.
+ * Tables and inline styles, as mail clients are not browsers (Outlook renders
+ * through Word). Nothing external, not even a logo, as clients block remote
+ * content by default: the brand is a wordmark on a primary-colour band.
  */
 export function renderMail(
   content: MailContent,
@@ -127,8 +103,7 @@ function renderHtml(
           `<td style="padding:6px 12px 6px 0;font-size:14px;color:${color.inkSubtle};vertical-align:top;white-space:nowrap;">${escapeHtml(
             row.label,
           )}</td>` +
-          // Long words (a URL, an unbroken message) must wrap rather than
-          // stretch the table past the card on a phone.
+          // A long word wraps rather than stretching the card on a phone.
           `<td style="padding:6px 0;font-size:14px;color:${color.ink};word-break:break-word;">${escapeHtml(
             row.value,
           )}</td>` +
@@ -186,8 +161,7 @@ function renderHtml(
           content.action.label,
         )}</a>` +
         `</td></tr></table>` +
-        // Buttons are unreliable (some clients strip the styling, some readers
-        // copy links out), so the URL is always readable as text too.
+        // Some clients strip a button's styling: the URL is also text.
         `<p style="margin:0 0 16px;font-size:13px;line-height:1.6;color:${color.inkSubtle};word-break:break-all;">${escapeHtml(
           url,
         )}</p>`,
@@ -250,11 +224,7 @@ function renderNotice(branding: MailBranding): string {
   );
 }
 
-/**
- * The plain-text alternative, rendered from the same content object rather than
- * stripped from the HTML — so it stays readable, and so a template can never
- * ship one without the other.
- */
+/** From the same content, not stripped from the HTML, so it stays readable. */
 function renderText(
   content: MailContent,
   branding: MailBranding,

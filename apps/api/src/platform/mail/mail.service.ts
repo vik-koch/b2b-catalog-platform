@@ -8,18 +8,12 @@ import { MAILER, Mailer, MailAttachment } from './mailer';
 export interface MailEnvelope {
   readonly to: string;
   readonly replyTo?: string;
-  /** Files to send with it. The envelope's business rather than the
-   * template's: what a message *says* is wording, and what travels with it is
-   * bytes the feature had to fetch. */
+  /** Bytes the feature fetched; the template holds wording only. */
   readonly attachments?: readonly MailAttachment[];
 }
 
-/**
- * The one way the app sends mail: a feature builds a MailContent from its
- * template and hands it here, and this renders it into the shared branded
- * layout and posts it through the Mailer port. Features never touch markup,
- * and a new message cannot accidentally look different from the others.
- */
+/** Renders a template's content into the one branded layout and sends it, so
+ * no feature touches markup. */
 @Injectable()
 export class MailService {
   constructor(

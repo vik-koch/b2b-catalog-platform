@@ -5,20 +5,11 @@ import { PDFDocument, StandardFonts } from 'pdf-lib';
 import { PDF_FONT, PdfFontFiles } from '../config/deployment-config';
 import { Faces, winAnsi } from './pdf-sheet';
 
-/**
- * The two faces every document the API draws is set in.
- *
- * A deployment that names its own gets it embedded and subset — TrueType or
- * OpenType, never the `woff2` the browser is served (ADR 0052). One that
- * names none gets Helvetica, which every reader already has: it needs no
- * file, no licence and no megabyte in the image, and it covers the Latin
- * alphabets with their accents and umlauts. It cannot write anything else,
- * which is what `branding.font.pdf` is for — see deployments/fixture/config/README.md.
- */
+/** The deployment's own faces, embedded and subset, or else Helvetica, which
+ * every reader has and which writes the Latin alphabets only. */
 @Injectable()
 export class PdfFaces {
-  /** Read once per process: the files are immutable for the container's
-   * life. */
+  /** Read once: the mounted files do not change. */
   private files: Promise<{ regular: Buffer; bold: Buffer }> | undefined;
 
   constructor(
@@ -42,8 +33,7 @@ export class PdfFaces {
     const bytes = await this.read(this.font);
     return {
       faces: {
-        // Subset, so a document embeds the glyphs it uses rather than a face
-        // covering half of Unicode: the file is mailed and kept.
+        // Only the glyphs used: the file is mailed and kept.
         regular: await pdf.embedFont(bytes.regular, { subset: true }),
         bold: await pdf.embedFont(bytes.bold, { subset: true }),
       },

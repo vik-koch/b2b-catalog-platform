@@ -1,3 +1,7 @@
+/**
+ * `deployment.json` and `api.json`, read once at boot. Each part a service
+ * needs is provided under a token, so a spec hands one over without a file.
+ */
 import {
   DeliveryConfig,
   OrderReferenceConfig,
@@ -8,6 +12,7 @@ import {
 } from '@b2b-catalog-platform/shared/core/site';
 import { DEFAULT_LOW_STOCK_THRESHOLD_PIECES } from '@b2b-catalog-platform/shared/core/catalog';
 import {
+  companyIdMatchesAny,
   KeyboardLayout,
   CompanyIdFormat,
   normalizePhone,
@@ -38,18 +43,8 @@ import {
   SignInStepConfig,
 } from '@b2b-catalog-platform/shared/core/accounts';
 
-/**
- * `deployment.json`, read whole and as strictly as the web reads it — one
- * schema for both, so a misspelled key stops either. What only the API needs
- * is in `api.json` (api-config.ts).
- *
- * Typed as the parsed value, not the read-only view the web injects: the
- * loaders below hand its parts to services typed by the shared schemas.
- *
- * Read once per process: the mounted file is immutable for the container's
- * lifetime. A bad or missing file throws at boot, from the module factories
- * that call this.
- */
+/** The parsed value, not the read-only view the web injects: services are
+ * typed by the shared schemas. */
 type ApiDeploymentConfig = z.infer<typeof deploymentConfigSchema>;
 
 let cached: ApiDeploymentConfig | undefined;
@@ -65,12 +60,7 @@ export function resetApiDeploymentConfig(): void {
   cached = undefined;
 }
 
-/**
- * Where a deployment's own assets live: the `assets/` directory of the
- * mounted config, which is the layout deployments/fixture/config/README.md documents and the one
- * the web server already serves from. Derived rather than given its own variable —
- * one mount, one place, and nothing to keep in step.
- */
+/** The PDF faces' paths, in the config's `assets/` directory. */
 export const PDF_FONT = 'PDF_FONT';
 
 export interface PdfFontFiles {
@@ -82,9 +72,7 @@ export function loadPdfFont(): PdfFontFiles | undefined {
   const pdf = loadApiDeploymentConfig().branding.font?.pdf;
   if (!pdf) return undefined;
   const assets = configPath('assets');
-  // A path out of the assets directory is a configuration mistake, not an
-  // attack — the file is the operator's own — but the boot is where a mistake
-  // should be noticed rather than the first time somebody asks for a PDF.
+  // An operator's mistake, not an attack: caught at boot, not at the first PDF.
   const resolve = (name: string): string => {
     const path = join(assets, name);
     if (!path.startsWith(`${assets}/`)) {
@@ -97,18 +85,14 @@ export function loadPdfFont(): PdfFontFiles | undefined {
   return { regular: resolve(pdf.regular), bold: resolve(pdf.bold) };
 }
 
-/**
- * Whether orders carry an invoice address of its own. Injected rather than
- * read where it is used, like the rules beside it.
- */
+/** Whether an order carries an invoice address of its own. */
 export const BILLING_ADDRESS_ENABLED = 'BILLING_ADDRESS_ENABLED';
 
 export function loadBillingAddressEnabled(): boolean {
   return loadApiDeploymentConfig().billingAddressEnabled;
 }
 
-/** Whether the deployment publishes terms of sale, which an order then
- * records the version of (NFR-LEGAL-10). */
+/** Published terms, whose version an order records (NFR-LEGAL-10). */
 export const TERMS_PUBLISHED = 'TERMS_PUBLISHED';
 
 export function loadTermsPublished(): boolean {
@@ -122,8 +106,7 @@ export function loadTermsAttached(): boolean {
   return loadApiConfig().terms.attachToReceipt;
 }
 
-/** The tax basis and default rate, which a product's own rate falls back
- * to. Injected like the rules beside it. */
+/** The tax basis, and the default a product's own rate falls back to. */
 export const TAX_CONFIG = 'TAX_CONFIG';
 
 export function loadTaxConfig(): TaxConfig {
@@ -137,11 +120,7 @@ export function loadRetention(): RetentionConfig {
   return loadApiConfig().retention;
 }
 
-/**
- * The deployment's phone grouping, for the mails that quote a number back at
- * staff. Injected rather than read where it is used, so a spec can hand over a
- * mask without a config file — the same shape as COMPANY_ID_RULE below.
- */
+/** The phone grouping, for the mails that quote a number to staff. */
 export const PHONE_INPUT = 'PHONE_INPUT';
 
 export function loadPhoneInput(): PhoneConfig | undefined {
@@ -156,12 +135,8 @@ export function loadSessionIdleDays(): number {
   return loadApiConfig().session?.idleDays ?? DEFAULT_SESSION_IDLE_DAYS;
 }
 
-/**
- * Reads an entered phone number into its stored form, or answers `null` where
- * the deployment's rule cannot read it. Applied on the server as well as in the
- * browser, because a code can only be sent to a number in one known form
- * (FR-AUTH-12). See `storedPhone` for how a refusal is raised.
- */
+/** A typed number's stored form, or null where the rule cannot read it: a
+ * code is sent only to a number in one known form (FR-AUTH-12). */
 export const PHONE_RULE = 'PHONE_RULE';
 
 export type PhoneRule = (value: string) => string | null;
@@ -171,51 +146,32 @@ export function loadPhoneRule(): PhoneRule {
   return (value) => normalizePhone(value, config);
 }
 
-/**
- * Validates a company ID against the deployment's own formats.
- * **Any** of them is enough — that is what several accepted shapes means — and
- * the API takes no interest in which one the browser's picker was set to: the
- * picker is an entry aid, the patterns are the rule.
- *
- * A deployment that configures no formats gets no format rule; the contract's
- * envelope (present, trimmed, length-capped, alphanumeric) still applies.
- *
- * Patterns come from a file the deployment owner wrote, so they are trusted —
- * but they are still compiled at runtime against user input, so each must be
- * anchored and short. That is checked when the config is parsed, so a bad one
- * fails the boot rather than being silently ignored here.
- */
+/** Whether a company ID fits any configured format; the picker's choice is
+ * an entry aid, not the rule. */
 export const COMPANY_ID_RULE = 'COMPANY_ID_RULE';
 
 export type CompanyIdRule = (value: string) => boolean;
 
-/**
- * The formats themselves, for the one caller that needs to tell them apart
- * rather than just accept or refuse: the account list's "which shape" filter.
- */
+export function loadCompanyIdRule(): CompanyIdRule {
+  const formats = loadApiDeploymentConfig().companyIdInput?.formats;
+  return (value) => companyIdMatchesAny(value, formats);
+}
+
+/** The formats themselves, for the account list's "which format" filter. */
 export const COMPANY_ID_FORMATS = 'COMPANY_ID_FORMATS';
 
 export function loadCompanyIdFormats(): readonly CompanyIdFormat[] {
   return loadApiDeploymentConfig().companyIdInput?.formats ?? [];
 }
 
-/**
- * The kinds of customer this shop sells to (FR-AUTH-13), for every place an
- * account or an order is written: registration, the staff editor, the
- * customer exchange and the order's party. Injected, so a spec can run a
- * companies-only shop without a config file.
- */
+/** The kinds of customer the shop sells to (FR-AUTH-13), wherever an account
+ * or an order is written. */
 export const ACCEPTED_CUSTOMER_TYPES = 'ACCEPTED_CUSTOMER_TYPES';
 
 export function loadAcceptedCustomerTypes(): readonly CustomerType[] {
   return loadApiDeploymentConfig().customerTypes;
 }
 
-/**
- * The address rules, injected rather than read where they are used — the same
- * shape as PHONE_INPUT and COMPANY_ID_RULE, so a spec can hand over a country
- * list without a config file.
- */
 export const ADDRESS_CONFIG = 'ADDRESS_CONFIG';
 
 export function loadAddressConfig(): AddressConfig | undefined {
@@ -236,18 +192,14 @@ export function loadPickupLocations(): readonly PickupLocation[] {
   return loadApiDeploymentConfig().pickup?.locations ?? [];
 }
 
-/** The delivery zones, first match wins. Empty where none are configured,
- * which resolves every address to no zone at all — a normal answer. */
+/** The delivery zones, first match wins; with none, no address has a zone. */
 export const DELIVERY_CONFIG = 'DELIVERY_CONFIG';
 
 export function loadDeliveryConfig(): DeliveryConfig | undefined {
   return loadApiDeploymentConfig().delivery;
 }
 
-/**
- * How order references read. Defaulted rather than required: a deployment that
- * says nothing still takes orders, under a neutral prefix and UTC.
- */
+/** Defaulted: a deployment that says nothing takes orders as `ORD`, in UTC. */
 export const ORDER_REFERENCE_CONFIG = 'ORDER_REFERENCE_CONFIG';
 
 export function loadOrderReferenceConfig(): OrderReferenceConfig {
@@ -263,44 +215,34 @@ export function loadOrderReferenceConfig(): OrderReferenceConfig {
 export const ORDER_CURRENCY = 'ORDER_CURRENCY';
 
 export function loadOrderCurrency(): string {
-  return loadApiDeploymentConfig().catalog?.currency.code ?? 'EUR';
+  return loadApiDeploymentConfig().catalog.currency.code;
 }
 
-/**
- * The same currency, in the deployment's locale — what the order mails and
- * the order PDF format amounts against.
- */
+/** The currency in the deployment's locale, for the order mails and PDF. */
 export const MONEY_FORMAT = 'MONEY_FORMAT';
 
 export function loadMoneyFormat(): MoneyFormat {
   return moneyFormat(loadApiDeploymentConfig());
 }
 
-/**
- * The deployment-wide "few left" figure. Defaulted rather than required: a
- * deployment that tracks no stock never reaches it, and one that does is not
- * asked to configure a number before its first badge can appear.
- */
+/** The deployment-wide "few left" figure, defaulted. */
 export const LOW_STOCK_THRESHOLD_PIECES = 'LOW_STOCK_THRESHOLD_PIECES';
 
 export function loadLowStockThresholdPieces(): number {
   return (
-    loadApiDeploymentConfig().catalog?.lowStockThresholdPieces ??
+    loadApiDeploymentConfig().catalog.lowStockThresholdPieces ??
     DEFAULT_LOW_STOCK_THRESHOLD_PIECES
   );
 }
 
-/**
- * Whether an unsatisfied pairing refuses the order (FR-SET-04). Injected rather
- * than read where it is used, like the rules beside it, so a spec can hand over
- * either answer without a config file.
- */
+/** Whether an unsatisfied pairing refuses the order (FR-SET-04). */
 export const PAIRINGS_ENFORCED = 'PAIRINGS_ENFORCED';
 
-/**
- * The ceilings an automated run is judged against (ADR 0055). Injected like
- * the rules beside it, so a spec can hand over a policy without a config file.
- */
+export function loadPairingsEnforced(): boolean {
+  return loadApiDeploymentConfig().catalog.pairingsEnforced;
+}
+
+/** The ceilings an automated catalog run is judged against. */
 export const SYNC_POLICY = 'SYNC_POLICY';
 
 export function loadSyncPolicy(): SyncPolicy {
@@ -316,10 +258,7 @@ export function loadCustomerSyncPolicy(): CustomerSyncPolicy {
   );
 }
 
-/**
- * Which consent purposes this deployment asks for: those switched on.
- * Injected like the rules beside it.
- */
+/** The consent purposes switched on. */
 export const CONSENT_PURPOSES_ASKED = 'CONSENT_PURPOSES_ASKED';
 
 export function loadConsentPurposesAsked(): readonly ConsentPurpose[] {
@@ -332,20 +271,4 @@ export const ALTERNATE_LAYOUT = 'ALTERNATE_LAYOUT';
 
 export function loadAlternateLayout(): KeyboardLayout | null {
   return loadApiDeploymentConfig().search?.alternateLayout ?? null;
-}
-
-export function loadPairingsEnforced(): boolean {
-  return loadApiDeploymentConfig().catalog?.pairingsEnforced ?? false;
-}
-
-export function loadCompanyIdRule(): CompanyIdRule {
-  const configured = loadApiDeploymentConfig().companyIdInput;
-  if (!configured) {
-    return () => true;
-  }
-
-  const patterns = configured.formats.map(
-    (format) => new RegExp(format.pattern),
-  );
-  return (value: string) => patterns.some((pattern) => pattern.test(value));
 }

@@ -5,15 +5,8 @@ import { SuggestionSidecar } from './sidecar';
 
 const schema = z.object({ items: z.array(z.object({ label: z.string() })) });
 
-/**
- * The failure policy both adapters inherit, tested where it lives rather than
- * twice over through them. A provider is an accelerator, never a step: whatever
- * goes wrong out there, the customer is left typing.
- *
- * The adapters' own specs cover what each asks for and how it shapes an answer;
- * what is pinned here is that nothing reaches a caller as an exception, and
- * that a stalled sidecar is abandoned rather than waited on.
- */
+/** The failure policy both adapters inherit: nothing reaches a caller as an
+ * exception, and a stalled sidecar is abandoned, not waited on. */
 describe('SuggestionSidecar', () => {
   let fetchMock: Mock;
   let warn: MockInstance;

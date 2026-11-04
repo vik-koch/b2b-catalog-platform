@@ -4,11 +4,7 @@ import {
 } from '@b2b-catalog-platform/shared/platform';
 import * as z from 'zod';
 
-/**
- * The wording of the documents the API draws, loaded whole from the mounted
- * `texts/pdf.json` at boot. Server-only, like the mail text: it is rendered into
- * a file and read long after the screens that offered it.
- */
+/** `texts/pdf.json`: the wording of the documents the API draws. */
 export const pdfTextSchema = z
   .object({
     /** The order summary (FR-ORD-05, FR-ACC-02). */
@@ -22,12 +18,10 @@ export const pdfTextSchema = z
         itemsLabel: z.string(),
         quantityLabel: z.string(),
         lineTotalLabel: z.string(),
-        /** How to return the goods, printed under the total (NFR-LEGAL-10):
-         * the summary is the paper handed over with them. Absent, nothing is
-         * printed. */
+        /** How to return the goods, under the total (NFR-LEGAL-10): the
+         * summary is the paper handed over with them. */
         returnNotice: z.string().optional(),
-        /** Printed at the foot of every page: what this document is, and what
-         * it is not (ADR 0052). */
+        /** On every page: what this document is, and what it is not. */
         footer: z.string(),
       })
       .strict(),

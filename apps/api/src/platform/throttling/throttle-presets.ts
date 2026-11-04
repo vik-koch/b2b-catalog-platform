@@ -1,127 +1,40 @@
+/** Named per-route limits, each keyed on the client IP (`TRUST_PROXY_HOPS`). */
 import { applyDecorators, UseGuards } from '@nestjs/common';
 import { seconds, Throttle, ThrottlerGuard } from '@nestjs/throttler';
 import { env } from '../env';
 
-/**
- * Reusable throttle presets. Applying one wires up the shared
- * `ThrottlerGuard` and a tuned per-route limit in a single decorator, so every
- * abuse-prone endpoint shares one named policy instead of scattering magic
- * numbers. Keys on the client IP (the proxy's forwarded address in prod — see
- * `TRUST_PROXY_HOPS` in main.ts).
- */
-
-/**
- * Public, unauthenticated form posts — the inquiry form (FR-NAV-06) and
- * registration (FR-AUTH-01). Generous enough that no human hits it, low enough
- * that a single IP cannot flood the shop with spam or with pending accounts.
- *
- * The limit comes from the environment (default 10) for the same reason the
- * auth one does: the e2e suite drives every public-form path from a single
- * address inside one window, and a hardcoded ceiling would cap how many such
- * tests may ever exist. Deployments keep the default.
- */
-export const PublicFormThrottle = () =>
+const perMinute = (limit: number) =>
   applyDecorators(
     UseGuards(ThrottlerGuard),
-    Throttle({
-      default: { limit: env.PUBLIC_FORM_RATE_LIMIT, ttl: seconds(60) },
-    }),
+    Throttle({ default: { limit, ttl: seconds(60) } }),
   );
 
-/**
- * Product search: the only unauthenticated endpoint that runs a user-supplied
- * expression against the catalog, so it gets a ceiling of its own even though
- * the query itself is bounded and indexed. One a second over a minute is far
- * more than a person browsing produces, and still caps how fast a single
- * address can drive the matcher.
- */
-export const SearchThrottle = () =>
-  applyDecorators(
-    UseGuards(ThrottlerGuard),
-    Throttle({ default: { limit: 60, ttl: seconds(60) } }),
-  );
+/** The public forms: inquiry (FR-NAV-06) and registration (FR-AUTH-01). */
+export const PublicFormThrottle = () => perMinute(env.PUBLIC_FORM_RATE_LIMIT);
 
-/**
- * Search suggestions (FR-SEARCH-05). Its own ceiling rather than the search
- * one: this endpoint is called while the visitor types, so several requests per
- * query is normal traffic and not a signal of abuse. The query is the cheaper
- * half of the matcher — no count, no offset, five rows — so a higher limit
- * costs less than the search page's does.
- */
-export const SuggestionThrottle = () =>
-  applyDecorators(
-    UseGuards(ThrottlerGuard),
-    Throttle({ default: { limit: 180, ttl: seconds(60) } }),
-  );
+/** Product search, the one public route that runs a typed expression against
+ * the catalog. */
+export const SearchThrottle = () => perMinute(60);
 
-/**
- * Everything the deployment's suggestion sidecar answers — addresses and
- * companies alike (FR-CART-11, FR-AUTH-09, NFR-SEC-08). Tighter than the
- * catalog's own suggestions even though both fire while someone types: these
- * leave the deployment for a metered third party, so the ceiling is a billing
- * control as much as an abuse one. The browser debounces on top of it.
- */
-export const SidecarSuggestionThrottle = () =>
-  applyDecorators(
-    UseGuards(ThrottlerGuard),
-    Throttle({ default: { limit: 60, ttl: seconds(60) } }),
-  );
+/** Search suggestions (FR-SEARCH-05): several calls per query as the visitor
+ * types, each cheaper than a search. */
+export const SuggestionThrottle = () => perMinute(180);
 
-/**
- * Authentication endpoints (login). A handful of tries a minute per IP is
- * sufficient for a human and throttles credential-stuffing / brute force.
- * Traefik also rate-limits at the edge.
- *
- * The limit comes from the environment (default 10) so the e2e stack can lift
- * it: that suite signs in dozens of times from a single address inside one
- * window, and a hardcoded ceiling would cap how many auth tests may ever exist.
- */
-export const AuthThrottle = () =>
-  applyDecorators(
-    UseGuards(ThrottlerGuard),
-    Throttle({ default: { limit: env.AUTH_RATE_LIMIT, ttl: seconds(60) } }),
-  );
+/** The suggestion sidecar's addresses and companies (NFR-SEC-08): a metered
+ * third party, so the limit is a billing control too. */
+export const SidecarSuggestionThrottle = () => perMinute(60);
 
-/**
- * The call screen asking whether the call has come (FR-AUTH-12). It asks every
- * few seconds while the person dials, so the login ceiling would cut it off;
- * this one holds two tabs waiting at once, and only a pending sign-in gets an
- * answer at all.
- */
-export const SignInCallThrottle = () =>
-  applyDecorators(
-    UseGuards(ThrottlerGuard),
-    Throttle({ default: { limit: 60, ttl: seconds(60) } }),
-  );
+/** Sign-in, against credential stuffing (NFR-SEC-02). */
+export const AuthThrottle = () => perMinute(env.AUTH_RATE_LIMIT);
 
-/**
- * The order summary a mailed link opens (FR-NOTIF-06, NFR-SEC-06). Its token is
- * the only credential, so the ceiling is there to make guessing at one
- * pointless as well as hopeless: a person opens their own order a handful of
- * times, and nothing legitimate reads this endpoint in a loop.
- *
- * Tighter than the public forms because there is no honest bulk caller — and
- * unlike login, a wrong token costs the shop nothing to refuse, so the limit
- * needs no environment override for the e2e suite.
- */
-export const OrderTokenThrottle = () =>
-  applyDecorators(
-    UseGuards(ThrottlerGuard),
-    Throttle({ default: { limit: 30, ttl: seconds(60) } }),
-  );
+/** The call screen asks every few seconds while the person dials (FR-AUTH-12),
+ * which the sign-in limit would cut off. */
+export const SignInCallThrottle = () => perMinute(60);
 
-/**
- * Machine endpoints (NFR-SEC-09). Its own bucket, so a misbehaving integration
- * cannot exhaust an interactive limit and a busy shop cannot throttle the
- * adapter — the independence ADR 0053 asks for.
- *
- * Sized for a scheduled caller rather than a person: a stock export every few
- * minutes plus a nightly catalog is a handful of requests an hour, and the
- * ceiling is there to bound a runaway loop, not to pace a healthy one. Keyed
- * on the address like every other preset; the adapter is one host.
- */
-export const MachineThrottle = () =>
-  applyDecorators(
-    UseGuards(ThrottlerGuard),
-    Throttle({ default: { limit: 60, ttl: seconds(60) } }),
-  );
+/** A mailed order link, whose token is the only credential (NFR-SEC-06): no
+ * honest caller reads it in a loop. */
+export const OrderTokenThrottle = () => perMinute(30);
+
+/** Machine routes (NFR-SEC-09), a bucket of their own so an integration and
+ * the shop's visitors cannot exhaust each other's limit. */
+export const MachineThrottle = () => perMinute(60);

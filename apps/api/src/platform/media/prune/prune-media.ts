@@ -17,12 +17,11 @@ export interface PruneResult {
   skippedYoung: number;
 }
 
-export interface PruneOptions {
+interface PruneOptions {
   mediaRoot: string;
   /** Filenames known to be in use; anything else is a deletion candidate. */
   referenced: Set<string>;
-  /** A file unreferenced but younger than this (by mtime) is left alone, so an
-   * upload not yet saved into a body is never swept mid-edit. */
+  /** By mtime, so an upload not yet saved into a body survives. */
   graceMs: number;
   /** Report what would be deleted without deleting it. */
   dryRun?: boolean;
@@ -30,12 +29,8 @@ export interface PruneOptions {
   log?: (message: string) => void;
 }
 
-/**
- * The mark-and-sweep itself, pure over the filesystem: delete every file in
- * mediaRoot that no source references and that is older than the grace window.
- * Truth is recomputed from `referenced` each run, so nothing can drift the way a
- * reference counter would.
- */
+/** Deletes every file nothing references that is past the grace window;
+ * recomputed each run, so nothing drifts like a reference count. */
 export async function pruneMediaFiles({
   mediaRoot,
   referenced,
@@ -44,19 +39,18 @@ export async function pruneMediaFiles({
   now = Date.now(),
   log,
 }: PruneOptions): Promise<PruneResult> {
-  let names: string[];
-  try {
-    names = await readdir(mediaRoot);
-  } catch {
-    return { scanned: 0, deleted: 0, kept: 0, skippedYoung: 0 };
-  }
-
   const result: PruneResult = {
     scanned: 0,
     deleted: 0,
     kept: 0,
     skippedYoung: 0,
   };
+  let names: string[];
+  try {
+    names = await readdir(mediaRoot);
+  } catch {
+    return result;
+  }
 
   for (const name of names) {
     const path = join(mediaRoot, name);
@@ -85,15 +79,8 @@ export async function pruneMediaFiles({
   return result;
 }
 
-/**
- * Connect, collect references from every registered source, sweep, disconnect.
- *
- * Two sweeps, not one: documents live in a subdirectory of the same volume,
- * under their own URL prefix and their own reference sources. The image sweep
- * cannot reach them (it skips anything that is not a file) and must not — a
- * document referenced only by a `documents` row would look like an orphan to
- * the sources that scan page bodies and product images.
- */
+/** Two sweeps: the image sources never see a document's row, so documents,
+ * in their subdirectory, are swept against their own. */
 export async function runMediaPrune(params: {
   connectionString: string;
   mediaRoot: string;
@@ -128,8 +115,7 @@ export async function runMediaPrune(params: {
   }
 }
 
-/** One line in the log for both sweeps: they are one maintenance pass over one
- * volume, and splitting the numbers would only ask the reader to add them. */
+/** One log line for both sweeps of the volume. */
 function addResults(a: PruneResult, b: PruneResult): PruneResult {
   return {
     scanned: a.scanned + b.scanned,

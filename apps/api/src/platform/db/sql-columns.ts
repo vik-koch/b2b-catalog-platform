@@ -1,13 +1,8 @@
 import { getTableName, SQL, sql } from 'drizzle-orm';
 import { PgColumn } from 'drizzle-orm/pg-core';
 
-/**
- * `"table"."column"`, or `"alias"."column"` under a hand-written alias — an
- * unambiguous reference inside a raw subquery. Inside an `sql` template
- * drizzle writes a column bare, so a correlated reference left unqualified
- * binds to whatever the subquery's own scope happens to offer. The name still
- * comes from the schema, so a renamed column cannot be left behind here.
- */
+/** `"table"."column"`, or under an alias: an `sql` template writes a column
+ * bare, so a correlated reference would bind inside the subquery's scope. */
 export function qualified(
   column: PgColumn,
   alias = getTableName(column.table),

@@ -2,7 +2,7 @@ import * as z from 'zod';
 import { emailField } from '@b2b-catalog-platform/shared/platform';
 
 /** Treats an empty variable as an unset one, then applies the schema. */
-const emptyAsUndefined = <T extends z.ZodTypeAny>(schema: T) =>
+const emptyAsUndefined = <T extends z.ZodType>(schema: T) =>
   z.preprocess(
     (value) => (value === '' ? undefined : value),
     schema.optional(),
@@ -12,127 +12,72 @@ const EnvSchema = z
   .object({
     API_PORT: z.coerce.number().int().positive(),
     DATABASE_URL: z.url(),
-    // Set by the one-shot tool containers (see compose.yml): "migrate" applies
-    // pending migrations, "bootstrap-admin" creates the first admin if missing.
-    // Unset = normal server.
+    // The one-shot containers: "migrate", or "bootstrap-admin", which creates
+    // the first admin if missing. Unset is the server.
     RUN_MODE: z.enum(['migrate', 'bootstrap-admin']).optional(),
-    // Bootstrap admin credentials — required only in bootstrap-admin mode (the
-    // refinement below). Plaintext is hashed by the one-shot and never stored;
-    // the account is created-if-missing, so this is meaningful on first deploy
-    // only. The admin rotates it via the app afterwards.
-    // The app's own rule, not Zod's stricter one: an address the
-    // registration form accepts must not be an address the API refuses to
-    // boot on.
+    // The bootstrap admin, required in that mode only. The app's own email
+    // rule: an address registration accepts must not stop the boot.
     ADMIN_EMAIL: emailField(320).optional(),
     ADMIN_PASSWORD: z.string().min(8).optional(),
-    // Whether the bootstrap admin must change that password at first sign-in.
-    // A real deployment keeps it: the pipeline chose the password, not the
-    // admin. A stack reset to a seed bundle (infra/seed.sh) turns it off, since
-    // the account is recreated on every reset and would ask again each time.
+    // Off for a stack reset to a seed bundle, which recreates the account on
+    // every reset and would ask again each time.
     ADMIN_FORCE_PASSWORD_CHANGE: z.enum(['true', 'false']).default('true'),
-    // SMTP mail transport. Declared optional but required in server
-    // mode by the refinement below — the one-shots never send
-    // mail. Dev/demo point these at Mailpit; prod at a real provider.
+    // SMTP, required in server mode: the one-shots never send mail.
     MAIL_HOST: z.string().optional(),
     MAIL_PORT: z.coerce.number().int().positive().optional(),
     MAIL_FROM: z.string().optional(),
     MAIL_USER: z.string().optional(),
     MAIL_PASSWORD: z.string().optional(),
     MAIL_SECURE: z.enum(['true', 'false']).optional(),
-    // The shop's staff inbox: where the inquiry form is delivered (FR-NAV-06)
-    // and where a new registration is announced (FR-NOTIF-04). One address,
-    // because both are the same job — a person answering prospective and
-    // existing customers. Split it only if a deployment says otherwise.
+    // The staff inbox: inquiries (FR-NAV-06) and new registrations
+    // (FR-NOTIF-04), both a person answering customers.
     MAIL_STAFF_TO: z.string().optional(),
-    // Where the platform writes to the person who runs the shop: a sync that
-    // needs deciding, a sync that broke. Deliberately an address rather than
-    // "whoever holds an admin account" — it has to work on a deployment that
-    // has no admin account yet, it is the operator's to point at a list, and
-    // it does not change silently when somebody is deactivated. Required in
-    // server mode: falling back to MAIL_STAFF_TO would put operational mail in
-    // the inbox customers write to.
+    // The person who runs the shop: runs to decide, runs that broke. An
+    // address, not "every admin", so it works before an admin exists; never
+    // MAIL_STAFF_TO, the inbox customers write to.
     MAIL_ADMIN_TO: z.string().optional(),
-    // Optional second copy of the *fault* mails only — a broken exchange is
-    // fixed where the exchange runs, not in the admin panel. Unset (the usual
-    // case) means the admin address is the whole audience, which is why the
-    // admin gets those mails whether or not this is set. Grafana's alerting
-    // reads the same address (it was `ALERT_EMAIL` before the API became its
-    // second reader).
+    // A second copy of the fault mails only; Grafana's alerting reads it too.
     MAIL_OPS_TO: z.string().optional(),
-    // How a message reaches the transport. `queued` (the default, and what a
-    // deployment runs) hands it to MailDispatcher and answers the request
-    // without waiting on the provider. `inline` sends it before the request
-    // returns — the e2e suite's setting, because its assertions are about
-    // *which* mails a move produces and reading an inbox for one that has not
-    // been sent yet is a race, not a test. Never `inline` in a deployment: it
-    // is the five seconds of dead button this exists to remove.
+    // `inline` sends before the request returns, for the e2e suite, whose
+    // assertions on which mails a move sends would otherwise race the queue.
+    // Never in a deployment.
     MAIL_DELIVERY: z.enum(['queued', 'inline']).default('queued'),
-    // Public origin of this deployment (the same value the web app gets), used
-    // to build the absolute links every email needs — mail is read outside the
-    // app, so nothing relative resolves. Required in server mode.
+    // The public origin, for the absolute links mail needs. Server mode.
     APP_ORIGIN: z.url().optional(),
-    // Secret that signs the session JWT. Required in server mode
-    // (see refinement below); the one-shots never sign tokens.
-    // Min length keeps a weak/short key from being accepted.
+    // Signs the session JWT. Server mode.
     JWT_SECRET: z.string().min(32).optional(),
-    // Trusted proxy hops for rate limiting. 0 (default) = trust none,
-    // correct for dev/e2e with no proxy; behind Traefik set 1 so the throttler
-    // keys on the real client IP. Higher only with more forwarding layers.
+    // Proxy hops to trust for the client IP: 1 behind Traefik, 0 without one.
     TRUST_PROXY_HOPS: z.coerce.number().int().min(0).default(0),
-    // Filesystem root the LocalMediaStore writes uploaded images to. A
-    // mounted volume a small nginx serves at /media/; required in server mode.
+    // Where LocalMediaStore writes. Server mode.
     MEDIA_ROOT: z.string().optional(),
-    // a file unreferenced and older than this is deleted, the grace window
-    // protects an upload not yet saved into a body.
+    // An unreferenced file younger than this survives, as an upload may not
+    // be saved into a body yet.
     MEDIA_PRUNE_GRACE_HOURS: z.coerce.number().int().positive().default(24),
     MEDIA_PRUNE_DRY_RUN: z.enum(['true', 'false']).default('false'),
-    // The running server sweeps in-process on this cadence (a background timer)
     MEDIA_PRUNE_INTERVAL_HOURS: z.coerce.number().int().positive().default(24),
-    // Login attempts allowed per IP per minute (NFR-SEC-02). The default is the
-    // policy for real deployments; it is configurable because the e2e stack
-    // drives dozens of logins from one address in well under a minute and would
-    // otherwise throttle its own test run. Raise it there, never in prod.
+    // Per IP per minute (NFR-SEC-02). Only the e2e stack raises these: it
+    // signs in and posts forms from one address dozens of times a minute.
     AUTH_RATE_LIMIT: z.coerce.number().int().positive().default(10),
-    // Public form posts (inquiry, registration) allowed per IP per minute.
-    // Same reasoning as AUTH_RATE_LIMIT: the default is the real policy, and
-    // only the e2e stack lifts it — that suite drives every registration and
-    // inquiry path from one address inside a single window.
     PUBLIC_FORM_RATE_LIMIT: z.coerce.number().int().positive().default(10),
-    // Where the deployment's suggestion sidecar listens (ADR 0040/0041), and
-    // the whole of the switch: set, and addresses and companies are suggested;
-    // unset, and both are typed.
-    // Not in deployment.json — that file is serialized into every page, nothing
-    // in the browser needs to know, and two switches could contradict each
-    // other. Which way it resolved is logged at boot.
+    // Set, addresses and companies are suggested; unset, both are typed. Not
+    // in deployment.json, which every page carries. Logged at boot.
     SUGGESTION_SIDECAR_URL: emptyAsUndefined(z.url()),
-    // How the sign-in step proves the account's number (FR-AUTH-12, ADR 0066).
-    // Each URL is a deployment's sidecar that speaks the platform's small HTTP
-    // contract: one that sends codes, or one that runs call checks. At most
-    // one is set. With neither, mail stands in, which is fine for dev and the
-    // demo but is no second factor — which way it resolved is logged at boot.
+    // The sidecar that proves the number at sign-in (FR-AUTH-12): one sending
+    // codes or one running call checks, at most one. With neither, mail
+    // stands in: fine for dev, no second factor. Logged at boot.
     SIGN_IN_CODE_URL: emptyAsUndefined(z.url()),
     SIGN_IN_CALL_URL: emptyAsUndefined(z.url()),
-    // Sent as a bearer token, so the sidecar can tell the platform from anyone
-    // else on the network.
+    // Sent as a bearer token, so the sidecar knows the platform's calls.
     SIGN_IN_CODE_TOKEN: emptyAsUndefined(z.string().min(16)),
     SIGN_IN_CALL_TOKEN: emptyAsUndefined(z.string().min(16)),
-    // What mail stands in for where no URL is set: a code, or a call, whose
-    // mail carries a link that does what the call would. `call` lets dev
-    // exercise the call screen without a provider.
+    // What mail stands in for: `call` exercises the call screen without one.
     SIGN_IN_MAIL_KIND: z.enum(['code', 'call']).default('code'),
-    // What is running, shown in the admin panel. Stamped onto the stack by
-    // infra/deploy.sh rather than baked into the image (a release retags the
-    // image main built, so a baked value could only ever be the commit sha).
-    // Optional: a local `docker compose up` or a bare `nx serve` has neither,
-    // and the panel simply says so.
-    // Empty-to-absent: compose always sets these two (with a `:-` fallback), so
-    // an undeployed stack passes "" rather than leaving them unset.
+    // Shown in the admin panel. Stamped on by deploy.sh, as a release retags
+    // the image main built. Compose passes "" on an undeployed stack.
     APP_VERSION: emptyAsUndefined(z.string().min(1)),
     APP_DEPLOYED_AT: emptyAsUndefined(z.iso.datetime()),
   })
   .superRefine((val, ctx) => {
-    // Only the running server sends mail; require its config there, not on the
-    // one-shots.
     if (val.RUN_MODE === undefined) {
       const required = [
         'MAIL_HOST',
@@ -147,7 +92,7 @@ const EnvSchema = z
       for (const key of required) {
         if (val[key] === undefined) {
           ctx.addIssue({
-            code: z.ZodIssueCode.custom,
+            code: 'custom',
             path: [key],
             message: 'required in server mode (RUN_MODE unset)',
           });
@@ -158,18 +103,17 @@ const EnvSchema = z
     // One provider proves the number, so one kind of step is owed.
     if (val.SIGN_IN_CODE_URL && val.SIGN_IN_CALL_URL) {
       ctx.addIssue({
-        code: z.ZodIssueCode.custom,
+        code: 'custom',
         path: ['SIGN_IN_CALL_URL'],
         message: 'set either SIGN_IN_CODE_URL or SIGN_IN_CALL_URL, not both',
       });
     }
 
-    // The bootstrap-admin one-shot needs the credentials to seed; nothing else.
     if (val.RUN_MODE === 'bootstrap-admin') {
       for (const key of ['ADMIN_EMAIL', 'ADMIN_PASSWORD'] as const) {
         if (val[key] === undefined) {
           ctx.addIssue({
-            code: z.ZodIssueCode.custom,
+            code: 'custom',
             path: [key],
             message: 'required in bootstrap-admin mode',
           });

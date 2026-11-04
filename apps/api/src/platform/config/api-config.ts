@@ -3,18 +3,15 @@ import {
   syncPolicySchema,
 } from '@b2b-catalog-platform/shared/core/exchange';
 import {
+  loadConfig,
   retentionConfigSchema,
   sessionConfigSchema,
   termsConfigSchema,
 } from '@b2b-catalog-platform/shared/node';
-import { loadConfig } from '@b2b-catalog-platform/shared/node';
 import * as z from 'zod';
 
-/**
- * `api.json`: what only the API reads. Kept out of `deployment.json`, which
- * the web puts into every page — a visitor has no use for how long records
- * are kept or what a catalog run may do unattended, so they are not shown it.
- */
+/** `api.json`: what only the API reads, kept out of `deployment.json`, which
+ * every page carries. */
 export const apiConfigSchema = z
   .object({
     /** Whether the receipt attaches the accepted terms (NFR-LEGAL-10). */
@@ -35,15 +32,9 @@ export const apiConfigSchema = z
   })
   .strict();
 
-export type ApiConfig = z.infer<typeof apiConfigSchema>;
+type ApiConfig = z.infer<typeof apiConfigSchema>;
 
-/** Read once per process, like the deployment config. */
 let cached: ApiConfig | undefined;
 export function loadApiConfig(): ApiConfig {
   return (cached ??= loadConfig(apiConfigSchema, 'api.json') as ApiConfig);
-}
-
-/** Test seam: drops the memoized config so a spec can load a different file. */
-export function resetApiConfig(): void {
-  cached = undefined;
 }

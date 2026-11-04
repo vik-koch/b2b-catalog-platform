@@ -14,16 +14,8 @@ import {
 import { MAILER } from './mailer';
 import { SmtpMailer } from './smtp-mailer';
 
-/**
- * Provides the Mailer port bound to the SMTP adapter, plus the MailService that
- * renders the branded layout on top of it. Feature modules import this module
- * and inject MailService (MAILER stays exported for the transport itself).
- * Swapping the adapter (e.g. a private provider API) is a one-line change here.
- *
- * Wording and branding load whole from the mounted config files, with no
- * built-in default: an unset var or a bad/incomplete file fails the boot rather
- * than sending demo-worded or unbranded mail.
- */
+/** Mail over the SMTP adapter, and the texts and branding it is written in:
+ * no built-in default, so a bad file fails the boot, not a mail. */
 @Module({
   providers: [
     { provide: MAILER, useClass: SmtpMailer },
@@ -45,9 +37,7 @@ import { SmtpMailer } from './smtp-mailer';
     },
     NotificationAudiences,
   ],
-  // The order summary's wording and branding travel with the mail's: it is
-  // rendered from the same order, and carries the shop's name for the same
-  // reason a message does.
+  // The order summary is drawn from the same texts and branding.
   exports: [
     MAILER,
     MAIL_TEXT,
@@ -56,10 +46,7 @@ import { SmtpMailer } from './smtp-mailer';
     MAIL_BRANDING,
     MailService,
     MailDispatcher,
-    {
-      provide: NOTIFICATION_ADDRESSES,
-      useFactory: loadNotificationAddresses,
-    },
+    NOTIFICATION_ADDRESSES,
     NotificationAudiences,
   ],
 })

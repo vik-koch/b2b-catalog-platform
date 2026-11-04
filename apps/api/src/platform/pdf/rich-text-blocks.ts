@@ -5,13 +5,13 @@ type Node = ReturnType<typeof parseDocument>['children'][number];
 type Element = Extract<Node, { attribs: unknown }>;
 
 /** What a page body prints as: a column of blocks, each set by the sheet. */
-export type RichBlock =
+type RichBlock =
   | { kind: 'heading'; level: 2 | 3 | 4; runs: TextRun[] }
   | { kind: 'text'; runs: TextRun[]; indent: number; marker?: string }
   | { kind: 'rule' };
 
 /** How far a list or a quotation steps in, in PDF points. */
-export const BLOCK_INDENT = 18;
+const BLOCK_INDENT = 18;
 
 const isElement = (node: Node): node is Element =>
   node.type === ElementType.Tag;
@@ -29,12 +29,8 @@ const BLOCK_TAGS = new Set([
   'img',
 ]);
 
-/**
- * Reads a page body — already sanitized to the rich-text vocabulary — into
- * blocks. Inline weight survives as bold or regular, the only two faces a
- * document carries. A link prints its address beside its words, since a
- * printed link cannot be followed. Images are left out.
- */
+/** A sanitized page body as blocks: bold or regular, a link's address printed
+ * beside its words, images left out. */
 export function richTextBlocks(html: string): RichBlock[] {
   const blocks: RichBlock[] = [];
   walk(parseDocument(html).children, 0, blocks);

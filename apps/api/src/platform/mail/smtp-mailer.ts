@@ -3,11 +3,8 @@ import { createTransport, Transporter } from 'nodemailer';
 import { env } from '../env';
 import { Mailer, MailMessage } from './mailer';
 
-/**
- * SMTP adapter for the Mailer port. Universal by design — the same
- * code serves Mailpit (dev/demo) and any real provider (prod); only the MAIL_*
- * config differs. Presence of that config is validated in env.ts (server mode).
- */
+/** One adapter for Mailpit and any real provider; only the MAIL_* values
+ * differ. */
 @Injectable()
 export class SmtpMailer implements Mailer {
   private readonly logger = new Logger('Mailer');
@@ -37,7 +34,7 @@ export class SmtpMailer implements Mailer {
           content: file.bytes,
         })),
       });
-      // Metadata only — never the body (name/phone/message are PII).
+      // Never the body: it holds personal data.
       this.logger.log(`Sent "${message.subject}" to ${message.to}`);
     } catch (error) {
       this.logger.error(

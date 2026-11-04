@@ -22,11 +22,8 @@ import {
   StoredImage,
 } from './media-store';
 
-/**
- * Local-volume adapter for the MediaStore port. Writes to MEDIA_ROOT — a
- * mounted volume a small nginx serves read-only at /media/ and /documents/
- * (behind Traefik). The durability of these files is the volume's backup story.
- */
+/** The MediaStore on a local volume under MEDIA_ROOT, which nginx serves
+ * read-only at /media/ and /documents/. */
 @Injectable()
 export class LocalMediaStore implements MediaStore {
   private readonly logger = new Logger('MediaStore');
@@ -38,8 +35,11 @@ export class LocalMediaStore implements MediaStore {
     bytes: Buffer;
     ext: string;
   }): Promise<StoredImage> {
-    const root = env.MEDIA_ROOT as string;
-    const filename = await this.write(root, bytes, ext);
+    const filename = await this.writeHashed(
+      env.MEDIA_ROOT as string,
+      bytes,
+      ext,
+    );
     return { url: `${MEDIA_URL_PREFIX}/${filename}` };
   }
 
@@ -51,7 +51,7 @@ export class LocalMediaStore implements MediaStore {
     ext: string;
   }): Promise<StoredDocument> {
     const root = join(env.MEDIA_ROOT as string, DOCUMENT_SUBDIR);
-    const filename = await this.write(root, bytes, ext);
+    const filename = await this.writeHashed(root, bytes, ext);
     return { url: `${DOCUMENT_URL_PREFIX}/${filename}` };
   }
 
@@ -62,15 +62,9 @@ export class LocalMediaStore implements MediaStore {
     bytes: Buffer;
     ext: string;
   }): Promise<{ key: string }> {
-    const root = this.privateRoot();
-    // Random, not content-addressed: these are deleted, and two orders must
-    // never end up sharing one file.
+    // Random: a private file is deleted, so two orders must never share one.
     const key = `${randomBytes(16).toString('hex')}.${ext}`;
-    await mkdir(root, { recursive: true });
-    const tmp = join(root, `.${key}.${randomBytes(6).toString('hex')}`);
-    await writeFile(tmp, bytes);
-    await rename(tmp, join(root, key));
-    this.logger.log(`Stored private ${key} (${bytes.length} bytes)`);
+    await this.write(this.privateRoot(), key, bytes);
     return { key };
   }
 
@@ -86,12 +80,8 @@ export class LocalMediaStore implements MediaStore {
     return join(env.MEDIA_ROOT as string, PRIVATE_SUBDIR);
   }
 
-  /**
-   * The key names a file in one directory and nothing else. Keys are written
-   * by `putPrivate` and never by a client, so this is the belt to that
-   * braces: a stored value that ever acquired a separator must not be able to
-   * read its way out of the directory.
-   */
+  /** Only `putPrivate` writes keys, but a stored value that ever gained a
+   * separator must not read its way out of the directory. */
   private safeKey(key: string): string {
     if (!/^[0-9a-f]{32}\.[a-z0-9]{1,8}$/.test(key)) {
       throw new Error('Not a private file key');
@@ -99,32 +89,32 @@ export class LocalMediaStore implements MediaStore {
     return key;
   }
 
-  /** Content-addressed write, shared by both public kinds. Returns the filename. */
-  private async write(
+  /** Named by a short content hash: the same bytes are stored once, and a URL
+   * never changes what it serves, so it can be cached immutably. */
+  private async writeHashed(
     root: string,
     bytes: Buffer,
     ext: string,
   ): Promise<string> {
-    // Short content hash: the identity of the bytes. Same image -> same file
-    // (free dedup, idempotent retries); different bytes -> different URL, so a
-    // stored URL can be cached immutably.
     const id = createHash('sha256').update(bytes).digest('hex').slice(0, 12);
     const filename = `${id}.${ext}`;
-    const path = join(root, filename);
-
-    // Skip the write if these exact bytes are already stored.
-    if (!(await this.exists(path))) {
-      await mkdir(root, { recursive: true });
-      // Write to a unique temp file, then atomically rename into place, so the
-      // media server never serves a half-written file and the final name
-      // appears in a single step.
-      const tmp = join(root, `.${filename}.${randomBytes(6).toString('hex')}`);
-      await writeFile(tmp, bytes);
-      await rename(tmp, path);
-      this.logger.log(`Stored ${filename} (${bytes.length} bytes)`);
+    if (!(await this.exists(join(root, filename)))) {
+      await this.write(root, filename, bytes);
     }
-
     return filename;
+  }
+
+  /** Through a temp file and a rename, so nothing serves a half-written file. */
+  private async write(
+    root: string,
+    name: string,
+    bytes: Buffer,
+  ): Promise<void> {
+    await mkdir(root, { recursive: true });
+    const tmp = join(root, `.${name}.${randomBytes(6).toString('hex')}`);
+    await writeFile(tmp, bytes);
+    await rename(tmp, join(root, name));
+    this.logger.log(`Stored ${name} (${bytes.length} bytes)`);
   }
 
   private async exists(path: string): Promise<boolean> {

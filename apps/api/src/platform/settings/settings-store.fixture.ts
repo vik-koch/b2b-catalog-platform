@@ -5,11 +5,8 @@ import type {
   SettingsStore,
 } from './settings-store';
 
-/**
- * A store holding `row` in memory, for specs of the switches that write
- * through it: `change` runs the decision against the row and keeps what it
- * set and recorded, which is all a switch's own rules can be asked about.
- */
+/** A store holding `row` in memory, keeping what each `change` set and
+ * recorded. */
 export function storeHolding(row: Partial<SettingsRow> = {}) {
   let current: SettingsRow = {
     maintenanceMode: false,

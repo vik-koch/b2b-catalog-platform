@@ -6,16 +6,8 @@ import {
 } from './throttle-presets';
 import { ThrottlingModule } from './throttling.module';
 
-/**
- * The two presets iteration 7 added, on routes of their own rather than on the
- * real ones: what is under test is the policy each preset declares, and a stub
- * needs neither a database nor a sidecar to prove a ceiling.
- *
- * `throttling.spec.ts` proves the shared limiter blocks a flood at all, through
- * the inquiry route. These pin the two numbers that are a security control
- * (NFR-SEC-06) and a billing control (NFR-SEC-08) rather than a nicety — the
- * kind that is quietly raised and never noticed.
- */
+/** Two presets on stub routes, pinning a security limit (NFR-SEC-06) and a
+ * billing one (NFR-SEC-08), the kind quietly raised and never noticed. */
 @Controller('presets')
 class PresetRoutes {
   @OrderTokenThrottle()
