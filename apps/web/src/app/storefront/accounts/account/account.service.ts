@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { isDefinedError, safe } from '@orpc/client';
-import { accountContract } from '../../contract-routes.generated';
-import { createOrpcClient } from '../../../shared/core/orpc-client';
+import { accountContract } from '../contract-routes.generated';
+import { createOrpcClient } from '../../../platform/orpc-client';
 import {
   AccountProfile,
   UpdateAccountProfileRequest,

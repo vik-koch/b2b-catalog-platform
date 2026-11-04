@@ -1,12 +1,12 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { OrderSummary } from '@b2b-catalog-platform/shared/core/ordering';
-import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
-import { defaultStorefrontText } from '../../../shared/config/storefront-text.fixture';
-import { SHARED_TEXT } from '../../../shared/config/shared-text';
-import { defaultSharedText } from '../../../shared/config/shared-text.fixture';
-import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
-import { defaultDeploymentConfig } from '../../../shared/config/deployment-config.fixture';
+import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
+import { defaultStorefrontText } from '../../../platform/config/storefront-text.fixture';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
+import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
+import { defaultDeploymentConfig } from '../../../platform/config/deployment-config.fixture';
 import { OrdersService } from './orders.service';
 import { RecentOrders } from './recent-orders';
 

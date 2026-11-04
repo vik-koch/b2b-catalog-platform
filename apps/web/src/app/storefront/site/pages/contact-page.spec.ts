@@ -1,15 +1,15 @@
-import { SHARED_TEXT } from '../../../shared/config/shared-text';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { TestBed } from '@angular/core/testing';
-import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
-import { defaultStorefrontText } from '../../../shared/config/storefront-text.fixture';
-import { defaultSharedText } from '../../../shared/config/shared-text.fixture';
-import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
+import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
+import { defaultStorefrontText } from '../../../platform/config/storefront-text.fixture';
+import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
+import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import {
   ContactLocation,
   DeploymentConfig,
 } from '@b2b-catalog-platform/shared/platform';
-import { defaultDeploymentConfig } from '../../../shared/config/deployment-config.fixture';
-import { EditModeService } from '../../../shared/edit-mode/edit-mode.service';
+import { defaultDeploymentConfig } from '../../../platform/config/deployment-config.fixture';
+import { EditModeService } from '../../../platform/edit-mode/edit-mode.service';
 import { ContactPage } from './contact-page';
 import { PageService } from '../../../core/site/page.service';
 

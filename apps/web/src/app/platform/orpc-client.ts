@@ -17,7 +17,7 @@ import type {
   StandardHeaders,
 } from '@orpc/standard-server';
 import { lastValueFrom } from 'rxjs';
-import { requireEnv } from '../../../env';
+import { requireEnv } from '../../env';
 
 /**
  * Marks a request as one of ours to the API. The hydration transfer cache

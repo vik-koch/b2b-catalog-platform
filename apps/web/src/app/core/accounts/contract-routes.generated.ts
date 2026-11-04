@@ -5,9 +5,6 @@
 // contract defines; the imports below are type-only and erased at build.
 
 import type * as coreAccounts from '@b2b-catalog-platform/shared/core/accounts';
-import type * as coreSite from '@b2b-catalog-platform/shared/core/site';
-import type * as coreWork from '@b2b-catalog-platform/shared/core/work';
-import type * as platform from '@b2b-catalog-platform/shared/platform';
 
 export const addressSuggestionContract = {
   suggestAddresses: {
@@ -77,50 +74,3 @@ export const partySuggestionContract = {
     },
   },
 } as unknown as typeof coreAccounts.partySuggestionContract;
-export const maintenanceContract = {
-  checkMaintenance: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: { method: 'GET', path: '/maintenance' },
-    },
-  },
-} as unknown as typeof coreSite.maintenanceContract;
-export const pageContract = {
-  getPage: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: {
-        method: 'GET',
-        path: '/pages/{slug}',
-        inputStructure: 'detailed',
-      },
-    },
-  },
-} as unknown as typeof coreSite.pageContract;
-export const workContract = {
-  getCounts: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: { method: 'GET', path: '/work/counts' },
-    },
-  },
-} as unknown as typeof coreWork.workContract;
-export const sessionContract = {
-  logout: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: { method: 'POST', path: '/auth/logout' },
-    },
-  },
-  me: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: { method: 'GET', path: '/auth/me' },
-    },
-  },
-} as unknown as typeof platform.sessionContract;

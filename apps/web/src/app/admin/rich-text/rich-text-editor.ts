@@ -22,9 +22,9 @@ import {
   RICH_TEXT_IMAGE_SIZE_MIN_PERCENT,
   RICH_TEXT_LINK_SCHEMES,
 } from '@b2b-catalog-platform/shared/platform';
-import { ADMIN_TEXT } from '../../shared/config/admin-text';
+import { ADMIN_TEXT } from '../../platform/config/admin-text';
 import { injectNarrowScreen } from '@b2b-catalog-platform/ui/core/narrow-screen';
-import { HeaderCollapse } from '../../shared/layout/header-collapse';
+import { HeaderCollapse } from '../../platform/header-collapse';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { DialogActions } from '@b2b-catalog-platform/ui/overlay/dialog-actions';
 import { DialogPanel } from '@b2b-catalog-platform/ui/overlay/dialog-panel';
@@ -33,7 +33,7 @@ import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
 import { Input } from '@b2b-catalog-platform/ui/inputs/input';
 import { RichTextImage } from './rich-text-image';
 import { MediaService } from '../media/media.service';
-import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { SHARED_TEXT } from '../../platform/config/shared-text';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { Hint } from '@b2b-catalog-platform/ui/fields/hint';
 import { Glyph } from '@b2b-catalog-platform/ui/icons/glyph';

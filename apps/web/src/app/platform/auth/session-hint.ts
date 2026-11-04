@@ -1,4 +1,4 @@
-import { cookieValue } from '../core/cookie';
+import { cookieValue } from '../cookie';
 import {
   SESSION_HINT_COOKIE,
   USER_ROLES,

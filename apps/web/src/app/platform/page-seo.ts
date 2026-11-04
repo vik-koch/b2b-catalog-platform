@@ -1,6 +1,6 @@
 import { DestroyRef, effect, inject } from '@angular/core';
 import { Meta, Title } from '@angular/platform-browser';
-import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
+import { DEPLOYMENT_CONFIG } from './config/deployment-config';
 
 /** The shop's own document title, for a page that has no name of its own. */
 export function shopTitle(branding: {

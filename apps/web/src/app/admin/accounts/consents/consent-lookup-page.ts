@@ -10,16 +10,16 @@ import {
 import { form, hidden } from '@angular/forms/signals';
 import { Router } from '@angular/router';
 import { fillText } from '@b2b-catalog-platform/shared/platform';
-import { ADMIN_TEXT } from '../../../shared/config/admin-text';
-import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
+import { ADMIN_TEXT } from '../../../platform/config/admin-text';
+import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import {
   canonicalPhone,
   formatPhone,
   typedPhone,
-} from '../../../shared/core/contact-fields';
-import { delayedLoading } from '../../../shared/core/delayed-loading';
-import { completeMask, emailAddress } from '../../../shared/core/field-rules';
-import { usePageSeo } from '../../../shared/core/page-seo';
+} from '../../../platform/contact-fields';
+import { delayedLoading } from '../../../platform/delayed-loading';
+import { completeMask, emailAddress } from '../../../platform/field-rules';
+import { usePageSeo } from '../../../platform/page-seo';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
 import { Input } from '@b2b-catalog-platform/ui/inputs/input';
@@ -33,7 +33,7 @@ import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import { adminDayFormat } from '../../dates/admin-date';
 import { ConsentRecordList } from './consent-record-list';
 import { ConsentsService } from './consents.service';
-import { SHARED_TEXT } from '../../../shared/config/shared-text';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';

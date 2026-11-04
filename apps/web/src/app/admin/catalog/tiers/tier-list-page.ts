@@ -7,15 +7,15 @@ import {
   CustomerTier,
   TIER_KEY_PATTERN,
 } from '@b2b-catalog-platform/shared/admin/catalog';
-import { ADMIN_TEXT } from '../../../shared/config/admin-text';
-import { usePageSeo } from '../../../shared/core/page-seo';
-import { delayedLoading } from '../../../shared/core/delayed-loading';
+import { ADMIN_TEXT } from '../../../platform/config/admin-text';
+import { usePageSeo } from '../../../platform/page-seo';
+import { delayedLoading } from '../../../platform/delayed-loading';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Link } from '@b2b-catalog-platform/ui/actions/link';
 import { Input } from '@b2b-catalog-platform/ui/inputs/input';
-import { filled } from '../../../shared/core/field-rules';
+import { filled } from '../../../platform/field-rules';
 import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
 import { submitAttempt } from '@b2b-catalog-platform/ui/fields/submit-attempt';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
@@ -27,7 +27,7 @@ import { LockedFieldMarker } from '../../platform/ownership/ui/locked-field-mark
 import { OwnershipService } from '../../platform/ownership/ownership.service';
 import { TiersService } from './tiers.service';
 import { RouterLink } from '@angular/router';
-import { SHARED_TEXT } from '../../../shared/config/shared-text';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { Hint } from '@b2b-catalog-platform/ui/fields/hint';
 import { eyeIcon } from '@b2b-catalog-platform/ui/icons/glyphs/eye';

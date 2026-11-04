@@ -1,8 +1,8 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { fillText } from '@b2b-catalog-platform/shared/platform';
 import { isDatedPage } from '@b2b-catalog-platform/shared/storefront/site';
-import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
-import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
+import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
+import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 
 /**
  * The date in the shop's timezone, so server and browser agree on the day. No

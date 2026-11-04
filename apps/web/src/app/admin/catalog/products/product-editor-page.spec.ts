@@ -1,5 +1,5 @@
-import { SHARED_TEXT } from '../../../shared/config/shared-text';
-import { defaultSharedText } from '../../../shared/config/shared-text.fixture';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import {
   ActivatedRoute,
@@ -16,12 +16,12 @@ import {
   AdminProduct,
   CustomerTier,
 } from '@b2b-catalog-platform/shared/admin/catalog';
-import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
-import { ADMIN_TEXT } from '../../../shared/config/admin-text';
+import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
+import { ADMIN_TEXT } from '../../../platform/config/admin-text';
 import { provideOwnership } from '../../platform/ownership/ownership.fixture';
-import { defaultStorefrontText } from '../../../shared/config/storefront-text.fixture';
-import { defaultAdminText } from '../../../shared/config/admin-text.fixture';
-import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
+import { defaultStorefrontText } from '../../../platform/config/storefront-text.fixture';
+import { defaultAdminText } from '../../../platform/config/admin-text.fixture';
+import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import { CategoriesService } from '../categories/categories.service';
 import { ProductsService } from './products.service';
 import { TiersService } from '../tiers/tiers.service';

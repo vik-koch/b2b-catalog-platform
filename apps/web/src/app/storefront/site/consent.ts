@@ -13,7 +13,7 @@ import {
   ConsentPurpose,
 } from '@b2b-catalog-platform/shared/core/site';
 import { CONSENT_PATHS } from '@b2b-catalog-platform/shared/storefront/site';
-import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
+import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
 import { PageService } from '../../core/site/page.service';
 
 /**

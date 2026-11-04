@@ -1,6 +1,6 @@
 import { Component, inject, RESPONSE_INIT } from '@angular/core';
-import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
-import { usePageSeo } from '../../../shared/core/page-seo';
+import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
+import { usePageSeo } from '../../../platform/page-seo';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
 import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
 

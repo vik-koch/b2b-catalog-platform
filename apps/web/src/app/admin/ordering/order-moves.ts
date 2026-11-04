@@ -22,7 +22,7 @@ import { Glyph } from '@b2b-catalog-platform/ui/icons/glyph';
 import { arrowLeftIcon } from '@b2b-catalog-platform/ui/icons/glyphs/arrow-left';
 import { arrowRightIcon } from '@b2b-catalog-platform/ui/icons/glyphs/arrow-right';
 import { circleSlashIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-slash';
-import { AdminText } from '../../shared/config/admin-text.type';
+import { AdminText } from '../../platform/config/admin-text.type';
 
 type DetailText = AdminText['orders']['detail'];
 

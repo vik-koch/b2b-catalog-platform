@@ -9,17 +9,17 @@ import {
   OWNERSHIP_AREAS,
   fillText,
 } from '@b2b-catalog-platform/shared/platform';
-import { AuthService } from '../shared/auth/auth.service';
-import { SignedInAs } from '../shared/auth/signed-in-as';
-import { ADMIN_TEXT } from '../shared/config/admin-text';
-import { SHARED_TEXT } from '../shared/config/shared-text';
-import { DEPLOYMENT_CONFIG } from '../shared/config/deployment-config';
-import { usePageSeo } from '../shared/core/page-seo';
+import { AuthService } from '../platform/auth/auth.service';
+import { SignedInAs } from '../platform/auth/signed-in-as';
+import { ADMIN_TEXT } from '../platform/config/admin-text';
+import { SHARED_TEXT } from '../platform/config/shared-text';
+import { DEPLOYMENT_CONFIG } from '../platform/config/deployment-config';
+import { usePageSeo } from '../platform/page-seo';
 import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';
 import { ActionLink } from '@b2b-catalog-platform/ui/actions/action-link';
 import { WorkService } from '../core/work/work.service';
 import { BuildInfoService } from './platform/build-info.service';
-import { injectEditorReturnParams } from '../shared/edit-mode/editor-return';
+import { injectEditorReturnParams } from '../platform/edit-mode/editor-return';
 import { adminMomentFormat } from './dates/admin-date';
 import { PanelRow } from './panel-row';
 import { OwnershipService } from './platform/ownership/ownership.service';

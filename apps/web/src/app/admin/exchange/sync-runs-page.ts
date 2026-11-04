@@ -9,11 +9,11 @@ import {
   SyncRunStatus,
   syncRunStatusSchema,
 } from '@b2b-catalog-platform/shared/core/exchange';
-import { AuthService } from '../../shared/auth/auth.service';
-import { ADMIN_TEXT } from '../../shared/config/admin-text';
-import { delayedLoading } from '../../shared/core/delayed-loading';
-import { usePageSeo } from '../../shared/core/page-seo';
-import { stableValue } from '../../shared/core/stable-value';
+import { AuthService } from '../../platform/auth/auth.service';
+import { ADMIN_TEXT } from '../../platform/config/admin-text';
+import { delayedLoading } from '../../platform/delayed-loading';
+import { usePageSeo } from '../../platform/page-seo';
+import { stableValue } from '../../platform/stable-value';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';

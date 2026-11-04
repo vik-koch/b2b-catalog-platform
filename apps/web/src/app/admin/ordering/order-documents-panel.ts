@@ -12,14 +12,14 @@ import {
   AdminOrderDetail,
   AdminOrderDocument,
 } from '@b2b-catalog-platform/shared/core/ordering';
-import { ADMIN_TEXT } from '../../shared/config/admin-text';
-import { SHARED_TEXT } from '../../shared/config/shared-text';
-import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
+import { ADMIN_TEXT } from '../../platform/config/admin-text';
+import { SHARED_TEXT } from '../../platform/config/shared-text';
+import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
 import {
   AcceptedDocumentMime,
   fillText,
 } from '@b2b-catalog-platform/shared/platform';
-import { documentFileCaption } from '../../shared/core/document-file';
+import { documentFileCaption } from '../../platform/document-file';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
 import {

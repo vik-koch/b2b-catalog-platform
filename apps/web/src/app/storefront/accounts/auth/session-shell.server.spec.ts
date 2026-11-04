@@ -1,4 +1,4 @@
-import { readSessionHint } from '../../../shared/auth/session-hint';
+import { readSessionHint } from '../../../platform/auth/session-hint';
 import { sessionShellSource } from './session-shell.server';
 import { SESSION_HINT_COOKIE } from '@b2b-catalog-platform/shared/platform';
 

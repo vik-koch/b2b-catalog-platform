@@ -1,6 +1,6 @@
 import { Component, inject, input, RESPONSE_INIT } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
+import { STOREFRONT_TEXT } from '../../platform/config/storefront-text';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
 import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';

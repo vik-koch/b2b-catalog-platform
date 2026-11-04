@@ -6,7 +6,7 @@ import {
   PLATFORM_ID,
   untracked,
 } from '@angular/core';
-import { AuthService } from '../../../shared/auth/auth.service';
+import { AuthService } from '../../../platform/auth/auth.service';
 import { CartPreviewService } from './cart-preview.service';
 import { CartService } from './cart.service';
 

@@ -1,6 +1,6 @@
 import { Component, inject, input, output } from '@angular/core';
 import { FormField, type FieldTree } from '@angular/forms/signals';
-import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
+import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
 import { HighlightedLine } from '@b2b-catalog-platform/ui/suggest/highlighted-line';
 import { Suggestion } from '@b2b-catalog-platform/ui/suggest/suggestion';
 import { MatchSegmentsPipe } from '../../catalog/search/match-segments.pipe';

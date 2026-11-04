@@ -13,11 +13,11 @@ import {
   ProductGapFilter,
   ProductInput,
 } from '@b2b-catalog-platform/shared/admin/catalog';
-import { adminProductsContract } from '../../contract-routes.generated';
+import { adminProductsContract } from '../contract-routes.generated';
 import { safe, type ClientPromiseResult } from '@orpc/client';
-import { createOrpcClient } from '../../../shared/core/orpc-client';
-import { renderable } from '../../../shared/core/renderable';
-import { WorkRefresh } from '../../../shared/core/work-refresh';
+import { createOrpcClient } from '../../../platform/orpc-client';
+import { renderable } from '../../../platform/renderable';
+import { WorkRefresh } from '../../../platform/work-refresh';
 import type { EditModeCatalog } from '../../../core/catalog/edit-mode-catalog';
 
 /**

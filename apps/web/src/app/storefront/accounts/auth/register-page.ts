@@ -1,12 +1,12 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { form, hidden, required } from '@angular/forms/signals';
 import { RouterLink } from '@angular/router';
-import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
-import { SHARED_TEXT } from '../../../shared/config/shared-text';
-import { usePageSeo } from '../../../shared/core/page-seo';
-import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
-import { canonicalPhone } from '../../../shared/core/contact-fields';
-import { completeMask, emailAddress } from '../../../shared/core/field-rules';
+import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { usePageSeo } from '../../../platform/page-seo';
+import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
+import { canonicalPhone } from '../../../platform/contact-fields';
+import { completeMask, emailAddress } from '../../../platform/field-rules';
 import { CompanyFields } from '../../../core/accounts/parties/company-fields';
 import { companyIdFormat } from '../../../core/accounts/parties/company-id';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';

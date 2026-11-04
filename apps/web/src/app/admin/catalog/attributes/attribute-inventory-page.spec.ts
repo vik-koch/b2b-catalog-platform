@@ -1,5 +1,5 @@
-import { SHARED_TEXT } from '../../../shared/config/shared-text';
-import { defaultSharedText } from '../../../shared/config/shared-text.fixture';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
 import { Location } from '@angular/common';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, withComponentInputBinding } from '@angular/router';
@@ -9,12 +9,12 @@ import {
   AttributeKeyUsage,
   AttributeValueUsage,
 } from '@b2b-catalog-platform/shared/admin/catalog';
-import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
-import { ADMIN_TEXT } from '../../../shared/config/admin-text';
-import { defaultStorefrontText } from '../../../shared/config/storefront-text.fixture';
-import { defaultAdminText } from '../../../shared/config/admin-text.fixture';
-import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
-import { defaultDeploymentConfig } from '../../../shared/config/deployment-config.fixture';
+import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
+import { ADMIN_TEXT } from '../../../platform/config/admin-text';
+import { defaultStorefrontText } from '../../../platform/config/storefront-text.fixture';
+import { defaultAdminText } from '../../../platform/config/admin-text.fixture';
+import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
+import { defaultDeploymentConfig } from '../../../platform/config/deployment-config.fixture';
 import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
 import { AttributeInventoryPage } from './attribute-inventory-page';
 import { AttributesService } from './attributes.service';

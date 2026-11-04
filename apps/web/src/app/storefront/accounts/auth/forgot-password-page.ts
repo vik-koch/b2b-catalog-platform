@@ -1,10 +1,10 @@
 import { Component, inject, signal } from '@angular/core';
 import { form, required } from '@angular/forms/signals';
 import { RouterLink } from '@angular/router';
-import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
-import { SHARED_TEXT } from '../../../shared/config/shared-text';
-import { emailAddress } from '../../../shared/core/field-rules';
-import { usePageSeo } from '../../../shared/core/page-seo';
+import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { emailAddress } from '../../../platform/field-rules';
+import { usePageSeo } from '../../../platform/page-seo';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
 import { Input } from '@b2b-catalog-platform/ui/inputs/input';

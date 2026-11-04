@@ -5,8 +5,8 @@ import {
   SearchSort,
 } from '@b2b-catalog-platform/shared/core/catalog';
 import { SearchCategory } from '@b2b-catalog-platform/shared/storefront/catalog';
-import { createOrpcClient } from '../../../shared/core/orpc-client';
-import { catalogContract } from '../../contract-routes.generated';
+import { createOrpcClient } from '../../../platform/orpc-client';
+import { catalogContract } from '../contract-routes.generated';
 
 @Injectable({ providedIn: 'root' })
 export class CatalogSearchService {

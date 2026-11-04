@@ -1,9 +1,9 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { fillText } from '@b2b-catalog-platform/shared/platform';
 import { OrderDetail } from '@b2b-catalog-platform/shared/core/ordering';
-import { STOREFRONT_TEXT } from '../../../../shared/config/storefront-text';
-import { SHARED_TEXT } from '../../../../shared/config/shared-text';
-import { DEPLOYMENT_CONFIG } from '../../../../shared/config/deployment-config';
+import { STOREFRONT_TEXT } from '../../../../platform/config/storefront-text';
+import { SHARED_TEXT } from '../../../../platform/config/shared-text';
+import { DEPLOYMENT_CONFIG } from '../../../../platform/config/deployment-config';
 import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
 import {

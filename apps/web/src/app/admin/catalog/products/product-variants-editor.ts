@@ -24,8 +24,8 @@ import {
   ProductImageInput,
   ProductVariantInput,
 } from '@b2b-catalog-platform/shared/admin/catalog';
-import { ADMIN_TEXT } from '../../../shared/config/admin-text';
-import { SHARED_TEXT } from '../../../shared/config/shared-text';
+import { ADMIN_TEXT } from '../../../platform/config/admin-text';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { Checkbox } from '@b2b-catalog-platform/ui/choices/checkbox';
 import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';

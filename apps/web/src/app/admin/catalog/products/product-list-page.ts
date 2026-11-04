@@ -22,11 +22,11 @@ import {
 } from '@b2b-catalog-platform/shared/admin/catalog';
 import { NgTemplateOutlet } from '@angular/common';
 import { PricePipe } from '../../../core/catalog/pricing/price.pipe';
-import { ADMIN_TEXT } from '../../../shared/config/admin-text';
-import { SHARED_TEXT } from '../../../shared/config/shared-text';
-import { delayedLoading } from '../../../shared/core/delayed-loading';
-import { usePageSeo } from '../../../shared/core/page-seo';
-import { stableValue } from '../../../shared/core/stable-value';
+import { ADMIN_TEXT } from '../../../platform/config/admin-text';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { delayedLoading } from '../../../platform/delayed-loading';
+import { usePageSeo } from '../../../platform/page-seo';
+import { stableValue } from '../../../platform/stable-value';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { Link } from '@b2b-catalog-platform/ui/actions/link';
 import {
@@ -44,7 +44,7 @@ import { ProductsService } from './products.service';
 import { ProductCreateService } from './product-create.service';
 import { AttributesService } from '../attributes/attributes.service';
 import { flattenCategoryTree } from '../categories/category-tree';
-import { injectEditorReturnParams } from '../../../shared/edit-mode/editor-return';
+import { injectEditorReturnParams } from '../../../platform/edit-mode/editor-return';
 import { DataGrid } from '@b2b-catalog-platform/ui/grid/data-grid';
 import {
   GridChip,

@@ -1,14 +1,14 @@
-import { SHARED_TEXT } from '../../../shared/config/shared-text';
-import { defaultSharedText } from '../../../shared/config/shared-text.fixture';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
 import { TestBed } from '@angular/core/testing';
-import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
-import { defaultStorefrontText } from '../../../shared/config/storefront-text.fixture';
-import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
+import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
+import { defaultStorefrontText } from '../../../platform/config/storefront-text.fixture';
+import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import {
   DeploymentConfig,
   MapEmbed,
 } from '@b2b-catalog-platform/shared/platform';
-import { defaultDeploymentConfig } from '../../../shared/config/deployment-config.fixture';
+import { defaultDeploymentConfig } from '../../../platform/config/deployment-config.fixture';
 import { MapFrame } from './map-frame';
 
 interface ConsentState {

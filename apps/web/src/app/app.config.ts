@@ -16,19 +16,22 @@ import {
 } from '@angular/router';
 import { provideEditModeCatalog } from './admin/catalog/edit-mode-catalog';
 import { appRoutes } from './app.routes';
-import { BenignErrorFilter } from './shared/core/benign-errors';
-import { provideHydration } from './shared/core/hydration';
-import { StaticPageReuseStrategy } from './shared/core/route-reuse';
-import { ScrollRestoration } from './shared/core/scroll-restoration';
+import { BenignErrorFilter } from './platform/benign-errors';
+import { provideHydration } from './platform/hydration';
+import { StaticPageReuseStrategy } from './platform/route-reuse';
+import { ScrollRestoration } from './platform/scroll-restoration';
 import { CartRepricing } from './storefront/ordering/cart/cart-repricing';
-import { provideStorefrontText } from './shared/config/storefront-text';
-import { provideSharedText, provideUiText } from './shared/config/shared-text';
+import { provideStorefrontText } from './platform/config/storefront-text';
+import {
+  provideSharedText,
+  provideUiText,
+} from './platform/config/shared-text';
 import { provideGridText } from './admin/provide-grid-text';
-import { provideDeploymentConfig } from './shared/config/deployment-config';
-import { provideSuggestionsEnabled } from './shared/config/suggestions-enabled';
-import { provideDigitMaskFormat } from './shared/core/contact-fields';
+import { provideDeploymentConfig } from './platform/config/deployment-config';
+import { provideSuggestionsEnabled } from './platform/config/suggestions-enabled';
+import { provideDigitMaskFormat } from './platform/contact-fields';
 import { ProductCart } from './core/catalog/buying/product-cart';
-import { WorkRefresh } from './shared/core/work-refresh';
+import { WorkRefresh } from './platform/work-refresh';
 import { WorkService } from './core/work/work.service';
 import { CartService } from './storefront/ordering/cart/cart.service';
 

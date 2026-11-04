@@ -4,7 +4,7 @@ import {
   StaffUser,
   UserStatus,
 } from '@b2b-catalog-platform/shared/core/accounts';
-import type { AdminText } from '../../../shared/config/admin-text.type';
+import type { AdminText } from '../../../platform/config/admin-text.type';
 
 type ListText = AdminText['users']['list'];
 

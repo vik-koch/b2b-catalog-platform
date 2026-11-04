@@ -4,8 +4,8 @@ import {
   OWNERSHIP_AREAS,
   OwnershipArea,
 } from '@b2b-catalog-platform/shared/platform';
-import { adminOwnershipContract } from '../../contract-routes.generated';
-import { createOrpcClient } from '../../../shared/core/orpc-client';
+import { adminOwnershipContract } from '../contract-routes.generated';
+import { createOrpcClient } from '../../../platform/orpc-client';
 
 /** The fail-closed answer: assume everything is owned rather than nothing. */
 const ALL_AREAS: readonly OwnershipArea[] = OWNERSHIP_AREAS;

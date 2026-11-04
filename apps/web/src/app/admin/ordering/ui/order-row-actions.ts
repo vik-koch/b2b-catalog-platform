@@ -4,7 +4,7 @@ import {
   allowedTransitions,
   OrderStatus,
 } from '@b2b-catalog-platform/shared/core/ordering';
-import { ADMIN_TEXT } from '../../../shared/config/admin-text';
+import { ADMIN_TEXT } from '../../../platform/config/admin-text';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
 import { StaffOrderSummary } from '@b2b-catalog-platform/shared/admin/ordering';

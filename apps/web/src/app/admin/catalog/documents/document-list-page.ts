@@ -15,13 +15,13 @@ import {
   documentExpiryState,
   DocumentExpiryState,
 } from '@b2b-catalog-platform/shared/admin/catalog';
-import { ADMIN_TEXT } from '../../../shared/config/admin-text';
-import { SHARED_TEXT } from '../../../shared/config/shared-text';
-import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
+import { ADMIN_TEXT } from '../../../platform/config/admin-text';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import { adminDayFormat } from '../../dates/admin-date';
-import { delayedLoading } from '../../../shared/core/delayed-loading';
-import { AlternateLayout } from '../../../shared/core/alternate-layout';
-import { usePageSeo } from '../../../shared/core/page-seo';
+import { delayedLoading } from '../../../platform/delayed-loading';
+import { AlternateLayout } from '../../../platform/alternate-layout';
+import { usePageSeo } from '../../../platform/page-seo';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
 import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
@@ -41,12 +41,12 @@ import { GridTimestamp } from '../../dates/grid-timestamp';
 import { GridHeader } from '@b2b-catalog-platform/ui/grid/grid-header';
 import { RecordRow } from '@b2b-catalog-platform/ui/lists/record-row';
 import { UnpublishedCount } from '../products/unpublished-count';
-import { injectEditorReturnParams } from '../../../shared/edit-mode/editor-return';
+import { injectEditorReturnParams } from '../../../platform/edit-mode/editor-return';
 import { DocumentsService } from './documents.service';
 import {
   documentFileCaption,
   documentLinkHost,
-} from '../../../shared/core/document-file';
+} from '../../../platform/document-file';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
 import { plusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/plus';

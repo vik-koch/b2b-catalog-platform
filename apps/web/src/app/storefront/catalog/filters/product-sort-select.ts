@@ -6,8 +6,8 @@ import { Segment } from '@b2b-catalog-platform/ui/choices/segment';
 import { SegmentGroup } from '@b2b-catalog-platform/ui/choices/segment-group';
 import { Input } from '@b2b-catalog-platform/ui/inputs/input';
 import { SelectInput } from '@b2b-catalog-platform/ui/inputs/select-input';
-import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
-import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
+import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
+import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
 import { sortParam } from '../listing-params';
 
 /**

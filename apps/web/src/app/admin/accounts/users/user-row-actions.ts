@@ -1,6 +1,6 @@
 import { Component, inject, input, output } from '@angular/core';
 import { RouterLink, Params } from '@angular/router';
-import { ADMIN_TEXT } from '../../../shared/config/admin-text';
+import { ADMIN_TEXT } from '../../../platform/config/admin-text';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
 import { circleCheckIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-check';

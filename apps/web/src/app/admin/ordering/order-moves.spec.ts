@@ -1,7 +1,7 @@
 import { AdminOrderDetail } from '@b2b-catalog-platform/shared/core/ordering';
 import { ConfirmCheck } from '@b2b-catalog-platform/ui/overlay/confirm-dialog';
 import { ReasonRequest } from '@b2b-catalog-platform/ui/overlay/confirm.service';
-import { defaultAdminText } from '../../shared/config/admin-text.fixture';
+import { defaultAdminText } from '../../platform/config/admin-text.fixture';
 import {
   MARK_PAID,
   moveOptions,

@@ -9,8 +9,8 @@ import {
   signal,
 } from '@angular/core';
 import { safe } from '@orpc/client';
-import { sessionContract } from '../core/contract-routes.generated';
-import { createOrpcClient } from '../core/orpc-client';
+import { sessionContract } from '../contract-routes.generated';
+import { createOrpcClient } from '../orpc-client';
 import { sessionCookieIn } from './session-cookie';
 import { readSessionHint } from './session-hint';
 import { AuthUser } from '@b2b-catalog-platform/shared/platform';

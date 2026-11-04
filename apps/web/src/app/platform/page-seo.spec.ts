@@ -1,8 +1,8 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { Meta } from '@angular/platform-browser';
-import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
-import { defaultDeploymentConfig } from '../config/deployment-config.fixture';
+import { DEPLOYMENT_CONFIG } from './config/deployment-config';
+import { defaultDeploymentConfig } from './config/deployment-config.fixture';
 import { usePageSeo } from './page-seo';
 
 const hidden = signal(false);

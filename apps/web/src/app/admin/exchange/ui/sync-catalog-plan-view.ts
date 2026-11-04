@@ -11,8 +11,8 @@ import {
   CatalogSyncProductChange,
   CatalogSyncRowError,
 } from '@b2b-catalog-platform/shared/core/exchange';
-import { ADMIN_TEXT } from '../../../shared/config/admin-text';
-import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
+import { ADMIN_TEXT } from '../../../platform/config/admin-text';
+import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import { Link } from '@b2b-catalog-platform/ui/actions/link';
 import {
   StatusBadge,

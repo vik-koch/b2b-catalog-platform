@@ -6,12 +6,12 @@ import {
   PageSlug,
 } from '@b2b-catalog-platform/shared/core/site';
 import { STANDALONE_PAGE_SLUGS } from '@b2b-catalog-platform/shared/storefront/site';
-import { DEPLOYMENT_CONFIG } from '../shared/config/deployment-config';
+import { DEPLOYMENT_CONFIG } from '../platform/config/deployment-config';
 import {
   guestOnly,
   requireAuth,
   staffToAdminOrder,
-} from '../shared/auth/auth.guard';
+} from '../platform/auth/auth.guard';
 import { maintenanceGate } from './site/maintenance/maintenance.guard';
 import { NotFoundPage } from './platform/not-found-page';
 import { ContactPage } from './site/pages/contact-page';

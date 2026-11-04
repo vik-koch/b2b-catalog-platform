@@ -1,10 +1,10 @@
-import { SHARED_TEXT } from '../../../shared/config/shared-text';
-import { defaultSharedText } from '../../../shared/config/shared-text.fixture';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ProductAvailability } from '@b2b-catalog-platform/shared/core/catalog';
-import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
-import { defaultStorefrontText } from '../../../shared/config/storefront-text.fixture';
+import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
+import { defaultStorefrontText } from '../../../platform/config/storefront-text.fixture';
 import { ProductSetBadge } from '../../../core/catalog/ui/product-set-badge';
 import { anyStatus, ProductStatusLine } from './product-status-line';
 

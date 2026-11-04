@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { maintenanceContract } from '../../shared/core/contract-routes.generated';
-import { createOrpcClient } from '../../shared/core/orpc-client';
+import { maintenanceContract } from './contract-routes.generated';
+import { createOrpcClient } from '../../platform/orpc-client';
 
 /**
  * Memoized for the app's lifetime: a visitor kept out reloads anyway. The

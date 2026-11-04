@@ -16,7 +16,7 @@ import {
   PRODUCT_PARTS_MAX,
   PRODUCT_PARTS_MIN,
 } from '@b2b-catalog-platform/shared/core/catalog';
-import { ADMIN_TEXT } from '../../../shared/config/admin-text';
+import { ADMIN_TEXT } from '../../../platform/config/admin-text';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
 import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';

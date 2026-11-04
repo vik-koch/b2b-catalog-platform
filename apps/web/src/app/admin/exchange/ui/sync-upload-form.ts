@@ -13,7 +13,7 @@ import {
   FileTarget,
   pasteKeys,
 } from '@b2b-catalog-platform/ui/inputs/file-target';
-import { ADMIN_TEXT } from '../../../shared/config/admin-text';
+import { ADMIN_TEXT } from '../../../platform/config/admin-text';
 
 export interface SyncUploadPresetView {
   name: string;

@@ -4,7 +4,7 @@ import {
   fillText,
 } from '@b2b-catalog-platform/shared/platform';
 import { CatalogImage } from '@b2b-catalog-platform/shared/core/catalog';
-import { ADMIN_TEXT } from '../../shared/config/admin-text';
+import { ADMIN_TEXT } from '../../platform/config/admin-text';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { DropZone } from '@b2b-catalog-platform/ui/inputs/drop-zone';
 import {
@@ -12,7 +12,7 @@ import {
   pasteKeys,
 } from '@b2b-catalog-platform/ui/inputs/file-target';
 import { MediaService } from './media.service';
-import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { SHARED_TEXT } from '../../platform/config/shared-text';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { imagePlusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/image-plus';
 import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';

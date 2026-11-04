@@ -9,13 +9,13 @@ import {
   ApiToken,
   CreatedApiToken,
 } from '@b2b-catalog-platform/shared/admin/exchange';
-import { ADMIN_TEXT } from '../../../shared/config/admin-text';
-import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
-import { delayedLoading } from '../../../shared/core/delayed-loading';
-import { usePageSeo } from '../../../shared/core/page-seo';
+import { ADMIN_TEXT } from '../../../platform/config/admin-text';
+import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
+import { delayedLoading } from '../../../platform/delayed-loading';
+import { usePageSeo } from '../../../platform/page-seo';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
-import { filled } from '../../../shared/core/field-rules';
+import { filled } from '../../../platform/field-rules';
 import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
 import { submitAttempt } from '@b2b-catalog-platform/ui/fields/submit-attempt';
 import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
@@ -29,7 +29,7 @@ import { RecordFormActions } from '@b2b-catalog-platform/ui/lists/record-form-ac
 import { RecordRow } from '@b2b-catalog-platform/ui/lists/record-row';
 import { adminMomentFormat } from '../../dates/admin-date';
 import { ApiTokensService } from './api-tokens.service';
-import { SHARED_TEXT } from '../../../shared/config/shared-text';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { Notice } from '@b2b-catalog-platform/ui/content/notice';
 import { circleCheckIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-check';

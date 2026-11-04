@@ -6,9 +6,9 @@ import {
   formatMoneyMinor,
 } from '@b2b-catalog-platform/shared/platform';
 
-import { ADMIN_TEXT } from '../../../shared/config/admin-text';
-import { SHARED_TEXT } from '../../../shared/config/shared-text';
-import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
+import { ADMIN_TEXT } from '../../../platform/config/admin-text';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import { injectNarrowScreen } from '@b2b-catalog-platform/ui/core/narrow-screen';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';

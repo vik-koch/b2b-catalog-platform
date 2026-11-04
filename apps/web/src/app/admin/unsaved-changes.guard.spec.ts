@@ -1,10 +1,10 @@
-import { SHARED_TEXT } from '../shared/config/shared-text';
-import { defaultSharedText } from '../shared/config/shared-text.fixture';
+import { SHARED_TEXT } from '../platform/config/shared-text';
+import { defaultSharedText } from '../platform/config/shared-text.fixture';
 import { EnvironmentInjector, runInInjectionContext } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
-import { ADMIN_TEXT } from '../shared/config/admin-text';
-import { defaultAdminText } from '../shared/config/admin-text.fixture';
+import { ADMIN_TEXT } from '../platform/config/admin-text';
+import { defaultAdminText } from '../platform/config/admin-text.fixture';
 import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
 import {
   unsavedChangesGuard,

@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
-import { adminText } from '../shared/config/admin-text';
+import { adminText } from '../platform/config/admin-text';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
-import { EditModeService } from '../shared/edit-mode/edit-mode.service';
+import { EditModeService } from '../platform/edit-mode/edit-mode.service';
 import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
 
 /**

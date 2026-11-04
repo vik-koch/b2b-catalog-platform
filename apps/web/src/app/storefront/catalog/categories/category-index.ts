@@ -1,8 +1,8 @@
 import { Component, computed, inject, resource } from '@angular/core';
-import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
-import { EditActions } from '../../../shared/edit-mode/edit-actions';
-import { editAwareContent } from '../../../shared/edit-mode/edit-aware-content';
-import { injectEditorReturnParams } from '../../../shared/edit-mode/editor-return';
+import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
+import { EditActions } from '../../../platform/edit-mode/edit-actions';
+import { editAwareContent } from '../../../platform/edit-mode/edit-aware-content';
+import { injectEditorReturnParams } from '../../../platform/edit-mode/editor-return';
 import { LoadErrorView } from '../../platform/load-error-view';
 import { CatalogService } from '../catalog.service';
 import { CategoryChip } from '../ui/category-chip';

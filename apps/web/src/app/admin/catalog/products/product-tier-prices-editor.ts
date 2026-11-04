@@ -9,8 +9,8 @@ import {
   parsePriceInput,
   partialPriceRule,
 } from '../../../core/catalog/pricing/price';
-import { ADMIN_TEXT } from '../../../shared/config/admin-text';
-import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
+import { ADMIN_TEXT } from '../../../platform/config/admin-text';
+import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
 import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
 import { Allow } from '@b2b-catalog-platform/ui/inputs/allow';

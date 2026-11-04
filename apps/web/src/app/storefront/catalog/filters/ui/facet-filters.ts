@@ -19,7 +19,7 @@ import { DisclosureFrame } from '@b2b-catalog-platform/ui/disclosure/disclosure-
 import { disclosureState } from '@b2b-catalog-platform/ui/disclosure/disclosure-state';
 import { DisclosureToggle } from '@b2b-catalog-platform/ui/disclosure/disclosure-toggle';
 import { ShowMoreList } from '@b2b-catalog-platform/ui/disclosure/show-more-list';
-import { STOREFRONT_TEXT } from '../../../../shared/config/storefront-text';
+import { STOREFRONT_TEXT } from '../../../../platform/config/storefront-text';
 import { SectionTitle } from '@b2b-catalog-platform/ui/content/section-title';
 
 const VALUES_COLLAPSED = 8;

@@ -24,8 +24,8 @@ import {
   formatMoneyMinor,
 } from '@b2b-catalog-platform/shared/platform';
 import { CartAddResult, ProductCart } from './product-cart';
-import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
-import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
+import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
+import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { ButtonBox } from '@b2b-catalog-platform/ui/actions/button-box';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
@@ -42,7 +42,7 @@ import { ProductPairings } from './product-pairings';
 import { ProductUnitFacts } from '../ui/product-unit-facts';
 import { useProductUnits } from './product-units-view';
 import { WarningNote } from '@b2b-catalog-platform/ui/content/warning-note';
-import { FirstRender } from '../../../shared/core/first-render';
+import { FirstRender } from '../../../platform/first-render';
 import { minusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/minus';
 import { plusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/plus';
 import { shoppingBasketIcon } from '@b2b-catalog-platform/ui/icons/glyphs/shopping-basket';

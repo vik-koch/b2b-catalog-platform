@@ -57,11 +57,11 @@ const SCHEMAS = {
     'sharedTextSchema',
   ],
   'texts/storefront.json': [
-    'apps/web/src/app/shared/config/storefront-text.type.ts',
+    'apps/web/src/app/platform/config/storefront-text.type.ts',
     'storefrontTextSchema',
   ],
   'texts/admin.json': [
-    'apps/web/src/app/shared/config/admin-text.type.ts',
+    'apps/web/src/app/platform/config/admin-text.type.ts',
     'adminTextSchema',
   ],
   'texts/mail.json': [

@@ -1,8 +1,8 @@
-import { SHARED_TEXT } from '../../shared/config/shared-text';
-import { defaultSharedText } from '../../shared/config/shared-text.fixture';
+import { SHARED_TEXT } from '../../platform/config/shared-text';
+import { defaultSharedText } from '../../platform/config/shared-text.fixture';
 import { TestBed } from '@angular/core/testing';
-import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
-import { defaultStorefrontText } from '../../shared/config/storefront-text.fixture';
+import { STOREFRONT_TEXT } from '../../platform/config/storefront-text';
+import { defaultStorefrontText } from '../../platform/config/storefront-text.fixture';
 import { ProductLayoutService } from './product-layout';
 import { ProductLayoutToggle } from './product-layout-toggle';
 import { LISTING_NARROW } from './ui/listing-narrow';

@@ -4,11 +4,11 @@ import { Params, RouterLink } from '@angular/router';
 import { fillText } from '@b2b-catalog-platform/shared/platform';
 import { SEARCH_SORTS } from '@b2b-catalog-platform/shared/core/catalog';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
-import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
-import { usePageSeo } from '../../../shared/core/page-seo';
-import { stableValue } from '../../../shared/core/stable-value';
-import { editAwareContent } from '../../../shared/edit-mode/edit-aware-content';
-import { injectEditorReturnParams } from '../../../shared/edit-mode/editor-return';
+import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
+import { usePageSeo } from '../../../platform/page-seo';
+import { stableValue } from '../../../platform/stable-value';
+import { editAwareContent } from '../../../platform/edit-mode/edit-aware-content';
+import { injectEditorReturnParams } from '../../../platform/edit-mode/editor-return';
 import { LoadErrorView } from '../../platform/load-error-view';
 import { AppliedFilters } from '../filters/applied-filters';
 import {

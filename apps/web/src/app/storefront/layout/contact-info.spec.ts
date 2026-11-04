@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
-import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
+import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
 import { DeploymentConfig } from '@b2b-catalog-platform/shared/platform';
-import { defaultDeploymentConfig } from '../../shared/config/deployment-config.fixture';
+import { defaultDeploymentConfig } from '../../platform/config/deployment-config.fixture';
 import { ContactInfo } from './contact-info';
 
 async function render(contact: DeploymentConfig['contact']) {

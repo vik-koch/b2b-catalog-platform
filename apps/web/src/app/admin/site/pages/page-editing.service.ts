@@ -4,8 +4,8 @@ import {
   PageVersion,
   UpdatePageRequest,
 } from '@b2b-catalog-platform/shared/admin/site';
-import { adminPagesContract } from '../../contract-routes.generated';
-import { createOrpcClient } from '../../../shared/core/orpc-client';
+import { adminPagesContract } from '../contract-routes.generated';
+import { createOrpcClient } from '../../../platform/orpc-client';
 
 /** Writing a page and reading its history; reading a page is `PageService`. */
 @Injectable({ providedIn: 'root' })

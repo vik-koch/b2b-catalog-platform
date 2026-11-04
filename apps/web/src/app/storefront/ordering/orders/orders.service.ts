@@ -7,9 +7,9 @@ import {
   OrderSummary,
 } from '@b2b-catalog-platform/shared/core/ordering';
 import { Pagination } from '@b2b-catalog-platform/shared/platform';
-import { ordersContract } from '../../contract-routes.generated';
+import { ordersContract } from '../contract-routes.generated';
 import { safe } from '@orpc/client';
-import { createOrpcClient } from '../../../shared/core/orpc-client';
+import { createOrpcClient } from '../../../platform/orpc-client';
 
 /**
  * What placing an order came to. Each refusal names something on screen the

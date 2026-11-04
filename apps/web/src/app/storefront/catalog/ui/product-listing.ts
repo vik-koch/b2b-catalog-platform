@@ -4,7 +4,7 @@ import { Params } from '@angular/router';
 import { ProductListItem } from '@b2b-catalog-platform/shared/core/catalog';
 import { Pagination } from '@b2b-catalog-platform/ui/lists/pagination';
 import { useTaxStatement } from '../../../core/catalog/pricing/tax-statement';
-import { EditActions } from '../../../shared/edit-mode/edit-actions';
+import { EditActions } from '../../../platform/edit-mode/edit-actions';
 import { PRODUCT_ROWS, ProductRow } from './product-row';
 import { anyStatus } from './product-status-line';
 import { PRODUCT_GRID, ProductTile } from './product-tile';

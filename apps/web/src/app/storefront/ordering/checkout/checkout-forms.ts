@@ -6,10 +6,10 @@ import {
   injectAddressRules,
   blankAddress,
 } from '../../../core/accounts/addresses/address-form';
-import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
-import { SHARED_TEXT } from '../../../shared/config/shared-text';
-import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
-import { completeMask, emailAddress } from '../../../shared/core/field-rules';
+import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
+import { completeMask, emailAddress } from '../../../platform/field-rules';
 import { companyIdFormat } from '../../../core/accounts/parties/company-id';
 import { CheckoutDraft, PartyChoice } from './checkout-draft';
 

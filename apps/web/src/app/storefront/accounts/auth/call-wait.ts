@@ -11,7 +11,7 @@ import {
   signal,
 } from '@angular/core';
 import { fillText } from '@b2b-catalog-platform/shared/platform';
-import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
+import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { Checkbox } from '@b2b-catalog-platform/ui/choices/checkbox';
 import { TickLabel } from '@b2b-catalog-platform/ui/choices/tick-label';

@@ -14,10 +14,10 @@ import {
 } from '@b2b-catalog-platform/shared/core/ordering';
 import { fillText } from '@b2b-catalog-platform/shared/platform';
 import { OrderSummary } from '../../../core/ordering/ui/order-summary';
-import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
-import { SHARED_TEXT } from '../../../shared/config/shared-text';
-import { delayedLoading } from '../../../shared/core/delayed-loading';
-import { usePageSeo } from '../../../shared/core/page-seo';
+import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { delayedLoading } from '../../../platform/delayed-loading';
+import { usePageSeo } from '../../../platform/page-seo';
 import { NotFoundView } from '../../platform/not-found-view';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import {

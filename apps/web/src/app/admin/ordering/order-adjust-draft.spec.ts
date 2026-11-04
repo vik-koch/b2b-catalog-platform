@@ -3,8 +3,8 @@ import {
   AdminOrderDetail,
   OrderAdjustmentPreview,
 } from '@b2b-catalog-platform/shared/core/ordering';
-import { defaultAdminText } from '../../shared/config/admin-text.fixture';
-import { defaultDeploymentConfig } from '../../shared/config/deployment-config.fixture';
+import { defaultAdminText } from '../../platform/config/admin-text.fixture';
+import { defaultDeploymentConfig } from '../../platform/config/deployment-config.fixture';
 import {
   draftLines,
   draftPrice,

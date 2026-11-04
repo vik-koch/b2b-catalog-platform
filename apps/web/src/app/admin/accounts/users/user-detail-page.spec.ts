@@ -1,5 +1,5 @@
-import { SHARED_TEXT } from '../../../shared/config/shared-text';
-import { defaultSharedText } from '../../../shared/config/shared-text.fixture';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { CustomerTier } from '@b2b-catalog-platform/shared/admin/catalog';
@@ -7,11 +7,11 @@ import {
   OwnershipArea,
   type DeploymentConfig,
 } from '@b2b-catalog-platform/shared/platform';
-import { ADMIN_TEXT } from '../../../shared/config/admin-text';
-import { defaultAdminText } from '../../../shared/config/admin-text.fixture';
-import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
-import { defaultDeploymentConfig } from '../../../shared/config/deployment-config.fixture';
-import { AuthService } from '../../../shared/auth/auth.service';
+import { ADMIN_TEXT } from '../../../platform/config/admin-text';
+import { defaultAdminText } from '../../../platform/config/admin-text.fixture';
+import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
+import { defaultDeploymentConfig } from '../../../platform/config/deployment-config.fixture';
+import { AuthService } from '../../../platform/auth/auth.service';
 import { provideOwnership } from '../../platform/ownership/ownership.fixture';
 import { TiersService } from '../../catalog/tiers/tiers.service';
 import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';

@@ -5,9 +5,9 @@ import {
 } from '@b2b-catalog-platform/shared/core/ordering';
 import { AddressForm } from '../../../core/accounts/addresses/address-form';
 import { CartService } from '../cart/cart.service';
-import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
-import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
-import { canonicalPhone } from '../../../shared/core/contact-fields';
+import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
+import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
+import { canonicalPhone } from '../../../platform/contact-fields';
 import { SubmitOrderResult } from '../orders/orders.service';
 import { CheckoutDraft } from './checkout-draft';
 import { CheckoutForms } from './checkout-forms';

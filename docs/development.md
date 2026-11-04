@@ -68,7 +68,7 @@ the generator in the same change:
 <!-- prettier-ignore -->
 | File | Regenerate after | Command |
 | --- | --- | --- |
-| `contract-routes.generated.ts` in `apps/web/src/app/shared/core/`, `storefront/` and `admin/` | changing a route's method, path or input/output structure | `node tools/generate-contract-routes.mjs` |
+| `contract-routes.generated.ts` in each web folder that calls an entry point (`platform/`, `core/<area>/`, `<audience>/<area>/`) | changing a route's method, path or input/output structure | `node tools/generate-contract-routes.mjs` |
 | The contents of `docs/requirements.md` | adding or retitling a requirement | `node tools/generate-requirements-index.mjs` |
 | The index in `docs/adr/README.md` | adding an ADR or changing its status | `node tools/generate-adr-index.mjs` |
 | `docs/mail.md`, `docs/mail/` | changing a mail template or its wording | `node tools/generate-mail-previews.mjs` |
@@ -103,9 +103,9 @@ it replaces a release later. A migration that cannot run unattended makes the re
 - **Audience, then area.** In the API, the contracts and the web app a file lives in
   `<audience>/<area>/` (`storefront`, `admin`, `machine`), moves to `core/<area>/` only once a
   second audience uses it, and goes to `platform/` when it knows no area. Areas import each
-  other only along the table in `tools/lint/area-boundaries.mjs`, and an area joins its
-  `ENABLED` list when it has moved; until then the web app's `shared/` holds what both sides
-  use. Texts split by audience only. Lint fails a wrong-way import
+  other only along the table in `tools/lint/area-boundaries.mjs`; its one exception is the
+  deployment config, texts and database schema, which compose every area. Texts split by
+  audience only. Lint fails a wrong-way import
   ([ADR 0069](adr/0069-split-web-texts-and-contracts-by-audience.md),
   [ADR 0073](adr/0073-cut-the-code-by-area-and-audience.md)).
 - **Views in `ui/`, containers at the feature root.** A component that only draws (inputs,

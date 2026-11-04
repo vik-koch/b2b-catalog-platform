@@ -1,5 +1,5 @@
 import { Component, computed, HostListener, inject } from '@angular/core';
-import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
+import { STOREFRONT_TEXT } from '../../platform/config/storefront-text';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { withExitAnimation } from './leave-animation';
 import { MobileSearch } from './mobile-search';

@@ -1,6 +1,6 @@
 import { SitemapEntry } from '@b2b-catalog-platform/shared/storefront/catalog';
 import { requireEnv } from '../../../env';
-import { getDeploymentConfig } from '../../shared/config/deployment-config.server';
+import { getDeploymentConfig } from '../../platform/config/deployment-config.server';
 import { isMaintenanceOn } from '../site/maintenance/maintenance.server';
 
 /**

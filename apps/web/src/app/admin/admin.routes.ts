@@ -1,6 +1,6 @@
 import { Route } from '@angular/router';
-import { requireAuth } from '../shared/auth/auth.guard';
-import { adminTextGuard } from '../shared/config/admin-text';
+import { requireAuth } from '../platform/auth/auth.guard';
+import { adminTextGuard } from '../platform/config/admin-text';
 import { unsavedChangesGuard } from './unsaved-changes.guard';
 
 /*

@@ -1,8 +1,8 @@
 import { Component, inject, input, output, signal } from '@angular/core';
 import { FulfilmentMethod } from '@b2b-catalog-platform/shared/core/ordering';
-import { STOREFRONT_TEXT } from '../../../../shared/config/storefront-text';
-import { SHARED_TEXT } from '../../../../shared/config/shared-text';
-import { DEPLOYMENT_CONFIG } from '../../../../shared/config/deployment-config';
+import { STOREFRONT_TEXT } from '../../../../platform/config/storefront-text';
+import { SHARED_TEXT } from '../../../../platform/config/shared-text';
+import { DEPLOYMENT_CONFIG } from '../../../../platform/config/deployment-config';
 import { ChoiceCard } from '@b2b-catalog-platform/ui/choices/choice-card';
 import { DeliveryConditionsDialog } from './delivery-conditions-dialog';
 import { Link } from '@b2b-catalog-platform/ui/actions/link';

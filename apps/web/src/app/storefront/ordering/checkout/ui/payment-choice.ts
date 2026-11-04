@@ -3,8 +3,8 @@ import {
   FulfilmentMethod,
   PaymentMethod,
 } from '@b2b-catalog-platform/shared/core/ordering';
-import { STOREFRONT_TEXT } from '../../../../shared/config/storefront-text';
-import { SHARED_TEXT } from '../../../../shared/config/shared-text';
+import { STOREFRONT_TEXT } from '../../../../platform/config/storefront-text';
+import { SHARED_TEXT } from '../../../../platform/config/shared-text';
 import { ChoiceCard } from '@b2b-catalog-platform/ui/choices/choice-card';
 
 /** How the order is paid (FR-CART-04): **recorded, never executed**; no wording

@@ -1,4 +1,4 @@
-import { SHARED_TEXT } from '../../../shared/config/shared-text';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
@@ -8,14 +8,14 @@ import {
   firstOrderDate,
   localToday,
 } from '@b2b-catalog-platform/shared/storefront/ordering';
-import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
-import { defaultStorefrontText } from '../../../shared/config/storefront-text.fixture';
-import { defaultSharedText } from '../../../shared/config/shared-text.fixture';
-import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
-import { defaultDeploymentConfig } from '../../../shared/config/deployment-config.fixture';
-import { SUGGESTIONS_ENABLED } from '../../../shared/config/suggestions-enabled';
+import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
+import { defaultStorefrontText } from '../../../platform/config/storefront-text.fixture';
+import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
+import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
+import { defaultDeploymentConfig } from '../../../platform/config/deployment-config.fixture';
+import { SUGGESTIONS_ENABLED } from '../../../platform/config/suggestions-enabled';
 import { AccountService } from '../../accounts/account/account.service';
-import { AuthService } from '../../../shared/auth/auth.service';
+import { AuthService } from '../../../platform/auth/auth.service';
 import { AddressesService } from '../../../core/accounts/addresses/addresses.service';
 import { packagedPackaging } from '../../../core/catalog/product.fixture';
 import { CartService } from '../cart/cart.service';
@@ -29,7 +29,7 @@ import { CheckoutDraftService } from './checkout-draft.service';
 import { CheckoutPage } from './checkout-page';
 import { OrdersService, SubmitOrderResult } from '../orders/orders.service';
 import { PageService } from '../../../core/site/page.service';
-import { provideDigitMaskFormat } from '../../../shared/core/contact-fields';
+import { provideDigitMaskFormat } from '../../../platform/contact-fields';
 import { Address } from '@b2b-catalog-platform/shared/core/accounts';
 
 /** A day the form actually offers, from whenever the suite is run: a literal

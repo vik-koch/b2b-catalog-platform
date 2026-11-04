@@ -5,10 +5,10 @@ import {
   MY_ORDER_FILTERS,
   MyOrderFilter,
 } from '@b2b-catalog-platform/shared/core/ordering';
-import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
-import { delayedLoading } from '../../../shared/core/delayed-loading';
-import { usePageSeo } from '../../../shared/core/page-seo';
-import { stableValue } from '../../../shared/core/stable-value';
+import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
+import { delayedLoading } from '../../../platform/delayed-loading';
+import { usePageSeo } from '../../../platform/page-seo';
+import { stableValue } from '../../../platform/stable-value';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { Pagination } from '@b2b-catalog-platform/ui/lists/pagination';
 import { EmptyState } from '@b2b-catalog-platform/ui/content/empty-state';

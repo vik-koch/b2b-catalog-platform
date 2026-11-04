@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { ClientPromiseResult, safe } from '@orpc/client';
 import { CatalogSort } from '@b2b-catalog-platform/shared/storefront/catalog';
-import { createOrpcClient } from '../../shared/core/orpc-client';
-import { catalogContract } from '../contract-routes.generated';
+import { createOrpcClient } from '../../platform/orpc-client';
+import { catalogContract } from './contract-routes.generated';
 
 @Injectable({ providedIn: 'root' })
 export class CatalogService {

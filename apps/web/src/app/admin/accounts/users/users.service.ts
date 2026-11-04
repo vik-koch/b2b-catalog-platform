@@ -1,9 +1,9 @@
 import { inject, Injectable } from '@angular/core';
-import { usersContract } from '../../contract-routes.generated';
+import { usersContract } from '../contract-routes.generated';
 import { safe, type ClientPromiseResult } from '@orpc/client';
-import { createOrpcClient } from '../../../shared/core/orpc-client';
-import { renderable } from '../../../shared/core/renderable';
-import { WorkRefresh } from '../../../shared/core/work-refresh';
+import { createOrpcClient } from '../../../platform/orpc-client';
+import { renderable } from '../../../platform/renderable';
+import { WorkRefresh } from '../../../platform/work-refresh';
 import {
   AccountDeletionReason,
   CreateUserRequest,

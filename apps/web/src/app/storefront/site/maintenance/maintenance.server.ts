@@ -1,5 +1,5 @@
 import { requireEnv } from '../../../../env';
-import { readSessionHint } from '../../../shared/auth/session-hint';
+import { readSessionHint } from '../../../platform/auth/session-hint';
 import { passesMaintenance } from '@b2b-catalog-platform/shared/core/site';
 
 /**

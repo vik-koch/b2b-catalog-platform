@@ -4,7 +4,7 @@ import {
   Facet,
   ListingSort,
 } from '@b2b-catalog-platform/shared/storefront/catalog';
-import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
+import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import { FacetSelection } from './facet-selection';
 import { ProductSortSelect } from './product-sort-select';
 import { FacetFilters, FacetValueToggle } from './ui/facet-filters';

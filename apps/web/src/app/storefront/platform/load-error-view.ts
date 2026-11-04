@@ -1,5 +1,5 @@
 import { Component, inject, input, RESPONSE_INIT } from '@angular/core';
-import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
+import { STOREFRONT_TEXT } from '../../platform/config/storefront-text';
 import { Outcome } from '@b2b-catalog-platform/ui/content/outcome';
 
 /**

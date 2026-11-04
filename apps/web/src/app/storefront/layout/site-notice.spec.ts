@@ -3,8 +3,8 @@ import {
   DeploymentConfig,
   SiteNotice as Notice,
 } from '@b2b-catalog-platform/shared/platform';
-import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
-import { defaultDeploymentConfig } from '../../shared/config/deployment-config.fixture';
+import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
+import { defaultDeploymentConfig } from '../../platform/config/deployment-config.fixture';
 import { SiteNotice } from './site-notice';
 
 async function render(notice: Notice | undefined) {

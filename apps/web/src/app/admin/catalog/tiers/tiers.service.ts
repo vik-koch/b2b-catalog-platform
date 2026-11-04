@@ -5,10 +5,10 @@ import {
   TierErrorCode,
   TierInput,
 } from '@b2b-catalog-platform/shared/admin/catalog';
-import { tiersContract } from '../../contract-routes.generated';
+import { tiersContract } from '../contract-routes.generated';
 import { safe, type ClientPromiseResult } from '@orpc/client';
-import { createOrpcClient } from '../../../shared/core/orpc-client';
-import { renderable } from '../../../shared/core/renderable';
+import { createOrpcClient } from '../../../platform/orpc-client';
+import { renderable } from '../../../platform/renderable';
 
 export type TierResult =
   { ok: true; tier: CustomerTier } | { ok: false; code: TierErrorCode };

@@ -2,7 +2,7 @@ import { Component, inject, input } from '@angular/core';
 import { Glyph } from '@b2b-catalog-platform/ui/icons/glyph';
 import { saveIcon } from '@b2b-catalog-platform/ui/icons/glyphs/save';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
-import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { SHARED_TEXT } from '../../platform/config/shared-text';
 
 /**
  * An editor's save button: its glyph, and "Saving…" in place of the label

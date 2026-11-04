@@ -1,4 +1,4 @@
-import { getDeploymentConfig } from '../../../shared/config/deployment-config.server';
+import { getDeploymentConfig } from '../../../platform/config/deployment-config.server';
 import { CART_STORAGE_KEY, CART_STORAGE_VERSION } from './cart-storage';
 import { moneyFormat } from '@b2b-catalog-platform/shared/platform';
 

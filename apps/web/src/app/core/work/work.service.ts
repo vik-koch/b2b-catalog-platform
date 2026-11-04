@@ -11,10 +11,10 @@ import { NavigationEnd, Router } from '@angular/router';
 import { safe } from '@orpc/client';
 import { filter } from 'rxjs';
 import { WorkCounts } from '@b2b-catalog-platform/shared/core/work';
-import { AuthService } from '../../shared/auth/auth.service';
-import { workContract } from '../../shared/core/contract-routes.generated';
-import { createOrpcClient } from '../../shared/core/orpc-client';
-import { WorkRefresh } from '../../shared/core/work-refresh';
+import { AuthService } from '../../platform/auth/auth.service';
+import { workContract } from './contract-routes.generated';
+import { createOrpcClient } from '../../platform/orpc-client';
+import { WorkRefresh } from '../../platform/work-refresh';
 
 /**
  * What awaits the signed-in account (FR-WORK-01…04). Browser only: no render

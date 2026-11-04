@@ -1,15 +1,15 @@
 import { Component, inject, resource, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Page, PageSlug } from '@b2b-catalog-platform/shared/core/site';
-import { ADMIN_TEXT } from '../../../shared/config/admin-text';
-import { SHARED_TEXT } from '../../../shared/config/shared-text';
-import { usePageSeo } from '../../../shared/core/page-seo';
-import { delayedLoading } from '../../../shared/core/delayed-loading';
+import { ADMIN_TEXT } from '../../../platform/config/admin-text';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { usePageSeo } from '../../../platform/page-seo';
+import { delayedLoading } from '../../../platform/delayed-loading';
 import { PageEditor } from './page-editor';
 import { PageHistory } from './page-history';
 import { PageService } from '../../../core/site/page.service';
 import { UnsavedChangesAware } from '../../unsaved-changes.guard';
-import { injectEditorReturn } from '../../../shared/edit-mode/editor-return';
+import { injectEditorReturn } from '../../../platform/edit-mode/editor-return';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 
 /**

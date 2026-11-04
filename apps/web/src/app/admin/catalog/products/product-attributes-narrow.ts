@@ -15,7 +15,7 @@ import {
 import { fillText } from '@b2b-catalog-platform/shared/platform';
 import { ProductAttribute } from '@b2b-catalog-platform/shared/core/catalog';
 import { PRODUCT_ATTRIBUTES_MAX } from '@b2b-catalog-platform/shared/admin/catalog';
-import { ADMIN_TEXT } from '../../../shared/config/admin-text';
+import { ADMIN_TEXT } from '../../../platform/config/admin-text';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
 import { HintBadge } from '@b2b-catalog-platform/ui/content/hint-badge';
@@ -26,7 +26,7 @@ import { RecordFields } from '@b2b-catalog-platform/ui/lists/record-fields';
 import { RecordFormActions } from '@b2b-catalog-platform/ui/lists/record-form-actions';
 import { RecordRow } from '@b2b-catalog-platform/ui/lists/record-row';
 import { AttributeRowMarks } from './attribute-hints';
-import { SHARED_TEXT } from '../../../shared/config/shared-text';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { funnelIcon } from '@b2b-catalog-platform/ui/icons/glyphs/funnel';
 import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
 import { plusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/plus';

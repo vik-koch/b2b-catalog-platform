@@ -8,7 +8,7 @@ import {
 } from '@angular/core';
 import { adminText } from '../config/admin-text';
 import { AdminText } from '../config/admin-text.type';
-import { delayedLoading } from '../core/delayed-loading';
+import { delayedLoading } from '../delayed-loading';
 import { EditModeService } from './edit-mode.service';
 
 /** What a storefront page needs to render itself without popping. */

@@ -7,11 +7,11 @@ import {
   signal,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { AuthService } from '../../shared/auth/auth.service';
-import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
-import { SHARED_TEXT } from '../../shared/config/shared-text';
-import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
-import { currentUrl } from '../../shared/core/current-url';
+import { AuthService } from '../../platform/auth/auth.service';
+import { STOREFRONT_TEXT } from '../../platform/config/storefront-text';
+import { SHARED_TEXT } from '../../platform/config/shared-text';
+import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
+import { currentUrl } from '../../platform/current-url';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { AccountLink } from './account-link';
 import { CartLink } from '../ordering/cart/cart-link';

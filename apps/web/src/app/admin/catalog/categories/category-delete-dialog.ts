@@ -12,7 +12,7 @@ import {
 import { fillText } from '@b2b-catalog-platform/shared/platform';
 import { AdminCategory } from '@b2b-catalog-platform/shared/admin/catalog';
 
-import { ADMIN_TEXT } from '../../../shared/config/admin-text';
+import { ADMIN_TEXT } from '../../../platform/config/admin-text';
 import { OwnershipService } from '../../platform/ownership/ownership.service';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { DialogActions } from '@b2b-catalog-platform/ui/overlay/dialog-actions';
@@ -22,7 +22,7 @@ import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
 import { CategoriesService } from './categories.service';
 import { CategoryPicker } from './category-picker';
 import { categoriesOutside } from './category-tree';
-import { SHARED_TEXT } from '../../../shared/config/shared-text';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
 import { DialogTitle } from '@b2b-catalog-platform/ui/overlay/dialog-title';

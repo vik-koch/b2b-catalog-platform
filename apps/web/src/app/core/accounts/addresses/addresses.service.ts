@@ -2,9 +2,9 @@ import { Injectable } from '@angular/core';
 import {
   addressSuggestionContract,
   addressesContract,
-} from '../../../shared/core/contract-routes.generated';
+} from '../contract-routes.generated';
 import { safe, type ClientPromiseResult } from '@orpc/client';
-import { createOrpcClient } from '../../../shared/core/orpc-client';
+import { createOrpcClient } from '../../../platform/orpc-client';
 import {
   Address,
   AddressInput,

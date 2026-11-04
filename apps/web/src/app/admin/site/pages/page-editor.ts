@@ -12,7 +12,7 @@ import {
   signal,
 } from '@angular/core';
 import { form, hidden, maxLength, validate } from '@angular/forms/signals';
-import { filled } from '../../../shared/core/field-rules';
+import { filled } from '../../../platform/field-rules';
 import {
   consentLabelParts,
   isConsentPage,
@@ -20,7 +20,7 @@ import {
   PageSlug,
 } from '@b2b-catalog-platform/shared/core/site';
 import { CONSENT_LABEL_MAX_LENGTH } from '@b2b-catalog-platform/shared/admin/site';
-import { ADMIN_TEXT } from '../../../shared/config/admin-text';
+import { ADMIN_TEXT } from '../../../platform/config/admin-text';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { Notice } from '@b2b-catalog-platform/ui/content/notice';
 import { RichTextEditor } from '../../rich-text/rich-text-editor';
@@ -36,14 +36,14 @@ import { Input } from '@b2b-catalog-platform/ui/inputs/input';
 import { Checkbox } from '@b2b-catalog-platform/ui/choices/checkbox';
 import { TickLabel } from '@b2b-catalog-platform/ui/choices/tick-label';
 import { PageEditingService } from './page-editing.service';
-import { trustedRichText } from '../../../shared/core/trusted-rich-text';
+import { trustedRichText } from '../../../platform/trusted-rich-text';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { eyeIcon } from '@b2b-catalog-platform/ui/icons/glyphs/eye';
 import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
 import { SaveButton } from '../../ui/save-button';
 import { CancelButton } from '../../ui/cancel-button';
-import { SHARED_TEXT } from '../../../shared/config/shared-text';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
 
 /**
  * Title, body and a preview in the public page's `prose` measure. Saves

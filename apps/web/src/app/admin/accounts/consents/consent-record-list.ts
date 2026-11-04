@@ -5,9 +5,9 @@ import {
   CONSENT_PAGE_SLUGS,
   consentLabelParts,
 } from '@b2b-catalog-platform/shared/core/site';
-import { ADMIN_TEXT } from '../../../shared/config/admin-text';
-import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
-import { formatPhone } from '../../../shared/core/contact-fields';
+import { ADMIN_TEXT } from '../../../platform/config/admin-text';
+import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
+import { formatPhone } from '../../../platform/contact-fields';
 import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Link } from '@b2b-catalog-platform/ui/actions/link';

@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
-import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
-import { defaultStorefrontText } from '../../shared/config/storefront-text.fixture';
-import { HeaderCollapse } from '../../shared/layout/header-collapse';
+import { STOREFRONT_TEXT } from '../../platform/config/storefront-text';
+import { defaultStorefrontText } from '../../platform/config/storefront-text.fixture';
+import { HeaderCollapse } from '../../platform/header-collapse';
 import { ScrollToTop } from './scroll-to-top';
 
 async function render() {

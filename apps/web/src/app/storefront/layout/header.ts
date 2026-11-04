@@ -9,15 +9,15 @@ import {
   viewChild,
 } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
-import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
-import { SHARED_TEXT } from '../../shared/config/shared-text';
-import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
-import { currentUrl } from '../../shared/core/current-url';
+import { STOREFRONT_TEXT } from '../../platform/config/storefront-text';
+import { SHARED_TEXT } from '../../platform/config/shared-text';
+import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
+import { currentUrl } from '../../platform/current-url';
 import { AccountLink } from './account-link';
 import { CartLink } from '../ordering/cart/cart-link';
 import { CatalogLink } from './catalog-link';
 import { ContactInfo } from './contact-info';
-import { HeaderCollapse } from '../../shared/layout/header-collapse';
+import { HeaderCollapse } from '../../platform/header-collapse';
 import { MobileSearch, SearchAnchor } from './mobile-search';
 import { SearchField } from '../catalog/search/search-field';
 

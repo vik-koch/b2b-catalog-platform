@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
+import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import { EmphasisedText } from '@b2b-catalog-platform/ui/content/emphasised-text';
 import { PageSectionTitle } from '@b2b-catalog-platform/ui/content/page-section-title';
 import { MapFrame } from './map-frame';

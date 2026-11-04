@@ -73,11 +73,11 @@ export default [
     },
   },
   // The audiences and what they share: the storefront and the admin each
-  // import shared and core code and never each other, shared and core code
-  // import neither, and only the root (app.ts, app.config*, app.routes*)
+  // import platform and core code and never each other, platform and core
+  // code import neither, and only the root (app.ts, app.config*, app.routes*)
   // composes both. Their wording follows the same line: each side reads its
-  // own text and the shared text, and only shared and core code, showing one
-  // side's view to the other, reads both; a spec may, to set the scene. Areas
+  // own text and the shared text, and only platform and core code, showing
+  // one side's view to the other, reads both; a spec may, to set the scene. Areas
   // within them are held by tools/lint/area-boundaries.mjs. A later block
   // replaces an earlier `no-restricted-imports` rather than adding to it, so
   // each one repeats the server-package pattern above.
@@ -95,7 +95,7 @@ export default [
       entries: ['storefront', 'machine', 'node'],
     },
     {
-      part: 'shared',
+      part: 'platform',
       forbidden: ['storefront', 'admin'],
       entries: ['storefront', 'admin', 'machine', 'node'],
     },
@@ -150,11 +150,11 @@ function rulesFor(part, forbidden, entries, text, extra = []) {
           UI_BARREL,
           {
             regex: `^\\.{1,2}/(.*/)?(${forbidden.join('|')})(/|$)`,
-            message: `${part} code imports shared code, not ${forbidden.join(' or ')} code (see eslint.config.mjs).`,
+            message: `${part} code imports platform and core code, not ${forbidden.join(' or ')} code (see eslint.config.mjs).`,
           },
           {
             regex: `^@b2b-catalog-platform/shared/(${entries.join('|')})(/|$)`,
-            message: `${part} code imports the shared library's root entry${part === 'shared' ? ' only' : ` and its own, not ${entries.join(' or ')}`} (see eslint.config.mjs).`,
+            message: `${part} code imports the shared library's ${part === 'platform' || part === 'core' ? 'platform and core entries' : `platform, core and ${part} entries`}, not ${entries.join(' or ')} (see eslint.config.mjs).`,
           },
           ...(text
             ? [
@@ -174,7 +174,7 @@ function rulesFor(part, forbidden, entries, text, extra = []) {
       'error',
       {
         selector: `ImportExpression[source.value=/^\\.{1,2}\\/(.*\\/)?(${forbidden.join('|')})(\\/|$)/]`,
-        message: `${part} code imports shared code, not ${forbidden.join(' or ')} code, lazily or not (see eslint.config.mjs).`,
+        message: `${part} code imports platform and core code, not ${forbidden.join(' or ')} code, lazily or not (see eslint.config.mjs).`,
       },
       ...classFieldColours,
     ],

@@ -5,7 +5,7 @@ import {
   input,
 } from '@angular/core';
 import { fillText } from '@b2b-catalog-platform/shared/platform';
-import { ADMIN_TEXT } from '../../../shared/config/admin-text';
+import { ADMIN_TEXT } from '../../../platform/config/admin-text';
 
 export interface SyncRowErrorLine {
   row: number;

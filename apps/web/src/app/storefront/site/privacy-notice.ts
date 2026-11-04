@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
-import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
-import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
+import { STOREFRONT_TEXT } from '../../platform/config/storefront-text';
+import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
 import { PageLinkSentence } from './ui/page-link-sentence';
 
 /**

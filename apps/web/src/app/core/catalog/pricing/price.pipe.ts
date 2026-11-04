@@ -3,7 +3,7 @@ import {
   formatMoneyMinor,
   moneyFormat,
 } from '@b2b-catalog-platform/shared/platform';
-import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
+import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 
 /** `{{ product.priceMinor | price }}`, in the deployment's currency. Pure: the
  * config is fixed for the app's lifetime. */

@@ -41,11 +41,6 @@ const ENABLED = [
 
 /** The folders of the cut, relative to a layer, with the element type of each. */
 const FOLDERS = [
-  // The one exception to "platform imports no area", ahead of its parent
-  // because the first match wins: the deployment config, the texts and the
-  // database schema are composed of every area's part. Imported like platform.
-  { folder: 'platform/config', type: 'platform:composing' },
-  { folder: 'platform/db', type: 'platform:composing' },
   { folder: 'platform', type: 'platform' },
   ...AUDIENCES.flatMap((audience) => [
     { folder: `${audience}/platform`, type: `${audience}:platform` },
@@ -93,7 +88,21 @@ function allowedTypes(type) {
   ];
 }
 
-const TYPES = [...new Set(FOLDERS.map(({ type }) => type))];
+/**
+ * The one exception to "platform imports no area": the deployment config, the
+ * texts and the database schema are composed of every area's part. Imported
+ * like platform.
+ */
+const COMPOSING = [
+  'libs/shared/src/platform/config',
+  'apps/api/src/platform/config',
+  'apps/api/src/platform/db',
+];
+
+const TYPES = [
+  'platform:composing',
+  ...new Set(FOLDERS.map(({ type }) => type)),
+];
 
 /**
  * The lint block for the layer under `source` (`src`, `src/app`). Element
@@ -107,13 +116,21 @@ export function areaBoundaries(source) {
     settings: {
       'boundaries/root-path': ROOT,
       'boundaries/legacy-templates': false,
-      'boundaries/elements': LAYERS.flatMap((path) =>
-        FOLDERS.map(({ folder, type }) => ({
-          type,
-          pattern: `${path}/${folder}`,
+      // First match wins, so the composing folders come before `platform`.
+      'boundaries/elements': [
+        ...COMPOSING.map((pattern) => ({
+          type: 'platform:composing',
+          pattern,
           partialMatch: false,
         })),
-      ),
+        ...LAYERS.flatMap((path) =>
+          FOLDERS.map(({ folder, type }) => ({
+            type,
+            pattern: `${path}/${folder}`,
+            partialMatch: false,
+          })),
+        ),
+      ],
       'import/resolver': {
         typescript: { project: `${ROOT}tsconfig.base.json` },
       },

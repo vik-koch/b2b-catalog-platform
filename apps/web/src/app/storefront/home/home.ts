@@ -1,9 +1,9 @@
 import { Component, inject } from '@angular/core';
 import { CategoryIndex } from '../catalog/categories/category-index';
 import { FeaturedRow } from '../catalog/featured/featured-row';
-import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
-import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
-import { usePageSeo } from '../../shared/core/page-seo';
+import { STOREFRONT_TEXT } from '../../platform/config/storefront-text';
+import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
+import { usePageSeo } from '../../platform/page-seo';
 
 /**
  * The white band the intro and the row stand on, from the top of the page to

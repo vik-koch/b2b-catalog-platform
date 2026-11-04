@@ -23,12 +23,12 @@ import {
   staffPaymentFilterSchema,
 } from '@b2b-catalog-platform/shared/core/ordering';
 import { SEARCH_QUERY_MAX_LENGTH } from '@b2b-catalog-platform/shared/core/catalog';
-import { ADMIN_TEXT } from '../../shared/config/admin-text';
-import { SHARED_TEXT } from '../../shared/config/shared-text';
-import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
-import { delayedLoading } from '../../shared/core/delayed-loading';
-import { usePageSeo } from '../../shared/core/page-seo';
-import { stableValue } from '../../shared/core/stable-value';
+import { ADMIN_TEXT } from '../../platform/config/admin-text';
+import { SHARED_TEXT } from '../../platform/config/shared-text';
+import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
+import { delayedLoading } from '../../platform/delayed-loading';
+import { usePageSeo } from '../../platform/page-seo';
+import { stableValue } from '../../platform/stable-value';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import {
   StatusBadge,
@@ -48,7 +48,7 @@ import { GridCardTemplate } from '@b2b-catalog-platform/ui/grid/grid-card-templa
 import { GridRowTemplate } from '@b2b-catalog-platform/ui/grid/grid-row-template';
 import { GridTimestamp } from '../dates/grid-timestamp';
 import { RecordRow } from '@b2b-catalog-platform/ui/lists/record-row';
-import { injectEditorReturnParams } from '../../shared/edit-mode/editor-return';
+import { injectEditorReturnParams } from '../../platform/edit-mode/editor-return';
 import {
   ConfirmService,
   confirmRequest,

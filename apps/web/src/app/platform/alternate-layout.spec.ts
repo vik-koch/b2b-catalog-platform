@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
-import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
-import { defaultDeploymentConfig } from '../config/deployment-config.fixture';
+import { DEPLOYMENT_CONFIG } from './config/deployment-config';
+import { defaultDeploymentConfig } from './config/deployment-config.fixture';
 import { AlternateLayout } from './alternate-layout';
 
 function layout(alternateLayout: 'de' | null) {

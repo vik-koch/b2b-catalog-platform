@@ -16,10 +16,10 @@ import {
   OwnershipArea,
   fillText,
 } from '@b2b-catalog-platform/shared/platform';
-import { ADMIN_TEXT } from '../../shared/config/admin-text';
-import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
-import { delayedLoading } from '../../shared/core/delayed-loading';
-import { usePageSeo } from '../../shared/core/page-seo';
+import { ADMIN_TEXT } from '../../platform/config/admin-text';
+import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
+import { delayedLoading } from '../../platform/delayed-loading';
+import { usePageSeo } from '../../platform/page-seo';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
 import { DisclosureToggle } from '@b2b-catalog-platform/ui/disclosure/disclosure-toggle';
@@ -32,7 +32,7 @@ import { OwnershipService } from '../platform/ownership/ownership.service';
 import { OwnershipSwitchService } from '../exchange/ownership-switch.service';
 import { MaintenanceSwitchService } from '../site/maintenance-switch.service';
 import { SettingChangesService } from '../platform/setting-changes.service';
-import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { SHARED_TEXT } from '../../platform/config/shared-text';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { Hint } from '@b2b-catalog-platform/ui/fields/hint';
 import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
