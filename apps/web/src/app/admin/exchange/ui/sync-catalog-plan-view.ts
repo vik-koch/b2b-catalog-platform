@@ -1,11 +1,4 @@
-import {
-  Component,
-  computed,
-  inject,
-  input,
-  output,
-  signal,
-} from '@angular/core';
+import { Component, computed, inject, input, output } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
   fillText,
@@ -20,67 +13,43 @@ import {
 } from '@b2b-catalog-platform/shared/core/exchange';
 import { ADMIN_TEXT } from '../../../shared/config/admin-text';
 import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
-import { Button } from '@b2b-catalog-platform/ui/actions/button';
-import { Input } from '@b2b-catalog-platform/ui/inputs/input';
 import { Link } from '@b2b-catalog-platform/ui/actions/link';
 import {
   StatusBadge,
   StatusTone,
 } from '@b2b-catalog-platform/ui/content/status-badge';
-import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
-import { Notice } from '@b2b-catalog-platform/ui/content/notice';
+import { SyncPlanActions } from './sync-plan-actions';
+import { SyncPlanTiles } from './sync-plan-tiles';
+import { SyncRowErrors } from './sync-row-errors';
 
 /**
- * What a run would do, or did: the counts, the products, the categories and
- * the rows that could not be read.
- *
- * One component for both, because they are the same diff at two moments — the
- * upload screen shows it before anything is written, and a run's own page
- * shows it afterwards. It was the upload screen's markup until a headless run
- * (FR-ADM-07) made a staged diff something an admin might meet without having
- * uploaded anything.
- *
- * `applicable` is what separates the two: a staged run gets the delete gate,
- * the Apply button and, where the caller offers it, the way to give up on the
- * run entirely. A finished one is a record, and shows none of them.
+ * What a catalog run would do, or did: the counts, the products, the
+ * categories and the skipped rows. A staged run (`applicable`) also gets its
+ * decisions; a finished one is a record.
  */
 @Component({
   selector: 'app-sync-catalog-plan-view',
-  imports: [Notice, Button, Input, Link, RouterLink, StatusBadge, ErrorText],
+  imports: [
+    Link,
+    RouterLink,
+    StatusBadge,
+    SyncPlanActions,
+    SyncPlanTiles,
+    SyncRowErrors,
+  ],
   template: `
     <section class="rounded-md border border-edge p-4">
       <h2 class="mb-4 text-lg font-normal tracking-tight">
         {{ title() }}
       </h2>
 
-      <dl class="mb-6 flex flex-wrap gap-x-8 gap-y-3 text-sm">
-        @for (tile of tiles(); track tile.label) {
-          <div>
-            <dt class="text-ink-subtle">{{ text.count[tile.label] }}</dt>
-            <dd class="text-lg font-medium" [class.text-danger]="tile.danger">
-              {{ tile.value }}
-            </dd>
-          </div>
-        }
-      </dl>
+      <app-sync-plan-tiles [tiles]="tiles()" />
 
       @if (isNoop()) {
         <p class="text-ink-subtle">{{ noopText() }}</p>
       }
 
-      @if (plan().rowErrors.length > 0) {
-        <h3 class="mt-6 mb-2 text-sm font-medium text-danger">
-          {{ text.errorsTitle }}
-        </h3>
-        <ul class="space-y-1 text-sm text-ink">
-          @for (error of plan().rowErrors; track $index) {
-            <li>
-              <span class="text-ink-subtle">{{ rowLabel(error.row) }}</span>
-              — {{ rowErrorText(error) }}
-            </li>
-          }
-        </ul>
-      }
+      <app-sync-row-errors [errors]="rowErrors()" />
 
       @if (createdCategories(); as created) {
         @if (created.length > 0) {
@@ -133,12 +102,8 @@ import { Notice } from '@b2b-catalog-platform/ui/content/notice';
               <span uiStatusBadge [tone]="kindTone(product.kind)">
                 {{ text.count[product.kind] }}
               </span>
-              <!-- Always the list narrowed to this product's sync key, never
-                   the editor: a product this run creates has no page to link to
-                   at the time the diff is taken, and one destination that is
-                   always right beats two that differ by row. The list also
-                   shows what the run did not — its state, its stock, its
-                   availability. -->
+              <!-- The list narrowed to the sync key, never the editor: a
+                   product this run creates has no page yet. -->
               <a
                 uiLink
                 class="font-medium"
@@ -197,52 +162,16 @@ import { Notice } from '@b2b-catalog-platform/ui/content/notice';
       }
 
       @if (applicable()) {
-        <!-- The delete gate: typed confirmation, and only when it applies. -->
-        @if (plan().summary.softDelete > 0 && !applyBlocked()) {
-          <div uiNotice tone="danger" class="mt-6">
-            <p>{{ deleteWarning() }}</p>
-            <label class="mt-2 block text-sm">
-              <span class="mb-1 block">{{ confirmLabel() }}</span>
-              <input
-                type="text"
-                uiInput
-                class="font-mono"
-                [value]="confirmation()"
-                (input)="confirmation.set($any($event.target).value)"
-              />
-            </label>
-          </div>
-        }
-
-        @if ((!isNoop() && !applyBlocked()) || discardable()) {
-          <div class="mt-6 flex flex-wrap items-center gap-3">
-            @if (!isNoop() && !applyBlocked()) {
-              <button
-                uiButton
-                type="button"
-                [disabled]="!canApply() || busy()"
-                (click)="apply.emit()"
-              >
-                {{ busy() ? text.applying : text.apply }}
-              </button>
-            }
-            @if (discardable()) {
-              <button
-                uiButton
-                variant="dangerOutline"
-                type="button"
-                [disabled]="busy()"
-                (click)="discardRun.emit()"
-              >
-                {{ text.discardRun }}
-              </button>
-            }
-          </div>
-        }
-
-        @if (error(); as message) {
-          <p uiErrorText class="mt-3" role="alert">{{ message }}</p>
-        }
+        <app-sync-plan-actions
+          [gate]="plan().summary.softDelete > 0 ? deleteWarning() : null"
+          [noop]="isNoop()"
+          [applyBlocked]="applyBlocked()"
+          [discardable]="discardable()"
+          [busy]="busy()"
+          [error]="error()"
+          (apply)="apply.emit()"
+          (discardRun)="discardRun.emit()"
+        />
       }
     </section>
   `,
@@ -255,18 +184,10 @@ export class SyncCatalogPlanView {
   readonly plan = input.required<CatalogSyncPlan>();
   /** A staged run, which can still be acted on. False for a record. */
   readonly applicable = input(false);
-  /** Whether giving up on the run is offered — it is not, for a preview that
-   * exists only in this browser and is thrown away by leaving the page. */
+  /** Not for an upload's preview, which leaving the page throws away. */
   readonly discardable = input(false);
 
-  /**
-   * A staged run that can no longer be applied, though it is still staged: a
-   * file uploaded before its area was handed over (FR-ADM-10). Distinct from
-   * `applicable`, which is what tells the summary whether it is describing a
-   * diff about to land or one that already has — a blocked run is still the
-   * former. The apply button and its delete gate go; discarding stays, because
-   * somebody has to be able to clear it.
-   */
+  /** Still staged, so still `applicable`, but no longer appliable. */
   readonly applyBlocked = input(false);
   /** An apply or a discard is in flight. */
   readonly busy = input(false);
@@ -274,8 +195,6 @@ export class SyncCatalogPlanView {
 
   readonly apply = output<void>();
   readonly discardRun = output<void>();
-
-  protected readonly confirmation = signal('');
 
   /** A decision is about what would happen; a record is about what did. */
   protected readonly title = computed(() =>
@@ -314,12 +233,8 @@ export class SyncCatalogPlanView {
     this.plan().categories.filter((category) => category.kind === 'rename'),
   );
 
-  /**
-   * Four counts are answers even at zero — nothing was added, nothing changed,
-   * nothing was hidden, nothing was skipped — and they hold their place so the
-   * row does not rearrange itself between runs. The rest are only worth a tile
-   * when they happened.
-   */
+  /** Some counts are an answer even at zero and hold their place; the rest
+   * earn a tile by happening. */
   protected readonly tiles = computed(() => {
     const s = this.plan().summary;
     return [
@@ -344,14 +259,16 @@ export class SyncCatalogPlanView {
       { label: 'unchanged' as const, value: s.unchanged, danger: false },
       { label: 'kept' as const, value: s.keptManual, danger: false },
       { label: 'errors' as const, value: s.errors, danger: s.errors > 0 },
-    ].filter((tile) => tile.value > 0 || ALWAYS_SHOWN.has(tile.label));
+    ]
+      .filter((tile) => tile.value > 0 || ALWAYS_SHOWN.has(tile.label))
+      .map((tile) => ({ ...tile, label: this.text.count[tile.label] }));
   });
 
-  /** A run that hides products needs the confirmation word typed exactly. */
-  protected readonly canApply = computed(
-    () =>
-      this.plan().summary.softDelete === 0 ||
-      this.confirmation().trim() === this.text.deleteConfirmWord,
+  protected readonly rowErrors = computed(() =>
+    this.plan().rowErrors.map((error) => ({
+      row: error.row,
+      message: this.rowErrorText(error),
+    })),
   );
 
   /** Prices arrive as minor units, rates as percents; everything else is
@@ -375,13 +292,8 @@ export class SyncCatalogPlanView {
     return KIND_TONE[kind];
   }
 
-  /** The sentence for a skipped row, in this deployment's wording. */
-  protected rowErrorText(error: CatalogSyncRowError): string {
+  private rowErrorText(error: CatalogSyncRowError): string {
     return fillText(this.text.rowErrors[error.code], error.params ?? {});
-  }
-
-  protected rowLabel(row: number): string {
-    return fillText(this.text.errorRow, { row });
   }
 
   protected deleteWarning(): string {
@@ -389,16 +301,9 @@ export class SyncCatalogPlanView {
       count: this.plan().summary.softDelete,
     });
   }
-
-  protected confirmLabel(): string {
-    return fillText(this.text.deleteConfirmLabel, {
-      word: this.text.deleteConfirmWord,
-    });
-  }
 }
 
-/** The counts that are an answer even at zero: nothing added, nothing changed,
- * nothing hidden, nothing skipped. */
+/** Nothing added, changed, hidden or skipped is an answer too. */
 const ALWAYS_SHOWN: ReadonlySet<string> = new Set([
   'create',
   'update',
@@ -406,9 +311,7 @@ const ALWAYS_SHOWN: ReadonlySet<string> = new Set([
   'errors',
 ]);
 
-/** What the run would do to a row, in the app's own status tones: a product
- * arriving is settled, one leaving is a refusal, one coming back is worth
- * pointing out, and a plain edit is neither. */
+/** Arriving settled, leaving a refusal, coming back worth pointing out. */
 const KIND_TONE: Record<CatalogSyncProductChange['kind'], StatusTone> = {
   create: 'ok',
   update: 'neutral',

@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { fillText } from '@b2b-catalog-platform/shared';
 import {
@@ -8,68 +8,38 @@ import {
   CustomerSyncPreviewResponse,
   SyncRun,
 } from '@b2b-catalog-platform/shared/core/exchange';
-import { SyncFormatErrorBody } from '@b2b-catalog-platform/shared/admin/exchange';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
+import { Link } from '@b2b-catalog-platform/ui/actions/link';
+import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { AdminText } from '../../shared/config/admin-text.type';
 import { usePageSeo } from '../../shared/core/page-seo';
-import { Button } from '@b2b-catalog-platform/ui/actions/button';
-import { Checkbox } from '@b2b-catalog-platform/ui/choices/checkbox';
-import { TickLabel } from '@b2b-catalog-platform/ui/choices/tick-label';
-import { ChoiceCard } from '@b2b-catalog-platform/ui/choices/choice-card';
-import { DropZone } from '@b2b-catalog-platform/ui/inputs/drop-zone';
-import {
-  FileTarget,
-  pasteKeys,
-} from '@b2b-catalog-platform/ui/inputs/file-target';
-import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
-import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
-import { Link } from '@b2b-catalog-platform/ui/actions/link';
 import { OwnershipService } from '../platform/ownership/ownership.service';
 import {
   CUSTOMER_SYNC_PRESETS,
   CustomerSyncPresetName,
   customerPresetFor,
 } from './customer-sync-presets';
-import { SyncCustomerPlanView } from './ui/sync-customer-plan-view';
 import { syncChangeSummary } from './sync-run-format';
+import { SyncFlag, SyncUpload, withField } from './sync-upload';
 import { SyncService } from './sync.service';
-import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
-import { uploadIcon } from '@b2b-catalog-platform/ui/icons/glyphs/upload';
-import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
+import { SyncCustomerPlanView } from './ui/sync-customer-plan-view';
+import { SyncUploadForm } from './ui/sync-upload-form';
 
 /**
- * A manual customer import (FR-ADM-12) at `/admin/sync/customers/new`: pick
- * what the file is, upload it, read what it would do to people, apply it.
- *
- * A sibling of the catalog's upload screen rather than a parameterised version
- * of it, for the reason the two plan views are siblings: the steps are the
- * same three and every sentence on them is a different sentence. What this one
- * has that the catalog's has not is the mail count — a file of customers is
- * read by a person to find out how many of them are about to be written to,
- * and the preview answers that before anything is applied.
- *
- * It exists for the case the automated exchange does not cover: a deployment
- * going live with customers whose tiers are already settled somewhere else. So
- * it is closed exactly while an external system holds the pen (FR-ADM-10) —
- * the same rule the catalog upload lives under, and the API refuses it there
- * too rather than trusting this screen.
+ * A customer upload (FR-ADM-12) at `/admin/sync/customers/new`. Admin-only:
+ * bringing accounts into being from a file is a deployment act, though a
+ * manager may answer the staged run.
  */
 @Component({
   selector: 'app-customer-sync-upload-page',
   imports: [
-    PageHeader,
-    Icon,
     Button,
-    Checkbox,
-    TickLabel,
-    ChoiceCard,
-    FieldLabel,
-    FileTarget,
     Link,
+    PageHeader,
     RouterLink,
     SyncCustomerPlanView,
-    ErrorText,
-    DropZone,
+    SyncUploadForm,
   ],
   template: `
     <ui-page-header
@@ -82,10 +52,9 @@ import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
     </ui-page-header>
 
     <div class="max-w-3xl">
-      <!-- Closed exactly while somebody else is doing the job. The form is
-           replaced rather than disabled: there is nothing here to fill in, and
-           a greyed form invites an attempt the API would refuse anyway. -->
-      @if (customersOwned()) {
+      <!-- Replaced rather than disabled while the area is owned: a greyed
+           form invites an attempt the API would refuse. -->
+      @if (owned()) {
         <p
           class="rounded-md border border-edge bg-surface px-4 py-3 text-sm
                  text-ink-subtle"
@@ -94,121 +63,36 @@ import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
           {{ text.formatErrors['customers-externally-owned'] }}
         </p>
       } @else {
-        <!-- Step 1: what is this file? -->
-        <section class="mb-8">
-          <h2 class="mb-3 text-sm font-medium">{{ text.modeLabel }}</h2>
-          <div class="space-y-2">
-            @for (option of presets; track option.name) {
-              <ui-choice-card
-                name="preset"
-                [value]="option.name"
-                [checked]="preset() === option.name"
-                [title]="text.customers.mode[option.label]"
-                [description]="
-                  option.hint ? text.customers.mode[option.hint] : undefined
-                "
-                (chosen)="selectPreset(option.name)"
-              />
-            }
-          </div>
+        <app-sync-upload-form
+          [presets]="presets"
+          [preset]="upload.preset()"
+          [flags]="flags()"
+          [fileLabel]="text.customers.file"
+          [fileHint]="fileHint"
+          [file]="upload.file()"
+          [previewing]="upload.previewing()"
+          [previewed]="!!upload.previewed()"
+          [error]="upload.previewError()"
+          (presetChosen)="upload.selectPreset($any($event))"
+          (flagToggled)="toggleFlag($event.key, $event.on)"
+          (fileChosen)="upload.setFile($event)"
+          (previewRequested)="upload.runPreview()"
+          (discarded)="upload.reset()"
+        />
 
-          <details class="mt-4">
-            <summary class="cursor-pointer text-sm text-ink-subtle">
-              {{ text.advanced }}
-            </summary>
-            <div class="mt-3 space-y-2 border-l-2 border-edge-subtle pl-4">
-              @for (flag of flags; track flag.key) {
-                <label uiTickLabel>
-                  <input
-                    type="checkbox"
-                    uiCheckbox
-                    [checked]="isFlagOn(flag.key)"
-                    (change)="toggleFlag(flag.key, $any($event.target).checked)"
-                  />
-                  <span>{{ text.customers.option[flag.key] }}</span>
-                </label>
-              }
-            </div>
-          </details>
-        </section>
-
-        <!-- Step 2: the file -->
-        <section class="mb-8">
-          <span uiFieldLabel>{{ text.customers.file }}</span>
-
-          <input
-            #fileInput
-            type="file"
-            accept=".csv,text/csv"
-            class="sr-only"
-            (change)="onFile($event)"
-          />
-          <button
-            type="button"
-            class="w-full p-4"
-            uiFileTarget=".csv,text/csv"
-            uiDropZone
-            [filled]="!!file()"
-            (click)="openPicker(fileInput)"
-            (filesReceived)="setFile($event[0])"
-          >
-            <ui-icon [glyph]="uploadIcon" class="size-6 mb-2" />
-            @if (file(); as chosen) {
-              <span class="font-medium">{{ chosen.name }}</span>
-              <span class="text-sm text-ink-subtle">{{ text.changeFile }}</span>
-            } @else {
-              <span class="font-medium">{{ text.dropHint }}</span>
-              <span class="text-sm">{{ text.browse }}</span>
-            }
-            <span class="hidden text-xs pointer-fine:block">{{
-              pasteHint
-            }}</span>
-          </button>
-          <!-- The columns, listed rather than described: the file is written by
-               whoever is holding the other system's export, and the one thing
-               they need from this screen is the spelling. -->
-          <p class="mt-1 text-sm text-ink-subtle">{{ fileHint }}</p>
-
-          <div class="mt-4 flex items-center gap-3">
-            <button
-              uiButton
-              type="button"
-              [disabled]="!file() || previewing()"
-              (click)="runPreview()"
-            >
-              {{ previewing() ? text.previewing : text.preview }}
-            </button>
-            @if (previewed()) {
-              <button
-                uiButton
-                variant="secondary"
-                type="button"
-                (click)="reset()"
-              >
-                {{ text.discard }}
-              </button>
-            }
-          </div>
-
-          @if (previewError(); as message) {
-            <p uiErrorText class="mt-3" role="alert">{{ message }}</p>
-          }
-        </section>
-
-        <!-- Step 3: the diff -->
-        @if (previewed(); as response) {
+        @if (upload.previewed(); as response) {
           <div class="mb-8">
             <app-sync-customer-plan-view
               [plan]="response.plan"
               [applicable]="true"
-              [busy]="applying()"
-              [error]="applyError()"
-              (apply)="apply(response.run.id)"
+              [busy]="upload.applying()"
+              [error]="upload.applyError()"
+              (apply)="upload.apply()"
             />
           </div>
         }
 
-        @if (appliedRun(); as run) {
+        @if (upload.appliedRun(); as run) {
           <p class="mb-8 rounded-md bg-surface p-3 text-sm" role="status">
             {{ text.applied }} {{ changeSummary(run) }}
             <a uiLink routerLink="/admin/users" class="ml-2">{{
@@ -221,189 +105,98 @@ import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
   `,
 })
 export class CustomerSyncUploadPage {
-  protected readonly uploadIcon = uploadIcon;
-  private readonly sync = inject(SyncService);
-  private readonly ownership = inject(OwnershipService);
   protected readonly text = inject(ADMIN_TEXT).sync;
-  /** Where an applied run's accounts are: the customer list, named by its own
-   * heading rather than by a second word for the same screen. */
   protected readonly usersText = inject(ADMIN_TEXT).users.list;
+  private readonly ownership = inject(OwnershipService);
+  private readonly sync = inject(SyncService);
 
-  /** Whether an external system owns the customer accounts (FR-ADM-10). */
-  protected readonly customersOwned = computed(() =>
-    this.ownership.owns('customers'),
-  );
+  protected readonly owned = computed(() => this.ownership.owns('customers'));
+
+  protected readonly upload = new SyncUpload<
+    CustomerSyncPresetName,
+    CustomerSyncOptions,
+    CustomerSyncPreviewResponse
+  >({
+    initial: 'full',
+    custom: 'custom',
+    presetFor: customerPresetFor,
+    preview: (file, options) => this.sync.previewCustomers(file, options),
+  });
+
+  protected readonly presets = CUSTOMER_SYNC_PRESETS.map((preset) => ({
+    name: preset.name,
+    title: this.text.customers.mode[preset.label],
+    description: preset.hint
+      ? this.text.customers.mode[preset.hint]
+      : undefined,
+  }));
+
+  protected readonly flags = computed(() => {
+    const options = this.upload.options();
+    return FLAGS.map((flag) => ({
+      key: flag.key,
+      label: this.text.customers.option[flag.label],
+      checked: flag.get(options),
+      disabled: false,
+    }));
+  });
+
+  /** The columns from the contract, so the hint cannot fall out of date. */
+  protected readonly fileHint = fillText(this.text.customers.fileHint, {
+    columns: CUSTOMER_SYNC_CSV_COLUMNS.join(', '),
+  });
 
   constructor() {
     usePageSeo({ name: () => this.text.customers.uploadTitle });
     void this.ownership.load();
   }
 
-  protected readonly presets = CUSTOMER_SYNC_PRESETS;
-  protected readonly flags = FLAGS;
-  /** The column names, straight from the contract: a list restated in wording
-   * is a list that goes out of date without anything failing. */
-  protected readonly fileHint = fillText(this.text.customers.fileHint, {
-    columns: CUSTOMER_SYNC_CSV_COLUMNS.join(', '),
-  });
-
-  protected readonly preset = signal<CustomerSyncPresetName>('full');
-  protected readonly options = signal<CustomerSyncOptions>(
-    customerPresetFor('full'),
-  );
-  protected readonly file = signal<File | null>(null);
-  protected readonly previewing = signal(false);
-  protected readonly previewed = signal<CustomerSyncPreviewResponse | null>(
-    null,
-  );
-  protected readonly previewError = signal<string | null>(null);
-  protected readonly applying = signal(false);
-  protected readonly applyError = signal<string | null>(null);
-  protected readonly appliedRun = signal<SyncRun | null>(null);
-  protected readonly pasteHint = fillText(inject(ADMIN_TEXT).upload.pasteHint, {
-    keys: pasteKeys(),
-  });
-
-  protected selectPreset(name: CustomerSyncPresetName): void {
-    this.preset.set(name);
-    if (name !== 'custom') this.options.set(customerPresetFor(name));
-    // The staged run was computed with the old intent, so it no longer
-    // describes what would happen.
-    this.discardPreview();
+  protected toggleFlag(key: string, on: boolean): void {
+    const flag = FLAGS.find((candidate) => candidate.key === key);
+    if (flag) this.upload.setOptions(flag.set(this.upload.options(), on));
   }
 
-  protected isFlagOn(key: FlagKey): boolean {
-    return FLAG_VALUE[key](this.options());
-  }
-
-  protected toggleFlag(key: FlagKey, on: boolean): void {
-    this.options.update((current) => FLAG_SET[key](current, on));
-    this.preset.set('custom');
-    this.discardPreview();
-  }
-
-  protected onFile(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    this.setFile(input.files?.[0] ?? null);
-  }
-
-  /** Clearing the value first so re-choosing the same file still fires change. */
-  protected openPicker(input: HTMLInputElement): void {
-    input.value = '';
-    input.click();
-  }
-
-  protected setFile(file: File | null): void {
-    if (!file) return;
-    this.file.set(file);
-    this.discardPreview();
-  }
-
-  protected async runPreview(): Promise<void> {
-    const file = this.file();
-    if (!file) return;
-
-    this.previewing.set(true);
-    this.previewError.set(null);
-    this.appliedRun.set(null);
-    try {
-      const result = await this.sync.previewCustomers(file, this.options());
-      if (result.ok) this.previewed.set(result.preview);
-      else this.previewError.set(this.formatFailure(result.failure));
-    } finally {
-      this.previewing.set(false);
-    }
-  }
-
-  /**
-   * The sentence for a refused file: this deployment's wording for the code,
-   * with the names from the admin's own file substituted into it. A response
-   * the client could not read at all falls back to the generic line.
-   */
-  private formatFailure(failure: SyncFormatErrorBody | null): string {
-    if (!failure) return this.text.previewError;
-    return fillText(this.text.formatErrors[failure.code], failure.params ?? {});
-  }
-
-  protected async apply(runId: string): Promise<void> {
-    this.applying.set(true);
-    this.applyError.set(null);
-    try {
-      const result = await this.sync.commit(runId);
-      if (!result.ok) {
-        this.applyError.set(this.text.applyErrors[result.code]);
-        return;
-      }
-      this.appliedRun.set(result.result.run);
-      this.reset();
-    } finally {
-      this.applying.set(false);
-    }
-  }
-
-  protected reset(): void {
-    this.file.set(null);
-    this.discardPreview();
-  }
-
-  private discardPreview(): void {
-    this.previewed.set(null);
-    this.previewError.set(null);
-    this.applyError.set(null);
-  }
-
+  /** The mails are the figure somebody will be asked about. */
   protected changeSummary(run: SyncRun): string {
     return syncChangeSummary(run.summary, { mailed: true });
   }
 }
 
-/** Keys of the option group, so a flag's label cannot name missing text. */
-type CustomerOptionKey = keyof AdminText['sync']['customers']['option'];
+type CustomerFlag = SyncFlag<
+  CustomerSyncOptions,
+  keyof AdminText['sync']['customers']['option']
+>;
 
-/**
- * The advanced checkboxes. The three writable fields are members of the
- * `fields` whitelist rather than booleans of their own, so each flag carries
- * its own read and write rather than the template branching on shape.
- */
-type FlagKey = CustomerOptionKey;
+const field = (name: (typeof CUSTOMER_SYNC_FIELDS)[number]): CustomerFlag => ({
+  key: name,
+  label: name,
+  get: (o) => o.fields.includes(name),
+  set: (o, on) => ({
+    ...o,
+    fields: withField(CUSTOMER_SYNC_FIELDS, o.fields, name, on),
+  }),
+});
 
-const FLAGS: { key: FlagKey }[] = [
-  { key: 'email' },
-  { key: 'tier' },
-  { key: 'company' },
-  { key: 'createMissing' },
-  { key: 'updateExisting' },
-  { key: 'claimByEmail' },
+const FLAGS: readonly CustomerFlag[] = [
+  field('email'),
+  field('tier'),
+  field('company'),
+  {
+    key: 'createMissing',
+    label: 'createMissing',
+    get: (o) => o.createMissing,
+    set: (o, on) => ({ ...o, createMissing: on }),
+  },
+  {
+    key: 'updateExisting',
+    label: 'updateExisting',
+    get: (o) => o.updateExisting,
+    set: (o, on) => ({ ...o, updateExisting: on }),
+  },
+  {
+    key: 'claimByEmail',
+    label: 'claimByEmail',
+    get: (o) => o.claimByEmail,
+    set: (o, on) => ({ ...o, claimByEmail: on }),
+  },
 ];
-
-const FLAG_VALUE: Record<FlagKey, (o: CustomerSyncOptions) => boolean> = {
-  email: (o) => o.fields.includes('email'),
-  tier: (o) => o.fields.includes('tier'),
-  company: (o) => o.fields.includes('company'),
-  createMissing: (o) => o.createMissing,
-  updateExisting: (o) => o.updateExisting,
-  claimByEmail: (o) => o.claimByEmail,
-};
-
-const FLAG_SET: Record<
-  FlagKey,
-  (o: CustomerSyncOptions, on: boolean) => CustomerSyncOptions
-> = {
-  email: (o, on) => ({ ...o, fields: withField(o, 'email', on) }),
-  tier: (o, on) => ({ ...o, fields: withField(o, 'tier', on) }),
-  company: (o, on) => ({ ...o, fields: withField(o, 'company', on) }),
-  createMissing: (o, on) => ({ ...o, createMissing: on }),
-  updateExisting: (o, on) => ({ ...o, updateExisting: on }),
-  claimByEmail: (o, on) => ({ ...o, claimByEmail: on }),
-};
-
-function withField(
-  options: CustomerSyncOptions,
-  field: (typeof CUSTOMER_SYNC_FIELDS)[number],
-  on: boolean,
-): CustomerSyncOptions['fields'] {
-  const set = new Set(options.fields);
-  if (on) set.add(field);
-  else set.delete(field);
-  return CUSTOMER_SYNC_FIELDS.filter((f) => set.has(f));
-}

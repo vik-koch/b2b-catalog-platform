@@ -12,54 +12,30 @@ import {
   StatusBadge,
   StatusTone,
 } from '@b2b-catalog-platform/ui/content/status-badge';
+import { SyncPlanTiles } from './sync-plan-tiles';
+import { SyncRowErrors } from './sync-row-errors';
 
 /**
- * What an order run did (FR-ADM-08): the counts, the orders it answered, and
- * the instructions it could not carry out.
- *
- * The third sibling of `SyncCatalogPlanView`, and the shortest of them, because it is
- * the only one with nothing to decide. An order write-back is applied as it
- * arrives (ADR 0062), so this never shows an apply button, a discard button or
- * a typed confirmation — it is always a record of something that has already
- * happened, which is also why every line of it links to the order itself.
+ * What an order run did (FR-ADM-08): the counts, the orders it answered and
+ * the instructions it could not carry out. Always a record: an order run is
+ * applied as it arrives, so there is nothing to decide.
  */
 @Component({
   selector: 'app-sync-order-plan-view',
-  imports: [Link, RouterLink, StatusBadge],
+  imports: [Link, RouterLink, StatusBadge, SyncPlanTiles, SyncRowErrors],
   template: `
     <section class="rounded-md border border-edge p-4">
       <h2 class="mb-4 text-lg font-normal tracking-tight">
         {{ text.summaryTitleApplied }}
       </h2>
 
-      <dl class="mb-6 flex flex-wrap gap-x-8 gap-y-3 text-sm">
-        @for (tile of tiles(); track tile.label) {
-          <div>
-            <dt class="text-ink-subtle">{{ text.orders.count[tile.label] }}</dt>
-            <dd class="text-lg font-medium" [class.text-danger]="tile.danger">
-              {{ tile.value }}
-            </dd>
-          </div>
-        }
-      </dl>
+      <app-sync-plan-tiles [tiles]="tiles()" />
 
       @if (isNoop()) {
         <p class="text-ink-subtle">{{ text.nothingChanged }}</p>
       }
 
-      @if (plan().rowErrors.length > 0) {
-        <h3 class="mt-6 mb-2 text-sm font-medium text-danger">
-          {{ text.errorsTitle }}
-        </h3>
-        <ul class="space-y-1 text-sm text-ink">
-          @for (error of plan().rowErrors; track $index) {
-            <li>
-              <span class="text-ink-subtle">{{ rowLabel(error.row) }}</span>
-              — {{ rowErrorText(error) }}
-            </li>
-          }
-        </ul>
-      }
+      <app-sync-row-errors [errors]="rowErrors()" />
 
       @if (answered().length > 0) {
         <h3 class="mt-6 mb-2 text-sm font-medium">
@@ -71,10 +47,8 @@ import {
               <span uiStatusBadge [tone]="kindTone(order.kind)">
                 {{ text.orders.kind[order.kind] }}
               </span>
-              <!-- The order itself, not the version this run wrote, and no
-                   restatement of where it now stands: a reader opening a row
-                   from a log wants the order, and the order's own page says
-                   what it says better than a copy of it in a log would. -->
+              <!-- The order itself, which says where it stands better than a
+                   copy here would. -->
               <a
                 uiLink
                 class="font-medium"
@@ -102,9 +76,8 @@ export class SyncOrderPlanView {
 
   readonly plan = input.required<OrderSyncPlan>();
 
-  /** The orders this run actually wrote. One that already said what the run
-   * said is counted and not listed: a feed that re-sends everything it has
-   * would otherwise fill the page with orders nothing happened to. */
+  /** Only the orders written: an unchanged one is counted, not listed, or a
+   * re-sending feed fills the page. */
   protected readonly answered = computed(() =>
     this.plan().orders.filter(
       (order): order is AnsweredOrder => order.kind !== 'unchanged',
@@ -115,11 +88,7 @@ export class SyncOrderPlanView {
     () => this.plan().summary.update === 0 && this.plan().summary.errors === 0,
   );
 
-  /**
-   * Three counts are an answer even at zero — nothing answered, nothing left
-   * as it was, nothing skipped — and hold their place so the row does not
-   * rearrange itself between runs. Mails earn their tile by happening.
-   */
+  /** Mails earn their tile by happening; the rest hold their place. */
   protected readonly tiles = computed(() => {
     const s = this.plan().summary;
     return [
@@ -127,27 +96,29 @@ export class SyncOrderPlanView {
       { label: 'unchanged' as const, value: s.unchanged, danger: false },
       { label: 'mailed' as const, value: s.mailed, danger: false },
       { label: 'errors' as const, value: s.errors, danger: s.errors > 0 },
-    ].filter((tile) => tile.value > 0 || tile.label !== 'mailed');
+    ]
+      .filter((tile) => tile.value > 0 || tile.label !== 'mailed')
+      .map((tile) => ({ ...tile, label: this.text.orders.count[tile.label] }));
   });
+
+  protected readonly rowErrors = computed(() =>
+    this.plan().rowErrors.map((error) => ({
+      row: error.row,
+      message: this.rowErrorText(error),
+    })),
+  );
 
   protected kindTone(kind: AnsweredOrder['kind']): StatusTone {
     return KIND_TONE[kind];
   }
 
-  protected rowErrorText(error: OrderSyncRowError): string {
+  private rowErrorText(error: OrderSyncRowError): string {
     return fillText(this.text.orders.rowErrors[error.code], error.params ?? {});
-  }
-
-  protected rowLabel(row: number): string {
-    return fillText(this.text.errorRow, { row });
   }
 }
 
-/**
- * What each kind of answer reads as. A change to what the order says is the
- * loud one — somebody is being sent different goods or a different total — a
- * move is ordinary progress, and a payment is settled news.
- */
+/** A change to what the order says is the loud one; a move is progress, a
+ * payment settled news. */
 const KIND_TONE: Record<AnsweredOrder['kind'], StatusTone> = {
   adjustment: 'waiting',
   transition: 'info',

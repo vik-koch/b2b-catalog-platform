@@ -1,75 +1,44 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { OwnershipService } from '../platform/ownership/ownership.service';
-import { fillText } from '@b2b-catalog-platform/shared';
 import {
   CATALOG_SYNC_ALL_FIELDS,
   CatalogSyncOptions,
   CatalogSyncPreviewResponse,
   SyncRun,
 } from '@b2b-catalog-platform/shared/core/exchange';
-import { SyncFormatErrorBody } from '@b2b-catalog-platform/shared/admin/exchange';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
+import { Link } from '@b2b-catalog-platform/ui/actions/link';
+import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { AdminText } from '../../shared/config/admin-text.type';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { usePageSeo } from '../../shared/core/page-seo';
-import { Button } from '@b2b-catalog-platform/ui/actions/button';
-import { Checkbox } from '@b2b-catalog-platform/ui/choices/checkbox';
-import { TickLabel } from '@b2b-catalog-platform/ui/choices/tick-label';
-import { ChoiceCard } from '@b2b-catalog-platform/ui/choices/choice-card';
-import { DropZone } from '@b2b-catalog-platform/ui/inputs/drop-zone';
+import { OwnershipService } from '../platform/ownership/ownership.service';
 import {
-  FileTarget,
-  pasteKeys,
-} from '@b2b-catalog-platform/ui/inputs/file-target';
-import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
-import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
-import { Link } from '@b2b-catalog-platform/ui/actions/link';
-import { SyncCatalogPlanView } from './ui/sync-catalog-plan-view';
-import {
-  catalogPresetFor,
   CATALOG_SYNC_PRESETS,
   CatalogSyncPresetName,
+  catalogPresetFor,
 } from './catalog-sync-presets';
 import { syncChangeSummary } from './sync-run-format';
+import { SyncFlag, SyncUpload, withField } from './sync-upload';
 import { SyncService } from './sync.service';
-import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
-import { uploadIcon } from '@b2b-catalog-platform/ui/icons/glyphs/upload';
-import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
+import { SyncCatalogPlanView } from './ui/sync-catalog-plan-view';
+import { SyncUploadForm } from './ui/sync-upload-form';
 
 /**
- * A manual catalog upload (FR-ADM-02) at `/admin/sync/new`: pick what the file
- * is, upload it, read the diff, apply it.
- *
- * The operator's own way in, and deliberately still the whole of it: an
- * automated feed submits the same rows to the same engine (FR-ADM-07), and
- * this is what a shop falls back on when that breaks or when a run needs
- * correcting by hand. The log every run lands in, machine and manual alike,
- * is the screen this one opens from.
- *
- * The screen is built around the fact that the destructive option is the whole
- * risk. So the run's intent is chosen as a *preset* first (the raw flags stay
- * available but folded away), hiding products is only offered for a file
- * declared complete, and applying a run that hides anything needs a typed
- * confirmation. Nothing is written before Apply — the preview is a dry run the
- * server stages and the commit re-checks.
+ * A catalog upload (FR-ADM-02) at `/admin/sync/catalog/new`: the operator's
+ * fallback for the feed. Hiding products is the whole risk, so it is offered
+ * only for a file declared complete and its apply asks for a typed word.
  */
 @Component({
   selector: 'app-catalog-sync-upload-page',
   imports: [
-    PageHeader,
-    Checkbox,
-    TickLabel,
-    ChoiceCard,
-    RouterLink,
     Button,
-    Icon,
-    FieldLabel,
-    FileTarget,
-    SyncCatalogPlanView,
     Link,
-    ErrorText,
-    DropZone,
+    PageHeader,
+    RouterLink,
+    SyncCatalogPlanView,
+    SyncUploadForm,
   ],
   template: `
     <ui-page-header [title]="text.uploadTitle" [intro]="text.description">
@@ -78,15 +47,10 @@ import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
       </a>
     </ui-page-header>
 
-    <!-- Narrower than the heading above it: everything below is a column of
-         fields and rows to read down, not a table to scan across, and a line
-         that runs the full width of a desktop is a line nobody follows. -->
     <div class="max-w-3xl">
-      <!-- The upload is the operator's fallback, and it is closed exactly
-           while somebody else is doing the job. The form is replaced rather
-           than disabled: there is nothing here to fill in, and a greyed form
-           invites an attempt the API would refuse anyway. -->
-      @if (catalogOwned()) {
+      <!-- Replaced rather than disabled while the area is owned: a greyed
+           form invites an attempt the API would refuse. -->
+      @if (owned()) {
         <p
           class="rounded-md border border-edge bg-surface px-4 py-3 text-sm
                  text-ink-subtle"
@@ -95,132 +59,36 @@ import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
           {{ text.formatErrors['catalog-externally-owned'] }}
         </p>
       } @else {
-        <!-- Step 1: what is this file? -->
-        <section class="mb-8">
-          <h2 class="mb-3 text-sm font-medium">{{ text.modeLabel }}</h2>
-          <!-- Cards, the same control checkout uses for a choice that reshapes
-           what follows: each preset needs a sentence, and the destructive one
-           needs to be readable as the outlier it is. -->
-          <div class="space-y-2">
-            @for (option of presets; track option.name) {
-              <ui-choice-card
-                name="preset"
-                [value]="option.name"
-                [checked]="preset() === option.name"
-                [title]="text.mode[option.label]"
-                [description]="option.hint ? text.mode[option.hint] : undefined"
-                (chosen)="selectPreset(option.name)"
-              />
-            }
-          </div>
+        <app-sync-upload-form
+          [presets]="presets"
+          [preset]="upload.preset()"
+          [flags]="flags()"
+          [fileLabel]="text.file"
+          [fileHint]="text.fileHint"
+          [file]="upload.file()"
+          [previewing]="upload.previewing()"
+          [previewed]="!!upload.previewed()"
+          [error]="upload.previewError()"
+          (presetChosen)="upload.selectPreset($any($event))"
+          (flagToggled)="toggleFlag($event.key, $event.on)"
+          (fileChosen)="upload.setFile($event)"
+          (previewRequested)="upload.runPreview()"
+          (discarded)="upload.reset()"
+        />
 
-          <details class="mt-4">
-            <summary class="cursor-pointer text-sm text-ink-subtle">
-              {{ text.advanced }}
-            </summary>
-            <div class="mt-3 space-y-2 border-l-2 border-edge-subtle pl-4">
-              @for (flag of flags; track flag.key) {
-                <label uiTickLabel>
-                  <input
-                    type="checkbox"
-                    uiCheckbox
-                    [checked]="isFlagOn(flag.key)"
-                    [disabled]="
-                      flag.key === 'softDelete' &&
-                      !options().productSetAuthoritative
-                    "
-                    (change)="toggleFlag(flag.key, $any($event.target).checked)"
-                  />
-                  <span>
-                    {{ text.option[flag.label] }}
-                    @if (flag.hint) {
-                      <span class="block text-ink-subtle">{{
-                        text.option[flag.hint]
-                      }}</span>
-                    }
-                  </span>
-                </label>
-              }
-            </div>
-          </details>
-        </section>
-
-        <!-- Step 2: the file -->
-        <section class="mb-8">
-          <span uiFieldLabel>{{ text.file }}</span>
-
-          <!-- The picker is the drop target: a bare file input is easy to miss on
-           a screen where uploading is the whole point. -->
-          <input
-            #fileInput
-            type="file"
-            accept=".csv,text/csv"
-            class="sr-only"
-            (change)="onFile($event)"
-          />
-          <button
-            type="button"
-            class="w-full p-4"
-            uiFileTarget=".csv,text/csv"
-            uiDropZone
-            [filled]="!!file()"
-            (click)="openPicker(fileInput)"
-            (filesReceived)="setFile($event[0])"
-          >
-            <ui-icon [glyph]="uploadIcon" class="size-6 mb-2" />
-            @if (file(); as chosen) {
-              <span class="font-medium">{{ chosen.name }}</span>
-              <span class="text-sm text-ink-subtle">{{ text.changeFile }}</span>
-            } @else {
-              <span class="font-medium">{{ text.dropHint }}</span>
-              <span class="text-sm">{{ text.browse }}</span>
-            }
-            <span class="hidden text-xs pointer-fine:block">{{
-              pasteHint
-            }}</span>
-          </button>
-          <p class="mt-1 text-sm text-ink-subtle">{{ text.fileHint }}</p>
-
-          <div class="mt-4 flex items-center gap-3">
-            <button
-              uiButton
-              type="button"
-              [disabled]="!file() || previewing()"
-              (click)="runPreview()"
-            >
-              {{ previewing() ? text.previewing : text.preview }}
-            </button>
-            @if (previewed()) {
-              <button
-                uiButton
-                variant="secondary"
-                type="button"
-                (click)="reset()"
-              >
-                {{ text.discard }}
-              </button>
-            }
-          </div>
-
-          @if (previewError(); as message) {
-            <p uiErrorText class="mt-3" role="alert">{{ message }}</p>
-          }
-        </section>
-
-        <!-- Step 3: the diff -->
-        @if (previewed(); as response) {
+        @if (upload.previewed(); as response) {
           <div class="mb-8">
             <app-sync-catalog-plan-view
               [plan]="response.plan"
               [applicable]="true"
-              [busy]="applying()"
-              [error]="applyError()"
-              (apply)="apply(response.run.id)"
+              [busy]="upload.applying()"
+              [error]="upload.applyError()"
+              (apply)="upload.apply()"
             />
           </div>
         }
 
-        @if (appliedRun(); as run) {
+        @if (upload.appliedRun(); as run) {
           <p class="mb-8 rounded-md bg-surface p-3 text-sm" role="status">
             {{ text.applied }} {{ changeSummary(run) }}
             <a uiLink routerLink="/catalog" class="ml-2">{{
@@ -233,135 +101,56 @@ import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
   `,
 })
 export class CatalogSyncUploadPage {
-  protected readonly uploadIcon = uploadIcon;
-  private readonly sync = inject(SyncService);
   protected readonly text = inject(ADMIN_TEXT).sync;
-  private readonly ownership = inject(OwnershipService);
-
-  /** Whether an external system owns the catalog (FR-ADM-10). */
-  protected readonly catalogOwned = computed(() =>
-    this.ownership.owns('catalog'),
-  );
   protected readonly navText = inject(SHARED_TEXT).nav;
+  private readonly ownership = inject(OwnershipService);
+  private readonly sync = inject(SyncService);
+
+  protected readonly owned = computed(() => this.ownership.owns('catalog'));
+
+  protected readonly upload = new SyncUpload<
+    CatalogSyncPresetName,
+    CatalogSyncOptions,
+    CatalogSyncPreviewResponse
+  >({
+    initial: 'full',
+    custom: 'custom',
+    presetFor: catalogPresetFor,
+    preview: (file, options) => this.sync.previewCatalog(file, options),
+  });
+
+  protected readonly presets = CATALOG_SYNC_PRESETS.map((preset) => ({
+    name: preset.name,
+    title: this.text.mode[preset.label],
+    description: preset.hint ? this.text.mode[preset.hint] : undefined,
+  }));
+
+  protected readonly flags = computed(() => {
+    const options = this.upload.options();
+    return FLAGS.map((flag) => ({
+      key: flag.key,
+      label: this.text.option[flag.label],
+      hint: flag.hint ? this.text.option[flag.hint] : undefined,
+      checked: flag.get(options),
+      disabled: flag.disabled?.(options) ?? false,
+    }));
+  });
 
   constructor() {
     usePageSeo({ name: () => this.text.uploadTitle });
     void this.ownership.load();
   }
 
-  protected readonly presets = CATALOG_SYNC_PRESETS;
-  protected readonly flags = FLAGS;
-
-  protected readonly preset = signal<CatalogSyncPresetName>('full');
-  protected readonly options = signal<CatalogSyncOptions>(
-    catalogPresetFor('full'),
-  );
-  protected readonly file = signal<File | null>(null);
-  protected readonly previewing = signal(false);
-  protected readonly previewed = signal<CatalogSyncPreviewResponse | null>(
-    null,
-  );
-  protected readonly previewError = signal<string | null>(null);
-  protected readonly applying = signal(false);
-  protected readonly applyError = signal<string | null>(null);
-  protected readonly appliedRun = signal<SyncRun | null>(null);
-  protected readonly pasteHint = fillText(inject(ADMIN_TEXT).upload.pasteHint, {
-    keys: pasteKeys(),
-  });
-
-  protected selectPreset(name: CatalogSyncPresetName): void {
-    this.preset.set(name);
-    if (name !== 'custom') this.options.set(catalogPresetFor(name));
-    // The staged run was computed with the old intent, so it no longer
-    // describes what would happen.
-    this.discardPreview();
-  }
-
-  protected isFlagOn(key: FlagKey): boolean {
-    return FLAG_VALUE[key](this.options());
-  }
-
-  protected toggleFlag(key: FlagKey, on: boolean): void {
-    this.options.update((current) => {
-      const next = FLAG_SET[key](current, on);
-      // Turning off the completeness claim withdraws the permission that
-      // depends on it, rather than leaving an option the server would refuse.
-      return next.productSetAuthoritative
+  protected toggleFlag(key: string, on: boolean): void {
+    const flag = FLAGS.find((candidate) => candidate.key === key);
+    if (!flag) return;
+    const next = flag.set(this.upload.options(), on);
+    // Withdrawing the completeness claim withdraws the hiding it allows.
+    this.upload.setOptions(
+      next.productSetAuthoritative
         ? next
-        : { ...next, softDeleteMissingProducts: false };
-    });
-    this.preset.set('custom');
-    this.discardPreview();
-  }
-
-  protected onFile(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    this.setFile(input.files?.[0] ?? null);
-  }
-
-  /** Clearing the value first so re-choosing the same file still fires change. */
-  protected openPicker(input: HTMLInputElement): void {
-    input.value = '';
-    input.click();
-  }
-
-  protected setFile(file: File | null): void {
-    if (!file) return;
-    this.file.set(file);
-    this.discardPreview();
-  }
-
-  protected async runPreview(): Promise<void> {
-    const file = this.file();
-    if (!file) return;
-
-    this.previewing.set(true);
-    this.previewError.set(null);
-    this.appliedRun.set(null);
-    try {
-      const result = await this.sync.previewCatalog(file, this.options());
-      if (result.ok) this.previewed.set(result.preview);
-      else this.previewError.set(this.formatFailure(result.failure));
-    } finally {
-      this.previewing.set(false);
-    }
-  }
-
-  /**
-   * The sentence for a refused file: this deployment's wording for the code,
-   * with the names from the admin's own file substituted into it. A response
-   * the client could not read at all falls back to the generic line.
-   */
-  private formatFailure(failure: SyncFormatErrorBody | null): string {
-    if (!failure) return this.text.previewError;
-    return fillText(this.text.formatErrors[failure.code], failure.params ?? {});
-  }
-
-  protected async apply(runId: string): Promise<void> {
-    this.applying.set(true);
-    this.applyError.set(null);
-    try {
-      const result = await this.sync.commit(runId);
-      if (!result.ok) {
-        this.applyError.set(this.text.applyErrors[result.code]);
-        return;
-      }
-      this.appliedRun.set(result.result.run);
-      this.reset();
-    } finally {
-      this.applying.set(false);
-    }
-  }
-
-  protected reset(): void {
-    this.file.set(null);
-    this.discardPreview();
-  }
-
-  private discardPreview(): void {
-    this.previewed.set(null);
-    this.previewError.set(null);
-    this.applyError.set(null);
+        : { ...next, softDeleteMissingProducts: false },
+    );
   }
 
   protected changeSummary(run: SyncRun): string {
@@ -369,79 +158,64 @@ export class CatalogSyncUploadPage {
   }
 }
 
-/** Keys of the option group, so a flag's label cannot name missing text. */
-type SyncOptionKey = keyof AdminText['sync']['option'];
+type CatalogFlag = SyncFlag<
+  CatalogSyncOptions,
+  keyof AdminText['sync']['option']
+>;
 
-/**
- * The advanced checkboxes. `name`/`category`/`stock`/`taxRate` are members of the
- * `fields` whitelist rather than booleans of their own, so each flag carries
- * its own read and write rather than the template branching on shape.
- */
-type FlagKey =
-  | 'name'
-  | 'category'
-  | 'stock'
-  | 'taxRate'
-  | 'createMissing'
-  | 'updateExisting'
-  | 'restoreReturning'
-  | 'createCategories'
-  | 'authoritative'
-  | 'softDelete';
+const field = (
+  name: (typeof CATALOG_SYNC_ALL_FIELDS)[number],
+): CatalogFlag => ({
+  key: name,
+  label: name,
+  get: (o) => o.fields.includes(name),
+  set: (o, on) => ({
+    ...o,
+    fields: withField(CATALOG_SYNC_ALL_FIELDS, o.fields, name, on),
+  }),
+});
 
-const FLAGS: { key: FlagKey; label: SyncOptionKey; hint?: SyncOptionKey }[] = [
-  { key: 'name', label: 'name' },
-  { key: 'category', label: 'category' },
-  { key: 'stock', label: 'stock' },
-  { key: 'taxRate', label: 'taxRate' },
-  { key: 'createMissing', label: 'createMissing' },
-  { key: 'updateExisting', label: 'updateExisting' },
-  { key: 'restoreReturning', label: 'restoreReturning' },
-  { key: 'createCategories', label: 'createCategories' },
-  { key: 'authoritative', label: 'authoritative' },
+const FLAGS: readonly CatalogFlag[] = [
+  field('name'),
+  field('category'),
+  field('stock'),
+  field('taxRate'),
+  {
+    key: 'createMissing',
+    label: 'createMissing',
+    get: (o) => o.createMissing,
+    set: (o, on) => ({ ...o, createMissing: on }),
+  },
+  {
+    key: 'updateExisting',
+    label: 'updateExisting',
+    get: (o) => o.updateExisting,
+    set: (o, on) => ({ ...o, updateExisting: on }),
+  },
+  {
+    key: 'restoreReturning',
+    label: 'restoreReturning',
+    get: (o) => o.restoreReturning,
+    set: (o, on) => ({ ...o, restoreReturning: on }),
+  },
+  {
+    key: 'createCategories',
+    label: 'createCategories',
+    get: (o) => o.createCategories,
+    set: (o, on) => ({ ...o, createCategories: on }),
+  },
+  {
+    key: 'authoritative',
+    label: 'authoritative',
+    get: (o) => o.productSetAuthoritative,
+    set: (o, on) => ({ ...o, productSetAuthoritative: on }),
+  },
   {
     key: 'softDelete',
     label: 'softDelete',
     hint: 'softDeleteHint',
+    get: (o) => o.softDeleteMissingProducts,
+    set: (o, on) => ({ ...o, softDeleteMissingProducts: on }),
+    disabled: (o) => !o.productSetAuthoritative,
   },
 ];
-
-const FLAG_VALUE: Record<FlagKey, (o: CatalogSyncOptions) => boolean> = {
-  name: (o) => o.fields.includes('name'),
-  category: (o) => o.fields.includes('category'),
-  stock: (o) => o.fields.includes('stock'),
-  taxRate: (o) => o.fields.includes('taxRate'),
-  createMissing: (o) => o.createMissing,
-  updateExisting: (o) => o.updateExisting,
-  restoreReturning: (o) => o.restoreReturning,
-  createCategories: (o) => o.createCategories,
-  authoritative: (o) => o.productSetAuthoritative,
-  softDelete: (o) => o.softDeleteMissingProducts,
-};
-
-const FLAG_SET: Record<
-  FlagKey,
-  (o: CatalogSyncOptions, on: boolean) => CatalogSyncOptions
-> = {
-  name: (o, on) => ({ ...o, fields: withField(o, 'name', on) }),
-  category: (o, on) => ({ ...o, fields: withField(o, 'category', on) }),
-  stock: (o, on) => ({ ...o, fields: withField(o, 'stock', on) }),
-  taxRate: (o, on) => ({ ...o, fields: withField(o, 'taxRate', on) }),
-  createMissing: (o, on) => ({ ...o, createMissing: on }),
-  updateExisting: (o, on) => ({ ...o, updateExisting: on }),
-  restoreReturning: (o, on) => ({ ...o, restoreReturning: on }),
-  createCategories: (o, on) => ({ ...o, createCategories: on }),
-  authoritative: (o, on) => ({ ...o, productSetAuthoritative: on }),
-  softDelete: (o, on) => ({ ...o, softDeleteMissingProducts: on }),
-};
-
-function withField(
-  options: CatalogSyncOptions,
-  field: (typeof CATALOG_SYNC_ALL_FIELDS)[number],
-  on: boolean,
-): CatalogSyncOptions['fields'] {
-  const set = new Set(options.fields);
-  if (on) set.add(field);
-  else set.delete(field);
-  return CATALOG_SYNC_ALL_FIELDS.filter((f) => set.has(f));
-}
