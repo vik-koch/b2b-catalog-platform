@@ -32,8 +32,8 @@ import {
   products,
 } from '../../../db/schema';
 import { excluded } from '../../../db/sql-columns';
-import { OwnershipState } from '../../../settings/ownership-state';
-import { catalogExternallyOwned } from '../../../settings/ownership.refusals';
+import { OwnershipState } from '../../../platform/settings/ownership-state';
+import { catalogExternallyOwned } from '../../../platform/settings/ownership.refusals';
 import { changedProductFields } from '../owned-fields';
 import {
   counterpartOf,

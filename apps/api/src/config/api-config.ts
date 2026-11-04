@@ -1,7 +1,7 @@
 import {
   customerSyncPolicySchema,
   syncPolicySchema,
-} from '@b2b-catalog-platform/shared/sync';
+} from '@b2b-catalog-platform/shared/core/exchange';
 import {
   retentionConfigSchema,
   sessionConfigSchema,

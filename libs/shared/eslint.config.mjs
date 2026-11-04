@@ -28,14 +28,13 @@ export default [
     },
   },
   // One folder per entry point. What every side reads (src/lib) imports none
-  // of the others; an audience's folder imports src/lib and itself, and the
-  // admin's also the exchange it watches. `node` is the server's and may read
-  // anything.
+  // of the others; an audience's folder imports src/lib and itself. `node` is
+  // the server's and may read anything.
   ...[
-    { folder: 'lib', forbidden: ['storefront', 'admin', 'sync', 'node'] },
-    { folder: 'storefront', forbidden: ['admin', 'sync', 'node'] },
-    { folder: 'admin', forbidden: ['storefront', 'node'] },
-    { folder: 'sync', forbidden: ['storefront', 'admin', 'node'] },
+    { folder: 'lib', forbidden: ['storefront', 'admin', 'machine', 'node'] },
+    { folder: 'storefront', forbidden: ['admin', 'machine', 'node'] },
+    { folder: 'admin', forbidden: ['storefront', 'machine', 'node'] },
+    { folder: 'machine', forbidden: ['storefront', 'admin', 'node'] },
   ].map(({ folder, forbidden }) => ({
     files: [`src/${folder}/**/*.ts`],
     rules: {

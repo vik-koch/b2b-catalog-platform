@@ -4,7 +4,7 @@ import { ADMIN_TEXT } from '../../../shared/config/admin-text';
 import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
-import { OwnershipService } from '../../settings/ownership.service';
+import { OwnershipService } from '../../platform/ownership/ownership.service';
 import { mayRestore, purgeRefusal } from './product-removal';
 import { SHARED_TEXT } from '../../../shared/config/shared-text';
 import { bookCheckIcon } from '@b2b-catalog-platform/ui/icons/glyphs/book-check';

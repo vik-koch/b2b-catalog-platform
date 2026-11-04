@@ -19,17 +19,17 @@ const AUDIENCES = ['storefront', 'admin', 'machine'];
 
 /** What an area may import besides itself: the domain's direction, never both ways. */
 export const AREA_EDGES = {
-  catalog: ['exchange'],
-  accounts: ['catalog', 'site', 'exchange'],
+  catalog: [],
+  accounts: ['catalog', 'site'],
   site: [],
-  ordering: ['catalog', 'accounts', 'site', 'exchange'],
-  exchange: [],
+  ordering: ['catalog', 'accounts', 'site'],
+  exchange: ['catalog', 'accounts', 'ordering'],
   work: ['catalog', 'accounts', 'ordering', 'exchange'],
   retention: ['accounts', 'ordering'],
 };
 
 /** The areas already moved; the rest join as they move. */
-const ENABLED = ['catalog', 'site', 'accounts', 'ordering'];
+const ENABLED = ['catalog', 'site', 'accounts', 'ordering', 'exchange'];
 
 /** The folders of the cut, relative to a layer, with the element type of each. */
 const FOLDERS = [

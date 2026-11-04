@@ -5,8 +5,8 @@ import { AdminProduct } from '@b2b-catalog-platform/shared/admin/catalog';
 import { DRIZZLE } from '../../../db/database.module';
 import * as schema from '../../../db/schema';
 import { orderItems, productPairings, products } from '../../../db/schema';
-import { OwnershipState } from '../../../settings/ownership-state';
-import { catalogExternallyOwned } from '../../../settings/ownership.refusals';
+import { OwnershipState } from '../../../platform/settings/ownership-state';
+import { catalogExternallyOwned } from '../../../platform/settings/ownership.refusals';
 import {
   counterpartOf,
   involves,

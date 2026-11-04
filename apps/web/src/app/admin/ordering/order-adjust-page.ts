@@ -79,8 +79,8 @@ import {
 } from './order-adjust-draft';
 import { orderBlockChanges, orderLineChanges } from './order-changes';
 import { customerQuantity } from '../../core/ordering/order-formats';
-import { LockedNote } from '../ownership/locked-note';
-import { OwnershipService } from '../settings/ownership.service';
+import { LockedNote } from '../platform/ownership/ui/locked-note';
+import { OwnershipService } from '../platform/ownership/ownership.service';
 import { AdjustmentRefusal, AdminOrdersService } from './orders.service';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';

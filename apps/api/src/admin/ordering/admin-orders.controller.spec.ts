@@ -3,7 +3,7 @@ import { APP_FILTER } from '@nestjs/core';
 import { Test } from '@nestjs/testing';
 import { AuditLogger } from '../../audit/audit.logger';
 import { ContractErrorFilter } from '../../orpc/contract-error.filter';
-import { OwnershipState } from '../../settings/ownership-state';
+import { OwnershipState } from '../../platform/settings/ownership-state';
 import { AdminOrdersController } from './admin-orders.controller';
 import { demoAdminOrder } from '../../core/ordering/order.fixture';
 import { OrderPersonalData } from '../../core/ordering/order-personal-data';

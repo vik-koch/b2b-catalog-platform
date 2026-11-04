@@ -46,14 +46,14 @@ export const adminRoutes: Route[] = [
     data: { area: 'catalog' },
     canActivate: [requireAuth('admin'), adminTextGuard],
     loadComponent: () =>
-      import('./sync/sync-runs-page').then((m) => m.SyncRunsPage),
+      import('./exchange/sync-runs-page').then((m) => m.SyncRunsPage),
   },
   {
     path: 'admin/sync/customers',
     data: { area: 'customers' },
     canActivate: [requireAuth('admin', 'manager'), adminTextGuard],
     loadComponent: () =>
-      import('./sync/sync-runs-page').then((m) => m.SyncRunsPage),
+      import('./exchange/sync-runs-page').then((m) => m.SyncRunsPage),
   },
   // The order exchange's log. A manager's as well as an admin's, for the
   // reason the customer one is: an order run is the work on their own desk
@@ -64,13 +64,15 @@ export const adminRoutes: Route[] = [
     data: { area: 'orders' },
     canActivate: [requireAuth('admin', 'manager'), adminTextGuard],
     loadComponent: () =>
-      import('./sync/sync-runs-page').then((m) => m.SyncRunsPage),
+      import('./exchange/sync-runs-page').then((m) => m.SyncRunsPage),
   },
   {
     path: 'admin/sync/catalog/new',
     canActivate: [requireAuth('admin'), adminTextGuard],
     loadComponent: () =>
-      import('./sync/sync-upload-page').then((m) => m.SyncUploadPage),
+      import('./exchange/catalog-sync-upload-page').then(
+        (m) => m.CatalogSyncUploadPage,
+      ),
   },
   // The manual customer import (FR-ADM-12), admin-only where reading and
   // answering a customer run are a manager's too: bringing several hundred
@@ -79,7 +81,7 @@ export const adminRoutes: Route[] = [
     path: 'admin/sync/customers/new',
     canActivate: [requireAuth('admin'), adminTextGuard],
     loadComponent: () =>
-      import('./sync/customer-sync-upload-page').then(
+      import('./exchange/customer-sync-upload-page').then(
         (m) => m.CustomerSyncUploadPage,
       ),
   },
@@ -91,7 +93,7 @@ export const adminRoutes: Route[] = [
     path: 'admin/sync/runs/:id',
     canActivate: [requireAuth('admin', 'manager'), adminTextGuard],
     loadComponent: () =>
-      import('./sync/sync-run-page').then((m) => m.SyncRunPage),
+      import('./exchange/sync-run-page').then((m) => m.SyncRunPage),
   },
   // Filterable attributes edit in place too — a definition is four fields,
   // so there is no editor route to pair with this one.
@@ -162,7 +164,7 @@ export const adminRoutes: Route[] = [
     path: 'admin/api-tokens',
     canActivate: [requireAuth('admin'), adminTextGuard],
     loadComponent: () =>
-      import('./api-tokens/api-token-list-page').then(
+      import('./exchange/api-tokens/api-token-list-page').then(
         (m) => m.ApiTokenListPage,
       ),
   },

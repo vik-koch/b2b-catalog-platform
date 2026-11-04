@@ -3,7 +3,7 @@ import {
   OrderDetail,
   OrderPickup,
 } from '@b2b-catalog-platform/shared/core/ordering';
-import { SyncRun } from '@b2b-catalog-platform/shared/sync';
+import { SyncRun } from '@b2b-catalog-platform/shared/core/exchange';
 import type { MailBranding } from './mail-branding';
 import { DEFAULT_MAIL_COLORS } from './mail-colors';
 import { MailContent, RenderedMail, renderMail } from './mail-layout';

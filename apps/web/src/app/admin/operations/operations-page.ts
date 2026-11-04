@@ -15,7 +15,7 @@ import {
 import {
   OWNERSHIP_AREAS,
   OwnershipArea,
-} from '@b2b-catalog-platform/shared/sync';
+} from '@b2b-catalog-platform/shared/platform';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { delayedLoading } from '../../shared/core/delayed-loading';
@@ -28,7 +28,8 @@ import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';
 import { Switch } from '@b2b-catalog-platform/ui/choices/switch';
 import { adminMomentFormat } from '../dates/admin-date';
-import { OwnershipService } from '../settings/ownership.service';
+import { OwnershipService } from '../platform/ownership/ownership.service';
+import { OwnershipSwitchService } from '../exchange/ownership-switch.service';
 import { MaintenanceSwitchService } from '../site/maintenance-switch.service';
 import { SettingChangesService } from '../platform/setting-changes.service';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
@@ -298,6 +299,7 @@ export class OperationsPage {
   protected readonly maintenanceText = inject(ADMIN_TEXT).maintenance;
   protected readonly adminText = inject(ADMIN_TEXT);
   private readonly ownership = inject(OwnershipService);
+  private readonly ownershipSwitch = inject(OwnershipSwitchService);
   private readonly maintenance = inject(MaintenanceSwitchService);
   private readonly settingChanges = inject(SettingChangesService);
   private readonly confirm = inject(ConfirmService);
@@ -479,7 +481,7 @@ export class OperationsPage {
     this.pending.set(true);
     this.ownershipFailed.set(false);
     try {
-      const { ownedAreas } = await this.ownership.set(areas, owned);
+      const { ownedAreas } = await this.ownershipSwitch.set(areas, owned);
       this.settings.update((state) => state && { ...state, ownedAreas });
       this.historyVersion.update((n) => n + 1);
     } catch {

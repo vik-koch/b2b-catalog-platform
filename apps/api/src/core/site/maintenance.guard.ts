@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import type { Request, Response } from 'express';
-import { MachineScope } from '../../api-tokens/machine-scope.decorator';
+import { MachineScope } from '../../platform/auth/machine-scope.decorator';
 import { Roles } from '../../platform/auth/roles.decorator';
 import { Sessions } from '../../platform/auth/sessions';
 import { MaintenanceState } from './maintenance-state';

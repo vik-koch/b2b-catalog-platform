@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { Params, Router } from '@angular/router';
 import { adminText } from '../../../shared/config/admin-text';
 import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
-import { OwnershipService } from '../../settings/ownership.service';
+import { OwnershipService } from '../../platform/ownership/ownership.service';
 import { SHARED_TEXT } from '../../../shared/config/shared-text';
 
 /**

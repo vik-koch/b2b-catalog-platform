@@ -26,8 +26,8 @@ import {
   PRODUCT_UNITS,
 } from '@b2b-catalog-platform/shared/core/catalog';
 import { SETTING_CHANGE_KINDS } from '@b2b-catalog-platform/shared/admin/platform';
+import { OWNERSHIP_AREAS } from '@b2b-catalog-platform/shared/platform';
 import {
-  OWNERSHIP_AREAS,
   SYNC_AREAS,
   type CustomerSyncOptions,
   type CustomerSyncPlan,
@@ -39,7 +39,7 @@ import {
   type CatalogSyncRow,
   type CatalogSyncRowError,
   type SyncSummary,
-} from '@b2b-catalog-platform/shared/sync';
+} from '@b2b-catalog-platform/shared/core/exchange';
 import {
   DESTRUCTION_CATEGORIES,
   DESTRUCTION_REASONS,

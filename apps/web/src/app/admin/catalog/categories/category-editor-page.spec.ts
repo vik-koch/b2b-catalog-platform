@@ -11,7 +11,7 @@ import { defaultSharedText } from '../../../shared/config/shared-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
 import { defaultDeploymentConfig } from '../../../shared/config/deployment-config.fixture';
 import { MediaService } from '../../media/media.service';
-import { provideOwnership } from '../../settings/settings.fixture';
+import { provideOwnership } from '../../platform/ownership/ownership.fixture';
 import { CategoriesService } from './categories.service';
 import { CategoryEditorPage } from './category-editor-page';
 

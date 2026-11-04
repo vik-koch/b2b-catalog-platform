@@ -13,7 +13,7 @@ import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
 import { Allow } from '@b2b-catalog-platform/ui/inputs/allow';
 import { UnitInput } from '@b2b-catalog-platform/ui/inputs/unit-input';
 import { UnitInputControl } from '@b2b-catalog-platform/ui/inputs/unit-input-control';
-import { LockedFieldMarker } from '../../ownership/locked-field-marker';
+import { LockedFieldMarker } from '../../platform/ownership/ui/locked-field-marker';
 import { Hint } from '@b2b-catalog-platform/ui/fields/hint';
 
 export interface TierPriceDraft {

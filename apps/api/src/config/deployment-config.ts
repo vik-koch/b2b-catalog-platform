@@ -24,7 +24,7 @@ import {
   DEFAULT_CUSTOMER_SYNC_POLICY,
   DEFAULT_SYNC_POLICY,
   SyncPolicy,
-} from '@b2b-catalog-platform/shared/sync';
+} from '@b2b-catalog-platform/shared/core/exchange';
 import {
   DEFAULT_SESSION_IDLE_DAYS,
   RetentionConfig,

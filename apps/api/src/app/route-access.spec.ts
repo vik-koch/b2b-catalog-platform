@@ -13,8 +13,8 @@ import {
 import { Reflector } from '@nestjs/core';
 import { ROUTE_ACCESS } from '@b2b-catalog-platform/shared/node';
 import { AppModule } from './app.module';
-import { MachineScope } from '../api-tokens/machine-scope.decorator';
-import { MachineTokenGuard } from '../api-tokens/machine-token.guard';
+import { MachineScope } from '../platform/auth/machine-scope.decorator';
+import { MachineTokenGuard } from '../platform/auth/machine-token.guard';
 import { JwtAuthGuard } from '../platform/auth/jwt-auth.guard';
 import { Roles } from '../platform/auth/roles.decorator';
 

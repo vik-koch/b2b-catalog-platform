@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { APP_FILTER } from '@nestjs/core';
 import { ContractErrorFilter } from '../orpc/contract-error.filter';
 import { AccountModule } from '../storefront/accounts/account.module';
-import { ApiTokensModule } from '../api-tokens/api-tokens.module';
+import { AdminExchangeModule } from '../admin/exchange/admin-exchange.module';
 import { AddressesModule } from '../storefront/accounts/addresses.module';
 import { PartiesModule } from '../storefront/accounts/parties.module';
 import { AuthModule } from '../storefront/accounts/auth.module';
@@ -15,16 +15,14 @@ import { CatalogModule } from '../storefront/catalog/catalog.module';
 import { AdminCatalogModule } from '../admin/catalog/admin-catalog.module';
 import { OrderingModule } from '../storefront/ordering/ordering.module';
 import { AdminOrderingModule } from '../admin/ordering/admin-ordering.module';
-import { MachineOrderingModule } from '../machine/ordering/machine-ordering.module';
 import { SiteModule } from '../storefront/site/site.module';
 import { AdminSiteModule } from '../admin/site/admin-site.module';
 import { MediaModule } from '../media/media.module';
 import { ThrottlingModule } from '../throttling/throttling.module';
 import { SettingsStoreModule } from '../platform/settings/settings-store.module';
 import { SiteCoreModule } from '../core/site/site-core.module';
-import { OwnershipModule } from '../settings/ownership.module';
 import { AdminPlatformModule } from '../admin/platform/admin-platform.module';
-import { SyncModule } from '../sync/sync.module';
+import { MachineExchangeModule } from '../machine/exchange/machine-exchange.module';
 import { StaffUsersModule } from '../admin/accounts/staff-users.module';
 import { WorkModule } from '../work/work.module';
 
@@ -33,7 +31,6 @@ import { WorkModule } from '../work/work.module';
     ThrottlingModule,
     DatabaseModule,
     AuthModule,
-    ApiTokensModule,
     CatalogModule,
     AdminCatalogModule,
     SiteModule,
@@ -42,9 +39,9 @@ import { WorkModule } from '../work/work.module';
     InquiryModule,
     SettingsStoreModule,
     SiteCoreModule,
-    OwnershipModule,
     AdminPlatformModule,
-    SyncModule,
+    AdminExchangeModule,
+    MachineExchangeModule,
     StaffUsersModule,
     ConsentAdminModule,
     DestructionModule,
@@ -52,7 +49,6 @@ import { WorkModule } from '../work/work.module';
     AccountModule,
     OrderingModule,
     AdminOrderingModule,
-    MachineOrderingModule,
     AddressesModule,
     PartiesModule,
     WorkModule,

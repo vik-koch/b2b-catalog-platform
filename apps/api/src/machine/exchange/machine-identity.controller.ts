@@ -1,0 +1,21 @@
+import { Controller } from '@nestjs/common';
+import { Implement, implement } from '@orpc/nest';
+import { machineIdentityContract } from '@b2b-catalog-platform/shared/machine/exchange';
+import { CurrentMachine } from '../../platform/auth/current-machine.decorator';
+import { MachineClient } from '../../platform/auth/machine-client';
+import { Machine } from '../../platform/auth/machine.decorator';
+import { MachineThrottle } from '../../throttling/throttle-presets';
+
+/** What this token is, so a credential can be checked before it is used. */
+@Machine('catalog-sync')
+@MachineThrottle()
+@Controller()
+export class MachineIdentityController {
+  @Implement(machineIdentityContract.machineIdentity)
+  machineIdentity(@CurrentMachine() machine: MachineClient) {
+    return implement(machineIdentityContract.machineIdentity).handler(() => ({
+      name: machine.name,
+      scopes: machine.scopes,
+    }));
+  }
+}
