@@ -45,7 +45,7 @@ import { Notice } from '@b2b-catalog-platform/ui/content/notice';
  * run entirely. A finished one is a record, and shows none of them.
  */
 @Component({
-  selector: 'app-sync-plan-view',
+  selector: 'app-sync-catalog-plan-view',
   imports: [Notice, Button, Input, Link, RouterLink, StatusBadge, ErrorText],
   template: `
     <section class="rounded-md border border-edge p-4">
@@ -247,7 +247,7 @@ import { Notice } from '@b2b-catalog-platform/ui/content/notice';
     </section>
   `,
 })
-export class SyncPlanView {
+export class SyncCatalogPlanView {
   protected readonly text = inject(ADMIN_TEXT).sync;
   private readonly currency = moneyFormat(inject(DEPLOYMENT_CONFIG));
   private readonly locale = inject(DEPLOYMENT_CONFIG).locale;

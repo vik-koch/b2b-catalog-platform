@@ -63,7 +63,7 @@ export class SyncService {
   private readonly client = createOrpcClient(adminSyncContract);
 
   /** Uploads a catalog file and returns what it would change. Writes nothing. */
-  async preview(
+  async previewCatalog(
     file: File,
     options: CatalogSyncOptions,
   ): Promise<PreviewResult> {

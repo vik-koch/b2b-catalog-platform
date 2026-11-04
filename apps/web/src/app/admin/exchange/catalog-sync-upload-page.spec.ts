@@ -13,7 +13,7 @@ import { provideOwnership } from '../platform/ownership/ownership.fixture';
 import { defaultStorefrontText } from '../../shared/config/storefront-text.fixture';
 import { defaultAdminText } from '../../shared/config/admin-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
-import { SyncUploadPage } from './sync-upload-page';
+import { CatalogSyncUploadPage } from './catalog-sync-upload-page';
 import { SyncService } from './sync.service';
 
 const text = defaultAdminText.sync;
@@ -102,7 +102,7 @@ async function render(previewResult: CatalogSyncPreviewResponse) {
   };
 
   TestBed.configureTestingModule({
-    imports: [SyncUploadPage],
+    imports: [CatalogSyncUploadPage],
     providers: [
       provideRouter([]),
       { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
@@ -114,7 +114,7 @@ async function render(previewResult: CatalogSyncPreviewResponse) {
       {
         provide: SyncService,
         useValue: {
-          preview: h.previewFn,
+          previewCatalog: h.previewFn,
           commit: h.commit,
           listRuns: () =>
             Promise.resolve({ runs: [], total: 0, lastApplied: null }),
@@ -123,7 +123,7 @@ async function render(previewResult: CatalogSyncPreviewResponse) {
     ],
   });
 
-  const fixture = TestBed.createComponent(SyncUploadPage);
+  const fixture = TestBed.createComponent(CatalogSyncUploadPage);
   await fixture.whenStable();
   fixture.detectChanges();
   return { fixture, el: fixture.nativeElement as HTMLElement, h };
@@ -155,7 +155,7 @@ function buttonWith(el: HTMLElement, label: string): HTMLButtonElement {
   return button;
 }
 
-describe('SyncUploadPage', () => {
+describe('CatalogSyncUploadPage', () => {
   it('previews a file with the selected intent and writes nothing yet', async () => {
     const { fixture, el, h } = await render(preview(plan()));
 

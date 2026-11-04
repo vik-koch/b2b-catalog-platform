@@ -1,8 +1,8 @@
-import { SYNC_PRESETS, presetFor } from './sync-presets';
+import { CATALOG_SYNC_PRESETS, catalogPresetFor } from './catalog-sync-presets';
 
 describe('sync presets', () => {
   it('offers the full export, the two partial refreshes, and a custom escape hatch', () => {
-    expect(SYNC_PRESETS.map((p) => p.name)).toEqual([
+    expect(CATALOG_SYNC_PRESETS.map((p) => p.name)).toEqual([
       'full',
       'prices',
       'stock',
@@ -11,7 +11,7 @@ describe('sync presets', () => {
   });
 
   it('claims authority for a complete export but leaves hiding switched off', () => {
-    const options = presetFor('full');
+    const options = catalogPresetFor('full');
 
     expect(options.productSetAuthoritative).toBe(true);
     // The claim makes hiding *available*; enabling it stays a deliberate act.
@@ -21,7 +21,7 @@ describe('sync presets', () => {
   });
 
   it('makes a price update incapable of adding, renaming or hiding anything', () => {
-    const options = presetFor('prices');
+    const options = catalogPresetFor('prices');
 
     expect(options.fields).toEqual([]);
     expect(options.createMissing).toBe(false);
@@ -33,7 +33,7 @@ describe('sync presets', () => {
   });
 
   it('makes a stock update carry stock and nothing else', () => {
-    const options = presetFor('stock');
+    const options = catalogPresetFor('stock');
 
     // The point of the preset: a daily stock file cannot rename a product,
     // move it, reprice it or hide it, whatever else its columns hold.
@@ -46,8 +46,8 @@ describe('sync presets', () => {
   });
 
   it('never returns options the server would refuse', () => {
-    for (const { name } of SYNC_PRESETS) {
-      const options = presetFor(name);
+    for (const { name } of CATALOG_SYNC_PRESETS) {
+      const options = catalogPresetFor(name);
       if (options.softDeleteMissingProducts) {
         expect(options.productSetAuthoritative).toBe(true);
       }

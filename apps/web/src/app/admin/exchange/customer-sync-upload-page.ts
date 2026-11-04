@@ -54,7 +54,7 @@ import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
  * too rather than trusting this screen.
  */
 @Component({
-  selector: 'app-customer-sync-page',
+  selector: 'app-customer-sync-upload-page',
   imports: [
     PageHeader,
     Icon,

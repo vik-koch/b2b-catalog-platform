@@ -17,7 +17,7 @@ import {
  * What an order run did (FR-ADM-08): the counts, the orders it answered, and
  * the instructions it could not carry out.
  *
- * The third sibling of `SyncPlanView`, and the shortest of them, because it is
+ * The third sibling of `SyncCatalogPlanView`, and the shortest of them, because it is
  * the only one with nothing to decide. An order write-back is applied as it
  * arrives (ADR 0062), so this never shows an apply button, a discard button or
  * a typed confirmation — it is always a record of something that has already

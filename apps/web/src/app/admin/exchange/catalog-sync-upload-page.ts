@@ -25,8 +25,12 @@ import {
 import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Link } from '@b2b-catalog-platform/ui/actions/link';
-import { SyncPlanView } from './ui/sync-plan-view';
-import { presetFor, SYNC_PRESETS, SyncPresetName } from './sync-presets';
+import { SyncCatalogPlanView } from './ui/sync-catalog-plan-view';
+import {
+  catalogPresetFor,
+  CATALOG_SYNC_PRESETS,
+  CatalogSyncPresetName,
+} from './catalog-sync-presets';
 import { SyncService } from './sync.service';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { uploadIcon } from '@b2b-catalog-platform/ui/icons/glyphs/upload';
@@ -50,7 +54,7 @@ import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
  * server stages and the commit re-checks.
  */
 @Component({
-  selector: 'app-sync-page',
+  selector: 'app-catalog-sync-upload-page',
   imports: [
     PageHeader,
     Checkbox,
@@ -61,7 +65,7 @@ import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
     Icon,
     FieldLabel,
     FileTarget,
-    SyncPlanView,
+    SyncCatalogPlanView,
     Link,
     ErrorText,
     DropZone,
@@ -205,7 +209,7 @@ import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
         <!-- Step 3: the diff -->
         @if (previewed(); as response) {
           <div class="mb-8">
-            <app-sync-plan-view
+            <app-sync-catalog-plan-view
               [plan]="response.plan"
               [applicable]="true"
               [busy]="applying()"
@@ -227,7 +231,7 @@ import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
     </div>
   `,
 })
-export class SyncUploadPage {
+export class CatalogSyncUploadPage {
   protected readonly uploadIcon = uploadIcon;
   private readonly sync = inject(SyncService);
   protected readonly text = inject(ADMIN_TEXT).sync;
@@ -244,11 +248,13 @@ export class SyncUploadPage {
     void this.ownership.load();
   }
 
-  protected readonly presets = SYNC_PRESETS;
+  protected readonly presets = CATALOG_SYNC_PRESETS;
   protected readonly flags = FLAGS;
 
-  protected readonly preset = signal<SyncPresetName>('full');
-  protected readonly options = signal<CatalogSyncOptions>(presetFor('full'));
+  protected readonly preset = signal<CatalogSyncPresetName>('full');
+  protected readonly options = signal<CatalogSyncOptions>(
+    catalogPresetFor('full'),
+  );
   protected readonly file = signal<File | null>(null);
   protected readonly previewing = signal(false);
   protected readonly previewed = signal<CatalogSyncPreviewResponse | null>(
@@ -262,9 +268,9 @@ export class SyncUploadPage {
     keys: pasteKeys(),
   });
 
-  protected selectPreset(name: SyncPresetName): void {
+  protected selectPreset(name: CatalogSyncPresetName): void {
     this.preset.set(name);
-    if (name !== 'custom') this.options.set(presetFor(name));
+    if (name !== 'custom') this.options.set(catalogPresetFor(name));
     // The staged run was computed with the old intent, so it no longer
     // describes what would happen.
     this.discardPreview();
@@ -312,7 +318,7 @@ export class SyncUploadPage {
     this.previewError.set(null);
     this.appliedRun.set(null);
     try {
-      const result = await this.sync.preview(file, this.options());
+      const result = await this.sync.previewCatalog(file, this.options());
       if (result.ok) this.previewed.set(result.preview);
       else this.previewError.set(this.formatFailure(result.failure));
     } finally {

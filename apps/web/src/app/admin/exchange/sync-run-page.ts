@@ -30,7 +30,7 @@ import {
 import { adminDayFormat } from '../dates/admin-date';
 import { SyncCustomerPlanView } from './ui/sync-customer-plan-view';
 import { SyncOrderPlanView } from './ui/sync-order-plan-view';
-import { SyncPlanView } from './ui/sync-plan-view';
+import { SyncCatalogPlanView } from './ui/sync-catalog-plan-view';
 import { LockedNote } from '../platform/ownership/ui/locked-note';
 import { OwnershipService } from '../platform/ownership/ownership.service';
 import { SyncService } from './sync.service';
@@ -62,7 +62,7 @@ type AreaPlan = CatalogSyncPlan | CustomerSyncPlan | OrderSyncPlan | null;
     StatusBadge,
     SyncCustomerPlanView,
     SyncOrderPlanView,
-    SyncPlanView,
+    SyncCatalogPlanView,
     PageTitle,
   ],
   template: `
@@ -179,7 +179,7 @@ type AreaPlan = CatalogSyncPlan | CustomerSyncPlan | OrderSyncPlan | null;
                  applied as it arrives (ADR 0062), so this is always a record. -->
             <app-sync-order-plan-view [plan]="plan" />
           } @else if (catalogPlan(data.plan); as plan) {
-            <app-sync-plan-view
+            <app-sync-catalog-plan-view
               [plan]="plan"
               [applicable]="isStaged(data.run)"
               [applyBlocked]="strandedByOwnership(data.run)"

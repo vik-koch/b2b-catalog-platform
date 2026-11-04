@@ -70,7 +70,9 @@ export const adminRoutes: Route[] = [
     path: 'admin/sync/catalog/new',
     canActivate: [requireAuth('admin'), adminTextGuard],
     loadComponent: () =>
-      import('./exchange/sync-upload-page').then((m) => m.SyncUploadPage),
+      import('./exchange/catalog-sync-upload-page').then(
+        (m) => m.CatalogSyncUploadPage,
+      ),
   },
   // The manual customer import (FR-ADM-12), admin-only where reading and
   // answering a customer run are a manager's too: bringing several hundred

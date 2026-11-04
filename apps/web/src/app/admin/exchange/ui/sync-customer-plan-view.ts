@@ -28,7 +28,7 @@ import { Notice } from '@b2b-catalog-platform/ui/content/notice';
  * What a customer run would do, or did (FR-ADM-11): the counts, the accounts,
  * and the rows that could not be used.
  *
- * A sibling of `SyncPlanView` rather than a branch inside it. The two share
+ * A sibling of `SyncCatalogPlanView` rather than a branch inside it. The two share
  * their shape — tiles, a list, the skipped rows, and for a staged run the gate
  * and the two buttons — and share none of their content: one lists products
  * with prices to format, the other lists people, and every sentence on it is a

@@ -10,16 +10,16 @@ import {
  * stock refresh. The presets make the safe one the default and keep the
  * dangerous option out of reach of the ones that must never delete.
  */
-export type SyncPresetName = 'full' | 'prices' | 'stock' | 'custom';
+export type CatalogSyncPresetName = 'full' | 'prices' | 'stock' | 'custom';
 
-export interface SyncPreset {
-  name: SyncPresetName;
+export interface CatalogSyncPreset {
+  name: CatalogSyncPresetName;
   /** Keys into the sync text block's `mode` group. */
   label: 'full' | 'prices' | 'stock' | 'custom';
   hint?: 'fullHint' | 'pricesHint' | 'stockHint';
 }
 
-export const SYNC_PRESETS: SyncPreset[] = [
+export const CATALOG_SYNC_PRESETS: CatalogSyncPreset[] = [
   { name: 'full', label: 'full', hint: 'fullHint' },
   { name: 'prices', label: 'prices', hint: 'pricesHint' },
   { name: 'stock', label: 'stock', hint: 'stockHint' },
@@ -31,7 +31,9 @@ export const SYNC_PRESETS: SyncPreset[] = [
  * over the product set but still leaves the actual hiding switched off — the
  * claim is what makes the option *available*, not what enables it.
  */
-export function presetFor(name: SyncPresetName): CatalogSyncOptions {
+export function catalogPresetFor(
+  name: CatalogSyncPresetName,
+): CatalogSyncOptions {
   const base: CatalogSyncOptions = {
     fields: [...CATALOG_SYNC_ALL_FIELDS],
     createMissing: true,
