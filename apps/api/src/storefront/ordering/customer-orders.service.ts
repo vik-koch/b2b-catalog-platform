@@ -9,7 +9,8 @@ import { and, eq, SQL } from 'drizzle-orm';
 import { toSummary } from '../../core/ordering/order-rows';
 import { OrderReader } from '../../core/ordering/order-reader';
 import { OrderWriter } from '../../core/ordering/order-writer';
-import { orderRevisions, orders } from '../../db/schema';
+import { orders } from '../../db/schema';
+import { MY_ORDER_CONDITIONS } from '../../core/ordering/my-order-filters';
 import { OrderNotifications } from '../../core/ordering/order-notifications';
 
 /** A customer's own orders (FR-ACC-01): their list, and calling one off. */
@@ -28,24 +29,11 @@ export class CustomerOrdersService {
     page = 1,
     state?: MyOrderFilter,
   ): Promise<{ items: OrderSummary[]; pagination: Pagination }> {
-    const conditions: SQL[] = [eq(orders.userId, userId)];
-    const waiting = this.myOrderCondition(state);
-    if (waiting) conditions.push(waiting);
-    return this.list(and(...conditions) as SQL, page);
-  }
-
-  /**
-   * The two queues the customer's panel counts (FR-WORK-03), asked the same way
-   * the work queue asks, so a marker and its list agree.
-   */
-  private myOrderCondition(filter?: MyOrderFilter): SQL | undefined {
-    if (!filter) return undefined;
-    return filter === 'to-pay'
-      ? eq(orders.paymentState, 'awaiting')
-      : (and(
-          eq(orders.status, 'ready'),
-          eq(orderRevisions.fulfilmentMethod, 'pickup'),
-        ) as SQL);
+    const mine = eq(orders.userId, userId);
+    return this.list(
+      state ? (and(mine, MY_ORDER_CONDITIONS[state]) as SQL) : mine,
+      page,
+    );
   }
 
   /**

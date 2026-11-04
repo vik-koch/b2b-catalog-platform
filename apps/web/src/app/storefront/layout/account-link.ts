@@ -82,26 +82,10 @@ import { userIcon } from '@b2b-catalog-platform/ui/icons/glyphs/user';
                  duration-200"
           [class.opacity-0]="!signedOut()"
         />
-        <!-- The marker (FR-WORK-01): a bare dot, never a figure. It is
-             deliberately unlike the cart's badge, which counts lines in a
-             filled chip — a number here would ask "five what?", and for an
-             admin it would add up queues that have nothing to do with each
-             other. The dot says only that something is waiting; the panel
-             this link leads to says what. Amber is the app's "somebody has to
-             act" signal.
-             It needs air around it, and a ring cannot give it any: both
-             navbars are a translucent surface over the page, so an opaque
-             ring painted a disc belonging to neither. The glyph opens a gap
-             for it instead — circle-user-round-dot is the same icon with its
-             top-right arc left out — so the space around the dot is whatever
-             is behind the bar.
-
-             It grows into place rather than appearing (see marker-pop): the
-             counts are their own call, so on a reload the dot lands a moment
-             after everything else, and arriving at full size read as the icon
-             being redrawn. Going is not animated — an element the template has
-             removed has nothing left to run, and work finishing is the
-             direction nobody is watching. -->
+        <!-- The marker (FR-WORK-01): a dot, never a figure, since an admin's
+             queues do not add up. The glyph leaves a gap for it: a ring
+             would paint a disc over the translucent navbar. It pops in
+             because the counts land after the page. -->
         @if (waiting()) {
           <span
             aria-hidden="true"
@@ -156,8 +140,7 @@ export class AccountLink {
   private readonly work = inject(WorkService);
   private readonly url = currentUrl();
 
-  /** Only ever true in the browser: the counts are session state and the
-   * server renders one document for everybody (see WorkService). */
+  /** Browser only: the server renders one document for everybody. */
   protected readonly waiting = this.work.waiting;
 
   protected readonly text = inject(STOREFRONT_TEXT).auth;
@@ -183,7 +166,7 @@ export class AccountLink {
     return role && !this.signedOut() ? landingFor(role) : '/login';
   });
 
-  /** What the marker says out loud — the figure it does not draw. */
+  /** The figure the marker does not draw. */
   protected readonly markerLabel = computed(() =>
     fillText(this.text.workMarkerAria, { count: this.work.total() }),
   );

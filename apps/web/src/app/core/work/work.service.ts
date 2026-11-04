@@ -17,20 +17,9 @@ import { createOrpcClient } from '../../shared/core/orpc-client';
 import { WorkRefresh } from '../../shared/core/work-refresh';
 
 /**
- * What awaits the signed-in account (FR-WORK-01…04), asked of the API rather
- * than remembered: every figure is a count over work that is still there, so
- * there is nothing to acknowledge and nothing to keep in step (ADR 0046).
- *
- * **Never on the server.** The marker is a nudge, not content: a render that
- * waited on one more round trip for it would delay every signed-in page for a
- * dot. It simply appears once the browser has asked.
- *
- * **Re-asked per navigation**, which is what makes it self-correcting: a
- * manager who approves the last pending registration and goes back to the
- * panel finds the count gone, and a colleague's approval reaches the other
- * manager on their next click. Only a change of *path* counts — the admin
- * grids rewrite their query string on every keystroke of a search box, and a
- * count that has nothing to do with the filter would be re-fetched with each.
+ * What awaits the signed-in account (FR-WORK-01…04). Browser only: no render
+ * waits a round trip for a dot. Re-asked when the path changes, not the query,
+ * which the admin grids rewrite on every keystroke.
  */
 @Injectable({ providedIn: 'root' })
 export class WorkService implements WorkRefresh {
@@ -40,22 +29,17 @@ export class WorkService implements WorkRefresh {
   private readonly router = inject(Router);
 
   private readonly state = signal<WorkCounts>({});
-  /** Per queue: absent where the account may not act on it, `0` where there is
-   * nothing to do. The two are different answers and neither is drawn. */
   readonly counts = this.state.asReadonly();
 
-  /** Everything waiting, across the queues this account is shown. What the
-   * marker is: one dot for "there is something", never a sum on screen. */
+  /** For the marker's label: the marker itself is a dot, never a figure. */
   readonly total = computed(() =>
     Object.values(this.state()).reduce((sum, count) => sum + count, 0),
   );
 
-  /** Whether anything at all awaits this account. */
   readonly waiting = computed(() => this.total() > 0);
 
-  /** The path the current figures were fetched for. */
   private lastPath: string | null = null;
-  /** Which fetch is the newest, so a slow answer cannot overwrite a fresh one. */
+  /** So a slow answer cannot overwrite a newer one. */
   private generation = 0;
 
   constructor() {
@@ -74,27 +58,20 @@ export class WorkService implements WorkRefresh {
       });
   }
 
-  /**
-   * Ask again. Called on navigation, and by hand where an action resolves work
-   * without leaving the screen it was resolved on — approving a registration,
-   * publishing a product.
-   */
   async refresh(): Promise<void> {
     if (!this.isBrowser) return;
     const generation = ++this.generation;
     this.lastPath = this.router.url.split(/[?#]/)[0];
 
     await this.auth.whenResolved();
-    // Signed out: nothing waits on nobody, and the endpoint would 401.
-    if (!this.auth.user()) {
-      if (generation === this.generation) this.state.set({});
-      return;
-    }
+    // Signed out, the endpoint would 401.
+    const counts = this.auth.user() ? await this.fetch() : {};
+    if (generation === this.generation) this.state.set(counts);
+  }
 
+  /** A failed count leaves the marker dark: an error there helps nobody. */
+  private async fetch(): Promise<WorkCounts> {
     const { error, data } = await safe(this.client.getCounts());
-    if (generation !== this.generation) return;
-    // A failed count is no count: the marker stays dark rather than the
-    // account control growing an error nobody can act on.
-    this.state.set(error ? {} : data);
+    return error ? {} : data;
   }
 }

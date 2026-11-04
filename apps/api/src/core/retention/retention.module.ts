@@ -5,8 +5,7 @@ import { OrderDocumentFiles } from '../ordering/order-document-files';
 import { RetentionSweep } from './retention-sweep';
 
 @Module({
-  // The document store: an order whose retention ends loses the files
-  // supplied for it, which no column-level scrub can reach.
+  // An order's retention also ends its files.
   imports: [MediaModule],
   providers: [
     RetentionSweep,

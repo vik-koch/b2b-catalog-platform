@@ -10,9 +10,7 @@ import { AuthUser } from '@b2b-catalog-platform/shared/platform';
 export class WorkController {
   constructor(private readonly work: WorkService) {}
 
-  // `@Auth()` with no roles: every signed-in account has counts of its own,
-  // and the answer is shaped by who is asking (FR-WORK-04) rather than by a
-  // guard. A guest has no account for anything to wait on.
+  // Any session: the service shapes the answer by role (FR-WORK-04).
   @Auth()
   @Implement(workContract.getCounts)
   getCounts(@CurrentUser() user: AuthUser) {

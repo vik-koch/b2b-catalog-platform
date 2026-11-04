@@ -1,5 +1,6 @@
 import { WorkCounts, WorkQueue } from '@b2b-catalog-platform/shared/core/work';
 import { DOCUMENT_EXPIRY_WARNING_DAYS } from '@b2b-catalog-platform/shared/core/catalog';
+import { MyOrderFilter } from '@b2b-catalog-platform/shared/core/ordering';
 import {
   isoToday,
   AuthUser,
@@ -21,27 +22,15 @@ import {
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { DRIZZLE } from '../../db/database.module';
 import { resolvedPriceMinor } from '../catalog/product-price';
+import { MY_ORDER_CONDITIONS } from '../ordering/my-order-filters';
 import * as schema from '../../db/schema';
 
 const { documents, orderRevisions, orders, products, syncRuns, users } = schema;
 
 /**
- * Which queues a role is told about (FR-WORK-04), as a table rather than as a
- * branch.
- *
- * This is an authorization rule, and it is deliberately the only place one
- * lives outside a guard: the endpoint is `@Auth()` — any session — because one
- * request answers every role. So the rule is written where it cannot be
- * *partly* applied. `Record<UserRole, …>` means a new role has to name its
- * queues to compile, and a queue named by nobody is simply never counted,
- * which is the safe direction to fail in.
- *
- * Both staff roles approve registrations and answer orders, and both answer a
- * staged customer sync run — which is why the staged runs are two queues and
- * not one figure (FR-ADM-09). Only an admin has the catalog, and a count
- * linking somewhere its reader may not go is worse than no count. A customer
- * shares no queue with staff — their orders count is their own rows, not the
- * shop's.
+ * The one authorization rule outside a guard (FR-WORK-04): the route takes any
+ * session, so which queues a role sees is decided here. A queue no role names
+ * is never counted, and a new role must name its queues to compile.
  */
 const QUEUES_BY_ROLE: Record<UserRole, readonly WorkQueue[]> = {
   admin: [
@@ -60,13 +49,8 @@ const QUEUES_BY_ROLE: Record<UserRole, readonly WorkQueue[]> = {
 };
 
 /**
- * What is waiting, counted rather than stored (ADR 0046, FR-WORK-02). Every
- * figure here is a `COUNT` over the very filter the panel's link opens, so a
- * count and the list it leads to can never disagree, and neither can be
- * acknowledged into silence.
- *
- * The map is shaped by role: a queue the account cannot act on is absent, not
- * zero.
+ * What is waiting, counted rather than stored (FR-WORK-02). Each count runs
+ * the filter of the list its link opens, so the two cannot disagree.
  */
 @Injectable()
 export class WorkService {
@@ -74,17 +58,13 @@ export class WorkService {
     @Inject(DRIZZLE) private readonly db: NodePgDatabase<typeof schema>,
   ) {}
 
-  /**
-   * One query per queue. `Record<WorkQueue, …>` is the other half of the
-   * table: a queue added to the contract has to be given a count here before
-   * this compiles.
-   */
+  /** Typed by queue, so a queue added to the contract needs a count here. */
   private readonly counters: Record<
     WorkQueue,
     (user: AuthUser) => Promise<number>
   > = {
     registrations: () => this.registrations(),
-    orders: () => this.staffOrders(),
+    orders: () => this.db.$count(orders, eq(orders.status, 'requested')),
     unpaidOrders: () => this.unpaidOrders(),
     unpublishedProducts: () => this.unpublishedProducts(),
     unpricedProducts: () => this.unpricedProducts(),
@@ -92,8 +72,8 @@ export class WorkService {
     expiringDocuments: () => this.expiringDocuments(),
     stagedCatalogRuns: () => this.stagedRuns('catalog'),
     stagedCustomerRuns: () => this.stagedRuns('customers'),
-    myPayments: (user) => this.myPayments(user.id),
-    myPickups: (user) => this.myPickups(user.id),
+    myPayments: (user) => this.myOrders(user.id, 'to-pay'),
+    myPickups: (user) => this.myOrders(user.id, 'to-collect'),
   };
 
   async countsFor(user: AuthUser): Promise<WorkCounts> {
@@ -101,14 +81,12 @@ export class WorkService {
     const figures = await Promise.all(
       queues.map((queue) => this.counters[queue](user)),
     );
-
-    const counts: WorkCounts = {};
-    queues.forEach((queue, index) => (counts[queue] = figures[index]));
-    return counts;
+    return Object.fromEntries(
+      queues.map((queue, index) => [queue, figures[index]]),
+    );
   }
 
-  /** Accounts that asked for access and have not been answered (FR-AUTH-01).
-   * Customers only: staff accounts are created already approved. */
+  /** Customers only: staff accounts are created approved. */
   private registrations(): Promise<number> {
     return this.db.$count(
       users,
@@ -116,24 +94,8 @@ export class WorkService {
     );
   }
 
-  /** Order requests nobody has answered — the staff list's default filter. */
-  private staffOrders(): Promise<number> {
-    return this.db.$count(orders, eq(orders.status, 'requested'));
-  }
-
-  /**
-   * Orders handed over with the money not recorded (FR-ORD-04) — the shop's
-   * last move on an order, and the one nothing else prompts for.
-   *
-   * The predicate is `awaitsPaymentRecord`, written in SQL here and in
-   * TypeScript in the shared table; the staff list's `unpaid` filter narrows
-   * to the same rows, so the figure and the list it opens are the same
-   * question asked twice.
-   *
-   * It does not empty by itself the way `requested` does: an order handed over
-   * and never paid for stays counted until somebody records it. That is the
-   * honest reading — it is a real open item — and there is no writing off.
-   */
+  /** Handed over with no payment recorded (FR-ORD-04). It stays counted until
+   * somebody records one: there is no writing off. */
   private unpaidOrders(): Promise<number> {
     return this.db.$count(
       orders,
@@ -141,16 +103,8 @@ export class WorkService {
     );
   }
 
-  /**
-   * Products off the storefront awaiting review (FR-ADM-06) — what a sync run
-   * leaves behind. Soft-deleted rows are not work: nothing is waiting on a
-   * product the source system has dropped.
-   *
-   * Priced ones only. An unpriced product cannot be published at all, so
-   * counting it here would leave a figure nobody can clear by doing the work
-   * the figure describes; it is counted beside this one instead, where the
-   * work it names is the work it needs.
-   */
+  /** Priced only: an unpriced product cannot be published, so it is counted by
+   * the next queue, whose work is pricing it. */
   private unpublishedProducts(): Promise<number> {
     return this.db.$count(
       products,
@@ -162,11 +116,6 @@ export class WorkService {
     );
   }
 
-  /**
-   * Products no price list prices. Usually a source system that exported the
-   * product before its price — the catalog holds it, the storefront cannot
-   * show it, and somebody has to either price it here or fix the export.
-   */
   private unpricedProducts(): Promise<number> {
     return this.db.$count(
       products,
@@ -174,10 +123,6 @@ export class WorkService {
     );
   }
 
-  /**
-   * Documents whose expiry has already passed (FR-DOC-04) — the shop out of
-   * compliance now, and the more urgent half of the pair.
-   */
   private expiredDocuments(): Promise<number> {
     return this.db.$count(
       documents,
@@ -188,38 +133,24 @@ export class WorkService {
     );
   }
 
-  /**
-   * Documents due to expire inside the warning window (FR-DOC-04). A document
-   * with no expiry never comes due and is never counted, and one that has
-   * already expired is counted by the queue above rather than twice here.
-   *
-   * The bounds are computed here rather than in SQL so they are the same day
-   * arithmetic the badge and the filter use — a count that disagreed with the
-   * list it links to by a day would be unexplainable.
-   */
+  /** Bounded in days here rather than in SQL, so it is the same arithmetic as
+   * the badge and the list filter. Today counts as expiring, not expired. */
   private expiringDocuments(): Promise<number> {
-    const due = new Date();
+    const today = new Date();
+    const due = new Date(today);
     due.setUTCDate(due.getUTCDate() + DOCUMENT_EXPIRY_WARNING_DAYS);
     return this.db.$count(
       documents,
       and(
         isNotNull(documents.expiresAt),
-        gte(documents.expiresAt, isoToday(new Date())),
+        gte(documents.expiresAt, isoToday(today)),
         lte(documents.expiresAt, isoToday(due)),
       ),
     );
   }
 
-  /**
-   * Automated runs staged for an admin to apply or discard (FR-ADM-07). The
-   * figure falls on its own: a staged run is superseded by the next one and a
-   * discarded one has been answered, so nothing here is acknowledged.
-   *
-   * `source` is half the predicate, not decoration. A manual upload sits in
-   * `previewed` too, between its preview and its commit — but that is one
-   * person's screen mid-use, which is why nothing supersedes it either. Only a
-   * run that arrived while nobody was looking is work waiting for somebody.
-   */
+  /** Automated runs only: a manual upload is also `previewed` between its
+   * preview and its commit, but that is somebody's open screen, not work. */
   private stagedRuns(area: SyncArea): Promise<number> {
     return this.db.$count(
       syncRuns,
@@ -231,36 +162,9 @@ export class WorkService {
     );
   }
 
-  /**
-   * The account's own orders the shop is waiting to be paid for (FR-WORK-04) —
-   * one of the two things only the customer can finish (ADR 0050).
-   *
-   * `awaiting` is the whole rule: it is set when an invoiced order is accepted
-   * and cleared when the order ends, so nothing here has to say which statuses
-   * count.
-   */
-  private myPayments(userId: string): Promise<number> {
-    return this.db.$count(
-      orders,
-      and(eq(orders.userId, userId), eq(orders.paymentState, 'awaiting')),
-    );
-  }
-
-  /**
-   * The account's own orders packed and waiting to be collected — the other
-   * one, and the other half of what used to be a single figure. Counted apart
-   * because paying an invoice and driving to the counter are two jobs, and one
-   * count over both could link to neither list.
-   *
-   * A delivered order is not here: it waits on the driver, not on the person
-   * who ordered it.
-   */
-  private async myPickups(userId: string): Promise<number> {
-    // Joined to the version the *customer* is on, not the one the order now
-    // stands at: how an order is fulfilled is part of what it says and an
-    // adjustment can change it (ADR 0051), so a switch to delivery nobody has
-    // told them about must not empty a marker that links to a list still
-    // showing the collection they were promised.
+  /** Joined to the revision the customer is on, as their list is: an
+   * adjustment they have not seen must not empty the marker. */
+  private async myOrders(userId: string, filter: MyOrderFilter) {
     const [{ total }] = await this.db
       .select({ total: count() })
       .from(orders)
@@ -268,13 +172,7 @@ export class WorkService {
         orderRevisions,
         eq(orders.customerRevisionId, orderRevisions.id),
       )
-      .where(
-        and(
-          eq(orders.userId, userId),
-          eq(orders.status, 'ready'),
-          eq(orderRevisions.fulfilmentMethod, 'pickup'),
-        ),
-      );
+      .where(and(eq(orders.userId, userId), MY_ORDER_CONDITIONS[filter]));
     return total;
   }
 }

@@ -36,9 +36,9 @@ const RECENT_ORDERS = 5;
       <div uiCard>
         <!-- What waits on the account holder (FR-WORK-03), each linking to
              the history narrowed to it. -->
-        @if (waitingPayments() || waitingPickups()) {
+        @if (payments() || pickups()) {
           <div class="mb-4 flex flex-col gap-1">
-            @if (waitingPayments(); as count) {
+            @if (payments(); as count) {
               <a
                 uiActionLink
                 routerLink="/account/orders"
@@ -46,7 +46,7 @@ const RECENT_ORDERS = 5;
                 >{{ fill(orderText.awaitingPayment, count) }}</a
               >
             }
-            @if (waitingPickups(); as count) {
+            @if (pickups(); as count) {
               <a
                 uiActionLink
                 routerLink="/account/orders"
@@ -92,17 +92,9 @@ export class RecentOrders {
   private readonly api = inject(OrdersService);
   protected readonly orderText = inject(STOREFRONT_TEXT).orders;
 
-  /** What waits on the holder, from the work counts the shell reads. */
+  /** What waits on the holder; zero or absent draws no line. */
   readonly payments = input<number>();
   readonly pickups = input<number>();
-
-  /** `undefined` at zero, so no line is drawn. */
-  protected readonly waitingPayments = computed(
-    () => this.payments() || undefined,
-  );
-  protected readonly waitingPickups = computed(
-    () => this.pickups() || undefined,
-  );
 
   protected fill(template: string, count: number): string {
     return fillText(template, { count });
