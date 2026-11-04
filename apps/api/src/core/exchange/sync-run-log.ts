@@ -4,13 +4,14 @@ import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import {
   MachineSyncRun,
   SyncArea,
+  SyncFailureReport,
   SyncRun,
   SyncRunStatus,
 } from '@b2b-catalog-platform/shared/core/exchange';
 import { DRIZZLE } from '../../db/database.module';
 import * as schema from '../../db/schema';
 import { syncRuns } from '../../db/schema';
-import { runNotFound } from './sync-run';
+import { Submitter, runNotFound } from './sync-run';
 
 /** Staged rows and finished runs are audit data, not archive data. */
 const RUN_RETENTION_DAYS = 90;
@@ -71,6 +72,35 @@ export class SyncRunLog {
           eq(syncRuns.area, area),
         ),
       );
+  }
+
+  /**
+   * A breakage the client could not turn into a run, recorded as a failed
+   * one: a broken feed must not look like one with nothing to send. Returns
+   * the status before it, for the notice.
+   */
+  async recordFailure(
+    area: SyncArea,
+    report: SyncFailureReport,
+    submitter: Submitter,
+  ): Promise<{ run: SyncRun; previous: SyncRunStatus | null }> {
+    const previous = await this.previousMachineStatus(area);
+    const now = new Date();
+    const [row] = await this.db
+      .insert(syncRuns)
+      .values({
+        area,
+        status: 'failed',
+        source: 'api',
+        filename: report.label ?? null,
+        tokenId: submitter.id,
+        tokenName: submitter.name,
+        startedAt: now,
+        finishedAt: now,
+        error: report.message,
+      })
+      .returning();
+    return { run: toSyncRun(row), previous };
   }
 
   /** Drops staged rows and whole runs past retention, whatever the area,

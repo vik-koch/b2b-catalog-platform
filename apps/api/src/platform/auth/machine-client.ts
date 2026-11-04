@@ -1,10 +1,7 @@
 import { ApiTokenScope } from '@b2b-catalog-platform/shared';
 
-/**
- * Who a machine request is, once its token has been checked. The counterpart of
- * `AuthUser`, and deliberately not one: there is no person here, so nothing
- * that reads a user should be able to read this by accident.
- */
+/** Who a machine request is: deliberately not an `AuthUser`, so nothing
+ * that reads a person can read it. */
 export interface MachineClient {
   id: string;
   name: string;

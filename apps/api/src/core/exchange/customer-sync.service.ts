@@ -197,30 +197,16 @@ export class CustomerSyncService {
     return { run: toSyncRun(row), plan };
   }
 
-  /** A breakage the caller could not turn into a run, recorded as a failed
-   * one: a broken feed must not look like one with nothing to send. */
   async reportFailure(
     report: SyncFailureReport,
     submitter: Submitter,
   ): Promise<{ run: SyncRun }> {
     if (!this.customersAreOwned) throw customersNotExternallyOwned();
-    const previous = await this.log.previousMachineStatus('customers');
-    const now = new Date();
-    const [row] = await this.db
-      .insert(syncRuns)
-      .values({
-        area: 'customers',
-        status: 'failed',
-        source: 'api',
-        filename: report.label ?? null,
-        tokenId: submitter.id,
-        tokenName: submitter.name,
-        startedAt: now,
-        finishedAt: now,
-        error: report.message,
-      })
-      .returning();
-    const run = toSyncRun(row);
+    const { run, previous } = await this.log.recordFailure(
+      'customers',
+      report,
+      submitter,
+    );
     await this.notifications.announce(run, previous);
     return { run };
   }

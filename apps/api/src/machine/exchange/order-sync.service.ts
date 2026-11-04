@@ -1,5 +1,4 @@
-import { HttpException, Injectable } from '@nestjs/common';
-import { Inject } from '@nestjs/common';
+import { HttpException, Inject, Injectable } from '@nestjs/common';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import {
   ORDER_SYNC_ROW_ERROR_CODES,
@@ -27,21 +26,10 @@ import { SyncRunLog, toSyncRun } from '../../core/exchange/sync-run-log';
 import { SyncNotifications } from '../../core/exchange/sync-notifications';
 
 /**
- * The order write-back (FR-ADM-08, ADR 0062): what an owning system says has
- * become of the orders it was handed.
- *
- * **A batch is one run, applied as it arrives.** The other two areas stage a
- * run when its effect is larger than the deployment lets one apply unattended,
- * because a person is the fallback owner of a catalog and of a customer book.
- * Here the premise of the arrangement is that the platform is *not* the
- * reviewer: staging an answer to an order would leave the customer waiting on
- * a decision nobody in this shop is placed to take, and a source polling every
- * few minutes would file a run per cycle for somebody to read.
- *
- * **One instruction failing never fails the batch.** Each order is written on
- * its own and refused on its own, so a run that could not answer three orders
- * still answered the other forty — an all-or-nothing batch would have the
- * source re-send the lot to retry three, and re-answer the forty on the way.
+ * The order write-back (FR-ADM-08): a batch is one run, applied as it arrives,
+ * since nobody in the shop is placed to review an answer to an order. Each
+ * order is written and refused on its own, so three refusals do not make the
+ * source re-send the other forty.
  */
 @Injectable()
 export class OrderSyncService {
@@ -57,26 +45,15 @@ export class OrderSyncService {
     return this.ownership.isExternallyOwned('orders');
   }
 
-  /**
-   * One batch: every instruction in it, then the run that records what became
-   * of them.
-   *
-   * The run is written *after* the work rather than before it, which is the
-   * opposite of the staging areas and follows from the same fact: there is no
-   * moment here at which a run exists and has not happened yet.
-   */
+  /** The run is written after the work: it never exists before it has
+   * happened. */
   async submit(
     submission: OrderSyncSubmission,
     submitter: Submitter,
   ): Promise<OrderSyncSubmitResponse> {
-    // Nobody has handed order processing over, so the shop is answering its
-    // own orders — the mirror of the refusal the admin panel meets while the
-    // area *is* owned.
     if (!this.ordersAreOwned) throw ordersNotExternallyOwned();
 
-    // Whoever acted over there, or the credential that spoke for them. Either
-    // way an opaque label: it is written beside the versions this run produces
-    // and never resolved to an account here (FR-ADM-08).
+    // An opaque label beside the versions, never resolved to an account.
     const source = submission.actor ?? submitter.name;
     const results: OrderWriteResult[] = [];
     const rowErrors: OrderSyncRowError[] = [];
@@ -84,8 +61,7 @@ export class OrderSyncService {
 
     for (const [index, instruction] of submission.orders.entries()) {
       const row = index + 1;
-      // Two answers to one question, with nothing here able to say which of
-      // them the source meant to be the later one.
+      // Nothing here can say which of two answers the source meant last.
       if (seen.has(instruction.reference)) {
         rowErrors.push({
           row,
@@ -100,23 +76,18 @@ export class OrderSyncService {
         results.push(await this.orders.writeBack(instruction, source));
       } catch (error) {
         const refusal = rowError(row, instruction.reference, error);
-        // Anything without one of this area's codes is a fault rather than a
-        // refusal, and a fault must not be filed as a row somebody typed
-        // badly.
+        // Without one of this area's codes it is a fault, not a refusal.
         if (!refusal) throw error;
         rowErrors.push(refusal);
       }
     }
 
     const plan = toPlan(submission.orders.length, results, rowErrors);
-    // Nothing happened at all: no order written, none refused. The ordinary
-    // answer to a source that re-sends what it already sent, and filed as the
-    // status that says so rather than as a run that did something.
+    // The ordinary answer to a source re-sending what it already sent.
     const nothingToDo = plan.summary.update === 0 && plan.summary.errors === 0;
 
     await this.log.prune();
-    // Where this area's feed stood before this run, read before the row that
-    // becomes its new answer.
+    // Read before the insert, which would otherwise answer the question.
     const previous = await this.log.previousMachineStatus('orders');
     const now = new Date();
     const [written] = await this.db
@@ -130,8 +101,7 @@ export class OrderSyncService {
         filename: submission.label ?? null,
         tokenId: submitter.id,
         tokenName: submitter.name,
-        // Never staged, so there is no reason to give and nothing to hold:
-        // `rows` and `options` are what a staged run keeps for its second look.
+        // Never staged, so nothing is kept for a second look.
         stagedReason: null,
         options: null,
         rows: null,
@@ -146,33 +116,16 @@ export class OrderSyncService {
     return { run, plan };
   }
 
-  /**
-   * A breakage the caller could not turn into a run, recorded as a failed run
-   * of its own — because the alternative is silence, and an exchange that has
-   * stopped answering orders looks exactly like one with nothing to answer.
-   */
   async reportFailure(
     report: SyncFailureReport,
     submitter: Submitter,
   ): Promise<{ run: SyncRun }> {
     if (!this.ordersAreOwned) throw ordersNotExternallyOwned();
-    const previous = await this.log.previousMachineStatus('orders');
-    const now = new Date();
-    const [row] = await this.db
-      .insert(syncRuns)
-      .values({
-        area: 'orders',
-        status: 'failed',
-        source: 'api',
-        filename: report.label ?? null,
-        tokenId: submitter.id,
-        tokenName: submitter.name,
-        startedAt: now,
-        finishedAt: now,
-        error: report.message,
-      })
-      .returning();
-    const run = toSyncRun(row);
+    const { run, previous } = await this.log.recordFailure(
+      'orders',
+      report,
+      submitter,
+    );
     await this.notifications.announce(run, previous);
     return { run };
   }
@@ -187,8 +140,7 @@ function toPlan(
   const written = results.filter((result) => result.kind !== 'unchanged');
   const summary: SyncSummary = {
     rows,
-    // Nothing is created here and nothing is removed: an order arrives from
-    // the storefront and stays. `update` is the orders this run answered.
+    // Orders are neither created nor removed here; `update` is those answered.
     create: 0,
     update: written.length,
     softDelete: 0,
@@ -202,8 +154,7 @@ function toPlan(
     claimed: 0,
     claimedById: 0,
     errors: rowErrors.length,
-    // What this run did, rather than how much: the same line the catalog's
-    // `price:<key>` fills, worded for what an order can have done to it.
+    // What this run did, where the catalog lists the fields it wrote.
     fields: [
       written.some((result) => result.kind === 'transition') ? 'status' : '',
       written.some((result) => result.kind === 'adjustment') ? 'lines' : '',
@@ -212,8 +163,7 @@ function toPlan(
   };
   return {
     summary,
-    // Capped so a batch of ten thousand orders answers with a response rather
-    // than a download; the counts above stay exact.
+    // Capped so a huge batch answers with a response; the counts stay exact.
     orders: results.slice(0, SYNC_PREVIEW_MAX_ITEMS),
     rowErrors: rowErrors.slice(0, SYNC_PREVIEW_MAX_ITEMS),
     truncated:
@@ -224,15 +174,8 @@ function toPlan(
 
 const ROW_ERROR_CODES: readonly string[] = ORDER_SYNC_ROW_ERROR_CODES;
 
-/**
- * One order's refusal, as a row of the run.
- *
- * The write raises the refusals every other caller of it raises — an order
- * that moved on, a move the table does not allow, a product nothing answers
- * to — and this is where they stop being an answer to *the request* and become
- * a line in *the run*. Anything carrying a code this area does not name is
- * handed back to the caller as the fault it is.
- */
+/** One order's refusal as a row of the run, or null for an exception that
+ * carries none of this area's codes. */
 function rowError(
   row: number,
   reference: string,
@@ -250,9 +193,7 @@ function rowError(
   };
   if (typeof code !== 'string' || !ROW_ERROR_CODES.includes(code)) return null;
 
-  // The values from the sending system's own data that the deployment's
-  // wording quotes back — which version the order actually stands at, which
-  // product key nothing answers to.
+  // The sender's own values the deployment's wording quotes back.
   const params: Record<string, string> = { reference };
   if (typeof current === 'number') params.current = String(current);
   if (typeof productSourceId === 'string') {

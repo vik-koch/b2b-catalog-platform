@@ -6,22 +6,15 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { MachineTokens } from './machine-tokens';
 import { bearerToken } from './api-token-value';
 import { MachineRequest } from './machine-client';
 import { MachineScope } from './machine-scope.decorator';
+import { MachineTokens } from './machine-tokens';
 
 /**
- * Authenticates an automated client from its bearer token (NFR-SEC-09).
- *
- * The whole of the machine authentication path: no cookie is read, no user is
- * loaded, and a route reached through here has no `request.user` at all. The
- * database is consulted on every request, which is what makes revocation
- * immediate — there is no version counter to propagate and no token lifetime
- * to wait out.
- *
- * Fails closed in the one way that matters: a route carrying the guard without
- * a scope is a misconfiguration, and is refused rather than allowed.
+ * Authenticates an automated client from its bearer token (NFR-SEC-09). No
+ * cookie is read and no user loaded. The row is read on every request, so a
+ * revocation is immediate; a route without a scope is refused.
  */
 @Injectable()
 export class MachineTokenGuard implements CanActivate {
@@ -46,20 +39,17 @@ export class MachineTokenGuard implements CanActivate {
     const presented = bearerToken(request.headers['authorization']);
     if (!presented) throw unauthenticated();
 
-    const result = await this.tokens.authenticate(presented);
-    // A value that matches nothing and one that matches a revoked row are the
-    // same answer to the caller: this credential does not work. Which of the
-    // two it was is the operator's business, not the client's.
-    if (!result || result.revoked) throw unauthenticated();
+    const client = await this.tokens.authenticate(presented);
+    if (!client) throw unauthenticated();
 
-    if (!result.client.scopes.includes(required)) {
+    if (!client.scopes.includes(required)) {
       throw new ForbiddenException({
         code: 'insufficient-scope',
         message: 'Token does not carry the capability this endpoint needs',
       });
     }
 
-    request.machine = result.client;
+    request.machine = client;
     return true;
   }
 }

@@ -1,26 +1,18 @@
 import { Controller } from '@nestjs/common';
 import { Implement, implement } from '@orpc/nest';
 import { machineOrderSyncContract } from '@b2b-catalog-platform/shared/machine/exchange';
-import { CurrentMachine } from '../../platform/auth/current-machine.decorator';
-import { Machine } from '../../platform/auth/machine.decorator';
-import { MachineClient } from '../../platform/auth/machine-client';
+import { SyncRunLog } from '../../core/exchange/sync-run-log';
 import { refusals } from '../../orpc/refusals';
+import { CurrentMachine } from '../../platform/auth/current-machine.decorator';
+import { MachineClient } from '../../platform/auth/machine-client';
+import { Machine } from '../../platform/auth/machine.decorator';
 import { MachineThrottle } from '../../throttling/throttle-presets';
 import { OrderSyncService } from './order-sync.service';
-import { SyncRunLog } from '../../core/exchange/sync-run-log';
 
 /**
- * The order write-back (FR-ADM-08): what an automated client reaches with its
- * token alone.
- *
- * Its own controller and its own capability, as every machine surface here is:
- * the guard names one thing per class and checks it before the body is read.
- * `order-sync` is the pen — moving orders, changing what they say, recording
- * the money — and it is deliberately not `order-read` beside it, because a
- * system pulls orders for weeks before anybody lets it answer one.
- *
- * No commit route, exactly as next door: an order run is applied as it
- * arrives (ADR 0062), so there is nothing here for anybody to press.
+ * The order write-back (FR-ADM-08). `order-sync` is apart from `order-read`
+ * because a system pulls orders for weeks before anybody lets it answer one.
+ * No commit route: an order run is applied as it arrives.
  */
 @Machine('order-sync')
 @MachineThrottle()
@@ -33,18 +25,9 @@ export class MachineOrderSyncController {
 
   @Implement(machineOrderSyncContract.submitRun)
   submitRun(@CurrentMachine() machine: MachineClient) {
-    return (
-      implement(machineOrderSyncContract.submitRun)
-        // The ownership refusal travels as its code rather than as a 500 with
-        // the code stripped off — see `refusals`.
-        .use(refusals)
-        .handler(({ input }) =>
-          this.service.submit(input.body, {
-            id: machine.id,
-            name: machine.name,
-          }),
-        )
-    );
+    return implement(machineOrderSyncContract.submitRun)
+      .use(refusals)
+      .handler(({ input }) => this.service.submit(input.body, machine));
   }
 
   @Implement(machineOrderSyncContract.getRun)
@@ -60,11 +43,6 @@ export class MachineOrderSyncController {
   reportFailure(@CurrentMachine() machine: MachineClient) {
     return implement(machineOrderSyncContract.reportFailure)
       .use(refusals)
-      .handler(({ input }) =>
-        this.service.reportFailure(input.body, {
-          id: machine.id,
-          name: machine.name,
-        }),
-      );
+      .handler(({ input }) => this.service.reportFailure(input.body, machine));
   }
 }

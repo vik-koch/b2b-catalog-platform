@@ -43,11 +43,14 @@ import {
 import * as schema from '../../db/schema';
 
 /**
- * Whether the customer called the order off themselves (FR-ADM-08/10): only
- * an instruction that says so may take that back. Read off who wrote the
- * version: their own account, a manager's, or nobody's for an exchange.
+ * Whether the customer called the order off themselves (FR-ADM-08/10), read
+ * off who wrote the current version: their own account, a manager's, or
+ * nobody's for an exchange.
  */
-function cancelledByCustomer(row: OrderRow): boolean {
+export function cancelledByCustomer(row: {
+  revisionCreatedBy: string | null;
+  userId: string | null;
+}): boolean {
   return row.revisionCreatedBy !== null && row.revisionCreatedBy === row.userId;
 }
 
@@ -66,38 +69,14 @@ export class OrderWriteBack {
     private readonly writer: OrderWriter,
   ) {}
 
-  /**
-   * An owning system answering an order (FR-ADM-08).
-   *
-   * The admin panel's three buttons in one instruction, and deliberately so:
-   * an order that was accepted, re-priced and paid between two polls is one
-   * thing that happened to it. Three calls would write three versions, ask the
-   * customer's mail question three times, and leave the thread describing a
-   * conversation nobody had.
-   *
-   * So this writes **at most one version** (ADR 0062). At most, because an
-   * instruction that says what the order already says writes none at all
-   * (FR-ADM-16) — a polling source re-sends, and a re-send must not lengthen
-   * the thread — and because recording the money on its own writes none
-   * either: what has been received is a fact about the order rather than a
-   * reading of it, exactly as it is when a manager ticks the box.
-   *
-   * Two things it will not do, both from FR-ADM-10's carve-out. An order the
-   * customer called off is refused rather than driven forward over the top:
-   * they may still do that however the area is owned, and the alternative is a
-   * cancellation that silently never happened. Only an instruction that says
-   * it takes the cancellation back may move it, and it has to tell them. And
-   * what the customer wrote in their own words — their note, their line notes,
-   * the day they asked for, the unit they read each line in — is carried
-   * across untouched, as it is when a manager adjusts an order.
-   */
+  /** One instruction, so an order accepted, re-priced and paid between two
+   * polls reads as one thing that happened to it. */
   async writeBack(
     input: OrderWrite,
     source: string,
   ): Promise<OrderWriteResult> {
     const current = await this.reads.row(eq(orders.reference, input.reference));
-    // Stated up front, so a stale instruction is told so instead of losing a
-    // race.
+    // Up front, so a stale instruction is told so instead of losing a race.
     if (current.revisionNumber !== input.basedOnRevision) {
       throw new ConflictException({
         code: 'order-changed',
@@ -142,8 +121,7 @@ export class OrderWriteBack {
     const method = current.paymentMethod as PaymentMethod;
     const paying = input.paid === true && current.paymentState !== 'paid';
     const unpaying = input.paid === false && current.paymentState === 'paid';
-    // Nothing is owed on an order nobody is filling, so nothing can be
-    // recorded against it — the same refusal a manager's tick meets.
+    // Nothing is owed on an order nobody is filling, as for a manager's tick.
     if (paying && transitionHasReason(to)) {
       throw new BadRequestException({
         code: 'payment-not-recordable',
@@ -171,8 +149,7 @@ export class OrderWriteBack {
       return this.writeResult(current, 'unchanged', false, droppedNote);
     }
 
-    // The money on its own is not a version. Recorded through the one writer
-    // that records it, so an exchange and a manager leave the same record.
+    // The money on its own is not a version, as for a manager.
     if (!moved && !changed) {
       await this.writer.setPayment(
         input.reference,
@@ -187,8 +164,7 @@ export class OrderWriteBack {
     // its snapshot of a finished order is still told `unchanged`.
     refuseIfDetailsRemoved(current);
 
-    // Read before the write, because the write is what changes the answer:
-    // this is where the customer's account of the changes has to start.
+    // Before the write, which changes where the customer's account starts.
     const notified = await this.reads.customerThread(current.id);
     await this.writer.appendRevision(current, {
       // A version that moved and changed the order is filed as the change.
@@ -299,14 +275,13 @@ export class OrderWriteBack {
       });
     }
 
-    // What the customer read each line in, kept: a line they bought by the box
+    // What the customer read each line in, kept: a line bought by the box
     // still reads in boxes after the shop re-counts it.
-    const carried = new Map(
-      (await this.reads.items(current.revisionId)).map((item) => [
-        item.productSourceId,
-        item,
-      ]),
-    );
+    const [items, tierId] = await Promise.all([
+      this.reads.items(current.revisionId),
+      this.writer.tierId(current.tierKey),
+    ]);
+    const carried = new Map(items.map((item) => [item.productSourceId, item]));
     const priced = await priceAdjustment(
       this.db,
       lines.map((line) => {
@@ -319,7 +294,7 @@ export class OrderWriteBack {
           priceMinor: line.priceMinor,
         };
       }),
-      await this.writer.tierId(current.tierKey),
+      tierId,
       this.writer.lineTaxRate(current),
     );
     return {

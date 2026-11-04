@@ -15,39 +15,20 @@ export class MachineTokens {
   ) {}
 
   /**
-   * Resolves a presented value to the client behind it, or null. Whether the
-   * capabilities cover the route is not decided here — the guard knows what
-   * the route asked for, and this only says who is calling.
-   *
-   * A successful lookup stamps `lastUsedAt` before answering, so a token in
-   * use always says so. A revoked one is not stamped: the field answers "is
-   * this still working", and a refused request is not use.
+   * The client behind a live token, or null for an unknown or revoked one:
+   * the caller is owed no difference. Stamps `lastUsedAt`, which a refused
+   * request is not.
    */
-  async authenticate(value: string): Promise<{
-    client: MachineClient;
-    revoked: boolean;
-  } | null> {
-    const hash = hashToken(value);
+  async authenticate(value: string): Promise<MachineClient | null> {
     const row = await this.db.query.apiTokens.findFirst({
-      where: eq(apiTokens.tokenHash, hash),
+      where: eq(apiTokens.tokenHash, hashToken(value)),
     });
-    if (!row) return null;
-
-    if (row.revokedAt) {
-      return {
-        client: { id: row.id, name: row.name, scopes: row.scopes },
-        revoked: true,
-      };
-    }
+    if (!row || row.revokedAt) return null;
 
     await this.db
       .update(apiTokens)
       .set({ lastUsedAt: new Date() })
       .where(eq(apiTokens.id, row.id));
-
-    return {
-      client: { id: row.id, name: row.name, scopes: row.scopes },
-      revoked: false,
-    };
+    return { id: row.id, name: row.name, scopes: row.scopes };
   }
 }

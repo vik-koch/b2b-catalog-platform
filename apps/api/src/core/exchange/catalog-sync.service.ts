@@ -279,30 +279,17 @@ export class CatalogSyncService {
     return { run: applied.run, plan: applied.plan };
   }
 
-  /** A breakage the caller could not turn into a run, recorded as a failed
-   * one: a broken feed must not look like one with nothing to send. */
   async reportFailure(
     report: SyncFailureReport,
     submitter: Submitter,
   ): Promise<{ run: SyncRun }> {
     // Refused like a submission: a catalog taken back is not listening.
     if (!this.catalogIsOwned) throw catalogNotExternallyOwned();
-    const previous = await this.log.previousMachineStatus('catalog');
-    const now = new Date();
-    const [row] = await this.db
-      .insert(syncRuns)
-      .values({
-        status: 'failed',
-        source: 'api',
-        filename: report.label ?? null,
-        tokenId: submitter.id,
-        tokenName: submitter.name,
-        startedAt: now,
-        finishedAt: now,
-        error: report.message,
-      })
-      .returning();
-    const run = toSyncRun(row);
+    const { run, previous } = await this.log.recordFailure(
+      'catalog',
+      report,
+      submitter,
+    );
     await this.notifications.announce(run, previous);
     return { run };
   }

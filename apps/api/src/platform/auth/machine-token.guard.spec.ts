@@ -41,10 +41,7 @@ describe('MachineTokenGuard', () => {
 
   it('admits a live token whose scope covers the route', async () => {
     requireScope('catalog-sync');
-    (tokens.authenticate as Mock).mockResolvedValue({
-      client,
-      revoked: false,
-    });
+    (tokens.authenticate as Mock).mockResolvedValue(client);
     const request = withHeaders({ authorization: 'Bearer abc.def' });
 
     await expect(guard.canActivate(contextFor(request))).resolves.toBe(true);
@@ -91,9 +88,9 @@ describe('MachineTokenGuard', () => {
     ).rejects.toThrow(UnauthorizedException);
   });
 
-  it('refuses a revoked token the same way, and does not populate the request', async () => {
+  it('does not populate the request when the token is refused', async () => {
     requireScope('catalog-sync');
-    (tokens.authenticate as Mock).mockResolvedValue({ client, revoked: true });
+    (tokens.authenticate as Mock).mockResolvedValue(null);
     const request = withHeaders({ authorization: 'Bearer abc.def' });
 
     await expect(guard.canActivate(contextFor(request))).rejects.toThrow(
@@ -104,10 +101,7 @@ describe('MachineTokenGuard', () => {
 
   it("forbids a live token that does not carry the route's capability", async () => {
     requireScope('some-other-capability');
-    (tokens.authenticate as Mock).mockResolvedValue({
-      client,
-      revoked: false,
-    });
+    (tokens.authenticate as Mock).mockResolvedValue(client);
 
     await expect(
       guard.canActivate(
@@ -121,11 +115,8 @@ describe('MachineTokenGuard', () => {
   it("admits a token carrying the route's capability among others", async () => {
     requireScope('catalog-sync');
     (tokens.authenticate as Mock).mockResolvedValue({
-      client: {
-        ...client,
-        scopes: ['some-other-capability', 'catalog-sync'],
-      },
-      revoked: false,
+      ...client,
+      scopes: ['some-other-capability', 'catalog-sync'],
     });
 
     await expect(

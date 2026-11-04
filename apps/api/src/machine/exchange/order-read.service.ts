@@ -19,23 +19,12 @@ import { DRIZZLE } from '../../db/database.module';
 import * as schema from '../../db/schema';
 import { orderItems, orderRevisions, orders, users } from '../../db/schema';
 import { encodeMachineCursor, parseMachineCursor } from './machine-cursor';
+import { cancelledByCustomer } from './order-write-back';
 
 /**
- * The outbound read of orders (FR-ADM-08).
- *
- * Its own service beside the customer read, under the same rule: it answers
- * whether or not anybody owns order processing, because the case it exists for
- * is the one before the hand-over — a system cannot be given orders to work
- * until it can see the orders that are here.
- *
- * It reads the order's **current version** and nothing else. The thread of
- * superseded versions is the shop's record of how an order got where it is
- * (FR-ORD-03); what is worked outside is where it is now, and naming that
- * version is what lets a write-back answer something rather than guess
- * (FR-ADM-08).
- *
- * Nothing here writes, and nothing here is refused by a setting: what gates it
- * is the token an admin issued with the `order-read` capability on it.
+ * The outbound read of orders (FR-ADM-08): the current version only, whose
+ * number a write-back names to answer it rather than guess. The superseded
+ * versions are the shop's own record.
  */
 @Injectable()
 export class OrderReadService {
@@ -44,14 +33,9 @@ export class OrderReadService {
   ) {}
 
   /**
-   * One page of orders, oldest change first.
-   *
-   * Ordered and paged on `orders.updatedAt` — when anything last happened to
-   * the order — rather than on when it was placed, because the one call a
-   * scheduled puller actually makes is "everything that has moved since I last
-   * asked", and an order that was cancelled this morning was placed last week.
-   * `id` breaks the tie: a cursor over a non-unique ordering either repeats
-   * rows or loses them.
+   * One page, oldest change first: by `updatedAt`, not placement, since a
+   * puller asks what moved since it last asked. `id` breaks the tie, or a
+   * cursor repeats or loses rows.
    */
   async listOrders(query: ListMachineOrdersQuery): Promise<MachineOrdersPage> {
     const after = parseMachineCursor(query.cursor);
@@ -59,14 +43,12 @@ export class OrderReadService {
       this.db,
       and(
         query.since ? gte(orders.updatedAt, new Date(query.since)) : undefined,
-        // Row comparison rather than two clauses: it is the ordering written
-        // down once, so the index that serves the sort serves the seek.
+        // One row comparison, so the index that serves the sort serves the seek.
         after
           ? sql`(${orders.updatedAt}, ${orders.id}) > (${after.updatedAt}::timestamptz, ${after.id}::uuid)`
           : undefined,
       ),
-      // One more than asked for, purely to find out whether there is a next
-      // page. Cheaper than a count over a table being written to, and exact.
+      // One more than asked for says whether there is a next page.
       query.limit + 1,
     );
 
@@ -82,11 +64,7 @@ export class OrderReadService {
     };
   }
 
-  /**
-   * One order by the reference it is quoted by — the answer to "what does it
-   * say now", which is the question a refused write-back leaves a client
-   * holding.
-   */
+  /** What an order says now: the question a refused write-back leaves. */
   async getOrder(reference: string): Promise<MachineOrder> {
     const [row] = await orderRows(this.db, eq(orders.reference, reference), 1);
     if (!row) {
@@ -99,11 +77,7 @@ export class OrderReadService {
     return toRecord(row, lines.get(row.revisionId) ?? []);
   }
 
-  /**
-   * The lines of every version on the page, in one query rather than one per
-   * order: a page is fifty orders, and fifty round trips to say what each of
-   * them contains is the read's whole cost.
-   */
+  /** The lines of every version on the page, in one query. */
   private async linesOf(
     revisionIds: string[],
   ): Promise<Map<string, MachineOrderLine[]>> {
@@ -125,8 +99,6 @@ export class OrderReadService {
       })
       .from(orderItems)
       .where(inArray(orderItems.revisionId, revisionIds))
-      // The order the customer wrote them in, which is the order every other
-      // reading of the order uses.
       .orderBy(asc(orderItems.revisionId), asc(orderItems.sortOrder));
 
     for (const row of rows) {
@@ -149,12 +121,9 @@ export class OrderReadService {
 }
 
 /**
- * The order joined to the version it stands on, and to the account it was
- * placed from where there is one.
- *
- * An inner join on the revision: the pointer is nullable only because the
- * order row is written a statement before its first version, inside one
- * transaction, so an order without one cannot be read by anybody.
+ * The order on its current version, and its account where there is one. An
+ * inner join: the pointer is null only inside the transaction that writes the
+ * first version.
  */
 function orderRows(
   db: NodePgDatabase<typeof schema>,
@@ -171,18 +140,13 @@ function orderRows(
       paidAt: orders.paidAt,
       createdAt: orders.createdAt,
       updatedAt: orders.updatedAt,
-      // The same instant as `updatedAt`, at the precision Postgres actually
-      // stores it — see `machine-cursor` for why the cursor may not be built
-      // from the field the client reads.
+      // `updatedAt` at full precision for the cursor; see `machine-cursor`.
       cursorAt: sql<string>`${orders.updatedAt}::text`,
       accountId: users.id,
       accountSourceId: users.sourceId,
       revisionId: orderRevisions.id,
       revisionNumber: orderRevisions.revisionNumber,
-      // Who wrote the version the order stands on. Only ever read to tell a
-      // customer's own cancellation from the shop's — for a cancelled order
-      // this *is* the version that cancelled it, since nothing moves an order
-      // without writing one.
+      // For a cancelled order, who wrote the version that cancelled it.
       revisionCreatedBy: orderRevisions.createdBy,
       userId: orders.userId,
       note: orderRevisions.note,
@@ -227,27 +191,9 @@ function orderRows(
 type OrderRow = Awaited<ReturnType<typeof orderRows>>[number];
 
 /**
- * Whose cancellation this was — the one fact a write-back turns on and the
- * only one a reader cannot derive from the order itself.
- *
- * The customer's own account wrote their cancellation; a manager's wrote the
- * shop's; and a version written in from outside names nobody at all, because
- * the person acted in another system (`order_revisions.source` carries their
- * label). All but the first are the shop stopping the order.
- */
-function cancelledBy(row: OrderRow): 'customer' | 'shop' {
-  return row.revisionCreatedBy !== null && row.revisionCreatedBy === row.userId
-    ? 'customer'
-    : 'shop';
-}
-
-/**
- * One order as the outside is owed it.
- *
- * The counterparty is named by the account's keys and not by the contact the
- * checkout carried (FR-ADM-14): the same person may order under a colleague's
- * phone number and have it invoiced to a company they named, and none of that
- * says which customer record it is. A guest order has no account and says so.
+ * One order as the outside is owed it. The customer is the account's keys,
+ * not the checkout's contact, which says nothing about which record it is
+ * (FR-ADM-14); a guest order has none.
  */
 function toRecord(row: OrderRow, lines: MachineOrderLine[]): MachineOrder {
   return {
@@ -266,16 +212,14 @@ function toRecord(row: OrderRow, lines: MachineOrderLine[]): MachineOrder {
     party: { name: row.partyName, registrationId: row.partyRegistrationId },
     fulfilmentMethod: row.fulfilmentMethod as FulfilmentMethod,
     paymentMethod: row.paymentMethod as PaymentMethod,
-    deliveryAddress: row.deliveryStreet
-      ? {
-          street: row.deliveryStreet,
-          street2: row.deliveryStreet2,
-          postalCode: row.deliveryPostalCode ?? '',
-          city: row.deliveryCity ?? '',
-          region: row.deliveryRegion,
-          country: row.deliveryCountry ?? '',
-        }
-      : null,
+    deliveryAddress: address(
+      row.deliveryStreet,
+      row.deliveryStreet2,
+      row.deliveryPostalCode,
+      row.deliveryCity,
+      row.deliveryRegion,
+      row.deliveryCountry,
+    ),
     pickup: row.pickupLocationKey
       ? {
           key: row.pickupLocationKey,
@@ -283,20 +227,24 @@ function toRecord(row: OrderRow, lines: MachineOrderLine[]): MachineOrder {
           address: row.pickupLocationAddress ?? '',
         }
       : null,
-    billingAddress: row.billingStreet
-      ? {
-          street: row.billingStreet,
-          street2: row.billingStreet2,
-          postalCode: row.billingPostalCode ?? '',
-          city: row.billingCity ?? '',
-          region: row.billingRegion,
-          country: row.billingCountry ?? '',
-        }
-      : null,
+    billingAddress: address(
+      row.billingStreet,
+      row.billingStreet2,
+      row.billingPostalCode,
+      row.billingCity,
+      row.billingRegion,
+      row.billingCountry,
+    ),
     preferredDate: row.preferredDate,
     customerNote: row.customerNote,
     statusReason: row.statusReason,
-    cancelledBy: row.status === 'cancelled' ? cancelledBy(row) : null,
+    // The one fact a write-back turns on that a reader cannot derive.
+    cancelledBy:
+      row.status !== 'cancelled'
+        ? null
+        : cancelledByCustomer(row)
+          ? 'customer'
+          : 'shop',
     note: row.note,
     tierKey: row.tierKey,
     lines,
@@ -307,5 +255,25 @@ function toRecord(row: OrderRow, lines: MachineOrderLine[]): MachineOrder {
     statusChangedAt: row.statusChangedAt.toISOString(),
     paidAt: row.paidAt?.toISOString() ?? null,
     updatedAt: row.updatedAt.toISOString(),
+  };
+}
+
+/** An address snapshot, or null where the order carries none. */
+function address(
+  street: string | null,
+  street2: string | null,
+  postalCode: string | null,
+  city: string | null,
+  region: string | null,
+  country: string | null,
+): MachineOrder['deliveryAddress'] {
+  if (!street) return null;
+  return {
+    street,
+    street2,
+    postalCode: postalCode ?? '',
+    city: city ?? '',
+    region,
+    country: country ?? '',
   };
 }

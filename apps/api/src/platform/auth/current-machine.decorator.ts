@@ -5,11 +5,8 @@ import {
 } from '@nestjs/common';
 import { MachineClient, MachineRequest } from './machine-client';
 
-/**
- * Injects the authenticated machine client. Only valid on routes guarded by
- * `@Machine()`, which populates it before the handler runs — an absent one is
- * a missing guard, surfaced as a 500 rather than passed off as anonymous.
- */
+/** The authenticated machine client. Absent means a missing `@Machine()`
+ * guard: a 500, never anonymous. */
 export const CurrentMachine = createParamDecorator(
   (_data: unknown, context: ExecutionContext): MachineClient => {
     const { machine } = context.switchToHttp().getRequest<MachineRequest>();

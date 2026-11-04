@@ -9,17 +9,17 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ORDER_DOCUMENT_MAX_UPLOAD_BYTES } from '@b2b-catalog-platform/shared/core/ordering';
-import { CurrentMachine } from '../../platform/auth/current-machine.decorator';
-import { Machine } from '../../platform/auth/machine.decorator';
-import { MachineClient } from '../../platform/auth/machine-client';
-import { ordersNotExternallyOwned } from '../../platform/settings/ownership.refusals';
-import { OwnershipState } from '../../platform/settings/ownership-state';
-import { MachineThrottle } from '../../throttling/throttle-presets';
 import {
   OrderDocumentActs,
   orderDocumentKind,
 } from '../../core/ordering/order-document-acts';
 import { OrderReader } from '../../core/ordering/order-reader';
+import { CurrentMachine } from '../../platform/auth/current-machine.decorator';
+import { MachineClient } from '../../platform/auth/machine-client';
+import { Machine } from '../../platform/auth/machine.decorator';
+import { OwnershipState } from '../../platform/settings/ownership-state';
+import { ordersNotExternallyOwned } from '../../platform/settings/ownership.refusals';
+import { MachineThrottle } from '../../throttling/throttle-presets';
 
 /**
  * The shop's own paperwork from the system that prints it (FR-ORD-05,
@@ -42,10 +42,7 @@ export class MachineOrderDocumentsController {
     private readonly ownership: OwnershipState,
   ) {}
 
-  /**
-   * The mirror of the admin panel's refusal (FR-ADM-10): only the side that
-   * owns orders files documents, so no credential reaches past the switch.
-   */
+  /** Only the side that owns orders files documents (FR-ADM-10). */
   private refuseUnlessOwned(): void {
     if (!this.ownership.isExternallyOwned('orders')) {
       throw ordersNotExternallyOwned();
@@ -83,10 +80,8 @@ export class MachineOrderDocumentsController {
     );
   }
 
-  /**
-   * Takes one off: for a file on the wrong order or superseded. While orders
-   * are owned nobody else can, the panel's delete is refused.
-   */
+  /** For a file on the wrong order, or superseded; the panel's delete is
+   * refused while orders are owned. */
   @Delete(':reference/documents/:kind')
   async remove(
     @CurrentMachine() machine: MachineClient,
