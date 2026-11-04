@@ -18,11 +18,11 @@ import {
   CategoryFilter,
   CategoryFilters,
 } from '@b2b-catalog-platform/shared/admin/catalog';
-import { fillText } from '@b2b-catalog-platform/shared';
-import { ADMIN_TEXT } from '../../../shared/config/admin-text';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
+import { ADMIN_TEXT } from '../../../platform/config/admin-text';
 
-import { usePageSeo } from '../../../shared/core/page-seo';
-import { delayedLoading } from '../../../shared/core/delayed-loading';
+import { usePageSeo } from '../../../platform/page-seo';
+import { delayedLoading } from '../../../platform/delayed-loading';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { Checkbox } from '@b2b-catalog-platform/ui/choices/checkbox';
 import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
@@ -30,16 +30,16 @@ import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Link } from '@b2b-catalog-platform/ui/actions/link';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
-import { injectEditorReturn } from '../../../shared/edit-mode/editor-return';
+import { injectEditorReturn } from '../../../platform/edit-mode/editor-return';
 import { UnpublishedCount } from '../products/unpublished-count';
 import { RecordRow } from '@b2b-catalog-platform/ui/lists/record-row';
 import { AttributesService } from './attributes.service';
-import { SHARED_TEXT } from '../../../shared/config/shared-text';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { DragGrip } from '../ui/drag-grip';
-import { SaveButton } from '../../ui/save-button';
-import { CancelButton } from '../../ui/cancel-button';
+import { SaveButton } from '../../platform/ui/save-button';
+import { CancelButton } from '../../platform/ui/cancel-button';
 
 /** Where the panel closes to when it was not opened from in the app. */
 const FALLBACK_RETURN = '/admin/categories';

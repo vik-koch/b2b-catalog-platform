@@ -1,5 +1,5 @@
-import { MailService } from '../../../mail/mail.service';
-import { demoMailText } from '../../../mail/mail-text.fixture';
+import { MailService } from '../../../platform/mail/mail.service';
+import { demoMailText } from '../../../platform/mail/mail-text.fixture';
 import { MailCallCheck, STAND_IN_PATH } from './mail-call-check';
 
 describe('MailCallCheck', () => {

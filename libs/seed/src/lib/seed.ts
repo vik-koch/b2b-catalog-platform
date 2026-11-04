@@ -1,5 +1,5 @@
 import { Client } from 'pg';
-import { ConsentConfig } from '@b2b-catalog-platform/shared';
+import { ConsentConfig } from '@b2b-catalog-platform/shared/core/site';
 import { sanitizeRichText } from '@b2b-catalog-platform/shared/node';
 import { SeedBundle } from './bundle';
 import { PictureMode } from './catalog-photos';

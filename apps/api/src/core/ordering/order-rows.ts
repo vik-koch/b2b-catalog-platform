@@ -13,13 +13,13 @@ import { asc, desc, getTableColumns, sql, SQL } from 'drizzle-orm';
 import { PricedAdjustment } from './order-adjustment';
 import { alias, PgColumn } from 'drizzle-orm/pg-core';
 import { AddressInput } from '@b2b-catalog-platform/shared/core/accounts';
-import { PickupLocation } from '../../config/deployment-config';
+import { PickupLocation } from '../../platform/config/deployment-config';
 import {
   orderItems,
   orderRevisions,
   orders,
   pageVersions,
-} from '../../db/schema';
+} from '../../platform/db/schema';
 
 /** The snapshot columns of a version, without its bookkeeping. */
 const {

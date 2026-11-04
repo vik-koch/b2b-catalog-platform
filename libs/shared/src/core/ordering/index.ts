@@ -1,6 +1,7 @@
 export * from './cart';
 export * from './cart.contract';
 export * from './delivery-zone';
+export * from './order-config';
 export * from './order-documents';
 export * from './order-transitions';
 export * from './orders';

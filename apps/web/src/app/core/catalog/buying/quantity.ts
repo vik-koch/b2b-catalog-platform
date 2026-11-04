@@ -3,7 +3,10 @@
  * stored in whole pieces, read as 0.2 bx, the one place a count has decimals.
  * The separator is the deployment's, as for prices.
  */
-import { MoneyFormat, decimalSeparator } from '@b2b-catalog-platform/shared';
+import {
+  MoneyFormat,
+  decimalSeparator,
+} from '@b2b-catalog-platform/shared/platform';
 import { QUANTITY_SCALE } from '@b2b-catalog-platform/shared/core/catalog';
 
 /** Trailing zeros trimmed and no grouping: an editable field holds it. */

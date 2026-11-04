@@ -12,8 +12,8 @@ import {
   LinkedProduct,
   ProductTierPrice,
 } from '@b2b-catalog-platform/shared/admin/catalog';
-import { DRIZZLE } from '../../../db/database.module';
-import * as schema from '../../../db/schema';
+import { DRIZZLE } from '../../../platform/db/database.module';
+import * as schema from '../../../platform/db/schema';
 import {
   customerTiers,
   documentProducts,
@@ -24,7 +24,7 @@ import {
   ProductImageRef,
   products,
   ProductVariantRef,
-} from '../../../db/schema';
+} from '../../../platform/db/schema';
 import {
   counterpartOf,
   involves,

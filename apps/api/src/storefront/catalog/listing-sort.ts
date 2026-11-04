@@ -4,7 +4,7 @@
 import { asc, sql, SQL } from 'drizzle-orm';
 import { CatalogSort } from '@b2b-catalog-platform/shared/storefront/catalog';
 import { SearchSort } from '@b2b-catalog-platform/shared/core/catalog';
-import { products } from '../../db/schema';
+import { products } from '../../platform/db/schema';
 import { resolvedPriceMinor } from '../../core/catalog/product-price';
 import {
   OrderBy,

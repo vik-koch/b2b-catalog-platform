@@ -6,7 +6,8 @@ import {
   TIER_KEY_PATTERN,
   TIER_LABEL_MAX_LENGTH,
 } from './tiers';
-import { commonAuthErrors } from '../../lib/core/api-error';
+import { commonAuthErrors } from '../../platform/api-error';
+import { acknowledgementSchema } from '../../platform/acknowledgement.contract';
 
 /**
  * The key a sync file addresses a price list by (see `TIER_KEY_PATTERN`).
@@ -181,5 +182,5 @@ export const tiersContract = {
       'tier-is-default': tierErrors['tier-is-default'],
     })
     .input(z.object({ params: z.object({ id: z.uuid() }) }))
-    .output(z.object({ message: z.string() })),
+    .output(acknowledgementSchema),
 };

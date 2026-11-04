@@ -5,10 +5,10 @@ import {
   CategoryInput,
   ReorderCategoriesRequest,
 } from '@b2b-catalog-platform/shared/admin/catalog';
-import { adminCategoriesContract } from '../../contract-routes.generated';
+import { adminCategoriesContract } from '../contract-routes.generated';
 import { safe, type ClientPromiseResult } from '@orpc/client';
-import { createOrpcClient } from '../../../shared/core/orpc-client';
-import { renderable } from '../../../shared/core/renderable';
+import { createOrpcClient } from '../../../platform/orpc-client';
+import { renderable } from '../../../platform/renderable';
 
 /**
  * The admin category client. The declared refusals come back as typed results

@@ -11,7 +11,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { Params } from '@angular/router';
-import { fillText } from '@b2b-catalog-platform/shared';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
 import {
   CategoryCrumb,
   categoryDisplayName,
@@ -31,16 +31,16 @@ import {
 } from '@b2b-catalog-platform/ui/content/breadcrumbs';
 import { disclosureState } from '@b2b-catalog-platform/ui/disclosure/disclosure-state';
 import { ShowMoreToggle } from '@b2b-catalog-platform/ui/disclosure/show-more-toggle';
-import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
-import { usePageSeo } from '../../../shared/core/page-seo';
-import { stableValue } from '../../../shared/core/stable-value';
+import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
+import { usePageSeo } from '../../../platform/page-seo';
+import { stableValue } from '../../../platform/stable-value';
 import {
   EDIT_ACTIONS_INSET,
   EditActions,
-} from '../../../shared/edit-mode/edit-actions';
-import { editAwareContent } from '../../../shared/edit-mode/edit-aware-content';
-import { EditModeService } from '../../../shared/edit-mode/edit-mode.service';
-import { injectEditorReturnParams } from '../../../shared/edit-mode/editor-return';
+} from '../../../platform/edit-mode/edit-actions';
+import { editAwareContent } from '../../../platform/edit-mode/edit-aware-content';
+import { EditModeService } from '../../../platform/edit-mode/edit-mode.service';
+import { injectEditorReturnParams } from '../../../platform/edit-mode/editor-return';
 import { LoadErrorView } from '../../platform/load-error-view';
 import { NotFoundView } from '../../platform/not-found-view';
 import { CatalogService } from '../catalog.service';

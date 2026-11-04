@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
-import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
-import { usePageSeo } from '../../shared/core/page-seo';
+import { STOREFRONT_TEXT } from '../../platform/config/storefront-text';
+import { usePageSeo } from '../../platform/page-seo';
 import { NotFoundView } from './not-found-view';
 
 /** The catch-all route: the shared 404 screen plus its page title. */

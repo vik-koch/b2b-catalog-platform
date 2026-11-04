@@ -1,18 +1,18 @@
 import { Component, inject, input, output } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { fillText } from '@b2b-catalog-platform/shared';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
 import {
   CONSENT_PAGE_SLUGS,
   consentLabelParts,
 } from '@b2b-catalog-platform/shared/core/site';
-import { ADMIN_TEXT } from '../../../shared/config/admin-text';
-import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
-import { formatPhone } from '../../../shared/core/contact-fields';
+import { ADMIN_TEXT } from '../../../platform/config/admin-text';
+import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
+import { formatPhone } from '../../../platform/contact-fields';
 import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Link } from '@b2b-catalog-platform/ui/actions/link';
 import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';
-import { adminMomentFormat } from '../../dates/admin-date';
+import { adminMomentFormat } from '../../platform/dates/admin-date';
 import { RecordRow } from '@b2b-catalog-platform/ui/lists/record-row';
 import { circleSlashIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-slash';
 import { ConsentRecord } from '@b2b-catalog-platform/shared/admin/accounts';

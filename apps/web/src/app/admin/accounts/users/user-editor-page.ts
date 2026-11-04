@@ -2,21 +2,18 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { disabled, form, hidden, required } from '@angular/forms/signals';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CustomerTier } from '@b2b-catalog-platform/shared/admin/catalog';
-import { ADMIN_TEXT } from '../../../shared/config/admin-text';
-import { SHARED_TEXT } from '../../../shared/config/shared-text';
-import { staffFields } from '../../staff-fields';
-import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
-import { AuthService } from '../../../shared/auth/auth.service';
-import {
-  canonicalPhone,
-  typedPhone,
-} from '../../../shared/core/contact-fields';
-import { delayedLoading } from '../../../shared/core/delayed-loading';
-import { completeMask, emailAddress } from '../../../shared/core/field-rules';
+import { ADMIN_TEXT } from '../../../platform/config/admin-text';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { staffFields } from '../../platform/staff-fields';
+import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
+import { AuthService } from '../../../platform/auth/auth.service';
+import { canonicalPhone, typedPhone } from '../../../platform/contact-fields';
+import { delayedLoading } from '../../../platform/delayed-loading';
+import { completeMask, emailAddress } from '../../../platform/field-rules';
 import { companyIdFormat } from '../../../core/accounts/parties/company-id';
-import { usePageSeo } from '../../../shared/core/page-seo';
-import { UnsavedChangesAware } from '../../unsaved-changes.guard';
-import { UnsavedChanges } from '../../unsaved-changes';
+import { usePageSeo } from '../../../platform/page-seo';
+import { UnsavedChangesAware } from '../../platform/unsaved-changes.guard';
+import { UnsavedChanges } from '../../platform/unsaved-changes';
 import { LockedNote } from '../../platform/ownership/ui/locked-note';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { Notice } from '@b2b-catalog-platform/ui/content/notice';
@@ -27,7 +24,7 @@ import { PhoneInput } from '@b2b-catalog-platform/ui/inputs/phone-input';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Input } from '@b2b-catalog-platform/ui/inputs/input';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
-import { injectEditorReturn } from '../../../shared/edit-mode/editor-return';
+import { injectEditorReturn } from '../../../platform/edit-mode/editor-return';
 import { OwnershipService } from '../../platform/ownership/ownership.service';
 import { TiersService } from '../../catalog/tiers/tiers.service';
 import { StaffUsersService } from './users.service';
@@ -45,8 +42,8 @@ import { Glyph } from '@b2b-catalog-platform/ui/icons/glyph';
 import { circleCheckIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-check';
 import { saveIcon } from '@b2b-catalog-platform/ui/icons/glyphs/save';
 import { sendIcon } from '@b2b-catalog-platform/ui/icons/glyphs/send';
-import { SaveButton } from '../../ui/save-button';
-import { CancelButton } from '../../ui/cancel-button';
+import { SaveButton } from '../../platform/ui/save-button';
+import { CancelButton } from '../../platform/ui/cancel-button';
 import {
   CustomerType,
   StaffUser,

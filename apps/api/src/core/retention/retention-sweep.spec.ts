@@ -1,6 +1,6 @@
 import { getTableName } from 'drizzle-orm';
 import { drizzle, NodePgDatabase } from 'drizzle-orm/node-postgres';
-import * as schema from '../../db/schema';
+import * as schema from '../../platform/db/schema';
 import { OrderDocumentFiles } from '../ordering/order-document-files';
 import { RetentionSweep } from './retention-sweep';
 

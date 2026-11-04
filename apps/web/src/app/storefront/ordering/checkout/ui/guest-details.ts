@@ -1,9 +1,9 @@
 import { NgTemplateOutlet } from '@angular/common';
 import { Component, inject, input, output } from '@angular/core';
 import { FormField, type FieldTree } from '@angular/forms/signals';
-import { STOREFRONT_TEXT } from '../../../../shared/config/storefront-text';
-import { SHARED_TEXT } from '../../../../shared/config/shared-text';
-import { DEPLOYMENT_CONFIG } from '../../../../shared/config/deployment-config';
+import { STOREFRONT_TEXT } from '../../../../platform/config/storefront-text';
+import { SHARED_TEXT } from '../../../../platform/config/shared-text';
+import { DEPLOYMENT_CONFIG } from '../../../../platform/config/deployment-config';
 import { CompanyFields } from '../../../../core/accounts/parties/company-fields';
 import { Field } from '@b2b-catalog-platform/ui/fields/field';
 import { FieldBinding } from '@b2b-catalog-platform/ui/fields/field-binding';

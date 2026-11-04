@@ -1,8 +1,8 @@
 import { Injectable, inject } from '@angular/core';
 import { OwnedAreas } from '@b2b-catalog-platform/shared/admin/platform';
 import { OwnershipArea } from '@b2b-catalog-platform/shared/platform';
-import { adminOwnershipSwitchContract } from '../contract-routes.generated';
-import { createOrpcClient } from '../../shared/core/orpc-client';
+import { adminOwnershipSwitchContract } from './contract-routes.generated';
+import { createOrpcClient } from '../../platform/orpc-client';
 import { OwnershipService } from '../platform/ownership/ownership.service';
 
 /** Hands areas to the back office or takes them back (FR-ADM-10). */

@@ -4,7 +4,7 @@ import { machineIdentityContract } from '@b2b-catalog-platform/shared/machine/ex
 import { CurrentMachine } from '../../platform/auth/current-machine.decorator';
 import { MachineClient } from '../../platform/auth/machine-client';
 import { Machine } from '../../platform/auth/machine.decorator';
-import { MachineThrottle } from '../../throttling/throttle-presets';
+import { MachineThrottle } from '../../platform/throttling/throttle-presets';
 
 /** What this token is, so a credential can be checked before it is used. */
 @Machine('catalog-sync')

@@ -9,7 +9,7 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import { fillText } from '@b2b-catalog-platform/shared';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
 import {
   ProductImage,
   ProductVariant,
@@ -23,8 +23,8 @@ import { DialogActions } from '@b2b-catalog-platform/ui/overlay/dialog-actions';
 import { DialogPanel } from '@b2b-catalog-platform/ui/overlay/dialog-panel';
 import { Popover } from '@b2b-catalog-platform/ui/overlay/popover';
 import { ProductVariantGallery } from '../../../core/catalog/product-page/ui/product-variant-gallery';
-import { SHARED_TEXT } from '../../../shared/config/shared-text';
-import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
 
 /**
  * Opens a product's variants where its picture is too small to label them: a

@@ -28,7 +28,7 @@ const { SYNC_PROBES } = await loadTypeScript(
   'apps/api-e2e/src/journeys/sync-probe-labels.ts',
 );
 const { mailPreviewByKind } = await loadTypeScript(
-  'apps/api/src/mail/mail-previews.ts',
+  'apps/api/src/app/mail-previews.ts',
 );
 
 let document = readFileSync(DOC, 'utf8');

@@ -1,6 +1,6 @@
 import { oc } from '@orpc/contract';
 import * as z from 'zod';
-import { commonAuthErrors } from '../../lib/core/api-error';
+import { commonAuthErrors } from '../../platform/api-error';
 import { consentLabelParts, isConsentPage } from '../../core/site/pages';
 import { pageSchema, pageSlugSchema } from '../../core/site/page.contract';
 import {

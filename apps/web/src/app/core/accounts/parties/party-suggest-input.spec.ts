@@ -1,8 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
 import { form } from '@angular/forms/signals';
-import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
-import { defaultStorefrontText } from '../../../shared/config/storefront-text.fixture';
+import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
+import { defaultStorefrontText } from '../../../platform/config/storefront-text.fixture';
 import { PartiesService } from './parties.service';
 import { PartySuggestInput } from './party-suggest-input';
 import { PartySuggestion } from '@b2b-catalog-platform/shared/core/accounts';

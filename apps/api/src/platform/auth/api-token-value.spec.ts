@@ -1,7 +1,7 @@
 import {
   API_TOKEN_PREFIX_LENGTH,
   API_TOKEN_SCHEME,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/platform';
 import { bearerToken, generateToken, hashToken } from './api-token-value';
 
 describe('generateToken', () => {

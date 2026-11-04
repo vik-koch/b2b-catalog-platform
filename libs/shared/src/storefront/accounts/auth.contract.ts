@@ -17,8 +17,8 @@ import {
   companyRegistrationIdSchema,
   emailField,
   storedEmailField,
-} from '../../lib/config/contact-config';
-import { commonAuthErrors, phoneFormatErrors } from '../../lib/core/api-error';
+} from '../../platform/contact-config';
+import { commonAuthErrors, phoneFormatErrors } from '../../platform/api-error';
 import { consentErrors } from '../../core/site/pages';
 import { consentVersionField } from '../../core/site/page.contract';
 import { honeypotField } from '../../platform/form-fields.contract';

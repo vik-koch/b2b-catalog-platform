@@ -1,8 +1,8 @@
 import { INestApplication } from '@nestjs/common';
 import { APP_FILTER } from '@nestjs/core';
 import { Test } from '@nestjs/testing';
-import { AuditLogger } from '../../audit/audit.logger';
-import { ContractErrorFilter } from '../../orpc/contract-error.filter';
+import { AuditLogger } from '../../platform/audit/audit.logger';
+import { ContractErrorFilter } from '../../platform/orpc/contract-error.filter';
 import { OwnershipState } from '../../platform/settings/ownership-state';
 import { AdminOrdersController } from './admin-orders.controller';
 import { demoAdminOrder } from '../../core/ordering/order.fixture';

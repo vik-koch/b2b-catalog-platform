@@ -1,6 +1,6 @@
 import { Logger } from '@nestjs/common';
 import * as z from 'zod';
-import { SuggestionSidecar } from '../../suggestions/sidecar';
+import { SuggestionSidecar } from '../../platform/suggestions/sidecar';
 import {
   AddressSuggestionPort,
   AddressSuggestionResult,

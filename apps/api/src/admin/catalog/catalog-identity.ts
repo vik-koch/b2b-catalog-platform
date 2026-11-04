@@ -9,9 +9,13 @@ import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { eq } from 'drizzle-orm';
 import { randomUUID } from 'node:crypto';
 import { slugify } from '@b2b-catalog-platform/shared/core/catalog';
-import * as schema from '../../db/schema';
-import { attributeDefinitions, categories, products } from '../../db/schema';
-import { isUniqueViolation } from '../../db/pg-errors';
+import * as schema from '../../platform/db/schema';
+import {
+  attributeDefinitions,
+  categories,
+  products,
+} from '../../platform/db/schema';
+import { isUniqueViolation } from '../../platform/db/pg-errors';
 
 type Db = NodePgDatabase<typeof schema>;
 

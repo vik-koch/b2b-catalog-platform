@@ -3,11 +3,11 @@ import { Implement, implement } from '@orpc/nest';
 import { machineCatalogSyncContract } from '@b2b-catalog-platform/shared/machine/exchange';
 import { CatalogSyncService } from '../../core/exchange/catalog-sync.service';
 import { SyncRunLog } from '../../core/exchange/sync-run-log';
-import { refusals } from '../../orpc/refusals';
+import { refusals } from '../../platform/orpc/refusals';
 import { CurrentMachine } from '../../platform/auth/current-machine.decorator';
 import { MachineClient } from '../../platform/auth/machine-client';
 import { Machine } from '../../platform/auth/machine.decorator';
-import { MachineThrottle } from '../../throttling/throttle-presets';
+import { MachineThrottle } from '../../platform/throttling/throttle-presets';
 
 /**
  * The headless catalog sync (FR-ADM-07), on the upload's engine. No commit

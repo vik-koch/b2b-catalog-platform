@@ -16,9 +16,9 @@ import {
 } from '@b2b-catalog-platform/shared/core/ordering';
 import { StaffOrderSummary } from '@b2b-catalog-platform/shared/admin/ordering';
 import { Pagination } from '@b2b-catalog-platform/shared/platform';
-import { adminOrdersContract } from '../contract-routes.generated';
+import { adminOrdersContract } from './contract-routes.generated';
 import { safe } from '@orpc/client';
-import { createOrpcClient } from '../../shared/core/orpc-client';
+import { createOrpcClient } from '../../platform/orpc-client';
 
 /** Why an adjustment was refused (FR-ORD-03), as contract codes the screen
  * words. */

@@ -1,4 +1,4 @@
-import { MoneyFormat } from '@b2b-catalog-platform/shared';
+import { MoneyFormat } from '@b2b-catalog-platform/shared/platform';
 import { computed, linkedSignal, Signal } from '@angular/core';
 import {
   correctPieces,

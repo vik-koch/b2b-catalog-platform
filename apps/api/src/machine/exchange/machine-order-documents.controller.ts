@@ -19,7 +19,7 @@ import { MachineClient } from '../../platform/auth/machine-client';
 import { Machine } from '../../platform/auth/machine.decorator';
 import { OwnershipState } from '../../platform/settings/ownership-state';
 import { ordersNotExternallyOwned } from '../../platform/settings/ownership.refusals';
-import { MachineThrottle } from '../../throttling/throttle-presets';
+import { MachineThrottle } from '../../platform/throttling/throttle-presets';
 
 /**
  * The shop's own paperwork from the system that prints it (FR-ORD-05,

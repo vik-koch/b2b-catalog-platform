@@ -1,7 +1,11 @@
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { and, eq, exists, not, SQL, sql } from 'drizzle-orm';
-import * as schema from '../../../../db/schema';
-import { customerTiers, productPrices, products } from '../../../../db/schema';
+import * as schema from '../../../../platform/db/schema';
+import {
+  customerTiers,
+  productPrices,
+  products,
+} from '../../../../platform/db/schema';
 
 /**
  * "This tier has a price of its own for this product": where the tier list's

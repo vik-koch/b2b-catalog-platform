@@ -9,8 +9,8 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import { fillText } from '@b2b-catalog-platform/shared';
-import { ADMIN_TEXT } from '../../../shared/config/admin-text';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
+import { ADMIN_TEXT } from '../../../platform/config/admin-text';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { Checkbox } from '@b2b-catalog-platform/ui/choices/checkbox';
 import { DialogActions } from '@b2b-catalog-platform/ui/overlay/dialog-actions';
@@ -18,7 +18,7 @@ import { DialogPanel } from '@b2b-catalog-platform/ui/overlay/dialog-panel';
 import { HintBadge } from '@b2b-catalog-platform/ui/content/hint-badge';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { AttributeHint } from './attribute-hints';
-import { SHARED_TEXT } from '../../../shared/config/shared-text';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { funnelIcon } from '@b2b-catalog-platform/ui/icons/glyphs/funnel';
 import { plusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/plus';
 import { DialogTitle } from '@b2b-catalog-platform/ui/overlay/dialog-title';

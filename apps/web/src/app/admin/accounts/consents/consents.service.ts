@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { safe } from '@orpc/client';
-import { consentsContract } from '../../contract-routes.generated';
-import { createOrpcClient } from '../../../shared/core/orpc-client';
+import { consentsContract } from '../contract-routes.generated';
+import { createOrpcClient } from '../../../platform/orpc-client';
 import {
   CONSENT_WITHDRAWAL_ERROR_CODES,
   ConsentRecord,

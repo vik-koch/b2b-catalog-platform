@@ -19,9 +19,9 @@ import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service
 import { EDIT_MODE_CATALOG } from '../../../core/catalog/edit-mode-catalog';
 import { PricePipe } from '../../../core/catalog/pricing/price.pipe';
 // eslint-disable-next-line no-restricted-imports -- until the texts are cut by area: edit mode is staff reading a storefront page
-import { ADMIN_TEXT } from '../../../shared/config/admin-text';
-import { SHARED_TEXT } from '../../../shared/config/shared-text';
-import { injectEditorReturnParams } from '../../../shared/edit-mode/editor-return';
+import { ADMIN_TEXT } from '../../../platform/config/admin-text';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { injectEditorReturnParams } from '../../../platform/edit-mode/editor-return';
 import {
   PRODUCT_GRID,
   TILE_BODY,

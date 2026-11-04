@@ -6,7 +6,7 @@ import {
   PLATFORM_ID,
   signal,
 } from '@angular/core';
-import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
+import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 
 export type ConsentChoice = 'accepted' | 'rejected';
 

@@ -1,13 +1,13 @@
 import { inject } from '@angular/core';
-import { SharedText } from '@b2b-catalog-platform/shared';
+import { SharedText } from '@b2b-catalog-platform/shared/platform';
 import {
   OrderAddress,
   OrderDetail,
 } from '@b2b-catalog-platform/shared/core/ordering';
-import { formatPhone } from '../../shared/core/contact-fields';
+import { formatPhone } from '../../platform/contact-fields';
 import { addressLines } from '@b2b-catalog-platform/shared/core/accounts';
-import { SHARED_TEXT } from '../../shared/config/shared-text';
-import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
+import { SHARED_TEXT } from '../../platform/config/shared-text';
+import { STOREFRONT_TEXT } from '../../platform/config/storefront-text';
 import { ReviewBlock } from './ui/order-read-back';
 
 /**

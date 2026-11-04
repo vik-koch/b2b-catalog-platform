@@ -11,9 +11,9 @@ import {
   CategoryInput,
   ReorderCategoriesRequest,
 } from '@b2b-catalog-platform/shared/admin/catalog';
-import { DRIZZLE } from '../../../db/database.module';
-import * as schema from '../../../db/schema';
-import { categories, products } from '../../../db/schema';
+import { DRIZZLE } from '../../../platform/db/database.module';
+import * as schema from '../../../platform/db/schema';
+import { categories, products } from '../../../platform/db/schema';
 import { OwnershipState } from '../../../platform/settings/ownership-state';
 import { catalogExternallyOwned } from '../../../platform/settings/ownership.refusals';
 import { changedCategoryFields } from '../owned-fields';

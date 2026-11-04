@@ -6,12 +6,12 @@ import {
   DocumentErrorCode,
   DocumentInput,
   ProductDocument,
+  UploadDocumentResponse,
 } from '@b2b-catalog-platform/shared/admin/catalog';
-import { UploadDocumentResponse } from '@b2b-catalog-platform/shared/admin';
 import { safe, type ClientPromiseResult } from '@orpc/client';
-import { documentsContract } from '../../contract-routes.generated';
-import { createOrpcClient } from '../../../shared/core/orpc-client';
-import { renderable } from '../../../shared/core/renderable';
+import { documentsContract } from '../contract-routes.generated';
+import { createOrpcClient } from '../../../platform/orpc-client';
+import { renderable } from '../../../platform/renderable';
 
 export type DocumentResult =
   | { ok: true; document: ProductDocument }

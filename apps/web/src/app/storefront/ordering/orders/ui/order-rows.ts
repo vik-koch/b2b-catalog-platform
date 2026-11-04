@@ -4,11 +4,11 @@ import {
   fillText,
   moneyFormat,
   formatMoneyMinor,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/platform';
 import { OrderSummary } from '@b2b-catalog-platform/shared/core/ordering';
-import { STOREFRONT_TEXT } from '../../../../shared/config/storefront-text';
-import { SHARED_TEXT } from '../../../../shared/config/shared-text';
-import { DEPLOYMENT_CONFIG } from '../../../../shared/config/deployment-config';
+import { STOREFRONT_TEXT } from '../../../../platform/config/storefront-text';
+import { SHARED_TEXT } from '../../../../platform/config/shared-text';
+import { DEPLOYMENT_CONFIG } from '../../../../platform/config/deployment-config';
 import {
   StatusBadge,
   StatusTone,

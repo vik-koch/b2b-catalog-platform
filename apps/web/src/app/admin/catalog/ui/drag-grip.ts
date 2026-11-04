@@ -3,7 +3,7 @@ import { Component, inject, input } from '@angular/core';
 import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
 import { gripVerticalIcon } from '@b2b-catalog-platform/ui/icons/glyphs/grip-vertical';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
-import { ADMIN_TEXT } from '../../../shared/config/admin-text';
+import { ADMIN_TEXT } from '../../../platform/config/admin-text';
 
 /**
  * The handle a `cdkDrag` row is dragged by. Not focusable: a list's keyboard

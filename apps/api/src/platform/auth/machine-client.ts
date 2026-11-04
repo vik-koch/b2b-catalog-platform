@@ -1,4 +1,4 @@
-import { ApiTokenScope } from '@b2b-catalog-platform/shared';
+import { ApiTokenScope } from '@b2b-catalog-platform/shared/platform';
 
 /** Who a machine request is: deliberately not an `AuthUser`, so nothing
  * that reads a person can read it. */

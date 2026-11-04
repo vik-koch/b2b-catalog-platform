@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { isDefinedError, safe } from '@orpc/client';
 import { Page } from '@b2b-catalog-platform/shared/core/site';
-import { pageContract } from '../../shared/core/contract-routes.generated';
-import { createOrpcClient } from '../../shared/core/orpc-client';
+import { pageContract } from './contract-routes.generated';
+import { createOrpcClient } from '../../platform/orpc-client';
 
 @Injectable({ providedIn: 'root' })
 export class PageService {

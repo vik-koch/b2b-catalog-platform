@@ -18,10 +18,10 @@ import {
   formatAttributeValue,
   ProductDetail,
 } from '@b2b-catalog-platform/shared/core/catalog';
-import { EDIT_ACTIONS_INSET } from '../../../../shared/edit-mode/edit-actions';
-import { STOREFRONT_TEXT } from '../../../../shared/config/storefront-text';
-import { SHARED_TEXT } from '../../../../shared/config/shared-text';
-import { trustedRichText } from '../../../../shared/core/trusted-rich-text';
+import { EDIT_ACTIONS_INSET } from '../../../../platform/edit-mode/edit-actions';
+import { STOREFRONT_TEXT } from '../../../../platform/config/storefront-text';
+import { SHARED_TEXT } from '../../../../platform/config/shared-text';
+import { trustedRichText } from '../../../../platform/trusted-rich-text';
 import { disclosureState } from '@b2b-catalog-platform/ui/disclosure/disclosure-state';
 import { ShowMoreToggle } from '@b2b-catalog-platform/ui/disclosure/show-more-toggle';
 import {

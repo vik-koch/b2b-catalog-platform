@@ -17,7 +17,7 @@ import {
   fillText,
   moneyFormat,
   formatMoneyMinor,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/platform';
 import {
   ORDER_ADJUSTMENT_NOTE_MAX,
   PaymentMethod,
@@ -32,17 +32,17 @@ import {
   injectAddressRules,
 } from '../../core/accounts/addresses/address-form';
 import { companyIdFormat } from '../../core/accounts/parties/company-id';
-import { canonicalPhone, typedPhone } from '../../shared/core/contact-fields';
-import { completeMask, emailAddress } from '../../shared/core/field-rules';
+import { canonicalPhone, typedPhone } from '../../platform/contact-fields';
+import { completeMask, emailAddress } from '../../platform/field-rules';
 import { formatPriceInput } from '../../core/catalog/pricing/price';
-import { ADMIN_TEXT } from '../../shared/config/admin-text';
-import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { ADMIN_TEXT } from '../../platform/config/admin-text';
+import { SHARED_TEXT } from '../../platform/config/shared-text';
 import { staffBlockLabels } from './staff-block-labels';
-import { staffFields } from '../staff-fields';
-import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
+import { staffFields } from '../platform/staff-fields';
+import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
 import { debounced } from '@b2b-catalog-platform/ui/core/debounced';
-import { delayedLoading } from '../../shared/core/delayed-loading';
-import { usePageSeo } from '../../shared/core/page-seo';
+import { delayedLoading } from '../../platform/delayed-loading';
+import { usePageSeo } from '../../platform/page-seo';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { Checkbox } from '@b2b-catalog-platform/ui/choices/checkbox';
 import { TickLabel } from '@b2b-catalog-platform/ui/choices/tick-label';

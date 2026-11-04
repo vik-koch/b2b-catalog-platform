@@ -1,7 +1,7 @@
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { and, eq, exists, inArray, SQL, sql } from 'drizzle-orm';
-import * as schema from '../../db/schema';
-import { productAttributes, products } from '../../db/schema';
+import * as schema from '../../platform/db/schema';
+import { productAttributes, products } from '../../platform/db/schema';
 
 /**
  * "This product carries this attribute", behind the inventory's drill-down

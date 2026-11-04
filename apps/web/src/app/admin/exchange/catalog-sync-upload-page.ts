@@ -9,10 +9,10 @@ import {
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { Link } from '@b2b-catalog-platform/ui/actions/link';
 import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
-import { ADMIN_TEXT } from '../../shared/config/admin-text';
-import { AdminText } from '../../shared/config/admin-text.type';
-import { SHARED_TEXT } from '../../shared/config/shared-text';
-import { usePageSeo } from '../../shared/core/page-seo';
+import { ADMIN_TEXT } from '../../platform/config/admin-text';
+import { AdminText } from '../../platform/config/admin-text.type';
+import { SHARED_TEXT } from '../../platform/config/shared-text';
+import { usePageSeo } from '../../platform/page-seo';
 import { OwnershipService } from '../platform/ownership/ownership.service';
 import {
   CATALOG_SYNC_PRESETS,

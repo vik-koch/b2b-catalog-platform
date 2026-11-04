@@ -13,11 +13,15 @@ import {
   OrderDocumentKind,
   AdminOrderDocument,
 } from '@b2b-catalog-platform/shared/core/ordering';
-import { DRIZZLE } from '../../db/database.module';
-import * as schema from '../../db/schema';
-import { orderDocuments, orderRevisions, orders } from '../../db/schema';
-import { MEDIA_STORE, MediaStore } from '../../media/media-store';
-import { MailAttachment } from '../../mail/mailer';
+import { DRIZZLE } from '../../platform/db/database.module';
+import * as schema from '../../platform/db/schema';
+import {
+  orderDocuments,
+  orderRevisions,
+  orders,
+} from '../../platform/db/schema';
+import { MEDIA_STORE, MediaStore } from '../../platform/media/media-store';
+import { MailAttachment } from '../../platform/mail/mailer';
 import { OrderPdf } from './order-pdf';
 
 /** A file on its way out: the bytes, and what the browser should call them. */

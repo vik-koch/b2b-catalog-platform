@@ -1,7 +1,7 @@
 import { inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { CanActivateFn, Router } from '@angular/router';
-import { AuthService } from '../../../shared/auth/auth.service';
+import { AuthService } from '../../../platform/auth/auth.service';
 import { MaintenanceService } from '../../../core/site/maintenance.service';
 import { passesMaintenance } from '@b2b-catalog-platform/shared/core/site';
 

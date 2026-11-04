@@ -3,20 +3,20 @@ import {
   SyncRun,
   SyncRunStatus,
 } from '@b2b-catalog-platform/shared/core/exchange';
-import { MAIL_BRANDING, MailBranding } from '../../mail/mail-branding';
-import { MailDispatcher } from '../../mail/mail-dispatcher';
-import { MAIL_TEXT, MailText } from '../../mail/mail-text';
+import { MAIL_BRANDING, MailBranding } from '../../platform/mail/mail-branding';
+import { MailDispatcher } from '../../platform/mail/mail-dispatcher';
+import { MAIL_TEXT, MailText } from '../../platform/mail/mail-text';
 import {
   NotificationAudience,
   NotificationAudiences,
-} from '../../mail/notification-audience';
-import { MailContent } from '../../mail/mail-layout';
+} from '../../platform/mail/notification-audience';
+import { MailContent } from '../../platform/mail/mail-layout';
 import {
   syncCreatedMail,
   syncFailedMail,
   syncRecoveredMail,
   syncWaitingMail,
-} from '../../mail/templates/sync-run.template';
+} from './sync-run.template';
 
 /** Where an automated feed stands, read off the run before this one rather
  * than stored, so it cannot drift from it. */

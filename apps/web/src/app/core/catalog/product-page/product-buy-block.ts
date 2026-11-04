@@ -10,7 +10,7 @@ import {
   ProductDetail,
 } from '@b2b-catalog-platform/shared/core/catalog';
 import { ProductCart } from '../buying/product-cart';
-import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
+import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
 import { AutoGrow } from '@b2b-catalog-platform/ui/inputs/auto-grow';
 import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
 import { Input } from '@b2b-catalog-platform/ui/inputs/input';

@@ -13,7 +13,7 @@ import {
 } from './sync';
 import { syncRunSchema, syncSummarySchema } from './sync-run.contract';
 import { priceMinorSchema } from '../catalog/catalog.contract';
-import { taxRateSchema } from '../../lib/config/tax-config';
+import { taxRateSchema } from '../../platform/tax-config';
 import { CATEGORY_NAME_MAX_LENGTH } from '../catalog/categories';
 import {
   PRODUCT_NAME_MAX_LENGTH,

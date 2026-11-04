@@ -1,10 +1,10 @@
 import { Component, computed, inject, input, resource } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { AuthService } from '../../../shared/auth/auth.service';
+import { AuthService } from '../../../platform/auth/auth.service';
 import { OrderSummary } from '../../../core/ordering/ui/order-summary';
-import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
-import { delayedLoading } from '../../../shared/core/delayed-loading';
-import { usePageSeo } from '../../../shared/core/page-seo';
+import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
+import { delayedLoading } from '../../../platform/delayed-loading';
+import { usePageSeo } from '../../../platform/page-seo';
 import { NotFoundView } from '../../platform/not-found-view';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';

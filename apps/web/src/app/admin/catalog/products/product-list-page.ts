@@ -8,7 +8,7 @@ import {
   signal,
 } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { fillText } from '@b2b-catalog-platform/shared';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
 import {
   formatAttributeValue,
   ProductAvailability,
@@ -22,11 +22,11 @@ import {
 } from '@b2b-catalog-platform/shared/admin/catalog';
 import { NgTemplateOutlet } from '@angular/common';
 import { PricePipe } from '../../../core/catalog/pricing/price.pipe';
-import { ADMIN_TEXT } from '../../../shared/config/admin-text';
-import { SHARED_TEXT } from '../../../shared/config/shared-text';
-import { delayedLoading } from '../../../shared/core/delayed-loading';
-import { usePageSeo } from '../../../shared/core/page-seo';
-import { stableValue } from '../../../shared/core/stable-value';
+import { ADMIN_TEXT } from '../../../platform/config/admin-text';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { delayedLoading } from '../../../platform/delayed-loading';
+import { usePageSeo } from '../../../platform/page-seo';
+import { stableValue } from '../../../platform/stable-value';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { Link } from '@b2b-catalog-platform/ui/actions/link';
 import {
@@ -44,7 +44,7 @@ import { ProductsService } from './products.service';
 import { ProductCreateService } from './product-create.service';
 import { AttributesService } from '../attributes/attributes.service';
 import { flattenCategoryTree } from '../categories/category-tree';
-import { injectEditorReturnParams } from '../../../shared/edit-mode/editor-return';
+import { injectEditorReturnParams } from '../../../platform/edit-mode/editor-return';
 import { DataGrid } from '@b2b-catalog-platform/ui/grid/data-grid';
 import {
   GridChip,
@@ -62,7 +62,7 @@ import {
 } from './product-grid-query';
 import { GridCardTemplate } from '@b2b-catalog-platform/ui/grid/grid-card-template';
 import { GridRowTemplate } from '@b2b-catalog-platform/ui/grid/grid-row-template';
-import { GridTimestamp } from '../../dates/grid-timestamp';
+import { GridTimestamp } from '../../platform/dates/grid-timestamp';
 import { RecordRow } from '@b2b-catalog-platform/ui/lists/record-row';
 import { GridHeader } from '@b2b-catalog-platform/ui/grid/grid-header';
 import { DocumentsService } from '../documents/documents.service';
@@ -76,6 +76,7 @@ import {
 import { AVAILABILITY_TONES } from '../../../core/catalog/ui/product-availability-badge';
 import { plusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/plus';
 import { ProductStateBadge, productState } from '../ui/product-state-badge';
+import { pageNumber } from '../../../platform/page-number';
 
 /** The category filter's "without subcategories" option; a uuid never ends
  * this way. */
@@ -400,10 +401,7 @@ export class ProductListPage {
   /** The grid's state comes from the URL, each input named for its query
    * parameter, and is narrowed before it reaches the API. */
   readonly page = input('1');
-  protected readonly currentPage = computed(() => {
-    const n = Number(this.page());
-    return Number.isInteger(n) && n > 0 ? n : 1;
-  });
+  protected readonly currentPage = computed(() => pageNumber(this.page()));
 
   readonly searchTerm = input('');
   protected readonly query = computed(() =>

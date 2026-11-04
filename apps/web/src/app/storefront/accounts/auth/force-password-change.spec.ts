@@ -1,12 +1,12 @@
-import { SHARED_TEXT } from '../../../shared/config/shared-text';
-import { defaultSharedText } from '../../../shared/config/shared-text.fixture';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
 import { signal, WritableSignal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
-import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
-import { defaultStorefrontText } from '../../../shared/config/storefront-text.fixture';
-import { adminUser } from '../../../shared/auth/auth-user.fixture';
-import { AuthService } from '../../../shared/auth/auth.service';
+import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
+import { defaultStorefrontText } from '../../../platform/config/storefront-text.fixture';
+import { adminUser } from '../../../platform/auth/auth-user.fixture';
+import { AuthService } from '../../../platform/auth/auth.service';
 import { ChangePasswordResult, SignInService } from './sign-in.service';
 import { ForcePasswordChange } from './force-password-change';
 import { AuthUser } from '@b2b-catalog-platform/shared/platform';

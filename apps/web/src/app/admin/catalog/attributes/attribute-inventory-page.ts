@@ -9,12 +9,12 @@ import {
   signal,
 } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { fillText } from '@b2b-catalog-platform/shared';
-import { ADMIN_TEXT } from '../../../shared/config/admin-text';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
+import { ADMIN_TEXT } from '../../../platform/config/admin-text';
 
-import { usePageSeo } from '../../../shared/core/page-seo';
-import { useRowAnchor } from '../../../shared/core/row-anchor';
-import { delayedLoading } from '../../../shared/core/delayed-loading';
+import { usePageSeo } from '../../../platform/page-seo';
+import { useRowAnchor } from '../../../platform/row-anchor';
+import { delayedLoading } from '../../../platform/delayed-loading';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
@@ -26,7 +26,7 @@ import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service
 import { RecordRow } from '@b2b-catalog-platform/ui/lists/record-row';
 import { UnpublishedCount } from '../products/unpublished-count';
 import { AttributesService } from './attributes.service';
-import { SHARED_TEXT } from '../../../shared/config/shared-text';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { chevronDownIcon } from '@b2b-catalog-platform/ui/icons/glyphs/chevron-down';
 import { chevronRightIcon } from '@b2b-catalog-platform/ui/icons/glyphs/chevron-right';
@@ -34,8 +34,8 @@ import { funnelIcon } from '@b2b-catalog-platform/ui/icons/glyphs/funnel';
 import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
 import { triangleAlertIcon } from '@b2b-catalog-platform/ui/icons/glyphs/triangle-alert';
 import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
-import { SaveButton } from '../../ui/save-button';
-import { CancelButton } from '../../ui/cancel-button';
+import { SaveButton } from '../../platform/ui/save-button';
+import { CancelButton } from '../../platform/ui/cancel-button';
 
 /** A key across the catalog, or one value under a key. */
 type RenameTarget =

@@ -8,12 +8,12 @@ import {
   signal,
 } from '@angular/core';
 import { ADMIN_CATALOG_PAGE_SIZE } from '@b2b-catalog-platform/shared/admin/catalog';
-import { fillText } from '@b2b-catalog-platform/shared';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
 import { LinkedProduct } from '@b2b-catalog-platform/shared/admin/catalog';
 
-import { ADMIN_TEXT } from '../../../shared/config/admin-text';
+import { ADMIN_TEXT } from '../../../platform/config/admin-text';
 import { debounced } from '@b2b-catalog-platform/ui/core/debounced';
-import { AlternateLayout } from '../../../shared/core/alternate-layout';
+import { AlternateLayout } from '../../../platform/alternate-layout';
 import { Checkbox } from '@b2b-catalog-platform/ui/choices/checkbox';
 import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
 import { Input } from '@b2b-catalog-platform/ui/inputs/input';

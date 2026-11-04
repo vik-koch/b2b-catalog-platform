@@ -1,7 +1,7 @@
 import { inArray, sql, SQLWrapper } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import * as schema from '../../db/schema';
-import { orderItems, orderRevisions, orders } from '../../db/schema';
+import * as schema from '../../platform/db/schema';
+import { orderItems, orderRevisions, orders } from '../../platform/db/schema';
 
 type Writer = Pick<NodePgDatabase<typeof schema>, 'update' | 'select'>;
 

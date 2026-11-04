@@ -35,7 +35,9 @@ rules, held by `eslint-plugin-boundaries`:
 
 1. **An audience never imports another.** Only roots compose them: the app root and
    `app.module`, and inside an audience its `shell/` (routes, layout, panel page).
-2. **Downwards only:** audience → core → platform. Platform imports no area.
+2. **Downwards only:** audience → core → platform. Platform imports no area, except what
+   composes them all: the deployment schema and shared texts, built from each area's
+   section, and the database schema.
 3. **Between areas, only along the table**, at the same level or downwards:
    `admin/ordering` may import `admin/catalog` or `core/catalog`, never the reverse.
 4. **The rule of two:** code enters `core/` when a second audience uses it, not before.
@@ -56,7 +58,7 @@ guards and the session, the settings row and which areas another system owns, ma
 and layout, the media store, PDF rendering, audit and the destruction record, throttling and
 the suggestion sidecar. An area's mails live in its core; platform renders and sends them.
 Each audience may keep its own `platform/` for area-free pieces only it uses (the admin's
-grid, dates, rich text, image picker).
+grid, dates, rich text, image framer).
 
 **Contracts:** an entry point per audience and area (`@b2b-catalog-platform/shared/admin/catalog`),
 plus `/core/<area>`, `/platform` and `/node`, mapped by one wildcard path. A resource's shape

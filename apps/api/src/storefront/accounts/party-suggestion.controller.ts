@@ -1,6 +1,6 @@
 import { Controller, Inject } from '@nestjs/common';
 import { Implement, implement } from '@orpc/nest';
-import { SidecarSuggestionThrottle } from '../../throttling/throttle-presets';
+import { SidecarSuggestionThrottle } from '../../platform/throttling/throttle-presets';
 import {
   PARTY_SUGGESTION_PORT,
   PartySuggestionPort,

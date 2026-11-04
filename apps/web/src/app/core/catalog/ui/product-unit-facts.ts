@@ -3,8 +3,8 @@ import {
   ProductPackaging,
   ProductUnit,
 } from '@b2b-catalog-platform/shared/core/catalog';
-import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
-import { SHARED_TEXT } from '../../../shared/config/shared-text';
+import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { useProductUnits } from '../buying/product-units-view';
 
 /**

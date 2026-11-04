@@ -12,7 +12,9 @@ import { DocumentsController } from './documents/documents.controller';
 import { DocumentsService } from './documents/documents.service';
 import { TiersController } from './tiers/tiers.controller';
 import { TiersService } from './tiers/tiers.service';
-import { AuditLogger } from '../../audit/audit.logger';
+import { CatalogUploadsController } from './uploads/catalog-uploads.controller';
+import { MediaModule } from '../../platform/media/media.module';
+import { AuditLogger } from '../../platform/audit/audit.logger';
 import { SessionModule } from '../../platform/auth/session.module';
 import { OwnershipStateModule } from '../../platform/settings/ownership-state.module';
 import { CatalogCoreModule } from '../../core/catalog/catalog-core.module';
@@ -21,20 +23,26 @@ import {
   LOW_STOCK_THRESHOLD_PIECES,
   loadAlternateLayout,
   loadLowStockThresholdPieces,
-} from '../../config/deployment-config';
+} from '../../platform/config/deployment-config';
 
 /**
  * The admin's catalog: products, categories, the attribute registry, documents
  * and tiers, behind the `@Auth` guards SessionModule supplies.
  */
 @Module({
-  imports: [SessionModule, OwnershipStateModule, CatalogCoreModule],
+  imports: [
+    SessionModule,
+    OwnershipStateModule,
+    CatalogCoreModule,
+    MediaModule,
+  ],
   controllers: [
     ProductsController,
     CategoriesController,
     AttributesController,
     DocumentsController,
     TiersController,
+    CatalogUploadsController,
   ],
   providers: [
     ProductRecords,

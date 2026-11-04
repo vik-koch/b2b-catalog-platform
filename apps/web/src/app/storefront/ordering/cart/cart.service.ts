@@ -33,7 +33,7 @@ import {
   CartAddResult,
   ProductCart,
 } from '../../../core/catalog/buying/product-cart';
-import { readSessionHint } from '../../../shared/auth/session-hint';
+import { readSessionHint } from '../../../platform/auth/session-hint';
 import { CART_STORAGE_KEY, CART_STORAGE_VERSION } from './cart-storage';
 import { USER_ROLES, UserRole } from '@b2b-catalog-platform/shared/platform';
 

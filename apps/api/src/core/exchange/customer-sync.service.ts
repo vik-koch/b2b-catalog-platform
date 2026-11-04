@@ -22,18 +22,18 @@ import {
   decideCustomerAutoApply,
   SyncCommitResponse,
 } from '@b2b-catalog-platform/shared/core/exchange';
-import { DRIZZLE } from '../../db/database.module';
-import * as schema from '../../db/schema';
+import { DRIZZLE } from '../../platform/db/database.module';
+import * as schema from '../../platform/db/schema';
 import {
   customerTiers,
   passwordTokens,
   syncRuns,
   users,
-} from '../../db/schema';
+} from '../../platform/db/schema';
 import {
   ACCEPTED_CUSTOMER_TYPES,
   CUSTOMER_SYNC_POLICY,
-} from '../../config/deployment-config';
+} from '../../platform/config/deployment-config';
 import { OwnershipState } from '../../platform/settings/ownership-state';
 import {
   customersExternallyOwned,

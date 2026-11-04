@@ -4,9 +4,9 @@ import {
   ConsentRefusalCode,
   isConsentRefusal,
 } from '@b2b-catalog-platform/shared/core/site';
-import { authContract } from '../../contract-routes.generated';
-import { createOrpcClient } from '../../../shared/core/orpc-client';
-import { AuthService } from '../../../shared/auth/auth.service';
+import { authContract } from '../contract-routes.generated';
+import { createOrpcClient } from '../../../platform/orpc-client';
+import { AuthService } from '../../../platform/auth/auth.service';
 import { AuthUser } from '@b2b-catalog-platform/shared/platform';
 import {
   MAINTENANCE_REFUSED,

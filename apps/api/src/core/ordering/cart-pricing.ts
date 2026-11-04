@@ -8,7 +8,10 @@ import {
   ShipmentLineInput,
   shipmentEstimate,
 } from '@b2b-catalog-platform/shared/core/ordering';
-import { effectiveTaxRate, TaxConfig } from '@b2b-catalog-platform/shared';
+import {
+  effectiveTaxRate,
+  TaxConfig,
+} from '@b2b-catalog-platform/shared/platform';
 import {
   ProductAvailability,
   correctPieces,
@@ -16,21 +19,18 @@ import {
   piecesPerUnit,
   unitQuantity,
 } from '@b2b-catalog-platform/shared/core/catalog';
-import { pairingShortfalls } from '@b2b-catalog-platform/shared/node';
-import * as schema from '../../db/schema';
-import { products } from '../../db/schema';
+import { pairingShortfalls } from './pairing-check';
+import * as schema from '../../platform/db/schema';
+import { products } from '../../platform/db/schema';
 import { livePriceMinor } from '../catalog/product-price';
 import {
-  availabilityColumns,
+  listItemColumns,
   packagingOf,
-  partsColumns,
-  pictureColumns,
   picturesOf,
   publiclyVisible,
-  unitColumns,
   unitPricesOf,
 } from '../catalog/product-view';
-import { pairedCountOf, pairingsAmong } from '../catalog/product-pairings';
+import { pairingsAmong } from '../catalog/product-pairings';
 
 /**
  * Pricing a cart, once, for the preview and the submission alike. A cart is
@@ -188,22 +188,13 @@ async function loadProducts(
 
   const rows = await db
     .select({
+      ...listItemColumns(livePriceMinor(tierId)),
       id: products.id,
-      slug: products.slug,
-      name: products.name,
       sourceId: products.sourceId,
-      priceMinor: livePriceMinor(tierId),
-      ...pictureColumns,
       boxVolume: products.boxVolume,
       boxWeight: products.boxWeight,
       boxCount: products.boxCount,
-      lineNoteEnabled: products.lineNoteEnabled,
-      lineNotePrompt: products.lineNotePrompt,
       taxRate: products.taxRate,
-      ...availabilityColumns,
-      ...unitColumns,
-      ...partsColumns,
-      pairedCount: pairedCountOf(),
     })
     .from(products)
     .where(and(inArray(products.slug, slugs), publiclyVisible));

@@ -4,18 +4,19 @@ import {
   API_TOKEN_NAME_MAX_LENGTH,
   API_TOKEN_SCOPES,
   ApiTokenScope,
-} from '@b2b-catalog-platform/shared';
+  fillText,
+} from '@b2b-catalog-platform/shared/platform';
 import {
   ApiToken,
   CreatedApiToken,
 } from '@b2b-catalog-platform/shared/admin/exchange';
-import { ADMIN_TEXT } from '../../../shared/config/admin-text';
-import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
-import { delayedLoading } from '../../../shared/core/delayed-loading';
-import { usePageSeo } from '../../../shared/core/page-seo';
+import { ADMIN_TEXT } from '../../../platform/config/admin-text';
+import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
+import { delayedLoading } from '../../../platform/delayed-loading';
+import { usePageSeo } from '../../../platform/page-seo';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
-import { filled } from '../../../shared/core/field-rules';
+import { filled } from '../../../platform/field-rules';
 import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
 import { submitAttempt } from '@b2b-catalog-platform/ui/fields/submit-attempt';
 import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
@@ -27,9 +28,9 @@ import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';
 import { RecordFields } from '@b2b-catalog-platform/ui/lists/record-fields';
 import { RecordFormActions } from '@b2b-catalog-platform/ui/lists/record-form-actions';
 import { RecordRow } from '@b2b-catalog-platform/ui/lists/record-row';
-import { adminMomentFormat } from '../../dates/admin-date';
+import { adminMomentFormat } from '../../platform/dates/admin-date';
 import { ApiTokensService } from './api-tokens.service';
-import { SHARED_TEXT } from '../../../shared/config/shared-text';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { Notice } from '@b2b-catalog-platform/ui/content/notice';
 import { circleCheckIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-check';
@@ -37,8 +38,8 @@ import { circleSlashIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-sl
 import { copyIcon } from '@b2b-catalog-platform/ui/icons/glyphs/copy';
 import { plusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/plus';
 import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
-import { SaveButton } from '../../ui/save-button';
-import { CancelButton } from '../../ui/cancel-button';
+import { SaveButton } from '../../platform/ui/save-button';
+import { CancelButton } from '../../platform/ui/cancel-button';
 
 /** The form's rows, in the order a deployment's exchange grows. */
 const SCOPE_AREAS = ['catalog', 'customers', 'orders'] as const;
@@ -350,7 +351,7 @@ export class ApiTokenListPage {
   }
 
   protected fill(template: string, value: string): string {
-    return template.replace('{name}', value);
+    return fillText(template, { name: value });
   }
 
   protected scopeLabel(scope: ApiTokenScope): string {
@@ -375,9 +376,10 @@ export class ApiTokenListPage {
   }
 
   protected createdLine(token: ApiToken): string {
-    return this.text.created
-      .replace('{date}', this.moment().format(new Date(token.createdAt)))
-      .replace('{actor}', token.createdBy ?? this.adminText.actorGone);
+    return fillText(this.text.created, {
+      date: this.moment().format(new Date(token.createdAt)),
+      actor: token.createdBy ?? this.adminText.actorGone,
+    });
   }
 
   /** A token nobody uses looks like a working one until this line says so. */

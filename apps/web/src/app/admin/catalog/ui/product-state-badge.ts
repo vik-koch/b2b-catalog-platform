@@ -3,7 +3,7 @@ import {
   StatusBadge,
   StatusTone,
 } from '@b2b-catalog-platform/ui/content/status-badge';
-import { ADMIN_TEXT } from '../../../shared/config/admin-text';
+import { ADMIN_TEXT } from '../../../platform/config/admin-text';
 
 export type ProductState = 'live' | 'unpublished' | 'deleted';
 

@@ -1,9 +1,10 @@
 import { oc } from '@orpc/contract';
 import * as z from 'zod';
-import { commonAuthErrors, phoneFormatErrors } from '../../lib/core/api-error';
+import { commonAuthErrors, phoneFormatErrors } from '../../platform/api-error';
 import { customerTypeSchema } from '../../core/accounts/users.contract';
 import { userRoleSchema } from '../../platform/session.contract';
-import { storedEmailField } from '../../lib/config/contact-config';
+import { storedEmailField } from '../../platform/contact-config';
+import { acknowledgementSchema } from '../../platform/acknowledgement.contract';
 
 /** The holder's own record: its own shape, not the staff one trimmed, and
  * without `tierId`, which is staff's to assign and not the customer's to see. */
@@ -93,5 +94,5 @@ export const accountContract = {
       'last-admin': { status: 409 },
     })
     .input(z.object({ body: deleteAccountSchema }))
-    .output(z.object({ message: z.string() })),
+    .output(acknowledgementSchema),
 };

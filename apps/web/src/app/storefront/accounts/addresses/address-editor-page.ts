@@ -7,10 +7,10 @@ import {
   signal,
 } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { fillText } from '@b2b-catalog-platform/shared';
-import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
-import { delayedLoading } from '../../../shared/core/delayed-loading';
-import { usePageSeo } from '../../../shared/core/page-seo';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
+import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
+import { delayedLoading } from '../../../platform/delayed-loading';
+import { usePageSeo } from '../../../platform/page-seo';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import { AddressFields } from '../../../core/accounts/addresses/address-fields';
@@ -19,7 +19,7 @@ import {
   AddressesService,
   SaveAddressResult,
 } from '../../../core/accounts/addresses/addresses.service';
-import { SHARED_TEXT } from '../../../shared/config/shared-text';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';

@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { AuditLogger } from '../../audit/audit.logger';
+import { AuditLogger } from '../../platform/audit/audit.logger';
 import { OrderingCoreModule } from '../../core/ordering/ordering-core.module';
 import { SessionModule } from '../../platform/auth/session.module';
 import { OwnershipStateModule } from '../../platform/settings/ownership-state.module';

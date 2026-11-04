@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { eq } from 'drizzle-orm';
-import { orders } from '../../db/schema';
+import { orders } from '../../platform/db/schema';
 import {
   AccountErasureStep,
   ErasedAccount,

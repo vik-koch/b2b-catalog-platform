@@ -2,12 +2,11 @@ import { createHash } from 'node:crypto';
 import { Inject, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import type { Request, Response } from 'express';
-import { SignInStepConfig } from '@b2b-catalog-platform/shared';
 import {
   PHONE_INPUT,
   PHONE_RULE,
   PhoneRule,
-} from '../../../config/deployment-config';
+} from '../../../platform/config/deployment-config';
 import { UserRow, UsersService } from '../users.service';
 import { sessionCookieAttributes } from '../../../platform/auth/session-cookie';
 import { CodeDeliveryError } from './code-delivery';
@@ -22,6 +21,7 @@ import { byMail, SIGN_IN_PROOF, SignInProof } from './sign-in-proof';
 import {
   CodeSent as CodeSentAnswer,
   SignInStep as StepAnswer,
+  SignInStepConfig,
 } from '@b2b-catalog-platform/shared/core/accounts';
 import {
   formatPhone,

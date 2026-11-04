@@ -3,11 +3,11 @@ import {
   fillText,
   moneyFormat,
   formatMoneyMinor,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/platform';
 import { resolveDeliveryZone } from '@b2b-catalog-platform/shared/core/ordering';
 import { CartService } from '../cart/cart.service';
-import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
-import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
+import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
+import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import { WarningNote } from '@b2b-catalog-platform/ui/content/warning-note';
 
 /** The delivery area of the typed address and whether the order reaches its

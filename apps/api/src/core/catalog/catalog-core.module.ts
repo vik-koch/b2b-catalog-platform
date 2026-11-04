@@ -1,6 +1,9 @@
 import { Module } from '@nestjs/common';
 import { CatalogReader } from './catalog-reader';
-import { loadTaxConfig, TAX_CONFIG } from '../../config/deployment-config';
+import {
+  loadTaxConfig,
+  TAX_CONFIG,
+} from '../../platform/config/deployment-config';
 
 /** What both audiences' catalog modules read through. */
 @Module({

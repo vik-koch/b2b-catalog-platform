@@ -4,12 +4,12 @@ import {
   TaxBasis,
   moneyFormat,
   formatMoneyMinor,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/platform';
 import { ShipmentSummary } from '@b2b-catalog-platform/shared/core/ordering';
 import { formatStoredDecimal } from '../../catalog/buying/quantity';
 import { useTaxStatement } from '../../catalog/pricing/tax-statement';
-import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
-import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
+import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
+import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import { WarningNote } from '@b2b-catalog-platform/ui/content/warning-note';
 import { Card } from '@b2b-catalog-platform/ui/content/card';

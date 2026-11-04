@@ -1,0 +1,76 @@
+import { INestApplication } from '@nestjs/common';
+import { Test } from '@nestjs/testing';
+import { ConsentService } from '../core/site/consent.service';
+import { InquiryModule } from '../storefront/site/inquiry.module';
+import { MAILER, Mailer } from '../platform/mail/mailer';
+import { ThrottlingModule } from '../platform/throttling/throttling.module';
+import { MAIL_TEXT } from '../platform/mail/mail-text';
+import { PHONE_INPUT } from '../platform/config/deployment-config';
+import { MAIL_BRANDING } from '../platform/mail/mail-branding';
+import {
+  demoMailBranding,
+  demoMailText,
+  demoPhoneInput,
+} from '../platform/mail/mail-text.fixture';
+
+// Proves the shared limiter actually blocks a flood, exercised
+// through the real inquiry route (PublicFormThrottle = 10/min) with the mailer
+// stubbed. An isolated app on its own port keeps the per-IP counter clean.
+describe('Throttling', () => {
+  let app: INestApplication;
+  let baseUrl: string;
+  const send = vi
+    .fn<(mail: unknown) => Promise<void>>()
+    .mockResolvedValue(undefined);
+
+  const validSubmission = {
+    name: 'Jane Doe',
+    email: 'jane@example.com',
+    preferredContact: 'email',
+  };
+
+  beforeAll(async () => {
+    const moduleRef = await Test.createTestingModule({
+      imports: [ThrottlingModule, InquiryModule],
+    })
+      .overrideProvider(MAILER)
+      .useValue({ send } satisfies Mailer)
+      .overrideProvider(MAIL_TEXT)
+      .useValue(demoMailText)
+      .overrideProvider(MAIL_BRANDING)
+      .useValue(demoMailBranding)
+      .overrideProvider(PHONE_INPUT)
+      .useValue(demoPhoneInput)
+      // No database here, and the throttle runs before any consent check.
+      .overrideProvider(ConsentService)
+      .useValue({ check: async () => null })
+      .compile();
+
+    app = moduleRef.createNestApplication();
+    await app.listen(0);
+    baseUrl = await app.getUrl();
+  });
+
+  afterAll(async () => {
+    await app.close();
+  });
+
+  const post = (body: unknown): Promise<Response> =>
+    fetch(`${baseUrl}/inquiry`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+
+  it('allows requests up to the limit, then answers 429', async () => {
+    const statuses: number[] = [];
+    // One over the limit (pinned to 10 in test-setup): the first ten pass and
+    // the eleventh is throttled.
+    for (let i = 0; i < 11; i++) {
+      statuses.push((await post(validSubmission)).status);
+    }
+
+    expect(statuses.slice(0, 10)).toEqual(Array(10).fill(200));
+    expect(statuses[10]).toBe(429);
+  });
+});

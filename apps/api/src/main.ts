@@ -4,13 +4,13 @@ import cookieParser from 'cookie-parser';
 import { json, urlencoded } from 'express';
 import { SYNC_MAX_BODY_BYTES } from '@b2b-catalog-platform/shared/core/exchange';
 import { AppModule } from './app/app.module';
-import { runMigrations } from './db/migrate';
+import { runMigrations } from './platform/db/migrate';
 import { hashPassword } from './core/accounts/password-hashing';
 import { runBootstrapAdmin } from './admin/accounts/bootstrap-admin';
-import { scheduleMediaPrune } from './media/prune/media-prune-scheduler';
+import { scheduleMediaPrune } from './platform/media/prune/media-prune-scheduler';
 import { RetentionSweep } from './core/retention/retention-sweep';
-import { env } from './env';
-import { MACHINE_SYNC_RUNS_PATHS } from './machine-sync-body-paths';
+import { env } from './platform/env';
+import { MACHINE_SYNC_RUNS_PATHS } from './machine/exchange/machine-sync-body-paths';
 
 // Let the server settle and serve traffic before the first maintenance sweep.
 const PRUNE_STARTUP_DELAY_MS = 60_000;

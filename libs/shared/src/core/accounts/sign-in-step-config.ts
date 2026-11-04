@@ -1,0 +1,31 @@
+import * as z from 'zod';
+import { SIGN_IN_STEP_MODES } from './auth';
+import { USER_ROLES } from '../../platform/session';
+
+/**
+ * The second sign-in step (FR-AUTH-12): how often a code is asked for, and of
+ * which roles. Policy, so it is the operator's file and not an admin setting —
+ * which roles take the step follows from the rule a deployment is under.
+ * Absent means `off`. Read by the API only; checked by both apps because both
+ * parse the same file.
+ */
+export const signInStepConfigSchema = z
+  .object({
+    mode: z.enum(SIGN_IN_STEP_MODES),
+    roles: z.array(z.enum(USER_ROLES)),
+    /**
+     * The roles an admin may exempt one account of, such as a maintainer who
+     * has no number in the deployment's country. Absent means nobody: whether
+     * a role may be exempted follows from the same rule as whether it is asked.
+     */
+    exemptableRoles: z.array(z.enum(USER_ROLES)).optional(),
+    /**
+     * How long a browser may be remembered, offered as a box on the code
+     * screen at `always`. A remembered browser skips the code, never the
+     * password. Absent or 0 means never: a deployment whose rule asks for a
+     * code at every sign-in gets exactly that.
+     */
+    trustDeviceDays: z.number().int().nonnegative().optional(),
+  })
+  .strict();
+export type SignInStepConfig = z.infer<typeof signInStepConfigSchema>;

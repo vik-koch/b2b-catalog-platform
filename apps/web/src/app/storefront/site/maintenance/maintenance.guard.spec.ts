@@ -7,12 +7,12 @@ import {
   RouterStateSnapshot,
   UrlTree,
 } from '@angular/router';
-import { AuthService } from '../../../shared/auth/auth.service';
+import { AuthService } from '../../../platform/auth/auth.service';
 import {
   adminUser as admin,
   managerUser as manager,
   plainUser,
-} from '../../../shared/auth/auth-user.fixture';
+} from '../../../platform/auth/auth-user.fixture';
 import { maintenanceGate } from './maintenance.guard';
 import { MaintenanceService } from '../../../core/site/maintenance.service';
 import { AuthUser } from '@b2b-catalog-platform/shared/platform';

@@ -15,11 +15,11 @@ import {
   OrderSyncPlan,
   SyncRun,
 } from '@b2b-catalog-platform/shared/core/exchange';
-import { AuthService } from '../../shared/auth/auth.service';
-import { ADMIN_TEXT } from '../../shared/config/admin-text';
-import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
-import { delayedLoading } from '../../shared/core/delayed-loading';
-import { usePageSeo } from '../../shared/core/page-seo';
+import { AuthService } from '../../platform/auth/auth.service';
+import { ADMIN_TEXT } from '../../platform/config/admin-text';
+import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
+import { delayedLoading } from '../../platform/delayed-loading';
+import { usePageSeo } from '../../platform/page-seo';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
@@ -27,7 +27,7 @@ import {
   StatusBadge,
   StatusTone,
 } from '@b2b-catalog-platform/ui/content/status-badge';
-import { adminDayFormat } from '../dates/admin-date';
+import { adminDayFormat } from '../platform/dates/admin-date';
 import { SyncCustomerPlanView } from './ui/sync-customer-plan-view';
 import { SyncOrderPlanView } from './ui/sync-order-plan-view';
 import { SyncCatalogPlanView } from './ui/sync-catalog-plan-view';
@@ -35,7 +35,7 @@ import { LockedNote } from '../platform/ownership/ui/locked-note';
 import { OwnershipService } from '../platform/ownership/ownership.service';
 import { SYNC_RUN_TONE, syncRunActor } from './sync-run-format';
 import { SyncService } from './sync.service';
-import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { SHARED_TEXT } from '../../platform/config/shared-text';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
 import { Notice } from '@b2b-catalog-platform/ui/content/notice';
 

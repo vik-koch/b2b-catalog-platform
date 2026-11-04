@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { MediaModule } from '../../media/media.module';
+import { MediaModule } from '../../platform/media/media.module';
 import { OrderCounts } from './order-counts';
 import { OrderDocumentFiles } from './order-document-files';
 import { OrderErasure } from './order-erasure';

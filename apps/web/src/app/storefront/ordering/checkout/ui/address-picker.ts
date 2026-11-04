@@ -1,8 +1,8 @@
 import { Component, inject, input, output } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
-import { STOREFRONT_TEXT } from '../../../../shared/config/storefront-text';
-import { DEPLOYMENT_CONFIG } from '../../../../shared/config/deployment-config';
-import { SUGGESTIONS_ENABLED } from '../../../../shared/config/suggestions-enabled';
+import { STOREFRONT_TEXT } from '../../../../platform/config/storefront-text';
+import { DEPLOYMENT_CONFIG } from '../../../../platform/config/deployment-config';
+import { SUGGESTIONS_ENABLED } from '../../../../platform/config/suggestions-enabled';
 import { AddressFields } from '../../../../core/accounts/addresses/address-fields';
 import { AddressForm } from '../../../../core/accounts/addresses/address-form';
 import {

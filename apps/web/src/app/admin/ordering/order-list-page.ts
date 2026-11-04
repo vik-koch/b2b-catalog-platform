@@ -11,7 +11,7 @@ import {
   fillText,
   moneyFormat,
   formatMoneyMinor,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/platform';
 import {
   notifyByDefault,
   ORDER_STATUS_REASON_MAX,
@@ -23,12 +23,12 @@ import {
   staffPaymentFilterSchema,
 } from '@b2b-catalog-platform/shared/core/ordering';
 import { SEARCH_QUERY_MAX_LENGTH } from '@b2b-catalog-platform/shared/core/catalog';
-import { ADMIN_TEXT } from '../../shared/config/admin-text';
-import { SHARED_TEXT } from '../../shared/config/shared-text';
-import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
-import { delayedLoading } from '../../shared/core/delayed-loading';
-import { usePageSeo } from '../../shared/core/page-seo';
-import { stableValue } from '../../shared/core/stable-value';
+import { ADMIN_TEXT } from '../../platform/config/admin-text';
+import { SHARED_TEXT } from '../../platform/config/shared-text';
+import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
+import { delayedLoading } from '../../platform/delayed-loading';
+import { usePageSeo } from '../../platform/page-seo';
+import { stableValue } from '../../platform/stable-value';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import {
   StatusBadge,
@@ -46,9 +46,9 @@ import { GridFilterOption } from '@b2b-catalog-platform/ui/grid/grid-filter-sele
 import { GridPagination } from '@b2b-catalog-platform/ui/grid/grid-pagination';
 import { GridCardTemplate } from '@b2b-catalog-platform/ui/grid/grid-card-template';
 import { GridRowTemplate } from '@b2b-catalog-platform/ui/grid/grid-row-template';
-import { GridTimestamp } from '../dates/grid-timestamp';
+import { GridTimestamp } from '../platform/dates/grid-timestamp';
 import { RecordRow } from '@b2b-catalog-platform/ui/lists/record-row';
-import { injectEditorReturnParams } from '../../shared/edit-mode/editor-return';
+import { injectEditorReturnParams } from '../../platform/edit-mode/editor-return';
 import {
   ConfirmService,
   confirmRequest,
@@ -58,6 +58,7 @@ import { OrderRowActions } from './ui/order-row-actions';
 import { AdminOrdersService } from './orders.service';
 import { StaffOrderSummary } from '@b2b-catalog-platform/shared/admin/ordering';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
+import { pageNumber } from '../../platform/page-number';
 
 /** Every order request, for staff (FR-AUTH-03); answered on its own page, with
  * the row's two moves here. Status, search, payment and sort are query
@@ -249,10 +250,7 @@ export class AdminOrderListPage {
    * the navbar search's. */
   readonly searchTerm = input('');
 
-  private readonly currentPage = computed(() => {
-    const n = Number(this.page());
-    return Number.isInteger(n) && n > 0 ? n : 1;
-  });
+  private readonly currentPage = computed(() => pageNumber(this.page()));
   protected readonly statusKey = computed<OrderStatus | undefined>(() => {
     const parsed = orderStatusSchema.safeParse(this.status());
     return parsed.success ? parsed.data : undefined;

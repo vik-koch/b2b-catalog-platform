@@ -6,16 +6,19 @@ import {
   output,
   signal,
 } from '@angular/core';
-import { moneyFormat, currencySymbol } from '@b2b-catalog-platform/shared';
+import {
+  moneyFormat,
+  currencySymbol,
+} from '@b2b-catalog-platform/shared/platform';
 import { AdjustmentLineFlag } from '@b2b-catalog-platform/shared/core/ordering';
 import { AdminProductListItem } from '@b2b-catalog-platform/shared/admin/catalog';
-import { ADMIN_TEXT } from '../../shared/config/admin-text';
-import { SHARED_TEXT } from '../../shared/config/shared-text';
-import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
+import { ADMIN_TEXT } from '../../platform/config/admin-text';
+import { SHARED_TEXT } from '../../platform/config/shared-text';
+import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
 import { partialPriceRule } from '../../core/catalog/pricing/price';
 import { Suggestion } from '@b2b-catalog-platform/ui/suggest/suggestion';
 import { MatchSegmentsPipe } from '../../core/catalog/search/match-segments.pipe';
-import { AlternateLayout } from '../../shared/core/alternate-layout';
+import { AlternateLayout } from '../../platform/alternate-layout';
 import { SuggestList } from '@b2b-catalog-platform/ui/suggest/suggest-list';
 import { ProductsService } from '../catalog/products/products.service';
 import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';

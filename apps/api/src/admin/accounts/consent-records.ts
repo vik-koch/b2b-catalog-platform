@@ -11,14 +11,14 @@ import {
   ConsentPurpose,
   ConsentWithdrawalReason,
 } from '@b2b-catalog-platform/shared/core/site';
-import { DRIZZLE } from '../../db/database.module';
-import * as schema from '../../db/schema';
+import { DRIZZLE } from '../../platform/db/database.module';
+import * as schema from '../../platform/db/schema';
 import {
   consents,
   consentWithdrawals,
   pageVersions,
   users,
-} from '../../db/schema';
+} from '../../platform/db/schema';
 import { AuthUser } from '@b2b-catalog-platform/shared/platform';
 import { formatPersonName } from '@b2b-catalog-platform/shared/core/accounts';
 import { ConsentRecord } from '@b2b-catalog-platform/shared/admin/accounts';

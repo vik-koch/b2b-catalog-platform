@@ -5,10 +5,13 @@ import {
   SyncRun,
   SyncRunStatus,
 } from '@b2b-catalog-platform/shared/core/exchange';
-import { MailDispatcher } from '../../mail/mail-dispatcher';
-import { dispatcherOver } from '../../mail/mail-dispatcher.fixture';
-import { demoMailBranding, demoMailText } from '../../mail/mail-text.fixture';
-import { NotificationAudiences } from '../../mail/notification-audience';
+import { MailDispatcher } from '../../platform/mail/mail-dispatcher';
+import { dispatcherOver } from '../../platform/mail/mail-dispatcher.fixture';
+import {
+  demoMailBranding,
+  demoMailText,
+} from '../../platform/mail/mail-text.fixture';
+import { NotificationAudiences } from '../../platform/mail/notification-audience';
 import { SyncNotifications } from './sync-notifications';
 
 const ADMIN = 'admin@example.com';

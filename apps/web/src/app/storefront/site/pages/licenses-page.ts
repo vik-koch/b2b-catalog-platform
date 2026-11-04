@@ -6,10 +6,10 @@ import {
   inject,
   resource,
 } from '@angular/core';
-import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
-import { SHARED_TEXT } from '../../../shared/config/shared-text';
-import { delayedLoading } from '../../../shared/core/delayed-loading';
-import { usePageSeo } from '../../../shared/core/page-seo';
+import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { delayedLoading } from '../../../platform/delayed-loading';
+import { usePageSeo } from '../../../platform/page-seo';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import { LicenseNotice, parseLicenseNotices } from './license-notice';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';

@@ -2,9 +2,13 @@ import { ConflictException, Inject, Injectable } from '@nestjs/common';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { and, asc, eq, isNotNull, isNull, or, sql } from 'drizzle-orm';
 import { AdminProduct } from '@b2b-catalog-platform/shared/admin/catalog';
-import { DRIZZLE } from '../../../db/database.module';
-import * as schema from '../../../db/schema';
-import { orderItems, productPairings, products } from '../../../db/schema';
+import { DRIZZLE } from '../../../platform/db/database.module';
+import * as schema from '../../../platform/db/schema';
+import {
+  orderItems,
+  productPairings,
+  products,
+} from '../../../platform/db/schema';
 import { OwnershipState } from '../../../platform/settings/ownership-state';
 import { catalogExternallyOwned } from '../../../platform/settings/ownership.refusals';
 import {
@@ -12,7 +16,7 @@ import {
   involves,
   pairedCountOf,
 } from '../../../core/catalog/product-pairings';
-import { isForeignKeyViolation } from '../../../db/pg-errors';
+import { isForeignKeyViolation } from '../../../platform/db/pg-errors';
 import {
   ProductRecords,
   productNotFound,

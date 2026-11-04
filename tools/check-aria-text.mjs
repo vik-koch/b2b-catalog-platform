@@ -9,7 +9,8 @@
  * fails on any that does not end where only assistive technology reads it:
  *
  * - an `aria-label`-like binding, or a component input that only renders one
- *   (`ariaLabel`, `searchLabel`, a `ui-switch`'s `label`);
+ *   (`ariaLabel`, `searchLabel`, the `label` of a `ui-switch` or an
+ *   `app-switch-card`);
  * - an interpolation inside a `sr-only` element;
  * - a config field that only renders one (`ariaLabel`, `srLabel`,
  *   `clearLabel`), or one named `…Aria` itself, which carries the promise on
@@ -32,7 +33,10 @@ const ARIA_BINDINGS = new Set([
   'searchLabel',
 ]);
 /** Inputs named generically that still only render an accessible name. */
-const ARIA_INPUTS = { 'ui-switch': new Set(['label']) };
+const ARIA_INPUTS = {
+  'ui-switch': new Set(['label']),
+  'app-switch-card': new Set(['label']),
+};
 const ARIA_FIELDS = new Set(['ariaLabel', 'srLabel', 'clearLabel']);
 
 const files = execFileSync(

@@ -1,6 +1,6 @@
 import { drizzle } from 'drizzle-orm/node-postgres';
-import * as schema from '../../db/schema';
-import { products } from '../../db/schema';
+import * as schema from '../../platform/db/schema';
+import { products } from '../../platform/db/schema';
 import { counterpartOf, pairedCountOf } from './product-pairings';
 
 /**

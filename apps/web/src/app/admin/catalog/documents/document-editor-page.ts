@@ -1,19 +1,21 @@
 import { Component, computed, forwardRef, inject, signal } from '@angular/core';
 import { form, maxLength, required, validate } from '@angular/forms/signals';
-import { filled } from '../../../shared/core/field-rules';
+import { filled } from '../../../platform/field-rules';
 import { ActivatedRoute } from '@angular/router';
-import { ACCEPTED_DOCUMENT_MIME_TYPES } from '@b2b-catalog-platform/shared/platform';
-import { fillText } from '@b2b-catalog-platform/shared';
+import {
+  ACCEPTED_DOCUMENT_MIME_TYPES,
+  fillText,
+} from '@b2b-catalog-platform/shared/platform';
 import {
   DocumentInput,
   LinkedProduct,
   StoredDocumentFile,
   DOCUMENT_LINK_MAX_LENGTH,
 } from '@b2b-catalog-platform/shared/admin/catalog';
-import { ADMIN_TEXT } from '../../../shared/config/admin-text';
-import { SHARED_TEXT } from '../../../shared/config/shared-text';
-import { delayedLoading } from '../../../shared/core/delayed-loading';
-import { usePageSeo } from '../../../shared/core/page-seo';
+import { ADMIN_TEXT } from '../../../platform/config/admin-text';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { delayedLoading } from '../../../platform/delayed-loading';
+import { usePageSeo } from '../../../platform/page-seo';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import {
   FieldAttempt,
@@ -27,10 +29,10 @@ import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { DateInput } from '@b2b-catalog-platform/ui/inputs/date-input';
 import { Input } from '@b2b-catalog-platform/ui/inputs/input';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
-import { injectEditorReturn } from '../../../shared/edit-mode/editor-return';
-import { UnsavedChangesAware } from '../../unsaved-changes.guard';
-import { UnsavedChanges } from '../../unsaved-changes';
-import { documentFileCaption } from '../../../shared/core/document-file';
+import { injectEditorReturn } from '../../../platform/edit-mode/editor-return';
+import { UnsavedChangesAware } from '../../platform/unsaved-changes.guard';
+import { UnsavedChanges } from '../../platform/unsaved-changes';
+import { documentFileCaption } from '../../../platform/document-file';
 import { DropZone } from '@b2b-catalog-platform/ui/inputs/drop-zone';
 import {
   FileTarget,
@@ -45,8 +47,8 @@ import { externalLinkIcon } from '@b2b-catalog-platform/ui/icons/glyphs/external
 import { fileTextIcon } from '@b2b-catalog-platform/ui/icons/glyphs/file-text';
 import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
 import { uploadIcon } from '@b2b-catalog-platform/ui/icons/glyphs/upload';
-import { SaveButton } from '../../ui/save-button';
-import { CancelButton } from '../../ui/cancel-button';
+import { SaveButton } from '../../platform/ui/save-button';
+import { CancelButton } from '../../platform/ui/cancel-button';
 
 interface DocumentDraft {
   title: string;

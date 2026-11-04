@@ -1,15 +1,15 @@
-import { SHARED_TEXT } from '../../../shared/config/shared-text';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
-import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
-import { defaultStorefrontText } from '../../../shared/config/storefront-text.fixture';
-import { defaultSharedText } from '../../../shared/config/shared-text.fixture';
-import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
-import { defaultDeploymentConfig } from '../../../shared/config/deployment-config.fixture';
-import { AuthService } from '../../../shared/auth/auth.service';
+import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
+import { defaultStorefrontText } from '../../../platform/config/storefront-text.fixture';
+import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
+import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
+import { defaultDeploymentConfig } from '../../../platform/config/deployment-config.fixture';
+import { AuthService } from '../../../platform/auth/auth.service';
 import { AccountEditPage } from './account-edit-page';
 import { AccountService } from './account.service';
-import { provideDigitMaskFormat } from '../../../shared/core/contact-fields';
+import { provideDigitMaskFormat } from '../../../platform/contact-fields';
 import {
   AccountProfile,
   UpdateAccountProfileRequest,

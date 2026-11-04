@@ -1,7 +1,7 @@
 import { NgTemplateOutlet } from '@angular/common';
 import { Component, computed, inject, input, resource } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { fillText } from '@b2b-catalog-platform/shared';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
 import {
   CATALOG_SYNC_CSV_COLUMNS,
   SyncArea,
@@ -9,11 +9,11 @@ import {
   SyncRunStatus,
   syncRunStatusSchema,
 } from '@b2b-catalog-platform/shared/core/exchange';
-import { AuthService } from '../../shared/auth/auth.service';
-import { ADMIN_TEXT } from '../../shared/config/admin-text';
-import { delayedLoading } from '../../shared/core/delayed-loading';
-import { usePageSeo } from '../../shared/core/page-seo';
-import { stableValue } from '../../shared/core/stable-value';
+import { AuthService } from '../../platform/auth/auth.service';
+import { ADMIN_TEXT } from '../../platform/config/admin-text';
+import { delayedLoading } from '../../platform/delayed-loading';
+import { usePageSeo } from '../../platform/page-seo';
+import { stableValue } from '../../platform/stable-value';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
@@ -27,7 +27,7 @@ import { GridFilterOption } from '@b2b-catalog-platform/ui/grid/grid-filter-sele
 import { GridPagination } from '@b2b-catalog-platform/ui/grid/grid-pagination';
 import { GridCardTemplate } from '@b2b-catalog-platform/ui/grid/grid-card-template';
 import { GridRowTemplate } from '@b2b-catalog-platform/ui/grid/grid-row-template';
-import { GridTimestamp } from '../dates/grid-timestamp';
+import { GridTimestamp } from '../platform/dates/grid-timestamp';
 import { GridHeader } from '@b2b-catalog-platform/ui/grid/grid-header';
 import { RecordRow } from '@b2b-catalog-platform/ui/lists/record-row';
 import {
@@ -38,6 +38,7 @@ import {
 import { SyncService } from './sync.service';
 import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
 import { uploadIcon } from '@b2b-catalog-platform/ui/icons/glyphs/upload';
+import { pageNumber } from '../../platform/page-number';
 
 /**
  * One area's runs, newest first (FR-ADM-09), at `/admin/sync/<area>`. One
@@ -204,10 +205,7 @@ export class SyncRunsPage {
   readonly page = input('1');
   readonly status = input('');
 
-  protected readonly currentPage = computed(() => {
-    const parsed = Number(this.page());
-    return Number.isInteger(parsed) && parsed > 0 ? parsed : 1;
-  });
+  protected readonly currentPage = computed(() => pageNumber(this.page()));
 
   protected readonly statusFilter = computed<SyncRunStatus | undefined>(() => {
     const parsed = syncRunStatusSchema.safeParse(this.status());

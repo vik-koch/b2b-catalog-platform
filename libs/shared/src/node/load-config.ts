@@ -1,12 +1,9 @@
-import { DeepReadonly } from '../lib/core/deep-readonly';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { ZodType } from 'zod';
+import type { ZodType } from 'zod';
+import type { DeepReadonly } from '../platform/deep-readonly';
 
-/**
- * Where a file of the mounted config directory is: `file` is named relative
- * to `CONFIG_PATH`, the one variable that says where the directory is.
- */
+/** A file of the mounted config directory, which `CONFIG_PATH` names. */
 export function configPath(file: string): string {
   const dir = process.env['CONFIG_PATH'];
   if (!dir) {
@@ -17,7 +14,6 @@ export function configPath(file: string): string {
   return join(dir, file);
 }
 
-/** Load and validate a file of the mounted config directory. */
 export function loadConfig<T>(
   schema: ZodType<T>,
   file: string,
@@ -25,14 +21,11 @@ export function loadConfig<T>(
   return loadConfigFile(schema, configPath(file));
 }
 
-/** Load and validate a config file by its path. */
 export function loadConfigFile<T>(
   schema: ZodType<T>,
   path: string,
 ): DeepReadonly<T> {
   const raw = JSON.parse(readFileSync(path, 'utf8'));
-  // parse() yields the mutable T; expose it through its deep-readonly view. The
-  // cast is sound (a value is trivially a read-only view of itself) but needed —
-  // TS can't evaluate `T extends … ? …` for an unconstrained generic T.
+  // Sound, but TS cannot evaluate DeepReadonly for an unconstrained T.
   return schema.parse(raw) as DeepReadonly<T>;
 }

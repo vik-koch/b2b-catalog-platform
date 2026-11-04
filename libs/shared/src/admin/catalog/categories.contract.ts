@@ -2,7 +2,7 @@ import { oc } from '@orpc/contract';
 import * as z from 'zod';
 import { CATEGORY_NAME_MAX_LENGTH } from '../../core/catalog/categories';
 import { SOURCE_ID_MAX_LENGTH } from '../../core/catalog/products';
-import { commonAuthErrors } from '../../lib/core/api-error';
+import { commonAuthErrors } from '../../platform/api-error';
 import { ownershipErrors } from '../../platform/ownership';
 import {
   catalogImageSchema,
@@ -10,6 +10,7 @@ import {
 } from '../../core/catalog/catalog.contract';
 import { slugSchema } from './slug.contract';
 import { type CategoryErrorCode } from './categories';
+import { acknowledgementSchema } from '../../platform/acknowledgement.contract';
 
 /** A category as the management screen sees it, in a flat list the client
  * shapes into the tree. */
@@ -188,7 +189,7 @@ export const adminCategoriesContract = {
         query: z.object({ reassignTo: z.uuid().optional() }),
       }),
     )
-    .output(z.object({ message: z.string() })),
+    .output(acknowledgementSchema),
 
   reorderCategories: admin
     .route({

@@ -9,9 +9,9 @@ import {
   signal,
 } from '@angular/core';
 import { FormField } from '@angular/forms/signals';
-import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
-import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
-import { SHARED_TEXT } from '../../../shared/config/shared-text';
+import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
+import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { DigitMask } from '@b2b-catalog-platform/ui/inputs/digit-mask';
 import { FIELD_ATTEMPT } from '@b2b-catalog-platform/ui/fields/field-attempt';
 import { Field } from '@b2b-catalog-platform/ui/fields/field';

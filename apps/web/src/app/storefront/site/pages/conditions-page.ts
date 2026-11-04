@@ -4,11 +4,11 @@ import {
   fillText,
   formatTaxRate,
   DeploymentConfig,
-} from '@b2b-catalog-platform/shared';
-import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
-import { SHARED_TEXT } from '../../../shared/config/shared-text';
-import { StorefrontText } from '../../../shared/config/storefront-text.type';
-import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
+} from '@b2b-catalog-platform/shared/platform';
+import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { StorefrontText } from '../../../platform/config/storefront-text.type';
+import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import { EmphasisedText } from '@b2b-catalog-platform/ui/content/emphasised-text';
 import { TextButton } from '@b2b-catalog-platform/ui/actions/text-button';
 import { banknoteIcon } from '@b2b-catalog-platform/ui/icons/glyphs/banknote';

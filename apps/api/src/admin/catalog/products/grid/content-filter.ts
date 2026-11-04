@@ -8,13 +8,13 @@ import {
   ProductGap,
   ProductGapFilter,
 } from '@b2b-catalog-platform/shared/admin/catalog';
-import * as schema from '../../../../db/schema';
+import * as schema from '../../../../platform/db/schema';
 import {
   documentProducts,
   productAttributes,
   productPairings,
   products,
-} from '../../../../db/schema';
+} from '../../../../platform/db/schema';
 import { resolvedPriceMinor } from '../../../../core/catalog/product-price';
 import { involves } from '../../../../core/catalog/product-pairings';
 

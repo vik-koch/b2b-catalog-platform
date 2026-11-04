@@ -9,7 +9,7 @@ import {
   untracked,
 } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { fillText } from '@b2b-catalog-platform/shared';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
 import { FulfilmentMethod } from '@b2b-catalog-platform/shared/core/ordering';
 import {
   isOrderDateAllowed,
@@ -18,13 +18,13 @@ import {
 import { AccountService } from '../../accounts/account/account.service';
 import { AddressForm } from '../../../core/accounts/addresses/address-form';
 import { AddressesService } from '../../../core/accounts/addresses/addresses.service';
-import { AuthService } from '../../../shared/auth/auth.service';
+import { AuthService } from '../../../platform/auth/auth.service';
 import { CartService } from '../cart/cart.service';
 import { OrderSummary } from '../../../core/ordering/ui/order-summary';
-import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
-import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
-import { delayedLoading } from '../../../shared/core/delayed-loading';
-import { usePageSeo } from '../../../shared/core/page-seo';
+import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
+import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
+import { delayedLoading } from '../../../platform/delayed-loading';
+import { usePageSeo } from '../../../platform/page-seo';
 import { OrderReadBack } from '../../../core/ordering/ui/order-read-back';
 import { OrdersService } from '../orders/orders.service';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
@@ -53,7 +53,7 @@ import { Link } from '@b2b-catalog-platform/ui/actions/link';
 import { PrivacyNotice } from '../../site/privacy-notice';
 import { TermsNotice } from '../../site/terms-notice';
 import { WarningNote } from '@b2b-catalog-platform/ui/content/warning-note';
-import { SHARED_TEXT } from '../../../shared/config/shared-text';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';

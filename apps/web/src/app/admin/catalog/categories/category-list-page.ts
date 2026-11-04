@@ -15,21 +15,21 @@ import {
   viewChild,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { fillText } from '@b2b-catalog-platform/shared';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
 import {
   AdminCategory,
   CategoryOrderEntry,
 } from '@b2b-catalog-platform/shared/admin/catalog';
-import { ADMIN_TEXT } from '../../../shared/config/admin-text';
-import { usePageSeo } from '../../../shared/core/page-seo';
+import { ADMIN_TEXT } from '../../../platform/config/admin-text';
+import { usePageSeo } from '../../../platform/page-seo';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
-import { delayedLoading } from '../../../shared/core/delayed-loading';
+import { delayedLoading } from '../../../platform/delayed-loading';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Link } from '@b2b-catalog-platform/ui/actions/link';
 import { CategoriesService } from './categories.service';
-import { injectEditorReturnParams } from '../../../shared/edit-mode/editor-return';
+import { injectEditorReturnParams } from '../../../platform/edit-mode/editor-return';
 import { RecordRow } from '@b2b-catalog-platform/ui/lists/record-row';
 import { UnpublishedCount } from '../products/unpublished-count';
 import { CategoryDeleteDialog } from './category-delete-dialog';

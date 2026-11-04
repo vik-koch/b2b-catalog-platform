@@ -1,4 +1,4 @@
-import { fillText, MoneyFormat } from '@b2b-catalog-platform/shared';
+import { fillText, MoneyFormat } from '@b2b-catalog-platform/shared/platform';
 import {
   AdminOrderDetail,
   OrderAdjustmentPreview,
@@ -10,7 +10,7 @@ import {
   formatPriceInput,
   parsePriceInput,
 } from '../../core/catalog/pricing/price';
-import { AdminText } from '../../shared/config/admin-text.type';
+import { AdminText } from '../../platform/config/admin-text.type';
 import { AdjustmentRefusal } from './orders.service';
 
 export type PartyKind = 'person' | 'company';

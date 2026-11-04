@@ -1,5 +1,5 @@
-import { SHARED_TEXT } from '../../../shared/config/shared-text';
-import { defaultSharedText } from '../../../shared/config/shared-text.fixture';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
 import { signal } from '@angular/core';
 import { Meta } from '@angular/platform-browser';
 import { provideRouter } from '@angular/router';
@@ -7,17 +7,17 @@ import {
   HiddenReasons,
   ProductPage,
 } from '@b2b-catalog-platform/shared/core/catalog';
-import { DeploymentConfig } from '@b2b-catalog-platform/shared';
+import { DeploymentConfig } from '@b2b-catalog-platform/shared/platform';
 import { EDIT_MODE_CATALOG } from '../../../core/catalog/edit-mode-catalog';
-import { AuthService } from '../../../shared/auth/auth.service';
-import { loadAdminText } from '../../../shared/config/admin-text';
-import { defaultAdminText } from '../../../shared/config/admin-text.fixture';
+import { AuthService } from '../../../platform/auth/auth.service';
+import { loadAdminText } from '../../../platform/config/admin-text';
+import { defaultAdminText } from '../../../platform/config/admin-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import { ComponentFixture } from '@angular/core/testing';
-import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
-import { defaultDeploymentConfig } from '../../../shared/config/deployment-config.fixture';
-import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
-import { defaultStorefrontText } from '../../../shared/config/storefront-text.fixture';
+import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
+import { defaultDeploymentConfig } from '../../../platform/config/deployment-config.fixture';
+import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
+import { defaultStorefrontText } from '../../../platform/config/storefront-text.fixture';
 import { ProductDetail } from './product-detail';
 import { CatalogService } from '../catalog.service';
 import {

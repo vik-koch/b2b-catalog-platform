@@ -4,7 +4,7 @@ import {
   SyncRunStatus,
   SyncSummary,
 } from '@b2b-catalog-platform/shared/core/exchange';
-import { AdminText } from '../../shared/config/admin-text.type';
+import { AdminText } from '../../platform/config/admin-text.type';
 
 /** Amber where somebody has to act, green for what went through, red for
  * what broke, grey for a run that is simply over. */

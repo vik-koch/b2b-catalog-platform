@@ -15,10 +15,10 @@ import { FEATURED_ROW_SIZE } from '@b2b-catalog-platform/shared/storefront/catal
 import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
 import { chevronRightIcon } from '@b2b-catalog-platform/ui/icons/glyphs/chevron-right';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
-import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
-import { EditActions } from '../../../shared/edit-mode/edit-actions';
-import { editAwareContent } from '../../../shared/edit-mode/edit-aware-content';
-import { injectEditorReturnParams } from '../../../shared/edit-mode/editor-return';
+import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
+import { EditActions } from '../../../platform/edit-mode/edit-actions';
+import { editAwareContent } from '../../../platform/edit-mode/edit-aware-content';
+import { injectEditorReturnParams } from '../../../platform/edit-mode/editor-return';
 import { anyStatus } from '../ui/product-status-line';
 import { ProductTile } from '../ui/product-tile';
 import { FeaturedRowService } from './featured-row.service';

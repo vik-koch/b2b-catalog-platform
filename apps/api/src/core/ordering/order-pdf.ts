@@ -1,19 +1,18 @@
-import type { AddressConfig } from '@b2b-catalog-platform/shared';
-import {
-  orderLineTax,
-  orderLinesDifferInTax,
-  orderTaxStatement,
-} from '../../mail/templates/order-items';
 import {
   SharedText,
   fillText,
   formatMoneyMinor,
   MoneyFormat,
-  OrderReferenceConfig,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/platform';
+import {
+  orderLineTax,
+  orderLinesDifferInTax,
+  orderTaxStatement,
+} from './mail/order-items';
 import {
   OrderAddress,
   OrderDetail,
+  OrderReferenceConfig,
 } from '@b2b-catalog-platform/shared/core/ordering';
 import { Inject, Injectable } from '@nestjs/common';
 import { PDFDocument } from 'pdf-lib';
@@ -21,14 +20,17 @@ import {
   ADDRESS_CONFIG,
   MONEY_FORMAT,
   ORDER_REFERENCE_CONFIG,
-} from '../../config/deployment-config';
-import { MAIL_BRANDING, MailBranding } from '../../mail/mail-branding';
-import { SHARED_TEXT } from '../../config/shared-text';
-import { PdfFaces } from '../../pdf/pdf-faces';
-import { PDF_TEXT, PdfText } from '../../pdf/pdf-text';
-import { Sheet } from '../../pdf/pdf-sheet';
-import { shopDay } from './shop-day';
-import { addressLines } from '@b2b-catalog-platform/shared/core/accounts';
+} from '../../platform/config/deployment-config';
+import { MAIL_BRANDING, MailBranding } from '../../platform/mail/mail-branding';
+import { SHARED_TEXT } from '../../platform/config/shared-text';
+import { PdfFaces } from '../../platform/pdf/pdf-faces';
+import { PDF_TEXT, PdfText } from '../../platform/pdf/pdf-text';
+import { Sheet } from '../../platform/pdf/pdf-sheet';
+import { shopDay } from '@b2b-catalog-platform/shared/platform';
+import {
+  addressLines,
+  type AddressConfig,
+} from '@b2b-catalog-platform/shared/core/accounts';
 
 /**
  * The order summary the platform draws (FR-ORD-05, FR-ACC-02, ADR 0052), from

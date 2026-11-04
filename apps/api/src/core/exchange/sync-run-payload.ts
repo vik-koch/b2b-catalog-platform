@@ -14,7 +14,7 @@ import {
   catalogSyncRowErrorSchema,
   catalogSyncRowSchema,
 } from '@b2b-catalog-platform/shared/core/exchange';
-import { syncRuns } from '../../db/schema';
+import { syncRuns } from '../../platform/db/schema';
 
 type RunRow = typeof syncRuns.$inferSelect;
 

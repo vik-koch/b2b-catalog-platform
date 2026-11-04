@@ -10,18 +10,18 @@ import { existsSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { requireEnv } from './env';
-import { preloadStorefrontText } from './app/shared/config/storefront-text.server';
-import { preloadSharedText } from './app/shared/config/shared-text.server';
+import { preloadStorefrontText } from './app/platform/config/storefront-text.server';
+import { preloadSharedText } from './app/platform/config/shared-text.server';
 import {
   getAdminText,
   preloadAdminText,
-} from './app/shared/config/admin-text.server';
-import { preloadDeploymentConfig } from './app/shared/config/deployment-config.server';
+} from './app/platform/config/admin-text.server';
+import { preloadDeploymentConfig } from './app/platform/config/deployment-config.server';
 import { injectCartShell } from './app/storefront/ordering/cart/cart-shell.server';
 import { injectSessionShell } from './app/storefront/accounts/auth/session-shell.server';
-import { sessionCookieIn } from './app/shared/auth/session-cookie';
-import { injectShellState } from './app/shared/config/shell-state.server';
-import { injectFontHead } from './app/shared/config/font.server';
+import { sessionCookieIn } from './app/platform/auth/session-cookie';
+import { injectShellState } from './app/platform/config/shell-state.server';
+import { injectFontHead } from './app/platform/config/font.server';
 import {
   isStaffPreview,
   isGatedPath,

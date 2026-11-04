@@ -7,17 +7,17 @@ import {
   signal,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { fillText, moneyFormat } from '@b2b-catalog-platform/shared';
+import { fillText, moneyFormat } from '@b2b-catalog-platform/shared/platform';
 import { AdminOrderDetail } from '@b2b-catalog-platform/shared/core/ordering';
-import { ADMIN_TEXT } from '../../shared/config/admin-text';
-import { SHARED_TEXT } from '../../shared/config/shared-text';
-import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
+import { ADMIN_TEXT } from '../../platform/config/admin-text';
+import { SHARED_TEXT } from '../../platform/config/shared-text';
+import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
 import {
   orderStatusLabel,
   orderStatusTone,
 } from '../../core/ordering/order-status';
 import { orderDateTimeFormat } from '../../core/ordering/order-formats';
-import { stableValue } from '../../shared/core/stable-value';
+import { stableValue } from '../../platform/stable-value';
 import { DisclosureToggle } from '@b2b-catalog-platform/ui/disclosure/disclosure-toggle';
 import { DisclosureFrame } from '@b2b-catalog-platform/ui/disclosure/disclosure-frame';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';

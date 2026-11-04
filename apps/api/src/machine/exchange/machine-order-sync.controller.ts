@@ -2,11 +2,11 @@ import { Controller } from '@nestjs/common';
 import { Implement, implement } from '@orpc/nest';
 import { machineOrderSyncContract } from '@b2b-catalog-platform/shared/machine/exchange';
 import { SyncRunLog } from '../../core/exchange/sync-run-log';
-import { refusals } from '../../orpc/refusals';
+import { refusals } from '../../platform/orpc/refusals';
 import { CurrentMachine } from '../../platform/auth/current-machine.decorator';
 import { MachineClient } from '../../platform/auth/machine-client';
 import { Machine } from '../../platform/auth/machine.decorator';
-import { MachineThrottle } from '../../throttling/throttle-presets';
+import { MachineThrottle } from '../../platform/throttling/throttle-presets';
 import { OrderSyncService } from './order-sync.service';
 
 /**

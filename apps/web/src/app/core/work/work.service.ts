@@ -11,10 +11,11 @@ import { NavigationEnd, Router } from '@angular/router';
 import { safe } from '@orpc/client';
 import { filter } from 'rxjs';
 import { WorkCounts } from '@b2b-catalog-platform/shared/core/work';
-import { AuthService } from '../../shared/auth/auth.service';
-import { workContract } from '../../shared/core/contract-routes.generated';
-import { createOrpcClient } from '../../shared/core/orpc-client';
-import { WorkRefresh } from '../../shared/core/work-refresh';
+import { AuthService } from '../../platform/auth/auth.service';
+import { workContract } from './contract-routes.generated';
+import { createOrpcClient } from '../../platform/orpc-client';
+import { WorkRefresh } from '../../platform/work-refresh';
+import { pathOf } from '../../platform/current-url';
 
 /**
  * What awaits the signed-in account (FR-WORK-01…04). Browser only: no render
@@ -52,7 +53,7 @@ export class WorkService implements WorkRefresh {
         takeUntilDestroyed(),
       )
       .subscribe((event) => {
-        const path = event.urlAfterRedirects.split(/[?#]/)[0];
+        const path = pathOf(event.urlAfterRedirects);
         if (path === this.lastPath) return;
         void this.refresh();
       });
@@ -61,7 +62,7 @@ export class WorkService implements WorkRefresh {
   async refresh(): Promise<void> {
     if (!this.isBrowser) return;
     const generation = ++this.generation;
-    this.lastPath = this.router.url.split(/[?#]/)[0];
+    this.lastPath = pathOf(this.router.url);
 
     await this.auth.whenResolved();
     // Signed out, the endpoint would 401.

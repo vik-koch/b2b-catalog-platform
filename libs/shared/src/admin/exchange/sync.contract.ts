@@ -15,7 +15,7 @@ import {
   syncRunSchema,
   syncRunStatusSchema,
 } from '../../core/exchange/sync-run.contract';
-import { commonAuthErrors } from '../../lib/core/api-error';
+import { commonAuthErrors } from '../../platform/api-error';
 import { ownershipErrors } from '../../platform/ownership';
 import { paginationSchema } from '../../platform/pagination.contract';
 /** Why a whole uploaded file was refused. The upload is multipart, outside the

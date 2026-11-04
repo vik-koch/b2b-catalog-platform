@@ -28,7 +28,7 @@ import {
   isPartialTaxRate,
   currencySymbol,
   decimalSeparator,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/platform';
 import {
   isValidPartList,
   minimumFitsPacks,
@@ -73,14 +73,14 @@ import { OwnershipService } from '../../platform/ownership/ownership.service';
 import { ProductAvailabilityBadge } from '../../../core/catalog/ui/product-availability-badge';
 import { formatStoredDecimal } from '../../../core/catalog/buying/quantity';
 import { ProductDetailView } from '../../../core/catalog/product-page/ui/product-detail-view';
-import { ADMIN_TEXT } from '../../../shared/config/admin-text';
-import { SHARED_TEXT } from '../../../shared/config/shared-text';
-import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
-import { delayedLoading } from '../../../shared/core/delayed-loading';
-import { filled } from '../../../shared/core/field-rules';
-import { usePageSeo } from '../../../shared/core/page-seo';
-import { UnsavedChangesAware } from '../../unsaved-changes.guard';
-import { UnsavedChanges } from '../../unsaved-changes';
+import { ADMIN_TEXT } from '../../../platform/config/admin-text';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
+import { delayedLoading } from '../../../platform/delayed-loading';
+import { filled } from '../../../platform/field-rules';
+import { usePageSeo } from '../../../platform/page-seo';
+import { UnsavedChangesAware } from '../../platform/unsaved-changes.guard';
+import { UnsavedChanges } from '../../platform/unsaved-changes';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { Notice } from '@b2b-catalog-platform/ui/content/notice';
 import { Checkbox } from '@b2b-catalog-platform/ui/choices/checkbox';
@@ -102,8 +102,8 @@ import { ProductsService, type ProductSaveErrorCode } from './products.service';
 import { AttributesService } from '../attributes/attributes.service';
 import { CategoryPicker } from '../categories/category-picker';
 import { categoryAncestors } from '../categories/category-tree';
-import { injectEditorReturn } from '../../../shared/edit-mode/editor-return';
-import { RichTextEditor } from '../../rich-text/rich-text-editor';
+import { injectEditorReturn } from '../../../platform/edit-mode/editor-return';
+import { RichTextEditor } from '../../platform/rich-text/rich-text-editor';
 import { TiersService } from '../tiers/tiers.service';
 import { ProductAttributesEditor } from './product-attributes-editor';
 import { ProductPartsEditor } from './product-parts-editor';
@@ -130,8 +130,8 @@ import { circleCheckIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-ch
 import { eyeIcon } from '@b2b-catalog-platform/ui/icons/glyphs/eye';
 import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
 import { numericRules } from '@b2b-catalog-platform/ui/inputs/numeric-rules';
-import { SaveButton } from '../../ui/save-button';
-import { CancelButton } from '../../ui/cancel-button';
+import { SaveButton } from '../../platform/ui/save-button';
+import { CancelButton } from '../../platform/ui/cancel-button';
 
 /** Packaging with no pack and no box, for the reads that need only those. */
 const NO_PACKAGING = { piecesPerPack: null, packsPerBox: null };

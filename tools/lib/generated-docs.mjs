@@ -15,15 +15,12 @@ import { pathToFileURL } from 'node:url';
 
 const SHARED = '@b2b-catalog-platform/shared';
 
-/**
- * Mirrors the tsconfig paths: `shared` is the root entry, `shared/<entry>` its
- * folder's index. esbuild's `alias` matches by prefix, so it cannot say this.
- */
+/** Mirrors the tsconfig paths: `shared/<entry>` is that folder's index. */
 const sharedEntries = {
   name: 'shared-entries',
   setup(builder) {
     builder.onResolve(
-      { filter: /^@b2b-catalog-platform\/shared(\/|$)/ },
+      { filter: /^@b2b-catalog-platform\/shared\// },
       (args) => ({
         path: resolve(
           `libs/shared/src${args.path.slice(SHARED.length)}/index.ts`,
@@ -37,8 +34,8 @@ const sharedEntries = {
  * Runs a TypeScript module in Node by bundling it first.
  *
  * The workspace aliases are resolved here rather than left external: esbuild
- * knows nothing about tsconfig paths, and a bare `@b2b-catalog-platform/shared`
- * would not resolve at import time. Everything from node_modules stays
+ * knows nothing about tsconfig paths, and a `@b2b-catalog-platform/shared/<entry>`
+ * import would not resolve at import time. Everything from node_modules stays
  * external, exactly as `generate-contract-routes.mjs` does it.
  */
 export async function loadTypeScript(entryPoint) {

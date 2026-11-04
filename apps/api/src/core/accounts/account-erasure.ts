@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { AccountDeletionReason } from '@b2b-catalog-platform/shared/core/accounts';
-import * as schema from '../../db/schema';
+import * as schema from '../../platform/db/schema';
 import {
   ACCOUNT_DELETION_CATEGORIES,
   recordDestruction,

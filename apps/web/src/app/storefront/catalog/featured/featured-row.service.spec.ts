@@ -1,7 +1,7 @@
 import { PLATFORM_ID, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { productListItem } from '../../../core/catalog/product.fixture';
-import { AuthService } from '../../../shared/auth/auth.service';
+import { AuthService } from '../../../platform/auth/auth.service';
 import { CatalogService } from '../catalog.service';
 import { FeaturedRowService } from './featured-row.service';
 

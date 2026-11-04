@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { partySuggestionContract } from '../../../shared/core/contract-routes.generated';
+import { partySuggestionContract } from '../contract-routes.generated';
 import { safe } from '@orpc/client';
-import { createOrpcClient } from '../../../shared/core/orpc-client';
+import { createOrpcClient } from '../../../platform/orpc-client';
 import { PartySuggestion } from '@b2b-catalog-platform/shared/core/accounts';
 
 /** Companies matching what is typed; empty where no provider is set up. */

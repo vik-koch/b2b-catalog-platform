@@ -14,13 +14,13 @@ import {
   PRODUCT_PAGE_SECTION_CELL,
   ProductDetailView,
 } from '../../../core/catalog/product-page/ui/product-detail-view';
-import { AuthService } from '../../../shared/auth/auth.service';
-import { SHARED_TEXT } from '../../../shared/config/shared-text';
-import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
-import { usePageSeo } from '../../../shared/core/page-seo';
-import { EditActions } from '../../../shared/edit-mode/edit-actions';
-import { editAwareContent } from '../../../shared/edit-mode/edit-aware-content';
-import { injectEditorReturnParams } from '../../../shared/edit-mode/editor-return';
+import { AuthService } from '../../../platform/auth/auth.service';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
+import { usePageSeo } from '../../../platform/page-seo';
+import { EditActions } from '../../../platform/edit-mode/edit-actions';
+import { editAwareContent } from '../../../platform/edit-mode/edit-aware-content';
+import { injectEditorReturnParams } from '../../../platform/edit-mode/editor-return';
 import { LoadErrorView } from '../../platform/load-error-view';
 import { NotFoundView } from '../../platform/not-found-view';
 import { CatalogService } from '../catalog.service';

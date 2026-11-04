@@ -7,17 +7,17 @@ import { ApplicationConfig, mergeApplicationConfig } from '@angular/core';
 import { provideServerRendering, withRoutes } from '@angular/ssr';
 import { requireEnv } from '../env';
 import { appConfig } from './app.config';
-import { provideServerStorefrontText } from './shared/config/storefront-text.server';
-import { provideServerSharedText } from './shared/config/shared-text.server';
-import { provideServerAdminText } from './shared/config/admin-text.server';
-import { provideServerDeploymentConfig } from './shared/config/deployment-config.server';
-import { provideServerSuggestionsEnabled } from './shared/config/suggestions-enabled.server';
+import { provideServerStorefrontText } from './platform/config/storefront-text.server';
+import { provideServerSharedText } from './platform/config/shared-text.server';
+import { provideServerAdminText } from './platform/config/admin-text.server';
+import { provideServerDeploymentConfig } from './platform/config/deployment-config.server';
+import { provideServerSuggestionsEnabled } from './platform/config/suggestions-enabled.server';
 import { serverRoutes } from './app.routes.server';
 import {
   forwardSession,
   forwardVisitorAddress,
-} from './shared/auth/forward-session.server';
-import { keepPagePrivate } from './shared/core/private-page.server';
+} from './platform/auth/forward-session.server';
+import { keepPagePrivate } from './platform/private-page.server';
 
 const serverConfig: ApplicationConfig = {
   providers: [

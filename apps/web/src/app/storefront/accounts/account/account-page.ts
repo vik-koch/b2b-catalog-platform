@@ -1,17 +1,17 @@
 import { Component, computed, inject, resource, Signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { fillText } from '@b2b-catalog-platform/shared';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
 import {
   addressDetailLines,
   addressDisplayName,
 } from '../../../core/accounts/addresses/address-format';
 import { AddressesService } from '../../../core/accounts/addresses/addresses.service';
-import { SignedInAs } from '../../../shared/auth/signed-in-as';
-import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
-import { SHARED_TEXT } from '../../../shared/config/shared-text';
-import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
-import { formatPhone } from '../../../shared/core/contact-fields';
-import { usePageSeo } from '../../../shared/core/page-seo';
+import { SignedInAs } from '../../../platform/auth/signed-in-as';
+import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
+import { formatPhone } from '../../../platform/contact-fields';
+import { usePageSeo } from '../../../platform/page-seo';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import {
   confirmRequest,

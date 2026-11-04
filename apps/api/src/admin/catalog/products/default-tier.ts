@@ -1,7 +1,7 @@
 import { eq } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import * as schema from '../../../db/schema';
-import { customerTiers } from '../../../db/schema';
+import * as schema from '../../../platform/db/schema';
+import { customerTiers } from '../../../platform/db/schema';
 
 /**
  * The badged price list (FR-AUTH-05). Looked up, not cached: a stale cache

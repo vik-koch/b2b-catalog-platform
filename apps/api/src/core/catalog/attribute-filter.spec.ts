@@ -1,7 +1,7 @@
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { and } from 'drizzle-orm';
-import * as schema from '../../db/schema';
-import { products } from '../../db/schema';
+import * as schema from '../../platform/db/schema';
+import { products } from '../../platform/db/schema';
 import { attributeValuesCondition } from './attribute-filter';
 
 /**

@@ -7,9 +7,9 @@ import {
   viewChildren,
 } from '@angular/core';
 import { type FieldTree } from '@angular/forms/signals';
-import { fillText } from '@b2b-catalog-platform/shared';
-import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
-import { SHARED_TEXT } from '../../../shared/config/shared-text';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
+import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { Field } from '@b2b-catalog-platform/ui/fields/field';
 import { companyIdExamples } from './company-id';

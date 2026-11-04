@@ -1,6 +1,6 @@
 import { oc } from '@orpc/contract';
 import * as z from 'zod';
-import { commonAuthErrors } from '../../lib/core/api-error';
+import { commonAuthErrors } from '../../platform/api-error';
 import { CONSENT_PURPOSES } from '../../core/site/pages';
 import {
   CONSENT_WITHDRAWAL_NOTE_MAX,

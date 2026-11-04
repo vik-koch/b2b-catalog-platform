@@ -12,7 +12,10 @@ import {
   OrderNotice,
   OrderRevisionKind,
 } from '@b2b-catalog-platform/shared/core/ordering';
-import { effectiveTaxRate, TaxConfig } from '@b2b-catalog-platform/shared';
+import {
+  effectiveTaxRate,
+  TaxConfig,
+} from '@b2b-catalog-platform/shared/platform';
 import {
   BadRequestException,
   ConflictException,
@@ -30,18 +33,18 @@ import {
   OrderSnapshot,
 } from './order-rows';
 import { OrderReader } from './order-reader';
-import { TAX_CONFIG } from '../../config/deployment-config';
-import { DRIZZLE } from '../../db/database.module';
+import { TAX_CONFIG } from '../../platform/config/deployment-config';
+import { DRIZZLE } from '../../platform/db/database.module';
 import {
   customerTiers,
   orderItems,
   orderRevisions,
   orders,
-} from '../../db/schema';
+} from '../../platform/db/schema';
 import { OrderDocumentsService } from './order-documents.service';
 import { OrderNotifications } from './order-notifications';
-import { isUniqueViolation } from '../../db/pg-errors';
-import * as schema from '../../db/schema';
+import { isUniqueViolation } from '../../platform/db/pg-errors';
+import * as schema from '../../platform/db/schema';
 
 /**
  * The one writer of order versions (ADR 0051): staff, the customer's cancel and

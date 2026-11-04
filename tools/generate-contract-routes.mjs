@@ -26,55 +26,45 @@ import { existsSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 
 /**
- * Each side of the web app gets the contracts it calls, typed against the
- * entry point that serves them, so no generated file names routes its side
- * may not import.
+ * The contracts the web app calls, per entry point. Each entry's routes are
+ * written into the web folder of the same name, so an area imports only its
+ * own and `platform/` names no area.
  */
-const OUTPUTS = [
-  {
-    file: 'apps/web/src/app/shared/core/contract-routes.generated.ts',
-    entries: {
-      'core/accounts': [
-        'addressSuggestionContract',
-        'addressesContract',
-        'partySuggestionContract',
-      ],
-      'core/site': ['maintenanceContract', 'pageContract'],
-      'core/work': ['workContract'],
-      platform: ['sessionContract'],
-    },
-  },
-  {
-    file: 'apps/web/src/app/storefront/contract-routes.generated.ts',
-    entries: {
-      'storefront/accounts': ['accountContract', 'authContract'],
-      'storefront/catalog': ['catalogContract'],
-      'storefront/ordering': ['cartContract', 'ordersContract'],
-      'storefront/site': ['inquiryContract'],
-    },
-  },
-  {
-    file: 'apps/web/src/app/admin/contract-routes.generated.ts',
-    entries: {
-      'admin/accounts': ['consentsContract', 'usersContract'],
-      'admin/catalog': [
-        'adminCategoriesContract',
-        'adminProductsContract',
-        'attributesContract',
-        'documentsContract',
-        'tiersContract',
-      ],
-      'admin/exchange': [
-        'adminOwnershipSwitchContract',
-        'adminApiTokensContract',
-        'adminSyncContract',
-      ],
-      'admin/ordering': ['adminOrdersContract'],
-      'admin/platform': ['adminOperationsContract', 'adminOwnershipContract'],
-      'admin/site': ['adminMaintenanceContract', 'adminPagesContract'],
-    },
-  },
-];
+const ENTRIES = {
+  platform: ['sessionContract'],
+  'core/accounts': [
+    'addressSuggestionContract',
+    'addressesContract',
+    'partySuggestionContract',
+  ],
+  'core/site': ['maintenanceContract', 'pageContract'],
+  'core/work': ['workContract'],
+  'storefront/accounts': ['accountContract', 'authContract'],
+  'storefront/catalog': ['catalogContract'],
+  'storefront/ordering': ['cartContract', 'ordersContract'],
+  'storefront/site': ['inquiryContract'],
+  'admin/accounts': ['consentsContract', 'usersContract'],
+  'admin/catalog': [
+    'adminCategoriesContract',
+    'adminProductsContract',
+    'attributesContract',
+    'documentsContract',
+    'tiersContract',
+  ],
+  'admin/exchange': [
+    'adminOwnershipSwitchContract',
+    'adminApiTokensContract',
+    'adminSyncContract',
+  ],
+  'admin/ordering': ['adminOrdersContract'],
+  'admin/platform': ['adminOperationsContract', 'adminOwnershipContract'],
+  'admin/site': ['adminMaintenanceContract', 'adminPagesContract'],
+};
+
+const OUTPUTS = Object.entries(ENTRIES).map(([entry, names]) => ({
+  file: `apps/web/src/app/${entry}/contract-routes.generated.ts`,
+  entries: { [entry]: names },
+}));
 
 /** The fields the client link actually reads; everything else is server-side. */
 const CLIENT_ROUTE_FIELDS = [

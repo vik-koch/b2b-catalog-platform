@@ -1,12 +1,12 @@
 import { Component, computed, inject, input, output } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { fillText } from '@b2b-catalog-platform/shared';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
 import {
   CustomerAccountChange,
   CustomerSyncPlan,
   CustomerSyncRowError,
 } from '@b2b-catalog-platform/shared/core/exchange';
-import { ADMIN_TEXT } from '../../../shared/config/admin-text';
+import { ADMIN_TEXT } from '../../../platform/config/admin-text';
 import { Link } from '@b2b-catalog-platform/ui/actions/link';
 import { Notice } from '@b2b-catalog-platform/ui/content/notice';
 import {

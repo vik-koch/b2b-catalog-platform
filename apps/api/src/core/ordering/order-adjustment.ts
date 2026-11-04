@@ -15,8 +15,8 @@ import {
   AdjustmentLineFlag,
   OrderAdjustmentLine,
 } from '@b2b-catalog-platform/shared/core/ordering';
-import * as schema from '../../db/schema';
-import { products } from '../../db/schema';
+import * as schema from '../../platform/db/schema';
+import { products } from '../../platform/db/schema';
 import { resolvedPriceMinor } from '../catalog/product-price';
 import { packagingOf, unitColumns } from '../catalog/product-view';
 

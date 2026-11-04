@@ -1,17 +1,16 @@
-import { SHARED_TEXT } from '../../../shared/config/shared-text';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { fillText } from '@b2b-catalog-platform/shared';
 import { OrderSummary } from '@b2b-catalog-platform/shared/core/ordering';
-import { Pagination } from '@b2b-catalog-platform/shared/platform';
-import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
-import { defaultStorefrontText } from '../../../shared/config/storefront-text.fixture';
-import { defaultSharedText } from '../../../shared/config/shared-text.fixture';
-import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
-import { defaultDeploymentConfig } from '../../../shared/config/deployment-config.fixture';
+import { Pagination, fillText } from '@b2b-catalog-platform/shared/platform';
+import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
+import { defaultStorefrontText } from '../../../platform/config/storefront-text.fixture';
+import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
+import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
+import { defaultDeploymentConfig } from '../../../platform/config/deployment-config.fixture';
 import { OrderListPage } from './order-list-page';
 import { OrdersService } from './orders.service';
-import { provideUiText } from '../../../shared/config/shared-text';
+import { provideUiText } from '../../../platform/config/shared-text';
 
 const text = defaultStorefrontText.orders;
 const names = defaultSharedText.order;

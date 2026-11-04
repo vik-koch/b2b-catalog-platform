@@ -1,14 +1,14 @@
-import { SHARED_TEXT } from '../../../shared/config/shared-text';
-import { defaultSharedText } from '../../../shared/config/shared-text.fixture';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import {
   Page as PageContent,
   PageSlug,
 } from '@b2b-catalog-platform/shared/core/site';
-import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
-import { ADMIN_TEXT } from '../../../shared/config/admin-text';
-import { defaultStorefrontText } from '../../../shared/config/storefront-text.fixture';
-import { defaultAdminText } from '../../../shared/config/admin-text.fixture';
+import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
+import { ADMIN_TEXT } from '../../../platform/config/admin-text';
+import { defaultStorefrontText } from '../../../platform/config/storefront-text.fixture';
+import { defaultAdminText } from '../../../platform/config/admin-text.fixture';
 import { PageEditor } from './page-editor';
 import { PageEditingService } from './page-editing.service';
 

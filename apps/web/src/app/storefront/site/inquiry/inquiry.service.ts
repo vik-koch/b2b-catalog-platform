@@ -2,8 +2,8 @@ import { Injectable } from '@angular/core';
 import { safe } from '@orpc/client';
 import { ConsentRefusalCode } from '@b2b-catalog-platform/shared/core/site';
 import { InquiryRequest } from '@b2b-catalog-platform/shared/storefront/site';
-import { inquiryContract } from '../../contract-routes.generated';
-import { createOrpcClient } from '../../../shared/core/orpc-client';
+import { inquiryContract } from '../contract-routes.generated';
+import { createOrpcClient } from '../../../platform/orpc-client';
 
 @Injectable({ providedIn: 'root' })
 export class InquiryService {

@@ -21,21 +21,21 @@ import {
   catalogSyncOptionsSchema,
   SyncCommitResponse,
 } from '@b2b-catalog-platform/shared/core/exchange';
-import { DRIZZLE } from '../../db/database.module';
+import { DRIZZLE } from '../../platform/db/database.module';
 import { OwnershipState } from '../../platform/settings/ownership-state';
 import {
   catalogExternallyOwned,
   catalogNotExternallyOwned,
 } from '../../platform/settings/ownership.refusals';
-import * as schema from '../../db/schema';
+import * as schema from '../../platform/db/schema';
 import {
   categories,
   customerTiers,
   productPrices,
   products,
   syncRuns,
-} from '../../db/schema';
-import { excluded } from '../../db/sql-columns';
+} from '../../platform/db/schema';
+import { excluded } from '../../platform/db/sql-columns';
 import { SyncActions, SyncCatalogState, planSync } from './sync-diff';
 import { StagedPayloadOf, stagedPayload } from './sync-run-payload';
 import {
@@ -51,7 +51,7 @@ import { SyncNotifications } from './sync-notifications';
 import {
   LOW_STOCK_THRESHOLD_PIECES,
   SYNC_POLICY,
-} from '../../config/deployment-config';
+} from '../../platform/config/deployment-config';
 
 /** Skipped rows count as something: an unreadable file is not a quiet
  * night. */

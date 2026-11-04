@@ -1,6 +1,7 @@
-import { Component, inject, RESPONSE_INIT } from '@angular/core';
-import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
-import { usePageSeo } from '../../../shared/core/page-seo';
+import { Component, inject } from '@angular/core';
+import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
+import { usePageSeo } from '../../../platform/page-seo';
+import { setResponseStatus } from '../../../platform/response-status';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
 import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
 
@@ -21,10 +22,7 @@ export class MaintenanceScreen {
   constructor() {
     usePageSeo({ name: () => this.text.title });
 
-    // A 503, never a 200 a crawler would index. Present during SSR only.
-    const responseInit = inject(RESPONSE_INIT, { optional: true });
-    if (responseInit) {
-      responseInit.status = 503;
-    }
+    // A 503, never a 200 a crawler would index.
+    setResponseStatus(503);
   }
 }

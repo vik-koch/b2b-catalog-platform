@@ -7,17 +7,17 @@ import {
   output,
   signal,
 } from '@angular/core';
-import { fillText } from '@b2b-catalog-platform/shared';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
 import {
   AdminProductListItem,
   LinkedProduct,
   PRODUCT_PAIRINGS_MAX,
 } from '@b2b-catalog-platform/shared/admin/catalog';
-import { ADMIN_TEXT } from '../../../shared/config/admin-text';
-import { SHARED_TEXT } from '../../../shared/config/shared-text';
+import { ADMIN_TEXT } from '../../../platform/config/admin-text';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { Suggestion } from '@b2b-catalog-platform/ui/suggest/suggestion';
 import { MatchSegmentsPipe } from '../../../core/catalog/search/match-segments.pipe';
-import { AlternateLayout } from '../../../shared/core/alternate-layout';
+import { AlternateLayout } from '../../../platform/alternate-layout';
 import { SuggestList } from '@b2b-catalog-platform/ui/suggest/suggest-list';
 import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
 import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';

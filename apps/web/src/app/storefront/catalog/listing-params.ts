@@ -4,6 +4,7 @@ import {
   parseAttributeParams,
 } from '@b2b-catalog-platform/shared/core/catalog';
 import { ListingSort } from '@b2b-catalog-platform/shared/storefront/catalog';
+import { pageNumber } from '../../platform/page-number';
 
 /** The query parameters as router input binding hands them over: `attr` is a
  * bare string for one value and an array beyond that. */
@@ -24,10 +25,7 @@ export function listingParams<S extends ListingSort>(
   sorts: readonly S[],
   defaultSort: S,
 ) {
-  const page = computed(() => {
-    const n = Number(query.page());
-    return Number.isInteger(n) && n > 0 ? n : 1;
-  });
+  const page = computed(() => pageNumber(query.page()));
   const sort = computed(() => {
     const raw = query.sort() as S;
     return sorts.includes(raw) ? raw : defaultSort;

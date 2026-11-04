@@ -8,8 +8,7 @@ import {
   AdminOrderLine,
   StaffOrderSort,
 } from '@b2b-catalog-platform/shared/core/ordering';
-import { TaxBasis } from '@b2b-catalog-platform/shared';
-import { Pagination } from '@b2b-catalog-platform/shared/platform';
+import { Pagination, TaxBasis } from '@b2b-catalog-platform/shared/platform';
 import { ProductUnit } from '@b2b-catalog-platform/shared/core/catalog';
 import { Inject, Injectable } from '@nestjs/common';
 import { and, asc, count, eq, inArray, sql, SQL } from 'drizzle-orm';
@@ -26,16 +25,16 @@ import {
   CustomerThread,
 } from './order-rows';
 import { publiclyVisible } from '../catalog/product-view';
-import { DRIZZLE } from '../../db/database.module';
+import { DRIZZLE } from '../../platform/db/database.module';
 import {
   orderItems,
   orderRevisions,
   orders,
   products,
   users,
-} from '../../db/schema';
+} from '../../platform/db/schema';
 import { OrderDocumentsService } from './order-documents.service';
-import * as schema from '../../db/schema';
+import * as schema from '../../platform/db/schema';
 
 /**
  * Every read of an order (FR-ACC-01, FR-AUTH-03, ADR 0051): one projection for

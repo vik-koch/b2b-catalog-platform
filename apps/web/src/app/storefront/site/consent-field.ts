@@ -2,7 +2,7 @@ import { Component, computed, inject, input } from '@angular/core';
 import { FormField } from '@angular/forms/signals';
 import { RouterLink } from '@angular/router';
 import { consentLabelParts } from '@b2b-catalog-platform/shared/core/site';
-import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
+import { STOREFRONT_TEXT } from '../../platform/config/storefront-text';
 import { Checkbox } from '@b2b-catalog-platform/ui/choices/checkbox';
 import { Link } from '@b2b-catalog-platform/ui/actions/link';
 import { ConsentRequest } from './consent';

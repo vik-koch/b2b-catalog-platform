@@ -8,9 +8,9 @@ import {
   ListCustomerAccountsQuery,
 } from '@b2b-catalog-platform/shared/machine/exchange';
 import { UserStatus } from '@b2b-catalog-platform/shared/core/accounts';
-import { DRIZZLE } from '../../db/database.module';
-import * as schema from '../../db/schema';
-import { customerTiers, users } from '../../db/schema';
+import { DRIZZLE } from '../../platform/db/database.module';
+import * as schema from '../../platform/db/schema';
+import { customerTiers, users } from '../../platform/db/schema';
 import { encodeMachineCursor, parseMachineCursor } from './machine-cursor';
 
 /**

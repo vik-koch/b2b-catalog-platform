@@ -4,7 +4,7 @@ import { SegmentGroup } from '@b2b-catalog-platform/ui/choices/segment-group';
 import { layoutGridIcon } from '@b2b-catalog-platform/ui/icons/glyphs/layout-grid';
 import { layoutListIcon } from '@b2b-catalog-platform/ui/icons/glyphs/layout-list';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
-import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
+import { STOREFRONT_TEXT } from '../../platform/config/storefront-text';
 import { ProductLayoutService } from './product-layout';
 
 /** Cards or lines (FR-CAT-06), on the neutral pill the sort beside it uses:

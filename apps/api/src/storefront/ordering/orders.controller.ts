@@ -11,9 +11,9 @@ import { PricingTier } from '../../platform/auth/pricing-tier.decorator';
 import {
   OrderTokenThrottle,
   PublicFormThrottle,
-} from '../../throttling/throttle-presets';
-import { AuditLogger } from '../../audit/audit.logger';
-import { refusals } from '../../orpc/refusals';
+} from '../../platform/throttling/throttle-presets';
+import { AuditLogger } from '../../platform/audit/audit.logger';
+import { refusals } from '../../platform/orpc/refusals';
 import { OrderReader } from '../../core/ordering/order-reader';
 import { CheckoutService } from './checkout.service';
 import { CustomerOrdersService } from './customer-orders.service';

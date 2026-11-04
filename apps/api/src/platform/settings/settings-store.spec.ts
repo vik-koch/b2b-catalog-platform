@@ -1,5 +1,5 @@
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import * as schema from '../../db/schema';
+import * as schema from '../db/schema';
 import { SettingsRow, SettingsStore } from './settings-store';
 
 const settingsRow = (over: Partial<SettingsRow> = {}): SettingsRow => ({
@@ -20,15 +20,8 @@ function dbReturning(row: SettingsRow | 'throw') {
   } as unknown as NodePgDatabase<typeof schema>;
 }
 
-/**
- * A stand-in that reads `stored` and answers a write with `written`, recording
- * the rows any `insert(...).values(...)` was handed, which is how a change
- * record is observed without a database.
- *
- * `transaction` runs its callback against the same stand-in: what a change
- * needs from a real transaction is atomicity and one timestamp, neither of
- * which a stub can be asked to prove. The e2e suite is where that is checked.
- */
+/** Reads `stored`, answers a write with `written` and keeps every inserted
+ * row. Atomicity is the e2e suite's to prove, not a stub's. */
 function dbWriting(stored: SettingsRow, written: SettingsRow) {
   const inserted: Record<string, unknown>[] = [];
   const db = {

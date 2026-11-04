@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
-import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
-import { DeploymentConfig } from '@b2b-catalog-platform/shared';
+import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
+import { DeploymentConfig } from '@b2b-catalog-platform/shared/platform';
 import { PricePipe } from './price.pipe';
 
 const norm = (s: string): string => s.replace(/\u00A0/g, ' ');

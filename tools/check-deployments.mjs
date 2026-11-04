@@ -23,24 +23,27 @@ import { loadTypeScript } from './lib/generated-docs.mjs';
 /** The config files, and the schema each is loaded with at boot. */
 const SCHEMAS = {
   'deployment.json': [
-    'libs/shared/src/lib/config/deployment-config.ts',
+    'libs/shared/src/platform/config/deployment-config.ts',
     'deploymentConfigSchema',
   ],
-  'api.json': ['apps/api/src/config/api-config.ts', 'apiConfigSchema'],
+  'api.json': ['apps/api/src/platform/config/api-config.ts', 'apiConfigSchema'],
   'texts/shared.json': [
-    'libs/shared/src/lib/config/shared-text.ts',
+    'libs/shared/src/platform/config/shared-text.ts',
     'sharedTextSchema',
   ],
   'texts/storefront.json': [
-    'apps/web/src/app/shared/config/storefront-text.type.ts',
+    'apps/web/src/app/platform/config/storefront-text.type.ts',
     'storefrontTextSchema',
   ],
   'texts/admin.json': [
-    'apps/web/src/app/shared/config/admin-text.type.ts',
+    'apps/web/src/app/platform/config/admin-text.type.ts',
     'adminTextSchema',
   ],
-  'texts/mail.json': ['apps/api/src/mail/mail-text.ts', 'mailTextSchema'],
-  'texts/pdf.json': ['apps/api/src/pdf/pdf-text.ts', 'pdfTextSchema'],
+  'texts/mail.json': [
+    'apps/api/src/platform/mail/mail-text.ts',
+    'mailTextSchema',
+  ],
+  'texts/pdf.json': ['apps/api/src/platform/pdf/pdf-text.ts', 'pdfTextSchema'],
 };
 
 const at = process.argv.indexOf('--config-dir');

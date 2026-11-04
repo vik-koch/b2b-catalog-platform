@@ -7,15 +7,14 @@ import {
   signal,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { fillText } from '@b2b-catalog-platform/shared';
 import { CustomerTier } from '@b2b-catalog-platform/shared/admin/catalog';
-import { ADMIN_TEXT } from '../../../shared/config/admin-text';
-import { SHARED_TEXT } from '../../../shared/config/shared-text';
-import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
-import { AuthService } from '../../../shared/auth/auth.service';
-import { formatPhone } from '../../../shared/core/contact-fields';
-import { delayedLoading } from '../../../shared/core/delayed-loading';
-import { usePageSeo } from '../../../shared/core/page-seo';
+import { ADMIN_TEXT } from '../../../platform/config/admin-text';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
+import { AuthService } from '../../../platform/auth/auth.service';
+import { formatPhone } from '../../../platform/contact-fields';
+import { delayedLoading } from '../../../platform/delayed-loading';
+import { usePageSeo } from '../../../platform/page-seo';
 import { LockedNote } from '../../platform/ownership/ui/locked-note';
 import { ConsentRecordList } from '../consents/consent-record-list';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
@@ -26,7 +25,7 @@ import {
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';
-import { injectEditorReturnParams } from '../../../shared/edit-mode/editor-return';
+import { injectEditorReturnParams } from '../../../platform/edit-mode/editor-return';
 import { OwnershipService } from '../../platform/ownership/ownership.service';
 import { TiersService } from '../../catalog/tiers/tiers.service';
 import { StaffUsersService } from './users.service';
@@ -50,7 +49,10 @@ import {
   StaffUser,
 } from '@b2b-catalog-platform/shared/core/accounts';
 import { ConsentRecord } from '@b2b-catalog-platform/shared/admin/accounts';
-import { normalizePhone } from '@b2b-catalog-platform/shared/platform';
+import {
+  normalizePhone,
+  fillText,
+} from '@b2b-catalog-platform/shared/platform';
 
 /**
  * One account, read rather than edited: the customer's own page seen from the

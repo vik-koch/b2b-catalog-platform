@@ -1,9 +1,6 @@
-// Namespace import, not `{ z }`: the named form defeats tree shaking and
-// pulls zod's 63 locale files into the bundle (colinhacks/zod#6050).
 import * as z from 'zod';
 
-/** How long a session lasts without use where the deployment says nothing:
- * the week a session ran before it slid. */
+/** Idle days where the deployment sets none. */
 export const DEFAULT_SESSION_IDLE_DAYS = 7;
 
 /**
@@ -16,4 +13,3 @@ export const sessionConfigSchema = z
     idleDays: z.number().int().min(1),
   })
   .strict();
-export type SessionConfig = z.infer<typeof sessionConfigSchema>;

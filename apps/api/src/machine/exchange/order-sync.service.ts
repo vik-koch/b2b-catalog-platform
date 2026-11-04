@@ -15,9 +15,9 @@ import {
   OrderSyncSubmission,
   OrderSyncSubmitResponse,
 } from '@b2b-catalog-platform/shared/machine/exchange';
-import { DRIZZLE } from '../../db/database.module';
-import * as schema from '../../db/schema';
-import { syncRuns } from '../../db/schema';
+import { DRIZZLE } from '../../platform/db/database.module';
+import * as schema from '../../platform/db/schema';
+import { syncRuns } from '../../platform/db/schema';
 import { OrderWriteBack } from './order-write-back';
 import { OwnershipState } from '../../platform/settings/ownership-state';
 import { ordersNotExternallyOwned } from '../../platform/settings/ownership.refusals';

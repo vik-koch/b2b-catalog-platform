@@ -1,17 +1,17 @@
-import { SHARED_TEXT } from '../../../shared/config/shared-text';
-import { defaultSharedText } from '../../../shared/config/shared-text.fixture';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { Page } from '@b2b-catalog-platform/shared/core/site';
-import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
-import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
-import { defaultDeploymentConfig } from '../../../shared/config/deployment-config.fixture';
-import { defaultStorefrontText } from '../../../shared/config/storefront-text.fixture';
+import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
+import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
+import { defaultDeploymentConfig } from '../../../platform/config/deployment-config.fixture';
+import { defaultStorefrontText } from '../../../platform/config/storefront-text.fixture';
 import { PageService } from '../../../core/site/page.service';
-import { AuthService } from '../../../shared/auth/auth.service';
+import { AuthService } from '../../../platform/auth/auth.service';
 import { SignInService } from './sign-in.service';
-import { adminUser } from '../../../shared/auth/auth-user.fixture';
+import { adminUser } from '../../../platform/auth/auth-user.fixture';
 import { SetPasswordPage } from './set-password-page';
 import { AuthUser } from '@b2b-catalog-platform/shared/platform';
 

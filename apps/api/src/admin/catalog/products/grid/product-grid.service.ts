@@ -23,9 +23,13 @@ import {
   INCOMPLETE_GAPS,
   PRODUCT_FEATURES,
 } from '@b2b-catalog-platform/shared/admin/catalog';
-import { DRIZZLE } from '../../../../db/database.module';
-import * as schema from '../../../../db/schema';
-import { categories, orderItems, products } from '../../../../db/schema';
+import { DRIZZLE } from '../../../../platform/db/database.module';
+import * as schema from '../../../../platform/db/schema';
+import {
+  categories,
+  orderItems,
+  products,
+} from '../../../../platform/db/schema';
 import { attributeValuesCondition } from '../../../../core/catalog/attribute-filter';
 import { documentCondition } from './document-filter';
 import {
@@ -54,7 +58,7 @@ import {
 import { CatalogReader } from '../../../../core/catalog/catalog-reader';
 import { paginationOf } from '../../../../platform/pagination';
 import { resolvedPriceMinor } from '../../../../core/catalog/product-price';
-import { ALTERNATE_LAYOUT } from '../../../../config/deployment-config';
+import { ALTERNATE_LAYOUT } from '../../../../platform/config/deployment-config';
 import { categoryNotFound } from '../../categories/categories.service';
 
 import { deletedByRun } from '../product-records';

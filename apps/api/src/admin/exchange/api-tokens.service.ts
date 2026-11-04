@@ -6,9 +6,9 @@ import {
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { and, desc, eq, isNull } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { DRIZZLE } from '../../db/database.module';
-import * as schema from '../../db/schema';
-import { apiTokens } from '../../db/schema';
+import { DRIZZLE } from '../../platform/db/database.module';
+import * as schema from '../../platform/db/schema';
+import { apiTokens } from '../../platform/db/schema';
 import { Actor } from '../../core/exchange/sync-run';
 import { generateToken } from '../../platform/auth/api-token-value';
 

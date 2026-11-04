@@ -2,9 +2,9 @@ import { Inject, Injectable } from '@nestjs/common';
 import { and, count, eq, notInArray } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { ENDED_ORDER_STATUSES } from '@b2b-catalog-platform/shared/core/ordering';
-import { DRIZZLE } from '../../db/database.module';
-import * as schema from '../../db/schema';
-import { orders } from '../../db/schema';
+import { DRIZZLE } from '../../platform/db/database.module';
+import * as schema from '../../platform/db/schema';
+import { orders } from '../../platform/db/schema';
 import { AccountOrders } from '../accounts/account-orders';
 
 @Injectable()

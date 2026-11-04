@@ -6,10 +6,10 @@
 
 import { and, eq, inArray, or, SQL, sql } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import * as schema from '../../db/schema';
+import * as schema from '../../platform/db/schema';
 import { PgColumn } from 'drizzle-orm/pg-core';
-import { productPairings, products } from '../../db/schema';
-import { qualified } from '../../db/sql-columns';
+import { productPairings, products } from '../../platform/db/schema';
+import { qualified } from '../../platform/db/sql-columns';
 
 /**
  * How many products a customer could add alongside the row being selected: a

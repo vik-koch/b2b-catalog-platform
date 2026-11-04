@@ -4,8 +4,8 @@ import {
   CheckedConsent,
   ConsentService,
 } from '../../core/site/consent.service';
-import { DRIZZLE } from '../../db/database.module';
-import * as schema from '../../db/schema';
+import { DRIZZLE } from '../../platform/db/database.module';
+import * as schema from '../../platform/db/schema';
 import { UserRow, UsersService } from '../../core/accounts/users.service';
 import { PasswordPolicy } from '../../core/accounts/password-policy';
 import { PasswordTokenService } from '../../core/accounts/password-token.service';

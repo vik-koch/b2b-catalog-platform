@@ -4,7 +4,6 @@ import {
   Injectable,
   Logger,
 } from '@nestjs/common';
-import { SharedText } from '@b2b-catalog-platform/shared';
 import { AddressesService } from '../../core/accounts/addresses.service';
 import { ConsentService } from '../../core/site/consent.service';
 import {
@@ -14,13 +13,13 @@ import {
   PHONE_INPUT,
   PHONE_RULE,
   PhoneRule,
-} from '../../config/deployment-config';
-import { env } from '../../env';
-import { MAIL_TEXT, MailText } from '../../mail/mail-text';
-import { SHARED_TEXT } from '../../config/shared-text';
-import { MailDispatcher } from '../../mail/mail-dispatcher';
-import { newRegistrationMail } from '../../mail/templates/new-registration.template';
-import { registrationReceivedMail } from '../../mail/templates/registration-received.template';
+} from '../../platform/config/deployment-config';
+import { env } from '../../platform/env';
+import { MAIL_TEXT, MailText } from '../../platform/mail/mail-text';
+import { SHARED_TEXT } from '../../platform/config/shared-text';
+import { MailDispatcher } from '../../platform/mail/mail-dispatcher';
+import { newRegistrationMail } from './mail/new-registration.template';
+import { registrationReceivedMail } from './mail/registration-received.template';
 import { storedPhone } from '../../core/accounts/stored-phone';
 import { UsersService } from '../../core/accounts/users.service';
 import { PasswordService } from '../../core/accounts/password.service';
@@ -29,6 +28,7 @@ import { RegisterRequest } from '@b2b-catalog-platform/shared/storefront/account
 import {
   formatPhone,
   PhoneConfig,
+  SharedText,
 } from '@b2b-catalog-platform/shared/platform';
 
 /**

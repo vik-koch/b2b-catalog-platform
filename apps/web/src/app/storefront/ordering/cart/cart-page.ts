@@ -14,20 +14,20 @@ import {
   fillText,
   moneyFormat,
   formatMoneyMinor,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/platform';
 import { ProductPairings } from '../../../core/catalog/buying/product-pairings';
 import {
   PRODUCT_ROWS,
   ProductRow,
   RowProduct,
 } from '../../catalog/ui/product-row';
-import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
-import { SHARED_TEXT } from '../../../shared/config/shared-text';
-import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
+import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import { debounced } from '@b2b-catalog-platform/ui/core/debounced';
-import { delayedLoading } from '../../../shared/core/delayed-loading';
-import { usePageSeo } from '../../../shared/core/page-seo';
-import { stableValue } from '../../../shared/core/stable-value';
+import { delayedLoading } from '../../../platform/delayed-loading';
+import { usePageSeo } from '../../../platform/page-seo';
+import { stableValue } from '../../../platform/stable-value';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { Pagination } from '@b2b-catalog-platform/ui/lists/pagination';
 import { Checkbox } from '@b2b-catalog-platform/ui/choices/checkbox';

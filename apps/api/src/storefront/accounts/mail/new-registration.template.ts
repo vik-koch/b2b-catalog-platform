@@ -1,0 +1,75 @@
+import { SharedText } from '@b2b-catalog-platform/shared/platform';
+import { MailContent } from '../../../platform/mail/mail-layout';
+import { MailText } from '../../../platform/mail/mail-text';
+import {
+  CustomerType,
+  formatPersonName,
+} from '@b2b-catalog-platform/shared/core/accounts';
+
+/** What the staff notification reports — the registration, as submitted. */
+export interface RegistrationSummary {
+  readonly email: string;
+  readonly firstName: string;
+  readonly lastName: string;
+  readonly phone: string;
+  readonly customerType: CustomerType;
+  readonly companyName?: string;
+  readonly companyRegistrationId?: string;
+}
+
+/**
+ * Sent to the shop when someone registers (FR-NOTIF-04). Staff are the only
+ * ones who can move the account forward, so this is the one mail that links
+ * into the admin panel — the account list, where the pending request waits to
+ * be approved and given a tier.
+ *
+ * It repeats every field the applicant submitted, because this mail is what a
+ * manager reads on a phone before deciding whether the name and registration
+ * number match a customer they already know.
+ */
+export function newRegistrationMail(
+  registration: RegistrationSummary,
+  text: MailText,
+  common: SharedText,
+): MailContent {
+  const t = text.newRegistration;
+  const fields = common.fields;
+  const isCompany = registration.customerType === 'company';
+
+  return {
+    subject: t.subject,
+    preheader: t.preheader,
+    heading: t.heading,
+    paragraphs: [t.body],
+    rows: [
+      {
+        // Family name first, as every staff-facing list of people reads.
+        label: fields.name.label,
+        value: formatPersonName(registration.firstName, registration.lastName),
+      },
+      { label: fields.email.label, value: registration.email },
+      { label: fields.phone.label, value: registration.phone },
+      {
+        label: t.customerTypeLabel,
+        value: isCompany ? common.partyKind.company : common.partyKind.person,
+      },
+      // Only for a company: a dash against a private person would read as
+      // details that failed to arrive. Both are what staff approve on — the
+      // name is what they match against their own records, the number is what
+      // they can check.
+      ...(isCompany
+        ? [
+            {
+              label: fields.companyName.label,
+              value: registration.companyName ?? '',
+            },
+            {
+              label: fields.companyId.label,
+              value: registration.companyRegistrationId ?? '',
+            },
+          ]
+        : []),
+    ],
+    action: { label: t.action, path: '/admin/users' },
+  };
+}

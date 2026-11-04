@@ -2,8 +2,8 @@ import { Controller } from '@nestjs/common';
 import { Implement, implement } from '@orpc/nest';
 import { inquiryContract } from '@b2b-catalog-platform/shared/storefront/site';
 import { InquiryService } from './inquiry.service';
-import { PublicFormThrottle } from '../../throttling/throttle-presets';
-import { refusals } from '../../orpc/refusals';
+import { PublicFormThrottle } from '../../platform/throttling/throttle-presets';
+import { refusals } from '../../platform/orpc/refusals';
 
 @Controller()
 export class InquiryController {

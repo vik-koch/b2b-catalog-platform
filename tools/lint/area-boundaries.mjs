@@ -60,6 +60,14 @@ const reachable = (area) =>
 
 /** What each type may import; anything not listed is refused. */
 function allowed(type) {
+  const types = allowedTypes(type);
+  return types.includes('platform') ? [...types, 'platform:composing'] : types;
+}
+
+function allowedTypes(type) {
+  if (type === 'platform:composing') {
+    return ['platform', ...ENABLED.map((area) => `core:${area}`)];
+  }
   if (type === 'platform') return ['platform'];
   const [level, area] = type.split(':');
   if (level === 'core') {
@@ -80,7 +88,21 @@ function allowed(type) {
   ];
 }
 
-const TYPES = [...new Set(FOLDERS.map(({ type }) => type))];
+/**
+ * The one exception to "platform imports no area": the deployment config, the
+ * texts and the database schema are composed of every area's part. Imported
+ * like platform.
+ */
+const COMPOSING = [
+  'libs/shared/src/platform/config',
+  'apps/api/src/platform/config',
+  'apps/api/src/platform/db',
+];
+
+const TYPES = [
+  'platform:composing',
+  ...new Set(FOLDERS.map(({ type }) => type)),
+];
 
 /**
  * The lint block for the layer under `source` (`src`, `src/app`). Element
@@ -94,13 +116,21 @@ export function areaBoundaries(source) {
     settings: {
       'boundaries/root-path': ROOT,
       'boundaries/legacy-templates': false,
-      'boundaries/elements': LAYERS.flatMap((path) =>
-        FOLDERS.map(({ folder, type }) => ({
-          type,
-          pattern: `${path}/${folder}`,
+      // First match wins, so the composing folders come before `platform`.
+      'boundaries/elements': [
+        ...COMPOSING.map((pattern) => ({
+          type: 'platform:composing',
+          pattern,
           partialMatch: false,
         })),
-      ),
+        ...LAYERS.flatMap((path) =>
+          FOLDERS.map(({ folder, type }) => ({
+            type,
+            pattern: `${path}/${folder}`,
+            partialMatch: false,
+          })),
+        ),
+      ],
       'import/resolver': {
         typescript: { project: `${ROOT}tsconfig.base.json` },
       },

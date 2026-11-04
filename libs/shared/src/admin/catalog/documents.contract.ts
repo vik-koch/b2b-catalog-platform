@@ -7,11 +7,11 @@
 
 import { oc } from '@orpc/contract';
 import * as z from 'zod';
-import { commonAuthErrors } from '../../lib/core/api-error';
+import { commonAuthErrors } from '../../platform/api-error';
 import {
   ACCEPTED_DOCUMENT_MIME_TYPES,
   DOCUMENT_FILE_NAME_MAX_LENGTH,
-} from '../../platform/media-constants';
+} from '../../platform/media';
 import {
   DOCUMENT_LINK_MAX_LENGTH,
   DOCUMENT_PRODUCTS_MAX,
@@ -19,6 +19,7 @@ import {
   type DocumentErrorCode,
 } from './documents';
 import { linkedProductSchema } from './linked-product.contract';
+import { acknowledgementSchema } from '../../platform/acknowledgement.contract';
 
 /**
  * A stored file as the upload hands it back and a document row keeps it. The
@@ -185,5 +186,5 @@ export const documentsContract = {
     })
     .errors({ 'document-not-found': documentErrors['document-not-found'] })
     .input(z.object({ params: z.object({ id: z.uuid() }) }))
-    .output(z.object({ message: z.string() })),
+    .output(acknowledgementSchema),
 };

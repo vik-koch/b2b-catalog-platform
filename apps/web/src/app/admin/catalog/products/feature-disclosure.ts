@@ -1,6 +1,6 @@
 import { Component, inject, input, OnInit, signal } from '@angular/core';
 import { Glyph } from '@b2b-catalog-platform/ui/icons/glyph';
-import { ADMIN_TEXT } from '../../../shared/config/admin-text';
+import { ADMIN_TEXT } from '../../../platform/config/admin-text';
 import { SubEditorFrame } from '../ui/sub-editor-frame';
 
 /** A switched feature's box (FR-ADM-20). Open on load where it is on; the lid

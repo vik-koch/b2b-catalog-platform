@@ -1,15 +1,15 @@
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { PDFDocument } from 'pdf-lib';
-import { AddressConfig } from '@b2b-catalog-platform/shared';
+import { AddressConfig } from '@b2b-catalog-platform/shared/core/accounts';
 import {
   demoSharedText,
   demoMailBranding,
   demoPdfText,
-} from '../../mail/mail-text.fixture';
+} from '../../platform/mail/mail-text.fixture';
 import { demoAdminOrder } from './order.fixture';
-import { PdfFaces } from '../../pdf/pdf-faces';
-import { winAnsi } from '../../pdf/pdf-sheet';
+import { PdfFaces } from '../../platform/pdf/pdf-faces';
+import { winAnsi } from '../../platform/pdf/pdf-sheet';
 import { OrderPdf } from './order-pdf';
 
 /**

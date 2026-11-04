@@ -8,7 +8,7 @@
 import { asc, desc, sql, SQL } from 'drizzle-orm';
 import { PgColumn } from 'drizzle-orm/pg-core';
 import { SearchSort } from '@b2b-catalog-platform/shared/core/catalog';
-import { products } from '../../db/schema';
+import { products } from '../../platform/db/schema';
 import { resolvedPriceMinor } from './product-price';
 
 export type OrderBy = (SQL | PgColumn)[];

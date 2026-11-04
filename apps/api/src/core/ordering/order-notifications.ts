@@ -1,28 +1,25 @@
 import { Inject, Injectable } from '@nestjs/common';
-import {
-  SharedText,
-  MoneyFormat,
-  OrderReferenceConfig,
-} from '@b2b-catalog-platform/shared';
+import { SharedText, MoneyFormat } from '@b2b-catalog-platform/shared/platform';
 import {
   OrderDocumentKind,
   AdminOrderDetail,
   OrderNotice,
+  OrderReferenceConfig,
 } from '@b2b-catalog-platform/shared/core/ordering';
 import {
   MONEY_FORMAT,
   ORDER_REFERENCE_CONFIG,
-} from '../../config/deployment-config';
-import { MailDispatcher } from '../../mail/mail-dispatcher';
-import { MAIL_TEXT, MailText } from '../../mail/mail-text';
-import { SHARED_TEXT } from '../../config/shared-text';
-import { newOrderMail } from '../../mail/templates/new-order.template';
-import { orderCancelledMail } from '../../mail/templates/order-cancelled.template';
-import { orderReceivedMail } from '../../mail/templates/order-received.template';
-import { orderDocumentMail } from '../../mail/templates/order-document.template';
-import { orderStatusChangedMail } from '../../mail/templates/order-status.template';
-import { MailAttachment } from '../../mail/mailer';
-import { env } from '../../env';
+} from '../../platform/config/deployment-config';
+import { MailDispatcher } from '../../platform/mail/mail-dispatcher';
+import { MAIL_TEXT, MailText } from '../../platform/mail/mail-text';
+import { SHARED_TEXT } from '../../platform/config/shared-text';
+import { newOrderMail } from './mail/new-order.template';
+import { orderCancelledMail } from './mail/order-cancelled.template';
+import { orderReceivedMail } from './mail/order-received.template';
+import { orderDocumentMail } from './mail/order-document.template';
+import { orderStatusChangedMail } from './mail/order-status.template';
+import { MailAttachment } from '../../platform/mail/mailer';
+import { env } from '../../platform/env';
 
 /** Narrows the configured staff inbox, which env.ts requires in server mode. */
 function staffInbox(): string {

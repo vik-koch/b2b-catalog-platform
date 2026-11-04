@@ -1,8 +1,8 @@
 import { desc, eq } from 'drizzle-orm';
 import { Page } from '@b2b-catalog-platform/shared/core/site';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import * as schema from '../../db/schema';
-import { pageVersions } from '../../db/schema';
+import * as schema from '../../platform/db/schema';
+import { pageVersions } from '../../platform/db/schema';
 
 export type PageVersionRow = typeof pageVersions.$inferSelect;
 

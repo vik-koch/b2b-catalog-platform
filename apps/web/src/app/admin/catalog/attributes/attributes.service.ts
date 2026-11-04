@@ -12,10 +12,10 @@ import {
   RenameAttributeValueRequest,
   ReorderAttributesRequest,
 } from '@b2b-catalog-platform/shared/admin/catalog';
-import { attributesContract } from '../../contract-routes.generated';
+import { attributesContract } from '../contract-routes.generated';
 import { safe, type ClientPromiseResult } from '@orpc/client';
-import { createOrpcClient } from '../../../shared/core/orpc-client';
-import { renderable } from '../../../shared/core/renderable';
+import { createOrpcClient } from '../../../platform/orpc-client';
+import { renderable } from '../../../platform/renderable';
 
 export type AttributeResult =
   | { ok: true; definition: AttributeDefinition }

@@ -18,13 +18,13 @@ import {
   viewChild,
 } from '@angular/core';
 import { ProductAttribute } from '@b2b-catalog-platform/shared/core/catalog';
-import { fillText } from '@b2b-catalog-platform/shared';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
 import {
   AttributeDefinition,
   AttributeKeyUsage,
   PRODUCT_ATTRIBUTES_MAX,
 } from '@b2b-catalog-platform/shared/admin/catalog';
-import { ADMIN_TEXT } from '../../../shared/config/admin-text';
+import { ADMIN_TEXT } from '../../../platform/config/admin-text';
 import { injectNarrowScreen } from '@b2b-catalog-platform/ui/core/narrow-screen';
 import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
@@ -46,7 +46,7 @@ import {
   parseClipboardGrid,
   selectionToTsv,
 } from './attribute-grid';
-import { SHARED_TEXT } from '../../../shared/config/shared-text';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { funnelIcon } from '@b2b-catalog-platform/ui/icons/glyphs/funnel';
 import { plusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/plus';
 import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';

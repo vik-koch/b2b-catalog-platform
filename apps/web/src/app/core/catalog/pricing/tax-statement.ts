@@ -4,10 +4,10 @@ import {
   formatTaxRate,
   sharedTaxRate,
   TaxBasis,
-} from '@b2b-catalog-platform/shared';
-import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
-import { SHARED_TEXT } from '../../../shared/config/shared-text';
-import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
+} from '@b2b-catalog-platform/shared/platform';
+import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 
 /**
  * The tax basis in words (NFR-LEGAL-11), for every place that states it, so
