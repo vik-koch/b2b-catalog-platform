@@ -11,11 +11,11 @@ import {
   AdminOrderDetail,
   AdminOrderDocument,
 } from '@b2b-catalog-platform/shared/core/ordering';
-import { AuditActor, AuditLogger } from '../../audit/audit.logger';
+import { AuditActor, AuditLogger } from '../../platform/audit/audit.logger';
 import {
   documentExtension,
   sniffAcceptedDocument,
-} from '../../media/document-content-type';
+} from '../../platform/media/document-content-type';
 import { OrderDocumentsService } from './order-documents.service';
 import { OrderNotifications } from './order-notifications';
 import { OrderReader } from './order-reader';

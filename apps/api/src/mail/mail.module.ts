@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { loadConfig } from '@b2b-catalog-platform/shared/node';
-import { SHARED_TEXT, loadSharedText } from '../config/shared-text';
-import { PDF_TEXT, pdfTextSchema } from '../pdf/pdf-text';
+import { SHARED_TEXT, loadSharedText } from '../platform/config/shared-text';
+import { PDF_TEXT, pdfTextSchema } from '../platform/pdf/pdf-text';
 import { loadMailBranding, MAIL_BRANDING } from './mail-branding';
 import { MAIL_TEXT, mailTextSchema } from './mail-text';
 import { MailDispatcher } from './mail-dispatcher';

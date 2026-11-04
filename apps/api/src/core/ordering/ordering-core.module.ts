@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { AddressBookModule } from '../accounts/address-book.module';
-import { AuditLogger } from '../../audit/audit.logger';
+import { AuditLogger } from '../../platform/audit/audit.logger';
 import { SessionModule } from '../../platform/auth/session.module';
 import {
   ACCEPTED_CUSTOMER_TYPES,
@@ -33,16 +33,16 @@ import {
   loadTermsAttached,
   TAX_CONFIG,
   loadTermsPublished,
-} from '../../config/deployment-config';
+} from '../../platform/config/deployment-config';
 import { MailModule } from '../../mail/mail.module';
-import { MediaModule } from '../../media/media.module';
+import { MediaModule } from '../../platform/media/media.module';
 import { OrderDocumentActs } from './order-document-acts';
 import { OrderDocumentsController } from './order-documents.controller';
 import { OrderDocumentsService } from './order-documents.service';
 import { OrderDocumentFiles } from './order-document-files';
 import { OrderPersonalData } from './order-personal-data';
 import { OrderNotifications } from './order-notifications';
-import { PdfFaces } from '../../pdf/pdf-faces';
+import { PdfFaces } from '../../platform/pdf/pdf-faces';
 import { OrderPdf } from './order-pdf';
 import { TermsPdf } from './terms-pdf';
 import { OrderReader } from './order-reader';

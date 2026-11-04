@@ -8,8 +8,8 @@ import {
   demoPdfText,
 } from '../../mail/mail-text.fixture';
 import { demoAdminOrder } from './order.fixture';
-import { PdfFaces } from '../../pdf/pdf-faces';
-import { winAnsi } from '../../pdf/pdf-sheet';
+import { PdfFaces } from '../../platform/pdf/pdf-faces';
+import { winAnsi } from '../../platform/pdf/pdf-sheet';
 import { OrderPdf } from './order-pdf';
 
 /**

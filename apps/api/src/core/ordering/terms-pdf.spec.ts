@@ -1,12 +1,12 @@
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { PDFDocument } from 'pdf-lib';
-import * as schema from '../../db/schema';
+import * as schema from '../../platform/db/schema';
 import {
   demoSharedText,
   demoMailBranding,
   demoPdfText,
 } from '../../mail/mail-text.fixture';
-import { PdfFaces } from '../../pdf/pdf-faces';
+import { PdfFaces } from '../../platform/pdf/pdf-faces';
 import { demoAdminOrder } from './order.fixture';
 import { TermsPdf } from './terms-pdf';
 

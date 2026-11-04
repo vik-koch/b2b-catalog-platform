@@ -1,8 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { Page } from '@b2b-catalog-platform/shared/core/site';
-import { DRIZZLE } from '../../db/database.module';
-import * as schema from '../../db/schema';
+import { DRIZZLE } from '../../platform/db/database.module';
+import * as schema from '../../platform/db/schema';
 import { currentPageVersion, toPage } from '../../core/site/page-versions';
 
 @Injectable()

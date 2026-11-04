@@ -2,9 +2,9 @@ import { Inject, Injectable } from '@nestjs/common';
 import { createHash, randomBytes } from 'node:crypto';
 import { and, eq, gt, isNull } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { DRIZZLE } from '../../db/database.module';
-import * as schema from '../../db/schema';
-import { passwordTokens } from '../../db/schema';
+import { DRIZZLE } from '../../platform/db/database.module';
+import * as schema from '../../platform/db/schema';
+import { passwordTokens } from '../../platform/db/schema';
 
 /** An invitation waits for someone to read their mail; a reset answers
  * someone at the form right now. */

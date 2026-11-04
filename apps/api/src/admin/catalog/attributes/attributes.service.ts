@@ -29,15 +29,15 @@ import {
   RenameAttributeValueRequest,
   ReorderAttributesRequest,
 } from '@b2b-catalog-platform/shared/admin/catalog';
-import { DRIZZLE } from '../../../db/database.module';
-import * as schema from '../../../db/schema';
+import { DRIZZLE } from '../../../platform/db/database.module';
+import * as schema from '../../../platform/db/schema';
 import {
   attributeDefinitions,
   catalogAttributes,
   categoryAttributes,
   productAttributes,
   products,
-} from '../../../db/schema';
+} from '../../../platform/db/schema';
 import {
   categoryChain,
   DefinitionRow,

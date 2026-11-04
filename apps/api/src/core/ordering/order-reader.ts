@@ -25,16 +25,16 @@ import {
   CustomerThread,
 } from './order-rows';
 import { publiclyVisible } from '../catalog/product-view';
-import { DRIZZLE } from '../../db/database.module';
+import { DRIZZLE } from '../../platform/db/database.module';
 import {
   orderItems,
   orderRevisions,
   orders,
   products,
   users,
-} from '../../db/schema';
+} from '../../platform/db/schema';
 import { OrderDocumentsService } from './order-documents.service';
-import * as schema from '../../db/schema';
+import * as schema from '../../platform/db/schema';
 
 /**
  * Every read of an order (FR-ACC-01, FR-AUTH-03, ADR 0051): one projection for

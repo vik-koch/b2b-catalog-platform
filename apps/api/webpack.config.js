@@ -18,7 +18,7 @@ module.exports = {
       assets: [
         './src/assets',
         {
-          input: 'apps/api/src/db/migrations',
+          input: 'apps/api/src/platform/db/migrations',
           glob: '**/*',
           output: 'db/migrations',
         },

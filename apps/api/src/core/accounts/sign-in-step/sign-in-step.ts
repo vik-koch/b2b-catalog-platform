@@ -6,7 +6,7 @@ import {
   PHONE_INPUT,
   PHONE_RULE,
   PhoneRule,
-} from '../../../config/deployment-config';
+} from '../../../platform/config/deployment-config';
 import { UserRow, UsersService } from '../users.service';
 import { sessionCookieAttributes } from '../../../platform/auth/session-cookie';
 import { CodeDeliveryError } from './code-delivery';

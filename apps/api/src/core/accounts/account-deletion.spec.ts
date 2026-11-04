@@ -1,4 +1,4 @@
-import { env } from '../../env';
+import { env } from '../../platform/env';
 import { MailText } from '../../mail/mail-text';
 import { demoSharedText, demoMailText } from '../../mail/mail-text.fixture';
 import { dispatcherOver } from '../../mail/mail-dispatcher.fixture';

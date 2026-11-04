@@ -3,7 +3,7 @@ import { Logger } from '@nestjs/common';
 import { dispatcherOver } from '../../mail/mail-dispatcher.fixture';
 import { MailDispatcher } from '../../mail/mail-dispatcher';
 import { demoSharedText, demoMailText } from '../../mail/mail-text.fixture';
-import { env } from '../../env';
+import { env } from '../../platform/env';
 import { OrderNotifications } from './order-notifications';
 import { demoAdminOrder } from './order.fixture';
 

@@ -7,9 +7,9 @@ import {
   UpdatePageRequest,
 } from '@b2b-catalog-platform/shared/admin/site';
 import { sanitizeRichText } from '@b2b-catalog-platform/shared/node';
-import { DRIZZLE } from '../../db/database.module';
-import * as schema from '../../db/schema';
-import { pageVersions, users } from '../../db/schema';
+import { DRIZZLE } from '../../platform/db/database.module';
+import * as schema from '../../platform/db/schema';
+import { pageVersions, users } from '../../platform/db/schema';
 import { currentPageVersion, toPage } from '../../core/site/page-versions';
 import { AuthUser } from '@b2b-catalog-platform/shared/platform';
 

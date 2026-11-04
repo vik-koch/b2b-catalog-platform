@@ -1,6 +1,6 @@
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import * as schema from '../../db/schema';
-import { env } from '../../env';
+import * as schema from '../../platform/db/schema';
+import { env } from '../../platform/env';
 import { OperationsService } from './operations.service';
 
 describe('OperationsService build info', () => {

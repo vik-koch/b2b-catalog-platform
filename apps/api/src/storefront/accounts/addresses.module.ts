@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
-import { AuditLogger } from '../../audit/audit.logger';
+import { AuditLogger } from '../../platform/audit/audit.logger';
 import { AddressBookModule } from '../../core/accounts/address-book.module';
-import { env } from '../../env';
+import { env } from '../../platform/env';
 import { SessionModule } from '../../platform/auth/session.module';
 import { AddressSuggestionController } from './address-suggestion.controller';
 import {

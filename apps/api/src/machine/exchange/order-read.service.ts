@@ -15,9 +15,14 @@ import {
   MachineOrderLine,
   MachineOrdersPage,
 } from '@b2b-catalog-platform/shared/machine/exchange';
-import { DRIZZLE } from '../../db/database.module';
-import * as schema from '../../db/schema';
-import { orderItems, orderRevisions, orders, users } from '../../db/schema';
+import { DRIZZLE } from '../../platform/db/database.module';
+import * as schema from '../../platform/db/schema';
+import {
+  orderItems,
+  orderRevisions,
+  orders,
+  users,
+} from '../../platform/db/schema';
 import { encodeMachineCursor, parseMachineCursor } from './machine-cursor';
 import { cancelledByCustomer } from './order-write-back';
 

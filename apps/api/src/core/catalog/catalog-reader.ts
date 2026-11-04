@@ -13,9 +13,9 @@ import {
   effectiveTaxRate,
   TaxConfig,
 } from '@b2b-catalog-platform/shared/platform';
-import { TAX_CONFIG } from '../../config/deployment-config';
-import { DRIZZLE } from '../../db/database.module';
-import * as schema from '../../db/schema';
+import { TAX_CONFIG } from '../../platform/config/deployment-config';
+import { DRIZZLE } from '../../platform/db/database.module';
+import * as schema from '../../platform/db/schema';
 import {
   attributeDefinitions,
   categories,
@@ -25,7 +25,7 @@ import {
   orderItems,
   productAttributes,
   products,
-} from '../../db/schema';
+} from '../../platform/db/schema';
 import { ancestorsOf, CategoryRow } from './catalog-tree';
 import {
   categoryChain,

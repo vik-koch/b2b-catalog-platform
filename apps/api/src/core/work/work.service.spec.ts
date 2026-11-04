@@ -1,8 +1,14 @@
 import { SQL } from 'drizzle-orm';
 import { PgDialect } from 'drizzle-orm/pg-core';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import * as schema from '../../db/schema';
-import { documents, orders, products, syncRuns, users } from '../../db/schema';
+import * as schema from '../../platform/db/schema';
+import {
+  documents,
+  orders,
+  products,
+  syncRuns,
+  users,
+} from '../../platform/db/schema';
 import { WorkService } from './work.service';
 import { AuthUser } from '@b2b-catalog-platform/shared/platform';
 

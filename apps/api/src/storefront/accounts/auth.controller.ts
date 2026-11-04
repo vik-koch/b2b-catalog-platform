@@ -13,7 +13,7 @@ import {
   AuthThrottle,
   PublicFormThrottle,
   SignInCallThrottle,
-} from '../../throttling/throttle-presets';
+} from '../../platform/throttling/throttle-presets';
 import { Auth } from '../../platform/auth/auth.decorator';
 import { CurrentUser } from '../../platform/auth/current-user.decorator';
 import { AuthService } from './auth.service';
@@ -24,7 +24,7 @@ import { PasswordSetupService } from './password-setup.service';
 import { RegistrationService } from './registration.service';
 import { MaintenanceExempt } from '../../core/site/maintenance-exempt.decorator';
 import { MaintenanceState } from '../../core/site/maintenance-state';
-import { refusals } from '../../orpc/refusals';
+import { refusals } from '../../platform/orpc/refusals';
 import { endSession } from '../../platform/auth/session-cookie';
 import { Sessions } from '../../platform/auth/sessions';
 import { sending } from '../../core/accounts/sign-in-step/code-refusals';

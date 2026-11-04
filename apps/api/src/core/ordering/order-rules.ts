@@ -31,7 +31,7 @@ import {
   DELIVERY_CONFIG,
   PICKUP_LOCATIONS,
   PickupLocation,
-} from '../../config/deployment-config';
+} from '../../platform/config/deployment-config';
 
 /**
  * What an order must say to be written, held the same for the checkout and a

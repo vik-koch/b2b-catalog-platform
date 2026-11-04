@@ -20,8 +20,8 @@ import {
   ProductTierPrice,
 } from '@b2b-catalog-platform/shared/admin/catalog';
 import { sanitizeProductRichText } from '@b2b-catalog-platform/shared/node';
-import { DRIZZLE } from '../../../db/database.module';
-import * as schema from '../../../db/schema';
+import { DRIZZLE } from '../../../platform/db/database.module';
+import * as schema from '../../../platform/db/schema';
 import {
   customerTiers,
   documentProducts,
@@ -30,8 +30,8 @@ import {
   productPairings,
   productPrices,
   products,
-} from '../../../db/schema';
-import { excluded } from '../../../db/sql-columns';
+} from '../../../platform/db/schema';
+import { excluded } from '../../../platform/db/sql-columns';
 import { OwnershipState } from '../../../platform/settings/ownership-state';
 import { catalogExternallyOwned } from '../../../platform/settings/ownership.refusals';
 import { changedProductFields } from '../owned-fields';
@@ -40,7 +40,7 @@ import {
   involves,
 } from '../../../core/catalog/product-pairings';
 import { defaultTierId } from './default-tier';
-import { LOW_STOCK_THRESHOLD_PIECES } from '../../../config/deployment-config';
+import { LOW_STOCK_THRESHOLD_PIECES } from '../../../platform/config/deployment-config';
 import {
   resolveNewSlug,
   resolveNewProductSourceId,

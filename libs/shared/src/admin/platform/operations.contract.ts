@@ -1,7 +1,8 @@
 import { oc } from '@orpc/contract';
 import * as z from 'zod';
 import { commonAuthErrors } from '../../platform/api-error';
-import { SETTING_CHANGE_KINDS, SETTING_CHANGES_PAGE_SIZE } from './operations';
+import { SETTING_CHANGE_KINDS } from '../../platform/settings';
+import { SETTING_CHANGES_PAGE_SIZE } from './operations';
 
 /**
  * Stamped onto the stack at deploy time, not baked into the image: a release

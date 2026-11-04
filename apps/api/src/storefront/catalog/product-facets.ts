@@ -15,8 +15,8 @@ import {
   Facet,
   FacetValue,
 } from '@b2b-catalog-platform/shared/storefront/catalog';
-import * as schema from '../../db/schema';
-import { productAttributes, products } from '../../db/schema';
+import * as schema from '../../platform/db/schema';
+import { productAttributes, products } from '../../platform/db/schema';
 import { attributeValuesCondition } from '../../core/catalog/attribute-filter';
 import { DefinitionRow } from '../../core/catalog/category-filters';
 

@@ -122,7 +122,7 @@ jobs:
           : "${INBOX_PASSWORD:?secret INBOX_PASSWORD is not set}"
           : "${ADMIN_EMAIL:?secret ADMIN_EMAIL is not set}"
           : "${ADMIN_PASSWORD:?secret ADMIN_PASSWORD is not set}"
-          # Same floor the api enforces at boot (apps/api/src/env.ts) — check it
+          # Same floor the api enforces at boot (apps/api/src/platform/env.ts) — check it
           # here so a too-short secret fails now, loudly, instead of as a
           # crash-looping container behind an opaque smoke-check timeout.
           [ ${#ADMIN_PASSWORD} -ge 8 ] || { echo "ADMIN_PASSWORD must be >= 8 chars" >&2; exit 1; }

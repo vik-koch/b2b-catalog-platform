@@ -4,8 +4,8 @@ import {
   DestructionReason,
   DestructionSubject,
 } from '@b2b-catalog-platform/shared/node';
-import * as schema from '../db/schema';
-import { destructionRecords } from '../db/schema';
+import * as schema from './db/schema';
+import { destructionRecords } from './db/schema';
 
 type Writer = Pick<NodePgDatabase<typeof schema>, 'insert'>;
 

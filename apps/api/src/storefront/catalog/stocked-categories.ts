@@ -1,6 +1,6 @@
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import * as schema from '../../db/schema';
-import { products } from '../../db/schema';
+import * as schema from '../../platform/db/schema';
+import { products } from '../../platform/db/schema';
 import { CategoryRow } from '../../core/catalog/catalog-tree';
 import { publiclyVisible } from '../../core/catalog/product-view';
 import { stockedCategoryIds } from './category-tree';

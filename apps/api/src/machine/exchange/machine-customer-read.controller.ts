@@ -1,9 +1,9 @@
 import { Controller } from '@nestjs/common';
 import { Implement, implement } from '@orpc/nest';
 import { machineCustomerReadContract } from '@b2b-catalog-platform/shared/machine/exchange';
-import { refusals } from '../../orpc/refusals';
+import { refusals } from '../../platform/orpc/refusals';
 import { Machine } from '../../platform/auth/machine.decorator';
-import { MachineThrottle } from '../../throttling/throttle-presets';
+import { MachineThrottle } from '../../platform/throttling/throttle-presets';
 import { CustomerReadService } from './customer-read.service';
 
 /**

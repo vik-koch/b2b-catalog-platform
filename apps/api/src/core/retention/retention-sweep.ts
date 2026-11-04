@@ -3,15 +3,15 @@ import { and, eq, inArray, isNull, lt, ne, or } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { ENDED_ORDER_STATUSES } from '@b2b-catalog-platform/shared/core/ordering';
 import { RetentionConfig } from '@b2b-catalog-platform/shared/node';
-import { RETENTION } from '../../config/deployment-config';
-import { DRIZZLE } from '../../db/database.module';
-import * as schema from '../../db/schema';
+import { RETENTION } from '../../platform/config/deployment-config';
+import { DRIZZLE } from '../../platform/db/database.module';
+import * as schema from '../../platform/db/schema';
 import {
   consents,
   consentWithdrawals,
   destructionRecords,
   orders,
-} from '../../db/schema';
+} from '../../platform/db/schema';
 import { OrderDocumentFiles } from '../ordering/order-document-files';
 import { scrubOrders } from '../ordering/order-scrub';
 import {

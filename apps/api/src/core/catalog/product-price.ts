@@ -1,7 +1,11 @@
 import { SQL, sql } from 'drizzle-orm';
 import { PgColumn } from 'drizzle-orm/pg-core';
-import { customerTiers, productPrices, products } from '../../db/schema';
-import { qualified } from '../../db/sql-columns';
+import {
+  customerTiers,
+  productPrices,
+  products,
+} from '../../platform/db/schema';
+import { qualified } from '../../platform/db/sql-columns';
 
 /**
  * A product's price for a tier (FR-AUTH-05), one definition for every read so

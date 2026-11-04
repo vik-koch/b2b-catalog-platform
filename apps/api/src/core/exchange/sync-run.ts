@@ -1,7 +1,7 @@
 import { NotFoundException } from '@nestjs/common';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { SyncRunStatus } from '@b2b-catalog-platform/shared/core/exchange';
-import * as schema from '../../db/schema';
+import * as schema from '../../platform/db/schema';
 
 /** The handle a `db.transaction` callback gets. */
 export type Tx = Parameters<

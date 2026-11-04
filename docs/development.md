@@ -79,7 +79,7 @@ hand with `node tools/take-screenshots.mjs`; nothing checks them.
 
 ## Database changes
 
-The schema is [apps/api/src/db/schema.ts](../apps/api/src/db/schema.ts). After changing it,
+The schema is [apps/api/src/platform/db/schema.ts](../apps/api/src/platform/db/schema.ts). After changing it,
 `npx nx run api:db-generate` writes a migration with drizzle-kit, and seeding or
 `npx nx run api:db-migrate` applies it. On a server, the migrate container applies it before the
 new apps start, so the running version briefly reads the new schema: add first, and remove what

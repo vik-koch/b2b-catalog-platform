@@ -1,5 +1,5 @@
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import * as schema from '../../db/schema';
+import * as schema from '../../platform/db/schema';
 import { OrderReader } from '../../core/ordering/order-reader';
 import { OrderWriter } from '../../core/ordering/order-writer';
 import { OrderRules } from '../../core/ordering/order-rules';

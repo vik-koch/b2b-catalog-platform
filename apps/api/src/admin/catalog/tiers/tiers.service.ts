@@ -11,15 +11,15 @@ import {
   ReorderTiersRequest,
   TierInput,
 } from '@b2b-catalog-platform/shared/admin/catalog';
-import { DRIZZLE } from '../../../db/database.module';
+import { DRIZZLE } from '../../../platform/db/database.module';
 import { OWNED_TIER_FIELDS } from '../owned-fields';
-import * as schema from '../../../db/schema';
+import * as schema from '../../../platform/db/schema';
 import {
   customerTiers,
   productPrices,
   products,
   users,
-} from '../../../db/schema';
+} from '../../../platform/db/schema';
 import { OwnershipState } from '../../../platform/settings/ownership-state';
 import { catalogExternallyOwned } from '../../../platform/settings/ownership.refusals';
 import { publiclyVisible } from '../../../core/catalog/product-view';

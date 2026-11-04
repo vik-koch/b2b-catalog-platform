@@ -45,15 +45,15 @@ import {
 import { OrderReader } from '../../core/ordering/order-reader';
 import { OrderWriter } from '../../core/ordering/order-writer';
 import { OrderRules } from '../../core/ordering/order-rules';
-import { ALTERNATE_LAYOUT } from '../../config/deployment-config';
-import { DRIZZLE } from '../../db/database.module';
-import { orderRevisions, orders, users } from '../../db/schema';
+import { ALTERNATE_LAYOUT } from '../../platform/config/deployment-config';
+import { DRIZZLE } from '../../platform/db/database.module';
+import { orderRevisions, orders, users } from '../../platform/db/schema';
 import {
   priceAdjustment,
   PricedAdjustment,
 } from '../../core/ordering/order-adjustment';
 import { OrderDocumentsService } from '../../core/ordering/order-documents.service';
-import * as schema from '../../db/schema';
+import * as schema from '../../platform/db/schema';
 
 /** Staff answering orders (FR-AUTH-03, FR-ORD-02/03/04, FR-NOTIF-03). */
 @Injectable()

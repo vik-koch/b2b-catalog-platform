@@ -1,10 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { and, eq, inArray, sql } from 'drizzle-orm';
-import { DRIZZLE } from '../../db/database.module';
-import * as schema from '../../db/schema';
+import { DRIZZLE } from '../../platform/db/database.module';
+import * as schema from '../../platform/db/schema';
 import { withdrawAccountConsents } from '../site/consent-withdrawals';
-import { addresses, signInCodes, users } from '../../db/schema';
+import { addresses, signInCodes, users } from '../../platform/db/schema';
 import { AccountErasure, Tx } from './account-erasure';
 import { LastAdminError } from './last-admin-error';
 import {

@@ -9,17 +9,17 @@ import {
 import {
   MONEY_FORMAT,
   ORDER_REFERENCE_CONFIG,
-} from '../../config/deployment-config';
+} from '../../platform/config/deployment-config';
 import { MailDispatcher } from '../../mail/mail-dispatcher';
 import { MAIL_TEXT, MailText } from '../../mail/mail-text';
-import { SHARED_TEXT } from '../../config/shared-text';
+import { SHARED_TEXT } from '../../platform/config/shared-text';
 import { newOrderMail } from '../../mail/templates/new-order.template';
 import { orderCancelledMail } from '../../mail/templates/order-cancelled.template';
 import { orderReceivedMail } from '../../mail/templates/order-received.template';
 import { orderDocumentMail } from '../../mail/templates/order-document.template';
 import { orderStatusChangedMail } from '../../mail/templates/order-status.template';
 import { MailAttachment } from '../../mail/mailer';
-import { env } from '../../env';
+import { env } from '../../platform/env';
 
 /** Narrows the configured staff inbox, which env.ts requires in server mode. */
 function staffInbox(): string {

@@ -11,7 +11,7 @@ import {
   loadCustomerSyncPolicy,
   loadLowStockThresholdPieces,
   loadSyncPolicy,
-} from '../../config/deployment-config';
+} from '../../platform/config/deployment-config';
 import { CatalogSyncService } from './catalog-sync.service';
 import { CustomerSyncService } from './customer-sync.service';
 import { SyncNotifications } from './sync-notifications';

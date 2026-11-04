@@ -2,7 +2,7 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import { PasswordTokenService } from './password-token.service';
 import { PasswordService } from './password.service';
 import { MAIL_TEXT, MailText } from '../../mail/mail-text';
-import { SHARED_TEXT } from '../../config/shared-text';
+import { SHARED_TEXT } from '../../platform/config/shared-text';
 import { MailDispatcher } from '../../mail/mail-dispatcher';
 import {
   accountClosedMail,
@@ -14,7 +14,7 @@ import { ACCOUNT_ORDERS, AccountOrders } from './account-orders';
 import { AccountErasure } from './account-erasure';
 import { UserRow, UsersService } from './users.service';
 import { LastAdminError } from './last-admin-error';
-import { env } from '../../env';
+import { env } from '../../platform/env';
 import { AccountDeletionReason } from '@b2b-catalog-platform/shared/core/accounts';
 
 /** Why a deletion was refused, when it was. */

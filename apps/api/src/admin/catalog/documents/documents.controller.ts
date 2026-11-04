@@ -3,8 +3,8 @@ import { Implement, implement } from '@orpc/nest';
 import { documentsContract } from '@b2b-catalog-platform/shared/admin/catalog';
 import { Auth } from '../../../platform/auth/auth.decorator';
 import { CurrentUser } from '../../../platform/auth/current-user.decorator';
-import { AuditLogger } from '../../../audit/audit.logger';
-import { refusals } from '../../../orpc/refusals';
+import { AuditLogger } from '../../../platform/audit/audit.logger';
+import { refusals } from '../../../platform/orpc/refusals';
 import { DocumentsService } from './documents.service';
 import { AuthUser } from '@b2b-catalog-platform/shared/platform';
 

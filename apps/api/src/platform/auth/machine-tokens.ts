@@ -1,9 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { eq } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { DRIZZLE } from '../../db/database.module';
-import * as schema from '../../db/schema';
-import { apiTokens } from '../../db/schema';
+import { DRIZZLE } from '../db/database.module';
+import * as schema from '../db/schema';
+import { apiTokens } from '../db/schema';
 import { hashToken } from './api-token-value';
 import { MachineClient } from './machine-client';
 

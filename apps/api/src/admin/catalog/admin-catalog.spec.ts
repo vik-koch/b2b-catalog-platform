@@ -9,8 +9,8 @@ import { ProductEditorService } from './products/product-editor.service';
 import { ProductGridService } from './products/grid/product-grid.service';
 import { ProductLifecycleService } from './products/product-lifecycle.service';
 import { ProductRecords } from './products/product-records';
-import { AuditLogger } from '../../audit/audit.logger';
-import { ContractErrorFilter } from '../../orpc/contract-error.filter';
+import { AuditLogger } from '../../platform/audit/audit.logger';
+import { ContractErrorFilter } from '../../platform/orpc/contract-error.filter';
 import { withSession } from '../../platform/auth/session.fixture';
 
 /**

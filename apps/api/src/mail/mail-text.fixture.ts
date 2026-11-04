@@ -2,7 +2,7 @@ import { loadConfigFile } from '@b2b-catalog-platform/shared/node';
 import { MailBranding } from './mail-branding';
 import { DEFAULT_MAIL_COLORS } from './mail-colors';
 import { MailText, mailTextSchema } from './mail-text';
-import { PdfText, pdfTextSchema } from '../pdf/pdf-text';
+import { PdfText, pdfTextSchema } from '../platform/pdf/pdf-text';
 import {
   PhoneConfig,
   SharedText,

@@ -3,9 +3,9 @@ import { Test } from '@nestjs/testing';
 import { ConsentService } from '../core/site/consent.service';
 import { InquiryModule } from '../storefront/site/inquiry.module';
 import { MAILER, Mailer } from '../mail/mailer';
-import { ThrottlingModule } from './throttling.module';
+import { ThrottlingModule } from '../platform/throttling/throttling.module';
 import { MAIL_TEXT } from '../mail/mail-text';
-import { PHONE_INPUT } from '../config/deployment-config';
+import { PHONE_INPUT } from '../platform/config/deployment-config';
 import { MAIL_BRANDING } from '../mail/mail-branding';
 import {
   demoMailBranding,

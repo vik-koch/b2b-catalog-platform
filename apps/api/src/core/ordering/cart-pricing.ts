@@ -20,8 +20,8 @@ import {
   unitQuantity,
 } from '@b2b-catalog-platform/shared/core/catalog';
 import { pairingShortfalls } from './pairing-check';
-import * as schema from '../../db/schema';
-import { products } from '../../db/schema';
+import * as schema from '../../platform/db/schema';
+import { products } from '../../platform/db/schema';
 import { livePriceMinor } from '../catalog/product-price';
 import {
   availabilityColumns,

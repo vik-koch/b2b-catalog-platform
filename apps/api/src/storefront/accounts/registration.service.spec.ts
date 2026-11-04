@@ -6,9 +6,9 @@ import {
   COMPANY_ID_RULE,
   PHONE_INPUT,
   PHONE_RULE,
-} from '../../config/deployment-config';
+} from '../../platform/config/deployment-config';
 import { MAIL_TEXT } from '../../mail/mail-text';
-import { SHARED_TEXT } from '../../config/shared-text';
+import { SHARED_TEXT } from '../../platform/config/shared-text';
 import {
   demoSharedText,
   demoMailText,

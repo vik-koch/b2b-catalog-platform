@@ -32,16 +32,16 @@ import {
   COMPANY_ID_FORMATS,
   PHONE_RULE,
   PhoneRule,
-} from '../../config/deployment-config';
-import { DRIZZLE } from '../../db/database.module';
-import * as schema from '../../db/schema';
-import { users } from '../../db/schema';
-import { qualified } from '../../db/sql-columns';
+} from '../../platform/config/deployment-config';
+import { DRIZZLE } from '../../platform/db/database.module';
+import * as schema from '../../platform/db/schema';
+import { users } from '../../platform/db/schema';
+import { qualified } from '../../platform/db/sql-columns';
 import { storedPhone } from './stored-phone';
 import { withdrawAccountConsents } from '../site/consent-withdrawals';
 import { AccountErasure } from './account-erasure';
 import { UsersService } from './users.service';
-import { isUniqueViolation } from '../../db/pg-errors';
+import { isUniqueViolation } from '../../platform/db/pg-errors';
 import {
   COMPANY_ID_NONE,
   CustomerType,

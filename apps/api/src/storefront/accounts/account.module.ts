@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { AuditLogger } from '../../audit/audit.logger';
+import { AuditLogger } from '../../platform/audit/audit.logger';
 import { AccountsCoreModule } from '../../core/accounts/accounts-core.module';
 import { AccountController } from './account.controller';
 

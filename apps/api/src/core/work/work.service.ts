@@ -20,10 +20,10 @@ import {
   ne,
 } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { DRIZZLE } from '../../db/database.module';
+import { DRIZZLE } from '../../platform/db/database.module';
 import { resolvedPriceMinor } from '../catalog/product-price';
 import { MY_ORDER_CONDITIONS } from '../ordering/my-order-filters';
-import * as schema from '../../db/schema';
+import * as schema from '../../platform/db/schema';
 
 const { documents, orderRevisions, orders, products, syncRuns, users } = schema;
 

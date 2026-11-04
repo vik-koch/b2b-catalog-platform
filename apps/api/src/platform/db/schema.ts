@@ -19,8 +19,8 @@ import {
   PRODUCT_AVAILABILITIES,
   PRODUCT_UNITS,
 } from '@b2b-catalog-platform/shared/core/catalog';
-import { SETTING_CHANGE_KINDS } from '@b2b-catalog-platform/shared/admin/platform';
 import {
+  SETTING_CHANGE_KINDS,
   OWNERSHIP_AREAS,
   API_TOKEN_NAME_MAX_LENGTH,
   API_TOKEN_PREFIX_LENGTH,

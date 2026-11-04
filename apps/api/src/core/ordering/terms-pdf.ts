@@ -10,17 +10,17 @@ import { PDFDocument } from 'pdf-lib';
 import {
   ORDER_REFERENCE_CONFIG,
   TERMS_ATTACHED,
-} from '../../config/deployment-config';
-import { DRIZZLE } from '../../db/database.module';
-import * as schema from '../../db/schema';
-import { pageVersions } from '../../db/schema';
+} from '../../platform/config/deployment-config';
+import { DRIZZLE } from '../../platform/db/database.module';
+import * as schema from '../../platform/db/schema';
+import { pageVersions } from '../../platform/db/schema';
 import { MAIL_BRANDING, MailBranding } from '../../mail/mail-branding';
-import { SHARED_TEXT } from '../../config/shared-text';
-import { PDF_TEXT, PdfText } from '../../pdf/pdf-text';
+import { SHARED_TEXT } from '../../platform/config/shared-text';
+import { PDF_TEXT, PdfText } from '../../platform/pdf/pdf-text';
 import { MailAttachment } from '../../mail/mailer';
-import { PdfFaces } from '../../pdf/pdf-faces';
-import { Sheet } from '../../pdf/pdf-sheet';
-import { richTextBlocks } from '../../pdf/rich-text-blocks';
+import { PdfFaces } from '../../platform/pdf/pdf-faces';
+import { Sheet } from '../../platform/pdf/pdf-sheet';
+import { richTextBlocks } from '../../platform/pdf/rich-text-blocks';
 import { shopDay, shopIsoDay } from './shop-day';
 
 const HEADING_SIZES = { 2: 13, 3: 11.5, 4: 10.5 } as const;

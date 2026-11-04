@@ -12,8 +12,8 @@ import {
   loadSignInStep,
   PHONE_INPUT,
   PHONE_RULE,
-} from '../../config/deployment-config';
-import { env } from '../../env';
+} from '../../platform/config/deployment-config';
+import { env } from '../../platform/env';
 import { MailModule } from '../../mail/mail.module';
 import { MailService } from '../../mail/mail.service';
 import { MAIL_TEXT, MailText } from '../../mail/mail-text';

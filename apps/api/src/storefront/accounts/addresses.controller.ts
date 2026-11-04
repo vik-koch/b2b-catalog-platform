@@ -1,9 +1,9 @@
 import { Controller } from '@nestjs/common';
 import { Implement, implement } from '@orpc/nest';
-import { AuditLogger } from '../../audit/audit.logger';
+import { AuditLogger } from '../../platform/audit/audit.logger';
 import { Auth } from '../../platform/auth/auth.decorator';
 import { CurrentUser } from '../../platform/auth/current-user.decorator';
-import { refusals } from '../../orpc/refusals';
+import { refusals } from '../../platform/orpc/refusals';
 import { AddressesService } from '../../core/accounts/addresses.service';
 import { addressesContract } from '@b2b-catalog-platform/shared/core/accounts';
 import { AuthUser } from '@b2b-catalog-platform/shared/platform';

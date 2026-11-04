@@ -4,11 +4,11 @@ import { cartContract } from '@b2b-catalog-platform/shared/storefront/ordering';
 import { TaxConfig } from '@b2b-catalog-platform/shared/platform';
 import { OptionalAuthGuard } from '../../platform/auth/optional-auth.guard';
 import { PricingTier } from '../../platform/auth/pricing-tier.decorator';
-import { TAX_CONFIG } from '../../config/deployment-config';
-import { DRIZZLE } from '../../db/database.module';
-import { SearchThrottle } from '../../throttling/throttle-presets';
+import { TAX_CONFIG } from '../../platform/config/deployment-config';
+import { DRIZZLE } from '../../platform/db/database.module';
+import { SearchThrottle } from '../../platform/throttling/throttle-presets';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import * as schema from '../../db/schema';
+import * as schema from '../../platform/db/schema';
 import { priceCart } from '../../core/ordering/cart-pricing';
 
 /**

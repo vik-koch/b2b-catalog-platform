@@ -1,12 +1,12 @@
 import { Controller, Inject, Req, Res } from '@nestjs/common';
 import type { Request, Response } from 'express';
 import { Implement, implement } from '@orpc/nest';
-import { AuditLogger } from '../../audit/audit.logger';
+import { AuditLogger } from '../../platform/audit/audit.logger';
 import { Auth } from '../../platform/auth/auth.decorator';
 import { CurrentUser } from '../../platform/auth/current-user.decorator';
 import { endSession } from '../../platform/auth/session-cookie';
-import { PHONE_RULE, PhoneRule } from '../../config/deployment-config';
-import { refusals } from '../../orpc/refusals';
+import { PHONE_RULE, PhoneRule } from '../../platform/config/deployment-config';
+import { refusals } from '../../platform/orpc/refusals';
 import { SignInStep } from '../../core/accounts/sign-in-step/sign-in-step';
 import { storedPhone } from '../../core/accounts/stored-phone';
 import { UserRow, UsersService } from '../../core/accounts/users.service';

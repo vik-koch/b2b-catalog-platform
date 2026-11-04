@@ -13,10 +13,10 @@ import {
   PHONE_INPUT,
   PHONE_RULE,
   PhoneRule,
-} from '../../config/deployment-config';
-import { env } from '../../env';
+} from '../../platform/config/deployment-config';
+import { env } from '../../platform/env';
 import { MAIL_TEXT, MailText } from '../../mail/mail-text';
-import { SHARED_TEXT } from '../../config/shared-text';
+import { SHARED_TEXT } from '../../platform/config/shared-text';
 import { MailDispatcher } from '../../mail/mail-dispatcher';
 import { newRegistrationMail } from '../../mail/templates/new-registration.template';
 import { registrationReceivedMail } from '../../mail/templates/registration-received.template';

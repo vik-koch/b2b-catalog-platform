@@ -27,8 +27,8 @@ import {
   PAIRINGS_ENFORCED,
   TERMS_PUBLISHED,
   TAX_CONFIG,
-} from '../../config/deployment-config';
-import { DRIZZLE } from '../../db/database.module';
+} from '../../platform/config/deployment-config';
+import { DRIZZLE } from '../../platform/db/database.module';
 import { currentPageVersion } from '../../core/site/page-versions';
 import {
   customerTiers,
@@ -36,19 +36,19 @@ import {
   orderRevisions,
   orders,
   users,
-} from '../../db/schema';
+} from '../../platform/db/schema';
 import { priceCart, PricedCart } from '../../core/ordering/cart-pricing';
 import { CartChangedException } from '../../core/ordering/cart-changed-exception';
 import { PairingUnsatisfiedException } from '../../core/ordering/pairing-unsatisfied-exception';
 import { OrderNotifications } from '../../core/ordering/order-notifications';
 import { TermsPdf } from '../../core/ordering/terms-pdf';
-import { isUniqueViolation } from '../../db/pg-errors';
+import { isUniqueViolation } from '../../platform/db/pg-errors';
 import {
   ORDER_REFERENCE_ATTEMPTS,
   orderPublicToken,
   orderReference,
 } from '../../core/ordering/order-reference';
-import * as schema from '../../db/schema';
+import * as schema from '../../platform/db/schema';
 
 /**
  * Placing an order (FR-CART-03/04). The cart is re-priced through the

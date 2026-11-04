@@ -6,10 +6,10 @@ import {
 } from '@b2b-catalog-platform/shared/admin/platform';
 import { desc, eq } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { DRIZZLE } from '../../db/database.module';
-import * as schema from '../../db/schema';
-import { settingChanges, users } from '../../db/schema';
-import { env } from '../../env';
+import { DRIZZLE } from '../../platform/db/database.module';
+import * as schema from '../../platform/db/schema';
+import { settingChanges, users } from '../../platform/db/schema';
+import { env } from '../../platform/env';
 
 /** What the operations page and the panel's footer read beside the switches. */
 @Injectable()

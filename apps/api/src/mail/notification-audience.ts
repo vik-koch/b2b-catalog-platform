@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { env } from '../env';
+import { env } from '../platform/env';
 
 /**
  * Who inside the shop a message is for.

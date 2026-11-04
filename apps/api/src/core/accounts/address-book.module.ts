@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import {
   ADDRESS_CONFIG,
   loadAddressConfig,
-} from '../../config/deployment-config';
+} from '../../platform/config/deployment-config';
 import { AddressesService } from './addresses.service';
 
 /** The address book without its routes, for registration and checkout. */

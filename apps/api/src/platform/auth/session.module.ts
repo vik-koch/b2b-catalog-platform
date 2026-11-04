@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
-import { loadSessionIdleDays } from '../../config/deployment-config';
-import { env } from '../../env';
+import { loadSessionIdleDays } from '../config/deployment-config';
+import { env } from '../env';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { OptionalAuthGuard } from './optional-auth.guard';
 import { RolesGuard } from './roles.guard';

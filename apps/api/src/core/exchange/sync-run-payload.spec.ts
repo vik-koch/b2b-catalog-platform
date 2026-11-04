@@ -1,4 +1,4 @@
-import { syncRuns } from '../../db/schema';
+import { syncRuns } from '../../platform/db/schema';
 import { StagedPayloadError, stagedPayload } from './sync-run-payload';
 
 type RunRow = typeof syncRuns.$inferSelect;

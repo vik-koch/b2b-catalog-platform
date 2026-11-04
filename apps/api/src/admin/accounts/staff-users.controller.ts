@@ -1,11 +1,11 @@
 import { Controller } from '@nestjs/common';
 import { Implement, implement } from '@orpc/nest';
 import { AccountDeletion } from '../../core/accounts/account-deletion';
-import { AuditLogger } from '../../audit/audit.logger';
+import { AuditLogger } from '../../platform/audit/audit.logger';
 import { Auth } from '../../platform/auth/auth.decorator';
 import { CurrentUser } from '../../platform/auth/current-user.decorator';
 import { ConsentRecords } from './consent-records';
-import { refusals } from '../../orpc/refusals';
+import { refusals } from '../../platform/orpc/refusals';
 import { customersExternallyOwned } from '../../platform/settings/ownership.refusals';
 import { OwnershipState } from '../../platform/settings/ownership-state';
 import { SignInStep } from '../../core/accounts/sign-in-step/sign-in-step';

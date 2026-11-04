@@ -20,12 +20,12 @@ import {
   ADDRESS_CONFIG,
   MONEY_FORMAT,
   ORDER_REFERENCE_CONFIG,
-} from '../../config/deployment-config';
+} from '../../platform/config/deployment-config';
 import { MAIL_BRANDING, MailBranding } from '../../mail/mail-branding';
-import { SHARED_TEXT } from '../../config/shared-text';
-import { PdfFaces } from '../../pdf/pdf-faces';
-import { PDF_TEXT, PdfText } from '../../pdf/pdf-text';
-import { Sheet } from '../../pdf/pdf-sheet';
+import { SHARED_TEXT } from '../../platform/config/shared-text';
+import { PdfFaces } from '../../platform/pdf/pdf-faces';
+import { PDF_TEXT, PdfText } from '../../platform/pdf/pdf-text';
+import { Sheet } from '../../platform/pdf/pdf-sheet';
 import { shopDay } from './shop-day';
 import {
   addressLines,

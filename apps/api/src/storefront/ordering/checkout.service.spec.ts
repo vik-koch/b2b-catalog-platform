@@ -6,15 +6,15 @@ import {
   deliveryConfigSchema,
 } from '@b2b-catalog-platform/shared/core/ordering';
 import { AddressesService } from '../../core/accounts/addresses.service';
-import { PickupLocation } from '../../config/deployment-config';
-import * as schema from '../../db/schema';
+import { PickupLocation } from '../../platform/config/deployment-config';
+import * as schema from '../../platform/db/schema';
 import {
   orderItems,
   orderRevisions,
   orders,
   productPairings,
   users,
-} from '../../db/schema';
+} from '../../platform/db/schema';
 import { OrderNotifications } from '../../core/ordering/order-notifications';
 import { TermsPdf } from '../../core/ordering/terms-pdf';
 import { demoAdminOrder } from '../../core/ordering/order.fixture';

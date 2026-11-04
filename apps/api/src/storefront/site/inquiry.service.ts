@@ -1,11 +1,11 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InquiryRequest } from '@b2b-catalog-platform/shared/storefront/site';
-import { PHONE_INPUT } from '../../config/deployment-config';
+import { PHONE_INPUT } from '../../platform/config/deployment-config';
 import { ConsentService } from '../../core/site/consent.service';
-import { env } from '../../env';
+import { env } from '../../platform/env';
 import { MailDispatcher } from '../../mail/mail-dispatcher';
 import { MAIL_TEXT, MailText } from '../../mail/mail-text';
-import { SHARED_TEXT } from '../../config/shared-text';
+import { SHARED_TEXT } from '../../platform/config/shared-text';
 import { inquiryMail } from '../../mail/templates/inquiry.template';
 import {
   formatPhone,

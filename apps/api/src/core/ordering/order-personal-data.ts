@@ -7,9 +7,9 @@ import {
 import { eq } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { isOrderFinished } from '@b2b-catalog-platform/shared/core/ordering';
-import { DRIZZLE } from '../../db/database.module';
-import * as schema from '../../db/schema';
-import { orders } from '../../db/schema';
+import { DRIZZLE } from '../../platform/db/database.module';
+import * as schema from '../../platform/db/schema';
+import { orders } from '../../platform/db/schema';
 import {
   ORDER_REMOVAL_CATEGORIES,
   recordDestruction,

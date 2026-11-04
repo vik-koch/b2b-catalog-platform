@@ -1,10 +1,10 @@
 import { Test } from '@nestjs/testing';
 import { InquiryRequest } from '@b2b-catalog-platform/shared/storefront/site';
 import { MAILER, Mailer } from '../../mail/mailer';
-import { PHONE_INPUT } from '../../config/deployment-config';
+import { PHONE_INPUT } from '../../platform/config/deployment-config';
 import { MAIL_BRANDING } from '../../mail/mail-branding';
 import { MAIL_TEXT } from '../../mail/mail-text';
-import { SHARED_TEXT } from '../../config/shared-text';
+import { SHARED_TEXT } from '../../platform/config/shared-text';
 import {
   demoSharedText,
   demoMailBranding,

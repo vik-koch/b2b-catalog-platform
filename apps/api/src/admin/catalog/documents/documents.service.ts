@@ -8,9 +8,13 @@ import {
   ProductDocument,
   StoredDocumentFile,
 } from '@b2b-catalog-platform/shared/admin/catalog';
-import { DRIZZLE } from '../../../db/database.module';
-import * as schema from '../../../db/schema';
-import { documentProducts, documents, products } from '../../../db/schema';
+import { DRIZZLE } from '../../../platform/db/database.module';
+import * as schema from '../../../platform/db/schema';
+import {
+  documentProducts,
+  documents,
+  products,
+} from '../../../platform/db/schema';
 import {
   linkedProductColumns,
   toLinkedProduct,

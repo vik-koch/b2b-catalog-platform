@@ -3,11 +3,11 @@ import { Implement, implement } from '@orpc/nest';
 import { machineCustomerSyncContract } from '@b2b-catalog-platform/shared/machine/exchange';
 import { CustomerSyncService } from '../../core/exchange/customer-sync.service';
 import { SyncRunLog } from '../../core/exchange/sync-run-log';
-import { refusals } from '../../orpc/refusals';
+import { refusals } from '../../platform/orpc/refusals';
 import { CurrentMachine } from '../../platform/auth/current-machine.decorator';
 import { MachineClient } from '../../platform/auth/machine-client';
 import { Machine } from '../../platform/auth/machine.decorator';
-import { MachineThrottle } from '../../throttling/throttle-presets';
+import { MachineThrottle } from '../../platform/throttling/throttle-presets';
 
 /**
  * The headless customer exchange (FR-ADM-11). Its own scope: a credential

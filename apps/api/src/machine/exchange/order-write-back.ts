@@ -34,13 +34,13 @@ import {
 } from '../../core/ordering/order-rows';
 import { OrderReader } from '../../core/ordering/order-reader';
 import { OrderWriter } from '../../core/ordering/order-writer';
-import { DRIZZLE } from '../../db/database.module';
-import { orderItems, orders, products } from '../../db/schema';
+import { DRIZZLE } from '../../platform/db/database.module';
+import { orderItems, orders, products } from '../../platform/db/schema';
 import {
   priceAdjustment,
   PricedAdjustment,
 } from '../../core/ordering/order-adjustment';
-import * as schema from '../../db/schema';
+import * as schema from '../../platform/db/schema';
 
 /**
  * Whether the customer called the order off themselves (FR-ADM-08/10), read

@@ -1,9 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { eq } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { DRIZZLE } from '../../db/database.module';
-import * as schema from '../../db/schema';
-import { users } from '../../db/schema';
+import { DRIZZLE } from '../db/database.module';
+import * as schema from '../db/schema';
+import { users } from '../db/schema';
 
 /** The account row a session names. */
 export type SessionUser = typeof users.$inferSelect;

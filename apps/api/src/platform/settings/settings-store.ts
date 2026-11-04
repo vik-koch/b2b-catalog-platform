@@ -1,9 +1,9 @@
 import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { eq } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { DRIZZLE } from '../../db/database.module';
-import * as schema from '../../db/schema';
-import { appSettings, settingChanges } from '../../db/schema';
+import { DRIZZLE } from '../db/database.module';
+import * as schema from '../db/schema';
+import { appSettings, settingChanges } from '../db/schema';
 
 /** The singleton row's fixed primary key (see the `id = 1` check constraint). */
 const SETTINGS_ID = 1;

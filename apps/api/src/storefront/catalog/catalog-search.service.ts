@@ -17,10 +17,10 @@ import {
   KeyboardLayout,
   Pagination,
 } from '@b2b-catalog-platform/shared/platform';
-import { ALTERNATE_LAYOUT } from '../../config/deployment-config';
-import { DRIZZLE } from '../../db/database.module';
-import * as schema from '../../db/schema';
-import { categories, products } from '../../db/schema';
+import { ALTERNATE_LAYOUT } from '../../platform/config/deployment-config';
+import { DRIZZLE } from '../../platform/db/database.module';
+import * as schema from '../../platform/db/schema';
+import { categories, products } from '../../platform/db/schema';
 import {
   categoryNameCondition,
   categoryNameScore,

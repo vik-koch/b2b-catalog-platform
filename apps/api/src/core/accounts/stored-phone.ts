@@ -1,5 +1,5 @@
 import { BadRequestException } from '@nestjs/common';
-import type { PhoneRule } from '../../config/deployment-config';
+import type { PhoneRule } from '../../platform/config/deployment-config';
 
 /**
  * The number to store for one entered on an account, through any door.

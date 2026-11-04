@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { createTransport, Transporter } from 'nodemailer';
-import { env } from '../env';
+import { env } from '../platform/env';
 import { Mailer, MailMessage } from './mailer';
 
 /**

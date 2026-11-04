@@ -8,7 +8,7 @@ import { TierPriced } from '../../platform/auth/tier-priced.decorator';
 import {
   SearchThrottle,
   SuggestionThrottle,
-} from '../../throttling/throttle-presets';
+} from '../../platform/throttling/throttle-presets';
 
 /** Product search and its type-ahead (FR-SEARCH), tier-priced like the rest
  * of the catalog, and throttled: every request runs the matcher. */

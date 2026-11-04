@@ -9,7 +9,7 @@ import { CatalogCoreModule } from '../../core/catalog/catalog-core.module';
 import {
   ALTERNATE_LAYOUT,
   loadAlternateLayout,
-} from '../../config/deployment-config';
+} from '../../platform/config/deployment-config';
 
 /** The storefront's catalog read API (FR-CAT, FR-SEARCH). DatabaseModule is
  * global, so DRIZZLE needs no import. */

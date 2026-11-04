@@ -1,5 +1,5 @@
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import * as schema from '../../db/schema';
+import * as schema from '../db/schema';
 import { SettingsRow, SettingsStore } from './settings-store';
 
 const settingsRow = (over: Partial<SettingsRow> = {}): SettingsRow => ({

@@ -42,9 +42,10 @@ const ENABLED = [
 /** The folders of the cut, relative to a layer, with the element type of each. */
 const FOLDERS = [
   // The one exception to "platform imports no area", ahead of its parent
-  // because the first match wins: the deployment schema and the texts are
-  // composed of every area's part. Imported like platform.
+  // because the first match wins: the deployment config, the texts and the
+  // database schema are composed of every area's part. Imported like platform.
   { folder: 'platform/config', type: 'platform:composing' },
+  { folder: 'platform/db', type: 'platform:composing' },
   { folder: 'platform', type: 'platform' },
   ...AUDIENCES.flatMap((audience) => [
     { folder: `${audience}/platform`, type: `${audience}:platform` },

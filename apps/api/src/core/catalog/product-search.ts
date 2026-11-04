@@ -14,7 +14,7 @@ import {
   SEARCH_QUERY_MAX_LENGTH,
   searchTerms,
 } from '@b2b-catalog-platform/shared/core/catalog';
-import { products } from '../../db/schema';
+import { products } from '../../platform/db/schema';
 
 /** Terms past this add only planner work: every term is another index scan. */
 export const SEARCH_MAX_TERMS = 8;

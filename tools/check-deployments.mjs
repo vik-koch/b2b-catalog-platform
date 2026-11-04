@@ -26,7 +26,7 @@ const SCHEMAS = {
     'libs/shared/src/platform/config/deployment-config.ts',
     'deploymentConfigSchema',
   ],
-  'api.json': ['apps/api/src/config/api-config.ts', 'apiConfigSchema'],
+  'api.json': ['apps/api/src/platform/config/api-config.ts', 'apiConfigSchema'],
   'texts/shared.json': [
     'libs/shared/src/platform/config/shared-text.ts',
     'sharedTextSchema',
@@ -40,7 +40,7 @@ const SCHEMAS = {
     'adminTextSchema',
   ],
   'texts/mail.json': ['apps/api/src/mail/mail-text.ts', 'mailTextSchema'],
-  'texts/pdf.json': ['apps/api/src/pdf/pdf-text.ts', 'pdfTextSchema'],
+  'texts/pdf.json': ['apps/api/src/platform/pdf/pdf-text.ts', 'pdfTextSchema'],
 };
 
 const at = process.argv.indexOf('--config-dir');
