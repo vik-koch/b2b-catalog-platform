@@ -35,27 +35,26 @@ export interface Destruction {
   readonly subjectId: string;
   readonly categories: readonly DestructionCategory[];
   readonly reason: DestructionReason;
-  /** The holder (no address: it is what went), a staff member, or nobody
-   * for the retention sweep. */
+  /** The holder (without the address: it is what went), a staff member, or
+   * nobody for the sweep. */
   readonly by: { readonly id: string; readonly email?: string } | null;
 }
 
-/**
- * Records a destruction of personal data (NFR-LEGAL-12), in the caller's
- * transaction: the record and the destruction happen together or not at all.
- * A plain function, as `withdrawAccountConsents` is, so the services that
- * destroy data need no module of their own to say so.
- */
+/** Records destructions of personal data (NFR-LEGAL-12) in the caller's
+ * transaction, so the record and the act commit together. */
 export async function recordDestruction(
   db: Writer,
-  destruction: Destruction,
+  ...destructions: readonly Destruction[]
 ): Promise<void> {
-  await db.insert(destructionRecords).values({
-    subject: destruction.subject,
-    subjectId: destruction.subjectId,
-    categories: [...destruction.categories],
-    reason: destruction.reason,
-    destroyedBy: destruction.by?.id ?? null,
-    destroyedByEmail: destruction.by?.email ?? null,
-  });
+  if (destructions.length === 0) return;
+  await db.insert(destructionRecords).values(
+    destructions.map((destruction) => ({
+      subject: destruction.subject,
+      subjectId: destruction.subjectId,
+      categories: [...destruction.categories],
+      reason: destruction.reason,
+      destroyedBy: destruction.by?.id ?? null,
+      destroyedByEmail: destruction.by?.email ?? null,
+    })),
+  );
 }

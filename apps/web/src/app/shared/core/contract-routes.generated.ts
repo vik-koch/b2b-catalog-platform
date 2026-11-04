@@ -4,20 +4,11 @@
 // Typed as the real contract, so every call site keeps the types the
 // contract defines; the imports below are type-only and erased at build.
 
-import type * as shared from '@b2b-catalog-platform/shared';
 import type * as coreAccounts from '@b2b-catalog-platform/shared/core/accounts';
 import type * as coreSite from '@b2b-catalog-platform/shared/core/site';
+import type * as coreWork from '@b2b-catalog-platform/shared/core/work';
 import type * as platform from '@b2b-catalog-platform/shared/platform';
 
-export const workContract = {
-  getCounts: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: { method: 'GET', path: '/work/counts' },
-    },
-  },
-} as unknown as typeof shared.workContract;
 export const addressSuggestionContract = {
   suggestAddresses: {
     '~orpc': {
@@ -108,6 +99,15 @@ export const pageContract = {
     },
   },
 } as unknown as typeof coreSite.pageContract;
+export const workContract = {
+  getCounts: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: { method: 'GET', path: '/work/counts' },
+    },
+  },
+} as unknown as typeof coreWork.workContract;
 export const sessionContract = {
   logout: {
     '~orpc': {

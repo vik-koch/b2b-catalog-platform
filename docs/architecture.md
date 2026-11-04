@@ -149,7 +149,7 @@ Between areas, imports run one way, in the domain's direction:
 | ordering | cart, checkout, orders and their versions, order documents and PDFs | catalog, accounts, site |
 | exchange | runs, cursors, machine tokens, the ownership switch, and each area's engine for uploads and the back office | catalog, accounts, ordering |
 | work | the staff's and the customers' queues | catalog, accounts, ordering, exchange |
-| retention | the destruction record, retention sweeps | accounts, ordering |
+| retention | the retention sweeps over orders and consents | ordering, site |
 
 The table lives in `tools/lint/area-boundaries.mjs`, which eslint-plugin-boundaries enforces for
 every area moved into this shape; an area not yet moved is outside the check. The texts are cut

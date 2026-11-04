@@ -17,7 +17,7 @@ import { adminProductsContract } from '../../contract-routes.generated';
 import { safe, type ClientPromiseResult } from '@orpc/client';
 import { createOrpcClient } from '../../../shared/core/orpc-client';
 import { renderable } from '../../../shared/core/renderable';
-import { WorkService } from '../../../shared/work/work.service';
+import { WorkRefresh } from '../../../shared/core/work-refresh';
 import type { EditModeCatalog } from '../../../core/catalog/edit-mode-catalog';
 
 /**
@@ -27,7 +27,7 @@ import type { EditModeCatalog } from '../../../core/catalog/edit-mode-catalog';
 @Injectable({ providedIn: 'root' })
 export class ProductsService implements EditModeCatalog {
   private client = createOrpcClient(adminProductsContract);
-  private readonly work = inject(WorkService);
+  private readonly work = inject(WorkRefresh);
 
   /** Every part of the query is optional: an omitted one means the
    * contract's default. */

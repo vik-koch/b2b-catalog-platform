@@ -3,17 +3,13 @@ import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
-import { WorkCounts } from '@b2b-catalog-platform/shared';
-import { AuthService } from '../auth/auth.service';
-import { adminUser } from '../auth/auth-user.fixture';
+import { WorkCounts } from '@b2b-catalog-platform/shared/core/work';
+import { AuthService } from '../../shared/auth/auth.service';
+import { adminUser } from '../../shared/auth/auth-user.fixture';
 import { WorkService } from './work.service';
 import { AuthUser } from '@b2b-catalog-platform/shared/platform';
 
-/**
- * The counts in the browser: when they are asked for, and what the marker makes
- * of them. The endpoint is stubbed at the service's own client — what is under
- * test is the fetching policy, not the wire, which orpc-client.spec owns.
- */
+/** The fetching policy; the wire is orpc-client.spec's. */
 
 /** Lets a fetch complete: every hop through the service is a microtask. */
 function flush(): Promise<void> {
@@ -41,8 +37,7 @@ async function setup(
 
   const service = TestBed.inject(WorkService);
   let asked = 0;
-  // Swapped in before the constructor's own first fetch gets past its await on
-  // the session, so nothing here ever reaches the network.
+  // Swapped in before the constructor's first fetch passes its session await.
   (
     service as unknown as {
       client: { getCounts: () => Promise<WorkCounts> };
@@ -93,11 +88,7 @@ describe('WorkService', () => {
     expect(service.waiting()).toBe(false);
   });
 
-  /**
-   * The admin grids rewrite their query string on every keystroke of a search
-   * box. A count has nothing to do with a filter, so asking per keystroke would
-   * be one request per letter typed.
-   */
+  /** The admin grids rewrite their query on every keystroke. */
   it('does not ask again when only the query string changed', async () => {
     const { router, calls } = await setup([{ orders: 1 }]);
     await router.navigateByUrl('/admin/orders');
@@ -118,8 +109,6 @@ describe('WorkService', () => {
     expect(service.counts()).toEqual({});
   });
 
-  // A failed count is no count: the account control stays quiet rather than
-  // growing an error nobody can act on.
   it('draws nothing when the endpoint fails', async () => {
     const { service } = await setup(['fail']);
 

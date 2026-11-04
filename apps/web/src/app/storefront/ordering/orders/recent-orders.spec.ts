@@ -7,8 +7,6 @@ import { SHARED_TEXT } from '../../../shared/config/shared-text';
 import { defaultSharedText } from '../../../shared/config/shared-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
 import { defaultDeploymentConfig } from '../../../shared/config/deployment-config.fixture';
-import { WorkService } from '../../../shared/work/work.service';
-import { workStub } from '../../../shared/work/work.fixture';
 import { OrdersService } from './orders.service';
 import { RecentOrders } from './recent-orders';
 
@@ -37,7 +35,6 @@ async function render(
       { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
       { provide: SHARED_TEXT, useValue: defaultSharedText },
       { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
-      { provide: WorkService, useValue: workStub(waiting) },
       {
         provide: OrdersService,
         useValue: {
@@ -60,6 +57,8 @@ async function render(
   });
 
   const fixture = TestBed.createComponent(RecentOrders);
+  fixture.componentRef.setInput('payments', waiting.myPayments);
+  fixture.componentRef.setInput('pickups', waiting.myPickups);
   await fixture.whenStable();
   fixture.detectChanges();
   return { fixture, el: fixture.nativeElement as HTMLElement };

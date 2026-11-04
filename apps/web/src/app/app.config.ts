@@ -28,6 +28,8 @@ import { provideDeploymentConfig } from './shared/config/deployment-config';
 import { provideSuggestionsEnabled } from './shared/config/suggestions-enabled';
 import { provideDigitMaskFormat } from './shared/core/contact-fields';
 import { ProductCart } from './core/catalog/buying/product-cart';
+import { WorkRefresh } from './shared/core/work-refresh';
+import { WorkService } from './core/work/work.service';
 import { CartService } from './storefront/ordering/cart/cart.service';
 
 export const appConfig: ApplicationConfig = {
@@ -67,9 +69,10 @@ export const appConfig: ApplicationConfig = {
     provideSuggestionsEnabled(),
     provideDigitMaskFormat(),
     provideEditModeCatalog(),
-    // The buying controls reach the cart through a port: catalog may not
-    // import ordering.
+    // Ports for what an area may not import: the buying controls reach the
+    // cart, and the screens that clear work reach the marker.
     { provide: ProductCart, useExisting: CartService },
+    { provide: WorkRefresh, useExisting: WorkService },
     // Nothing injects it, and it has to run wherever the visitor happens to
     // be: a cart priced for somebody else is corrected as the session changes,
     // not when the cart page is next opened.

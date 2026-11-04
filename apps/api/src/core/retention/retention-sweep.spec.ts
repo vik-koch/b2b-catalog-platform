@@ -1,14 +1,10 @@
 import { getTableName } from 'drizzle-orm';
 import { drizzle, NodePgDatabase } from 'drizzle-orm/node-postgres';
-import * as schema from '../db/schema';
-import { OrderDocumentFiles } from '../core/ordering/order-document-files';
+import * as schema from '../../db/schema';
+import { OrderDocumentFiles } from '../ordering/order-document-files';
 import { RetentionSweep } from './retention-sweep';
 
-/**
- * The sweep, through a real drizzle over a client that records each statement
- * and answers the pick with the consents given. Which statements, in which
- * order, against which cutoffs, and what each record names.
- */
+/** Through a real drizzle over a client that records each statement. */
 describe('RetentionSweep.sweep', () => {
   const now = new Date('2026-10-06T12:00:00Z');
 
@@ -77,10 +73,14 @@ describe('RetentionSweep.sweep', () => {
       'user-1',
       categories,
       'retention-ended',
+      null,
+      null,
       'consent',
       'consent-2',
       categories,
       'retention-ended',
+      null,
+      null,
     ]);
     // Last, so the records just written are never among them.
     expect(purged.text).toContain(
@@ -107,11 +107,7 @@ describe('RetentionSweep.sweep', () => {
   });
 });
 
-/**
- * The order half (NFR-LEGAL-14): which orders it picks, what it writes for
- * them, and that their files go only after the transaction. The scrub itself
- * is asserted where account deletion uses it (users.service.spec).
- */
+/** The scrub itself is asserted where account deletion uses it. */
 describe('RetentionSweep.sweepOrders', () => {
   const now = new Date('2026-10-06T12:00:00Z');
   const real = drizzle({ client: {} as never, schema });
@@ -226,6 +222,8 @@ describe('RetentionSweep.sweepOrders', () => {
     const record = {
       categories: ['order-details', 'order-documents'],
       reason: 'retention-ended',
+      destroyedBy: null,
+      destroyedByEmail: null,
     };
     expect(inserted).toEqual([
       { subject: 'account', subjectId: 'user-1', ...record },

@@ -1,7 +1,6 @@
 import { AccountErasure } from '../core/accounts/account-erasure';
 import { Captured, renderingDb } from '../core/accounts/rendering-db.fixture';
 import { UsersService } from '../core/accounts/users.service';
-import { AccountDestruction } from '../destruction/account-destruction';
 import { OrderDocumentFiles } from '../core/ordering/order-document-files';
 import { OrderErasure } from '../core/ordering/order-erasure';
 
@@ -25,10 +24,7 @@ describe('UsersService.anonymize', () => {
   beforeAll(async () => {
     const service = new UsersService(
       renderingDb(captured, undefined, [], reads),
-      new AccountErasure([
-        new OrderErasure({} as OrderDocumentFiles),
-        new AccountDestruction(),
-      ]),
+      new AccountErasure([new OrderErasure({} as OrderDocumentFiles)]),
     );
     await service.anonymize('user-1', 'unusable-hash', { reason: 'request' });
   });

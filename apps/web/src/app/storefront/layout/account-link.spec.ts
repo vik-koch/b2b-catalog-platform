@@ -3,7 +3,7 @@ import { defaultSharedText } from '../../shared/config/shared-text.fixture';
 import { computed, signal, WritableSignal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
-import { WorkCounts } from '@b2b-catalog-platform/shared';
+import { WorkCounts } from '@b2b-catalog-platform/shared/core/work';
 import { AuthService } from '../../shared/auth/auth.service';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { defaultStorefrontText } from '../../shared/config/storefront-text.fixture';
@@ -12,8 +12,8 @@ import {
   adminUser as admin,
   plainUser,
 } from '../../shared/auth/auth-user.fixture';
-import { WorkService } from '../../shared/work/work.service';
-import { workStub } from '../../shared/work/work.fixture';
+import { WorkService } from '../../core/work/work.service';
+import { workStub } from '../../core/work/work.fixture';
 import { AuthUser, UserRole } from '@b2b-catalog-platform/shared/platform';
 
 const text = defaultStorefrontText.auth;

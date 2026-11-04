@@ -13,7 +13,7 @@ import { orders } from '../../db/schema';
 import {
   ORDER_REMOVAL_CATEGORIES,
   recordDestruction,
-} from '../../destruction/record-destruction';
+} from '../../platform/destruction-record';
 import { OrderDocumentFiles } from './order-document-files';
 import { scrubOrders } from './order-scrub';
 

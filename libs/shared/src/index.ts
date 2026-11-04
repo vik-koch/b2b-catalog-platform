@@ -14,4 +14,3 @@ export * from './lib/core/deep-readonly';
 export * from './lib/core/fill-text';
 export * from './lib/core/money';
 export * from './lib/core/tax';
-export * from './lib/orders/work.contract';

@@ -15,7 +15,7 @@ import { DEPLOYMENT_CONFIG } from '../shared/config/deployment-config';
 import { usePageSeo } from '../shared/core/page-seo';
 import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';
 import { ActionLink } from '@b2b-catalog-platform/ui/actions/action-link';
-import { WorkService } from '../shared/work/work.service';
+import { WorkService } from '../core/work/work.service';
 import { BuildInfoService } from './platform/build-info.service';
 import { injectEditorReturnParams } from '../shared/edit-mode/editor-return';
 import { adminMomentFormat } from './dates/admin-date';
@@ -107,14 +107,10 @@ import { SectionTitle } from '@b2b-catalog-platform/ui/content/section-title';
                 [label]="orderText.page.title"
                 link="/admin/orders"
               >
-                <!-- Two queues, one screen: an order nobody has answered and
-                     one handed over that nobody has been paid for are two
-                     jobs with two lists, so they are two notes stacked on the
-                     row's right-hand axis rather than one figure over both.
-                     Their own column, not the row's wrapping one: these are
-                     sentences to read down however wide the row is. -->
+                <!-- Two jobs with two lists, so two notes, not one figure.
+                     Their own column: sentences read down at any width. -->
                 <div class="flex flex-col items-end gap-0.5">
-                  @if (waitingOrders(); as count) {
+                  @if (counts().orders; as count) {
                     <a
                       uiActionLink
                       routerLink="/admin/orders"
@@ -122,7 +118,7 @@ import { SectionTitle } from '@b2b-catalog-platform/ui/content/section-title';
                       >{{ fill(panelText.workOrders, count) }}</a
                     >
                   }
-                  @if (unpaidOrders(); as count) {
+                  @if (counts().unpaidOrders; as count) {
                     <a
                       uiActionLink
                       routerLink="/admin/orders"
@@ -132,11 +128,8 @@ import { SectionTitle } from '@b2b-catalog-platform/ui/content/section-title';
                   }
                 </div>
               </app-panel-row>
-              <!-- The order exchange sits with the orders it answers, as the
-                   customer one sits with the accounts it writes: it is the
-                   same work arriving from somewhere else. No waiting count
-                   beside it — an order update is applied as it arrives, so
-                   there is never anything here to decide. -->
+              <!-- No waiting count: an order update applies as it arrives,
+                   so there is nothing to decide. -->
               <app-panel-row
                 [label]="syncText.areas.orders.title"
                 link="/admin/sync/orders"
@@ -177,7 +170,7 @@ import { SectionTitle } from '@b2b-catalog-platform/ui/content/section-title';
                   link="/admin/products"
                 >
                   <div class="flex flex-col items-end gap-0.5">
-                    @if (waitingProducts(); as count) {
+                    @if (counts().unpublishedProducts; as count) {
                       <a
                         uiActionLink
                         routerLink="/admin/products"
@@ -185,10 +178,9 @@ import { SectionTitle } from '@b2b-catalog-platform/ui/content/section-title';
                         >{{ fill(panelText.workProducts, count) }}</a
                       >
                     }
-                    <!-- Its own note, like the documents row's pair: one is work
-                       an admin finishes by looking, the other is a product
-                       nobody can publish until it has a price. -->
-                    @if (unpricedProducts(); as count) {
+                    <!-- Its own note: these need a price before anyone can
+                         publish them. -->
+                    @if (counts().unpricedProducts; as count) {
                       <a
                         uiActionLink
                         routerLink="/admin/products"
@@ -198,16 +190,14 @@ import { SectionTitle } from '@b2b-catalog-platform/ui/content/section-title';
                     }
                   </div>
                 </app-panel-row>
-                <!-- Two notes, as the orders row has: a certificate that has
-                     already lapsed is the shop out of compliance today, one
-                     about to lapse is notice — and each opens the list on its
-                     own filter. -->
+                <!-- Lapsed and about to lapse apart: each opens its own
+                     filter. -->
                 <app-panel-row
                   [label]="documentText.page.title"
                   link="/admin/documents"
                 >
                   <div class="flex flex-col items-end gap-0.5">
-                    @if (expiredDocuments(); as count) {
+                    @if (counts().expiredDocuments; as count) {
                       <a
                         uiActionLink
                         routerLink="/admin/documents"
@@ -215,7 +205,7 @@ import { SectionTitle } from '@b2b-catalog-platform/ui/content/section-title';
                         >{{ fill(panelText.workDocumentsExpired, count) }}</a
                       >
                     }
-                    @if (waitingDocuments(); as count) {
+                    @if (counts().expiringDocuments; as count) {
                       <a
                         uiActionLink
                         routerLink="/admin/documents"
@@ -236,7 +226,7 @@ import { SectionTitle } from '@b2b-catalog-platform/ui/content/section-title';
                   link="/admin/sync/catalog"
                 >
                   <div class="flex flex-col items-end gap-0.5">
-                    @if (stagedCatalogRuns(); as count) {
+                    @if (counts().stagedCatalogRuns; as count) {
                       <a
                         uiActionLink
                         routerLink="/admin/sync/catalog"
@@ -336,7 +326,7 @@ import { SectionTitle } from '@b2b-catalog-platform/ui/content/section-title';
                 [label]="userText.customersPage.title"
                 link="/admin/users"
               >
-                @if (waitingRegistrations(); as count) {
+                @if (counts().registrations; as count) {
                   <a
                     uiActionLink
                     routerLink="/admin/users"
@@ -359,7 +349,7 @@ import { SectionTitle } from '@b2b-catalog-platform/ui/content/section-title';
                 link="/admin/sync/customers"
               >
                 <div class="flex flex-col items-end gap-0.5">
-                  @if (stagedCustomerRuns(); as count) {
+                  @if (counts().stagedCustomerRuns; as count) {
                     <a
                       uiActionLink
                       routerLink="/admin/sync/customers"
@@ -582,7 +572,6 @@ export class AdminPanelPage {
    * the first and last row paint their corners over the card's rounding. */
   protected readonly listClass = 'divide-y divide-edge overflow-hidden';
 
-  private readonly work = inject(WorkService);
   private readonly ownership = inject(OwnershipService);
   private readonly maintenance = inject(MaintenanceSwitchService);
 
@@ -607,39 +596,8 @@ export class AdminPanelPage {
     () => this.ownership.confirmed()?.includes('orders') ?? false,
   );
 
-  /**
-   * What is waiting, per queue (FR-WORK-03) — `undefined` where there is
-   * nothing, so `@if` draws the line only when there is work. Zero and "not
-   * your queue" are both nothing to show here; the difference matters to the
-   * API, not to the card.
-   */
-  protected readonly waitingOrders = computed(
-    () => this.work.counts().orders || undefined,
-  );
-  protected readonly unpaidOrders = computed(
-    () => this.work.counts().unpaidOrders || undefined,
-  );
-  protected readonly waitingRegistrations = computed(
-    () => this.work.counts().registrations || undefined,
-  );
-  protected readonly waitingProducts = computed(
-    () => this.work.counts().unpublishedProducts || undefined,
-  );
-  protected readonly unpricedProducts = computed(
-    () => this.work.counts().unpricedProducts || undefined,
-  );
-  protected readonly waitingDocuments = computed(
-    () => this.work.counts().expiringDocuments || undefined,
-  );
-  protected readonly expiredDocuments = computed(
-    () => this.work.counts().expiredDocuments || undefined,
-  );
-  protected readonly stagedCatalogRuns = computed(
-    () => this.work.counts().stagedCatalogRuns || undefined,
-  );
-  protected readonly stagedCustomerRuns = computed(
-    () => this.work.counts().stagedCustomerRuns || undefined,
-  );
+  /** Per queue; a zero or absent count draws no note. */
+  protected readonly counts = inject(WorkService).counts;
 
   protected fill(template: string, count: number): string {
     return fillText(template, { count });

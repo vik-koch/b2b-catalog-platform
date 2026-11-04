@@ -3,7 +3,7 @@ import { usersContract } from '../../contract-routes.generated';
 import { safe, type ClientPromiseResult } from '@orpc/client';
 import { createOrpcClient } from '../../../shared/core/orpc-client';
 import { renderable } from '../../../shared/core/renderable';
-import { WorkService } from '../../../shared/work/work.service';
+import { WorkRefresh } from '../../../shared/core/work-refresh';
 import {
   AccountDeletionReason,
   CreateUserRequest,
@@ -34,7 +34,7 @@ export type UserDoneResult =
 @Injectable({ providedIn: 'root' })
 export class StaffUsersService {
   private readonly client = createOrpcClient(usersContract);
-  private readonly work = inject(WorkService);
+  private readonly work = inject(WorkRefresh);
 
   private async settle<T, TError extends Error>(
     call: ClientPromiseResult<T, TError>,

@@ -1,16 +1,11 @@
 import * as z from 'zod';
 
 /**
- * How long the evidence of personal data is itself kept, in days, before the
- * daily sweep deletes it. Stated, with no default, because each is a legal
- * decision for the deployment.
- *
- * - `consentRecordDays` (NFR-LEGAL-09) runs from a consent's withdrawal, or
- *   for a contact consent, which is used up once answered, from when it was
- *   given. An account consent nobody withdrew is kept while the account is.
- * - `destructionRecordDays` (NFR-LEGAL-12) runs from the destruction.
- * - `orderDays` (NFR-LEGAL-14) runs from the last thing that happened to a
- *   finished order, after which its personal details are removed.
+ * Days kept before the daily sweep, with no default: each is the deployment's
+ * legal decision. `consentRecordDays` (NFR-LEGAL-09) runs from a withdrawal,
+ * or a contact consent's giving; `destructionRecordDays` (NFR-LEGAL-12) from
+ * the destruction; `orderDays` (NFR-LEGAL-14) from a finished order's last
+ * change.
  */
 export const retentionConfigSchema = z
   .object({

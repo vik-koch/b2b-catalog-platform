@@ -1,8 +1,6 @@
 import { Global, Module } from '@nestjs/common';
 import { ACCOUNT_ERASURE_STEPS } from '../core/accounts/account-erasure';
 import { ACCOUNT_ORDERS } from '../core/accounts/account-orders';
-import { AccountDestruction } from '../destruction/account-destruction';
-import { DestructionModule } from '../destruction/destruction.module';
 import { OrderCounts } from '../core/ordering/order-counts';
 import { OrderErasure } from '../core/ordering/order-erasure';
 import { OrderErasureModule } from '../core/ordering/order-erasure.module';
@@ -16,16 +14,12 @@ import { OrderErasureModule } from '../core/ordering/order-erasure.module';
  */
 @Global()
 @Module({
-  imports: [OrderErasureModule, DestructionModule],
+  imports: [OrderErasureModule],
   providers: [
     {
       provide: ACCOUNT_ERASURE_STEPS,
-      // The orders are scrubbed before the record says they were.
-      useFactory: (orders: OrderErasure, record: AccountDestruction) => [
-        orders,
-        record,
-      ],
-      inject: [OrderErasure, AccountDestruction],
+      useFactory: (orders: OrderErasure) => [orders],
+      inject: [OrderErasure],
     },
     { provide: ACCOUNT_ORDERS, useExisting: OrderCounts },
   ],

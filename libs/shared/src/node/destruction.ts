@@ -1,8 +1,5 @@
-/**
- * Why personal data was destroyed (NFR-LEGAL-12). The first two are an
- * account deletion's own reasons (FR-AUTH-06, FR-ADM-23); a holder deleting
- * their account is a request too.
- */
+/** Why personal data was destroyed (NFR-LEGAL-12). A holder deleting their
+ * account is a `request`. */
 export const DESTRUCTION_REASONS = [
   'request',
   'consent-withdrawn',
@@ -16,12 +13,8 @@ export type DestructionReason = (typeof DESTRUCTION_REASONS)[number];
 export const DESTRUCTION_SUBJECTS = ['account', 'consent', 'order'] as const;
 export type DestructionSubject = (typeof DESTRUCTION_SUBJECTS)[number];
 
-/**
- * The categories of personal data a destruction covers. Each act names the
- * categories it reaches, whether or not the person had anything in all of
- * them: an account with no saved address still had its address book
- * destroyed.
- */
+/** What a destruction covers: every category the act reaches, whether or
+ * not the person had data in it. */
 export const DESTRUCTION_CATEGORIES = [
   /** Name, email, phone, company and pricing group on the account. */
   'account-details',

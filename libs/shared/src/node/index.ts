@@ -1,4 +1,4 @@
-export * from './destruction-constants';
+export * from './destruction';
 export * from './load-config';
 export * from './pairing-check';
 export * from './retention-config';
@@ -6,4 +6,3 @@ export * from './route-access';
 export * from './sanitize-rich-text';
 export * from './session-config';
 export * from './terms-config';
-export * from './work-constants';

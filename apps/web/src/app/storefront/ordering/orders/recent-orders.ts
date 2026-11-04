@@ -1,8 +1,7 @@
-import { Component, computed, inject, resource } from '@angular/core';
+import { Component, computed, inject, input, resource } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { fillText } from '@b2b-catalog-platform/shared';
 import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
-import { WorkService } from '../../../shared/work/work.service';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { ActionLink } from '@b2b-catalog-platform/ui/actions/action-link';
 import { shoppingBasketIcon } from '@b2b-catalog-platform/ui/icons/glyphs/shopping-basket';
@@ -37,9 +36,9 @@ const RECENT_ORDERS = 5;
       <div uiCard>
         <!-- What waits on the account holder (FR-WORK-03), each linking to
              the history narrowed to it. -->
-        @if (waitingPayments() || waitingPickups()) {
+        @if (payments() || pickups()) {
           <div class="mb-4 flex flex-col gap-1">
-            @if (waitingPayments(); as count) {
+            @if (payments(); as count) {
               <a
                 uiActionLink
                 routerLink="/account/orders"
@@ -47,7 +46,7 @@ const RECENT_ORDERS = 5;
                 >{{ fill(orderText.awaitingPayment, count) }}</a
               >
             }
-            @if (waitingPickups(); as count) {
+            @if (pickups(); as count) {
               <a
                 uiActionLink
                 routerLink="/account/orders"
@@ -91,16 +90,11 @@ export class RecentOrders {
   protected readonly shoppingBasketIcon = shoppingBasketIcon;
 
   private readonly api = inject(OrdersService);
-  private readonly work = inject(WorkService);
   protected readonly orderText = inject(STOREFRONT_TEXT).orders;
 
-  /** `undefined` at zero, so no line is drawn. */
-  protected readonly waitingPayments = computed(
-    () => this.work.counts().myPayments || undefined,
-  );
-  protected readonly waitingPickups = computed(
-    () => this.work.counts().myPickups || undefined,
-  );
+  /** What waits on the holder; zero or absent draws no line. */
+  readonly payments = input<number>();
+  readonly pickups = input<number>();
 
   protected fill(template: string, count: number): string {
     return fillText(template, { count });
