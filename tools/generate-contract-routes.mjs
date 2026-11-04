@@ -34,13 +34,13 @@ const OUTPUTS = [
   {
     file: 'apps/web/src/app/shared/core/contract-routes.generated.ts',
     entries: {
-      '': ['workContract'],
       'core/accounts': [
         'addressSuggestionContract',
         'addressesContract',
         'partySuggestionContract',
       ],
       'core/site': ['maintenanceContract', 'pageContract'],
+      'core/work': ['workContract'],
       platform: ['sessionContract'],
     },
   },

@@ -20,6 +20,7 @@ import { TiersService } from '../catalog/tiers/tiers.service';
 import { AdminOrderAdjustPage } from './order-adjust-page';
 import { AdminOrdersService } from './orders.service';
 import { provideDigitMaskFormat } from '../../shared/core/contact-fields';
+import { provideFakeWorkRefresh } from '../../shared/core/work-refresh.fixture';
 
 const text = defaultAdminText.orders.adjust;
 const names = defaultSharedText.order;
@@ -155,6 +156,7 @@ function render(
     imports: [AdminOrderAdjustPage],
     providers: [
       provideDigitMaskFormat(),
+      provideFakeWorkRefresh(),
       provideRouter([]),
       { provide: ADMIN_TEXT, useValue: defaultAdminText },
       { provide: SHARED_TEXT, useValue: defaultSharedText },

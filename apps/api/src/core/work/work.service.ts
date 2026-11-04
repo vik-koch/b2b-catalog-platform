@@ -1,12 +1,11 @@
-import { WorkCounts } from '@b2b-catalog-platform/shared';
-import { DOCUMENT_EXPIRY_WARNING_DAYS } from '@b2b-catalog-platform/shared/admin/catalog';
+import { WorkCounts, WorkQueue } from '@b2b-catalog-platform/shared/core/work';
+import { DOCUMENT_EXPIRY_WARNING_DAYS } from '@b2b-catalog-platform/shared/core/catalog';
 import {
   isoToday,
   AuthUser,
   UserRole,
 } from '@b2b-catalog-platform/shared/platform';
 import { SyncArea } from '@b2b-catalog-platform/shared/core/exchange';
-import { WorkQueue } from '@b2b-catalog-platform/shared/node';
 import { Inject, Injectable } from '@nestjs/common';
 import {
   and,
@@ -20,9 +19,9 @@ import {
   ne,
 } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { DRIZZLE } from '../db/database.module';
-import { resolvedPriceMinor } from '../core/catalog/product-price';
-import * as schema from '../db/schema';
+import { DRIZZLE } from '../../db/database.module';
+import { resolvedPriceMinor } from '../catalog/product-price';
+import * as schema from '../../db/schema';
 
 const { documents, orderRevisions, orders, products, syncRuns, users } = schema;
 

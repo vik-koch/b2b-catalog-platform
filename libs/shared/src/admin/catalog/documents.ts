@@ -1,3 +1,5 @@
+import { DOCUMENT_EXPIRY_WARNING_DAYS } from '../../core/catalog/documents';
+
 /** What every list and link shows. */
 export const DOCUMENT_TITLE_MAX_LENGTH = 200;
 
@@ -11,10 +13,6 @@ export const DOCUMENT_PRODUCTS_MAX = 2000;
 
 /** A bound on a product save's body; a product carries a handful. */
 export const PRODUCT_DOCUMENTS_MAX = 100;
-
-/** How long before expiry a document asks to be renewed (FR-DOC-04): the
- * time a new certificate takes to arrive, not a matter of taste. */
-export const DOCUMENT_EXPIRY_WARNING_DAYS = 30;
 
 /** The states FR-DOC-04 names. No expiry is `valid`: nothing comes due. */
 export const DOCUMENT_EXPIRY_STATES = ['valid', 'expiring', 'expired'] as const;

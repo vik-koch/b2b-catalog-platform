@@ -25,11 +25,19 @@ export const AREA_EDGES = {
   ordering: ['catalog', 'accounts', 'site'],
   exchange: ['catalog', 'accounts', 'ordering'],
   work: ['catalog', 'accounts', 'ordering', 'exchange'],
-  retention: ['accounts', 'ordering'],
+  retention: ['ordering', 'site'],
 };
 
 /** The areas already moved; the rest join as they move. */
-const ENABLED = ['catalog', 'site', 'accounts', 'ordering', 'exchange'];
+const ENABLED = [
+  'catalog',
+  'site',
+  'accounts',
+  'ordering',
+  'exchange',
+  'work',
+  'retention',
+];
 
 /** The folders of the cut, relative to a layer, with the element type of each. */
 const FOLDERS = [

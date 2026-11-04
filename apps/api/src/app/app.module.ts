@@ -10,7 +10,7 @@ import { ConsentAdminModule } from '../admin/accounts/consent-admin.module';
 import { InquiryModule } from '../storefront/site/inquiry.module';
 import { DatabaseModule } from '../db/database.module';
 import { AccountErasureModule } from './account-erasure.module';
-import { DestructionModule } from '../destruction/destruction.module';
+import { RetentionModule } from '../core/retention/retention.module';
 import { CatalogModule } from '../storefront/catalog/catalog.module';
 import { AdminCatalogModule } from '../admin/catalog/admin-catalog.module';
 import { OrderingModule } from '../storefront/ordering/ordering.module';
@@ -24,7 +24,7 @@ import { SiteCoreModule } from '../core/site/site-core.module';
 import { AdminPlatformModule } from '../admin/platform/admin-platform.module';
 import { MachineExchangeModule } from '../machine/exchange/machine-exchange.module';
 import { StaffUsersModule } from '../admin/accounts/staff-users.module';
-import { WorkModule } from '../work/work.module';
+import { WorkModule } from '../core/work/work.module';
 
 @Module({
   imports: [
@@ -44,7 +44,7 @@ import { WorkModule } from '../work/work.module';
     MachineExchangeModule,
     StaffUsersModule,
     ConsentAdminModule,
-    DestructionModule,
+    RetentionModule,
     AccountErasureModule,
     AccountModule,
     OrderingModule,

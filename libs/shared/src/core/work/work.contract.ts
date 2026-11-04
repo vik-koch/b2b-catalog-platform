@@ -1,6 +1,6 @@
 import { oc } from '@orpc/contract';
 import * as z from 'zod';
-import { commonAuthErrors } from '../core/api-error';
+import { commonAuthErrors } from '../../lib/core/api-error';
 
 /**
  * What is waiting, per queue (FR-WORK-02). One endpoint answers the whole map

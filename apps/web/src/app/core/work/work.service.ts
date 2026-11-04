@@ -10,10 +10,11 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router } from '@angular/router';
 import { safe } from '@orpc/client';
 import { filter } from 'rxjs';
-import { WorkCounts } from '@b2b-catalog-platform/shared';
-import { AuthService } from '../auth/auth.service';
-import { workContract } from '../core/contract-routes.generated';
-import { createOrpcClient } from '../core/orpc-client';
+import { WorkCounts } from '@b2b-catalog-platform/shared/core/work';
+import { AuthService } from '../../shared/auth/auth.service';
+import { workContract } from '../../shared/core/contract-routes.generated';
+import { createOrpcClient } from '../../shared/core/orpc-client';
+import { WorkRefresh } from '../../shared/core/work-refresh';
 
 /**
  * What awaits the signed-in account (FR-WORK-01…04), asked of the API rather
@@ -32,7 +33,7 @@ import { createOrpcClient } from '../core/orpc-client';
  * count that has nothing to do with the filter would be re-fetched with each.
  */
 @Injectable({ providedIn: 'root' })
-export class WorkService {
+export class WorkService implements WorkRefresh {
   private readonly client = createOrpcClient(workContract);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
   private readonly auth = inject(AuthService);

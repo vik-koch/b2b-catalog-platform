@@ -8,7 +8,7 @@ import { runMigrations } from './db/migrate';
 import { hashPassword } from './core/accounts/password-hashing';
 import { runBootstrapAdmin } from './admin/accounts/bootstrap-admin';
 import { scheduleMediaPrune } from './media/prune/media-prune-scheduler';
-import { RetentionSweep } from './destruction/retention-sweep';
+import { RetentionSweep } from './core/retention/retention-sweep';
 import { env } from './env';
 import { MACHINE_SYNC_RUNS_PATHS } from './machine-sync-body-paths';
 

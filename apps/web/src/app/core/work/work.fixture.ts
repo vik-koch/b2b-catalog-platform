@@ -1,5 +1,5 @@
 import { computed, signal } from '@angular/core';
-import { WorkCounts } from '@b2b-catalog-platform/shared';
+import { WorkCounts } from '@b2b-catalog-platform/shared/core/work';
 
 /**
  * A WorkService stand-in for component tests: the counts as given, and no

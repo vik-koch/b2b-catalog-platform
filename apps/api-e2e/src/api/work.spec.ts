@@ -1,7 +1,7 @@
 import { hash } from '@node-rs/argon2';
 import axios from 'axios';
 import { Client } from 'pg';
-import { WorkCounts } from '@b2b-catalog-platform/shared';
+import { WorkCounts } from '@b2b-catalog-platform/shared/core/work';
 import { requireEnv } from '../support/env';
 
 /**

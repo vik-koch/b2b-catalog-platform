@@ -1,8 +1,7 @@
-import { Component, computed, inject, resource } from '@angular/core';
+import { Component, computed, inject, input, resource } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { fillText } from '@b2b-catalog-platform/shared';
 import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
-import { WorkService } from '../../../shared/work/work.service';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { ActionLink } from '@b2b-catalog-platform/ui/actions/action-link';
 import { shoppingBasketIcon } from '@b2b-catalog-platform/ui/icons/glyphs/shopping-basket';
@@ -91,15 +90,18 @@ export class RecentOrders {
   protected readonly shoppingBasketIcon = shoppingBasketIcon;
 
   private readonly api = inject(OrdersService);
-  private readonly work = inject(WorkService);
   protected readonly orderText = inject(STOREFRONT_TEXT).orders;
+
+  /** What waits on the holder, from the work counts the shell reads. */
+  readonly payments = input<number>();
+  readonly pickups = input<number>();
 
   /** `undefined` at zero, so no line is drawn. */
   protected readonly waitingPayments = computed(
-    () => this.work.counts().myPayments || undefined,
+    () => this.payments() || undefined,
   );
   protected readonly waitingPickups = computed(
-    () => this.work.counts().myPickups || undefined,
+    () => this.pickups() || undefined,
   );
 
   protected fill(template: string, count: number): string {

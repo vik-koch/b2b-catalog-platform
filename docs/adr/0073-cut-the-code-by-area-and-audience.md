@@ -49,14 +49,14 @@ rules, held by `eslint-plugin-boundaries`:
 | ordering | cart, checkout, orders and their versions, order documents and PDFs | catalog, accounts, site |
 | exchange | runs, cursors, machine tokens, the ownership switch, and each area's engine for uploads and the back office | catalog, accounts, ordering |
 | work | the staff's and the customers' queues | catalog, accounts, ordering, exchange |
-| retention | the destruction record, retention sweeps | accounts, ordering |
+| retention | the retention sweeps over orders and consents | ordering, site |
 
 **Platform** holds the database, deployment config and texts, oRPC and the HTTP client,
 guards and the session, the settings row and which areas another system owns, mail transport
-and layout, the media store, PDF rendering, audit, throttling and the suggestion sidecar. An
-area's mails live in its core; platform renders and sends them. Each audience may keep its
-own `platform/` for area-free pieces only it uses (the admin's grid, dates, rich text, image
-picker).
+and layout, the media store, PDF rendering, audit and the destruction record, throttling and
+the suggestion sidecar. An area's mails live in its core; platform renders and sends them.
+Each audience may keep its own `platform/` for area-free pieces only it uses (the admin's
+grid, dates, rich text, image picker).
 
 **Contracts:** an entry point per audience and area (`@b2b-catalog-platform/shared/admin/catalog`),
 plus `/core/<area>`, `/platform` and `/node`, mapped by one wildcard path. A resource's shape
