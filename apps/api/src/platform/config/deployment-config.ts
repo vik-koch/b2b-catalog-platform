@@ -28,12 +28,9 @@ import {
   DEFAULT_SYNC_POLICY,
   SyncPolicy,
 } from '@b2b-catalog-platform/shared/core/exchange';
-import {
-  DEFAULT_SESSION_IDLE_DAYS,
-  RetentionConfig,
-  configPath,
-  loadConfig,
-} from '@b2b-catalog-platform/shared/node';
+import { configPath, loadConfig } from '@b2b-catalog-platform/shared/node';
+import { DEFAULT_SESSION_IDLE_DAYS } from '../auth/session-config';
+import { RetentionConfig } from '../../core/retention/retention-config';
 import { join } from 'node:path';
 import { loadApiConfig } from './api-config';
 import type * as z from 'zod';

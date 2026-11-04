@@ -5,7 +5,7 @@ import { Link } from '@b2b-catalog-platform/ui/actions/link';
 /** The deployment's notice (FR-NAV-08) above the header: not dismissable,
  * and a plain line rather than an alert, as it is never news. */
 @Component({
-  selector: 'app-site-notice',
+  selector: 'app-shop-notice',
   imports: [Link],
   template: `
     @if (notice; as notice) {
@@ -23,6 +23,6 @@ import { Link } from '@b2b-catalog-platform/ui/actions/link';
     }
   `,
 })
-export class SiteNotice {
+export class ShopNotice {
   protected readonly notice = inject(DEPLOYMENT_CONFIG).notice;
 }

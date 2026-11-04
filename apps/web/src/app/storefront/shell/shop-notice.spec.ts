@@ -1,24 +1,24 @@
 import { TestBed } from '@angular/core/testing';
 import {
   DeploymentConfig,
-  SiteNotice as Notice,
+  ShopNotice as Notice,
 } from '@b2b-catalog-platform/shared/platform';
 import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
 import { defaultDeploymentConfig } from '../../platform/config/deployment-config.fixture';
-import { SiteNotice } from './site-notice';
+import { ShopNotice } from './shop-notice';
 
 async function render(notice: Notice | undefined) {
   const deployment: DeploymentConfig = { ...defaultDeploymentConfig, notice };
   TestBed.configureTestingModule({
-    imports: [SiteNotice],
+    imports: [ShopNotice],
     providers: [{ provide: DEPLOYMENT_CONFIG, useValue: deployment }],
   });
-  const fixture = TestBed.createComponent(SiteNotice);
+  const fixture = TestBed.createComponent(ShopNotice);
   await fixture.whenStable();
   return fixture.nativeElement as HTMLElement;
 }
 
-describe('SiteNotice', () => {
+describe('ShopNotice', () => {
   it('renders nothing when the deployment sets no notice', async () => {
     const el = await render(undefined);
     expect(el.textContent?.trim()).toBe('');

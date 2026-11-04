@@ -75,7 +75,7 @@ export const demoMailBranding: MailBranding = {
   name: 'Demo Shop',
   primaryColor: '#6f4e37',
   colors: DEFAULT_MAIL_COLORS,
-  siteUrl: 'https://shop.example.com',
+  shopUrl: 'https://shop.example.com',
   locale: currency.locale,
 };
 

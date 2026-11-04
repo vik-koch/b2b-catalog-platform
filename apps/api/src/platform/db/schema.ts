@@ -44,7 +44,7 @@ import {
   DESTRUCTION_CATEGORIES,
   DESTRUCTION_REASONS,
   DESTRUCTION_SUBJECTS,
-} from '@b2b-catalog-platform/shared/node';
+} from '../destruction';
 import {
   AnyPgColumn,
   bigint,

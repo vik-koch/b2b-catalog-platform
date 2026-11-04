@@ -3,7 +3,7 @@ import {
   DestructionCategory,
   DestructionReason,
   DestructionSubject,
-} from '@b2b-catalog-platform/shared/node';
+} from './destruction';
 import * as schema from './db/schema';
 import { destructionRecords } from './db/schema';
 

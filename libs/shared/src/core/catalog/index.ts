@@ -2,6 +2,7 @@ export * from './attribute-filter';
 export * from './attributes';
 export * from './catalog.contract';
 export * from './categories';
+export * from './catalog-config';
 export * from './documents';
 export * from './edit-mode.contract';
 export * from './product-availability';

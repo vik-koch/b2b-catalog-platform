@@ -4,10 +4,8 @@ import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
 import { defaultStorefrontText } from '../../../platform/config/storefront-text.fixture';
 import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
-import {
-  ContactLocation,
-  DeploymentConfig,
-} from '@b2b-catalog-platform/shared/platform';
+import { DeploymentConfig } from '@b2b-catalog-platform/shared/platform';
+import { ContactLocation } from '@b2b-catalog-platform/shared/core/site';
 import { defaultDeploymentConfig } from '../../../platform/config/deployment-config.fixture';
 import { EditModeService } from '../../../platform/edit-mode/edit-mode.service';
 import { ContactPage } from './contact-page';

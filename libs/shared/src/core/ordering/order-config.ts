@@ -1,13 +1,6 @@
 import * as z from 'zod';
 import { normalizePostalCode } from '../accounts/postal-code';
 
-/**
- * The deployment-owned half of checkout: how an order is referenced, and which
- * delivery zone a postal code falls into. Shared because the API decides both —
- * a zone the browser resolved and the server did not re-derive would be a
- * threshold the customer could choose for themselves.
- */
-
 const postalCodeConfigSchema = z
   .string()
   .trim()
@@ -16,13 +9,9 @@ const postalCodeConfigSchema = z
   .transform(normalizePostalCode);
 
 /**
- * How a zone is matched. Prefixes cover formats that are not numeric at all;
- * a range covers a contiguous block, and only between codes of the same length
- * — a range from `1000` to `99999` compares strings of different widths and
- * would silently include or exclude by digit count. `all` is the catch-all.
- *
- * A zone matches on the postal code, and on nothing else: city text is
- * misspellable and a near-miss would quote the wrong threshold silently.
+ * On the postal code only: a misspelt city would quote the wrong threshold
+ * silently. Prefixes cover formats that are not numeric; a range compares
+ * strings, so its ends must be the same length.
  */
 const zoneMatchSchema = z
   .object({
@@ -40,7 +29,7 @@ const zoneMatchSchema = z
           }),
       )
       .optional(),
-    /** Matches anything the zones above did not. Only the last zone may. */
+    /** Only the last zone may. */
     all: z.literal(true).optional(),
   })
   .strict()
@@ -52,41 +41,21 @@ const zoneMatchSchema = z
     { message: 'a zone matches on something' },
   );
 
-/**
- * A delivery zone (FR-CART-07): a named area, and what an order must reach for
- * delivery inside it to be free.
- *
- * Advisory throughout — the threshold is quoted, never enforced, and no zone
- * prices a delivery. A manager does that, which is why there is no per-zone
- * price here to keep in step with one.
- */
+/** A delivery zone (FR-CART-07), and what an order must reach for free
+ * delivery in it. */
 export const deliveryZoneSchema = z
   .object({
     /** Snapshotted onto the order, so it outlives a renamed title. */
     key: z.string().trim().min(1).max(64),
     title: z.string().trim().min(1),
     description: z.string().trim().min(1).optional(),
-    /** Integer minor units, like every other price. Absent means no free
-     * delivery in this zone — not a threshold of zero. */
+    /** Absent: no free delivery here, not a threshold of zero. */
     freeFromMinor: z.number().int().nonnegative().optional(),
-    /**
-     * Whether the deployment delivers here at all. Absent means it does; a
-     * zone that sets it false is an area the shop does not drive to, named so
-     * the checkout can say so while the address is being typed rather than
-     * after the order is placed.
-     *
-     * Still advisory, like every other thing a zone says: the order goes
-     * through and a manager answers it. What the customer is told is that they
-     * will be asked for another address, which is a cheaper conversation
-     * before the order than after it.
-     */
+    /** False: an area the shop does not drive to, named so checkout says so
+     * while the address is typed. The order still goes through. */
     delivers: z.boolean().optional(),
-    /**
-     * Presentation only: neighbouring zones with the same level share a row on
-     * the conditions page, from `sm` up — a city, then the two regions around
-     * it side by side, then the rest of the country. Matching ignores it; the
-     * list order is still the order zones are tried in.
-     */
+    /** Presentation only: neighbouring zones of one level share a row on
+     * the conditions page. Matching ignores it. */
     level: z.number().int().nonnegative().optional(),
     match: zoneMatchSchema,
   })
@@ -101,10 +70,7 @@ export const deliveryZoneSchema = z
   );
 export type DeliveryZone = z.infer<typeof deliveryZoneSchema>;
 
-/**
- * The zones, in the order they are tried: **first match wins**, so the narrow
- * ones lead and a catch-all closes the list.
- */
+/** First match wins, so the narrow zones lead and a catch-all closes. */
 export const deliveryConfigSchema = z
   .object({
     zones: z.array(deliveryZoneSchema).superRefine((zones, ctx) => {
@@ -142,10 +108,8 @@ function isKnownTimezone(zone: string): boolean {
 }
 
 /**
- * How an order is referenced: `{prefix}-YYMMDD-NNNN`. The suffix is random
- * rather than a counter, so the reference does not publish how many orders the
- * shop takes in a day, and the date is read in the deployment's own timezone —
- * a customer quoting yesterday's number should not be told it is tomorrow's.
+ * `{prefix}-YYMMDD-NNNN`: a random suffix, so a reference does not publish how
+ * many orders a day the shop takes, and the date in the shop's time zone.
  */
 export const orderReferenceConfigSchema = z
   .object({
@@ -158,13 +122,8 @@ export const orderReferenceConfigSchema = z
         /^[\p{Lu}\p{N}]+$/u,
         'an order prefix is upper-case letters or digits, in any script',
       ),
-    /**
-     * An IANA zone name, e.g. `Europe/Berlin`. Checked by building a formatter
-     * with it, which is the only way to know the platform accepts one: an
-     * unknown zone throws where it is *used*, and the only use is on the way to
-     * a reference — so a typo left to runtime is a shop that boots cleanly and
-     * refuses every order.
-     */
+    /** Checked at boot: an unknown zone throws only when a reference is
+     * made, so a typo would boot cleanly and refuse every order. */
     timezone: z
       .string()
       .trim()
@@ -173,3 +132,52 @@ export const orderReferenceConfigSchema = z
   })
   .strict();
 export type OrderReferenceConfig = z.infer<typeof orderReferenceConfigSchema>;
+
+/** Where an order may be collected (FR-CART-07), apart from the offices: neither
+ * is a subset of the other. An order snapshots key, name and address. */
+const pickupLocationSchema = z
+  .object({
+    key: z.string().min(1).max(64),
+    name: z.string(),
+    /** Required: an order that cannot say where it is collected is stuck. */
+    address: z.string().min(1),
+    /** Opening hours, which gate: what the address does not say. */
+    description: z.string().optional(),
+    /** A link, not an embed: looked up in passing. */
+    mapUrl: z.string().optional(),
+  })
+  .strict();
+
+const pickupConfigSchema = z
+  .object({
+    locations: z
+      .array(pickupLocationSchema)
+      .min(1)
+      .superRefine((locations, ctx) => {
+        const seen = new Set<string>();
+        locations.forEach((location, index) => {
+          if (seen.has(location.key)) {
+            // An order would snapshot whichever came first.
+            ctx.addIssue({
+              code: 'custom',
+              path: [index, 'key'],
+              message: `pickup location ${location.key} is listed twice`,
+            });
+          }
+          seen.add(location.key);
+        });
+      }),
+  })
+  .strict();
+
+/** Ordering's keys of `deployment.json`. */
+export const orderingConfigShape = {
+  /** Off: an order is invoiced to its delivery address, or none for a
+   * pickup, so checkout asks for no invoice address at all. */
+  billingAddressEnabled: z.boolean(),
+  /** Absent, not empty, where the shop offers no pickup. */
+  pickup: pickupConfigSchema.optional(),
+  /** Quoted, never enforced, and no zone prices a delivery: a manager does. */
+  delivery: deliveryConfigSchema.optional(),
+  orderReference: orderReferenceConfigSchema.optional(),
+};

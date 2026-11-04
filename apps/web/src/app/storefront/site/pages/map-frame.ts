@@ -1,7 +1,8 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
-import { fillText, MapEmbed } from '@b2b-catalog-platform/shared/platform';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
+import { MapEmbed } from '@b2b-catalog-platform/shared/core/site';
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import { ConsentService } from '../cookie-consent/consent.service';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';

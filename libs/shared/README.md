@@ -25,7 +25,7 @@ An entry point per audience and area, over `core/<area>` for what an area's audi
 | `@b2b-catalog-platform/shared/machine/exchange` | `src/machine/exchange/` | the back office's customer and order reads |
 | `@b2b-catalog-platform/shared/admin/platform` | `src/admin/platform/` | what the admin reads that knows no area: the build info, the settings trail, which areas another system owns, media uploads |
 | `@b2b-catalog-platform/shared/core/work` | `src/core/work/` | the queues and the counts every signed-in account is shown |
-| `@b2b-catalog-platform/shared/node` | `src/node/` | what only runs on a server: loading the config directory, sanitizing rich text, server-only settings |
+| `@b2b-catalog-platform/shared/node` | `src/node/` | what only runs on a server: loading the config directory, sanitizing rich text, the route access table |
 
 An audience never imports another audience, and a staff shape and a customer shape are built
 from the same core values rather than from each other. `tools/lint/area-boundaries.mjs` holds

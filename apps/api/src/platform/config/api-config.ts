@@ -2,12 +2,10 @@ import {
   customerSyncPolicySchema,
   syncPolicySchema,
 } from '@b2b-catalog-platform/shared/core/exchange';
-import {
-  loadConfig,
-  retentionConfigSchema,
-  sessionConfigSchema,
-  termsConfigSchema,
-} from '@b2b-catalog-platform/shared/node';
+import { loadConfig } from '@b2b-catalog-platform/shared/node';
+import { termsConfigSchema } from '../../core/ordering/terms-config';
+import { retentionConfigSchema } from '../../core/retention/retention-config';
+import { sessionConfigSchema } from '../auth/session-config';
 import * as z from 'zod';
 
 /** `api.json`: what only the API reads, kept out of `deployment.json`, which

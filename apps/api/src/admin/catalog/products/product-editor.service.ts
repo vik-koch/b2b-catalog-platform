@@ -17,9 +17,10 @@ import {
   LinkedDocument,
   LinkedProduct,
   ProductInput,
+  PRODUCT_RICH_TEXT_TAGS,
   ProductTierPrice,
 } from '@b2b-catalog-platform/shared/admin/catalog';
-import { sanitizeProductRichText } from '@b2b-catalog-platform/shared/node';
+import { sanitizeToTags } from '@b2b-catalog-platform/shared/node';
 import { DRIZZLE } from '../../../platform/db/database.module';
 import * as schema from '../../../platform/db/schema';
 import {
@@ -191,7 +192,10 @@ export class ProductEditorService {
       name: input.name,
       categoryId: input.categoryId,
       // The single write path, so nothing reaches the column unsanitized.
-      descriptionHtml: sanitizeProductRichText(input.descriptionHtml),
+      descriptionHtml: sanitizeToTags(
+        input.descriptionHtml,
+        PRODUCT_RICH_TEXT_TAGS,
+      ),
       images: input.images,
       variants: input.variants,
       featured: input.featured,

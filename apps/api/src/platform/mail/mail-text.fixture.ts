@@ -33,7 +33,7 @@ export const demoMailBranding: MailBranding = {
   name: 'Coffee Kontor',
   primaryColor: '#6f4e37',
   colors: DEFAULT_MAIL_COLORS,
-  siteUrl: 'https://shop.example',
+  shopUrl: 'https://shop.example',
   locale: 'de-DE',
 };
 

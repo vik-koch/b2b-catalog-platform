@@ -3,10 +3,8 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
 import { STOREFRONT_TEXT } from '../../platform/config/storefront-text';
 import { SHARED_TEXT } from '../../platform/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
-import {
-  type ElsewhereLink,
-  fillText,
-} from '@b2b-catalog-platform/shared/platform';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
+import { type ElsewhereLink } from '@b2b-catalog-platform/shared/core/site';
 import { ConsentService } from '../site/cookie-consent/consent.service';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { mailHref, telHref } from './contact-info';
