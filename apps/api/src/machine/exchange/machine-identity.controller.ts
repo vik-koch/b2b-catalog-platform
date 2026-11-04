@@ -20,7 +20,7 @@ import { MachineClient } from '../../platform/auth/machine-client';
 @Machine('catalog-sync')
 @MachineThrottle()
 @Controller()
-export class MachineController {
+export class MachineIdentityController {
   @Implement(machineIdentityContract.machineIdentity)
   machineIdentity(@CurrentMachine() machine: MachineClient) {
     return implement(machineIdentityContract.machineIdentity).handler(() => ({

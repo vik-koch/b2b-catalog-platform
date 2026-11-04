@@ -27,7 +27,7 @@ import { SyncRunLog } from '../../core/exchange/sync-run-log';
 @Machine('catalog-sync')
 @MachineThrottle()
 @Controller()
-export class MachineSyncController {
+export class MachineCatalogSyncController {
   constructor(
     private readonly service: CatalogSyncService,
     // The read-back reaches past the importer to the run log itself: what
