@@ -7,6 +7,7 @@ import {
   ADDRESS_QUERY_MAX_LENGTH,
 } from './address';
 import { commonAuthErrors } from '../../platform/api-error';
+import { acknowledgementSchema } from '../../platform/acknowledgement.contract';
 
 /** How many addresses one account may keep: a bound against an endpoint with
  * no ceiling, not a business rule. */
@@ -151,7 +152,7 @@ export const addressesContract = {
     })
     .errors({ 'address-not-found': addressErrors['address-not-found'] })
     .input(z.object({ params: z.object({ id: z.string() }) }))
-    .output(z.object({ message: z.string() })),
+    .output(acknowledgementSchema),
 };
 
 /**

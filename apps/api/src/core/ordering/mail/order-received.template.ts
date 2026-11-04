@@ -4,7 +4,7 @@ import {
   MoneyFormat,
 } from '@b2b-catalog-platform/shared/platform';
 import { OrderDetail } from '@b2b-catalog-platform/shared/core/ordering';
-import { shopDay } from '../shop-day';
+import { shopDay } from '@b2b-catalog-platform/shared/platform';
 import { MailContent } from '../../../platform/mail/mail-layout';
 import { MailText } from '../../../platform/mail/mail-text';
 import {

@@ -1,3 +1,4 @@
+export * from './acknowledgement.contract';
 export * from './api-error';
 export * from './api-tokens';
 export * from './color-contrast';
@@ -20,5 +21,6 @@ export * from './rich-text';
 export * from './session';
 export * from './session.contract';
 export * from './settings';
+export * from './shop-day';
 export * from './tax';
 export * from './tax-config';

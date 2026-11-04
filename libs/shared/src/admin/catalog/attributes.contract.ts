@@ -18,6 +18,7 @@ import {
 } from './attributes';
 import { slugSchema } from './slug.contract';
 import { attributeTypeSchema } from '../../core/catalog/catalog.contract';
+import { acknowledgementSchema } from '../../platform/acknowledgement.contract';
 
 /**
  * The name matches product attribute keys exactly, so only trimming normalizes
@@ -406,5 +407,5 @@ export const attributesContract = {
       'attribute-not-found': attributeErrors['attribute-not-found'],
     })
     .input(z.object({ params: z.object({ id: z.uuid() }) }))
-    .output(z.object({ message: z.string() })),
+    .output(acknowledgementSchema),
 };

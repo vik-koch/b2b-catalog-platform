@@ -1,5 +1,5 @@
 import { Component, computed, inject, input } from '@angular/core';
-import { fillText } from '@b2b-catalog-platform/shared/platform';
+import { fillText, shopDay } from '@b2b-catalog-platform/shared/platform';
 import { isDatedPage } from '@b2b-catalog-platform/shared/storefront/site';
 import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
@@ -23,15 +23,12 @@ export class PageUpdated {
 
   private readonly text = inject(STOREFRONT_TEXT).pageUpdated;
   private readonly config = inject(DEPLOYMENT_CONFIG);
-  private readonly format = new Intl.DateTimeFormat(this.config.locale, {
-    dateStyle: 'long',
-    timeZone: this.config.orderReference?.timezone ?? 'UTC',
-  });
+  private readonly timeZone = this.config.orderReference?.timezone ?? 'UTC';
 
   protected readonly label = computed(() =>
     isDatedPage(this.slug())
       ? fillText(this.text.label, {
-          date: this.format.format(new Date(this.updatedAt())),
+          date: shopDay(this.updatedAt(), this.config.locale, this.timeZone),
         })
       : null,
   );

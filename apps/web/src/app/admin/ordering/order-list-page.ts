@@ -58,6 +58,7 @@ import { OrderRowActions } from './ui/order-row-actions';
 import { AdminOrdersService } from './orders.service';
 import { StaffOrderSummary } from '@b2b-catalog-platform/shared/admin/ordering';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
+import { pageNumber } from '../../platform/page-number';
 
 /** Every order request, for staff (FR-AUTH-03); answered on its own page, with
  * the row's two moves here. Status, search, payment and sort are query
@@ -249,10 +250,7 @@ export class AdminOrderListPage {
    * the navbar search's. */
   readonly searchTerm = input('');
 
-  private readonly currentPage = computed(() => {
-    const n = Number(this.page());
-    return Number.isInteger(n) && n > 0 ? n : 1;
-  });
+  private readonly currentPage = computed(() => pageNumber(this.page()));
   protected readonly statusKey = computed<OrderStatus | undefined>(() => {
     const parsed = orderStatusSchema.safeParse(this.status());
     return parsed.success ? parsed.data : undefined;

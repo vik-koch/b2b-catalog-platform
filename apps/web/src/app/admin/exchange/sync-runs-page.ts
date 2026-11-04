@@ -38,6 +38,7 @@ import {
 import { SyncService } from './sync.service';
 import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
 import { uploadIcon } from '@b2b-catalog-platform/ui/icons/glyphs/upload';
+import { pageNumber } from '../../platform/page-number';
 
 /**
  * One area's runs, newest first (FR-ADM-09), at `/admin/sync/<area>`. One
@@ -204,10 +205,7 @@ export class SyncRunsPage {
   readonly page = input('1');
   readonly status = input('');
 
-  protected readonly currentPage = computed(() => {
-    const parsed = Number(this.page());
-    return Number.isInteger(parsed) && parsed > 0 ? parsed : 1;
-  });
+  protected readonly currentPage = computed(() => pageNumber(this.page()));
 
   protected readonly statusFilter = computed<SyncRunStatus | undefined>(() => {
     const parsed = syncRunStatusSchema.safeParse(this.status());

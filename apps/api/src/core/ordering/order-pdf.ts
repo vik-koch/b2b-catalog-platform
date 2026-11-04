@@ -26,7 +26,7 @@ import { SHARED_TEXT } from '../../platform/config/shared-text';
 import { PdfFaces } from '../../platform/pdf/pdf-faces';
 import { PDF_TEXT, PdfText } from '../../platform/pdf/pdf-text';
 import { Sheet } from '../../platform/pdf/pdf-sheet';
-import { shopDay } from './shop-day';
+import { shopDay } from '@b2b-catalog-platform/shared/platform';
 import {
   addressLines,
   type AddressConfig,

@@ -21,7 +21,7 @@ import { MailAttachment } from '../../platform/mail/mailer';
 import { PdfFaces } from '../../platform/pdf/pdf-faces';
 import { Sheet } from '../../platform/pdf/pdf-sheet';
 import { richTextBlocks } from '../../platform/pdf/rich-text-blocks';
-import { shopDay, shopIsoDay } from './shop-day';
+import { shopDay, shopIsoDay } from '@b2b-catalog-platform/shared/platform';
 
 const HEADING_SIZES = { 2: 13, 3: 11.5, 4: 10.5 } as const;
 

@@ -1,6 +1,5 @@
-/**
- * A moment as the shop's own day, as the pages' "Last updated" line names it.
- */
+/** A moment as the shop's own day, in its time zone: the same day on a page,
+ * in a mail and in a PDF. */
 export function shopDay(
   iso: string,
   locale: string | undefined,

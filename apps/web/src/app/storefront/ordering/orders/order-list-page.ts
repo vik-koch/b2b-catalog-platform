@@ -21,6 +21,7 @@ import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
 import { shoppingBasketIcon } from '@b2b-catalog-platform/ui/icons/glyphs/shopping-basket';
 import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
+import { pageNumber } from '../../../platform/page-number';
 
 /** The account's whole order history, newest first, paged (FR-ACC-01). */
 @Component({
@@ -119,12 +120,8 @@ export class OrderListPage {
     return MY_ORDER_FILTERS.find((known) => known === value);
   });
 
-  /** Bound from the `page` query param (a string); coerced and floored to 1. */
   readonly page = input('1');
-  private readonly currentPage = computed(() => {
-    const n = Number(this.page());
-    return Number.isInteger(n) && n > 0 ? n : 1;
-  });
+  private readonly currentPage = computed(() => pageNumber(this.page()));
 
   protected readonly orders = resource({
     params: () => ({ page: this.currentPage(), state: this.filter() }),

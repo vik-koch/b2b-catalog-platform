@@ -10,6 +10,7 @@ import {
 } from '../../core/catalog/catalog.contract';
 import { slugSchema } from './slug.contract';
 import { type CategoryErrorCode } from './categories';
+import { acknowledgementSchema } from '../../platform/acknowledgement.contract';
 
 /** A category as the management screen sees it, in a flat list the client
  * shapes into the tree. */
@@ -188,7 +189,7 @@ export const adminCategoriesContract = {
         query: z.object({ reassignTo: z.uuid().optional() }),
       }),
     )
-    .output(z.object({ message: z.string() })),
+    .output(acknowledgementSchema),
 
   reorderCategories: admin
     .route({

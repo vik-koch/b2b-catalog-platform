@@ -76,6 +76,7 @@ import {
 import { AVAILABILITY_TONES } from '../../../core/catalog/ui/product-availability-badge';
 import { plusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/plus';
 import { ProductStateBadge, productState } from '../ui/product-state-badge';
+import { pageNumber } from '../../../platform/page-number';
 
 /** The category filter's "without subcategories" option; a uuid never ends
  * this way. */
@@ -400,10 +401,7 @@ export class ProductListPage {
   /** The grid's state comes from the URL, each input named for its query
    * parameter, and is narrowed before it reaches the API. */
   readonly page = input('1');
-  protected readonly currentPage = computed(() => {
-    const n = Number(this.page());
-    return Number.isInteger(n) && n > 0 ? n : 1;
-  });
+  protected readonly currentPage = computed(() => pageNumber(this.page()));
 
   readonly searchTerm = input('');
   protected readonly query = computed(() =>

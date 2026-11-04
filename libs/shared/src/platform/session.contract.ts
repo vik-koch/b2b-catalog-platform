@@ -3,6 +3,7 @@ import * as z from 'zod';
 import { commonAuthErrors } from './api-error';
 import { storedEmailField } from './contact-config';
 import { USER_ROLES } from './session';
+import { acknowledgementSchema } from './acknowledgement.contract';
 
 export const userRoleSchema = z.enum(USER_ROLES);
 
@@ -29,7 +30,7 @@ export const sessionContract = {
       path: '/auth/logout',
       summary: 'Clear the session cookie',
     })
-    .output(z.object({ message: z.string() })),
+    .output(acknowledgementSchema),
 
   me: oc
     .route({

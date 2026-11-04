@@ -16,6 +16,7 @@ import {
 } from '../../core/accounts/users.contract';
 import { ownershipErrors } from '../../platform/ownership';
 import { consentRecordListSchema } from './consents.contract';
+import { acknowledgementSchema } from '../../platform/acknowledgement.contract';
 
 /** Approval (FR-AUTH-03). The tier is required: there is no default to fall
  * back to, and `null` is the base price list chosen on purpose. */
@@ -280,7 +281,7 @@ export const usersContract = {
       ...owned,
     })
     .input(z.object({ params: z.object({ id: z.uuid() }) }))
-    .output(z.object({ message: z.string() })),
+    .output(acknowledgementSchema),
 
   deleteUser: staff
     .route({
@@ -297,7 +298,7 @@ export const usersContract = {
       ...owned,
     })
     .input(z.object({ params: z.object({ id: z.uuid() }) }))
-    .output(z.object({ message: z.string() })),
+    .output(acknowledgementSchema),
 
   deleteAccountOnRequest: staff
     .route({
