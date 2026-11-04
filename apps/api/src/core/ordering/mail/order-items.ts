@@ -7,7 +7,7 @@ import {
   sharedTaxRate,
 } from '@b2b-catalog-platform/shared/platform';
 import { OrderDetail } from '@b2b-catalog-platform/shared/core/ordering';
-import { MailItem } from '../mail-layout';
+import { MailItem } from '../../../platform/mail/mail-layout';
 
 /**
  * A line as both order mails state it, from the order's own snapshots: the

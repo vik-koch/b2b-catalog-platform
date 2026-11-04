@@ -1,5 +1,5 @@
-import { MailContent } from '../mail-layout';
-import { MailText } from '../mail-text';
+import { MailContent } from '../../../platform/mail/mail-layout';
+import { MailText } from '../../../platform/mail/mail-text';
 
 /**
  * The link somebody asked for from the login page (FR-AUTH-02). Same shape as

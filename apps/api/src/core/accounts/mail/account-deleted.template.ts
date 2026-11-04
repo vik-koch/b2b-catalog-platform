@@ -1,5 +1,5 @@
-import { MailContent } from '../mail-layout';
-import { MailText } from '../mail-text';
+import { MailContent } from '../../../platform/mail/mail-layout';
+import { MailText } from '../../../platform/mail/mail-text';
 
 /**
  * Sent to the address that just deleted its own account (FR-AUTH-06), and the

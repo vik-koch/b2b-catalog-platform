@@ -1,5 +1,5 @@
-import { MailContent } from '../mail-layout';
-import { MailText } from '../mail-text';
+import { MailContent } from '../../../platform/mail/mail-layout';
+import { MailText } from '../../../platform/mail/mail-text';
 
 /**
  * The link that turns an approved registration — or an account staff created —

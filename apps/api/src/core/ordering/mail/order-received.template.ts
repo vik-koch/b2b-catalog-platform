@@ -4,9 +4,9 @@ import {
   MoneyFormat,
 } from '@b2b-catalog-platform/shared/platform';
 import { OrderDetail } from '@b2b-catalog-platform/shared/core/ordering';
-import { shopDay } from '../../core/ordering/shop-day';
-import { MailContent } from '../mail-layout';
-import { MailText } from '../mail-text';
+import { shopDay } from '../shop-day';
+import { MailContent } from '../../../platform/mail/mail-layout';
+import { MailText } from '../../../platform/mail/mail-text';
 import {
   orderLinesDifferInTax,
   orderMailItem,

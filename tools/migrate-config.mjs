@@ -64,7 +64,10 @@ const SCHEMAS = {
     'apps/web/src/app/shared/config/admin-text.type.ts',
     'adminTextSchema',
   ],
-  'texts/mail.json': ['apps/api/src/mail/mail-text.ts', 'mailTextSchema'],
+  'texts/mail.json': [
+    'apps/api/src/platform/mail/mail-text.ts',
+    'mailTextSchema',
+  ],
   'texts/pdf.json': ['apps/api/src/platform/pdf/pdf-text.ts', 'pdfTextSchema'],
 };
 const FILES = Object.keys(SCHEMAS);

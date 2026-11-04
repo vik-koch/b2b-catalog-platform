@@ -14,10 +14,10 @@ import {
 import { DRIZZLE } from '../../platform/db/database.module';
 import * as schema from '../../platform/db/schema';
 import { pageVersions } from '../../platform/db/schema';
-import { MAIL_BRANDING, MailBranding } from '../../mail/mail-branding';
+import { MAIL_BRANDING, MailBranding } from '../../platform/mail/mail-branding';
 import { SHARED_TEXT } from '../../platform/config/shared-text';
 import { PDF_TEXT, PdfText } from '../../platform/pdf/pdf-text';
-import { MailAttachment } from '../../mail/mailer';
+import { MailAttachment } from '../../platform/mail/mailer';
 import { PdfFaces } from '../../platform/pdf/pdf-faces';
 import { Sheet } from '../../platform/pdf/pdf-sheet';
 import { richTextBlocks } from '../../platform/pdf/rich-text-blocks';

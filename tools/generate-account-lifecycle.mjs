@@ -38,7 +38,7 @@ const { ACCOUNT_PROBES } = await loadTypeScript(
   'apps/api-e2e/src/journeys/account-probe-labels.ts',
 );
 const { mailPreviewByKind } = await loadTypeScript(
-  'apps/api/src/mail/mail-previews.ts',
+  'apps/api/src/app/mail-previews.ts',
 );
 
 const list = (values) => values.map((value) => `\`${value}\``).join(' · ');

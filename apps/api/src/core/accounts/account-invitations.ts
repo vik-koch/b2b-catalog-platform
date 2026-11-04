@@ -1,12 +1,9 @@
 import { ConflictException, Inject, Injectable, Logger } from '@nestjs/common';
 import { INVITE_TTL_MS, PasswordTokenService } from './password-token.service';
 import { PasswordService } from './password.service';
-import { MAIL_TEXT, MailText } from '../../mail/mail-text';
-import { MailDispatcher } from '../../mail/mail-dispatcher';
-import {
-  InvitationKind,
-  invitationMail,
-} from '../../mail/templates/invitation.template';
+import { MAIL_TEXT, MailText } from '../../platform/mail/mail-text';
+import { MailDispatcher } from '../../platform/mail/mail-dispatcher';
+import { InvitationKind, invitationMail } from './mail/invitation.template';
 import { PasswordResetService } from './password-reset.service';
 import { StaffUsersService } from './staff-users.service';
 import {

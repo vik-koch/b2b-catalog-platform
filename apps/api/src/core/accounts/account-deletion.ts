@@ -1,14 +1,14 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { PasswordTokenService } from './password-token.service';
 import { PasswordService } from './password.service';
-import { MAIL_TEXT, MailText } from '../../mail/mail-text';
+import { MAIL_TEXT, MailText } from '../../platform/mail/mail-text';
 import { SHARED_TEXT } from '../../platform/config/shared-text';
-import { MailDispatcher } from '../../mail/mail-dispatcher';
+import { MailDispatcher } from '../../platform/mail/mail-dispatcher';
 import {
   accountClosedMail,
   ClosedAccountSummary,
-} from '../../mail/templates/account-closed.template';
-import { accountDeletedMail } from '../../mail/templates/account-deleted.template';
+} from './mail/account-closed.template';
+import { accountDeletedMail } from './mail/account-deleted.template';
 import { SharedText } from '@b2b-catalog-platform/shared/platform';
 import { ACCOUNT_ORDERS, AccountOrders } from './account-orders';
 import { AccountErasure } from './account-erasure';

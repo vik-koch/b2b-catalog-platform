@@ -1,6 +1,6 @@
 import { type SiteNotice } from '@b2b-catalog-platform/shared/platform';
-import { loadApiDeploymentConfig } from '../platform/config/deployment-config';
-import { env } from '../platform/env';
+import { loadApiDeploymentConfig } from '../config/deployment-config';
+import { env } from '../env';
 import { MailColors, mailColors } from './mail-colors';
 
 /** What a rendered message needs to look like it came from this deployment. */

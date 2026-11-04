@@ -3,8 +3,8 @@ import {
   OrderDetail,
   OrderNotice,
 } from '@b2b-catalog-platform/shared/core/ordering';
-import { MailContent } from '../mail-layout';
-import { MailText } from '../mail-text';
+import { MailContent } from '../../../platform/mail/mail-layout';
+import { MailText } from '../../../platform/mail/mail-text';
 import {
   orderLinesDifferInTax,
   orderMailItem,

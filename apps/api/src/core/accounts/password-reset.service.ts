@@ -1,8 +1,8 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { MAIL_TEXT, MailText } from '../../mail/mail-text';
-import { MailDispatcher } from '../../mail/mail-dispatcher';
-import { invitationMail } from '../../mail/templates/invitation.template';
-import { passwordResetMail } from '../../mail/templates/password-reset.template';
+import { MAIL_TEXT, MailText } from '../../platform/mail/mail-text';
+import { MailDispatcher } from '../../platform/mail/mail-dispatcher';
+import { invitationMail } from './mail/invitation.template';
+import { passwordResetMail } from './mail/password-reset.template';
 import { UsersService } from './users.service';
 import {
   INVITE_TTL_MS,

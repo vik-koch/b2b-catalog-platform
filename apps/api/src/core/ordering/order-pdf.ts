@@ -8,7 +8,7 @@ import {
   orderLineTax,
   orderLinesDifferInTax,
   orderTaxStatement,
-} from '../../mail/templates/order-items';
+} from './mail/order-items';
 import {
   OrderAddress,
   OrderDetail,
@@ -21,7 +21,7 @@ import {
   MONEY_FORMAT,
   ORDER_REFERENCE_CONFIG,
 } from '../../platform/config/deployment-config';
-import { MAIL_BRANDING, MailBranding } from '../../mail/mail-branding';
+import { MAIL_BRANDING, MailBranding } from '../../platform/mail/mail-branding';
 import { SHARED_TEXT } from '../../platform/config/shared-text';
 import { PdfFaces } from '../../platform/pdf/pdf-faces';
 import { PDF_TEXT, PdfText } from '../../platform/pdf/pdf-text';

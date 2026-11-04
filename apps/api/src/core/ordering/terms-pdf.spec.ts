@@ -5,7 +5,7 @@ import {
   demoSharedText,
   demoMailBranding,
   demoPdfText,
-} from '../../mail/mail-text.fixture';
+} from '../../platform/mail/mail-text.fixture';
 import { PdfFaces } from '../../platform/pdf/pdf-faces';
 import { demoAdminOrder } from './order.fixture';
 import { TermsPdf } from './terms-pdf';

@@ -15,11 +15,11 @@ import {
   PhoneRule,
 } from '../../platform/config/deployment-config';
 import { env } from '../../platform/env';
-import { MAIL_TEXT, MailText } from '../../mail/mail-text';
+import { MAIL_TEXT, MailText } from '../../platform/mail/mail-text';
 import { SHARED_TEXT } from '../../platform/config/shared-text';
-import { MailDispatcher } from '../../mail/mail-dispatcher';
-import { newRegistrationMail } from '../../mail/templates/new-registration.template';
-import { registrationReceivedMail } from '../../mail/templates/registration-received.template';
+import { MailDispatcher } from '../../platform/mail/mail-dispatcher';
+import { newRegistrationMail } from './mail/new-registration.template';
+import { registrationReceivedMail } from './mail/registration-received.template';
 import { storedPhone } from '../../core/accounts/stored-phone';
 import { UsersService } from '../../core/accounts/users.service';
 import { PasswordService } from '../../core/accounts/password.service';

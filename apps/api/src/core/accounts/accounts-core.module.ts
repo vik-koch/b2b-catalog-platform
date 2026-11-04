@@ -14,9 +14,9 @@ import {
   PHONE_RULE,
 } from '../../platform/config/deployment-config';
 import { env } from '../../platform/env';
-import { MailModule } from '../../mail/mail.module';
-import { MailService } from '../../mail/mail.service';
-import { MAIL_TEXT, MailText } from '../../mail/mail-text';
+import { MailModule } from '../../platform/mail/mail.module';
+import { MailService } from '../../platform/mail/mail.service';
+import { MAIL_TEXT, MailText } from '../../platform/mail/mail-text';
 import { jwtSecret, SessionModule } from '../../platform/auth/session.module';
 import { AccountDeletion } from './account-deletion';
 import { AccountErasure } from './account-erasure';

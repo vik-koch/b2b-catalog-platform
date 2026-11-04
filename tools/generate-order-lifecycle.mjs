@@ -36,7 +36,7 @@ const { ORDER_PROBES } = await loadTypeScript(
   'apps/api-e2e/src/journeys/order-probe-labels.ts',
 );
 const { mailPreviewByKind } = await loadTypeScript(
-  'apps/api/src/mail/mail-previews.ts',
+  'apps/api/src/app/mail-previews.ts',
 );
 const {
   ORDER_STATUSES,

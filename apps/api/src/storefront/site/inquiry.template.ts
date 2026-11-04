@@ -1,7 +1,7 @@
 import { SharedText } from '@b2b-catalog-platform/shared/platform';
 import { InquiryRequest } from '@b2b-catalog-platform/shared/storefront/site';
-import { MailContent } from '../mail-layout';
-import { MailText } from '../mail-text';
+import { MailContent } from '../../platform/mail/mail-layout';
+import { MailText } from '../../platform/mail/mail-text';
 
 /**
  * The inquiry form's message to the shop (FR-NAV-06) — the one email with an

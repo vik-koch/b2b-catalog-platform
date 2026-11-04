@@ -19,8 +19,8 @@ import { MailCallCheck } from '../../core/accounts/sign-in-step/mail-call-check'
 import { CodeResendLimitError } from '../../core/accounts/sign-in-step/code-resend-limit-error';
 import { SignInStep } from '../../core/accounts/sign-in-step/sign-in-step';
 import { SIGN_IN_PROOF } from '../../core/accounts/sign-in-step/sign-in-proof';
-import { MailService } from '../../mail/mail.service';
-import { demoMailText } from '../../mail/mail-text.fixture';
+import { MailService } from '../../platform/mail/mail.service';
+import { demoMailText } from '../../platform/mail/mail-text.fixture';
 import { issueSession } from '../../platform/auth/session-cookie';
 import { Sessions } from '../../platform/auth/sessions';
 import {

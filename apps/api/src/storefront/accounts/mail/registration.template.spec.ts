@@ -1,4 +1,7 @@
-import { demoSharedText, demoMailText } from '../mail-text.fixture';
+import {
+  demoSharedText,
+  demoMailText,
+} from '../../../platform/mail/mail-text.fixture';
 import { newRegistrationMail } from './new-registration.template';
 import { registrationReceivedMail } from './registration-received.template';
 

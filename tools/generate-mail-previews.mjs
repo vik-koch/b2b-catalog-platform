@@ -59,15 +59,17 @@ const rendered = (slug) =>
   `https://htmlpreview.github.io/?https://raw.githubusercontent.com/${repository}/HEAD/docs/mail/${slug}.html`;
 
 const { mailTextSchema } = await loadTypeScript(
-  'apps/api/src/mail/mail-text.ts',
+  'apps/api/src/platform/mail/mail-text.ts',
 );
 const { sharedTextSchema } = await loadTypeScript(
   'libs/shared/src/platform/config/shared-text.ts',
 );
 const { renderMailPreviews, MAIL_PREVIEW_GROUPS } = await loadTypeScript(
-  'apps/api/src/mail/mail-previews.ts',
+  'apps/api/src/app/mail-previews.ts',
 );
-const { mailColors } = await loadTypeScript('apps/api/src/mail/mail-colors.ts');
+const { mailColors } = await loadTypeScript(
+  'apps/api/src/platform/mail/mail-colors.ts',
+);
 
 /**
  * The wording, validated the way the API validates it at boot. A translated

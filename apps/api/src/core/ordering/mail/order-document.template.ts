@@ -4,8 +4,8 @@ import {
   OrderDocumentKind,
 } from '@b2b-catalog-platform/shared/core/ordering';
 import { orderMailTotal } from './order-items';
-import { MailContent } from '../mail-layout';
-import { MailText } from '../mail-text';
+import { MailContent } from '../../../platform/mail/mail-layout';
+import { MailText } from '../../../platform/mail/mail-text';
 
 /**
  * The message a supplied document sends on its own (FR-ORD-05, ADR 0052).

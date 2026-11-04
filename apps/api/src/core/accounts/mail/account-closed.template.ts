@@ -1,6 +1,6 @@
 import { SharedText, fillText } from '@b2b-catalog-platform/shared/platform';
-import { MailContent } from '../mail-layout';
-import { MailText } from '../mail-text';
+import { MailContent } from '../../../platform/mail/mail-layout';
+import { MailText } from '../../../platform/mail/mail-text';
 import { formatPersonName } from '@b2b-catalog-platform/shared/core/accounts';
 
 /** What the notification reports — the account, as it was before it went. */

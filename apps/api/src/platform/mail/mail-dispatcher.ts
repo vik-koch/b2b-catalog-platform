@@ -1,5 +1,5 @@
 import { Injectable, Logger, OnApplicationShutdown } from '@nestjs/common';
-import { env } from '../platform/env';
+import { env } from '../env';
 import { MailContent } from './mail-layout';
 import { MailEnvelope, MailService } from './mail.service';
 

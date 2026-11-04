@@ -1,5 +1,8 @@
 import { InquiryRequest } from '@b2b-catalog-platform/shared/storefront/site';
-import { demoSharedText, demoMailText } from '../mail-text.fixture';
+import {
+  demoSharedText,
+  demoMailText,
+} from '../../platform/mail/mail-text.fixture';
 import { inquiryMail } from './inquiry.template';
 
 const submission: InquiryRequest = {

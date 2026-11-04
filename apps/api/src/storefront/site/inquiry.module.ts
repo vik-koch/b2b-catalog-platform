@@ -4,7 +4,7 @@ import {
   PHONE_INPUT,
 } from '../../platform/config/deployment-config';
 import { ConsentModule } from '../../core/site/consent.module';
-import { MailModule } from '../../mail/mail.module';
+import { MailModule } from '../../platform/mail/mail.module';
 import { InquiryController } from './inquiry.controller';
 import { InquiryService } from './inquiry.service';
 

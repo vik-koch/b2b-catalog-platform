@@ -7,15 +7,15 @@ import {
   PHONE_INPUT,
   PHONE_RULE,
 } from '../../platform/config/deployment-config';
-import { MAIL_TEXT } from '../../mail/mail-text';
+import { MAIL_TEXT } from '../../platform/mail/mail-text';
 import { SHARED_TEXT } from '../../platform/config/shared-text';
 import {
   demoSharedText,
   demoMailText,
   demoPhoneInput,
-} from '../../mail/mail-text.fixture';
-import { MailDispatcher } from '../../mail/mail-dispatcher';
-import { dispatcherOver } from '../../mail/mail-dispatcher.fixture';
+} from '../../platform/mail/mail-text.fixture';
+import { MailDispatcher } from '../../platform/mail/mail-dispatcher';
+import { dispatcherOver } from '../../platform/mail/mail-dispatcher.fixture';
 import { UsersService } from '../../core/accounts/users.service';
 import { PasswordService } from '../../core/accounts/password.service';
 import { RegistrationService } from './registration.service';

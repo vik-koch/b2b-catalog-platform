@@ -1,7 +1,7 @@
 import { SharedText, MoneyFormat } from '@b2b-catalog-platform/shared/platform';
 import { AdminOrderDetail } from '@b2b-catalog-platform/shared/core/ordering';
-import { MailContent } from '../mail-layout';
-import { MailText } from '../mail-text';
+import { MailContent } from '../../../platform/mail/mail-layout';
+import { MailText } from '../../../platform/mail/mail-text';
 import {
   orderLinesDifferInTax,
   orderMailItem,

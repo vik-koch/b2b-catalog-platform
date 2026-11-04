@@ -7,34 +7,41 @@ import {
   OrderPickup,
 } from '@b2b-catalog-platform/shared/core/ordering';
 import { SyncRun } from '@b2b-catalog-platform/shared/core/exchange';
-import type { MailBranding } from './mail-branding';
-import { DEFAULT_MAIL_COLORS } from './mail-colors';
-import { MailContent, RenderedMail, renderMail } from './mail-layout';
-import { demoSharedText, demoMailText } from './mail-text.fixture';
-import type { MailText } from './mail-text';
+import type { MailBranding } from '../platform/mail/mail-branding';
+import { DEFAULT_MAIL_COLORS } from '../platform/mail/mail-colors';
+import {
+  MailContent,
+  RenderedMail,
+  renderMail,
+} from '../platform/mail/mail-layout';
+import {
+  demoSharedText,
+  demoMailText,
+} from '../platform/mail/mail-text.fixture';
+import type { MailText } from '../platform/mail/mail-text';
 import { demoAdminOrder } from '../core/ordering/order.fixture';
-import { accountDeletedMail } from './templates/account-deleted.template';
-import { inquiryMail } from './templates/inquiry.template';
-import { invitationMail } from './templates/invitation.template';
-import { accountClosedMail } from './templates/account-closed.template';
-import { newOrderMail } from './templates/new-order.template';
-import { orderCancelledMail } from './templates/order-cancelled.template';
-import { newRegistrationMail } from './templates/new-registration.template';
-import { orderDocumentMail } from './templates/order-document.template';
-import { orderReceivedMail } from './templates/order-received.template';
-import { orderStatusChangedMail } from './templates/order-status.template';
-import { passwordResetMail } from './templates/password-reset.template';
-import { registrationReceivedMail } from './templates/registration-received.template';
+import { accountDeletedMail } from '../core/accounts/mail/account-deleted.template';
+import { inquiryMail } from '../storefront/site/inquiry.template';
+import { invitationMail } from '../core/accounts/mail/invitation.template';
+import { accountClosedMail } from '../core/accounts/mail/account-closed.template';
+import { newOrderMail } from '../core/ordering/mail/new-order.template';
+import { orderCancelledMail } from '../core/ordering/mail/order-cancelled.template';
+import { newRegistrationMail } from '../storefront/accounts/mail/new-registration.template';
+import { orderDocumentMail } from '../core/ordering/mail/order-document.template';
+import { orderReceivedMail } from '../core/ordering/mail/order-received.template';
+import { orderStatusChangedMail } from '../core/ordering/mail/order-status.template';
+import { passwordResetMail } from '../core/accounts/mail/password-reset.template';
+import { registrationReceivedMail } from '../storefront/accounts/mail/registration-received.template';
 import {
   signInCallMail,
   signInCodeMail,
-} from './templates/sign-in-code.template';
+} from '../core/accounts/mail/sign-in-code.template';
 import {
   syncCreatedMail,
   syncFailedMail,
   syncRecoveredMail,
   syncWaitingMail,
-} from './templates/sync-run.template';
+} from '../core/exchange/sync-run.template';
 
 /**
  * Every message the app can send, rendered from demo wording — the readable

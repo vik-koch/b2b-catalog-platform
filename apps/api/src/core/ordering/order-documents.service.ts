@@ -21,7 +21,7 @@ import {
   orders,
 } from '../../platform/db/schema';
 import { MEDIA_STORE, MediaStore } from '../../platform/media/media-store';
-import { MailAttachment } from '../../mail/mailer';
+import { MailAttachment } from '../../platform/mail/mailer';
 import { OrderPdf } from './order-pdf';
 
 /** A file on its way out: the bytes, and what the browser should call them. */

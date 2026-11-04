@@ -34,7 +34,7 @@ import {
   TAX_CONFIG,
   loadTermsPublished,
 } from '../../platform/config/deployment-config';
-import { MailModule } from '../../mail/mail.module';
+import { MailModule } from '../../platform/mail/mail.module';
 import { MediaModule } from '../../platform/media/media.module';
 import { OrderDocumentActs } from './order-document-acts';
 import { OrderDocumentsController } from './order-documents.controller';

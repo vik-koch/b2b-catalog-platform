@@ -1,8 +1,8 @@
 import { randomBytes } from 'node:crypto';
 import { Logger } from '@nestjs/common';
-import { MailService } from '../../../mail/mail.service';
-import { MailText } from '../../../mail/mail-text';
-import { signInCallMail } from '../../../mail/templates/sign-in-code.template';
+import { MailService } from '../../../platform/mail/mail.service';
+import { MailText } from '../../../platform/mail/mail-text';
+import { signInCallMail } from '../mail/sign-in-code.template';
 import {
   CallCheck,
   CallCheckRequest,

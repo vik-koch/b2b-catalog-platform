@@ -1,5 +1,5 @@
-import { MailContent } from '../mail-layout';
-import { MailText } from '../mail-text';
+import { MailContent } from '../../../platform/mail/mail-layout';
+import { MailText } from '../../../platform/mail/mail-text';
 
 /**
  * Sent to the visitor who registered (FR-NOTIF-01). It confirms the request and
