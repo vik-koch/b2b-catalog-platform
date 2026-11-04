@@ -25,7 +25,7 @@ import {
  * run proceeds).
  */
 
-export interface ParsedSyncRows {
+export interface ParsedCatalogSyncRows {
   rows: CatalogSyncRow[];
   errors: CatalogSyncRowError[];
 }
@@ -68,7 +68,7 @@ function priceListKeyOf(header: string): CatalogSyncPriceListKey | null {
   return key === '' ? null : key;
 }
 
-export function parseSyncCsv(text: string): ParsedSyncRows {
+export function parseCatalogSyncCsv(text: string): ParsedCatalogSyncRows {
   const { records, headers } = parseCsvFile(text);
 
   // Header → the price list it writes; the rest of the parser treats these

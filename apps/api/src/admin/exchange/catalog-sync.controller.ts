@@ -16,7 +16,7 @@ import {
 import { Auth } from '../../platform/auth/auth.decorator';
 import { CurrentUser } from '../../platform/auth/current-user.decorator';
 import { SyncFormatError } from './csv-file';
-import { parseSyncCsv } from './sync-csv';
+import { parseCatalogSyncCsv } from './catalog-sync-csv';
 import { CatalogSyncService } from '../../core/exchange/catalog-sync.service';
 import { AuthUser } from '@b2b-catalog-platform/shared/platform';
 
@@ -75,7 +75,7 @@ export class CatalogSyncController {
 
     let parsed;
     try {
-      parsed = parseSyncCsv(file.buffer.toString('utf8'));
+      parsed = parseCatalogSyncCsv(file.buffer.toString('utf8'));
     } catch (error) {
       if (error instanceof SyncFormatError) {
         throw new BadRequestException({
