@@ -11,7 +11,7 @@ import { defaultStorefrontText } from '../../platform/config/storefront-text.fix
 import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
 import { defaultDeploymentConfig } from '../../platform/config/deployment-config.fixture';
 import { BottomNav } from './bottom-nav';
-import { MobileSearch } from './mobile-search';
+import { MobileSearch } from '../platform/mobile-search';
 import { UserRole } from '@b2b-catalog-platform/shared/platform';
 
 /** Enough of AuthService for the panel's one session-dependent row. */

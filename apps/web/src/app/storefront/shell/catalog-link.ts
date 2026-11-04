@@ -2,7 +2,7 @@ import { Component, computed, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { SHARED_TEXT } from '../../platform/config/shared-text';
 import { currentUrl } from '../../platform/current-url';
-import { navActionClasses, NavVariant } from './nav-action';
+import { navActionClasses, NavVariant } from '../platform/nav-action';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { storeIcon } from '@b2b-catalog-platform/ui/icons/glyphs/store';
 

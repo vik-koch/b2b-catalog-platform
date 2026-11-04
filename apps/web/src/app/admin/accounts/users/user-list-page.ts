@@ -24,7 +24,7 @@ import { GridColumn } from '@b2b-catalog-platform/ui/grid/grid-column';
 import { GridFilterOption } from '@b2b-catalog-platform/ui/grid/grid-filter-select';
 import { GridCardTemplate } from '@b2b-catalog-platform/ui/grid/grid-card-template';
 import { GridRowTemplate } from '@b2b-catalog-platform/ui/grid/grid-row-template';
-import { GridTimestamp } from '../../dates/grid-timestamp';
+import { GridTimestamp } from '../../platform/dates/grid-timestamp';
 import { RecordRow } from '@b2b-catalog-platform/ui/lists/record-row';
 import { GridHeader } from '@b2b-catalog-platform/ui/grid/grid-header';
 import { OwnershipService } from '../../platform/ownership/ownership.service';

@@ -4,7 +4,7 @@ import { STOREFRONT_TEXT } from '../../platform/config/storefront-text';
 import { AuthService } from '../../platform/auth/auth.service';
 import { landingFor } from '../../platform/auth/auth.guard';
 import { currentUrl } from '../../platform/current-url';
-import { navActionClasses, NavVariant } from './nav-action';
+import { navActionClasses, NavVariant } from '../platform/nav-action';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { fillText } from '@b2b-catalog-platform/shared/platform';
 import { WorkService } from '../../core/work/work.service';

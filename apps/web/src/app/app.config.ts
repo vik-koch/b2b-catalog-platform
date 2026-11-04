@@ -26,7 +26,7 @@ import {
   provideSharedText,
   provideUiText,
 } from './platform/config/shared-text';
-import { provideGridText } from './admin/provide-grid-text';
+import { provideGridText } from './admin/platform/provide-grid-text';
 import { provideDeploymentConfig } from './platform/config/deployment-config';
 import { provideSuggestionsEnabled } from './platform/config/suggestions-enabled';
 import { provideDigitMaskFormat } from './platform/contact-fields';

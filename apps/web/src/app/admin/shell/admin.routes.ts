@@ -1,7 +1,7 @@
 import { Route } from '@angular/router';
-import { requireAuth } from '../platform/auth/auth.guard';
-import { adminTextGuard } from '../platform/config/admin-text';
-import { unsavedChangesGuard } from './unsaved-changes.guard';
+import { requireAuth } from '../../platform/auth/auth.guard';
+import { adminTextGuard } from '../../platform/config/admin-text';
+import { unsavedChangesGuard } from '../platform/unsaved-changes.guard';
 
 /*
  * Staff routes, lazy and client-rendered. Each also waits on adminTextGuard:
@@ -20,7 +20,7 @@ export const adminRoutes: Route[] = [
     path: 'admin/products',
     canActivate: [requireAuth('admin'), adminTextGuard],
     loadComponent: () =>
-      import('./catalog/products/product-list-page').then(
+      import('../catalog/products/product-list-page').then(
         (m) => m.ProductListPage,
       ),
   },
@@ -46,14 +46,14 @@ export const adminRoutes: Route[] = [
     data: { area: 'catalog' },
     canActivate: [requireAuth('admin'), adminTextGuard],
     loadComponent: () =>
-      import('./exchange/sync-runs-page').then((m) => m.SyncRunsPage),
+      import('../exchange/sync-runs-page').then((m) => m.SyncRunsPage),
   },
   {
     path: 'admin/sync/customers',
     data: { area: 'customers' },
     canActivate: [requireAuth('admin', 'manager'), adminTextGuard],
     loadComponent: () =>
-      import('./exchange/sync-runs-page').then((m) => m.SyncRunsPage),
+      import('../exchange/sync-runs-page').then((m) => m.SyncRunsPage),
   },
   // The order exchange's log. A manager's as well as an admin's, for the
   // reason the customer one is: an order run is the work on their own desk
@@ -64,13 +64,13 @@ export const adminRoutes: Route[] = [
     data: { area: 'orders' },
     canActivate: [requireAuth('admin', 'manager'), adminTextGuard],
     loadComponent: () =>
-      import('./exchange/sync-runs-page').then((m) => m.SyncRunsPage),
+      import('../exchange/sync-runs-page').then((m) => m.SyncRunsPage),
   },
   {
     path: 'admin/sync/catalog/new',
     canActivate: [requireAuth('admin'), adminTextGuard],
     loadComponent: () =>
-      import('./exchange/catalog-sync-upload-page').then(
+      import('../exchange/catalog-sync-upload-page').then(
         (m) => m.CatalogSyncUploadPage,
       ),
   },
@@ -81,7 +81,7 @@ export const adminRoutes: Route[] = [
     path: 'admin/sync/customers/new',
     canActivate: [requireAuth('admin'), adminTextGuard],
     loadComponent: () =>
-      import('./exchange/customer-sync-upload-page').then(
+      import('../exchange/customer-sync-upload-page').then(
         (m) => m.CustomerSyncUploadPage,
       ),
   },
@@ -93,7 +93,7 @@ export const adminRoutes: Route[] = [
     path: 'admin/sync/runs/:id',
     canActivate: [requireAuth('admin', 'manager'), adminTextGuard],
     loadComponent: () =>
-      import('./exchange/sync-run-page').then((m) => m.SyncRunPage),
+      import('../exchange/sync-run-page').then((m) => m.SyncRunPage),
   },
   // Filterable attributes edit in place too — a definition is four fields,
   // so there is no editor route to pair with this one.
@@ -101,7 +101,7 @@ export const adminRoutes: Route[] = [
     path: 'admin/attributes',
     canActivate: [requireAuth('admin'), adminTextGuard],
     loadComponent: () =>
-      import('./catalog/attributes/attribute-list-page').then(
+      import('../catalog/attributes/attribute-list-page').then(
         (m) => m.AttributeListPage,
       ),
   },
@@ -112,7 +112,7 @@ export const adminRoutes: Route[] = [
     path: 'admin/attributes/inventory',
     canActivate: [requireAuth('admin'), adminTextGuard],
     loadComponent: () =>
-      import('./catalog/attributes/attribute-inventory-page').then(
+      import('../catalog/attributes/attribute-inventory-page').then(
         (m) => m.AttributeInventoryPage,
       ),
   },
@@ -123,7 +123,7 @@ export const adminRoutes: Route[] = [
     path: 'admin/documents',
     canActivate: [requireAuth('admin'), adminTextGuard],
     loadComponent: () =>
-      import('./catalog/documents/document-list-page').then(
+      import('../catalog/documents/document-list-page').then(
         (m) => m.DocumentListPage,
       ),
   },
@@ -134,7 +134,7 @@ export const adminRoutes: Route[] = [
       unsavedChangesGuard((t) => t.documents.editor.discardConfirm),
     ],
     loadComponent: () =>
-      import('./catalog/documents/document-editor-page').then(
+      import('../catalog/documents/document-editor-page').then(
         (m) => m.DocumentEditorPage,
       ),
   },
@@ -145,7 +145,7 @@ export const adminRoutes: Route[] = [
       unsavedChangesGuard((t) => t.documents.editor.discardConfirm),
     ],
     loadComponent: () =>
-      import('./catalog/documents/document-editor-page').then(
+      import('../catalog/documents/document-editor-page').then(
         (m) => m.DocumentEditorPage,
       ),
   },
@@ -155,7 +155,7 @@ export const adminRoutes: Route[] = [
     path: 'admin/tiers',
     canActivate: [requireAuth('admin'), adminTextGuard],
     loadComponent: () =>
-      import('./catalog/tiers/tier-list-page').then((m) => m.TierListPage),
+      import('../catalog/tiers/tier-list-page').then((m) => m.TierListPage),
   },
   // Machine tokens (NFR-SEC-09). Beside the tiers rather than under the sync:
   // a token is a credential the deployment issues, and the catalog import is
@@ -164,7 +164,7 @@ export const adminRoutes: Route[] = [
     path: 'admin/api-tokens',
     canActivate: [requireAuth('admin'), adminTextGuard],
     loadComponent: () =>
-      import('./exchange/api-tokens/api-token-list-page').then(
+      import('../exchange/api-tokens/api-token-list-page').then(
         (m) => m.ApiTokenListPage,
       ),
   },
@@ -174,7 +174,7 @@ export const adminRoutes: Route[] = [
     path: 'admin/operations',
     canActivate: [requireAuth('admin'), adminTextGuard],
     loadComponent: () =>
-      import('./operations/operations-page').then((m) => m.OperationsPage),
+      import('./operations-page').then((m) => m.OperationsPage),
   },
   // Account management, one component in two views. Customers: admin and
   // manager both, since the permission split is on the row actions, not on
@@ -185,14 +185,14 @@ export const adminRoutes: Route[] = [
     data: { kind: 'customer' },
     canActivate: [requireAuth('admin', 'manager'), adminTextGuard],
     loadComponent: () =>
-      import('./accounts/users/user-list-page').then((m) => m.UserListPage),
+      import('../accounts/users/user-list-page').then((m) => m.UserListPage),
   },
   {
     path: 'admin/users/staff',
     data: { kind: 'staff' },
     canActivate: [requireAuth('admin'), adminTextGuard],
     loadComponent: () =>
-      import('./accounts/users/user-list-page').then((m) => m.UserListPage),
+      import('../accounts/users/user-list-page').then((m) => m.UserListPage),
   },
   // Adding, editing and approving share one screen. The literal `staff/new`
   // stays ahead of `:id/edit` so it is never read as an account id.
@@ -202,7 +202,9 @@ export const adminRoutes: Route[] = [
     canActivate: [requireAuth('admin', 'manager'), adminTextGuard],
     canDeactivate: [unsavedChangesGuard((t) => t.users.editor.discardConfirm)],
     loadComponent: () =>
-      import('./accounts/users/user-editor-page').then((m) => m.UserEditorPage),
+      import('../accounts/users/user-editor-page').then(
+        (m) => m.UserEditorPage,
+      ),
   },
   {
     path: 'admin/users/staff/new',
@@ -210,7 +212,9 @@ export const adminRoutes: Route[] = [
     canActivate: [requireAuth('admin'), adminTextGuard],
     canDeactivate: [unsavedChangesGuard((t) => t.users.editor.discardConfirm)],
     loadComponent: () =>
-      import('./accounts/users/user-editor-page').then((m) => m.UserEditorPage),
+      import('../accounts/users/user-editor-page').then(
+        (m) => m.UserEditorPage,
+      ),
   },
   // Reading one account, for customers and staff alike. Kept ahead of the
   // editor for no reason but reading order — the two paths cannot collide.
@@ -220,7 +224,9 @@ export const adminRoutes: Route[] = [
     path: 'admin/users/:id',
     canActivate: [requireAuth('admin', 'manager'), adminTextGuard],
     loadComponent: () =>
-      import('./accounts/users/user-detail-page').then((m) => m.UserDetailPage),
+      import('../accounts/users/user-detail-page').then(
+        (m) => m.UserDetailPage,
+      ),
   },
   {
     // Admin and manager both: which accounts a manager may open is the API's
@@ -229,7 +235,9 @@ export const adminRoutes: Route[] = [
     canActivate: [requireAuth('admin', 'manager'), adminTextGuard],
     canDeactivate: [unsavedChangesGuard((t) => t.users.editor.discardConfirm)],
     loadComponent: () =>
-      import('./accounts/users/user-editor-page').then((m) => m.UserEditorPage),
+      import('../accounts/users/user-editor-page').then(
+        (m) => m.UserEditorPage,
+      ),
   },
   // A person's consent records (NFR-LEGAL-09), found by address or number.
   // Admin only: answering for them is the operator's.
@@ -237,7 +245,7 @@ export const adminRoutes: Route[] = [
     path: 'admin/consents',
     canActivate: [requireAuth('admin'), adminTextGuard],
     loadComponent: () =>
-      import('./accounts/consents/consent-lookup-page').then(
+      import('../accounts/consents/consent-lookup-page').then(
         (m) => m.ConsentLookupPage,
       ),
   },
@@ -247,7 +255,7 @@ export const adminRoutes: Route[] = [
     path: 'admin/orders',
     canActivate: [requireAuth('admin', 'manager'), adminTextGuard],
     loadComponent: () =>
-      import('./ordering/order-list-page').then((m) => m.AdminOrderListPage),
+      import('../ordering/order-list-page').then((m) => m.AdminOrderListPage),
   },
   {
     // By reference, like the customer's own order page: it is the identity the
@@ -255,7 +263,7 @@ export const adminRoutes: Route[] = [
     path: 'admin/orders/:reference',
     canActivate: [requireAuth('admin', 'manager'), adminTextGuard],
     loadComponent: () =>
-      import('./ordering/order-detail-page').then(
+      import('../ordering/order-detail-page').then(
         (m) => m.AdminOrderDetailPage,
       ),
   },
@@ -267,7 +275,7 @@ export const adminRoutes: Route[] = [
     path: 'admin/orders/:reference/revisions/:number',
     canActivate: [requireAuth('admin', 'manager'), adminTextGuard],
     loadComponent: () =>
-      import('./ordering/order-revision-page').then(
+      import('../ordering/order-revision-page').then(
         (m) => m.AdminOrderRevisionPage,
       ),
   },
@@ -278,7 +286,7 @@ export const adminRoutes: Route[] = [
     path: 'admin/orders/:reference/adjust',
     canActivate: [requireAuth('admin', 'manager'), adminTextGuard],
     loadComponent: () =>
-      import('./ordering/order-adjust-page').then(
+      import('../ordering/order-adjust-page').then(
         (m) => m.AdminOrderAdjustPage,
       ),
   },
@@ -286,7 +294,7 @@ export const adminRoutes: Route[] = [
     path: 'admin/categories',
     canActivate: [requireAuth('admin'), adminTextGuard],
     loadComponent: () =>
-      import('./catalog/categories/category-list-page').then(
+      import('../catalog/categories/category-list-page').then(
         (m) => m.CategoryListPage,
       ),
   },
@@ -298,7 +306,7 @@ export const adminRoutes: Route[] = [
       unsavedChangesGuard((t) => t.categories.editor.discardConfirm),
     ],
     loadComponent: () =>
-      import('./catalog/categories/category-editor-page').then(
+      import('../catalog/categories/category-editor-page').then(
         (m) => m.CategoryEditorPage,
       ),
   },
@@ -309,7 +317,7 @@ export const adminRoutes: Route[] = [
       unsavedChangesGuard((t) => t.categories.editor.discardConfirm),
     ],
     loadComponent: () =>
-      import('./catalog/categories/category-editor-page').then(
+      import('../catalog/categories/category-editor-page').then(
         (m) => m.CategoryEditorPage,
       ),
   },
@@ -320,7 +328,7 @@ export const adminRoutes: Route[] = [
     path: 'admin/categories/:slug/filters',
     canActivate: [requireAuth('admin'), adminTextGuard],
     loadComponent: () =>
-      import('./catalog/attributes/category-filters-page').then(
+      import('../catalog/attributes/category-filters-page').then(
         (m) => m.CategoryFiltersPage,
       ),
   },
@@ -330,7 +338,7 @@ export const adminRoutes: Route[] = [
     path: 'admin/catalog/filters',
     canActivate: [requireAuth('admin'), adminTextGuard],
     loadComponent: () =>
-      import('./catalog/attributes/category-filters-page').then(
+      import('../catalog/attributes/category-filters-page').then(
         (m) => m.CategoryFiltersPage,
       ),
   },
@@ -341,7 +349,7 @@ export const adminRoutes: Route[] = [
       unsavedChangesGuard((t) => t.products.editor.discardConfirm),
     ],
     loadComponent: () =>
-      import('./catalog/products/product-editor-page').then(
+      import('../catalog/products/product-editor-page').then(
         (m) => m.ProductEditorPage,
       ),
   },
@@ -352,7 +360,7 @@ export const adminRoutes: Route[] = [
       unsavedChangesGuard((t) => t.products.editor.discardConfirm),
     ],
     loadComponent: () =>
-      import('./catalog/products/product-editor-page').then(
+      import('../catalog/products/product-editor-page').then(
         (m) => m.ProductEditorPage,
       ),
   },
@@ -366,6 +374,6 @@ export const adminRoutes: Route[] = [
     // guard runs and the editor re-reads its slug (see the strategy).
     data: { noReuse: true },
     loadComponent: () =>
-      import('./site/pages/page-editor-page').then((m) => m.PageEditorPage),
+      import('../site/pages/page-editor-page').then((m) => m.PageEditorPage),
   },
 ];

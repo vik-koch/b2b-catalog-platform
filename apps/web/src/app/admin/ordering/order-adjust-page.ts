@@ -38,7 +38,7 @@ import { formatPriceInput } from '../../core/catalog/pricing/price';
 import { ADMIN_TEXT } from '../../platform/config/admin-text';
 import { SHARED_TEXT } from '../../platform/config/shared-text';
 import { staffBlockLabels } from './staff-block-labels';
-import { staffFields } from '../staff-fields';
+import { staffFields } from '../platform/staff-fields';
 import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
 import { debounced } from '@b2b-catalog-platform/ui/core/debounced';
 import { delayedLoading } from '../../platform/delayed-loading';

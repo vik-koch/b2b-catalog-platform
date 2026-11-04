@@ -18,7 +18,7 @@ import { CartLink } from '../ordering/cart/cart-link';
 import { CatalogLink } from './catalog-link';
 import { ContactInfo } from './contact-info';
 import { HeaderCollapse } from '../../platform/header-collapse';
-import { MobileSearch, SearchAnchor } from './mobile-search';
+import { MobileSearch, SearchAnchor } from '../platform/mobile-search';
 import { SearchField } from '../catalog/search/search-field';
 
 /**

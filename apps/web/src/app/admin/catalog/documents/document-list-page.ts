@@ -18,7 +18,7 @@ import {
 import { ADMIN_TEXT } from '../../../platform/config/admin-text';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
-import { adminDayFormat } from '../../dates/admin-date';
+import { adminDayFormat } from '../../platform/dates/admin-date';
 import { delayedLoading } from '../../../platform/delayed-loading';
 import { AlternateLayout } from '../../../platform/alternate-layout';
 import { usePageSeo } from '../../../platform/page-seo';
@@ -37,7 +37,7 @@ import { GridColumn } from '@b2b-catalog-platform/ui/grid/grid-column';
 import { GridFilterOption } from '@b2b-catalog-platform/ui/grid/grid-filter-select';
 import { GridCardTemplate } from '@b2b-catalog-platform/ui/grid/grid-card-template';
 import { GridRowTemplate } from '@b2b-catalog-platform/ui/grid/grid-row-template';
-import { GridTimestamp } from '../../dates/grid-timestamp';
+import { GridTimestamp } from '../../platform/dates/grid-timestamp';
 import { GridHeader } from '@b2b-catalog-platform/ui/grid/grid-header';
 import { RecordRow } from '@b2b-catalog-platform/ui/lists/record-row';
 import { UnpublishedCount } from '../products/unpublished-count';

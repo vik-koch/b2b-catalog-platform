@@ -3,7 +3,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Title } from '@angular/platform-browser';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { filter } from 'rxjs';
-import { EditModeToggle } from './admin/edit-mode-toggle';
+import { EditModeToggle } from './admin/shell/edit-mode-toggle';
 import { ForcePasswordChange } from './storefront/accounts/auth/force-password-change';
 import { CartFigures } from './storefront/ordering/cart/cart-figures';
 import { LastListingService } from './storefront/catalog/last-listing.service';
@@ -13,11 +13,11 @@ import { DeploymentConfig } from '@b2b-catalog-platform/shared/platform';
 import { DEPLOYMENT_CONFIG } from './platform/config/deployment-config';
 import { CookieConsent } from './storefront/site/cookie-consent/cookie-consent';
 import { shopTitle } from './platform/page-seo';
-import { BottomNav } from './storefront/layout/bottom-nav';
-import { Footer } from './storefront/layout/footer';
-import { Header } from './storefront/layout/header';
-import { SearchOverlay } from './storefront/layout/search-overlay';
-import { SiteNotice } from './storefront/layout/site-notice';
+import { BottomNav } from './storefront/shell/bottom-nav';
+import { Footer } from './storefront/shell/footer';
+import { Header } from './storefront/shell/header';
+import { SearchOverlay } from './storefront/shell/search-overlay';
+import { SiteNotice } from './storefront/shell/site-notice';
 
 @Component({
   imports: [

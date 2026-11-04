@@ -30,8 +30,8 @@ import { DateInput } from '@b2b-catalog-platform/ui/inputs/date-input';
 import { Input } from '@b2b-catalog-platform/ui/inputs/input';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import { injectEditorReturn } from '../../../platform/edit-mode/editor-return';
-import { UnsavedChangesAware } from '../../unsaved-changes.guard';
-import { UnsavedChanges } from '../../unsaved-changes';
+import { UnsavedChangesAware } from '../../platform/unsaved-changes.guard';
+import { UnsavedChanges } from '../../platform/unsaved-changes';
 import { documentFileCaption } from '../../../platform/document-file';
 import { DropZone } from '@b2b-catalog-platform/ui/inputs/drop-zone';
 import {
@@ -47,8 +47,8 @@ import { externalLinkIcon } from '@b2b-catalog-platform/ui/icons/glyphs/external
 import { fileTextIcon } from '@b2b-catalog-platform/ui/icons/glyphs/file-text';
 import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
 import { uploadIcon } from '@b2b-catalog-platform/ui/icons/glyphs/upload';
-import { SaveButton } from '../../ui/save-button';
-import { CancelButton } from '../../ui/cancel-button';
+import { SaveButton } from '../../platform/ui/save-button';
+import { CancelButton } from '../../platform/ui/cancel-button';
 
 interface DocumentDraft {
   title: string;

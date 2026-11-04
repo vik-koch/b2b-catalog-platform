@@ -6,22 +6,22 @@ import {
   PageSlug,
 } from '@b2b-catalog-platform/shared/core/site';
 import { STANDALONE_PAGE_SLUGS } from '@b2b-catalog-platform/shared/storefront/site';
-import { DEPLOYMENT_CONFIG } from '../platform/config/deployment-config';
+import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
 import {
   guestOnly,
   requireAuth,
   staffToAdminOrder,
-} from '../platform/auth/auth.guard';
-import { maintenanceGate } from './site/maintenance/maintenance.guard';
-import { NotFoundPage } from './platform/not-found-page';
-import { ContactPage } from './site/pages/contact-page';
-import { InquiryPage } from './site/inquiry/inquiry-page';
-import { MaintenanceScreen } from './site/maintenance/maintenance-screen';
-import { Home } from './home/home';
-import { CategoryGrid } from './catalog/categories/category-grid';
-import { SearchResults } from './catalog/search/search-results';
-import { ProductDetail } from './catalog/product-page/product-detail';
-import { StaticPage } from './site/pages/static-page';
+} from '../../platform/auth/auth.guard';
+import { maintenanceGate } from '../site/maintenance/maintenance.guard';
+import { NotFoundPage } from '../platform/not-found-page';
+import { ContactPage } from '../site/pages/contact-page';
+import { InquiryPage } from '../site/inquiry/inquiry-page';
+import { MaintenanceScreen } from '../site/maintenance/maintenance-screen';
+import { Home } from './home';
+import { CategoryGrid } from '../catalog/categories/category-grid';
+import { SearchResults } from '../catalog/search/search-results';
+import { ProductDetail } from '../catalog/product-page/product-detail';
+import { StaticPage } from '../site/pages/static-page';
 
 /**
  * The generic page route serves a slug only when the deployment publishes it,
@@ -67,14 +67,14 @@ export const storefrontRoutes: Route[] = [
     canActivate: [guestOnly],
     data: { layout: 'centered' },
     loadComponent: () =>
-      import('./accounts/auth/login-page').then((m) => m.LoginPage),
+      import('../accounts/auth/login-page').then((m) => m.LoginPage),
   },
   {
     path: 'register',
     canActivate: [guestOnly],
     data: { layout: 'centered' },
     loadComponent: () =>
-      import('./accounts/auth/register-page').then((m) => m.RegisterPage),
+      import('../accounts/auth/register-page').then((m) => m.RegisterPage),
   },
   {
     // Guest-only like login: somebody already signed in has the
@@ -83,7 +83,7 @@ export const storefrontRoutes: Route[] = [
     canActivate: [guestOnly],
     data: { layout: 'centered' },
     loadComponent: () =>
-      import('./accounts/auth/forgot-password-page').then(
+      import('../accounts/auth/forgot-password-page').then(
         (m) => m.ForgotPasswordPage,
       ),
   },
@@ -93,7 +93,7 @@ export const storefrontRoutes: Route[] = [
     path: 'set-password',
     data: { layout: 'centered' },
     loadComponent: () =>
-      import('./accounts/auth/set-password-page').then(
+      import('../accounts/auth/set-password-page').then(
         (m) => m.SetPasswordPage,
       ),
   },
@@ -102,13 +102,13 @@ export const storefrontRoutes: Route[] = [
     path: 'account',
     canActivate: [requireAuth(), maintenanceGate],
     loadComponent: () =>
-      import('./shell/account-home-page').then((m) => m.AccountHomePage),
+      import('./account-home-page').then((m) => m.AccountHomePage),
   },
   {
     path: 'account/edit',
     canActivate: [requireAuth(), maintenanceGate],
     loadComponent: () =>
-      import('./accounts/account/account-edit-page').then(
+      import('../accounts/account/account-edit-page').then(
         (m) => m.AccountEditPage,
       ),
   },
@@ -119,7 +119,7 @@ export const storefrontRoutes: Route[] = [
     path: 'account/orders',
     canActivate: [requireAuth(), staffToAdminOrder(), maintenanceGate],
     loadComponent: () =>
-      import('./ordering/orders/order-list-page').then((m) => m.OrderListPage),
+      import('../ordering/orders/order-list-page').then((m) => m.OrderListPage),
   },
   {
     // The reference is the identity a customer was quoted and a mail links to,
@@ -127,7 +127,7 @@ export const storefrontRoutes: Route[] = [
     path: 'account/orders/:reference',
     canActivate: [requireAuth(), staffToAdminOrder(), maintenanceGate],
     loadComponent: () =>
-      import('./ordering/orders/order-detail-page').then(
+      import('../ordering/orders/order-detail-page').then(
         (m) => m.OrderDetailPage,
       ),
   },
@@ -136,7 +136,7 @@ export const storefrontRoutes: Route[] = [
     path: 'account/addresses/new',
     canActivate: [requireAuth(), maintenanceGate],
     loadComponent: () =>
-      import('./accounts/addresses/address-editor-page').then(
+      import('../accounts/addresses/address-editor-page').then(
         (m) => m.AddressEditorPage,
       ),
   },
@@ -144,7 +144,7 @@ export const storefrontRoutes: Route[] = [
     path: 'account/addresses/:id/edit',
     canActivate: [requireAuth(), maintenanceGate],
     loadComponent: () =>
-      import('./accounts/addresses/address-editor-page').then(
+      import('../accounts/addresses/address-editor-page').then(
         (m) => m.AddressEditorPage,
       ),
   },
@@ -152,7 +152,7 @@ export const storefrontRoutes: Route[] = [
     path: 'account/delete',
     canActivate: [requireAuth(), maintenanceGate],
     loadComponent: () =>
-      import('./accounts/account/account-delete-page').then(
+      import('../accounts/account/account-delete-page').then(
         (m) => m.AccountDeletePage,
       ),
   },
@@ -160,7 +160,7 @@ export const storefrontRoutes: Route[] = [
     path: 'change-password',
     canActivate: [requireAuth(), maintenanceGate],
     loadComponent: () =>
-      import('./accounts/auth/change-password-page').then(
+      import('../accounts/auth/change-password-page').then(
         (m) => m.ChangePasswordPage,
       ),
   },
@@ -173,7 +173,7 @@ export const storefrontRoutes: Route[] = [
     path: 'orders/:token',
     canActivate: [maintenanceGate],
     loadComponent: () =>
-      import('./ordering/orders/order-token-page').then(
+      import('../ordering/orders/order-token-page').then(
         (m) => m.OrderTokenPage,
       ),
   },
@@ -197,7 +197,7 @@ export const storefrontRoutes: Route[] = [
     canMatch: [publishesPage('conditions')],
     canActivate: [maintenanceGate],
     loadComponent: () =>
-      import('./shell/conditions-home-page').then((m) => m.ConditionsHomePage),
+      import('./conditions-home-page').then((m) => m.ConditionsHomePage),
   },
   { path: 'inquiry', component: InquiryPage, canActivate: [maintenanceGate] },
   // The consent texts (NFR-LEGAL-09), each under the form that asks for it.
@@ -224,7 +224,7 @@ export const storefrontRoutes: Route[] = [
     path: 'licenses',
     canActivate: [maintenanceGate],
     loadComponent: () =>
-      import('./site/pages/licenses-page').then((m) => m.LicensesPage),
+      import('../site/pages/licenses-page').then((m) => m.LicensesPage),
   },
   {
     path: 'catalog',
@@ -255,7 +255,7 @@ export const storefrontRoutes: Route[] = [
     path: 'cart',
     canActivate: [maintenanceGate],
     loadComponent: () =>
-      import('./ordering/cart/cart-page').then((m) => m.CartPage),
+      import('../ordering/cart/cart-page').then((m) => m.CartPage),
   },
   // Checkout is client-rendered like the cart, and for the same reason: it
   // orders what is in this browser's storage. Open to guests (FR-CART-03):
@@ -265,7 +265,7 @@ export const storefrontRoutes: Route[] = [
     path: 'checkout',
     canActivate: [maintenanceGate],
     loadComponent: () =>
-      import('./ordering/checkout/checkout-page').then((m) => m.CheckoutPage),
+      import('../ordering/checkout/checkout-page').then((m) => m.CheckoutPage),
   },
   {
     path: ':slug',

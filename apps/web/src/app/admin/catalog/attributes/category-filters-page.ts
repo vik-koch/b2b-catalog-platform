@@ -38,8 +38,8 @@ import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { DragGrip } from '../ui/drag-grip';
-import { SaveButton } from '../../ui/save-button';
-import { CancelButton } from '../../ui/cancel-button';
+import { SaveButton } from '../../platform/ui/save-button';
+import { CancelButton } from '../../platform/ui/cancel-button';
 
 /** Where the panel closes to when it was not opened from in the app. */
 const FALLBACK_RETURN = '/admin/categories';

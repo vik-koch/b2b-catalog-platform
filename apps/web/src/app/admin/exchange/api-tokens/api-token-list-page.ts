@@ -27,7 +27,7 @@ import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';
 import { RecordFields } from '@b2b-catalog-platform/ui/lists/record-fields';
 import { RecordFormActions } from '@b2b-catalog-platform/ui/lists/record-form-actions';
 import { RecordRow } from '@b2b-catalog-platform/ui/lists/record-row';
-import { adminMomentFormat } from '../../dates/admin-date';
+import { adminMomentFormat } from '../../platform/dates/admin-date';
 import { ApiTokensService } from './api-tokens.service';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
@@ -37,8 +37,8 @@ import { circleSlashIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-sl
 import { copyIcon } from '@b2b-catalog-platform/ui/icons/glyphs/copy';
 import { plusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/plus';
 import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
-import { SaveButton } from '../../ui/save-button';
-import { CancelButton } from '../../ui/cancel-button';
+import { SaveButton } from '../../platform/ui/save-button';
+import { CancelButton } from '../../platform/ui/cancel-button';
 
 /** The form's rows, in the order a deployment's exchange grows. */
 const SCOPE_AREAS = ['catalog', 'customers', 'orders'] as const;

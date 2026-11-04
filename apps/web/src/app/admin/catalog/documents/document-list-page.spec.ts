@@ -13,7 +13,7 @@ import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service
 import { DocumentListPage } from './document-list-page';
 import { DocumentsService } from './documents.service';
 import { provideUiText } from '../../../platform/config/shared-text';
-import { provideGridText } from '../../provide-grid-text';
+import { provideGridText } from '../../platform/provide-grid-text';
 
 const text = defaultAdminText.documents.list;
 

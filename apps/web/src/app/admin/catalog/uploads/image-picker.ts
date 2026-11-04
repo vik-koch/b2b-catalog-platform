@@ -4,15 +4,15 @@ import {
   fillText,
 } from '@b2b-catalog-platform/shared/platform';
 import { CatalogImage } from '@b2b-catalog-platform/shared/core/catalog';
-import { ADMIN_TEXT } from '../../platform/config/admin-text';
+import { ADMIN_TEXT } from '../../../platform/config/admin-text';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { DropZone } from '@b2b-catalog-platform/ui/inputs/drop-zone';
 import {
   FileTarget,
   pasteKeys,
 } from '@b2b-catalog-platform/ui/inputs/file-target';
-import { MediaService } from './media.service';
-import { SHARED_TEXT } from '../../platform/config/shared-text';
+import { CatalogUploadsService } from './catalog-uploads.service';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { imagePlusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/image-plus';
 import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
@@ -86,7 +86,7 @@ import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
 export class ImagePicker {
   protected readonly imagePlusIcon = imagePlusIcon;
   protected readonly trash2Icon = trash2Icon;
-  private readonly media = inject(MediaService);
+  private readonly uploads = inject(CatalogUploadsService);
   protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly actionText = inject(SHARED_TEXT).actions;
   protected readonly accept = ACCEPTED_IMAGE_MIME_TYPES.join(',');
@@ -118,7 +118,7 @@ export class ImagePicker {
     this.error.set(null);
     try {
       this.valueChange.emit(
-        await this.media.uploadCatalogImage(file, this.square()),
+        await this.uploads.uploadImage(file, this.square()),
       );
     } catch {
       this.error.set(this.adminText.upload.error);

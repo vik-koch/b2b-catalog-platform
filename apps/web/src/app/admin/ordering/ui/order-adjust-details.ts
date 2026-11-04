@@ -7,7 +7,7 @@ import { CompanyFields } from '../../../core/accounts/parties/company-fields';
 import { ADMIN_TEXT } from '../../../platform/config/admin-text';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
-import { staffFields } from '../../staff-fields';
+import { staffFields } from '../../platform/staff-fields';
 import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
 import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';

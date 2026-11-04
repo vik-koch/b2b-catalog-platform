@@ -37,8 +37,8 @@ import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
 import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
 import { DragGrip } from '../ui/drag-grip';
 import { EditTarget, RecordList, SortEntry } from '../ui/record-list';
-import { SaveButton } from '../../ui/save-button';
-import { CancelButton } from '../../ui/cancel-button';
+import { SaveButton } from '../../platform/ui/save-button';
+import { CancelButton } from '../../platform/ui/cancel-button';
 
 /**
  * The price lists (FR-AUTH-05). A tier is two fields, so rows edit in place

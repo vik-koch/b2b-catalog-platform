@@ -16,7 +16,7 @@ import { AdminOrderListPage } from './order-list-page';
 import { AdminOrdersService } from './orders.service';
 import { StaffOrderSummary } from '@b2b-catalog-platform/shared/admin/ordering';
 import { provideUiText } from '../../platform/config/shared-text';
-import { provideGridText } from '../provide-grid-text';
+import { provideGridText } from '../platform/provide-grid-text';
 
 const text = defaultAdminText.orders.list;
 

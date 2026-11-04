@@ -13,7 +13,7 @@ import {
   MEDIA_CATALOG_FULL_WIDTH,
   MEDIA_CATALOG_THUMB_WIDTH,
 } from '@b2b-catalog-platform/shared/platform';
-import { ADMIN_TEXT } from '../../platform/config/admin-text';
+import { ADMIN_TEXT } from '../../../platform/config/admin-text';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { DialogActions } from '@b2b-catalog-platform/ui/overlay/dialog-actions';
 import { DialogPanel } from '@b2b-catalog-platform/ui/overlay/dialog-panel';
@@ -28,7 +28,7 @@ import {
   ZOOM_MAX,
   ZOOM_MIN,
 } from './image-frame';
-import { SHARED_TEXT } from '../../platform/config/shared-text';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { DialogTitle } from '@b2b-catalog-platform/ui/overlay/dialog-title';
 
 /** Arrow keys move by this share of the square, Shift by five times it. */

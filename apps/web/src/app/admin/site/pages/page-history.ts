@@ -3,7 +3,7 @@ import { fillText } from '@b2b-catalog-platform/shared/platform';
 import { PageSlug } from '@b2b-catalog-platform/shared/core/site';
 import { ADMIN_TEXT } from '../../../platform/config/admin-text';
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
-import { adminDayFormat } from '../../dates/admin-date';
+import { adminDayFormat } from '../../platform/dates/admin-date';
 import { PageEditingService } from './page-editing.service';
 import { trustedRichText } from '../../../platform/trusted-rich-text';
 import { DetailsSummary } from '@b2b-catalog-platform/ui/disclosure/details-summary';

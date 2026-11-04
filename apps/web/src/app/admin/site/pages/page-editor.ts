@@ -23,8 +23,8 @@ import { CONSENT_LABEL_MAX_LENGTH } from '@b2b-catalog-platform/shared/admin/sit
 import { ADMIN_TEXT } from '../../../platform/config/admin-text';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { Notice } from '@b2b-catalog-platform/ui/content/notice';
-import { RichTextEditor } from '../../rich-text/rich-text-editor';
-import { injectConfirmDiscard } from '../../confirm-discard';
+import { RichTextEditor } from '../../platform/rich-text/rich-text-editor';
+import { injectConfirmDiscard } from '../../platform/confirm-discard';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import {
   FieldAttempt,
@@ -41,8 +41,8 @@ import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { eyeIcon } from '@b2b-catalog-platform/ui/icons/glyphs/eye';
 import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
-import { SaveButton } from '../../ui/save-button';
-import { CancelButton } from '../../ui/cancel-button';
+import { SaveButton } from '../../platform/ui/save-button';
+import { CancelButton } from '../../platform/ui/cancel-button';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
 
 /**

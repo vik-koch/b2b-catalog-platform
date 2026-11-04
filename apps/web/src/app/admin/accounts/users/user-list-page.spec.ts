@@ -15,7 +15,7 @@ import { TiersService } from '../../catalog/tiers/tiers.service';
 import { UserListPage } from './user-list-page';
 import { StaffUsersService } from './users.service';
 import { provideUiText } from '../../../platform/config/shared-text';
-import { provideGridText } from '../../provide-grid-text';
+import { provideGridText } from '../../platform/provide-grid-text';
 import {
   StaffUser,
   UserKind,

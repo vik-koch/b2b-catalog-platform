@@ -27,7 +27,7 @@ import {
   StatusBadge,
   StatusTone,
 } from '@b2b-catalog-platform/ui/content/status-badge';
-import { adminDayFormat } from '../dates/admin-date';
+import { adminDayFormat } from '../platform/dates/admin-date';
 import { SyncCustomerPlanView } from './ui/sync-customer-plan-view';
 import { SyncOrderPlanView } from './ui/sync-order-plan-view';
 import { SyncCatalogPlanView } from './ui/sync-catalog-plan-view';

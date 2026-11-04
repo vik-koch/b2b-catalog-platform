@@ -79,8 +79,8 @@ import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import { delayedLoading } from '../../../platform/delayed-loading';
 import { filled } from '../../../platform/field-rules';
 import { usePageSeo } from '../../../platform/page-seo';
-import { UnsavedChangesAware } from '../../unsaved-changes.guard';
-import { UnsavedChanges } from '../../unsaved-changes';
+import { UnsavedChangesAware } from '../../platform/unsaved-changes.guard';
+import { UnsavedChanges } from '../../platform/unsaved-changes';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { Notice } from '@b2b-catalog-platform/ui/content/notice';
 import { Checkbox } from '@b2b-catalog-platform/ui/choices/checkbox';
@@ -103,7 +103,7 @@ import { AttributesService } from '../attributes/attributes.service';
 import { CategoryPicker } from '../categories/category-picker';
 import { categoryAncestors } from '../categories/category-tree';
 import { injectEditorReturn } from '../../../platform/edit-mode/editor-return';
-import { RichTextEditor } from '../../rich-text/rich-text-editor';
+import { RichTextEditor } from '../../platform/rich-text/rich-text-editor';
 import { TiersService } from '../tiers/tiers.service';
 import { ProductAttributesEditor } from './product-attributes-editor';
 import { ProductPartsEditor } from './product-parts-editor';
@@ -130,8 +130,8 @@ import { circleCheckIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-ch
 import { eyeIcon } from '@b2b-catalog-platform/ui/icons/glyphs/eye';
 import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
 import { numericRules } from '@b2b-catalog-platform/ui/inputs/numeric-rules';
-import { SaveButton } from '../../ui/save-button';
-import { CancelButton } from '../../ui/cancel-button';
+import { SaveButton } from '../../platform/ui/save-button';
+import { CancelButton } from '../../platform/ui/cancel-button';
 
 /** Packaging with no pack and no box, for the reads that need only those. */
 const NO_PACKAGING = { piecesPerPack: null, packsPerBox: null };

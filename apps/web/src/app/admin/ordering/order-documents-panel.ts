@@ -27,7 +27,7 @@ import {
   confirmRequest,
 } from '@b2b-catalog-platform/ui/overlay/confirm.service';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
-import { adminDayFormat } from '../dates/admin-date';
+import { adminDayFormat } from '../platform/dates/admin-date';
 import { AdminOrdersService } from './orders.service';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { externalLinkIcon } from '@b2b-catalog-platform/ui/icons/glyphs/external-link';

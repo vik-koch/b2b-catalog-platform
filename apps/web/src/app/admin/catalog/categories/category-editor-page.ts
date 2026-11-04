@@ -20,8 +20,8 @@ import { usePageSeo } from '../../../platform/page-seo';
 import { LockedNote } from '../../platform/ownership/ui/locked-note';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import { delayedLoading } from '../../../platform/delayed-loading';
-import { UnsavedChangesAware } from '../../unsaved-changes.guard';
-import { UnsavedChanges } from '../../unsaved-changes';
+import { UnsavedChangesAware } from '../../platform/unsaved-changes.guard';
+import { UnsavedChanges } from '../../platform/unsaved-changes';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import {
@@ -39,12 +39,12 @@ import {
 import { injectEditorReturn } from '../../../platform/edit-mode/editor-return';
 import { categoriesOutside } from './category-tree';
 
-import { ImagePicker } from '../../media/image-picker';
+import { ImagePicker } from '../uploads/image-picker';
 import { CategoryPicker } from './category-picker';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
-import { SaveButton } from '../../ui/save-button';
-import { CancelButton } from '../../ui/cancel-button';
+import { SaveButton } from '../../platform/ui/save-button';
+import { CancelButton } from '../../platform/ui/cancel-button';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
 
 interface CategoryDraft {

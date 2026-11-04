@@ -34,7 +34,7 @@ import { saveIcon } from '@b2b-catalog-platform/ui/icons/glyphs/save';
 import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
 import { triangleAlertIcon } from '@b2b-catalog-platform/ui/icons/glyphs/triangle-alert';
 import { DragGrip } from '../ui/drag-grip';
-import { CancelButton } from '../../ui/cancel-button';
+import { CancelButton } from '../../platform/ui/cancel-button';
 
 /**
  * The product's attributes on a phone (FR-CAT-05), where the spreadsheet's

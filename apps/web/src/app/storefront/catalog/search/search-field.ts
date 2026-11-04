@@ -38,7 +38,7 @@ import { CategoryChip } from '../ui/category-chip';
 import { ImagePlaceholder } from '@b2b-catalog-platform/ui/content/image-placeholder';
 import { useProductUnits } from '../../../core/catalog/buying/product-units-view';
 import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
-import { MobileSearch } from '../../layout/mobile-search';
+import { MobileSearch } from '../../platform/mobile-search';
 import { currentUrl } from '../../../platform/current-url';
 import { debounced } from '@b2b-catalog-platform/ui/core/debounced';
 import { HighlightedLine } from '@b2b-catalog-platform/ui/suggest/highlighted-line';

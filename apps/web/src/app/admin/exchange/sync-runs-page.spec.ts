@@ -17,7 +17,7 @@ import { defaultDeploymentConfig } from '../../platform/config/deployment-config
 import { SyncRunsPage } from './sync-runs-page';
 import { SyncService } from './sync.service';
 import { provideUiText } from '../../platform/config/shared-text';
-import { provideGridText } from '../provide-grid-text';
+import { provideGridText } from '../platform/provide-grid-text';
 
 const text = defaultAdminText.sync;
 

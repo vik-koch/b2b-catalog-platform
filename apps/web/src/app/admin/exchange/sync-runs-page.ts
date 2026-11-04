@@ -27,7 +27,7 @@ import { GridFilterOption } from '@b2b-catalog-platform/ui/grid/grid-filter-sele
 import { GridPagination } from '@b2b-catalog-platform/ui/grid/grid-pagination';
 import { GridCardTemplate } from '@b2b-catalog-platform/ui/grid/grid-card-template';
 import { GridRowTemplate } from '@b2b-catalog-platform/ui/grid/grid-row-template';
-import { GridTimestamp } from '../dates/grid-timestamp';
+import { GridTimestamp } from '../platform/dates/grid-timestamp';
 import { GridHeader } from '@b2b-catalog-platform/ui/grid/grid-header';
 import { RecordRow } from '@b2b-catalog-platform/ui/lists/record-row';
 import {

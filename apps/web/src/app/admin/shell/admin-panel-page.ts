@@ -9,22 +9,22 @@ import {
   OWNERSHIP_AREAS,
   fillText,
 } from '@b2b-catalog-platform/shared/platform';
-import { AuthService } from '../platform/auth/auth.service';
-import { SignedInAs } from '../platform/auth/signed-in-as';
-import { ADMIN_TEXT } from '../platform/config/admin-text';
-import { SHARED_TEXT } from '../platform/config/shared-text';
-import { DEPLOYMENT_CONFIG } from '../platform/config/deployment-config';
-import { usePageSeo } from '../platform/page-seo';
+import { AuthService } from '../../platform/auth/auth.service';
+import { SignedInAs } from '../../platform/auth/signed-in-as';
+import { ADMIN_TEXT } from '../../platform/config/admin-text';
+import { SHARED_TEXT } from '../../platform/config/shared-text';
+import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
+import { usePageSeo } from '../../platform/page-seo';
 import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';
 import { ActionLink } from '@b2b-catalog-platform/ui/actions/action-link';
-import { WorkService } from '../core/work/work.service';
-import { BuildInfoService } from './platform/build-info.service';
-import { injectEditorReturnParams } from '../platform/edit-mode/editor-return';
-import { adminMomentFormat } from './dates/admin-date';
+import { WorkService } from '../../core/work/work.service';
+import { BuildInfoService } from '../platform/build-info.service';
+import { injectEditorReturnParams } from '../../platform/edit-mode/editor-return';
+import { adminMomentFormat } from '../platform/dates/admin-date';
 import { PanelRow } from './panel-row';
-import { OwnershipService } from './platform/ownership/ownership.service';
-import { MaintenanceSwitchService } from './site/maintenance-switch.service';
-import { SyncService } from './exchange/sync.service';
+import { OwnershipService } from '../platform/ownership/ownership.service';
+import { MaintenanceSwitchService } from '../site/maintenance-switch.service';
+import { SyncService } from '../exchange/sync.service';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
 import { bookCheckIcon } from '@b2b-catalog-platform/ui/icons/glyphs/book-check';
 import { clipboardListIcon } from '@b2b-catalog-platform/ui/icons/glyphs/clipboard-list';

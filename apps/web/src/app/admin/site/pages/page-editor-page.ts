@@ -8,7 +8,7 @@ import { delayedLoading } from '../../../platform/delayed-loading';
 import { PageEditor } from './page-editor';
 import { PageHistory } from './page-history';
 import { PageService } from '../../../core/site/page.service';
-import { UnsavedChangesAware } from '../../unsaved-changes.guard';
+import { UnsavedChangesAware } from '../../platform/unsaved-changes.guard';
 import { injectEditorReturn } from '../../../platform/edit-mode/editor-return';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 

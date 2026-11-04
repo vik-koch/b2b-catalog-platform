@@ -30,7 +30,7 @@ import {
 } from '@b2b-catalog-platform/ui/choices/segmented';
 import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
-import { adminDayFormat } from '../../dates/admin-date';
+import { adminDayFormat } from '../../platform/dates/admin-date';
 import { ConsentRecordList } from './consent-record-list';
 import { ConsentsService } from './consents.service';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';

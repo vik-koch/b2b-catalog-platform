@@ -11,7 +11,7 @@ import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import { currentUrl } from '../../../platform/current-url';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
-import { navActionClasses, NavVariant } from '../../layout/nav-action';
+import { navActionClasses, NavVariant } from '../../platform/nav-action';
 import { shoppingBasketIcon } from '@b2b-catalog-platform/ui/icons/glyphs/shopping-basket';
 
 /** The navbar cart control (FR-CART-01): count and total from the stored

@@ -27,7 +27,7 @@ import { DisclosureFrame } from '@b2b-catalog-platform/ui/disclosure/disclosure-
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';
 import { Switch } from '@b2b-catalog-platform/ui/choices/switch';
-import { adminMomentFormat } from '../dates/admin-date';
+import { adminMomentFormat } from '../platform/dates/admin-date';
 import { OwnershipService } from '../platform/ownership/ownership.service';
 import { OwnershipSwitchService } from '../exchange/ownership-switch.service';
 import { MaintenanceSwitchService } from '../site/maintenance-switch.service';

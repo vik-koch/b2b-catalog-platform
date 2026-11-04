@@ -4,7 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { CustomerTier } from '@b2b-catalog-platform/shared/admin/catalog';
 import { ADMIN_TEXT } from '../../../platform/config/admin-text';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
-import { staffFields } from '../../staff-fields';
+import { staffFields } from '../../platform/staff-fields';
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import { AuthService } from '../../../platform/auth/auth.service';
 import { canonicalPhone, typedPhone } from '../../../platform/contact-fields';
@@ -12,8 +12,8 @@ import { delayedLoading } from '../../../platform/delayed-loading';
 import { completeMask, emailAddress } from '../../../platform/field-rules';
 import { companyIdFormat } from '../../../core/accounts/parties/company-id';
 import { usePageSeo } from '../../../platform/page-seo';
-import { UnsavedChangesAware } from '../../unsaved-changes.guard';
-import { UnsavedChanges } from '../../unsaved-changes';
+import { UnsavedChangesAware } from '../../platform/unsaved-changes.guard';
+import { UnsavedChanges } from '../../platform/unsaved-changes';
 import { LockedNote } from '../../platform/ownership/ui/locked-note';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { Notice } from '@b2b-catalog-platform/ui/content/notice';
@@ -42,8 +42,8 @@ import { Glyph } from '@b2b-catalog-platform/ui/icons/glyph';
 import { circleCheckIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-check';
 import { saveIcon } from '@b2b-catalog-platform/ui/icons/glyphs/save';
 import { sendIcon } from '@b2b-catalog-platform/ui/icons/glyphs/send';
-import { SaveButton } from '../../ui/save-button';
-import { CancelButton } from '../../ui/cancel-button';
+import { SaveButton } from '../../platform/ui/save-button';
+import { CancelButton } from '../../platform/ui/cancel-button';
 import {
   CustomerType,
   StaffUser,

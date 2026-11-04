@@ -25,8 +25,8 @@ import {
   FileTarget,
   pasteKeys,
 } from '@b2b-catalog-platform/ui/inputs/file-target';
-import { ImageFramerService } from '../../media/image-framer.service';
-import { MediaService } from '../../media/media.service';
+import { ImageFramerService } from '../../platform/media/image-framer.service';
+import { CatalogUploadsService } from '../uploads/catalog-uploads.service';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { cropIcon } from '@b2b-catalog-platform/ui/icons/glyphs/crop';
@@ -192,7 +192,7 @@ export class ProductImageGallery {
   protected readonly gripVerticalIcon = gripVerticalIcon;
   protected readonly imagePlusIcon = imagePlusIcon;
   protected readonly trash2Icon = trash2Icon;
-  private readonly media = inject(MediaService);
+  private readonly uploads = inject(CatalogUploadsService);
   private readonly framer = inject(ImageFramerService);
   protected readonly text = inject(ADMIN_TEXT).products.editor.images;
   protected readonly adminText = inject(ADMIN_TEXT);
@@ -229,7 +229,7 @@ export class ProductImageGallery {
     try {
       const uploaded: ProductImageInput[] = [];
       for (const file of files) {
-        const stored = await this.media.uploadCatalogImage(file);
+        const stored = await this.uploads.uploadImage(file);
         uploaded.push({ ...stored, variantId: null });
       }
       this.valueChange.emit([...this.value(), ...uploaded]);
@@ -261,7 +261,7 @@ export class ProductImageGallery {
     this.uploading.set(true);
     this.error.set(null);
     try {
-      const stored = await this.media.uploadCatalogImage(
+      const stored = await this.uploads.uploadImage(
         new File([answer], 'framed.jpg', { type: answer.type }),
       );
       this.valueChange.emit(

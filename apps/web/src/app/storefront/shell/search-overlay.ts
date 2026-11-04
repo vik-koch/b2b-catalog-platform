@@ -2,7 +2,7 @@ import { Component, computed, HostListener, inject } from '@angular/core';
 import { STOREFRONT_TEXT } from '../../platform/config/storefront-text';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { withExitAnimation } from './leave-animation';
-import { MobileSearch } from './mobile-search';
+import { MobileSearch } from '../platform/mobile-search';
 import { SearchField } from '../catalog/search/search-field';
 import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
 

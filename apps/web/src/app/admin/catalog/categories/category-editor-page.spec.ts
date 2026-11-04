@@ -10,7 +10,7 @@ import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import { defaultDeploymentConfig } from '../../../platform/config/deployment-config.fixture';
-import { MediaService } from '../../media/media.service';
+import { CatalogUploadsService } from '../uploads/catalog-uploads.service';
 import { provideOwnership } from '../../platform/ownership/ownership.fixture';
 import { CategoriesService } from './categories.service';
 import { CategoryEditorPage } from './category-editor-page';
@@ -32,7 +32,7 @@ async function render(slug?: string) {
       provideOwnership(),
       { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
       { provide: CategoriesService, useValue: service },
-      { provide: MediaService, useValue: {} },
+      { provide: CatalogUploadsService, useValue: {} },
       {
         provide: ActivatedRoute,
         useValue: {

@@ -6,7 +6,7 @@ import { STOREFRONT_TEXT } from '../../platform/config/storefront-text';
 import { defaultStorefrontText } from '../../platform/config/storefront-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
 import { defaultDeploymentConfig } from '../../platform/config/deployment-config.fixture';
-import { MobileSearch } from './mobile-search';
+import { MobileSearch } from '../platform/mobile-search';
 import { SearchOverlay } from './search-overlay';
 import { provideFakeProductCart } from '../../core/catalog/buying/product-cart.fixture';
 

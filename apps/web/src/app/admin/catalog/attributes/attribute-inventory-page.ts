@@ -34,8 +34,8 @@ import { funnelIcon } from '@b2b-catalog-platform/ui/icons/glyphs/funnel';
 import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
 import { triangleAlertIcon } from '@b2b-catalog-platform/ui/icons/glyphs/triangle-alert';
 import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
-import { SaveButton } from '../../ui/save-button';
-import { CancelButton } from '../../ui/cancel-button';
+import { SaveButton } from '../../platform/ui/save-button';
+import { CancelButton } from '../../platform/ui/cancel-button';
 
 /** A key across the catalog, or one value under a key. */
 type RenameTarget =
