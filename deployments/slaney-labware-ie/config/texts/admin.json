@@ -128,6 +128,8 @@
     "editCategory": "Edit category",
     "editCategories": "Edit categories",
     "editFilters": "Edit filters",
+    "editPage": "Edit page",
+    "emptyPage": "This page has no content yet.",
     "hiddenHeading": "Not on the storefront",
     "hiddenHint": "These products are in this category but customers cannot see them.",
     "unpricedHint": "Give this product a price before publishing it.",
@@ -148,10 +150,8 @@
     }
   },
   "pages": {
-    "edit": "Edit page",
     "newTitle": "Add page content",
     "editTitle": "Edit page",
-    "emptyNotice": "This page has no content yet.",
     "pageTitle": "Page title",
     "previewNotice": "Preview — this is how the page will look once saved.",
     "discardConfirm": "Discard your unsaved changes to this page?",
@@ -167,7 +167,9 @@
       "version": "Version {version}",
       "current": "current",
       "consentLabel": "Box wording:"
-    },
+    }
+  },
+  "richText": {
     "toolbar": {
       "labelAria": "Formatting",
       "bold": "Bold",

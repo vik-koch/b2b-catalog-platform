@@ -2,13 +2,13 @@ import { Component, computed, inject, input } from '@angular/core';
 import { FormField } from '@angular/forms/signals';
 import { RouterLink } from '@angular/router';
 import { consentLabelParts } from '@b2b-catalog-platform/shared/core/site';
-import { STOREFRONT_TEXT } from '../../platform/config/storefront-text';
 import { Checkbox } from '@b2b-catalog-platform/ui/choices/checkbox';
 import { Link } from '@b2b-catalog-platform/ui/actions/link';
 import { ConsentRequest } from './consent';
 import { PrivacyNotice } from './privacy-notice';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { FIELD_ATTEMPT } from '@b2b-catalog-platform/ui/fields/field-attempt';
+import { STOREFRONT_SITE_TEXT } from './site-text';
 
 let nextId = 0;
 
@@ -90,7 +90,7 @@ export class ConsentField {
   protected readonly shown = computed(
     () => !!this.attempt?.attempted() && this.consent().field().invalid(),
   );
-  protected readonly text = inject(STOREFRONT_TEXT).consentBox;
+  protected readonly text = inject(STOREFRONT_SITE_TEXT).consentBox;
   protected readonly parts = computed(() => {
     const label = this.consent().label();
     return label ? consentLabelParts(label) : null;

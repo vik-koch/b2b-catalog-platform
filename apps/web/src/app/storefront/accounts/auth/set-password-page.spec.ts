@@ -14,6 +14,7 @@ import { SignInService } from './sign-in.service';
 import { adminUser } from '../../../platform/auth/auth-user.fixture';
 import { SetPasswordPage } from './set-password-page';
 import { AuthUser } from '@b2b-catalog-platform/shared/platform';
+import { defaultStorefrontSiteText } from '../../site/site-text.fixture';
 
 const text = defaultStorefrontText.auth.setPassword;
 const rejected = defaultStorefrontText.auth.passwordRejected;
@@ -231,7 +232,7 @@ describe('SetPasswordPage', () => {
 
       expect(setPassword).not.toHaveBeenCalled();
       expect(el.textContent).toContain(
-        defaultStorefrontText.consentBox.required,
+        defaultStorefrontSiteText.consentBox.required,
       );
 
       el.querySelector<HTMLInputElement>('input[type="checkbox"]')?.click();
@@ -256,7 +257,7 @@ describe('SetPasswordPage', () => {
       await sync();
 
       expect(el.textContent).toContain(
-        defaultStorefrontText.consentBox.changed,
+        defaultStorefrontSiteText.consentBox.changed,
       );
       expect(el.textContent).not.toContain(text.error);
     });

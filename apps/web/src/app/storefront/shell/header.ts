@@ -22,6 +22,7 @@ import { ContactInfo } from './contact-info';
 import { HeaderCollapse } from '../../platform/header-collapse';
 import { MobileSearch, SearchAnchor } from '../platform/mobile-search';
 import { SearchField } from '../catalog/search/search-field';
+import { SITE_CONFIG } from '../../core/site/site-config';
 
 /**
  * Two rows. From `sm`: company pages and contact, then brand, search and the
@@ -127,6 +128,7 @@ import { SearchField } from '../catalog/search/search-field';
 })
 export class Header {
   private readonly config = inject(DEPLOYMENT_CONFIG);
+  private readonly siteConfig = inject(SITE_CONFIG);
   private readonly path = currentPath();
 
   private readonly headerCollapse = inject(HeaderCollapse);
@@ -153,7 +155,7 @@ export class Header {
   protected readonly homeLabel = fillText(this.text.a11y.homeLink, {
     name: this.config.branding.name,
   });
-  protected readonly utilityRoutes = this.config.pages.headerNav;
+  protected readonly utilityRoutes = this.siteConfig.pages.headerNav;
   protected readonly pageLink = PAGE_LINK;
 
   @HostListener('window:scroll')

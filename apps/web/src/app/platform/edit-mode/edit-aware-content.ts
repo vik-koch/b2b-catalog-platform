@@ -28,15 +28,13 @@ interface EditAwareContent<T> {
  * branch before `ready`, which a failed load never is. Call in an injection
  * context.
  */
-export function editAwareContent<K extends keyof AdminText>(options: {
+export function editAwareContent(options: {
   /** Loaded, not merely non-empty. */
   ready: Signal<boolean>;
-  /** Which slice of the admin wording this page's affordances read. */
-  section: K;
   /** What else the affordances wait on in edit mode, such as the grid's
    * "Deleted" overlay. Must not wait on `ready`, or the two deadlock. */
   alsoWaitFor?: Signal<boolean>;
-}): EditAwareContent<AdminText[K]> {
+}): EditAwareContent<AdminText['editMode']> {
   const editMode = inject(EditModeService);
   // Tells the toggle there is something here to reveal.
   inject(DestroyRef).onDestroy(editMode.registerEditable());
@@ -59,7 +57,7 @@ export function editAwareContent<K extends keyof AdminText>(options: {
   // Still on `decided`, so the affordances arrive as one set.
   const controls = computed(() =>
     ready() && decided() && editMode.enabled()
-      ? (adminText()?.[options.section] ?? null)
+      ? (adminText()?.editMode ?? null)
       : null,
   );
 

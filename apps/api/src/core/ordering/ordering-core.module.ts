@@ -17,7 +17,6 @@ import {
   PDF_FONT,
   PICKUP_LOCATIONS,
   TERMS_ATTACHED,
-  TERMS_PUBLISHED,
   ADDRESS_CONFIG,
   loadAddressConfig,
   loadBillingAddressEnabled,
@@ -32,8 +31,8 @@ import {
   loadTaxConfig,
   loadTermsAttached,
   TAX_CONFIG,
-  loadTermsPublished,
 } from '../../platform/config/deployment-config';
+import { loadTermsPublished, TERMS_PUBLISHED } from '../site/site-config';
 import { MailModule } from '../../platform/mail/mail.module';
 import { MediaModule } from '../../platform/media/media.module';
 import { OrderDocumentActs } from './order-document-acts';

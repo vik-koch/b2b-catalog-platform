@@ -6,6 +6,7 @@ import { defaultSharedText } from '../../../platform/config/shared-text.fixture'
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import { defaultDeploymentConfig } from '../../../platform/config/deployment-config.fixture';
 import { LicensesPage } from './licenses-page';
+import { defaultStorefrontSiteText } from '../site-text.fixture';
 
 const NOTICE_FILE = `
 ${'-'.repeat(80)}
@@ -68,7 +69,7 @@ describe('LicensesPage', () => {
     const element = await render();
 
     expect(element.textContent).toContain(
-      defaultStorefrontText.licenses.unavailable,
+      defaultStorefrontSiteText.licenses.unavailable,
     );
     expect(element.querySelector('details')).toBeNull();
   });

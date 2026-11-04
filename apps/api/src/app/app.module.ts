@@ -24,9 +24,11 @@ import { AdminPlatformModule } from '../admin/platform/admin-platform.module';
 import { MachineExchangeModule } from '../machine/exchange/machine-exchange.module';
 import { StaffUsersModule } from '../admin/accounts/staff-users.module';
 import { WorkModule } from '../core/work/work.module';
+import { TextsModule } from './texts.module';
 
 @Module({
   imports: [
+    TextsModule,
     ThrottlingModule,
     DatabaseModule,
     AuthModule,

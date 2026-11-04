@@ -13,6 +13,7 @@ import { SignInService } from './sign-in.service';
 import { RegisterPage } from './register-page';
 import { provideDigitMaskFormat } from '../../../platform/contact-fields';
 import { PartySuggestion } from '@b2b-catalog-platform/shared/core/accounts';
+import { defaultStorefrontSiteText } from '../../site/site-text.fixture';
 
 const text = defaultStorefrontText.auth.register;
 
@@ -171,7 +172,9 @@ describe('RegisterPage', () => {
     );
     expect(el.textContent).toContain(defaultSharedText.fields.email.required);
     expect(el.textContent).toContain(defaultSharedText.fields.phone.required);
-    expect(el.textContent).toContain(defaultStorefrontText.consentBox.required);
+    expect(el.textContent).toContain(
+      defaultStorefrontSiteText.consentBox.required,
+    );
   });
 
   it('rejects an address the server would reject too', async () => {
@@ -500,7 +503,9 @@ describe('RegisterPage', () => {
     await sync();
     await sync();
 
-    expect(el.textContent).toContain(defaultStorefrontText.consentBox.changed);
+    expect(el.textContent).toContain(
+      defaultStorefrontSiteText.consentBox.changed,
+    );
     expect(el.textContent).not.toContain(text.error);
 
     register.mockResolvedValue('ok');

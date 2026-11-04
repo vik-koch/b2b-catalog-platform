@@ -12,7 +12,7 @@ import {
   ConsentPurpose,
   ConsentRefusalCode,
 } from '@b2b-catalog-platform/shared/core/site';
-import { CONSENT_PURPOSES_ASKED } from '../../platform/config/deployment-config';
+import { CONSENT_PURPOSES_ASKED } from './site-config';
 import { DRIZZLE } from '../../platform/db/database.module';
 import * as schema from '../../platform/db/schema';
 import { consents, consentWithdrawals } from '../../platform/db/schema';

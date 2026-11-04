@@ -13,3 +13,9 @@ export function provideStorefrontText(): Provider {
     useFactory: () => readShellState('storefrontText'),
   };
 }
+
+/** An area's part of the storefront text. Typed apart, but the server checks
+ * the file whole against every area's shape, so the part is always there. */
+export function storefrontTextPart<T>(text: StorefrontText): T {
+  return text as unknown as T;
+}

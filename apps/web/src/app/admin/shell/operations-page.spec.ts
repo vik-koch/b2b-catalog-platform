@@ -17,10 +17,11 @@ import { OwnershipSwitchService } from '../exchange/ownership-switch.service';
 import { MaintenanceSwitchService } from '../site/maintenance-switch.service';
 import { SettingChangesService } from '../platform/setting-changes.service';
 import { OperationsPage } from './operations-page';
+import { defaultAdminSiteText } from '../../core/site/admin-site-text.fixture';
 
 const text = defaultAdminText.operations;
 const ownershipText = defaultAdminText.ownership;
-const maintenanceText = defaultAdminText.maintenance;
+const maintenanceText = defaultAdminSiteText.maintenance;
 
 const config = {
   locale: 'de-DE',

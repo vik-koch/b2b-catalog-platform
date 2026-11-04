@@ -4,7 +4,12 @@ import { PHONE_INPUT } from '../../platform/config/deployment-config';
 import { ConsentService } from '../../core/site/consent.service';
 import { env } from '../../platform/env';
 import { MailDispatcher } from '../../platform/mail/mail-dispatcher';
-import { MAIL_TEXT, MailText } from '../../platform/mail/mail-text';
+import {
+  MAIL_TEXT,
+  MailText,
+  mailTextPart,
+} from '../../platform/mail/mail-text';
+import { SiteMailText } from './site-mail-text';
 import { SHARED_TEXT } from '../../platform/config/shared-text';
 import { inquiryMail } from './inquiry.template';
 import {
@@ -62,7 +67,7 @@ export class InquiryService {
     };
 
     await this.mail.dispatch(
-      inquiryMail(readable, this.text, this.common),
+      inquiryMail(readable, mailTextPart<SiteMailText>(this.text), this.common),
       {
         to,
         // The submitter, so the shop can answer by hitting reply.

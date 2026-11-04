@@ -15,6 +15,7 @@ import { TextButton } from '@b2b-catalog-platform/ui/actions/text-button';
 import { DeliveryZoneList } from './delivery-zone-list';
 import { SHARED_TEXT } from '../../../../platform/config/shared-text';
 import { DialogTitle } from '@b2b-catalog-platform/ui/overlay/dialog-title';
+import { SITE_CONFIG } from '../../../../core/site/site-config';
 
 /** Where the deployment delivers and the free-delivery minimums (FR-CART-07). A
  * dialog, so the customer keeps their place in the form; it links to the
@@ -74,12 +75,13 @@ export class DeliveryConditionsDialog {
   private readonly dialog =
     viewChild.required<ElementRef<HTMLDialogElement>>('dialog');
   private readonly config = inject(DEPLOYMENT_CONFIG);
+  private readonly siteConfig = inject(SITE_CONFIG);
 
   protected readonly text = inject(STOREFRONT_TEXT).checkout.fulfilment;
   protected readonly actionText = inject(SHARED_TEXT).actions;
   /** Only where the page is published, or the link is a 404. */
   protected readonly conditionsPath = (
-    this.config.pages.published as readonly string[]
+    this.siteConfig.pages.published as readonly string[]
   ).includes('conditions')
     ? '/conditions'
     : null;

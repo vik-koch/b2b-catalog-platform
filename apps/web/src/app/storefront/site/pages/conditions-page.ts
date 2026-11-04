@@ -17,6 +17,7 @@ import { mapPinIcon } from '@b2b-catalog-platform/ui/icons/glyphs/map-pin';
 import { MarkedCard } from '@b2b-catalog-platform/ui/content/marked-card';
 import { PageSectionTitle } from '@b2b-catalog-platform/ui/content/page-section-title';
 import { StaticPage } from './static-page';
+import { SITE_CONFIG } from '../../../core/site/site-config';
 
 /**
  * The editable prose, then the conditions read from where checkout reads them
@@ -165,6 +166,7 @@ export class ConditionsPage {
   protected readonly sharedText = inject(SHARED_TEXT);
   protected readonly paymentNames = this.sharedText.order.paymentMethods;
   private readonly config = inject(DEPLOYMENT_CONFIG);
+  private readonly siteConfig = inject(SITE_CONFIG);
 
   protected readonly pageText = this.storefrontText.conditions;
   protected readonly fulfilmentText = this.storefrontText.checkout.fulfilment;
@@ -176,11 +178,11 @@ export class ConditionsPage {
   protected readonly hasZones = (this.config.delivery?.zones.length ?? 0) > 0;
   protected readonly pickupLocations = this.config.pickup?.locations ?? [];
   protected readonly withdrawalPublished =
-    this.config.pages.published.includes('withdrawal');
+    this.siteConfig.pages.published.includes('withdrawal');
 }
 
 function taxSentence(
-  config: DeploymentConfig,
+  config: Pick<DeploymentConfig, 'tax' | 'locale'>,
   text: StorefrontText['conditions'],
 ): string {
   const { tax } = config;

@@ -32,17 +32,11 @@ const SCHEMAS = {
     'sharedTextSchema',
   ],
   'texts/storefront.json': [
-    'apps/web/src/app/platform/config/storefront-text.type.ts',
+    'apps/web/src/app/app.texts.ts',
     'storefrontTextSchema',
   ],
-  'texts/admin.json': [
-    'apps/web/src/app/platform/config/admin-text.type.ts',
-    'adminTextSchema',
-  ],
-  'texts/mail.json': [
-    'apps/api/src/platform/mail/mail-text.ts',
-    'mailTextSchema',
-  ],
+  'texts/admin.json': ['apps/web/src/app/app.texts.ts', 'adminTextSchema'],
+  'texts/mail.json': ['apps/api/src/app/app.texts.ts', 'mailTextSchema'],
   'texts/pdf.json': ['apps/api/src/platform/pdf/pdf-text.ts', 'pdfTextSchema'],
 };
 

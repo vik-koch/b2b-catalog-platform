@@ -1,8 +1,11 @@
-import { SHELL_STATE_ELEMENT_ID, ShellState } from './shell-state';
-import { getStorefrontText } from './storefront-text.server';
-import { getSharedText } from './shared-text.server';
-import { getDeploymentConfig } from './deployment-config.server';
-import { getSuggestionsEnabled } from './suggestions-enabled.server';
+import {
+  SHELL_STATE_ELEMENT_ID,
+  ShellState,
+} from './platform/config/shell-state';
+import { getStorefrontText } from './app.texts.server';
+import { getSharedText } from './platform/config/shared-text.server';
+import { getDeploymentConfig } from './platform/config/deployment-config.server';
+import { getSuggestionsEnabled } from './platform/config/suggestions-enabled.server';
 
 /** The same for every request: mounted files and the environment. */
 let cachedScript: string | undefined;

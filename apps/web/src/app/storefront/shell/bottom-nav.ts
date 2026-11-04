@@ -25,6 +25,7 @@ import { menuIcon } from '@b2b-catalog-platform/ui/icons/glyphs/menu';
 import { phoneIcon } from '@b2b-catalog-platform/ui/icons/glyphs/phone';
 import { searchIcon } from '@b2b-catalog-platform/ui/icons/glyphs/search';
 import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
+import { SITE_CONFIG } from '../../core/site/site-config';
 
 /**
  * The phone's navigation below `sm`, keeping the cart in view for the whole
@@ -162,6 +163,7 @@ export class BottomNav {
   protected readonly searchIcon = searchIcon;
   protected readonly xIcon = xIcon;
   private readonly config = inject(DEPLOYMENT_CONFIG);
+  private readonly siteConfig = inject(SITE_CONFIG);
   private readonly host = inject(ElementRef<HTMLElement>);
   private readonly auth = inject(AuthService);
   private readonly mobileSearch = inject(MobileSearch);
@@ -201,7 +203,7 @@ export class BottomNav {
     return `${this.tab.action} cursor-pointer${current ? ` ${TAB_CURRENT}` : ''}`;
   }
   /** In the header's order. */
-  protected readonly menuRoutes = this.config.pages.headerNav;
+  protected readonly menuRoutes = this.siteConfig.pages.headerNav;
 
   protected readonly menuRow = `flex items-center gap-2 px-4 py-3
                                 text-ink-subtle transition-colors

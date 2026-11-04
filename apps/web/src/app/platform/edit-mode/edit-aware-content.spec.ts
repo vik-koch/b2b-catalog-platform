@@ -30,7 +30,6 @@ function gate(options: {
   return TestBed.runInInjectionContext(() =>
     editAwareContent({
       ready: options.dataReady,
-      section: 'editMode',
       alsoWaitFor: options.alsoWaitFor,
     }),
   );

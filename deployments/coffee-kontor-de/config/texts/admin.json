@@ -128,6 +128,8 @@
     "editCategory": "Kategorie bearbeiten",
     "editCategories": "Kategorien bearbeiten",
     "editFilters": "Filter bearbeiten",
+    "editPage": "Seite bearbeiten",
+    "emptyPage": "Diese Seite hat noch keinen Inhalt.",
     "hiddenHeading": "Nicht im Shop",
     "hiddenHint": "Diese Produkte gehören zu dieser Kategorie, aber Kunden sehen sie nicht.",
     "unpricedHint": "Geben Sie diesem Produkt einen Preis, bevor Sie es veröffentlichen.",
@@ -148,10 +150,8 @@
     }
   },
   "pages": {
-    "edit": "Seite bearbeiten",
     "newTitle": "Seiteninhalt hinzufügen",
     "editTitle": "Seite bearbeiten",
-    "emptyNotice": "Diese Seite hat noch keinen Inhalt.",
     "pageTitle": "Seitentitel",
     "previewNotice": "Vorschau – so sieht die Seite nach dem Speichern aus.",
     "discardConfirm": "Ihre ungespeicherten Änderungen an dieser Seite verwerfen?",
@@ -167,7 +167,9 @@
       "version": "Version {version}",
       "current": "aktuell",
       "consentLabel": "Text am Kästchen:"
-    },
+    }
+  },
+  "richText": {
     "toolbar": {
       "labelAria": "Formatierung",
       "bold": "Fett",

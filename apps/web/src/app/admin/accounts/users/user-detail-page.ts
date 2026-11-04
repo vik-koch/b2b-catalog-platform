@@ -53,6 +53,7 @@ import {
   normalizePhone,
   fillText,
 } from '@b2b-catalog-platform/shared/platform';
+import { SITE_CONFIG } from '../../../core/site/site-config';
 
 /**
  * One account, read rather than edited: the customer's own page seen from the
@@ -228,6 +229,7 @@ export class UserDetailPage {
   private readonly auth = inject(AuthService);
   private readonly ownership = inject(OwnershipService);
   private readonly config = inject(DEPLOYMENT_CONFIG);
+  private readonly siteConfig = inject(SITE_CONFIG);
   private readonly confirm = inject(ConfirmService);
 
   protected readonly text = inject(ADMIN_TEXT).users.detail;
@@ -269,7 +271,7 @@ export class UserDetailPage {
     loader: async ({ params }) =>
       params.reads ? this.service.listConsents(params.id) : [],
   });
-  private readonly consentAsked = Object.values(this.config.consent).some(
+  private readonly consentAsked = Object.values(this.siteConfig.consent).some(
     Boolean,
   );
   protected readonly consentRecords = computed(() =>
@@ -330,7 +332,7 @@ export class UserDetailPage {
   /** Whether "they withdrew their consent" can be this account's reason. */
   private readonly accountConsentAsked = computed(
     () =>
-      this.config.consent.account ||
+      this.siteConfig.consent.account ||
       this.consentRecords().some((record) => record.purpose === 'account'),
   );
 

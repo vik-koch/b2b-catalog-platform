@@ -18,7 +18,8 @@ import {
   demoSharedText,
   demoMailText,
 } from '../platform/mail/mail-text.fixture';
-import type { MailText } from '../platform/mail/mail-text';
+import { type MailText, mailTextPart } from '../platform/mail/mail-text';
+import type { SiteMailText } from '../storefront/site/site-mail-text';
 import { demoAdminOrder } from '../core/ordering/order.fixture';
 import { accountDeletedMail } from '../core/accounts/mail/account-deleted.template';
 import { inquiryMail } from '../storefront/site/inquiry.template';
@@ -305,7 +306,7 @@ export function buildMailPreviews(
           preferredContact: 'email',
           message: 'Do you deliver to Altona?',
         },
-        text,
+        mailTextPart<SiteMailText>(text),
         common,
       ),
     },

@@ -25,9 +25,9 @@ import {
   ORDER_CURRENCY,
   ORDER_REFERENCE_CONFIG,
   PAIRINGS_ENFORCED,
-  TERMS_PUBLISHED,
   TAX_CONFIG,
 } from '../../platform/config/deployment-config';
+import { TERMS_PUBLISHED } from '../../core/site/site-config';
 import { DRIZZLE } from '../../platform/db/database.module';
 import { currentPageVersion } from '../../core/site/page-versions';
 import {

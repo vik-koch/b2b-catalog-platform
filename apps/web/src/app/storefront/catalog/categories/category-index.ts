@@ -70,7 +70,6 @@ export class CategoryIndex {
 
   private readonly content = editAwareContent({
     ready: computed(() => this.categories.hasValue()),
-    section: 'editMode',
   });
   protected readonly editControls = this.content.controls;
   protected readonly showSkeleton = this.content.showSkeleton;

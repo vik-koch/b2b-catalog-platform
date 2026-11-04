@@ -6,7 +6,6 @@ import {
   PageSlug,
 } from '@b2b-catalog-platform/shared/core/site';
 import { STANDALONE_PAGE_SLUGS } from '@b2b-catalog-platform/shared/storefront/site';
-import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
 import {
   guestOnly,
   requireAuth,
@@ -22,15 +21,14 @@ import { CategoryGrid } from '../catalog/categories/category-grid';
 import { SearchResults } from '../catalog/search/search-results';
 import { ProductDetail } from '../catalog/product-page/product-detail';
 import { StaticPage } from '../site/pages/static-page';
+import { SITE_CONFIG } from '../../core/site/site-config';
 
 /**
  * The generic page route serves a slug only when the deployment publishes it,
  * so an unpublished page 404s rather than lingering unlinked but reachable.
  */
 const publishes = (slug: PageSlug): boolean =>
-  (inject(DEPLOYMENT_CONFIG).pages.published as readonly string[]).includes(
-    slug,
-  );
+  (inject(SITE_CONFIG).pages.published as readonly string[]).includes(slug);
 
 /** Gate for a code route whose body is a page: unpublishing removes it too. */
 const publishesPage =
@@ -45,7 +43,7 @@ const publishesPage =
 const asksConsent =
   (purpose: ConsentPurpose): CanMatchFn =>
   () =>
-    inject(DEPLOYMENT_CONFIG).consent[purpose];
+    inject(SITE_CONFIG).consent[purpose];
 
 const isPublishedPage: CanMatchFn = (_: Route, [first]: UrlSegment[]) => {
   const slug = first?.path ?? '';

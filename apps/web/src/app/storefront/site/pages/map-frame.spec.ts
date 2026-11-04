@@ -8,6 +8,7 @@ import { DeploymentConfig } from '@b2b-catalog-platform/shared/platform';
 import { MapEmbed } from '@b2b-catalog-platform/shared/core/site';
 import { defaultDeploymentConfig } from '../../../platform/config/deployment-config.fixture';
 import { MapFrame } from './map-frame';
+import { defaultStorefrontSiteText } from '../site-text.fixture';
 
 interface ConsentState {
   readonly enabled?: boolean;
@@ -78,7 +79,8 @@ describe('MapFrame', () => {
       { enabled: true, decision: 'rejected' },
     );
     const load = [...el.querySelectorAll('button')].find(
-      (button) => button.textContent?.trim() === defaultStorefrontText.map.load,
+      (button) =>
+        button.textContent?.trim() === defaultStorefrontSiteText.map.load,
     );
     load?.click();
     TestBed.tick();

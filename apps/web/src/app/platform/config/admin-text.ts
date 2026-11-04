@@ -64,6 +64,12 @@ export const ADMIN_TEXT = new InjectionToken<AdminText>('ADMIN_TEXT', {
   },
 });
 
+/** An area's part of the admin text. Typed apart, but the server checks the
+ * file whole against every area's shape, so the part is always there. */
+export function adminTextPart<T>(text: AdminText): T {
+  return text as unknown as T;
+}
+
 /** Holds an admin route until its wording is here, so no label flashes empty. */
 export const adminTextGuard: CanActivateFn = async () => {
   await loadAdminText();

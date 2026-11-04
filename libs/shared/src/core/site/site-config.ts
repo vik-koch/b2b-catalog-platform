@@ -62,3 +62,7 @@ export const siteConfigShape = {
   /** In the order the footer draws them. */
   elsewhere: z.array(elsewhereLinkSchema).optional(),
 };
+
+export type SiteConfig = DeepReadonly<
+  z.infer<z.ZodObject<typeof siteConfigShape>>
+>;

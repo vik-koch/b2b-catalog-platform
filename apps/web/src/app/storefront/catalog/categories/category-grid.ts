@@ -428,7 +428,6 @@ export class CategoryGrid {
    * category is a loaded `null`, so `undefined` is the test. */
   private readonly content = editAwareContent({
     ready: computed(() => this.shown() !== undefined),
-    section: 'editMode',
     // The catalogue has no "not on the storefront" overlay to wait for.
     alsoWaitFor: computed(() => !this.slug() || this.hiddenReady()),
   });

@@ -13,8 +13,8 @@ import {
   ConsentPurpose,
 } from '@b2b-catalog-platform/shared/core/site';
 import { CONSENT_PATHS } from '@b2b-catalog-platform/shared/storefront/site';
-import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
 import { PageService } from '../../core/site/page.service';
+import { SITE_CONFIG } from '../../core/site/site-config';
 
 /**
  * One form's consent box. The checkbox is a field of its own, so its required
@@ -55,7 +55,7 @@ export function useConsent(
 ): ConsentRequest {
   const pages = inject(PageService);
   const slug = CONSENT_PAGE_SLUGS[purpose];
-  const switchedOn = inject(DEPLOYMENT_CONFIG).consent[purpose];
+  const switchedOn = inject(SITE_CONFIG).consent[purpose];
   const asked = computed(() => switchedOn && (owed?.() ?? true));
 
   const page = resource({

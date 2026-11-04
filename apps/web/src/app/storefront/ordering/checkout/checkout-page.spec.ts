@@ -31,6 +31,7 @@ import { OrdersService, SubmitOrderResult } from '../orders/orders.service';
 import { PageService } from '../../../core/site/page.service';
 import { provideDigitMaskFormat } from '../../../platform/contact-fields';
 import { Address } from '@b2b-catalog-platform/shared/core/accounts';
+import { defaultStorefrontSiteText } from '../../site/site-text.fixture';
 
 /** A day the form actually offers, from whenever the suite is run: a literal
  * date here would be a working weekday now and a past Saturday later. */
@@ -1118,9 +1119,9 @@ describe('CheckoutPage', () => {
 
       const link = page.el.querySelector('a[href="/terms"]');
       expect(link?.textContent?.trim()).toBe(
-        defaultStorefrontText.termsNotice.link,
+        defaultStorefrontSiteText.termsNotice.link,
       );
-      expect(page.text()).toContain(defaultStorefrontText.termsNotice.text);
+      expect(page.text()).toContain(defaultStorefrontSiteText.termsNotice.text);
       expect(page.el.querySelector('input[type="checkbox"]')).toBeNull();
     });
 
@@ -1132,7 +1133,9 @@ describe('CheckoutPage', () => {
       await page.review();
 
       expect(page.text()).toContain(text.review.title);
-      expect(page.text()).not.toContain(defaultStorefrontText.termsNotice.text);
+      expect(page.text()).not.toContain(
+        defaultStorefrontSiteText.termsNotice.text,
+      );
     });
 
     it('says nothing of terms a deployment does not publish', async () => {
@@ -1153,7 +1156,9 @@ describe('CheckoutPage', () => {
       await page.review();
 
       expect(page.text()).toContain(text.review.title);
-      expect(page.text()).not.toContain(defaultStorefrontText.termsNotice.text);
+      expect(page.text()).not.toContain(
+        defaultStorefrontSiteText.termsNotice.text,
+      );
     });
   });
 

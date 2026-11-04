@@ -36,6 +36,7 @@ import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { Hint } from '@b2b-catalog-platform/ui/fields/hint';
 import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
 import { SwitchCard } from './switch-card';
+import { ADMIN_SITE_TEXT } from '../../core/site/admin-site-text';
 
 /**
  * The two runtime switches and their one trail, read together when something
@@ -257,7 +258,7 @@ import { SwitchCard } from './switch-card';
 export class OperationsPage {
   protected readonly text = inject(ADMIN_TEXT).operations;
   protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
-  protected readonly maintenanceText = inject(ADMIN_TEXT).maintenance;
+  protected readonly maintenanceText = inject(ADMIN_SITE_TEXT).maintenance;
   protected readonly adminText = inject(ADMIN_TEXT);
   private readonly ownership = inject(OwnershipService);
   private readonly ownershipSwitch = inject(OwnershipSwitchService);

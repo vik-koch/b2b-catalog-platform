@@ -1,7 +1,8 @@
 import { loadConfigFile } from '@b2b-catalog-platform/shared/node';
 import { MailBranding } from './mail-branding';
 import { DEFAULT_MAIL_COLORS } from './mail-colors';
-import { MailText, mailTextSchema } from './mail-text';
+import * as z from 'zod';
+import { MailText, mailTextShape } from './mail-text';
 import { PdfText, pdfTextSchema } from '../pdf/pdf-text';
 import {
   PhoneConfig,
@@ -15,7 +16,7 @@ import {
  * not env var: the doc generators run without one.
  */
 export const demoMailText: MailText = loadConfigFile(
-  mailTextSchema,
+  z.looseObject(mailTextShape),
   'deployments/fixture/config/texts/mail.json',
 );
 

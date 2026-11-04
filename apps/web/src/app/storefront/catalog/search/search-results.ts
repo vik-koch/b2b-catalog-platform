@@ -207,7 +207,6 @@ export class SearchResults {
 
   private readonly content = editAwareContent({
     ready: computed(() => this.shown() !== undefined),
-    section: 'editMode',
   });
   protected readonly editControls = this.content.controls;
   protected readonly visible = computed(() =>

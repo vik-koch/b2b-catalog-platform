@@ -6,10 +6,6 @@ import {
   DeliveryConfig,
   OrderReferenceConfig,
 } from '@b2b-catalog-platform/shared/core/ordering';
-import {
-  CONSENT_PURPOSES,
-  ConsentPurpose,
-} from '@b2b-catalog-platform/shared/core/site';
 import { DEFAULT_LOW_STOCK_THRESHOLD_PIECES } from '@b2b-catalog-platform/shared/core/catalog';
 import {
   companyIdMatchesAny,
@@ -44,12 +40,32 @@ import {
  * typed by the shared schemas. */
 type ApiDeploymentConfig = z.infer<typeof deploymentConfigSchema>;
 
+/** What an area reads through a loader of its own is left out here. */
+type UnclaimedDeploymentConfig = Omit<
+  ApiDeploymentConfig,
+  | 'pages'
+  | 'consent'
+  | 'cookieConsentEnabled'
+  | 'locations'
+  | 'mapProvider'
+  | 'elsewhere'
+>;
+
 let cached: ApiDeploymentConfig | undefined;
-export function loadApiDeploymentConfig(): ApiDeploymentConfig {
+function loadWhole(): ApiDeploymentConfig {
   return (cached ??= loadConfig(
     deploymentConfigSchema,
     'deployment.json',
   ) as ApiDeploymentConfig);
+}
+
+export function loadApiDeploymentConfig(): UnclaimedDeploymentConfig {
+  return loadWhole();
+}
+
+/** An area's part, checked with the whole file on first read. */
+export function loadDeploymentConfigPart<T>(): T {
+  return loadWhole() as unknown as T;
 }
 
 /** Test seam: drops the memoized config so a spec can load a different file. */
@@ -87,13 +103,6 @@ export const BILLING_ADDRESS_ENABLED = 'BILLING_ADDRESS_ENABLED';
 
 export function loadBillingAddressEnabled(): boolean {
   return loadApiDeploymentConfig().billingAddressEnabled;
-}
-
-/** Published terms, whose version an order records (NFR-LEGAL-10). */
-export const TERMS_PUBLISHED = 'TERMS_PUBLISHED';
-
-export function loadTermsPublished(): boolean {
-  return loadApiDeploymentConfig().pages.published.includes('terms');
 }
 
 /** Whether the receipt attaches the accepted terms as a document. */
@@ -253,14 +262,6 @@ export function loadCustomerSyncPolicy(): CustomerSyncPolicy {
   return (
     loadApiConfig().sync?.customerAutoApply ?? DEFAULT_CUSTOMER_SYNC_POLICY
   );
-}
-
-/** The consent purposes switched on. */
-export const CONSENT_PURPOSES_ASKED = 'CONSENT_PURPOSES_ASKED';
-
-export function loadConsentPurposesAsked(): readonly ConsentPurpose[] {
-  const { consent } = loadApiDeploymentConfig();
-  return CONSENT_PURPOSES.filter((purpose) => consent[purpose]);
 }
 
 /** The second keyboard layout searches read a query on, or null for none. */

@@ -6,7 +6,6 @@ import {
   inject,
   resource,
 } from '@angular/core';
-import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { delayedLoading } from '../../../platform/delayed-loading';
 import { usePageSeo } from '../../../platform/page-seo';
@@ -15,6 +14,7 @@ import { LicenseNotice, parseLicenseNotices } from './license-notice';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
 import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
 import { DetailsSummary } from '@b2b-catalog-platform/ui/disclosure/details-summary';
+import { STOREFRONT_SITE_TEXT } from '../site-text';
 
 /**
  * The notices of the JavaScript the site ships, from the build's own
@@ -62,7 +62,7 @@ import { DetailsSummary } from '@b2b-catalog-platform/ui/disclosure/details-summ
 export class LicensesPage {
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
-  protected readonly text = inject(STOREFRONT_TEXT).licenses;
+  protected readonly text = inject(STOREFRONT_SITE_TEXT).licenses;
   protected readonly heading = inject(SHARED_TEXT).nav['licenses'];
 
   // `undefined` on the server, so the list is absent rather than empty.

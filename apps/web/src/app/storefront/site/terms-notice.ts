@@ -1,8 +1,8 @@
 import { Component, computed, inject, resource } from '@angular/core';
-import { STOREFRONT_TEXT } from '../../platform/config/storefront-text';
-import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
 import { PageService } from '../../core/site/page.service';
 import { PageLinkSentence } from './ui/page-link-sentence';
+import { SITE_CONFIG } from '../../core/site/site-config';
+import { STOREFRONT_SITE_TEXT } from './site-text';
 
 /**
  * Beside checkout's submit: sending the order accepts the terms, so a
@@ -19,10 +19,10 @@ import { PageLinkSentence } from './ui/page-link-sentence';
   `,
 })
 export class TermsNotice {
-  protected readonly text = inject(STOREFRONT_TEXT).termsNotice;
+  protected readonly text = inject(STOREFRONT_SITE_TEXT).termsNotice;
   private readonly pages = inject(PageService);
   private readonly published =
-    inject(DEPLOYMENT_CONFIG).pages.published.includes('terms');
+    inject(SITE_CONFIG).pages.published.includes('terms');
 
   private readonly page = resource({
     params: () => (this.published ? { slug: 'terms' } : undefined),

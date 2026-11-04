@@ -109,10 +109,21 @@
     },
     "texts/admin.json:orders.adjust.lines.suggestionCountAria": {
       "new": "Product suggestions: {count}"
+    },
+    "texts/admin.json:editMode.editPage": {
+      "from": ["texts/admin.json:pages.edit"]
+    },
+    "texts/admin.json:editMode.emptyPage": {
+      "from": ["texts/admin.json:pages.emptyNotice"]
     }
   },
   "drop": [
     "deployment.json:branding.theme.muted",
     "deployment.json:branding.theme.neutrals"
-  ]
+  ],
+  "moves": {
+    "texts/admin.json:pages.toolbar": "texts/admin.json:richText.toolbar",
+    "texts/admin.json:pages.linkPanel": "texts/admin.json:richText.linkPanel",
+    "texts/admin.json:pages.imagePanel": "texts/admin.json:richText.imagePanel"
+  }
 }

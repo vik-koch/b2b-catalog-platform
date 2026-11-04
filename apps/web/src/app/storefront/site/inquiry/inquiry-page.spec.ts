@@ -12,9 +12,10 @@ import { InquiryPage } from './inquiry-page';
 import { InquiryService } from './inquiry.service';
 import { PageService } from '../../../core/site/page.service';
 import { provideDigitMaskFormat } from '../../../platform/contact-fields';
+import { defaultStorefrontSiteText } from '../site-text.fixture';
 
-const text = defaultStorefrontText.inquiry;
-const consentText = defaultStorefrontText.consentBox;
+const text = defaultStorefrontSiteText.inquiry;
+const consentText = defaultStorefrontSiteText.consentBox;
 
 /** The demo asks for no consent; these specs drive the form that does. */
 const testConfig: DeploymentConfig = {
@@ -297,7 +298,7 @@ describe('InquiryPage', () => {
 
       const notice = el.querySelector('app-privacy-notice');
       expect(notice?.textContent).toContain(
-        defaultStorefrontText.privacyNotice.text,
+        defaultStorefrontSiteText.privacyNotice.text,
       );
       expect(notice?.querySelector('a')?.getAttribute('href')).toBe('/privacy');
       expect(notice?.closest('label')).toBeNull();
@@ -315,7 +316,7 @@ describe('InquiryPage', () => {
       expect(el.querySelector('input[type="checkbox"]')).toBeNull();
       // The privacy notice is owed whatever the processing rests on.
       expect(el.textContent).toContain(
-        defaultStorefrontText.privacyNotice.link,
+        defaultStorefrontSiteText.privacyNotice.link,
       );
 
       fill(el);

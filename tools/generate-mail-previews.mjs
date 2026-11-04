@@ -59,7 +59,7 @@ const rendered = (slug) =>
   `https://htmlpreview.github.io/?https://raw.githubusercontent.com/${repository}/HEAD/docs/mail/${slug}.html`;
 
 const { mailTextSchema } = await loadTypeScript(
-  'apps/api/src/platform/mail/mail-text.ts',
+  'apps/api/src/app/app.texts.ts',
 );
 const { sharedTextSchema } = await loadTypeScript(
   'libs/shared/src/platform/config/shared-text.ts',

@@ -1,6 +1,10 @@
 import { SHARED_TEXT } from '../../platform/config/shared-text';
 import { defaultSharedText } from '../../platform/config/shared-text.fixture';
-import { EnvironmentInjector, runInInjectionContext } from '@angular/core';
+import {
+  EnvironmentInjector,
+  inject,
+  runInInjectionContext,
+} from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
 import { ADMIN_TEXT } from '../../platform/config/admin-text';
@@ -46,14 +50,18 @@ describe('unsavedChangesGuard', () => {
   });
 
   it('lets a clean editor leave without asking', async () => {
-    const guard = unsavedChangesGuard((t) => t.products.editor.discardConfirm);
+    const guard = unsavedChangesGuard(
+      () => inject(ADMIN_TEXT).products.editor.discardConfirm,
+    );
 
     expect(await run(guard, { hasUnsavedChanges: () => false })).toBe(true);
     expect(asked).toBeUndefined();
   });
 
   it('asks with the wording the caller picked', async () => {
-    const guard = unsavedChangesGuard((t) => t.products.editor.discardConfirm);
+    const guard = unsavedChangesGuard(
+      () => inject(ADMIN_TEXT).products.editor.discardConfirm,
+    );
 
     expect(await run(guard, { hasUnsavedChanges: () => true })).toBe(true);
     expect(asked?.message).toBe(
@@ -62,7 +70,9 @@ describe('unsavedChangesGuard', () => {
   });
 
   it('asks each editor its own question', async () => {
-    const guard = unsavedChangesGuard((t) => t.users.editor.discardConfirm);
+    const guard = unsavedChangesGuard(
+      () => inject(ADMIN_TEXT).users.editor.discardConfirm,
+    );
 
     await run(guard, { hasUnsavedChanges: () => true });
 

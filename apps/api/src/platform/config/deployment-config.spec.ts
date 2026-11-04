@@ -1,36 +1,9 @@
-import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
-import { join } from 'node:path';
 import {
   loadApiDeploymentConfig,
   loadCompanyIdRule,
-  loadConsentPurposesAsked,
   resetApiDeploymentConfig,
 } from './deployment-config';
-
-/** The pages section with only `published` set, and no links. */
-const pages = (published: string[]) => ({
-  published,
-  headerNav: [],
-  footerNav: [],
-});
-
-/** The committed demo file: every key the strict schema requires, so a test
- * states only what it is about. An `undefined` drops a key. */
-const demo = JSON.parse(
-  readFileSync('deployments/fixture/config/deployment.json', 'utf8'),
-);
-
-/** Points CONFIG_PATH at a directory holding a config written for this test. */
-function withConfig(config: Record<string, unknown>): void {
-  const dir = mkdtempSync(join(tmpdir(), 'deployment-'));
-  writeFileSync(
-    join(dir, 'deployment.json'),
-    JSON.stringify({ ...demo, ...config }),
-  );
-  process.env['CONFIG_PATH'] = dir;
-  resetApiDeploymentConfig();
-}
+import { withConfig } from './deployment-config.fixture';
 
 const vat = {
   key: 'vat',
@@ -150,39 +123,5 @@ describe('loadCompanyIdRule', () => {
 
       expect(() => loadApiDeploymentConfig()).not.toThrow();
     });
-  });
-});
-
-describe('loadConsentPurposesAsked', () => {
-  const original = process.env['CONFIG_PATH'];
-
-  afterEach(() => {
-    process.env['CONFIG_PATH'] = original;
-    resetApiDeploymentConfig();
-  });
-
-  it('asks for the purposes switched on', () => {
-    withConfig({ consent: { contact: true, account: false } });
-
-    expect(loadConsentPurposesAsked()).toEqual(['contact']);
-  });
-
-  it('asks for nothing where both are off', () => {
-    withConfig({ consent: { contact: false, account: false } });
-
-    expect(loadConsentPurposesAsked()).toEqual([]);
-  });
-
-  // Both are stated: leaving one out is a decision nobody made.
-  it('refuses a config that leaves a purpose unstated', () => {
-    withConfig({ consent: { contact: true } });
-
-    expect(() => loadConsentPurposesAsked()).toThrow();
-  });
-
-  it('refuses a consent text listed as a published page', () => {
-    withConfig({ pages: pages(['privacy', 'consent-contact']) });
-
-    expect(() => loadConsentPurposesAsked()).toThrow(/switched by consent/);
   });
 });

@@ -21,6 +21,7 @@ import { ConsentField } from '../consent-field';
 import { useConsent } from '../consent';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
+import { STOREFRONT_SITE_TEXT } from '../site-text';
 
 type PreferredContact = InquiryRequest['preferredContact'];
 type Status = 'idle' | 'success' | 'error';
@@ -141,7 +142,7 @@ interface Inquiry {
 export class InquiryPage {
   private readonly inquiry = inject(InquiryService);
 
-  protected readonly text = inject(STOREFRONT_TEXT).inquiry;
+  protected readonly text = inject(STOREFRONT_SITE_TEXT).inquiry;
   protected readonly fields = inject(SHARED_TEXT).fields;
   protected readonly contactChannels: readonly SegmentOption<PreferredContact>[] =
     [

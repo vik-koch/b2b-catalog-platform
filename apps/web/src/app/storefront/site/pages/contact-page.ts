@@ -1,9 +1,9 @@
 import { Component, inject } from '@angular/core';
-import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import { EmphasisedText } from '@b2b-catalog-platform/ui/content/emphasised-text';
 import { PageSectionTitle } from '@b2b-catalog-platform/ui/content/page-section-title';
 import { MapFrame } from './map-frame';
 import { StaticPage } from './static-page';
+import { SITE_CONFIG } from '../../../core/site/site-config';
 
 /** The editable prose, then the configured offices with their maps. */
 @Component({
@@ -37,5 +37,5 @@ import { StaticPage } from './static-page';
   `,
 })
 export class ContactPage {
-  protected readonly locations = inject(DEPLOYMENT_CONFIG).locations;
+  protected readonly locations = inject(SITE_CONFIG).locations;
 }

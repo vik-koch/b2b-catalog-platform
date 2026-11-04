@@ -170,7 +170,6 @@ export class ProductDetail {
         this.product.hasValue() &&
         (!this.product.value()?.hidden || this.hiddenText.settled()),
     ),
-    section: 'editMode',
   });
   protected readonly editText = this.content.controls;
   protected readonly showSkeleton = this.content.showSkeleton;

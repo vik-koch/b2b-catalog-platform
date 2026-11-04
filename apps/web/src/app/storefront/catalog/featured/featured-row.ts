@@ -150,7 +150,6 @@ export class FeaturedRow {
 
   private readonly content = editAwareContent({
     ready: computed(() => this.items.hasValue()),
-    section: 'editMode',
   });
   protected readonly editControls = this.content.controls;
   protected readonly showSkeleton = this.content.showSkeleton;

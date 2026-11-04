@@ -1,8 +1,6 @@
 import { InquiryRequest } from '@b2b-catalog-platform/shared/storefront/site';
-import {
-  demoSharedText,
-  demoMailText,
-} from '../../platform/mail/mail-text.fixture';
+import { demoSharedText } from '../../platform/mail/mail-text.fixture';
+import { demoSiteMailText } from './site-mail-text.fixture';
 import { inquiryMail } from './inquiry.template';
 
 const submission: InquiryRequest = {
@@ -14,13 +12,13 @@ const submission: InquiryRequest = {
 
 describe('inquiryMail', () => {
   it('puts the submitter in the subject, after the configured prefix', () => {
-    expect(inquiryMail(submission, demoMailText, demoSharedText).subject).toBe(
-      'Inquiry: Jane Doe',
-    );
+    expect(
+      inquiryMail(submission, demoSiteMailText, demoSharedText).subject,
+    ).toBe('Inquiry: Jane Doe');
   });
 
   it('lists every field in order, using the configured labels', () => {
-    const { rows } = inquiryMail(submission, demoMailText, demoSharedText);
+    const { rows } = inquiryMail(submission, demoSiteMailText, demoSharedText);
 
     expect(rows).toEqual([
       { label: 'Name', value: 'Jane Doe' },
@@ -34,7 +32,7 @@ describe('inquiryMail', () => {
   it('keeps a row for an omitted field rather than dropping it', () => {
     const { rows } = inquiryMail(
       { name: 'Jane Doe', phone: '+49 40 1234567', preferredContact: 'phone' },
-      demoMailText,
+      demoSiteMailText,
       demoSharedText,
     );
 

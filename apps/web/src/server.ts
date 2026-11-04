@@ -10,17 +10,13 @@ import { existsSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { requireEnv } from './env';
-import { preloadStorefrontText } from './app/platform/config/storefront-text.server';
 import { preloadSharedText } from './app/platform/config/shared-text.server';
-import {
-  getAdminText,
-  preloadAdminText,
-} from './app/platform/config/admin-text.server';
+import { getAdminText, preloadTexts } from './app/app.texts.server';
 import { preloadDeploymentConfig } from './app/platform/config/deployment-config.server';
 import { injectCartShell } from './app/storefront/ordering/cart/cart-shell.server';
 import { injectSessionShell } from './app/storefront/accounts/auth/session-shell.server';
 import { sessionCookieIn } from './app/platform/auth/session-cookie';
-import { injectShellState } from './app/platform/config/shell-state.server';
+import { injectShellState } from './app/app.shell-state.server';
 import { injectFontHead } from './app/platform/config/font.server';
 import {
   isStaffPreview,
@@ -293,9 +289,8 @@ if (isMainModule(import.meta.url) || process.env['pm_id']) {
   // build/prerender, which import this module without a runtime environment.
   getAssetsMiddleware();
   preloadDeploymentConfig();
-  preloadStorefrontText();
+  preloadTexts();
   preloadSharedText();
-  preloadAdminText();
 
   const port = requireEnv('WEB_PORT');
   app.listen(port, () => {

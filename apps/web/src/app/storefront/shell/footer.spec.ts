@@ -8,6 +8,7 @@ import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
 import { DeploymentConfig } from '@b2b-catalog-platform/shared/platform';
 import { defaultDeploymentConfig } from '../../platform/config/deployment-config.fixture';
 import { Footer } from './footer';
+import { defaultStorefrontSiteText } from '../site/site-text.fixture';
 
 function config(cookieConsentEnabled: boolean): DeploymentConfig {
   return { ...defaultDeploymentConfig, cookieConsentEnabled };
@@ -43,13 +44,15 @@ describe('Footer', () => {
 
   it('shows the "Cookie settings" control when consent is enabled', async () => {
     const el = await render(true);
-    expect(buttonLabels(el)).toContain(defaultStorefrontText.consent.settings);
+    expect(buttonLabels(el)).toContain(
+      defaultStorefrontSiteText.consent.settings,
+    );
   });
 
   it('hides the "Cookie settings" control when consent is disabled', async () => {
     const el = await render(false);
     expect(buttonLabels(el)).not.toContain(
-      defaultStorefrontText.consent.settings,
+      defaultStorefrontSiteText.consent.settings,
     );
   });
 

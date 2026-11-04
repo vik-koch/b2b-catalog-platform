@@ -37,6 +37,7 @@ import { lockIcon } from '@b2b-catalog-platform/ui/icons/glyphs/lock';
 import { packageIcon } from '@b2b-catalog-platform/ui/icons/glyphs/package';
 import { usersIcon } from '@b2b-catalog-platform/ui/icons/glyphs/users';
 import { wrenchIcon } from '@b2b-catalog-platform/ui/icons/glyphs/wrench';
+import { SITE_CONFIG } from '../../core/site/site-config';
 
 /**
  * The staff's first screen: orders and accounts, then what changes the shop's
@@ -374,8 +375,8 @@ export class AdminPanelPage {
   protected readonly navText = inject(SHARED_TEXT).nav;
   protected readonly syncText = inject(ADMIN_TEXT).sync;
   /** Only what is published has a route to edit it against. */
-  protected readonly pageSlugs = inject(DEPLOYMENT_CONFIG).pages.published;
-  private readonly consentAsked = inject(DEPLOYMENT_CONFIG).consent;
+  protected readonly pageSlugs = inject(SITE_CONFIG).pages.published;
+  private readonly consentAsked = inject(SITE_CONFIG).consent;
   protected readonly consentPurposes = CONSENT_PURPOSES.filter(
     (purpose) => this.consentAsked[purpose],
   );

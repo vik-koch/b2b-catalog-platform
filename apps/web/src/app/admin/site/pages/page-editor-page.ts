@@ -1,7 +1,6 @@
 import { Component, inject, resource, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Page, PageSlug } from '@b2b-catalog-platform/shared/core/site';
-import { ADMIN_TEXT } from '../../../platform/config/admin-text';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { usePageSeo } from '../../../platform/page-seo';
 import { delayedLoading } from '../../../platform/delayed-loading';
@@ -11,6 +10,7 @@ import { PageService } from '../../../core/site/page.service';
 import { UnsavedChangesAware } from '../../platform/unsaved-changes.guard';
 import { injectEditorReturn } from '../../../platform/edit-mode/editor-return';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
+import { ADMIN_SITE_TEXT } from '../../../core/site/admin-site-text';
 
 /**
  * Returns to whichever opened it, the panel or the storefront's pencil. A page
@@ -40,7 +40,7 @@ import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 })
 export class PageEditorPage implements UnsavedChangesAware {
   private readonly pageService = inject(PageService);
-  protected readonly text = inject(ADMIN_TEXT).pages;
+  protected readonly text = inject(ADMIN_SITE_TEXT).pages;
 
   protected readonly slug = (inject(ActivatedRoute).snapshot.paramMap.get(
     'slug',
