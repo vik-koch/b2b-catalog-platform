@@ -1,5 +1,3 @@
-// Namespace import, not `{ z }`: the named form defeats tree shaking and
-// pulls zod's 63 locale files into the bundle (colinhacks/zod#6050).
 import * as z from 'zod';
 import { SIGN_IN_STEP_MODES } from './auth';
 import { USER_ROLES } from '../../platform/session';

@@ -1,16 +1,12 @@
-/**
- * Machine-token limits and vocabulary (NFR-SEC-09). Import-free so a component
- * showing a name's character counter does not pull Zod into the browser.
- */
+/** Machine-token limits (NFR-SEC-09). Import-free, so a name's character
+ * counter does not pull Zod in. */
 
 /** An operator's label, not an identifier. */
 export const API_TOKEN_NAME_MAX_LENGTH = 80;
 
 /**
- * Capabilities, not routes: a new endpoint under one changes no token. Closed
- * in code, as a scope is a security boundary. A token holds a set, as one
- * client process usually does several jobs, and least privilege is in what
- * the operator ticks.
+ * Capabilities, not routes: a new endpoint under one changes no token. A
+ * token holds a set, as one client process usually does several jobs.
  */
 export const API_TOKEN_SCOPES = [
   'catalog-sync',

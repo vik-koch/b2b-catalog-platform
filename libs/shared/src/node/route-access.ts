@@ -1,17 +1,11 @@
 /**
- * Who can reach every route the API mounts (NFR-SEC-04).
+ * Who can reach every route the API mounts (NFR-SEC-04). Authentication is
+ * opt-in per route, so a route that forgets it is open: a new route, or a change
+ * in who reaches one, fails the API's route-access spec until this table says
+ * so, and the api-e2e role sweep knocks on each with the wrong credentials.
  *
- * Authentication is opt-in per route — `@Auth(...)` or `@Machine(...)` — so a
- * route that forgets it is open to anyone. This table is the other half: a new
- * route, or a change in who reaches one, fails the API's route-access spec
- * until the table says so, and the change shows up in review. The api-e2e
- * role sweep then knocks on every route with the wrong credentials. A public
- * route states why it is public.
- *
- * Access is read the way the guards decide it at runtime: `public`,
- * `signed-in` (any account), the roles allowed (`admin+manager`), or
- * `machine:<scope>`. Ownership — whose order, whose address — is the
- * handler's job and is not visible here.
+ * `public` (with why), `signed-in`, the roles (`admin+manager`) or
+ * `machine:<scope>`. Whose order or address is the handler's check, not here.
  */
 const pub = (why: string) => {
   if (!why.trim()) throw new Error('a public route says why it is public');

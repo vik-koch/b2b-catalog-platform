@@ -7,16 +7,9 @@ import {
 
 const eur: MoneyFormat = { code: 'EUR', locale: 'de-DE' };
 
-/**
- * The one implementation both a page and the mail it links to format through.
- * Two of them is how the two come to disagree, so what is pinned here is the
- * arithmetic — above all the divisor, which is read off the currency rather
- * than assumed to be a hundred.
- */
 describe('formatMoneyMinor', () => {
   it('reads the divisor off the currency, not off a constant', () => {
-    // 1890 minor units is €18.90, ¥1890, and BD1.890 — same integer, three
-    // different amounts, because the exponent differs.
+    // One integer, three amounts: the exponent differs.
     expect(formatMoneyMinor(1890, eur)).toContain('18,90');
     expect(formatMoneyMinor(1890, { code: 'JPY', locale: 'ja-JP' })).toContain(
       '1,890',

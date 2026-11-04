@@ -11,7 +11,7 @@ import {
  * it sets the colour at all: its shades only work as a set, and the check
  * below measures them as one. `base` is the bare name, text on the page.
  */
-export const STATUS_ROLES = {
+const STATUS_ROLES = {
   danger: [
     'base',
     'hover',

@@ -1,60 +1,24 @@
-import * as z from 'zod';
-
 /**
- * The shape of every refusal this API answers with.
- *
- * `code` is the contract; `message` is not. A client decides what to show from
- * the code alone and reads its wording from its own text file — the server's
- * English is developer-facing, for logs and for anyone reading the API without
- * a browser, and showing it verbatim would put untranslated, unreviewed
- * strings on screen from a place no deployment can edit.
- *
- * So: every declared 4xx carries a code from a closed set, and the browser
- * switches on it. A code is part of the contract like a status is — renaming
- * one is a breaking change; adding one needs the client to have a fallback.
+ * A refusal travels as a `code` from a closed set; the client words it from
+ * its own text file. The `message` beside it is for developers and never
+ * shown. Renaming a code breaks the contract like renaming a status does.
  */
-export function apiErrorSchema<const C extends readonly [string, ...string[]]>(
-  codes: C,
-) {
-  return z
-    .object({
-      code: z.enum(codes),
-      /** Developer-facing. Never rendered — see above. */
-      message: z.string(),
-    })
-    .strict();
-}
 
-/**
- * The two refusals every guarded endpoint shares. Neither is rendered as a
- * message anywhere: 401 sends the browser to the sign-in form and 403 to the
- * "not for you" screen, so the codes exist to keep the shape uniform rather
- * than because a screen switches on them.
- */
+/** 401 sends the browser to sign-in and 403 to "not for you", so no screen
+ * switches on these two. */
 export const COMMON_AUTH_ERROR_CODES = [
   'not-authenticated',
   'insufficient-role',
 ] as const;
-export type CommonAuthErrorCode = (typeof COMMON_AUTH_ERROR_CODES)[number];
-export const commonAuthErrorSchema = apiErrorSchema(COMMON_AUTH_ERROR_CODES);
 
-/**
- * The two refusals every guarded endpoint shares, as an oRPC error map.
- *
- * The codes are the same strings the `{ code, message }` bodies carried, and
- * mean the same thing — only the envelope around them changed, so the client
- * text keyed by them did not have to move. `message` is developer-facing here
- * too: oRPC puts it in the same place with the same meaning.
- */
 export const commonAuthErrors = {
   'not-authenticated': { status: 401 },
   'insufficient-role': { status: 403 },
 } as const;
 
 /**
- * A phone number the deployment's rule cannot read (FR-AUTH-12): another
- * country's, or one that does not fill the mask. The browser's field enforces
- * the same rule, so only an API client should meet it.
+ * A phone number the deployment's rule cannot read (FR-AUTH-12). The browser's
+ * field enforces the same rule, so only an API client should meet it.
  */
 export const phoneFormatErrors = {
   'phone-format': { status: 400 },

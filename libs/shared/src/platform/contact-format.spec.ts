@@ -46,8 +46,6 @@ describe('applyMask', () => {
 });
 
 describe('stripDialPrefix', () => {
-  // The field shows "+49" beside itself and holds the national part alone, so
-  // an autofilled international number arrives with the code counted twice.
   it('takes off the two international forms a browser writes', () => {
     expect(stripDialPrefix('+49 40 1234567', '+49')).toBe(' 40 1234567');
     expect(stripDialPrefix('004940 1234567', '+49')).toBe('40 1234567');
@@ -55,8 +53,7 @@ describe('stripDialPrefix', () => {
   });
 
   it('leaves a national number alone, however it starts', () => {
-    // Bare "49…" is ambiguous — a national number may open with its own
-    // country's digits — so it is never guessed at.
+    // A national number may open with its own country's digits.
     expect(stripDialPrefix('49 1234567', '+49')).toBe('49 1234567');
     expect(stripDialPrefix('040 1234567', '+49')).toBe('040 1234567');
     expect(stripDialPrefix('', '+49')).toBe('');
@@ -146,10 +143,6 @@ describe('formatPhone', () => {
     expect(formatPhone('+494012345678', config)).toBe('+49 (401) 234-5678');
   });
 
-  /**
-   * The number is either from another country or from before this mask. Half a
-   * grouping would misrepresent it, and refusing to show it would lose it.
-   */
   it('shows a number that does not fit the mask exactly as stored', () => {
     expect(formatPhone('+49401234', config)).toBe('+49401234');
     expect(formatPhone('+13125550100', config)).toBe('+13125550100');
@@ -162,12 +155,8 @@ describe('formatPhone', () => {
   });
 });
 
-/**
- * The round trip the account and staff editors make on every save: read a
- * stored number into the field, type nothing, store it again. It has to come
- * back identical — a number that changes by being looked at is one the next
- * save would refuse as incomplete.
- */
+/** An editor reads a stored number into its field and saves it untouched: a
+ * number that changed by being looked at would fail the next save. */
 describe('the editor round trip', () => {
   it('returns a stored number unchanged', () => {
     const stored = '+494012345678';
@@ -178,12 +167,6 @@ describe('the editor round trip', () => {
   });
 });
 
-/**
- * Which shape a stored registration number is in — what dresses the field when
- * an account or an address is opened for editing. Wrong here is not cosmetic:
- * the field masks the number into the format it was told, so a format whose
- * mask is too short truncates it, and the next save stores the truncation.
- */
 describe('companyIdFormatOf', () => {
   const vat: CompanyIdFormat = {
     key: 'vat',
@@ -201,9 +184,6 @@ describe('companyIdFormatOf', () => {
     expect(companyIdFormatOf('1234567890', [vat, short])?.key).toBe('short');
   });
 
-  // Which of two overlapping shapes a number "really" is cannot be recovered
-  // from the number, and nothing downstream needs it to be: this only names a
-  // stored value for the staff filter.
   it('takes the first format that matches where two overlap', () => {
     const loose: CompanyIdFormat = {
       key: 'loose',
@@ -221,8 +201,6 @@ describe('companyIdFormatOf', () => {
 });
 
 describe('normalizeCompanyId', () => {
-  // A number is typed the way it is printed on a letterhead. Refusing it for a
-  // space would be refusing the number.
   it('is the same number however it was typed', () => {
     expect(normalizeCompanyId('de 123 456 789')).toBe('DE123456789');
     expect(normalizeCompanyId('DE123456789')).toBe('DE123456789');
@@ -251,20 +229,12 @@ describe('companyIdMatchesAny', () => {
     expect(companyIdMatchesAny('de 123 456 789', [vat])).toBe(true);
   });
 
-  // A deployment in a jurisdiction whose numbers it has not described accepts
-  // whatever the contract's envelope allows, rather than nothing at all.
   it('has no shape rule where no formats are configured', () => {
     expect(companyIdMatchesAny('anything', undefined)).toBe(true);
     expect(companyIdMatchesAny('anything', [])).toBe(true);
   });
 });
 
-/**
- * The trim has to happen before the format check, not after. Writing the field
- * the other way round — an email schema with a trim hung off it — reads the
- * same and refuses an address pasted with a space around it, which is most of
- * the ways one arrives.
- */
 describe('emailField', () => {
   const field = emailField(320);
 
@@ -292,12 +262,7 @@ describe('emailField', () => {
 });
 
 describe('storedEmailField', () => {
-  /**
-   * The regression: a reader stricter than the writer loses the whole list.
-   * `a@a.a` goes in through the registration form, and the account grid reads
-   * every account back through one array schema — so the one row that fails
-   * takes the other three hundred with it.
-   */
+  // A reader stricter than the writer fails every list the row is on.
   it.each([
     'a@a.a',
     'a@a.a.a',

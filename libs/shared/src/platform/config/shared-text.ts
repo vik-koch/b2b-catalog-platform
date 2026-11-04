@@ -3,8 +3,8 @@ import type { DeepReadonly } from '../deep-readonly';
 import { refuseCountForms } from '../fill-text';
 import { PAGE_SLUGS } from '../../core/site/pages';
 
-/** An order status per reading — `ready` reads by fulfilment: on its way, or
- * waiting to be collected. Customers' set here, staff's in the admin text. */
+/** An order status per reading: `ready` is on its way or waiting to be
+ * collected. The customers' set; staff have theirs in the admin text. */
 export const orderStatusLabels = z
   .object({
     requested: z.string(),
@@ -42,11 +42,9 @@ const field = <T extends z.ZodRawShape>(checks: T) =>
   z.object({ label: z.string(), ...checks }).strict();
 
 /**
- * The shop's shared names, and the wording its customers read in more than one
- * place — the storefront, mail and the order summary read it from here, and the
- * admin borrows the names. Public: the browser receives it on every page, so
- * nothing written only for staff belongs here; that wording is in the admin
- * text, and in the mail text where staff mail needs it.
+ * The shop's names and the wording customers read in more than one place: the
+ * storefront, mail and order summary, with the admin borrowing the names. Sent
+ * with every page, so nothing written only for staff belongs here.
  */
 export const sharedTextSchema = z
   .object({
@@ -92,7 +90,7 @@ export const sharedTextSchema = z
     units: z
       .object({ piece: z.string(), pack: z.string(), box: z.string() })
       .strict(),
-    /** `{qty} {unit}` — a quantity bought in pieces. */
+    /** `{qty} {unit}`: a quantity bought in pieces. */
     quantity: z.string(),
     /** A quantity bought in packs or boxes, with what it came to in pieces. */
     quantityPieces: z.string(),

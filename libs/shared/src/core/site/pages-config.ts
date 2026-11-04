@@ -36,7 +36,7 @@ export const pagesConfigSchema = z
     for (const slug of pages.published) {
       if (isConsentPage(slug)) {
         ctx.addIssue({
-          code: z.ZodIssueCode.custom,
+          code: 'custom',
           path: ['published'],
           message: `"${slug}" is switched by consent, not published here`,
         });
@@ -51,7 +51,7 @@ export const pagesConfigSchema = z
       for (const segment of pages[key]) {
         if (isPage(segment) && !published.has(segment)) {
           ctx.addIssue({
-            code: z.ZodIssueCode.custom,
+            code: 'custom',
             path: [key],
             message: `"${segment}" is linked but not published`,
           });

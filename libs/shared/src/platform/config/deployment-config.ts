@@ -1,5 +1,3 @@
-// Namespace import, not `{ z }`: the named form defeats tree shaking and
-// pulls zod's 63 locale files into the bundle (colinhacks/zod#6050).
 import * as z from 'zod';
 import type { DeepReadonly } from '../deep-readonly';
 import { addressConfigSchema } from '../../core/accounts/address-config';
@@ -16,31 +14,19 @@ import { taxConfigSchema } from '../tax-config';
 import { themeConfigSchema } from '../theme-config';
 import { CUSTOMER_TYPES } from '../../core/accounts/users';
 
-/**
- * A map embed — restricted to an iframe URL by design.
- */
-export const mapEmbedSchema = z
+const mapEmbedSchema = z
   .object({
-    /**
-     * iframe src. Deployment-owned, so trusted — bound as a resource URL.
-     * OpenStreetMap/static for the demo; a provider endpoint per deployment.
-     */
+    /** An iframe src, deployment-owned and so bound as a resource URL. */
     url: z.string(),
-    /**
-     * Set when the embed sets cookies / loads tracking (e.g. Google Maps), so
-     * it is withheld until consent allows it. Omit for no-cookie embeds (static
-     * images, some map tiles), which render immediately.
-     */
+    /** The embed sets cookies, so it waits for consent. */
     consentRequired: z.boolean().optional(),
   })
   .strict();
 
 export type MapEmbed = DeepReadonly<z.infer<typeof mapEmbedSchema>>;
 
-/** One office/branch shown on the contact page. Where a customer reaches the
- * business — not necessarily where goods are collected, which is its own list
- * (`pickup`). */
-export const contactLocationSchema = z
+/** An office on the contact page; where goods are collected is `pickup`. */
+const contactLocationSchema = z
   .object({
     name: z.string(),
     description: z.string().optional(),
@@ -53,36 +39,26 @@ export type ContactLocation = DeepReadonly<
 >;
 
 /**
- * One place an order may be collected from (FR-CART-07). Deliberately its own
- * list rather than the contact page's offices: goods are collected from a
- * warehouse or a depot as readily as from an office, and an office that takes
- * enquiries need not hand anything over. The two overlap in practice and are
- * kept separate anyway, because one is not a subset of the other.
- *
- * `key` is what an order snapshots alongside the name and address, so renaming
- * or removing a pickup point later leaves past orders readable.
- *
- * `mapUrl` is a link a visitor opens, not an iframe embed — a pickup point is
- * looked up in passing, and a map drawn into the form is a page of weight for
- * a question that is answered by a glance elsewhere.
+ * Where an order may be collected (FR-CART-07): a list apart from the offices,
+ * as neither is a subset of the other. An order snapshots `key`, name and
+ * address, so a renamed or removed point leaves past orders readable.
  */
-export const pickupLocationSchema = z
+const pickupLocationSchema = z
   .object({
     key: z.string().min(1).max(64),
     name: z.string(),
-    /** Snapshotted onto the order, so it is required: an order that cannot say
-     * where it was collected from is one nobody can act on. */
+    /** Required: an order that cannot say where it is collected is stuck. */
     address: z.string().min(1),
-    /** Opening hours, which gate to use — whatever the name and the address do
-     * not already say. */
+    /** Opening hours, which gate: what name and address do not say. */
     description: z.string().optional(),
+    /** A link to open, not an embed: looked up in passing. */
     mapUrl: z.string().optional(),
   })
   .strict();
 
 export type PickupLocation = DeepReadonly<z.infer<typeof pickupLocationSchema>>;
 
-export const pickupConfigSchema = z
+const pickupConfigSchema = z
   .object({
     locations: z
       .array(pickupLocationSchema)
@@ -92,10 +68,9 @@ export const pickupConfigSchema = z
         locations.forEach((location, index) => {
           if (seen.has(location.key)) {
             ctx.addIssue({
-              code: z.ZodIssueCode.custom,
+              code: 'custom',
               path: [index, 'key'],
-              // A duplicate key makes one of the two unreachable: an order
-              // naming it would snapshot whichever the lookup found first.
+              // An order naming a duplicate would snapshot whichever came first.
               message: `pickup location ${location.key} is listed twice`,
             });
           }
@@ -106,30 +81,18 @@ export const pickupConfigSchema = z
   .strict();
 
 /**
- * One place the shop also exists (FR-NAV-07) — a social account, a messenger,
- * a marketplace listing. Configuration rather than editable content: where the
- * chrome links to is the deployment's decision.
- *
- * `icon` names a file in the assets mount, beside the logo and the fonts. It is
- * a file rather than geometry in this JSON, and it is painted as a mask rather
- * than drawn as an image, so a borrowed mark takes the site's own colours and a
- * row of them reads as one set.
- *
- * `label` is the words that stand in for the icon: what a screen reader
- * announces, and what is left to read if the mark never arrives.
+ * Where else the shop exists (FR-NAV-07): a social account, a marketplace.
+ * `icon` is a file in the assets mount, painted as a mask so every mark takes
+ * the site's colours; `label` is what a screen reader announces instead.
  */
-export const elsewhereLinkSchema = z
+const elsewhereLinkSchema = z
   .object({
     label: z.string().min(1),
-    /** Absolute, and off this site by definition. */
     url: z.string().min(1),
     /** File name in the assets mount, e.g. "marktplatz.svg". */
     icon: z.string().min(1),
-    /**
-     * The mark's shape, as for the logo: a mask has no size of its own, so the
-     * box is given one before the file arrives and the row does not shift
-     * when it does. Left out, the mark is square.
-     */
+    /** A mask has no size of its own, so the box is sized before the file
+     * arrives. Left out, the mark is square. */
     width: z.number().int().positive().optional(),
     height: z.number().int().positive().optional(),
   })
@@ -144,15 +107,11 @@ export const elsewhereLinkSchema = z
 export type ElsewhereLink = DeepReadonly<z.infer<typeof elsewhereLinkSchema>>;
 
 /**
- * A line above every page and above every mail's content (FR-NAV-08): that the
- * shop is a demonstration, or closed over the holidays. Its words are here
- * rather than in the texts because most deployments have none, and a text file
- * has no optional keys.
- *
- * `link` follows the text. Absolute, because a mail has no page to resolve a
- * path against.
+ * A line above every page and mail (FR-NAV-08), such as a holiday closure.
+ * Config, not text: most deployments have none, and a text has no optional
+ * keys. `link` is absolute, as a mail has no page to resolve against.
  */
-export const siteNoticeSchema = z
+const siteNoticeSchema = z
   .object({
     text: z.string().min(1),
     link: z
@@ -167,13 +126,7 @@ export const siteNoticeSchema = z
 
 export type SiteNotice = DeepReadonly<z.infer<typeof siteNoticeSchema>>;
 
-/**
- * The deployment's public facts: `deployment.json`, read whole by the web and
- * the API alike. The web injects it into every document it serves, so
- * everything here is visible to any visitor — what only the API needs is
- * `api.json` (the API's `apiConfigSchema`).
- */
-/** Whether `tag` is a language tag `Intl` accepts, in its canonical form —
+/** Whether `tag` is a language tag `Intl` accepts, in its canonical form:
  * "de-DE", not "de_DE" or "de-de", so a `lang` attribute reads it as written. */
 function isLocale(tag: string): boolean {
   try {
@@ -183,14 +136,26 @@ function isLocale(tag: string): boolean {
   }
 }
 
+/** How the header, footer or seller line reaches the shop; a field left out
+ * is not drawn. */
+const contactLinesSchema = z
+  .object({
+    phone: z.string().optional(),
+    email: z.string().optional(),
+  })
+  .strict();
+
+/**
+ * The deployment's public facts in `deployment.json`, read by the web and the
+ * API. Injected into every page, so a visitor can read all of it; what only the
+ * API needs is `api.json`.
+ */
 export const deploymentConfigSchema = z
   .object({
     /**
-     * The one locale the deployment speaks, as a BCP 47 tag ("de-DE"): the
-     * language its text is written in, which a page and a mail declare, and
-     * the conventions every date, number and amount is formatted by. One
-     * setting, so a month name never comes out in another language than the
-     * sentence around it. Required, so formatting is deterministic under SSR.
+     * The one locale (BCP 47): the text's language and the conventions of
+     * every date, number and amount, so a month name never comes out in
+     * another language than its sentence. Required for deterministic SSR.
      */
     locale: z.string().refine(isLocale, {
       message: 'not a BCP 47 language tag, such as "de-DE"',
@@ -198,28 +163,13 @@ export const deploymentConfigSchema = z
     branding: z
       .object({
         name: z.string(),
-        /**
-         * What the shop is, in a line: the landing page's heading, and with
-         * the name the document `<title>` of every page that has none of its
-         * own (`{name} — {tagline}`). Set at runtime, so SSR emits it and
-         * crawlers see it.
-         */
+        /** The landing heading, and the `<title>` of a page without its own
+         * (`{name} — {tagline}`). */
         tagline: z.string().min(1),
-        /**
-         * First year of the copyright range in the footer. The end of the range
-         * is the current year, so it never needs maintaining; a shop that
-         * launched this year shows a single year rather than a range.
-         */
+        /** The copyright range's first year; it runs to the current one. */
         startYear: z.number().int(),
-        /**
-         * The intrinsic size of `assets/logo.svg`, copied off the file itself.
-         * Not a display size — the header draws the logo 40px high whatever
-         * these say. They are there to reserve its box before it arrives: an
-         * <img> with neither dimension declared is zero wide until the file
-         * loads, so the search field beside it takes the space and gives it
-         * back a frame later. Cheap to keep right, and wrong only if the asset
-         * is replaced with one of another shape.
-         */
+        /** The intrinsic size of `assets/logo.svg`, not a display size: it
+         * reserves the box, so the search field does not shift on load. */
         logo: z
           .object({
             width: z.number().int().positive(),
@@ -227,38 +177,20 @@ export const deploymentConfigSchema = z
           })
           .strict(),
         /**
-         * The typeface, when a deployment wants one of its own. `family` is a
-         * CSS font-family list, applied to everything the app draws; leaving it
-         * out keeps the system stack, which is a real choice rather than a
-         * fallback — no file to load and the shop looks native everywhere.
-         *
-         * `stylesheet` names a CSS file in the assets mount (see the config
-         * README) that declares the @font-face rules the family needs; the
-         * server links it into every document. Self-hosted on purpose: a
-         * link to a font CDN makes every visitor's browser announce itself to a
-         * third party before the page has drawn.
+         * `family` is a CSS font-family list; left out, the system stack.
+         * `stylesheet` is a file in the assets mount with the @font-face
+         * rules, self-hosted so no visitor is announced to a font CDN.
          */
         font: z
           .object({
             family: z.string().min(1),
             stylesheet: z.string().min(1).optional(),
-            /**
-             * The weight a price is set in (`--font-weight-emphasis`). How
-             * heavy "heavy" reads is a property of the face, which is why it
-             * lives with the face and not with the colours: 700 is a step up
-             * from the body text in the system stack and a shout in a family
-             * whose medium and semibold are barely apart. Omitted, the
-             * stylesheet's own figure stands.
-             */
+            /** The weight a price is set in (`--font-weight-emphasis`): how
+             * heavy reads depends on the face. */
             emphasisWeight: z.number().int().min(100).max(900).optional(),
-            /**
-             * The same face for the PDFs the API draws (FR-ORD-05). Named
-             * separately, and as `ttf`/`otf` files beside the `woff2` ones,
-             * because a PDF embeds TrueType or CFF: a `woff2` embedded through
-             * fontkit is tagged as TrueType and then refused by some readers
-             * while rendering fine in others. Omitted, the API prints in the
-             * face it ships with.
-             */
+            /** The face for the API's PDFs (FR-ORD-05), as ttf/otf: a woff2
+             * embedded through fontkit is refused by some readers. Left out,
+             * the API's own face. */
             pdf: z
               .object({
                 regular: z.string().min(1),
@@ -269,81 +201,40 @@ export const deploymentConfigSchema = z
           })
           .strict()
           .optional(),
-        /**
-         * The colours, as the roles in the UI library's ui.css; only the
-         * brand is required (theme-config.ts says what each key colours).
-         */
+        /** The colours, as the roles in the UI library's ui.css. */
         theme: themeConfigSchema,
       })
       .strict(),
     /** Which static pages this deployment has, and where they are linked. */
     pages: pagesConfigSchema,
-    /**
-     * Which consents the forms ask for (NFR-LEGAL-09). A purpose switched on
-     * draws its box, and its text is read under its form.
-     */
+    /** Which consents the forms ask for (NFR-LEGAL-09). */
     consent: consentConfigSchema,
-    /** The tax basis prices are quoted on (NFR-LEGAL-11), stated under every
-     * total and on the conditions page. */
     tax: taxConfigSchema,
-    /**
-     * Whether cookie-consent gating is enforced. When false, no banner is shown
-     * and non-essential storage is not gated — correct both while the app sets
-     * only strictly-necessary storage, and for deployments in jurisdictions
-     * without consent requirements (optional storage just loads).
-     */
+    /** Off: no banner, and non-essential storage loads ungated, for a
+     * jurisdiction without consent requirements. */
     cookieConsentEnabled: z.boolean(),
-    /**
-     * Whether an order carries an invoice address of its own. Where a
-     * deployment invoices to the address the goods go to — or, for a
-     * self-pickup, to no address at all — checkout asks for none: no second
-     * picker, no "send the invoice here as well", and nothing about an invoice
-     * address on the read-back or the order afterwards. The order's own
-     * billing columns are then empty, which is what the flag means.
-     */
+    /** Off: an order is invoiced to its delivery address, or none for a
+     * pickup, so checkout asks for no invoice address at all. */
     billingAddressEnabled: z.boolean(),
-    /**
-     * Catalog presentation. Prices come from the API as integer minor units and
-     * are currency-agnostic; this is where a deployment names its single
-     * currency. How an amount is written is `locale`'s.
-     */
     catalog: z
       .object({
+        /** Prices are integer minor units; this names their one currency. */
         currency: z
           .object({
-            /** ISO 4217 code, e.g. "EUR". Drives symbol and fraction digits. */
+            /** ISO 4217, e.g. "EUR". */
             code: z.string(),
           })
           .strict(),
-        /**
-         * Whether a cart that is missing what its products are sold with may
-         * be checked out (FR-SET-04). Advisory by default: the cart says what
-         * is short and the customer decides, because a manager reads every
-         * order and a hard block costs a support call. A deployment that
-         * disagrees sets this, and the API refuses the order as well — a rule
-         * enforced only in the browser is not a rule.
-         */
+        /** Whether a cart missing what its products are sold with may still be
+         * ordered (FR-SET-04). Advisory by default; set, the API refuses too. */
         pairingsEnforced: z.boolean(),
-        /**
-         * Where "few left" sits for a product with neither a box nor a pack to
-         * measure it in (FR-STOCK-02). The API applies the same figure; the
-         * browser needs it only to tell an admin what threshold a product will
-         * actually resolve to.
-         */
+        /** "Few left" for a product with neither box nor pack (FR-STOCK-02);
+         * the admin reads it to show the threshold a product resolves to. */
         lowStockThresholdPieces: z.number().int().positive().optional(),
-        /**
-         * Whether the storefront draws the sort controls (FR-SEARCH-04).
-         *
-         * Off, a listing keeps its default order — relevance for a search,
-         * name for a category — and the `sort` parameter keeps working, so a
-         * link somebody saved still opens the listing they saved. It hides a
-         * control, it does not remove an ordering: a shop whose customers know
-         * the catalogue by heart reads a listing faster without one, and the
-         * admin grid's own sorting is untouched.
-         */
+        /** Whether listings draw sort controls (FR-SEARCH-04). Off, `sort`
+         * still works, so a saved link opens what was saved. */
         sortControlsEnabled: z.boolean(),
-        /** Units a box's volume and weight are measured in. Labels only — the
-         * numbers are stored as entered. */
+        /** Labels only: the numbers are stored as entered. */
         boxUnits: z
           .object({
             volume: z.string(),
@@ -352,108 +243,48 @@ export const deploymentConfigSchema = z
           .strict(),
       })
       .strict(),
-    /**
-     * Search (FR-SEARCH-08). `alternateLayout` names the keyboard layout a
-     * query is also read on, for visitors who type with the wrong one active;
-     * absent, a query is read only as typed.
-     */
+    /** The keyboard layout a query is also read on, for a visitor typing with
+     * the wrong one active (FR-SEARCH-08). */
     search: z
       .object({ alternateLayout: z.enum(KEYBOARD_LAYOUTS).optional() })
       .strict()
       .optional(),
-    /**
-     * Offices shown on the contact page.
-     */
     locations: z.array(contactLocationSchema),
-    /**
-     * Who serves the map embeds, by name ("OpenStreetMap"), for the texts that
-     * tell a visitor where a map comes from: `{provider}` in the notice in
-     * place of a withheld map and in the cookie banner. One name for the
-     * deployment rather than one per map, as those texts name one.
-     */
+    /** Who serves the maps ("OpenStreetMap"), as `{provider}` in the
+     * withheld-map notice and the cookie banner. */
     mapProvider: z.string().min(1),
-    /**
-     * Where an order may be collected (FR-CART-07). Optional: a deployment
-     * that configures none does not offer self-pickup at all, which is why
-     * this is absent rather than an empty list.
-     */
+    /** Absent, not empty, where the shop offers no pickup. */
     pickup: pickupConfigSchema.optional(),
-    /**
-     * Primary contact shown in the header bar and footer. Each field is
-     * optional — an omitted field is simply not rendered; omit the whole object
-     * for none.
-     */
-    contact: z
-      .object({
-        phone: z.string().optional(),
-        email: z.string().optional(),
-      })
-      .strict()
-      .optional(),
-    /**
-     * Where else the shop can be found (FR-NAV-07), in the order the footer
-     * draws them. Optional, and an empty list is the same thing: a deployment
-     * that is only here shows nothing beside the enquiry button.
-     */
+    /** Shown in the header bar and footer. */
+    contact: contactLinesSchema.optional(),
+    /** In the order the footer draws them. */
     elsewhere: z.array(elsewhereLinkSchema).optional(),
-    /** The notice above every page and mail (FR-NAV-08). Absent means none. */
     notice: siteNoticeSchema.optional(),
     /**
-     * Who sells, named in every page's footer (NFR-LEGAL-02) for a
-     * jurisdiction that wants the seller identifiable on the site itself.
-     * `registration` holds whole strings, label included ("HRB 123456",
-     * "VAT ID DE…"), because which numbers a seller quotes, and what they are
-     * called, is the jurisdiction's. The way to reach the seller is the
-     * header's `contact` unless the line has a `contact` of its own — which is
-     * then the whole of it, so `{}` shows neither. Absent means no line.
+     * The seller in every footer (NFR-LEGAL-02). `registration` holds whole
+     * strings ("HRB 123456"), as which numbers to quote is the jurisdiction's.
+     * Its own `contact` replaces the header's, so `{}` shows neither.
      */
     seller: z
       .object({
         name: z.string().min(1),
         registration: z.array(z.string().min(1)).min(1),
-        contact: z
-          .object({
-            phone: z.string().optional(),
-            email: z.string().optional(),
-          })
-          .strict()
-          .optional(),
+        contact: contactLinesSchema.optional(),
       })
       .strict()
       .optional(),
-    /**
-     * Phone-number input for the inquiry form. The country code is fixed and
-     * shown as a prefix the visitor does not type. The optional mask formats the
-     * national part as they type — `#` is one digit, any other character is a
-     * literal separator.
-     */
+    /** The country code is fixed and shown beside the field; the mask
+     * groups the national part as it is typed. */
     phoneInput: phoneInputSchema.optional(),
-    /** The second sign-in step (FR-AUTH-12): applied by the API, and shown
-     * on an account's admin page. */
+    /** The second sign-in step (FR-AUTH-12). */
     signInStep: signInStepConfigSchema.optional(),
-    /**
-     * The business registration number a company gives when it registers
-     * (FR-AUTH-01). Jurisdiction-specific, so it is deployment config rather
-     * than something the shared contract could encode — and plural, because a
-     * jurisdiction can accept more than one shape (a sole trader's ten digits
-     * and a company's twelve, a domestic number and a VAT number).
-     *
-     * One format means the field looks exactly as it always has. Several means
-     * it leads with a picker, and the chosen format decides the prefix, the
-     * mask and the rule. The full shape, and the checks that keep a format's
-     * prefix/mask/example honest about its own pattern, are in
-     * `companyIdInputSchema` — shared, because the API re-applies the same
-     * rule.
-     */
+    /** The registration number a company gives (FR-AUTH-01): one format
+     * or several, then with a picker. The API applies the same rule. */
     companyIdInput: companyIdInputSchema.optional(),
     /**
-     * Which kinds of customer the shop sells to (FR-AUTH-13), listed rather
-     * than defaulted so every deployment says it. A kind left out is offered
-     * nowhere — not at registration, not in the staff editor, not as the party
-     * an order is invoiced to — and the API refuses it wherever an account or
-     * an order is written, the customer exchange included. A shop that sells
-     * to companies only still takes a sole trader: one with a registration
-     * number is a company here.
+     * The customers the shop sells to (FR-AUTH-13), listed so every deployment
+     * says it. A kind left out is offered nowhere and refused wherever an
+     * account or order is written. A sole trader with a number is a company.
      */
     customerTypes: z
       .array(z.enum(CUSTOMER_TYPES))
@@ -461,22 +292,12 @@ export const deploymentConfigSchema = z
       .refine((types) => new Set(types).size === types.length, {
         message: 'a customer type is listed twice',
       }),
-    /**
-     * Delivery zones and their free-delivery thresholds (FR-CART-07). Advisory:
-     * a threshold is quoted, never enforced, and no zone prices a delivery.
-     * Optional — a deployment that quotes nothing simply configures no zones.
-     */
+    /** Delivery zones and their free-delivery thresholds (FR-CART-07):
+     * quoted, never enforced, and no zone prices a delivery. */
     delivery: deliveryConfigSchema.optional(),
-    /**
-     * How order references read, and the shop's time zone, which dates are
-     * given in on both sides.
-     */
+    /** How references read, and the shop's time zone for dates. */
     orderReference: orderReferenceConfigSchema.optional(),
-    /**
-     * Where this deployment ships. Optional: with no `address` key the address
-     * book still works — the picker then offers nothing to choose from, which
-     * is why a deployment that takes orders configures it.
-     */
+    /** Where the shop ships. Without it, the picker offers nothing. */
     address: addressConfigSchema.optional(),
   })
   .strict();

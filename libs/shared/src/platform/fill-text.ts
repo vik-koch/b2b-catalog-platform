@@ -1,14 +1,9 @@
 import type * as z from 'zod';
 
 /**
- * Substitutes `{placeholder}`s in a piece of app text.
- *
- * Split/join rather than `replace`, which only ever swaps the first match: a
- * placeholder can legitimately appear twice in one sentence — the minimum is
- * also the step ("minimum {qty} {unit}, in steps of {qty}").
- *
- * No plural forms: a text that counts is worded so the number needs no
- * agreement ("Products found: {count}"), which works in every language.
+ * Fills `{placeholder}`s. Split/join, as `replace` swaps the first match only
+ * and a placeholder may appear twice ("minimum {qty}, in steps of {qty}").
+ * No plural forms: a counting text is worded so the number needs no agreement.
  */
 export function fillText(
   template: string,
@@ -20,11 +15,8 @@ export function fillText(
   );
 }
 
-/**
- * Refuses a counting text written as `singular|plural` — the convention texts
- * once had — so an old override fails at boot instead of showing both forms.
- * For a text schema's root `.superRefine`.
- */
+/** For a text schema's root `.superRefine`: an override still written as
+ * `singular|plural` fails at boot instead of showing both forms. */
 export function refuseCountForms(text: unknown, ctx: z.RefinementCtx): void {
   const walk = (value: unknown, path: (string | number)[]): void => {
     if (typeof value === 'string') {

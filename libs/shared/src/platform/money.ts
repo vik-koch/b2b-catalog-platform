@@ -1,9 +1,4 @@
-/**
- * Formatting an integer minor-unit amount as money, in one implementation for
- * both sides. The browser has always done it; the order mails made the server
- * need it too, and two implementations of the same figure is how a mail comes
- * to disagree with the page it links to.
- */
+/** Money formatting for both sides, so a mail states the figure its page does. */
 
 export interface MoneyFormat {
   /** ISO 4217, e.g. "EUR". */
@@ -12,7 +7,6 @@ export interface MoneyFormat {
   readonly locale: string;
 }
 
-/** How a deployment writes its amounts: its currency, in its locale. */
 export function moneyFormat(config: {
   readonly locale: string;
   readonly catalog: { readonly currency: { readonly code: string } };
@@ -20,7 +14,7 @@ export function moneyFormat(config: {
   return { code: config.catalog.currency.code, locale: config.locale };
 }
 
-// Formatter construction is comparatively expensive; cache one per code+locale.
+// Constructing a formatter is expensive: one per locale and code.
 const formatters = new Map<string, Intl.NumberFormat>();
 
 function formatterFor(currency: MoneyFormat): Intl.NumberFormat {
@@ -36,14 +30,13 @@ function formatterFor(currency: MoneyFormat): Intl.NumberFormat {
   return formatter;
 }
 
-/** The currency's minor-unit exponent (2 for EUR, 0 for JPY, 3 for BHD). Read
- * off the formatter rather than tabulated, so no list has to be kept. */
+/** The minor-unit exponent (2 for EUR, 0 for JPY, 3 for BHD), read off the
+ * formatter so no table has to be kept. */
 export function currencyFractionDigits(currency: MoneyFormat): number {
   return formatterFor(currency).resolvedOptions().maximumFractionDigits ?? 2;
 }
 
-/** The decimal separator this currency's locale writes amounts with — read off
- * the same formatter, so a field's input rules and its output agree. */
+/** Read off the same formatter, so a field's input rule and its output agree. */
 export function decimalSeparator(currency: MoneyFormat): string {
   return (
     formatterFor(currency)
@@ -52,26 +45,15 @@ export function decimalSeparator(currency: MoneyFormat): string {
   );
 }
 
-/**
- * An integer minor-unit amount (1890) as a localised currency string
- * ("18,90 €"). The divisor comes from the currency itself, so zero-decimal
- * (JPY) and three-decimal (BHD) currencies need no special case.
- */
+/** An integer minor-unit amount (1890) as "18,90 €". */
 export function formatMoneyMinor(minor: number, currency: MoneyFormat): string {
   return formatterFor(currency).format(
     minor / 10 ** currencyFractionDigits(currency),
   );
 }
 
-/**
- * The symbol this currency is written with in this locale ("€", "$", "CHF") —
- * for a price *field*, which shows the unit beside the figure rather than
- * formatting one. Read off the same formatter as everything else here, so the
- * mark in the editor is the mark on the storefront.
- *
- * Falls back to the code, which is what a locale with no symbol for it already
- * renders.
- */
+/** The mark a price field shows beside its figure ("€", "CHF"); the code
+ * where the locale has no symbol, as the formatter itself writes it. */
 export function currencySymbol(currency: MoneyFormat): string {
   return (
     formatterFor(currency)

@@ -1,21 +1,15 @@
-// Namespace import, not `{ z }`: the named form defeats tree shaking and
-// pulls zod's 63 locale files into the bundle (colinhacks/zod#6050).
 import * as z from 'zod';
 import { EMAIL_PATTERN } from './email-format';
-import { normalizeCompanyId, type PhoneConfig } from './contact-format';
+import {
+  normalizeCompanyId,
+  type CompanyIdFormat,
+  type PhoneConfig,
+} from './contact-format';
 
-/**
- * The contact-field schemas: a deployment's phone rule, the company-ID formats
- * it accepts, and the field types built on them. Split from `contact-format.ts`
- * so the formatting helpers can be used without Zod (see the note there).
- */
+/** The contact-field schemas; the helpers they rely on are import-free in
+ * `contact-format.ts`. */
 
-/**
- * A deployment's phone-entry rule: the fixed country code, and how to group.
- * Shared for the same reason `companyIdInputSchema` is — the browser enters a
- * number by it and the API formats one for a staff notification by it, so one
- * schema rather than a copy on each side.
- */
+/** The browser enters a number by it and the API formats one by it. */
 export const phoneInputSchema = z
   .object({
     countryCode: z.string(),
@@ -23,11 +17,8 @@ export const phoneInputSchema = z
   })
   .strict() satisfies z.ZodType<PhoneConfig>;
 
-/**
- * A pattern is written by whoever owns the deployment, so it is trusted — but
- * it is still compiled at runtime and run against visitor input, so it has to
- * be anchored (or it would match a substring of anything) and short.
- */
+/** A deployment's pattern is trusted but runs against visitor input, so it
+ * must be anchored and short. */
 function checkPattern(
   pattern: string,
   ctx: z.RefinementCtx,
@@ -35,7 +26,7 @@ function checkPattern(
 ): boolean {
   if (pattern.length > 200) {
     ctx.addIssue({
-      code: z.ZodIssueCode.custom,
+      code: 'custom',
       path,
       message: 'pattern is too long (max 200 characters)',
     });
@@ -43,7 +34,7 @@ function checkPattern(
   }
   if (!pattern.startsWith('^') || !pattern.endsWith('$')) {
     ctx.addIssue({
-      code: z.ZodIssueCode.custom,
+      code: 'custom',
       path,
       message:
         'pattern must be anchored with ^ and $ so it matches the whole value',
@@ -53,17 +44,9 @@ function checkPattern(
   return true;
 }
 
-/**
- * One accepted shape of registration number. A pattern and an example of it —
- * the field is plain typed input, so there is nothing to prefix, mask or pick
- * between; what a customer types is what is stored, and the shapes are what it
- * is measured against.
- *
- * `example` is required because it is not decoration: the field's only hint and
- * its only error message are built from the configured examples, so a format
- * without one is a rule nobody is told about.
- */
-export const companyIdFormatSchema = z
+/** `example` is required: the field's hint and its error are built from the
+ * examples, so a format without one is a rule nobody is told about. */
+const companyIdFormatSchema = z
   .object({
     key: z.string().min(1),
     label: z.string().min(1).optional(),
@@ -74,28 +57,26 @@ export const companyIdFormatSchema = z
   .superRefine((format, ctx) => {
     if (!checkPattern(format.pattern, ctx, ['pattern'])) return;
 
-    // An example that its own pattern refuses is a hint that teaches a value
-    // the field will reject; the boot fails with the field named.
+    // A hint its own pattern refuses would teach a value the field rejects.
     if (!new RegExp(format.pattern).test(format.example)) {
       ctx.addIssue({
-        code: z.ZodIssueCode.custom,
+        code: 'custom',
         path: ['example'],
         message: `example "${format.example}" does not match this format's own pattern`,
       });
     }
-  });
+  }) satisfies z.ZodType<CompanyIdFormat>;
 
 export const companyIdInputSchema = z
   .object({ formats: z.array(companyIdFormatSchema).min(1) })
   .strict()
-  // Nothing to pick between when there is one, so a label would be unused
-  // config; the moment there are two, the picker has to be able to name them.
+  // A label names a format in the picker, which only several formats have.
   .superRefine((input, ctx) => {
     if (input.formats.length < 2) return;
     input.formats.forEach((format, index) => {
       if (!format.label) {
         ctx.addIssue({
-          code: z.ZodIssueCode.custom,
+          code: 'custom',
           path: ['formats', index, 'label'],
           message: 'label is required when several formats are configured',
         });
@@ -103,21 +84,8 @@ export const companyIdInputSchema = z
     });
   });
 
-export type CompanyIdInput = z.infer<typeof companyIdInputSchema>;
-
-/**
- * A company's business registration number. The accepted *formats* are
- * jurisdiction-specific and therefore deployment configuration
- * (`companyIdInput.formats` in deployment.json) — plural, because a
- * jurisdiction can take more than one shape — not something this contract can
- * know, so all it enforces is the envelope. The deployment's own patterns are
- * applied on top, on both sides, and matching any one of them is enough.
- *
- * Normalized before it is checked, not after: a number is typed the way it is
- * printed on paper, spaces and all, and refusing `DE 123 456 789` for a space
- * would be refusing the number. What is stored is what the patterns are written
- * against — no spaces, upper case.
- */
+/** The envelope only; the deployment's formats apply on top, on both sides.
+ * Normalized before the check, so a number typed with spaces is accepted. */
 export const companyRegistrationIdSchema = z.preprocess(
   (value) =>
     typeof value === 'string' ? normalizeCompanyId(value.trim()) : value,
@@ -128,45 +96,19 @@ export const companyRegistrationIdSchema = z.preprocess(
     .regex(/^[A-Z0-9-]+$/),
 );
 
-/**
- * The invoiced party's name, as the customer writes it. Free text and not a
- * key: what a company calls itself on an invoice is its own business, and no
- * registry spelling is authoritative enough to correct it with.
- */
+/** Free text and not a key: no registry spelling outranks the company's own. */
 export const companyNameSchema = z.string().trim().min(1).max(255);
 
-/**
- * An email address as somebody types it: trimmed first, then checked.
- *
- * The order is the whole point: the trim (and any lowercasing) has to run ahead
- * of the format check, or an address pasted with a space around it — which is
- * most of the ways one arrives — is refused for the space. The pattern comes
- * from `email-format.ts` rather than from `z.email()`, so a form can apply the
- * same rule without shipping Zod to do it.
- */
+const emailRule = (max: number) => z.string().regex(EMAIL_PATTERN).max(max);
+
+/** Trimmed before the check, as a pasted address often carries a space. */
 export const emailField = (max: number) =>
-  z.string().trim().pipe(z.string().regex(EMAIL_PATTERN).max(max));
+  z.string().trim().pipe(emailRule(max));
 
 /** The same, for the addresses stored and looked up in lower case. */
 export const lowercaseEmailField = (max: number) =>
-  z
-    .string()
-    .trim()
-    .toLowerCase()
-    .pipe(z.string().regex(EMAIL_PATTERN).max(max));
+  z.string().trim().toLowerCase().pipe(emailRule(max));
 
-/**
- * A stored address, on the way *out*.
- *
- * It exists because the obvious spelling — `z.email()` — is a **second**
- * definition of what an address is, and a stricter one: it insists on a TLD of
- * two letters or more, where `EMAIL_PATTERN` asks only for a dotted domain. An
- * account saved as `a@a.a` therefore went in and could not come back out, and
- * because these schemas sit on list responses, the one row failed the whole
- * page: the account table did not lose a cell, it lost every account.
- *
- * So a read applies the rule the write applied, and nothing more. There is no
- * length bound either — the column is what caps that, and a value already
- * stored is not the place to discover it is too long.
- */
+/** A read applies the write's rule and no more: a stricter `z.email()` would
+ * fail a stored `a@a.a`, and with it every list that row is on. */
 export const storedEmailField = z.string().regex(EMAIL_PATTERN);

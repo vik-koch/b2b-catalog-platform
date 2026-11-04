@@ -1,13 +1,7 @@
-/**
- * The rich-text vocabulary. The server sanitizer strips everything not listed
- * here and the editor is configured from the same lists, so the editor cannot
- * produce markup the server would silently drop.
- */
+/** The rich-text vocabulary: the sanitizer strips what is not listed and the
+ * editor is built from the same lists, so it cannot write what would be lost. */
 
-/**
- * No `h1`: the page title is the page's only one. Nothing carries `class` or
- * `style`.
- */
+/** No `h1`: the page title is the page's only one. */
 export const RICH_TEXT_TAGS = [
   'p',
   'br',
@@ -41,11 +35,8 @@ export const RICH_TEXT_LINK_SCHEMES = [
 /** A closed set, never free CSS: the sanitizer allowlists it by string. */
 export const RICH_TEXT_IMAGE_ALIGNMENTS = ['left', 'center', 'right'] as const;
 
-/**
- * The editor offers an image's size as a share of its natural width and
- * stores pixels in `data-width`, which the sanitizer bounds and turns into the
- * inline `width` itself, never parsing CSS.
- */
+/** The editor sizes an image as a share of its natural width and stores
+ * pixels in `data-width`; the sanitizer writes the inline width from that,
+ * never parsing CSS. */
 export const RICH_TEXT_IMAGE_SIZE_MIN_PERCENT = 1;
-
 export const RICH_TEXT_IMAGE_SIZE_MAX_PERCENT = 100;

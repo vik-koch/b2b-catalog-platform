@@ -13,14 +13,9 @@ export const taxRateSchema = z
   );
 
 /**
- * The deployment's tax basis (NFR-LEGAL-11). A basis that charges tax names
- * the default rate, and one that charges none has no rate to name — the union
- * makes either mistake a boot failure rather than a sentence with a hole in it.
- *
- * `statedAtPrices` also puts the statement beside the prices on the listings
- * and the product page, where a jurisdiction expects a consumer price to say
- * what it includes. Totals and the conditions page state it regardless. Under
- * `none` there is nothing to state at a price.
+ * The deployment's tax basis (NFR-LEGAL-11). The union makes a charging basis
+ * without a rate, or `none` with one, a boot failure. `statedAtPrices` also
+ * states it beside listing and product prices; totals always state it.
  */
 export const taxConfigSchema = z.discriminatedUnion('basis', [
   z

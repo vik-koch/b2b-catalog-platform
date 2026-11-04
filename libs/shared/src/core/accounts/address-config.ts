@@ -36,7 +36,7 @@ export const postalCodeRuleSchema = z
   .superRefine((rule, ctx) => {
     if (rule.pattern.length > 200) {
       ctx.addIssue({
-        code: z.ZodIssueCode.custom,
+        code: 'custom',
         path: ['pattern'],
         message: 'pattern is too long (max 200 characters)',
       });
@@ -44,7 +44,7 @@ export const postalCodeRuleSchema = z
     }
     if (!rule.pattern.startsWith('^') || !rule.pattern.endsWith('$')) {
       ctx.addIssue({
-        code: z.ZodIssueCode.custom,
+        code: 'custom',
         path: ['pattern'],
         message:
           'pattern must be anchored with ^ and $ so it matches the whole value',
@@ -55,14 +55,14 @@ export const postalCodeRuleSchema = z
     // field will reject; the boot fails with the field named.
     if (!new RegExp(rule.pattern).test(normalizePostalCode(rule.example))) {
       ctx.addIssue({
-        code: z.ZodIssueCode.custom,
+        code: 'custom',
         path: ['example'],
         message: `example "${rule.example}" does not match this country's own postal pattern`,
       });
     }
     if (rule.mask && /[^#\s\-/]/.test(rule.mask)) {
       ctx.addIssue({
-        code: z.ZodIssueCode.custom,
+        code: 'custom',
         path: ['mask'],
         message: 'a postal mask is # for a digit and separators around them',
       });
@@ -94,7 +94,7 @@ export const addressConfigSchema = z
         countries.forEach((country, index) => {
           if (seen.has(country.code)) {
             ctx.addIssue({
-              code: z.ZodIssueCode.custom,
+              code: 'custom',
               path: [index, 'code'],
               message: `country ${country.code} is listed twice`,
             });

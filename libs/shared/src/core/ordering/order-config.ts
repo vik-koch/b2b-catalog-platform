@@ -112,7 +112,7 @@ export const deliveryConfigSchema = z
       zones.forEach((zone, index) => {
         if (seen.has(zone.key)) {
           ctx.addIssue({
-            code: z.ZodIssueCode.custom,
+            code: 'custom',
             path: [index, 'key'],
             message: `zone ${zone.key} is listed twice`,
           });
@@ -121,7 +121,7 @@ export const deliveryConfigSchema = z
         // A catch-all anywhere but last makes every zone after it dead.
         if (zone.match.all === true && index !== zones.length - 1) {
           ctx.addIssue({
-            code: z.ZodIssueCode.custom,
+            code: 'custom',
             path: [index, 'match', 'all'],
             message: 'the catch-all zone must be the last one',
           });
