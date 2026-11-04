@@ -2,7 +2,7 @@ import { createHash, randomBytes } from 'node:crypto';
 import {
   API_TOKEN_PREFIX_LENGTH,
   API_TOKEN_SECRET_BYTES,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/platform';
 
 /**
  * A token value is `<prefix>.<secret>`: a short clear head kept in the row so a

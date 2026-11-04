@@ -41,6 +41,10 @@ const ENABLED = [
 
 /** The folders of the cut, relative to a layer, with the element type of each. */
 const FOLDERS = [
+  // The one exception to "platform imports no area", ahead of its parent
+  // because the first match wins: the deployment schema and the texts are
+  // composed of every area's part. Imported like platform.
+  { folder: 'platform/config', type: 'platform:composing' },
   { folder: 'platform', type: 'platform' },
   ...AUDIENCES.flatMap((audience) => [
     { folder: `${audience}/platform`, type: `${audience}:platform` },
@@ -60,6 +64,14 @@ const reachable = (area) =>
 
 /** What each type may import; anything not listed is refused. */
 function allowed(type) {
+  const types = allowedTypes(type);
+  return types.includes('platform') ? [...types, 'platform:composing'] : types;
+}
+
+function allowedTypes(type) {
+  if (type === 'platform:composing') {
+    return ['platform', ...ENABLED.map((area) => `core:${area}`)];
+  }
   if (type === 'platform') return ['platform'];
   const [level, area] = type.split(':');
   if (level === 'core') {

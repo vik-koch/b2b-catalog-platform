@@ -1,5 +1,5 @@
 import { Component, inject, input, resource } from '@angular/core';
-import { fillText } from '@b2b-catalog-platform/shared';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
 import { PageSlug } from '@b2b-catalog-platform/shared/core/site';
 import { ADMIN_TEXT } from '../../../shared/config/admin-text';
 import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';

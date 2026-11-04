@@ -6,7 +6,7 @@ import { landingFor } from '../../shared/auth/auth.guard';
 import { currentUrl } from '../../shared/core/current-url';
 import { navActionClasses, NavVariant } from './nav-action';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
-import { fillText } from '@b2b-catalog-platform/shared';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
 import { WorkService } from '../../core/work/work.service';
 import { circleUserRoundDotIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-user-round-dot';
 import { circleUserRoundIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-user-round';

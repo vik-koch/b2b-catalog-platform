@@ -7,7 +7,7 @@ import {
   HiddenReasons,
   ProductPage,
 } from '@b2b-catalog-platform/shared/core/catalog';
-import { DeploymentConfig } from '@b2b-catalog-platform/shared';
+import { DeploymentConfig } from '@b2b-catalog-platform/shared/platform';
 import { EDIT_MODE_CATALOG } from '../../../core/catalog/edit-mode-catalog';
 import { AuthService } from '../../../shared/auth/auth.service';
 import { loadAdminText } from '../../../shared/config/admin-text';

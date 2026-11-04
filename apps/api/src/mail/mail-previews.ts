@@ -1,4 +1,7 @@
-import { MoneyFormat } from '@b2b-catalog-platform/shared';
+import {
+  MoneyFormat,
+  type SharedText,
+} from '@b2b-catalog-platform/shared/platform';
 import {
   OrderDetail,
   OrderPickup,
@@ -9,7 +12,6 @@ import { DEFAULT_MAIL_COLORS } from './mail-colors';
 import { MailContent, RenderedMail, renderMail } from './mail-layout';
 import { demoSharedText, demoMailText } from './mail-text.fixture';
 import type { MailText } from './mail-text';
-import type { SharedText } from '@b2b-catalog-platform/shared';
 import { demoAdminOrder } from '../core/ordering/order.fixture';
 import { accountDeletedMail } from './templates/account-deleted.template';
 import { inquiryMail } from './templates/inquiry.template';

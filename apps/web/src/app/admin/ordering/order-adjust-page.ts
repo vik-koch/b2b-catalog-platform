@@ -17,7 +17,7 @@ import {
   fillText,
   moneyFormat,
   formatMoneyMinor,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/platform';
 import {
   ORDER_ADJUSTMENT_NOTE_MAX,
   PaymentMethod,

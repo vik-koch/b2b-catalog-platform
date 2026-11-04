@@ -1,4 +1,4 @@
-import { DeepReadonly } from '../lib/core/deep-readonly';
+import { DeepReadonly } from '../platform/deep-readonly';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { ZodType } from 'zod';

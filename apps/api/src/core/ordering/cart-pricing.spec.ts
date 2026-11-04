@@ -1,5 +1,5 @@
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { TaxConfig } from '@b2b-catalog-platform/shared';
+import { TaxConfig } from '@b2b-catalog-platform/shared/platform';
 import { PgDialect } from 'drizzle-orm/pg-core';
 import * as schema from '../../db/schema';
 import { priceCart } from './cart-pricing';

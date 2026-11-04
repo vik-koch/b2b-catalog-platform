@@ -10,7 +10,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { form, maxLength, pattern, required } from '@angular/forms/signals';
-import { fillText } from '@b2b-catalog-platform/shared';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
 import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { Checkbox } from '@b2b-catalog-platform/ui/choices/checkbox';

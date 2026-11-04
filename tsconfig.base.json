@@ -16,7 +16,6 @@
     "strict": true,
     "paths": {
       "@b2b-catalog-platform/seed": ["./libs/seed/src/index.ts"],
-      "@b2b-catalog-platform/shared": ["./libs/shared/src/index.ts"],
       "@b2b-catalog-platform/shared/*": ["./libs/shared/src/*/index.ts"],
       "@b2b-catalog-platform/ui/*": ["./libs/ui/src/*"]
     }

@@ -7,7 +7,7 @@ import {
   viewChildren,
 } from '@angular/core';
 import { type FieldTree } from '@angular/forms/signals';
-import { fillText } from '@b2b-catalog-platform/shared';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
 import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
 import { SHARED_TEXT } from '../../../shared/config/shared-text';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';

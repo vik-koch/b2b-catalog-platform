@@ -1,7 +1,7 @@
 import {
   type SharedText,
   DeploymentConfig,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/platform';
 import { StorefrontText } from './storefront-text.type';
 
 /**

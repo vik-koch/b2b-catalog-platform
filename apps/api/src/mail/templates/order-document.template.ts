@@ -1,4 +1,4 @@
-import { SharedText, MoneyFormat } from '@b2b-catalog-platform/shared';
+import { SharedText, MoneyFormat } from '@b2b-catalog-platform/shared/platform';
 import {
   OrderDetail,
   OrderDocumentKind,

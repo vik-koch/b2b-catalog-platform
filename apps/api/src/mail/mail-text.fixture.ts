@@ -1,10 +1,13 @@
-import { SharedText, sharedTextSchema } from '@b2b-catalog-platform/shared';
 import { loadConfigFile } from '@b2b-catalog-platform/shared/node';
 import { MailBranding } from './mail-branding';
 import { DEFAULT_MAIL_COLORS } from './mail-colors';
 import { MailText, mailTextSchema } from './mail-text';
 import { PdfText, pdfTextSchema } from '../pdf/pdf-text';
-import { PhoneConfig } from '@b2b-catalog-platform/shared/platform';
+import {
+  PhoneConfig,
+  SharedText,
+  sharedTextSchema,
+} from '@b2b-catalog-platform/shared/platform';
 
 /**
  * The demo wording for tests and the generated docs, read from the committed

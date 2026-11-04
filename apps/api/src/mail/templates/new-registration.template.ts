@@ -1,4 +1,4 @@
-import { SharedText } from '@b2b-catalog-platform/shared';
+import { SharedText } from '@b2b-catalog-platform/shared/platform';
 import { MailContent } from '../mail-layout';
 import { MailText } from '../mail-text';
 import {

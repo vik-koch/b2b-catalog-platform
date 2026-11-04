@@ -8,7 +8,7 @@ import {
   signal,
 } from '@angular/core';
 import { ADMIN_CATALOG_PAGE_SIZE } from '@b2b-catalog-platform/shared/admin/catalog';
-import { fillText } from '@b2b-catalog-platform/shared';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
 import { LinkedProduct } from '@b2b-catalog-platform/shared/admin/catalog';
 
 import { ADMIN_TEXT } from '../../../shared/config/admin-text';

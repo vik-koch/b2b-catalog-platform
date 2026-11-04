@@ -12,7 +12,7 @@ import {
   ORDER_STATUS_REASON_MAX,
   OrderDetail,
 } from '@b2b-catalog-platform/shared/core/ordering';
-import { fillText } from '@b2b-catalog-platform/shared';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
 import { OrderSummary } from '../../../core/ordering/ui/order-summary';
 import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
 import { SHARED_TEXT } from '../../../shared/config/shared-text';

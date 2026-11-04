@@ -1,7 +1,7 @@
 import { NgTemplateOutlet } from '@angular/common';
 import { Component, computed, inject, resource, signal } from '@angular/core';
 import { disabled, form, validate } from '@angular/forms/signals';
-import { fillText } from '@b2b-catalog-platform/shared';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
 import { TIER_KEY_MAX_LENGTH } from '@b2b-catalog-platform/shared/core/catalog';
 import {
   CustomerTier,

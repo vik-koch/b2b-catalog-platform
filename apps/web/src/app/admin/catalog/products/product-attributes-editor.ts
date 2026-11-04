@@ -18,7 +18,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { ProductAttribute } from '@b2b-catalog-platform/shared/core/catalog';
-import { fillText } from '@b2b-catalog-platform/shared';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
 import {
   AttributeDefinition,
   AttributeKeyUsage,

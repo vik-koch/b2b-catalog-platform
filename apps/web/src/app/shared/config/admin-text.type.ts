@@ -1,10 +1,10 @@
-import { DeepReadonly } from '@b2b-catalog-platform/shared';
 import {
+  DeepReadonly,
   orderStatusLabels,
   paymentMethodLabels,
   paymentStateLabels,
   refuseCountForms,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/platform';
 import * as z from 'zod';
 import { confirmText } from './text-shapes';
 

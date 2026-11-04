@@ -7,7 +7,7 @@ import {
   signal,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { fillText, moneyFormat } from '@b2b-catalog-platform/shared';
+import { fillText, moneyFormat } from '@b2b-catalog-platform/shared/platform';
 import { AdminOrderDetail } from '@b2b-catalog-platform/shared/core/ordering';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';

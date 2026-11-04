@@ -4,7 +4,7 @@ import {
   COMMON_AUTH_ERROR_CODES,
   commonAuthErrors,
   phoneFormatErrors,
-} from '../../lib/core/api-error';
+} from '../../platform/api-error';
 import { userRoleSchema } from '../../platform/session.contract';
 import {
   userStatusSchema,

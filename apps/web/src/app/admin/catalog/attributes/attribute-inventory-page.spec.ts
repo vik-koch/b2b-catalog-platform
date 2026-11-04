@@ -4,7 +4,7 @@ import { Location } from '@angular/common';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, withComponentInputBinding } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
-import { fillText } from '@b2b-catalog-platform/shared';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
 import {
   AttributeKeyUsage,
   AttributeValueUsage,

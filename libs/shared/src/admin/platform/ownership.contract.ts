@@ -1,6 +1,6 @@
 import { oc } from '@orpc/contract';
 import * as z from 'zod';
-import { commonAuthErrors } from '../../lib/core/api-error';
+import { commonAuthErrors } from '../../platform/api-error';
 import { OWNERSHIP_AREAS } from '../../platform/ownership';
 
 /** The areas another system owns (FR-ADM-10): closed to the platform's own

@@ -1,5 +1,4 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { SharedText } from '@b2b-catalog-platform/shared';
 import { InquiryRequest } from '@b2b-catalog-platform/shared/storefront/site';
 import { PHONE_INPUT } from '../../config/deployment-config';
 import { ConsentService } from '../../core/site/consent.service';
@@ -11,6 +10,7 @@ import { inquiryMail } from '../../mail/templates/inquiry.template';
 import {
   formatPhone,
   PhoneConfig,
+  SharedText,
 } from '@b2b-catalog-platform/shared/platform';
 
 @Injectable()

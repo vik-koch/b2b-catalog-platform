@@ -1,5 +1,5 @@
 import { inject } from '@angular/core';
-import { SharedText } from '@b2b-catalog-platform/shared';
+import { SharedText } from '@b2b-catalog-platform/shared/platform';
 import {
   OrderAddress,
   OrderDetail,

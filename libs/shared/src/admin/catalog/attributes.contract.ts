@@ -6,7 +6,7 @@
 
 import { oc } from '@orpc/contract';
 import * as z from 'zod';
-import { commonAuthErrors } from '../../lib/core/api-error';
+import { commonAuthErrors } from '../../platform/api-error';
 import {
   ATTRIBUTE_NAME_MAX_LENGTH,
   ATTRIBUTE_VALUE_MAX_LENGTH,

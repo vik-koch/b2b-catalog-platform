@@ -8,8 +8,7 @@ import {
   AdminOrderLine,
   StaffOrderSort,
 } from '@b2b-catalog-platform/shared/core/ordering';
-import { TaxBasis } from '@b2b-catalog-platform/shared';
-import { Pagination } from '@b2b-catalog-platform/shared/platform';
+import { Pagination, TaxBasis } from '@b2b-catalog-platform/shared/platform';
 import { ProductUnit } from '@b2b-catalog-platform/shared/core/catalog';
 import { Inject, Injectable } from '@nestjs/common';
 import { and, asc, count, eq, inArray, sql, SQL } from 'drizzle-orm';

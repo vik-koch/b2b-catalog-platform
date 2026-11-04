@@ -1,6 +1,6 @@
 import { SHARED_TEXT } from '../../../shared/config/shared-text';
 import { TestBed } from '@angular/core/testing';
-import { DeploymentConfig } from '@b2b-catalog-platform/shared';
+import { DeploymentConfig } from '@b2b-catalog-platform/shared/platform';
 import { Page } from '@b2b-catalog-platform/shared/core/site';
 import { provideRouter } from '@angular/router';
 import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';

@@ -2,7 +2,7 @@ import {
   currencyFractionDigits,
   decimalSeparator,
   MoneyFormat,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/platform';
 
 /**
  * The amount without its decimals ("1.250 €"), for the header's running

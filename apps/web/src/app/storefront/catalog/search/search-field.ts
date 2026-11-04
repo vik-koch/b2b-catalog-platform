@@ -22,7 +22,7 @@ import {
   RouterLink,
 } from '@angular/router';
 import { filter } from 'rxjs';
-import { fillText } from '@b2b-catalog-platform/shared';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
 import {
   pieceFloor,
   ProductListItem,

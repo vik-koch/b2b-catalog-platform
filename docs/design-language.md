@@ -158,7 +158,7 @@ on `surface`, with no edge.
 A deployment's `branding.theme` overrides the roles at runtime: `App` writes them onto `<html>`,
 server-rendered pages included, so one image serves every deployment
 ([ADR 0008](adr/0008-tailwind-owned-primitives-runtime-theming.md)). A key is the role of the
-same name, `surfaceStrong` for `surface-strong`; [theme-config.ts](../libs/shared/src/lib/config/theme-config.ts)
+same name, `surfaceStrong` for `surface-strong`; [theme-config.ts](../libs/shared/src/platform/config/theme-config.ts)
 lists them with what each one colours.
 
 - **The brand** (`primary`, `secondary`, `accent`) is the one part a deployment must set. Its
@@ -220,6 +220,6 @@ Glyphs are [Lucide](https://lucide.dev)'s (ISC), owned as data: one constant per
 - **The audit** (`npx nx run web-e2e:audit`) screenshots every page on desktop and phone and
   runs axe against WCAG 2.1 AA, so a contrast slip shows up as a new finding next to its ratio.
 - **A new role** gets a name by the grammar above, a default in `ui.css`, a key of the same
-  name in [theme-config.ts](../libs/shared/src/lib/config/theme-config.ts) so a deployment can
+  name in [theme-config.ts](../libs/shared/src/platform/config/theme-config.ts) so a deployment can
   set it, a row here, and a measured ratio if it carries text. A renamed role also moves its key
   in the release's config migration map.

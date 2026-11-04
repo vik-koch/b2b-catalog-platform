@@ -5,7 +5,7 @@ import { ComponentFixture } from '@angular/core/testing';
 import { ADMIN_TEXT } from '../../../shared/config/admin-text';
 import { defaultAdminText } from '../../../shared/config/admin-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
-import { DeploymentConfig } from '@b2b-catalog-platform/shared';
+import { DeploymentConfig } from '@b2b-catalog-platform/shared/platform';
 import {
   emptyPackaging,
   PackagingDraft,

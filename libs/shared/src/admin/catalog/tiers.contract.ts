@@ -6,7 +6,7 @@ import {
   TIER_KEY_PATTERN,
   TIER_LABEL_MAX_LENGTH,
 } from './tiers';
-import { commonAuthErrors } from '../../lib/core/api-error';
+import { commonAuthErrors } from '../../platform/api-error';
 
 /**
  * The key a sync file addresses a price list by (see `TIER_KEY_PATTERN`).

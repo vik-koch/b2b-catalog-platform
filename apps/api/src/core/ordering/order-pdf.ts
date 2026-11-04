@@ -1,19 +1,18 @@
-import type { AddressConfig } from '@b2b-catalog-platform/shared';
+import {
+  SharedText,
+  fillText,
+  formatMoneyMinor,
+  MoneyFormat,
+} from '@b2b-catalog-platform/shared/platform';
 import {
   orderLineTax,
   orderLinesDifferInTax,
   orderTaxStatement,
 } from '../../mail/templates/order-items';
 import {
-  SharedText,
-  fillText,
-  formatMoneyMinor,
-  MoneyFormat,
-  OrderReferenceConfig,
-} from '@b2b-catalog-platform/shared';
-import {
   OrderAddress,
   OrderDetail,
+  OrderReferenceConfig,
 } from '@b2b-catalog-platform/shared/core/ordering';
 import { Inject, Injectable } from '@nestjs/common';
 import { PDFDocument } from 'pdf-lib';
@@ -28,7 +27,10 @@ import { PdfFaces } from '../../pdf/pdf-faces';
 import { PDF_TEXT, PdfText } from '../../pdf/pdf-text';
 import { Sheet } from '../../pdf/pdf-sheet';
 import { shopDay } from './shop-day';
-import { addressLines } from '@b2b-catalog-platform/shared/core/accounts';
+import {
+  addressLines,
+  type AddressConfig,
+} from '@b2b-catalog-platform/shared/core/accounts';
 
 /**
  * The order summary the platform draws (FR-ORD-05, FR-ACC-02, ADR 0052), from

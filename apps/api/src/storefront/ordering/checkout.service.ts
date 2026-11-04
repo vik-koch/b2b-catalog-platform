@@ -1,8 +1,9 @@
 import {
   OrderingParty,
   OrderSubmission,
+  OrderReferenceConfig,
 } from '@b2b-catalog-platform/shared/core/ordering';
-import { OrderReferenceConfig, TaxConfig } from '@b2b-catalog-platform/shared';
+import { TaxConfig } from '@b2b-catalog-platform/shared/platform';
 import {
   BadRequestException,
   Inject,

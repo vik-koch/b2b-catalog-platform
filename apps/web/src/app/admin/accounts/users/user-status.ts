@@ -1,4 +1,4 @@
-import { fillText } from '@b2b-catalog-platform/shared';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
 import { StatusTone } from '@b2b-catalog-platform/ui/content/status-badge';
 import {
   StaffUser,

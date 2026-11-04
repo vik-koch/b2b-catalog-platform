@@ -11,7 +11,7 @@ import {
   orderSummarySchema,
   transitionErrors,
 } from '../../core/ordering/orders.contract';
-import { commonAuthErrors } from '../../lib/core/api-error';
+import { commonAuthErrors } from '../../platform/api-error';
 import { paginationSchema } from '../../platform/pagination.contract';
 
 /** Every refusal the checkout can give. */

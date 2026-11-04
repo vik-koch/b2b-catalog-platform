@@ -4,7 +4,6 @@ import {
   Injectable,
   Logger,
 } from '@nestjs/common';
-import { SharedText } from '@b2b-catalog-platform/shared';
 import { AddressesService } from '../../core/accounts/addresses.service';
 import { ConsentService } from '../../core/site/consent.service';
 import {
@@ -29,6 +28,7 @@ import { RegisterRequest } from '@b2b-catalog-platform/shared/storefront/account
 import {
   formatPhone,
   PhoneConfig,
+  SharedText,
 } from '@b2b-catalog-platform/shared/platform';
 
 /**

@@ -5,7 +5,7 @@ import {
   formatTaxRate,
   moneyFormat,
   formatMoneyMinor,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/platform';
 import {
   CatalogSyncPlan,
   CatalogSyncProductChange,

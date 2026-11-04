@@ -12,7 +12,7 @@ import {
   output,
   signal,
 } from '@angular/core';
-import { fillText } from '@b2b-catalog-platform/shared';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
 import { ProductAttribute } from '@b2b-catalog-platform/shared/core/catalog';
 import { PRODUCT_ATTRIBUTES_MAX } from '@b2b-catalog-platform/shared/admin/catalog';
 import { ADMIN_TEXT } from '../../../shared/config/admin-text';

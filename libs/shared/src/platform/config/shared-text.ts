@@ -1,6 +1,6 @@
 import * as z from 'zod';
-import type { DeepReadonly } from '../core/deep-readonly';
-import { refuseCountForms } from '../core/fill-text';
+import type { DeepReadonly } from '../deep-readonly';
+import { refuseCountForms } from '../fill-text';
 import { PAGE_SLUGS } from '../../core/site/pages';
 
 /** An order status per reading — `ready` reads by fulfilment: on its way, or

@@ -1,5 +1,5 @@
 import * as z from 'zod';
-import { normalizePostalCode } from '../../core/accounts/postal-code';
+import { normalizePostalCode } from '../accounts/postal-code';
 
 /**
  * The deployment-owned half of checkout: how an order is referenced, and which

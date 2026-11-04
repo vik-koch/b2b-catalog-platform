@@ -4,7 +4,7 @@ import {
   inject,
   input,
 } from '@angular/core';
-import { fillText } from '@b2b-catalog-platform/shared';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
 import { ADMIN_TEXT } from '../../../shared/config/admin-text';
 
 export interface SyncRowErrorLine {

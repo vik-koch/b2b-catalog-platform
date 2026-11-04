@@ -1,6 +1,6 @@
 import { Component, computed, inject, input, output } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { fillText } from '@b2b-catalog-platform/shared';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
 import { AdminOrderDetail } from '@b2b-catalog-platform/shared/core/ordering';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';

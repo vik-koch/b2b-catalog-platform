@@ -8,7 +8,7 @@ import {
   output,
   signal,
 } from '@angular/core';
-import { fillText } from '@b2b-catalog-platform/shared';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
 import {
   isValidPart,
   parsePartList,

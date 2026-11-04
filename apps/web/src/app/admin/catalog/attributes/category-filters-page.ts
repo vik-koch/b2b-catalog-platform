@@ -18,7 +18,7 @@ import {
   CategoryFilter,
   CategoryFilters,
 } from '@b2b-catalog-platform/shared/admin/catalog';
-import { fillText } from '@b2b-catalog-platform/shared';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
 import { ADMIN_TEXT } from '../../../shared/config/admin-text';
 
 import { usePageSeo } from '../../../shared/core/page-seo';

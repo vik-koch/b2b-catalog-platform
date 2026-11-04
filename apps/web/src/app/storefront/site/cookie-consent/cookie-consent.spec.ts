@@ -5,7 +5,7 @@ import { provideRouter } from '@angular/router';
 import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
 import { defaultStorefrontText } from '../../../shared/config/storefront-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
-import { DeploymentConfig } from '@b2b-catalog-platform/shared';
+import { DeploymentConfig } from '@b2b-catalog-platform/shared/platform';
 import { defaultDeploymentConfig } from '../../../shared/config/deployment-config.fixture';
 import { CookieConsent } from './cookie-consent';
 

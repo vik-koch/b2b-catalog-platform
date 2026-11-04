@@ -2,8 +2,10 @@ import { Component, computed, forwardRef, inject, signal } from '@angular/core';
 import { form, maxLength, required, validate } from '@angular/forms/signals';
 import { filled } from '../../../shared/core/field-rules';
 import { ActivatedRoute } from '@angular/router';
-import { ACCEPTED_DOCUMENT_MIME_TYPES } from '@b2b-catalog-platform/shared/platform';
-import { fillText } from '@b2b-catalog-platform/shared';
+import {
+  ACCEPTED_DOCUMENT_MIME_TYPES,
+  fillText,
+} from '@b2b-catalog-platform/shared/platform';
 import {
   DocumentInput,
   LinkedProduct,

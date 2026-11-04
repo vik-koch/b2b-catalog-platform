@@ -22,7 +22,7 @@ import {
 } from '../../core/ordering/staff-orders.contract';
 import { ownershipErrors } from '../../platform/ownership';
 import { paginationSchema } from '../../platform/pagination.contract';
-import { commonAuthErrors } from '../../lib/core/api-error';
+import { commonAuthErrors } from '../../platform/api-error';
 
 /**
  * Every staff write, while an external system owns order processing

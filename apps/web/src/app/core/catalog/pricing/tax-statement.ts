@@ -4,7 +4,7 @@ import {
   formatTaxRate,
   sharedTaxRate,
   TaxBasis,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/platform';
 import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
 import { SHARED_TEXT } from '../../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';

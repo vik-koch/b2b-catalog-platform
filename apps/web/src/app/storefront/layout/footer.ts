@@ -3,7 +3,7 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
-import type { ElsewhereLink } from '@b2b-catalog-platform/shared';
+import { type ElsewhereLink } from '@b2b-catalog-platform/shared/platform';
 import { ConsentService } from '../site/cookie-consent/consent.service';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { telHref } from './contact-info';

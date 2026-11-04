@@ -12,7 +12,7 @@ import {
   ATTRIBUTE_TYPES,
 } from '@b2b-catalog-platform/shared/core/catalog';
 import { form, hidden, validate } from '@angular/forms/signals';
-import { fillText } from '@b2b-catalog-platform/shared';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
 
 import {
   AttributeDefinition,

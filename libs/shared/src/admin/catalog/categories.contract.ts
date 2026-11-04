@@ -2,7 +2,7 @@ import { oc } from '@orpc/contract';
 import * as z from 'zod';
 import { CATEGORY_NAME_MAX_LENGTH } from '../../core/catalog/categories';
 import { SOURCE_ID_MAX_LENGTH } from '../../core/catalog/products';
-import { commonAuthErrors } from '../../lib/core/api-error';
+import { commonAuthErrors } from '../../platform/api-error';
 import { ownershipErrors } from '../../platform/ownership';
 import {
   catalogImageSchema,

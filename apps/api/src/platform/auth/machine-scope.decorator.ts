@@ -1,5 +1,5 @@
 import { Reflector } from '@nestjs/core';
-import { ApiTokenScope } from '@b2b-catalog-platform/shared';
+import { ApiTokenScope } from '@b2b-catalog-platform/shared/platform';
 
 /**
  * The scope a machine route requires. Its own file because the maintenance

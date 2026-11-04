@@ -3,7 +3,7 @@ import { DEPLOYMENT_CONFIG } from './deployment-config';
 import {
   DeploymentConfig,
   deploymentConfigSchema,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/platform';
 import { loadConfig } from '@b2b-catalog-platform/shared/node';
 
 /**

@@ -1,6 +1,6 @@
 import { oc } from '@orpc/contract';
 import * as z from 'zod';
-import { emailField } from '../../lib/config/contact-config';
+import { emailField } from '../../platform/contact-config';
 import {
   blankAsAbsent,
   honeypotField,

@@ -1,13 +1,7 @@
 import {
-  AddressConfig,
   DeliveryConfig,
-  deploymentConfigSchema,
-  MoneyFormat,
-  moneyFormat,
   OrderReferenceConfig,
-  SignInStepConfig,
-  TaxConfig,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/core/ordering';
 import {
   CONSENT_PURPOSES,
   ConsentPurpose,
@@ -18,6 +12,10 @@ import {
   CompanyIdFormat,
   normalizePhone,
   PhoneConfig,
+  deploymentConfigSchema,
+  MoneyFormat,
+  moneyFormat,
+  TaxConfig,
 } from '@b2b-catalog-platform/shared/platform';
 import {
   CustomerSyncPolicy,
@@ -34,7 +32,11 @@ import {
 import { join } from 'node:path';
 import { loadApiConfig } from './api-config';
 import type * as z from 'zod';
-import { CustomerType } from '@b2b-catalog-platform/shared/core/accounts';
+import {
+  CustomerType,
+  AddressConfig,
+  SignInStepConfig,
+} from '@b2b-catalog-platform/shared/core/accounts';
 
 /**
  * `deployment.json`, read whole and as strictly as the web reads it — one

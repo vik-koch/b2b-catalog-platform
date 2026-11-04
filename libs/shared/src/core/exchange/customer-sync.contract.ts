@@ -10,7 +10,7 @@ import {
   companyNameSchema,
   companyRegistrationIdSchema,
   lowercaseEmailField,
-} from '../../lib/config/contact-config';
+} from '../../platform/contact-config';
 import { CUSTOMER_SYNC_FIELDS } from './customer-sync';
 import {
   SYNC_FAILURE_MESSAGE_MAX_LENGTH,

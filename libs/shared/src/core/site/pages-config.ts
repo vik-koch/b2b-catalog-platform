@@ -1,6 +1,6 @@
 import * as z from 'zod';
-import { isConsentPage, PAGE_SLUGS } from '../../core/site/pages';
-import { pageSlugSchema } from '../../core/site/page.contract';
+import { isConsentPage, PAGE_SLUGS } from './pages';
+import { pageSlugSchema } from './page.contract';
 
 /**
  * Which static pages this deployment has, and where they are linked. Shared,

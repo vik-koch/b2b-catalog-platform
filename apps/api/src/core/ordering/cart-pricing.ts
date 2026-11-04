@@ -8,7 +8,10 @@ import {
   ShipmentLineInput,
   shipmentEstimate,
 } from '@b2b-catalog-platform/shared/core/ordering';
-import { effectiveTaxRate, TaxConfig } from '@b2b-catalog-platform/shared';
+import {
+  effectiveTaxRate,
+  TaxConfig,
+} from '@b2b-catalog-platform/shared/platform';
 import {
   ProductAvailability,
   correctPieces,
@@ -16,7 +19,7 @@ import {
   piecesPerUnit,
   unitQuantity,
 } from '@b2b-catalog-platform/shared/core/catalog';
-import { pairingShortfalls } from '@b2b-catalog-platform/shared/node';
+import { pairingShortfalls } from './pairing-check';
 import * as schema from '../../db/schema';
 import { products } from '../../db/schema';
 import { livePriceMinor } from '../catalog/product-price';

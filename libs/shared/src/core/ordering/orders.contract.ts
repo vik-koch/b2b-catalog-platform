@@ -10,7 +10,7 @@ import {
   PICKUP_LOCATION_KEY_MAX,
 } from './orders';
 import { ORDER_DOCUMENT_KINDS } from './order-documents';
-import { TAX_BASES } from '../../lib/core/tax';
+import { TAX_BASES } from '../../platform/tax';
 import {
   addressInputSchema,
   countryCodeSchema,
@@ -18,7 +18,7 @@ import {
 import {
   companyRegistrationIdSchema,
   lowercaseEmailField,
-} from '../../lib/config/contact-config';
+} from '../../platform/contact-config';
 import { cartLineSchema, cartPreviewSchema } from './cart.contract';
 import { CART_LINES_MAX } from './cart';
 import {

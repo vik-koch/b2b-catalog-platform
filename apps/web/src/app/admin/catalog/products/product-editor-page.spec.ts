@@ -7,7 +7,10 @@ import {
   ParamMap,
   Router,
 } from '@angular/router';
-import { fillText, DeploymentConfig } from '@b2b-catalog-platform/shared';
+import {
+  fillText,
+  DeploymentConfig,
+} from '@b2b-catalog-platform/shared/platform';
 import {
   AdminCategory,
   AdminProduct,

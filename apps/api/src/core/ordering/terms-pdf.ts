@@ -1,9 +1,8 @@
+import { SharedText, fillText } from '@b2b-catalog-platform/shared/platform';
 import {
-  SharedText,
-  fillText,
+  AdminOrderDetail,
   OrderReferenceConfig,
-} from '@b2b-catalog-platform/shared';
-import { AdminOrderDetail } from '@b2b-catalog-platform/shared/core/ordering';
+} from '@b2b-catalog-platform/shared/core/ordering';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { and, eq } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';

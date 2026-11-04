@@ -1,8 +1,10 @@
 import type { MockInstance } from 'vitest';
 import { Logger } from '@nestjs/common';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { deliveryConfigSchema } from '@b2b-catalog-platform/shared';
-import { OrderSubmission } from '@b2b-catalog-platform/shared/core/ordering';
+import {
+  OrderSubmission,
+  deliveryConfigSchema,
+} from '@b2b-catalog-platform/shared/core/ordering';
 import { AddressesService } from '../../core/accounts/addresses.service';
 import { PickupLocation } from '../../config/deployment-config';
 import * as schema from '../../db/schema';

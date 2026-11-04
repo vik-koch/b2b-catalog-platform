@@ -8,8 +8,11 @@ import {
   PublicDocument,
   publicDocumentSchema,
 } from '@b2b-catalog-platform/shared/core/catalog';
-import { isoToday } from '@b2b-catalog-platform/shared/platform';
-import { effectiveTaxRate, TaxConfig } from '@b2b-catalog-platform/shared';
+import {
+  isoToday,
+  effectiveTaxRate,
+  TaxConfig,
+} from '@b2b-catalog-platform/shared/platform';
 import { TAX_CONFIG } from '../../config/deployment-config';
 import { DRIZZLE } from '../../db/database.module';
 import * as schema from '../../db/schema';

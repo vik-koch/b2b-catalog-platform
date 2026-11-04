@@ -1,4 +1,4 @@
-import { MoneyFormat } from '@b2b-catalog-platform/shared';
+import { MoneyFormat } from '@b2b-catalog-platform/shared/platform';
 import { demoAdminOrder as order } from '../../core/ordering/order.fixture';
 import { demoSharedText, demoMailText } from '../mail-text.fixture';
 import { newOrderMail } from './new-order.template';

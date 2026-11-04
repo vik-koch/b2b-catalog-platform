@@ -1,7 +1,7 @@
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { PDFDocument } from 'pdf-lib';
-import { AddressConfig } from '@b2b-catalog-platform/shared';
+import { AddressConfig } from '@b2b-catalog-platform/shared/core/accounts';
 import {
   demoSharedText,
   demoMailBranding,

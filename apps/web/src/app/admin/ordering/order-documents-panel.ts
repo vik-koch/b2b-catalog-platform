@@ -6,7 +6,6 @@ import {
   output,
   signal,
 } from '@angular/core';
-import { fillText } from '@b2b-catalog-platform/shared';
 import {
   orderDocumentPath,
   OrderDocumentKind,
@@ -16,7 +15,10 @@ import {
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
-import { AcceptedDocumentMime } from '@b2b-catalog-platform/shared/platform';
+import {
+  AcceptedDocumentMime,
+  fillText,
+} from '@b2b-catalog-platform/shared/platform';
 import { documentFileCaption } from '../../shared/core/document-file';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';

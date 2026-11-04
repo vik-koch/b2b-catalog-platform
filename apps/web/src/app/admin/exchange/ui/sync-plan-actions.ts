@@ -7,7 +7,7 @@ import {
   output,
   signal,
 } from '@angular/core';
-import { fillText } from '@b2b-catalog-platform/shared';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { Notice } from '@b2b-catalog-platform/ui/content/notice';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';

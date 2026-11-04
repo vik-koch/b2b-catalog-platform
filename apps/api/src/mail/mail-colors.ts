@@ -1,4 +1,7 @@
-import { type DeploymentConfig, HEX_COLOR } from '@b2b-catalog-platform/shared';
+import {
+  type DeploymentConfig,
+  HEX_COLOR,
+} from '@b2b-catalog-platform/shared/platform';
 
 /** The greys a message is drawn in, by the web app's role names. */
 export interface MailColors {

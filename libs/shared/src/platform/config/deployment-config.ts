@@ -1,19 +1,19 @@
 // Namespace import, not `{ z }`: the named form defeats tree shaking and
 // pulls zod's 63 locale files into the bundle (colinhacks/zod#6050).
 import * as z from 'zod';
-import type { DeepReadonly } from '../core/deep-readonly';
-import { addressConfigSchema } from './address-config';
-import { companyIdInputSchema, phoneInputSchema } from './contact-config';
-import { consentConfigSchema } from './consent-config';
-import { KEYBOARD_LAYOUTS } from '../../platform/keyboard-layout';
+import type { DeepReadonly } from '../deep-readonly';
+import { addressConfigSchema } from '../../core/accounts/address-config';
+import { companyIdInputSchema, phoneInputSchema } from '../contact-config';
+import { consentConfigSchema } from '../../core/site/consent-config';
+import { KEYBOARD_LAYOUTS } from '../keyboard-layout';
 import {
   deliveryConfigSchema,
   orderReferenceConfigSchema,
-} from './order-config';
-import { pagesConfigSchema } from './pages-config';
-import { signInStepConfigSchema } from './sign-in-step-config';
-import { taxConfigSchema } from './tax-config';
-import { themeConfigSchema } from './theme-config';
+} from '../../core/ordering/order-config';
+import { pagesConfigSchema } from '../../core/site/pages-config';
+import { signInStepConfigSchema } from '../../core/accounts/sign-in-step-config';
+import { taxConfigSchema } from '../tax-config';
+import { themeConfigSchema } from '../theme-config';
 import { CUSTOMER_TYPES } from '../../core/accounts/users';
 
 /**

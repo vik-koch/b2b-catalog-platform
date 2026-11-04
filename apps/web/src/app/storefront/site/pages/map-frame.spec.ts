@@ -4,7 +4,10 @@ import { TestBed } from '@angular/core/testing';
 import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
 import { defaultStorefrontText } from '../../../shared/config/storefront-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
-import { DeploymentConfig, MapEmbed } from '@b2b-catalog-platform/shared';
+import {
+  DeploymentConfig,
+  MapEmbed,
+} from '@b2b-catalog-platform/shared/platform';
 import { defaultDeploymentConfig } from '../../../shared/config/deployment-config.fixture';
 import { MapFrame } from './map-frame';
 

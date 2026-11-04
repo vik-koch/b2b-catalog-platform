@@ -7,7 +7,6 @@ import {
 } from '@nestjs/common';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { and, asc, eq } from 'drizzle-orm';
-import { AddressConfig } from '@b2b-catalog-platform/shared';
 import { ADDRESS_CONFIG } from '../../config/deployment-config';
 import { DRIZZLE } from '../../db/database.module';
 import * as schema from '../../db/schema';
@@ -18,6 +17,7 @@ import {
   AddressInput,
   postalCodeMatches,
   postalCodeRuleFor,
+  AddressConfig,
 } from '@b2b-catalog-platform/shared/core/accounts';
 
 type AddressRow = typeof addresses.$inferSelect;

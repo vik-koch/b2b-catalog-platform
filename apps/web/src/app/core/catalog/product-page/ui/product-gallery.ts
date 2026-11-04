@@ -7,7 +7,7 @@ import {
   output,
   signal,
 } from '@angular/core';
-import { fillText } from '@b2b-catalog-platform/shared';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
 import { ProductImage } from '@b2b-catalog-platform/shared/core/catalog';
 
 import { swipeStep, touchX } from '@b2b-catalog-platform/ui/core/swipe';

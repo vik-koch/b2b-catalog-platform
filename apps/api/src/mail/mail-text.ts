@@ -1,8 +1,8 @@
-import { DeepReadonly } from '@b2b-catalog-platform/shared';
 import {
+  DeepReadonly,
   paymentMethodLabels,
   refuseCountForms,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/platform';
 import * as z from 'zod';
 
 /**

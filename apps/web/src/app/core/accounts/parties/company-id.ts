@@ -4,10 +4,10 @@ import {
   type SchemaPath,
   type SchemaPathRules,
 } from '@angular/forms/signals';
-import { fillText } from '@b2b-catalog-platform/shared';
 import {
   type CompanyIdFormat,
   companyIdMatchesAny,
+  fillText,
 } from '@b2b-catalog-platform/shared/platform';
 
 /** Every accepted shape's example, for a hint or a message. */

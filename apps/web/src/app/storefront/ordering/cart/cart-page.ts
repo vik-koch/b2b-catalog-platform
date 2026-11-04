@@ -14,7 +14,7 @@ import {
   fillText,
   moneyFormat,
   formatMoneyMinor,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/platform';
 import { ProductPairings } from '../../../core/catalog/buying/product-pairings';
 import {
   PRODUCT_ROWS,

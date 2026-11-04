@@ -7,7 +7,7 @@ import { StorefrontText } from '../../../shared/config/storefront-text.type';
 import { defaultStorefrontText } from '../../../shared/config/storefront-text.fixture';
 import { defaultSharedText } from '../../../shared/config/shared-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
-import { DeploymentConfig } from '@b2b-catalog-platform/shared';
+import { DeploymentConfig } from '@b2b-catalog-platform/shared/platform';
 import { defaultDeploymentConfig } from '../../../shared/config/deployment-config.fixture';
 import { EditModeService } from '../../../shared/edit-mode/edit-mode.service';
 import { ConditionsPage } from './conditions-page';

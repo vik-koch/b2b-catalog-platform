@@ -1,6 +1,6 @@
 import { Component, computed, inject, resource, Signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { fillText } from '@b2b-catalog-platform/shared';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
 import {
   addressDetailLines,
   addressDisplayName,

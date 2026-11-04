@@ -4,7 +4,7 @@ import {
   API_TOKEN_NAME_MAX_LENGTH,
   API_TOKEN_SCOPES,
   ApiTokenScope,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/platform';
 import {
   ApiToken,
   CreatedApiToken,

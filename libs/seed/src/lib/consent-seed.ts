@@ -1,8 +1,8 @@
 import { Client } from 'pg';
-import { ConsentConfig } from '@b2b-catalog-platform/shared';
 import {
   CONSENT_PAGE_SLUGS,
   ConsentPurpose,
+  ConsentConfig,
 } from '@b2b-catalog-platform/shared/core/site';
 import { SeedBundle } from './bundle';
 

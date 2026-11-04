@@ -18,6 +18,7 @@ export const ACCEPTED_IMAGE_MIME_TYPES = [
   'image/webp',
   'image/gif',
 ] as const;
+export type AcceptedImageMime = (typeof ACCEPTED_IMAGE_MIME_TYPES)[number];
 
 /** Public path prefix uploaded images are served under. The single source of
  * truth for the store (which builds these URLs) and the sanitizer (which admits

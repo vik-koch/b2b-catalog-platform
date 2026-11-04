@@ -15,7 +15,7 @@ import {
   emailField,
   lowercaseEmailField,
   storedEmailField,
-} from '../lib/config/contact-config';
+} from './contact-config';
 
 const config: PhoneConfig = { countryCode: '+49', mask: '(###) ###-####' };
 /** A deployment that fixes a country code but does not group the digits. */

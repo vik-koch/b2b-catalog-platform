@@ -3,7 +3,7 @@ import {
   fillText,
   moneyFormat,
   formatMoneyMinor,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/platform';
 import { resolveDeliveryZone } from '@b2b-catalog-platform/shared/core/ordering';
 import { CartService } from '../cart/cart.service';
 import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';

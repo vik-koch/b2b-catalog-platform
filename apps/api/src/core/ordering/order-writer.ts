@@ -12,7 +12,10 @@ import {
   OrderNotice,
   OrderRevisionKind,
 } from '@b2b-catalog-platform/shared/core/ordering';
-import { effectiveTaxRate, TaxConfig } from '@b2b-catalog-platform/shared';
+import {
+  effectiveTaxRate,
+  TaxConfig,
+} from '@b2b-catalog-platform/shared/platform';
 import {
   BadRequestException,
   ConflictException,

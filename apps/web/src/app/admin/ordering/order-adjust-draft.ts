@@ -1,4 +1,4 @@
-import { fillText, MoneyFormat } from '@b2b-catalog-platform/shared';
+import { fillText, MoneyFormat } from '@b2b-catalog-platform/shared/platform';
 import {
   AdminOrderDetail,
   OrderAdjustmentPreview,

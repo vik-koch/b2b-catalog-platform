@@ -3,8 +3,8 @@ import {
   PaymentMethod,
   resolveDeliveryZone,
   OrderAdjustment,
+  DeliveryConfig,
 } from '@b2b-catalog-platform/shared/core/ordering';
-import { DeliveryConfig } from '@b2b-catalog-platform/shared';
 import {
   BadRequestException,
   ConflictException,

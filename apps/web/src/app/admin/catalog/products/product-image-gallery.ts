@@ -7,8 +7,10 @@ import {
   moveItemInArray,
 } from '@angular/cdk/drag-drop';
 import { Component, inject, input, output, signal } from '@angular/core';
-import { ACCEPTED_IMAGE_MIME_TYPES } from '@b2b-catalog-platform/shared/platform';
-import { fillText } from '@b2b-catalog-platform/shared';
+import {
+  ACCEPTED_IMAGE_MIME_TYPES,
+  fillText,
+} from '@b2b-catalog-platform/shared/platform';
 import {
   ProductImageInput,
   ProductVariantInput,

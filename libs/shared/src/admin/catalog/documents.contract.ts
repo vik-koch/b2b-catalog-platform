@@ -7,11 +7,11 @@
 
 import { oc } from '@orpc/contract';
 import * as z from 'zod';
-import { commonAuthErrors } from '../../lib/core/api-error';
+import { commonAuthErrors } from '../../platform/api-error';
 import {
   ACCEPTED_DOCUMENT_MIME_TYPES,
   DOCUMENT_FILE_NAME_MAX_LENGTH,
-} from '../../platform/media-constants';
+} from '../../platform/media';
 import {
   DOCUMENT_LINK_MAX_LENGTH,
   DOCUMENT_PRODUCTS_MAX,

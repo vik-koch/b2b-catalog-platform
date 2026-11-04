@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import { form, hidden } from '@angular/forms/signals';
 import { Router } from '@angular/router';
-import { fillText } from '@b2b-catalog-platform/shared';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
 import { ADMIN_TEXT } from '../../../shared/config/admin-text';
 import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
 import {

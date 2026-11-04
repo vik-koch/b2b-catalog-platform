@@ -1,6 +1,6 @@
 import * as z from 'zod';
-import { countryCodeSchema } from '../../core/accounts/address.contract';
-import { normalizePostalCode } from '../../core/accounts/postal-code';
+import { countryCodeSchema } from './address.contract';
+import { normalizePostalCode } from './postal-code';
 
 /**
  * Where this deployment ships — the jurisdiction-specific half of the address

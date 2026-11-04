@@ -3,7 +3,7 @@ import { defaultSharedText } from '../../../shared/config/shared-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { CartPreview } from '@b2b-catalog-platform/shared/core/ordering';
-import { fillText } from '@b2b-catalog-platform/shared';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
 import { packagedPackaging } from '../../../core/catalog/product.fixture';
 import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
 import { defaultStorefrontText } from '../../../shared/config/storefront-text.fixture';

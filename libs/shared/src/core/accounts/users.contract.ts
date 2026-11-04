@@ -10,7 +10,7 @@ import {
   companyRegistrationIdSchema,
   emailField,
   storedEmailField,
-} from '../../lib/config/contact-config';
+} from '../../platform/contact-config';
 import { userRoleSchema } from '../../platform/session.contract';
 
 /**

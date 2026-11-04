@@ -7,7 +7,7 @@ import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
 import {
   ContactLocation,
   DeploymentConfig,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/platform';
 import { defaultDeploymentConfig } from '../../../shared/config/deployment-config.fixture';
 import { EditModeService } from '../../../shared/edit-mode/edit-mode.service';
 import { ContactPage } from './contact-page';

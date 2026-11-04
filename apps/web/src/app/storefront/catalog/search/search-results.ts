@@ -1,7 +1,7 @@
 import { NgTemplateOutlet } from '@angular/common';
 import { Component, computed, inject, input, resource } from '@angular/core';
 import { Params, RouterLink } from '@angular/router';
-import { fillText } from '@b2b-catalog-platform/shared';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
 import { SEARCH_SORTS } from '@b2b-catalog-platform/shared/core/catalog';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';

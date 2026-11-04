@@ -1,11 +1,5 @@
 import { sql } from 'drizzle-orm';
 import {
-  API_TOKEN_NAME_MAX_LENGTH,
-  API_TOKEN_PREFIX_LENGTH,
-  API_TOKEN_SCOPES,
-  TAX_BASES,
-} from '@b2b-catalog-platform/shared';
-import {
   FULFILMENT_METHODS,
   ORDER_ADJUSTMENT_NOTE_MAX,
   ORDER_WRITE_ACTOR_MAX,
@@ -26,7 +20,13 @@ import {
   PRODUCT_UNITS,
 } from '@b2b-catalog-platform/shared/core/catalog';
 import { SETTING_CHANGE_KINDS } from '@b2b-catalog-platform/shared/admin/platform';
-import { OWNERSHIP_AREAS } from '@b2b-catalog-platform/shared/platform';
+import {
+  OWNERSHIP_AREAS,
+  API_TOKEN_NAME_MAX_LENGTH,
+  API_TOKEN_PREFIX_LENGTH,
+  API_TOKEN_SCOPES,
+  TAX_BASES,
+} from '@b2b-catalog-platform/shared/platform';
 import {
   SYNC_AREAS,
   type CustomerSyncOptions,

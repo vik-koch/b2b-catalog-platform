@@ -5,10 +5,7 @@ import {
   RICH_TEXT_TAGS,
 } from '../platform/rich-text';
 import { PRODUCT_RICH_TEXT_TAGS } from '../admin/catalog/products';
-import {
-  MEDIA_MAX_IMAGE_WIDTH,
-  MEDIA_URL_PREFIX,
-} from '../platform/media-constants';
+import { MEDIA_MAX_IMAGE_WIDTH, MEDIA_URL_PREFIX } from '../platform/media';
 
 const IMAGE_ALIGNMENTS = new Set<string>(RICH_TEXT_IMAGE_ALIGNMENTS);
 

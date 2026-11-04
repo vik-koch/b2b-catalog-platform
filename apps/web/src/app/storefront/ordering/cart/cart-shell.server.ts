@@ -1,6 +1,6 @@
 import { getDeploymentConfig } from '../../../shared/config/deployment-config.server';
 import { CART_STORAGE_KEY, CART_STORAGE_VERSION } from './cart-storage';
-import { moneyFormat } from '@b2b-catalog-platform/shared';
+import { moneyFormat } from '@b2b-catalog-platform/shared/platform';
 
 /** The inline `<head>` script that draws the navbar's cart figures before first
  * paint: the server cannot read localStorage, and anything Angular corrects is

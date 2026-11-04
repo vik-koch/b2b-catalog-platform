@@ -1,4 +1,4 @@
-import { ApiTokenScope } from '@b2b-catalog-platform/shared';
+import { ApiTokenScope } from '@b2b-catalog-platform/shared/platform';
 import { applyDecorators, UseGuards } from '@nestjs/common';
 import { MachineScope } from './machine-scope.decorator';
 import { MachineTokenGuard } from './machine-token.guard';

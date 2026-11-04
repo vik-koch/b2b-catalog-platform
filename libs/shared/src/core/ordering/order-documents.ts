@@ -1,7 +1,7 @@
 import {
   DOCUMENT_FILE_NAME_MAX_LENGTH,
   DOCUMENT_MAX_UPLOAD_BYTES,
-} from '../../platform/media-constants';
+} from '../../platform/media';
 
 /**
  * The documents an order can carry (FR-ORD-05, ADR 0052). Payment

@@ -7,7 +7,6 @@ import {
   signal,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { fillText } from '@b2b-catalog-platform/shared';
 import { CustomerTier } from '@b2b-catalog-platform/shared/admin/catalog';
 import { ADMIN_TEXT } from '../../../shared/config/admin-text';
 import { SHARED_TEXT } from '../../../shared/config/shared-text';
@@ -50,7 +49,10 @@ import {
   StaffUser,
 } from '@b2b-catalog-platform/shared/core/accounts';
 import { ConsentRecord } from '@b2b-catalog-platform/shared/admin/accounts';
-import { normalizePhone } from '@b2b-catalog-platform/shared/platform';
+import {
+  normalizePhone,
+  fillText,
+} from '@b2b-catalog-platform/shared/platform';
 
 /**
  * One account, read rather than edited: the customer's own page seen from the

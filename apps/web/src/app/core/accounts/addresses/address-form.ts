@@ -9,7 +9,10 @@ import {
   type FormSubmitOptions,
   type Schema,
 } from '@angular/forms/signals';
-import { type DeploymentConfig, fillText } from '@b2b-catalog-platform/shared';
+import {
+  type DeploymentConfig,
+  fillText,
+} from '@b2b-catalog-platform/shared/platform';
 import { DEPLOYMENT_CONFIG } from '../../../shared/config/deployment-config';
 import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
 import {

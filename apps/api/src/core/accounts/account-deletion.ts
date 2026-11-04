@@ -9,7 +9,7 @@ import {
   ClosedAccountSummary,
 } from '../../mail/templates/account-closed.template';
 import { accountDeletedMail } from '../../mail/templates/account-deleted.template';
-import { SharedText } from '@b2b-catalog-platform/shared';
+import { SharedText } from '@b2b-catalog-platform/shared/platform';
 import { ACCOUNT_ORDERS, AccountOrders } from './account-orders';
 import { AccountErasure } from './account-erasure';
 import { UserRow, UsersService } from './users.service';

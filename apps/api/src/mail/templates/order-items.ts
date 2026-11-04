@@ -5,7 +5,7 @@ import {
   formatTaxRate,
   MoneyFormat,
   sharedTaxRate,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/platform';
 import { OrderDetail } from '@b2b-catalog-platform/shared/core/ordering';
 import { MailItem } from '../mail-layout';
 

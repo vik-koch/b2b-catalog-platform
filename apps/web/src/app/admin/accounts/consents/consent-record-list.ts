@@ -1,6 +1,6 @@
 import { Component, inject, input, output } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { fillText } from '@b2b-catalog-platform/shared';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
 import {
   CONSENT_PAGE_SLUGS,
   consentLabelParts,

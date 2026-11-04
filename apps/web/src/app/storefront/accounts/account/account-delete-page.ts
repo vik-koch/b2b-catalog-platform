@@ -1,7 +1,7 @@
 import { Component, computed, inject, resource, signal } from '@angular/core';
 import { form, required } from '@angular/forms/signals';
 import { RouterLink } from '@angular/router';
-import { fillText } from '@b2b-catalog-platform/shared';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
 import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
 import { AuthService } from '../../../shared/auth/auth.service';
 import { usePageSeo } from '../../../shared/core/page-seo';

@@ -7,7 +7,7 @@ import {
   signal,
 } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { fillText } from '@b2b-catalog-platform/shared';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
 import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';
 import { delayedLoading } from '../../../shared/core/delayed-loading';
 import { usePageSeo } from '../../../shared/core/page-seo';

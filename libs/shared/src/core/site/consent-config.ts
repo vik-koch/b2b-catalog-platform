@@ -1,5 +1,5 @@
 import * as z from 'zod';
-import { ConsentPurpose } from '../../core/site/pages';
+import { ConsentPurpose } from './pages';
 
 /**
  * Which consents this deployment asks for (NFR-LEGAL-09), one switch per

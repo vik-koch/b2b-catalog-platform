@@ -2,7 +2,7 @@ import {
   SharedText,
   fillText,
   MoneyFormat,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/platform';
 import { OrderDetail } from '@b2b-catalog-platform/shared/core/ordering';
 import { shopDay } from '../../core/ordering/shop-day';
 import { MailContent } from '../mail-layout';

@@ -2,7 +2,7 @@ import { loadConfig } from '@b2b-catalog-platform/shared/node';
 import {
   DeploymentConfig,
   deploymentConfigSchema,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/platform';
 
 /**
  * Complete, schema-shaped demo deployment config for tests only — the sibling

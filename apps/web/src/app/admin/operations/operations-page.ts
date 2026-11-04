@@ -7,7 +7,6 @@ import {
   signal,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { fillText } from '@b2b-catalog-platform/shared';
 import {
   SETTING_CHANGES_PAGE_SIZE,
   SettingChange,
@@ -15,6 +14,7 @@ import {
 import {
   OWNERSHIP_AREAS,
   OwnershipArea,
+  fillText,
 } from '@b2b-catalog-platform/shared/platform';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';

@@ -13,7 +13,7 @@ import {
   PRODUCT_TIER_PRICES_MAX,
   type ProductErrorCode,
 } from './products';
-import { commonAuthErrors } from '../../lib/core/api-error';
+import { commonAuthErrors } from '../../platform/api-error';
 import { ownershipErrors } from '../../platform/ownership';
 import {
   availabilitySchema,
@@ -62,7 +62,7 @@ import {
   PRODUCT_VARIANTS_MAX,
 } from '../../core/catalog/product-variants';
 import { slugSchema } from './slug.contract';
-import { taxRateSchema } from '../../lib/config/tax-config';
+import { taxRateSchema } from '../../platform/tax-config';
 
 /**
  * A price as it is written. Zero is refused: a product that costs nothing has

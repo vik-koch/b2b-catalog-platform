@@ -1,6 +1,9 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { type FieldTree } from '@angular/forms/signals';
-import { moneyFormat, currencySymbol } from '@b2b-catalog-platform/shared';
+import {
+  moneyFormat,
+  currencySymbol,
+} from '@b2b-catalog-platform/shared/platform';
 import { CustomerTier } from '@b2b-catalog-platform/shared/admin/catalog';
 import {
   parsePriceInput,

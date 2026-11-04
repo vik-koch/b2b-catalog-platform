@@ -1,4 +1,7 @@
-import { SharedText, sharedTextSchema } from '@b2b-catalog-platform/shared';
+import {
+  SharedText,
+  sharedTextSchema,
+} from '@b2b-catalog-platform/shared/platform';
 import { loadConfig } from '@b2b-catalog-platform/shared/node';
 
 /** The shop's shared names (see deployments/fixture/config/README.md), read whole at boot. */

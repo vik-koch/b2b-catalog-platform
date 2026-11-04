@@ -1,6 +1,6 @@
 import { Component, computed, inject, input, resource } from '@angular/core';
 import { Params, RouterLink } from '@angular/router';
-import { fillText } from '@b2b-catalog-platform/shared';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
 import {
   MY_ORDER_FILTERS,
   MyOrderFilter,

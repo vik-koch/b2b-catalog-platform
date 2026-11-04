@@ -7,7 +7,6 @@ import {
   signal,
 } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { fillText } from '@b2b-catalog-platform/shared';
 import { SEARCH_QUERY_MAX_LENGTH } from '@b2b-catalog-platform/shared/core/catalog';
 import { ADMIN_TEXT } from '../../../shared/config/admin-text';
 import { SHARED_TEXT } from '../../../shared/config/shared-text';
@@ -50,7 +49,10 @@ import {
   UserKind,
   userStatusSchema,
 } from '@b2b-catalog-platform/shared/core/accounts';
-import { userRoleSchema } from '@b2b-catalog-platform/shared/platform';
+import {
+  userRoleSchema,
+  fillText,
+} from '@b2b-catalog-platform/shared/platform';
 
 const USER_SORTS = [
   'name',

@@ -1,7 +1,7 @@
 import { oc } from '@orpc/contract';
 import * as z from 'zod';
-import { commonAuthErrors } from '../lib/core/api-error';
-import { storedEmailField } from '../lib/config/contact-config';
+import { commonAuthErrors } from './api-error';
+import { storedEmailField } from './contact-config';
 import { USER_ROLES } from './session';
 
 export const userRoleSchema = z.enum(USER_ROLES);

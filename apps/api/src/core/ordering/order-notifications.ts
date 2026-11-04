@@ -1,13 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
-import {
-  SharedText,
-  MoneyFormat,
-  OrderReferenceConfig,
-} from '@b2b-catalog-platform/shared';
+import { SharedText, MoneyFormat } from '@b2b-catalog-platform/shared/platform';
 import {
   OrderDocumentKind,
   AdminOrderDetail,
   OrderNotice,
+  OrderReferenceConfig,
 } from '@b2b-catalog-platform/shared/core/ordering';
 import {
   MONEY_FORMAT,

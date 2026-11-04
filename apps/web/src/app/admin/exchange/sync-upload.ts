@@ -1,5 +1,5 @@
 import { inject, signal, WritableSignal } from '@angular/core';
-import { fillText } from '@b2b-catalog-platform/shared';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
 import { SyncRun } from '@b2b-catalog-platform/shared/core/exchange';
 import { SyncFormatErrorBody } from '@b2b-catalog-platform/shared/admin/exchange';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';

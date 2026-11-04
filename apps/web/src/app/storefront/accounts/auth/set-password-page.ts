@@ -1,5 +1,5 @@
 import { Component, inject, input, OnInit, signal } from '@angular/core';
-import { fillText } from '@b2b-catalog-platform/shared';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
 import { form } from '@angular/forms/signals';
 import { Router, RouterLink } from '@angular/router';
 import { STOREFRONT_TEXT } from '../../../shared/config/storefront-text';

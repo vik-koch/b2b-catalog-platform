@@ -9,7 +9,7 @@ import {
   untracked,
 } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { fillText } from '@b2b-catalog-platform/shared';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
 import { FulfilmentMethod } from '@b2b-catalog-platform/shared/core/ordering';
 import {
   isOrderDateAllowed,

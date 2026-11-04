@@ -12,3 +12,4 @@ export * from './slug';
 export * from './slug.contract';
 export * from './tiers';
 export * from './tiers.contract';
+export * from './uploads.contract';

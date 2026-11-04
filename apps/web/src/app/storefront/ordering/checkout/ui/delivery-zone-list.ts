@@ -3,7 +3,7 @@ import {
   fillText,
   moneyFormat,
   formatMoneyMinor,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/platform';
 import { STOREFRONT_TEXT } from '../../../../shared/config/storefront-text';
 import { DEPLOYMENT_CONFIG } from '../../../../shared/config/deployment-config';
 import { EmphasisedText } from '@b2b-catalog-platform/ui/content/emphasised-text';

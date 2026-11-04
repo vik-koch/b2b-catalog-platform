@@ -1,6 +1,6 @@
 import { oc } from '@orpc/contract';
 import * as z from 'zod';
-import { commonAuthErrors } from '../../lib/core/api-error';
+import { commonAuthErrors } from '../../platform/api-error';
 import { SETTING_CHANGE_KINDS, SETTING_CHANGES_PAGE_SIZE } from './operations';
 
 /**

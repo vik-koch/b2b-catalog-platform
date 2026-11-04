@@ -4,7 +4,7 @@ import {
   fillText,
   moneyFormat,
   formatMoneyMinor,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/platform';
 import { OrderSummary } from '@b2b-catalog-platform/shared/core/ordering';
 import { STOREFRONT_TEXT } from '../../../../shared/config/storefront-text';
 import { SHARED_TEXT } from '../../../../shared/config/shared-text';

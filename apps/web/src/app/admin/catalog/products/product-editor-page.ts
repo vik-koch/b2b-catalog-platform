@@ -28,7 +28,7 @@ import {
   isPartialTaxRate,
   currencySymbol,
   decimalSeparator,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/platform';
 import {
   isValidPartList,
   minimumFitsPacks,

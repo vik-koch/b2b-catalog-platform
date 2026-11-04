@@ -1,5 +1,5 @@
 import { randomBytes, randomInt } from 'node:crypto';
-import { OrderReferenceConfig } from '@b2b-catalog-platform/shared';
+import { OrderReferenceConfig } from '@b2b-catalog-platform/shared/core/ordering';
 
 /**
  * `{prefix}-YYMMDD-NNNN`: readable down a phone, dated, and with a random

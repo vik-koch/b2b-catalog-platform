@@ -1,4 +1,4 @@
-import { formatTaxRate } from '../core/tax';
+import { formatTaxRate } from './tax';
 import { taxConfigSchema } from './tax-config';
 
 describe('taxConfigSchema', () => {

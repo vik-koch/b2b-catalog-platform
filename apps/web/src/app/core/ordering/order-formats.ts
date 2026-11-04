@@ -2,7 +2,7 @@ import {
   SharedText,
   fillText,
   MoneyFormat,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/platform';
 import { OrderLine } from '@b2b-catalog-platform/shared/core/ordering';
 import { formatUnitQuantity } from '../catalog/buying/quantity';
 

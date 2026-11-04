@@ -4,7 +4,7 @@ import {
   TaxBasis,
   moneyFormat,
   formatMoneyMinor,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/platform';
 import { ShipmentSummary } from '@b2b-catalog-platform/shared/core/ordering';
 import { formatStoredDecimal } from '../../catalog/buying/quantity';
 import { useTaxStatement } from '../../catalog/pricing/tax-statement';

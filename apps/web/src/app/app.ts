@@ -9,7 +9,7 @@ import { CartFigures } from './storefront/ordering/cart/cart-figures';
 import { LastListingService } from './storefront/catalog/last-listing.service';
 import { PairingsService } from './core/catalog/buying/pairings.service';
 import { ProductPairingsDialog } from './storefront/catalog/product-pairings-dialog';
-import { DeploymentConfig } from '@b2b-catalog-platform/shared';
+import { DeploymentConfig } from '@b2b-catalog-platform/shared/platform';
 import { DEPLOYMENT_CONFIG } from './shared/config/deployment-config';
 import { CookieConsent } from './storefront/site/cookie-consent/cookie-consent';
 import { shopTitle } from './shared/core/page-seo';

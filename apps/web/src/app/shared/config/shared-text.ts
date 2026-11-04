@@ -1,5 +1,5 @@
 import { inject, InjectionToken, Provider } from '@angular/core';
-import type { SharedText } from '@b2b-catalog-platform/shared';
+import { type SharedText } from '@b2b-catalog-platform/shared/platform';
 import { UI_TEXT, UiText } from '@b2b-catalog-platform/ui/core/ui-text';
 import { readShellState } from './shell-state';
 

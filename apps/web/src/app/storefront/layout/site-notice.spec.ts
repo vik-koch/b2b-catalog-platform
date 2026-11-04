@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import {
   DeploymentConfig,
   SiteNotice as Notice,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/platform';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { defaultDeploymentConfig } from '../../shared/config/deployment-config.fixture';
 import { SiteNotice } from './site-notice';

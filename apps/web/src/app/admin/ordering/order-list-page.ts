@@ -11,7 +11,7 @@ import {
   fillText,
   moneyFormat,
   formatMoneyMinor,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/platform';
 import {
   notifyByDefault,
   ORDER_STATUS_REASON_MAX,

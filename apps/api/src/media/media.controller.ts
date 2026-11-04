@@ -15,13 +15,13 @@ import {
   MEDIA_CATALOG_FULL_WIDTH,
   MEDIA_CATALOG_THUMB_WIDTH,
   MEDIA_MAX_UPLOAD_BYTES,
+  AcceptedImageMime,
 } from '@b2b-catalog-platform/shared/platform';
 import {
-  AcceptedImageMime,
   UploadCatalogImageResponse,
   UploadDocumentResponse,
-  UploadMediaResponse,
-} from '@b2b-catalog-platform/shared/admin';
+} from '@b2b-catalog-platform/shared/admin/catalog';
+import { UploadMediaResponse } from '@b2b-catalog-platform/shared/admin/platform';
 import { Auth } from '../platform/auth/auth.decorator';
 import { MEDIA_STORE, MediaStore } from './media-store';
 import {

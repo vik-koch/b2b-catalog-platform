@@ -1,5 +1,8 @@
 import { computed, inject, Signal } from '@angular/core';
-import { formatMoneyMinor, moneyFormat } from '@b2b-catalog-platform/shared';
+import {
+  formatMoneyMinor,
+  moneyFormat,
+} from '@b2b-catalog-platform/shared/platform';
 import { OrderDetail } from '@b2b-catalog-platform/shared/core/ordering';
 import { useTaxStatement } from '../../../core/catalog/pricing/tax-statement';
 import { SHARED_TEXT } from '../../../shared/config/shared-text';

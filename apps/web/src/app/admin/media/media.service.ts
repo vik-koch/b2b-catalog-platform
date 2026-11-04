@@ -1,10 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { DOCUMENT, inject, Injectable } from '@angular/core';
 import { lastValueFrom } from 'rxjs';
-import {
-  UploadCatalogImageResponse,
-  UploadMediaResponse,
-} from '@b2b-catalog-platform/shared/admin';
+import { UploadCatalogImageResponse } from '@b2b-catalog-platform/shared/admin/catalog';
+import { UploadMediaResponse } from '@b2b-catalog-platform/shared/admin/platform';
 
 /**
  * Uploads editor images to the admin media endpoint. Multipart, so it does not

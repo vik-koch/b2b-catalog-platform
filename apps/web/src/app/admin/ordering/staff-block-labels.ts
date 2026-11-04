@@ -1,4 +1,4 @@
-import type { SharedText } from '@b2b-catalog-platform/shared';
+import { type SharedText } from '@b2b-catalog-platform/shared/platform';
 import type { AdminText } from '../../shared/config/admin-text.type';
 import {
   OrderBlockLabels,

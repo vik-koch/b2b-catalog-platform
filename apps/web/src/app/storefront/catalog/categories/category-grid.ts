@@ -11,7 +11,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { Params } from '@angular/router';
-import { fillText } from '@b2b-catalog-platform/shared';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
 import {
   CategoryCrumb,
   categoryDisplayName,

@@ -1,5 +1,5 @@
 import { Component, computed, inject, input } from '@angular/core';
-import { fillText } from '@b2b-catalog-platform/shared';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
 import { formatAttributeValue } from '@b2b-catalog-platform/shared/core/catalog';
 import { Facet } from '@b2b-catalog-platform/shared/storefront/catalog';
 import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';

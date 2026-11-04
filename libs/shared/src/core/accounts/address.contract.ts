@@ -6,7 +6,7 @@ import {
   ADDRESS_POSTAL_CODE_MAX_LENGTH,
   ADDRESS_QUERY_MAX_LENGTH,
 } from './address';
-import { commonAuthErrors } from '../../lib/core/api-error';
+import { commonAuthErrors } from '../../platform/api-error';
 
 /** How many addresses one account may keep: a bound against an endpoint with
  * no ceiling, not a business rule. */

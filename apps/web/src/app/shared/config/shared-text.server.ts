@@ -1,5 +1,8 @@
 import { Provider } from '@angular/core';
-import { SharedText, sharedTextSchema } from '@b2b-catalog-platform/shared';
+import {
+  SharedText,
+  sharedTextSchema,
+} from '@b2b-catalog-platform/shared/platform';
 import { loadConfig } from '@b2b-catalog-platform/shared/node';
 import { SHARED_TEXT } from './shared-text';
 

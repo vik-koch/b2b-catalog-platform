@@ -1,5 +1,5 @@
 import * as z from 'zod';
-import { TAX_RATE_MAX } from '../core/tax';
+import { TAX_RATE_MAX } from './tax';
 
 /** A percent with at most two decimals, compared in hundredths so 5.55
  * passes despite binary floating point. */

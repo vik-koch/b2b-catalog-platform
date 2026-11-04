@@ -1,4 +1,4 @@
-import { parseTaxRate } from '@b2b-catalog-platform/shared';
+import { parseTaxRate } from '@b2b-catalog-platform/shared/platform';
 import {
   DEFAULT_PRICE_LIST_ALIAS,
   CATALOG_SYNC_CSV_COLUMNS,
