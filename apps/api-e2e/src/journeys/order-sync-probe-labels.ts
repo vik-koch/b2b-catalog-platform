@@ -1,11 +1,9 @@
 /**
  * What each reading of the order exchange is called, and what it means.
  *
- * Its own import-free module, like the catalog, customer and account ones: the
- * adapter builds its probes from these labels and
- * `tools/generate-order-sync.mjs` renders the tables and the legend with them,
- * and the generator must not have to import the adapter — which would pull
- * axios and Mailpit into a documentation build.
+ * Import-free: the adapter builds its probes from these, and
+ * `tools/generate-order-sync.mjs` renders the tables with them, without
+ * pulling axios and Mailpit into a docs build.
  */
 export const ORDER_SYNC_PROBES = {
   run: {

@@ -1,12 +1,7 @@
 import { Client } from 'pg';
 
-/**
- * A product's price in the list the storefront quotes.
- *
- * Every price is a `product_prices` row now, so a fixture that inserts a
- * product has two statements to make rather than one — and the badged list is
- * found by its badge, never by a key, because a deployment renames it.
- */
+/** A product's price in the storefront's list: a `product_prices` row, a
+ * second insert, the list found by its badge, as deployments rename keys. */
 export async function priceProduct(
   client: Client,
   sourceId: string,
@@ -40,7 +35,7 @@ export async function priceOf(
   return rows[0]?.priceMinor ?? null;
 }
 
-/** The badged list's id — what a fixture writing several prices needs once. */
+/** The badged list's id, fetched once for a fixture writing several prices. */
 export async function defaultTierId(client: Client): Promise<string> {
   const { rows } = await client.query<{ id: string }>(
     'SELECT id FROM customer_tiers WHERE "isDefault"',

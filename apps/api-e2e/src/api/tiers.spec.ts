@@ -3,13 +3,9 @@ import axios from 'axios';
 import { Client } from 'pg';
 import { requireEnv } from '../support/env';
 
-/**
- * Tier administration (FR-AUTH-05, admin side; NFR-SEC-04 for the guards).
- *
- * Against the real database on purpose: the delete guard is ultimately the two
- * restricting foreign keys of ADR 0031, and the reserved `default` key is a
- * check constraint — neither is provable against a stubbed driver.
- */
+/** Tier administration (FR-AUTH-05; NFR-SEC-04 for the guards), against the
+ * real database: the delete guard is two restricting foreign keys, which no
+ * stubbed driver proves. */
 
 const ADMIN_EMAIL = 'e2e-tiers-admin@example.com';
 const MANAGER_EMAIL = 'e2e-tiers-manager@example.com';
@@ -150,8 +146,8 @@ describe('Customer tiers admin (FR-AUTH-05)', () => {
         label: 'E2E Wholesale',
         userCount: 0,
         priceCount: 0,
-        // A new list is not the storefront's, and prices nothing, so badging
-        // it would take nothing off the shop front — yet.
+        // A new list prices nothing, so badging it would take nothing off the
+        // shop front yet.
         isDefault: false,
         wouldUnpublish: 0,
         sortOrder: expect.any(Number),
@@ -168,8 +164,8 @@ describe('Customer tiers admin (FR-AUTH-05)', () => {
     });
 
     it('reserves no key: `default` is taken, not forbidden', async () => {
-      // It names the list the storefront quotes, which is an ordinary row —
-      // so this is the same 409 any other taken key answers with.
+      // The storefront's list is an ordinary row: the same 409 as any taken
+      // key.
       const res = await createTier({ key: 'default', label: 'Base list' });
       expect(res.status).toBe(409);
       expect(res.data.code).toBe('tier-key-taken');
@@ -323,7 +319,7 @@ describe('Customer tiers admin (FR-AUTH-05)', () => {
     });
   });
 
-  /** The badged list's own row — the customers on it are the untiered ones. */
+  /** The badged list's row, whose customers are the untiered ones. */
   const baseCount = async (): Promise<number> => {
     const { data } = await get('/admin/tiers');
     return data.tiers.find((t: { isDefault: boolean }) => t.isDefault)
@@ -331,15 +327,10 @@ describe('Customer tiers admin (FR-AUTH-05)', () => {
   };
 
   /**
-   * What one edit does to the base list's customer count.
-   *
-   * The number is global — every suite that activates, moves or deletes a
-   * customer shifts it, and they run in parallel against one database — so a
-   * bare before/after pair can report somebody else's change as this test's.
-   * `revert` puts the world back, and a reading is only trusted when the count
-   * returns to where it started; when it does not, the measurement is taken
-   * again. `restored` is the caller's business: for an edit that should move
-   * the number, coming back is part of what is under test.
+   * What one edit does to the base list's customer count. Parallel suites move
+   * the global count, so a reading is trusted only when `revert` brings it
+   * back, else retaken. `restored` is the caller's: for an edit that moves it,
+   * coming back is under test.
    */
   async function baseCountChange(
     apply: () => Promise<unknown>,
@@ -421,8 +412,8 @@ describe('Customer tiers admin (FR-AUTH-05)', () => {
       expect(back.status).toBe(200);
       expect(back.data.unpublished).toBe(0);
 
-      // Publication is not restored by moving the badge back — it is a
-      // separate decision — so this run puts back what it took off.
+      // Moving the badge back restores no publication, a separate decision, so
+      // this run puts it back.
       for (const row of published.rows) {
         await client.query(
           'UPDATE products SET "publishedAt" = $2, "publishedBy" = $3 WHERE id = $1',
@@ -489,8 +480,8 @@ describe('Customer tiers admin (FR-AUTH-05)', () => {
         key: keyFor('staff-count'),
         label: 'Staff count',
       });
-      // Not a real scenario — tiers are assigned to customers — but the count
-      // must say what it means if it ever happens.
+      // Unreal, as tiers go to customers, but the count must still mean what it
+      // says.
       await client.query('UPDATE users SET "tierId" = $1 WHERE email = $2', [
         created.data.id,
         MANAGER_EMAIL,

@@ -4,18 +4,11 @@ import { Client } from 'pg';
 import { requireEnv } from '../support/env';
 
 /**
- * The headless catalog sync (FR-ADM-07, ADR 0055) end to end: a token submits
- * rows, and what happens next is decided by the diff rather than by the
- * caller.
- *
- * What is worth proving against a real stack rather than in a unit test is the
- * seam between the two: that the policy actually stops a run from applying
- * itself, that a staged run is then an admin's to apply or to discard, and
- * that a machine and a session cannot borrow each other's way in.
- *
- * Isolation, as in the upload spec: everything created here lives under a
- * category this spec makes, and the one catalog-wide operation — the delete
- * sweep — is only ever *staged*, never applied.
+ * The headless catalogue sync (FR-ADM-07), end to end: a token submits rows,
+ * the diff decides. Proved here: the policy stops a run, an admin then applies
+ * or discards it, and a machine and a session cannot borrow each other's way
+ * in. Everything sits under this spec's category; the delete sweep is only
+ * staged.
  */
 
 const ADMIN_EMAIL = 'e2e-machine-sync-admin@example.com';
@@ -135,11 +128,9 @@ describe('Headless catalog sync (FR-ADM-07)', () => {
     );
     token = issued.data.token;
 
-    // The machine route only accepts a run while the catalog is externally
-    // owned (FR-ADM-10) — that is the whole point of the switch, and the
-    // half-open state where both writers are accepted does not exist. This is
-    // a *global* setting, which is why the suite runs one file at a time; see
-    // the note in vite.config.ts.
+    // The machine route takes a run only while the catalogue is owned
+    // (FR-ADM-10); both writers at once never are. Global, so the suite runs a
+    // file at a time (vite.config.ts).
     await setCatalogOwned(true);
   });
 
@@ -296,9 +287,8 @@ describe('Headless catalog sync (FR-ADM-07)', () => {
       expect(await productBySourceId(`${SOURCE_PREFIX}-100`)).toBeUndefined();
     });
 
-    /** The effect the whole mechanism exists for. Staged, never applied — a
-     * sweep that reaches the seeded catalog is exactly what must not happen
-     * without somebody looking at it. */
+    /** Why the mechanism exists: a sweep over the seeded catalogue is staged,
+     * never applied unseen. */
     it('stages a sweep that would hide products', async () => {
       const res = await submit({
         rows: [row(1)],
@@ -315,8 +305,8 @@ describe('Headless catalog sync (FR-ADM-07)', () => {
       await asAdmin('post', `/admin/sync/runs/${res.data.run.id}/discard`);
     });
 
-    /** ADR 0026's gate is unchanged and comes first: authority over the
-     * product set is what deletion needs, and the policy applies on top. */
+    /** The deletion gate comes first: deleting needs authority over the
+     * product set, and the policy applies on top. */
     it('refuses a delete without the claim that the file is complete', async () => {
       const res = await submit({
         rows: [row(1)],
@@ -405,9 +395,8 @@ describe('Headless catalog sync (FR-ADM-07)', () => {
       });
 
     it('tells a source that its staged run was replaced by its own next one', async () => {
-      // The whole reason this route exists: a quarter-hourly feed supersedes
-      // the run somebody was about to read, and without this it would never
-      // find out — it would keep sending into a queue of one.
+      // Why this route exists: a quarter-hourly feed supersedes the run
+      // somebody was reading, and would otherwise never know.
       const first = await submit({ rows: [row(11)], requestReview: true });
       await submit({ rows: [row(12)], requestReview: true });
 

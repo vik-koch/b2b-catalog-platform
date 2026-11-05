@@ -5,9 +5,8 @@ import { Client } from 'pg';
 
 export const workspaceRoot = join(__dirname, '../../../..');
 
-// The localtest stack's env values live in .env.localtest (committed, no
-// secrets) — parse them here so both the seed connection (global-setup) and the
-// specs read exactly what compose interpolates, and can't drift from it.
+// The localtest values live in .env.localtest (committed, no secrets), parsed
+// here so global-setup and specs read what compose interpolates.
 export function localtestEnv(): Record<string, string> {
   return Object.fromEntries(
     readFileSync(join(workspaceRoot, '.env.localtest'), 'utf8')
@@ -42,13 +41,9 @@ export function localtestDbClient(): Client {
 // port, so the smoke-test stack and the dev stack can run side by side.
 export const MAILPIT_API = 'http://localhost:8026/api/v1';
 
-/**
- * The HTML a navigation actually served.
- *
- * `page.goto` types its response as nullable — it is null only for a
- * navigation that never left the page — so every caller would otherwise carry
- * a non-null assertion. Failing here says which of the two went wrong.
- */
+/** The HTML a navigation served. `page.goto`'s response is null only for a
+ * navigation that stayed, so this fails clearly instead of every caller
+ * asserting. */
 export async function documentOf(response: Response | null): Promise<string> {
   if (!response) throw new Error('the navigation served no document');
   return response.text();

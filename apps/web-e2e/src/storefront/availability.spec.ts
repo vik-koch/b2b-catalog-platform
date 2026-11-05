@@ -6,20 +6,14 @@ const ADMIN_EMAIL = env['ADMIN_EMAIL'];
 const ADMIN_PASSWORD = env['ADMIN_PASSWORD'];
 
 /*
- * Stock availability on the storefront and in the editor (FR-STOCK-01/02/03).
- *
- * What is left for a real browser is what a test DOM cannot answer: the badge
- * reserves its line in a listing, so names stay level whether or not a product
- * is tracked, and the editor previews the badge a figure will produce while it
- * is being typed. The refusal to sell an empty shelf (FR-STOCK-04) is
- * cart.spec's; the ordering (FR-STOCK-05) is api-e2e's.
- *
- * Read-only — the editor is opened and left without saving, as
- * catalog-editing.spec does.
+ * Availability on the storefront and in the editor (FR-STOCK-01/02/03), for
+ * what a test DOM cannot: the badge's reserved line keeps names level, and the
+ * editor previews the badge as typed. FR-STOCK-04 is cart.spec's, FR-STOCK-05
+ * api-e2e's. The editor is never saved.
  */
 
-/** The cups category: one product with a figure, one without — the mix the
- * reserved line exists for. */
+/** The cups category, one product with a figure and one without, as the
+ * reserved line needs. */
 const LISTING = '/catalog/cups';
 const TRACKED = 'Stoneware Cup Set (6)';
 const UNTRACKED = 'Latte Glass Set (6)';
@@ -34,9 +28,8 @@ async function logIn(page: Page): Promise<void> {
   await expect(page).toHaveURL(/\/admin$/);
 }
 
-/** The height of a card's badge slot — what the reserved line is, and what
- * keeps the names under it level. Measured rather than compared by position,
- * so the assertion holds on a phone, where the cards are one per row. */
+/** A card's badge slot height, keeping names level. Measured, not compared by
+ * position, so it holds on a phone's single column. */
 async function badgeSlot(page: Page, name: string): Promise<number> {
   const box = await page
     .locator('li')
@@ -56,8 +49,7 @@ test.describe('availability on the storefront', () => {
 
     const tracked = page.locator('li').filter({ hasText: TRACKED });
     await expect(tracked.getByText('In stock')).toHaveCount(1);
-    // The untracked product shows nothing at all — an empty state is not a
-    // state, and a deployment that enters no figures sees no badges anywhere.
+    // Untracked shows nothing, so a deployment without figures sees no badges.
     const untracked = page.locator('li').filter({ hasText: UNTRACKED });
     await expect(
       untracked.getByText(/In stock|Few left|Out of stock/),
@@ -76,7 +68,7 @@ test.describe('availability on the storefront', () => {
     await page.goto(`/product/${LOW_STOCK}`);
 
     await expect(page.getByText('Few left')).toBeVisible();
-    // Nothing is refused — "few left" restricts nothing (FR-STOCK-04).
+    // Nothing is refused: "few left" restricts nothing (FR-STOCK-04).
     await expect(
       page.getByRole('button', { name: 'Add to cart' }),
     ).toBeEnabled();

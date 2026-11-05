@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { requireEnv } from './env';
 
-// Mailpit's REST API (see compose.api-e2e.yml) — this suite's own email sink.
+// Mailpit's REST API (compose.api-e2e.yml): this suite's own email sink.
 const mailpit = axios.create({
   baseURL: `http://localhost:${requireEnv('MAILPIT_UI_PORT')}/api/v1`,
 });
@@ -13,19 +13,10 @@ export interface CaughtMessage {
 }
 
 /**
- * One inbox, many suites. Jest runs the api-e2e specs in parallel against a
- * single Mailpit, so a suite that lists (or clears) *all* messages sees another
- * suite's mail and fails on the count — the staff inbox in particular receives
- * both an inquiry and a registration notification.
- *
- * So everything here is scoped by a Mailpit search query (`to:`, `subject:`)
- * that only matches the calling suite's own mail. Never add an unscoped
- * `/messages` read or delete back in.
- *
- * Mailpit's query language is a flat AND of terms: **no `OR`, no parentheses**.
- * A parenthesised query does not error — it matches nothing, which turns a
- * "no mail was sent" assertion into one that always passes. Use several
- * single-scope queries instead of one combined one.
+ * One inbox, many parallel suites, so every query here is scoped (`to:`,
+ * `subject:`) to the caller's mail; never add an unscoped `/messages` read or
+ * delete. Mailpit's queries are a flat AND, no `OR` or parentheses: a
+ * parenthesised one matches nothing, so "no mail sent" always passes.
  */
 export async function messagesMatching(
   query: string,
@@ -34,8 +25,8 @@ export async function messagesMatching(
   return res.data.messages as CaughtMessage[];
 }
 
-/** The delivered body, as the recipient's client would receive both parts —
- * with whatever travelled alongside it (FR-ORD-05). */
+/** The delivered body, both parts and any attachment (FR-ORD-05), as the
+ * recipient's client gets them. */
 export async function messageBody(id: string): Promise<{
   HTML: string;
   Text: string;

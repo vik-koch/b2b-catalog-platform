@@ -45,7 +45,7 @@ describe('settings (maintenance toggle)', () => {
   });
 
   afterAll(async () => {
-    // The runs point at the token, so they go first — the FK is `restrict`.
+    // The runs point at the token, so they go first: the key restricts.
     await client.query('DELETE FROM sync_runs WHERE "tokenName" LIKE $1', [
       'e2e settings gate%',
     ]);

@@ -270,8 +270,8 @@ describe('Order documents over the machine endpoint (FR-ORD-05)', () => {
       expect(res.status).toBe(401);
     });
 
-    /** A document is a statement about an order, so it is the same pen that
-     * answers one — and a credential brought up to read orders has neither. */
+    /** A document states something about an order, so it takes the answering
+     * scope, which a read token lacks. */
     it('refuses an order-read token', async () => {
       const res = await supply(
         'IRRELEVANT',
@@ -340,8 +340,8 @@ describe('Order documents over the machine endpoint (FR-ORD-05)', () => {
       expect(Buffer.from(served.data).equals(bytes)).toBe(true);
     });
 
-    /** The whole reason documents stay outside the write-back (ADR 0051, ADR
-     * 0062): a file arriving says nothing new about the order. */
+    /** Why documents stay outside the write-back: a file arriving says nothing
+     * new about the order. */
     it('writes no version and files no run', async () => {
       const reference = await place();
       const before = await client.query(
@@ -360,9 +360,8 @@ describe('Order documents over the machine endpoint (FR-ORD-05)', () => {
       expect(after.rows[0].n).toBe(before.rows[0].n);
     });
 
-    /** A second file of the same kind is a reprint, not a second document —
-     * and it has never been sent, whatever was said about the one it
-     * replaces. */
+    /** A second file of a kind is a reprint, never sent, whatever was said of
+     * the one it replaces. */
     it('replaces a file of the same kind, and forgets it was sent', async () => {
       const reference = await place();
       const sent = await supply(
@@ -429,13 +428,9 @@ describe('Order documents over the machine endpoint (FR-ORD-05)', () => {
       expect(body.Attachments.map((a) => a.FileName)).toContain('Rechnung.pdf');
     });
 
-    /**
-     * The adapter's ordering rule, enforced rather than documented: supply the
-     * file *before* the version that announces it. A version held off the
-     * customer's page leaves them behind it, and a mail about a document they
-     * cannot open is refused — the file is still filed, which is what lets the
-     * exchange put that right by bringing them up to date.
-     */
+    /** The adapter's rule, enforced: the file before the version announcing
+     * it. A mail about a document the customer cannot open is refused, but
+     * the file stands, so the exchange can catch them up. */
     it('refuses to announce a document the customer page is behind', async () => {
       const reference = await place();
       const moved = await writeBack({
@@ -491,8 +486,8 @@ describe('Order documents over the machine endpoint (FR-ORD-05)', () => {
       expect(res.data.code).toBe('document-not-supplied');
     });
 
-    /** The panel is the other side of the switch: while the exchange may file
-     * documents, staff may not — one writer, whichever act it is. */
+    /** The panel's side of the switch: while the exchange files documents,
+     * staff may not. One writer. */
     it('closes the admin panel own upload at the same moment', async () => {
       const reference = await place();
       const form = new FormData();

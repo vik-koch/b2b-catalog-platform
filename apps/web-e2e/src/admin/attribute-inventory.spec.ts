@@ -3,10 +3,8 @@ import { localtestEnv } from '../support/localtest';
 
 const env = localtestEnv();
 
-/**
- * The attribute inventory (FR-ATTR-09) in a real browser — the parts of it that
- * are layout facts and so cannot be asserted in jsdom, which has no layout.
- */
+/** The attribute inventory (FR-ATTR-09) in a browser, for its layout facts,
+ * which jsdom cannot assert. */
 
 async function logIn(page: Page): Promise<void> {
   await page.goto('/login');
@@ -19,11 +17,9 @@ async function logIn(page: Page): Promise<void> {
 test('the values placeholder is the exact size of the rows it stands in for', async ({
   page,
 }) => {
-  // The whole point of shaping it after a value row: the list must not resize
-  // when the values land. A value row is two lines — what it is, then what can
-  // be done to it — and the second is a row of touch-sized glyphs, so a block
-  // of bars standing in for the first one alone falls short by half a row and
-  // everything below shifts.
+  // Shaped like a value row so nothing resizes when values land: two lines,
+  // the second touch-sized glyphs, so one bar alone would fall half a row
+  // short.
   await logIn(page);
 
   let release: (() => void) | undefined;
@@ -54,11 +50,9 @@ test('the values placeholder is the exact size of the rows it stands in for', as
 });
 
 test('a key handed in the URL arrives open and in view', async ({ page }) => {
-  // How every screen that names an attribute gets here — the filterable
-  // attribute's own value count, the product grid's key. Opening the row is
-  // half the answer: the list is alphabetical, so the row is usually far below
-  // the fold, and a screen that scrolled to the top would look like the wrong
-  // one.
+  // How screens naming an attribute get here (its value count, the grid's
+  // key). The row must open and scroll into view: alphabetical, it is often
+  // far below the fold.
   await logIn(page);
 
   await page.goto('/admin/attributes/inventory');
@@ -69,12 +63,12 @@ test('a key handed in the URL arrives open and in view', async ({ page }) => {
 
   await page.goto(`/admin/attributes/inventory?key=${encodeURIComponent(key)}`);
 
-  // By name: the row now carries two controls that open the panel — the
-  // chevron on the key, and the value count beside it.
+  // By name: two controls open the panel, the key's chevron and the value
+  // count.
   const row = page.locator(`li[id="${id}"]`);
   await expect(
     row.getByRole('button', { name: key, expanded: true }),
   ).toBeVisible();
-  // In view, not merely rendered — the point of the anchor.
+  // In view, not merely rendered: the anchor's point.
   await expect(row).toBeInViewport();
 });

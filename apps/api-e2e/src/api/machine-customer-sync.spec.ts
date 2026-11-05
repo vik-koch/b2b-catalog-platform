@@ -6,22 +6,12 @@ import { deleteMatching, messagesMatching } from '../support/mailpit';
 import { readFileSync } from 'node:fs';
 
 /**
- * The headless customer exchange (FR-ADM-11) end to end.
- *
- * What is worth proving against a real stack rather than in a unit test is
- * everything the differ cannot see: that a catalog credential cannot reach
- * this route at all, that the exchange is refused unless somebody has handed
- * customer accounts over, that an account it asks for arrives `invited` with no
- * password anybody holds (FR-ADM-13), that a run taking access away waits for a
- * person, that the person who may answer it is a manager as well as an admin,
- * and that what the admin is written to about it is worded about accounts
- * rather than about the catalog (FR-NOTIF-09) — which is the one part of the
- * notification that a unit test proves only for a notifier it constructs
- * itself, never for the service that has to call it.
- *
- * Isolation: every account this spec touches carries its own source key and
- * address, and the one global thing it moves — the ownership switch — is put
- * back in `afterAll`, as the catalog's machine spec does.
+ * The headless customer exchange (FR-ADM-11), end to end, for what the differ
+ * cannot see: a catalogue token cannot reach it; it is refused unless handed
+ * over; a new account arrives `invited` without a password (FR-ADM-13); a run
+ * taking access waits for an admin or manager; the admin's mail speaks of
+ * accounts (FR-NOTIF-09). Its accounts are its own, and the ownership switch is
+ * put back in `afterAll`.
  */
 
 const ADMIN_EMAIL = 'e2e-machine-customers-admin@example.com';
@@ -267,17 +257,9 @@ describe('Headless customer exchange (FR-ADM-11)', () => {
       expect(res.data.plan.summary).toMatchObject({ unchanged: 1, update: 0 });
     });
 
-    /**
-     * A customer book is submitted as one body, and the enlarged parser that
-     * makes that possible is mounted on the URL rather than on a Nest route —
-     * so it is mounted on a *list* of paths, and the customer one was once
-     * missing from it. Every other test here sends a handful of rows and would
-     * pass with the 100 kB default in force.
-     *
-     * The rows name keys nothing has and ask for nothing, so the run is a
-     * no-change and no account is written: what is under test is the request
-     * being read at all.
-     */
+    /** A customer book is one body, read by the large parser mounted on a
+     * list of URLs; other tests would pass at the 100 kB default. The rows
+     * change nothing: only the reading is tested. */
     it('accepts a submission far larger than the default body limit', async () => {
       const rows = Array.from({ length: 4000 }, (_, i) => ({
         sourceId: `${SOURCE_PREFIX}-bulk-${i}`,
@@ -395,12 +377,9 @@ describe('Headless customer exchange (FR-ADM-11)', () => {
     });
 
     describe('claiming an account somebody registered here (FR-ADM-17)', () => {
-      /**
-       * The deadlock this closes. Somebody signs up on the storefront while
-       * the area is owned: the account has no source key, so nothing the
-       * exchange sends can reach it, and staff actions on customers are
-       * refused whole — nobody on either side can approve them.
-       */
+      /** The deadlock this closes: a sign-up while the area is owned has no
+       * key the exchange can reach, and staff are refused, so nobody can
+       * approve it. */
       const selfRegistered = address(90);
 
       beforeAll(async () => {
@@ -470,7 +449,7 @@ describe('Headless customer exchange (FR-ADM-11)', () => {
         expect(applied.status).toBe(200);
 
         const account = await accountByKey(key(90));
-        // The same row, now reachable by key — not a second account beside it.
+        // The same row, now reachable by key, not a second account.
         expect(account).toMatchObject({
           email: selfRegistered,
           status: 'invited',
@@ -494,8 +473,8 @@ describe('Headless customer exchange (FR-ADM-11)', () => {
     });
 
     describe('claiming by the account identifier (FR-ADM-17)', () => {
-      /** An account that registered here and was never keyed — the only kind
-       * a claim can reach, and the only kind the outward read exists for. */
+      /** An account registered here and never keyed: the only kind a claim
+       * reaches, and the outward read is for. */
       const registered = address(91);
       let accountId: string;
 
@@ -616,9 +595,8 @@ describe('Headless customer exchange (FR-ADM-11)', () => {
         expect(res.data.run).not.toHaveProperty('actorEmail');
       });
 
-      /** The scope is the boundary here as it is on the write routes — and a
-       * run of another area is *missing*, not refused: that a customer run
-       * exists is not something a catalog credential is owed. */
+      /** The scope bounds this as on the writes, and another area's run is
+       * missing, not refused: a catalogue token is owed nothing of it. */
       it('hides a customer run from a catalog credential', async () => {
         const run = await submit({
           rows: [{ sourceId: key(71), email: address(71), access: 'enabled' }],

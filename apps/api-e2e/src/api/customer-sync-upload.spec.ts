@@ -4,20 +4,11 @@ import { Client } from 'pg';
 import { requireEnv } from '../support/env';
 
 /**
- * The manual customer import (FR-ADM-12) end to end.
- *
- * What is worth proving against a real stack rather than in a unit test: that
- * the upload is an admin's and a manager cannot reach it, that a file goes
- * through the same staged run → commit the exchange does, that the accounts it
- * creates arrive `invited` with no password anybody holds (FR-ADM-13), that a
- * bad cell skips its row without failing the file, and that the whole screen is
- * closed while an external system owns customer accounts (FR-ADM-10) — both
- * when the file goes up and, for a file that went up before, when it is
- * applied.
- *
- * Isolation: every account carries this run's own source key and address, and
- * the one global thing the spec moves — the ownership switch — is put back in
- * `afterAll`.
+ * The manual customer import (FR-ADM-12), end to end: admins only; staged and
+ * committed like the exchange; accounts arrive `invited` without a password
+ * (FR-ADM-13); a bad cell skips its row; closed while accounts are owned
+ * (FR-ADM-10), on upload and apply. Its accounts are its own; the switch goes
+ * back in `afterAll`.
  */
 
 const ADMIN_EMAIL = 'e2e-customer-upload-admin@example.com';
@@ -65,7 +56,7 @@ describe('Manual customer import (FR-ADM-12)', () => {
       { headers: { Cookie: cookie }, validateStatus: () => true },
     );
 
-  /** Upload and immediately apply — the ordinary admin flow. */
+  /** Upload and apply at once: the ordinary admin flow. */
   async function run(csv: string, options?: Record<string, unknown>) {
     const previewed = await preview(csvForm(csv, options));
     expect(previewed.status).toBe(201);

@@ -11,9 +11,8 @@ import { localtestDbClient } from '../support/localtest';
 
 const PASSWORD = 'e2e-account-password';
 
-// A phone number is stored unmasked — country code plus bare national digits —
-// and grouped by the deployment's mask only when it is read back. Seeding the
-// stored form and asserting the displayed one is what proves the pair agree.
+// A phone number is stored unmasked (code and bare digits) and grouped by the
+// mask when read: seeding one form and asserting the other proves both agree.
 const DETAILS = {
   firstName: 'Alex',
   lastName: 'Fischer',
@@ -107,8 +106,7 @@ test.describe('my account', () => {
     // this assertion is about the record.
     const details = page.getByRole('definition');
     await expect(details.getByText(email)).toBeVisible();
-    // Family name first, no comma — the one rule every screen composes a name
-    // by, so the record reads the same way the order it placed does.
+    // Family name first, no comma, as on every screen and order.
     await expect(
       details.getByText(`${DETAILS.lastName} ${DETAILS.firstName}`),
     ).toBeVisible();
@@ -142,8 +140,7 @@ test.describe('my account', () => {
     await page.getByLabel('First name').fill('Alexa');
     await page.getByRole('button', { name: 'Save changes' }).click();
 
-    // Straight back to the record — the new values are the confirmation, so
-    // there is no notice to dismiss.
+    // Straight back to the record: the new values confirm, no notice.
     await expect(page).toHaveURL(/\/account$/);
     await expect(
       page.getByRole('definition').getByText('Fischer Alexa'),
@@ -180,7 +177,7 @@ test.describe('my account', () => {
     ).toBeVisible();
     await expect(page.getByText('20359 Hamburg')).toBeVisible();
 
-    // Removing is confirmed first — the only destructive thing on the card.
+    // Removing is confirmed first: the card's only destructive act.
     // The row's bin is a glyph; the address is its accessible name.
     await page.getByRole('button', { name: 'Remove Hafenstraße 12' }).click();
     const dialog = page.getByRole('dialog', { name: 'Remove address' });

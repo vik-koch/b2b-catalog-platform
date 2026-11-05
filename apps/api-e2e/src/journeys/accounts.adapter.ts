@@ -11,16 +11,10 @@ import { ACCOUNT_PROBES as reading } from './account-probe-labels';
 import { consentVersion } from '../support/consent';
 
 /**
- * What an account journey acts on and reads — the accounts half of the journey
- * facility (`support/journey/journey.ts`), which knows nothing about accounts
- * any more than it knows about orders.
- *
- * The questions here are the ones no single-endpoint test answers: what an
- * account holder is told across a whole sequence of staff decisions, and
- * whether the password they chose still opens the account afterwards. Both are
- * accumulated facts, and both are easy to break from a long way away — a
- * deactivation that retires a credential is invisible until somebody switches
- * the account back on a month later.
+ * What an account journey acts on and reads, for the journey facility
+ * (`support/journey/journey.ts`): what a holder is told across staff
+ * decisions, and whether their password still opens the account. A
+ * deactivation that retires a credential shows only a month later.
  */
 
 export interface AccountJourneyContext {
@@ -33,16 +27,9 @@ export interface AccountJourneyContext {
   /** Resolved from the email on first use and kept: an account keeps its id
    * through every status it has. */
   id?: string;
-  /**
-   * The newest set-a-password link that arrived, captured by the mail probe as
-   * it reads the inbox.
-   *
-   * Stashed rather than fetched on demand, because the inbox is drained at the
-   * end of every step: by the time a journey says "and they choose a
-   * password", the message that carried the link is gone. Taking the link from
-   * the mail that actually arrived is also the stronger check — a journey
-   * cannot set a password through a link the shop never sent.
-   */
+  /** The newest password link, captured by the mail probe: the inbox drains
+   * each step, and a link from the mail that arrived proves the shop sent
+   * it. */
   link?: string;
 }
 
@@ -71,16 +58,9 @@ async function ok(res: Promise<AxiosResponse>): Promise<AxiosResponse> {
   return done;
 }
 
-/**
- * The account as staff see it. Found the way a manager finds it — by typing
- * the address into the list's own search — until it has an id, and by id from
- * then on: closing an account rewrites its email (FR-AUTH-06), so a journey
- * that kept searching for the address would lose the row exactly where it most
- * wants to read it.
- *
- * `null` where there is no row at all, which is what declining a registration
- * leaves behind and nothing else does.
- */
+/** The account as staff see it: by the list's search, as a manager finds it,
+ * then by id, as closing rewrites the email (FR-AUTH-06). `null` without a
+ * row: what declining leaves. */
 const account = (ctx: AccountJourneyContext, cache: Map<string, unknown>) =>
   cached(cache, 'account', async () => {
     if (ctx.id) {
@@ -107,7 +87,7 @@ const account = (ctx: AccountJourneyContext, cache: Map<string, unknown>) =>
     return found ?? null;
   });
 
-/** The id, for the actions — which act on an account rather than read one. */
+/** The id, for the actions, which act on an account. */
 async function idOf(ctx: AccountJourneyContext): Promise<string> {
   if (ctx.id) return ctx.id;
   await account(ctx, new Map());
@@ -115,11 +95,8 @@ async function idOf(ctx: AccountJourneyContext): Promise<string> {
   return ctx.id;
 }
 
-/**
- * The deployment's own wording, used to recognise mail rather than to assert on
- * it: a reworded template must not fail these specs. What they are about is
- * *which* message arrived — and, more often, that none did.
- */
+/** The deployment's wording, to recognise mail, not assert on it: these
+ * specs ask which message arrived, or that none did. */
 const mailText = (
   JSON.parse(readFileSync(configFile('texts/mail.json'), 'utf8')) as {
     accounts: Record<string, { heading?: string }>;
@@ -141,16 +118,9 @@ const marker = (waiting: boolean) => (waiting ? '🟡' : '—');
 const tokenIn = (text: string): string | undefined =>
   /\/set-password\?token=([\w-]+)/.exec(text)?.[1];
 
-/**
- * The newest link sitting in the inbox, for the steps the mail probe never
- * saw.
- *
- * A journey's precondition runs without probes — it is setup, and asserting it
- * would be asserting somebody else's journey — so a `from` that approves an
- * account and then opens its link has nothing stashed. The inbox is left as it
- * is: `begin` drains it when it takes the first reading, which is exactly
- * where setup mail is supposed to go.
- */
+/** The newest link in the inbox, for steps the probe never saw: setup runs
+ * without probes, so nothing is stashed. `begin` drains the inbox at its
+ * first reading. */
 async function linkInInbox(
   ctx: AccountJourneyContext,
 ): Promise<string | undefined> {
@@ -188,13 +158,8 @@ const probes: Record<string, Probe<AccountJourneyContext>> = {
       return tiers.find((tier) => tier.id === row.tierId)?.key ?? 'unknown';
     },
   },
-  /**
-   * Whether the password actually opens the account — asked, not inferred.
-   *
-   * This is the reading the whole deactivation half of these journeys exists
-   * for: a status says an account is back, and only a sign-in says its owner
-   * can get in without being sent anything.
-   */
+  /** Whether the password opens the account, asked, not inferred: only a
+   * sign-in shows a reactivated owner gets in. */
   signsIn: {
     label: reading.signsIn.label,
     read: async (ctx) => {
@@ -267,8 +232,8 @@ const actions: JourneyAdapter<AccountJourneyContext>['actions'] = {
       );
     },
   },
-  /** Staff creating an account nobody applied for — a colleague, or a
-   * customer the shop already deals with off the platform. */
+  /** Staff creating an unrequested account: a colleague, or a customer known
+   * off the platform. */
   createByStaff: {
     label: 'creates the account',
     run: async (ctx, args) => {
@@ -290,11 +255,8 @@ const actions: JourneyAdapter<AccountJourneyContext>['actions'] = {
       );
     },
   },
-  /**
-   * Approving a registration (FR-AUTH-03). The price group is required and
-   * explicit — there is no default tier — so a journey either names one or
-   * says `null`, which is the base price list and a deliberate answer.
-   */
+  /** Approving a registration (FR-AUTH-03): the price list is explicit, named
+   * or `null` for the base list. */
   approve: {
     label: 'approves the registration',
     run: async (ctx, args) => {

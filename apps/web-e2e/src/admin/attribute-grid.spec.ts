@@ -9,20 +9,10 @@ const ADMIN_EMAIL = env['ADMIN_EMAIL'];
 const ADMIN_PASSWORD = env['ADMIN_PASSWORD'];
 
 /*
- * The product attribute grid (FR-CAT-05, FR-ATTR-10) in a real browser.
- *
- * Everything else about the grid is unit-tested, but its hardest bugs are not
- * reachable from jsdom: they are what Chrome does to a `contenteditable` table
- * when a selection escapes the cell it began in. Left alone, typing over such a
- * selection writes into the *key* column and can take a whole row with it. So
- * these tests make the selection with a real mouse drag.
- *
- * Desktop only: under touch emulation a mouse drag makes no selection at all
- * (the pointer just moves the caret), so there is nothing here to test — a
- * touch selection is made by long-press and handles, a different interaction.
- *
- * Deliberately never saves — like the other admin specs, the suite shares one
- * database with specs that assert seeded state.
+ * The attribute grid (FR-CAT-05, FR-ATTR-10) in a browser, for what Chrome does
+ * to a `contenteditable` table when a selection escapes its cell: typing over
+ * it writes into the key column. So a real mouse drag. Desktop only, as touch
+ * selects by long-press; never saves.
  */
 
 const product = productSeeds.find((p) => p.attributes.length > 1);
@@ -155,9 +145,8 @@ test.describe('the product attribute grid', () => {
   test('a drag past the row badges stays inside the value cell', async ({
     page,
   }) => {
-    // The status badge is positioned over the value cell, but its DOM belongs
-    // to the action cell — inside the editable host. Without `select-none` the
-    // selection anchors there and the row's controls join the selection.
+    // The badge sits over the value cell but lives in the action cell, inside
+    // the host: without `select-none` the row's controls join the selection.
     await dragBetween(
       page,
       { cell: cell(page, 0, 1), at: 0.1 },

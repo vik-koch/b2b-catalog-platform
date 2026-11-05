@@ -10,19 +10,10 @@ import {
 import { syncJourneys } from '../journeys/sync.journeys';
 
 /**
- * An automated catalog feed, walked run by run (FR-ADM-07/09, FR-WORK-02).
- *
- * `machine-sync.spec.ts` asks what one submission does: whether the policy
- * stops it applying itself, whether an admin can then apply or discard it,
- * whether the two credentials can borrow each other's way in. This suite asks
- * what the shop *experiences* across several of them — what lands in the
- * admin's inbox at each step, which is usually nothing, and what the panel
- * says is waiting while it happens.
- *
- * The journeys are data (`journeys/sync.journeys.ts`) and are also what
- * `docs/catalog-sync.md` is generated from. Every step asserts the whole
- * observable state: a reading nobody mentioned is asserted unchanged, and a
- * mail nobody declared fails the step that sent it.
+ * A catalogue feed, run by run (FR-ADM-07/09, FR-WORK-02): what reaches the
+ * admin's inbox each step, mostly nothing, and what the panel says waits. The
+ * journeys (`journeys/sync.journeys.ts`) also generate `docs/catalog-sync.md`;
+ * an undeclared mail fails its step.
  */
 
 const R = Date.now().toString(36);
@@ -71,16 +62,14 @@ describe('an automated catalog feed', () => {
     );
     token = issued.data.token;
 
-    // The machine route only accepts a run while the catalog is externally
-    // owned (FR-ADM-10), and the setting is global — which is why this suite
-    // runs with the file parallelism off, like the ownership one.
+    // The machine route takes a run only while the catalogue is owned
+    // (FR-ADM-10); a global setting, so file parallelism is off.
     await setCatalogOwned(true);
 
     // Where the feed stands is read off the run before this one, and this
     // database has a history: a leftover failed run would make the journeys'
-    // first export a recovery. One empty submission normalises that without
-    // deleting anybody's records — it changes no product and is recorded as
-    // the `no-change` it is.
+    // first export a recovery. One empty submission normalises that, changing
+    // no product: a `no-change`.
     await axios.post(
       '/machine/sync/runs',
       { rows: [], label: 'journey-baseline' },

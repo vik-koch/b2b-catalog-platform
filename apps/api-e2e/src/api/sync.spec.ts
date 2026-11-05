@@ -4,16 +4,11 @@ import { Client } from 'pg';
 import { requireEnv } from '../support/env';
 
 /**
- * The bulk catalog sync (FR-ADM-02, ADR 0026), end-to-end against the real API
- * and database: auth guards, CSV parsing at the edge, the staged
- * preview → commit flow in a transaction, category creation, restore, and the
- * option gate on deletion.
- *
- * Isolation: every product this spec creates lives under a category it creates
- * itself, and all of it is removed in afterAll. The one catalog-wide operation —
- * the delete sweep — is only ever *previewed* here, never committed, because
- * committing it would soft-delete the seeded catalog the storefront specs count.
- * The sweep's rules are covered exhaustively by the differ's unit tests.
+ * The catalogue sync (FR-ADM-02) against the real API and database: guards,
+ * CSV parsing, preview and commit in a transaction, categories, restore and
+ * the deletion gate. Everything lives under this spec's own category and goes
+ * in afterAll. The delete sweep is only previewed, as committing it would hide
+ * the seeded catalogue; its rules are unit-tested.
  */
 
 const ADMIN_EMAIL = 'e2e-sync-admin@example.com';
@@ -72,7 +67,7 @@ describe('Catalog sync (FR-ADM-02)', () => {
       validateStatus: () => true,
     });
 
-  /** Preview and immediately commit — the ordinary admin flow. */
+  /** Preview and commit at once: the ordinary admin flow. */
   async function run(csv: string, options?: Record<string, unknown>) {
     const previewed = await preview(csvForm(csv, options));
     expect(previewed.status).toBe(201);
@@ -96,9 +91,9 @@ describe('Catalog sync (FR-ADM-02)', () => {
     return rows[0];
   };
 
-  /** A product's overrides, keyed by tier key — what a customer would be charged. */
-  /** Every list that prices a product except the storefront's own, which is
-   * read as `priceMinor` — the same split the product editor shows. */
+  /** A product's overrides by tier key: what a customer is charged. */
+  /** Every list pricing a product but the storefront's, read as
+   * `priceMinor`, as the editor splits them. */
   const tierPricesOf = async (sourceId: string) => {
     const { rows } = await client.query(
       `SELECT t.key, pp."priceMinor" FROM product_prices pp
@@ -270,9 +265,8 @@ describe('Catalog sync (FR-ADM-02)', () => {
     });
 
     it('creates products unpublished and never unpublishes a live one', async () => {
-      // An imported product carries a price whose basis nobody has set, so it
-      // waits for a human (FR-ADM-06) — and the next run of the same file must
-      // not take a reviewed product back off the storefront.
+      // An imported product waits for a person (FR-ADM-06), and the next run
+      // must not take a reviewed one off the storefront.
       const sourceId = `${SOURCE_PREFIX}-publication`;
       const row = (price: number) =>
         [
@@ -375,7 +369,7 @@ describe('Catalog sync (FR-ADM-02)', () => {
 
       expect(await productBySourceId(`${SOURCE_PREFIX}-1`)).toMatchObject({
         name: 'Sync Beans Reserve',
-        // Unchanged: a moved URL breaks links (ADR 0022).
+        // Unchanged: a moved URL breaks links.
         slug: 'sync-beans',
       });
     });
@@ -470,8 +464,8 @@ describe('Catalog sync (FR-ADM-02)', () => {
       const swept = res.data.plan.products.filter(
         (p: { kind: string }) => p.kind === 'softDelete',
       );
-      // The seeded catalog is absent from this file, so it is all in the sweep —
-      // which is exactly why the preview exists before a commit.
+      // The seeded catalogue is missing from this file, so all of it is in the
+      // sweep: why a preview comes first.
       expect(swept.length).toBe(res.data.plan.summary.softDelete);
       // Nothing was written.
       expect(await productBySourceId(`${SOURCE_PREFIX}-2`)).toMatchObject({
@@ -547,9 +541,8 @@ describe('Catalog sync (FR-ADM-02)', () => {
     });
 
     it('never untracks a product through an empty cell', async () => {
-      // The rename is what makes this a run at all — a file that changed
-      // nothing would never be applied — and the empty stock cell beside it is
-      // what the test is about.
+      // The rename makes it a run, as a no-change file is never applied; the
+      // empty stock cell is what is tested.
       await run(`sourceId,name,stock\n${sourceId},Stocked Beans Kept,\n`);
 
       // Absent is not empty, here as everywhere else in a sync row.
@@ -693,7 +686,7 @@ describe('Catalog sync (FR-ADM-02)', () => {
       expect(change.changes).toEqual([
         { field: `price:${TIER_KEY}`, from: 1400, to: 1300 },
       ]);
-      // Previewed only — nothing committed, so the stored price has not moved.
+      // Previewed only, so the stored price has not moved.
       expect(await tierPricesOf(sourceId)).toEqual({ [TIER_KEY]: 1400 });
     });
 

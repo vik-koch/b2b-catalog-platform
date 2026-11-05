@@ -1,14 +1,8 @@
 import { expect, Page, test } from '@playwright/test';
 
-/**
- * FR-ATTR-04…07. The panel itself is unit-tested; what only a browser can show
- * is the round trip — a tick reaches the URL, the URL is what the server reads
- * back, and the document a crawler is handed says which URL the content really
- * lives at.
- *
- * `/catalog/filter` is the seeded scope: three products, one Origin each
- * (Colombia, Ethiopia, Kenya) and a Roast level shared by two of them.
- */
+/** FR-ATTR-04…07: a tick reaches the URL, the server reads it back, and a
+ * crawler's document names the canonical URL. `/catalog/filter` has three
+ * products, one Origin each, a Roast level on two. */
 
 /** Product tiles, by the one thing every tile has: a link to its product. */
 const tiles = (page: Page) => page.locator('li:has(a[href^="/product/"])');
@@ -68,9 +62,8 @@ test('restores a shared filtered link, ticked, and clears it again', async ({
   const panel = await openFilters(page, isMobile);
   await expect(panel.getByRole('checkbox', { name: 'Kenya' })).toBeChecked();
 
-  // Beside the panel rather than inside it — it undoes what the panel holds,
-  // so on a phone it cannot live in the part that closes. Only one of its two
-  // copies (column heading, disclosure row) is ever on screen.
+  // Beside the panel, as it undoes it and a phone's panel closes; one of its
+  // two copies shows.
   await page
     .getByRole('button', { name: 'Clear all filters' })
     .locator('visible=true')
@@ -130,9 +123,8 @@ test('points a filtered listing at the plain category (NFR-SEO-04)', async ({
 }) => {
   await page.goto('/catalog/filter?attr=origin:Kenya&sort=price_desc&page=1');
 
-  // The combination of filters, sort and page is a lens on one category, and
-  // filters make the URL space combinatorial — so every variant declares the
-  // bare category as the content's real address.
+  // Filters, sort and page view one category, so every variant names the bare
+  // category as canonical.
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
     'href',
     /\/catalog\/filter$/,
@@ -144,9 +136,8 @@ test('leaves search results without one, being noindex already', async ({
 }) => {
   await page.goto('/search?q=espresso');
 
-  // A view that has excluded itself needs no preferred URL — and a deployment
-  // that is itself non-indexable adds a robots meta of its own, so the count is
-  // the assertion, not the tag.
+  // A self-excluded view needs no canonical, and a non-indexed deployment adds
+  // its own robots meta: the count is asserted.
   await expect(page.locator('meta[name="robots"]').first()).toHaveAttribute(
     'content',
     /noindex/,

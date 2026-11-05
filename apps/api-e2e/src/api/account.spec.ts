@@ -23,19 +23,16 @@ const patch = (url: string, cookie: string | undefined, body: unknown) =>
     validateStatus: () => true,
   });
 
-/** The whole editable set — `updateProfile` carries all of it, so a test about
- * one field still has to send the rest. */
+/** The whole editable set: `updateProfile` takes all of it, so each test sends
+ * the rest. */
 const edits = () => ({
   firstName: 'Jane',
   lastName: 'Doe',
   phone: '+494076543210',
 });
 
-/**
- * The account holder's own record. The point of the endpoint is what it does
- * *not* say: a customer must not learn their pricing tier from it (ADR 0031),
- * whatever the staff view of the same row carries.
- */
+/** The holder's own record, and what it does not say: never their price
+ * list, whatever staff see. */
 describe('/account/profile', () => {
   let client: Client;
   let customerCookie: string;
@@ -316,8 +313,8 @@ describe('/account/profile', () => {
          FROM users WHERE id = $1`,
         [leaverId],
       );
-      // The row survives — it is an FK target for the audit trail and for
-      // orders, which are anonymized rather than deleted.
+      // The row survives as the target of trails and orders: anonymized, not
+      // deleted.
       expect(rows[0]).toEqual({
         status: 'anonymized',
         email: `deleted-${leaverId}@deleted.invalid`,
@@ -396,9 +393,8 @@ describe('/account/profile', () => {
       expect(messages[0].Subject).toContain('deleted');
     });
 
-    /** The other half (FR-NOTIF-08): the shop is told, and told what the
-     * closure left behind — the orders stay, and any still open is now theirs
-     * to settle with somebody they can no longer look up. */
+    /** The other half (FR-NOTIF-08): the shop is told what the closure left,
+     * open orders to settle with somebody unreachable. */
     it('tells the shop, naming the account that is now gone', async () => {
       await remove(leaverCookie, PASSWORD);
 
@@ -409,12 +405,11 @@ describe('/account/profile', () => {
       expect(messages[0].Subject).toContain('closed');
     });
 
-    // The last-admin refusal is *not* tested here: making an account the last
-    // admin means disabling every other one, and the suite is parallel — it
-    // would pull the rug from under whatever else is signed in as an admin.
+    // No last-admin case here: that means disabling every other admin under
+    // the parallel suites.
     // AccountDeletion's own spec covers the rule.
 
-    // Staff leave like anyone else — the last-admin rule is the only limit.
+    // Staff leave like anyone else; the last-admin rule is the only limit.
     it('lets a manager delete their own account', async () => {
       await client.query(`UPDATE users SET role = 'manager' WHERE id = $1`, [
         leaverId,

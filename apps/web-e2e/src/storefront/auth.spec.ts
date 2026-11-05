@@ -1,17 +1,16 @@
 import { expect, Page, test } from '@playwright/test';
 import { localtestEnv } from '../support/localtest';
 
-// The bootstrap-admin one-shot creates this account on `up`, from
-// the same values compose interpolates — so the spec can't drift from the stack.
+// The bootstrap-admin one-shot creates this account on `up` from the values
+// compose interpolates, so the spec cannot drift from the stack.
 const env = localtestEnv();
 const ADMIN_EMAIL = env['ADMIN_EMAIL'];
 const ADMIN_PASSWORD = env['ADMIN_PASSWORD'];
 
 // The navbar account control is a plain link in both states, and its label
 // says which: "Account" once signed in, "Log in" while signed out. Both labels
-// are in the DOM so the two can cross-fade, but only the current one is in the
-// accessible name — which is the visible text on desktop and
-// screen-reader-only on mobile.
+// are in the DOM to cross-fade, but only the current one names it: visible on
+// desktop, screen-reader-only on mobile.
 //
 // The label is matched at the *end* of the name rather than as the whole of
 // it: once something awaits the account, the marker's spoken label joins the
@@ -22,9 +21,8 @@ const ADMIN_PASSWORD = env['ADMIN_PASSWORD'];
 const accountLink = (page: Page, label: string) =>
   page.getByRole('link', { name: new RegExp(`${label}$`) });
 
-// /login is client-rendered, so the form only exists once Angular has built it
-// — Playwright's auto-waiting covers that, and there is no server-rendered DOM
-// for a client-side rebind to type over.
+// /login is client-rendered: Playwright waits for Angular's form, and no
+// server DOM is there to type over.
 async function logIn(page: Page, password = ADMIN_PASSWORD): Promise<void> {
   await page.getByLabel('Email').fill(ADMIN_EMAIL);
   await page.getByLabel('Password').fill(password);
@@ -95,7 +93,7 @@ test('keeps the session across a full page load', async ({ page }) => {
   await expect(page).toHaveURL(/\/admin$/);
 
   // The cookie is httpOnly, so this proves the browser sends it and /auth/me
-  // rebuilds the session — not that anything was stashed in page JavaScript.
+  // rebuilds the session, not page JavaScript.
   await page.reload();
 
   await expect(page.locator('h1')).toHaveText('Admin panel');

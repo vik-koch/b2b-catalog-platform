@@ -10,20 +10,10 @@ import {
 import { customerSyncJourneys } from '../journeys/customer-sync.journeys';
 
 /**
- * The customer exchange, walked account by account (FR-ADM-11/13/15/17,
- * FR-NOTIF-09, FR-WORK-02).
- *
- * `machine-customer-sync.spec.ts` asks what one submission does: whether a
- * catalog token can reach the route, whether the exchange is refused while
- * nobody has handed accounts over, what a single row means. This suite asks
- * what the *account* experiences across several runs — whether anybody can
- * sign into it at each point, what reached its owner, and what reached the
- * shop, which is usually nothing.
- *
- * The journeys are data (`journeys/customer-sync.journeys.ts`) and are also
- * what `docs/customer-sync.md` is generated from. Every step asserts the whole
- * observable state: a reading nobody mentioned is asserted unchanged, and a
- * mail nobody declared fails the step that sent it.
+ * The customer exchange, account by account (FR-ADM-11/13/15/17, FR-NOTIF-09,
+ * FR-WORK-02): across runs, who can sign in, what reached the owner and the
+ * shop, mostly nothing. The journeys (`journeys/customer-sync.journeys.ts`)
+ * also generate `docs/customer-sync.md`; an undeclared mail fails its step.
  */
 
 const R = Date.now().toString(36);
@@ -83,16 +73,14 @@ describe('the customer exchange', () => {
     );
     tierKey = tiers.rows[0].key;
 
-    // The machine route only accepts a run while customer accounts are
-    // externally owned (FR-ADM-10), and the setting is global — which is why
-    // this suite runs with the file parallelism off, like the catalog one.
+    // The machine route takes a run only while accounts are owned
+    // (FR-ADM-10); a global setting, so file parallelism is off.
     await setCustomersOwned(true);
 
     // Where the exchange stands is read off the run before this one, and this
     // database has a history: a leftover failed run would make the journeys'
-    // first submission a recovery. One empty submission normalises that
-    // without touching anybody's account — it is recorded as the `no-change`
-    // it is.
+    // first submission a recovery. One empty submission normalises that,
+    // touching no account: a `no-change`.
     await axios.post(
       '/machine/sync/customers/runs',
       { rows: [], label: 'journey-baseline' },

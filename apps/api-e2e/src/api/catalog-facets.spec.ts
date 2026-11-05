@@ -210,9 +210,8 @@ describe('Storefront attribute facets (FR-ATTR-04…07)', () => {
         facet(facets, lengthSlug)?.values.map((v) => v.value),
       ).not.toContain('ca. 30');
 
-      // Shown with its declared unit and exactly as it was typed — and with no
-      // filterSlug (FR-ATTR-08): the server only offers a link where a facet
-      // would actually carry the value, which this one is not.
+      // With its unit, as typed, and no filterSlug (FR-ATTR-08): a link only
+      // where a facet carries the value.
       const product = await get(`/catalog/products/e2e-facet-${R}-green-ca`);
       expect(product.data.attributes).toContainEqual({
         key: LENGTH,

@@ -6,8 +6,8 @@ import { defineConfig } from 'vitest/config';
 import tsconfigPaths from 'vite-tsconfig-paths';
 
 // The suite's own stack (ports, database, inbox, media dir) is the one Nx
-// hands `api:serve-e2e`. Nx loads only `.env` for this target, so lay the same
-// file over it here — before the global setup and the workers read process.env.
+// hands `api:serve-e2e`. Nx loads only `.env` for this target, so the same file
+// is laid over it here, before the global setup and workers read process.env.
 const e2eStack = parseEnv(
   readFileSync(join(__dirname, '../../.env.serve-e2e'), 'utf8'),
 );
@@ -30,26 +30,15 @@ export default defineConfig({
     setupFiles: ['./src/support/test-setup.ts'],
     include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
     reporters: ['default'],
-    // Vitest's 5s default is a unit-test budget. These specs are HTTP round
-    // trips against a real API, Postgres and SMTP, and the auth-heavy ones
-    // deliberately hash passwords with argon2 — so on a machine with enough
-    // cores to run many workers at once, they queue behind each other on one
-    // API process and blow a 5s deadline while being perfectly correct. Slow is
-    // not wrong here; a test that genuinely hangs still fails, just later.
+    // Vitest's 5s default is a unit budget. These are round trips to a real
+    // API, Postgres and SMTP, hashing with argon2, queued on one API process: a
+    // hang still fails, later.
     testTimeout: 30_000,
     hookTimeout: 30_000,
-    // One file at a time. These specs share one API process and one database,
-    // and two of the things under test are *global* runtime settings —
-    // maintenance mode and external data ownership (FR-ADM-10). A spec that
-    // hands the catalog over changes the answer for every catalog write in
-    // every other file, so the suite cannot both exercise those switches and
-    // run its files at once.
-    //
-    // The alternative was to keep the switches untested end to end, as the
-    // maintenance gate is (see settings.spec.ts). That was defensible while
-    // "on" was a state nothing needed; it is not once the machine sync route
-    // only works while the catalog *is* owned. Serial is the honest cost of
-    // testing what the release actually does.
+    // One file at a time: the specs share one API and database, and global
+    // settings are under test (maintenance, ownership, FR-ADM-10). Handing the
+    // catalogue over changes every other file's writes, and the machine routes
+    // work only while an area is owned.
     fileParallelism: false,
     coverage: {
       reportsDirectory: '../../coverage/api-e2e',

@@ -18,9 +18,8 @@ const get = (url: string) => axios.get(url, { validateStatus: () => true });
 /** The seeded products the storefront shows: not those seeded off it. */
 const liveSeeds = productSeeds.filter((product) => !product.state);
 
-/** The seeded categories a product is filed under, plus their ancestors — the
- * ones the storefront shows (FR-CAT-01). A seeded category nothing sits in is
- * not a tile, so it is not expected in the tree either. */
+/** The seeded categories with products, and their ancestors, as the
+ * storefront shows them (FR-CAT-01); an empty one is no tile. */
 const stockedSeeds = (() => {
   const parentOf = new Map(categorySeeds.map((c) => [c.sourceId, c.parentKey]));
   const stocked = new Set<string>();
@@ -62,7 +61,7 @@ describe('GET /catalog/categories (FR-CAT-01/02)', () => {
     expect(coffee.children.map((c: { slug: string }) => c.slug)).toEqual(
       coffeeChildren,
     );
-    // Exactly the contract keys — no internal columns (id, sourceId) leak.
+    // Exactly the contract keys, no internal column (id, sourceId).
     expect(Object.keys(coffee).sort()).toEqual([
       'children',
       'mark',
@@ -205,11 +204,8 @@ describe('GET /catalog/categories/:slug/products (FR-CAT-03/04)', () => {
       );
     });
 
-    /**
-     * FR-STOCK-05, the property the halves above rest on: an empty shelf is
-     * last whatever was asked for, and it is a lead rather than a sort option
-     * of its own — there is no key that undoes it.
-     */
+    /** FR-STOCK-05: an empty shelf is last whatever the sort, a lead no key
+     * undoes. */
     it.each(['name', 'name_desc', 'price', 'price_desc'])(
       'leaves what is out of stock at the end on %s',
       async (sort) => {
@@ -237,7 +233,7 @@ describe('GET /catalog/categories/:slug/products (FR-CAT-03/04)', () => {
         const figures = half.map((i) => i.prices.piece);
         expect(figures).toEqual([...figures].sort(compare));
       }
-      // And the whole page is still priced — the split is about order alone.
+      // And the whole page is priced: the split is about order alone.
       expect(prices(res).length).toBeGreaterThan(0);
     });
 

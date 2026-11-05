@@ -1,12 +1,7 @@
 import axios from 'axios';
 
-/**
- * The company-suggestion proxy (FR-AUTH-09, ADR 0041). The open deployment
- * configures no sidecar, so the assertion is that it answers rather than fails
- * — the field degrading to plain typing is the documented default, not an
- * outage, and registration must be exactly as possible without a provider as
- * with one.
- */
+/** The company-suggestion proxy (FR-AUTH-09) without a sidecar answers, not
+ * fails: plain typing is the default, and registration works either way. */
 describe('/companies/suggestions (FR-AUTH-09)', () => {
   it('answers a guest with an empty list when no sidecar is configured', async () => {
     const res = await axios.get('/companies/suggestions?q=Kontor', {

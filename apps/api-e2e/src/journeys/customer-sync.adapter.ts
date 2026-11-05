@@ -11,17 +11,10 @@ import { CUSTOMER_SYNC_PROBES as reading } from './customer-sync-probe-labels';
 import { consentVersion } from '../support/consent';
 
 /**
- * What a customer-exchange journey acts on and reads — the customer half of
- * the journey facility (`support/journey/journey.ts`), which knows no more
- * about accounts arriving from outside than it does about orders.
- *
- * The question here is the one no single-submission test answers: **what an
- * account and the two inboxes around it do across a sequence of runs.** An
- * account the exchange asks for cannot be signed into until its owner has
- * followed a link this platform sent; a run that takes access away waits for a
- * person and the account is untouched until they say so; a withdrawal and a
- * reinstatement are two runs apart. Each of those is a claim about a run in
- * the light of the run before it, and a per-endpoint test only ever sees one.
+ * What a customer-exchange journey acts on and reads, for the journey facility
+ * (`support/journey/journey.ts`): an account and its two inboxes across runs.
+ * A new account signs in only after its link; a run taking access waits for a
+ * person; withdrawal and reinstatement are two runs apart.
  */
 
 export interface CustomerSyncJourneyContext {
@@ -42,8 +35,7 @@ export interface CustomerSyncJourneyContext {
    * reading is against this, so a deployment's own history is not in the
    * figures. */
   readonly stagedAtStart: number;
-  /** The newest run this journey produced — what a manager's apply or discard
-   * acts on. */
+  /** The journey's newest run, which a manager applies or discards. */
   runId?: string;
   /** The set-a-password link the account was last sent, kept for the step
    * where its owner uses it. */
@@ -92,11 +84,8 @@ const asStaff = (
     }),
   );
 
-/**
- * The deployment's own wording, used to recognise mail rather than to assert
- * on it: a reworded template must not fail these specs. What they are about is
- * *which* message arrived — and, more often, that none did.
- */
+/** The deployment's wording, to recognise mail, not assert on it: these
+ * specs ask which message arrived, or that none did. */
 const mailText = JSON.parse(
   readFileSync(configFile('texts/mail.json'), 'utf8'),
 );
@@ -125,16 +114,9 @@ const RUN_WORDS: Readonly<Record<string, string>> = {
 const tokenIn = (text: string): string | undefined =>
   /\/set-password\?token=([\w-]+)/.exec(text)?.[1];
 
-/**
- * The newest link sitting in the account's inbox, for the steps the mail probe
- * never saw.
- *
- * A journey's precondition runs without probes — it is setup, and asserting it
- * would be asserting somebody else's journey — so a `from` that has the
- * exchange create an account and then opens its link has nothing stashed. The
- * inbox is left as it is: `begin` drains it when it takes the first reading,
- * which is exactly where setup mail is supposed to go.
- */
+/** The newest link in the account's inbox, for steps the probe never saw:
+ * setup runs without probes, so nothing is stashed. `begin` drains the inbox
+ * at its first reading. */
 async function latestLink(email: string): Promise<string | undefined> {
   const messages = await messagesMatching(`to:${email}`);
   for (const message of messages) {
@@ -154,11 +136,8 @@ const currentRun = (
     return res.data.run as { id: string; status: string };
   });
 
-/**
- * The account, read as staff read it — by address, through the panel's own
- * list, rather than out of the database: what these journeys are about is what
- * the shop sees.
- */
+/** The account as staff read it, by address through the panel's list, not
+ * the database: these journeys are about what the shop sees. */
 const account = (
   ctx: CustomerSyncJourneyContext,
   cache: Map<string, unknown>,
@@ -291,9 +270,8 @@ const actions: JourneyAdapter<CustomerSyncJourneyContext>['actions'] = {
         ],
         label: 'journey-customers',
         requestReview: args['requestReview'] ?? false,
-        // A claim is a property of the *run* — what this submission is allowed
-        // to do — rather than of the row, which is why it travels in the
-        // options beside the field list (FR-ADM-17).
+        // A claim belongs to the run, not the row, so it travels in the
+        // options (FR-ADM-17).
         ...(args['claimByEmail'] ? { options: { claimByEmail: true } } : {}),
       });
       ctx.runId = res.data.run.id;

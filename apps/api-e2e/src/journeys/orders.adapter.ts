@@ -14,20 +14,17 @@ import { cached, JourneyAdapter, Probe } from '../support/journey/journey';
 import { ORDER_PROBES as reading } from './order-probe-labels';
 
 /**
- * What an order journey acts on and reads — the orders half of the journey
- * facility (`support/journey/journey.ts`), which knows nothing about orders.
- *
- * The actions are the operations a real screen performs, through the real
- * endpoints. The probes are the questions the accumulated state answers and no
- * single-move test can: where the order stands, which version each side is on,
- * what the customer has already been told, and what arrived in their inbox.
+ * What an order journey acts on and reads, for the journey facility
+ * (`support/journey/journey.ts`). Actions are a real screen's, on the real
+ * endpoints; probes ask what only accumulated state answers: where the order
+ * stands, each side's version, what the customer was told and received.
  */
 
 export interface OrderJourneyContext {
   readonly reference: string;
   readonly publicToken: string;
-  /** The address on the order, unique per journey, which is what makes the
-   * mail readings isolated — Mailpit is shared by every suite at once. */
+  /** The order's address, unique per journey, isolating mail in the shared
+   * Mailpit. */
   readonly contactEmail: string;
   readonly managerCookie: string;
   /** Absent for a guest's order, which is read through its token instead. */
@@ -75,8 +72,8 @@ const adminOrder = (ctx: OrderJourneyContext, cache: Map<string, unknown>) =>
     return res.data;
   });
 
-/** The order as the customer's own page shows it — their version of it, not
- * the newest one. A guest reads the same thing through their token. */
+/** The order as the customer's page shows it, their version, not the newest;
+ * a guest's token reads the same. */
 const customerOrder = (ctx: OrderJourneyContext, cache: Map<string, unknown>) =>
   cached(cache, 'mine', async () => {
     const res = await ok(
@@ -92,12 +89,8 @@ const customerOrder = (ctx: OrderJourneyContext, cache: Map<string, unknown>) =>
     return res.data;
   });
 
-/**
- * The deployment's own wording, used to recognise mail rather than to assert on
- * it. A reworded template must not fail these specs — what they are about is
- * *which* message arrived, and the heading is how a message is identified once
- * the words in it are not the point.
- */
+/** The deployment's wording, to recognise mail by heading, not assert on it:
+ * a reworded template must not fail these specs. */
 const mailText = (
   JSON.parse(readFileSync(configFile('texts/mail.json'), 'utf8')) as {
     ordering: {
@@ -114,15 +107,9 @@ const mailText = (
   }
 ).ordering;
 
-/**
- * What a message is, in the terms the journeys are written in — `approved`,
- * `readyDelivery`, `receipt` — rather than in the words it happens to use.
- *
- * A status mail is identified by its heading, because the subject is the same
- * for all of them: the reference tells the reader which order, the heading
- * tells them what happened to it. That is also the assertion worth having — a
- * mail about the wrong step is exactly what a subject check would miss.
- */
+/** A message in the journeys' terms (`approved`, `readyDelivery`, `receipt`).
+ * Status mails share a subject, so the heading identifies them, which also
+ * catches a mail about the wrong step. */
 async function classify(id: string, subject: string): Promise<string> {
   const message = await messageBody(id);
   // What travelled with it, said in the name: an attachment is the whole point
@@ -140,11 +127,8 @@ async function classify(id: string, subject: string): Promise<string> {
   return match ? `${match[0]}${carried}` : `unrecognised: ${subject}`;
 }
 
-/**
- * A marker, the way the panels draw one: a dot or nothing (FR-WORK-02). The
- * figure behind it is deliberately not read — neither panel shows a number,
- * and asserting one would be asserting something nobody can see.
- */
+/** A marker as the panels draw it, a dot or nothing (FR-WORK-02); no panel
+ * shows a figure, so none is read. */
 const marker = (waiting: boolean) => (waiting ? '🟡' : '—');
 
 /**
@@ -218,15 +202,9 @@ const probes: Record<string, Probe<OrderJourneyContext>> = {
     label: reading.staffDocuments.label,
     read: async (ctx, cache) => documentList(await adminOrder(ctx, cache)),
   },
-  /**
-   * Whether the shop's own panel is counting this order (FR-WORK-01).
-   *
-   * Read as the queue rather than as the status: the staff count is a `COUNT`
-   * over the very filter its link opens, so asking that filter for this one
-   * reference answers the same question the marker does — and keeps answering
-   * it if the queue is ever cut differently. The count itself is over every
-   * order in the database, which is nothing a journey could assert against.
-   */
+  /** Whether the shop's panel counts this order (FR-WORK-01), read as the
+   * queue: the count is over its link's filter, so asking that for one
+   * reference answers the marker's question. */
   waitingOnShop: {
     label: reading.waitingOnShop.label,
     read: async (ctx) => {
@@ -286,16 +264,9 @@ const probes: Record<string, Probe<OrderJourneyContext>> = {
 };
 
 const actions: JourneyAdapter<OrderJourneyContext>['actions'] = {
-  /**
-   * A manager answering the order.
-   *
-   * `notify` is deliberately not defaulted to `false`: unless a journey says
-   * otherwise, the move sends whatever the admin screen would have offered —
-   * computed from the order's own history by the same shared rule the screen
-   * draws its tick box from. That is what makes "the second pass through
-   * `ready` is quiet" a property of the system rather than of the argument this
-   * test happened to pass.
-   */
+  /** A manager answering the order. `notify` defaults to what the screen's
+   * tick box offers, by the shared rule, so "the second `ready` is quiet" is
+   * the system's doing, not the test's. */
   move: {
     label: 'moves the order',
     run: async (ctx, args) => {
@@ -330,16 +301,9 @@ const actions: JourneyAdapter<OrderJourneyContext>['actions'] = {
       );
     },
   },
-  /**
-   * A manager changing what the order says (FR-ORD-03).
-   *
-   * The payload is the order as it stands, sent back with one thing different
-   * — which is what the admin screen holds — so a journey names only the
-   * change: `pieces`, `paymentMethod`, `contactName`. Building it from the
-   * order rather than from a literal is what lets a journey adjust an order it
-   * did not place, and keeps a change from silently reverting a field the
-   * checkout set.
-   */
+  /** A manager changing the order (FR-ORD-03): the order as it stands with one
+   * change, as the screen holds it, so a journey names only the change and
+   * reverts nothing checkout set. */
   adjust: {
     label: 'changes what the order says',
     run: async (ctx, args) => {
@@ -414,14 +378,9 @@ const actions: JourneyAdapter<OrderJourneyContext>['actions'] = {
       );
     },
   },
-  /**
-   * A file the shop files against the order (FR-ORD-05) — in practice the
-   * payment instructions, which only the shop knows the contents of.
-   *
-   * Not a real slip, but real enough that the content sniff accepts it: what
-   * the journeys are about is when the customer may open it, never what it
-   * says.
-   */
+  /** A file the shop files (FR-ORD-05), the payment instructions in practice:
+   * no real slip, but one the sniff accepts. The journeys ask when it opens,
+   * not what it says. */
   supplyDocument: {
     label: 'files a document against the order',
     run: async (ctx, args) => {

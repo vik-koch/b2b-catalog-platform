@@ -106,8 +106,8 @@ test.describe('changing your own password', () => {
 
     await logIn(page, email, password);
 
-    // The modal is in the way from the moment the session resolves — and being a
-    // real <dialog> in modal mode, Escape does not dismiss it.
+    // The modal blocks once the session resolves, and as a modal <dialog>
+    // Escape does not dismiss it.
     const dialog = page.getByRole('dialog');
     await expect(dialog).toBeVisible();
     await page.keyboard.press('Escape');

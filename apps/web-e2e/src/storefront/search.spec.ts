@@ -32,8 +32,8 @@ test('suggests products while typing and jumps straight to the product (FR-SEARC
     .getByRole('gridcell')
     .first();
   await expect(option).toBeVisible();
-  // The typed part is marked in place, so the row explains its own match —
-  // the same <mark> the address and company fields draw.
+  // The typed part is marked, so the row explains its match, with the
+  // address fields' <mark>.
   await expect(option.locator('mark')).toHaveText('Hafen');
 
   await option.click();
@@ -87,8 +87,8 @@ test('adds a product to the cart from its suggestion without leaving the field (
     .getByRole('button', { name: `Add ${product.name} to cart` })
     .click();
 
-  // The row says so in place, and the query is still being answered — the
-  // next product is one press away.
+  // The row says so in place, the query still answered: the next product is
+  // one press away.
   await expect(
     page.getByRole('img', { name: `${product.name} is in your cart` }),
   ).toBeVisible();
@@ -165,8 +165,7 @@ test('says so when a query matches nothing, rather than hiding the list', async 
 
   await field.fill('zzzzqqq');
 
-  // Not the live region, which carries the same words for screen readers —
-  // this is the message on screen, in the panel itself.
+  // The message in the panel, not the screen readers' live region.
   await expect(
     page.locator('p:not([aria-live])', { hasText: 'Nothing found' }),
   ).toBeVisible();
@@ -181,10 +180,8 @@ test.describe('without JavaScript', () => {
     isMobile,
   }) => {
     // The one that would silently rot: the field is SSR'd into every page, and
-    // a form without action/method submits to the *current* URL — which sends
-    // the home page's search box to /?q=… and looks like nothing happened.
-    // There is no no-JavaScript path to skip *to* on mobile: the field is
-    // behind a toggle.
+    // a form without action/method submits to the current URL, sending the
+    // home page's box to /?q=…, as if nothing happened.
     test.skip(isMobile, 'the mobile toggle needs JavaScript to open the field');
     await page.goto('/');
 
@@ -202,15 +199,9 @@ test.describe('without JavaScript', () => {
   });
 });
 
-/**
- * FR-SEARCH-04. The control is shared by both listings, so these cover the two
- * things that are not the API's job: the choice reaches the URL, and the URL is
- * what the page reads back — which is what makes a sorted listing shareable.
- *
- * It takes two shapes: a row of segments above a wide listing, where the
- * chosen field turns round when pressed again, and a native <select> on a
- * phone. Each viewport drives the one it shows.
- */
+/** FR-SEARCH-04: the choice reaches the URL and the page reads it back, so a
+ * sorted listing can be shared. Segments on a wide listing, a native <select>
+ * on a phone; each viewport drives its own. */
 test.describe('sort controls (FR-SEARCH-04)', () => {
   const sortBy = (page: Page) =>
     page.getByRole('combobox', { name: 'Sort by' });
@@ -258,18 +249,10 @@ test.describe('sort controls (FR-SEARCH-04)', () => {
   }
 
   /**
-   * Tile prices in render order, as numbers — the formatting is a deployment
-   * concern, the ordering is not.
-   *
-   * Parsed rather than stripped to digits: a per-piece price can carry three
-   * decimals where the stored price covers a whole pack, so "17,117" and
-   * "17,30" are not comparable as bare digit runs. The last separator is taken
-   * as the decimal one, which holds for either convention at these magnitudes.
-   *
-   * Waits for the listing to stop loading first: re-sorting keeps the previous
-   * results on screen while the new page is fetched, and allTextContents takes
-   * one snapshot without retrying, so an unguarded read can catch the old
-   * order — or a half-patched list.
+   * Tile prices in render order, as numbers, parsed with the last separator as
+   * decimal: a piece price can carry three decimals ("17,117" against
+   * "17,30"). Waits for loading to end: re-sorting keeps old results up, and
+   * allTextContents reads one snapshot.
    */
   async function prices(page: Page): Promise<number[]> {
     await expect(page.locator('section[aria-busy="true"]')).toHaveCount(0);

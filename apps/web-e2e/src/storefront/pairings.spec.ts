@@ -6,17 +6,10 @@ const ADMIN_EMAIL = env['ADMIN_EMAIL'];
 const ADMIN_PASSWORD = env['ADMIN_PASSWORD'];
 
 /*
- * Sold-together pairings: the editor that makes them (FR-SET-01), and the
- * marker that spends them (FR-SET-05).
- *
- * What is left for a real browser is what a test DOM cannot answer: the
- * editor's picker, which asks the catalog as it is typed, and the storefront's
- * panel, which is a modal full of product rows and has to hold at a phone's
- * width. The mutuality and the refusals are api-e2e's; the filtering rules and
- * the marker's placements are the component specs'.
- *
- * The editor is read-only here — opened and left without saving, as
- * catalog-editing.spec does.
+ * Pairings: the editor (FR-SET-01) and the marker (FR-SET-05), where a test DOM
+ * cannot answer: the picker asking as typed, and the panel of product rows at
+ * a phone's width. Refusals are api-e2e's, placements the component specs'.
+ * The editor is opened, never saved.
  */
 
 /** The seeded pair: a takeaway cup and the two lids that fit it. */
@@ -27,10 +20,9 @@ const LID_DOMED = 'Takeaway Lid, Domed (50)';
 const UNPAIRED = 'latte-glass-set';
 /** The panel's own name, `catalog.pairings.label` in the demo text. */
 const PANEL = 'Sold together';
-/** `cart.pairing.*` in the demo text, with the counts filled in. On a short
- * line the offer and the shortfall are one sentence: `shortAction` is the link
- * that opens the panel, `shortReason` the plain text that follows it — so the
- * line's marker is named after what to add rather than after the panel. */
+/** `cart.pairing.*` in the demo text with counts. A short line is one
+ * sentence: `shortAction` links the panel, `shortReason` follows, so the
+ * marker names what to add. */
 const SHORT_ACTION = /^Add \d+ /;
 const SHORT = 'of what this is sold with';
 const SUMMARY = 'Products in your cart missing what they are sold with';
@@ -61,7 +53,7 @@ test.describe('product pairings', () => {
   }) => {
     await page.goto(`/admin/products/${UNPAIRED}/edit`);
 
-    // Closed, and the lid says so — nothing is paired with this one.
+    // Closed, and the lid says so: nothing is paired with this one.
     const toggle = page.getByRole('button', { name: 'Sold together' });
     await expect(toggle).toBeVisible();
     await expect(page.getByLabel('Add a product')).toBeHidden();
@@ -85,13 +77,9 @@ test.describe('product pairings', () => {
 });
 
 /*
- * The storefront half (FR-SET-05): the marker wherever a product is drawn, and
- * the panel behind it — counterparts with their own buying controls, so they
- * can be added from where the marker was pressed.
- *
- * Signed out, because a pairing is not a session concern; both viewports,
- * because the panel is one drawing at both and the phone is where a modal full
- * of product rows is worth checking.
+ * The storefront half (FR-SET-05): the marker wherever a product shows, and its
+ * panel of counterparts with buying controls. Signed out, as pairing is no
+ * session matter; both viewports, the phone for the modal.
  */
 test.describe('the sold-together marker', () => {
   test.beforeEach(async ({ page }) => {
@@ -167,8 +155,8 @@ test.describe('the sold-together marker', () => {
 
     await page.goto('/cart');
 
-    // The cart line says it too, and the same panel opens from there — the lid
-    // is sold with the cup, which is the same edge read from the other end.
+    // The cart line says it too and opens the panel: the same edge from the
+    // other end.
     await page
       .locator('li')
       .filter({ hasText: LID_FLAT })
@@ -187,16 +175,10 @@ test.describe('the sold-together marker', () => {
 });
 
 /*
- * What the cart says about a pairing it cannot satisfy (FR-SET-02/03).
- *
- * The check runs on the server over the whole cart, so a real round trip is
- * what proves it: the line states how short it is, the card over the checkout
- * button counts the lines, and the link beside the sentence opens the products
- * that would answer it.
- *
- * Advisory here, which is the shipped default (FR-SET-04) — the enforced
- * variant is a deployment flag, and the disabled button it produces is the
- * cart page spec's.
+ * An unsatisfied pairing in the cart (FR-SET-02/03), checked by the server: the
+ * line says how short, the card counts lines, the link opens the answers.
+ * Advisory, the default (FR-SET-04); the enforced flag's disabled button is
+ * the cart page spec's.
  */
 test.describe('a cart missing what it is sold with', () => {
   test.beforeEach(async ({ page }) => {
@@ -242,10 +224,8 @@ test.describe('a cart missing what it is sold with', () => {
     await expect(page.getByText(SHORT)).toHaveCount(0);
     await expect(page.getByText(SUMMARY)).toHaveCount(0);
 
-    // Take the lid out and the cup has nothing left to draw on — read from the
-    // other end of the same edge.
-    // The bin on a row removes it outright — what it took out is one line the
-    // customer is looking at, so there is nothing to confirm.
+    // Without the lid the cup has nothing to draw on. The bin removes a row
+    // outright: one line in view, nothing to confirm.
     await page
       .locator('li')
       .filter({ hasText: LID_FLAT })
