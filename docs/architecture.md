@@ -141,21 +141,71 @@ code through an injection token the root provides
 Between areas, imports run one way, in the domain's direction:
 
 <!-- prettier-ignore -->
-| Area | Holds | May import |
-| --- | --- | --- |
-| catalog | products, categories, attributes, documents, tiers and their prices | — |
-| accounts | users, sign-up and sign-in, addresses, parties | catalog, site |
-| site | pages and the consents given to them, shop settings and switches, inquiry | — |
-| ordering | cart, checkout, orders and their versions, order documents and PDFs | catalog, accounts, site |
-| exchange | runs, cursors, machine tokens, the ownership switch, and each area's engine for uploads and the back office | catalog, accounts, ordering |
-| work | the staff's and the customers' queues | catalog, accounts, ordering, exchange |
-| retention | the retention sweeps over orders and consents | ordering, site |
+| Area | Holds |
+| --- | --- |
+| catalog | products, categories, attributes, documents, tiers and their prices |
+| accounts | users, sign-up and sign-in, addresses, parties |
+| site | pages and the consents given to them, shop settings and switches, inquiry |
+| ordering | cart, checkout, orders and their versions, order documents and PDFs |
+| exchange | runs, cursors, machine tokens, the ownership switch, and each area's engine for uploads and the back office |
+| work | the staff's and the customers' queues |
+| retention | the retention sweeps over orders and consents |
 
-The table lives in `tools/lint/area-boundaries.mjs`, which eslint-plugin-boundaries enforces for
-every area moved into this shape; an area not yet moved is outside the check. The texts are cut
-by audience only (`storefront.json`, `admin.json`, `shared.json`), and the contracts have an
-entry point per audience and area, plus `node` for what only the server runs
-([ADR 0073](adr/0073-cut-the-code-by-area-and-audience.md)).
+The graph is counted from the code: each number is the files that import across that edge,
+broken down by layer in the table below it. A dotted edge would be a permission nothing uses.
+The rows marked "actor columns only" are the one exception to the direction, left out of the
+graph: every table records who changed a row, so any schema module may reference `users`.
+
+<!-- generated:area-graph -->
+
+```mermaid
+flowchart TB
+  retention -->|2| ordering
+  retention -->|1| site
+  work -->|1| exchange
+  work -->|1| ordering
+  work -->|1| accounts
+  work -->|1| catalog
+  exchange -->|7| ordering
+  exchange -->|9| accounts
+  exchange -->|11| catalog
+  ordering -->|8| site
+  ordering -->|31| accounts
+  ordering -->|26| catalog
+  accounts -->|15| site
+  accounts -->|7| catalog
+```
+
+| From      | To       | API | contracts | web | Note               |
+| --------- | -------- | --: | --------: | --: | ------------------ |
+| platform  | accounts |   1 |         0 |   0 | actor columns only |
+| catalog   | accounts |   1 |         0 |   0 | actor columns only |
+| accounts  | catalog  |   2 |         0 |   5 |                    |
+| accounts  | site     |   7 |         2 |   6 |                    |
+| site      | accounts |   1 |         0 |   0 | actor columns only |
+| ordering  | catalog  |  10 |         4 |  12 |                    |
+| ordering  | accounts |  10 |         4 |  17 |                    |
+| ordering  | site     |   5 |         0 |   3 |                    |
+| exchange  | catalog  |   7 |         4 |   0 |                    |
+| exchange  | accounts |   6 |         2 |   1 |                    |
+| exchange  | ordering |   4 |         3 |   0 |                    |
+| work      | catalog  |   1 |         0 |   0 |                    |
+| work      | accounts |   1 |         0 |   0 |                    |
+| work      | ordering |   1 |         0 |   0 |                    |
+| work      | exchange |   1 |         0 |   0 |                    |
+| retention | site     |   1 |         0 |   0 |                    |
+| retention | ordering |   2 |         0 |   0 |                    |
+
+<!-- /generated:area-graph -->
+
+The direction lives in `tools/lint/area-boundaries.mjs`, which eslint-plugin-boundaries enforces
+in all three layers; `node tools/generate-area-graph.mjs` redraws the graph from the same table.
+Where an area needs an answer from one it may not import, the lower area declares a port and
+the root wires the higher area's implementation into it: catalog asks how many accounts sit on a
+price list through `TierAccounts`, which accounts implements. A text file is one per audience
+(`storefront.json`, `admin.json`, `shared.json`) with a block per area inside, and so is the
+deployment config; the contracts have an entry point per audience and area, plus `node` for
+what only the server runs ([ADR 0073](adr/0073-cut-the-code-by-area-and-audience.md)).
 
 **Building blocks apart from the app.** Buttons, fields, dialogs, icons and the colour roles
 live in `libs/ui`, which knows nothing of the domain, the texts or the deployment: lint
