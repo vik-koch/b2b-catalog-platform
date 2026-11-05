@@ -48,7 +48,7 @@ export default [
       '**/*.mjs',
     ],
     rules: {
-      // An underscore-prefixed binding is unused on purpose — the parameter a
+      // An underscore-prefixed binding is unused on purpose: the parameter a
       // signature requires, or the property a spread is meant to drop.
       '@typescript-eslint/no-unused-vars': [
         'warn',

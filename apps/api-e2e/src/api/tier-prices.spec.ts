@@ -199,7 +199,7 @@ describe('Tier prices (FR-AUTH-05)', () => {
 
     // Only the session-shaped one is private. The guest variant stays
     // ordinarily cacheable, which is what lets the session-blind SSR tier put
-    // it in the document for hydration (see the web app's api-client.ts).
+    // it in the document for hydration (see the web app's platform/orpc-client.ts).
     expect(customer.headers['cache-control']).toBe('private, no-store');
     expect(guest.headers['cache-control']).toBeUndefined();
   });
