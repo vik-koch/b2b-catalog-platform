@@ -71,6 +71,7 @@ the generator in the same change:
 | `contract-routes.generated.ts` in each web folder that calls an entry point (`platform/`, `core/<area>/`, `<audience>/<area>/`) | changing a route's method, path or input/output structure | `node tools/generate-contract-routes.mjs` |
 | The contents of `docs/requirements.md` | adding or retitling a requirement | `node tools/generate-requirements-index.mjs` |
 | The index in `docs/adr/README.md` | adding an ADR or changing its status | `node tools/generate-adr-index.mjs` |
+| The area graph in `docs/architecture.md` | adding, moving or removing an import between areas, or changing the table in `tools/lint/area-boundaries.mjs` | `node tools/generate-area-graph.mjs` |
 | `docs/mail.md`, `docs/mail/` | changing a mail template or its wording | `node tools/generate-mail-previews.mjs` |
 | The tables and journeys in `docs/order-lifecycle.md`, `docs/account-lifecycle.md`, `docs/catalog-sync.md`, `docs/customer-sync.md`, `docs/order-sync.md` | changing a transition, a journey or a mail rule | `node tools/generate-order-lifecycle.mjs` and its siblings |
 

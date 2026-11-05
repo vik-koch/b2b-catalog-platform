@@ -15,8 +15,8 @@ import boundaries from 'eslint-plugin-boundaries';
 
 const ROOT = new URL('../..', import.meta.url).pathname;
 
-const LAYERS = ['apps/api/src', 'libs/shared/src', 'apps/web/src/app'];
-const AUDIENCES = ['storefront', 'admin', 'machine'];
+export const LAYERS = ['apps/api/src', 'libs/shared/src', 'apps/web/src/app'];
+export const AUDIENCES = ['storefront', 'admin', 'machine'];
 
 /** What an area may import besides itself: the domain's direction, never both ways. */
 export const AREA_EDGES = {
@@ -32,7 +32,7 @@ export const AREA_EDGES = {
 const AREAS = Object.keys(AREA_EDGES);
 
 /** The folders of the cut, relative to a layer, with the element type of each. */
-const FOLDERS = [
+export const FOLDERS = [
   { folder: 'platform', type: 'platform' },
   ...AUDIENCES.flatMap((audience) => [
     { folder: `${audience}/platform`, type: `${audience}:platform` },
