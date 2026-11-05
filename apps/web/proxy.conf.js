@@ -14,8 +14,8 @@ module.exports = {
     secure: false,
     changeOrigin: true,
   },
-  // Uploaded images are served by the media nginx from compose.db.yml, not the
-  // api — matching production, where /media is a static route beside /api.
+  // Uploaded images come from the media nginx (compose.db.yml), not the api,
+  // as in production, where /media is a static route beside /api.
   '/media': {
     target: `http://${API_HOST}:${MEDIA_PORT}`,
     secure: false,

@@ -19,8 +19,8 @@ const packaged = { piecesPerPack: 6, packsPerBox: 4, minPieceQty: 6 };
 const packOnly = { piecesPerPack: 10, packsPerBox: null, minPieceQty: 100 };
 const plain = { piecesPerPack: null, packsPerBox: null, minPieceQty: 1 };
 
-/** Intl separates a number from its currency symbol with a non-breaking space,
- * and which one varies by ICU version — compare on plain spaces. */
+/** Intl puts a non-breaking space before the currency, which varies by ICU
+ * version: compare on plain spaces. */
 const plainSpaces = (text: string) => text.replace(/[\u00a0\u202f]/g, ' ');
 
 function units() {

@@ -29,8 +29,8 @@ const serverConfig: ApplicationConfig = {
     provideServerSharedText(),
     provideServerSuggestionsEnabled(),
     // The render asks the API as the visitor, not as a guest. What it gets
-    // back rides to the browser in the transfer cache — see hydration.ts —
-    // and the page is marked private whenever any of it was. Order matters:
+    // back rides to the browser in the transfer cache (hydration.ts), and the
+    // page is marked private whenever any of it was. Order matters:
     // keepPagePrivate must see the cookie forwardSession adds. The visitor's
     // address goes along too, so the API's rate limits count visitors.
     provideHttpClient(
@@ -44,8 +44,8 @@ const serverConfig: ApplicationConfig = {
     // the public origin (APP_ORIGIN). Mapping the former to the latter makes
     // the hydration transfer cache keys match, so GET responses rendered on
     // the server are replayed from the HTML instead of refetched.
-    // useFactory keeps the env read lazy — this module is imported at build
-    // time, where no runtime environment exists.
+    // useFactory keeps the env read lazy: the build imports this module with
+    // no runtime environment.
     {
       provide: HTTP_TRANSFER_CACHE_ORIGIN_MAP,
       useFactory: () => ({

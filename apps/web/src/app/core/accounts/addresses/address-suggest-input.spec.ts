@@ -21,8 +21,8 @@ const suggestion = (
   components: AddressComponents,
 ): AddressSuggestion => ({ label, components });
 
-/** Set by a test that wants the request itself to fail, not merely answer
- * nothing — the API is a network away, and a customer typing is not. */
+/** Set by a test that wants the request to fail, not just answer nothing:
+ * the API is a network away. */
 let rejects = false;
 
 async function render() {
@@ -109,8 +109,7 @@ describe('AddressSuggestInput (FR-CART-11)', () => {
 
     await type('Hafenstra');
 
-    // Only the matched run is marked — the rest of the line is plain, so the
-    // tint is telling the customer why this row is here.
+    // Only the matched run is marked, so the tint says why the row is here.
     expect(
       [...el.querySelectorAll('[role="option"] mark')].map(
         (m) => m.textContent,
@@ -212,10 +211,8 @@ describe('AddressSuggestInput (FR-CART-11)', () => {
     expect(input.value).toBe('Somewhere the provider has never heard of');
   });
 
-  // A suggestion is an accelerator, never a step. A sidecar the API cannot
-  // reach answers with an empty list, but the API itself can be unreachable —
-  // and a failed request must leave the customer typing, not take the form with
-  // it.
+  // A suggestion is an accelerator, never a step: an unreachable API must
+  // leave the customer typing, not break the form.
   it('keeps the field usable when the request fails outright', async () => {
     rejects = true;
     const { type, input, el } = await render();

@@ -110,16 +110,12 @@ import { ShopNotice } from './storefront/shell/shop-notice';
 })
 export class App {
   protected branding = inject(DEPLOYMENT_CONFIG).branding;
-  /** Which sold-together panel is open — what the deferred block waits on. */
+  /** Which sold-together panel is open, which the deferred block waits on. */
   protected readonly pairings = inject(PairingsService);
   private readonly router = inject(Router);
 
-  /**
-   * Whether the active route asked for the signed-out treatment. Seeded from
-   * the router's own snapshot rather than waiting for a navigation event, so
-   * the first render already has it — a page that arrived white and turned
-   * grey would flash.
-   */
+  /** Whether the route asked for the signed-out treatment, seeded from the
+   * router's snapshot, so the first render has it and nothing flashes. */
   protected readonly centered = signal(this.isCenteredRoute());
 
   /** A recessed grey behind the auth card, the ordinary page background otherwise. */

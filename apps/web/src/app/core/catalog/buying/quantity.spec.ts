@@ -28,8 +28,8 @@ describe('formatUnitQuantity', () => {
 });
 
 describe('parseUnitQuantity', () => {
-  // The locale decides how a figure is shown, never which key someone reaches
-  // for — a German numeric pad has a comma, the row above the letters a dot.
+  // The locale shows a figure, never picks the key: a German numeric pad has
+  // a comma, the top row a dot.
   it('accepts either separator, whatever the locale', () => {
     expect(parseUnitQuantity('0,2')).toBe(0.2);
     expect(parseUnitQuantity('0.2')).toBe(0.2);

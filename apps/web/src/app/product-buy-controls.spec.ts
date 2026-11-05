@@ -23,9 +23,8 @@ beforeAll(() => {
   HTMLDialogElement.prototype.close = vi.fn();
 });
 
-/** The real one, captured once at module load, and put back after every test —
- * a stub left behind here would answer breakpoint questions asked by whichever
- * spec file happens to run next. */
+/** The real one, captured at load and restored after each test, or a leftover
+ * stub answers the next spec file's breakpoint questions. */
 const realMatchMedia = window.matchMedia;
 afterEach(() => {
   window.matchMedia = realMatchMedia;
@@ -51,10 +50,8 @@ const unitText = defaultSharedCatalogText.unitFacts;
 /** One sentence, whatever was corrected and whichever unit it was typed in. */
 const corrected = text.quantityCorrected;
 
-/**
- * Ten to a pack, four packs to a box (so forty pieces), and a hundred-piece
- * minimum — ten whole packs, which is what the minimum now has to be.
- */
+/** Ten to a pack, four packs to a box (forty pieces), and a hundred-piece
+ * minimum: ten whole packs. */
 const packaged = productDetail({
   slug: 'filter-roast',
   name: 'Filter Roast',
@@ -148,8 +145,8 @@ async function render(
       input.dispatchEvent(new Event('blur'));
       await rerender();
     },
-    /** A press landing outside the bubble — what dismisses it. Pointerdown,
-     * not click: that is the event the bubble listens for. */
+    /** A press outside the bubble, which dismisses it. Pointerdown, not
+     * click: what the bubble listens for. */
     async pressOutside() {
       document.body.dispatchEvent(
         new MouseEvent('pointerdown', { bubbles: true }),
@@ -164,7 +161,7 @@ async function render(
       await rerender();
     },
     noteField: () => el.querySelector('textarea') as HTMLTextAreaElement | null,
-    /** Types, then leaves the field — which is when a note is recorded. */
+    /** Types, then leaves the field, which records a note. */
     async typeNote(value: string) {
       const field = el.querySelector('textarea') as HTMLTextAreaElement;
       field.value = value;
@@ -198,8 +195,8 @@ describe('ProductBuyControls', () => {
     ]);
   });
 
-  // Three units in three fixed places on every card, whatever the product is
-  // sold in — that is what lets a grid of these line up column by column.
+  // Three units in three fixed places on every card, so a grid lines up by
+  // column whatever the product is sold in.
   it('shows all three units for a product sold only by the piece', async () => {
     const view = await render(productDetail());
 
@@ -284,10 +281,8 @@ describe('ProductBuyControls', () => {
     expect(view.text()).toContain(corrected);
   });
 
-  // The rule this replaced: the minimum used to be the increment too, so 140
-  // against a minimum of 100 was pushed all the way to 200. The pack is what
-  // cannot be broken open, and fourteen whole packs is a quantity the shop can
-  // pick — so it is left alone.
+  // The minimum is no increment: 140 against a minimum of 100 is fourteen
+  // whole packs, which the shop can pick, so it stays.
   it('leaves a quantity that is whole packs above the minimum alone', async () => {
     const view = await render(packaged);
 
@@ -340,8 +335,8 @@ describe('ProductBuyControls', () => {
     expect(view.text()).not.toContain(corrected);
   });
 
-  // The notice is feedback on something already done, so it clears itself —
-  // and any further edit drops it, since it no longer describes the selection.
+  // The notice is feedback on something done, so it clears itself, and any
+  // edit drops it.
   it('drops the correction notice as soon as the selection changes again', async () => {
     const view = await render(packaged);
     await view.type('141');
@@ -388,8 +383,8 @@ describe('ProductBuyControls', () => {
     const view = await render(packaged);
     await view.chooseUnit(unitText.select.box);
 
-    // 2,41 of a forty-piece box is 97 pieces, which reads back as 2,425 —
-    // which is what used to land on the caret between two keystrokes.
+    // 2,41 of a forty-piece box is 97 pieces, which reads back as 2,425; the
+    // field must not rewrite it between keystrokes.
     await view.type('2,41');
     expect(view.quantityInput().value).toBe('2,41');
 
@@ -412,8 +407,8 @@ describe('ProductBuyControls', () => {
     await view.chooseUnit(unitText.select.box);
     await view.type('2,51');
 
-    // 2,51 of a forty-piece box is 101 pieces, which corrects to 110 — the
-    // figure the label used to jump to on the keystroke.
+    // 2,51 of a forty-piece box is 101 pieces, corrected to 110, but not on
+    // the keystroke.
     expect(view.text()).toContain('70,00');
     expect(view.cart.lines()[0].pieces).toBe(100);
 
@@ -433,9 +428,8 @@ describe('ProductBuyControls', () => {
     expect(view.quantityInput().value).toBe('3,25');
   });
 
-  // A piece count is a whole number of packs, so a pack reading never is a
-  // fraction — offering the field decimals would only invite one to be typed
-  // and rounded away.
+  // A piece count is whole packs, so a pack reading is never a fraction, and
+  // the field offers no decimals.
   it('takes no decimals in a unit that cannot read as one', async () => {
     const view = await render(packaged);
     await view.chooseUnit(unitText.select.pack);
@@ -465,9 +459,8 @@ describe('ProductBuyControls', () => {
     expect(view.quantityInput().getAttribute('inputmode')).toBe('decimal');
   });
 
-  // The correction is feedback on something already done, so it is said every
-  // time it happens — a bubble that only appeared on the first of three
-  // identical corrections read as a bubble that had stopped working.
+  // The correction is said every time: a bubble shown only on the first of
+  // three reads as broken.
   it('says so every time a quantity is corrected', async () => {
     const view = await render(packaged);
 
@@ -493,8 +486,8 @@ describe('ProductBuyControls', () => {
         slug: 'filter-roast',
         name: 'Filter Roast',
         unit: 'box',
-        // Two and a half boxes of forty — the quantity is the pieces, and the
-        // box is only how they are being counted.
+        // Two and a half boxes of forty: the quantity is pieces, the box only
+        // how they are counted.
         pieces: 100,
         note: null,
         lineTotalMinor: 7000,
@@ -521,8 +514,8 @@ describe('ProductBuyControls', () => {
     // 100 pieces is ten packs of ten, at 7.00 the pack.
     expect(view.text()).toContain('70,00');
 
-    // Counted in boxes, 100 pieces is two and a half of them — so one press
-    // offers three, not three and a half.
+    // In boxes, 100 pieces is two and a half, so one press offers three, not
+    // three and a half.
     await view.chooseUnit(unitText.select.box);
     await view.click(text.increaseAria);
 
@@ -604,9 +597,8 @@ describe('ProductBuyControls', () => {
   });
 
   // The signal clamped it long ago; what was missing was the field agreeing.
-  // A nought is a quantity nobody can be sold, so it is corrected like any
-  // other — to the smallest the shop will sell, which for packs of ten against
-  // a hundred-piece minimum is ten packs, not one.
+  // A nought cannot be sold, so it is corrected to the smallest the shop
+  // sells: ten packs of ten here, not one.
   it('writes a nought quantity back as the minimum on the way out', async () => {
     const view = await render(packaged);
     await view.chooseUnit(unitText.select.pack);
@@ -665,7 +657,7 @@ describe('ProductBuyControls, a product that takes a note', () => {
   });
 
   // Asked once, not imposed: the bubble is the add button's first press, and
-  // its own button adds — with a note or straight past it.
+  // its own button adds, with a note or without.
   // The button adds; the note is a control of its own beside the price.
   it('adds without interrupting, and records a note written first', async () => {
     const view = await render(noted);
@@ -690,8 +682,8 @@ describe('ProductBuyControls, a product that takes a note', () => {
     expect(view.cart.lines()[0].note).toBeNull();
   });
 
-  // Once the line is in the cart these controls edit it, the note included —
-  // written when the field is left, not letter by letter.
+  // In the cart these controls edit the line, the note too, written when the
+  // field is left.
   it('writes the note straight onto a line already in the cart', async () => {
     const view = await render(noted);
     await view.click(text.add);
@@ -702,9 +694,8 @@ describe('ProductBuyControls, a product that takes a note', () => {
     expect(view.cart.lines()[0].note).toBe('Sand only');
   });
 
-  // On a phone the bubble has nothing to sit beside and the keyboard takes
-  // what room is left, so the same field is a modal — and a modal has no
-  // "click away", which is why its own button records what was typed.
+  // On a phone the keyboard leaves no room for a bubble, so the field is a
+  // modal, and with no "click away" its button records the text.
   it('opens the note as a modal on a phone', async () => {
     onNarrowScreen();
     const view = await render(noted);
@@ -753,11 +744,8 @@ describe('ProductBuyControls, a product that takes a note', () => {
     expect(view.cart.count()).toBe(1);
   });
 
-  /**
-   * Out of stock (FR-STOCK-04). The product is still listed, still reachable
-   * and still priced — what goes is the ability to put it in the cart, in
-   * every view these controls are drawn in.
-   */
+  /** Out of stock (FR-STOCK-04): listed, reachable and priced, but not
+   * addable to the cart, in every view. */
   describe('out of stock', () => {
     const empty = productDetail({
       ...packaged,
@@ -767,9 +755,8 @@ describe('ProductBuyControls, a product that takes a note', () => {
     it('takes every control out of use', async () => {
       const view = await render(empty);
 
-      // Not one segment is selectable: they are buttons rather than radios,
-      // and disabled rather than pressable — a whole line that cannot be
-      // bought has nothing to explain unit by unit.
+      // No segment is selectable: disabled buttons, as a line that cannot be
+      // bought has nothing to say per unit.
       expect(view.el.querySelectorAll('[role=radiogroup] input')).toHaveLength(
         0,
       );

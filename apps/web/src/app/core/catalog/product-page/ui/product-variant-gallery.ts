@@ -12,11 +12,9 @@ import {
 import { ProductGallery } from './product-gallery';
 import { ProductVariantList } from './product-variant-list';
 
-/**
- * How the list stands to the pictures: `page` under the product page's gallery,
- * `stack` under a compact one — a phone's dialog — and `side` beside a compact
- * one, where a bubble has the width and not the height.
- */
+/** The list beside the pictures: `page` under the product page's gallery,
+ * `stack` under a compact one (a phone's dialog), `side` beside one in a
+ * bubble. */
 export type VariantGalleryShape = 'page' | 'stack' | 'side';
 
 /**

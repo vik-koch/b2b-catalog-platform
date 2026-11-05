@@ -7,21 +7,14 @@ import { EditModeService } from './edit-mode.service';
 import { AuthUser } from '@b2b-catalog-platform/shared/platform';
 
 /**
- * Guarantees the security-adjacent contract of edit mode: it is *never* enabled
- * for a non-admin, regardless of the stored flag, and the toggle persists to
- * localStorage. The server enforces every write too — this only governs whether
- * the affordances are shown.
+ * Edit mode is never on for a non-admin, whatever the stored flag, and the
+ * toggle persists to localStorage. The server checks every write; this only
+ * decides whether the controls show. It also waits for the fetched admin
+ * text, so no label renders blank.
  *
- * Edit mode also waits on the admin text, which is fetched rather than injected
- * into the document, so the affordances never render with blank labels.
- *
- * That wait is injected (ADMIN_TEXT_LOADED) rather than read from the module,
- * which is what each case sets here. The flag it stands for is a module-level
- * signal — a per-tab cache the route guard reads outside any injector — and a
- * runner that shares a module graph between spec files shares that state too:
- * static-page.spec loads the text in a `beforeAll`, so before this was injected,
- * whether the "still loading" case saw it loaded came down to which file the
- * runner scheduled first.
+ * The wait is injected (ADMIN_TEXT_LOADED), not read from the module: the
+ * flag is module state a shared runner graph shares across spec files, so
+ * each case sets its own.
  */
 function setup(user: AuthUser | null, stored?: string, textLoaded = true) {
   localStorage.clear();
@@ -83,9 +76,8 @@ describe('EditModeService', () => {
 
     expect(svc.enabled()).toBe(false);
   });
-  // The toggle is drawn from this: a page with nothing editable on it — the
-  // cart, an account page, the admin panel — should not float an affordance
-  // that answers nothing.
+  // The toggle reads this: a page with nothing editable (the cart, an account
+  // page, the panel) floats no control.
   it('knows whether the page has anything to edit', () => {
     const svc = setup(adminUser);
 

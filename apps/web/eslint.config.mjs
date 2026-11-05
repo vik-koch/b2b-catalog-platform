@@ -22,7 +22,7 @@ const UI_BARREL = {
  * their texts are cut. */
 const TEXT_CUT_AREAS = ['site', 'catalog', 'accounts', 'ordering'];
 
-/* What a view in a `ui/` folder may not reach for: data (ADR 0072). */
+/* What a view in a `ui/` folder may not reach for: data. */
 const VIEW_MESSAGE =
   'A view takes inputs and gives outputs; services and API clients belong to its container (ADR 0072).';
 const VIEW_PATTERNS = [
@@ -135,7 +135,7 @@ export default [
         files: [`${dir}/*.spec.ts`],
         rules: rulesFor(part, forbidden, offServer),
       },
-      // Views (ADR 0072): a later block replaces the earlier rule, so these
+      // Views: a later block replaces the earlier rule, so these
       // carry the part's own patterns as well.
       {
         files: [`${dir}/ui/**/*.ts`],

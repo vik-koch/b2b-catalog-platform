@@ -60,7 +60,7 @@ describe('forwardSession', () => {
   it('never sends it anywhere but the API', () => {
     const cookie = `${AUTH_COOKIE}=a-token`;
     expect(sentWith('https://maps.example/embed', cookie)).toBeNull();
-    // Same host, different path — and one that only starts like it.
+    // Same host, different path, and one that only starts like it.
     expect(sentWith('http://api.internal:3000/other', cookie)).toBeNull();
     expect(sentWith(`${API_URL}x/catalog`, cookie)).toBeNull();
   });

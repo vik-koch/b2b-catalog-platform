@@ -21,13 +21,12 @@ export interface CartAddition {
   /** The photo the customer was looking at, so the cart can draw the line
    * before it has asked the server anything. */
   image: CatalogImage | null;
-  /** What the view it was added from said about the stock — the first baseline
-   * the line has. */
+  /** What the adding view said about the stock: the line's first baseline. */
   availability: ProductAvailability | null;
   lineNoteEnabled: boolean;
   lineNotePrompt: string | null;
-  /** How many products the view it was added from said this one is sold with
-   * (FR-SET-05) — the line wears the marker from the first frame. */
+  /** How many products the adding view said it is sold with (FR-SET-05), so
+   * the line wears the marker at once. */
   pairedCount: number;
   /** What the view it was added from said one piece is made of (FR-CAT-10). */
   parts: string[];

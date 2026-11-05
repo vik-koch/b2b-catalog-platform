@@ -1,12 +1,8 @@
 import { deploymentConfigSchema } from '@b2b-catalog-platform/shared/platform';
 import { defaultDeploymentConfig } from './deployment-config.fixture';
 
-/**
- * The `pages` block is the one part of the config where two fields can
- * contradict each other. Config is load-whole-or-die, so the contradiction has
- * to be caught at boot — a nav entry pointing at an unpublished page would
- * otherwise render a link to a 404 into the chrome of every page.
- */
+/** In `pages` two fields can contradict, caught at boot: a nav entry to an
+ * unpublished page would link a 404 from every page. */
 function parse(pages: Record<string, unknown>) {
   return deploymentConfigSchema.safeParse({
     ...defaultDeploymentConfig,

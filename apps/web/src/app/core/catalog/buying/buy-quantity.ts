@@ -65,7 +65,7 @@ export function createBuyQuantity(deps: BuyQuantityDeps) {
   });
 
   const unit = computed(() => deps.line()?.unit ?? chosenUnit());
-  /** The quantity, in pieces — what is stored, priced and shipped. */
+  /** The quantity in pieces: what is stored, priced and shipped. */
   const pieces = computed(() => deps.line()?.pieces ?? chosenPieces());
 
   /** Below it the only sensible quantity is none, in any unit. */

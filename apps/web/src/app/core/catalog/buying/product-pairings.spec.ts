@@ -124,8 +124,8 @@ describe('where the marker sits', () => {
   it('rides in the price row of the buying controls', async () => {
     const el = await renderControls(2);
 
-    // The same corner the note's bubble is in — the one place on these
-    // controls a thing belongs that is neither a choice nor the action.
+    // The note bubble's corner: the place for what is neither a choice nor
+    // the action.
     expect(el.querySelector('app-product-pairings')).not.toBeNull();
   });
 

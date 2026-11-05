@@ -73,8 +73,8 @@ describe('ProductAvailabilityBadge', () => {
 
     const spacer = host.querySelector('span');
     expect(spacer?.getAttribute('aria-hidden')).toBe('true');
-    // A blank of the badge's height, so the names on either side sit level —
-    // and nothing a screen reader announces.
+    // A blank of the badge's height, so the names sit level, announced as
+    // nothing.
     expect(spacer?.textContent?.trim()).toBe('');
   });
 });

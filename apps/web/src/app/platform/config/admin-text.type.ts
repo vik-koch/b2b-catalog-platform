@@ -64,8 +64,8 @@ export const adminTextShape = {
       sortDescending: z.string(),
     })
     .strict(),
-  /** How many of something are in effect, beside the word that names them —
-   * filters on a grid, checked names in the attribute picker: `{count}`. */
+  /** How many are in effect, beside the word naming them (grid filters,
+   * picked attribute names): `{count}`. */
   countSuffix: z.string(),
   /** Who did something, once their account has been deleted. */
   actorGone: z.string(),
@@ -114,7 +114,7 @@ export const adminTextShape = {
       /** The panel's title for an admin. */
       adminPanel: z.string(),
       /** The same landing for a manager, whose panel holds only the accounts
-       * they approve — no catalog, pricing or site controls. */
+       * they approve. */
       staffArea: z.string(),
       /** The heading over the staff member's own password, and the link to
        * change it. */
@@ -126,8 +126,8 @@ export const adminTextShape = {
       registries: z.string(),
       pages: z.string(),
       accounts: z.string(),
-      /** Heading of the orders card — a manager's daily work, so it is shown
-       * to managers as well as admins. */
+      /** The orders card's heading, shown to managers too: their daily
+       * work. */
       orders: z.string(),
       /** How the shop is running and what it lets in from outside: the two
        * runtime switches, and the credentials an automated client presents.
@@ -189,8 +189,8 @@ export const adminTextShape = {
       purgeProduct: z.string(),
       editCategory: z.string(),
       editCategories: z.string(),
-      /** The way into this category's filter panel (FR-ATTR-11) — or, on
-       * the catalogue index, the whole catalogue's (FR-ATTR-12). */
+      /** Into this category's filter panel (FR-ATTR-11), or on the index the
+       * whole catalogue's (FR-ATTR-12). */
       editFilters: z.string(),
       editPage: z.string(),
       /** In place of a static page's body no admin has written yet. */
@@ -288,7 +288,7 @@ export const adminTextShape = {
       historyMaintenanceOff: z.string(),
       /** `{date}` and `{actor}` */
       historyBy: z.string(),
-      /** `{count}` — shown only when the list came back full. */
+      /** `{count}`: shown only when the list came back full. */
       historyMore: z.string(),
     })
     .strict(),
