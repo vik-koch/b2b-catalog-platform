@@ -13,66 +13,6 @@
       "card": "Card, arranged with the customer"
     }
   },
-  "registrationReceived": {
-    "subject": "We received your registration",
-    "preheader": "Your registration is with our team.",
-    "heading": "Thank you for registering",
-    "body": "We have received your registration and passed it to our team.",
-    "nextSteps": "A colleague will review it and set up your account. You will receive a second email with your password as soon as it is ready. Until then you cannot sign in yet."
-  },
-  "accountApproved": {
-    "subject": "Your account is ready",
-    "preheader": "Choose a password to start ordering.",
-    "heading": "Your account is ready",
-    "body": "Your registration has been approved and your customer account is set up. Choose a password and you can start ordering right away.",
-    "action": "Choose your password"
-  },
-  "accountCreated": {
-    "subject": "An account has been created for you",
-    "preheader": "Choose a password to start ordering.",
-    "heading": "An account has been created for you",
-    "body": "We have set up a customer account for you at our online shop. Choose a password and you can start ordering right away.",
-    "action": "Choose your password"
-  },
-  "passwordReset": {
-    "subject": "Reset your password",
-    "preheader": "Choose a new password for your account.",
-    "heading": "Reset your password",
-    "body": "Someone asked to reset the password for your customer account. Choose a new one and you can sign in again straight away.",
-    "expiry": "This link can be used once, and expires an hour after it was sent.",
-    "ignore": "If this was not you, you can ignore this message — your password stays as it is, and nobody can use this link without your mailbox.",
-    "action": "Choose a new password"
-  },
-  "signInCode": {
-    "message": "{code} is your Slaney Labware sign-in code.",
-    "subject": "Your sign-in code",
-    "preheader": "Enter this code to finish signing in.",
-    "heading": "Your sign-in code",
-    "ignore": "If you did not try to sign in, change your password: someone else knows it."
-  },
-  "signInCall": {
-    "subject": "Finish signing in",
-    "preheader": "Open the link instead of calling.",
-    "heading": "Finish signing in",
-    "body": "This message stands in for the call to the shop. Open the link and the sign-in page you left open goes on by itself.",
-    "action": "Finish signing in",
-    "ignore": "If you did not try to sign in, change your password: someone else knows it."
-  },
-  "accountDeleted": {
-    "subject": "Your account has been deleted",
-    "preheader": "Your customer account and personal details have been removed.",
-    "heading": "Your account has been deleted",
-    "body": "Your customer account is closed and your personal details have been removed from our records. This email address is no longer connected to an account with us.",
-    "orders": "Past orders are kept for our bookkeeping, with your details removed from them. If you register again later, it will be a new account — your earlier orders will not appear in it."
-  },
-  "newRegistration": {
-    "subject": "New registration",
-    "preheader": "Someone requested a customer account.",
-    "heading": "New registration",
-    "body": "Someone has requested a customer account. Review the request and, if it is genuine, approve it and assign the customer a price tier.",
-    "customerTypeLabel": "Registering as",
-    "action": "Open the account list"
-  },
   "orderReceived": {
     "subject": "We have your order request",
     "preheader": "Your order request has reached us.",
@@ -98,16 +38,6 @@
     "paidNote": "A payment is recorded against this order. Any refund is arranged with the customer directly — nothing here moves money.",
     "itemsHeading": "Was ordered",
     "action": "Open the order"
-  },
-  "accountClosed": {
-    "subject": "A customer closed their account",
-    "preheader": "A customer has closed their account.",
-    "heading": "Account closed",
-    "body": "A customer has closed their account. Their details are gone; their past orders were kept for the books, with everything identifying removed from them.",
-    "nameLabel": "Was",
-    "ordersLabel": "Orders kept",
-    "openOrdersNote": "Orders among them that have not ended yet: {count}. They are still yours to settle, and they can no longer be traced back to a customer — so check them before anything else.",
-    "action": "Open the order list"
   },
   "orderStatusChanged": {
     "subject": "Your order",
@@ -250,6 +180,78 @@
       "heading": "New inquiry",
       "preferredContact": "Preferred contact",
       "message": "Message"
+    }
+  },
+  "accounts": {
+    "registrationReceived": {
+      "subject": "We received your registration",
+      "preheader": "Your registration is with our team.",
+      "heading": "Thank you for registering",
+      "body": "We have received your registration and passed it to our team.",
+      "nextSteps": "A colleague will review it and set up your account. You will receive a second email with your password as soon as it is ready. Until then you cannot sign in yet."
+    },
+    "accountApproved": {
+      "subject": "Your account is ready",
+      "preheader": "Choose a password to start ordering.",
+      "heading": "Your account is ready",
+      "body": "Your registration has been approved and your customer account is set up. Choose a password and you can start ordering right away.",
+      "action": "Choose your password"
+    },
+    "accountCreated": {
+      "subject": "An account has been created for you",
+      "preheader": "Choose a password to start ordering.",
+      "heading": "An account has been created for you",
+      "body": "We have set up a customer account for you at our online shop. Choose a password and you can start ordering right away.",
+      "action": "Choose your password"
+    },
+    "passwordReset": {
+      "subject": "Reset your password",
+      "preheader": "Choose a new password for your account.",
+      "heading": "Reset your password",
+      "body": "Someone asked to reset the password for your customer account. Choose a new one and you can sign in again straight away.",
+      "expiry": "This link can be used once, and expires an hour after it was sent.",
+      "ignore": "If this was not you, you can ignore this message — your password stays as it is, and nobody can use this link without your mailbox.",
+      "action": "Choose a new password"
+    },
+    "signInCode": {
+      "message": "{code} is your Slaney Labware sign-in code.",
+      "subject": "Your sign-in code",
+      "preheader": "Enter this code to finish signing in.",
+      "heading": "Your sign-in code",
+      "ignore": "If you did not try to sign in, change your password: someone else knows it."
+    },
+    "signInCall": {
+      "subject": "Finish signing in",
+      "preheader": "Open the link instead of calling.",
+      "heading": "Finish signing in",
+      "body": "This message stands in for the call to the shop. Open the link and the sign-in page you left open goes on by itself.",
+      "action": "Finish signing in",
+      "ignore": "If you did not try to sign in, change your password: someone else knows it."
+    },
+    "accountDeleted": {
+      "subject": "Your account has been deleted",
+      "preheader": "Your customer account and personal details have been removed.",
+      "heading": "Your account has been deleted",
+      "body": "Your customer account is closed and your personal details have been removed from our records. This email address is no longer connected to an account with us.",
+      "orders": "Past orders are kept for our bookkeeping, with your details removed from them. If you register again later, it will be a new account — your earlier orders will not appear in it."
+    },
+    "newRegistration": {
+      "subject": "New registration",
+      "preheader": "Someone requested a customer account.",
+      "heading": "New registration",
+      "body": "Someone has requested a customer account. Review the request and, if it is genuine, approve it and assign the customer a price tier.",
+      "customerTypeLabel": "Registering as",
+      "action": "Open the account list"
+    },
+    "accountClosed": {
+      "subject": "A customer closed their account",
+      "preheader": "A customer has closed their account.",
+      "heading": "Account closed",
+      "body": "A customer has closed their account. Their details are gone; their past orders were kept for the books, with everything identifying removed from them.",
+      "nameLabel": "Was",
+      "ordersLabel": "Orders kept",
+      "openOrdersNote": "Orders among them that have not ended yet: {count}. They are still yours to settle, and they can no longer be traced back to a customer — so check them before anything else.",
+      "action": "Open the order list"
     }
   }
 }

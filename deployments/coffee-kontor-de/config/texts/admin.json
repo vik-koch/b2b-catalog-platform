@@ -1273,201 +1273,6 @@
       "shipment": "Geschätztes Gewicht und Volumen"
     }
   },
-  "users": {
-    "list": {
-      "customersPage": {
-        "title": "Kunden"
-      },
-      "staffPage": {
-        "title": "Mitarbeitende"
-      },
-      "count": "Konten: {count}",
-      "searchAria": "Konten suchen",
-      "searchPlaceholder": "Nach Name, E-Mail usw. suchen…",
-      "clearSearch": "Suche leeren",
-      "empty": "Noch keine Konten.",
-      "noResults": "Kein Konto passt zu diesen Filtern.",
-      "loadError": "Die Kontenliste konnte nicht geladen werden. Bitte versuchen Sie es noch einmal.",
-      "registered": "Registriert",
-      "filterRole": "Nach Rolle filtern",
-      "filterTier": "Nach Kundengruppe filtern",
-      "filterCompanyIdFormat": "Nach Art der Unternehmenskennung filtern",
-      "filterStatus": "Nach Status filtern",
-      "roleAll": "Alle Rollen",
-      "roleAdmin": "Admin",
-      "roleManager": "Manager",
-      "roleUser": "Kunde",
-      "tierAll": "Alle Kundengruppen",
-      "companyIdFormatAll": "Alle Unternehmenskennungen",
-      "companyIdFormatNone": "Keine Unternehmenskennung",
-      "statusAll": "Alle Status",
-      "status": "Status",
-      "statusPending": "Offen",
-      "statusInvited": "Eingeladen",
-      "statusActive": "Aktiv",
-      "statusDisabled": "Deaktiviert",
-      "statusAnonymized": "Geschlossen",
-      "actionsAria": "Aktionen",
-      "approve": "Prüfen und freigeben",
-      "edit": "Konto bearbeiten",
-      "declineAria": "Ablehnen",
-      "deactivateAria": "Konto deaktivieren",
-      "reactivateAria": "Konto reaktivieren",
-      "saveError": "Diese Änderung konnte nicht gespeichert werden. Bitte versuchen Sie es noch einmal.",
-      "addCustomer": "Kunden hinzufügen",
-      "addStaff": "Mitarbeiterkonto hinzufügen",
-      "errors": {
-        "account-not-found": "Dieses Konto gibt es nicht mehr. Laden Sie die Seite neu, um die aktuelle Liste zu sehen.",
-        "account-not-pending": "Über diesen Antrag wurde bereits entschieden.",
-        "account-closed": "Dieses Konto ist geschlossen und lässt sich nicht mehr bearbeiten.",
-        "email-taken": "Zu dieser E-Mail-Adresse gibt es bereits ein Konto.",
-        "account-not-approved": "Nur ein freigegebenes Konto lässt sich deaktivieren. Geben Sie diesen Antrag stattdessen frei oder lehnen Sie ihn ab.",
-        "account-not-disabled": "Dieses Konto ist nicht deaktiviert, es gibt also nichts wieder einzuschalten.",
-        "account-cannot-sign-in": "Dieses Konto kann sich nicht anmelden, es gibt also nichts zu senden. Schalten Sie es zuerst wieder ein oder entscheiden Sie über den Antrag.",
-        "self-deactivate": "Sie können Ihr eigenes Konto nicht deaktivieren.",
-        "self-demote": "Sie können Ihrem eigenen Konto die Admin-Rolle nicht entziehen.",
-        "last-admin": "Das ist das einzige Admin-Konto. Erst wenn es ein weiteres gibt, lässt sich dieses ändern.",
-        "account-not-purgeable": "Ablehnen lässt sich nur ein Antrag, über den noch niemand entschieden hat. Deaktivieren Sie dieses Konto stattdessen.",
-        "self-delete": "Ihr eigenes Konto können Sie hier nicht löschen. Löschen Sie es stattdessen auf Ihrer Kontoseite.",
-        "account-pending": "Über diesen Antrag ist noch nicht entschieden. Lehnen Sie ihn stattdessen ab, dann wird er ganz entfernt.",
-        "source-id-taken": "Ein anderes Konto trägt diesen Quellschlüssel bereits. Jeder Schlüssel bezeichnet genau ein Konto.",
-        "role-change-admin-only": "Nur ein Admin kann die Rolle eines Kontos ändern.",
-        "staff-create-admin-only": "Nur ein Admin kann ein Mitarbeiterkonto anlegen.",
-        "source-id-change-admin-only": "Nur ein Admin kann den Quellschlüssel eines Kontos ändern.",
-        "not-exemptable": "In dieser Installation darf kein Konto dieser Rolle den Anmeldecode überspringen.",
-        "customer-type-not-accepted": "An diese Kundenart verkauft dieser Shop nicht."
-      },
-      "deactivateConfirm": {
-        "heading": "Konto deaktivieren",
-        "message": "{name} deaktivieren? Die Person wird sofort abgemeldet und kann sich nicht wieder anmelden, und jeder ihr geschickte Passwort-Link wird ungültig. Das Passwort selbst bleibt erhalten, sodass das Konto nach dem Wiedereinschalten ist wie vorher. Nichts wird gelöscht, und es geht keine E-Mail hinaus.",
-        "confirm": "Konto deaktivieren"
-      },
-      "reactivateConfirm": {
-        "heading": "Konto reaktivieren",
-        "message": "{name} wieder einschalten? Angaben, Kundengruppe und Passwort sind unverändert, die Person kann sich also wie zuvor anmelden – und es geht keine E-Mail hinaus. Ein Konto, für das nie ein Passwort gewählt wurde, wartet danach wieder darauf; schicken Sie einen Link von der Kontoseite.",
-        "confirm": "Konto reaktivieren"
-      },
-      "declineConfirm": {
-        "heading": "Antrag ablehnen",
-        "message": "{name} ablehnen? Antrag und Angaben werden endgültig entfernt.",
-        "confirm": "Ablehnen"
-      }
-    },
-    "editor": {
-      "newCustomerTitle": "Neuer Kunde",
-      "newStaffTitle": "Neues Mitarbeiterkonto",
-      "editTitle": "Konto bearbeiten",
-      "approveTitle": "Antrag freigeben",
-      "emailFixed": "Die E-Mail-Adresse ist der Anmeldename und lässt sich hier nicht ändern.",
-      "customerType": "Kundenart",
-      "typeNotAccepted": "Dieses Konto wurde als eine Kundenart gespeichert, an die dieser Shop nicht mehr verkauft. Füllen Sie die unten verlangten Angaben aus, um es als eine Kundenart zu speichern, an die er verkauft.",
-      "tier": "Kundengruppe",
-      "tierChoose": "Kundengruppe wählen…",
-      "role": "Rolle",
-      "sourceId": "Quellschlüssel",
-      "sourceIdHint": "Der Schlüssel, unter dem das angebundene System diesen Kunden kennt. Solange er leer ist, erreicht keine automatische Aktualisierung dieses Konto.",
-      "inviteHint": "Beim Anlegen des Kontos wird eine E-Mail mit einem Link zum Wählen eines Passworts verschickt.",
-      "resend": "Passwort-Link senden",
-      "resendSent": "Der Link wurde verschickt.",
-      "status": "Status",
-      "create": "Anlegen und einladen",
-      "approve": "Freigeben und einladen",
-      "notFound": "Dieses Konto wurde nicht gefunden.",
-      "closed": "Dieses Konto ist geschlossen. Seine Angaben bleiben als Nachweis erhalten und lassen sich nicht mehr bearbeiten.",
-      "saveError": "Dieses Konto konnte nicht gespeichert werden. Bitte versuchen Sie es noch einmal.",
-      "discardConfirm": "Die Änderungen an diesem Konto verwerfen?",
-      "validation": {
-        "tierRequired": "Eine Kundengruppe ist erforderlich."
-      }
-    },
-    "detail": {
-      "detailsHeading": "Angaben",
-      "accountHeading": "Konto",
-      "approved": "Freigegeben",
-      "approvedNever": "Noch nicht freigegeben",
-      "sourceIdEmpty": "Keiner – keine automatische Aktualisierung erreicht dieses Konto.",
-      "consentsHeading": "Einwilligungen",
-      "consentsEmpty": "Für dieses Konto ist keine Einwilligung erfasst.",
-      "delete": "Konto löschen",
-      "deleteConsentWithdrawn": "Die Person hat ihre Einwilligung widerrufen",
-      "deleteConsentWithdrawnHint": "Wird als Grund erfasst. Lassen Sie es leer, wenn die Person einfach um die Löschung gebeten hat.",
-      "deleteError": "Das Konto konnte nicht gelöscht werden. Bitte versuchen Sie es noch einmal.",
-      "signInHeading": "Anmeldung",
-      "signInPhone": "Mobilnummer",
-      "signInPhoneConfirmed": "Bestätigt am {date}",
-      "signInPhoneUnconfirmed": "Noch nicht bestätigt. Das geschieht bei der nächsten Anmeldung.",
-      "signInPhoneMissing": "Keine, die ein Code erreicht. Die Person kann sich erst anmelden, wenn das Team eine in den Kontoangaben einträgt.",
-      "signInCode": "Code nach dem Passwort",
-      "signInCodeAlways": "Bei jeder Anmeldung",
-      "signInCodeAlwaysRemembered": "Bei jeder Anmeldung, außer in einem Browser, den die Person sich merken ließ (bis zu {days} Tage lang)",
-      "signInCodeOnce": "Einmal, um die Nummer zu bestätigen",
-      "signInCodeExempt": "Nicht abgefragt: befreit von {admin} am {date}",
-      "exempt": "Vom Code befreien",
-      "unexempt": "Code wieder abfragen",
-      "exemptError": "Die Änderung konnte nicht gespeichert werden. Bitte versuchen Sie es noch einmal.",
-      "back": "Zurück zur Liste",
-      "notFound": "Dieses Konto wurde nicht gefunden.",
-      "loadError": "Dieses Konto konnte nicht geladen werden. Bitte versuchen Sie es noch einmal.",
-      "deleteConfirm": {
-        "heading": "Konto auf Wunsch löschen",
-        "message": "{name} auf Wunsch löschen? Persönliche Angaben und gespeicherte Adressen werden entfernt, frühere Bestellungen bleiben ohne diese Angaben erhalten, und die Person kann sich nicht mehr anmelden. Sie erhält dieselbe Bestätigung wie bei einer Löschung durch sie selbst. Das lässt sich nicht rückgängig machen.",
-        "confirm": "Konto löschen",
-        "warning": "Noch offene Bestellungen bleiben bei Ihnen zur Erledigung, ohne Name, Telefon und Adresse des Kunden."
-      },
-      "exemptConfirm": {
-        "heading": "Vom Anmeldecode befreien",
-        "message": "{name} nur mit dem Passwort anmelden lassen? Die Befreiung wird mit Ihrem Namen erfasst und auf dieser Seite gezeigt.",
-        "confirm": "Vom Code befreien"
-      },
-      "unexemptConfirm": {
-        "heading": "Anmeldecode wieder abfragen",
-        "message": "{name} ab der nächsten Anmeldung wieder nach dem Code fragen?",
-        "confirm": "Code wieder abfragen"
-      }
-    }
-  },
-  "consents": {
-    "page": {
-      "title": "Einwilligungen",
-      "intro": "Finden Sie die Einwilligungen einer Person, um ihre eigene Anfrage oder eine Prüfung zu beantworten. Eine Suche nach E-Mail-Adresse findet auch die Einträge des Kontos, das sie jetzt verwendet."
-    },
-    "panelLookup": "Einwilligungen einer Person finden",
-    "panelText": "Text: {purpose}",
-    "byEmail": "E-Mail-Adresse",
-    "byPhone": "Telefonnummer",
-    "search": "Suchen",
-    "empty": "Für {query} ist keine Einwilligung erfasst.",
-    "loadError": "Die Einträge konnten nicht geladen werden. Bitte versuchen Sie es noch einmal.",
-    "purposes": {
-      "contact": "Kontaktformular",
-      "account": "Kundenkonto"
-    },
-    "version": "Version {version}",
-    "account": "Konto",
-    "accountGone": "Antrag abgelehnt und entfernt",
-    "withdrawn": "Widerrufen",
-    "withdrawnAt": "Widerrufen am {date}",
-    "withdrawnReasons": {
-      "account-deleted": "bei der Löschung des Kontos",
-      "registration-declined": "bei der Ablehnung des Antrags",
-      "entered": "eingetragen von {admin}"
-    },
-    "endsWithAccount": "Widerruf durch Löschen des Kontos",
-    "withdraw": "Widerruf eintragen",
-    "withdrawNote": "Wie er Sie erreicht hat",
-    "withdrawErrors": {
-      "consent-not-found": "Diesen Eintrag gibt es nicht mehr.",
-      "consent-already-withdrawn": "Diese Einwilligung wurde bereits widerrufen.",
-      "consent-ends-with-account": "Eine Einwilligung zum Konto wird durch Löschen des Kontos widerrufen."
-    },
-    "withdrawError": "Der Widerruf konnte nicht gespeichert werden. Bitte versuchen Sie es noch einmal.",
-    "withdrawConfirm": {
-      "heading": "Widerruf eintragen",
-      "message": "Die Einwilligung von {holder} vom {date} endet jetzt und lässt sich nicht wieder erteilen. Ihr Eintrag bleibt für die Aufbewahrungsfrist erhalten.",
-      "confirm": "Widerruf eintragen",
-      "warning": "Die Anfrage selbst ist eine E-Mail im Postfach des Shops, die hiervon unberührt bleibt. Löschen Sie sie dort ebenfalls."
-    }
-  },
   "ownership": {
     "intro": "Übergeben Sie einen Datenbereich des Shops an ein externes System oder holen Sie ihn zurück. Solange ein externes System einen Bereich verwaltet, schreibt nur es ihn: Der eigene Zugang des Shops ist abgeschaltet, und was es füllt, ist hier schreibgeschützt. Solange niemand ihn verwaltet, ist der Shop zuständig, und automatische Aktualisierungen werden abgewiesen.",
     "areaText": {
@@ -1590,6 +1395,203 @@
       "enableAria": "Wartungsmodus einschalten",
       "disableAria": "Wartungsmodus ausschalten",
       "error": "Beim Ändern des Wartungsmodus ist etwas schiefgegangen. Bitte versuchen Sie es noch einmal."
+    }
+  },
+  "accounts": {
+    "users": {
+      "list": {
+        "customersPage": {
+          "title": "Kunden"
+        },
+        "staffPage": {
+          "title": "Mitarbeitende"
+        },
+        "count": "Konten: {count}",
+        "searchAria": "Konten suchen",
+        "searchPlaceholder": "Nach Name, E-Mail usw. suchen…",
+        "clearSearch": "Suche leeren",
+        "empty": "Noch keine Konten.",
+        "noResults": "Kein Konto passt zu diesen Filtern.",
+        "loadError": "Die Kontenliste konnte nicht geladen werden. Bitte versuchen Sie es noch einmal.",
+        "registered": "Registriert",
+        "filterRole": "Nach Rolle filtern",
+        "filterTier": "Nach Kundengruppe filtern",
+        "filterCompanyIdFormat": "Nach Art der Unternehmenskennung filtern",
+        "filterStatus": "Nach Status filtern",
+        "roleAll": "Alle Rollen",
+        "roleAdmin": "Admin",
+        "roleManager": "Manager",
+        "roleUser": "Kunde",
+        "tierAll": "Alle Kundengruppen",
+        "companyIdFormatAll": "Alle Unternehmenskennungen",
+        "companyIdFormatNone": "Keine Unternehmenskennung",
+        "statusAll": "Alle Status",
+        "status": "Status",
+        "statusPending": "Offen",
+        "statusInvited": "Eingeladen",
+        "statusActive": "Aktiv",
+        "statusDisabled": "Deaktiviert",
+        "statusAnonymized": "Geschlossen",
+        "actionsAria": "Aktionen",
+        "approve": "Prüfen und freigeben",
+        "edit": "Konto bearbeiten",
+        "declineAria": "Ablehnen",
+        "deactivateAria": "Konto deaktivieren",
+        "reactivateAria": "Konto reaktivieren",
+        "saveError": "Diese Änderung konnte nicht gespeichert werden. Bitte versuchen Sie es noch einmal.",
+        "addCustomer": "Kunden hinzufügen",
+        "addStaff": "Mitarbeiterkonto hinzufügen",
+        "errors": {
+          "account-not-found": "Dieses Konto gibt es nicht mehr. Laden Sie die Seite neu, um die aktuelle Liste zu sehen.",
+          "account-not-pending": "Über diesen Antrag wurde bereits entschieden.",
+          "account-closed": "Dieses Konto ist geschlossen und lässt sich nicht mehr bearbeiten.",
+          "email-taken": "Zu dieser E-Mail-Adresse gibt es bereits ein Konto.",
+          "account-not-approved": "Nur ein freigegebenes Konto lässt sich deaktivieren. Geben Sie diesen Antrag stattdessen frei oder lehnen Sie ihn ab.",
+          "account-not-disabled": "Dieses Konto ist nicht deaktiviert, es gibt also nichts wieder einzuschalten.",
+          "account-cannot-sign-in": "Dieses Konto kann sich nicht anmelden, es gibt also nichts zu senden. Schalten Sie es zuerst wieder ein oder entscheiden Sie über den Antrag.",
+          "self-deactivate": "Sie können Ihr eigenes Konto nicht deaktivieren.",
+          "self-demote": "Sie können Ihrem eigenen Konto die Admin-Rolle nicht entziehen.",
+          "last-admin": "Das ist das einzige Admin-Konto. Erst wenn es ein weiteres gibt, lässt sich dieses ändern.",
+          "account-not-purgeable": "Ablehnen lässt sich nur ein Antrag, über den noch niemand entschieden hat. Deaktivieren Sie dieses Konto stattdessen.",
+          "self-delete": "Ihr eigenes Konto können Sie hier nicht löschen. Löschen Sie es stattdessen auf Ihrer Kontoseite.",
+          "account-pending": "Über diesen Antrag ist noch nicht entschieden. Lehnen Sie ihn stattdessen ab, dann wird er ganz entfernt.",
+          "source-id-taken": "Ein anderes Konto trägt diesen Quellschlüssel bereits. Jeder Schlüssel bezeichnet genau ein Konto.",
+          "role-change-admin-only": "Nur ein Admin kann die Rolle eines Kontos ändern.",
+          "staff-create-admin-only": "Nur ein Admin kann ein Mitarbeiterkonto anlegen.",
+          "source-id-change-admin-only": "Nur ein Admin kann den Quellschlüssel eines Kontos ändern.",
+          "not-exemptable": "In dieser Installation darf kein Konto dieser Rolle den Anmeldecode überspringen.",
+          "customer-type-not-accepted": "An diese Kundenart verkauft dieser Shop nicht."
+        },
+        "deactivateConfirm": {
+          "heading": "Konto deaktivieren",
+          "message": "{name} deaktivieren? Die Person wird sofort abgemeldet und kann sich nicht wieder anmelden, und jeder ihr geschickte Passwort-Link wird ungültig. Das Passwort selbst bleibt erhalten, sodass das Konto nach dem Wiedereinschalten ist wie vorher. Nichts wird gelöscht, und es geht keine E-Mail hinaus.",
+          "confirm": "Konto deaktivieren"
+        },
+        "reactivateConfirm": {
+          "heading": "Konto reaktivieren",
+          "message": "{name} wieder einschalten? Angaben, Kundengruppe und Passwort sind unverändert, die Person kann sich also wie zuvor anmelden – und es geht keine E-Mail hinaus. Ein Konto, für das nie ein Passwort gewählt wurde, wartet danach wieder darauf; schicken Sie einen Link von der Kontoseite.",
+          "confirm": "Konto reaktivieren"
+        },
+        "declineConfirm": {
+          "heading": "Antrag ablehnen",
+          "message": "{name} ablehnen? Antrag und Angaben werden endgültig entfernt.",
+          "confirm": "Ablehnen"
+        }
+      },
+      "editor": {
+        "newCustomerTitle": "Neuer Kunde",
+        "newStaffTitle": "Neues Mitarbeiterkonto",
+        "editTitle": "Konto bearbeiten",
+        "approveTitle": "Antrag freigeben",
+        "emailFixed": "Die E-Mail-Adresse ist der Anmeldename und lässt sich hier nicht ändern.",
+        "customerType": "Kundenart",
+        "typeNotAccepted": "Dieses Konto wurde als eine Kundenart gespeichert, an die dieser Shop nicht mehr verkauft. Füllen Sie die unten verlangten Angaben aus, um es als eine Kundenart zu speichern, an die er verkauft.",
+        "tier": "Kundengruppe",
+        "tierChoose": "Kundengruppe wählen…",
+        "role": "Rolle",
+        "sourceId": "Quellschlüssel",
+        "sourceIdHint": "Der Schlüssel, unter dem das angebundene System diesen Kunden kennt. Solange er leer ist, erreicht keine automatische Aktualisierung dieses Konto.",
+        "inviteHint": "Beim Anlegen des Kontos wird eine E-Mail mit einem Link zum Wählen eines Passworts verschickt.",
+        "resend": "Passwort-Link senden",
+        "resendSent": "Der Link wurde verschickt.",
+        "status": "Status",
+        "create": "Anlegen und einladen",
+        "approve": "Freigeben und einladen",
+        "notFound": "Dieses Konto wurde nicht gefunden.",
+        "closed": "Dieses Konto ist geschlossen. Seine Angaben bleiben als Nachweis erhalten und lassen sich nicht mehr bearbeiten.",
+        "saveError": "Dieses Konto konnte nicht gespeichert werden. Bitte versuchen Sie es noch einmal.",
+        "discardConfirm": "Die Änderungen an diesem Konto verwerfen?",
+        "validation": {
+          "tierRequired": "Eine Kundengruppe ist erforderlich."
+        }
+      },
+      "detail": {
+        "detailsHeading": "Angaben",
+        "accountHeading": "Konto",
+        "approved": "Freigegeben",
+        "approvedNever": "Noch nicht freigegeben",
+        "sourceIdEmpty": "Keiner – keine automatische Aktualisierung erreicht dieses Konto.",
+        "consentsHeading": "Einwilligungen",
+        "consentsEmpty": "Für dieses Konto ist keine Einwilligung erfasst.",
+        "delete": "Konto löschen",
+        "deleteConsentWithdrawn": "Die Person hat ihre Einwilligung widerrufen",
+        "deleteConsentWithdrawnHint": "Wird als Grund erfasst. Lassen Sie es leer, wenn die Person einfach um die Löschung gebeten hat.",
+        "deleteError": "Das Konto konnte nicht gelöscht werden. Bitte versuchen Sie es noch einmal.",
+        "signInHeading": "Anmeldung",
+        "signInPhone": "Mobilnummer",
+        "signInPhoneConfirmed": "Bestätigt am {date}",
+        "signInPhoneUnconfirmed": "Noch nicht bestätigt. Das geschieht bei der nächsten Anmeldung.",
+        "signInPhoneMissing": "Keine, die ein Code erreicht. Die Person kann sich erst anmelden, wenn das Team eine in den Kontoangaben einträgt.",
+        "signInCode": "Code nach dem Passwort",
+        "signInCodeAlways": "Bei jeder Anmeldung",
+        "signInCodeAlwaysRemembered": "Bei jeder Anmeldung, außer in einem Browser, den die Person sich merken ließ (bis zu {days} Tage lang)",
+        "signInCodeOnce": "Einmal, um die Nummer zu bestätigen",
+        "signInCodeExempt": "Nicht abgefragt: befreit von {admin} am {date}",
+        "exempt": "Vom Code befreien",
+        "unexempt": "Code wieder abfragen",
+        "exemptError": "Die Änderung konnte nicht gespeichert werden. Bitte versuchen Sie es noch einmal.",
+        "back": "Zurück zur Liste",
+        "notFound": "Dieses Konto wurde nicht gefunden.",
+        "loadError": "Dieses Konto konnte nicht geladen werden. Bitte versuchen Sie es noch einmal.",
+        "deleteConfirm": {
+          "heading": "Konto auf Wunsch löschen",
+          "message": "{name} auf Wunsch löschen? Persönliche Angaben und gespeicherte Adressen werden entfernt, frühere Bestellungen bleiben ohne diese Angaben erhalten, und die Person kann sich nicht mehr anmelden. Sie erhält dieselbe Bestätigung wie bei einer Löschung durch sie selbst. Das lässt sich nicht rückgängig machen.",
+          "confirm": "Konto löschen",
+          "warning": "Noch offene Bestellungen bleiben bei Ihnen zur Erledigung, ohne Name, Telefon und Adresse des Kunden."
+        },
+        "exemptConfirm": {
+          "heading": "Vom Anmeldecode befreien",
+          "message": "{name} nur mit dem Passwort anmelden lassen? Die Befreiung wird mit Ihrem Namen erfasst und auf dieser Seite gezeigt.",
+          "confirm": "Vom Code befreien"
+        },
+        "unexemptConfirm": {
+          "heading": "Anmeldecode wieder abfragen",
+          "message": "{name} ab der nächsten Anmeldung wieder nach dem Code fragen?",
+          "confirm": "Code wieder abfragen"
+        }
+      }
+    },
+    "consents": {
+      "page": {
+        "title": "Einwilligungen",
+        "intro": "Finden Sie die Einwilligungen einer Person, um ihre eigene Anfrage oder eine Prüfung zu beantworten. Eine Suche nach E-Mail-Adresse findet auch die Einträge des Kontos, das sie jetzt verwendet."
+      },
+      "panelLookup": "Einwilligungen einer Person finden",
+      "panelText": "Text: {purpose}",
+      "byEmail": "E-Mail-Adresse",
+      "byPhone": "Telefonnummer",
+      "search": "Suchen",
+      "empty": "Für {query} ist keine Einwilligung erfasst.",
+      "loadError": "Die Einträge konnten nicht geladen werden. Bitte versuchen Sie es noch einmal.",
+      "purposes": {
+        "contact": "Kontaktformular",
+        "account": "Kundenkonto"
+      },
+      "version": "Version {version}",
+      "account": "Konto",
+      "accountGone": "Antrag abgelehnt und entfernt",
+      "withdrawn": "Widerrufen",
+      "withdrawnAt": "Widerrufen am {date}",
+      "withdrawnReasons": {
+        "account-deleted": "bei der Löschung des Kontos",
+        "registration-declined": "bei der Ablehnung des Antrags",
+        "entered": "eingetragen von {admin}"
+      },
+      "endsWithAccount": "Widerruf durch Löschen des Kontos",
+      "withdraw": "Widerruf eintragen",
+      "withdrawNote": "Wie er Sie erreicht hat",
+      "withdrawErrors": {
+        "consent-not-found": "Diesen Eintrag gibt es nicht mehr.",
+        "consent-already-withdrawn": "Diese Einwilligung wurde bereits widerrufen.",
+        "consent-ends-with-account": "Eine Einwilligung zum Konto wird durch Löschen des Kontos widerrufen."
+      },
+      "withdrawError": "Der Widerruf konnte nicht gespeichert werden. Bitte versuchen Sie es noch einmal.",
+      "withdrawConfirm": {
+        "heading": "Widerruf eintragen",
+        "message": "Die Einwilligung von {holder} vom {date} endet jetzt und lässt sich nicht wieder erteilen. Ihr Eintrag bleibt für die Aufbewahrungsfrist erhalten.",
+        "confirm": "Widerruf eintragen",
+        "warning": "Die Anfrage selbst ist eine E-Mail im Postfach des Shops, die hiervon unberührt bleibt. Löschen Sie sie dort ebenfalls."
+      }
     }
   }
 }

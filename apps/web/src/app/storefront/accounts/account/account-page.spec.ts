@@ -1,3 +1,4 @@
+import { defaultStorefrontAccountsText } from '../accounts-text.fixture';
 import { defaultSharedAccountsText } from '../../../core/accounts/accounts-text.fixture';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { signal } from '@angular/core';
@@ -17,8 +18,8 @@ import { AccountService } from './account.service';
 import { Address } from '@b2b-catalog-platform/shared/core/accounts';
 import { AccountProfile } from '@b2b-catalog-platform/shared/storefront/accounts';
 
-const text = defaultStorefrontText.auth;
-const accountText = defaultStorefrontText.account;
+const text = defaultStorefrontAccountsText.auth;
+const accountText = defaultStorefrontAccountsText.account;
 
 const customer: AccountProfile = {
   email: 'alex@example.com',

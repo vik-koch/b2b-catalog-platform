@@ -1,3 +1,4 @@
+import { defaultStorefrontAccountsText } from '../accounts-text.fixture';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
 import { signal } from '@angular/core';
@@ -16,8 +17,8 @@ import { AuthUser } from '@b2b-catalog-platform/shared/platform';
 import { defaultStorefrontSiteText } from '../../site/site-text.fixture';
 import { withSite } from '../../../core/site/site-config.fixture';
 
-const text = defaultStorefrontText.auth.setPassword;
-const rejected = defaultStorefrontText.auth.passwordRejected;
+const text = defaultStorefrontAccountsText.auth.setPassword;
+const rejected = defaultStorefrontAccountsText.auth.passwordRejected;
 
 const consentPage: Page = {
   version: 2,
@@ -165,7 +166,7 @@ describe('SetPasswordPage', () => {
 
     expect(setPassword).not.toHaveBeenCalled();
     expect(el.textContent).toContain(
-      defaultStorefrontText.auth.validation.confirmPasswordMismatch,
+      defaultStorefrontAccountsText.auth.validation.confirmPasswordMismatch,
     );
   });
 

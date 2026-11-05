@@ -3,8 +3,6 @@ import { AddressBookModule } from '../accounts/address-book.module';
 import { AuditLogger } from '../../platform/audit/audit.logger';
 import { SessionModule } from '../../platform/auth/session.module';
 import {
-  ACCEPTED_CUSTOMER_TYPES,
-  loadAcceptedCustomerTypes,
   ALTERNATE_LAYOUT,
   loadAlternateLayout,
   BILLING_ADDRESS_ENABLED,
@@ -16,8 +14,6 @@ import {
   PDF_FONT,
   PICKUP_LOCATIONS,
   TERMS_ATTACHED,
-  ADDRESS_CONFIG,
-  loadAddressConfig,
   loadBillingAddressEnabled,
   loadCompanyIdRule,
   loadDeliveryConfig,
@@ -30,6 +26,12 @@ import {
   loadTermsAttached,
   TAX_CONFIG,
 } from '../../platform/config/deployment-config';
+import {
+  ACCEPTED_CUSTOMER_TYPES,
+  loadAcceptedCustomerTypes,
+  ADDRESS_CONFIG,
+  loadAddressConfig,
+} from '../accounts/accounts-config';
 import {
   PAIRINGS_ENFORCED,
   loadPairingsEnforced,

@@ -383,15 +383,17 @@ limitation period for claims.
 A deployment can ask the person to prove they hold the account's mobile number
 after the password ([FR-AUTH-12](../../../docs/requirements.md#fr-auth-12)): by a
 code sent to it, or by a call from it to a number the site shows. Which of the
-two follows from the provider, below. The key is
-optional, and absent means off. The demo leaves it out.
+two follows from the provider, below. The key,
+`accounts.signInStep`, is optional, and absent means off. The demo leaves it out.
 
 ```json
-"signInStep": {
-  "mode": "always",
-  "roles": ["user", "manager", "admin"],
-  "exemptableRoles": ["manager", "admin"],
-  "trustDeviceDays": 30
+"accounts": {
+  "signInStep": {
+    "mode": "always",
+    "roles": ["user", "manager", "admin"],
+    "exemptableRoles": ["manager", "admin"],
+    "trustDeviceDays": 30
+  }
 }
 ```
 
@@ -420,7 +422,7 @@ The provider is a sidecar of the deployment's own, set in the environment (see
 `.env.example`), and a deployment sets one of the two:
 
 - `SIGN_IN_CODE_URL`: codes, sent by the code sidecar. The text a code travels
-  in is `signInCode.message` in `texts/mail.json`; keep it to one SMS, since a
+  in is `accounts.signInCode.message` in `texts/mail.json`; keep it to one SMS, since a
   second part costs a second message.
 - `SIGN_IN_CALL_URL`: calls, checked by the call sidecar. The site shows the
   number to call and goes on by itself once the call has come.

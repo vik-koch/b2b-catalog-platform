@@ -1,3 +1,4 @@
+import { accountsMail } from '../../../core/accounts/mail/accounts-mail-text';
 import { SharedText } from '@b2b-catalog-platform/shared/platform';
 import { MailContent } from '../../../platform/mail/mail-layout';
 import { MailText } from '../../../platform/mail/mail-text';
@@ -35,7 +36,7 @@ export function newRegistrationMail(
   text: MailText,
   common: SharedText,
 ): MailContent {
-  const t = text.newRegistration;
+  const t = accountsMail(text).newRegistration;
   const fields = common.fields;
   const kinds = sharedTextBlock<SharedAccountsText>(
     common,

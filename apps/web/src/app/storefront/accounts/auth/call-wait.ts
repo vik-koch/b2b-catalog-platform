@@ -1,3 +1,4 @@
+import { STOREFRONT_ACCOUNTS_TEXT } from '../accounts-text';
 import {
   afterNextRender,
   Component,
@@ -103,11 +104,11 @@ const POLL_MS = 3000;
 })
 export class CallWait {
   private readonly document = inject(DOCUMENT);
-  protected readonly text = inject(STOREFRONT_TEXT).auth.signInStep;
+  protected readonly text = inject(STOREFRONT_ACCOUNTS_TEXT).auth.signInStep;
   protected readonly valueClass = 'whitespace-nowrap font-medium text-ink';
   protected readonly fillText = fillText;
   protected readonly formatWait = formatWait;
-  private readonly closed = inject(STOREFRONT_TEXT).auth.closed;
+  private readonly closed = inject(STOREFRONT_ACCOUNTS_TEXT).auth.closed;
 
   /** The check to wait on. Each new value starts the wait over. */
   readonly step = input.required<CallStep>();

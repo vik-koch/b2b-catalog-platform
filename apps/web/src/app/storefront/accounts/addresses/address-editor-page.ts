@@ -1,3 +1,4 @@
+import { STOREFRONT_ACCOUNTS_TEXT } from '../accounts-text';
 import { SHARED_ACCOUNTS_TEXT } from '../../../core/accounts/accounts-text';
 import {
   Component,
@@ -80,7 +81,7 @@ export class AddressEditorPage {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
-  protected readonly text = inject(STOREFRONT_TEXT).account.addresses;
+  protected readonly text = inject(STOREFRONT_ACCOUNTS_TEXT).account.addresses;
   private readonly fieldText = inject(SHARED_ACCOUNTS_TEXT).address;
   protected readonly actionText = inject(SHARED_TEXT).actions;
 

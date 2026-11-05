@@ -27,12 +27,12 @@ import {
   companyIdFormatOf,
 } from '@b2b-catalog-platform/shared/platform';
 import {
-  ACCEPTED_CUSTOMER_TYPES,
   ALTERNATE_LAYOUT,
   COMPANY_ID_FORMATS,
   PHONE_RULE,
   PhoneRule,
 } from '../../platform/config/deployment-config';
+import { ACCEPTED_CUSTOMER_TYPES } from './accounts-config';
 import { DRIZZLE } from '../../platform/db/database.module';
 import * as schema from '../../platform/db/schema';
 import { users } from '../../platform/db/schema';

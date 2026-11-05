@@ -1,3 +1,4 @@
+import { STOREFRONT_ACCOUNTS_TEXT } from '../accounts-text';
 import {
   afterNextRender,
   Component,
@@ -126,8 +127,8 @@ import {
   `,
 })
 export class CodeEntry {
-  protected readonly text = inject(STOREFRONT_TEXT).auth.signInStep;
-  private readonly closed = inject(STOREFRONT_TEXT).auth.closed;
+  protected readonly text = inject(STOREFRONT_ACCOUNTS_TEXT).auth.signInStep;
+  private readonly closed = inject(STOREFRONT_ACCOUNTS_TEXT).auth.closed;
   protected readonly inputId = 'signInCode';
   protected readonly fillText = fillText;
   protected readonly formatWait = formatWait;

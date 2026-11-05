@@ -1,3 +1,4 @@
+import { STOREFRONT_ACCOUNTS_TEXT } from '../accounts-text';
 import {
   Component,
   computed,
@@ -88,7 +89,7 @@ import { PASSWORD_MIN_LENGTH } from '@b2b-catalog-platform/shared/core/accounts'
 export class ChangePasswordForm {
   private readonly auth = inject(SignInService);
 
-  private readonly authText = inject(STOREFRONT_TEXT).auth;
+  private readonly authText = inject(STOREFRONT_ACCOUNTS_TEXT).auth;
   protected readonly text = this.authText.changePassword;
   private readonly validation = this.authText.validation;
   private readonly rejected = this.authText.passwordRejected;

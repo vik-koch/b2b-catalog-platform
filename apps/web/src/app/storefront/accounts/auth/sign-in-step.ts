@@ -1,3 +1,4 @@
+import { STOREFRONT_ACCOUNTS_TEXT } from '../accounts-text';
 import {
   Component,
   computed,
@@ -62,7 +63,7 @@ import { Outcome } from '@b2b-catalog-platform/ui/content/outcome';
 export class SignInStepPanel {
   private readonly auth = inject(SignInService);
 
-  protected readonly text = inject(STOREFRONT_TEXT).auth.signInStep;
+  protected readonly text = inject(STOREFRONT_ACCOUNTS_TEXT).auth.signInStep;
 
   /** The session has started. */
   readonly done = output<void>();

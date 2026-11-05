@@ -1,3 +1,5 @@
+import { ACCOUNTS_CONFIG } from '../../../core/accounts/accounts-config';
+import { ADMIN_ACCOUNTS_TEXT } from '../accounts-text';
 import {
   Component,
   computed,
@@ -231,12 +233,13 @@ export class UserDetailPage {
   private readonly auth = inject(AuthService);
   private readonly ownership = inject(OwnershipService);
   private readonly config = inject(DEPLOYMENT_CONFIG);
+  private readonly accountsConfig = inject(ACCOUNTS_CONFIG);
   private readonly siteConfig = inject(SITE_CONFIG);
   private readonly confirm = inject(ConfirmService);
 
-  protected readonly text = inject(ADMIN_TEXT).users.detail;
-  protected readonly listText = inject(ADMIN_TEXT).users.list;
-  protected readonly editorText = inject(ADMIN_TEXT).users.editor;
+  protected readonly text = inject(ADMIN_ACCOUNTS_TEXT).users.detail;
+  protected readonly listText = inject(ADMIN_ACCOUNTS_TEXT).users.list;
+  protected readonly editorText = inject(ADMIN_ACCOUNTS_TEXT).users.editor;
   private readonly sharedText = inject(SHARED_TEXT);
   private readonly partyKind = inject(SHARED_ACCOUNTS_TEXT).partyKind;
   private readonly adminText = inject(ADMIN_TEXT);
@@ -340,7 +343,7 @@ export class UserDetailPage {
       this.consentRecords().some((record) => record.purpose === 'account'),
   );
 
-  private readonly stepConfig = this.config.signInStep;
+  private readonly stepConfig = this.accountsConfig.signInStep;
 
   protected readonly asksCode = computed(() => {
     const person = this.user();

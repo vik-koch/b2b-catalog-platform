@@ -1,3 +1,4 @@
+import { ADMIN_ACCOUNTS_TEXT } from '../accounts/accounts-text';
 import { Route } from '@angular/router';
 import { requireAuth } from '../../platform/auth/auth.guard';
 import { inject } from '@angular/core';
@@ -176,7 +177,9 @@ export const adminRoutes: Route[] = [
     data: { kind: 'customer' },
     canActivate: [requireAuth('admin', 'manager'), adminTextGuard],
     canDeactivate: [
-      unsavedChangesGuard(() => inject(ADMIN_TEXT).users.editor.discardConfirm),
+      unsavedChangesGuard(
+        () => inject(ADMIN_ACCOUNTS_TEXT).users.editor.discardConfirm,
+      ),
     ],
     loadComponent: () =>
       import('../accounts/users/user-editor-page').then(
@@ -188,7 +191,9 @@ export const adminRoutes: Route[] = [
     data: { kind: 'staff' },
     canActivate: [requireAuth('admin'), adminTextGuard],
     canDeactivate: [
-      unsavedChangesGuard(() => inject(ADMIN_TEXT).users.editor.discardConfirm),
+      unsavedChangesGuard(
+        () => inject(ADMIN_ACCOUNTS_TEXT).users.editor.discardConfirm,
+      ),
     ],
     loadComponent: () =>
       import('../accounts/users/user-editor-page').then(
@@ -208,7 +213,9 @@ export const adminRoutes: Route[] = [
     path: 'admin/users/:id/edit',
     canActivate: [requireAuth('admin', 'manager'), adminTextGuard],
     canDeactivate: [
-      unsavedChangesGuard(() => inject(ADMIN_TEXT).users.editor.discardConfirm),
+      unsavedChangesGuard(
+        () => inject(ADMIN_ACCOUNTS_TEXT).users.editor.discardConfirm,
+      ),
     ],
     loadComponent: () =>
       import('../accounts/users/user-editor-page').then(

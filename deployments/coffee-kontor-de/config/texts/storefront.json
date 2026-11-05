@@ -282,189 +282,6 @@
       "home": "Zurück zum Shop"
     }
   },
-  "auth": {
-    "login": "Anmelden",
-    "logout": "Abmelden",
-    "accountNav": "Konto",
-    "workMarkerAria": "Wartet auf Sie: {count}",
-    "securityHeading": "Passwort und Sicherheit",
-    "account": "Mein Konto",
-    "password": "Passwort",
-    "registerInvite": {
-      "text": "Bestellen Sie öfter bei uns? Beantragen Sie ein Kundenkonto, dann merken wir uns Ihre Preise und Adressen für das nächste Mal.",
-      "action": "Konto beantragen"
-    },
-    "submit": "Anmelden",
-    "submitting": "Anmeldung läuft…",
-    "invalid": "E-Mail-Adresse oder Passwort ist falsch.",
-    "closed": "Der Shop ist wegen Wartungsarbeiten geschlossen, daher können sich Kundenkonten gerade nicht anmelden. Bitte versuchen Sie es später noch einmal.",
-    "error": "Bei der Anmeldung ist etwas schiefgegangen. Bitte versuchen Sie es noch einmal.",
-    "forgotPassword": {
-      "link": "Passwort vergessen?",
-      "heading": "Passwort zurücksetzen",
-      "intro": "Geben Sie die E-Mail-Adresse ein, mit der Sie sich anmelden, und wir schicken Ihnen einen Link, mit dem Sie ein neues Passwort wählen.",
-      "submit": "Link senden",
-      "successHeading": "Sehen Sie in Ihr Postfach",
-      "success": "Falls es zu dieser Adresse ein Konto gibt, ist ein Link für ein neues Passwort unterwegs. Er lässt sich einmal verwenden und läuft eine Stunde nach dem Versand ab.",
-      "error": "Beim Senden Ihres Links ist etwas schiefgegangen. Bitte versuchen Sie es noch einmal.",
-      "backToLogin": "Zurück zur Anmeldung"
-    },
-    "register": {
-      "noAccount": "Neu hier? Beantragen Sie ein Kundenkonto.",
-      "signUp": "Konto beantragen",
-      "heading": "Konto beantragen",
-      "intro": "Erzählen Sie uns von sich, und wir richten Ihr Kundenkonto ein. Jeder Antrag wird von unserem Team geprüft, das geht also nicht sofort – Ihr Passwort erhalten Sie per E-Mail, sobald Ihr Konto bereit ist.",
-      "customerType": "Ich beantrage das Konto als",
-      "submit": "Konto beantragen",
-      "successHeading": "Vielen Dank",
-      "success": "Wenn wir zu dieser Adresse ein Konto einrichten können, erhalten Sie in Kürze eine E-Mail. Unser Team prüft jeden Antrag, daher kann es etwas dauern, bis Ihr Passwort ankommt.",
-      "error": "Beim Senden Ihres Antrags ist etwas schiefgegangen. Bitte versuchen Sie es noch einmal.",
-      "haveAccount": "Sie haben schon ein Konto?",
-      "companyIdHint": "Eine der Nummern, auf die wir eine Rechnung ausstellen können, z. B. {examples}."
-    },
-    "setPassword": {
-      "checking": "Ihr Link wird geprüft…",
-      "setHeading": "Passwort wählen",
-      "setIntro": "Ihr Konto ist bereit. Wählen Sie ein Passwort, und Sie können sofort bestellen.",
-      "resetHeading": "Neues Passwort wählen",
-      "resetIntro": "Wählen Sie ein neues Passwort für Ihr Konto. Überall, wo Sie noch angemeldet sind, werden Sie abgemeldet.",
-      "forAccount": "Für",
-      "confirmPassword": "Passwort wiederholen",
-      "show": "Anzeigen",
-      "hide": "Verbergen",
-      "generate": "Sicheres Passwort vorschlagen",
-      "generated": "Wir haben ein sicheres Passwort eingetragen. Speichern Sie es in Ihrem Passwort-Manager, bevor Sie fortfahren.",
-      "submit": "Passwort speichern und fortfahren",
-      "successHeading": "Alles erledigt",
-      "success": "Ihr Passwort ist gespeichert, und Sie sind angemeldet.",
-      "expiredHeading": "Dieser Link funktioniert nicht mehr",
-      "expired": "Links lassen sich nur einmal verwenden und laufen nach einiger Zeit ab. Fordern Sie unten einen neuen an oder nutzen Sie „Passwort vergessen?“ auf der Anmeldeseite.",
-      "closedHeading": "Noch nicht geöffnet",
-      "closed": "Kundenkonten öffnen zusammen mit dem Shop, an dem gerade gearbeitet wird. Kommen Sie zu diesem Link zurück, sobald wir wieder da sind – ist er bis dahin abgelaufen, fordern Sie einen neuen an.",
-      "error": "Beim Speichern Ihres Passworts ist etwas schiefgegangen. Bitte versuchen Sie es noch einmal."
-    },
-    "signInStep": {
-      "codeHeading": "Code eingeben",
-      "codeIntro": "Wir haben einen {length}-stelligen Code an {sentTo} geschickt.",
-      "confirmNote": "Mit der Eingabe bestätigen Sie {phone} als Nummer für Ihre Anmeldecodes.",
-      "code": "Code",
-      "codeRequired": "Geben Sie den Code aus der Nachricht ein.",
-      "codeFormat": "Der Code hat {length} Stellen.",
-      "submit": "Weiter",
-      "resend": "Neuen Code senden",
-      "resendIn": "Neuer Code in {time}",
-      "resent": "Wir haben einen neuen Code geschickt.",
-      "wrong": "Dieser Code stimmt nicht. Verbleibende Versuche: {count}.",
-      "expired": "Dieser Code ist nicht mehr gültig. Fordern Sie einen neuen an.",
-      "restart": "Ihre Anmeldung hat zu lange gedauert. Bitte melden Sie sich erneut an.",
-      "restartAction": "Erneut anmelden",
-      "limit": "Wir können noch keinen weiteren Code senden. Bitte versuchen Sie es in {time} noch einmal.",
-      "remember": "Diesen Browser {days} Tage lang merken",
-      "rememberHint": "Hier wird dann nur nach Ihrem Passwort gefragt, nicht nach der Bestätigung per Telefon. An einem gemeinsam genutzten Computer lassen Sie das Kästchen leer.",
-      "unreachableAccount": "Mit Ihrer Mobilnummer konnten wir Sie nicht anmelden. Bitte kontaktieren Sie uns, damit wir sie aktualisieren.",
-      "unavailable": "Die Anmeldung per Telefon ist gerade nicht möglich. Bitte versuchen Sie es später noch einmal.",
-      "error": "Etwas ist schiefgegangen. Bitte versuchen Sie es noch einmal.",
-      "callHeading": "Zum Anmelden anrufen",
-      "callIntro": "Rufen Sie {callTo} von {phone} aus an. Der Anruf ist kostenlos und endet von selbst – Sie müssen nichts sagen.",
-      "callByMail": "Öffnen Sie den Link, den wir an {sentTo} geschickt haben. Er ersetzt einen Anruf von {phone}.",
-      "callConfirmNote": "Damit bestätigen Sie auch {phone} als Nummer für Ihre Anmeldung.",
-      "callDial": "{callTo} anrufen",
-      "callWaiting": "Wir warten auf Ihren Anruf. Diese Seite geht von selbst weiter. Verbleibende Zeit: {time}.",
-      "callExpired": "Die Zeit für den Anruf ist abgelaufen. Fordern Sie eine neue Nummer an.",
-      "callNew": "Neue Nummer anfordern",
-      "callNewIn": "Neue Nummer in {time}",
-      "callRenewed": "Hier ist eine neue Nummer zum Anrufen.",
-      "callLimit": "Wir können Ihnen noch keine weitere Nummer geben. Bitte versuchen Sie es in {time} noch einmal."
-    },
-    "changePassword": {
-      "heading": "Passwort ändern",
-      "intro": "Wählen Sie ein neues Passwort für die Anmeldung. Mit der Änderung werden Sie überall sonst abgemeldet.",
-      "currentPassword": "Aktuelles Passwort",
-      "newPassword": "Neues Passwort",
-      "confirmPassword": "Neues Passwort bestätigen",
-      "submit": "Passwort ändern",
-      "submitting": "Wird geändert…",
-      "success": "Ihr Passwort wurde geändert. Auf anderen Geräten, auf denen Sie angemeldet waren, wurden Sie abgemeldet.",
-      "wrongCurrent": "Das ist nicht Ihr aktuelles Passwort.",
-      "error": "Beim Ändern Ihres Passworts ist etwas schiefgegangen. Bitte versuchen Sie es noch einmal.",
-      "forcedHeading": "Eigenes Passwort wählen",
-      "forcedIntro": "Dieses Konto nutzt noch das Passwort, mit dem es eingerichtet wurde. Bitte wählen Sie ein eigenes, bevor Sie fortfahren.",
-      "forcedContinue": "Weiter"
-    },
-    "validation": {
-      "passwordRequired": "Bitte geben Sie Ihr Passwort ein.",
-      "currentPasswordRequired": "Bitte geben Sie Ihr aktuelles Passwort ein.",
-      "newPasswordRequired": "Bitte geben Sie ein neues Passwort ein.",
-      "newPasswordTooShort": "Bitte verwenden Sie mindestens {min} Zeichen.",
-      "confirmPasswordMismatch": "Die beiden Passwörter stimmen nicht überein."
-    },
-    "passwordRejected": {
-      "password-common": "Das ist eines der am häufigsten verwendeten Passwörter. Bitte wählen Sie etwas weniger Vorhersehbares.",
-      "password-predictable": "Dieses Muster ist zu einfach. Bitte wählen Sie etwas weniger Vorhersehbares.",
-      "password-contains-email": "Bitte wählen Sie ein Passwort, das Ihre E-Mail-Adresse nicht enthält.",
-      "password-contains-shop-name": "Bitte wählen Sie ein Passwort, das den Namen dieses Shops nicht enthält.",
-      "password-unchanged": "Bitte wählen Sie ein anderes Passwort als Ihr aktuelles."
-    }
-  },
-  "account": {
-    "detailsHeading": "Meine Angaben",
-    "customerType": "Kontoart",
-    "memberSince": "Kunde seit",
-    "changeHint": "Um Ihre E-Mail-Adresse oder die Angaben zu ändern, mit denen Ihr Konto eingerichtet wurde, melden Sie sich bei uns – wir aktualisieren sie für Sie.",
-    "error": "Ihre Angaben konnten gerade nicht geladen werden. Bitte versuchen Sie es später noch einmal.",
-    "edit": {
-      "action": "Angaben bearbeiten",
-      "heading": "Meine Angaben bearbeiten",
-      "intro": "Ändern Sie, wie wir Sie ansprechen und wie wir Sie erreichen. Alles andere ändern wir für Sie, wenn Sie sich bei uns melden.",
-      "submit": "Änderungen speichern",
-      "error": "Beim Speichern Ihrer Angaben ist etwas schiefgegangen. Bitte versuchen Sie es noch einmal.",
-      "phoneLocked": "An diese Nummer schicken wir Ihre Anmeldecodes. Um sie zu ändern, melden Sie sich bei uns."
-    },
-    "addresses": {
-      "heading": "Meine Adressen",
-      "empty": "Noch keine gespeicherten Adressen. Fügen Sie eine hinzu, dann wird sie Ihnen an der Kasse angeboten.",
-      "add": "Adresse hinzufügen",
-      "editAria": "{label} bearbeiten",
-      "removeAria": "{label} entfernen",
-      "removeConfirm": {
-        "heading": "Adresse entfernen",
-        "message": "„{label}“ aus Ihren gespeicherten Adressen entfernen? Bereits aufgegebene Bestellungen behalten die Adresse, an die sie gingen.",
-        "confirm": "Entfernen"
-      },
-      "error": "Ihre Adressen konnten gerade nicht geladen werden. Bitte versuchen Sie es später noch einmal.",
-      "newHeading": "Adresse hinzufügen",
-      "editHeading": "Adresse bearbeiten",
-      "intro": "Gespeicherte Adressen werden Ihnen an der Kasse angeboten, so tippen Sie jede nur einmal.",
-      "submit": "Adresse speichern",
-      "saveError": "Beim Speichern dieser Adresse ist etwas schiefgegangen. Bitte versuchen Sie es noch einmal.",
-      "limitReached": "Sie haben die Höchstzahl gespeicherter Adressen erreicht. Entfernen Sie eine, um eine weitere hinzuzufügen.",
-      "unsupportedCountry": "In dieses Land liefern wir nicht. Bitte wählen Sie ein anderes."
-    },
-    "delete": {
-      "action": "Mein Konto löschen",
-      "heading": "Mein Konto löschen",
-      "intro": "Damit wird Ihr Konto geschlossen, und Ihre persönlichen Angaben werden aus unseren Unterlagen entfernt. Das lässt sich nicht rückgängig machen.",
-      "consequences": [
-        "Sie werden abgemeldet und können sich nicht wieder anmelden.",
-        "Ihr Name, Ihre Telefonnummer und Ihre übrigen Angaben werden entfernt.",
-        "Frühere Bestellungen bleiben für unsere Buchhaltung erhalten, ohne Ihre Angaben.",
-        "Sie können sich später neu registrieren, aber das ist dann ein neues Konto – Ihre früheren Bestellungen erscheinen darin nicht."
-      ],
-      "openOrders": "Offene Bestellungen, an denen wir noch arbeiten: {count}. Das Löschen Ihres Kontos storniert sie nicht – wir liefern wie vereinbart –, aber wir haben dann Ihren Namen und Ihre Telefonnummer nicht mehr dazu. Rufen Sie uns bitte an, wenn Sie lieber warten möchten, bis sie abgeschlossen sind.",
-      "passwordHint": "Bestätigen Sie mit Ihrem Passwort, dass Sie es sind.",
-      "submit": "Mein Konto löschen",
-      "cancel": "Mein Konto behalten",
-      "wrongPassword": "Das ist nicht Ihr Passwort.",
-      "lastAdmin": "Das ist das einzige Administratorkonto. Erst wenn es ein weiteres gibt, lässt es sich löschen.",
-      "error": "Beim Löschen Ihres Kontos ist etwas schiefgegangen. Bitte versuchen Sie es noch einmal.",
-      "doneHeading": "Ihr Konto wurde gelöscht",
-      "done": "Ihr Konto ist geschlossen, und Ihre persönlichen Angaben wurden entfernt. Eine Bestätigung haben wir an Ihre E-Mail-Adresse geschickt."
-    }
-  },
-  "partyChoice": {
-    "person": "Privatperson",
-    "company": "Unternehmen"
-  },
   "conditions": {
     "paymentHeading": "Zahlung",
     "cashDescription": "Bezahlt wird bei Übergabe der Bestellung – an Ihrer Tür oder an unserem Tresen.",
@@ -539,6 +356,191 @@
     "maintenance": {
       "title": "Wir sind gleich wieder da",
       "body": "Unser Shop wird gerade eingerichtet und ist noch nicht verfügbar. Bitte schauen Sie bald wieder vorbei."
+    }
+  },
+  "accounts": {
+    "auth": {
+      "login": "Anmelden",
+      "logout": "Abmelden",
+      "accountNav": "Konto",
+      "workMarkerAria": "Wartet auf Sie: {count}",
+      "securityHeading": "Passwort und Sicherheit",
+      "account": "Mein Konto",
+      "password": "Passwort",
+      "registerInvite": {
+        "text": "Bestellen Sie öfter bei uns? Beantragen Sie ein Kundenkonto, dann merken wir uns Ihre Preise und Adressen für das nächste Mal.",
+        "action": "Konto beantragen"
+      },
+      "submit": "Anmelden",
+      "submitting": "Anmeldung läuft…",
+      "invalid": "E-Mail-Adresse oder Passwort ist falsch.",
+      "closed": "Der Shop ist wegen Wartungsarbeiten geschlossen, daher können sich Kundenkonten gerade nicht anmelden. Bitte versuchen Sie es später noch einmal.",
+      "error": "Bei der Anmeldung ist etwas schiefgegangen. Bitte versuchen Sie es noch einmal.",
+      "forgotPassword": {
+        "link": "Passwort vergessen?",
+        "heading": "Passwort zurücksetzen",
+        "intro": "Geben Sie die E-Mail-Adresse ein, mit der Sie sich anmelden, und wir schicken Ihnen einen Link, mit dem Sie ein neues Passwort wählen.",
+        "submit": "Link senden",
+        "successHeading": "Sehen Sie in Ihr Postfach",
+        "success": "Falls es zu dieser Adresse ein Konto gibt, ist ein Link für ein neues Passwort unterwegs. Er lässt sich einmal verwenden und läuft eine Stunde nach dem Versand ab.",
+        "error": "Beim Senden Ihres Links ist etwas schiefgegangen. Bitte versuchen Sie es noch einmal.",
+        "backToLogin": "Zurück zur Anmeldung"
+      },
+      "register": {
+        "noAccount": "Neu hier? Beantragen Sie ein Kundenkonto.",
+        "signUp": "Konto beantragen",
+        "heading": "Konto beantragen",
+        "intro": "Erzählen Sie uns von sich, und wir richten Ihr Kundenkonto ein. Jeder Antrag wird von unserem Team geprüft, das geht also nicht sofort – Ihr Passwort erhalten Sie per E-Mail, sobald Ihr Konto bereit ist.",
+        "customerType": "Ich beantrage das Konto als",
+        "submit": "Konto beantragen",
+        "successHeading": "Vielen Dank",
+        "success": "Wenn wir zu dieser Adresse ein Konto einrichten können, erhalten Sie in Kürze eine E-Mail. Unser Team prüft jeden Antrag, daher kann es etwas dauern, bis Ihr Passwort ankommt.",
+        "error": "Beim Senden Ihres Antrags ist etwas schiefgegangen. Bitte versuchen Sie es noch einmal.",
+        "haveAccount": "Sie haben schon ein Konto?",
+        "companyIdHint": "Eine der Nummern, auf die wir eine Rechnung ausstellen können, z. B. {examples}."
+      },
+      "setPassword": {
+        "checking": "Ihr Link wird geprüft…",
+        "setHeading": "Passwort wählen",
+        "setIntro": "Ihr Konto ist bereit. Wählen Sie ein Passwort, und Sie können sofort bestellen.",
+        "resetHeading": "Neues Passwort wählen",
+        "resetIntro": "Wählen Sie ein neues Passwort für Ihr Konto. Überall, wo Sie noch angemeldet sind, werden Sie abgemeldet.",
+        "forAccount": "Für",
+        "confirmPassword": "Passwort wiederholen",
+        "show": "Anzeigen",
+        "hide": "Verbergen",
+        "generate": "Sicheres Passwort vorschlagen",
+        "generated": "Wir haben ein sicheres Passwort eingetragen. Speichern Sie es in Ihrem Passwort-Manager, bevor Sie fortfahren.",
+        "submit": "Passwort speichern und fortfahren",
+        "successHeading": "Alles erledigt",
+        "success": "Ihr Passwort ist gespeichert, und Sie sind angemeldet.",
+        "expiredHeading": "Dieser Link funktioniert nicht mehr",
+        "expired": "Links lassen sich nur einmal verwenden und laufen nach einiger Zeit ab. Fordern Sie unten einen neuen an oder nutzen Sie „Passwort vergessen?“ auf der Anmeldeseite.",
+        "closedHeading": "Noch nicht geöffnet",
+        "closed": "Kundenkonten öffnen zusammen mit dem Shop, an dem gerade gearbeitet wird. Kommen Sie zu diesem Link zurück, sobald wir wieder da sind – ist er bis dahin abgelaufen, fordern Sie einen neuen an.",
+        "error": "Beim Speichern Ihres Passworts ist etwas schiefgegangen. Bitte versuchen Sie es noch einmal."
+      },
+      "signInStep": {
+        "codeHeading": "Code eingeben",
+        "codeIntro": "Wir haben einen {length}-stelligen Code an {sentTo} geschickt.",
+        "confirmNote": "Mit der Eingabe bestätigen Sie {phone} als Nummer für Ihre Anmeldecodes.",
+        "code": "Code",
+        "codeRequired": "Geben Sie den Code aus der Nachricht ein.",
+        "codeFormat": "Der Code hat {length} Stellen.",
+        "submit": "Weiter",
+        "resend": "Neuen Code senden",
+        "resendIn": "Neuer Code in {time}",
+        "resent": "Wir haben einen neuen Code geschickt.",
+        "wrong": "Dieser Code stimmt nicht. Verbleibende Versuche: {count}.",
+        "expired": "Dieser Code ist nicht mehr gültig. Fordern Sie einen neuen an.",
+        "restart": "Ihre Anmeldung hat zu lange gedauert. Bitte melden Sie sich erneut an.",
+        "restartAction": "Erneut anmelden",
+        "limit": "Wir können noch keinen weiteren Code senden. Bitte versuchen Sie es in {time} noch einmal.",
+        "remember": "Diesen Browser {days} Tage lang merken",
+        "rememberHint": "Hier wird dann nur nach Ihrem Passwort gefragt, nicht nach der Bestätigung per Telefon. An einem gemeinsam genutzten Computer lassen Sie das Kästchen leer.",
+        "unreachableAccount": "Mit Ihrer Mobilnummer konnten wir Sie nicht anmelden. Bitte kontaktieren Sie uns, damit wir sie aktualisieren.",
+        "unavailable": "Die Anmeldung per Telefon ist gerade nicht möglich. Bitte versuchen Sie es später noch einmal.",
+        "error": "Etwas ist schiefgegangen. Bitte versuchen Sie es noch einmal.",
+        "callHeading": "Zum Anmelden anrufen",
+        "callIntro": "Rufen Sie {callTo} von {phone} aus an. Der Anruf ist kostenlos und endet von selbst – Sie müssen nichts sagen.",
+        "callByMail": "Öffnen Sie den Link, den wir an {sentTo} geschickt haben. Er ersetzt einen Anruf von {phone}.",
+        "callConfirmNote": "Damit bestätigen Sie auch {phone} als Nummer für Ihre Anmeldung.",
+        "callDial": "{callTo} anrufen",
+        "callWaiting": "Wir warten auf Ihren Anruf. Diese Seite geht von selbst weiter. Verbleibende Zeit: {time}.",
+        "callExpired": "Die Zeit für den Anruf ist abgelaufen. Fordern Sie eine neue Nummer an.",
+        "callNew": "Neue Nummer anfordern",
+        "callNewIn": "Neue Nummer in {time}",
+        "callRenewed": "Hier ist eine neue Nummer zum Anrufen.",
+        "callLimit": "Wir können Ihnen noch keine weitere Nummer geben. Bitte versuchen Sie es in {time} noch einmal."
+      },
+      "changePassword": {
+        "heading": "Passwort ändern",
+        "intro": "Wählen Sie ein neues Passwort für die Anmeldung. Mit der Änderung werden Sie überall sonst abgemeldet.",
+        "currentPassword": "Aktuelles Passwort",
+        "newPassword": "Neues Passwort",
+        "confirmPassword": "Neues Passwort bestätigen",
+        "submit": "Passwort ändern",
+        "submitting": "Wird geändert…",
+        "success": "Ihr Passwort wurde geändert. Auf anderen Geräten, auf denen Sie angemeldet waren, wurden Sie abgemeldet.",
+        "wrongCurrent": "Das ist nicht Ihr aktuelles Passwort.",
+        "error": "Beim Ändern Ihres Passworts ist etwas schiefgegangen. Bitte versuchen Sie es noch einmal.",
+        "forcedHeading": "Eigenes Passwort wählen",
+        "forcedIntro": "Dieses Konto nutzt noch das Passwort, mit dem es eingerichtet wurde. Bitte wählen Sie ein eigenes, bevor Sie fortfahren.",
+        "forcedContinue": "Weiter"
+      },
+      "validation": {
+        "passwordRequired": "Bitte geben Sie Ihr Passwort ein.",
+        "currentPasswordRequired": "Bitte geben Sie Ihr aktuelles Passwort ein.",
+        "newPasswordRequired": "Bitte geben Sie ein neues Passwort ein.",
+        "newPasswordTooShort": "Bitte verwenden Sie mindestens {min} Zeichen.",
+        "confirmPasswordMismatch": "Die beiden Passwörter stimmen nicht überein."
+      },
+      "passwordRejected": {
+        "password-common": "Das ist eines der am häufigsten verwendeten Passwörter. Bitte wählen Sie etwas weniger Vorhersehbares.",
+        "password-predictable": "Dieses Muster ist zu einfach. Bitte wählen Sie etwas weniger Vorhersehbares.",
+        "password-contains-email": "Bitte wählen Sie ein Passwort, das Ihre E-Mail-Adresse nicht enthält.",
+        "password-contains-shop-name": "Bitte wählen Sie ein Passwort, das den Namen dieses Shops nicht enthält.",
+        "password-unchanged": "Bitte wählen Sie ein anderes Passwort als Ihr aktuelles."
+      }
+    },
+    "account": {
+      "detailsHeading": "Meine Angaben",
+      "customerType": "Kontoart",
+      "memberSince": "Kunde seit",
+      "changeHint": "Um Ihre E-Mail-Adresse oder die Angaben zu ändern, mit denen Ihr Konto eingerichtet wurde, melden Sie sich bei uns – wir aktualisieren sie für Sie.",
+      "error": "Ihre Angaben konnten gerade nicht geladen werden. Bitte versuchen Sie es später noch einmal.",
+      "edit": {
+        "action": "Angaben bearbeiten",
+        "heading": "Meine Angaben bearbeiten",
+        "intro": "Ändern Sie, wie wir Sie ansprechen und wie wir Sie erreichen. Alles andere ändern wir für Sie, wenn Sie sich bei uns melden.",
+        "submit": "Änderungen speichern",
+        "error": "Beim Speichern Ihrer Angaben ist etwas schiefgegangen. Bitte versuchen Sie es noch einmal.",
+        "phoneLocked": "An diese Nummer schicken wir Ihre Anmeldecodes. Um sie zu ändern, melden Sie sich bei uns."
+      },
+      "addresses": {
+        "heading": "Meine Adressen",
+        "empty": "Noch keine gespeicherten Adressen. Fügen Sie eine hinzu, dann wird sie Ihnen an der Kasse angeboten.",
+        "add": "Adresse hinzufügen",
+        "editAria": "{label} bearbeiten",
+        "removeAria": "{label} entfernen",
+        "removeConfirm": {
+          "heading": "Adresse entfernen",
+          "message": "„{label}“ aus Ihren gespeicherten Adressen entfernen? Bereits aufgegebene Bestellungen behalten die Adresse, an die sie gingen.",
+          "confirm": "Entfernen"
+        },
+        "error": "Ihre Adressen konnten gerade nicht geladen werden. Bitte versuchen Sie es später noch einmal.",
+        "newHeading": "Adresse hinzufügen",
+        "editHeading": "Adresse bearbeiten",
+        "intro": "Gespeicherte Adressen werden Ihnen an der Kasse angeboten, so tippen Sie jede nur einmal.",
+        "submit": "Adresse speichern",
+        "saveError": "Beim Speichern dieser Adresse ist etwas schiefgegangen. Bitte versuchen Sie es noch einmal.",
+        "limitReached": "Sie haben die Höchstzahl gespeicherter Adressen erreicht. Entfernen Sie eine, um eine weitere hinzuzufügen.",
+        "unsupportedCountry": "In dieses Land liefern wir nicht. Bitte wählen Sie ein anderes."
+      },
+      "delete": {
+        "action": "Mein Konto löschen",
+        "heading": "Mein Konto löschen",
+        "intro": "Damit wird Ihr Konto geschlossen, und Ihre persönlichen Angaben werden aus unseren Unterlagen entfernt. Das lässt sich nicht rückgängig machen.",
+        "consequences": [
+          "Sie werden abgemeldet und können sich nicht wieder anmelden.",
+          "Ihr Name, Ihre Telefonnummer und Ihre übrigen Angaben werden entfernt.",
+          "Frühere Bestellungen bleiben für unsere Buchhaltung erhalten, ohne Ihre Angaben.",
+          "Sie können sich später neu registrieren, aber das ist dann ein neues Konto – Ihre früheren Bestellungen erscheinen darin nicht."
+        ],
+        "openOrders": "Offene Bestellungen, an denen wir noch arbeiten: {count}. Das Löschen Ihres Kontos storniert sie nicht – wir liefern wie vereinbart –, aber wir haben dann Ihren Namen und Ihre Telefonnummer nicht mehr dazu. Rufen Sie uns bitte an, wenn Sie lieber warten möchten, bis sie abgeschlossen sind.",
+        "passwordHint": "Bestätigen Sie mit Ihrem Passwort, dass Sie es sind.",
+        "submit": "Mein Konto löschen",
+        "cancel": "Mein Konto behalten",
+        "wrongPassword": "Das ist nicht Ihr Passwort.",
+        "lastAdmin": "Das ist das einzige Administratorkonto. Erst wenn es ein weiteres gibt, lässt es sich löschen.",
+        "error": "Beim Löschen Ihres Kontos ist etwas schiefgegangen. Bitte versuchen Sie es noch einmal.",
+        "doneHeading": "Ihr Konto wurde gelöscht",
+        "done": "Ihr Konto ist geschlossen, und Ihre persönlichen Angaben wurden entfernt. Eine Bestätigung haben wir an Ihre E-Mail-Adresse geschickt."
+      }
+    },
+    "partyChoice": {
+      "person": "Privatperson",
+      "company": "Unternehmen"
     }
   }
 }

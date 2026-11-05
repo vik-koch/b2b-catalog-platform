@@ -1,3 +1,4 @@
+import { defaultStorefrontAccountsText } from '../accounts-text.fixture';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
@@ -9,7 +10,7 @@ import { defaultDeploymentConfig } from '../../../platform/config/deployment-con
 import { SignInService } from './sign-in.service';
 import { ForgotPasswordPage } from './forgot-password-page';
 
-const text = defaultStorefrontText.auth.forgotPassword;
+const text = defaultStorefrontAccountsText.auth.forgotPassword;
 
 async function render(outcome: 'ok' | 'error' = 'ok') {
   const forgotPassword = vi.fn(async () => outcome);

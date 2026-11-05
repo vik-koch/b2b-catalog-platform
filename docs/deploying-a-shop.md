@@ -52,15 +52,15 @@ sample content; a real shop starts empty and is filled in the admin panel or by 
 | Decision | Setting | File |
 | --- | --- | --- |
 | The language and the formats of dates, numbers and money | `locale`, `currency` | `deployment.json` |
-| Who the shop sells to: companies, private persons or both | `customerTypes` | `deployment.json` |
+| Who the shop sells to: companies, private persons or both | `accounts.customerTypes` | `deployment.json` |
 | Whether prices include tax, exclude it or carry none; the default rate | `tax` | `deployment.json` |
 | Pickup points, delivery zones and their free-delivery thresholds | `pickup`, `delivery` | `deployment.json` |
 | Whether an order asks for a separate invoice address | `billingAddressEnabled` | `deployment.json` |
-| How phone numbers, company numbers and addresses are checked | `phoneInput`, `companyIdInput`, `address` | `deployment.json` |
+| How phone numbers, company numbers and addresses are checked | `phoneInput`, `companyIdInput`, `accounts.address` | `deployment.json` |
 | What an order reference looks like | `orderReference` | `deployment.json` |
 | Which pages are published, and where they are linked | `site.pages` | `deployment.json` |
 | The cookie banner, and consent to processing personal data | `site.cookieConsentEnabled`, `site.consent` | `deployment.json` |
-| A second sign-in step through the account's phone | `signInStep`, plus a provider container | `deployment.json`, environment |
+| A second sign-in step through the account's phone | `accounts.signInStep`, plus a provider container | `deployment.json`, environment |
 | When stock reads "few left", whether pairings are enforced, sort controls | `catalog` | `deployment.json` |
 | A second keyboard layout for search | `search.alternateLayout` | `deployment.json` |
 | A notice above every page, links to the shop elsewhere, the seller line | `notice`, `site.elsewhere`, `seller` | `deployment.json` |

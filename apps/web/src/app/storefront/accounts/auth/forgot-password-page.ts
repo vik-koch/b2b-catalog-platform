@@ -1,3 +1,4 @@
+import { STOREFRONT_ACCOUNTS_TEXT } from '../accounts-text';
 import { Component, inject, signal } from '@angular/core';
 import { form, required } from '@angular/forms/signals';
 import { RouterLink } from '@angular/router';
@@ -90,7 +91,8 @@ type Status = 'idle' | 'success' | 'error';
 export class ForgotPasswordPage {
   private readonly auth = inject(SignInService);
 
-  protected readonly text = inject(STOREFRONT_TEXT).auth.forgotPassword;
+  protected readonly text = inject(STOREFRONT_ACCOUNTS_TEXT).auth
+    .forgotPassword;
   protected readonly fields = inject(SHARED_TEXT).fields;
   protected readonly actionText = inject(SHARED_TEXT).actions;
   protected readonly status = signal<Status>('idle');

@@ -1,3 +1,4 @@
+import { defaultStorefrontAccountsText } from '../../accounts/accounts-text.fixture';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
@@ -136,7 +137,7 @@ describe('OrderTokenPage (FR-NOTIF-06)', () => {
     const { el } = await render(placed);
 
     expect(el.textContent).toContain(
-      defaultStorefrontText.auth.registerInvite.text,
+      defaultStorefrontAccountsText.auth.registerInvite.text,
     );
     expect(el.querySelector('a[href="/register"]')).not.toBeNull();
   });
@@ -147,7 +148,7 @@ describe('OrderTokenPage (FR-NOTIF-06)', () => {
     const { el } = await render(placed, 'user');
 
     expect(el.textContent).not.toContain(
-      defaultStorefrontText.auth.registerInvite.text,
+      defaultStorefrontAccountsText.auth.registerInvite.text,
     );
     expect(el.querySelector('a[href="/register"]')).toBeNull();
     // Still their order, still readable: the token is the credential here, and

@@ -1,3 +1,4 @@
+import { ADMIN_ACCOUNTS_TEXT } from '../accounts/accounts-text';
 import { Component, computed, inject, resource, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
@@ -371,8 +372,8 @@ export class AdminPanelPage {
   protected readonly tierText = inject(ADMIN_CATALOG_TEXT).tiers;
   protected readonly apiTokenText = inject(ADMIN_TEXT).apiTokens;
   protected readonly operationsText = inject(ADMIN_TEXT).operations;
-  protected readonly userText = inject(ADMIN_TEXT).users.list;
-  protected readonly consentText = inject(ADMIN_TEXT).consents;
+  protected readonly userText = inject(ADMIN_ACCOUNTS_TEXT).users.list;
+  protected readonly consentText = inject(ADMIN_ACCOUNTS_TEXT).consents;
   protected readonly orderText = inject(ADMIN_TEXT).orders.list;
   protected readonly navText = inject(SHARED_TEXT).nav;
   protected readonly syncText = inject(ADMIN_TEXT).sync;

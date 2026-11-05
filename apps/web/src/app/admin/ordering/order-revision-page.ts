@@ -1,3 +1,4 @@
+import { ACCOUNTS_CONFIG } from '../../core/accounts/accounts-config';
 import { Component, computed, inject, input, resource } from '@angular/core';
 import { useTaxStatement } from '../../platform/tax-statement';
 import { RouterLink } from '@angular/router';
@@ -190,6 +191,7 @@ export class AdminOrderRevisionPage {
   private readonly api = inject(AdminOrdersService);
   private readonly ownership = inject(OwnershipService);
   private readonly config = inject(DEPLOYMENT_CONFIG);
+  private readonly accountsConfig = inject(ACCOUNTS_CONFIG);
   private readonly currency = moneyFormat(this.config);
   private readonly customerLabels = injectCustomerBlockLabels();
 
@@ -251,7 +253,7 @@ export class AdminOrderRevisionPage {
     const order = this.revision();
     if (!order) return [];
     return orderBlocks(order, this.customerLabels, {
-      address: this.config.address,
+      address: this.accountsConfig.address,
       phoneInput: this.config.phoneInput,
       locale: this.config.locale,
     });

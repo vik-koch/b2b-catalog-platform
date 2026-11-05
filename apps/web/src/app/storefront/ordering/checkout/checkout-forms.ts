@@ -1,3 +1,4 @@
+import { ACCOUNTS_CONFIG } from '../../../core/accounts/accounts-config';
 import { inject, signal, Signal } from '@angular/core';
 import { apply, form, hidden, required } from '@angular/forms/signals';
 import {
@@ -46,9 +47,10 @@ export function createCheckoutForms(deps: {
   billingTyped: () => boolean;
 }) {
   const config = inject(DEPLOYMENT_CONFIG);
+  const accountsConfig = inject(ACCOUNTS_CONFIG);
   const fields = inject(SHARED_TEXT).fields;
   const text = inject(STOREFRONT_TEXT);
-  const countries = config.address?.countries;
+  const countries = accountsConfig.address?.countries;
   const address = injectAddressRules();
 
   const model = signal<CheckoutAnswers>({

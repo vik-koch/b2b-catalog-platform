@@ -17,10 +17,10 @@ import {
 import { Inject, Injectable } from '@nestjs/common';
 import { PDFDocument } from 'pdf-lib';
 import {
-  ADDRESS_CONFIG,
   MONEY_FORMAT,
   ORDER_REFERENCE_CONFIG,
 } from '../../platform/config/deployment-config';
+import { ADDRESS_CONFIG } from '../accounts/accounts-config';
 import { MAIL_BRANDING, MailBranding } from '../../platform/mail/mail-branding';
 import { SHARED_TEXT } from '../../platform/config/shared-text';
 import { PdfFaces } from '../../platform/pdf/pdf-faces';

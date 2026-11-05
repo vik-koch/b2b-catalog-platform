@@ -1,3 +1,4 @@
+import { ACCOUNTS_CONFIG } from '../../core/accounts/accounts-config';
 import {
   Component,
   computed,
@@ -153,6 +154,7 @@ import { CATALOG_CONFIG } from '../../core/catalog/catalog-config';
 export class OrderVersionHistory {
   private readonly api = inject(AdminOrdersService);
   private readonly config = inject(DEPLOYMENT_CONFIG);
+  private readonly accountsConfig = inject(ACCOUNTS_CONFIG);
   private readonly catalogConfig = inject(CATALOG_CONFIG);
   private readonly currency = moneyFormat(this.config);
   private readonly adminText = inject(ADMIN_TEXT);
@@ -255,7 +257,7 @@ export class OrderVersionHistory {
       this.sharedText,
       this.blockLabels,
       {
-        address: this.config.address,
+        address: this.accountsConfig.address,
         phoneInput: this.config.phoneInput,
         locale: this.config.locale,
         currency: this.currency,

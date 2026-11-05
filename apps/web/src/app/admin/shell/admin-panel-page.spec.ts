@@ -1,3 +1,4 @@
+import { defaultAdminAccountsText } from '../accounts/accounts-text.fixture';
 import { SHARED_TEXT } from '../../platform/config/shared-text';
 import { defaultSharedText } from '../../platform/config/shared-text.fixture';
 import { signal } from '@angular/core';
@@ -354,7 +355,7 @@ describe('AdminPanelPage runtime state', () => {
 });
 
 describe('AdminPanelPage consents (NFR-LEGAL-09)', () => {
-  const text = defaultAdminText.consents;
+  const text = defaultAdminAccountsText.consents;
   const asking = (contact: boolean, account: boolean) =>
     withSite({ consent: { contact, account } }, config);
   const renderAs = (user: AuthUser, deployment = asking(true, false)) =>

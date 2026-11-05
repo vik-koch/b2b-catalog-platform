@@ -1,3 +1,4 @@
+import { defaultStorefrontAccountsText } from '../accounts-text.fixture';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
@@ -15,7 +16,7 @@ import {
   UpdateAccountProfileRequest,
 } from '@b2b-catalog-platform/shared/storefront/accounts';
 
-const text = defaultStorefrontText.account.edit;
+const text = defaultStorefrontAccountsText.account.edit;
 const config = defaultDeploymentConfig;
 
 const stored: AccountProfile = {

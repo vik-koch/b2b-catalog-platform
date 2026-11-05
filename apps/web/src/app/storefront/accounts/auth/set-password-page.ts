@@ -1,3 +1,4 @@
+import { STOREFRONT_ACCOUNTS_TEXT } from '../accounts-text';
 import { Component, inject, input, OnInit, signal } from '@angular/core';
 import { fillText } from '@b2b-catalog-platform/shared/platform';
 import { form } from '@angular/forms/signals';
@@ -180,7 +181,7 @@ export class SetPasswordPage implements OnInit {
   private readonly session = inject(AuthService);
   private readonly router = inject(Router);
 
-  protected readonly auth = inject(STOREFRONT_TEXT).auth;
+  protected readonly auth = inject(STOREFRONT_ACCOUNTS_TEXT).auth;
   protected readonly text = this.auth.setPassword;
   protected readonly actionText = inject(SHARED_TEXT).actions;
   protected readonly step = this.auth.signInStep;

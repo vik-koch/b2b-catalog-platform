@@ -1,3 +1,5 @@
+import { STOREFRONT_ACCOUNTS_TEXT } from '../accounts-text';
+import { ACCOUNTS_CONFIG } from '../../../core/accounts/accounts-config';
 import { Component, computed, inject, resource, Signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { fillText } from '@b2b-catalog-platform/shared/platform';
@@ -242,14 +244,16 @@ export class AccountPage {
 
   private readonly addressBook = inject(AddressesService);
   private readonly confirm = inject(ConfirmService);
-  private readonly addressConfig = inject(DEPLOYMENT_CONFIG).address;
+  private readonly addressConfig = inject(ACCOUNTS_CONFIG).address;
 
-  protected readonly text = inject(STOREFRONT_TEXT).auth;
-  protected readonly accountText = inject(STOREFRONT_TEXT).account;
+  protected readonly text = inject(STOREFRONT_ACCOUNTS_TEXT).auth;
+  protected readonly accountText = inject(STOREFRONT_ACCOUNTS_TEXT).account;
   private readonly sharedText = inject(SHARED_TEXT);
   private readonly partyKind = inject(SHARED_ACCOUNTS_TEXT).partyKind;
-  protected readonly deleteText = inject(STOREFRONT_TEXT).account.delete;
-  protected readonly addressText = inject(STOREFRONT_TEXT).account.addresses;
+  protected readonly deleteText = inject(STOREFRONT_ACCOUNTS_TEXT).account
+    .delete;
+  protected readonly addressText = inject(STOREFRONT_ACCOUNTS_TEXT).account
+    .addresses;
   protected readonly actionText = inject(SHARED_TEXT).actions;
 
   protected readonly profile = resource({

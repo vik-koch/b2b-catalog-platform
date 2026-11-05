@@ -1,3 +1,4 @@
+import { defaultStorefrontAccountsText } from '../accounts-text.fixture';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
 import { TestBed } from '@angular/core/testing';
@@ -7,9 +8,9 @@ import { SignInService, ChangePasswordResult } from './sign-in.service';
 import { ChangePasswordForm } from './change-password-form';
 import { PASSWORD_MIN_LENGTH } from '@b2b-catalog-platform/shared/core/accounts';
 
-const text = defaultStorefrontText.auth.changePassword;
-const validation = defaultStorefrontText.auth.validation;
-const rejected = defaultStorefrontText.auth.passwordRejected;
+const text = defaultStorefrontAccountsText.auth.changePassword;
+const validation = defaultStorefrontAccountsText.auth.validation;
+const rejected = defaultStorefrontAccountsText.auth.passwordRejected;
 
 const tooShort = 'x'.repeat(PASSWORD_MIN_LENGTH - 1);
 const longEnough = 'x'.repeat(PASSWORD_MIN_LENGTH);

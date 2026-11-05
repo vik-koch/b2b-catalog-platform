@@ -1,3 +1,4 @@
+import { defaultStorefrontAccountsText } from '../accounts-text.fixture';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
 import { signal, WritableSignal } from '@angular/core';
@@ -11,7 +12,7 @@ import { ChangePasswordResult, SignInService } from './sign-in.service';
 import { ForcePasswordChange } from './force-password-change';
 import { AuthUser } from '@b2b-catalog-platform/shared/platform';
 
-const text = defaultStorefrontText.auth.changePassword;
+const text = defaultStorefrontAccountsText.auth.changePassword;
 
 /**
  * jsdom parses <dialog> but implements none of its behaviour — no showModal, no
@@ -152,7 +153,7 @@ describe('ForcePasswordChange', () => {
       ...el.querySelectorAll<HTMLButtonElement>('button[type="button"]'),
     ];
     const logoutButton = buttons.find((b) =>
-      b.textContent?.includes(defaultStorefrontText.auth.logout),
+      b.textContent?.includes(defaultStorefrontAccountsText.auth.logout),
     );
     logoutButton?.click();
     await sync();

@@ -1,3 +1,4 @@
+import { ACCOUNTS_CONFIG } from '../../core/accounts/accounts-config';
 import {
   Component,
   computed,
@@ -357,6 +358,7 @@ export class AdminOrderDetailPage {
   private readonly auth = inject(AuthService);
   private readonly isAdmin = computed(() => this.auth.user()?.role === 'admin');
   private readonly config = inject(DEPLOYMENT_CONFIG);
+  private readonly accountsConfig = inject(ACCOUNTS_CONFIG);
   private readonly currency = moneyFormat(this.config);
 
   protected readonly text = inject(ADMIN_TEXT).orders.detail;
@@ -421,7 +423,7 @@ export class AdminOrderDetailPage {
       order,
       staffBlockLabels(this.sharedText, this.ordersText, this.text),
       {
-        address: this.config.address,
+        address: this.accountsConfig.address,
         phoneInput: this.config.phoneInput,
         locale: this.config.locale,
       },

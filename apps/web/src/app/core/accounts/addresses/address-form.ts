@@ -1,3 +1,4 @@
+import { ACCOUNTS_CONFIG } from '../accounts-config';
 import { computed, inject, signal } from '@angular/core';
 import {
   form,
@@ -9,13 +10,10 @@ import {
   type FormSubmitOptions,
   type Schema,
 } from '@angular/forms/signals';
-import {
-  type DeploymentConfig,
-  fillText,
-} from '@b2b-catalog-platform/shared/platform';
-import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
 import { SHARED_ACCOUNTS_TEXT } from '../accounts-text';
 import {
+  type AccountsConfig,
   ADDRESS_LINE_MAX_LENGTH,
   AddressComponents,
   AddressInput,
@@ -23,7 +21,7 @@ import {
   postalCodeRuleFor,
 } from '@b2b-catalog-platform/shared/core/accounts';
 
-type Countries = NonNullable<DeploymentConfig['address']>['countries'];
+type Countries = NonNullable<AccountsConfig['address']>['countries'];
 
 /** An address as it is typed: every part a string, empty where absent. */
 export interface AddressDraft {
@@ -56,7 +54,7 @@ export function blankAddress(countries: Countries | undefined): AddressDraft {
  */
 export function injectAddressRules(): Schema<AddressDraft> {
   const text = inject(SHARED_ACCOUNTS_TEXT).address;
-  const countries = inject(DEPLOYMENT_CONFIG).address?.countries;
+  const countries = inject(ACCOUNTS_CONFIG).address?.countries;
   return schema<AddressDraft>((address) => {
     required(address.street, { message: text.required });
     maxLength(address.street, ADDRESS_LINE_MAX_LENGTH);
@@ -147,7 +145,7 @@ export class AddressForm {
 export function createAddressForm(
   submission?: FormSubmitOptions<AddressDraft, unknown>,
 ): AddressForm {
-  const countries = inject(DEPLOYMENT_CONFIG).address?.countries;
+  const countries = inject(ACCOUNTS_CONFIG).address?.countries;
   const field = form(signal(blankAddress(countries)), injectAddressRules(), {
     name: 'address',
     submission,

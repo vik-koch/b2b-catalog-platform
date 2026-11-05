@@ -1,3 +1,4 @@
+import { defaultAdminAccountsText } from '../accounts-text.fixture';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
 import { TestBed } from '@angular/core/testing';
@@ -12,7 +13,7 @@ import { ConsentsService } from './consents.service';
 import { provideDigitMaskFormat } from '../../../platform/contact-fields';
 import { ConsentRecord } from '@b2b-catalog-platform/shared/admin/accounts';
 
-const text = defaultAdminText.consents;
+const text = defaultAdminAccountsText.consents;
 
 function record(overrides: Partial<ConsentRecord> = {}): ConsentRecord {
   return {

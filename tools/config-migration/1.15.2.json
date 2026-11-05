@@ -213,6 +213,23 @@
     "deployment.json:catalog.currency": "deployment.json:currency",
     "texts/common.json:partyKind": "texts/shared.json:accounts.partyKind",
     "texts/app.json:companySuggest": "texts/shared.json:accounts.companySuggest",
-    "texts/app.json:address": "texts/shared.json:accounts.address"
+    "texts/app.json:address": "texts/shared.json:accounts.address",
+    "texts/app.json:auth": "texts/storefront.json:accounts.auth",
+    "texts/app.json:account": "texts/storefront.json:accounts.account",
+    "texts/app.json:partyChoice": "texts/storefront.json:accounts.partyChoice",
+    "texts/admin.json:users": "texts/admin.json:accounts.users",
+    "texts/admin.json:consents": "texts/admin.json:accounts.consents",
+    "texts/mail.json:registrationReceived": "texts/mail.json:accounts.registrationReceived",
+    "texts/mail.json:accountApproved": "texts/mail.json:accounts.accountApproved",
+    "texts/mail.json:accountCreated": "texts/mail.json:accounts.accountCreated",
+    "texts/mail.json:passwordReset": "texts/mail.json:accounts.passwordReset",
+    "texts/mail.json:signInCode": "texts/mail.json:accounts.signInCode",
+    "texts/mail.json:signInCall": "texts/mail.json:accounts.signInCall",
+    "texts/mail.json:accountDeleted": "texts/mail.json:accounts.accountDeleted",
+    "texts/mail.json:newRegistration": "texts/mail.json:accounts.newRegistration",
+    "texts/mail.json:accountClosed": "texts/mail.json:accounts.accountClosed",
+    "deployment.json:customerTypes": "deployment.json:accounts.customerTypes",
+    "deployment.json:signInStep": "deployment.json:accounts.signInStep",
+    "deployment.json:address": "deployment.json:accounts.address"
   }
 }

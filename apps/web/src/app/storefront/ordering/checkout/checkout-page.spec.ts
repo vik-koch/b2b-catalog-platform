@@ -1,3 +1,4 @@
+import { withAccounts } from '../../../core/accounts/accounts-config.fixture';
 import { defaultSharedAccountsText } from '../../../core/accounts/accounts-text.fixture';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { signal } from '@angular/core';
@@ -434,10 +435,7 @@ describe('CheckoutPage', () => {
   });
 
   describe('a shop that sells to one kind of customer (FR-AUTH-13)', () => {
-    const companiesOnly = {
-      ...defaultDeploymentConfig,
-      customerTypes: ['company' as const],
-    };
+    const companiesOnly = withAccounts({ customerTypes: ['company'] });
 
     it('asks a guest for the company straight away, and invoices it', async () => {
       const page = await render({ guest: true, config: companiesOnly });
@@ -469,7 +467,7 @@ describe('CheckoutPage', () => {
     it('asks a persons-only shop’s customer for a name alone when invoicing somebody else', async () => {
       const page = await render({
         person: true,
-        config: { ...defaultDeploymentConfig, customerTypes: ['person'] },
+        config: withAccounts({ customerTypes: ['person'] }),
       });
 
       page.pick('party', 'other');

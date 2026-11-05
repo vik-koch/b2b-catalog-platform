@@ -1,3 +1,5 @@
+import { ACCOUNTS_CONFIG } from '../../../../core/accounts/accounts-config';
+import { STOREFRONT_ACCOUNTS_TEXT } from '../../../accounts/accounts-text';
 import { NgTemplateOutlet } from '@angular/common';
 import { Component, inject, input, output } from '@angular/core';
 import { FormField, type FieldTree } from '@angular/forms/signals';
@@ -103,14 +105,14 @@ import { ContactAnswers, PartyAnswers } from '../checkout-forms';
   `,
 })
 export class GuestDetails {
-  protected readonly authText = inject(STOREFRONT_TEXT).auth;
+  protected readonly authText = inject(STOREFRONT_ACCOUNTS_TEXT).auth;
   protected readonly fields = inject(SHARED_TEXT).fields;
   protected readonly text = inject(STOREFRONT_TEXT).checkout.contact;
-  private readonly partyChoice = inject(STOREFRONT_TEXT).partyChoice;
+  private readonly partyChoice = inject(STOREFRONT_ACCOUNTS_TEXT).partyChoice;
   protected readonly phoneInput = inject(DEPLOYMENT_CONFIG).phoneInput;
   /** The whole choice type: the page holds it, account included. */
   protected readonly kinds: readonly SegmentOption<Party>[] = inject(
-    DEPLOYMENT_CONFIG,
+    ACCOUNTS_CONFIG,
   ).customerTypes.map((value) => ({
     value,
     label: this.partyChoice[value],

@@ -1,3 +1,4 @@
+import { accountsMail } from './accounts-mail-text';
 import { MailContent } from '../../../platform/mail/mail-layout';
 import { MailText } from '../../../platform/mail/mail-text';
 
@@ -13,7 +14,7 @@ import { MailText } from '../../../platform/mail/mail-text';
  * be a promise this token does not keep.
  */
 export function passwordResetMail(token: string, text: MailText): MailContent {
-  const t = text.passwordReset;
+  const t = accountsMail(text).passwordReset;
   return {
     subject: t.subject,
     preheader: t.preheader,

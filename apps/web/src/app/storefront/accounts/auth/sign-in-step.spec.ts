@@ -1,3 +1,4 @@
+import { defaultStorefrontAccountsText } from '../accounts-text.fixture';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
 import { signal } from '@angular/core';
@@ -11,7 +12,7 @@ import { SignInService } from './sign-in.service';
 import { SignInStepPanel } from './sign-in-step';
 import { SignInStep } from '@b2b-catalog-platform/shared/core/accounts';
 
-const text = defaultStorefrontText.auth.signInStep;
+const text = defaultStorefrontAccountsText.auth.signInStep;
 
 const codeStep: SignInStep = {
   step: 'code',

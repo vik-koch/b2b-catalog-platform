@@ -25,13 +25,13 @@ import {
 import { AddressesService } from '../accounts/addresses.service';
 import {
   BILLING_ADDRESS_ENABLED,
-  ACCEPTED_CUSTOMER_TYPES,
   COMPANY_ID_RULE,
   CompanyIdRule,
   DELIVERY_CONFIG,
   PICKUP_LOCATIONS,
   PickupLocation,
 } from '../../platform/config/deployment-config';
+import { ACCEPTED_CUSTOMER_TYPES } from '../accounts/accounts-config';
 
 /**
  * What an order must say to be written, held the same for the checkout and a

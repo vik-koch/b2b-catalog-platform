@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { and, asc, eq } from 'drizzle-orm';
-import { ADDRESS_CONFIG } from '../../platform/config/deployment-config';
+import { ADDRESS_CONFIG } from './accounts-config';
 import { DRIZZLE } from '../../platform/db/database.module';
 import * as schema from '../../platform/db/schema';
 import { addresses } from '../../platform/db/schema';

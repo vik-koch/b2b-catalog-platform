@@ -1,3 +1,4 @@
+import { ACCOUNTS_CONFIG } from '../accounts-config';
 import {
   Component,
   computed,
@@ -215,7 +216,7 @@ export class AddressFields {
   protected readonly text = inject(SHARED_ACCOUNTS_TEXT).address;
   protected readonly optional = inject(SHARED_TEXT).optional;
   protected readonly countries =
-    inject(DEPLOYMENT_CONFIG).address?.countries ?? [];
+    inject(ACCOUNTS_CONFIG).address?.countries ?? [];
 
   readonly form = input.required<AddressForm>();
   /** Off where there is no address book to file it under (checkout). */

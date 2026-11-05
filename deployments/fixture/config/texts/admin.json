@@ -1273,201 +1273,6 @@
       "shipment": "Estimated weight and volume"
     }
   },
-  "users": {
-    "list": {
-      "customersPage": {
-        "title": "Customers"
-      },
-      "staffPage": {
-        "title": "Staff"
-      },
-      "count": "Accounts: {count}",
-      "searchAria": "Search accounts",
-      "searchPlaceholder": "Search by name, email, etc...",
-      "clearSearch": "Clear search",
-      "empty": "No accounts yet.",
-      "noResults": "No accounts match these filters.",
-      "loadError": "The account list could not be loaded. Please try again.",
-      "registered": "Registered",
-      "filterRole": "Filter by role",
-      "filterTier": "Filter by tier",
-      "filterCompanyIdFormat": "Filter by kind of registration number",
-      "filterStatus": "Filter by status",
-      "roleAll": "All roles",
-      "roleAdmin": "Admin",
-      "roleManager": "Manager",
-      "roleUser": "Customer",
-      "tierAll": "All tiers",
-      "companyIdFormatAll": "All company IDs",
-      "companyIdFormatNone": "No company ID",
-      "statusAll": "All statuses",
-      "status": "Status",
-      "statusPending": "Pending",
-      "statusInvited": "Invited",
-      "statusActive": "Active",
-      "statusDisabled": "Deactivated",
-      "statusAnonymized": "Closed",
-      "actionsAria": "Actions",
-      "approve": "Review and approve",
-      "edit": "Edit account",
-      "declineAria": "Decline",
-      "deactivateAria": "Deactivate account",
-      "reactivateAria": "Reactivate account",
-      "saveError": "That change could not be saved. Please try again.",
-      "addCustomer": "Add customer",
-      "addStaff": "Add staff account",
-      "errors": {
-        "account-not-found": "This account no longer exists. Reload the page to see the current list.",
-        "account-not-pending": "This registration has already been decided on.",
-        "account-closed": "This account is closed and can no longer be edited.",
-        "email-taken": "That email address already has an account.",
-        "account-not-approved": "Only an approved account can be deactivated. Approve or decline this registration instead.",
-        "account-not-disabled": "This account is not deactivated, so there is nothing to switch back on.",
-        "account-cannot-sign-in": "This account cannot sign in, so there is nothing to send. Switch it back on first, or decide on the registration.",
-        "self-deactivate": "You cannot deactivate your own account.",
-        "self-demote": "You cannot take the admin role from your own account.",
-        "last-admin": "This is the only admin account. Another admin must exist before this one can be changed.",
-        "account-not-purgeable": "Only a registration nobody has decided on can be declined. Deactivate this account instead.",
-        "self-delete": "You cannot delete your own account here. Delete it from your account page instead.",
-        "account-pending": "This registration has not been decided on yet. Decline it instead, which removes it entirely.",
-        "source-id-taken": "Another account already carries that source key. Each key names exactly one account.",
-        "role-change-admin-only": "Only an admin can change the role of an account.",
-        "staff-create-admin-only": "Only an admin can create a staff account.",
-        "source-id-change-admin-only": "Only an admin can change the source key of an account.",
-        "not-exemptable": "This deployment lets no account of this role skip the sign-in code.",
-        "customer-type-not-accepted": "This shop does not sell to that kind of customer."
-      },
-      "deactivateConfirm": {
-        "heading": "Deactivate account",
-        "message": "Deactivate {name}? They are signed out immediately and cannot sign in again, and any password link they were sent is cancelled. Their password itself is kept, so switching the account back on returns it as it was. Nothing is deleted, and they are not emailed.",
-        "confirm": "Deactivate account"
-      },
-      "reactivateConfirm": {
-        "heading": "Reactivate account",
-        "message": "Switch {name} back on? Their details, price tier and password are unchanged, so they can sign in as before — and they are not emailed. An account that never chose a password comes back awaiting one; send them a link from the account page.",
-        "confirm": "Reactivate account"
-      },
-      "declineConfirm": {
-        "heading": "Decline registration",
-        "message": "Decline {name}? Their registration and details are removed for good.",
-        "confirm": "Decline"
-      }
-    },
-    "editor": {
-      "newCustomerTitle": "New customer",
-      "newStaffTitle": "New staff account",
-      "editTitle": "Edit account",
-      "approveTitle": "Approve registration",
-      "emailFixed": "The email address is the sign-in name and cannot be changed here.",
-      "customerType": "Customer type",
-      "typeNotAccepted": "This account was saved as a kind of customer this shop no longer sells to. Fill in what is asked below to save it as one it does.",
-      "tier": "Tier",
-      "tierChoose": "Select a tier…",
-      "role": "Role",
-      "sourceId": "Source key",
-      "sourceIdHint": "The key the connected system knows this customer by. While it is empty no automated update can reach this account at all.",
-      "inviteHint": "An email with a link to choose a password is sent when the account is created.",
-      "resend": "Send a password link",
-      "resendSent": "The link has been sent.",
-      "status": "Status",
-      "create": "Create and invite",
-      "approve": "Approve and invite",
-      "notFound": "This account could not be found.",
-      "closed": "This account is closed. Its details are kept as a record and can no longer be edited.",
-      "saveError": "This account could not be saved. Please try again.",
-      "discardConfirm": "Discard the changes to this account?",
-      "validation": {
-        "tierRequired": "A tier is required."
-      }
-    },
-    "detail": {
-      "detailsHeading": "Details",
-      "accountHeading": "Account",
-      "approved": "Approved",
-      "approvedNever": "Not approved yet",
-      "sourceIdEmpty": "None — no automated update can reach this account.",
-      "consentsHeading": "Consents",
-      "consentsEmpty": "No consent recorded for this account.",
-      "delete": "Delete account",
-      "deleteConsentWithdrawn": "They withdrew their consent",
-      "deleteConsentWithdrawnHint": "Recorded as the reason. Leave it clear when they simply asked for the deletion.",
-      "deleteError": "The account could not be deleted. Please try again.",
-      "signInHeading": "Sign-in",
-      "signInPhone": "Mobile number",
-      "signInPhoneConfirmed": "Confirmed on {date}",
-      "signInPhoneUnconfirmed": "Not confirmed yet. It is confirmed at the next sign-in.",
-      "signInPhoneMissing": "None that a code can reach. They cannot sign in until staff enter one in the account's details.",
-      "signInCode": "Code after the password",
-      "signInCodeAlways": "At every sign-in",
-      "signInCodeAlwaysRemembered": "At every sign-in, except on a browser they chose to remember (for up to {days} days)",
-      "signInCodeOnce": "Once, to confirm the number",
-      "signInCodeExempt": "Not asked: exempted by {admin} on {date}",
-      "exempt": "Exempt from the code",
-      "unexempt": "Ask for the code again",
-      "exemptError": "The change could not be saved. Please try again.",
-      "back": "Back to the list",
-      "notFound": "This account could not be found.",
-      "loadError": "This account could not be loaded. Please try again.",
-      "deleteConfirm": {
-        "heading": "Delete account on request",
-        "message": "Delete {name} on their request? Their personal details and saved addresses are removed, their past orders are kept with their details removed from them, and they can no longer sign in. They are sent the same confirmation as when they delete it themselves. This cannot be undone.",
-        "confirm": "Delete account",
-        "warning": "Orders still open stay yours to finish, without the customer's name, phone or address."
-      },
-      "exemptConfirm": {
-        "heading": "Exempt from the sign-in code",
-        "message": "Let {name} sign in with the password alone? The exemption is recorded with your name and shown on this page.",
-        "confirm": "Exempt from the code"
-      },
-      "unexemptConfirm": {
-        "heading": "Ask for the sign-in code again",
-        "message": "Ask {name} for the code again from their next sign-in?",
-        "confirm": "Ask for the code again"
-      }
-    }
-  },
-  "consents": {
-    "page": {
-      "title": "Consents",
-      "intro": "Find the consents a person gave, to answer their own request or an inspection. A search by email address also finds the records of the account that uses it now."
-    },
-    "panelLookup": "Find a person's consents",
-    "panelText": "Text: {purpose}",
-    "byEmail": "Email address",
-    "byPhone": "Phone number",
-    "search": "Search",
-    "empty": "No consent recorded for {query}.",
-    "loadError": "The records could not be loaded. Please try again.",
-    "purposes": {
-      "contact": "Contact form",
-      "account": "Customer account"
-    },
-    "version": "Version {version}",
-    "account": "Account",
-    "accountGone": "Registration declined and removed",
-    "withdrawn": "Withdrawn",
-    "withdrawnAt": "Withdrawn {date}",
-    "withdrawnReasons": {
-      "account-deleted": "when the account was deleted",
-      "registration-declined": "when the registration was declined",
-      "entered": "entered by {admin}"
-    },
-    "endsWithAccount": "Withdrawn by deleting the account",
-    "withdraw": "Enter a withdrawal",
-    "withdrawNote": "How it reached you",
-    "withdrawErrors": {
-      "consent-not-found": "This record no longer exists.",
-      "consent-already-withdrawn": "This consent was already withdrawn.",
-      "consent-ends-with-account": "An account consent is withdrawn by deleting the account."
-    },
-    "withdrawError": "The withdrawal could not be saved. Please try again.",
-    "withdrawConfirm": {
-      "heading": "Enter a withdrawal",
-      "message": "The consent given by {holder} on {date} ends now and cannot be given back. Its record is kept for the retention period.",
-      "confirm": "Enter a withdrawal",
-      "warning": "The inquiry itself is a mail in the shop's inbox, which this does not touch. Delete it there as well."
-    }
-  },
   "ownership": {
     "intro": "Hand an area of the shop's data to an external system, or take it back. While an external system owns an area, it is the only thing that writes it: the shop's own way in is turned off, and what it fills is read-only here. While nobody owns it, the shop is in charge and automated updates are refused.",
     "areaText": {
@@ -1590,6 +1395,203 @@
       "enableAria": "Turn on maintenance",
       "disableAria": "Turn off maintenance",
       "error": "Something went wrong changing maintenance mode. Please try again."
+    }
+  },
+  "accounts": {
+    "users": {
+      "list": {
+        "customersPage": {
+          "title": "Customers"
+        },
+        "staffPage": {
+          "title": "Staff"
+        },
+        "count": "Accounts: {count}",
+        "searchAria": "Search accounts",
+        "searchPlaceholder": "Search by name, email, etc...",
+        "clearSearch": "Clear search",
+        "empty": "No accounts yet.",
+        "noResults": "No accounts match these filters.",
+        "loadError": "The account list could not be loaded. Please try again.",
+        "registered": "Registered",
+        "filterRole": "Filter by role",
+        "filterTier": "Filter by tier",
+        "filterCompanyIdFormat": "Filter by kind of registration number",
+        "filterStatus": "Filter by status",
+        "roleAll": "All roles",
+        "roleAdmin": "Admin",
+        "roleManager": "Manager",
+        "roleUser": "Customer",
+        "tierAll": "All tiers",
+        "companyIdFormatAll": "All company IDs",
+        "companyIdFormatNone": "No company ID",
+        "statusAll": "All statuses",
+        "status": "Status",
+        "statusPending": "Pending",
+        "statusInvited": "Invited",
+        "statusActive": "Active",
+        "statusDisabled": "Deactivated",
+        "statusAnonymized": "Closed",
+        "actionsAria": "Actions",
+        "approve": "Review and approve",
+        "edit": "Edit account",
+        "declineAria": "Decline",
+        "deactivateAria": "Deactivate account",
+        "reactivateAria": "Reactivate account",
+        "saveError": "That change could not be saved. Please try again.",
+        "addCustomer": "Add customer",
+        "addStaff": "Add staff account",
+        "errors": {
+          "account-not-found": "This account no longer exists. Reload the page to see the current list.",
+          "account-not-pending": "This registration has already been decided on.",
+          "account-closed": "This account is closed and can no longer be edited.",
+          "email-taken": "That email address already has an account.",
+          "account-not-approved": "Only an approved account can be deactivated. Approve or decline this registration instead.",
+          "account-not-disabled": "This account is not deactivated, so there is nothing to switch back on.",
+          "account-cannot-sign-in": "This account cannot sign in, so there is nothing to send. Switch it back on first, or decide on the registration.",
+          "self-deactivate": "You cannot deactivate your own account.",
+          "self-demote": "You cannot take the admin role from your own account.",
+          "last-admin": "This is the only admin account. Another admin must exist before this one can be changed.",
+          "account-not-purgeable": "Only a registration nobody has decided on can be declined. Deactivate this account instead.",
+          "self-delete": "You cannot delete your own account here. Delete it from your account page instead.",
+          "account-pending": "This registration has not been decided on yet. Decline it instead, which removes it entirely.",
+          "source-id-taken": "Another account already carries that source key. Each key names exactly one account.",
+          "role-change-admin-only": "Only an admin can change the role of an account.",
+          "staff-create-admin-only": "Only an admin can create a staff account.",
+          "source-id-change-admin-only": "Only an admin can change the source key of an account.",
+          "not-exemptable": "This deployment lets no account of this role skip the sign-in code.",
+          "customer-type-not-accepted": "This shop does not sell to that kind of customer."
+        },
+        "deactivateConfirm": {
+          "heading": "Deactivate account",
+          "message": "Deactivate {name}? They are signed out immediately and cannot sign in again, and any password link they were sent is cancelled. Their password itself is kept, so switching the account back on returns it as it was. Nothing is deleted, and they are not emailed.",
+          "confirm": "Deactivate account"
+        },
+        "reactivateConfirm": {
+          "heading": "Reactivate account",
+          "message": "Switch {name} back on? Their details, price tier and password are unchanged, so they can sign in as before — and they are not emailed. An account that never chose a password comes back awaiting one; send them a link from the account page.",
+          "confirm": "Reactivate account"
+        },
+        "declineConfirm": {
+          "heading": "Decline registration",
+          "message": "Decline {name}? Their registration and details are removed for good.",
+          "confirm": "Decline"
+        }
+      },
+      "editor": {
+        "newCustomerTitle": "New customer",
+        "newStaffTitle": "New staff account",
+        "editTitle": "Edit account",
+        "approveTitle": "Approve registration",
+        "emailFixed": "The email address is the sign-in name and cannot be changed here.",
+        "customerType": "Customer type",
+        "typeNotAccepted": "This account was saved as a kind of customer this shop no longer sells to. Fill in what is asked below to save it as one it does.",
+        "tier": "Tier",
+        "tierChoose": "Select a tier…",
+        "role": "Role",
+        "sourceId": "Source key",
+        "sourceIdHint": "The key the connected system knows this customer by. While it is empty no automated update can reach this account at all.",
+        "inviteHint": "An email with a link to choose a password is sent when the account is created.",
+        "resend": "Send a password link",
+        "resendSent": "The link has been sent.",
+        "status": "Status",
+        "create": "Create and invite",
+        "approve": "Approve and invite",
+        "notFound": "This account could not be found.",
+        "closed": "This account is closed. Its details are kept as a record and can no longer be edited.",
+        "saveError": "This account could not be saved. Please try again.",
+        "discardConfirm": "Discard the changes to this account?",
+        "validation": {
+          "tierRequired": "A tier is required."
+        }
+      },
+      "detail": {
+        "detailsHeading": "Details",
+        "accountHeading": "Account",
+        "approved": "Approved",
+        "approvedNever": "Not approved yet",
+        "sourceIdEmpty": "None — no automated update can reach this account.",
+        "consentsHeading": "Consents",
+        "consentsEmpty": "No consent recorded for this account.",
+        "delete": "Delete account",
+        "deleteConsentWithdrawn": "They withdrew their consent",
+        "deleteConsentWithdrawnHint": "Recorded as the reason. Leave it clear when they simply asked for the deletion.",
+        "deleteError": "The account could not be deleted. Please try again.",
+        "signInHeading": "Sign-in",
+        "signInPhone": "Mobile number",
+        "signInPhoneConfirmed": "Confirmed on {date}",
+        "signInPhoneUnconfirmed": "Not confirmed yet. It is confirmed at the next sign-in.",
+        "signInPhoneMissing": "None that a code can reach. They cannot sign in until staff enter one in the account's details.",
+        "signInCode": "Code after the password",
+        "signInCodeAlways": "At every sign-in",
+        "signInCodeAlwaysRemembered": "At every sign-in, except on a browser they chose to remember (for up to {days} days)",
+        "signInCodeOnce": "Once, to confirm the number",
+        "signInCodeExempt": "Not asked: exempted by {admin} on {date}",
+        "exempt": "Exempt from the code",
+        "unexempt": "Ask for the code again",
+        "exemptError": "The change could not be saved. Please try again.",
+        "back": "Back to the list",
+        "notFound": "This account could not be found.",
+        "loadError": "This account could not be loaded. Please try again.",
+        "deleteConfirm": {
+          "heading": "Delete account on request",
+          "message": "Delete {name} on their request? Their personal details and saved addresses are removed, their past orders are kept with their details removed from them, and they can no longer sign in. They are sent the same confirmation as when they delete it themselves. This cannot be undone.",
+          "confirm": "Delete account",
+          "warning": "Orders still open stay yours to finish, without the customer's name, phone or address."
+        },
+        "exemptConfirm": {
+          "heading": "Exempt from the sign-in code",
+          "message": "Let {name} sign in with the password alone? The exemption is recorded with your name and shown on this page.",
+          "confirm": "Exempt from the code"
+        },
+        "unexemptConfirm": {
+          "heading": "Ask for the sign-in code again",
+          "message": "Ask {name} for the code again from their next sign-in?",
+          "confirm": "Ask for the code again"
+        }
+      }
+    },
+    "consents": {
+      "page": {
+        "title": "Consents",
+        "intro": "Find the consents a person gave, to answer their own request or an inspection. A search by email address also finds the records of the account that uses it now."
+      },
+      "panelLookup": "Find a person's consents",
+      "panelText": "Text: {purpose}",
+      "byEmail": "Email address",
+      "byPhone": "Phone number",
+      "search": "Search",
+      "empty": "No consent recorded for {query}.",
+      "loadError": "The records could not be loaded. Please try again.",
+      "purposes": {
+        "contact": "Contact form",
+        "account": "Customer account"
+      },
+      "version": "Version {version}",
+      "account": "Account",
+      "accountGone": "Registration declined and removed",
+      "withdrawn": "Withdrawn",
+      "withdrawnAt": "Withdrawn {date}",
+      "withdrawnReasons": {
+        "account-deleted": "when the account was deleted",
+        "registration-declined": "when the registration was declined",
+        "entered": "entered by {admin}"
+      },
+      "endsWithAccount": "Withdrawn by deleting the account",
+      "withdraw": "Enter a withdrawal",
+      "withdrawNote": "How it reached you",
+      "withdrawErrors": {
+        "consent-not-found": "This record no longer exists.",
+        "consent-already-withdrawn": "This consent was already withdrawn.",
+        "consent-ends-with-account": "An account consent is withdrawn by deleting the account."
+      },
+      "withdrawError": "The withdrawal could not be saved. Please try again.",
+      "withdrawConfirm": {
+        "heading": "Enter a withdrawal",
+        "message": "The consent given by {holder} on {date} ends now and cannot be given back. Its record is kept for the retention period.",
+        "confirm": "Enter a withdrawal",
+        "warning": "The inquiry itself is a mail in the shop's inbox, which this does not touch. Delete it there as well."
+      }
     }
   }
 }

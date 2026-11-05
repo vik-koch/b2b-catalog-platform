@@ -1,3 +1,4 @@
+import { ACCOUNTS_CONFIG } from '../../core/accounts/accounts-config';
 import {
   Component,
   computed,
@@ -408,6 +409,7 @@ export class AdminOrderAdjustPage implements FieldAttempt {
   private readonly confirm = inject(ConfirmService);
   private readonly router = inject(Router);
   private readonly config = inject(DEPLOYMENT_CONFIG);
+  private readonly accountsConfig = inject(ACCOUNTS_CONFIG);
   private readonly catalogConfig = inject(CATALOG_CONFIG);
   protected readonly phoneInput = this.config.phoneInput;
   private readonly currency = moneyFormat(this.config);
@@ -446,7 +448,7 @@ export class AdminOrderAdjustPage implements FieldAttempt {
     'delivery',
   );
 
-  private readonly countries = this.config.address?.countries;
+  private readonly countries = this.accountsConfig.address?.countries;
   private readonly addressRules = injectAddressRules();
   private readonly model = signal<AdjustAnswers>({
     party: { personName: '', companyName: '', companyId: '' },
@@ -771,7 +773,7 @@ export class AdminOrderAdjustPage implements FieldAttempt {
     if (!order) return [];
     const preview = this.preview();
     const config = {
-      address: this.config.address,
+      address: this.accountsConfig.address,
       phoneInput: this.config.phoneInput,
       locale: this.config.locale,
       currency: this.currency,
@@ -1008,9 +1010,9 @@ export class AdminOrderAdjustPage implements FieldAttempt {
     const kind = company ? 'company' : 'person';
     // A kind no longer sold to opens on one that is, that half empty.
     this.setPartyKind(
-      this.config.customerTypes.includes(kind)
+      this.accountsConfig.customerTypes.includes(kind)
         ? kind
-        : this.config.customerTypes[0],
+        : this.accountsConfig.customerTypes[0],
     );
     this.model.update((answers) => ({
       ...answers,

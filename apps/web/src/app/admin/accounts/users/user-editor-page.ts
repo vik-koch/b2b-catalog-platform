@@ -1,3 +1,5 @@
+import { ACCOUNTS_CONFIG } from '../../../core/accounts/accounts-config';
+import { ADMIN_ACCOUNTS_TEXT } from '../accounts-text';
 import { Component, computed, inject, signal } from '@angular/core';
 import { disabled, form, hidden, required } from '@angular/forms/signals';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -377,27 +379,30 @@ export class UserEditorPage implements UnsavedChangesAware {
   private readonly router = inject(Router);
   private readonly auth = inject(AuthService);
   private readonly config = inject(DEPLOYMENT_CONFIG);
+  private readonly accountsConfig = inject(ACCOUNTS_CONFIG);
 
-  protected readonly text = inject(ADMIN_TEXT).users.editor;
+  protected readonly text = inject(ADMIN_ACCOUNTS_TEXT).users.editor;
   protected readonly fields = staffFields(
     inject(SHARED_TEXT).fields,
     inject(ADMIN_TEXT).fields,
   );
   private readonly kinds = inject(SHARED_ACCOUNTS_TEXT).partyKind;
-  protected readonly listText = inject(ADMIN_TEXT).users.list;
+  protected readonly listText = inject(ADMIN_ACCOUNTS_TEXT).users.list;
   /** In the deployment's order: the first is where a form starts. */
   protected readonly customerTypes: readonly SegmentOption<CustomerType>[] =
-    this.config.customerTypes.map((value) => ({
+    this.accountsConfig.customerTypes.map((value) => ({
       value,
       label: this.kinds[value],
     }));
-  private readonly firstType = this.config.customerTypes[0];
+  private readonly firstType = this.accountsConfig.customerTypes[0];
   /** A kind no longer sold to: the form starts it on one it can save. */
   protected readonly typeLeftBehind = computed(() => {
     const account = this.account();
     return (
       account?.role === 'user' &&
-      !this.config.customerTypes.includes(account.customerType ?? 'person')
+      !this.accountsConfig.customerTypes.includes(
+        account.customerType ?? 'person',
+      )
     );
   });
   protected readonly adminText = inject(ADMIN_TEXT);
@@ -582,7 +587,7 @@ export class UserEditorPage implements UnsavedChangesAware {
    * masked fields are entered in. */
   private seed(user: StaffUser): void {
     const stored: CustomerType = user.customerType ?? 'person';
-    const type = this.config.customerTypes.includes(stored)
+    const type = this.accountsConfig.customerTypes.includes(stored)
       ? stored
       : this.firstType;
     this.model.set({

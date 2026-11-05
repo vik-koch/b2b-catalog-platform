@@ -13,66 +13,6 @@
       "card": "Karte, nach Absprache mit dem Kunden"
     }
   },
-  "registrationReceived": {
-    "subject": "Ihr Kontoantrag ist bei uns",
-    "preheader": "Ihr Antrag liegt bei unserem Team.",
-    "heading": "Vielen Dank für Ihren Antrag",
-    "body": "Wir haben Ihren Antrag erhalten und an unser Team weitergegeben.",
-    "nextSteps": "Jemand aus dem Team prüft ihn und richtet Ihr Konto ein. Sobald es bereit ist, erhalten Sie eine zweite E-Mail mit Ihrem Passwort. Bis dahin können Sie sich noch nicht anmelden."
-  },
-  "accountApproved": {
-    "subject": "Ihr Konto ist bereit",
-    "preheader": "Wählen Sie ein Passwort, um mit dem Bestellen zu beginnen.",
-    "heading": "Ihr Konto ist bereit",
-    "body": "Ihr Antrag wurde angenommen und Ihr Kundenkonto ist eingerichtet. Wählen Sie ein Passwort, und Sie können sofort bestellen.",
-    "action": "Passwort wählen"
-  },
-  "accountCreated": {
-    "subject": "Für Sie wurde ein Konto eingerichtet",
-    "preheader": "Wählen Sie ein Passwort, um mit dem Bestellen zu beginnen.",
-    "heading": "Für Sie wurde ein Konto eingerichtet",
-    "body": "Wir haben Ihnen in unserem Onlineshop ein Kundenkonto eingerichtet. Wählen Sie ein Passwort, und Sie können sofort bestellen.",
-    "action": "Passwort wählen"
-  },
-  "passwordReset": {
-    "subject": "Passwort zurücksetzen",
-    "preheader": "Wählen Sie ein neues Passwort für Ihr Konto.",
-    "heading": "Passwort zurücksetzen",
-    "body": "Jemand hat darum gebeten, das Passwort Ihres Kundenkontos zurückzusetzen. Wählen Sie ein neues, und Sie können sich sofort wieder anmelden.",
-    "expiry": "Dieser Link lässt sich einmal verwenden und läuft eine Stunde nach dem Versand ab.",
-    "ignore": "Wenn Sie das nicht waren, können Sie diese Nachricht ignorieren – Ihr Passwort bleibt, wie es ist, und ohne Ihr Postfach kann niemand diesen Link verwenden.",
-    "action": "Neues Passwort wählen"
-  },
-  "signInCode": {
-    "message": "{code} ist Ihr Anmeldecode für Coffee Kontor.",
-    "subject": "Ihr Anmeldecode",
-    "preheader": "Geben Sie diesen Code ein, um die Anmeldung abzuschließen.",
-    "heading": "Ihr Anmeldecode",
-    "ignore": "Wenn Sie nicht versucht haben, sich anzumelden, ändern Sie Ihr Passwort: Jemand anderes kennt es."
-  },
-  "signInCall": {
-    "subject": "Anmeldung abschließen",
-    "preheader": "Öffnen Sie den Link, statt anzurufen.",
-    "heading": "Anmeldung abschließen",
-    "body": "Diese Nachricht ersetzt den Anruf beim Shop. Öffnen Sie den Link, und die Anmeldeseite, die Sie offen gelassen haben, geht von selbst weiter.",
-    "action": "Anmeldung abschließen",
-    "ignore": "Wenn Sie nicht versucht haben, sich anzumelden, ändern Sie Ihr Passwort: Jemand anderes kennt es."
-  },
-  "accountDeleted": {
-    "subject": "Ihr Konto wurde gelöscht",
-    "preheader": "Ihr Kundenkonto und Ihre persönlichen Angaben wurden entfernt.",
-    "heading": "Ihr Konto wurde gelöscht",
-    "body": "Ihr Kundenkonto ist geschlossen, und Ihre persönlichen Angaben wurden aus unseren Unterlagen entfernt. Diese E-Mail-Adresse gehört bei uns zu keinem Konto mehr.",
-    "orders": "Frühere Bestellungen bleiben für unsere Buchhaltung erhalten, ohne Ihre Angaben. Wenn Sie sich später neu registrieren, ist das ein neues Konto – Ihre früheren Bestellungen erscheinen darin nicht."
-  },
-  "newRegistration": {
-    "subject": "Neuer Kontoantrag",
-    "preheader": "Jemand hat ein Kundenkonto beantragt.",
-    "heading": "Neuer Kontoantrag",
-    "body": "Jemand hat ein Kundenkonto beantragt. Prüfen Sie den Antrag, und wenn er echt ist, nehmen Sie ihn an und weisen Sie dem Kunden eine Kundengruppe zu.",
-    "customerTypeLabel": "Beantragt als",
-    "action": "Kontenliste öffnen"
-  },
   "orderReceived": {
     "subject": "Ihre Bestellanfrage ist bei uns",
     "preheader": "Ihre Bestellanfrage ist bei uns eingegangen.",
@@ -98,16 +38,6 @@
     "paidNote": "Zu dieser Bestellung ist eine Zahlung verbucht. Eine Erstattung klären Sie direkt mit dem Kunden – hier wird kein Geld bewegt.",
     "itemsHeading": "Bestellt war",
     "action": "Bestellung öffnen"
-  },
-  "accountClosed": {
-    "subject": "Ein Kunde hat sein Konto geschlossen",
-    "preheader": "Ein Kunde hat sein Konto geschlossen.",
-    "heading": "Konto geschlossen",
-    "body": "Ein Kunde hat sein Konto geschlossen. Seine Angaben sind gelöscht; seine früheren Bestellungen bleiben für die Buchhaltung erhalten, ohne alles, was ihn erkennbar macht.",
-    "nameLabel": "War",
-    "ordersLabel": "Erhaltene Bestellungen",
-    "openOrdersNote": "Davon noch nicht abgeschlossen: {count}. Sie müssen sie weiterhin abwickeln, und sie lassen sich keinem Kunden mehr zuordnen – prüfen Sie sie also zuerst.",
-    "action": "Bestellliste öffnen"
   },
   "orderStatusChanged": {
     "subject": "Ihre Bestellung",
@@ -250,6 +180,78 @@
       "heading": "Neue Anfrage",
       "preferredContact": "Bevorzugter Kontaktweg",
       "message": "Nachricht"
+    }
+  },
+  "accounts": {
+    "registrationReceived": {
+      "subject": "Ihr Kontoantrag ist bei uns",
+      "preheader": "Ihr Antrag liegt bei unserem Team.",
+      "heading": "Vielen Dank für Ihren Antrag",
+      "body": "Wir haben Ihren Antrag erhalten und an unser Team weitergegeben.",
+      "nextSteps": "Jemand aus dem Team prüft ihn und richtet Ihr Konto ein. Sobald es bereit ist, erhalten Sie eine zweite E-Mail mit Ihrem Passwort. Bis dahin können Sie sich noch nicht anmelden."
+    },
+    "accountApproved": {
+      "subject": "Ihr Konto ist bereit",
+      "preheader": "Wählen Sie ein Passwort, um mit dem Bestellen zu beginnen.",
+      "heading": "Ihr Konto ist bereit",
+      "body": "Ihr Antrag wurde angenommen und Ihr Kundenkonto ist eingerichtet. Wählen Sie ein Passwort, und Sie können sofort bestellen.",
+      "action": "Passwort wählen"
+    },
+    "accountCreated": {
+      "subject": "Für Sie wurde ein Konto eingerichtet",
+      "preheader": "Wählen Sie ein Passwort, um mit dem Bestellen zu beginnen.",
+      "heading": "Für Sie wurde ein Konto eingerichtet",
+      "body": "Wir haben Ihnen in unserem Onlineshop ein Kundenkonto eingerichtet. Wählen Sie ein Passwort, und Sie können sofort bestellen.",
+      "action": "Passwort wählen"
+    },
+    "passwordReset": {
+      "subject": "Passwort zurücksetzen",
+      "preheader": "Wählen Sie ein neues Passwort für Ihr Konto.",
+      "heading": "Passwort zurücksetzen",
+      "body": "Jemand hat darum gebeten, das Passwort Ihres Kundenkontos zurückzusetzen. Wählen Sie ein neues, und Sie können sich sofort wieder anmelden.",
+      "expiry": "Dieser Link lässt sich einmal verwenden und läuft eine Stunde nach dem Versand ab.",
+      "ignore": "Wenn Sie das nicht waren, können Sie diese Nachricht ignorieren – Ihr Passwort bleibt, wie es ist, und ohne Ihr Postfach kann niemand diesen Link verwenden.",
+      "action": "Neues Passwort wählen"
+    },
+    "signInCode": {
+      "message": "{code} ist Ihr Anmeldecode für Coffee Kontor.",
+      "subject": "Ihr Anmeldecode",
+      "preheader": "Geben Sie diesen Code ein, um die Anmeldung abzuschließen.",
+      "heading": "Ihr Anmeldecode",
+      "ignore": "Wenn Sie nicht versucht haben, sich anzumelden, ändern Sie Ihr Passwort: Jemand anderes kennt es."
+    },
+    "signInCall": {
+      "subject": "Anmeldung abschließen",
+      "preheader": "Öffnen Sie den Link, statt anzurufen.",
+      "heading": "Anmeldung abschließen",
+      "body": "Diese Nachricht ersetzt den Anruf beim Shop. Öffnen Sie den Link, und die Anmeldeseite, die Sie offen gelassen haben, geht von selbst weiter.",
+      "action": "Anmeldung abschließen",
+      "ignore": "Wenn Sie nicht versucht haben, sich anzumelden, ändern Sie Ihr Passwort: Jemand anderes kennt es."
+    },
+    "accountDeleted": {
+      "subject": "Ihr Konto wurde gelöscht",
+      "preheader": "Ihr Kundenkonto und Ihre persönlichen Angaben wurden entfernt.",
+      "heading": "Ihr Konto wurde gelöscht",
+      "body": "Ihr Kundenkonto ist geschlossen, und Ihre persönlichen Angaben wurden aus unseren Unterlagen entfernt. Diese E-Mail-Adresse gehört bei uns zu keinem Konto mehr.",
+      "orders": "Frühere Bestellungen bleiben für unsere Buchhaltung erhalten, ohne Ihre Angaben. Wenn Sie sich später neu registrieren, ist das ein neues Konto – Ihre früheren Bestellungen erscheinen darin nicht."
+    },
+    "newRegistration": {
+      "subject": "Neuer Kontoantrag",
+      "preheader": "Jemand hat ein Kundenkonto beantragt.",
+      "heading": "Neuer Kontoantrag",
+      "body": "Jemand hat ein Kundenkonto beantragt. Prüfen Sie den Antrag, und wenn er echt ist, nehmen Sie ihn an und weisen Sie dem Kunden eine Kundengruppe zu.",
+      "customerTypeLabel": "Beantragt als",
+      "action": "Kontenliste öffnen"
+    },
+    "accountClosed": {
+      "subject": "Ein Kunde hat sein Konto geschlossen",
+      "preheader": "Ein Kunde hat sein Konto geschlossen.",
+      "heading": "Konto geschlossen",
+      "body": "Ein Kunde hat sein Konto geschlossen. Seine Angaben sind gelöscht; seine früheren Bestellungen bleiben für die Buchhaltung erhalten, ohne alles, was ihn erkennbar macht.",
+      "nameLabel": "War",
+      "ordersLabel": "Erhaltene Bestellungen",
+      "openOrdersNote": "Davon noch nicht abgeschlossen: {count}. Sie müssen sie weiterhin abwickeln, und sie lassen sich keinem Kunden mehr zuordnen – prüfen Sie sie also zuerst.",
+      "action": "Bestellliste öffnen"
     }
   }
 }

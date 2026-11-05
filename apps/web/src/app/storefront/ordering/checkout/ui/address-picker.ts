@@ -1,3 +1,4 @@
+import { ACCOUNTS_CONFIG } from '../../../../core/accounts/accounts-config';
 import { Component, inject, input, output } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { STOREFRONT_TEXT } from '../../../../platform/config/storefront-text';
@@ -102,7 +103,7 @@ let nextId = 0;
 })
 export class AddressPicker {
   private readonly instance = nextId++;
-  private readonly addressConfig = inject(DEPLOYMENT_CONFIG).address;
+  private readonly addressConfig = inject(ACCOUNTS_CONFIG).address;
 
   protected readonly text = inject(STOREFRONT_TEXT).checkout.addresses;
   /** With suggestions, checkout asks for the street alone; the account editor

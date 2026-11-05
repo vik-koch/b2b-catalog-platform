@@ -1,3 +1,4 @@
+import { defaultStorefrontAccountsText } from '../accounts/accounts-text.fixture';
 import { SHARED_TEXT } from '../../platform/config/shared-text';
 import { defaultSharedText } from '../../platform/config/shared-text.fixture';
 import { computed, signal, WritableSignal } from '@angular/core';
@@ -16,7 +17,7 @@ import { WorkService } from '../../core/work/work.service';
 import { workStub } from '../../core/work/work.fixture';
 import { AuthUser, UserRole } from '@b2b-catalog-platform/shared/platform';
 
-const text = defaultStorefrontText.auth;
+const text = defaultStorefrontAccountsText.auth;
 
 /**
  * `undefined` is the third state the component has to tell apart: the session

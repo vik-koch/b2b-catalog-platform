@@ -1,3 +1,4 @@
+import { defaultStorefrontAccountsText } from '../accounts-text.fixture';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
@@ -16,7 +17,7 @@ import {
 } from '../../../platform/auth/auth-user.fixture';
 import { AuthUser } from '@b2b-catalog-platform/shared/platform';
 
-const text = defaultStorefrontText.auth;
+const text = defaultStorefrontAccountsText.auth;
 
 function setInput(root: HTMLElement, selector: string, value: string): void {
   const input = root.querySelector<HTMLInputElement>(selector);

@@ -1,3 +1,5 @@
+import { withAccounts } from '../../../core/accounts/accounts-config.fixture';
+import { defaultStorefrontAccountsText } from '../accounts-text.fixture';
 import { defaultSharedAccountsText } from '../../../core/accounts/accounts-text.fixture';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
@@ -19,7 +21,7 @@ import {
   AddressInput,
 } from '@b2b-catalog-platform/shared/core/accounts';
 
-const text = defaultStorefrontText.account.addresses;
+const text = defaultStorefrontAccountsText.account.addresses;
 const fieldText = defaultSharedAccountsText.address;
 
 /** Two shapes, the short one first — the order a picker offers them in. */
@@ -95,16 +97,15 @@ async function render(options: Options = {}) {
               companyIdInput: { formats: [shortFormat, longFormat] },
             }
           : options.manyCountries
-            ? {
-                ...defaultDeploymentConfig,
+            ? withAccounts({
                 address: {
-                  ...defaultDeploymentConfig.address,
                   countries: [
-                    ...(defaultDeploymentConfig.address?.countries ?? []),
+                    ...(defaultDeploymentConfig.accounts.address?.countries ??
+                      []),
                     { code: 'AT', label: 'Austria' },
                   ],
                 },
-              }
+              })
             : defaultDeploymentConfig,
       },
       { provide: AddressesService, useValue: h },
@@ -187,7 +188,9 @@ describe('AddressEditorPage', () => {
     it('asks for no country where the deployment ships to one', async () => {
       const { field, type, submit, h } = await render();
 
-      expect(defaultDeploymentConfig.address?.countries).toHaveLength(1);
+      expect(defaultDeploymentConfig.accounts.address?.countries).toHaveLength(
+        1,
+      );
       expect(field('country')).toBeNull();
 
       type('label', 'Shop');
@@ -197,7 +200,7 @@ describe('AddressEditorPage', () => {
       await submit();
 
       expect(h.create.mock.calls[0][0].country).toBe(
-        defaultDeploymentConfig.address?.countries[0].code,
+        defaultDeploymentConfig.accounts.address?.countries[0].code,
       );
     });
 
@@ -205,7 +208,7 @@ describe('AddressEditorPage', () => {
       const { field } = await render({ manyCountries: true });
 
       expect(field('country')?.value).toBe(
-        defaultDeploymentConfig.address?.countries[0].code,
+        defaultDeploymentConfig.accounts.address?.countries[0].code,
       );
     });
 
@@ -243,8 +246,8 @@ describe('AddressEditorPage', () => {
         expect(el.textContent).toContain(
           fieldText.postalCodeFormat.replace(
             '{example}',
-            defaultDeploymentConfig.address?.countries[0].postalCode?.example ??
-              '',
+            defaultDeploymentConfig.accounts.address?.countries[0].postalCode
+              ?.example ?? '',
           ),
         );
       });
@@ -291,7 +294,7 @@ describe('AddressEditorPage', () => {
         street2: null,
         region: null,
         // The one configured country, though nothing asked for it.
-        country: defaultDeploymentConfig.address?.countries[0].code,
+        country: defaultDeploymentConfig.accounts.address?.countries[0].code,
       });
       // Back to the book, which shows what was saved.
       expect(navigate).toHaveBeenCalledWith('/account');

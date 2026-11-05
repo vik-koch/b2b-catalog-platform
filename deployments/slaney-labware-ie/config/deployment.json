@@ -123,18 +123,6 @@
       }
     ]
   },
-  "address": {
-    "countries": [
-      {
-        "code": "IE",
-        "label": "Ireland",
-        "postalCode": {
-          "pattern": "^(?:[AC-FHKNPRTV-Y][0-9]{2}|D6W)[0-9AC-FHKNPRTV-Y]{4}$",
-          "example": "Y21 F4E2"
-        }
-      }
-    ]
-  },
   "companyIdInput": {
     "formats": [
       {
@@ -151,7 +139,6 @@
       }
     ]
   },
-  "customerTypes": ["company"],
   "site": {
     "pages": {
       "published": [
@@ -189,5 +176,20 @@
       }
     ],
     "mapProvider": "OpenStreetMap"
+  },
+  "accounts": {
+    "customerTypes": ["company"],
+    "address": {
+      "countries": [
+        {
+          "code": "IE",
+          "label": "Ireland",
+          "postalCode": {
+            "pattern": "^(?:[AC-FHKNPRTV-Y][0-9]{2}|D6W)[0-9AC-FHKNPRTV-Y]{4}$",
+            "example": "Y21 F4E2"
+          }
+        }
+      ]
+    }
   }
 }

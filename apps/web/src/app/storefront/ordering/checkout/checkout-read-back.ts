@@ -1,3 +1,4 @@
+import { ACCOUNTS_CONFIG } from '../../../core/accounts/accounts-config';
 import { computed, inject, Signal } from '@angular/core';
 import {
   fillText,
@@ -52,6 +53,7 @@ export interface ReadBackDeps {
 export function createCheckoutReadBack(deps: ReadBackDeps) {
   const cart = inject(CartService);
   const config = inject(DEPLOYMENT_CONFIG);
+  const accountsConfig = inject(ACCOUNTS_CONFIG);
   const text = inject(STOREFRONT_TEXT).checkout;
   const common = inject(SHARED_TEXT);
   const units = inject(SHARED_CATALOG_TEXT).units;
@@ -105,7 +107,7 @@ export function createCheckoutReadBack(deps: ReadBackDeps) {
 
   const lines = (address: AddressInput | null): string[] => {
     if (!address) return [];
-    return addressLines(address, config.address);
+    return addressLines(address, accountsConfig.address);
   };
 
   const tax = useTaxStatement();

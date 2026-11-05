@@ -1,3 +1,4 @@
+import { STOREFRONT_ACCOUNTS_TEXT } from '../accounts/accounts-text';
 import { Component, computed, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { STOREFRONT_TEXT } from '../../platform/config/storefront-text';
@@ -112,7 +113,7 @@ export class AccountLink {
 
   protected readonly waiting = this.work.waiting;
 
-  protected readonly text = inject(STOREFRONT_TEXT).auth;
+  protected readonly text = inject(STOREFRONT_ACCOUNTS_TEXT).auth;
 
   /** `text-stable` reserves the active weight's width from `data-label`, so it
    * has to be given the label that will need the most of it. */

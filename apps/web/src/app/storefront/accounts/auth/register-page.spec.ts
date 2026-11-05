@@ -1,3 +1,5 @@
+import { withAccounts } from '../../../core/accounts/accounts-config.fixture';
+import { defaultStorefrontAccountsText } from '../accounts-text.fixture';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { TestBed } from '@angular/core/testing';
 import { Page } from '@b2b-catalog-platform/shared/core/site';
@@ -16,7 +18,7 @@ import { PartySuggestion } from '@b2b-catalog-platform/shared/core/accounts';
 import { defaultStorefrontSiteText } from '../../site/site-text.fixture';
 import { withSite } from '../../../core/site/site-config.fixture';
 
-const text = defaultStorefrontText.auth.register;
+const text = defaultStorefrontAccountsText.auth.register;
 
 /** What the stubbed provider answers with; set per test. */
 let parties: PartySuggestion[] = [];
@@ -261,10 +263,10 @@ describe('RegisterPage', () => {
   // The registration number is only asked of a company, and only sent by one.
   describe('a shop that sells to one kind of customer (FR-AUTH-13)', () => {
     it('asks a companies-only shop’s registrant for the company straight away', async () => {
-      const { el, register, sync, submit, fillPerson } = await render('ok', {
-        ...askingConfig,
-        customerTypes: ['company'],
-      });
+      const { el, register, sync, submit, fillPerson } = await render(
+        'ok',
+        withAccounts({ customerTypes: ['company'] }, askingConfig),
+      );
 
       expect(el.querySelector('input[value="person"]')).toBeNull();
       expect(el.textContent).not.toContain(text.customerType);
@@ -287,10 +289,10 @@ describe('RegisterPage', () => {
     });
 
     it('does not let a companies-only registrant leave the company out', async () => {
-      const { el, register, sync, submit, fillPerson } = await render('ok', {
-        ...askingConfig,
-        customerTypes: ['company'],
-      });
+      const { el, register, sync, submit, fillPerson } = await render(
+        'ok',
+        withAccounts({ customerTypes: ['company'] }, askingConfig),
+      );
 
       await fillPerson();
       submit();
@@ -303,10 +305,10 @@ describe('RegisterPage', () => {
     });
 
     it('asks a persons-only shop’s registrant about no company at all', async () => {
-      const { el, register, sync, submit, fillPerson } = await render('ok', {
-        ...askingConfig,
-        customerTypes: ['person'],
-      });
+      const { el, register, sync, submit, fillPerson } = await render(
+        'ok',
+        withAccounts({ customerTypes: ['person'] }, askingConfig),
+      );
 
       expect(el.querySelector('input[value="company"]')).toBeNull();
       expect(el.querySelector('#companyName')).toBeNull();

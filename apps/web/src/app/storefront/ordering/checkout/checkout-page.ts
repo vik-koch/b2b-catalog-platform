@@ -1,3 +1,5 @@
+import { ACCOUNTS_CONFIG } from '../../../core/accounts/accounts-config';
+import { STOREFRONT_ACCOUNTS_TEXT } from '../../accounts/accounts-text';
 import {
   Component,
   computed,
@@ -416,6 +418,8 @@ export class CheckoutPage {
   protected readonly draft = this.drafts.draft;
 
   private readonly config = inject(DEPLOYMENT_CONFIG);
+
+  private readonly accountsConfig = inject(ACCOUNTS_CONFIG);
   private readonly locations = this.config.pickup?.locations ?? [];
   private readonly book = inject(AddressesService);
   private readonly account = inject(AccountService);
@@ -425,7 +429,8 @@ export class CheckoutPage {
   private readonly route = inject(ActivatedRoute);
 
   protected readonly text = inject(STOREFRONT_TEXT).checkout;
-  protected readonly invite = inject(STOREFRONT_TEXT).auth.registerInvite;
+  protected readonly invite = inject(STOREFRONT_ACCOUNTS_TEXT).auth
+    .registerInvite;
   protected readonly cartText = inject(STOREFRONT_TEXT).cart;
   protected readonly actionText = inject(SHARED_TEXT).actions;
   protected readonly addressText = this.text.addresses;
@@ -542,7 +547,9 @@ export class CheckoutPage {
   protected readonly showFormSkeleton = delayedLoading(this.formPending);
 
   /** So returning to "somebody else" keeps its kind. */
-  private readonly lastOtherParty = signal<Party>(this.config.customerTypes[0]);
+  private readonly lastOtherParty = signal<Party>(
+    this.accountsConfig.customerTypes[0],
+  );
   protected readonly otherParty = this.lastOtherParty.asReadonly();
 
   /** Whether the shop sells to the account's own kind of party (FR-AUTH-13),
@@ -554,7 +561,7 @@ export class CheckoutPage {
       profile.customerType !== 'person' && profile.companyRegistrationId
         ? 'company'
         : 'person';
-    return this.config.customerTypes.includes(kind);
+    return this.accountsConfig.customerTypes.includes(kind);
   });
 
   /** An account made from an email alone has no phone, and the form never asks
@@ -688,7 +695,7 @@ export class CheckoutPage {
     effect(() => {
       if (!this.auth.resolved()) return;
       const party = untracked(() => this.draft().party);
-      const accepted = this.config.customerTypes;
+      const accepted = this.accountsConfig.customerTypes;
       const refused =
         party === 'account'
           ? this.guest() || !this.ownPartyAllowed()

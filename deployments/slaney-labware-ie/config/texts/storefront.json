@@ -282,189 +282,6 @@
       "home": "Back to the shop"
     }
   },
-  "auth": {
-    "login": "Log in",
-    "logout": "Log out",
-    "accountNav": "Account",
-    "workMarkerAria": "{count} awaiting your attention",
-    "securityHeading": "Password and security",
-    "account": "My account",
-    "password": "Password",
-    "registerInvite": {
-      "text": "Ordering with us often? Ask for a customer account and we will keep your prices and addresses for next time.",
-      "action": "Request an account"
-    },
-    "submit": "Log in",
-    "submitting": "Logging in…",
-    "invalid": "Invalid email or password.",
-    "closed": "The shop is closed for maintenance, so customer accounts cannot sign in right now. Please try again later.",
-    "error": "Something went wrong logging you in. Please try again.",
-    "forgotPassword": {
-      "link": "Forgot your password?",
-      "heading": "Reset your password",
-      "intro": "Enter the email address you sign in with and we will send you a link to choose a new password.",
-      "submit": "Send me a link",
-      "successHeading": "Check your email",
-      "success": "If there is an account for this address, a link to choose a new password is on its way. It can be used once, and expires an hour after it was sent.",
-      "error": "Something went wrong sending your link. Please try again.",
-      "backToLogin": "Back to sign in"
-    },
-    "register": {
-      "noAccount": "New here? Request a customer account.",
-      "signUp": "Sign up",
-      "heading": "Create an account",
-      "intro": "Tell us about your organisation and we will set up its customer account. We sell to businesses and institutions only, and a colleague reviews every request, so this is not instant — you will receive your password by email once the account is ready.",
-      "customerType": "I am registering as",
-      "submit": "Request an account",
-      "successHeading": "Thank you",
-      "success": "If we can set up an account for this address, you will receive an email shortly. Our team reviews every request, so your password may take a little while to arrive.",
-      "error": "Something went wrong sending your request. Please try again.",
-      "haveAccount": "Already have an account?",
-      "companyIdHint": "Any of the numbers we can invoice against, e.g. {examples}."
-    },
-    "setPassword": {
-      "checking": "Checking your link…",
-      "setHeading": "Choose your password",
-      "setIntro": "Your account is ready. Choose a password and you can start ordering right away.",
-      "resetHeading": "Choose a new password",
-      "resetIntro": "Choose a new password for your account. Anywhere you are still signed in will be signed out.",
-      "forAccount": "For",
-      "confirmPassword": "Repeat password",
-      "show": "Show",
-      "hide": "Hide",
-      "generate": "Suggest a strong password",
-      "generated": "We filled in a strong password. Save it in your password manager before continuing.",
-      "submit": "Save password and continue",
-      "successHeading": "You are all set",
-      "success": "Your password is saved and you are signed in.",
-      "expiredHeading": "This link no longer works",
-      "expired": "Links can only be used once, and expire after a while. Ask for a new one below, or use “Forgot your password?” on the sign-in page.",
-      "closedHeading": "Not open yet",
-      "closed": "Customer accounts open with the shop, which is being worked on right now. Come back to this link once we are back — if it has expired by then, ask for a new one.",
-      "error": "Something went wrong saving your password. Please try again."
-    },
-    "signInStep": {
-      "codeHeading": "Enter your code",
-      "codeIntro": "We sent a {length}-digit code to {sentTo}.",
-      "confirmNote": "Entering it confirms {phone} as the number for your sign-in codes.",
-      "code": "Code",
-      "codeRequired": "Enter the code from the message.",
-      "codeFormat": "The code has {length} digits.",
-      "submit": "Continue",
-      "resend": "Send a new code",
-      "resendIn": "New code in {time}",
-      "resent": "We sent a new code.",
-      "wrong": "That code is not right. Tries left: {count}.",
-      "expired": "This code can no longer be used. Ask for a new one.",
-      "restart": "Your sign-in took too long. Please sign in again.",
-      "restartAction": "Sign in again",
-      "limit": "We cannot send another code yet. Please try again in {time}.",
-      "remember": "Remember this browser for {days} days",
-      "rememberHint": "It will not ask to confirm your phone here, only for your password. Leave this unticked on a shared computer.",
-      "unreachableAccount": "We could not use your mobile number to sign you in. Please contact us so we can update it.",
-      "unavailable": "Signing in by phone is not possible right now. Please try again later.",
-      "error": "Something went wrong. Please try again.",
-      "callHeading": "Call to sign in",
-      "callIntro": "Call {callTo} from {phone}. The call is free and ends by itself, so there is nothing to say.",
-      "callByMail": "Open the link we sent to {sentTo}. It stands in for a call from {phone}.",
-      "callConfirmNote": "This also confirms {phone} as the number you sign in with.",
-      "callDial": "Call {callTo}",
-      "callWaiting": "Waiting for your call. This page goes on by itself. Time left: {time}.",
-      "callExpired": "The time to call is over. Ask for a new number.",
-      "callNew": "Get a new number",
-      "callNewIn": "New number in {time}",
-      "callRenewed": "Here is a new number to call.",
-      "callLimit": "We cannot give you another number yet. Please try again in {time}."
-    },
-    "changePassword": {
-      "heading": "Change password",
-      "intro": "Choose a new password for signing in. Changing it signs you out everywhere else.",
-      "currentPassword": "Current password",
-      "newPassword": "New password",
-      "confirmPassword": "Confirm new password",
-      "submit": "Change password",
-      "submitting": "Changing…",
-      "success": "Your password has been changed. Other devices you were signed in on have been logged out.",
-      "wrongCurrent": "That is not your current password.",
-      "error": "Something went wrong changing your password. Please try again.",
-      "forcedHeading": "Choose your own password",
-      "forcedIntro": "This account still uses the password it was set up with. Please choose your own before continuing.",
-      "forcedContinue": "Continue"
-    },
-    "validation": {
-      "passwordRequired": "Please enter your password.",
-      "currentPasswordRequired": "Please enter your current password.",
-      "newPasswordRequired": "Please enter a new password.",
-      "newPasswordTooShort": "Please use at least {min} characters.",
-      "confirmPasswordMismatch": "The two passwords do not match."
-    },
-    "passwordRejected": {
-      "password-common": "That is one of the most commonly used passwords. Please choose something less predictable.",
-      "password-predictable": "That is too simple a pattern. Please choose something less predictable.",
-      "password-contains-email": "Please choose a password that does not contain your email address.",
-      "password-contains-shop-name": "Please choose a password that does not contain the name of this shop.",
-      "password-unchanged": "Please choose a password different from your current one."
-    }
-  },
-  "account": {
-    "detailsHeading": "My details",
-    "customerType": "Account type",
-    "memberSince": "Customer since",
-    "changeHint": "To change your email address, or the details your account was set up with, get in touch and we will update them for you.",
-    "error": "We could not load your details right now. Please try again later.",
-    "edit": {
-      "action": "Edit details",
-      "heading": "Edit my details",
-      "intro": "Change how you are called and how we reach you. To change anything else, get in touch and we will update it for you.",
-      "submit": "Save changes",
-      "error": "Something went wrong saving your details. Please try again.",
-      "phoneLocked": "We send your sign-in codes to this number. To change it, get in touch with us."
-    },
-    "addresses": {
-      "heading": "My addresses",
-      "empty": "No saved addresses yet. Add one and it will be offered at checkout.",
-      "add": "Add address",
-      "editAria": "Edit {label}",
-      "removeAria": "Remove {label}",
-      "removeConfirm": {
-        "heading": "Remove address",
-        "message": "Remove “{label}” from your saved addresses? Orders already placed keep the address they were sent to.",
-        "confirm": "Remove"
-      },
-      "error": "We could not load your addresses right now. Please try again later.",
-      "newHeading": "Add an address",
-      "editHeading": "Edit address",
-      "intro": "Saved addresses are offered at checkout, so you only type one once.",
-      "submit": "Save address",
-      "saveError": "Something went wrong saving this address. Please try again.",
-      "limitReached": "You have reached the maximum number of saved addresses. Remove one to add another.",
-      "unsupportedCountry": "We do not deliver to that country. Please choose another."
-    },
-    "delete": {
-      "action": "Delete my account",
-      "heading": "Delete my account",
-      "intro": "This closes your account and removes your personal details from our records. It cannot be undone.",
-      "consequences": [
-        "You will be signed out and will not be able to sign in again.",
-        "Your name, phone number and other details are removed.",
-        "Past orders are kept for our bookkeeping, with your details removed from them.",
-        "You can register again later, but it will be a new account — your earlier orders will not appear in it."
-      ],
-      "openOrders": "We are still working on {count} of your orders. Deleting your account does not cancel them — we will fill them as agreed — but we will no longer have your name or phone number on them. Please call us if you would rather wait until they are finished.",
-      "passwordHint": "Confirm with your password to show this is you.",
-      "submit": "Delete my account",
-      "cancel": "Keep my account",
-      "wrongPassword": "That is not your password.",
-      "lastAdmin": "This is the only administrator account. Another administrator must exist before it can be deleted.",
-      "error": "Something went wrong deleting your account. Please try again.",
-      "doneHeading": "Your account has been deleted",
-      "done": "Your account is closed and your personal details have been removed. We have sent a confirmation to your email address."
-    }
-  },
-  "partyChoice": {
-    "person": "A private person",
-    "company": "A company"
-  },
   "conditions": {
     "paymentHeading": "Payment",
     "cashDescription": "Paid when the order is handed over — at your door or at our counter.",
@@ -539,6 +356,191 @@
     "maintenance": {
       "title": "We'll be right back",
       "body": "Our shop is currently being set up and is not available yet. Please check back soon."
+    }
+  },
+  "accounts": {
+    "auth": {
+      "login": "Log in",
+      "logout": "Log out",
+      "accountNav": "Account",
+      "workMarkerAria": "{count} awaiting your attention",
+      "securityHeading": "Password and security",
+      "account": "My account",
+      "password": "Password",
+      "registerInvite": {
+        "text": "Ordering with us often? Ask for a customer account and we will keep your prices and addresses for next time.",
+        "action": "Request an account"
+      },
+      "submit": "Log in",
+      "submitting": "Logging in…",
+      "invalid": "Invalid email or password.",
+      "closed": "The shop is closed for maintenance, so customer accounts cannot sign in right now. Please try again later.",
+      "error": "Something went wrong logging you in. Please try again.",
+      "forgotPassword": {
+        "link": "Forgot your password?",
+        "heading": "Reset your password",
+        "intro": "Enter the email address you sign in with and we will send you a link to choose a new password.",
+        "submit": "Send me a link",
+        "successHeading": "Check your email",
+        "success": "If there is an account for this address, a link to choose a new password is on its way. It can be used once, and expires an hour after it was sent.",
+        "error": "Something went wrong sending your link. Please try again.",
+        "backToLogin": "Back to sign in"
+      },
+      "register": {
+        "noAccount": "New here? Request a customer account.",
+        "signUp": "Sign up",
+        "heading": "Create an account",
+        "intro": "Tell us about your organisation and we will set up its customer account. We sell to businesses and institutions only, and a colleague reviews every request, so this is not instant — you will receive your password by email once the account is ready.",
+        "customerType": "I am registering as",
+        "submit": "Request an account",
+        "successHeading": "Thank you",
+        "success": "If we can set up an account for this address, you will receive an email shortly. Our team reviews every request, so your password may take a little while to arrive.",
+        "error": "Something went wrong sending your request. Please try again.",
+        "haveAccount": "Already have an account?",
+        "companyIdHint": "Any of the numbers we can invoice against, e.g. {examples}."
+      },
+      "setPassword": {
+        "checking": "Checking your link…",
+        "setHeading": "Choose your password",
+        "setIntro": "Your account is ready. Choose a password and you can start ordering right away.",
+        "resetHeading": "Choose a new password",
+        "resetIntro": "Choose a new password for your account. Anywhere you are still signed in will be signed out.",
+        "forAccount": "For",
+        "confirmPassword": "Repeat password",
+        "show": "Show",
+        "hide": "Hide",
+        "generate": "Suggest a strong password",
+        "generated": "We filled in a strong password. Save it in your password manager before continuing.",
+        "submit": "Save password and continue",
+        "successHeading": "You are all set",
+        "success": "Your password is saved and you are signed in.",
+        "expiredHeading": "This link no longer works",
+        "expired": "Links can only be used once, and expire after a while. Ask for a new one below, or use “Forgot your password?” on the sign-in page.",
+        "closedHeading": "Not open yet",
+        "closed": "Customer accounts open with the shop, which is being worked on right now. Come back to this link once we are back — if it has expired by then, ask for a new one.",
+        "error": "Something went wrong saving your password. Please try again."
+      },
+      "signInStep": {
+        "codeHeading": "Enter your code",
+        "codeIntro": "We sent a {length}-digit code to {sentTo}.",
+        "confirmNote": "Entering it confirms {phone} as the number for your sign-in codes.",
+        "code": "Code",
+        "codeRequired": "Enter the code from the message.",
+        "codeFormat": "The code has {length} digits.",
+        "submit": "Continue",
+        "resend": "Send a new code",
+        "resendIn": "New code in {time}",
+        "resent": "We sent a new code.",
+        "wrong": "That code is not right. Tries left: {count}.",
+        "expired": "This code can no longer be used. Ask for a new one.",
+        "restart": "Your sign-in took too long. Please sign in again.",
+        "restartAction": "Sign in again",
+        "limit": "We cannot send another code yet. Please try again in {time}.",
+        "remember": "Remember this browser for {days} days",
+        "rememberHint": "It will not ask to confirm your phone here, only for your password. Leave this unticked on a shared computer.",
+        "unreachableAccount": "We could not use your mobile number to sign you in. Please contact us so we can update it.",
+        "unavailable": "Signing in by phone is not possible right now. Please try again later.",
+        "error": "Something went wrong. Please try again.",
+        "callHeading": "Call to sign in",
+        "callIntro": "Call {callTo} from {phone}. The call is free and ends by itself, so there is nothing to say.",
+        "callByMail": "Open the link we sent to {sentTo}. It stands in for a call from {phone}.",
+        "callConfirmNote": "This also confirms {phone} as the number you sign in with.",
+        "callDial": "Call {callTo}",
+        "callWaiting": "Waiting for your call. This page goes on by itself. Time left: {time}.",
+        "callExpired": "The time to call is over. Ask for a new number.",
+        "callNew": "Get a new number",
+        "callNewIn": "New number in {time}",
+        "callRenewed": "Here is a new number to call.",
+        "callLimit": "We cannot give you another number yet. Please try again in {time}."
+      },
+      "changePassword": {
+        "heading": "Change password",
+        "intro": "Choose a new password for signing in. Changing it signs you out everywhere else.",
+        "currentPassword": "Current password",
+        "newPassword": "New password",
+        "confirmPassword": "Confirm new password",
+        "submit": "Change password",
+        "submitting": "Changing…",
+        "success": "Your password has been changed. Other devices you were signed in on have been logged out.",
+        "wrongCurrent": "That is not your current password.",
+        "error": "Something went wrong changing your password. Please try again.",
+        "forcedHeading": "Choose your own password",
+        "forcedIntro": "This account still uses the password it was set up with. Please choose your own before continuing.",
+        "forcedContinue": "Continue"
+      },
+      "validation": {
+        "passwordRequired": "Please enter your password.",
+        "currentPasswordRequired": "Please enter your current password.",
+        "newPasswordRequired": "Please enter a new password.",
+        "newPasswordTooShort": "Please use at least {min} characters.",
+        "confirmPasswordMismatch": "The two passwords do not match."
+      },
+      "passwordRejected": {
+        "password-common": "That is one of the most commonly used passwords. Please choose something less predictable.",
+        "password-predictable": "That is too simple a pattern. Please choose something less predictable.",
+        "password-contains-email": "Please choose a password that does not contain your email address.",
+        "password-contains-shop-name": "Please choose a password that does not contain the name of this shop.",
+        "password-unchanged": "Please choose a password different from your current one."
+      }
+    },
+    "account": {
+      "detailsHeading": "My details",
+      "customerType": "Account type",
+      "memberSince": "Customer since",
+      "changeHint": "To change your email address, or the details your account was set up with, get in touch and we will update them for you.",
+      "error": "We could not load your details right now. Please try again later.",
+      "edit": {
+        "action": "Edit details",
+        "heading": "Edit my details",
+        "intro": "Change how you are called and how we reach you. To change anything else, get in touch and we will update it for you.",
+        "submit": "Save changes",
+        "error": "Something went wrong saving your details. Please try again.",
+        "phoneLocked": "We send your sign-in codes to this number. To change it, get in touch with us."
+      },
+      "addresses": {
+        "heading": "My addresses",
+        "empty": "No saved addresses yet. Add one and it will be offered at checkout.",
+        "add": "Add address",
+        "editAria": "Edit {label}",
+        "removeAria": "Remove {label}",
+        "removeConfirm": {
+          "heading": "Remove address",
+          "message": "Remove “{label}” from your saved addresses? Orders already placed keep the address they were sent to.",
+          "confirm": "Remove"
+        },
+        "error": "We could not load your addresses right now. Please try again later.",
+        "newHeading": "Add an address",
+        "editHeading": "Edit address",
+        "intro": "Saved addresses are offered at checkout, so you only type one once.",
+        "submit": "Save address",
+        "saveError": "Something went wrong saving this address. Please try again.",
+        "limitReached": "You have reached the maximum number of saved addresses. Remove one to add another.",
+        "unsupportedCountry": "We do not deliver to that country. Please choose another."
+      },
+      "delete": {
+        "action": "Delete my account",
+        "heading": "Delete my account",
+        "intro": "This closes your account and removes your personal details from our records. It cannot be undone.",
+        "consequences": [
+          "You will be signed out and will not be able to sign in again.",
+          "Your name, phone number and other details are removed.",
+          "Past orders are kept for our bookkeeping, with your details removed from them.",
+          "You can register again later, but it will be a new account — your earlier orders will not appear in it."
+        ],
+        "openOrders": "We are still working on {count} of your orders. Deleting your account does not cancel them — we will fill them as agreed — but we will no longer have your name or phone number on them. Please call us if you would rather wait until they are finished.",
+        "passwordHint": "Confirm with your password to show this is you.",
+        "submit": "Delete my account",
+        "cancel": "Keep my account",
+        "wrongPassword": "That is not your password.",
+        "lastAdmin": "This is the only administrator account. Another administrator must exist before it can be deleted.",
+        "error": "Something went wrong deleting your account. Please try again.",
+        "doneHeading": "Your account has been deleted",
+        "done": "Your account is closed and your personal details have been removed. We have sent a confirmation to your email address."
+      }
+    },
+    "partyChoice": {
+      "person": "A private person",
+      "company": "A company"
     }
   }
 }

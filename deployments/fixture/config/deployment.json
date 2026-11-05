@@ -106,19 +106,6 @@
       }
     ]
   },
-  "address": {
-    "countries": [
-      {
-        "code": "DE",
-        "label": "Germany",
-        "postalCode": {
-          "pattern": "^[0-9]{5}$",
-          "example": "20457",
-          "mask": "#####"
-        }
-      }
-    ]
-  },
   "companyIdInput": {
     "formats": [
       {
@@ -135,7 +122,6 @@
       }
     ]
   },
-  "customerTypes": ["person", "company"],
   "site": {
     "pages": {
       "published": [
@@ -178,5 +164,21 @@
         "icon": "marktplatz.svg"
       }
     ]
+  },
+  "accounts": {
+    "customerTypes": ["person", "company"],
+    "address": {
+      "countries": [
+        {
+          "code": "DE",
+          "label": "Germany",
+          "postalCode": {
+            "pattern": "^[0-9]{5}$",
+            "example": "20457",
+            "mask": "#####"
+          }
+        }
+      ]
+    }
   }
 }

@@ -1,3 +1,4 @@
+import { ADMIN_ACCOUNTS_TEXT } from '../accounts/accounts-text';
 import { Component, computed, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { fillText } from '@b2b-catalog-platform/shared/platform';
@@ -106,7 +107,7 @@ import { SyncUploadForm } from './ui/sync-upload-form';
 })
 export class CustomerSyncUploadPage {
   protected readonly text = inject(ADMIN_TEXT).sync;
-  protected readonly usersText = inject(ADMIN_TEXT).users.list;
+  protected readonly usersText = inject(ADMIN_ACCOUNTS_TEXT).users.list;
   private readonly ownership = inject(OwnershipService);
   private readonly sync = inject(SyncService);
 

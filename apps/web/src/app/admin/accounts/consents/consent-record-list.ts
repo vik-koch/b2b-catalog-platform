@@ -1,3 +1,4 @@
+import { ADMIN_ACCOUNTS_TEXT } from '../accounts-text';
 import { Component, inject, input, output } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { fillText } from '@b2b-catalog-platform/shared/platform';
@@ -101,7 +102,7 @@ export class ConsentRecordList {
   readonly withdrawable = input(false);
   readonly withdraw = output<ConsentRecord>();
 
-  protected readonly text = inject(ADMIN_TEXT).consents;
+  protected readonly text = inject(ADMIN_ACCOUNTS_TEXT).consents;
   protected readonly slugs = CONSENT_PAGE_SLUGS;
 
   private readonly config = inject(DEPLOYMENT_CONFIG);

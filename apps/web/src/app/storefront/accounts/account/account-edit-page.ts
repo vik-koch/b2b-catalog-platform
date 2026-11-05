@@ -1,3 +1,4 @@
+import { STOREFRONT_ACCOUNTS_TEXT } from '../accounts-text';
 import {
   Component,
   computed,
@@ -132,8 +133,8 @@ export class AccountEditPage {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
 
-  protected readonly text = inject(STOREFRONT_TEXT).account.edit;
-  protected readonly accountText = inject(STOREFRONT_TEXT).account;
+  protected readonly text = inject(STOREFRONT_ACCOUNTS_TEXT).account.edit;
+  protected readonly accountText = inject(STOREFRONT_ACCOUNTS_TEXT).account;
   protected readonly fields = inject(SHARED_TEXT).fields;
   protected readonly actionText = inject(SHARED_TEXT).actions;
   protected readonly phoneInput = inject(DEPLOYMENT_CONFIG).phoneInput;

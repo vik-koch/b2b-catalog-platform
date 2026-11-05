@@ -29,18 +29,16 @@ import { RetentionConfig } from '../../core/retention/retention-config';
 import { join } from 'node:path';
 import { loadApiConfig } from './api-config';
 import type * as z from 'zod';
-import {
-  CustomerType,
-  AddressConfig,
-  SignInStepConfig,
-} from '@b2b-catalog-platform/shared/core/accounts';
 
 /** The parsed value, not the read-only view the web injects: services are
  * typed by the shared schemas. */
 type ApiDeploymentConfig = z.infer<typeof deploymentConfigSchema>;
 
 /** An area's block is read through the area's own loader. */
-type UnclaimedDeploymentConfig = Omit<ApiDeploymentConfig, 'site' | 'catalog'>;
+type UnclaimedDeploymentConfig = Omit<
+  ApiDeploymentConfig,
+  'site' | 'catalog' | 'accounts'
+>;
 
 let cached: ApiDeploymentConfig | undefined;
 function loadWhole(): ApiDeploymentConfig {
@@ -124,10 +122,6 @@ export function loadPhoneInput(): PhoneConfig | undefined {
   return loadApiDeploymentConfig().phoneInput;
 }
 
-export function loadSignInStep(): SignInStepConfig | undefined {
-  return loadApiDeploymentConfig().signInStep;
-}
-
 export function loadSessionIdleDays(): number {
   return loadApiConfig().session?.idleDays ?? DEFAULT_SESSION_IDLE_DAYS;
 }
@@ -159,20 +153,6 @@ export const COMPANY_ID_FORMATS = 'COMPANY_ID_FORMATS';
 
 export function loadCompanyIdFormats(): readonly CompanyIdFormat[] {
   return loadApiDeploymentConfig().companyIdInput?.formats ?? [];
-}
-
-/** The kinds of customer the shop sells to (FR-AUTH-13), wherever an account
- * or an order is written. */
-export const ACCEPTED_CUSTOMER_TYPES = 'ACCEPTED_CUSTOMER_TYPES';
-
-export function loadAcceptedCustomerTypes(): readonly CustomerType[] {
-  return loadApiDeploymentConfig().customerTypes;
-}
-
-export const ADDRESS_CONFIG = 'ADDRESS_CONFIG';
-
-export function loadAddressConfig(): AddressConfig | undefined {
-  return loadApiDeploymentConfig().address;
 }
 
 /** The collection points, as the order service needs them: what a key must

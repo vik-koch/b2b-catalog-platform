@@ -1,3 +1,4 @@
+import { withAccounts } from '../../core/accounts/accounts-config.fixture';
 import { SHARED_TEXT } from '../../platform/config/shared-text';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
@@ -249,10 +250,7 @@ describe('AdminOrderAdjustPage (FR-ORD-03)', () => {
   it('offers only the kind of party the shop sells to', async () => {
     const { el } = await settled(
       {},
-      {
-        ...defaultDeploymentConfig,
-        customerTypes: ['person'],
-      },
+      withAccounts({ customerTypes: ['person'] }),
     );
 
     expect(el.querySelector('input[name="adjust-party-kind"]')).toBeNull();

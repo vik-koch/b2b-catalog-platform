@@ -1,3 +1,4 @@
+import { ACCOUNTS_CONFIG } from '../../../core/accounts/accounts-config';
 import { Component, computed, inject, input, output } from '@angular/core';
 import { type FieldTree } from '@angular/forms/signals';
 import { PaymentMethod } from '@b2b-catalog-platform/shared/core/ordering';
@@ -243,6 +244,7 @@ import {
 })
 export class OrderAdjustDetails {
   private readonly config = inject(DEPLOYMENT_CONFIG);
+  private readonly accountsConfig = inject(ACCOUNTS_CONFIG);
   private readonly adminText = inject(ADMIN_TEXT);
   protected readonly text = this.adminText.orders.adjust;
   protected readonly ordersText = this.adminText.orders;
@@ -274,7 +276,7 @@ export class OrderAdjustDetails {
 
   /** In the deployment's order (FR-AUTH-13). */
   protected readonly partyKinds: SegmentOption<PartyKind>[] =
-    this.config.customerTypes.map((value) => ({
+    this.accountsConfig.customerTypes.map((value) => ({
       value,
       label:
         value === 'person'

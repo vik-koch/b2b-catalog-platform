@@ -1,3 +1,4 @@
+import { STOREFRONT_ACCOUNTS_TEXT } from '../accounts-text';
 import {
   Component,
   computed,
@@ -75,7 +76,7 @@ export class ForcePasswordChange {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
 
-  protected readonly authText = inject(STOREFRONT_TEXT).auth;
+  protected readonly authText = inject(STOREFRONT_ACCOUNTS_TEXT).auth;
   protected readonly text = this.authText.changePassword;
 
   private readonly dialog = viewChild<ElementRef<HTMLDialogElement>>('dialog');

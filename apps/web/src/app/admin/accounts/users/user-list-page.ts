@@ -1,3 +1,4 @@
+import { ADMIN_ACCOUNTS_TEXT } from '../accounts-text';
 import {
   Component,
   computed,
@@ -262,7 +263,7 @@ export class UserListPage {
   private readonly service = inject(StaffUsersService);
   private readonly ownership = inject(OwnershipService);
   private readonly tiers = inject(TiersService);
-  protected readonly text = inject(ADMIN_TEXT).users.list;
+  protected readonly text = inject(ADMIN_ACCOUNTS_TEXT).users.list;
   protected readonly fields = inject(SHARED_TEXT).fields;
   protected readonly defaultSort = DEFAULT_USER_SORT;
   protected readonly dash = '—';

@@ -1,5 +1,6 @@
 import * as z from 'zod';
 import type { DeepReadonly } from '../deep-readonly';
+import { ACCOUNTS_AREA } from '../../core/accounts/accounts-area';
 import { accountsConfigShape } from '../../core/accounts/accounts-config';
 import { CATALOG_AREA } from '../../core/catalog/catalog-area';
 import { catalogConfigShape } from '../../core/catalog/catalog-config';
@@ -149,7 +150,7 @@ export const deploymentConfigSchema = z
       platformConfigShape,
       { [SITE_AREA]: z.object(siteConfigShape).strict() },
       { [CATALOG_AREA]: z.object(catalogConfigShape).strict() },
-      accountsConfigShape,
+      { [ACCOUNTS_AREA]: z.object(accountsConfigShape).strict() },
       orderingConfigShape,
     ),
   )

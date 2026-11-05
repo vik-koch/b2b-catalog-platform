@@ -1,9 +1,10 @@
 import * as z from 'zod';
+import type { DeepReadonly } from '../../platform/deep-readonly';
 import { addressConfigSchema } from './address-config';
 import { signInStepConfigSchema } from './sign-in-step-config';
 import { CUSTOMER_TYPES } from './users';
 
-/** The accounts' keys of `deployment.json`. */
+/** The accounts' block of `deployment.json`. */
 export const accountsConfigShape = {
   /**
    * The customers the shop sells to (FR-AUTH-13), listed so every deployment
@@ -21,3 +22,7 @@ export const accountsConfigShape = {
   /** Where the shop ships. Without it, the picker offers nothing. */
   address: addressConfigSchema.optional(),
 };
+
+export type AccountsConfig = DeepReadonly<
+  z.infer<z.ZodObject<typeof accountsConfigShape>>
+>;
