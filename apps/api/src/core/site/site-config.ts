@@ -2,11 +2,13 @@ import {
   CONSENT_PURPOSES,
   ConsentPurpose,
   SITE_AREA,
-  SiteConfig,
+  siteConfigShape,
 } from '@b2b-catalog-platform/shared/core/site';
+import * as z from 'zod';
 import { loadDeploymentConfigBlock } from '../../platform/config/deployment-config';
 
-const loadSiteConfig = () => loadDeploymentConfigBlock<SiteConfig>(SITE_AREA);
+const loadSiteConfig = () =>
+  loadDeploymentConfigBlock(SITE_AREA, z.object(siteConfigShape).strict());
 
 /** Published terms, whose version an order records (NFR-LEGAL-10). */
 export const TERMS_PUBLISHED = 'TERMS_PUBLISHED';

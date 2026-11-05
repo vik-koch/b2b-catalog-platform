@@ -5,7 +5,7 @@ import { ComponentFixture } from '@angular/core/testing';
 import { ADMIN_TEXT } from '../../../platform/config/admin-text';
 import { defaultAdminText } from '../../../platform/config/admin-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
-import { DeploymentConfig } from '@b2b-catalog-platform/shared/platform';
+import type { DeploymentConfigFile } from '@b2b-catalog-platform/shared/deployment';
 import {
   emptyPackaging,
   PackagingDraft,
@@ -22,7 +22,7 @@ const config = {
   catalog: {
     boxUnits: { volume: 'm³', weight: 'kg' },
   },
-} as unknown as DeploymentConfig;
+} as unknown as DeploymentConfigFile;
 
 function render(
   value: PackagingDraft,

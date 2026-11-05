@@ -1,15 +1,8 @@
-import {
-  SharedText,
-  sharedTextSchema,
-} from '@b2b-catalog-platform/shared/platform';
-import { loadConfig } from '@b2b-catalog-platform/shared/node';
+import type { SharedText } from '@b2b-catalog-platform/shared/platform';
 
-/** The shop's shared names (see deployments/fixture/config/README.md), read whole at boot. */
+/** The shop's shared names (see deployments/fixture/config/README.md), read
+ * whole at boot by the root. */
 export const SHARED_TEXT = 'SHARED_TEXT';
-
-export function loadSharedText(): SharedText {
-  return loadConfig(sharedTextSchema, 'texts/shared.json');
-}
 
 /** An area's block of the shared text, checked with the whole file at boot. */
 export function sharedTextBlock<T>(text: SharedText, area: string): T {

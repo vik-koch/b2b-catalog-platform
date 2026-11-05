@@ -1,11 +1,11 @@
 import { TestBed } from '@angular/core/testing';
 import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
-import { DeploymentConfig } from '@b2b-catalog-platform/shared/platform';
+import type { DeploymentConfigFile } from '@b2b-catalog-platform/shared/deployment';
 import { defaultDeploymentConfig } from '../../platform/config/deployment-config.fixture';
 import { ContactInfo } from './contact-info';
 
-async function render(contact: DeploymentConfig['contact']) {
-  const config: DeploymentConfig = { ...defaultDeploymentConfig, contact };
+async function render(contact: DeploymentConfigFile['contact']) {
+  const config: DeploymentConfigFile = { ...defaultDeploymentConfig, contact };
   TestBed.configureTestingModule({
     imports: [ContactInfo],
     providers: [{ provide: DEPLOYMENT_CONFIG, useValue: config }],

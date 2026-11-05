@@ -1,6 +1,6 @@
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { TestBed } from '@angular/core/testing';
-import { DeploymentConfig } from '@b2b-catalog-platform/shared/platform';
+import type { DeploymentConfigFile } from '@b2b-catalog-platform/shared/deployment';
 import { Page } from '@b2b-catalog-platform/shared/core/site';
 import { provideRouter } from '@angular/router';
 import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
@@ -18,7 +18,7 @@ const text = defaultStorefrontSiteText.inquiry;
 const consentText = defaultStorefrontSiteText.consentBox;
 
 /** The demo asks for no consent; these specs drive the form that does. */
-const testConfig: DeploymentConfig = withSite({
+const testConfig: DeploymentConfigFile = withSite({
   consent: { contact: true, account: true },
 });
 
@@ -56,7 +56,7 @@ function submitForm(root: HTMLElement): void {
 }
 
 async function render(
-  options: { config?: DeploymentConfig; page?: Page | null } = {},
+  options: { config?: DeploymentConfigFile; page?: Page | null } = {},
 ) {
   const submit = vi.fn<InquiryService['submit']>().mockResolvedValue('ok');
   const getPage = vi

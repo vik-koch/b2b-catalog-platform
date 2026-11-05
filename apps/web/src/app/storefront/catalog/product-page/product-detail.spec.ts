@@ -7,7 +7,7 @@ import {
   HiddenReasons,
   ProductPage,
 } from '@b2b-catalog-platform/shared/core/catalog';
-import { DeploymentConfig } from '@b2b-catalog-platform/shared/platform';
+import type { DeploymentConfigFile } from '@b2b-catalog-platform/shared/deployment';
 import { EDIT_MODE_CATALOG } from '../../../core/catalog/edit-mode-catalog';
 import { AuthService } from '../../../platform/auth/auth.service';
 import { loadAdminText } from '../../../platform/config/admin-text';
@@ -63,7 +63,7 @@ async function render(
     branding: { name: 'Test Shop', tagline: 'Test tagline' },
     currency: { code: 'EUR' },
     tax: defaultDeploymentConfig.tax,
-  } as unknown as DeploymentConfig;
+  } as unknown as DeploymentConfigFile;
   TestBed.configureTestingModule({
     imports: [ProductDetail],
     providers: [

@@ -7,9 +7,8 @@ import { ApplicationConfig, mergeApplicationConfig } from '@angular/core';
 import { provideServerRendering, withRoutes } from '@angular/ssr';
 import { requireEnv } from '../env';
 import { appConfig } from './app.config';
-import { provideServerSharedText } from './platform/config/shared-text.server';
 import { provideServerTexts } from './app.texts.server';
-import { provideServerDeploymentConfig } from './platform/config/deployment-config.server';
+import { provideServerDeploymentConfig } from './app.deployment-config.server';
 import { provideServerSuggestionsEnabled } from './platform/config/suggestions-enabled.server';
 import { serverRoutes } from './app.routes.server';
 import {
@@ -26,7 +25,6 @@ const serverConfig: ApplicationConfig = {
     // the browser providers, which read the document.
     provideServerDeploymentConfig(),
     provideServerTexts(),
-    provideServerSharedText(),
     provideServerSuggestionsEnabled(),
     // The render asks the API as the visitor, not as a guest. What it gets
     // back rides to the browser in the transfer cache (hydration.ts), and the

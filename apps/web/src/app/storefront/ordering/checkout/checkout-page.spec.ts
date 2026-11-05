@@ -8,7 +8,7 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { OrderSubmission } from '@b2b-catalog-platform/shared/core/ordering';
-import { DeploymentConfig } from '@b2b-catalog-platform/shared/platform';
+import type { DeploymentConfigFile } from '@b2b-catalog-platform/shared/deployment';
 import {
   firstOrderDate,
   localToday,
@@ -86,7 +86,7 @@ const saved: Address = {
 };
 
 interface Options {
-  config?: DeploymentConfig;
+  config?: DeploymentConfigFile;
   addresses?: Address[];
   /** A person rather than a company, for how the party row names them. */
   person?: boolean;
@@ -297,7 +297,7 @@ async function render(options: Options = {}) {
 /** A deployment that invoices no address of its own (FR-CART-07). */
 const noBillingAddress = withOrdering({ billingAddressEnabled: false });
 
-function withPickupPoints(count: number): DeploymentConfig {
+function withPickupPoints(count: number): DeploymentConfigFile {
   const locations = (
     defaultDeploymentConfig.ordering.pickup?.locations ?? []
   ).slice(0, count);

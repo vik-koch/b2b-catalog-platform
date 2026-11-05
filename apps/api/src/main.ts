@@ -4,6 +4,7 @@ import cookieParser from 'cookie-parser';
 import { json, urlencoded } from 'express';
 import { SYNC_MAX_BODY_BYTES } from '@b2b-catalog-platform/shared/core/exchange';
 import { AppModule } from './app/app.module';
+import { checkConfigFiles } from './app/app.config-files';
 import { runMigrations } from './platform/db/migrate';
 import { hashPassword } from './core/accounts/password-hashing';
 import { runBootstrapAdmin } from './admin/accounts/bootstrap-admin';
@@ -25,6 +26,7 @@ function logger(): ConsoleLogger {
 }
 
 async function bootstrap() {
+  checkConfigFiles();
   // Nest's own body parser is declined so that a bigger one can be mounted
   // ahead of it. A catalog of tens of thousands of rows is megabytes of JSON
   // and the default ceiling is 100 kB, but raising that globally would widen

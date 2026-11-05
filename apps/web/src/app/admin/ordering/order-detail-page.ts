@@ -164,7 +164,7 @@ import { SummaryLayout } from '@b2b-catalog-platform/ui/content/summary-layout';
                 {{ order.tierKey ?? ordersText.tierDefault }}
               </dd>
               @if (termsLabel(order); as terms) {
-                <dt uiFactTerm>{{ pageNames.terms }}</dt>
+                <dt uiFactTerm>{{ pageNames['terms'] }}</dt>
                 <dd uiFactValue>{{ terms }}</dd>
               }
 

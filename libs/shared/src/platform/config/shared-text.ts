@@ -1,24 +1,9 @@
 import * as z from 'zod';
 import type { DeepReadonly } from '../deep-readonly';
-import { refuseCountForms } from '../fill-text';
-import { mergeShapes } from '../merge-shapes';
-import { ACCOUNTS_AREA } from '../../core/accounts/accounts-area';
-import { sharedAccountsTextShape } from '../../core/accounts/accounts-text';
-import { CATALOG_AREA } from '../../core/catalog/catalog-area';
-import { ORDERING_AREA } from '../../core/ordering/ordering-area';
-import { sharedOrderingTextShape } from '../../core/ordering/ordering-text';
-import { sharedCatalogTextShape } from '../../core/catalog/catalog-text';
-import { PAGE_SLUGS } from '../../core/site/pages';
 
-/** The routes the code names a page by, beside the page slugs. */
-const NAV_ROUTES = [
-  ...PAGE_SLUGS,
-  'home',
-  'catalog',
-  'inquiry',
-  'licenses',
-  'more',
-] as const;
+/** The routes the code names a page by; the site requires its pages' slugs
+ * beside them. */
+const NAV_ROUTES = ['home', 'catalog', 'inquiry', 'licenses', 'more'] as const;
 const navNames = Object.fromEntries(
   NAV_ROUTES.map((route) => [route, z.string()]),
 ) as Record<(typeof NAV_ROUTES)[number], z.ZodString>;
@@ -33,9 +18,9 @@ const field = <T extends z.ZodRawShape>(checks: T) =>
  */
 export const sharedTextShape = {
   /**
-   * Names of the shop's pages and routes, keyed by route segment. Every page
-   * slug and the routes the code names are required, since a page or a mail
-   * may name any of them; any other segment a deployment links may be added.
+   * Names of the shop's pages and routes, keyed by route segment. The routes
+   * the code names are required, since a page or a mail may name any of them;
+   * any other segment a deployment links may be added.
    */
   nav: z.object(navNames).catchall(z.string()),
   /**
@@ -112,19 +97,6 @@ export const sharedTextShape = {
     })
     .strict(),
 };
-
-/** Every area's block, so a missing key or a stray one stops the boot. */
-export const sharedTextSchema = z
-  .object(
-    mergeShapes(
-      sharedTextShape,
-      { [CATALOG_AREA]: z.object(sharedCatalogTextShape).strict() },
-      { [ACCOUNTS_AREA]: z.object(sharedAccountsTextShape).strict() },
-      { [ORDERING_AREA]: z.object(sharedOrderingTextShape).strict() },
-    ),
-  )
-  .strict()
-  .superRefine(refuseCountForms);
 
 /** The keys no area claims; an area reads its block through its own token. */
 export type SharedText = DeepReadonly<

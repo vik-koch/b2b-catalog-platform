@@ -7,7 +7,7 @@ import { PdfText, pdfTextShape } from '../pdf/pdf-text';
 import {
   PhoneConfig,
   SharedText,
-  sharedTextSchema,
+  sharedTextShape,
 } from '@b2b-catalog-platform/shared/platform';
 
 /**
@@ -21,7 +21,7 @@ export const demoMailText: MailText = loadConfigFile(
 );
 
 export const demoSharedText: SharedText = loadConfigFile(
-  sharedTextSchema,
+  z.looseObject(sharedTextShape),
   'deployments/fixture/config/texts/shared.json',
 );
 export const demoPdfText: PdfText = loadConfigFile(

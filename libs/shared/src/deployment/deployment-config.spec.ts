@@ -1,5 +1,10 @@
-import { deploymentConfigSchema } from '@b2b-catalog-platform/shared/platform';
-import { defaultDeploymentConfig } from './deployment-config.fixture';
+import { loadConfigFile } from '../node/load-config';
+import { deploymentConfigSchema } from './deployment-config';
+
+const defaultDeploymentConfig = loadConfigFile(
+  deploymentConfigSchema,
+  'deployments/fixture/config/deployment.json',
+);
 
 /** In `pages` two fields can contradict, caught at boot: a nav entry to an
  * unpublished page would link a 404 from every page. */

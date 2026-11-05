@@ -1,48 +1,33 @@
-import { EXCHANGE_AREA } from '@b2b-catalog-platform/shared/core/exchange';
 import { loadConfig } from '@b2b-catalog-platform/shared/node';
-import { mergeShapes } from '@b2b-catalog-platform/shared/platform';
-import { ORDERING_AREA } from '@b2b-catalog-platform/shared/core/ordering';
-import { orderingApiConfigShape } from '../../core/ordering/ordering-api-config';
-import { exchangeApiConfigShape } from '../../core/exchange/exchange-api-config';
-import { retentionApiConfigShape } from '../../core/retention/retention-api-config';
-import { RETENTION_AREA } from '../../core/retention/retention-area';
 import { sessionConfigSchema } from '../auth/session-config';
 import * as z from 'zod';
 
-/** The keys of `api.json` no area claims. */
-const platformApiConfigShape = {
+/** The keys of `api.json` no area claims: what only the API reads, kept out
+ * of `deployment.json`, which every page carries. */
+export const apiConfigShape = {
   /** How long a session lasts without use (FR-AUTH-12). */
   session: sessionConfigSchema.optional(),
 };
 
-/** `api.json`: what only the API reads, kept out of `deployment.json`, which
- * every page carries. Every area's block, so a stray key stops the boot. */
-export const apiConfigSchema = z
-  .object(
-    mergeShapes(platformApiConfigShape, {
-      [ORDERING_AREA]: z.object(orderingApiConfigShape).strict(),
-      [EXCHANGE_AREA]: z.object(exchangeApiConfigShape).strict().optional(),
-      [RETENTION_AREA]: z.object(retentionApiConfigShape).strict(),
-    }),
-  )
-  .strict();
-
-type ApiConfig = z.infer<typeof apiConfigSchema>;
+type ApiConfig = z.infer<z.ZodObject<typeof apiConfigShape>>;
 
 let cached: ApiConfig | undefined;
-function loadWhole(): ApiConfig {
-  return (cached ??= loadConfig(apiConfigSchema, 'api.json') as ApiConfig);
+const blocks = new Map<string, unknown>();
+
+/** The keys no area claims. Loose, as each area checks its own block and the
+ * root checks the file whole at boot. */
+export function loadApiConfig(): ApiConfig {
+  return (cached ??= loadConfig(
+    z.looseObject(apiConfigShape),
+    'api.json',
+  ) as ApiConfig);
 }
 
-/** The keys no area claims; an area reads its block through its loader. */
-export function loadApiConfig(): Omit<
-  ApiConfig,
-  'ordering' | 'exchange' | 'retention'
-> {
-  return loadWhole();
-}
-
-/** An area's block, checked with the whole file on first read. */
-export function loadApiConfigBlock<T>(area: string): T {
-  return (loadWhole() as unknown as Record<string, T>)[area];
+/** An area's block, checked against the area's own schema on first read. */
+export function loadApiConfigBlock<T>(area: string, schema: z.ZodType<T>): T {
+  if (!blocks.has(area)) {
+    const file = loadConfig(z.looseObject({ [area]: schema }), 'api.json');
+    blocks.set(area, (file as Record<string, T>)[area]);
+  }
+  return blocks.get(area) as T;
 }

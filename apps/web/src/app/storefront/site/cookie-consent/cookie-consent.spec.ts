@@ -5,7 +5,7 @@ import { provideRouter } from '@angular/router';
 import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
 import { defaultStorefrontText } from '../../../platform/config/storefront-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
-import { DeploymentConfig } from '@b2b-catalog-platform/shared/platform';
+import type { DeploymentConfigFile } from '@b2b-catalog-platform/shared/deployment';
 import { defaultDeploymentConfig } from '../../../platform/config/deployment-config.fixture';
 import { CookieConsent } from './cookie-consent';
 import { defaultStorefrontSiteText } from '../site-text.fixture';
@@ -13,7 +13,7 @@ import { withSite } from '../../../core/site/site-config.fixture';
 
 const BANNER = 'aside[aria-label="Cookie consent"]';
 
-function config(cookieConsentEnabled: boolean): DeploymentConfig {
+function config(cookieConsentEnabled: boolean): DeploymentConfigFile {
   return withSite({ cookieConsentEnabled });
 }
 

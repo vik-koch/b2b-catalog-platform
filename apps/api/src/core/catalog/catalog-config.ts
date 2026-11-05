@@ -1,12 +1,16 @@
 import {
   CATALOG_AREA,
-  type CatalogConfig,
+  catalogConfigShape,
   DEFAULT_LOW_STOCK_THRESHOLD_PIECES,
 } from '@b2b-catalog-platform/shared/core/catalog';
+import * as z from 'zod';
 import { loadDeploymentConfigBlock } from '../../platform/config/deployment-config';
 
 const loadCatalogConfig = () =>
-  loadDeploymentConfigBlock<CatalogConfig>(CATALOG_AREA);
+  loadDeploymentConfigBlock(
+    CATALOG_AREA,
+    z.object(catalogConfigShape).strict(),
+  );
 
 /** The deployment-wide "few left" figure, defaulted. */
 export const LOW_STOCK_THRESHOLD_PIECES = 'LOW_STOCK_THRESHOLD_PIECES';

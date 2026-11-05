@@ -1,4 +1,4 @@
-import type { ZodType } from 'zod';
+import * as z from 'zod';
 import { loadConfig } from '@b2b-catalog-platform/shared/node';
 import type { DeepReadonly } from '@b2b-catalog-platform/shared/platform';
 
@@ -8,9 +8,20 @@ import type { DeepReadonly } from '@b2b-catalog-platform/shared/platform';
  * imports these modules without a runtime environment.
  */
 export function mountedFile<T>(
-  schema: ZodType<T>,
+  schema: z.ZodType<T>,
   file: string,
 ): () => DeepReadonly<T> {
   let cached: DeepReadonly<T> | undefined;
   return () => (cached ??= loadConfig(schema, file));
+}
+
+/** An area's block of a mounted file, checked against the area's own schema
+ * alone: the root checks the file whole at boot. */
+export function mountedBlock<T>(
+  file: string,
+  area: string,
+  schema: z.ZodType<T>,
+): () => DeepReadonly<T> {
+  const whole = mountedFile(z.looseObject({ [area]: schema }), file);
+  return () => (whole() as Record<string, DeepReadonly<T>>)[area];
 }
