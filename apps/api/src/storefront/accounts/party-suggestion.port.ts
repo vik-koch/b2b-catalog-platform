@@ -1,5 +1,3 @@
-import { Logger } from '@nestjs/common';
-import { HttpPartySuggestions } from './http-party-suggestions';
 import { PartySuggestion } from '@b2b-catalog-platform/shared/core/accounts';
 
 /**
@@ -19,17 +17,4 @@ export class NoPartySuggestions implements PartySuggestionPort {
   async suggest(): Promise<PartySuggestion[]> {
     return [];
   }
-}
-
-/** The same sidecar URL as addresses, logged at boot for the same reason. */
-export function createPartySuggestionPort(
-  url: string | undefined,
-): PartySuggestionPort {
-  const logger = new Logger('CompanySuggestions');
-  if (!url) {
-    logger.log('disabled: no SUGGESTION_SIDECAR_URL, companies are typed');
-    return new NoPartySuggestions();
-  }
-  logger.log(`enabled: suggestion sidecar at ${url}`);
-  return new HttpPartySuggestions(url);
 }

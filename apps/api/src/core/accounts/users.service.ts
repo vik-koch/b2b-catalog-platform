@@ -3,13 +3,13 @@ import { and, eq, inArray, sql } from 'drizzle-orm';
 import { DRIZZLE } from '../../platform/db/database.module';
 import { withdrawAccountConsents } from '../site/consent-withdrawals';
 import { addresses, signInCodes, users } from './accounts-schema';
-import { AccountErasure, Tx } from './account-erasure';
+import { AccountErasure } from './account-erasure';
 import { LastAdminError } from './last-admin-error';
 import {
   CustomerType,
   AccountDeletionReason,
 } from '@b2b-catalog-platform/shared/core/accounts';
-import { Database } from '../../platform/db/database';
+import { Database, Tx } from '../../platform/db/database';
 
 export type UserRow = typeof users.$inferSelect;
 

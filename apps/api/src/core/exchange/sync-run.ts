@@ -1,12 +1,5 @@
 import { NotFoundException } from '@nestjs/common';
 import { SyncRunStatus } from '@b2b-catalog-platform/shared/core/exchange';
-import { Database } from '../../platform/db/database';
-
-/** The handle a `db.transaction` callback gets. */
-export type Tx = Parameters<Parameters<Database['transaction']>[0]>[0];
-
-/** The pool or a transaction on it, for a read either may run. */
-export type Reader = Pick<Database, 'select'>;
 
 /** The person behind a run: an upload, or the decision on a staged one. */
 export interface Actor {

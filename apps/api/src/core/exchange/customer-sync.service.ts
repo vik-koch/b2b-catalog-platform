@@ -40,19 +40,12 @@ import {
   CustomerSyncState,
   planCustomerSync,
 } from './customer-sync';
-import {
-  Actor,
-  CONFLICT_CODE,
-  Reader,
-  Submitter,
-  Tx,
-  runNotFound,
-} from './sync-run';
+import { Actor, CONFLICT_CODE, Submitter, runNotFound } from './sync-run';
 import { SyncRunLog, toSyncRun } from './sync-run-log';
 import { SyncNotifications } from './sync-notifications';
 import { StagedPayloadOf, stagedPayload } from './sync-run-payload';
 import { CustomerType } from '@b2b-catalog-platform/shared/core/accounts';
-import { Database } from '../../platform/db/database';
+import { Database, Reader, Tx } from '../../platform/db/database';
 
 /** A sent mail counts, as do skipped rows: an unreadable file is not a
  * quiet night. */

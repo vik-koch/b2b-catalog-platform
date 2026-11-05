@@ -16,7 +16,7 @@ import { AdminProductListItem } from '@b2b-catalog-platform/shared/admin/catalog
 import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
 import { partialPriceRule } from '../../core/catalog/pricing/price';
 import { Suggestion } from '@b2b-catalog-platform/ui/suggest/suggestion';
-import { MatchSegmentsPipe } from '../../core/catalog/search/match-segments.pipe';
+import { MatchSegmentsPipe } from '../../platform/search/match-segments.pipe';
 import { AlternateLayout } from '../../platform/alternate-layout';
 import { SuggestList } from '@b2b-catalog-platform/ui/suggest/suggest-list';
 import { ProductsService } from '../catalog/products/products.service';

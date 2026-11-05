@@ -36,19 +36,12 @@ import { syncRuns } from './exchange-schema';
 import { excluded } from '../../platform/db/sql-columns';
 import { SyncActions, SyncCatalogState, planSync } from './sync-diff';
 import { StagedPayloadOf, stagedPayload } from './sync-run-payload';
-import {
-  Actor,
-  CONFLICT_CODE,
-  Reader,
-  Submitter,
-  Tx,
-  runNotFound,
-} from './sync-run';
+import { Actor, CONFLICT_CODE, Submitter, runNotFound } from './sync-run';
 import { SyncRunLog, toSyncRun } from './sync-run-log';
 import { SyncNotifications } from './sync-notifications';
 import { SYNC_POLICY } from './exchange-config';
 import { LOW_STOCK_THRESHOLD_PIECES } from '../catalog/catalog-config';
-import { Database } from '../../platform/db/database';
+import { Database, Reader, Tx } from '../../platform/db/database';
 
 /** Skipped rows count as something: an unreadable file is not a quiet
  * night. */

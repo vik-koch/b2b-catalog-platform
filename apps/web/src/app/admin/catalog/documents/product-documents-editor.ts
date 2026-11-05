@@ -15,7 +15,7 @@ import { ADMIN_TEXT } from '../../../platform/config/admin-text';
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import { adminDayFormat } from '../../platform/dates/admin-date';
 import { Suggestion } from '@b2b-catalog-platform/ui/suggest/suggestion';
-import { MatchSegmentsPipe } from '../../../core/catalog/search/match-segments.pipe';
+import { MatchSegmentsPipe } from '../../../platform/search/match-segments.pipe';
 import { AlternateLayout } from '../../../platform/alternate-layout';
 import { SuggestList } from '@b2b-catalog-platform/ui/suggest/suggest-list';
 import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';

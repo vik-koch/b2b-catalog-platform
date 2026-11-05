@@ -8,7 +8,6 @@ import {
   signal,
 } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { SEARCH_QUERY_MAX_LENGTH } from '@b2b-catalog-platform/shared/core/catalog';
 import { ADMIN_TEXT } from '../../../platform/config/admin-text';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
@@ -51,8 +50,9 @@ import {
   userStatusSchema,
 } from '@b2b-catalog-platform/shared/core/accounts';
 import {
-  userRoleSchema,
   fillText,
+  SEARCH_QUERY_MAX_LENGTH,
+  userRoleSchema,
 } from '@b2b-catalog-platform/shared/platform';
 import { ADMIN_CATALOG_TEXT } from '../../catalog/catalog-text';
 

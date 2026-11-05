@@ -8,8 +8,11 @@ import {
   signal,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { SEARCH_QUERY_MAX_LENGTH } from '@b2b-catalog-platform/shared/core/catalog';
-import { isoToday, fillText } from '@b2b-catalog-platform/shared/platform';
+import {
+  fillText,
+  isoToday,
+  SEARCH_QUERY_MAX_LENGTH,
+} from '@b2b-catalog-platform/shared/platform';
 import {
   ProductDocument,
   documentExpiryState,

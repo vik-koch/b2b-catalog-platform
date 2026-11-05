@@ -5,7 +5,7 @@ import {
   categoryDisplayName,
 } from '@b2b-catalog-platform/shared/core/catalog';
 import { HighlightedLine } from '@b2b-catalog-platform/ui/suggest/highlighted-line';
-import { MatchSegmentsPipe } from '../../../core/catalog/search/match-segments.pipe';
+import { MatchSegmentsPipe } from '../../../platform/search/match-segments.pipe';
 import { brokenImages } from '@b2b-catalog-platform/ui/core/broken-images';
 
 /** Both a tree node and a drill-down link fit as they arrive. */

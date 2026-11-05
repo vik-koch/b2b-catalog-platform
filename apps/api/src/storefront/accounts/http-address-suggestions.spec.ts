@@ -1,10 +1,10 @@
 import type { Mock, MockInstance } from 'vitest';
 import { Logger } from '@nestjs/common';
+import { NoAddressSuggestions } from './address-suggestion.port';
 import {
   createAddressSuggestionPort,
-  NoAddressSuggestions,
-} from './address-suggestion.port';
-import { HttpAddressSuggestions } from './http-address-suggestions';
+  HttpAddressSuggestions,
+} from './http-address-suggestions';
 
 const suggestion = {
   label: 'Hafenstraße 12, 20359 Hamburg',
