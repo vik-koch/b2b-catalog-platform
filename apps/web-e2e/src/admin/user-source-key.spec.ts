@@ -5,17 +5,9 @@ const env = localtestEnv();
 const ADMIN_EMAIL = env['ADMIN_EMAIL'];
 const ADMIN_PASSWORD = env['ADMIN_PASSWORD'];
 
-/**
- * The source key on the account editor (FR-ADM-14) — the manual way to give a
- * self-registered account the key an exchange addresses it by, and the escape
- * hatch behind the run-level claim (FR-ADM-17).
- *
- * Read-only: the field is filled and the form is never saved, because these
- * accounts are seeded state the other specs assert on. What the browser is
- * asked is whether the field is there, is empty on an account nobody has
- * claimed, says what it is for, and is usable on a phone. Who may *write* it
- * is api-e2e's question.
- */
+/** The account editor's source key (FR-ADM-14), the way out beside a run's
+ * claim (FR-ADM-17). Never saved: is it there, empty when unclaimed, explained
+ * and usable on a phone. Who may write it is api-e2e's. */
 async function logIn(page: Page): Promise<void> {
   await page.goto('/login');
   await page.getByLabel('Email').fill(ADMIN_EMAIL);
@@ -24,15 +16,9 @@ async function logIn(page: Page): Promise<void> {
   await expect(page).toHaveURL(/\/admin$/);
 }
 
-/**
- * `s.moreau@mail.example` is seeded `pending` with no source key — the
- * deadlock the claim exists for, in the one state where nobody on either side
- * can decide about them.
- *
- * Reached through the list's own search and the single edit link that search
- * leaves behind, rather than through a row element: this spec runs at phone
- * width too, where the admin grid is a list of cards and there is no table.
- */
+/** `s.moreau@mail.example` is seeded `pending` without a key, the claim's
+ * deadlock. Through the list's search and its one edit link, as phone width
+ * shows cards. */
 async function openCustomer(page: Page): Promise<void> {
   await page.goto('/admin/users?searchTerm=s.moreau');
   const edit = page.locator('a[href*="/edit"]');
@@ -58,8 +44,7 @@ test('an admin sees the source key, empty, on an account nobody has claimed', as
   await field.fill('C-12345');
   await expect(field).toHaveValue('C-12345');
 
-  // Nothing the field adds may push the layout sideways — the check that
-  // matters on the phone project.
+  // The field must not push the layout sideways, which matters on the phone.
   const overflow = await page.evaluate(
     () =>
       document.documentElement.scrollWidth -

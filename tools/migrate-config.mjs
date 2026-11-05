@@ -8,21 +8,21 @@
  * Without `--write` it only reports. The map for a release is
  * `config-migration/<release>.json` beside this script, or `--map <file>`: every
  * new key names the old keys its value comes from, the first one the
- * deployment has wins, and a later one with a different value is reported — a
- * merge that may not hold in that deployment's language. `new` marks wording
+ * deployment has wins, and a later one with a different value is reported, as
+ * the merge may not hold in that deployment's language. `new` marks wording
  * that did not exist before; `copy` takes a value without moving it, where the
- * old key stays as it is. `moves` carries a whole block to a new place, with
- * whatever is left in it once those keys have gone — into another file too —
- * or a single value or list.
+ * old key stays as it is. `moves` carries a whole block, with whatever is left
+ * once those keys have gone, to a new place, another file too, or a single
+ * value or list.
  * `files` names the files the deployment had at the release the map starts
  * from, and where each now lives; keys name them by those names, targets by
  * the release's. A file the map does not move keeps its name.
  *
  * Node's built-ins only, so an operator needs no checkout: this file and the
  * map, downloaded from the release tag, are enough. The deployment's files were
- * valid at the release the map starts from — the app does not boot otherwise —
- * and `--check` proves the map turns valid into valid, so all that is left to
- * find here is the counting texts still written in two forms.
+ * valid at the release the map starts from, or the app would not boot, and
+ * `--check` proves the map turns valid into valid, so only counting texts
+ * still in two forms are left to find.
  *
  * `--check` is the CI half, run from a checkout after `npm ci`: it migrates the
  * demo config of the release the map starts from (read from git) and validates
@@ -342,7 +342,7 @@ section(
 
 if (check) {
   // The demo was worded for this release by hand, so only a broken structure
-  // fails here — never the wording reported above.
+  // fails here, never the wording reported above.
   const problems = await validate(files);
   section('Invalid after migration:', problems);
   if (problems.length + report.missing.length > 0) {

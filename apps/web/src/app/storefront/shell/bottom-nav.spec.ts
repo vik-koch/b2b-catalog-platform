@@ -81,8 +81,8 @@ describe('BottomNav', () => {
     }
   });
 
-  // The tap does not decide anything itself — see MobileSearch, which knows
-  // whether the header's own field is still on screen.
+  // The tap decides nothing: MobileSearch knows whether the header's field
+  // is on screen.
   it('hands a search tap to the field the header lent', async () => {
     const view = await render();
     const search = TestBed.inject(MobileSearch);

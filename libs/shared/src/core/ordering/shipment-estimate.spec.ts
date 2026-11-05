@@ -13,8 +13,8 @@ describe('shipmentEstimate', () => {
   it('multiplies the quantity, never the carton count, into the figures', () => {
     const estimate = shipmentEstimate([{ ...boxed, pieces: 300 }]);
 
-    // Three box units of a two-carton product: six cartons, and the stated
-    // volume and weight — which already cover both cartons — tripled.
+    // Three boxes of a two-carton product: six cartons, and the volume and
+    // weight, which cover both cartons, tripled.
     expect(estimate).toMatchObject({
       cartons: 6,
       volume: '0.720',
@@ -108,8 +108,8 @@ describe('shipmentEstimate', () => {
     });
 
     it('treats an unparseable decimal as missing, not as zero', () => {
-      // A missing weight is not a weightless product, and neither is a broken
-      // one — saying nothing is the honest answer.
+      // A missing or broken weight is no weightless product: saying nothing
+      // is honest.
       const estimate = shipmentEstimate([
         { ...boxed, boxWeight: 'not a number' },
       ]);

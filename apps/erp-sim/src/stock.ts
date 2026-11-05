@@ -40,7 +40,7 @@ export interface Introduced extends TrackedProduct {
  * night arrive with their first delivery; and every product below
  * `reorderBelow` percent of its stocked quantity, with nothing on order, is
  * reordered for `deliveryNights` later. A product stocked to zero is never
- * reordered — it is the bundle's out-of-stock case and stays one. While a
+ * reordered: the bundle's out-of-stock case stays one. While a
  * delivery is on its way a product keeps selling, so a fast seller can run
  * dry for a night or two, as in any shop.
  */

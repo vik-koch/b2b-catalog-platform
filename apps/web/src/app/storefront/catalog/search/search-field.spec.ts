@@ -26,7 +26,7 @@ import { defaultStorefrontCatalogText } from '../catalog-text.fixture';
 
 type Suggestion = ProductListItem;
 
-/** A suggestion row — a whole tile, as the API sends it (FR-SEARCH-06). */
+/** A suggestion row: a whole tile, as the API sends it (FR-SEARCH-06). */
 const row = (slug: string, name: string, overrides: Partial<Suggestion> = {}) =>
   productListItem({ slug, name, ...overrides });
 
@@ -35,11 +35,8 @@ let suggestions: Suggestion[] = [];
 /** The categories offered beside them (FR-SEARCH-07). */
 let categories: SearchCategory[] = [];
 
-/**
- * When set, the next request hangs until the test resolves it — which is how
- * the in-flight window between two queries becomes something to assert on
- * rather than something to hope a timeout lands inside of.
- */
+/** When set, the next request hangs until the test resolves it, so the
+ * in-flight window is asserted, not hoped for. */
 let hold: ((items: Suggestion[]) => void) | null = null;
 let holdNext = false;
 
@@ -75,9 +72,8 @@ async function render() {
   return renderAt();
 }
 
-/** Renders the field with the router already sitting on `url`, which is what
- * puts a `q` parameter in front of it — the field reads the live query params
- * rather than taking the query as an input. */
+/** Renders the field with the router on `url`: it reads `q` from the live
+ * params, not an input. */
 async function renderAt(url?: string) {
   TestBed.configureTestingModule({
     imports: [SearchField],
@@ -144,8 +140,8 @@ describe('SearchField', () => {
   it('routes instead of letting the browser submit the form', async () => {
     const { el } = await render();
 
-    // Without this the browser also performs its own GET, and the full page
-    // load races the router — landing back on the current page.
+    // Otherwise the browser's own GET races the router and lands back on the
+    // current page.
     expect(searchFor(el, 'espresso').defaultPrevented).toBe(true);
   });
 
@@ -292,11 +288,8 @@ describe('SearchField suggestions (FR-SEARCH-05/06)', () => {
     await TestBed.inject(ApplicationRef).whenStable();
   }
 
-  /**
-   * Types and waits out only the debounce, never for stability — a held
-   * request keeps the application unstable by definition, so a test that
-   * wants to look at the in-flight moment cannot also wait for it to pass.
-   */
+  /** Types and waits out the debounce only: a held request keeps the app
+   * unstable, so waiting for stability never ends. */
   async function typePending(el: HTMLElement, query: string) {
     const input = el.querySelector('input') as HTMLInputElement;
     input.value = query;
@@ -304,7 +297,7 @@ describe('SearchField suggestions (FR-SEARCH-05/06)', () => {
     await new Promise((resolve) => setTimeout(resolve, 250));
   }
 
-  /** Each row's product cell — the part that goes to the product. */
+  /** Each row's product cell, which goes to the product. */
   const options = (el: HTMLElement) =>
     Array.from(
       el.querySelectorAll<HTMLElement>(
@@ -572,9 +565,8 @@ describe('SearchField suggestions (FR-SEARCH-05/06)', () => {
 
     await typeQuery(fixture, el, 'espresso');
 
-    // Only the matched run is marked — the rest of the name is plain, so the
-    // tint is telling the visitor why this row is here. <mark>, the same
-    // element the address and company fields draw.
+    // Only the matched run is marked, so the tint says why the row is here:
+    // <mark>, as in the address and company fields.
     expect(
       options(el).map((o) => o.querySelector('mark')?.textContent),
     ).toEqual(['Espresso', 'Espresso']);
@@ -778,8 +770,8 @@ describe('SearchField suggestions (FR-SEARCH-05/06)', () => {
   });
 
   it('stays open across the gap between "nothing found" and the next answer', async () => {
-    // Closing while the next request is in flight would blink the box out and
-    // back for a beat — a glitch, not an answer.
+    // Closing while the next request is in flight would blink the box: a
+    // glitch, not an answer.
     const { el, fixture } = await render();
 
     suggestions = [];

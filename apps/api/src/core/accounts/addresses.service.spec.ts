@@ -21,8 +21,8 @@ const ships = (...codes: string[]): AddressConfig => ({
   countries: codes.map((code) => ({ code, label: code })),
 });
 
-/** A deployment shipping to one country that has a postal rule and one that
- * does not — the rule belongs to the country, not to the deployment. */
+/** Two countries, one with a postal rule: the rule is the country's, not the
+ * deployment's. */
 const postal = () =>
   service({
     countries: [
@@ -36,10 +36,9 @@ const postal = () =>
   });
 
 function service(config?: AddressConfig): AddressesService {
-  // No database: what is under test here is the rule the browser is not
-  // trusted with, and the seed's silence. The reading and writing paths are
-  // covered against a real Postgres in apps/api-e2e (addresses.spec.ts) —
-  // stubbing a query builder to re-prove them would test the stub.
+  // No database: this tests the rule the browser is not trusted with. The
+  // reads and writes are covered in api-e2e (addresses.spec.ts); a stubbed
+  // builder would test the stub.
   return new AddressesService(undefined as unknown as Database, config);
 }
 
@@ -73,9 +72,8 @@ describe('AddressesService.assertValid', () => {
   });
 
   /**
-   * The mask in the browser caps what can be typed and says nothing about what
-   * arrives — and the delivery zone is resolved from this field, so a code in
-   * the wrong shape is an order quoted against the wrong area.
+   * The browser's mask says nothing about what arrives, and the delivery zone
+   * is read from this field: a misshapen code quotes the wrong area.
    */
   it("refuses a postal code that is not its country's shape", () => {
     const refuse = () =>
@@ -110,8 +108,8 @@ describe('AddressesService.assertValid', () => {
   });
 
   it('matches the whole code, so a near neighbour is still refused', () => {
-    // Case never reaches here — `countryCodeSchema` upper-cases at the
-    // contract — so what this guards is the comparison itself: DK is not DE.
+    // The contract upper-cases (`countryCodeSchema`), so this guards the
+    // comparison: DK is not DE.
     expect(() =>
       service(ships('DE')).assertValid({ ...address, country: 'DK' }),
     ).toThrow(ConflictException);

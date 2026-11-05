@@ -114,8 +114,8 @@ const order: AdminOrderDetail = {
   },
 };
 
-/** The server's answer to whatever the form currently says — here, the order
- * unchanged, which is what an untouched form must produce. */
+/** The server's answer to the form: here the order unchanged, as an
+ * untouched form must give. */
 const preview: OrderAdjustmentPreview = {
   lines: [
     {
@@ -348,9 +348,8 @@ describe('AdminOrderAdjustPage (FR-ORD-03)', () => {
     expect(el.textContent).toContain(text.errors['order-changed']);
   });
 
-  /** A note is an account of a change and not a change of its own, so the
-   * server refuses a version that would say what the order already says — and
-   * the screen has to explain that rather than blame the note. */
+  /** A note describes a change and is none, so the server refuses a version
+   * that changes nothing, and the screen explains. */
   it('says so when nothing under the note actually changed', async () => {
     const { fixture, el } = await settled({
       adjust: vi.fn(async () => ({
@@ -372,12 +371,8 @@ describe('AdminOrderAdjustPage (FR-ORD-03)', () => {
   });
 });
 
-/**
- * The adjustment screen while an external system answers orders (FR-ADM-10).
- * Alone among the order screens it draws nothing at all: every field on it is
- * one the save would refuse, and the order itself reads better one route up —
- * the same answer the account editor gives on its "new" route.
- */
+/** The adjustment screen while orders are owned (FR-ADM-10) draws nothing:
+ * every field would be refused, and the order reads one route up. */
 describe('AdminOrderAdjustPage while orders are externally owned', () => {
   it('draws no form, says why, and keeps the way back', async () => {
     owned = ['orders'];

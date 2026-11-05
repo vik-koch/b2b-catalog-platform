@@ -33,7 +33,7 @@ export default async function globalSetup() {
   // The stack's api bind-mounts MEDIA_ROOT (compose.override.yml) and writes
   // uploads there as its unprivileged uid-1000 `node` user. Create it
   // world-writable BEFORE `up`, or Docker auto-creates the bind path owned by
-  // whoever runs compose — root on CI — and the uid-1000 container can't write
+  // whoever runs compose (root on CI), and the uid-1000 container can't write
   // uploads (they 500, and the upload spec fails while host-seeded catalog
   // images still load). Must precede `up`; the host seed writes here too.
   execSync(
@@ -65,7 +65,7 @@ export default async function globalSetup() {
   }
   // OS environment beats --env-file in compose interpolation, and Nx loads
   // the workspace .env (dev-stack values, e.g. DATABASE_PORT) into
-  // process.env — override with the localtest values so they always win.
+  // process.env: the localtest values override them.
   execSync('docker compose --env-file .env.localtest up -d --wait', {
     cwd: workspaceRoot,
     stdio: 'inherit',
@@ -74,8 +74,8 @@ export default async function globalSetup() {
 
   // 2. `up --wait` above already ran the one-shot `migrate` service, so the
   //    schema exists. Poll the API through the proxy until it answers. This
-  //    runs BEFORE seeding, so a 404 (known route, unseeded DB) already proves
-  //    the API is up — only 5xx means the proxy is still waiting for the API.
+  //    runs BEFORE seeding, so a 404 (known route, unseeded DB) proves the
+  //    API is up; only 5xx means the proxy still waits.
   const deadline = Date.now() + 60_000;
   for (;;) {
     try {
@@ -96,9 +96,8 @@ export default async function globalSetup() {
   try {
     // MEDIA_ROOT is relative, and compose resolves it against the repo root
     // (where compose.yml lives) while this process runs from the project dir.
-    // Resolving it here is what makes the seed write into the same directory
-    // the api and media containers bind-mount — otherwise the catalog's images
-    // land in apps/web-e2e/.media and every seeded image 404s.
+    // Resolved here, so the seed writes where the api and media containers
+    // bind-mount, not apps/web-e2e/.media, where every image 404s.
     // The consents the stack's own config asks for: the committed demo's,
     // which the localtest stack mounts.
     const { consent } = JSON.parse(

@@ -19,12 +19,9 @@ import { AuthUser, UserRole } from '@b2b-catalog-platform/shared/platform';
 
 const text = defaultStorefrontAccountsText.auth;
 
-/**
- * `undefined` is the third state the component has to tell apart: the session
- * is not known yet, which is what every first paint starts in. `hint` is what
- * the browser's own cookies say in the meantime — the readable companion to the
- * httpOnly session cookie.
- */
+/** `undefined` is the third state: the session not known yet, as on every
+ * first paint. `hint` is what the readable cookie beside the httpOnly one
+ * says meanwhile. */
 async function render(
   initial: AuthUser | null | undefined,
   hint: UserRole | null = null,
@@ -70,7 +67,7 @@ async function render(
       ),
     user: session,
     work,
-    /** The marker itself — a dot, so it has nothing to match on but its shape. */
+    /** The marker: a dot, matched only by its shape. */
     marker: () => el.querySelector('span.rounded-full.bg-warning-dot'),
     markerLabel: () => el.querySelector('.sr-only')?.textContent?.trim(),
     rerender: async () => {
@@ -99,8 +96,8 @@ describe('AccountLink', () => {
     expect(link()?.getAttribute('href')).toBe('/account');
   });
 
-  // The server cannot resolve a session, so until /auth/me answers the control
-  // draws what the browser's own hint says — which is the answer, not a lean.
+  // The server cannot resolve a session, so until /auth/me answers the
+  // control draws the browser's hint, which is the answer.
   it('offers to log in while unresolved and the browser has no hint', async () => {
     const { label, link } = await render(undefined);
 
@@ -157,9 +154,8 @@ describe('AccountLink', () => {
   });
 
   /*
-   * The marker (FR-WORK-01). It says only *that* something is waiting — the
-   * figure it leaves out is what the panel behind the link is for, and what a
-   * screen reader is given instead.
+   * The marker (FR-WORK-01) says only that something waits; the figure is the
+   * panel's, and the screen reader's instead.
    */
   it('lights a dot on the control when something awaits the account', async () => {
     const { marker, markerLabel } = await render(admin, null, {

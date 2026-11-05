@@ -1,17 +1,10 @@
 #!/usr/bin/env node
 /**
- * Asserts that the browser's first load carries no validation runtime.
- *
- * ADR 0043 keeps Zod out of the initial bundle by splitting plain constants
- * away from the schemas that use them, and by handing the client generated
- * route metadata instead of contracts. Neither is enforced by the type system:
- * one constant added back to a `*.contract.ts` and imported by an eagerly
- * loaded component silently returns ~118 kB, because a bundler cannot drop a
- * module's `z.string()` calls to keep only its constants.
- *
- * The size budget is not that guard. It is a tripwire that has been raised as
- * the app grew, so it says "bigger than last time we looked", not "the rule
- * broke". This says exactly which rule broke.
+ * Asserts that the browser's first load carries no validation runtime. Zod
+ * stays out because constants live apart from schemas and the client gets
+ * generated route data, not contracts; one constant back in a `*.contract.ts`
+ * that an eager component imports returns ~118 kB silently. The size budget
+ * says "bigger"; this says which rule broke.
  *
  * Needs the stats file: `npx nx build web --statsJson`.
  *

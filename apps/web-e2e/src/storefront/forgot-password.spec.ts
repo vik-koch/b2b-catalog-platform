@@ -61,8 +61,8 @@ test.describe('forgotten password', () => {
     await page.getByRole('link', { name: 'Forgot your password?' }).click();
     await expect(page).toHaveURL(/\/forgot-password$/);
 
-    // The sink outlives a run and the address recurs, so an earlier run's link
-    // — spent, or replaced by this one — would otherwise answer the search.
+    // The sink outlives a run and the address recurs, so an earlier, spent
+    // link would answer the search.
     const cleared = await request.delete(`${MAILPIT_API}/search`, {
       params: { query: email },
     });

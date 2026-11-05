@@ -46,24 +46,13 @@ import {
 import { SITE_AREA } from '@b2b-catalog-platform/shared/core/site';
 
 /**
- * Every message the app can send, rendered from demo wording — the readable
- * record of what a customer actually receives.
+ * Every message the app can send, rendered from demo wording: what a customer
+ * receives, readable. `tools/generate-mail-previews.mjs` writes them to
+ * `docs/mail/`, so a reworded template shows as a diff, not in an inbox.
  *
- * It exists because a template is a function nobody can read the output of.
- * Whether the shop's refusal quotes its reason, whether a guest gets a token
- * link and an account holder does not, whether a mail about a change lists the
- * changes: all of that is decided in code and answered nowhere a person can
- * look. So the previews are rendered to `docs/mail/` by
- * `tools/generate-mail-previews.mjs`, and a reworded template shows up as a
- * diff in the documentation rather than in nobody's inbox.
- *
- * Tests only, like `mail-text.fixture.ts`, and for the same reason: no demo
- * wording may be baked into the image. Nothing in `src/main.ts`'s import graph
- * reaches this file.
- *
- * The variants are chosen for what *differs*, not for coverage: a status mail
- * per status is worth reading because each says something else, a second
- * inquiry is not.
+ * Tests only, like `mail-text.fixture.ts`: no demo wording may reach the
+ * image, and nothing `src/main.ts` imports reaches this. Variants are chosen
+ * for what differs, not for coverage.
  */
 
 const currency: MoneyFormat = { code: 'EUR', locale: 'de-DE' };
@@ -112,8 +101,8 @@ const at = (status: OrderDetail['status']): OrderDetail => ({
 /** The token a guest's link carries. Fixed, so the previews stay diffable. */
 const TOKEN = 'demo-token';
 
-/** Why a customer called their own order off. Optional on their side, so the
- * template has a second reading — this preview shows the one with a reason. */
+/** Why a customer called their order off. Optional, so this shows the
+ * reading with a reason. */
 const CUSTOMER_REASON = 'Ordered twice by mistake.';
 
 /** What the shop said it changed, as an adjustment records it. */
@@ -141,11 +130,9 @@ export interface MailPreview {
   /** When this message is sent, and what makes this variant different. */
   readonly note: string;
   /**
-   * The reading an order journey produces when this message arrives
-   * (`docs/order-lifecycle.md`), so the journey tables can link at the message
-   * they are talking about. Only the canonical preview of a message carries
-   * one — a second variant of the same mail is documentation, not a different
-   * message.
+   * The journey reading this message belongs to (`docs/order-lifecycle.md`),
+   * so the journey tables can link to it. Only a message's main preview has
+   * one; a second variant is documentation.
    */
   readonly shows?: string;
   readonly content: MailContent;
@@ -199,14 +186,8 @@ const APPLIED_RUN: SyncRun = {
   status: 'applied',
   summary: summary(0, 128, 0),
 };
-/**
- * A waiting mail for an area that has one.
- *
- * `syncWaitingMail` answers null for an area whose runs are never staged
- * (orders), and every preview below names a run of an area that can wait — so
- * a null here is a preview pointing at the wrong area rather than a case a
- * reader has to think about.
- */
+/** A waiting mail for an area that has one: a null here is a preview naming
+ * the wrong area. */
 function waitingPreview(
   run: SyncRun,
   started: string,
@@ -259,9 +240,8 @@ const CUSTOMERS_STAGED_RUN: SyncRun = {
   summary: { ...summary(9, 24, 17), fields: ['tier', 'company'], mailed: 0 },
 };
 
-/** And the third area, which has two of the four messages and not three: an
- * order run is never staged (ADR 0062), so nothing it does can wait for a
- * person. */
+/** Orders have two of the four messages: an order run is never staged, so
+ * nothing waits for a person. */
 const orderRun = {
   ...baseRun,
   id: '6c1e0b73-9f24-4a65-b8d1-0e5a72c4f381',
@@ -282,14 +262,9 @@ const ORDERS_APPLIED_RUN: SyncRun = {
   summary: { ...summary(0, 18, 0), fields: [], mailed: 11 },
 };
 
-/**
- * Every message, in whatever wording it is handed.
- *
- * A function rather than a constant so the same set can be rendered from the
- * demo fixture (the specs) or from a deployment's own mounted `texts/mail.json`
- * (the generator) — which is what makes this gallery a way to proof-read a
- * translation without sending a single message.
- */
+/** Every message, in the wording it is handed: the demo fixture for the
+ * specs, a deployment's `texts/mail.json` for the generator, which proofreads
+ * a translation without sending anything. */
 export function buildMailPreviews(
   text: MailText,
   common: SharedText,

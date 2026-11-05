@@ -5,21 +5,11 @@ import { priceProduct } from '../support/catalog-fixture';
 import { requireEnv } from '../support/env';
 
 /**
- * The outbound read of orders (FR-ADM-08, first half) end to end.
- *
- * What is worth proving against a real stack is everything the shape of the
- * response alone does not say: that it is its own capability, that it answers
- * whether or not anybody owns order processing — which is the whole point,
- * since a system has to see the orders that are here before it can be handed
- * any of them — that an order names its counterparty by the account's key
- * rather than by the contact its checkout carried, that a guest order says it
- * has no account, that nothing staff-only or customer-only leaks through it,
- * and that the read follows an order as it is worked: a move, a payment and a
- * cancellation all bring it round again with the version it now stands at.
- *
- * Isolation: every order here is placed for this run's own product, and the
- * spec filters what it asserts on down to those — the read is over the shop's
- * whole order book, and the stack has one.
+ * The outbound read of orders (FR-ADM-08), end to end: its own capability;
+ * open whoever owns orders, so a system sees them before taking any; an order
+ * names its account by key, a guest's none; nothing private leaks; a move,
+ * payment or cancellation brings it round again. Asserts only this run's
+ * product.
  */
 
 const R = Date.now().toString(36);
@@ -34,8 +24,8 @@ const SLUG = `e2e-order-read-boxed-${R}`;
 const TIER_KEY = `e2e-order-read-tier-${R}`;
 const ACCOUNT_SOURCE_ID = `${SOURCE_PREFIX}-account`;
 const PIECE_MINOR = 250;
-/** What this suite's tier is charged instead — so the order says which list it
- * was taken from and the figure proves it. */
+/** What this suite's tier pays instead, so the order names its list and the
+ * figure proves it. */
 const TIER_PIECE_MINOR = 100;
 /** One pack, which is what every order here is. */
 const PIECES = 10;
@@ -522,8 +512,8 @@ describe('Outbound order read (FR-ADM-08)', () => {
 
       const res = await read({ since: last?.updatedAt ?? '', limit: 50 });
       expect(res.status).toBe(200);
-      // Inclusive, so the order it names is in the answer — and nothing older
-      // than it is, which is the property a scheduled puller relies on.
+      // Inclusive, so the named order is in it and nothing older, as a
+      // scheduled puller needs.
       const back: MachineOrder[] = res.data.orders;
       expect(back.some((o) => o.reference === last?.reference)).toBe(true);
       expect(back.every((o) => o.updatedAt >= (last?.updatedAt ?? ''))).toBe(

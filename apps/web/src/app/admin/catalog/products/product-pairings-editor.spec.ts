@@ -63,8 +63,8 @@ async function render(value: LinkedProduct[] = [], ownSlug = 'cup') {
   const emitted: LinkedProduct[][] = [];
   fixture.componentInstance.valueChange.subscribe((v) => emitted.push(v));
 
-  /** Opens the panel if it is not already open — it opens itself where the
-   * product has pairings, and clicking the lid then closes it. */
+  /** Opens the panel unless open: it opens itself where there are pairings,
+   * and the lid would then close it. */
   const open = async () => {
     if (el.querySelector('[role="combobox"]')) return;
     el.querySelector('button')?.dispatchEvent(new Event('click'));

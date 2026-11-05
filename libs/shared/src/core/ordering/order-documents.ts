@@ -4,7 +4,7 @@ import {
 } from '../../platform/media';
 
 /**
- * The documents an order can carry (FR-ORD-05, ADR 0052). Payment
+ * The documents an order can carry (FR-ORD-05). Payment
  * instructions are only ever supplied; the summary is generated unless a file
  * replaces it.
  */

@@ -28,8 +28,7 @@ const API_ORIGIN = 'http://api.internal:3000';
  * cache origin map rewrites the origin only, so the two platforms' paths have
  * to line up on their own. */
 const API_URL = `${API_ORIGIN}/api`;
-/** The jsdom document's own origin — the browser client derives its base URL
- * from it, so the tests must expect the same one. */
+/** The jsdom origin, which the browser client derives its base URL from. */
 const PUBLIC_ORIGIN = globalThis.location.origin;
 
 /** Lets a pending request reach the testing backend: oRPC encodes the request
@@ -118,8 +117,8 @@ describe('createOrpcClient', () => {
     expect(request.request.method).toBe('GET');
     expect(request.request.responseType).toBe('json');
     expect(request.request.url).toContain('draft=true');
-    // HttpParams must stay empty — the query belongs to the URL string, which
-    // is what the transfer cache keys on.
+    // HttpParams stay empty: the query belongs to the URL, the transfer
+    // cache's key.
     expect(request.request.params.keys()).toEqual([]);
 
     request.flush({ title: 'Privacy' });

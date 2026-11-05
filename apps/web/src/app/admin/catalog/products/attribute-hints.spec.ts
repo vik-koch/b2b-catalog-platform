@@ -103,7 +103,7 @@ describe('attributeRowStatus', () => {
     expect(attributeRowStatus({ key: 'Lenght', value: '30' }, hints)).toBe(
       'unknown',
     );
-    // Carried by this product alone — saving the typo does not make it known.
+    // Only this product has it: saving the typo does not make it known.
     const discounted = byKey(
       attributeHints([usage('Lenght', 1)], [], ['Lenght']),
     );

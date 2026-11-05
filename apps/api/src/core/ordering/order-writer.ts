@@ -42,7 +42,7 @@ import { isUniqueViolation } from '../../platform/db/pg-errors';
 import { Database } from '../../platform/db/database';
 
 /**
- * The one writer of order versions (ADR 0051): staff, the customer's cancel and
+ * The one writer of order versions: staff, the customer's cancel and
  * the exchange all move an order through here, so they leave the same thread.
  */
 @Injectable()
@@ -110,7 +110,7 @@ export class OrderWriter {
   /**
    * Moves an order (FR-ORD-01/02), asked of the transition table for every
    * actor. A move writes a version with the snapshot carried across word for
-   * word (ADR 0051), and restates the version it read, so the second of two
+   * word, and restates the version it read, so the second of two
    * managers is refused.
    */
   async move(

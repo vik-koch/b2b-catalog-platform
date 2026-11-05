@@ -1,7 +1,7 @@
 import { matchSegments } from './match-segments';
 
-/** Reassembles the segments, so every case can assert that highlighting is
- * purely a partition of the name — nothing dropped, nothing invented. */
+/** Reassembles the segments, so each case asserts the highlight only
+ * partitions the name. */
 const rendered = (name: string, query: string) =>
   matchSegments(name, query)
     .map((s) => s.text)
@@ -37,8 +37,8 @@ describe('matchSegments', () => {
   });
 
   it('ignores accents, matching the way the database folds them', () => {
-    // "kaicafe" finds Kaicafé Bar, so it must also highlight it — and the
-    // offsets have to survive the fold or the bold lands a letter early.
+    // "kaicafe" finds Kaicafé Bar, so it highlights it, with offsets that
+    // survive the fold.
     expect(marked('Kaicafé Bar', 'kaicafe')).toBe('[Kaicafé] Bar');
   });
 
@@ -49,8 +49,8 @@ describe('matchSegments', () => {
   });
 
   it('does not mark the middle of a word', () => {
-    // The full-text half matches word prefixes, so "res" is not a match
-    // against "Barista" — emboldening it would claim one that was never made.
+    // Full text matches word prefixes, so "res" does not match "Barista" and
+    // is not bolded.
     expect(marked('Barista Reserve', 'res')).toBe('Barista [Res]erve');
   });
 

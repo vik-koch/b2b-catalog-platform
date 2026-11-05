@@ -1,20 +1,16 @@
 import { expect, Page, test } from '@playwright/test';
 
 /**
- * FR-UNIT-07, FR-CART-01/08. The cart lives in localStorage and is priced by
- * the API, so what only a browser can show is the round trip: a choice made on
- * a product page reaches the header, survives a reload, and is priced by the
- * server rather than by the page that stored it.
- *
- * `hafen-espresso` is seeded packaged — six to a pack, four packs to a box, a
- * six-piece minimum. `stoneware-cup-set` is the seeded product with a line
- * note enabled.
+ * FR-UNIT-07, FR-CART-01/08: a product page's choice reaches the header,
+ * survives a reload and is priced by the server. `hafen-espresso` is six to a
+ * pack, four packs to a box, a six-piece minimum; `stoneware-cup-set` takes a
+ * line note.
  */
 
 const cartLink = (page: Page) => page.getByRole('link', { name: /^Cart/ });
 
-/** `cart.issues.quantityCorrected` in the demo text — one sentence, whatever
- * was rounded and whichever unit it was typed in. */
+/** `cart.issues.quantityCorrected` in the demo text: one sentence for any
+ * rounding and unit. */
 const CORRECTED = 'The quantity was adjusted to the nearest we can supply.';
 
 /** Each cart line is a list item carrying a link to its product. */
@@ -27,10 +23,8 @@ test.beforeEach(async ({ page }) => {
   await page.evaluate(() => localStorage.removeItem('cart'));
 });
 
-// The server draws every set of buy controls for an empty cart. Hydrating a
-// carted product's must replace that picture, never add its own beside it —
-// "Added" stacked on the "Add to cart" it replaced, a card a row taller than
-// its neighbours.
+// The server draws buy controls for an empty cart; hydrating a carted one
+// replaces them, never stacks "Added" on "Add to cart".
 test('a cold load never shows a carted product both ways at once', async ({
   page,
 }) => {
@@ -111,8 +105,8 @@ test('adds a chosen unit to the cart, counts it in the header, and keeps it', as
   // The cart line carries the same controls the product page did, holding the
   // choice that was made there.
   await expect(page.getByRole('radio', { name: 'Box' })).toBeChecked();
-  // The minimum is six pieces, and a box holds 24 — so a quarter of one. The
-  // unit says how the quantity is read, never what it is.
+  // Six pieces of a 24-piece box is a quarter: the unit reads the quantity,
+  // never sets it.
   await expect(page.getByRole('textbox', { name: 'Quantity' })).toHaveValue(
     '0,25',
   );
@@ -126,20 +120,15 @@ test('re-reads a quantity in another unit without asking anything', async ({
   const units = page.getByRole('radiogroup', { name: 'Unit' });
   const quantity = page.getByRole('textbox', { name: 'Quantity' });
   await units.getByText('Pack', { exact: true }).click();
-  // Both waits are for hydration, not for the app: a press or a keystroke that
-  // lands on the server's HTML before the listeners are attached is simply
-  // lost, and the next step then reads the field in a unit that never changed.
-  // The field, not the radio: a press before hydration ticks the radio itself
-  // — that is the browser's own doing — while the six pieces behind it are
-  // still read as pieces. One pack is what the minimum becomes once the app
-  // has the press.
+  // Both waits are for hydration: a press on the server's HTML is lost. The
+  // field, not the radio, which the browser ticks before hydration while the
+  // six pieces still read as pieces; with the app, the minimum is one pack.
   await expect(quantity).toHaveValue('1');
   await quantity.fill('2');
   await expect(quantity).toHaveValue('2');
   await units.getByText('Box', { exact: true }).click();
 
-  // Two packs of the four a box holds. Nothing was rounded, so nothing is
-  // announced — the prompt this replaced asked to round it up to a whole box.
+  // Two packs of the four a box holds: nothing rounded, nothing announced.
   await expect(quantity).toHaveValue('0,5');
   await expect(page.getByText(CORRECTED)).toHaveCount(0);
 
@@ -217,8 +206,8 @@ test('carries a line note through to the cart', async ({ page }) => {
   );
 });
 
-// On a card there is no room for a field, so the note lives behind a button
-// beside the price — and what is written there rides with the line.
+// A card has no room for a field, so the note sits behind a button by the
+// price and rides with the line.
 test('writes a note from a listing card, beside the price', async ({
   page,
   isMobile,
@@ -230,9 +219,8 @@ test('writes a note from a listing card, beside the price', async ({
     .filter({ has: page.locator('a[href="/product/stoneware-cup-set"]') })
     .first();
   await card.getByRole('button', { name: /note/i }).click();
-  // The same field in the shape the width allows: a bubble beside the price
-  // where there is room beside anything, a modal on a phone — which is closed
-  // by its own button rather than by leaving the field.
+  // The field as the width allows: a bubble by the price, a modal on a phone,
+  // closed by its own button.
   const panel = isMobile
     ? page.getByRole('dialog')
     : page.locator('ui-popover');
@@ -287,11 +275,8 @@ test('prices the cart on the server and empties it when asked', async ({
   );
 });
 
-/**
- * FR-STOCK-04. `nordic-pull` is seeded with nothing on the shelf, packaged the
- * same way `hafen-espresso` is. The product stays listed, reachable and priced
- * — what goes is every control that would put it in a cart.
- */
+/** FR-STOCK-04. `nordic-pull` is seeded out of stock, packaged like
+ * `hafen-espresso`: listed and priced, without a way into the cart. */
 test('will not sell a product that is out of stock', async ({ page }) => {
   await page.goto('/product/nordic-pull');
 
@@ -299,8 +284,7 @@ test('will not sell a product that is out of stock', async ({ page }) => {
   // Priced, as the requirement says: what is refused is the buying.
   await expect(page.getByText('On request')).toHaveCount(0);
 
-  // Not one unit is selectable — the segments are disabled buttons rather
-  // than radios, so there is nothing to choose and nothing to explain.
+  // No unit is selectable: disabled buttons, nothing to choose or explain.
   await expect(page.getByRole('radio')).toHaveCount(0);
   const units = page.getByRole('radiogroup', { name: 'Unit' });
   await expect(units.getByRole('button', { name: 'Pack' })).toBeDisabled();
@@ -330,11 +314,8 @@ test('will not sell a product that is out of stock', async ({ page }) => {
   );
 });
 
-/**
- * FR-CART-10 over FR-STOCK-04: a cart written while the product was on the
- * shelf, read back after it emptied. The line is stored by hand because the
- * shop will no longer let it be added — which is the point of the case.
- */
+/** FR-CART-10 over FR-STOCK-04: a cart from before the shelf emptied. The
+ * line is stored by hand, as the shop no longer lets it be added. */
 test('says on return that a line went out of stock while the cart waited', async ({
   page,
 }) => {

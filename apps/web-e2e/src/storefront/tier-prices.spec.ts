@@ -9,25 +9,18 @@ import {
 } from '../support/localtest';
 
 /**
- * A customer's own prices on a cold-loaded page (FR-AUTH-05) — a click from
- * another page already asked the API with the cookie and was never wrong.
- *
- * Asserted twice over, because a locator only sees what the page settles on.
- * What it *paints first* is in the HTML the server sent, and painting the
- * default price before correcting it is the failure this spec exists for.
- *
- * The server renders as the visitor (ADR 0031, 2026-09-25 amendment), so the
- * customer's price is in that HTML — which makes the document as personal as
- * the answers in it. Its cache headers are asserted here too: they are what
- * keeps one customer's page out of every shared cache.
+ * A customer's prices on a cold-loaded page (FR-AUTH-05). A locator sees only
+ * the settled page, so the server's HTML is checked too: painting the default
+ * price first is the failure. Rendered as the visitor, the document is
+ * personal, so its cache headers are asserted as well.
  */
 
 const PASSWORD = 'e2e-tier-price-password';
 /** One minor unit, so the tier price can never coincide with a seeded one. */
 const OVERRIDE_MINOR = 1;
 
-/** The deployment's own currency and locale — the same source the app formats
- * prices from, so this spec cannot drift from the page it reads. */
+/** The deployment's currency and locale, the app's source, so this spec
+ * cannot drift from the page. */
 const deployment = JSON.parse(
   readFileSync(
     join(workspaceRoot, 'deployments/fixture/config/deployment.json'),
@@ -41,7 +34,7 @@ const currency = new Intl.NumberFormat(locale, {
   style: 'currency',
   currency: code,
 });
-/** The currency's minor-unit exponent — 2 for EUR, 0 for JPY. */
+/** The currency's minor-unit exponent: 2 for EUR, 0 for JPY. */
 const DIGITS = currency.resolvedOptions().maximumFractionDigits ?? 2;
 
 function money(priceMinor: number): string {
@@ -176,8 +169,8 @@ test.describe('tier prices on a server-rendered page', () => {
     );
     await expect(page.getByText(money(fixture.basePriceMinor))).toBeVisible();
 
-    // The same for everybody, so a cache may keep it — but only per cookie
-    // jar, so it can never be handed to someone signed in.
+    // The same for everybody, so cacheable, but per cookie jar, never handed
+    // to someone signed in.
     const headers = response?.headers() ?? {};
     expect(headers['cache-control'] ?? '').not.toMatch(/private|no-store/);
     expect(headers['vary'] ?? '').toMatch(/cookie/i);
@@ -200,11 +193,10 @@ test.describe('tier prices on a server-rendered page', () => {
     const settled = page.waitForResponse((r) =>
       r.url().includes('/api/work/counts'),
     );
-    // A fresh document — the server render, asked as this customer.
+    // A fresh document: the server render, as this customer.
     const response = await page.goto(`/product/${fixture.slug}`);
 
-    // Their own price is in the markup, the default one nowhere — not even
-    // for a frame.
+    // Their price is in the markup, the default nowhere, not for a frame.
     const html = await documentOf(response);
     expect(html).toContain(amount(OVERRIDE_MINOR));
     expect(html).not.toContain(amount(fixture.basePriceMinor));

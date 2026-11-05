@@ -33,11 +33,8 @@ import {
 } from '@b2b-catalog-platform/shared/core/accounts';
 import { SignedInAs, withSession } from '../../platform/auth/session.fixture';
 
-/**
- * The whole point of this surface is what it does *not* say, and what it puts
- * on the response beside the body — neither of which a handler-level test can
- * see. So: over a real server, with the real maintenance gate.
- */
+/** What these routes do not say, and what they set beside the body, which a
+ * handler test cannot see: over a real server and maintenance gate. */
 describe('AuthController', () => {
   let app: INestApplication;
   let baseUrl: string;
@@ -204,9 +201,8 @@ describe('AuthController', () => {
     expect(users.recordSignIn).toHaveBeenCalledWith(user.id);
   });
 
-  // The form says the same thing to a wrong address, a wrong password and an
-  // account that may not sign in — so this endpoint cannot become a way to
-  // test which addresses have accounts.
+  // One answer for a wrong address, a wrong password and an account that may
+  // not sign in, so nobody can probe which addresses have accounts.
   describe('the code after the password (FR-AUTH-12)', () => {
     const codeStep = {
       step: 'code' as const,

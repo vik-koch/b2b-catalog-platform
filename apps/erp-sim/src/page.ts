@@ -7,7 +7,7 @@ import {
 
 /** What the page shows, read fresh on every request. */
 export interface PageView {
-  /** When the shop was last reset — night 0 — on the shop's clock. */
+  /** When the shop was last reset (night 0), on the shop's clock. */
   readonly since: string;
   readonly timeZone: string;
   /** The shop's clock now, as the page prints it. */
@@ -30,7 +30,7 @@ export interface SimulatorPage {
 }
 
 /**
- * A reviewer's window onto the simulated back office (ADR 0068): what it has
+ * A reviewer's window onto the simulated back office: what it has
  * done lately, where the shop's clock stands, and a button that runs the
  * hourly cycle now rather than at the top of the next working hour.
  *

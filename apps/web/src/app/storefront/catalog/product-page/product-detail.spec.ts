@@ -141,9 +141,8 @@ describe('ProductDetail', () => {
     expect(root.querySelector('a[href="/catalog/beans"]')).toBeTruthy();
   });
 
-  // FR-DOC-03. The section is drawn from what the API sent: an expired
-  // document is dropped there, so the page has no state of its own to get
-  // wrong — only the question of whether there is anything to list.
+  // FR-DOC-03. Drawn from what the API sent, which drops expired documents:
+  // the page only asks whether there is anything to list.
   it('lists the documents on the product, each opening its file', async () => {
     const root = el(
       await render({
@@ -181,8 +180,8 @@ describe('ProductDetail', () => {
   it('renders the attributes as a specifications table', async () => {
     const root = el(await render(product));
 
-    // A real table (th/td) so a cell selection copies as TSV — see
-    // product-detail-view.
+    // A real table (th/td), so a selection copies as TSV
+    // (product-detail-view).
     // Scoped to the section: the same facts also head the band beside the
     // photo, where only the first few of them stand.
     const table = root.querySelector('#specifications');
@@ -200,16 +199,13 @@ describe('ProductDetail', () => {
     const root = el(await render(product));
     const href = `/catalog/${product.category.slug}?attr=net-weight:1`;
 
-    // Twice, and that is the point: the band beside the photo repeats the
-    // first few of these rows, and both tables draw the cell from one
-    // template — the band's used to be a copy that printed plain text, so the
-    // same value was a link a screen further down and not here.
+    // Twice: the band beside the photo repeats the first rows, and both draw
+    // the cell from one template, so a value is a link in both.
     const links = [...root.querySelectorAll('tbody td a')];
     expect(links.map((a) => a.getAttribute('href'))).toEqual([href, href]);
 
-    // Scoped to the section, the link is the one row that has one: the link is
-    // written from the *stored* value — "1", not the "1 kg" the row shows —
-    // because that is what the facet and the URL are keyed by.
+    // The one row with a link, written from the stored value ("1", not the
+    // shown "1 kg"), which facet and URL are keyed by.
     const inSection = [
       ...(root.querySelectorAll('#specifications tbody td a') ?? []),
     ];

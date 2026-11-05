@@ -538,8 +538,8 @@ export class AttributesService {
     return { rows, category };
   }
 
-  /** Products per attribute key within a set of categories — or across the
-   * whole catalogue, for `null` — and how many of them are unpublished. */
+  /** Products per attribute key within a set of categories (`null`: the whole
+   * catalogue), and how many of them are unpublished. */
   private async countsInScope(
     categoryIds: string[] | null,
   ): Promise<Map<string, ProductCounts>> {

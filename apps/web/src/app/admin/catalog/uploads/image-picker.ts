@@ -17,13 +17,9 @@ import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { imagePlusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/image-plus';
 import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
 
-/**
- * A single catalog image — the one-image counterpart to ProductImageGallery,
- * deliberately built from the same tile and the same dashed add-button so a
- * category's image control reads as the same thing as a product's. What it drops
- * is everything about *order*: there is no drag handle and no drop list, because
- * one image has no order to change.
- */
+/** One catalogue image, ProductImageGallery's single counterpart from the
+ * same tile and add button, so it reads alike. No order, so no drag
+ * handle. */
 @Component({
   selector: 'app-image-picker',
   imports: [Icon, FileTarget, ErrorText, DropZone],

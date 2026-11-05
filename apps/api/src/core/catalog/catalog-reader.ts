@@ -86,9 +86,9 @@ export class CatalogReader {
   }
 
   /**
-   * The filterable attributes one category offers, in its own order
-   * (FR-ATTR-11) — the registry unless the category or an ancestor overlays
-   * it. See category-filters.ts.
+   * The filterable attributes one category offers, in its order
+   * (FR-ATTR-11): the registry, unless it or an ancestor overlays it
+   * (category-filters.ts).
    */
   private async categoryDefinitions(
     categoryId: string,
@@ -97,8 +97,8 @@ export class CatalogReader {
     return (await this.categoryPanels(rows))(categoryId);
   }
 
-  /** Any category's panel, from one read of the registry and the overlays —
-   * a listing asks it for itself and for each of its chips. */
+  /** Any category's panel from one read of registry and overlays; a listing
+   * asks for itself and each chip. */
   async categoryPanels(
     rows: CategoryRow[],
   ): Promise<(categoryId: string) => DefinitionRow[]> {

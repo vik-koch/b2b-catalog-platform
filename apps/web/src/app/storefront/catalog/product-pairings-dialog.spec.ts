@@ -114,7 +114,7 @@ describe('the sold-together panel (FR-SET-05)', () => {
 
     pairings.show('takeaway-cup-300', 2);
     paint();
-    // Nothing yet — the panel opens on its content, and 150ms have not passed.
+    // Nothing yet: the panel opens on its content, and 150ms have not passed.
     expect(el.querySelector('dialog')).toBeNull();
 
     await new Promise((resolve) => setTimeout(resolve, 200));

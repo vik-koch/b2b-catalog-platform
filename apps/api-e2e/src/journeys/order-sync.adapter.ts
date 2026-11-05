@@ -10,33 +10,24 @@ import { cached, JourneyAdapter, Probe } from '../support/journey/journey';
 import { ORDER_SYNC_PROBES as reading } from './order-sync-probe-labels';
 
 /**
- * What an order-exchange journey acts on and reads — the third adapter on the
- * journey facility (`support/journey/journey.ts`), which knows as little about
- * an order arriving back from outside as it does about accounts.
- *
- * The question it answers is the one neither neighbour does.
- * `machine-order-sync.spec.ts` asks what one instruction is allowed to do;
- * `order-journeys.spec.ts` walks an order that the *shop* answers, through the
- * admin panel. This walks an order nobody here answers at all: the area is
- * handed over for the length of the journey, every staff button is refused,
- * and everything that happens to the order arrives over the wire. What
- * accumulates is the thing worth checking — that four exchanges leave four
- * versions and not twelve, that a polling source re-sending its last word
- * writes nothing and mails nobody, and that the customer's page and inbox
- * still read as though a manager had been there.
+ * What an order-exchange journey acts on and reads, for the journey facility
+ * (`support/journey/journey.ts`). The area is handed over, staff buttons are
+ * refused and everything arrives over the wire, to check what accumulates:
+ * four exchanges leave four versions, a re-send writes and mails nothing, and
+ * page and inbox read as though a manager had been there.
  */
 
 export interface OrderSyncJourneyContext {
   readonly reference: string;
-  /** The address on the order — unique per journey, which is what scopes the
-   * mail readings: Mailpit is shared by every suite at once. */
+  /** The order's address, unique per journey, scoping mail in the shared
+   * Mailpit. */
   readonly contactEmail: string;
   readonly customerCookie: string;
   /** Staff's own reading of the order. A session, not the token: while the
    * area is owned the panel keeps every screen and loses every button. */
   readonly adminCookie: string;
-  /** The credential the source system holds — `order-read` and `order-sync`
-   * together, which is the ordinary shape of an adapter that has gone live. */
+  /** The source system's credential: `order-read` and `order-sync`, as a
+   * live adapter holds. */
   readonly token: string;
   /** The key the catalog exchange delivered this journey's product under. A
    * write-back names lines by it and never by the storefront slug. */
@@ -45,11 +36,8 @@ export interface OrderSyncJourneyContext {
    * Kept here rather than in the journeys so a step says what it does rather
    * than counting versions. */
   basedOnRevision: number;
-  /** What the last batch, and the instruction in it, answered — for the two
-   * probes that read them. An exchange's own report of what it did is not
-   * recoverable from the order afterwards: `unchanged` leaves no trace at all,
-   * which is the point of it. Both are cleared by every action, so they read
-   * as the step's own doing and never as the step before's. */
+  /** The last batch's answers, for two probes: `unchanged` leaves no trace on
+   * the order. Each action clears them, so they read as the step's own. */
   run?: string[];
   lastInstruction?: string[];
 }
@@ -91,11 +79,8 @@ const asMachine = (
 const asStaff = (ctx: OrderSyncJourneyContext, url: string) =>
   ok(call('get', url, undefined, { Cookie: ctx.adminCookie }));
 
-/**
- * The deployment's own wording, used to recognise mail rather than to assert
- * on it: a reworded template must not fail these specs. What they are about is
- * *which* message arrived — and, more often, that none did.
- */
+/** The deployment's wording, to recognise mail, not assert on it: these
+ * specs ask which message arrived, or that none did. */
 const mailText = JSON.parse(
   readFileSync(configFile('texts/mail.json'), 'utf8'),
 ) as {
@@ -158,8 +143,8 @@ const adminOrder = (
     return res.data;
   });
 
-/** The order as the customer's own page shows it — their version of it, which
- * is not always the newest one. */
+/** The order as the customer's page shows it: their version, not always the
+ * newest. */
 const customerOrder = (
   ctx: OrderSyncJourneyContext,
   cache: Map<string, unknown>,
@@ -304,16 +289,9 @@ const actions: JourneyAdapter<OrderSyncJourneyContext>['actions'] = {
       record(ctx);
     },
   },
-  /**
-   * One exchange: what the owning system says has become of the order.
-   *
-   * Everything it can carry travels in one instruction, because that is the
-   * rule the area exists to keep — `status` moves it, `pieces` re-prices it,
-   * `paid` records the money, and all three together write **one** version.
-   * `notify` and `showCustomer` are stated rather than defaulted here as they
-   * are on the wire: a journey that left them out would be documenting a
-   * default the contract deliberately refuses to have.
-   */
+  /** One exchange: `status` moves, `pieces` re-prices, `paid` records money,
+   * together one version. `notify` and `showCustomer` are always stated, as
+   * the contract has no default. */
   writeBack: {
     label: 'writes back what it did',
     run: async (ctx, args) => {
@@ -412,11 +390,8 @@ const actions: JourneyAdapter<OrderSyncJourneyContext>['actions'] = {
       record(ctx);
     },
   },
-  /**
-   * The one thing the customer may still do to an order however the area is
-   * owned (FR-ADM-10, FR-ORD-02). It is not a conflict for the exchange to
-   * resolve — it is a fact the exchange has to read.
-   */
+  /** What the customer may do however the area is owned (FR-ADM-10,
+   * FR-ORD-02): a fact the exchange reads, not a conflict. */
   cancelAsCustomer: {
     label: 'calls the order off',
     run: async (ctx, args) => {

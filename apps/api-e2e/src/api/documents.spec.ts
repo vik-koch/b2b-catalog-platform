@@ -6,14 +6,9 @@ import { Client } from 'pg';
 import sharp from 'sharp';
 import { mediaPath, requireEnv } from '../support/env';
 
-/**
- * Product documents (FR-DOC-01/02) — the upload pipeline, the row's CRUD and
- * the links to the products a document is shown on.
- *
- * Against the real store and database on purpose: the one thing this feature
- * promises is that a certificate comes back byte-identical, which is only
- * provable by reading the file back off the volume.
- */
+/** Product documents (FR-DOC-01/02): upload, the row's CRUD, the product
+ * links. Against the real store: a certificate must come back byte-identical
+ * off the volume. */
 
 // The LocalMediaStore writes documents to <MEDIA_ROOT>/documents.
 const storedBytes = (url: string): Promise<Buffer> =>
@@ -147,7 +142,7 @@ describe('Product documents (FR-DOC-01)', () => {
     expect(res.status).toBe(200);
   }
 
-  /** An ISO day `days` from today — the expiry states are relative to now. */
+  /** An ISO day `days` from today: expiry states are relative to now. */
   function day(days: number): string {
     const date = new Date();
     date.setUTCDate(date.getUTCDate() + days);
@@ -505,7 +500,7 @@ describe('Product documents (FR-DOC-01)', () => {
         productSlugs: [mine, other],
       });
 
-      // The product save sends the whole set *from its side* — here, none.
+      // The product save sends the whole set from its side: here, none.
       const product = await get(`/admin/catalog/products/${mine}`);
       const saved = await put(`/admin/catalog/products/${mine}`, {
         ...productBody(product.data),
@@ -623,7 +618,7 @@ describe('Product documents (FR-DOC-01)', () => {
       expect(res.data.documents.map((d: { title: string }) => d.title)).toEqual(
         [`Sooner ${R}`, `Later ${R}`, `Undated ${R}`],
       );
-      // The file, and what pressing it costs — nothing about dates.
+      // The file, and what pressing costs, nothing about dates.
       expect(res.data.documents[2]).toEqual({
         title: `Undated ${R}`,
         file: {

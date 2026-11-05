@@ -52,8 +52,7 @@ describe('parseCatalogSyncCsv', () => {
   });
 
   it('refuses a file with a quote nobody closed, naming the line', () => {
-    // The rows after the break would otherwise be swallowed into one field and
-    // vanish without a word — the worst possible outcome for an import.
+    // Otherwise the rows after it vanish silently into one field.
     expect(() =>
       parseCatalogSyncCsv('sourceId,name\n"A-1","Beans\n"A-2","Rice"\n'),
     ).toThrow(/Unclosed quote at line 3/);

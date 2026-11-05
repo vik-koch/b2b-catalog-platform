@@ -5,11 +5,9 @@ import { ROUTE_ACCESS } from '@b2b-catalog-platform/shared/node';
 import { requireEnv } from '../support/env';
 
 /**
- * Every route in ROUTE_ACCESS, knocked on by everyone who must be turned away
- * (NFR-SEC-04). The API's route-access spec proves what each route declares;
- * this proves the running API refuses accordingly — a guest, a customer on
- * staff routes, a manager on admin-only ones, a cookie on machine routes, and a
- * machine token anywhere but its own scope.
+ * Every route in ROUTE_ACCESS, knocked on by everyone it must refuse
+ * (NFR-SEC-04): a guest, a customer on staff routes, a manager on admin-only
+ * ones, a cookie on machine routes, a token outside its scope.
  *
  * Guards run before validation and before the handler, so a placeholder fills
  * every path parameter and an empty body every write: nothing here reaches a

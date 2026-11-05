@@ -18,10 +18,9 @@ export async function setup() {
   });
 
   // 1. Start this suite's own Postgres and Mailpit afresh (compose.api-e2e.yml):
-  // recreating them empties the tmpfs database and the inbox, so no state from
-  // an earlier run — an area left owned, maintenance left on — leaks into this
-  // one. The env carries .env.serve-e2e (see vite.config.ts), and the OS env
-  // beats compose's own .env lookup.
+  // recreating them empties the tmpfs database and the inbox, so no earlier
+  // state (an area owned, maintenance on) leaks in. The env carries
+  // .env.serve-e2e (vite.config.ts), and the OS env beats compose's .env.
   execSync(
     'docker compose -f compose.api-e2e.yml up -d --wait --force-recreate',
     { cwd: workspaceRoot, stdio: 'inherit' },
@@ -55,14 +54,13 @@ export async function setup() {
 
 export async function teardown() {
   // The API process is managed by Nx (continuous api:serve-e2e dependency) and
-  // the containers stay up for inspecting a failure — nothing to stop here
-  // besides making sure the suite's own port is released when the server was
-  // started outside of Nx.
+  // the containers stay up for inspecting a failure; only the suite's port is
+  // released when the server started outside Nx.
   console.log('\nTearing down...\n');
   const port = Number(requireEnv('API_PORT'));
   try {
     await killPort(port);
   } catch {
-    // Port already released — fine.
+    // Port already released: fine.
   }
 }

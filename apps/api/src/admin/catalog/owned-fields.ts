@@ -8,17 +8,11 @@
 import { ProductTierPrice } from '@b2b-catalog-platform/shared/admin/catalog';
 
 /**
- * The product fields an owning system writes, named as they appear in the
- * admin write contract so the guard can compare an input against what is
- * stored without a translation table in between.
- *
- * `sourceId` is here because it is the key the exchange matches on: an admin
- * retyping it does not edit a product, it hands the exchange a stranger and
- * orphans the row it meant to change.
- *
- * `lowStockThresholdPieces` is deliberately absent. It reads the stock figure
- * but does not carry it — it is the shop's own "few left" wording rule, and
- * the exchange has no opinion about it.
+ * The product fields an owning system writes, named as in the admin write
+ * contract so the guard compares input and row directly. `sourceId` is the
+ * exchange's key: retyping it hands the exchange a stranger. Not
+ * `lowStockThresholdPieces`: the shop's own "few left" rule, which the
+ * exchange does not carry.
  */
 export const OWNED_PRODUCT_FIELDS = [
   'name',
@@ -32,30 +26,19 @@ export const OWNED_PRODUCT_FIELDS = [
 export type OwnedProductField = (typeof OWNED_PRODUCT_FIELDS)[number];
 
 /**
- * The category fields an owning system writes. Far shorter than the product
- * list, and the asymmetry is the point: the exchange says which leaf a product
- * hangs on and what that leaf is called, while the shape of the tree above it
- * — parent, order, nickname, mark — is presentation the shop has
- * always owned (the export carries no parent path at all).
+ * The category fields an owning system writes: which leaf a product hangs on
+ * and its name. Parent, order, nickname and mark stay the shop's; the export
+ * carries no parent path.
  */
 export const OWNED_CATEGORY_FIELDS = ['name', 'sourceId'] as const;
 export type OwnedCategoryField = (typeof OWNED_CATEGORY_FIELDS)[number];
 
 /**
- * The customer-tier field an owning system writes — the `key` a price column
- * addresses the list by (`price:<key>`), which is a sync key exactly as
- * `sourceId` is: retyping it does not rename a price list, it points the
- * exchange at a list nobody has.
- *
- * Everything else about a tier stays the shop's, and deliberately so. The
- * `label` and the display order are staff-facing wording the exchange never
- * carries — a run sends prices keyed by `key` and nothing more — so freezing
- * them would be freezing a field against no second writer. Creating a tier
- * stays open because it is how an admin answers the `unknown-price-list` row
- * error without handing the catalog back first; it writes no price, so there
- * is nothing for two writers to contend over. Deleting one stays open because
- * a tier holding prices or accounts is already refused, which leaves only a
- * list nothing uses.
+ * The tier field an owning system writes: the `key` a price column addresses
+ * (`price:<key>`), a sync key like `sourceId`. Label and order are staff
+ * wording no run carries. Creating a tier stays open, as it answers an
+ * `unknown-price-list` row error and writes no price; deleting one too, as a
+ * tier with prices or accounts is refused anyway.
  */
 export const OWNED_TIER_FIELDS = ['key'] as const;
 export type OwnedTierField = (typeof OWNED_TIER_FIELDS)[number];

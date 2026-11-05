@@ -14,13 +14,8 @@ const SETTLED_CUSTOMER_EMAIL = 'anna.behrens@mail.example';
 const OWING_CUSTOMER_EMAIL = 'einkauf@cafe-nordlicht.example';
 
 /*
- * Work awaiting attention (FR-WORK-01…04) in a real browser: the marker on the
- * account control, the counts on the panel, and the fact that each one lands
- * on the list narrowed to the rows it counted.
- *
- * Read-only. The counts are queries over seeded state — pending registrations
- * and unanswered order requests — so nothing here has to create work to have
- * some, and nothing it does changes what another spec asserts.
+ * Work awaiting attention (FR-WORK-01…04) in a browser: the marker, the panel's
+ * counts, and each landing on the list it counted. Read-only, over seeded work.
  */
 
 async function logIn(page: Page, email: string, password: string) {
@@ -30,9 +25,8 @@ async function logIn(page: Page, email: string, password: string) {
   await page.getByRole('button', { name: 'Log in' }).click();
 }
 
-/** The account control, whose accessible name carries the marker's figure.
- * Two of them below the `sm` breakpoint — the header's and the bottom bar's —
- * so callers take the first and count rather than assert visibility. */
+/** The account control, its name carrying the figure. Below `sm` there are two
+ * (header and bottom bar), so callers take the first. */
 const marked = (page: Page) =>
   page.getByRole('link', { name: /awaiting your attention/ });
 
@@ -70,12 +64,8 @@ test.describe('work awaiting attention', () => {
     await expect(page.getByLabel('Filter by status')).toHaveValue('pending');
   });
 
-  /**
-   * FR-WORK-04 from the other side. A customer is shown only what waits on
-   * them in their own orders — an order of theirs that is complete and paid
-   * waits on nobody, so the control stays unmarked. Which is also the check
-   * that the staff queues are never leaked to them.
-   */
+  /** FR-WORK-04 from the customer's side: a complete, paid order waits on
+   * nobody, so no marker, and no staff queue leaks. */
   test('leaves a settled customer’s account control unmarked', async ({
     page,
   }) => {
@@ -85,10 +75,8 @@ test.describe('work awaiting attention', () => {
     await expect(marked(page)).toHaveCount(0);
   });
 
-  /** And the other half: money due from the customer is work only they can
-   * finish, so it marks their control and says so above their own orders.
-   * Counted apart from an order packed for them to collect — the two are
-   * separate jobs, and a customer with both needs telling about both. */
+  /** And money due is work only the customer finishes, so it marks their
+   * control, counted apart from an order to collect. */
   test('marks a customer who owes for an order', async ({ page }) => {
     await logIn(page, OWING_CUSTOMER_EMAIL, DEMO_PASSWORD);
     await expect(page).toHaveURL(/\/account$/);

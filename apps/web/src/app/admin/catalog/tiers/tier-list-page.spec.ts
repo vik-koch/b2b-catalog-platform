@@ -35,7 +35,7 @@ function tier(overrides: Partial<CustomerTier> = {}): CustomerTier {
   };
 }
 
-/** The list the storefront quotes — a row like any other, badge aside. */
+/** The storefront's list: a row like any other, badge aside. */
 function defaultTier(overrides: Partial<CustomerTier> = {}): CustomerTier {
   return tier({
     id: 'tier-default',
@@ -209,8 +209,8 @@ describe('TierListPage', () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
-    // The move answers with the whole list, so the screen is not reloaded —
-    // and the badge is where the answer put it.
+    // The move answers with the whole list: no reload, and the badge where the
+    // answer put it.
     expect(service.list).toHaveBeenCalledTimes(1);
     expect(el.querySelectorAll('li')[1].textContent).toContain(
       text.defaultBadge,
@@ -395,8 +395,8 @@ describe('TierListPage', () => {
 
       await drop(2, 1);
 
-      // Positions carry no meaning of their own — only the sequence does — so
-      // every row is renumbered rather than given a fractional index.
+      // Only the sequence means anything, so every row is renumbered, never
+      // given a fractional index.
       expect(service.reorder).toHaveBeenCalledWith({
         order: [
           { id: 'a', sortOrder: 0 },

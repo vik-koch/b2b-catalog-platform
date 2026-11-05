@@ -27,7 +27,7 @@ export interface ServedDocument {
 }
 
 /**
- * The documents an order carries (FR-ORD-05, ADR 0052). Only supplied files are
+ * The documents an order carries (FR-ORD-05). Only supplied files are
  * rows; the summary is drawn on demand from the `OrderDetail` the caller
  * already resolved, so who may read which version is asked once.
  */
@@ -41,7 +41,7 @@ export class OrderDocumentsService {
 
   /**
    * What the customer may open: the summary always, and a supplied file unless
-   * it was filed against a version their page has not reached (ADR 0051).
+   * it was filed against a version their page has not reached.
    * Payment instructions only while money is due or paid (FR-ORD-04): never
    * before acceptance, never on an unpaid order that ended.
    */
@@ -221,7 +221,7 @@ export class OrderDocumentsService {
 
   /**
    * Files a document, replacing any of that kind. Writes no version: a file
-   * changes nothing the order says (ADR 0051).
+   * changes nothing the order says.
    */
   async supply(
     reference: string,

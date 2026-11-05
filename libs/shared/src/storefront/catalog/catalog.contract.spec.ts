@@ -1,10 +1,7 @@
 import { productListQuerySchema } from './catalog.contract';
 
-/**
- * A query string has no array type, so one selected value and several arrive
- * as different things — and the panel is one checkbox away from crossing that
- * line either way.
- */
+/** A query string has no arrays, so one value and several arrive as
+ * different things, one checkbox apart. */
 describe('productListQuerySchema.attr', () => {
   const attr = (query: Record<string, unknown>) =>
     productListQuerySchema.parse(query).attr;

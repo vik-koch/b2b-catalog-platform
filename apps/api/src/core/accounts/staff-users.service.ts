@@ -104,7 +104,7 @@ export interface ListUsersFilters {
   readonly role?: UserRole;
   /** A tier id, or `'default'` for the base price list (a null `tierId`). */
   readonly tierId?: string;
-  /** A `companyIdInput.formats` key — which shape the number is in. */
+  /** A `companyIdInput.formats` key: the shape the number is in. */
   readonly companyIdFormat?: string;
   readonly q?: string;
 }

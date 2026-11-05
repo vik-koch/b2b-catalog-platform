@@ -79,7 +79,7 @@ async function render(
   fixture.detectChanges();
 
   const el = fixture.nativeElement as HTMLElement;
-  /** Settles the pending request and re-renders — every interaction ends here. */
+  /** Settles the pending request and re-renders, as every interaction ends. */
   const flush = async () => {
     await fixture.whenStable();
     fixture.detectChanges();
@@ -162,9 +162,8 @@ describe('AttributeListPage', () => {
   });
 
   it('sends each definition to the values in use under its name', async () => {
-    // The pair to the inventory's own link back. The name is what the two
-    // screens share — a definition matches product attributes by name, exactly
-    // — so it is the name, not the slug, that travels.
+    // The pair to the inventory's link back. A definition matches attributes by
+    // name, so the name travels, not the slug.
     const { el } = await render({
       definitions: [definition({ name: 'Roast level', slug: 'roast-level' })],
     });

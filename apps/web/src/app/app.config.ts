@@ -44,14 +44,14 @@ export const appConfig: ApplicationConfig = {
     { provide: ErrorHandler, useClass: BenignErrorFilter },
     // View transitions let the browser cross-fade the outgoing and incoming
     // pages natively, which is most of what makes a client-side navigation feel
-    // less abrupt. Browsers without the API simply swap as before, so this is
-    // additive — there is no fallback to write.
+    // less abrupt. Browsers without the API just swap pages, so there is no
+    // fallback to write.
     provideRouter(
       appRoutes,
       withComponentInputBinding(),
       withViewTransitions({ skipInitialTransition: true }),
-      // A new navigation starts at the top — paging through a grid otherwise
-      // leaves the visitor halfway down the next page. Back and forward return
+      // A new navigation starts at the top, or paging a grid leaves the
+      // visitor halfway down. Back and forward return
       // to where the visitor was; the URL carries the page, sort and filters,
       // so the listing it returns to is the one they left. The router restores
       // before a listing has loaded, so ScrollRestoration repeats it after.
@@ -81,10 +81,9 @@ export const appConfig: ApplicationConfig = {
     // not when the cart page is next opened.
     //
     // Browser-only at the initializer rather than only inside the service: a
-    // cart lives in storage the server cannot read, so there is nothing for it
-    // to do during a render — and constructing it there would pull the auth
-    // and pricing clients into every place the app is merely *booted*, the
-    // build's route extraction included.
+    // cart lives in storage the server cannot read, and constructing it there
+    // would pull the auth and pricing clients into every boot, the build's
+    // route extraction included.
     provideEnvironmentInitializer(() => {
       if (isPlatformBrowser(inject(PLATFORM_ID))) inject(CartRepricing);
     }),

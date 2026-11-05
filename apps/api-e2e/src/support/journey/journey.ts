@@ -1,36 +1,16 @@
 import { expect } from 'vitest';
 
 /**
- * A journey is a sequence of steps through one subject's life, written as data.
- *
- * The per-move specs answer "may this move happen, and what does it do". They
- * cannot answer what an order looks like after four moves — which version the
- * customer is on, what they have already been written to about, whether a
- * document filed two versions ago still stands — because those facts only exist
- * once several moves have accumulated. That is what a journey walks.
- *
- * Written as data rather than as code for one reason: the same literal is read
- * twice, once by the runner that asserts it against the API and once by
- * `tools/generate-order-journeys.mjs`, which renders it into the documentation.
- * A journey cannot describe behaviour nobody checks, and a check cannot go
- * undocumented.
- *
- * Nothing here is about orders. The order journeys supply an adapter; the
- * account ones (registration, approval, tier, deactivation, deletion) will
- * supply their own and reuse everything in this file.
+ * A journey: steps through one subject's life, as data. It asks what only
+ * several moves accumulate: the customer's version, what they were told,
+ * whether an old document stands. Data, as the runner asserts it against the
+ * API and the `tools/generate-*` scripts render it, so checks and docs are one.
+ * Each subject supplies an adapter; nothing here knows one.
  */
 
-/**
- * What a probe reads.
- *
- * A `state` probe answers "where does this stand", and its answer carries
- * forward: a step that says nothing about it is asserting that it did not
- * change. An `event` probe answers "what happened just now" — mail is the one
- * that matters here — and carries nothing forward: a step that says nothing
- * about it is asserting that nothing happened.
- *
- * The distinction is the whole reason sparse journeys are safe to write.
- */
+/** What a probe reads. A `state` probe carries forward: silence asserts no
+ * change. An `event` probe (mail) does not: silence asserts nothing happened.
+ * That makes sparse journeys safe. */
 export type ProbeKind = 'state' | 'event';
 
 export interface Probe<Ctx> {
@@ -70,7 +50,7 @@ export interface JourneyStep {
 export interface Journey {
   readonly slug: string;
   readonly title: string;
-  /** What this journey is for — the case it covers that no other one does. */
+  /** What this journey is for: the case no other covers. */
   readonly note: string;
   /** The order it starts from, in prose: how it was placed and paid for. */
   readonly given: string;

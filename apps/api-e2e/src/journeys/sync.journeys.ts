@@ -1,18 +1,10 @@
 import type { Journey } from '../support/journey/journey';
 
 /**
- * What an automated catalog feed puts in front of the shop, as data.
- *
- * Read twice, like the order and account ones: `sync-journeys.spec.ts` walks
- * them against the running API, and `tools/generate-catalog-sync.mjs` renders
- * them into `docs/catalog-sync.md`.
- *
- * They exist for the silences. Three of the four messages a feed sends are
- * sent on a **change of state** — the first failure after things were working,
- * the recovery, the moment something starts waiting for a person — and a claim
- * like "the second failure is silent" cannot be made about one run. Every step
- * here that says nothing about mail is asserting that none was sent, which is
- * most of the steps and the whole point.
+ * What a catalogue feed shows the shop, as data: walked by
+ * `sync-journeys.spec.ts`, rendered by `tools/generate-catalog-sync.mjs`. For
+ * the silences: three of four messages go on a change of state, and "the
+ * second failure is silent" needs several runs.
  */
 
 export interface SyncJourney extends Journey {
@@ -60,8 +52,8 @@ export const syncJourneys: readonly SyncJourney[] = [
         actor: 'system',
         action: 'submit',
         // The same rows as the first export: nothing to create, nothing to
-        // change, so the catalog reads `no change` — and the recovery is still
-        // announced, because what recovered is the connection, not the data.
+        // change, so `no change`, yet the recovery is announced: the connection
+        // recovered, not the data.
         expect: { run: 'no change', mail: ['syncRecovered'] },
       },
     ],
@@ -101,9 +93,8 @@ export const syncJourneys: readonly SyncJourney[] = [
         what: 'The admin discards it.',
         actor: 'admin',
         action: 'discard',
-        // The queue clears because the work was done, not because anybody
-        // dismissed a notice — and a decision the admin took needs no mail
-        // telling them they took it.
+        // The queue clears because the work was done, and the admin's own
+        // decision needs no mail.
         expect: { run: 'discarded', waiting: 0 },
       },
       {
@@ -162,8 +153,7 @@ export const syncJourneys: readonly SyncJourney[] = [
         actor: 'system',
         action: 'submit',
         args: { from: 3, count: 4, price: 1500 },
-        // The source and the catalog agree, so there is nothing to apply and
-        // nothing to decide — and a run with nothing in it is never work.
+        // Source and shop agree: nothing to apply or decide, so no work.
         expect: { run: 'no change' },
       },
     ],

@@ -14,14 +14,14 @@ export const storefrontOrderingTextShape = {
       /** The header control's label, and the page's own title. */
       navLabel: z.string(),
       title: z.string(),
-      /** The header control's accessible name; `{count}` lines, `{total}`
-       * money — one sentence, because a badge read on its own says nothing. */
+      /** The header control's accessible name: `{count}` lines, `{total}`
+       * money, in one sentence, as a badge alone says nothing. */
       summaryAria: z.string(),
       empty: z.string(),
       emptyAction: z.string(),
       loadError: z.string(),
-      /** The browser refused to store the cart — a full quota, or storage
-       * turned off. Said out loud rather than losing the cart in silence. */
+      /** The browser refused to store the cart (a full quota, storage off):
+       * said rather than losing the cart in silence. */
       storageFailed: z.string(),
 
       /** The cart page. */
@@ -39,9 +39,8 @@ export const storefrontOrderingTextShape = {
       /** `{count}` lines in the message. */
       deleteSelectedConfirm: confirmText,
 
-      /** Leaves the cart for the checkout form, and goes back to the shelf
-       * the visitor was standing at — the category, page and filters the URL
-       * was carrying, or the catalogue where this visit has seen none. */
+      /** To the checkout form, and back to the shelf the visitor stood at: the
+       * URL's category, page and filters, or the catalogue. */
       checkout: z.string(),
       continueShopping: z.string(),
       /**
@@ -59,8 +58,8 @@ export const storefrontOrderingTextShape = {
           /** The quantity was rounded to one the shop can supply; the line
            * itself shows the figure that stands, so this names none. */
           quantity: z.string(),
-          /** `{from}` and `{to}` are what the line cost and costs — the line
-           * total, which is the figure the customer is about to pay. */
+          /** `{from}` and `{to}`: the line total before and now, what the
+           * customer is about to pay. */
           price: z.string(),
           /** The line can no longer be priced exactly, so it is confirmed by
            * hand instead. */
@@ -73,44 +72,30 @@ export const storefrontOrderingTextShape = {
         })
         .strict(),
 
-      /**
-       * What preview says about a line. `unavailable` covers withdrawn,
-       * unpublished and never-existed alike — the endpoint does not
-       * distinguish them, and neither may the wording.
-       */
+      /** What preview says about a line. `unavailable` covers withdrawn,
+       * unpublished and never-existed alike, as the endpoint does. */
       issues: z
         .object({
           unavailable: z.string(),
-          /** Said where the product is no longer packed the way the line was
-           * being read: the pieces are untouched and the quantity has fallen
-           * back to them, so this reports a move rather than a refusal. */
+          /** The product lost the unit the line was read in: the pieces stand,
+           * so this reports a move, not a refusal. */
           unitUnavailable: z.string(),
-          /** Said wherever a quantity was rounded to one the shop can
-           * supply — by a keystroke here, or by the server on a cart that
-           * sat. Names no figures: the field beside it already shows the one
-           * that stands. */
+          /** A quantity was rounded to one the shop supplies, here or by the
+           * server. No figures: the field shows the one that stands. */
           quantityCorrected: z.string(),
           noteNotAllowed: z.string(),
           priceUnavailable: z.string(),
-          /** The product is listed and priced but cannot be ordered
-           * (FR-STOCK-04) — the badge says the state, and this says what it
-           * means for the order. */
+          /** Listed and priced but not orderable (FR-STOCK-04): the badge says
+           * the state, this what it means for the order. */
           outOfStock: z.string(),
         })
         .strict(),
       /**
-       * What a cart is missing of what its products are sold with
-       * (FR-SET-02/03/04). The shortfall is per line and is said in two
-       * halves, because only the first of them is the link that opens the
-       * counterparts: `shortAction` is the words to press — `{count}` pieces
-       * and `{unit}` the piece abbreviation — and `shortReason` is the rest
-       * of the sentence, in plain text. Where the split falls is a matter of
-       * grammar, which is why it is text rather than code.
-       *
-       * The two summaries sit in the order card above the checkout button:
-       * `summary` where an unsatisfied pairing is advisory,
-       * `summaryEnforced` where the deployment refuses on it and the button
-       * is disabled.
+       * What a cart lacks of what its products are sold with
+       * (FR-SET-02/03/04), per line in two halves: `shortAction` is the link
+       * to press (`{count}` pieces, `{unit}`), `shortReason` the rest. The
+       * split is grammar, so text. In the order card, `summary` advises and
+       * `summaryEnforced` stands beside a disabled button.
        */
       pairing: z
         .object({
@@ -122,27 +107,19 @@ export const storefrontOrderingTextShape = {
         .strict(),
     })
     .strict(),
-  /**
-   * Checkout: the one form the cart leads into, and the preview it sends
-   * from (FR-CART-03/04/07/09). What a *choice* means is worded here; what a
-   * deployment offers — its zones, its offices — comes from deployment
-   * config, so the two are never two copies of the same fact.
-   */
+  /** Checkout and its preview (FR-CART-03/04/07/09). What a choice means
+   * is worded here; what a deployment offers (zones, offices) is config. */
   checkout: z
     .object({
       title: z.string(),
       /** One line under the heading, saying what this is: a request a
        * manager confirms, not a purchase being completed. */
       intro: z.string(),
-      /** Sent here with nothing to order — the cart emptied in another tab,
-       * or the URL was typed. */
+      /** Here with nothing to order: the cart emptied in another tab, or the
+       * URL was typed. */
       emptyCart: z.string(),
-      /**
-       * Offered to a visitor with no session, next to the figures it is
-       * about: prices are tiered, so a customer who checks out as a guest is
-       * quoted the lowest tier's. An offer, never a gate — registration needs
-       * a manager's approval and could not finish this order anyway.
-       */
+      /** Offered to a guest beside the figures: a guest pays the default
+       * list. An offer, never a gate, as registration waits for a manager. */
       signInPrompt: z.string(),
       signInAction: z.string(),
       /** A signed-in account with no telephone number cannot place an order:
@@ -150,12 +127,9 @@ export const storefrontOrderingTextShape = {
        * rather than left to a refusal, which arrives after the review. */
       phoneMissing: z.string(),
       phoneMissingAction: z.string(),
-      /**
-       * Everything a guest is asked about themselves (FR-CART-03/09) — who
-       * is invoiced and how to reach them, which for a private person is one
-       * answer. A signed-in customer sees none of it: the account answers
-       * the contact, and the party row offers it as a choice.
-       */
+      /** What a guest is asked about themselves (FR-CART-03/09): who is
+       * invoiced and how to reach them. A signed-in customer sees none of it:
+       * the account answers. */
       contact: z
         .object({
           heading: z.string(),
@@ -165,25 +139,21 @@ export const storefrontOrderingTextShape = {
            * we ring about the order. */
           contactName: z.string(),
           nameRequired: z.string(),
-          /** What the details are for — a guest is handing a phone number to
-           * a shop they have no account with. */
+          /** What the details are for: a guest hands a phone number to a shop
+           * they have no account with. */
           note: z.string(),
         })
         .strict(),
-      /**
-       * Who the order is invoiced to (FR-CART-09) — the account's own party
-       * or somebody else. The *address* row asks where the paperwork goes;
-       * this asks whose name is on it.
-       */
+      /** Who is invoiced (FR-CART-09): the account's party or somebody
+       * else; the address row asks where the paperwork goes. */
       party: z
         .object({
           heading: z.string(),
-          /** The account's own party, where its name is not known yet — a
-           * natural person is named, not labelled. */
+          /** The account's own party while its name is unknown: a person is
+           * named, not labelled. */
           own: z.string(),
-          /** Anybody but the account. One option rather than two, with the
-           * kind of party asked inside it — the same switch registration
-           * puts at the top of its own form. */
+          /** Anybody but the account: one option, the kind of party asked
+           * inside, as registration asks it. */
           other: z.string(),
           /** The name of a person being invoiced, which is the whole of what
            * a private party is. */
@@ -203,13 +173,13 @@ export const storefrontOrderingTextShape = {
         .object({
           deliveryHeading: z.string(),
           billingHeading: z.string(),
-          /** Pickup asks for one address anyway — it belongs to the party
-           * being invoiced, not to whoever carries the goods. */
+          /** Pickup still asks one address: the invoiced party's, not the
+           * carrier's. */
           billingOnlyHeading: z.string(),
           /** The checked default: unchecking reveals a second picker. */
           sameAsDelivery: z.string(),
-          /** The last option of a picker that has rows to offer. With none
-           * there is no list and no option — the fields stand alone. */
+          /** A picker's last option where it has rows; without rows the fields
+           * stand alone. */
           addNew: z.string(),
           loadError: z.string(),
           /** Whether to keep a newly typed address for next time. */
@@ -222,7 +192,7 @@ export const storefrontOrderingTextShape = {
        */
       zone: z
         .object({
-          /** `{zone}` — the configured zone's own title. */
+          /** `{zone}`: the configured zone's title. */
           resolved: z.string(),
           /** `{amount}` short of the free-delivery threshold. */
           shortOf: z.string(),
@@ -245,10 +215,9 @@ export const storefrontOrderingTextShape = {
        */
       timing: z
         .object({
-          /** What an empty field says. A native date input cannot take a
-           * `placeholder`, and what it draws instead is a different thing in
-           * every engine — "dd.mm.yyyy" on a desktop, an empty box on iOS —
-           * so the field draws this itself. */
+          /** What an empty field says. A native date input takes no
+           * `placeholder` and draws something else per engine, so the field
+           * draws this. */
           placeholder: z.string(),
           /** Which days are on offer, in words: a native picker can grey out
            * what falls before the floor but not every weekend after it. */
@@ -259,12 +228,8 @@ export const storefrontOrderingTextShape = {
           unavailable: z.string(),
         })
         .strict(),
-      /**
-       * How it is paid (FR-CART-04). Recorded, never executed — nothing here
-       * charges anybody, and the wording must not suggest otherwise. Card is
-       * not offered: it is reachable only after a manager approves the
-       * request (FR-CART-06).
-       */
+      /** How it is paid (FR-CART-04): recorded, never charged, and the
+       * wording says so. No card: it comes only after approval (FR-CART-06). */
       payment: z
         .object({
           heading: z.string(),
@@ -293,11 +258,8 @@ export const storefrontOrderingTextShape = {
           placeholder: z.string(),
         })
         .strict(),
-      /**
-       * The read-back before it is sent (ADR 0039) — the second of the two
-       * screens. Every heading is one of the questions the form asked, in
-       * the order it asked them.
-       */
+      /** The read-back before sending, the second screen: each heading a
+       * question the form asked, in its order. */
       review: z
         .object({
           title: z.string(),
@@ -314,17 +276,14 @@ export const storefrontOrderingTextShape = {
         .strict(),
       submit: z.string(),
       successHeading: z.string(),
-      /** `{reference}` — the number to quote when asking about the order. */
+      /** `{reference}`: the number to quote when asking about the order. */
       success: z.string(),
-      /** Opens the order that was just sent — the account's own page for a
-       * customer, the mailed link's page for a guest. */
+      /** Opens the order just sent: the account's page for a customer, the
+       * mailed link's for a guest. */
       successView: z.string(),
       successAction: z.string(),
-      /**
-       * What a refusal means, in the customer's words. The API answers with
-       * a code and never with a sentence, so every one of them is named
-       * here — an unmapped code would be a blank screen.
-       */
+      /** What a refusal means, in the customer's words: the API sends codes,
+       * and an unmapped one is a blank screen. */
       errors: z
         .object({
           /** The form itself is not finished; the fields say which. Says
@@ -350,9 +309,8 @@ export const storefrontOrderingTextShape = {
           /** The cart was re-priced under them; the corrected figures are
            * already on screen by the time this is read. */
           cartChanged: z.string(),
-          /** The deployment enforces pairings and the cart is short
-           * (FR-SET-04) — only reachable from a page out of step with the
-           * cart, which disables its own button on the same figures. */
+          /** Pairings enforced and the cart short (FR-SET-04): only from a page
+           * out of step, as the cart disables its button. */
           pairingUnsatisfied: z.string(),
           /** Anything else at all. */
           generic: z.string(),
@@ -375,19 +333,17 @@ export const storefrontOrderingTextShape = {
           conditionsMore: z.string(),
           /** A zone's free-delivery minimum; `{amount}` is substituted. */
           freeFrom: z.string(),
-          /** Shown for a zone that quotes no minimum — said out loud, so an
-           * absent line does not read as an unstated free threshold. */
+          /** For a zone with no minimum, said so a missing line does not read
+           * as an unstated threshold. */
           noFreeDelivery: z.string(),
           /** Shown for a zone the deployment does not deliver to, in place
            * of a threshold. */
           noDelivery: z.string(),
-          /** Heading of the office list, which stands under the cards as
-           * the pickup answer to the delivery address — not inside the card,
-           * where it would be a second question asked in the margin. */
+          /** The office list's heading, under the cards as pickup's answer to
+           * the address, not a question in the card's margin. */
           pickupHeading: z.string(),
-          /** Shown under the collection points when the form is submitted
-           * without one chosen — the radio group has no control of its own to
-           * carry the error. */
+          /** Under the collection points when none was chosen: the radio group
+           * has no control to carry the error. */
           pickupRequired: z.string(),
           /** Opens one office's map, the same embed the contact page uses. */
           mapLink: z.string(),
@@ -395,24 +351,17 @@ export const storefrontOrderingTextShape = {
         .strict(),
     })
     .strict(),
-  /**
-   * Order requests, wherever they are read — the account's own list, one
-   * order in full, and the summary a mailed link opens. One section: the
-   * three views describe the same thing and must not word it differently.
-   *
-   * An order is a request (FR-ACC-01): the wording never promises a
-   * confirmed sale, and the status is where the shop stands with it rather
-   * than a shipping state.
-   */
+  /** Order requests wherever read: the list, one order, the mailed link's
+   * summary, worded alike. A request (FR-ACC-01): never a promised sale,
+   * and the status is the shop's stand, not shipping. */
   orders: z
     .object({
       heading: z.string(),
       /** The account-page card, which only links to the list. */
       intro: z.string(),
       action: z.string(),
-      /** `{count}` of the account's own orders waiting to be paid for, and
-       * `{count}` packed and waiting to be collected (FR-WORK-03) — the two
-       * things that wait on the account holder, counted and linked apart. */
+      /** `{count}` orders awaiting payment, and `{count}` packed for
+       * collection (FR-WORK-03): what waits on the holder, apart. */
       awaitingPayment: z.string(),
       awaitingPickup: z.string(),
       /** How the history says it is narrowed to one of those two, as a chip
@@ -421,8 +370,8 @@ export const storefrontOrderingTextShape = {
       filterToCollect: z.string(),
       /** The chip's dismiss control; `{label}` is the chip's own words. */
       filterRemoveAria: z.string(),
-      /** Where the narrowed history has nothing in it — the queue emptied
-       * between the marker being drawn and the link being followed. */
+      /** The narrowed history is empty: the queue emptied after the marker
+       * was drawn. */
       filterEmpty: z.string(),
       empty: z.string(),
       emptyAction: z.string(),
@@ -440,16 +389,11 @@ export const storefrontOrderingTextShape = {
         .object({
           /** `{date}` the request was sent. */
           placed: z.string(),
-          /** Somebody else's reference, or one that never existed —
-           * the API tells the two apart for nobody. */
+          /** Somebody else's reference or none: the API tells nobody which. */
           notFound: z.string(),
           backToList: z.string(),
-          /**
-           * What the customer can open on the order (FR-ORD-05): the
-           * summary the shop draws, and the payment details where it has
-           * supplied them. Not a heading per kind of file — a document is
-           * named by what it is for, not by its format.
-           */
+          /** What the customer can open (FR-ORD-05): the summary, and the
+           * payment details where supplied, each named for its purpose. */
           documents: z
             .object({
               heading: z.string(),
@@ -464,28 +408,20 @@ export const storefrontOrderingTextShape = {
           cancel: z
             .object({
               action: z.string(),
-              /** Why — the shop reads it, so it is asked for rather than
-               * optional. */
+              /** Why: the shop reads it, so it is asked for. */
               reasonLabel: z.string(),
               error: z.string(),
             })
             .strict(),
-          /**
-           * Its dialog. The `warning` is said only where a payment has
-           * already been recorded against the order (FR-ORD-04). The
-           * platform records money arriving and never moves it, so
-           * cancelling here settles nothing — and this sentence is the only
-           * place anybody is told that.
-           */
+          /** Its dialog. `warning` only where a payment is recorded
+           * (FR-ORD-04): the platform never moves money, and this is the
+           * only place that says cancelling settles nothing. */
           cancelConfirm: confirmText,
           error: z.string(),
         })
         .strict(),
-      /**
-       * The summary a mailed link opens (FR-NOTIF-06), readable without
-       * signing in — for a guest, who has no account to read the order from,
-       * the only record of what they sent.
-       */
+      /** The summary a mailed link opens (FR-NOTIF-06), without signing in:
+       * a guest's only record. */
       public: z
         .object({
           heading: z.string(),

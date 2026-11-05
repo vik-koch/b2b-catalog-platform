@@ -52,8 +52,8 @@ describe('the iteration-7 throttle presets', () => {
     return statuses;
   }
 
-  // The mailed order link's token is its only credential (ADR 0038), and this
-  // ceiling is what makes guessing at one pointless as well as hopeless.
+  // The mailed link's token is its only credential; this ceiling makes
+  // guessing pointless.
   it('caps the order token at 30 a minute', async () => {
     const statuses = await hammer('order-token', 31);
 

@@ -1,10 +1,7 @@
 import { firstOrderDate, isOrderDateAllowed } from './order-dates';
 
-/**
- * 2026-08-26 is a Wednesday, so the week around it reads: Fri 28, Sat 29,
- * Sun 30, Mon 31. Fixed dates rather than offsets from today — a rule about
- * weekends tested against "tomorrow" passes on four days in seven.
- */
+/** 2026-08-26 is a Wednesday: Fri 28, Sat 29, Sun 30, Mon 31. Fixed dates,
+ * as a weekend rule tested against "tomorrow" passes four days in seven. */
 describe('firstOrderDate', () => {
   it('is the next day on an ordinary weekday', () => {
     expect(firstOrderDate('2026-08-26')).toBe('2026-08-27');

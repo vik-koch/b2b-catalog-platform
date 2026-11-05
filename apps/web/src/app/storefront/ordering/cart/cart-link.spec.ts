@@ -69,8 +69,8 @@ async function render(platformId = 'browser', variant: 'bar' | 'tab' = 'bar') {
     text: () => normalize(el.textContent),
     // The header's caption steps aside for the total chip; the bottom bar's
     // does not, and says so by carrying no `cart-label` for the stylesheet to
-    // key on. What each control offers the stylesheet is the whole of the
-    // difference — see cart-figures.ts for where the figures come from.
+    // key on. That is the whole difference; the figures come from
+    // cart-figures.ts.
     chip: () => el.querySelector('.cart-total'),
     caption: () => el.querySelector('.cart-label'),
     // Intl separates a currency with a non-breaking space, which nothing in a

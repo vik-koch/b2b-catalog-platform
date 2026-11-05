@@ -4,14 +4,9 @@ import { Client } from 'pg';
 import { requireEnv } from '../support/env';
 import { ADDRESS_BOOK_MAX } from '@b2b-catalog-platform/shared/core/accounts';
 
-/**
- * The account's address book (FR-CART-04) and the suggestion proxy
- * (FR-CART-11), end to end against the real API and database.
- *
- * The question this suite exists for is scoping: every route reads the account
- * from the session, so one customer must never reach another's row — not with
- * a guessed id, and not with one they were handed.
- */
+/** The address book (FR-CART-04) and suggestion proxy (FR-CART-11), end to
+ * end, for scoping: every route reads the account from the session, so no
+ * customer reaches another's row by any id. */
 
 const SUFFIX = Math.random().toString(36).slice(2, 10);
 const OWNER_EMAIL = `e2e-addresses-owner-${SUFFIX}@example.com`;
@@ -268,11 +263,8 @@ describe('/account/addresses (FR-CART-04)', () => {
   });
 });
 
-/**
- * The suggestion proxy. The open deployment configures no adapter, so the
- * assertion is that it answers rather than fails — the field degrading to plain
- * typing is the documented default, not an outage.
- */
+/** The suggestion proxy without an adapter answers, not fails: plain typing
+ * is the default, no outage. */
 describe('/addresses/suggestions (FR-CART-11)', () => {
   it('answers a guest with an empty list when no provider is configured', async () => {
     const res = await axios.get('/addresses/suggestions?q=Hafenstra', {

@@ -3,14 +3,9 @@ import axios from 'axios';
 import { Client } from 'pg';
 import { requireEnv } from '../support/env';
 
-/**
- * The whole-catalogue listing (FR-CAT-02/03).
- *
- * The panel is one table for the whole deployment, so this is the only suite
- * that writes it: it takes the rows it finds, works on an empty panel, and puts
- * them back afterwards — another file editing it in parallel would pull the
- * rows out from under these assertions.
- */
+/** The whole-catalogue listing (FR-CAT-02/03). The panel is one table, so
+ * only this suite writes it: it lifts the rows, works empty and puts them
+ * back. */
 
 const ADMIN_EMAIL = 'e2e-catalog-root-admin@example.com';
 const MANAGER_EMAIL = 'e2e-catalog-root-manager@example.com';
@@ -173,8 +168,8 @@ describe('Whole-catalogue listing (FR-CAT-02, FR-ATTR-12)', () => {
     colourId = (await define(COLOR)).id;
     untouchedId = (await define(UNTOUCHED)).id;
 
-    // One brand across two categories — the case the panel exists for. Tools
-    // is ordered ahead of garden, against the alphabet.
+    // One brand across two categories, the panel's case. Tools comes before
+    // garden, against the alphabet.
     const tools = await addCategory(TOOLS, 1);
     const garden = await addCategory(GARDEN, 2);
     const hidden = await addCategory(HIDDEN);

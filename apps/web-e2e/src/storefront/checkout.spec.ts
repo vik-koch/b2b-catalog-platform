@@ -3,15 +3,10 @@ import { randomUUID } from 'node:crypto';
 import { localtestEnv, MAILPIT_API } from '../support/localtest';
 
 /**
- * FR-CART-03/04/07/09, FR-NOTIF-05/06 — placing an order request, end to end.
- *
- * The one flow no other layer can prove: the cart is browser-held, the prices
- * are the server's, the delivery zone is re-resolved by the API rather than
- * trusted from the form, and the way back to a guest's order is a token that
- * only exists inside an email. Each of those is tested on its own elsewhere;
- * what breaks in production is the seam between them.
- *
- * `hafen-espresso` is seeded packaged — six to a pack, a six-piece minimum.
+ * FR-CART-03/04/07/09, FR-NOTIF-05/06: placing an order request, end to end.
+ * The seam between a browser cart, server prices, a zone the API resolves and
+ * a guest's way back by mailed token, each tested alone elsewhere.
+ * `hafen-espresso` is six to a pack, with a six-piece minimum.
  */
 
 const env = localtestEnv();
@@ -33,8 +28,8 @@ interface Caught {
 async function fillGuest(page: Page, email: string): Promise<void> {
   await page.locator('#contact-name').fill('Ada Lovelace');
   await page.locator('#contact-email').fill(email);
-  // The national part alone — the form draws the country code beside the field
-  // — and as many digits as the deployment's mask asks for.
+  // The national part alone, as the form draws the code beside it, in the
+  // mask's digits.
   await page.locator('#contact-phone').fill('4012345678');
 
   await fillAddress(page);
@@ -42,7 +37,7 @@ async function fillGuest(page: Page, email: string): Promise<void> {
 
 /**
  * The address, however this deployment asks for it. With a suggestion provider
- * behind it the form opens compact — one "Address" box and a way out of it — and
+ * behind it the form opens compact, one "Address" box and a way out, and
  * without one it asks for every field (FR-CART-11). The stack under test has a
  * sidecar only when the environment gives it one, so the spec takes whichever
  * form it finds rather than pinning the run to one of them.
@@ -79,15 +74,14 @@ test('a guest orders, and the mailed link opens it without a session', async ({
   await expect(page.getByRole('heading', { name: 'Checkout' })).toBeVisible();
   await fillGuest(page, email);
 
-  // The zone is advisory and resolved from the postcode as it is typed — the
-  // form quotes a threshold, and refuses nothing for missing it.
+  // The zone is advice from the postcode as typed: it quotes a threshold and
+  // refuses nothing.
   await expect(page.getByText(/free/i).first()).toBeVisible();
 
   await page.getByRole('button', { name: 'Review and send' }).click();
 
-  // The read-back is the second screen, not the fifth: everything as it will
-  // be submitted, so nothing reaches a manager the customer has not read
-  // back (ADR 0039).
+  // The read-back is the second screen: everything as submitted, so nothing
+  // reaches a manager unread.
   await expect(
     page.getByRole('heading', { name: 'Check your order' }),
   ).toBeVisible();
@@ -139,13 +133,13 @@ test('a guest orders, and the mailed link opens it without a session', async ({
   const tokenPath = /\/orders\/[\w-]+/.exec(HTML)?.[0] ?? '';
   expect(tokenPath).not.toBe('');
 
-  // The token is the whole credential: no session was ever created here, and
-  // the page opens on it alone (ADR 0038).
+  // The token is the whole credential: no session exists here, and the page
+  // opens on it alone.
   await page.context().clearCookies();
   await page.goto(tokenPath);
 
-  // The order's own page leads with the reference — "Your order" is the
-  // document title, not the heading.
+  // The order's page leads with the reference; "Your order" is the title,
+  // not the heading.
   await expect(page).toHaveTitle(/Your order/);
   await expect(
     page.getByRole('heading', { level: 1, name: reference }),
@@ -173,7 +167,7 @@ test('refuses to send an order it cannot fill in, and says where', async ({
   await page.getByRole('button', { name: 'Review and send' }).click();
 
   await expect(page.getByText(/Some answers are missing/)).toBeVisible();
-  // Still on the form — a refused submission never reaches the read-back.
+  // Still on the form: a refused submission never reaches the read-back.
   await expect(
     page.getByRole('heading', { name: 'Check your order' }),
   ).toHaveCount(0);
@@ -197,13 +191,13 @@ test('collecting it asks where from, and drops the delivery address', async ({
     .click();
   await expect(page.getByRole('radio', { name: /Self-pickup/ })).toBeChecked();
 
-  // Pickup replaces the delivery address with a collection point, and the
-  // invoice address is asked for regardless — it is a property of the order.
+  // Pickup trades the delivery address for a collection point; the invoice
+  // address, the order's, is still asked.
   await expect(page.getByText('Where should we deliver?')).toHaveCount(0);
   await expect(page.getByText('Where should the invoice go?')).toBeVisible();
 
-  // Two points is a real question, so none is chosen for the customer — and a
-  // submission without one has to say so rather than only marking the form.
+  // Two points is a real question, so none is chosen, and a submission
+  // without one says so.
   await page.getByRole('button', { name: 'Review and send' }).click();
   await expect(
     page.getByText('Please choose where you would like to collect your order.'),

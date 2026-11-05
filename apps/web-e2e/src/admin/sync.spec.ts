@@ -6,11 +6,9 @@ const ADMIN_EMAIL = env['ADMIN_EMAIL'];
 const ADMIN_PASSWORD = env['ADMIN_PASSWORD'];
 
 /*
- * The bulk catalog sync screen (FR-ADM-02). Like the other admin specs, this
- * NEVER applies a run: the suite shares one database with the catalog specs,
- * which assert seeded state. A *preview* writes nothing to the catalog, so it is
- * safe to exercise fully — and it is where the interesting UI lives. The write
- * path is covered in api-e2e, which owns and restores the database.
+ * The catalogue sync screen (FR-ADM-02). Never applied, as other specs read the
+ * seeded catalogue; a preview writes nothing and holds the UI worth testing.
+ * api-e2e covers writes.
  */
 
 async function logIn(page: Page): Promise<void> {
@@ -21,7 +19,7 @@ async function logIn(page: Page): Promise<void> {
   await expect(page).toHaveURL(/\/admin$/);
 }
 
-/** Uploads an in-memory CSV — no fixture file to keep in step with the parser. */
+/** Uploads an in-memory CSV: no fixture file to keep in step. */
 async function upload(page: Page, csv: string): Promise<void> {
   await page.locator('input[type=file]').setInputFiles({
     name: 'catalog.csv',
@@ -107,7 +105,7 @@ test('a preview shows the diff without writing, and hiding needs a typed confirm
   await page.getByRole('button', { name: 'Discard' }).click();
   await expect(page.getByText('What this run would change')).toBeHidden();
 
-  // The catalog is untouched — the preview really was a dry run.
+  // The catalogue is untouched: the preview was a dry run.
   await page.goto('/catalog');
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
 });
@@ -117,8 +115,8 @@ test('a price update cannot be given the hide option', async ({ page }) => {
   await page.goto('/admin/sync/catalog/new');
 
   // Clicked on the card's own hit area rather than `.check()`ed on the input:
-  // the choice card lays an overlay over its whole surface, and that overlay
-  // is what a hand hits — and what intercepts a click aimed at the radio.
+  // the choice card's overlay is what a hand hits, and it intercepts a click on
+  // the radio.
   await page
     .locator('ui-choice-card')
     .filter({ hasText: 'Price update' })

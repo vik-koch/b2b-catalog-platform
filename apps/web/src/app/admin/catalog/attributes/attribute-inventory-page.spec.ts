@@ -155,7 +155,7 @@ async function render(
   };
 }
 
-/** The list row for one key — the header links carry some of the same words. */
+/** The list row for one key; the header links share some words. */
 function row(el: HTMLElement, key: string): HTMLElement {
   const found = [...el.querySelectorAll<HTMLElement>('li')].find((li) =>
     li.textContent?.includes(key),
@@ -201,10 +201,9 @@ describe('AttributeInventoryPage', () => {
   });
 
   it('stands in for exactly as many values as the key is known to carry', async () => {
-    // The count is on the key's own line before the values are fetched, so the
-    // placeholder can be the list rather than a guess at it — nothing below
-    // moves when the values land. Held in flight, since the placeholder only
-    // exists between the click and the response.
+    // The key's line has the count before the values load, so the placeholder
+    // is the list and nothing moves. Held in flight, as it lives only until the
+    // response.
     const { el, expandOnly } = await render({
       keys: [key({ key: 'Colour', valueCount: 5 })],
       pendingValues: true,
@@ -231,10 +230,9 @@ describe('AttributeInventoryPage', () => {
   });
 
   it('writes the open key to the URL, and takes it back out again', async () => {
-    // Written with `replaceState`, not a navigation — the router scrolls the
-    // page to the top on every one of those, which threw the list around on
-    // each click. What matters is only that the address bar keeps up: a stale
-    // `?key=` naming a row collapsed ten clicks ago would reopen it on reload.
+    // `replaceState`, not a navigation, which scrolls to the top on each
+    // click. The address must keep up, or a stale `?key=` reopens a row on
+    // reload.
     const { expand, location } = await render({
       keys: [key({ key: 'Colour' }), key({ key: 'Roast' })],
     });
@@ -397,10 +395,9 @@ describe('AttributeInventoryPage', () => {
   });
 
   it('writes the open key to the URL, and takes it back out again', async () => {
-    // Written with `replaceState`, not a navigation — the router scrolls the
-    // page to the top on every one of those, which threw the list around on
-    // each click. What matters is only that the address bar keeps up: a stale
-    // `?key=` naming a row collapsed ten clicks ago would reopen it on reload.
+    // `replaceState`, not a navigation, which scrolls to the top on each
+    // click. The address must keep up, or a stale `?key=` reopens a row on
+    // reload.
     const { expand, location } = await render({
       keys: [key({ key: 'Colour' }), key({ key: 'Roast' })],
     });

@@ -1,11 +1,9 @@
 /**
  * What each reading of an automated catalog feed is called, and what it means.
  *
- * Its own import-free module, like the order and account ones: the adapter
- * builds its probes from these labels and `tools/generate-catalog-sync.mjs`
- * renders the tables and the legend with them, and the generator must not have
- * to import the adapter — which would pull axios and Mailpit into a
- * documentation build.
+ * Import-free: the adapter builds its probes from these, and
+ * `tools/generate-catalog-sync.mjs` renders the tables with them, without
+ * pulling axios and Mailpit into a docs build.
  */
 export const SYNC_PROBES = {
   run: {

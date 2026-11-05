@@ -52,7 +52,7 @@ describe('GET /catalog/search (FR-SEARCH-01…03)', () => {
   it('returns product tiles in the same shape the grid renders', async () => {
     const res = await search('Hafen Espresso');
 
-    // Exactly the contract keys — no internal column rides along.
+    // Exactly the contract keys, no internal column.
     expect(Object.keys(res.data.items[0]).sort()).toEqual([
       'availability',
       'images',
@@ -115,29 +115,16 @@ describe('GET /catalog/search (FR-SEARCH-01…03)', () => {
     expect(res.status).toBe(400);
   });
 
-  /**
-   * FR-SEARCH-04 on search. The point of these is that a sort reorders the
-   * matches without changing which rows matched — a price-sorted search is
-   * still a search, not a listing.
-   */
+  /** FR-SEARCH-04 on search: a sort reorders matches, never changes them. */
   describe('sort controls (FR-SEARCH-04)', () => {
     // Over-matching on purpose, so there is more than one row to order.
     const many = 'espresso kontor reserve';
     const sorted = (sort: string, q = many) =>
       get(`/catalog/search?q=${encodeURIComponent(q)}&sort=${sort}`);
 
-    /**
-     * Only the seeded products, in the order the response gave them.
-     *
-     * The suites share one database and run in parallel, and this query
-     * deliberately over-matches: the admin-catalog suite creates products named
-     * "Grid Espresso Roast …" and the sync suite creates "Sync Beans Reserve",
-     * both of which match it and both of which come and go while these
-     * assertions run. Comparing raw result lists therefore compares two
-     * different moments of the catalog. Restricting to the seeded rows — the
-     * only ones this suite owns — tests the ordering rule without depending on
-     * what else exists.
-     */
+    /** Only the seeded products, in response order: parallel suites create
+     * matching products ("Grid Espresso Roast …", "Sync Beans Reserve") that
+     * come and go meanwhile. */
     const seededSlugs = (res: { data: { items: { slug: string }[] } }) => {
       const seeded = new Set(productSeeds.map((p) => p.slug));
       return res.data.items.map((i) => i.slug).filter((s) => seeded.has(s));
@@ -197,21 +184,17 @@ describe('GET /catalog/search (FR-SEARCH-01…03)', () => {
   });
 
   it('cannot be steered by tsquery syntax in the input', async () => {
-    // Operator characters are stripped in tokenization, so this is searched
-    // for as the words it contains rather than parsed — and never 500s.
+    // Tokenising strips operators, so this is searched as words, never parsed,
+    // never a 500.
     const res = await search("espresso:*') | !x <-> y");
 
     expect(res.status).toBe(200);
   });
 });
 
-/**
- * FR-SEARCH-05. The suggestion list is a second consumer of the same matcher,
- * so what is worth testing here is not recall again — that is covered above —
- * but the two properties that make it a *suggestion* list: it never shows more
- * than a glance's worth, and it agrees with the page submitting would produce.
- * A dropdown that disagreed with its own result page would be worse than none.
- */
+/** FR-SEARCH-05. Suggestions share the matcher, so this tests a glance's
+ * worth at most, and agreement with the results page: a disagreeing dropdown
+ * is worse than none. */
 describe('GET /catalog/search/suggestions (FR-SEARCH-05)', () => {
   const suggest = (q: string) =>
     get(`/catalog/search/suggestions?q=${encodeURIComponent(q)}`);
@@ -230,9 +213,8 @@ describe('GET /catalog/search/suggestions (FR-SEARCH-05)', () => {
 
   // Several words on purpose: candidates are an OR across terms, so a query
   // like this over-matches by design and is the seed catalog's way of
-  // producing more matches than the cap. No single seeded word does — the
-  // demo names are too varied — and a cap only proves itself against a
-  // result set larger than the cap.
+  // producing more matches than the cap. No single seeded word does, and a
+  // cap proves itself only against more results than it allows.
   const overMatching = 'espresso kontor reserve filter takeaway set';
 
   it('caps the list even when far more products match', async () => {
@@ -282,11 +264,9 @@ describe('GET /catalog/search/suggestions (FR-SEARCH-05)', () => {
   });
 });
 
-/**
- * FR-SEARCH-07. Categories are matched on their own names, beside the
- * products rather than ranked among them, and only where every word of the
- * query describes the category — sharing one word with it is not naming it.
- */
+/** FR-SEARCH-07. Categories match on their names, beside products, not
+ * ranked among them, and only when every query word fits: one shared word is
+ * no name. */
 describe('GET /catalog/search/suggestions — categories (FR-SEARCH-07)', () => {
   const categoriesFor = async (q: string) =>
     (await get(`/catalog/search/suggestions?q=${encodeURIComponent(q)}`)).data
@@ -347,11 +327,9 @@ describe('GET /catalog/search/suggestions — categories (FR-SEARCH-07)', () => 
   });
 });
 
-/**
- * FR-SEARCH-08, against the demo deployment's `de` layout: a German keyboard
- * typed with a US layout active. Each row is one typo tolerance does not
- * already catch — a whole word with its Y and Z swapped mostly is.
- */
+/** FR-SEARCH-08 with the demo's `de` layout: German keys typed on a US
+ * layout. Each row is one typo tolerance misses; a word with Y and Z swapped
+ * it mostly catches. */
 describe('a query typed on the other keyboard layout (FR-SEARCH-08)', () => {
   const suggestions = async (q: string) =>
     (await get(`/catalog/search/suggestions?q=${encodeURIComponent(q)}`))

@@ -176,7 +176,7 @@ export const adminOrdersContract = {
     .output(orderAdjustmentPreviewSchema),
 
   /**
-   * A new version of the order, not an edit (ADR 0051); the status stands.
+   * A new version of the order, not an edit; the status stands.
    * It mails nobody: the move that follows does, or `notifyOrderCustomer`.
    */
   adjustOrder: admin

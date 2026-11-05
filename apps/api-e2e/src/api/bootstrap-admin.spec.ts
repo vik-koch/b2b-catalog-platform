@@ -53,8 +53,8 @@ describe('bootstrap-admin one-shot (create-if-missing)', () => {
       [EMAIL],
     );
 
-    // A second run with different credentials must be a no-op — never clobber
-    // an admin who may have changed their password since the first deploy.
+    // A second run with other credentials is a no-op, never clobbering a
+    // changed password.
     expect(bootstrapAdmin('a-completely-different-password')).toContain(
       'already exists, left unchanged',
     );

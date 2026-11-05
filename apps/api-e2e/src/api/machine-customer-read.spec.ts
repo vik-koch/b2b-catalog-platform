@@ -4,20 +4,10 @@ import { Client } from 'pg';
 import { requireEnv } from '../support/env';
 
 /**
- * The outbound read of customer accounts (FR-ADM-18) end to end.
- *
- * What is worth proving against a real stack is everything the shape of the
- * response alone does not say: that it is its own capability and a
- * customer-sync credential cannot reach it, that it answers whether or not
- * anybody owns customers — which is the whole point, since the account it
- * exists to reveal is one registered here while the shop still runs itself —
- * that staff never appear in it, that a withdrawn account is reported as
- * withdrawn and carries nothing but its keys (NFR-LEGAL-07), and that the
- * cursor walks the list without repeating or losing a row.
- *
- * Isolation: every account here carries this run's own address domain, and the
- * spec filters what it asserts on down to those rows — the read is over the
- * whole customer book, and the stack has one.
+ * The outbound read of accounts (FR-ADM-18), end to end: its own capability;
+ * open whoever owns customers, as it reveals accounts registered here; no
+ * staff; a withdrawn account carries only its keys (NFR-LEGAL-07); the cursor
+ * loses and repeats nothing. Asserts only this run's address domain.
  */
 
 const ADMIN_EMAIL = 'e2e-customer-read-admin@example.com';
@@ -140,9 +130,8 @@ describe('Outbound customer read (FR-ADM-18)', () => {
     // source key, invisible to the exchange until somebody outside sees it.
     await insertCustomer(2, { sourceId: null, status: 'pending' });
     await insertCustomer(3);
-    // A closed account. Inserted in the shape deletion leaves behind — the
-    // key kept, everything else cleared — rather than deleted through the
-    // account API, which is its own spec's subject.
+    // A closed account, inserted as deletion leaves it (key kept, the rest
+    // cleared); deleting is another spec's.
     withdrawnId = await insertCustomer(4, { status: 'anonymized' });
     await client.query(
       `UPDATE users
@@ -255,8 +244,8 @@ describe('Outbound customer read (FR-ADM-18)', () => {
 
       const res = await read({ since: last?.updatedAt ?? '', limit: 200 });
       expect(res.status).toBe(200);
-      // Inclusive, so the account it names is in the answer — and nothing
-      // older than it is, which is the property a scheduled puller relies on.
+      // Inclusive, so the named account is in it and nothing older, as a
+      // scheduled puller needs.
       const back: AccountRecord[] = res.data.accounts;
       expect(back.some((a) => a.id === last?.id)).toBe(true);
       expect(back.every((a) => a.updatedAt >= (last?.updatedAt ?? ''))).toBe(

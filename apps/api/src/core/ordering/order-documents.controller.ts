@@ -12,7 +12,7 @@ import {
 import { OrderReader } from './order-reader';
 
 /**
- * Reading an order's documents (FR-ORD-05, FR-ACC-02, ADR 0052): raw bytes, so
+ * Reading an order's documents (FR-ORD-05, FR-ACC-02): raw bytes, so
  * not an oRPC contract. Access is the order's own, enforced by reading the
  * order as this caller may: staff any, a customer their own, a link by its
  * token. Shared by staff and customers, hence core.

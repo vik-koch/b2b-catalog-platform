@@ -3,8 +3,8 @@
  * Rewrites the Contents block of docs/requirements.md from the document itself.
  *
  * Every requirement is a heading carrying an explicit anchor, so a link to one
- * survives a retitling. The index repeats those titles, which is the one place
- * the document can drift from itself — so it is generated rather than edited.
+ * survives a retitling. The index repeats the titles, where the document could
+ * drift from itself, so it is generated.
  *
  * Run after adding, retitling or removing a requirement:
  *   node tools/generate-requirements-index.mjs

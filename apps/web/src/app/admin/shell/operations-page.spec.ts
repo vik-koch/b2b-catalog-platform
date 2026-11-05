@@ -125,10 +125,8 @@ async function render(
   return { fixture, el: fixture.nativeElement as HTMLElement, h };
 }
 
-/**
- * The switches in template order: maintenance, the master, then one per area —
- * the last of which are drawn only while the areas lid is open.
- */
+/** The switches in template order: maintenance, the master, one per area,
+ * the last only while the areas lid is open. */
 function switches(el: HTMLElement): HTMLButtonElement[] {
   return [...el.querySelectorAll<HTMLButtonElement>('button[role=switch]')];
 }
@@ -282,8 +280,8 @@ describe('OperationsPage', () => {
     });
 
     it('hands every area over in one request', async () => {
-      // One request is what makes it one transaction and one history entry —
-      // three requests could half-succeed.
+      // One request, one transaction, one history entry: three could
+      // half-succeed.
       const { el, h, fixture } = await render({ owned: false });
 
       masterSwitch(el).click();
@@ -352,8 +350,8 @@ describe('OperationsPage', () => {
     });
 
     it('reads one decision over two areas as one line', async () => {
-      // The master switch writes a record per area — each area's own history
-      // has to name it — but it was one decision, so it is read as one.
+      // The master switch writes a record per area, which each history names,
+      // but reads as one decision.
       const { el, fixture } = await render({
         changes: [
           change({ area: 'catalog' }),

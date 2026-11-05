@@ -2,11 +2,8 @@ import { drizzle } from 'drizzle-orm/node-postgres';
 import { products } from './catalog-schema';
 import { counterpartOf, pairedCountOf } from './product-pairings';
 
-/**
- * These assert the *shape* of the count — which rows it looks at and what it
- * correlates on. That it returns the right figure for real rows needs a real
- * Postgres and is covered in api-e2e.
- */
+/** The count's shape: which rows and what it correlates on. Its figure needs
+ * a real Postgres (api-e2e). */
 describe('pairedCountOf', () => {
   /** Rendered as part of a query, never on its own: drizzle qualifies every
    * column when an expression is rendered standalone and emits bare names when
@@ -21,9 +18,8 @@ describe('pairedCountOf', () => {
   it('correlates on the outer product from both ends of the edge', () => {
     const text = rendered();
 
-    // Table-qualified, or `"id"` would bind to whatever the subquery's own
-    // scope offers — today the counterpart, which would count every edge in
-    // the table for every row.
+    // Qualified, or `"id"` binds inside the subquery and counts every edge
+    // for every row.
     expect(text).toContain('"edge"."productAId" = "products"."id"');
     expect(text).toContain('"edge"."productBId" = "products"."id"');
   });

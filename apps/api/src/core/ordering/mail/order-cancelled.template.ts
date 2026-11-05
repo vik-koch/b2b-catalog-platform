@@ -10,18 +10,10 @@ import {
   orderMailTotal,
 } from './order-items';
 
-/**
- * Sent to the shop when a customer calls their own order off (FR-NOTIF-07).
- *
- * The counterpart of the arrival notification, and for the same reason: the
- * order left the queue that a manager watches, and the one thing they cannot
- * afford to learn late is that an order they were packing is no longer wanted.
- *
- * It repeats the reason the customer gave, where they gave one — asking is a
- * courtesy and not a condition (FR-ORD-02), so half of these arrive without —
- * and the lines, because what a manager does next is put them back on the
- * shelf.
- */
+/** Sent to the shop when a customer calls their order off (FR-NOTIF-07): a
+ * manager must not learn late that the order they pack is unwanted. With the
+ * reason where one was given (FR-ORD-02) and the lines, which go back on the
+ * shelf. */
 export function orderCancelledMail(
   order: AdminOrderDetail,
   currency: MoneyFormat,
@@ -37,9 +29,8 @@ export function orderCancelledMail(
     heading: t.heading,
     paragraphs: [
       t.body,
-      // Money the shop is holding on an order that is now off. Nothing here
-      // moves it — a refund happens in the shop's books — so this sentence is
-      // the whole of the prompt.
+      // Money held on an order now off. A refund happens in the shop's books,
+      // so this sentence is the whole prompt.
       ...(order.paymentState === 'paid' ? [t.paidNote] : []),
     ],
     rows: [

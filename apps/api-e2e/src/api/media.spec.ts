@@ -137,7 +137,7 @@ describe('POST /media (0021)', () => {
   });
 
   it('rejects an SVG by content, not its declared type', async () => {
-    // Declared as PNG, actually SVG — sniffing must catch it.
+    // Declared PNG, actually SVG: sniffing must catch it.
     const svg = Buffer.from(
       '<svg xmlns="http://www.w3.org/2000/svg"><script/></svg>',
     );

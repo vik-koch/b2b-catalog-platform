@@ -11,7 +11,7 @@ const WEEKDAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
 /**
  * The working hour `instant` falls in on the shop's clock, as a key such as
- * `2026-10-23 09` — one cycle per key — or null outside working hours.
+ * `2026-10-23 09` (one cycle per key), or null outside working hours.
  */
 export function workingHour(
   instant: Date,

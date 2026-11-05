@@ -12,9 +12,8 @@ interface CaughtMessage {
 // Where the api sends inquiries in the localtest stack (see .env.localtest).
 const contactTo = localtestEnv()['MAIL_STAFF_TO'];
 
-// FR-NAV-06 — end-to-end proof that filling and submitting the inquiry page
-// delivers an email to the shop, exercising the real web -> api -> SMTP path
-// against Mailpit, not a mocked mailer.
+// FR-NAV-06: submitting the inquiry page mails the shop, through the real web,
+// api and SMTP into Mailpit.
 test('submitting the inquiry form delivers an email to the shop', async ({
   page,
   request,
@@ -22,7 +21,7 @@ test('submitting the inquiry form delivers an email to the shop', async ({
   // A per-run token keeps the Mailpit assertion isolated: the mobile-chrome
   // project runs this same spec against the same sink in parallel, so we search
   // for our own message instead of clearing shared state and counting. Hyphens
-  // are stripped — Mailpit's search reads a leading '-' as term exclusion.
+  // are stripped: Mailpit reads a leading '-' as exclusion.
   const name = `Jane Doe ${randomUUID().replaceAll('-', '')}`;
 
   await page.goto('/inquiry');
@@ -36,9 +35,8 @@ test('submitting the inquiry form delivers an email to the shop', async ({
 
   await page.getByRole('button', { name: 'Send message' }).click();
 
-  // The form swaps to the success confirmation only after the POST resolves —
-  // and the api awaits the SMTP send before responding, so by now the message
-  // has reached Mailpit.
+  // The confirmation shows once the POST resolves, and the api awaits the SMTP
+  // send, so the message has reached Mailpit.
   await expect(page.getByText('Thanks — we have your message')).toBeVisible();
 
   // Poll the sink: delivery is fast but the search index may lag the send by a

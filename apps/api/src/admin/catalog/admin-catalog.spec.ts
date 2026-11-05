@@ -15,9 +15,8 @@ import { ContractErrorFilter } from '../../platform/orpc/contract-error.filter';
 import { withSession } from '../../platform/auth/session.fixture';
 
 /**
- * The write surface over a real server. The service raises its refusals as
- * Nest exceptions, so this is where they are proved to arrive as the codes the
- * editor renders — and where the output schema is proved to keep the private
+ * The write routes over a real server: the service's Nest exceptions arrive
+ * as the codes the editor renders, and the output schema keeps the private
  * sync key off the wire.
  */
 describe('the admin catalog routes', () => {
@@ -226,7 +225,7 @@ describe('the admin catalog routes', () => {
   it('routes the reorder path to the reorder handler, not to an id', async () => {
     const response = await send('/admin/catalog/categories/order', 'DELETE');
 
-    // A DELETE there is an id that is not a uuid — never the reorder route.
+    // Read as an id that is no uuid, never as the reorder route.
     expect(response.status).toBe(400);
   });
 

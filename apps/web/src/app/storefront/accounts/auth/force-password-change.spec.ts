@@ -14,11 +14,8 @@ import { AuthUser } from '@b2b-catalog-platform/shared/platform';
 
 const text = defaultStorefrontAccountsText.auth.changePassword;
 
-/**
- * jsdom parses <dialog> but implements none of its behaviour — no showModal, no
- * close, no `open` bookkeeping. Enough of it to assert against; the real focus
- * trap and backdrop are the browser's job and are covered by the e2e suite.
- */
+/** jsdom parses <dialog> without behaviour (no showModal, close or `open`):
+ * enough to assert on. Focus trap and backdrop are covered by e2e. */
 beforeAll(() => {
   const dialog = HTMLDialogElement.prototype;
   dialog.showModal = function () {

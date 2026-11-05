@@ -35,14 +35,9 @@ import { DialogTitle } from '@b2b-catalog-platform/ui/overlay/dialog-title';
 const KEY_STEP = 0.01;
 const ZOOM_KEY_FACTOR = 1.1;
 
-/**
- * Places a picture in a white square before it is stored: dragged to move it,
- * zoomed out for a wider white border or in to crop. The result is drawn on a
- * canvas and handed back as a JPEG — white everywhere the picture is not, so a
- * transparent PNG comes out on white too.
- *
- * Rendered by `ImageFramerService` rather than used in templates directly.
- */
+/** Places a picture in a white square before storing: drag to move, zoom to
+ * border or crop. Drawn as a JPEG, white where the picture is not, even under
+ * a transparent PNG. Opened by `ImageFramerService`. */
 @Component({
   selector: 'app-image-framer-dialog',
   imports: [DialogTitle, Button, DialogActions, DialogPanel, TextButton],
@@ -154,8 +149,8 @@ export class ImageFramerDialog {
 
   /** An object URL of a new file, or a stored picture's own URL. */
   readonly src = input.required<string>();
-  /** Whether the picture may also go up untouched — a new file may, a stored
-   * picture already has. */
+  /** Whether the picture may also go up untouched: a new file may, a stored
+   * one already has. */
   readonly offerOriginal = input(true);
 
   readonly framed = output<Blob>();

@@ -1,19 +1,11 @@
 import type { Journey } from '../support/journey/journey';
 
 /**
- * The journeys an account can take, as data.
- *
- * Read twice, like the order ones: `account-journeys.spec.ts` walks them
- * against the running API, and `tools/generate-account-lifecycle.mjs` renders
- * them into `docs/account-lifecycle.md`. The documentation therefore states
- * what is checked, and every check is documented.
- *
- * What they are for is the two things a per-endpoint test cannot see. **What
- * the account holder is told**, across a sequence of staff decisions — most of
- * these steps assert that *nothing* was sent, which is a claim no single test
- * makes and every mail template can break. And **whether the password still
- * works**, which is a fact accumulated over a switch-off and a switch-on and is
- * invisible at the moment it is lost.
+ * The journeys an account can take, as data: walked by
+ * `account-journeys.spec.ts`, rendered by
+ * `tools/generate-account-lifecycle.mjs`. For what the holder is told across
+ * staff decisions, mostly nothing, and whether the password survives a
+ * switch-off and on, which shows only later.
  */
 
 export interface AccountJourney extends Journey {
@@ -159,8 +151,8 @@ export const accountJourneys: readonly AccountJourney[] = [
         what: 'A manager switches the account off.',
         actor: 'manager',
         action: 'deactivate',
-        // The status is what refuses the sign-in — and it refuses the session
-        // already in flight too, which no reading here can show.
+        // The status refuses the sign-in, and the session in flight too, which
+        // no reading here shows.
         expect: { status: 'disabled', signsIn: 'no' },
       },
       {

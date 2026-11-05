@@ -121,10 +121,9 @@ describe('carrying a refusal to the client', () => {
     return { status: response.status, body: await response.json() };
   };
 
-  // The reason `refusals` exists at all. Without it a service's refusal is
-  // swallowed and answered as a fault, losing the status and the code — and
-  // nothing about that failure is visible to a type check or to a test of the
-  // service on its own.
+  // Why `refusals` exists: without it a refusal is answered as a fault,
+  // losing status and code, and neither a type check nor a service test
+  // notices.
   it('would otherwise turn a service refusal into a 500', async () => {
     expect(await get('/unwrapped')).toEqual({
       status: 500,
@@ -158,10 +157,9 @@ describe('carrying a refusal to the client', () => {
     expect(body.defined).toBe(false);
   });
 
-  // The uploads are not contract routes, but their refusals go through the
-  // same filter — so whatever the wording needs has to survive it. Dropping
-  // `params` here would have left the sync page unable to say which limit a
-  // file exceeded.
+  // The uploads are no contract routes but share the filter, so what the
+  // wording needs survives it: without `params` the sync page cannot say
+  // which limit a file broke.
   it('keeps what a non-contract route sent besides the code', async () => {
     const response = await fetch(`${baseUrl}/uploaded`, { method: 'POST' });
 
@@ -175,9 +173,8 @@ describe('carrying a refusal to the client', () => {
     });
   });
 
-  // A guard throws before oRPC sees the request, so this one is the filter's
-  // doing rather than the middleware's — the client cannot tell them apart,
-  // which is the point.
+  // A guard throws before oRPC sees the request, so the filter shapes this;
+  // the client cannot tell the difference.
   it('carries a guard refusal in the same shape', async () => {
     expect(await get('/guarded')).toEqual({
       status: 403,

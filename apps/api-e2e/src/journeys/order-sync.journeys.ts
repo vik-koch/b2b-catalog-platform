@@ -1,28 +1,16 @@
 import type { Journey } from '../support/journey/journey';
 
 /**
- * What the order exchange does to an order, as data.
- *
- * Read twice, like the catalog, customer, order and account ones:
- * `order-sync-journeys.spec.ts` walks them against the running API, and
- * `tools/generate-order-sync.mjs` renders them into `docs/order-sync.md`.
- *
- * They exist for what a single instruction cannot show. **One exchange writes
- * at most one version** (ADR 0062) is a claim about a sequence: it is only
- * worth anything if four exchanges leave four versions, a re-send leaves none,
- * and the money recorded in the same breath as a move leaves none of its own.
- * The same goes for the two facts a source has to live with — that the
- * customer can call an order off underneath it, and that an instruction
- * answering a version the order has moved past is refused rather than applied
- * to something else.
- *
- * Every one of them runs with order processing **handed over** (FR-ADM-10):
- * nothing in the admin panel could have produced any of this.
+ * What the order exchange does to an order, as data: walked by
+ * `order-sync-journeys.spec.ts`, rendered by `tools/generate-order-sync.mjs`.
+ * One exchange writes at most one version, a claim about a sequence: four
+ * exchanges, four versions; a re-send, none; money with a move, none. Also:
+ * a customer calling off underneath, and a stale answer refused. All run with
+ * orders handed over (FR-ADM-10).
  */
 
 export interface OrderSyncJourney extends Journey {
-  /** Nothing yet, and deliberately: every journey starts from the same kind of
-   * order — one placed at the checkout, which is where all of them come from
+  /** Nothing yet: every journey starts from an order placed at checkout,
    * however the area is owned. */
   readonly exchange?: Record<string, never>;
 }
@@ -47,8 +35,8 @@ export const orderSyncJourneys: readonly OrderSyncJourney[] = [
         what: 'The source polls for orders and finds this one.',
         actor: 'system',
         action: 'read',
-        // A read changes nothing and is never gated on ownership — it is how
-        // the source learns the version its instruction has to answer.
+        // A read changes nothing and ignores ownership: how the source learns
+        // the version to answer.
       },
       {
         what: 'The back office prints the invoice and posts it as a file.',
@@ -83,9 +71,8 @@ export const orderSyncJourneys: readonly OrderSyncJourney[] = [
         actor: 'system',
         action: 'writeBack',
         args: { paid: true, notify: false, showCustomer: true },
-        // The reading this journey exists to pin down: money on its own is not
-        // a version. Nothing to tell the customer either — they know what they
-        // sent.
+        // What this journey pins: money alone is no version, and nothing to
+        // tell the customer.
         expect: {
           run: ['applied'],
           instruction: ['payment'],
@@ -151,10 +138,9 @@ export const orderSyncJourneys: readonly OrderSyncJourney[] = [
           notify: true,
           showCustomer: true,
         },
-        // Three things the admin panel would do with three buttons, filed as
-        // one version — as the change, because that is the part a reader
-        // cannot work out from the status column. The one message is about
-        // the move: "changed" would tell them the order stayed where it was.
+        // Three of the panel's buttons as one version, filed as the change,
+        // which the status cannot show. The message is the move's: "changed"
+        // would say the order stayed.
         expect: {
           run: ['applied'],
           instruction: ['adjustment'],
@@ -236,8 +222,8 @@ export const orderSyncJourneys: readonly OrderSyncJourney[] = [
         actor: 'customer',
         action: 'cancelAsCustomer',
         args: { reason: 'Ordered twice by mistake.' },
-        // Nothing is written to them about something they just did, and the
-        // exchange is told nothing — it finds out by looking.
+        // Nobody writes to them about their own act; the exchange finds out by
+        // looking.
         expect: {
           status: 'cancelled',
           version: 2,
@@ -267,9 +253,8 @@ export const orderSyncJourneys: readonly OrderSyncJourney[] = [
         actor: 'system',
         action: 'writeBack',
         args: { status: 'approved', notify: true },
-        // Now the refusal it is actually about. The alternative — walking the
-        // order forward over the cancellation — is a customer who called an
-        // order off and watched it ship.
+        // The refusal it is about: walking forward over a cancellation ships
+        // an order the customer called off.
         expect: {
           run: ['applied'],
           instruction: ['refused: order-called-off'],
@@ -285,9 +270,8 @@ export const orderSyncJourneys: readonly OrderSyncJourney[] = [
           notify: true,
           showCustomer: true,
         },
-        // Taken back only by saying so, which is what told the last attempt
-        // apart from this one — and only out loud: an order they stopped
-        // does not run again without their hearing of it.
+        // Taken back only by saying so, and out loud: a stopped order never
+        // runs again unheard.
         expect: {
           run: ['applied'],
           instruction: ['transition'],
@@ -352,8 +336,8 @@ export const orderSyncJourneys: readonly OrderSyncJourney[] = [
         actor: 'system',
         action: 'writeBack',
         args: { paid: true, notify: false },
-        // Nothing is owed on an order nobody is filling, so nothing can be
-        // recorded against it — the same refusal a manager's tick meets.
+        // Nothing is owed on an order nobody fills, so no money is recorded,
+        // as a manager's tick is refused.
         expect: {
           run: ['applied'],
           instruction: ['refused: payment-not-recordable'],

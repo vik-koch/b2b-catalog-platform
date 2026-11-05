@@ -10,11 +10,8 @@ const ADMIN_EMAIL = env['ADMIN_EMAIL'];
 const ADMIN_PASSWORD = env['ADMIN_PASSWORD'];
 
 /*
- * Deliberately never saves. The whole suite runs in parallel against one
- * database, and every page title is asserted by navigation.spec.ts — a
- * persisted edit here would race those specs. Saving (including that the
- * public page reflects it) is covered in api-e2e, where the spec owns the
- * database and restores it; what is left for the UI is everything below.
+ * Never saves: parallel specs (navigation.spec.ts) assert every page title,
+ * and api-e2e covers saving.
  */
 
 async function logIn(page: Page): Promise<void> {
@@ -29,13 +26,13 @@ async function logIn(page: Page): Promise<void> {
 // link into it rather than an inline toggle.
 const editLink = (page: Page) => page.getByRole('link', { name: 'Edit page' });
 
-// The pencil affordance only appears once an admin turns on storefront edit
-// mode (FR-ADM-01) — a browser-local toggle, so each test enables it afresh.
+// The pencil shows once an admin turns on edit mode (FR-ADM-01), a
+// browser-local toggle each test enables.
 const enableEditMode = (page: Page) =>
   page.getByRole('button', { name: 'Edit mode' }).click();
 
-// Discarding unsaved changes goes through the app's own modal, not
-// window.confirm — so it is an in-page dialog, never a Playwright dialog event.
+// Discarding goes through the app's own modal, not window.confirm: never a
+// Playwright dialog event.
 const discardPrompt = (page: Page) =>
   page.getByRole('dialog', { name: 'Discard changes?' });
 
@@ -83,8 +80,8 @@ test('edits the contact page prose from the contact page itself', async ({
   await expect(page).toHaveURL(/\/admin\/pages\/contact\/edit\b/);
   await expect(page.getByLabel('Page title')).toHaveValue(/.+/);
 
-  // Cancelling returns to the contact page, and its maps are still there —
-  // proving the body is only part of what that route renders.
+  // Cancelling returns to the contact page with its maps: the body is only
+  // part of that route.
   await page.getByRole('button', { name: 'Cancel' }).click();
   await expect(page).toHaveURL(/\/contact$/);
   await expect(page.locator('iframe').first()).toBeVisible();
@@ -143,7 +140,7 @@ test.describe('as an admin', () => {
     const body = page.locator('.ProseMirror');
     await body.click();
 
-    // A tiny PNG is enough — the server re-encodes to WebP regardless.
+    // A tiny PNG is enough: the server re-encodes to WebP.
     await page.locator('input[type="file"]').setInputFiles({
       name: 'logo.png',
       mimeType: 'image/png',
@@ -257,8 +254,8 @@ test.describe('as an admin', () => {
     await page.getByRole('button', { name: 'Cancel' }).click();
     await discardChanges(page);
 
-    // The editor was opened from the page itself, so cancelling goes back
-    // there rather than to the admin panel — and nothing was persisted.
+    // Opened from the page, so cancelling goes back there, not to the panel,
+    // and saves nothing.
     await expect(page).toHaveURL(/\/about$/);
     await expect(page.locator('h1')).toHaveText(aboutPageSeed.title);
   });
@@ -291,14 +288,14 @@ test.describe('as an admin', () => {
     await discardChanges(page);
 
     await expect(page).toHaveURL(/\/privacy$/);
-    // A fresh page, in read mode — the abandoned edit did not carry over.
+    // A fresh page in read mode: the abandoned edit did not carry over.
     await expect(page.getByLabel('Page title')).toBeHidden();
     await expect(editLink(page)).toBeVisible();
   });
 });
 
-// A tiny 2x2 RGBA PNG produced by sharp — small, but a real encode the server's
-// libvips fully decodes. (A hand-crafted 1x1 PNG passes the header sniff but
+// A tiny 2x2 RGBA PNG from sharp, a real encode the server's libvips fully
+// decodes. (A hand-crafted 1x1 PNG passes the header sniff but
 // trips "libpng read error" on the full pixel decode in the runtime's libvips.)
 const TINY_PNG_BASE64 =
   'iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAACXBIWXMAAAPoAAAD6AG1e1JrAAAAEUlEQVQImWPI9zP/D8IMMAYAQwwHzSg0SO0AAAAASUVORK5CYII=';

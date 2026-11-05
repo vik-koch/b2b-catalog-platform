@@ -56,7 +56,7 @@ export function cancelledByCustomer(row: {
 
 /**
  * An owning system answering an order (FR-ADM-08): a move, a re-pricing and a
- * payment in one instruction write at most one version (ADR 0062). None where
+ * payment in one instruction write at most one version. None where
  * it says what the order already says (FR-ADM-16) or only records money. A
  * customer's own cancellation is taken back only by saying so and telling them,
  * and the customer's own words are carried across untouched.

@@ -145,8 +145,8 @@ describe('HiddenProductsSection', () => {
     actionButton(el, text.publishProduct)?.click();
     await fixture.whenStable();
 
-    // The server would refuse it, so the click is answered with the reason
-    // instead of a request — and the button is live enough to give it.
+    // The server would refuse it, so the still-live button answers with the
+    // reason, not a request.
     expect(setPublished).not.toHaveBeenCalled();
     expect(tell).toHaveBeenCalledWith(
       expect.objectContaining({ heading: text.unpricedTitle }),

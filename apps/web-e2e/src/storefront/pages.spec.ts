@@ -53,8 +53,8 @@ test('renders the about page from SSR without a browser refetch', async ({
   });
 
   // Raw SSR document: rendered content plus the embedded transfer-state
-  // payload (HTTP_TRANSFER_CACHE_ORIGIN_MAP) must both be present — the
-  // ng-state script is what lets hydration skip the API refetch.
+  // payload (HTTP_TRANSFER_CACHE_ORIGIN_MAP) must both be present: the
+  // ng-state script spares hydration the refetch.
   const ssrResponse = await page.request.get('/about');
   expect(ssrResponse.status()).toBe(200);
   const ssrHtml = await ssrResponse.text();
@@ -65,7 +65,7 @@ test('renders the about page from SSR without a browser refetch', async ({
   await expect(page.locator('h1')).toHaveText(aboutPageSeed.title);
   // A phrase from the seeded rich-text body, rendered via innerHTML.
   await expect(page.locator('app-static-page')).toContainText('Speicherstadt');
-  // Hydration replays the response from the transfer cache — no request.
+  // Hydration replays the response from the transfer cache: no request.
   expect(apiCalls).toEqual([]);
 });
 

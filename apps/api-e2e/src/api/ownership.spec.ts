@@ -4,16 +4,10 @@ import { Client } from 'pg';
 import { requireEnv } from '../support/env';
 
 /**
- * The ownership switch (FR-ADM-10), end to end: what the API refuses while an
- * external system owns the catalog, and what it refuses while nobody does.
- *
- * This spec turns a **global** setting on. The api-e2e specs share one API
- * process, so it must not run beside the ones it would change the answer for —
- * see the note on `fileParallelism` in the vitest config. Every test here
- * restores the switch in a `finally`, and the suite leaves it off.
- *
- * Isolation otherwise as elsewhere: the product and category this spec writes
- * to are its own, and it never applies a catalog-wide run.
+ * The ownership switch (FR-ADM-10): what the API refuses while another system
+ * owns an area, and while nobody does. A global setting, so it must not run
+ * beside specs it changes (`fileParallelism` in the vitest config); each test
+ * restores it in a `finally`. Its product and category are its own.
  */
 
 const ADMIN_EMAIL = 'e2e-ownership-admin@example.com';
@@ -45,16 +39,15 @@ describe('External data ownership (FR-ADM-10)', () => {
   let managerCookie: string;
   let token: string;
   let categoryId: string;
-  /** As stored: `createCategory` mints its own key and ignores the one sent,
-   * so the spec reads it back rather than assuming — which is what the editor
-   * does too, and what makes the comparison meaningful. */
+  /** As stored: `createCategory` mints its own key, so the spec reads it
+   * back, as the editor does. */
   let categorySourceId: string;
   let productSlug: string;
   let tierId: string;
   let customerId: string;
   let pendingId: string;
   let managerId: string;
-  /** The product as the editor last read it — what a save carries back. */
+  /** The product as the editor last read it, which a save carries back. */
   let stored: Record<string, unknown>;
 
   const asAdmin = (
@@ -287,9 +280,8 @@ describe('External data ownership (FR-ADM-10)', () => {
         const status = await asAdmin('get', '/settings/ownership');
         expect(status.data.ownedAreas).toEqual(['catalog']);
 
-        // This suite's own entry, found by its actor rather than taken as the
-        // newest: the history is global, and any other suite that hands an
-        // area over — the sync journeys do — writes a row after this one.
+        // This suite's entry, by its actor, not the newest: other suites (the
+        // sync journeys) write rows after it.
         const history = await asAdmin('get', '/settings/changes');
         const ours = (history.data.changes as { actorEmail: string }[]).filter(
           (change) => change.actorEmail === ADMIN_EMAIL,
@@ -313,8 +305,7 @@ describe('External data ownership (FR-ADM-10)', () => {
           expect.arrayContaining(['catalog', 'customers']),
         );
 
-        // Ours, for the same reason as above — and the two rows this request
-        // wrote are the two newest of ours, whatever else the log holds.
+        // Ours, likewise: the request's two rows are our two newest.
         const history = await asAdmin('get', '/settings/changes');
         const [first, second] = (
           history.data.changes as {
@@ -346,8 +337,7 @@ describe('External data ownership (FR-ADM-10)', () => {
           area: 'customers',
           enabled: true,
         });
-        // And the row under it is still the one that was newest before —
-        // ours, for the same reason.
+        // And under it our former newest.
         const ours = (list: { actorEmail: string }[]) =>
           list.filter((change) => change.actorEmail === ADMIN_EMAIL);
         expect(ours(after.data.changes)[1]).toEqual(
@@ -656,7 +646,7 @@ describe('External data ownership (FR-ADM-10)', () => {
         expect(res.status).toBe(409);
         expect(res.data.code).toBe('catalog-externally-owned');
 
-        // And an empty one still deletes — it writes nothing the exchange owns.
+        // An empty one still deletes: it writes nothing the exchange owns.
         const emptied = await asAdmin(
           'delete',
           `/admin/catalog/categories/${other.data.id}`,
@@ -673,8 +663,8 @@ describe('External data ownership (FR-ADM-10)', () => {
       expect(created.status).toBe(201);
 
       await whileOwned(async () => {
-        // The key is the exchange's handle on this list — a `price:<key>`
-        // column addresses it, so retyping it points the run at a stranger.
+        // The key is the exchange's handle (`price:<key>`): retyping it points
+        // the run at a stranger.
         const rekeyed = await asAdmin('put', `/admin/tiers/${tierId}`, {
           label: TIER_LABEL,
           key: `${TIER_KEY}-moved`,
@@ -936,10 +926,8 @@ describe('External data ownership (FR-ADM-10)', () => {
         expect(one.status).toBe(200);
         const work = await asAdmin('get', '/work/counts');
         expect(work.status).toBe(200);
-        // A registration nobody here can answer is still counted: it is real
-        // work, and it says whose record to go and look at in the other
-        // system — the same reading as the unpriced-products figure, which is
-        // also answered elsewhere while the catalog is owned.
+        // A registration nobody here answers still counts: work naming whose
+        // record to check in the other system, like unpriced products.
         expect(work.data.registrations).toBeGreaterThan(0);
       });
     });
@@ -973,13 +961,8 @@ describe('External data ownership (FR-ADM-10)', () => {
     });
   });
 
-  /**
-   * Order processing, closed whole like the customer area (FR-ADM-08/10) —
-   * and with two carve-outs the customer area did not have: the shop still
-   * takes orders while they are owned, and the person who placed one can still
-   * call it off. An owned area therefore gains and loses orders on its own,
-   * which the exchange reads rather than resolves.
-   */
+  /** Order processing closed whole (FR-ADM-08/10), but the shop still takes
+   * orders and a customer can still call one off: the exchange reads both. */
   describe('while order processing is externally owned', () => {
     const refusal = (res: { status: number; data: { code?: string } }) => ({
       status: res.status,
@@ -1138,11 +1121,9 @@ describe('External data ownership (FR-ADM-10)', () => {
 
     it('still takes an order, and still lets the customer call it off', async () => {
       await whileOwning(['orders'], async () => {
-        // Both halves are the customer's own act rather than the shop's work,
-        // so neither is refused: the area gains an order and loses one while
-        // it is owned, and the exchange has to read that rather than resolve
-        // it. Calling off is an account's own route — a mailed link reads an
-        // order and never stops one.
+        // Both are the customer's acts, not the shop's work, so neither is
+        // refused. Calling off is an account's route; a mailed link only
+        // reads.
         const placed = await place(customerCookie);
         const called = await axios.post(
           `/account/orders/${placed.reference}/cancel`,

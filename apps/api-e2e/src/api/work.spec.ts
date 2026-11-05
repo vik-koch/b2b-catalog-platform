@@ -4,14 +4,9 @@ import { Client } from 'pg';
 import { WorkCounts } from '@b2b-catalog-platform/shared/core/work';
 import { requireEnv } from '../support/env';
 
-/**
- * What awaits the signed-in account (FR-WORK-01…04). The suite shares one
- * database with every other spec and runs in parallel with them, so nothing
- * here asserts an absolute figure or a delta: what is pinned is the **shape**
- * per role — which queues an account is even told about — and that work this
- * spec creates is in the count while it waits. Which rows each count is over
- * is WorkService's unit spec.
- */
+/** What awaits the signed-in account (FR-WORK-01…04). Parallel suites share
+ * the database, so no figure or delta: the queues per role, and this spec's
+ * own work in the count. The rows are WorkService's unit spec. */
 
 const PREFIX = 'e2e-work';
 const ADMIN_EMAIL = `${PREFIX}-admin@example.com`;
@@ -42,7 +37,7 @@ describe('work counts', () => {
   let admin: string;
   let manager: string;
   let customer: string;
-  /** Removed in afterAll — they are created to be counted, and nothing else. */
+  /** Removed in afterAll: created only to be counted. */
   let productSlug: string | undefined;
   let unpricedSlug: string | undefined;
 
@@ -125,13 +120,8 @@ describe('work counts', () => {
     expect(await counts(customer)).toEqual({ myPayments: 0, myPickups: 0 });
   });
 
-  /**
-   * The linkage ADR 0046 rests on: the figure follows the state, with nothing
-   * acknowledged in between. Asserted as a floor rather than as a delta —
-   * the suite shares one database and runs in parallel, so the only thing that
-   * holds for the whole of a test is that *our own* waiting row is in there.
-   * Which rows each count is over is pinned in WorkService's unit spec.
-   */
+  /** The figure follows the state, nothing acknowledged between. A floor,
+   * not a delta: in parallel only our own waiting row is sure to be in it. */
   it('counts a registration for as long as it waits', async () => {
     // Written straight to the table rather than through /auth/register: that
     // endpoint mails the shop, and register.spec counts those mails.
@@ -192,7 +182,7 @@ describe('work counts', () => {
     expect(after.unpricedProducts).toBe((before.unpricedProducts ?? 0) + 1);
     expect(after.unpublishedProducts).toBe(before.unpublishedProducts);
 
-    // And it cannot be published at all — the refusal, not a hidden button.
+    // And it cannot be published: a refusal, not a hidden button.
     const refused = await axios.patch(
       `/admin/catalog/products/${created.data.slug}/published`,
       { published: true },

@@ -22,8 +22,7 @@ import { USER_ROLES } from '@b2b-catalog-platform/shared/platform';
 /**
  * A seed bundle: one demo shop's content as files, so the seed carries no
  * content of its own and a deployment's demo lives beside its config. Read
- * whole and strictly, like the config files — a misspelled key stops the seed
- * rather than seeding less than the author wrote.
+ * whole and strictly, like config: a misspelled key stops the seed.
  *
  *   catalog.json     categories, attributes, products, pairings
  *   accounts.json    the demo password, tiers, accounts and their addresses
@@ -71,12 +70,8 @@ const packaging = z.strictObject({
 
 const hexColor = z.string().regex(/^#[0-9a-f]{6}$/i, 'a #rrggbb colour');
 
-/**
- * One picture. With a `url` it is a photo the seed downloads and stores like an
- * upload; without one, or when the download fails or the seed runs with
- * placeholders only, it is a generated placeholder — so a product shows the
- * same number of pictures either way.
- */
+/** One picture: with a `url` a downloaded photo stored like an upload, else
+ * (or on failure, or placeholders only) a drawn one, so the count holds. */
 const picture = z.strictObject({
   /** The image file itself, as the library's CDN serves it. */
   url: z.url().optional(),
@@ -140,12 +135,9 @@ const product = z.strictObject({
   state: z.enum(['unpublished', 'deleted']).optional(),
 });
 
-/**
- * How the seed draws what has no photo. Absent: the Coffee Kontor's own
- * drawings — a bean, glazed cups, warm discs under the marks. Present: the
- * product's category icon (`icon` where it has none) on the bundle's hue, a
- * variant's in its colour, and the mark discs in the same hue.
- */
+/** How the seed draws what has no photo. Absent: the Coffee Kontor's bean,
+ * glazed cups and warm discs. Present: the category icon (or `icon`) on the
+ * bundle's hue, a variant's in its colour. */
 const drawn = z.strictObject({
   hue: z.number().min(0).max(360),
   icon: z.string().regex(/^[a-z0-9-]+$/, 'an icon file name, without .svg'),

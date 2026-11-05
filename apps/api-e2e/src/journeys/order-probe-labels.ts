@@ -1,16 +1,10 @@
 /**
  * What each reading of an order is called, and what it means.
  *
- * Its own import-free module because two things need it and one of them runs
- * outside the test process: the adapter builds its probes from these labels,
- * and `tools/generate-order-lifecycle.mjs` renders the journey tables and their
- * legend with them. The generator must not have to import the adapter — that
- * would pull axios, Mailpit and the mounted mail wording into a documentation
- * build.
- *
- * The meanings are here rather than in the document because they describe what
- * the probe reads: a column nobody can explain in one sentence is a column that
- * should not be in the table.
+ * Import-free: the adapter builds its probes from these, and
+ * `tools/generate-order-lifecycle.mjs` renders the tables with them, without
+ * pulling axios, Mailpit and the mail wording into a docs build. The meanings
+ * live here, by the probe: a column no sentence explains does not belong.
  */
 export const ORDER_PROBES = {
   status: {

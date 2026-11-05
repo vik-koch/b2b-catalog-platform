@@ -1,18 +1,10 @@
 import type { Journey } from '../support/journey/journey';
 
 /**
- * The journeys an order can take, as data.
- *
- * Read twice: `order-journeys.spec.ts` walks them against the running API, and
- * `tools/generate-order-journeys.mjs` renders them into
- * `docs/order-lifecycle.md`. So the documentation states what is checked, and
- * every check is documented — the two cannot drift because there is only one
- * of them.
- *
- * Each journey covers accumulated state no other one reaches. They are
- * deliberately not a walk of every path: the per-move rules are covered
- * exhaustively in `orders.spec.ts`, and repeating them here would buy nothing
- * but round trips.
+ * The journeys an order can take, as data: `order-journeys.spec.ts` walks
+ * them against the API, and `tools/generate-order-lifecycle.mjs` renders them
+ * into `docs/order-lifecycle.md`, so docs and checks are one. Each covers
+ * state no other reaches; `orders.spec.ts` covers every single move.
  */
 
 export interface OrderJourney extends Journey {
@@ -48,9 +40,8 @@ export const orderJourneys: readonly OrderJourney[] = [
         actor: 'manager',
         action: 'move',
         args: { to: 'approved' },
-        // Accepting an invoiced order is the moment the money becomes owed —
-        // the second axis moving without anybody touching it — and the moment
-        // the next move stops being the shop's.
+        // Accepting an invoiced order makes the money owed, untouched, and the
+        // next move no longer the shop's.
         expect: {
           status: 'approved',
           payment: 'awaiting',
@@ -68,8 +59,8 @@ export const orderJourneys: readonly OrderJourney[] = [
         action: 'recordPayment',
         args: { paid: true },
         // The order does not move: it is accepted and paid for, and still has
-        // to be packed. Nothing is written to the customer either — they know
-        // what they sent, and the order's own page says what it owes.
+        // to be packed. Nothing is written to the customer: their page says
+        // what it owes.
         expect: { payment: 'paid', waitingOnCustomer: '—' },
       },
       {
@@ -135,9 +126,8 @@ export const orderJourneys: readonly OrderJourney[] = [
         actor: 'manager',
         action: 'move',
         args: { to: 'approved' },
-        // A version, and the customer's page follows it — but no mail. The
-        // shop correcting itself is not news, so the offer arrives unticked
-        // and this step takes it as offered.
+        // A version the customer's page follows, but no mail: the shop
+        // correcting itself is no news, so the offer is unticked.
         expect: { status: 'approved', version: 4, customerSees: 4 },
       },
       {
@@ -186,9 +176,8 @@ export const orderJourneys: readonly OrderJourney[] = [
         actor: 'manager',
         action: 'move',
         args: { to: 'approved' },
-        // Nothing becomes owed. Cash exists at the handover, so an accepted
-        // cash order is not money the shop is waiting for — and a guest has no
-        // panel to be told anything on either way.
+        // Nothing is owed: cash comes at the handover, and a guest has no
+        // panel.
         expect: {
           status: 'approved',
           version: 2,
@@ -254,8 +243,7 @@ export const orderJourneys: readonly OrderJourney[] = [
         what: 'Short of stock, the shop agrees a smaller quantity on the phone and writes it down.',
         actor: 'manager',
         action: 'adjust',
-        // One basis unit — the line was priced per ten pieces and bought as
-        // two of them.
+        // One basis unit: priced per ten pieces, bought as two of them.
         args: { pieces: 10, note: 'Only ten left — agreed on the phone.' },
         // A new version, and the order stands exactly where it stood. Their
         // page does not follow: a change nobody has told them about is not
@@ -297,13 +285,13 @@ export const orderJourneys: readonly OrderJourney[] = [
         actor: 'manager',
         action: 'move',
         args: { to: 'declined', reason: 'Out of stock until October.' },
-        // The order is kept, not deleted, and the reason is on it — the
-        // customer reads it on their own page as well as in the mail.
+        // Kept, not deleted, with the reason the customer reads on their page
+        // and in the mail.
         expect: {
           status: 'declined',
           reason: 'Out of stock until October.',
           version: 2,
-          // Answered, so out of the shop's queue — a refusal is an answer.
+          // Answered, so out of the shop's queue: a refusal is an answer.
           waitingOnShop: '—',
           customerSees: 2,
           toldAbout: ['declined', 'requested'],
@@ -315,10 +303,9 @@ export const orderJourneys: readonly OrderJourney[] = [
         actor: 'manager',
         action: 'move',
         args: { to: 'requested' },
-        // Back to the start, with the refusal cleared off it. Their page
-        // follows, as it does for every move on a running order — but no mail:
-        // `requested` is a state they were written to about when the order
-        // arrived, so the offer arrives unticked and this step takes it.
+        // Back to the start, the refusal cleared. Their page follows, but no
+        // mail: they heard of `requested` on arrival, so the offer is
+        // unticked.
         expect: {
           status: 'requested',
           reason: null,
@@ -333,9 +320,8 @@ export const orderJourneys: readonly OrderJourney[] = [
         actor: 'manager',
         action: 'move',
         args: { to: 'approved', notify: true },
-        // The tick box would have arrived cleared — they have had an
-        // `approved` mail about nothing, but the list is what it is — so this
-        // is a manager overriding the default on purpose.
+        // The tick box would arrive cleared, so this is a manager overriding
+        // the default on purpose.
         expect: {
           status: 'approved',
           payment: 'awaiting',
@@ -409,8 +395,8 @@ export const orderJourneys: readonly OrderJourney[] = [
         actor: 'manager',
         action: 'supplyDocument',
         args: { kind: 'payment-instructions' },
-        // Filed against version 3, and the customer is on 2 — so it is the
-        // shop's to read and not yet theirs.
+        // Filed against version 3, the customer on 2: the shop's to read, not
+        // yet theirs.
         expect: {
           staffDocuments: ['order-summary', 'payment-instructions'],
         },
@@ -503,9 +489,8 @@ export const orderJourneys: readonly OrderJourney[] = [
         actor: 'manager',
         action: 'supplyDocument',
         args: { kind: 'payment-instructions' },
-        // Nothing changes for the customer. The order owes nothing yet, and a
-        // file about money that is not due is not theirs to read — nor is the
-        // link, guessed or otherwise. Staff read it the moment it is filed.
+        // Nothing changes for the customer: nothing is owed, so the file and
+        // its link are not theirs yet. Staff read it at once.
         expect: { staffDocuments: ['order-summary', 'payment-instructions'] },
       },
       {
@@ -532,11 +517,8 @@ export const orderJourneys: readonly OrderJourney[] = [
         actor: 'manager',
         action: 'recordPayment',
         args: { paid: true },
-        // Deliberately silent: nothing about the order changed for them, and
-        // being written to because the shop ticked a box is noise. Their panel
-        // stops flagging it; the instructions stay where they are, because the
-        // slip somebody paid against is worth keeping — they are withheld only
-        // while an order owes nothing at all.
+        // Silent: nothing changed for them. Their panel stops flagging it; the
+        // instructions stay, as the slip paid against is worth keeping.
         expect: { payment: 'paid', waitingOnCustomer: '—' },
       },
     ],
@@ -570,9 +552,8 @@ export const orderJourneys: readonly OrderJourney[] = [
         actor: 'manager',
         action: 'adjust',
         args: { pieces: 10, note: 'Halved, agreed on the phone.' },
-        // The file is not rewritten and not withdrawn — it is marked, and only
-        // on the side that can see past it. The customer is still on the
-        // version the file states, so for them nothing is out of date yet.
+        // The file is marked, not rewritten, and only for staff: the customer
+        // is still on the version it states.
         expect: {
           version: 2,
           staffDocuments: ['order-summary (supplied, outdated)'],

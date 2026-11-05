@@ -65,32 +65,21 @@ const SUGGEST_DEBOUNCE_MS = 200;
 type Suggestions = { items: ProductListItem[]; categories: SearchCategory[] };
 const NONE: Suggestions = { items: [], categories: [] };
 
-/** Ids have to be unique per instance: the header renders this field twice —
- * inline on desktop, inside the panel on mobile — and `aria-controls` pointing
- * at a duplicated id would name the wrong list. */
+/** Ids are per instance: the header renders the field twice (inline, and in
+ * the mobile panel), and a shared id points `aria-controls` at the wrong
+ * list. */
 let nextId = 0;
 
 /**
- * The search field itself (FR-SEARCH-01) — a real `<form>` around a real
- * `search` input, so Enter submits and the control degrades to a working search
- * box without JavaScript. Submitting navigates to `/search?q=…`.
+ * The search field (FR-SEARCH-01): a real `<form>` and `search` input, so
+ * Enter submits to `/search?q=…` without JavaScript too. With it, also a
+ * combobox (FR-SEARCH-05) offering matching products; Enter still submits
+ * the query while no suggestion is selected.
  *
- * With JavaScript it is also a combobox (FR-SEARCH-05): typing offers a short
- * list of matching products, and picking one goes straight to that product.
- * Suggestions are an accelerator layered on top and never become the only way
- * through — which is why the form underneath is untouched, and why Enter still
- * submits the typed query whenever no suggestion is selected.
- *
- * A row carries the picture and the price (FR-SEARCH-06), and a button that
- * puts the product in the cart without leaving the field — a cart can be
- * filled from one query and settled on the cart page. Only that: the unit,
- * the quantity, the note and the counterparts are the cart's business, and a
- * row that offered them would be a listing squeezed into a dropdown.
- *
- * Because a row holds two things to act on, the popup is a grid rather than a
- * listbox (the ARIA grid-combobox pattern): a listbox option may not contain a
- * button. The caret stays in the field throughout; the arrow keys walk the
- * rows, and right and left step between the product and its button.
+ * A row has picture, price (FR-SEARCH-06) and an add button; unit, quantity,
+ * note and counterparts are the cart page's. Two actions per row make it a
+ * grid, not a listbox, which may not hold a button. The caret stays in the
+ * field: arrows walk rows, right and left step to the button.
  */
 @Component({
   selector: 'app-search-field',
@@ -498,8 +487,8 @@ export class SearchField {
   protected readonly shoppingBasketIcon = shoppingBasketIcon;
   protected readonly xIcon = xIcon;
   private readonly router = inject(Router);
-  /** Only to say whether the caret is here — see MobileSearch.active, which the
-   * bottom bar's search tab is lit from. */
+  /** Whether the caret is here, for MobileSearch.active, which lights the
+   * bottom bar's search tab. */
   protected readonly mobileSearch = inject(MobileSearch);
   private readonly search = inject(CatalogSearchService);
   private readonly cart = inject(ProductCart);
@@ -508,10 +497,9 @@ export class SearchField {
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
   private readonly input = viewChild<ElementRef<HTMLInputElement>>('input');
 
-  // Read off the URL rather than from `ActivatedRoute`: the field lives in the
-  // header, outside the outlet, so it has no route inputs of its own — and the
-  // root route reports blank params on the first render, which would show an
-  // empty field for a frame before filling it in.
+  // Off the URL, not `ActivatedRoute`: the header sits outside the outlet,
+  // and the root route reports blank params on first render, an empty field
+  // for a frame.
   private readonly url = currentUrl();
   private readonly routeQuery = computed(() => {
     const urlTree = this.router.parseUrl(this.url());
@@ -526,8 +514,7 @@ export class SearchField {
   protected readonly maxLength = SEARCH_QUERY_MAX_LENGTH;
   protected readonly listId = `search-suggestions-${nextId++}`;
 
-  /** Focus on first render — set by the phone's search overlay, which opens on
-   * demand. */
+  /** Focus on first render, for the phone's search overlay. */
   readonly autoFocus = input(false);
   /**
    * The phone's search overlay: the panel leaves the field's box and hangs
@@ -552,12 +539,8 @@ export class SearchField {
       'overflow-y-auto overscroll-contain ' +
       (this.sheet() ? 'min-h-0 flex-1' : 'max-h-[min(22.5rem,60dvh)]'),
   );
-  /**
-   * Seeded from the URL rather than bound to it: landing on `/search?q=…`
-   * (shared link, reload, back button) shows the query that produced the page,
-   * but between navigations the field is the visitor's to edit. Only a new `q`
-   * — which means a navigation happened — takes it back.
-   */
+  /** Seeded from the URL, not bound: a landing shows the page's query, and
+   * the field is then the visitor's until a navigation brings a new `q`. */
   protected readonly value = linkedSignal(() => this.routeQuery());
 
   /**
@@ -581,8 +564,8 @@ export class SearchField {
 
   protected readonly thumb = `block h-16 w-16 shrink-0 overflow-hidden
                               rounded-md`;
-  /** The add button's box, and the mark's that replaces it — one size, so a
-   * row does not move when one becomes the other. */
+  /** The add button's box and its replacing mark's, one size, so the row does
+   * not move. */
   protected readonly addBox = 'inline-flex h-9 w-9 items-center justify-center';
   /** 18rem a chip, whatever the panel's width: one match does not stretch
    * across a wide panel, and two lines of name beside a mark have the room
@@ -617,14 +600,9 @@ export class SearchField {
     loader: ({ params }) => this.search.getSearchSuggestions(params),
   });
 
-  /**
-   * The answer on screen. A loading `resource` reports no value at all, and
-   * rendering that directly makes the panel vanish and come back on every
-   * keystroke — the previous answer is a far better placeholder for the next
-   * one than nothing is, since one more letter usually narrows the same list.
-   * So the last answer stays up until the new one replaces it, and only an
-   * idle resource (nothing being asked) clears it.
-   */
+  /** The answer on screen. A loading `resource` has no value, which would
+   * blink the panel per keystroke, so the last answer stays until replaced;
+   * only an idle resource clears it. */
   private readonly answer = linkedSignal<Suggestions | undefined, Suggestions>({
     source: () =>
       this.suggested.status() === 'idle' ? NONE : this.suggested.value(),
@@ -648,15 +626,11 @@ export class SearchField {
   private readonly answered = computed(
     () => this.suggested.status() !== 'idle' && !this.suggested.isLoading(),
   );
-  /**
-   * Whether anything has come back at all during this typing session. Once it
-   * has, the panel stays up until the session ends — it is what keeps the box
-   * from closing and reopening between two answers, which is the same reason
-   * `suggestions` holds the previous list rather than blanking.
-   */
+  /** Whether anything came back this session; from then the panel stays up
+   * until it ends, not closing between answers. */
   private readonly opened = signal(false);
-  /** An empty list, once the panel is up — a pending first query is neither
-   * open nor "nothing found", and must not say so before the reply lands. */
+  /** An empty list once the panel is up; a pending first query is neither
+   * open nor "nothing found". */
   protected readonly noMatches = computed(
     () => this.panelOpen() && this.rowCount() === 0,
   );
@@ -685,8 +659,8 @@ export class SearchField {
     afterNextRender(() => {
       if (this.autoFocus()) this.input()?.nativeElement.focus();
     });
-    // Opens on the first answer, and closes again only when there is nothing
-    // being asked at all — an emptied field, or a session the visitor ended.
+    // Opens on the first answer, closes only when nothing is asked: an emptied
+    // field or an ended session.
     effect(() => {
       if (this.suggested.status() === 'idle') this.opened.set(false);
       else if (this.answered()) this.opened.set(true);
@@ -698,10 +672,9 @@ export class SearchField {
       this.panelOpen();
       this.measureStrip();
     });
-    // Any navigation ends the query — a chip is a plain link, and the page it
-    // opens is the answer, not something to keep a panel open over. A skipped
-    // one too: a chip for the category already open goes nowhere, and a panel
-    // left open over the page it asked for reads as a press that did nothing.
+    // Any navigation ends the query: the page a chip opens is the answer. A
+    // skipped one too, or a chip for the open category reads as a press that
+    // did nothing.
     this.router.events
       .pipe(
         filter(
@@ -712,8 +685,8 @@ export class SearchField {
         takeUntilDestroyed(),
       )
       .subscribe(() => this.close());
-    // The list scrolls, so a row the arrow keys reach may be out of sight —
-    // `nearest` leaves a visible one where it is.
+    // The list scrolls, so a row may be out of sight; `nearest` leaves a
+    // visible one alone.
     effect(() => {
       const id = this.activeOptionId();
       if (!id) return;
@@ -773,12 +746,8 @@ export class SearchField {
     this.activeCell.set(0);
   }
 
-  /**
-   * Puts the product in the cart as the smallest order it takes, in pieces —
-   * what the buying controls would add untouched. The panel stays open, so the
-   * next product is one press away; the unit and the quantity are settled on
-   * the cart page.
-   */
+  /** Adds the product's smallest order, as untouched buying controls would.
+   * The panel stays open; unit and quantity are settled on the cart page. */
   protected add(item: ProductListItem): void {
     if (item.availability === 'out' || this.inCart(item)) return;
     const result: CartAddResult = this.cart.add({
@@ -803,8 +772,8 @@ export class SearchField {
     this.full.set(result === 'full');
   }
 
-  /** Every keystroke reopens the list and drops the keyboard selection — the
-   * option that was highlighted answered the previous query, not this one. */
+  /** Each keystroke reopens the list and drops the selection, which answered
+   * the previous query. */
   protected type(value: string): void {
     this.value.set(value);
     this.typing.set(true);
@@ -878,8 +847,8 @@ export class SearchField {
     }
   }
 
-  /** Moves the selection, wrapping at both ends and passing through "nothing
-   * selected" on the way — so the typed query is always one key away again. */
+  /** Moves the selection, wrapping through "nothing selected", so the typed
+   * query is one key away. */
   private move(delta: number, event: KeyboardEvent): void {
     if (!this.panelOpen() || !this.rowCount()) return;
     event.preventDefault();
@@ -888,8 +857,8 @@ export class SearchField {
     const next = this.activeIndex() + delta;
     const row = next < -1 ? count - 1 : next >= count ? -1 : next;
     this.activeIndex.set(row);
-    // The column is kept from row to row, as a grid keeps it, as far as the
-    // new row reaches — but back in the field there is no row to keep it for.
+    // The column carries from row to row, as in a grid, but not back into the
+    // field.
     this.activeCell.set(
       row < 0 ? 0 : Math.min(this.activeCell(), this.lastCell(row)),
     );
@@ -905,8 +874,8 @@ export class SearchField {
     void this.router.navigate(['/product', slug]);
   }
 
-  /** The caret leaving takes the suggestions with it, and unlights the bottom
-   * bar's search tab — the tab is the field's, wherever the field is. */
+  /** The caret leaving takes the suggestions with it and unlights the bottom
+   * bar's search tab, which is the field's. */
   protected blurred(): void {
     this.close();
     this.mobileSearch.setFocused(false);
@@ -921,9 +890,8 @@ export class SearchField {
   }
 
   protected submit(event: Event): void {
-    // The form is real so Enter works and it degrades without JS, which means
-    // the browser would also navigate on its own — preventing that is what
-    // hands the navigation to the router instead of a full page load.
+    // A real form, so the browser would navigate too; preventing that hands
+    // the navigation to the router, not a full page load.
     event.preventDefault();
     this.showAll();
   }
@@ -935,14 +903,9 @@ export class SearchField {
     void this.router.navigate(['/search'], { queryParams: { q } });
   }
 
-  /** Puts the caret in the field. Called straight out of a tap on the bottom
-   * bar's search tab, and synchronously: a mobile browser opens its keyboard
-   * for a focus that happened inside the gesture and not for one that happened
-   * a tick later.
-   *
-   * `preventScroll` because the caller may want to do the scrolling itself:
-   * the browser's own is an instant jump, and a field being fetched from
-   * off-screen is worth watching arrive. */
+  /** Puts the caret in the field, synchronously from the search tab's tap: a
+   * phone opens its keyboard only for a focus inside the gesture.
+   * `preventScroll`, as the caller scrolls smoothly itself. */
   focus(): void {
     this.input()?.nativeElement.focus({ preventScroll: true });
   }

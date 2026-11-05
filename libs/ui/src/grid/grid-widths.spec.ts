@@ -25,11 +25,9 @@ describe('stored grid widths', () => {
   });
 
   /*
-   * A release that adds, drops or renames a column leaves widths that no longer
-   * describe the table. Measuring the content again gives a better answer than
-   * guessing at the missing column, so a set that is not exactly this grid's is
-   * refused whole — which is also what tells the customers list from the staff
-   * list, one component with two column sets.
+   * A changed column set leaves widths that describe another table, and a
+   * new measurement beats a guess, so a set not exactly this grid's is
+   * refused whole; it also tells the customer list from the staff list.
    */
   it('refuses a set of keys that is not the grid it is asked about', () => {
     const raw = file({ orders: { a: 0.5, b: 0.5 } });

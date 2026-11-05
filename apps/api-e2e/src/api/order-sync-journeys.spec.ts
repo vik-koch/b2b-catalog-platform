@@ -11,21 +11,11 @@ import {
 import { orderSyncJourneys } from '../journeys/order-sync.journeys';
 
 /**
- * The order exchange, walked order by order (FR-ADM-08, FR-ADM-10, FR-ORD-02,
- * FR-ORD-03, FR-ORD-05, FR-NOTIF-09).
- *
- * `machine-order-sync.spec.ts` asks what one instruction is allowed to do —
- * which token reaches the route, what each refusal is called, what a single
- * write-back writes. This suite asks what an *order* looks like after four
- * exchanges: how many versions they left behind, which of them the customer
- * was shown, what arrived in their inbox, and what the shop was told about the
- * connection itself. Order processing is handed over for the length of the
- * suite, so nothing in here could have come from the admin panel.
- *
- * The journeys are data (`journeys/order-sync.journeys.ts`) and are also what
- * `docs/order-sync.md` is generated from. Every step asserts the whole
- * observable state: a reading nobody mentioned is asserted unchanged, and a
- * mail nobody declared fails the step that sent it.
+ * The order exchange, order by order (FR-ADM-08, FR-ADM-10, FR-ORD-02,
+ * FR-ORD-03, FR-ORD-05, FR-NOTIF-09): after four exchanges, how many versions,
+ * which shown, what was mailed, what the shop heard. Orders are handed over
+ * throughout. The journeys (`journeys/order-sync.journeys.ts`) also generate
+ * `docs/order-sync.md`; an undeclared mail fails its step.
  */
 
 const SUFFIX = Math.random().toString(36).slice(2, 10);
@@ -36,9 +26,8 @@ const SOURCE_PREFIX = `E2E-OSYNC-${SUFFIX}`;
 const PRODUCT_SOURCE_ID = `${SOURCE_PREFIX}-product`;
 const SLUG = `e2e-osync-product-${SUFFIX}`;
 
-/** €2.00 a piece, ordered twenty at a time — the same shape the order
- * lifecycle journeys use, so a figure in one document reads like a figure in
- * the other. */
+/** €2.00 a piece, twenty at a time, as in the order lifecycle journeys, so
+ * both documents read alike. */
 const BASE_MINOR = 200;
 const PIECES = 20;
 const TOTAL_MINOR = BASE_MINOR * PIECES;
@@ -119,8 +108,8 @@ describe('the order exchange', () => {
     adminCookie = await loginAs(ADMIN);
 
     // Issued through the API rather than inserted: the value is returned once.
-    // Both capabilities, which is the shape of an adapter that has gone live —
-    // reading is what tells it the version its instruction must answer.
+    // Both capabilities, as a live adapter has: reading tells it the version
+    // to answer.
     const issued = await axios.post(
       '/admin/api-tokens',
       { name: TOKEN_NAME, scopes: ['order-read', 'order-sync'] },
@@ -136,10 +125,8 @@ describe('the order exchange', () => {
     // Where the exchange stands is read off the run before this one, and this
     // database has a history: a leftover failed run would make the journeys'
     // first submission a recovery. One instruction for an order that does not
-    // exist normalises that without touching anybody's order — it is filed as
-    // a run that refused its only row, which is `ok` as far as the feed's
-    // state is concerned. An empty batch would have been tidier, but the
-    // contract requires at least one instruction.
+    // exist normalises that without touching an order: a run refusing its only
+    // row, `ok` for the feed. The contract allows no empty batch.
     await axios.post(
       '/machine/sync/orders/runs',
       {
@@ -184,16 +171,9 @@ describe('the order exchange', () => {
     await client.end();
   });
 
-  /**
-   * The order a journey starts from, placed at the checkout like any other —
-   * which is the point: placing an order stays the customer's own act however
-   * the area is owned (FR-ADM-10), so the exchange always has something to
-   * answer.
-   *
-   * One account per journey. The contact address is the journey's own, which
-   * is what keeps the mail readings from seeing another journey's messages:
-   * Mailpit is shared, and every read here is scoped to that address.
-   */
+  /** A journey's order, placed at checkout: the customer's act however the
+   * area is owned (FR-ADM-10). One account per journey, its address scoping
+   * mail in the shared Mailpit. */
   async function place(
     journey: (typeof orderSyncJourneys)[number],
   ): Promise<OrderSyncJourneyContext> {

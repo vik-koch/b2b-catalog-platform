@@ -35,8 +35,8 @@ function page(overrides: Partial<Pagination> = {}): Pagination {
 async function render(
   answer: { items: OrderSummary[]; pagination: Pagination } | 'reject',
   queryPage = '1',
-  /** The `state` query param, as the router delivers it — absent arrives as
-   * undefined, never as a default. */
+  /** The `state` param as the router delivers it: absent is undefined, never a
+   * default. */
   state: string | undefined = undefined,
 ) {
   const listMine = vi.fn(() =>
@@ -109,12 +109,8 @@ describe('OrderListPage (FR-ACC-01)', () => {
     expect(bad.listMine).toHaveBeenCalledWith(1, undefined);
   });
 
-  /**
-   * What the marker on the account page links to (FR-WORK-03). The chip is
-   * the only thing on this page that says the list is narrowed — there is no
-   * dropdown, because nothing here offers to filter — and dismissing it is a
-   * link back to the whole history rather than a control with state.
-   */
+  /** Where the account page's marker leads (FR-WORK-03). The chip alone
+   * says the list is narrowed; dismissing it links to the whole history. */
   it('narrows to what waits on the account holder, and says so as a chip', async () => {
     const { el, listMine } = await render(
       { items: [placed], pagination: page() },

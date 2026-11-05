@@ -6,13 +6,9 @@ import {
   unitPricesOf,
 } from './product-view';
 
-/**
- * The step between a stored row and the read contract: a piece price becomes
- * one price per unit the product is sold in (FR-UNIT-05/10).
- *
- * The arithmetic is the shared library's and tested there; what these assert is
- * the projection — which figures are published, and that they are exact.
- */
+/** From row to read contract: a piece price becomes a price per unit sold
+ * (FR-UNIT-05/10). The arithmetic is tested in shared; this, which figures are
+ * published, exactly. */
 
 /** A price of 1.99 a piece, sold in packs of 20 and boxes of 3 packs. */
 const row: PricedProductRow = {

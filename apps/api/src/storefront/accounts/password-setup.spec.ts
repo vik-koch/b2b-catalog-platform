@@ -1,17 +1,9 @@
 import { UserRow } from '../../core/accounts/users.service';
 import { PasswordSetupService } from './password-setup.service';
 
-/**
- * Redeeming a set-a-password link, and the ordering that decides what a
- * failure costs.
- *
- * The link is single-use and the visitor cannot re-issue it themselves: a
- * staff invitation is re-sent by staff, and a reset asks for a fresh mail. So
- * anything that spends the link without setting a password locks the person
- * out until somebody else acts. Everything that can fail — the policy check,
- * and the hashing, which is by design the slowest and hungriest step here —
- * therefore runs while the link is still worth something.
- */
+/** Redeeming a password link. It is single-use and the visitor cannot
+ * reissue it, so spending it without setting a password locks them out:
+ * whatever can fail (the policy check, the slow hashing) runs first. */
 const user = (overrides: Partial<UserRow> = {}): UserRow =>
   ({
     id: 'u1',
@@ -108,10 +100,8 @@ describe('PasswordSetupService.redeem', () => {
     expect(calls).toEqual(['policy', 'hash', 'redeem', 'write']);
   });
 
-  /**
-   * The one that used to burn the link: hashing ran after redemption, so a
-   * failure in it left the visitor holding a spent link and the old password.
-   */
+  /** A hashing failure after redemption would leave a spent link and the old
+   * password. */
   it('leaves the link usable when hashing fails', async () => {
     const { setup, tokens, users } = build({ hashFails: true });
 

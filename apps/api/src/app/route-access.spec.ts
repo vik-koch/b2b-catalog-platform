@@ -155,7 +155,7 @@ describe('route access', () => {
   });
 
   // RolesGuard lets a method's roles replace its class's, and an empty list
-  // means any account — so a bare @Auth() on a method inside an
+  // means any account: a bare @Auth() on a method inside an
   // @Auth('admin') class would open it to customers. Naming roles of its own
   // is allowed (the sync runs add managers on purpose); the table shows that.
   it('never lets a bare method @Auth() drop its class roles', () => {

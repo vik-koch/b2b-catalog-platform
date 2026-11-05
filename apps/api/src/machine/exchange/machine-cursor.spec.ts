@@ -9,8 +9,7 @@ import { encodeMachineCursor, parseMachineCursor } from './machine-cursor';
  */
 describe('machine cursor', () => {
   it('carries the timestamp back unchanged, to the microsecond', () => {
-    // What Postgres hands back as `::text` — six fractional digits, which a JS
-    // Date cannot hold.
+    // Postgres's `::text`: six fractional digits, more than a Date holds.
     const at = '2026-09-18 08:14:22.123456+00';
     const parsed = parseMachineCursor(
       encodeMachineCursor(at, '11111111-1111-4111-8111-111111111111'),

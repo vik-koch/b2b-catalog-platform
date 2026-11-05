@@ -13,13 +13,10 @@ export const storefrontAccountsTextShape = {
     .object({
       login: z.string(),
       logout: z.string(),
-      /** Static navbar label — deliberately role-independent, see accountNav usage. */
+      /** The navbar label, the same for every role (accountNav). */
       accountNav: z.string(),
-      /**
-       * What the marker on the account control announces (FR-WORK-01).
-       * `{count}` is substituted — the dot itself never shows a figure, so
-       * this is the only place the total is spelled out.
-       */
+      /** What the account control's marker announces (FR-WORK-01): the dot
+       * shows no figure, so `{count}` is spelled out only here. */
       workMarkerAria: z.string(),
       /** Heading of the change-password section on /account. The admin panel
        * has its own (`panel.securityHeading` in the admin text). */
@@ -27,17 +24,16 @@ export const storefrontAccountsTextShape = {
       account: z.string(),
       /** The password field, wherever an account's password is asked for. */
       password: z.string(),
-      /** Offered to a guest after an order — on the confirmation and on the
-       * page a mailed link opens — where waiting for approval costs them
-       * nothing. */
+      /** Offered to a guest after an order, on the confirmation and the mailed
+       * link's page, where waiting for approval costs nothing. */
       registerInvite: z
         .object({ text: z.string(), action: z.string() })
         .strict(),
       submit: z.string(),
       submitting: z.string(),
       invalid: z.string(),
-      /** A customer's right password while maintenance mode is on — the
-       * shop is open to staff only. */
+      /** A customer's right password during maintenance, when only staff
+       * may in. */
       closed: z.string(),
       error: z.string(),
       /**
@@ -83,10 +79,8 @@ export const storefrontAccountsTextShape = {
           haveAccount: z.string(),
         })
         .strict(),
-      /**
-       * Redeeming a set-a-password link (FR-AUTH-01/02) — the page an
-       * invitation or a reset mail lands on.
-       */
+      /** Redeeming a password link (FR-AUTH-01/02): where an invitation or a
+       * reset mail lands. */
       setPassword: z
         .object({
           /** Heading while the link is being checked. */
@@ -213,15 +207,9 @@ export const storefrontAccountsTextShape = {
           confirmPasswordMismatch: z.string(),
         })
         .strict(),
-      /**
-       * What the server refused a password for, one line per rule the API
-       * can answer with. Keyed by the API's own `code` so the lookup is the
-       * code itself — nothing in the browser restates the server's wording,
-       * and a deployment can phrase every refusal in its own voice.
-       *
-       * Both password forms read this: choosing a first password and
-       * changing an existing one hit the same policy.
-       */
+      /** Why the server refused a password, keyed by the API's `code`, so
+       * the browser restates no server wording. Both password forms read it:
+       * one policy. */
       passwordRejected: z
         .object({
           'password-common': z.string(),
@@ -239,13 +227,12 @@ export const storefrontAccountsTextShape = {
    */
   account: z
     .object({
-      /** Names the details section — the heading over the card, since
-       * the card no longer carries one of its own. */
+      /** The heading over the details card, which has none of its own. */
       detailsHeading: z.string(),
       customerType: z.string(),
       memberSince: z.string(),
-      /** Shown against the fields the account holder cannot edit here —
-       * the ones staff approved the account on. */
+      /** Beside the fields the holder cannot edit: those staff approved the
+       * account on. */
       changeHint: z.string(),
       error: z.string(),
       /** Correcting your own name and phone number. */
@@ -284,7 +271,7 @@ export const storefrontAccountsTextShape = {
           intro: z.string(),
           submit: z.string(),
           saveError: z.string(),
-          /** The book is full — a refusal the form has to explain. */
+          /** The book is full: a refusal the form explains. */
           limitReached: z.string(),
           unsupportedCountry: z.string(),
         })
@@ -302,15 +289,10 @@ export const storefrontAccountsTextShape = {
           intro: z.string(),
           /** What is kept and what goes, in the visitor's own terms. */
           consequences: z.array(z.string()),
-          /**
-           * Said only where the shop is still working on something for
-           * this customer (FR-AUTH-06). `{count}` is how many.
-           *
-           * It refuses nothing. The order is one the shop agreed to
-           * fill and is owed for, so it stays — but it stays without the
-           * name, address and telephone number it was placed with, and
-           * that is worth knowing before the button rather than after.
-           */
+          /** Only while the shop still works on something for this
+           * customer (FR-AUTH-06); `{count}` is how many. It refuses
+           * nothing: the order stays, without the name, address and phone,
+           * which is worth knowing before the button. */
           openOrders: z.string(),
           passwordHint: z.string(),
           submit: z.string(),

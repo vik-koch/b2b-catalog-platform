@@ -220,9 +220,8 @@ describe('SyncRunPage', () => {
     expect(el.textContent).not.toContain(text.noticeTitle);
   });
 
-  /** The counts that are an answer at zero stay; the ones that are only
-   * noise at zero — a deployment whose feed never restores or renames —
-   * appear the run they finally happen. */
+  /** Counts that answer at zero stay; those that are noise at zero appear
+   * when they first happen. */
   it('keeps the four standing counts and drops the zeroed rest', async () => {
     const { el } = await render();
 
@@ -294,11 +293,8 @@ describe('SyncRunPage', () => {
     expect(service.getRun).toHaveBeenCalledTimes(2);
   });
 
-  /**
-   * One page, two areas (ADR 0060). Which diff a run holds is read off the
-   * plan itself, so a link to a customer run opens on accounts rather than on
-   * an empty catalog panel.
-   */
+  /** One page, two areas: the plan says which diff it holds, so a customer
+   * run opens on accounts. */
   it('renders a customer run with the customer plan', async () => {
     const customerPlan: CustomerSyncPlan = {
       summary: { ...summary, update: 0, create: 1, rows: 1 },
@@ -355,8 +351,8 @@ describe('SyncRunPage while an area is externally owned', () => {
 
     expect(button(text.apply)).toBeFalsy();
     expect(el.textContent).toContain(ownershipText.runStranded);
-    // Somebody has to be able to clear it, and discarding writes nothing to
-    // the area — the admin used to lose this button with the other one.
+    // Somebody must be able to clear it, and discarding writes nothing to the
+    // area, so the admin keeps this button.
     expect(button(text.discardRun)).toBeTruthy();
   });
 
@@ -369,8 +365,8 @@ describe('SyncRunPage while an area is externally owned', () => {
     expect(button(text.apply)).toBeTruthy();
   });
 
-  /** A manager cannot read the setting, and a failed read means "everything is
-   * owned" — so they keep the button and meet the API's refusal instead. */
+  /** A manager cannot read the setting, and a failed read means "all owned",
+   * so the button stays and the API refuses. */
   it('leaves a manager’s button alone', async () => {
     const { button } = await render({
       run: run({ area: 'customers', source: 'upload' }),

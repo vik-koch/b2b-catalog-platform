@@ -97,8 +97,8 @@ describe('GridSearchField (FR-ADM-05)', () => {
     expect(input.value).toBe('tea');
   });
 
-  // Once its own navigation has arrived, the same query coming back later is
-  // someone else's — the back button after "clear filters", say.
+  // After its own navigation arrived, the same query later is someone
+  // else's, such as the back button after "clear filters".
   it('takes its own earlier query back once that has landed', () => {
     const { fixture, input } = render();
 

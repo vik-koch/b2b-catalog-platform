@@ -43,7 +43,8 @@ export const simulationSchema = z.strictObject({
       ),
     }),
   }),
-  /** When the hourly cycle — accounts, then orders — runs, on the shop's clock. */
+  /** When the hourly cycle (accounts, then orders) runs, by the shop's
+   * clock. */
   workingHours: z
     .strictObject({
       days: z.array(z.number().int().min(1).max(7)).min(1),
@@ -132,8 +133,8 @@ export function load(seedPath: string, configPath: string): Loaded {
   }
 
   // A pool article names its category the way the bundle's products do. The
-  // run has to send the category's own name with its key, or it would rename
-  // it — so the name is the bundle's, looked up, never written twice.
+  // run sends the category's own name with its key, or renames it, so the
+  // name is looked up from the bundle.
   const known = new Set(products.map((p) => p.sourceId));
   const { everyNights, pool } = simulation.catalog.newProducts;
   const newProducts = pool.map((article, index): NewProduct => {

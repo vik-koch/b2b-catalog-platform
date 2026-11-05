@@ -159,9 +159,8 @@ describe('PartySuggestInput (FR-AUTH-09)', () => {
     expect(el.querySelectorAll('[role="option"]')).toHaveLength(0);
   });
 
-  // The field shares a row with the other company field, so its own column is
-  // too narrow to read a suggestion in — the panel has to escape it, and stop
-  // at the form's own edge rather than the window's.
+  // The field shares a row, too narrow for a suggestion, so the panel
+  // escapes it and stops at the form's edge, not the window's.
   it('draws a panel wider than a narrow column, up to the form width', async () => {
     const { type, el } = await render();
 

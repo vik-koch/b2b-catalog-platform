@@ -13,10 +13,8 @@ import { defaultAdminText } from '../../../platform/config/admin-text.fixture';
 import { ProductAttributesEditor } from './product-attributes-editor';
 import { defaultAdminCatalogText } from '../catalog-text.fixture';
 
-/**
- * The grid is one `contenteditable` region, so these drive it the way a browser
- * does — real events on the tbody — rather than calling methods.
- */
+/** The grid is one `contenteditable` region, driven by real events on the
+ * tbody, as a browser does. */
 function render(
   rows: ProductAttribute[],
   catalog: {
@@ -53,11 +51,11 @@ function render(
     el,
     emitted,
     tbody: el.querySelector('tbody') as HTMLElement,
-    /** The action buttons of a body row: grip, ＋, bin — in that order. */
+    /** A body row's action buttons, in order: grip, ＋, bin. */
     actions: (row = 0) =>
       el.querySelectorAll('tbody tr')[row].querySelectorAll('button'),
-    /** Every badge a row shows, by the remark it carries — the funnel over the
-     * key cell first, then whatever marks the value cell. */
+    /** Each badge a row shows, by its remark: the key cell's funnel first,
+     * then the value cell's marks. */
     marks: (row = 0) =>
       [
         ...el
@@ -285,8 +283,8 @@ describe('ProductAttributesEditor grid', () => {
   });
 
   it('pastes into the cell the selection began in, not the key column', () => {
-    // Dragging over a value-column cell and out of it makes the browser select
-    // whole cells, key column included — the paste still belongs to the value.
+    // Dragging out of a value cell selects whole cells, keys too; the paste
+    // still goes to the value.
     const h = render(rows());
     const key = h.tbody.querySelector('[data-col="0"]') as HTMLElement;
     const value = h.tbody.querySelector('[data-col="1"]') as HTMLElement;

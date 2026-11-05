@@ -15,23 +15,16 @@ import {
   orderMailTotal,
 } from './order-items';
 
-/** The states a customer is written to about: every one an order can be moved
- * to. `requested` is one of them, but never as "we have your order" — an order
- * arriving is the receipt's mail (FR-NOTIF-06), and the only way a *move* ends
- * up there is the shop reopening one it had ended. */
+/** The states a customer is written to about: every one a move reaches. A
+ * move reaches `requested` only when the shop reopens an order; arrival is
+ * the receipt's mail (FR-NOTIF-06). */
 type NotifiedStatus = OrderDetail['status'];
 
 /**
- * Which wording a message is read with.
- *
- * The status alone cannot answer it, which is why `notice` exists: the same
- * `approved` is the shop accepting an order, walking a packed one back a step,
- * or changing one it accepted a week ago, and those are three different pieces
- * of news. A change that moved nothing gets a heading of its own — announcing
- * a step the order did not take is the one thing this mail must never do.
- *
- * `ready` is the one status that asks a second question: the state is the same
- * for both, and only the sentence differs (ADR 0050).
+ * Which wording a message is read with. The status cannot say it alone: one
+ * `approved` is an acceptance, a step back or a change a week later, hence
+ * `notice`. A change that moved nothing has its own heading: this mail must
+ * never announce a step not taken. `ready` reads two ways, one state.
  */
 function wordingKey(
   order: OrderDetail,
@@ -44,11 +37,8 @@ function wordingKey(
   return order.pickup ? 'readyPickup' : 'readyDelivery';
 }
 
-/**
- * Where the order is now — the office it is waiting at, or the address it is
- * on its way to. One line, because a mail row is one line: the address reads
- * the way it is written on an envelope, comma-separated.
- */
+/** Where the order is now: the office it waits at, or the address it goes
+ * to, on one line as on an envelope. */
 function destination(
   order: OrderDetail,
   names: SharedOrderingText['order'],
@@ -79,20 +69,11 @@ function destination(
 }
 
 /**
- * Sent to the customer when their order moves (FR-NOTIF-03).
- *
- * It carries the order as it now stands, not a diff: a customer reading it
- * wants to know what they are getting and what happens next, and this mail is
- * the only place the contents of a changed order are announced.
- *
- * `changes` is what the shop said about every change written since this
- * customer was last written to (FR-ORD-03) — usually one sentence agreed on
- * the phone, sometimes none at all. One mail covers the lot: a change and the
- * confirmation that followed it are one piece of news, and the shop is not in
- * the business of mailing somebody twice about one conversation.
- *
- * The link follows the same rule as the receipt: a guest gets the token, an
- * account holder gets their own order page.
+ * Sent to the customer when their order moves (FR-NOTIF-03), with the order
+ * as it stands, not a diff: the only place a changed order's contents are
+ * announced. `changes` holds the shop's notes since the last mail
+ * (FR-ORD-03), so a change and its confirmation are one mail. Links like the
+ * receipt: token for a guest, order page for an account.
  */
 export function orderStatusChangedMail(
   order: OrderDetail,
@@ -108,9 +89,8 @@ export function orderStatusChangedMail(
   /** What the shop said about every change made since this customer was last
    * written to, oldest first. Empty where nothing about the order changed. */
   changes: readonly string[] = [],
-  /** Whether the shop's payment instructions travel with this message
-   * (FR-ORD-05) — said in the body, because an attachment nobody is told
-   * about is one nobody scrolls down to. */
+  /** Whether the payment instructions travel with it (FR-ORD-05), said in the
+   * body: nobody scrolls to an attachment they were not told about. */
   attached = false,
 ): MailContent {
   const t = orderingMail(text).orderStatusChanged;
@@ -144,10 +124,8 @@ export function orderStatusChangedMail(
       // since the last mail, so nothing said on the phone is dropped and
       // nothing already announced is repeated.
       ...changes.map((change) => ({ label: names.changeNote, value: change })),
-      // The two `ready` mails send the reader somewhere, so they say where —
-      // and so does a message about a change, since where the order goes is
-      // one of the things an adjustment can change. Nowhere else: a status
-      // mail repeating the address back would answer a question nobody asked.
+      // Where the order goes: in the two `ready` mails, which send the reader
+      // there, and in a change, which can move it. Nowhere else.
       ...(status === 'ready' || notice === 'changed'
         ? destination(order, names)
         : []),

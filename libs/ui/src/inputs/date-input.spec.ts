@@ -1,13 +1,9 @@
 import { TestBed } from '@angular/core/testing';
 import { DateInput } from './date-input';
 
-/**
- * The app's one date control, now that two screens share it: a customer's
- * preferred delivery day and an admin's certificate expiry. What is worth
- * pinning is the contract between them — ISO days in, ISO days or null out —
- * and the empty state, which is the whole reason this is not a bare `<input
- * type="date">`.
- */
+/** The one date control, for a customer's delivery day and an admin's expiry:
+ * ISO days in, ISO days or null out, and the empty state a bare `<input
+ * type="date">` lacks. */
 async function render(
   options: { value?: string | null; placeholder?: string; min?: string } = {},
 ) {
@@ -36,8 +32,8 @@ describe('DateInput', () => {
     expect(input.value).toBe('2026-09-05');
   });
 
-  // A native date input takes no placeholder and draws a different thing in
-  // every engine — on iOS, nothing at all — so the field draws its own.
+  // A native date input takes no placeholder and draws something else per
+  // engine, nothing on iOS, so the field draws its own.
   it('draws its own placeholder over an empty field', async () => {
     const { el } = await render({ placeholder: 'dd.mm.yyyy' });
 

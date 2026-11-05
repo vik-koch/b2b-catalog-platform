@@ -1,10 +1,8 @@
 #!/usr/bin/env node
 /**
- * Fills the generated sections of `docs/catalog-sync.md`.
- *
- * What is generated is the journeys — the very literals `sync-journeys.spec.ts`
- * walks against the running API — and their legend. The prose around them is
- * written by hand and left alone.
+ * Fills the generated sections of `docs/catalog-sync.md`: the journeys
+ * `sync-journeys.spec.ts` walks against the API, and their legend. The prose
+ * around them is hand-written and left alone.
  *
  * Run `node tools/generate-catalog-sync.mjs` after changing a sync journey.
  * `--check` verifies the committed document matches, which is what CI runs.

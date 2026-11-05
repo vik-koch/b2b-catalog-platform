@@ -5,9 +5,9 @@
  *
  * Only the fixture is loaded by the test suites, so a translated deployment
  * that misses a key a release added would otherwise first fail on its stack.
- * Each config directory is checked the way the apps load it at boot — every
- * file whole against its schema, and an `assets/` folder beside them — and
- * each seed bundle the way the seeder reads it.
+ * Each config directory is checked as the apps load it at boot (every file
+ * whole against its schema, an `assets/` folder beside them), and each seed
+ * bundle as the seeder reads it.
  *
  * The file list repeats `SCHEMAS` in migrate-config.mjs, which has to stand
  * alone for operators. A JSON file no entry names fails here, so a new config

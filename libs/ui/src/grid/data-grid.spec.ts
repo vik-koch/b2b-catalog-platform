@@ -70,27 +70,18 @@ class Host {
   readonly byId = (row: Row): string => row.id;
 }
 
-/** The real one, captured once at module load — before any test has had the
- * chance to replace it. */
+/** The real one, captured at load, before any test replaces it. */
 const realMatchMedia = window.matchMedia;
 
-// Restored after every test, from a hook registered once at collection time.
-// Registering it from inside `screen()` instead meant one hook per test, each
-// capturing whatever `window.matchMedia` happened to be when that test
-// started — which from the second test on was the previous test's stub. The
-// stub therefore outlived this file and, since it answered `matches` to every
-// query asked of it, changed what unrelated specs saw for queries of their
-// own. That is exactly the kind of leak that only ever fails in CI, where the
-// file order differs.
+// Restored after each test by one hook registered at collection time. A hook
+// per test would capture the previous test's stub, which would then outlive
+// the file and answer other specs' queries: a leak that fails only in CI.
 afterEach(() => {
   window.matchMedia = realMatchMedia;
 });
 
-/** A window of the given shape, for the two markups this component chooses
- * between. Only the breakpoint queries are answered; anything else — a
- * `prefers-reduced-motion` somewhere else in the app, say — is left to the
- * real implementation, so nothing this file does can decide a question it was
- * not asked. */
+/** A window of the given shape, for the component's two markups. Only the
+ * breakpoint queries are answered; any other goes to the real one. */
 const BREAKPOINT_QUERIES: readonly string[] = Object.values(
   NARROW_SCREEN_QUERIES,
 );

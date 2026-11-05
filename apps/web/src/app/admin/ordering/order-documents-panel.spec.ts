@@ -70,8 +70,7 @@ async function render(
   return { fixture, el: fixture.nativeElement as HTMLElement };
 }
 
-/** The name of each document listed — the first line of each row, whatever
- * the row's markup does around it. */
+/** Each listed document's name: its row's first line. */
 const rowLabels = (el: HTMLElement) =>
   [...el.querySelectorAll('li')].map((row) =>
     row.querySelector('span > span')?.textContent?.trim(),
@@ -155,11 +154,8 @@ describe('OrderDocumentsPanel', () => {
     expect(el.querySelector('.text-warning')).not.toBeNull();
   });
 
-  /**
-   * Telling the customer is its own button, on a supplied document only — a
-   * generated summary is what their page already shows, and there is nothing
-   * to announce.
-   */
+  /** Telling the customer is its own button, on supplied documents only:
+   * their page already shows the summary. */
   it('offers to send a supplied document, and nothing to send otherwise', async () => {
     const generatedOnly = await render(order());
     expect(generatedOnly.el.textContent).not.toContain(text.notify);

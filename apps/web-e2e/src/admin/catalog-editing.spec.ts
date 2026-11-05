@@ -10,12 +10,10 @@ const ADMIN_EMAIL = env['ADMIN_EMAIL'];
 const ADMIN_PASSWORD = env['ADMIN_PASSWORD'];
 
 /*
- * Storefront edit mode + admin catalog screens (FR-ADM-01). Like
- * page-editing.spec, this NEVER persists a change — the suite runs in parallel
- * against one database and the catalog specs (navigation, catalog) assert seeded
- * state. Actual writes (create/update/delete/restore) are covered in api-e2e,
- * which owns and restores the database; what is left for the UI is the edit-mode
- * affordances, the editor screen, and the admin lists.
+ * Storefront edit mode and the admin catalogue screens (FR-ADM-01). Never
+ * saves, like page-editing.spec: parallel specs assert seeded state, and
+ * api-e2e covers writes. Left for the UI: edit-mode controls, the editor, the
+ * lists.
  */
 
 function required<T>(value: T | undefined, what: string): T {
@@ -35,8 +33,8 @@ const product = required(
 const editModeToggle = (page: Page) =>
   page.getByRole('button', { name: 'Edit mode' });
 
-/** What Angular reported through its ErrorHandler — a failed hydration shows
- * up only here, while the page goes on looking almost right. */
+/** What Angular's ErrorHandler reported: a failed hydration shows only here,
+ * while the page looks almost right. */
 function angularErrors(page: Page): string[] {
   const errors: string[] = [];
   page.on('console', (message) => {
@@ -57,8 +55,8 @@ async function logIn(page: Page): Promise<void> {
 
 test('a signed-out visitor sees no edit-mode toggle', async ({ page }) => {
   const errors = angularErrors(page);
-  // A guest's browser asks who it is at start-up — the server did not — so
-  // its answer arriving means hydration has run.
+  // A guest's browser asks who it is at start-up, unlike the server, so the
+  // answer means hydration ran.
   const hydrated = page.waitForResponse((r) =>
     r.url().includes('/api/auth/me'),
   );
@@ -235,17 +233,15 @@ test.describe('as an admin', () => {
     await expect(page).toHaveURL(/\/admin\/categories$/);
   });
 
-  // Adding used to create a placeholder row the moment it was clicked; now it
-  // opens an editor and the category exists only once it is saved. Cancelling
-  // must therefore leave the tree exactly as it was — which is also what lets
-  // this spec run against the shared database without persisting anything.
+  // Adding opens an editor, and the category exists only once saved, so
+  // cancelling leaves the tree as it was.
   test('opens an editor to add a category, creating nothing until saved', async ({
     page,
   }) => {
     await page.goto('/admin/categories');
     // This screen is client-rendered and fetches its tree after activating, so
-    // wait for a known row before counting — `count()` does not retry, and a
-    // count taken mid-load would be compared against the loaded one below.
+    // wait for a known row before counting: `count()` does not retry, and a
+    // mid-load count would be compared below.
     const rows = page.getByRole('listitem');
     await expect(rows.filter({ hasText: category.name }).first()).toBeVisible();
     const before = await rows.count();
@@ -259,7 +255,7 @@ test.describe('as an admin', () => {
 
     await page.getByRole('button', { name: 'Cancel' }).click();
     await expect(page).toHaveURL(/\/admin\/categories$/);
-    // The tree is exactly as it was — no row was created by opening the editor.
+    // The tree is as it was: opening the editor created no row.
     await expect(rows).toHaveCount(before);
   });
 

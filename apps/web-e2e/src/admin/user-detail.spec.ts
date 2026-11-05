@@ -5,16 +5,9 @@ const env = localtestEnv();
 const ADMIN_EMAIL = env['ADMIN_EMAIL'];
 const ADMIN_PASSWORD = env['ADMIN_PASSWORD'];
 
-/**
- * Reading one account rather than editing it (FR-AUTH-03/04) —
- * `/admin/users/:id`, reached from the name in the account list.
- *
- * What the browser is asked is the path a manager actually takes: the name in
- * the list opens the account, the account reads out, and the button on it goes
- * on to the editor. Reached through the list's own search rather than through a
- * row element, because this spec runs at phone width too, where the admin grid
- * is a list of cards and there is no table.
- */
+/** Reading one account (FR-AUTH-03/04), `/admin/users/:id`, as a manager goes:
+ * list name, account, editor button. Through the list's search, as phone
+ * width shows cards, not a table. */
 async function logIn(page: Page): Promise<void> {
   await page.goto('/login');
   await page.getByLabel('Email').fill(ADMIN_EMAIL);
@@ -29,7 +22,7 @@ test('the name in the account list opens the account, and it reads out', async (
   await logIn(page);
   await page.goto('/admin/users?searchTerm=s.moreau');
 
-  // The one name the search leaves behind — and it is a link now.
+  // The one name the search leaves, as a link.
   const name = page.locator('a[href^="/admin/users/"]:not([href*="/edit"])');
   await expect(name).toHaveCount(1);
   await name.click();
@@ -41,12 +34,10 @@ test('the name in the account list opens the account, and it reads out', async (
   await expect(page.getByText('Tier', { exact: true })).toBeVisible();
   await expect(page.getByText(/no automated update can reach/)).toBeVisible();
 
-  // Nothing on the page itself edits anything — the only field in the frame
-  // is the shell's own search box.
+  // The page edits nothing; the only field is the shell's search box.
   await expect(page.locator('main input')).toHaveCount(0);
 
-  // Nothing pushes the layout sideways — the check that matters on the phone
-  // project.
+  // Nothing pushes the layout sideways, which matters on the phone.
   const overflow = await page.evaluate(
     () =>
       document.documentElement.scrollWidth -

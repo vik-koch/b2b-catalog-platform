@@ -183,9 +183,8 @@ describe('ChangePasswordForm', () => {
     expect(el.textContent).not.toContain(validation.newPasswordRequired);
   });
 
-  // Two different 400s. Showing "that is not your current password" because
-  // the *new* one was refused is exactly the confusion this distinction is
-  // for — it sends the user to correct a field that was never wrong.
+  // Two different 400s: "not your current password" for a refused new one
+  // sends the user to fix a field that was never wrong.
   it('shows the policy’s reason when the new password is refused', async () => {
     const { el, sync, submit } = await render({
       result: 'rejected',

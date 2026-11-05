@@ -16,18 +16,10 @@ import {
 } from './order-items';
 
 /**
- * Sent to whoever placed an order request (FR-NOTIF-06).
- *
- * A receipt for a *request*, never a confirmation of a sale: nothing is charged
- * and nothing is dispatched until a manager answers it, and the wording says
- * so.
- *
- * Where the action leads depends on who ordered. A guest gets the token link —
- * they have no account to read the order from, and it is their only record of
- * what they sent. Somebody with an account gets their own order page instead:
- * mailing them a capability URL to something they can already open signed in
- * would put a shareable, unauthenticated link to their order in an inbox for
- * no reason, and land them on a page written for a stranger.
+ * Sent to whoever placed an order request (FR-NOTIF-06): a receipt for a
+ * request, not a sale. A guest gets the token link, their only record; an
+ * account holder gets their order page, as a shareable link in an inbox would
+ * serve nothing and lead to a page written for a stranger.
  */
 export function orderReceivedMail(
   order: OrderDetail,

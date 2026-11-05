@@ -5,15 +5,10 @@ import { Client } from 'pg';
 import { requireEnv } from '../support/env';
 
 /**
- * The admin catalog write surface, exercised end-to-end against the real API
- * and database: auth guards, slug transliteration + uniqueness, write
- * sanitization, soft delete/restore, and the category guards (cycle, non-empty
- * delete).
- *
- * Isolation: every row is created under the seeded `cleaning` category, whose
- * children and products `catalog.spec` never inspects — so these mutations stay
- * invisible to the parallel storefront specs. All created rows are tracked and
- * removed in afterAll.
+ * The admin catalogue writes against the real API and database: guards,
+ * slugs, sanitising, soft delete and restore, the category guards. Every row
+ * lives under the seeded `cleaning` category, which `catalog.spec` never
+ * reads, and goes in afterAll.
  */
 
 const ADMIN_EMAIL = 'e2e-admincat-admin@example.com';
@@ -654,12 +649,8 @@ describe('Admin catalog (FR-ADM-01)', () => {
     });
   });
 
-  /**
-   * The grid's filter/search/sort surface (FR-ADM-05). Every case scopes to the
-   * test parent category, so the assertions hold no matter what else the seeded
-   * catalog contains — the point is which of *these* rows come back and in what
-   * order, not global counts.
-   */
+  /** The grid's filter, search and sort (FR-ADM-05), scoped to the test
+   * parent: which of these rows come back in what order, not global counts. */
   describe('GET /admin/catalog/products (FR-ADM-05)', () => {
     let liveSlug: string;
     let unpublishedSlug: string;
@@ -753,7 +744,7 @@ describe('Admin catalog (FR-ADM-01)', () => {
     });
 
     it('searches by name, typo included', async () => {
-      // "esspreso" is a misspelling — the fuzzy half has to carry it.
+      // "esspreso" is a misspelling: the fuzzy half carries it.
       const body = await grid('q=esspreso');
       expect(body.items.map((i) => i.slug)).toEqual([liveSlug]);
     });
@@ -764,8 +755,8 @@ describe('Admin catalog (FR-ADM-01)', () => {
     });
 
     it('searches by the private sync key, punctuation and all', async () => {
-      // A key fragment the name half cannot match on any term — the point is
-      // that the slashes and the case survive to reach the sourceId.
+      // A key fragment no name term matches: slashes and case must reach the
+      // sourceId.
       const body = await grid(`q=${encodeURIComponent('DRAFT/3')}`);
       expect(body.items.map((i) => i.slug)).toEqual([unpublishedSlug]);
     });
@@ -798,8 +789,8 @@ describe('Admin catalog (FR-ADM-01)', () => {
     });
 
     it('never leaks a match from another category', async () => {
-      // The same query, unscoped, does find rows outside the grid category —
-      // so the category filter is doing the narrowing above, not the query.
+      // Unscoped, the query finds rows elsewhere, so the category narrowed
+      // above, not the query.
       const scoped = await grid('q=Grid');
       const unscoped = await adminGet(
         `/admin/catalog/products?q=${encodeURIComponent(`Grid ${R}`)}`,
@@ -1093,8 +1084,8 @@ describe('Admin catalog (FR-ADM-01)', () => {
     });
 
     it('asks about packaging without counting it as incomplete', async () => {
-      // None of the three has a pack, so all three lack one — the complete
-      // one included, which is why packaging stays out of "incomplete".
+      // None of the three has a pack, the complete one included, so packaging
+      // is no part of "incomplete".
       expect(await byContent('missing=packaging')).toHaveLength(3);
     });
 
@@ -1123,9 +1114,8 @@ describe('Admin catalog (FR-ADM-01)', () => {
 
   describe('GET /admin/catalog/categories/:slug/hidden-products', () => {
     it('lists the unpublished products across the subtree, and nothing deleted', async () => {
-      // Unpublished directly under the parent and under a child — both must
-      // surface (Pattern A aggregation). A deleted product is out of the
-      // catalog (FR-ADM-22), and a live one is on the storefront already.
+      // Unpublished under the parent and under a child, both counted. A
+      // deleted product is out (FR-ADM-22), a live one already shown.
       const child = await createCategory({ name: `Hidden Sub ${R}` });
       const direct = await createProduct({ name: `Awaiting ${R}` });
       const underChild = await createProduct({
@@ -1149,7 +1139,7 @@ describe('Admin catalog (FR-ADM-01)', () => {
       expect(slugs.has(deleted.data.slug)).toBe(false);
       expect(slugs.has(live.data.slug)).toBe(false);
 
-      // The public tile shape, its price nullable — no internal columns leak.
+      // The public tile shape, price nullable, no internal column.
       expect(Object.keys(items[0]).sort()).toEqual([
         'availability',
         'images',
@@ -1284,9 +1274,8 @@ describe('Admin catalog (FR-ADM-01)', () => {
       });
       await del(`/admin/catalog/products/${created.data.slug}`);
 
-      // Soft delete hides a product from the storefront; it does not release
-      // the tier. The count staff see says so, and the tier stays undeletable —
-      // the honest answer, since the foreign key would refuse it anyway.
+      // A soft delete hides the product but keeps the tier bound: the count
+      // says so, and the foreign key refuses the delete.
       const tiers = await adminGet('/admin/tiers');
       const row = tiers.data.tiers.find((t: { id: string }) => t.id === tierId);
       expect(row.priceCount).toBeGreaterThan(0);
@@ -1406,7 +1395,7 @@ describe('Admin catalog (FR-ADM-01)', () => {
     });
 
     // The seed features two products and this one makes three, under the
-    // row's five — so the draw has room for every featured one every time.
+    // row's five, so the draw has room for every featured one.
     it('puts a featured product in every draw, and one out of stock in none', async () => {
       const created = await createProduct({
         name: `Featured in row ${R}`,
@@ -1719,8 +1708,8 @@ describe('Admin catalog (FR-ADM-01)', () => {
       const edited = await adminGet(`/admin/catalog/products/${cup.data.slug}`);
       expect(pairedSlugs(edited.data)).toHaveLength(2);
 
-      // Before the save there is nothing to list — an empty list, not a 404:
-      // the product exists, and it is sold with nothing.
+      // Before the save, an empty list, not a 404: the product exists and is
+      // sold with nothing.
       const lone = await createProduct({ name: `Lone ${R}` });
       await publishProduct(lone.data.slug);
       const none = await axios.get(
@@ -1764,8 +1753,8 @@ describe('Admin catalog (FR-ADM-01)', () => {
           .items.length,
       ).toBe(1);
 
-      // Withdrawing the counterpart takes the marker down without touching the
-      // edge — the admin's set is unchanged, the offer is not.
+      // Withdrawing the counterpart drops the marker, not the edge: the set
+      // stands, the offer goes.
       // In steps, as any removal: off the storefront first (FR-ADM-01).
       await patch(`/admin/catalog/products/${onSale.data.slug}/published`, {
         published: false,

@@ -38,7 +38,7 @@ export const customerRevision = alias(orderRevisions, 'customerRevision');
 export const acceptedTerms = alias(pageVersions, 'acceptedTerms');
 
 /**
- * An order and one of its versions as one flat row (ADR 0051). The version's
+ * An order and one of its versions as one flat row. The version's
  * `status` and `statusReason` come last and win, so a customer can be shown a
  * version the order has moved past; queries filter on `orders.status`.
  */
@@ -92,8 +92,8 @@ export interface CustomerThread {
   newestChange: number;
 }
 
-/** The columns a version carries forward unchanged when the order moves but
- * says nothing new — everything except the version's own bookkeeping. */
+/** What a version carries over when the order moves and says nothing new:
+ * everything but the version's own bookkeeping. */
 export type OrderSnapshot = Omit<
   typeof orderRevisions.$inferInsert,
   | 'id'
@@ -129,8 +129,8 @@ export function refuseIfDetailsRemoved(row: OrderRow): void {
   }
 }
 
-/** Two people writing one order at once. Whichever of the two guards catches
- * it — the version number or the pointer — the loser is told the same thing. */
+/** Two people writing one order at once: whichever guard catches it, the
+ * version number or the pointer, the loser hears the same. */
 export const orderMovedOn = () =>
   new ConflictException({
     code: 'order-changed',
@@ -187,8 +187,8 @@ const statusPriority = sql<number>`case ${orders.status}
   else 2
 end`;
 
-/** What a version carries when nothing about the order itself changed —
- * every snapshot column of the version being superseded, word for word. */
+/** What a version carries when the order itself did not change: every copied
+ * column of the one before, word for word. */
 export function carriedSnapshot(row: OrderRow): OrderSnapshot {
   return {
     contactName: row.contactName,

@@ -5,11 +5,8 @@ import {
   resolveState,
 } from './product-grid-query';
 
-/**
- * The grid's parameters come from the URL, which anyone can edit and any old
- * bookmark can carry — so what matters here is that nothing but a valid key
- * ever reaches the API, and that the default view has exactly one URL.
- */
+/** The grid's parameters come from an editable URL: only valid keys reach the
+ * API, and the default view has one URL. */
 describe('resolveSort', () => {
   it.each(['name', 'name_desc', 'price', 'price_desc', 'updated_desc'])(
     'passes %s through',

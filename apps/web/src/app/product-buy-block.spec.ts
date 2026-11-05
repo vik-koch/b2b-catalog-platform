@@ -19,10 +19,8 @@ import { defaultSharedCatalogText } from './core/catalog/catalog-text.fixture';
 const text = defaultSharedCatalogText.buying;
 const unitText = defaultSharedCatalogText.unitFacts;
 
-/**
- * Ten to a pack, four packs to a box (so forty pieces), and a hundred-piece
- * minimum — ten whole packs, which is what the minimum now has to be.
- */
+/** Ten to a pack, four packs to a box (forty pieces), and a hundred-piece
+ * minimum: ten whole packs. */
 const packaged = productDetail({
   slug: 'filter-roast',
   name: 'Filter Roast',
@@ -42,8 +40,7 @@ async function render(item: ProductDetail, canAdd = true) {
   return renderKeepingCart(item, canAdd);
 }
 
-/** A fresh component over whatever the browser already holds — what a return
- * visit to the same product is. */
+/** A fresh component over what the browser holds: a return visit. */
 async function renderKeepingCart(item: ProductDetail, canAdd = true) {
   TestBed.resetTestingModule();
   TestBed.configureTestingModule({
@@ -109,7 +106,7 @@ async function renderKeepingCart(item: ProductDetail, canAdd = true) {
       await rerender();
     },
     noteField: () => el.querySelector('textarea') as HTMLTextAreaElement,
-    /** Types, then leaves the field — which is when a note is recorded. */
+    /** Types, then leaves the field, which records a note. */
     async note(value: string) {
       const area = el.querySelector('textarea') as HTMLTextAreaElement;
       area.value = value;
@@ -122,8 +119,7 @@ async function renderKeepingCart(item: ProductDetail, canAdd = true) {
 }
 
 describe('ProductBuyBlock', () => {
-  // The same two lines a grid tile shows, word for word — a customer comparing
-  // a card against the page it links to is comparing the same sentences.
+  // The grid tile's two lines word for word, so card and page compare alike.
   it('states the minimum and the packaging exactly as a tile does', async () => {
     const view = await render(packaged);
 
@@ -209,9 +205,8 @@ describe('ProductBuyBlock', () => {
     expect(view.text()).not.toContain(text.add);
   });
 
-  // FR-SET-05 on the product page: after the packaging facts and before the
-  // note — one more thing the product says about itself, and the note is the
-  // one thing on this panel the customer writes.
+  // FR-SET-05 on the product page: after the packaging, which the product
+  // says of itself, before the note, which the customer writes.
   it('names the counterparts once, between the packaging and the note', async () => {
     const view = await render(
       productDetail({ pairedCount: 2, lineNoteEnabled: true }),

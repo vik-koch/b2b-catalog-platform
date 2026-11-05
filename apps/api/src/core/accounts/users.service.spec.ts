@@ -4,14 +4,10 @@ import { LastAdminError } from './last-admin-error';
 import { Captured, renderingDb } from './rendering-db.fixture';
 
 /**
- * The rule every admin-removal path shares: self-deletion, deactivation and a
- * demotion all run their write through this, so the shop cannot be left with
- * nobody who can let people back in.
- *
- * What is asserted here is the decision and the fact that it wraps the write.
- * The lock that makes two simultaneous removals serialize is Postgres doing
- * the work — `for update` on every admin row is rendered here, but only a real
- * database can show the second caller waiting for the first.
+ * The rule every admin removal shares (self-deletion, deactivation, demotion),
+ * so the shop always keeps somebody who can let people in. This asserts the
+ * decision and that it wraps the write; the `for update` lock is rendered, but
+ * only a real database shows a second caller waiting.
  */
 describe('UsersService.removingAdmin', () => {
   const service = (admins: { id: string }[]) =>
@@ -37,11 +33,9 @@ describe('UsersService.removingAdmin', () => {
   });
 
   /**
-   * A disabled admin is not a way back in — nobody can sign in as it to switch
-   * it back on — and an anonymized one is a tombstone. Neither is counted, so
-   * what is protected is the last admin who can *use* the account, not the
-   * last row that happens to say `admin`. An invited one does count: the link
-   * in their inbox is a way in.
+   * Disabled and anonymized admins cannot sign in, so they do not count: what
+   * is protected is the last admin who can use the account. An invited one
+   * counts, as the link in their inbox is a way in.
    */
   it('counts only the admins who could still sign in', async () => {
     const locks: Captured[] = [];

@@ -10,16 +10,10 @@ import { cached, JourneyAdapter, Probe } from '../support/journey/journey';
 import { SYNC_PROBES as reading } from './sync-probe-labels';
 
 /**
- * What a catalog-sync journey acts on and reads — the sync half of the journey
- * facility (`support/journey/journey.ts`), which knows no more about feeds
- * than it does about orders or accounts.
- *
- * The question here is the one no single-run test answers: **what the shop is
- * told across a sequence of runs**, which is mostly nothing. A failure is
- * announced once and its repetitions are silent; a queue that already holds
- * something does not announce itself again. Each of those is a claim about a
- * run in the light of the run before it, and a per-endpoint test can only ever
- * see one.
+ * What a catalogue-sync journey acts on and reads, for the journey facility
+ * (`support/journey/journey.ts`): what the shop hears across runs, mostly
+ * nothing. A failure is announced once; a waiting queue does not announce
+ * itself again.
  */
 
 export interface SyncJourneyContext {
@@ -33,8 +27,7 @@ export interface SyncJourneyContext {
   /** The panel's staged count when the journey started; every reading is
    * against this, so a deployment's own history is not in the figures. */
   readonly stagedAtStart: number;
-  /** The newest run this journey produced — what an admin's apply or discard
-   * acts on. */
+  /** The journey's newest run, which an admin applies or discards. */
   runId?: string;
 }
 
@@ -89,11 +82,8 @@ const row = (ctx: SyncJourneyContext, n: number, price = 1000) => ({
   prices: { default: price },
 });
 
-/**
- * The deployment's own wording, used to recognise mail rather than to assert
- * on it: a reworded template must not fail these specs. What they are about is
- * *which* message arrived — and, more often, that none did.
- */
+/** The deployment's wording, to recognise mail, not assert on it: these
+ * specs ask which message arrived, or that none did. */
 const mailText = JSON.parse(
   readFileSync(configFile('texts/mail.json'), 'utf8'),
 ) as {

@@ -14,12 +14,9 @@ import {
 } from '@b2b-catalog-platform/shared/core/catalog';
 import { sharedTextBlock } from '../../../platform/config/shared-text';
 
-/**
- * A line as both order mails state it, from the order's own snapshots: the
- * reading it was bought through, and — where that is not the piece — what it
- * came to in pieces. A mail is read months later, beside goods somebody is
- * counting, and the product may have been repacked since.
- */
+/** A line as both order mails state it, from the order's copies: the unit it
+ * was bought in, and its pieces where that is no piece. A mail is read months
+ * later beside the goods, maybe after a repack. */
 export function orderMailItem(
   line: OrderDetail['lines'][number],
   currency: MoneyFormat,
@@ -61,12 +58,9 @@ export function orderLinesDifferInTax(order: OrderDetail): boolean {
   );
 }
 
-/**
- * The tax basis the order was submitted under, as a mail or the order summary
- * states it under the total (NFR-LEGAL-11): the rate the lines share, or only
- * the basis once they differ. A statement, never a figure — the shop's invoice
- * states the tax.
- */
+/** The order's tax basis under the total (NFR-LEGAL-11): the lines' shared
+ * rate, or the basis alone once they differ. Never a figure: the invoice
+ * states the tax. */
 export function orderTaxStatement(
   order: OrderDetail,
   locale: string | undefined,

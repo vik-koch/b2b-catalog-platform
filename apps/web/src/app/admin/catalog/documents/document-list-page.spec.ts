@@ -83,8 +83,7 @@ async function render(
   return { fixture, el, rows, service, confirm };
 }
 
-/** An ISO day `days` from now — the states are relative to today, so the
- * fixtures have to be too. */
+/** An ISO day `days` from now: the states are relative to today. */
 function day(days: number): string {
   const date = new Date();
   date.setUTCDate(date.getUTCDate() + days);

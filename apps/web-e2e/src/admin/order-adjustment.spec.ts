@@ -3,12 +3,8 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { localtestEnv, workspaceRoot } from '../support/localtest';
 
-/**
- * The wording is read from the deployment's own text rather than repeated
- * here. These labels are short and get reworded — twice already — and a spec
- * that hardcodes them fails the next time somebody shortens a button rather
- * than the next time the button stops working.
- */
+/** The wording is read from the deployment's text, not repeated: a hardcoded
+ * label fails when a button is reworded, not when it breaks. */
 const adminText = (
   JSON.parse(
     readFileSync(
@@ -55,14 +51,10 @@ const ADMIN_EMAIL = env['ADMIN_EMAIL'];
 const ADMIN_PASSWORD = env['ADMIN_PASSWORD'];
 
 /**
- * Adjusting an order (FR-ORD-03) in a real browser: the form seeded from the
- * order, the change list that says what a manager is about to tell the
- * customer, and the version history left behind afterwards.
- *
- * It works on the one seeded order that already carries a change — a guest's,
- * so no account's own queue counts it and no other spec asserts anything about
- * it. Changing it again leaves it exactly where it stands, with one more
- * version behind it.
+ * Adjusting an order (FR-ORD-03) in a browser: the form from the order, the
+ * change list, the history after. On the seeded guest order that already has a
+ * change, which no queue counts and no spec reads; another change only adds a
+ * version.
  */
 const REFERENCE = 'CK-260901-5528';
 
@@ -85,9 +77,8 @@ test.describe('adjusting an order', () => {
       .getByRole('button', { name: RegExp(detail.revisions.subheading) })
       .click();
 
-    // What the shop said it changed, and — once unfolded — the difference it
-    // made. The differences are worked out only for the version opened, so
-    // this is also the assertion that the fold does that work.
+    // What the shop said it changed and, unfolded, the difference, computed
+    // only for the opened version.
     await expect(page.getByText(/Only 12 of the espresso left/)).toBeVisible();
     await page
       .getByRole('button', { name: detail.revisions.changes })
@@ -96,19 +87,14 @@ test.describe('adjusting an order', () => {
     await expect(page.getByText(names.total).first()).toBeVisible();
   });
 
-  /**
-   * Reading a version and answering the order are two screens (ADR 0051). The
-   * list's title opens the first; everything a manager does lives on the
-   * second, and the read-only page's only control is the way there.
-   */
+  /** Reading a version and answering are two screens: the list's title opens
+   * the first, whose only control leads to the second. */
   test('opens a version from the list, and the order from the version', async ({
     page,
   }) => {
     await logIn(page);
-    // `searchTerm`, not `q`: the find-a-row box on this screen writes its own
-    // param, and `q` is the navbar's. With `q` the list came back unfiltered
-    // and this passed only while the seeded order was still on the first page
-    // — which every run that places an order pushes it further from.
+    // `searchTerm`, not `q`, which is the navbar's: unfiltered, the seeded
+    // order drifts off the first page with every placed order.
     await page.goto(`/admin/orders?searchTerm=${REFERENCE}`);
 
     await page.getByRole('link', { name: REFERENCE }).first().click();
@@ -159,9 +145,8 @@ test.describe('adjusting an order', () => {
     ).toBe(true);
   });
 
-  // One browser only: both projects share a database, and two managers
-  // adjusting one order is exactly the race the endpoint refuses — which is
-  // correct behaviour and a flaky test.
+  // One browser: both projects share a database, and two managers on one order
+  // is the race the endpoint refuses.
   test('writes a new version and tells the manager what it says', async ({
     page,
     isMobile,
@@ -183,10 +168,8 @@ test.describe('adjusting an order', () => {
     await expect(
       page.getByText('One more pack, as agreed.').first(),
     ).toBeVisible();
-    // The change was not shown to them, so their page is a version behind —
-    // and the customer row offers the way to put that right. Moving them on
-    // comes before writing to them: a message about a version they are not
-    // being shown would link them to something else.
+    // Unshown, their page is a version behind, which the customer row fixes:
+    // moved on first, or a message would link elsewhere.
     await expect(
       page.getByRole('button', { name: detail.tellCustomer.update }),
     ).toBeVisible();

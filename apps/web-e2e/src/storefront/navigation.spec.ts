@@ -68,8 +68,7 @@ test('navigates between legal pages client-side without a full reload', async ({
   await page.goto('/withdrawal');
   await expect(page.locator('h1')).toHaveText(withdrawalPageSeed.title);
 
-  // Marker that a full document reload would wipe — lets us assert the hops
-  // below stay within the SPA instead of round-tripping to the server.
+  // A marker a full reload would wipe, proving the hops below stay in the SPA.
   await page.evaluate(() => {
     document.documentElement.dataset['spa'] = 'true';
   });
@@ -104,8 +103,8 @@ test('collapsing and restoring the utility bar never moves the page content', as
   // Position in *document* coordinates, so scrolling alone cannot change it.
   const headingTop = () =>
     heading.evaluate((el) => el.getBoundingClientRect().top + window.scrollY);
-  // Tailwind v4's translate utilities set the `translate` property, not
-  // `transform` — which stays "none" throughout.
+  // Tailwind v4's translate utilities set `translate`, not `transform`, which
+  // stays "none".
   const headerOffset = () =>
     page.locator('header').evaluate((el) => getComputedStyle(el).translate);
 
@@ -127,9 +126,8 @@ test('collapsing and restoring the utility bar never moves the page content', as
 
 // The attribution page and the file behind it only exist in a production
 // build: `extractLicenses` writes 3rdpartylicenses.txt beside the server
-// bundle, and the SSR tier serves it. Nothing below the container boundary
-// proves that — the unit tests stub the fetch — so the smoke test is where the
-// wiring is actually checked.
+// bundle, and the SSR tier serves it. The unit tests stub the fetch, so only
+// this smoke test checks the wiring.
 test('serves the third-party license notice behind the footer link', async ({
   page,
   request,

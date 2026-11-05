@@ -1,23 +1,14 @@
 #!/usr/bin/env node
 /**
- * Emits the browser's copy of the API contracts: routes only, no schemas.
+ * Emits the browser's copy of the API contracts: routes only, no schemas. The
+ * oRPC link reads only `method`, `path`, `inputStructure` and
+ * `outputStructure`; the real contract would ship every schema and Zod, ~118
+ * kB that never runs. `minifyContractRouter` makes plain data, which the
+ * structural `isContractProcedure` accepts.
  *
- * The oRPC client is handed a contract so its OpenAPI link knows which method
- * and path a call maps to. It reads nothing else — `method`, `path`,
- * `inputStructure` and `outputStructure` are the only fields the link codec
- * touches, because validation is the server's job. Handing it the real contract
- * therefore ships every Zod schema in the app to the browser, and Zod with
- * them: ~118 kB of runtime that never runs there.
- *
- * So the shape the client needs is generated from the contracts rather than
- * written twice. `minifyContractRouter` is oRPC's own helper for this; the
- * result is plain data, and `isContractProcedure` accepts it because that check
- * is structural.
- *
- * Run `node tools/generate-contract-routes.mjs` after changing a route (the
- * method, the path, or an input/output structure — schema edits change
- * nothing here). `--check` verifies the committed files match, which is what
- * CI runs.
+ * Run `node tools/generate-contract-routes.mjs` after changing a route's
+ * method, path or input/output structure; schema edits change nothing here.
+ * `--check` verifies the committed files match, which is what CI runs.
  */
 import { build } from 'esbuild';
 import { minifyContractRouter } from '@orpc/contract';

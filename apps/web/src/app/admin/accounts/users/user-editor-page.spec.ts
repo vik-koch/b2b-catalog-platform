@@ -214,8 +214,8 @@ describe('UserEditorPage', () => {
     });
 
     expect((field('firstName') as HTMLInputElement).value).toBe('Jane');
-    // The country code is displayed beside the phone field, never inside it —
-    // otherwise a save would double it up. A registration number has no such
+    // The country code sits beside the phone field, never inside it, or a save
+    // doubles it. A registration number has no such
     // split: it is shown exactly as stored, whatever shape it is in.
     expect((field('phone') as HTMLInputElement).value).toBe('(040) 123-4567');
     expect((field('companyRegistrationId') as HTMLInputElement).value).toBe(
@@ -256,7 +256,7 @@ describe('UserEditorPage', () => {
 
     expect(field('email')).toBeNull();
     expect(el.textContent).toContain(text.emailFixed);
-    // It is still shown — it is how staff recognise the account.
+    // Still shown: it is how staff recognise the account.
     expect(el.textContent).toContain('jane@example.com');
   });
 
@@ -489,8 +489,8 @@ describe('UserEditorPage', () => {
     expect(invited.service.sendPasswordLink).toHaveBeenCalledWith('u1');
     expect(invited.el.textContent).toContain(text.resendSent);
 
-    // An account that has chosen a password gets the reset link instead —
-    // which one it is is the API's decision, so the button is the same button.
+    // An account with a password gets the reset link instead; the API decides,
+    // so it is one button.
     const active = await render({ account: user({ status: 'active' }) });
     expect(active.button(text.resend)).toBeDefined();
 

@@ -3,14 +3,9 @@ import axios from 'axios';
 import { Client } from 'pg';
 import { priceProduct } from '../support/catalog-fixture';
 
-/**
- * Tier price resolution end to end (FR-AUTH-05, ADR 0031): the same product,
- * fetched by a guest and by a customer in a tier, must come back with different
- * prices — and a product the tier does not price must fall back to the base
- * list rather than disappearing or costing nothing.
- *
- * The unit tests assert the SQL's shape; only this one proves the numbers.
- */
+/** Tier prices end to end (FR-AUTH-05): one product, a guest's price and a
+ * tier's; an unpriced one falls back to the base list. The unit tests check
+ * the SQL; this, the numbers. */
 
 const TIER_KEY = 'e2e-tier-wholesale';
 const CUSTOMER = 'e2e-tier-customer@example.com';
@@ -62,11 +57,8 @@ describe('Tier prices (FR-AUTH-05)', () => {
 
     await removeFixture();
 
-    // Two products in a category of this suite's own making: one the tier
-    // re-prices, one it does not. Built here rather than picked out of the seed
-    // because the listing assertions below need a page nothing else can change
-    // — other suites create, re-price and withdraw published products of their
-    // own while this one runs.
+    // Two products in this suite's own category, one re-priced by the tier:
+    // the listings below need a page parallel suites cannot change.
     const { rows: categoryRows } = await client.query(
       `INSERT INTO categories ("sourceId", slug, name)
        VALUES ($1, $1, 'E2E Tier Prices') RETURNING id`,
@@ -188,9 +180,8 @@ describe('Tier prices (FR-AUTH-05)', () => {
     );
     expect(hit).toBeDefined();
     expect(hit.prices.piece).toBe(OVERRIDE_MINOR);
-    // Re-priced to one minor unit, so an ascending price sort must put it
-    // first — the proof that ordering follows resolution rather than the base
-    // column, which would have placed it by its original price.
+    // One minor unit, so an ascending sort puts it first: ordering follows the
+    // resolved price, not the base column.
     expect(res.data.items[0].slug).toBe(PRICED_SLUG);
   });
 

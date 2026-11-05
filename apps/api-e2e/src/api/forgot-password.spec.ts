@@ -32,12 +32,8 @@ const tokenFrom = (html: string): string => {
   return match[1];
 };
 
-/**
- * FR-AUTH-02. Two things are being tested at once: that somebody locked out
- * gets back in, and that nobody learns from the form which addresses have
- * accounts — the answer is the same every time, so the difference is only ever
- * in what arrives (or does not) in a mailbox.
- */
+/** FR-AUTH-02: a locked-out person gets back in, and the form reveals no
+ * account: one answer always, the difference only in the mailbox. */
 describe('/auth/forgot-password', () => {
   let client: Client;
 
@@ -141,11 +137,8 @@ describe('/auth/forgot-password', () => {
     expect(old.status).toBe(401);
   });
 
-  /**
-   * An invited account has no password to reset — what it is missing is the
-   * invitation. Without this, an expired invitation is a dead end, since the
-   * staff resend is the only other way to get one.
-   */
+  /** An invited account lacks the invitation, not a password, so a reset
+   * resends it, or an expired one is a dead end. */
   it('sends an invited account its invitation instead', async () => {
     await ask(INVITED_EMAIL);
 

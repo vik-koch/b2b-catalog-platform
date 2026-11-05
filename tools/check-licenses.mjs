@@ -1,22 +1,12 @@
 #!/usr/bin/env node
 /**
- * License policy gate for the production dependency tree.
+ * The licence gate for the production dependency tree: CI fails on any licence
+ * outside the allowlist, so a copyleft dependency (GPL/AGPL/SSPL) a closed
+ * deployment cannot ship is caught when it lands. Attribution is the build's:
+ * `extractLicenses` writes `3rdpartylicenses.txt`, served at `/licenses.txt`.
  *
- * Two separate concerns, and this script owns the first:
- *
- *  1. *May we ship this at all?* — a copyleft dependency (GPL/AGPL/SSPL) that
- *     reaches production is a licensing problem for a closed client deployment,
- *     and one nobody notices at `npm install` time. This gate fails CI on any
- *     license outside the allowlist, so the answer is decided when the
- *     dependency lands rather than after it ships.
- *  2. *Attribution* — handled by the build, not here: Angular's `extractLicenses`
- *     emits `3rdpartylicenses.txt` for exactly the code that ends up in the
- *     browser bundle, which the SSR tier serves at `/licenses.txt` and the
- *     /licenses route renders. Nothing is generated into the repo.
- *
- * Scope is `npm ls --omit=dev`: dev tooling is never distributed, so its
- * licenses do not bind us. The production tree over-approximates the browser
- * bundle (it includes server-only packages), which is the safe direction.
+ * Scope is `npm ls --omit=dev`: dev tooling is never distributed. The
+ * production tree covers more than the browser bundle, the safe direction.
  */
 import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
@@ -36,18 +26,14 @@ const ALLOWED = new Set([
   'Unlicense',
   'CC0-1.0',
   'Python-2.0',
-  // File-level copyleft. Fine as long as we consume it unmodified, which we do
-  // — it arrives as a build-time binary and we never patch its sources.
+  // File-level copyleft, fine unmodified: a build-time binary whose sources
+  // are never patched.
   'MPL-2.0',
 ]);
 
-/**
- * Whether a license expression is acceptable. The expressions that turn up here
- * are simple — a list of SPDX ids joined by OR or AND, sometimes parenthesised
- * — so they are evaluated directly rather than by pulling in a parser. OR
- * passes when *any* choice is allowed, because we get to take that one; AND
- * passes only when *every* part is. Anything mixing both is left to a human.
- */
+/** Whether a licence expression passes. They are simple (SPDX ids joined by OR
+ * or AND), so no parser: OR passes on any allowed choice, AND only on all.
+ * Mixed ones go to a human. */
 function isAllowed(expression) {
   const clean = expression
     .trim()
@@ -95,8 +81,8 @@ function licenseOf(pkg) {
 
 function productionPackageDirs() {
   // `npm ls` exits non-zero on any tree quibble (extraneous, peer mismatch)
-  // while still printing a usable list, so the exit code is deliberately not
-  // treated as fatal — an empty list is what would actually mean failure.
+  // while still printing a usable list, so its exit code is not fatal; an
+  // empty list is.
   let stdout = '';
   try {
     stdout = execFileSync('npm', ['ls', '--omit=dev', '--all', '--parseable'], {

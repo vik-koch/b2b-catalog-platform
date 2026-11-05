@@ -36,10 +36,9 @@ export function renderingDb(
 
   const name = (table: unknown) => getTableName(table as never);
 
-  // The genuine builder, because the order scrub scopes its subquery with one
-  // — except for the locking read the admin guard ends with `.for('update')`,
-  // which is answered with the admin rows this test wants it to see, and the
-  // read of the account's open consents, answered with one.
+  // The real builder, as the order scrub scopes its subquery with one. Two
+  // reads are answered: the admin guard's `.for('update')` with the admins
+  // the test wants, the open consents with one.
   const select = (...args: never[]) => {
     const builder = real.select(...(args as [never]));
     const from = builder.from.bind(builder);

@@ -438,8 +438,8 @@ describe('RegisterPage', () => {
     );
   });
 
-  // The API answers the same for a known address, so the page must not imply
-  // an account was created — only that something was sent if it could be.
+  // The API answers a known address alike, so the page claims no account,
+  // only that something was sent if it could be.
   it('confirms without claiming the address was new', async () => {
     const { el, sync, submit, fillPerson } = await render();
 
@@ -519,8 +519,8 @@ describe('RegisterPage', () => {
   });
 
   describe('company suggestions (FR-AUTH-09)', () => {
-    // Both fields ask the same provider, so there is no "right" one to start
-    // in — which is why neither is ever disabled to steer the customer.
+    // Both fields ask one provider, so neither is the right one to start in,
+    // and neither is disabled to steer.
     it.each(['companyRegistrationId', 'companyName'] as const)(
       'fills both fields from a row picked in %s',
       async (field) => {

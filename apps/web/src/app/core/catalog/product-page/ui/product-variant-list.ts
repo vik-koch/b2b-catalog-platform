@@ -6,8 +6,8 @@ import {
 import { SectionTitle } from '@b2b-catalog-platform/ui/content/section-title';
 import { SHARED_CATALOG_TEXT } from '../../catalog-text';
 
-/** Where a variant's first picture is in the gallery, or -1 where it has none
- * on show — none uploaded yet, or withheld while it is unavailable. */
+/** Where a variant's first picture is in the gallery, or -1 where none
+ * shows: none uploaded, or withheld while unavailable. */
 export function firstPictureOf(
   images: readonly ProductImage[],
   variant: string,

@@ -1,23 +1,12 @@
 /**
  * Whether a cart holds enough of what its products are sold with (FR-SET-02),
- * and where it does not, by how much.
+ * and by how much it falls short. Symmetric and in pieces: each paired product
+ * must be covered by its counterparts' pieces, allocated, not summed. Ten lids
+ * shared by ten cups and ten mugs cover either, not both.
  *
- * The rule is symmetric and counted in pieces: every paired product in the cart
- * must have its own piece count covered by pieces of its counterparts. The
- * catch is that cover is **allocated, not summed** — a cart of 10 cups, 10 mugs
- * and 10 lids, where both the cup and the mug take that lid, has enough lids for
- * either but not for both, and adding the lid's ten pieces up twice would call
- * that cart satisfied.
- *
- * Stated properly it is a bipartite feasibility question: each product appears
- * once as a demand and once as a supply, an edge lets a demand draw on a
- * counterpart's supply, and the cart is satisfied exactly when every demand can
- * be met at once. That is a max-flow, and at this size — fewer than one product
- * in a hundred is paired, so a realistic cart has a handful of paired lines —
- * an augmenting-path search is the whole implementation.
- *
- * Shared rather than server-only because the same answer is needed twice: the
- * cart states it, and checkout may refuse on it.
+ * Each product is a demand and a supply, so it is a max-flow; with few paired
+ * lines per cart, an augmenting-path search is enough. The cart states it and
+ * checkout may refuse on it.
  */
 
 /** A cart line as the check reads it: how many pieces, and which of the other
@@ -25,12 +14,8 @@
 export interface PairingLine {
   slug: string;
   pieces: number;
-  /**
-   * Whether this product is sold with anything at all — separate from the list
-   * below, and the whole difference between a product sold alone and one whose
-   * counterparts are simply not in the cart. The second is *maximally* short,
-   * and a list that is empty in both cases cannot say which is which.
-   */
+  /** Whether it is sold with anything: an empty list cannot tell a product
+   * sold alone from one whose counterparts are all missing. */
   paired: boolean;
   /** Those of its counterparts that are also in this cart. Slugs that are not
    * among the lines are ignored, so a caller may pass the whole neighbourhood
@@ -54,16 +39,12 @@ interface Edge {
 }
 
 /**
- * What each product is short of, most short first, ties broken by slug.
+ * What each product is short of, most first, ties by slug. Only paired lines
+ * demand; one with no counterpart in the cart demands all its pieces.
  *
- * Only paired lines demand anything, and a paired line whose counterparts are
- * none of them in the cart demands its whole piece count with nothing to draw
- * on — which is why `paired` is a field of its own and not read off the list.
- *
- * The shortfall of a product that shares its counterpart with another is not
- * uniquely determined: the total missing is, but which of the two is told about
- * it depends on the order the paths are found in. That order is the order the
- * lines arrive in, so the same cart always gets the same answer.
+ * Where two share a counterpart, the total missing is fixed but who is told
+ * depends on the search order, which is the lines' order, so one cart always
+ * gets one answer.
  */
 export function pairingShortfalls(
   lines: readonly PairingLine[],
@@ -116,11 +97,8 @@ export function pairingShortfalls(
   );
 }
 
-/**
- * Edmonds–Karp: shortest augmenting path first, until none is left. Chosen for
- * being the least machinery that terminates predictably — the graph has a few
- * dozen nodes at the very most, so nothing here is worth making faster.
- */
+/** Edmonds-Karp, shortest augmenting path first: the least machinery that
+ * ends predictably on a few dozen nodes. */
 function maximizeFlow(graph: Edge[][], source: number, sink: number): void {
   for (;;) {
     // BFS over the residual graph, recording the edge each node was reached by.

@@ -1,12 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { isGatedPath, isStaffPreview } from './maintenance.server';
 
-/**
- * Which paths maintenance mode hides. The gate is fail-safe by default — an
- * unlisted path is storefront content and gets the 503 screen — so the cases
- * that matter are the ungated ones, and above all the admin *sub*-routes: they
- * are the panel the admin uses to populate the site while the gate is on.
- */
+/** Which paths maintenance hides. Unlisted paths get the 503, so what matters
+ * are the ungated ones, above all the admin sub-routes that fill the site
+ * meanwhile. */
 describe('isGatedPath', () => {
   it('gates storefront content', () => {
     for (const path of [
@@ -79,11 +76,8 @@ describe('isGatedPath', () => {
   });
 });
 
-/**
- * Who the SSR gate waves past. The hint is a rendering signal, not an
- * authorization one — the point of these cases is that only the exact staff
- * values count, so a customer's cookie never turns the storefront back on.
- */
+/** Who the SSR gate waves past. The hint renders, never authorises: only exact
+ * staff values count, so a customer's cookie opens nothing. */
 describe('isStaffPreview', () => {
   it('recognises staff among other cookies', () => {
     expect(isStaffPreview('cart=x; session_role=admin; consent=all')).toBe(

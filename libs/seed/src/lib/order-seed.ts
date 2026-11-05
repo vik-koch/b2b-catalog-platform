@@ -9,17 +9,11 @@ import { shipmentEstimate } from '@b2b-catalog-platform/shared/core/ordering';
 import { OrderLineSeed, OrderSeed, SeedBundle } from './bundle';
 
 /**
- * Saved addresses and placed orders for the demo.
- *
- * **Create-if-missing, like the accounts** — and for the same reason twice
- * over: an order is an event, so a re-seed must never mint a second copy of
- * one, and an address a demo visitor edited is theirs to have edited. Orders
- * key on their unique `reference`; addresses, which have no natural key, on the
- * account plus the street line.
- *
- * Every figure is derived from the catalog as seeded rather than written out —
- * a line total, the piece price's basis, the shipment estimate — so the demo
- * orders stay consistent with the prices the storefront is showing.
+ * The demo's saved addresses and placed orders, created if missing like the
+ * accounts: an order is an event, never minted twice, and a visitor's edits to
+ * an address stand. Orders key on `reference`, addresses on account and street.
+ * Every figure derives from the seeded catalogue, so orders match the prices
+ * shown.
  */
 export async function seedOrders(
   client: Client,
@@ -125,8 +119,8 @@ async function insertOrder(
     );
   }
 
-  // The order row carries identity and workflow; what it says lives on its
-  // versions (ADR 0051), and it points at the one that stands.
+  // The row carries identity and workflow; what the order says lives on its
+  // versions, and it points at the current one.
   const { rows: inserted } = await client.query<{ id: string }>(
     `INSERT INTO orders (
        reference, "publicToken", "userId", status, "statusChangedAt", "statusChangedBy",
@@ -226,8 +220,8 @@ async function insertOrder(
         tierKey,
         // A demo history rather than a recorded one: the version the customer
         // sent, and the shop's change to it. The order's own status lands on
-        // the last version, and everything before it reads as still waiting —
-        // which is what a thread of versions looks like from the outside.
+        // the last version, and every earlier one reads as still waiting, as a
+        // thread of versions does.
         index === 0 ? 'submitted' : 'adjustment',
         last ? order.status : 'requested',
         last ? (order.statusReason ?? null) : null,
@@ -271,9 +265,8 @@ async function insertOrder(
   );
 }
 
-/** One version's lines, priced from the catalog as seeded — a line total and
- * the shipment estimate, so the demo orders stay consistent with the prices
- * the storefront is showing. */
+/** One version's lines, priced from the seeded catalogue (line totals, the
+ * shipment estimate), so they match the prices shown. */
 function priceVersion(
   reference: string,
   lines: OrderLineSeed[],
@@ -286,8 +279,8 @@ function priceVersion(
     const priceMinor = row.tierPriceMinor ?? row.defaultPriceMinor;
     const lineTotalMinor = totalMinor(priceMinor, line.pieces);
     const quantity = unitQuantity(packaging, line.unit, line.pieces);
-    // Null only where a fixture buys a unit the product's own rules refuse —
-    // which is a broken fixture, not a runtime case.
+    // Null only where a fixture buys a unit the product refuses: a broken
+    // fixture, not a runtime case.
     if (quantity === null) {
       throw new Error(
         `order ${reference}: ${line.sourceId} cannot be bought as ` +

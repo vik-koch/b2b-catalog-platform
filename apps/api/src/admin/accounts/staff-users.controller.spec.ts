@@ -67,7 +67,7 @@ describe('StaffUsersController', () => {
     role: 'manager' as const,
   };
 
-  /** A whole valid edit — the editor always posts the complete field set. */
+  /** A whole valid edit: the editor always posts every field. */
   const edit = {
     firstName: 'Jane',
     lastName: 'Doe',
@@ -243,9 +243,8 @@ describe('StaffUsersController', () => {
     expect(create).not.toHaveBeenCalled();
   });
 
-  // The service raises its refusals as Nest exceptions, which oRPC does not
-  // recognise on its own — this is the `refusals` middleware doing its job on
-  // a real route rather than on a probe.
+  // The service throws Nest exceptions, which oRPC does not know: the
+  // `refusals` middleware on a real route turns them into codes.
   it('carries a service refusal through as its declared code', async () => {
     findById.mockResolvedValue(customer);
     update.mockRejectedValue(
@@ -275,10 +274,9 @@ describe('StaffUsersController', () => {
   });
 
   /**
-   * The area closed whole (FR-ADM-10, FR-AUTH-04 as amended). Written as a
-   * sweep over every write rather than one case per handler, because the rule
-   * being tested is that *nothing* was missed — a per-handler test proves only
-   * the handlers somebody remembered.
+   * The area closed whole (FR-ADM-10, FR-AUTH-04). A sweep over every write,
+   * not a case per handler: one per handler proves only the handlers somebody
+   * remembered.
    */
   describe('while an external system owns customer accounts', () => {
     beforeEach(() => {

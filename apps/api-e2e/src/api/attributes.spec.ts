@@ -3,14 +3,9 @@ import axios from 'axios';
 import { Client } from 'pg';
 import { requireEnv } from '../support/env';
 
-/**
- * The filterable-attribute registry (FR-ATTR-01; NFR-SEC-04 for the guards).
- *
- * Against the real database on purpose: what this surface actually asserts is
- * that a definition matches product attribute rows by name *exactly*, and that
- * the counts it reports come from the catalog as staff see it — neither is
- * provable against a stubbed driver.
- */
+/** The attribute registry (FR-ATTR-01; NFR-SEC-04 for the guards), against
+ * the real database: exact name matching and counts over the catalogue as
+ * staff see it need real rows. */
 
 const ADMIN_EMAIL = 'e2e-attributes-admin@example.com';
 const MANAGER_EMAIL = 'e2e-attributes-manager@example.com';
@@ -163,9 +158,8 @@ describe('Filterable attributes admin (FR-ATTR-01)', () => {
       { key: DRILL, value: 'again' },
     ]);
     await addProduct('drill-2', [{ key: DRILL, value: 'other' }]);
-    // Three products carry Width: one numeric value on the storefront, one
-    // unpublished that reads as text ("ca. 30"), and a deleted one — which no
-    // count includes (FR-ADM-22), though a rename still rewrites it.
+    // Three carry Width: a number on the storefront, an unpublished text ("ca.
+    // 30") and a deleted one, counted nowhere (FR-ADM-22) but renamed.
     await addProduct(
       'a',
       [
@@ -283,7 +277,7 @@ describe('Filterable attributes admin (FR-ATTR-01)', () => {
       });
 
       expect(res.status).toBe(201);
-      // Trimmed, but not casefolded — that is the whole rule in one row.
+      // Trimmed, not casefolded: the whole rule in one row.
       expect(res.data.name).toBe(WIDTH.toLowerCase());
       expect(res.data.productCount).toBe(0);
     });
@@ -472,8 +466,8 @@ describe('Filterable attributes admin (FR-ATTR-01)', () => {
       );
 
       expect(res.status).toBe(200);
-      // 9 before 100 — a list of sizes ordered as text is unusable — and the
-      // unparseable one last.
+      // 9 before 100, as sizes sorted as text are unusable, the unparseable
+      // last.
       expect(res.data.values).toEqual([
         {
           value: '9',
@@ -623,8 +617,8 @@ describe('Filterable attributes admin (FR-ATTR-01)', () => {
       const res = await get('/admin/catalog/products?attributeValue=twice');
 
       // One product carries "twice"; without a key the parameter means
-      // nothing, so the grid still holds the whole seeded catalog. Compared
-      // loosely on purpose — other suites are creating products alongside.
+      // nothing, so the grid holds the whole seeded catalogue. Loosely, as
+      // other suites create products alongside.
       expect(res.data.pagination.total).toBeGreaterThan(10);
     });
   });
@@ -659,12 +653,9 @@ describe('Filterable attributes admin (FR-ATTR-01)', () => {
     });
   });
 
-  /**
-   * A category's own filter panel (FR-ATTR-11). Against the database because
-   * the whole rule is about *rows that are not there*: a category with no
-   * overlay inherits, and an attribute a saved overlay never mentioned is not
-   * offered — neither is visible in a single response.
-   */
+  /** A category's filter panel (FR-ATTR-11), against the database: the rule
+   * is about missing rows (inheriting, and attributes an overlay never named),
+   * which no single response shows. */
   describe('category filters (FR-ATTR-11)', () => {
     const PANEL_A = nameFor('PanelA');
     const PANEL_B = nameFor('PanelB');

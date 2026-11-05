@@ -4,14 +4,9 @@ import { join } from 'node:path';
 import { DOCUMENT_URL_PREFIX } from '@b2b-catalog-platform/shared/platform';
 
 /**
- * Demo placeholder documents. Real certificates come from the client; until
- * then the seed writes a plain one-page PDF per document, built here rather
- * than pulled from a library — a page of text is a few objects, and a
- * dependency for the demo's sake is one the deployment would carry forever.
- *
- * Deterministic, like the image placeholders: the same title yields
- * byte-identical bytes, so a re-seed reuses the stored file rather than
- * accumulating copies of it.
+ * Placeholder documents: a plain one-page PDF per document, built here, as a
+ * page of text is a few objects and a library would stay a dependency for
+ * good. Fixed per title, like the pictures, so a re-seed reuses the file.
  */
 
 const DOCUMENT_SUBDIR = 'documents';

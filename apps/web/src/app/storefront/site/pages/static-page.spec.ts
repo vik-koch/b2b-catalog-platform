@@ -65,8 +65,8 @@ const editLink = (el: HTMLElement) =>
   );
 
 describe('StaticPage', () => {
-  // The pencil's wording comes from the fetched admin text, not the token —
-  // this is a public route, so the component reads it as a signal.
+  // The pencil's words come from the fetched admin text, a signal on this
+  // public route, not the token.
   // The stub is global; leaving it installed would hand every later spec in
   // this worker an admin-text response for any fetch it makes.
   afterAll(() => vi.unstubAllGlobals());
@@ -105,13 +105,9 @@ describe('StaticPage', () => {
   });
 });
 
-/**
- * Nothing seeds the pages table outside the demo, so on a real deployment every
- * published page starts with no row. That is a state the admin resolves by
- * writing the page, and to a visitor it is indistinguishable from a page that
- * failed to load — either way the content is not being served, and neither is
- * something a crawler should index.
- */
+/** Outside the demo nothing seeds `page_versions`, so a published page starts
+ * without a row. To a visitor that is a failed load: nothing served, nothing
+ * to index. */
 describe('StaticPage — before it has been written', () => {
   // The stub is global; leaving it installed would hand every later spec in
   // this worker an admin-text response for any fetch it makes.
@@ -161,13 +157,9 @@ describe('StaticPage — before it has been written', () => {
   });
 });
 
-/**
- * A failing page load must not render an apology inside a 200 — LoadErrorView
- * owns the 503, and the component has to reach it. `value()` throws on an
- * errored resource, so the error branch has to be checked before anything reads
- * the value; an unguarded read killed the SSR render instead of setting a
- * status.
- */
+/** A failed load must reach LoadErrorView's 503, not an apology in a 200.
+ * `value()` throws on an errored resource, so the error is checked first, or
+ * the SSR render dies. */
 describe('StaticPage — when the API cannot be reached', () => {
   it('renders the load-error view rather than the page or a 404', async () => {
     TestBed.configureTestingModule({

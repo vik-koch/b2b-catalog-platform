@@ -64,12 +64,8 @@ describe('pairingShortfalls (FR-SET-02)', () => {
     ).toEqual([]);
   });
 
-  /**
-   * The case a sum gets wrong, and the reason this is a flow. Both the cup and
-   * the mug take the same lid, and each on its own has enough — but the lid's
-   * ten pieces cannot cover twenty, and adding them up twice would call this
-   * cart satisfied.
-   */
+  /** What a sum gets wrong: cup and mug take the same lid and each alone has
+   * enough, but ten lids cannot cover twenty. */
   it('does not let one counterpart cover two products at once', () => {
     const shortfalls = pairingShortfalls([
       { slug: 'cup', pieces: 10, paired: true, counterpartSlugs: ['lid'] },

@@ -1,19 +1,11 @@
 import type { Journey } from '../support/journey/journey';
 
 /**
- * What the customer exchange does to an account, as data.
- *
- * Read twice, like the catalog, order and account ones:
- * `customer-sync-journeys.spec.ts` walks them against the running API, and
- * `tools/generate-customer-sync.mjs` renders them into `docs/customer-sync.md`.
- *
- * They exist for two silences and one gap. The silences are the shop's mail —
- * three of the messages are sent on a **change of state**, so a claim like
- * "the second failure says nothing" cannot be made about a single run. The gap
- * is between an account existing and an account being usable: the exchange
- * asks accounts into being but issues no credential (FR-ADM-13), and only a
- * sign-in proves the difference. Every step that says nothing about mail is
- * asserting that none was sent.
+ * What the customer exchange does to an account, as data: walked by
+ * `customer-sync-journeys.spec.ts`, rendered by
+ * `tools/generate-customer-sync.mjs`. For the shop's silences, sent on a
+ * change of state, and the gap between existing and usable: no credential
+ * issued (FR-ADM-13), which only a sign-in shows.
  */
 
 export interface CustomerSyncJourney extends Journey {
@@ -104,8 +96,8 @@ export const customerSyncJourneys: readonly CustomerSyncJourney[] = [
         actor: 'system',
         action: 'submit',
         args: { access: 'disabled' },
-        // The newer run takes the older one's place. Still one thing waiting,
-        // and nothing is said again — the queue already holds this news.
+        // The newer run replaces the older: one thing waiting, nothing said
+        // again.
         expect: { run: 'waiting', waiting: 1 },
       },
       {
@@ -149,10 +141,8 @@ export const customerSyncJourneys: readonly CustomerSyncJourney[] = [
         what: 'The source sends a customer with the same address.',
         actor: 'system',
         action: 'submit',
-        // The run goes through and the row does not. An address is not proof
-        // that two records are the same person, so the row is refused as
-        // unclaimed rather than matched — and nothing is created under a
-        // second address either, which is what the account reading says.
+        // The run goes through, the row not: an address proves no identity, so
+        // it is refused as unclaimed, and nothing is created.
         expect: { run: 'applied' },
       },
       {
@@ -228,8 +218,8 @@ export const customerSyncJourneys: readonly CustomerSyncJourney[] = [
         what: 'The source is fixed and delivers.',
         actor: 'system',
         action: 'submit',
-        // Recovery is announced once, to whoever was told it was broken. The
-        // run itself changes nothing — the account is already as it says.
+        // Recovery is announced once, to whoever heard of the break; the run
+        // changes nothing.
         expect: { run: 'no change', shopMail: ['customerSyncRecovered'] },
       },
     ],

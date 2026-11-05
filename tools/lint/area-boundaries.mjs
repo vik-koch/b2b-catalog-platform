@@ -1,5 +1,5 @@
 /**
- * The area and audience cut of ADR 0073, held by eslint-plugin-boundaries.
+ * The area and audience cut, held by eslint-plugin-boundaries.
  *
  * Every layer is cut into `<audience>/<area>/`, `core/<area>/` and `platform/`,
  * and an audience may keep its own `platform/` and a `shell/` that composes its

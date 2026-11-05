@@ -1,4 +1,3 @@
-// The specs assert the test fixture's wording, so they read the fixture whatever
-// the workspace .env points the app at — assigned, never `??=`, or a demo
-// deployment named there fails them with no hint why.
+// The specs assert the fixture's wording, whatever the workspace .env names.
+// Assigned, never `??=`, or a demo deployment there fails them silently.
 process.env['CONFIG_PATH'] = 'deployments/fixture/config';

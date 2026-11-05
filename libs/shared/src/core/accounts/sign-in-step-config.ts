@@ -2,13 +2,9 @@ import * as z from 'zod';
 import { SIGN_IN_STEP_MODES } from './auth';
 import { USER_ROLES } from '../../platform/session';
 
-/**
- * The second sign-in step (FR-AUTH-12): how often a code is asked for, and of
- * which roles. Policy, so it is the operator's file and not an admin setting —
- * which roles take the step follows from the rule a deployment is under.
- * Absent means `off`. Read by the API only; checked by both apps because both
- * parse the same file.
- */
+/** The second sign-in step (FR-AUTH-12): how often, and for which roles.
+ * Policy, so the operator's file, not an admin setting. Absent is `off`. Read
+ * by the API; both apps check it, as both parse the file. */
 export const signInStepConfigSchema = z
   .object({
     mode: z.enum(SIGN_IN_STEP_MODES),

@@ -12,20 +12,13 @@ import { PdfFaces } from '../../platform/pdf/pdf-faces';
 import { winAnsi } from '../../platform/pdf/pdf-sheet';
 import { OrderPdf } from './order-pdf';
 
-/**
- * A real TrueType face to prove the embedding path with. Nothing is shipped in
- * the image — a deployment supplies its own (ADR 0052) — so this borrows the
- * system's, and the case is skipped where the machine has none rather than
- * making a font package a condition of running the suite.
- */
+/** A real TrueType face for the embedding path. The image ships none, so
+ * this borrows the system's, and the case skips where there is none. */
 const FONT_DIR = '/usr/share/fonts/truetype/dejavu';
 const hasSystemFont = existsSync(join(FONT_DIR, 'DejaVuSans.ttf'));
 
-/**
- * A deployment that names its own face gets it embedded; one that names none
- * prints in Helvetica. Both paths are exercised below — the second is what
- * the demo and every deployment writing in a Latin script actually gets.
- */
+/** A named face is embedded; without one it prints in Helvetica, which is
+ * what the demo and any Latin-script deployment get. */
 const font = undefined;
 
 const address = {
@@ -118,11 +111,8 @@ describe('OrderPdf', () => {
     expect(readable).toContain('DejaVu');
   });
 
-  /**
-   * An order long enough to run past one page still renders — the layout has
-   * no page-break logic beyond "start a new one", and a table that drew off
-   * the bottom would lose lines silently.
-   */
+  /** An order past one page still renders: the layout only starts a new
+   * page, and a table drawn off the bottom loses lines silently. */
   it('runs onto a second page for a long order', async () => {
     const line = demoAdminOrder.lines[0];
     const long = {

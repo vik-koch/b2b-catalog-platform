@@ -10,18 +10,10 @@ import {
 import { accountJourneys } from '../journeys/accounts.journeys';
 
 /**
- * An account's life, walked end to end (FR-AUTH-01…06, FR-NOTIF-01/02).
- *
- * `users.spec.ts` asks whether one action is allowed and what it does to the
- * row. This suite asks what somebody *experiences* across several of them: what
- * lands in their inbox at each step — usually nothing, which is the assertion
- * — and whether the password they chose still opens the account after the shop
- * has switched it off and on again.
- *
- * The journeys are data (`journeys/accounts.journeys.ts`) and are also what
- * `docs/account-lifecycle.md` is generated from. Every step asserts the whole
- * observable state: a reading nobody mentioned is asserted unchanged, and a
- * mail nobody declared fails the step that sent it.
+ * An account's life, end to end (FR-AUTH-01…06, FR-NOTIF-01/02): what lands in
+ * the inbox each step, mostly nothing, and whether the password still opens it
+ * after the shop switched it off and on. The journeys
+ * (`journeys/accounts.journeys.ts`) also generate `docs/account-lifecycle.md`.
  */
 
 const SUFFIX = Math.random().toString(36).slice(2, 10);
@@ -30,8 +22,8 @@ const SUFFIX = Math.random().toString(36).slice(2, 10);
 const journeyEmail = (slug: string) =>
   `e2e-account-journey-${slug}-${SUFFIX}@example.com`;
 const ADMIN = `e2e-account-journey-admin-${SUFFIX}@example.com`;
-/** Long enough for the deployment's policy, and the same one throughout — the
- * `signsIn` probe asks whether *this* password opens the account. */
+/** Long enough for the policy and the same throughout: `signsIn` asks
+ * whether this one opens the account. */
 const PASSWORD = 'e2e-account-journey-password';
 
 describe('the life of an account', () => {

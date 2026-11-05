@@ -1,16 +1,9 @@
 #!/usr/bin/env node
 /**
- * Renders every message the app can send, from a deployment's own config.
- *
- * A mail template is a function whose output nobody reads: the wording lives in
- * a mounted file, the layout in another module, and what a customer actually
- * receives exists only in an inbox. So the previews are committed — both parts
- * of every message, exactly as the mailer would send them — and a reworded
- * template shows up as a reviewable diff.
- *
- * They are rendered from the fixture's `texts/mail.json` and `deployment.json`
- * rather than from a fixture, which makes this the way to proof-read a
- * deployment's wording — a translation especially — without sending anything:
+ * Renders every message the app can send, both parts, as the mailer would,
+ * from a deployment's `texts/mail.json` and `deployment.json`. Committed, so a
+ * reworded template is a reviewable diff, and a way to proofread a
+ * translation without sending anything:
  *
  *   node tools/generate-mail-previews.mjs --config-dir ../my-deployment/config \
  *     --out tmp/mail
@@ -41,16 +34,10 @@ const DIR = OUT ?? 'docs/mail';
 const INDEX = 'docs/mail.md';
 
 /**
- * The links the index offers. GitHub serves a committed `.html` as source, so
- * the only way to *see* a message from the documentation is a third-party
- * renderer pointed at the raw file.
- *
- * `HEAD` rather than a branch name: the default branch is the copy a reader of
- * the documentation means, and naming it would go stale if it were ever
- * renamed. Deliberately not the branch being generated on — that would make
- * the committed files depend on where they were generated, and leave dead
- * links behind every merged branch. The cost is that a preview added on a
- * feature branch has nothing to render until it lands.
+ * The index's links: GitHub shows a committed `.html` as source, so a viewer
+ * renders the raw file. `HEAD`, not the current branch: the default branch is
+ * what a reader means, and a branch name leaves dead links after a merge. A
+ * preview added on a branch renders once it lands.
  */
 const repository = JSON.parse(readFileSync('package.json', 'utf8'))
   .repository.url.replace(/^https:\/\/github\.com\//, '')
@@ -71,11 +58,8 @@ const { mailColors } = await loadTypeScript(
   'apps/api/src/platform/mail/mail-colors.ts',
 );
 
-/**
- * The wording, validated the way the API validates it at boot. A translated
- * file with a section missing has to say which one — that is most of the point
- * of rendering somebody else's config here.
- */
+/** The wording, validated as the API does at boot, so a translation missing
+ * a section says which. */
 const parseConfig = (schema, file) => {
   const parsed = schema.safeParse(
     JSON.parse(readFileSync(`${CONFIG_DIR}/${file}`, 'utf8')),
@@ -161,12 +145,8 @@ ${sections.join('\n')}
 `;
 }
 
-/**
- * The index sits beside the folder rather than inside it, and groups the
- * messages the way somebody looking for one thinks about them — what a
- * customer gets while signing up, what happens to their account, what an order
- * sends — rather than in the order the templates happen to be defined.
- */
+/** The index sits beside the folder and groups messages as a reader looks
+ * for them (signing up, the account, an order), not in definition order. */
 function renderIndex(previews) {
   const sections = MAIL_PREVIEW_GROUPS.flatMap((group) => {
     const inGroup = previews.filter((preview) => preview.group === group);

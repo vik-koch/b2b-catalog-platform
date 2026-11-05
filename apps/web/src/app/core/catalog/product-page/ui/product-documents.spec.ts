@@ -58,8 +58,7 @@ describe('ProductDocuments', () => {
     expect(link?.getAttribute('rel')).toBe('noopener');
   });
 
-  // What pressing it costs, said before it is pressed — on a phone that is the
-  // difference between a link and a 12 MB download.
+  // What pressing costs, said first: on a phone a link or a 12 MB download.
   it('says what the file is and what it weighs', async () => {
     const el = await render([
       document({ file: file({ byteSize: 2 * 1024 * 1024 }) }),

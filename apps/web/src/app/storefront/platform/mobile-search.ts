@@ -36,7 +36,7 @@ export class MobileSearch {
 
   /** Whether the field is open over the page. */
   readonly open = signal(false);
-  /** Whether a search field has the caret — set by the field itself. */
+  /** Whether a search field has the caret, set by the field. */
   private readonly focused = signal(false);
   /** Whether the visitor is searching, either way: lights the tab, which is
    * not a route. */

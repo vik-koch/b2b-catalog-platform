@@ -14,13 +14,10 @@ import {
 } from '../support/mailpit';
 
 /**
- * Cart pricing and order submission (FR-CART-01…04, FR-ACC-01), end to end.
- *
- * Three questions this suite exists for, none of which a unit test can answer:
- * that the same cart is priced differently for a tiered customer and a guest;
- * that a submitted order is priced by the server rather than by the browser;
- * and that nothing staff-facing — the price basis, the private source id, the
- * tier — reaches a customer through an order.
+ * Cart pricing and order submission (FR-CART-01…04, FR-ACC-01), end to end:
+ * one cart priced differently for a tiered customer and a guest, the server
+ * pricing a submitted order, and nothing staff-facing (source id, tier)
+ * reaching a customer through an order.
  */
 
 const SUFFIX = Math.random().toString(36).slice(2, 10);
@@ -48,19 +45,15 @@ const slugs = {
   deleted: `e2e-orders-deleted-${SUFFIX}`,
   /** Sold the same way, but takes no line note. */
   noNote: `e2e-orders-nonote-${SUFFIX}`,
-  /** Ten to a pack, but the shop will not ship fewer than a hundred — the
-   * case where the floor and the step are different figures. */
+  /** Ten to a pack, but no fewer than a hundred: floor and step differ. */
   stepped: `e2e-orders-stepped-${SUFFIX}`,
   /** On sale in every other respect, with nothing on the shelf
    * (FR-STOCK-04). */
   empty: `e2e-orders-empty-${SUFFIX}`,
 };
 
-/**
- * Pickup and delivery are answered from the deployment's own config, so the
- * expectations are read from it rather than restated here — a renamed office
- * or a re-cut zone should move this suite, not break it.
- */
+/** Pickup and delivery come from the deployment's config, read here rather
+ * than restated, so a renamed office moves this suite, not breaks it. */
 const deployment = (
   JSON.parse(readFileSync(configFile('deployment.json'), 'utf8')) as {
     ordering: {
@@ -82,11 +75,8 @@ const PREFIX_ZONE = deployment.delivery?.zones.find(
 );
 const IN_PREFIX_ZONE = `${PREFIX_ZONE?.match.postalPrefixes?.[0] ?? ''}359`;
 
-/**
- * The whole contract shape of every order surface. Exhaustive on purpose: a
- * column added to a snapshot later reaches a customer silently, and this is the
- * assertion that stops it — the same guard `catalog.spec.ts` keeps over tiles.
- */
+/** Every order surface's whole shape, exhaustively: a column added later would
+ * reach a customer silently. `catalog.spec.ts` guards tiles alike. */
 const ORDER_SUMMARY_KEYS = [
   'createdAt',
   'currency',
@@ -139,8 +129,7 @@ const ORDER_DETAIL_KEYS = [
  * lines in basis units (FR-UNIT-04). */
 const ADMIN_DETAIL_KEYS = [
   ...ORDER_DETAIL_KEYS,
-  // What the customer sees and what they have been told (FR-NOTIF-03) — two
-  // questions, and staff's alone either way.
+  // What the customer sees and was told (FR-NOTIF-03): staff's questions.
   'customerRevisionNumber',
   'notifiedRevisionNumber',
   'notifiedStatuses',
@@ -187,7 +176,7 @@ const del = (url: string, cookie?: string) =>
 /**
  * What a refusal carries with it. A coded error travels as
  * `{ defined, code, status, message, data }`, so the payload a refusal answers
- * with — here the re-priced cart — sits one level in, under `data`.
+ * with (here the re-priced cart) sits one level in, under `data`.
  */
 const refusal = (res: AxiosResponse) => res.data.data;
 
@@ -202,9 +191,8 @@ const address = (overrides: Record<string, unknown> = {}) => ({
   ...overrides,
 });
 
-/** The party an order is invoiced to (FR-CART-09) — a field of the order, held
- * apart from the addresses. A guest has no account to resolve one from, so
- * theirs always names it. */
+/** The invoiced party (FR-CART-09), the order's field apart from addresses; a
+ * guest always names it. */
 const party = (overrides: Record<string, unknown> = {}) => ({
   name: 'Kontor GmbH',
   registrationId: 'DE123456789',
@@ -256,11 +244,9 @@ describe('Cart and orders (FR-CART-01…04)', () => {
     client = new Client({ connectionString: requireEnv('DATABASE_URL') });
     await client.connect();
 
-    // This suite's own category, not whichever one sorts first. Products
-    // reference a category `ON DELETE restrict`, and several other suites
-    // hard-delete the category they created in their own teardown — borrowing
-    // one means their cleanup fails against our foreign key, at whatever point
-    // the two suites happen to interleave.
+    // This suite's own category: products restrict a category's delete, and
+    // other suites delete theirs in teardown, which a borrowed one would
+    // break whenever the suites interleave.
     const { rows: categories } = await client.query(
       `INSERT INTO categories ("sourceId", slug, name)
        VALUES ($1, $1, $1) RETURNING id`,
@@ -469,8 +455,8 @@ describe('Cart and orders (FR-CART-01…04)', () => {
       });
 
       expect(res.status).toBe(200);
-      // Ten packs of ten in one, two and a half boxes of forty in the other —
-      // the same hundred pieces either way.
+      // Ten packs of ten, or two and a half boxes of forty: a hundred pieces
+      // either way.
       expect(res.data.lines[0]).toMatchObject({
         pieces: 100,
         issues: ['quantity-corrected'],
@@ -537,8 +523,8 @@ describe('Cart and orders (FR-CART-01…04)', () => {
           ],
         });
 
-        // Six cups answered by three of each lid — the client's own case, and
-        // the reason the model is edges rather than a set.
+        // Six cups answered by three of each lid: why the model is edges, not
+        // a set.
         expect(shortOf(res.data)).toEqual({});
       });
 
@@ -635,8 +621,8 @@ describe('Cart and orders (FR-CART-01…04)', () => {
 
       expect(res.status).toBe(201);
       const read = await get(`/orders/by-token/${res.data.publicToken}`);
-      // Snapshotted with the threshold it promised — advisory, and never a
-      // figure the browser got to choose.
+      // Copied with the threshold it promised: advice, never the browser's
+      // figure.
       expect(read.data.deliveryZone).toEqual({
         key: PREFIX_ZONE?.key,
         freeFromMinor: PREFIX_ZONE?.freeFromMinor ?? null,
@@ -717,8 +703,8 @@ describe('Cart and orders (FR-CART-01…04)', () => {
       expect(res.data.code).toBe('cash-not-available');
     });
 
-    // The same rule registration is checked against — a picker and a mask are
-    // entry aids, and the API applies the deployment's formats itself.
+    // Registration's rule: picker and mask are entry aids, and the API applies
+    // the deployment's formats.
     it('refuses a registration number matching no configured format', async () => {
       const res = await post(
         '/orders',
@@ -848,8 +834,8 @@ describe('Cart and orders (FR-CART-01…04)', () => {
     const customerMail = `to:"${MAIL_CONTACT}"`;
     const staffInbox = `to:"${requireEnv('MAIL_STAFF_TO')}"`;
     const staffMail = `${staffInbox} subject:"New order request"`;
-    // This suite places more than one order, and both notify the same inbox —
-    // so an assertion about one of them is scoped by its own reference.
+    // Several orders notify one inbox, so each assertion is scoped by its
+    // reference.
     const about = (reference: string) => `subject:"${reference}"`;
     let reference = '';
     let publicToken = '';
@@ -933,10 +919,8 @@ describe('Cart and orders (FR-CART-01…04)', () => {
       expect(body.Text).toContain(MAIL_CONTACT);
     });
 
-    // FR-NOTIF-03. The mail says what the order now is, so the reason a
-    // refusal carries has to be in it — being told no without being told why
-    // is the mail nobody can answer. It goes out because the move asked for it:
-    // nothing here writes to a customer that nobody chose to write to.
+    // FR-NOTIF-03. The mail carries the refusal's reason, as a no without why
+    // cannot be answered. It goes because the move asked for it.
     it('writes to the customer when the move asks it to', async () => {
       await deleteMatching(customerMail);
       const placed = await post(
@@ -1414,8 +1398,8 @@ describe('Cart and orders (FR-CART-01…04)', () => {
         customerCookie,
       );
 
-      // The customer's own route offers one move and names no target, so the
-      // only way to ask is the staff one — which they cannot reach at all.
+      // The customer's route offers one move with no target, so only the staff
+      // one could ask, which they cannot reach.
       expect(
         (
           await move(
@@ -1451,12 +1435,9 @@ describe('Cart and orders (FR-CART-01…04)', () => {
     });
   });
 
-  /**
-   * Adjustments (FR-ORD-03). A new version of the order, so what is worth
-   * pinning is that the old one survives it, that a line nobody touched keeps
-   * the price it was quoted at, that the rules the checkout applies still
-   * apply — and that two managers adjusting one order have one winner.
-   */
+  /** Adjustments (FR-ORD-03): the old version survives, an untouched line
+   * keeps its quoted price, checkout's rules apply, and two managers have one
+   * winner. */
   describe('adjusting an order', () => {
     const place = async (
       overrides: Record<string, unknown> = {},
@@ -1474,8 +1455,8 @@ describe('Cart and orders (FR-CART-01…04)', () => {
       return res.data as { reference: string; publicToken: string };
     };
 
-    /** The order as it stands, ready to be sent back with one thing changed —
-     * which is what the admin screen holds. */
+    /** The order as it stands, to send back with one change, as the admin
+     * screen holds it. */
     const adjustment = (overrides: Record<string, unknown> = {}) => ({
       lines: [
         {
@@ -1515,10 +1496,8 @@ describe('Cart and orders (FR-CART-01…04)', () => {
       phone: '+49 40 7654321',
     };
 
-    /** The version the order is on. Every move writes one (ADR 0051), so an
-     * order that has been answered is past revision 1 before anything changes
-     * it — and a change written against the wrong one is refused, which is the
-     * concurrency guard doing its job. */
+    /** The order's version. Every move writes one, so an answered order is
+     * past 1, and a change against the wrong one is refused. */
     const onRevision = async (reference: string): Promise<number> =>
       (await get(`/admin/orders/${reference}`, managerCookie)).data
         .revisionNumber;
@@ -1544,14 +1523,12 @@ describe('Cart and orders (FR-CART-01…04)', () => {
         status: 'requested',
         revisionNumber: 2,
         totalMinor: BASE_MINOR * 3,
-        // Nobody has told the customer, so they are still on what they sent —
-        // an unannounced change is not theirs to see.
+        // Nobody told the customer, so they still see what they sent.
         customerRevisionNumber: 1,
         notifiedRevisionNumber: 1,
       });
       expect(Object.keys(res.data).sort()).toEqual(ADMIN_DETAIL_KEYS);
-      // The mailed link still opens it — and shows the version it described,
-      // which is the one the customer was last written to about.
+      // The mailed link still opens it, on the version last mailed about.
       const token = await get(`/orders/by-token/${placed.publicToken}`);
       expect(token.status).toBe(200);
       expect(token.data.totalMinor).toBe(BASE_MINOR * 2);
@@ -1574,9 +1551,8 @@ describe('Cart and orders (FR-CART-01…04)', () => {
         customerNote: 'Ring the bell twice',
       });
 
-      // Nothing about the line is touched — and its price is a figure the
-      // catalog no longer offers this order, since the adjustment names no
-      // list at all.
+      // The line is untouched, at a price the catalogue no longer offers, as
+      // the adjustment names no list.
       await adjust(placed.reference, adjustment({ contact: renamedContact }));
 
       const res = await get(`/admin/orders/${placed.reference}`, managerCookie);
@@ -1587,12 +1563,8 @@ describe('Cart and orders (FR-CART-01…04)', () => {
       });
     });
 
-    /**
-     * A version identical to the one before it is noise in a history rather
-     * than part of one — and the refusal is the service's, not the screen's,
-     * because an exchange re-sending an order it has already sent must not
-     * lengthen the thread by doing so.
-     */
+    /** A version identical to the last is noise, refused by the service, so
+     * an exchange re-sending an order adds nothing. */
     it('refuses a change that changes nothing the order says', async () => {
       const placed = await place();
 
@@ -1794,8 +1766,8 @@ describe('Cart and orders (FR-CART-01…04)', () => {
       expect(res.data.revisionNumber).toBe(4);
     });
 
-    /** The platform records what the shop did rather than deciding what it may
-     * do — the same argument that made recording a payment undoable. */
+    /** The platform records what the shop did, not what it may do, as with
+     * undoing a payment. */
     it('changes an order that has ended, without reopening it', async () => {
       const placed = await place();
       await post(
@@ -1867,10 +1839,8 @@ describe('Cart and orders (FR-CART-01…04)', () => {
       );
       expect(told.status).toBe(200);
       expect(told.data.notifiedRevisionNumber).toBe(4);
-      // Saying it again is allowed — a message that went to a spam folder is
-      // one somebody has to be able to send again, and it says exactly what
-      // their page says. What is refused is the press that would do nothing:
-      // no move to show them, and no message asked for.
+      // Sending again is allowed, for a message lost to spam; refused is a
+      // press doing nothing: no move to show, no message asked.
       expect(
         (
           await post(
@@ -1924,8 +1894,8 @@ describe('Cart and orders (FR-CART-01…04)', () => {
         managerCookie,
       );
 
-      // The order really is ready — the shop's record is the truth — and the
-      // customer's page is still on the version they were confirmed with.
+      // The order is ready by the shop's record; the customer's page stays on
+      // the version they were confirmed with.
       expect(mistake.data.status).toBe('ready');
       expect(mistake.data.revisionNumber).toBe(3);
       expect(mistake.data.customerRevisionNumber).toBe(2);
@@ -1996,11 +1966,8 @@ describe('Cart and orders (FR-CART-01…04)', () => {
       );
     });
 
-    /**
-     * The handover of a cash order is one event (FR-ORD-04): completing it and
-     * recording the money are one click, and a move that ends an order is
-     * refused it — nothing is owed on an order nobody is filling.
-     */
+    /** A cash handover is one event (FR-ORD-04): completing and recording the
+     * money are one click, refused on an ending move. */
     it('records the money with the move that is the handover', async () => {
       const placed = await place({
         party: party({ name: 'Ada Lovelace', registrationId: null }),
@@ -2194,8 +2161,8 @@ describe('Cart and orders (FR-CART-01…04)', () => {
       expect(quiet.data.notifiedAt).toBeNull();
       expect(quiet.data.customerView).toBe(true);
 
-      // And one made with it puts something in their inbox, which the version
-      // records — a different question from which version they are on.
+      // One made with it mails them, which the version records, apart from
+      // which version they are on.
       await post(
         `/admin/orders/${placed.reference}/status`,
         {
@@ -2344,9 +2311,8 @@ describe('Cart and orders (FR-CART-01…04)', () => {
       expect(found.customerEmail).toBe(CUSTOMER);
     });
 
-    // Find-an-order: the handful of fields a manager is holding when they look
-    // one up, matched by fragment — a reference is read out by its tail as
-    // often as whole.
+    // Find an order by the fields a manager holds, by fragment: a reference is
+    // read by its tail as often as whole.
     it('finds an order by a fragment of its reference', async () => {
       const res = await get(
         `/admin/orders?q=${reference.slice(-4)}`,
@@ -2422,15 +2388,9 @@ describe('Cart and orders (FR-CART-01…04)', () => {
       expect(linked[0].n).toBeGreaterThan(0);
     });
   });
-  /**
-   * An order's documents (FR-ORD-05, FR-CART-05, FR-ACC-02, ADR 0052).
-   *
-   * The reason this is an end-to-end suite rather than a unit one is the
-   * access rule: these files name a customer, and the only proof that nobody
-   * else can fetch them is fetching them as somebody else. The second reason
-   * is that the summary is *drawn* — a PDF that comes back as JSON, or as
-   * nothing, is a promise this feature would be breaking silently.
-   */
+  /** An order's documents (FR-ORD-05, FR-CART-05, FR-ACC-02), end to end:
+   * only fetching as somebody else proves nobody else can, and a drawn summary
+   * must come back as a PDF. */
   describe('the documents an order carries', () => {
     const place = async (
       overrides: Record<string, unknown> = {},
@@ -2522,9 +2482,8 @@ describe('Cart and orders (FR-CART-01…04)', () => {
     it('refuses a reader who is not entitled to the order', async () => {
       const { reference } = await place();
 
-      // A signed-in customer the order does not belong to: a 404 rather than
-      // a 403, which is the same answer the order itself gives — an order
-      // that is not yours is one that does not exist.
+      // Another customer gets a 404, not a 403, as the order itself answers:
+      // not yours is none.
       const other = await fetchDocument(
         `/order-documents/${reference}/order-summary`,
         otherCookie,
@@ -2552,9 +2511,8 @@ describe('Cart and orders (FR-CART-01…04)', () => {
         (await supply(reference, 'payment-instructions', bytes)).status,
       ).toBe(201);
 
-      // Filed, but nothing is due yet — so the customer is offered nothing,
-      // and a guessed link opens nothing either: the fetch honours the same
-      // list the page was given.
+      // Filed, but nothing due: the customer is offered nothing, and a guessed
+      // link opens nothing either.
       expect(
         (await get(`/orders/by-token/${publicToken}`)).data.documents.map(
           (document: { kind: string }) => document.kind,
@@ -2637,12 +2595,8 @@ describe('Cart and orders (FR-CART-01…04)', () => {
       expect(Buffer.from(drawn.data)).not.toEqual(bytes);
     });
 
-    /**
-     * A slip is stale only where what it *states* has moved. Every move writes
-     * a version (ADR 0051), so warning on the version number alone would flag
-     * every confirmed order — a warning nobody would act on, and one that
-     * teaches staff to ignore the next.
-     */
+    /** A slip is stale only where what it states moved: every move writes a
+     * version, so the number alone would flag every order. */
     it('leaves a supplied file alone when a move changes nothing it states', async () => {
       const { reference } = await place();
       await supply(reference, 'payment-instructions', slip('before'));
@@ -2665,8 +2619,8 @@ describe('Cart and orders (FR-CART-01…04)', () => {
         (document: { kind: string }) =>
           document.kind === 'payment-instructions',
       );
-      // Filed against version 1, and the order is on 2 — the same money to the
-      // same party, so nothing to reprint.
+      // Filed against version 1, the order on 2: the same money to the same
+      // party, nothing to reprint.
       expect(payment).toMatchObject({
         suppliedForRevision: 1,
         outdated: false,
@@ -2797,8 +2751,7 @@ describe('Cart and orders (FR-CART-01…04)', () => {
       expect(staff.data.documents).toHaveLength(2);
     });
 
-    /** A cash order never becomes due, so it never shows one — the same rule,
-     * with nothing said about methods. */
+    /** A cash order is never due, so it shows none, by the same rule. */
     it('never shows a slip on an order that pays cash', async () => {
       const { reference, publicToken } = await place({
         party: { name: 'Ada Lovelace', registrationId: null },
@@ -2875,8 +2828,8 @@ describe('Cart and orders (FR-CART-01…04)', () => {
         [reference],
       );
       expect(rows).toHaveLength(1);
-      // Under the private subdirectory, which no web server routes: the API
-      // is the only way to these bytes (ADR 0052).
+      // Under the private subdirectory no web server routes: only the API
+      // reaches these bytes.
       const stored = mediaPath('private', rows[0].fileKey);
       expect((await readFile(stored)).subarray(0, 5).toString()).toBe('%PDF-');
     });

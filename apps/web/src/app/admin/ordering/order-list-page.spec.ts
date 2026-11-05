@@ -40,11 +40,8 @@ function page(overrides: Partial<Pagination> = {}): Pagination {
   return { page: 1, pageSize: 20, total: 1, totalPages: 1, ...overrides };
 }
 
-/**
- * `unbound` sets every input to undefined, which is what router input binding
- * does to a page opened with no query parameters at all — an absent parameter
- * is handed over as undefined rather than as the input's own default.
- */
+/** `unbound` sets every input to undefined, as router binding does without
+ * query parameters, not the input's default. */
 /**
  * Which areas an external system holds while a case renders (FR-ADM-10). Set
  * by the case that is about the closure and reset between them, rather than
@@ -112,9 +109,8 @@ async function render(
 }
 
 describe('AdminOrderListPage (FR-AUTH-03)', () => {
-  // Straight off the admin panel: no page, no status, no search term. The
-  // router sets all three to undefined, and reading one as a string is what
-  // used to throw.
+  // Straight off the panel: the router sets page, status and search term to
+  // undefined, which must not be read as strings.
   it('opens with no query parameters at all', async () => {
     const { el, list } = await render([placed], 'unbound');
 
@@ -222,8 +218,8 @@ describe('AdminOrderListPage (FR-AUTH-03)', () => {
     );
   });
 
-  // An order nobody is going to act on again is still listed, but it is not
-  // work — greyed the way a deleted product is, except for its own controls.
+  // An order nobody acts on again is listed but is no work: greyed like a
+  // deleted product, its controls aside.
   it('greys an order that is over', async () => {
     const ended = await render([{ ...placed, status: 'cancelled' }]);
     expect(ended.el.querySelector('tbody tr')?.className).toContain(

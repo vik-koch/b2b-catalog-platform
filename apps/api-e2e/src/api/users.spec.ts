@@ -25,11 +25,8 @@ const seeded = [
   CREATED_EMAIL,
 ];
 
-/**
- * The unchanged half of an edit. `updateUser` carries the whole editable set,
- * so a test about one field still has to send the rest — spreading this keeps
- * each case about the field it is actually testing.
- */
+/** The unchanged half of an edit: `updateUser` takes the whole set, so each
+ * case spreads this and names its one field. */
 const edits = () => ({
   firstName: 'Jane',
   lastName: 'Doe',
@@ -177,8 +174,8 @@ describe('/admin/users', () => {
       );
 
       expect(tier.status).toBe(200);
-      // The whole request is refused, not quietly stripped of the one field —
-      // a refusal that looked like a save is the dangerous outcome here.
+      // The whole request is refused, not stripped of the field: a refusal
+      // that looks like a save is the danger.
       expect(role.status).toBe(403);
       expect((await statusOf(PENDING_EMAIL)).role).toBe('user');
 
@@ -220,8 +217,7 @@ describe('/admin/users', () => {
       expect(res.status).toBe(403);
     });
 
-    // A manager must not be able to enumerate staff — not even by asking for it
-    // directly, past the UI that would never offer the option.
+    // A manager cannot list staff, not even asking directly past the UI.
     it('scopes a manager to customers, whatever kind is requested', async () => {
       const res = await request(
         'get',
@@ -286,11 +282,8 @@ describe('/admin/users', () => {
       expect(tombstones.some((u: { id: string }) => u.id === id)).toBe(true);
     });
 
-    /**
-     * Which *shape* of registration number an account carries — the demo
-     * deployment configures one (`vat`, a DE VAT number), and the value that
-     * describes no shape at all is always on offer beside it.
-     */
+    /** Which shape of registration number an account carries: the demo
+     * configures `vat`, and "no shape" is always offered. */
     it('narrows the list to one shape of registration number', async () => {
       const withNumber = `e2e-users-vat-${SUFFIX}@example.com`;
       const withoutNumber = `e2e-users-person-${SUFFIX}@example.com`;
@@ -436,12 +429,9 @@ describe('/admin/users', () => {
   });
 
   describe('editing an account', () => {
-    /**
-     * The manual way to give a self-registered account the key an exchange
-     * addresses it by (FR-ADM-14) — the escape hatch behind the run-level
-     * claim, and the reason the catalog has no equivalent deadlock: a
-     * product's key has always been editable.
-     */
+    /** Giving a self-registered account its exchange key by hand
+     * (FR-ADM-14), the way out beside a run's claim, as a product's key is
+     * editable too. */
     describe('the source key', () => {
       const KEY = `e2e-users-key-${SUFFIX}`;
 
@@ -640,7 +630,7 @@ describe('/admin/users', () => {
 
       expect(res.status).toBe(200);
       expect(res.data.status).toBe('disabled');
-      // Not just the next sign-in — the cookie they already hold stops working.
+      // Not just the next sign-in: the cookie they hold stops working.
       expect((await request('get', '/auth/me', theirCookie)).status).toBe(401);
       expect((await request('get', '/admin/users', theirCookie)).status).toBe(
         401,
@@ -714,8 +704,8 @@ describe('/admin/users', () => {
 
       const res = await on(id);
 
-      // There is nothing to sign in with, so the account lands where a link
-      // can still be sent to it — and staff send one deliberately.
+      // Nothing to sign in with, so it lands where staff can still send a
+      // link.
       expect(res.data.status).toBe('invited');
     });
 
@@ -730,9 +720,8 @@ describe('/admin/users', () => {
       // Its own registration rather than the suite's, which an earlier case
       // has already approved.
       const { id: undecided } = await seed('undecided', 'user', 'pending');
-      // A registration is approved or declined, never switched off — and
-      // `pending` is not somewhere a real customer may be parked, because
-      // declining a pending row deletes it.
+      // A registration is approved or declined, never switched off, and no
+      // customer is parked in `pending`, as declining deletes it.
       expect((await off(undecided)).status).toBe(409);
 
       const { id: closed } = await seed('closed', 'user', 'anonymized');
@@ -787,9 +776,8 @@ describe('/admin/users', () => {
         {},
       );
 
-      // Somebody locked out rings the shop as readily as they use the form,
-      // and the reset mail's wording — somebody asked for this — is true
-      // either way round.
+      // The locked out ring the shop as readily as they use the form, and the
+      // reset mail's "somebody asked" holds either way.
       expect(res.status).toBe(200);
       expect(await messagesMatching(`to:"${CUSTOMER_EMAIL}"`)).toHaveLength(1);
     });
@@ -890,8 +878,8 @@ describe('/admin/users', () => {
       });
 
       expect(res.status).toBe(200);
-      // Never had a password, so this is "choose one", not "reset" — and a
-      // customer opened on their behalf owes the account consent here.
+      // Never had a password, so "choose one", not "reset", and a customer
+      // opened for them gives consent here.
       expect(res.data).toEqual({
         purpose: 'set',
         email: CREATED_EMAIL,

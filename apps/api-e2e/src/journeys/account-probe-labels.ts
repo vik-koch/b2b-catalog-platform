@@ -1,11 +1,9 @@
 /**
  * What each reading of an account is called, and what it means.
  *
- * Its own import-free module for the same reason the order one is: the adapter
- * builds its probes from these labels, and
- * `tools/generate-account-lifecycle.mjs` renders the journey tables and their
- * legend with them — and the generator must not have to import the adapter,
- * which would pull axios and Mailpit into a documentation build.
+ * Import-free, like the order one: the adapter builds its probes from these,
+ * and `tools/generate-account-lifecycle.mjs` renders the tables with them,
+ * without pulling axios and Mailpit into a docs build.
  */
 export const ACCOUNT_PROBES = {
   status: {

@@ -55,12 +55,9 @@ describe('GridHeader', () => {
   });
 
   /*
-   * The way back to the whole list sits beside the search box, glyph-sized and
-   * always there. It used to be a labelled button in the row of actions,
-   * reserved as an invisible spacer so the box would not move when it appeared
-   * — which pushed the page's own "Add" button a line below the box it was
-   * meant to sit beside. Inert is now a real disabled button rather than a
-   * hidden link: the difference is whether it can be tabbed to and pressed.
+   * The way back to the whole list sits beside the search box, glyph-sized
+   * and always there, so nothing moves and "Add" stays beside the box. Inert,
+   * it is a disabled button, not a hidden link: not tabbed to or pressed.
    */
   it('keeps the clear-filters control inert while nothing is filtered', () => {
     const { clear } = render(false);

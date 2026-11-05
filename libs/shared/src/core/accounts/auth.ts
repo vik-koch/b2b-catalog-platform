@@ -29,16 +29,10 @@ export type PasswordRejectionCode = (typeof PASSWORD_REJECTION_CODES)[number];
 export const MAINTENANCE_REFUSED = 'maintenance' as const;
 
 /**
- * Length is the only password rule this contract carries, so the browser can
- * check the same floor the server does. Twelve rather than eight because
- * length is what actually resists guessing; there are deliberately **no**
- * composition rules (a digit, a symbol, a capital), which NIST 800-63B
- * recommends against — they produce predictable passwords like `Passwort1!`
- * without making them harder to guess.
- *
- * What replaces them is server-side and cannot live here: a blocklist of
- * common passwords, and a refusal of anything containing the account's own
- * address or the shop's name (see PasswordPolicy).
+ * The contract's one password rule, so the browser checks the server's floor.
+ * Twelve, as length resists guessing; no composition rules, which NIST 800-63B
+ * advises against: they breed `Passwort1!`. The rest is server-side
+ * (PasswordPolicy): a blocklist, and no address or shop name inside.
  */
 export const PASSWORD_MIN_LENGTH = 12;
 

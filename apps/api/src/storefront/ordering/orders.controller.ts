@@ -46,8 +46,8 @@ export class OrdersController {
     return implement(ordersContract.submitOrder)
       .use(refusals)
       .handler(async ({ input: { body }, errors }) => {
-        // ADR 0015's honeypot. Refused, not silently accepted: an order the
-        // customer believes was placed is worse than a refusal.
+        // The honeypot. Refused, not silently accepted: an order the customer
+        // believes placed is worse than a refusal.
         if (body.website) {
           this.logger.warn('Rejected order: honeypot field populated');
           throw errors.rejected({ message: 'Rejected' });

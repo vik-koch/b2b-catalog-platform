@@ -13,8 +13,8 @@ const statusMailText = z
 
 /** Ordering's block of `texts/mail.json`: one section per message. */
 export const orderingMailTextShape = {
-  /** What the staff order mails call an order's parts, where staff read
-   * them differently from customers — the admin has the same words. */
+  /** What the staff mails call an order's parts where staff read them unlike
+   * customers; the admin uses the same words. */
   orders: z
     .object({
       account: z.string(),
@@ -24,12 +24,9 @@ export const orderingMailTextShape = {
       paymentMethods: paymentMethodLabels,
     })
     .strict(),
-  /**
-   * Sent to the customer when an order request arrives (FR-NOTIF-06). It is
-   * a receipt for a request, never a confirmation of a sale — a manager
-   * still answers it — and it carries the link that opens the order without
-   * signing in, which for a guest is the only record they have.
-   */
+  /** Sent to the customer when an order request arrives (FR-NOTIF-06): a
+   * receipt for a request, not a sale, with the link that opens it unsigned,
+   * a guest's only record. */
   orderReceived: z
     .object({
       subject: z.string(),
@@ -56,12 +53,9 @@ export const orderingMailTextShape = {
       action: z.string(),
     })
     .strict(),
-  /**
-   * Sent to the shop when a customer calls their own order off
-   * (FR-NOTIF-07). The one move a customer has, and the shop's cue to stop
-   * packing — so it is a mail and not a queue: by the time somebody opens
-   * the panel the box may already be on the van.
-   */
+  /** Sent to the shop when a customer calls their order off (FR-NOTIF-07). A
+   * mail, not a queue: by the time somebody opens the panel the box may be on
+   * the van. */
   orderCancelled: z
     .object({
       /** The reference is appended, as on every other order mail. */
@@ -84,16 +78,9 @@ export const orderingMailTextShape = {
     })
     .strict(),
   /**
-   * Sent to the customer whenever their order moves (FR-NOTIF-03).
-   *
-   * One mail with a heading and a body per state, rather than a template per
-   * state: everything around the words — the reference, the total, the link
-   * back — is the same in all of them, and a shop rewording its acceptance
-   * should not have to be told which of seven files to open.
-   *
-   * `ready` appears twice because it reads two ways: a collected order is
-   * ready to be picked up, a delivered one is on its way. It is one state
-   * (ADR 0050) and two sentences.
+   * Sent to the customer whenever their order moves (FR-NOTIF-03): one mail,
+   * a heading and body per state, as everything around the words is the same.
+   * `ready` twice: one state, read as "ready to collect" or "on its way".
    */
   orderStatusChanged: z
     .object({
@@ -114,8 +101,8 @@ export const orderingMailTextShape = {
       action: z.string(),
       statuses: z
         .object({
-          /** An order the shop had ended and has put back in its queue —
-           * the only way a move lands on `requested`. */
+          /** An order the shop had ended and put back in its queue: the only
+           * move onto `requested`. */
           reopened: statusMailText,
           /** A message about the order having *changed*, where nothing about
            * it moved (FR-ORD-03). It needs a heading of its own: every other

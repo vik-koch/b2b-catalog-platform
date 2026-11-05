@@ -53,7 +53,7 @@ describe('session cookies', () => {
       value: 'jwt-value',
       options: { httpOnly: true, maxAge: SESSION_MAX_AGE_MS },
     });
-    // Readable — that is the whole point of it — and nothing but the role.
+    // Readable, which is its point, and nothing but the role.
     expect(hint).toMatchObject({
       name: SESSION_HINT_COOKIE,
       value: 'manager',

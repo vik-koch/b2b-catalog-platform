@@ -33,10 +33,8 @@ async function render(
 }
 
 describe('Header', () => {
-  // The field used to hide behind a toggle on a phone. It is the primary way
-  // into a catalogue this size, and the bottom bar took the glyphs that were
-  // crowding it out — so there is one field, always in the document, on every
-  // route.
+  // Search is the main way into a catalogue this size, so there is one field,
+  // always in the document, on every route and width.
   it('carries one search field, on the results page and off it', async () => {
     const listing = await render('/catalog');
     expect(listing.el.querySelectorAll('app-search-field')).toHaveLength(1);
@@ -65,15 +63,14 @@ describe('Header', () => {
     ).toContain('sticky');
   });
 
-  // Both channels at every width — what a narrow row takes is the address's
-  // width, not the address.
+  // Both channels at every width: a narrow row narrows the address, never
+  // drops it.
   it('carries every configured contact channel in both rows', async () => {
     const { el } = await render('/catalog');
     const contacts = Array.from(el.querySelectorAll('app-contact-info'));
     const { contact } = defaultDeploymentConfig;
 
-    // Two instances — the phone's brand row and the utility bar — of which
-    // only one is ever displayed.
+    // Two instances, the phone's brand row and the utility bar; one shows.
     expect(contacts).toHaveLength(2);
     for (const info of contacts) {
       const hrefs = Array.from(info.querySelectorAll('a')).map((a) =>
@@ -86,9 +83,8 @@ describe('Header', () => {
     }
   });
 
-  // The actions live in the bottom bar below `sm`, so the header's copies are
-  // display:none there rather than absent — which is what keeps them out of
-  // the accessibility tree without a second set of components.
+  // Below `sm` the actions live in the bottom bar, so the header's copies are
+  // display:none, out of the accessibility tree.
   it('keeps its own action group behind the sm breakpoint', async () => {
     const { el } = await render('/catalog');
     const group = el.querySelector('app-catalog-link')?.parentElement;

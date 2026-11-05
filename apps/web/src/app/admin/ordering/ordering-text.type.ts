@@ -14,9 +14,8 @@ export const adminOrderingTextShape = {
     .object({
       notFound: z.string(),
       loadError: z.string(),
-      /** Which price list an order is taken from. A null key is the
-       * storefront's list — named generically because the list it was may
-       * since have been renamed or replaced. */
+      /** Which price list an order came from. A null key is the storefront's
+       * list, named generically as it may have changed since. */
       tier: z.string(),
       tierDefault: z.string(),
       /** What staff call an order's parts, beside the shared names. Their
@@ -37,8 +36,8 @@ export const adminOrderingTextShape = {
       paymentStates: paymentStateLabels
         .extend({ cashOnHandover: z.string() })
         .strict(),
-      /** The staff order list (FR-AUTH-03) — read-only: an order is a request
-       * a manager answers by phone or mail. */
+      /** The staff order list (FR-AUTH-03), read-only: a manager answers by
+       * phone or mail. */
       list: z
         .object({
           page: pageText,
@@ -62,8 +61,8 @@ export const adminOrderingTextShape = {
            * status. An order with nothing due says nothing. */
           filterPayment: z.string(),
           paymentAll: z.string(),
-          /** Everything the shop has not been paid for, cash and invoiced
-           * alike — what the panel's finished-and-unpaid count links to. */
+          /** Everything unpaid, cash and invoiced, where the panel's
+           * finished-and-unpaid count leads. */
           paymentUnpaid: z.string(),
           /** Screen-reader heading for the column of row buttons. */
           actionsAria: z.string(),
@@ -77,18 +76,16 @@ export const adminOrderingTextShape = {
           /** `{date}` the request was sent, and `{date}` its status last moved. */
           placed: z.string(),
           back: z.string(),
-          /** Opens the summary a guest was mailed (FR-NOTIF-06) — what that
-           * customer is looking at when they ring about the order. Only on a
-           * guest's order; an account holder's own view is the version
-           * link. */
+          /** Opens the summary a guest was mailed (FR-NOTIF-06), what they see
+           * when they ring. An account holder's view is the version link. */
           guestView: z.string(),
           /** The block wording not shared with the storefront. */
           billingSame: z.string(),
           whenAny: z.string(),
           /** The line under every "email the customer" tick: what they are sent. */
           notifyHint: z.string(),
-          /** A line in pieces — `{count} × {price}`, the way the source
-           * system prices. */
+          /** A line in pieces, `{count} × {price}`, as the source system
+           * prices. */
           pieceLine: z.string(),
           /** Every version of the order (FR-ORD-03): what the shop said it
            * changed, and the difference from the version before it. */
@@ -103,8 +100,8 @@ export const adminOrderingTextShape = {
               /** Version 1 is the order as it was sent, so nobody on the
                * shop's side wrote it. */
               authorCustomer: z.string(),
-              /** A later version with no author — an outside system, or a
-               * record made before authors were kept. */
+              /** A later version without an author: an outside system, or
+               * an old record. */
               authorUnknown: z.string(),
               /** What each version was written for: the customer sent it, the
                * shop moved the order, or the shop changed what it says. */
@@ -116,18 +113,17 @@ export const adminOrderingTextShape = {
               changes: z.string(),
               noChanges: z.string(),
               loadError: z.string(),
-              /** The version's own name — `{number}` — used as the link to
-               * the page that reads it back, with who wrote it and when
-               * beside it. */
+              /** The version's name, `{number}`, linking to its page, with who
+               * wrote it and when beside it. */
               versionLabel: z.string(),
-              /** The same name inside a running sentence — `{number}`, and
-               * lower-cased where the deployment's language wants it. */
+              /** The same name inside a sentence, `{number}`, lower-cased where
+               * the language wants it. */
               versionInline: z.string(),
               writtenBy: z.string(),
               /** Which version the customer is on, where this is not it. */
               customerOn: z.string(),
-              /** When the customer was written to about this version
-               * (FR-NOTIF-03) — `{date}`. */
+              /** When the customer was written to about it (FR-NOTIF-03),
+               * `{date}`. */
               notified: z.string(),
               /** The way from reading a version to answering the order, and
                * back the other way. */
@@ -138,12 +134,8 @@ export const adminOrderingTextShape = {
               openRevision: z.string(),
             })
             .strict(),
-          /**
-           * Answering an order (FR-ORD-01/02/04). One label per move a
-           * manager makes, plus the confirmation the two refusals need —
-           * declining and cancelling are quoted at the customer, so both ask
-           * why.
-           */
+          /** Answering an order (FR-ORD-01/02/04): a label per move, and the
+           * two refusals ask why, as the customer is quoted it. */
           actions: z
             .object({
               /** The list's own two glyphs: opening an order, and opening one
@@ -151,18 +143,13 @@ export const adminOrderingTextShape = {
               open: z.string(),
               answer: z.string(),
               approve: z.string(),
-              /** Opening the adjustment form (FR-ORD-03) — the other half of
-               * accepting an order, for the case where what the shop accepts
-               * is not what was submitted. */
+              /** Opening the adjustment form (FR-ORD-03): accepting something
+               * other than what was submitted. */
               adjust: z.string(),
               /** Undo an ending: back to a request the shop has to answer. */
               reopen: z.string(),
-              /**
-               * Staff's undo along the chain — the same three statuses read
-               * the other way round. Their own wording because they are their
-               * own act: "Confirm" on an order already out for delivery would
-               * read as a step forward it is not.
-               */
+              /** Staff's undo along the chain, worded apart: "Confirm" on an
+               * order out for delivery reads as a step forward. */
               backToRequested: z.string(),
               backToApproved: z.string(),
               backToReady: z.string(),
@@ -213,11 +200,8 @@ export const adminOrderingTextShape = {
            * the order has moved on without a word about it, and nothing
            * writes to them on its own.
            */
-          /**
-           * What the customer can see and what they have been told — two
-           * questions, always answered, because "nothing to do here" is an
-           * answer a manager needs as much as the other one (FR-NOTIF-03).
-           */
+          /** What the customer can see and was told, always answered:
+           * "nothing to do" is an answer too (FR-NOTIF-03). */
           tellCustomer: z
             .object({
               heading: z.string(),
@@ -237,9 +221,8 @@ export const adminOrderingTextShape = {
               update: z.string(),
               updateConfirm: confirmText,
               updateNotify: z.string(),
-              /** Writing to them about the version they already hold — the
-               * message somebody decided against, or one that never
-               * arrived. */
+              /** Writing about the version they hold: a message decided
+               * against, or one that never arrived. */
               email: z.string(),
               emailAgain: z.string(),
               emailConfirm: confirmText,
@@ -247,15 +230,15 @@ export const adminOrderingTextShape = {
               error: z.string(),
             })
             .strict(),
-          /** Recording that the money arrived. Not a transaction — the
-           * platform takes no payment. */
+          /** Recording that the money arrived; the platform takes no
+           * payment. */
           paymentState: z
             .object({
               /** `{date}` it was recorded. */
               paid: z.string(),
               record: z.string(),
               recordConfirm: confirmText,
-              /** Taking the record back — a mis-tick, never a refund. */
+              /** Taking the record back: a mis-tick, never a refund. */
               clear: z.string(),
               clearConfirm: confirmText,
               error: z.string(),
@@ -300,8 +283,8 @@ export const adminOrderingTextShape = {
               /** Why the send button is not offered: the customer's own page
                * has not reached the version the file was filed against. */
               notifyBehind: z.string(),
-              /** The button afterwards. It stays pressable — a customer who
-               * lost the message is asking for the same document again. */
+              /** The button afterwards, still pressable: a customer who lost
+               * the message asks again. */
               notifySent: z.string(),
               notifyConfirm: confirmText,
               /** Why staff cannot draw payment instructions themselves. */
@@ -313,11 +296,8 @@ export const adminOrderingTextShape = {
             .strict(),
         })
         .strict(),
-      /**
-       * Adjusting an order (FR-ORD-03) — a whole new version of it, written
-       * on one screen. Its own catalogue rather than more keys on the detail
-       * screen: this one asks questions, and the other only answers them.
-       */
+      /** Adjusting an order (FR-ORD-03): a new version on one screen, apart
+       * from the detail screen, as this one asks. */
       adjust: z
         .object({
           page: pageText,
@@ -340,10 +320,8 @@ export const adminOrderingTextShape = {
               unitsAria: z.string(),
               priceAria: z.string(),
               removeAria: z.string(),
-              /** Reordering a line. Not a change to the order — a picking
-               * list is read top to bottom, and the alternative was removing
-               * a line and adding it back, which loses the price it was
-               * agreed at. */
+              /** Reordering a line, for a picking list read top down;
+               * removing and re-adding would lose its agreed price. */
               moveUpAria: z.string(),
               moveDownAria: z.string(),
               addLabel: z.string(),
@@ -352,8 +330,7 @@ export const adminOrderingTextShape = {
               /** `{count}`, for the live region. */
               suggestionCountAria: z.string(),
               empty: z.string(),
-              /** A line priced away from the list it would otherwise take
-               * (FR-CART-09) — allowed, and worth saying. */
+              /** A line priced off its list (FR-CART-09): allowed, and said. */
               offList: z.string(),
             })
             .strict(),
@@ -368,7 +345,7 @@ export const adminOrderingTextShape = {
           billingAddress: z.string(),
           /** The customer's own words, shown and not editable. */
           customerHeading: z.string(),
-          /** The day they asked for — `{date}`, or the words for any day. */
+          /** The day they asked for: `{date}`, or the words for any day. */
           wished: z.string(),
           customerNone: z.string(),
           noteHint: z.string(),
@@ -415,15 +392,15 @@ export const adminOrderingTextShape = {
             .strict(),
         })
         .strict(),
-      /** Row labels for a list of changes to an order — on the adjustment
-       * screen, and between two versions. The total is a shared name. */
+      /** Row labels for an order's changes, on the adjustment screen and
+       * between versions. The total is a shared name. */
       changes: z
         .object({
           line: z.string(),
           added: z.string(),
           removed: z.string(),
-          /** The packing estimate, where the products carry one — what the
-           * shop books a van by. */
+          /** The packing estimate where products carry one: what the shop
+           * books a van by. */
           shipment: z.string(),
         })
         .strict(),

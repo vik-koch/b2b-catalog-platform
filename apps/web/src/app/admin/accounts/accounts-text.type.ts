@@ -45,12 +45,11 @@ export const adminAccountsTextShape = {
           roleUser: z.string(),
           tierAll: z.string(),
           companyIdFormatAll: z.string(),
-          /** The accounts carrying no registration number — private
-           * persons. */
+          /** Accounts without a registration number: private persons. */
           companyIdFormatNone: z.string(),
           statusAll: z.string(),
-          /** The column's own noun, for the phone's sort picker — where "All
-           * statuses" would read as an ordering rather than a column. */
+          /** The column's noun for the phone's sort picker, where "All
+           * statuses" would read as an order. */
           status: z.string(),
           statusPending: z.string(),
           statusInvited: z.string(),
@@ -69,8 +68,7 @@ export const adminAccountsTextShape = {
           deactivateAria: z.string(),
           reactivateAria: z.string(),
           saveError: z.string(),
-          /** The two Add buttons — one per tab, since they create different
-           * things and land on different forms. */
+          /** The two Add buttons, one per tab: they create different things. */
           addCustomer: z.string(),
           addStaff: z.string(),
           /**
@@ -110,12 +108,8 @@ export const adminAccountsTextShape = {
             .strict(),
         })
         .strict(),
-      /**
-       * The account editor (FR-AUTH-03/04) — add, edit and approve on one
-       * screen. Status, role, tier and customer-type *labels* are read from
-       * `userList` rather than repeated here: they name the same things, and
-       * two copies is how they drift apart.
-       */
+      /** The account editor (FR-AUTH-03/04): add, edit and approve. Status,
+       * role, tier and type labels are `userList`'s, never copied. */
       editor: z
         .object({
           newCustomerTitle: z.string(),
@@ -132,17 +126,12 @@ export const adminAccountsTextShape = {
           tier: z.string(),
           tierChoose: z.string(),
           role: z.string(),
-          /**
-           * The source system's key for this customer (FR-ADM-14), shown to
-           * an admin only. `sourceIdHint` says what it is for, because it is
-           * the one field on this screen whose effect is on a system the
-           * person reading it cannot see: an account with no key is invisible
-           * to the exchange, and filling it in is how a self-registered
-           * customer joins.
-           */
+          /** The source system's key (FR-ADM-14), for admins. `sourceIdHint`
+           * explains its effect on a system the reader cannot see: without a
+           * key the exchange ignores the account; with one it joins. */
           sourceId: z.string(),
           sourceIdHint: z.string(),
-          /** Said on the create form: nobody is ever sent a password (ADR 0034). */
+          /** Said on the create form: nobody is ever sent a password. */
           inviteHint: z.string(),
           /** Re-sending the set-your-password link, for a mail that never
            * arrived. Only ever shown while the account is still `invited`. */
@@ -163,16 +152,9 @@ export const adminAccountsTextShape = {
             .strict(),
         })
         .strict(),
-      /**
-       * One account, read rather than edited (FR-AUTH-03/04) — the same
-       * surface a customer sees of their own record, plus the two facts they
-       * never see: what price list they are on, and what key an exchange
-       * knows them by.
-       *
-       * Only what this screen says *itself* is here. Every field name,
-       * status, role and tier label is `userList`'s or `userEditor`'s, for
-       * the reason those two already share them: one thing, named once.
-       */
+      /** One account, read (FR-AUTH-03/04): what the customer sees, plus
+       * their price list and exchange key. Only this screen's own words;
+       * labels are `userList`'s or `userEditor`'s. */
       detail: z
         .object({
           unexemptConfirm: confirmText,
@@ -180,8 +162,8 @@ export const adminAccountsTextShape = {
           deleteConfirm: confirmText,
           detailsHeading: z.string(),
           accountHeading: z.string(),
-          /** When the registration was decided, and the line for one that has
-           * not been — a pending account is not an account with a missing date. */
+          /** When the registration was decided, and the line for one undecided:
+           * pending is no missing date. */
           approved: z.string(),
           approvedNever: z.string(),
           /** Said in full rather than as a dash: an empty source key is what

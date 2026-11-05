@@ -1,13 +1,9 @@
 #!/usr/bin/env node
 /**
- * Fills the generated sections of `docs/account-lifecycle.md`.
- *
- * Accounts have no single table the way orders do — what an account may become
- * is decided by guards spread across the staff-users service — so what is
- * generated here is the set of statuses (from the constant both apps read) and
- * the journeys, which come from the very literals `account-journeys.spec.ts`
- * walks against the running API. The prose around them is written by hand and
- * left alone.
+ * Fills the generated sections of `docs/account-lifecycle.md`. Accounts have no
+ * one transition table, so it generates the statuses (from the constant both
+ * apps read) and the journeys `account-journeys.spec.ts` walks against the
+ * API. The prose around them is hand-written and left alone.
  *
  * Run `node tools/generate-account-lifecycle.mjs` after changing an account
  * journey. `--check` verifies the committed document matches, which is what CI

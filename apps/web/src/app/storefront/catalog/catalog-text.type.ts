@@ -57,9 +57,8 @@ export const storefrontCatalogTextShape = {
           appliedAria: z.string(),
           /** A chip's remove button; `{label}` is "Attribute: value". */
           removeAria: z.string(),
-          /** Shown where the grid would be, when a selection matches
-           * nothing — beside the panel that can undo it, never instead of
-           * it. */
+          /** In the grid's place when a selection matches nothing, beside the
+           * panel that can undo it. */
           noMatches: z.string(),
         })
         .strict(),
@@ -89,8 +88,7 @@ export const storefrontCatalogTextShape = {
       noSuggestions: z.string(),
       /** Accessible name of the row of category chips (FR-SEARCH-07). */
       categoriesLabel: z.string(),
-      /** The panel's way to the results page — the same place submitting
-       * the query goes. */
+      /** The panel's way to the results page, where submitting goes. */
       showAllResults: z.string(),
       /** Accessible name of a suggestion's icon-only add button
        * (FR-SEARCH-06); `{name}` is the product's. */
@@ -104,7 +102,7 @@ export const storefrontCatalogTextShape = {
       resultCount: z.string(),
       /** Shown when a query matched nothing; `{query}` is substituted. */
       noResults: z.string(),
-      /** Advice under the no-results line — spelling, fewer words. */
+      /** Advice under the no-results line: spelling, fewer words. */
       noResultsHint: z.string(),
       /** Shown when the page is opened with no query at all. */
       emptyQuery: z.string(),

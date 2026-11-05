@@ -6,15 +6,9 @@ const ADMIN_EMAIL = env['ADMIN_EMAIL'];
 const ADMIN_PASSWORD = env['ADMIN_PASSWORD'];
 
 /*
- * The admin grids (FR-ADM-05) in a real browser.
- *
- * Everything else about them is unit-tested, but the two things this refactor
- * turns on cannot be reached from jsdom: a table's columns are measured from
- * the layout the browser gives them, and a boundary is dragged with a pointer.
- * A test DOM lays nothing out, so there both are no-ops.
- *
- * Read-only — the suite shares one database with specs that assert seeded
- * state, and nothing here saves anything but a column width.
+ * The admin grids (FR-ADM-05) in a browser, for what jsdom cannot: columns
+ * measured from layout, boundaries dragged with a pointer. Saves nothing but a
+ * column width.
  */
 
 async function logIn(page: Page): Promise<void> {
@@ -70,9 +64,8 @@ test.describe('admin grids on a desktop', () => {
     const before = await columnWidths(page);
     const widthBefore = await tableWidth(page);
     // The widest column, and the boundary on its right. A boundary only moves
-    // as far as the column giving way has above its own minimum, and the
-    // columns are measured from their content — so which one has room depends
-    // on what the list currently shows, and is asked rather than assumed.
+    // as far as the yielding column is above its minimum, measured from
+    // content, so which has room is asked.
     const dragged = before
       .slice(0, -1)
       .reduce(
@@ -137,19 +130,15 @@ test.describe('admin grids on a desktop', () => {
     expect(narrow.at(-1)).toBe(wide.at(-1));
     expect(sum(narrow)).toBeLessThan(sum(wide));
 
-    // Neither fixed column owns a boundary: there is one for each pair of
-    // neighbours that actually has a share to trade — six flexible columns
-    // between the thumbnail and the actions.
+    // No fixed column owns a boundary: one per pair of flexible neighbours,
+    // six between thumbnail and actions.
     const handles = page.locator('thead th [role="separator"]');
     await expect(handles).toHaveCount(5);
   });
 });
 
-/**
- * The product grid's stock column (FR-ADM-05, FR-STOCK-02). The cell is the
- * piece count in the badge the three states colour, and the heading is the
- * filter — `nordic-pull` is seeded with nothing on the shelf.
- */
+/** The product grid's stock column (FR-ADM-05, FR-STOCK-02): the count in a
+ * state badge, the heading a filter. `nordic-pull` is seeded empty. */
 test.describe('the product grid stock column', () => {
   test.skip(
     ({ isMobile }) => !!isMobile,
@@ -201,9 +190,8 @@ test.describe('admin grids on a phone', () => {
     await expect(page.locator('ui-data-grid table')).toHaveCount(0);
     await expect(page.locator('ui-data-grid li').first()).toBeVisible();
 
-    // The filters live in the column headings, and there are none here — so
-    // one disclosure carries all of them, opened in place rather than over the
-    // rows it is narrowing.
+    // Without column headings, one disclosure carries all filters, opened in
+    // place, not over the rows.
     // By what it opens, not by its name: the name gains the count of filters
     // in effect, and "Filters" alone also matches "Clear filters" beside it.
     const filters = page.locator('button[aria-controls="grid-filters-panel"]');
@@ -239,8 +227,8 @@ test.describe('admin grids on a phone', () => {
   });
 });
 
-/** The table as a whole, measured once — see the drag test for why the sum of
- * the columns is not the same number. */
+/** The whole table, measured once; the drag test says why the columns do not
+ * sum to it. */
 async function tableWidth(page: Page): Promise<number> {
   return page
     .locator('table')

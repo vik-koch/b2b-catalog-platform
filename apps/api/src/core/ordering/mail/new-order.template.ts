@@ -6,15 +6,9 @@ import { MailContent } from '../../../platform/mail/mail-layout';
 import { MailText } from '../../../platform/mail/mail-text';
 import { orderMailItem, orderMailTotal } from './order-items';
 
-/**
- * Sent to the shop when an order request arrives (FR-NOTIF-05). Staff are the
- * only ones who can answer it, so this is the mail that links into the admin
- * order view.
- *
- * It repeats what a manager decides on before opening anything: who it is for,
- * who to ring, how it should arrive and what it comes to — the same reasoning
- * as the registration notification, which is read on a phone.
- */
+/** Sent to the shop when an order request arrives (FR-NOTIF-05), linking to
+ * the admin view. It repeats what a manager decides on before opening
+ * anything, as it is read on a phone: who, who to ring, how, and how much. */
 export function newOrderMail(
   order: AdminOrderDetail,
   currency: MoneyFormat,
@@ -39,7 +33,7 @@ export function newOrderMail(
       // is a fact about the order, and it decides how the price was quoted.
       { label: staff.account, value: order.customerEmail ?? staff.guest },
       {
-        // Name, phone, address — all three, in the order a manager uses them.
+        // Name, phone and address, in the order a manager uses them.
         // The address is not repeated from the account row: a guest order has
         // no account, and then this is the only way back to the customer.
         label: names.contact,

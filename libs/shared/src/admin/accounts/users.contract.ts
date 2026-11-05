@@ -79,24 +79,17 @@ export const USER_ERROR_CODES = [
 ] as const;
 export type UserErrorCode = (typeof USER_ERROR_CODES)[number];
 
-/**
- * The status each refusal travels with. `account-not-found` is the only 404
- * and `customer-type-not-accepted` the only 400 — the request names a kind of
- * customer the shop does not take; every other one is a conflict — the
- * account exists, and what was asked of it is what cannot be done.
- */
+/** The status of each refusal: `account-not-found` the only 404,
+ * `customer-type-not-accepted` (a kind the shop does not take) the only 400,
+ * every other a conflict with an account that exists. */
 const notFound = { 'account-not-found': { status: 404 } } as const;
 const typeRefused = {
   'customer-type-not-accepted': { status: 400 },
 } as const;
 
-/**
- * Every write to a *customer* account carries this, and none of the reads do:
- * while an external system owns customer accounts the platform's own side is
- * closed as a whole (FR-ADM-10), while the screens that show them stay open.
- * Staff administration is never refused by it — an admin has to be able to
- * appoint another admin whatever the exchange holds.
- */
+/** On every write to a customer account and no read: while another system
+ * owns them, the shop's writes close as a whole (FR-ADM-10). Never on staff
+ * accounts, so an admin can always appoint another. */
 const owned = {
   'customers-externally-owned': ownershipErrors['customers-externally-owned'],
 } as const;
@@ -249,8 +242,8 @@ export const usersContract = {
     })
     .errors({
       ...notFound,
-      // Your own account, the last admin, a registration nobody has decided
-      // on yet, or an anonymized one — which has nothing left to switch on.
+      // Your own account, the last admin, an undecided registration, or an
+      // anonymized one, with nothing left to switch on.
       'account-not-approved': conflicts['account-not-approved'],
       'account-not-disabled': conflicts['account-not-disabled'],
       'self-deactivate': conflicts['self-deactivate'],

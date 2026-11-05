@@ -17,12 +17,9 @@ import {
   generateProductImage,
 } from './catalog-placeholders';
 
-/**
- * Seeds the demo catalog: categories (parents first, so the FK resolves) then
- * products, each with generated placeholder images written to the media store.
- * Idempotent — upserts by the sync keys (`sourceId` / `sourceId`) and reuses
- * content-addressed image files, so a re-seed neither duplicates rows nor files.
- */
+/** Seeds the demo catalogue: categories (parents first, for the foreign key),
+ * then products with their pictures. Idempotent: upserts by `sourceId` and
+ * reuses content-addressed files. */
 export async function seedCatalog(
   client: Client,
   { catalog, marks }: Pick<SeedBundle, 'catalog' | 'marks'>,
@@ -196,11 +193,10 @@ function drawnArt(
 }
 
 /**
- * A product's gallery: its own pictures first, then each variant's (FR-CAT-11).
- * A picture without a photo is drawn: as glazed cups for a product with
- * variants — the range side by side, then one colour per variant's picture,
- * so each label names what the picture shows — and as the bean otherwise. A
- * bundle with its own art draws swatches and its icons instead.
+ * A product's gallery: its own pictures, then each variant's (FR-CAT-11). A
+ * picture without a photo is drawn: glazed cups for a product with variants
+ * (the range, then one colour per variant), the bean otherwise. A bundle with
+ * its own art draws swatches and its icons.
  */
 async function productPictures(
   mediaRoot: string,
@@ -264,9 +260,8 @@ function seedVariantId(sourceId: string, name: string): string {
 /**
  * The sold-together edges (FR-SET-01). Written by slug and ordered by id, the
  * way the write path stores them, so a pairing is one row whichever product is
- * named first. Only the demo's own edges are touched — a pairing an admin made
- * in the demo survives a re-seed, since nothing here can tell it from one of
- * these apart from the pair it names.
+ * named first. Only the demo's own edges are touched: an admin's pairing
+ * survives a re-seed, as it looks like these.
  */
 async function seedPairings(
   client: Client,
@@ -284,13 +279,9 @@ async function seedPairings(
   }
 }
 
-/**
- * Which attribute keys are filterable (FR-ATTR-01). Upserted by slug — the slug
- * is what a shared filter link is written with, so it is the identity here as
- * well; a renamed name is restored, as everywhere else the seed owns content.
- * Definitions hold no product data, so nothing depends on the order they land
- * in relative to the products.
- */
+/** Which attribute keys are filterable (FR-ATTR-01), upserted by slug, a
+ * filter link's identity; a renamed name is restored. They hold no product
+ * data, so their order against products is free. */
 async function seedAttributeDefinitions(
   client: Client,
   definitions: SeedBundle['catalog']['attributes'],
@@ -331,11 +322,8 @@ async function seedCatalogFilters(
   }
 }
 
-/**
- * Attributes are rows, and the seed's list is the whole truth — replaced
- * wholesale, like a product save does. `valueNumeric` is parsed here exactly as
- * the API parses it.
- */
+/** Attributes are rows, replaced wholesale like a product save; `valueNumeric`
+ * is parsed as the API parses it. */
 async function seedProductAttributes(
   client: Client,
   productId: string,

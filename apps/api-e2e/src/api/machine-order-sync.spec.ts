@@ -7,17 +7,10 @@ import { configFile, requireEnv } from '../support/env';
 import { deleteMatching, messagesMatching } from '../support/mailpit';
 
 /**
- * The order write-back (FR-ADM-08, ADR 0062) end to end.
- *
- * What is worth proving against a real stack is everything the shape of the
- * request does not say: that it is refused until somebody hands order
- * processing over, that one instruction carrying a move, a change and a
- * payment writes exactly **one** version of the order, that re-sending it
- * writes none at all, that an order the customer called off is refused rather
- * than driven forward unless the instruction takes the cancellation back and
- * tells them, that one bad instruction does not cost the good ones in
- * the same batch, and that the version carries the name of whoever acted over
- * there without that name ever becoming an account here.
+ * The order write-back (FR-ADM-08), end to end: refused until handed over; a
+ * move, change and payment write one version, a re-send none; a called-off
+ * order is refused unless the instruction says so and tells the customer; a
+ * bad instruction spares the rest; the actor is named, never an account.
  */
 
 const R = Date.now().toString(36);
@@ -392,8 +385,8 @@ describe('Order write-back (FR-ADM-08)', () => {
       expect(after.data.paidAt).not.toBeNull();
     });
 
-    /** Recording the money is a fact about the order, not a reading of it —
-     * so it writes no version, exactly as a manager's tick does not. */
+    /** Recording money is a fact, not a reading, so no version, as with a
+     * manager's tick. */
     it('records a payment without writing a version', async () => {
       const reference = await place();
       await write({
@@ -559,7 +552,7 @@ describe('Order write-back (FR-ADM-08)', () => {
         expect(body.plan.orders[0]).toMatchObject({
           kind: 'transition',
           status: 'ready',
-          // One report, one version — not one per state it passed through.
+          // One report, one version, not one per state passed.
           revisionNumber: 2,
         });
         expect(await revisionOf(reference)).toMatchObject({
@@ -631,12 +624,9 @@ describe('Order write-back (FR-ADM-08)', () => {
         });
       });
 
-      /**
-       * A note rides on a version, so the answers that write none have to say
-       * the note went nowhere — by what the instruction *did*, never by which
-       * fields it named. Reported and not refused: a source re-sending its
-       * whole snapshot carries the same note every cycle.
-       */
+      /** A note rides on a version, so answers writing none say the note went
+       * nowhere, by what the instruction did. Reported, not refused: a re-sent
+       * snapshot repeats its note. */
       it('says when a note was dropped, and when it was carried', async () => {
         const reference = await place();
         const first = instruction({
@@ -692,8 +682,8 @@ describe('Order write-back (FR-ADM-08)', () => {
         expect((res.data as RunResponse).plan.orders[0]).toMatchObject({
           kind: 'payment',
           paymentState: 'paid',
-          // Recording money writes no version — and the revision does not move,
-          // which is why a payment retry is idempotent rather than refused.
+          // Money writes no version and the revision stays, so a payment retry
+          // is idempotent, not refused.
           revisionNumber: 2,
           noteIgnored: true,
         });
@@ -740,7 +730,7 @@ describe('Order write-back (FR-ADM-08)', () => {
           paymentState: 'paid',
         });
 
-        // Completed by mistake — walked back, with the money left alone.
+        // Completed by mistake: walked back, the money left alone.
         const back = await write({
           orders: [
             instruction({ reference, basedOnRevision: 2, status: 'approved' }),

@@ -143,12 +143,8 @@ describe('the life of an order', () => {
     await client.end();
   });
 
-  /**
-   * The order a journey starts from, placed through the checkout like any
-   * other. Its contact address is the journey's own, which is what keeps the
-   * mail readings from seeing another suite's messages — Mailpit is shared, and
-   * every read here is scoped to this address.
-   */
+  /** A journey's order, placed at checkout, its address the journey's own,
+   * scoping mail in the shared Mailpit. */
   async function place(
     journey: (typeof orderJourneys)[number],
   ): Promise<OrderJourneyContext> {

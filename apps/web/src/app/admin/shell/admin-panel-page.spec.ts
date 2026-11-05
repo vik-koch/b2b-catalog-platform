@@ -26,7 +26,7 @@ import { workStub } from '../../core/work/work.fixture';
 import { AuthUser } from '@b2b-catalog-platform/shared/platform';
 import { withSite } from '../../core/site/site-config.fixture';
 
-// The committed demo config — its de-DE locale is what formats the deploy date.
+// The committed demo config, whose de-DE locale formats the deploy date.
 const config = defaultDeploymentConfig;
 
 /**
@@ -113,8 +113,8 @@ describe('AdminPanelPage build info', () => {
       deployedAt: '2026-08-01T10:00:00Z',
     });
 
-    // de-DE, so "01.08.2026" — asserted loosely enough to survive ICU's
-    // formatting details while still proving the date was localized.
+    // de-DE, so "01.08.2026", asserted loosely enough to survive ICU's
+    // details.
     expect(el.textContent).toContain('Version 1.4.0');
     expect(el.textContent).toMatch(/deployed 01\.08\.2026/);
   });
@@ -125,7 +125,7 @@ describe('AdminPanelPage build info', () => {
 
     const line = el.querySelector('p[title]');
     expect(line?.textContent).toContain('Version sha-aaaaaaa');
-    // No deploy time, so the line is the version alone — no dangling dash.
+    // No deploy time: the version alone, no dangling dash.
     expect(line?.textContent?.trim()).toBe('Version sha-aaaaaaa');
     expect(line?.getAttribute('title')).toBe(`sha-${sha}`);
   });
@@ -144,10 +144,8 @@ describe('AdminPanelPage build info', () => {
   });
 });
 
-/**
- * The panel's counts (FR-WORK-03). Each is a link into the very list it counts,
- * narrowed to those rows — a count and its list can then never disagree.
- */
+/** The panel's counts (FR-WORK-03), each linking to the list it counts,
+ * narrowed, so they never disagree. */
 describe('AdminPanelPage work counts', () => {
   const note = (el: HTMLElement, text: string) =>
     Array.from(el.querySelectorAll('a[uiActionLink]')).find((link) =>
@@ -232,8 +230,8 @@ describe('AdminPanelPage work counts', () => {
  * the states an admin can leave on without the shop telling them.
  */
 describe('AdminPanelPage sync rows', () => {
-  /** Two areas, two logs, two answers — the customer row used to carry no
-   * reading at all, which read as an area that had never moved. */
+  /** Two areas, two logs, two answers: without one, the customer row reads as
+   * an area that never moved. */
   it('dates each area from its own log', async () => {
     const el = await render(
       { version: null, deployedAt: null },
@@ -305,9 +303,8 @@ describe('AdminPanelPage runtime state', () => {
   });
 
   it('carries both marks at once', async () => {
-    // Side by side or stacked is the row's own business — it measures what it
-    // is holding and picks its floor, and `panelRowFloor` is where that rule
-    // is tested.
+    // Side by side or stacked is the row's own choice, tested in
+    // `panelRowFloor`.
     const el = await render(
       { version: null, deployedAt: null },
       adminUser,
@@ -331,8 +328,8 @@ describe('AdminPanelPage runtime state', () => {
   });
 
   it('does not ask for the settings as a manager', async () => {
-    // The endpoint is admin-only, and a failed read is what tells the editors
-    // to lock every field — so a manager's panel must not provoke one.
+    // Admin-only, and a failed read locks every editor field, so a manager's
+    // panel must not provoke one.
     const settings = withSettings({});
     await render(
       { version: null, deployedAt: null },

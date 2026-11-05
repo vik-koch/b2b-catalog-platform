@@ -96,8 +96,8 @@ export class AdminOrdersController {
       });
   }
 
-  /** Every version of one order (FR-ORD-03) — staff only, since a customer
-   * reads the order as it now stands. */
+  /** Every version of one order (FR-ORD-03), for staff: a customer reads the
+   * order as it stands. */
   @Implement(adminOrdersContract.listOrderRevisions)
   listOrderRevisions() {
     return implement(adminOrdersContract.listOrderRevisions)

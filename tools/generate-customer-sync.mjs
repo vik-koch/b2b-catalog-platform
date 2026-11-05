@@ -1,10 +1,8 @@
 #!/usr/bin/env node
 /**
- * Fills the generated sections of `docs/customer-sync.md`.
- *
- * What is generated is the journeys — the very literals
- * `customer-sync-journeys.spec.ts` walks against the running API — and their
- * legend. The prose around them is written by hand and left alone.
+ * Fills the generated sections of `docs/customer-sync.md`: the journeys
+ * `customer-sync-journeys.spec.ts` walks against the API, and their legend.
+ * The prose around them is hand-written and left alone.
  *
  * Run `node tools/generate-customer-sync.mjs` after changing a customer
  * journey. `--check` verifies the committed document matches, which is what CI

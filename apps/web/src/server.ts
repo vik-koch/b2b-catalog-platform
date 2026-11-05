@@ -43,9 +43,9 @@ app.disable('x-powered-by');
 //
 // The trusted proxy headers are exactly the ones Traefik sets: it replaces
 // whatever a client sent under these names, and this container is reachable
-// only through it. `Forwarded` and `X-Forwarded-Prefix` are not on the list —
-// Traefik never sets them, so one arriving here came from the client. Anything
-// untrusted is dropped with a console warning.
+// only through it. Not `Forwarded` or `X-Forwarded-Prefix`: Traefik never sets
+// them, so one arriving came from the client. Untrusted ones are dropped with
+// a warning.
 let angularApp: AngularNodeAppEngine | undefined;
 
 function getAngularApp(): AngularNodeAppEngine {
@@ -121,12 +121,9 @@ app.get('/robots.txt', async (_req, res, next) => {
   }
 });
 
-/**
- * The admin half of the UI text (see admin-text.type.ts). Fetched by the client
- * instead of being injected into the document, so the wording rides along only
- * with a session that can use it and a guest's document stays lean. Not a secret — just wording an anonymous visitor has
- * no use for — so it is served unauthenticated and cached like a static asset.
- */
+/** The admin half of the UI text (admin-text.type.ts), fetched rather than
+ * injected, so a guest's document stays lean. No secret, so served
+ * unauthenticated and cached like a static asset. */
 app.get('/admin-text.json', (_req, res, next) => {
   try {
     res.set('Cache-Control', 'public, max-age=300').json(getAdminText());
@@ -136,17 +133,11 @@ app.get('/admin-text.json', (_req, res, next) => {
 });
 
 /**
- * Third-party attribution for the code this deployment ships to browsers.
- *
- * The build produces it: `extractLicenses` (on for production configurations)
- * writes `3rdpartylicenses.txt` covering exactly the packages esbuild put into
- * the bundle. That makes the bundler the source of truth — nothing is generated
- * into the repo, nothing can go stale, and the notice can never claim a package
- * the build did not actually ship. It lands beside `browser/` rather than in
- * it, so it needs this route to be reachable; the /licenses page fetches it.
- *
- * Development builds turn extraction off, so the file is simply absent there —
- * a 404 the page renders as "not available in this build" rather than an error.
+ * Attribution for the code shipped to browsers. `extractLicenses` (production
+ * builds) writes `3rdpartylicenses.txt` for exactly what esbuild bundled, so
+ * it never goes stale. It lands beside `browser/`, so it needs this route;
+ * /licenses fetches it. Development builds have none: a 404 the page words as
+ * "not available in this build".
  */
 const licenseNoticeFile = resolve(serverDistFolder, '../3rdpartylicenses.txt');
 
@@ -175,16 +166,12 @@ app.get('/sitemap.xml', async (_req, res, next) => {
 });
 
 /**
- * Headers for a rewritten document. A render now asks the API as the visitor
- * (forward-session.server.ts), so a signed-in visitor's document carries their
- * prices and account, both in the markup and in the hydration data: it must
- * never reach anyone else. `Vary: Cookie` on every document, so no shared
- * cache hands one kind of visitor the other's; `private, no-store` on the ones
- * a session shaped — the same rule the API applies to its own responses.
- *
- * The render itself marks the page private from what it actually embedded
- * (private-page.server.ts); this is the second line, on the cookie alone, in
- * case a render ever reaches the API by some path that interceptor misses.
+ * Headers for a rewritten document. A render asks the API as the visitor
+ * (forward-session.server.ts), so a signed-in document carries their prices
+ * and account and must reach nobody else: `Vary: Cookie` on all, `private,
+ * no-store` where a session shaped it, as the API does. The render marks the
+ * page private itself (private-page.server.ts); this is the second line, on
+ * the cookie alone.
  */
 function documentHeaders(
   response: Response,
@@ -199,18 +186,14 @@ function documentHeaders(
   return headers;
 }
 
-/**
- * Handle all other requests by rendering the Angular application.
- *
- * Every HTML document leaving here — a server-rendered page or the shell for a
- * client-rendered route — gets the per-deployment state injected, which is the
- * only channel branding and UI text have to the browser.
- */
+/** Everything else renders the Angular app. Every document leaving here, a
+ * rendered page or a client route's shell, gets the deployment state injected:
+ * branding's and UI text's only way to the browser. */
 app.use(async (req, res, next) => {
   try {
     // Maintenance gate (SSR mirror): while the storefront is gated, a public
-    // route is served the maintenance screen with a 503 at its own URL — no
-    // redirect, which the response could not carry alongside a 503. Point the
+    // route is served the maintenance screen with a 503 at its own URL; a
+    // redirect cannot ride with a 503. Point the
     // render at the maintenance route in place; the asset/static middleware
     // above has already matched the original path, so this only affects what
     // Angular renders. The engine derives the route from `originalUrl` (Express
@@ -285,8 +268,8 @@ app.use(async (req, res, next) => {
 if (isMainModule(import.meta.url) || process.env['pm_id']) {
   // Validate the whole per-deployment config mount before listening, so a
   // missing/invalid file or assets dir fails the boot rather than 500ing on the
-  // first request. Only runs when started as the Node server — never during the
-  // build/prerender, which import this module without a runtime environment.
+  // first request. Only as the Node server, never in the build or prerender,
+  // which import this module without a runtime environment.
   getAssetsMiddleware();
   preloadDeploymentConfig();
   preloadTexts();

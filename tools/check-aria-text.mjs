@@ -17,9 +17,9 @@
  *   to wherever it is read: the UI library's reads are checked too;
  * - code in a class member whose every read is one of the above.
  *
- * The reverse — a text that is only read out but lacks the suffix — cannot be
- * decided from one read, since the same key may be shown elsewhere. Review
- * catches that; this keeps the suffix from lying.
+ * The reverse, a text only read out without the suffix, cannot be decided
+ * from one read, as the key may show elsewhere. Review catches that; this
+ * keeps the suffix honest.
  */
 import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';

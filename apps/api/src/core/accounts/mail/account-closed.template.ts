@@ -4,11 +4,11 @@ import { MailContent } from '../../../platform/mail/mail-layout';
 import { MailText } from '../../../platform/mail/mail-text';
 import { formatPersonName } from '@b2b-catalog-platform/shared/core/accounts';
 
-/** What the notification reports — the account, as it was before it went. */
+/** The account as it was before it went. */
 export interface ClosedAccountSummary {
   readonly email: string;
-  /** Null on an account that never carried one — nothing enforces a name on
-   * a staff-created row. */
+  /** Null where there was none: nothing requires a name on a staff-created
+   * account. */
   readonly firstName: string | null;
   readonly lastName: string | null;
   /** Orders the closure anonymized and kept (FR-AUTH-06). */
@@ -19,12 +19,10 @@ export interface ClosedAccountSummary {
 }
 
 /**
- * Sent to the shop when an account closes itself (FR-NOTIF-08).
- *
- * The mail carries the account rather than linking to it, because by the time
- * anybody reads this the row no longer says who it was: deletion anonymizes.
- * That is also why the counts are here — the orders stay, and an open one is
- * now the shop's to settle with a customer it can no longer look up.
+ * Sent to the shop when an account closes itself (FR-NOTIF-08). It carries
+ * the account instead of a link, as the row is anonymized by then, and the
+ * counts, as an open order is now the shop's to settle with a customer it
+ * cannot look up.
  */
 export function accountClosedMail(
   account: ClosedAccountSummary,
