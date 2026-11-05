@@ -74,11 +74,8 @@ async function render(plan: Partial<OrderSyncPlan> = {}) {
   return { el: fixture.nativeElement as HTMLElement };
 }
 
-/**
- * The order run's own summary. It is always a record — an order run is applied
- * as it arrives — so what this has to get right is what it says, not what it
- * offers to do.
- */
+/** The order run's summary, always a record as it applies on arrival: what
+ * it says, not what it offers. */
 describe('SyncOrderPlanView', () => {
   it('lists what it answered, and links each order to itself', async () => {
     const { el } = await render({

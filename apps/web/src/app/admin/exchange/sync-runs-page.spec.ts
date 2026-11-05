@@ -159,8 +159,8 @@ describe('SyncRunsPage', () => {
     expect(el.textContent).toContain(text.status.failed);
   });
 
-  /** The counts say how much; this says what — which for a feed that runs
-   * every twenty minutes is the question actually being asked of the log. */
+  /** The counts say how much, this says what: the log's question for a
+   * feed every twenty minutes. */
   it('names the fields a run rewrote, and counts the ones it has no room for', async () => {
     const { el } = await render([
       run({
@@ -173,7 +173,7 @@ describe('SyncRunsPage', () => {
 
     expect(el.textContent).toContain(text.field.name);
     expect(el.textContent).toContain(text.field.stock);
-    // Every price column names its own list now — the storefront's included.
+    // Every price column names its list, the storefront's included.
     expect(el.textContent).toContain(
       fillText(text.field.priceList, { key: 'default' }),
     );

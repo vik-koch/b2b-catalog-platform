@@ -442,8 +442,8 @@ describe('ProductEditorPage', () => {
       },
     );
 
-    // Stored with a dot, shown with the locale's comma — the price field beside
-    // it does the same, and a form that mixes both reads as two data sources.
+    // Stored with a dot, shown with the locale's comma, like the price field,
+    // or the form reads as two sources.
     const volume = el.querySelector<HTMLInputElement>('#packaging-boxVolume');
     expect(volume?.value).toBe('0,250');
 
@@ -970,8 +970,7 @@ describe('ProductEditorPage', () => {
       saveButton(el).click();
       await fixture.whenStable();
 
-      // An empty field means "charge this tier the base price", which is the
-      // absence of a row — not a price of nothing.
+      // Empty means "the base price": no row, not a price of nothing.
       expect(h.updateProduct.mock.calls[0][1].tierPrices).toEqual([]);
     });
 
@@ -1211,8 +1210,8 @@ describe('ProductEditorPage', () => {
       await fixture.whenStable();
       fixture.detectChanges();
 
-      // The product exists; only the publication did not happen — so the page
-      // stays put and says which half failed.
+      // The product exists, only publishing failed, so the page stays and says
+      // which half failed.
       expect(h.createProduct).toHaveBeenCalledTimes(1);
       expect(el.textContent).toContain(text.publishError);
       expect(h.navigate).not.toHaveBeenCalled();
@@ -1280,9 +1279,8 @@ describe('ProductEditorPage', () => {
       expect(inputByLabel(el, text.sourceId).disabled).toBe(true);
       expect(inputByLabel(el, text.stock.pieces).disabled).toBe(true);
 
-      // The slug is the shop's address for the product, not the exchange's
-      // key for it, and the "few left" figure is a wording rule rather than a
-      // stock count — neither is in the owned list.
+      // The slug is the shop's address, not the exchange's key, and "few left"
+      // is a wording rule: neither is owned.
       expect(inputByLabel(el, text.slug).disabled).toBe(false);
     });
 
@@ -1331,9 +1329,8 @@ describe('ProductEditorPage', () => {
 
   describe('creating while an external system owns the catalog', () => {
     it('explains instead of offering a form', async () => {
-      // Both affordances that lead here — the list's button and the
-      // storefront's "add product here" — land on this route, so this is the
-      // one screen that has to say why.
+      // The list's button and the storefront's "add product here" both land
+      // here, so this screen says why.
       const { el } = await render({ slug: null }, {}, { catalogOwned: true });
 
       expect(el.textContent).toContain(

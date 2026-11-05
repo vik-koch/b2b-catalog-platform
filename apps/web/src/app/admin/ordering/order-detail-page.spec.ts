@@ -198,8 +198,8 @@ async function render(
 }
 
 describe('AdminOrderDetailPage (FR-AUTH-03)', () => {
-  // The source system prices per piece, so staff read the line in pieces —
-  // not in the unit the customer bought through.
+  // The source system prices per piece, so staff read lines in pieces, not
+  // the customer's unit.
   it('reads a line in pieces', async () => {
     const { el } = await render(placed);
 
@@ -274,12 +274,8 @@ describe('AdminOrderDetailPage (FR-AUTH-03)', () => {
   });
 });
 
-/**
- * Answering an order (FR-ORD-01/02/04). What is worth pinning is that the page
- * offers exactly the moves the shared table allows from where the order stands
- * — a button drawn for a move the API refuses is the failure this table exists
- * to prevent.
- */
+/** Answering an order (FR-ORD-01/02/04): the page offers exactly the shared
+ * table's moves, never one the API refuses. */
 describe('AdminOrderDetailPage answering an order', () => {
   /** The moves the screen offers. Not the documents panel's own controls: it
    * carries an upload per kind whatever the order's state, and this asks
@@ -320,11 +316,9 @@ describe('AdminOrderDetailPage answering an order', () => {
       statusReason: 'Ordered twice',
     });
 
-    // Reopening is the recovery from a wrong click, not a step in the order's
-    // life — so it is the only move on offer, and the order is not carried on
-    // from where it ended. Named one by one rather than as the whole list of
-    // buttons: the customer block always offers something, and this asks which
-    // *moves* an ended order has.
+    // Reopening undoes a wrong click, so it is the only move on offer. Named
+    // one by one, as the customer block always offers something and this asks
+    // only about moves.
     expect(buttons(el)).toContain(text.actions.reopen);
     for (const move of [
       text.actions.approve,
@@ -483,9 +477,8 @@ describe('AdminOrderDetailPage answering an order', () => {
   });
 
   it('keeps quiet on a second walk through a state the customer knows', async () => {
-    // Completed, reopened to put the record straight, and completed again:
-    // the customer has already been told the order is done, so the mail is
-    // offered unticked and the money is not offered at all — it is recorded.
+    // Completed, reopened and completed again: the customer was told, so the
+    // mail is unticked, and the money, recorded, is not offered.
     const { fixture, el } = await render(
       {
         ...placed,
@@ -514,11 +507,8 @@ describe('AdminOrderDetailPage answering an order', () => {
     ]);
   });
 
-  /**
-   * The thread (FR-ORD-03, ADR 0051). It is fetched when the panel is opened
-   * and each version's differences only when that version is unfolded — an
-   * order worked on for a fortnight is a great many whole-order comparisons.
-   */
+  /** The thread (FR-ORD-03), fetched on opening, each version's diff on
+   * unfolding: a fortnight's work is many comparisons. */
   it('reads the versions, and works out a difference only when asked', async () => {
     const revisions = vi.fn(async () => versions);
     const { fixture, el } = await render(
@@ -665,12 +655,8 @@ describe('AdminOrderDetailPage answering an order', () => {
   });
 });
 
-/**
- * The order's own page while an external system answers orders (FR-ADM-10).
- * The whole of it stays readable — that is the point of the switch, not an
- * exception to it — and every control on it goes, including the documents
- * panel's, which already had a reading mode for the version screen.
- */
+/** The order's page while orders are owned (FR-ADM-10): all readable, every
+ * control gone, the documents panel's too. */
 describe('AdminOrderDetailPage while orders are externally owned', () => {
   const allButtons = (el: HTMLElement) =>
     [...el.querySelectorAll('button')].map((button) =>

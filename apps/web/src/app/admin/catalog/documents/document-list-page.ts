@@ -418,7 +418,7 @@ export class DocumentListPage {
       .join(' · ');
   }
 
-  /** The uploaded name and the link's site — what an admin recognises. */
+  /** The uploaded name and the link's site: what an admin recognises. */
   protected names({ file, link }: ProductDocument): string {
     return [file?.name, link && documentLinkHost(link)]
       .filter(Boolean)

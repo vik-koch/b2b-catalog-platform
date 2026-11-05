@@ -3,8 +3,8 @@ import type { AdminText } from '../../platform/config/admin-text.type';
 
 type Fields = SharedText['fields'];
 
-/** Each field's shared label with the check staff are told, as one object —
- * the shape a form reads, with the admin's wording in place of the customer's. */
+/** Each field's shared label with the staff's check, as a form reads it,
+ * worded for the admin. */
 export function staffFields(
   labels: Fields,
   checks: AdminText['fields'],

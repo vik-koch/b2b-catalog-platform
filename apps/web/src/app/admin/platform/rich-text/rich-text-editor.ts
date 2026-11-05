@@ -323,7 +323,7 @@ export class RichTextEditor {
   protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly actionText = inject(SHARED_TEXT).actions;
   protected readonly link = this.text.linkPanel;
-  /** Which shape the two panels take — see the template. */
+  /** Which shape the two panels take (the template). */
   protected readonly narrow = injectNarrowScreen('sm');
   /** Above `sm`, under the toolbar at its button's corner, wide enough for the
    * row of answers at its foot. */
@@ -332,12 +332,8 @@ export class RichTextEditor {
                                    border-edge-strong bg-white p-3 shadow-lg`;
   protected readonly image = this.text.imagePanel;
   private readonly headerCollapsed = inject(HeaderCollapse).collapsed;
-  /**
-   * Below `sm` the header scrolls away, so the toolbar sticks to the top. From
-   * `sm` it sits under the sticky header: both of its rows plus the border,
-   * or only the main bar once the utility bar has slid out — the same 2.5rem,
-   * at the header's own pace.
-   */
+  /** Below `sm` the toolbar sticks to the top; from `sm` under the sticky
+   * header, both rows or just the main bar once the utility bar slid out. */
   protected readonly toolbarClass = computed(
     () =>
       'sticky top-0 z-10 transition-[top] duration-300 ' +
@@ -518,7 +514,7 @@ export class RichTextEditor {
     const minimal = this.preset() === 'product';
     // The product preset disables the nodes outside PRODUCT_RICH_TEXT_TAGS
     // (headings and links; images come from a separate extension omitted below),
-    // so the schema itself — not just the toolbar — refuses them. Lists, quotes,
+    // so the schema refuses them, not only the toolbar. Lists, quotes,
     // underline, strike and the divider stay.
     const starterKit = minimal
       ? StarterKit.configure({
@@ -550,9 +546,8 @@ export class RichTextEditor {
             RichTextImage.configure({ inline: false, allowBase64: false }),
           ],
       editorProps: {
-        // Pasted (or dragged-in) image files must go through the media store
-        // like any other image — otherwise the browser drops in a blob/data URL
-        // that dies with the tab and never survives a save. Swallowed entirely
+        // Pasted or dropped image files go through the media store, or the
+        // browser inserts a blob URL that dies with the tab. Swallowed entirely
         // in the product preset, whose schema has no image node.
         handlePaste: (_view, event) =>
           this.handleImageFiles(event.clipboardData?.files),
@@ -582,10 +577,9 @@ export class RichTextEditor {
         ? this.actions.filter((a) => a.isActive?.(editor)).map((a) => a.id)
         : [],
     );
-    // Mirror the selected image's attributes into the panel signals, but only
-    // when the *selected image changes* — re-seeding them on every keystroke
-    // would rewrite the alt input mid-edit and jump the caret. While the same
-    // image stays selected, the panel's own handlers own the signals.
+    // Mirrors the selected image into the panel signals only when the image
+    // changes: on every keystroke it would rewrite the alt input mid-edit.
+    // Meanwhile the panel's handlers own them.
     if (editor.isActive('image')) {
       const pos = editor.state.selection.from;
       if (pos !== this.selectedImagePos) {
@@ -649,11 +643,8 @@ export class RichTextEditor {
     }
   }
 
-  /**
-   * A toggle, not an icon button: it says what it is with a fill, so it keeps
-   * its own colours. Only the room follows the rest of the admin — a finger's
-   * width below `md`, a pointer's above, glyph included.
-   */
+  /** A toggle, not an icon button: its fill says its state, so it keeps its
+   * colours. Only its size follows the admin: a finger below `md`. */
   protected buttonClass(active: boolean): string {
     const base = `flex size-9 cursor-pointer items-center justify-center
                   rounded transition-colors
@@ -748,8 +739,8 @@ export class RichTextEditor {
   /**
    * Takes over a paste or drop that carries an image file, routing it through
    * the same upload as the toolbar button. Returns true when it handled the
-   * event (ProseMirror then leaves the clipboard content alone), false to let
-   * normal handling continue — text pastes are untouched. The product preset
+   * event (ProseMirror then leaves the clipboard alone), false to let normal
+   * handling continue: text pastes are untouched. The product preset
    * has no image node, so there it only blocks the file.
    */
   private handleImageFiles(files: FileList | null | undefined): boolean {
@@ -774,17 +765,16 @@ export class RichTextEditor {
     this.uploading.set(true);
     try {
       const src = await this.media.upload(file);
-      // Insert at natural size (no width attr — CSS caps it at the column), then
+      // Insert at natural size (no width; CSS caps it at the column), then
       // select it so the panel opens for alt and placement right away.
       this.editor
         .chain()
         .focus()
         .insertContent({ type: 'image', attrs: { src } })
         .run();
-      // The image is a block node, so inserting it splits the current paragraph
-      // and the cursor lands in the block after it — a fixed offset back would
-      // miss. Find the image nearest before the cursor (the one just inserted)
-      // and select it, which opens the placement panel via onSelectionUpdate.
+      // A block node splits the paragraph and the cursor lands after it, so a
+      // fixed offset back would miss: select the image nearest before the
+      // cursor, which opens the placement panel via onSelectionUpdate.
       const { doc, selection } = this.editor.state;
       let imagePos: number | null = null;
       doc.descendants((node, pos) => {

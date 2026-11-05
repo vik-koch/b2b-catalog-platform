@@ -167,7 +167,7 @@ describe('DocumentProductsPicker (FR-DOC-02)', () => {
     await apply(emitted.at(-1) as LinkedProduct[]);
     await tick(2, true);
 
-    // Name order — Alpha, Bravo, Charlie — which is the order a save writes.
+    // Name order (Alpha, Bravo, Charlie), as a save writes it.
     expect(emitted.at(-1)?.map((p) => p.slug)).toEqual(['one', 'two', 'three']);
   });
 

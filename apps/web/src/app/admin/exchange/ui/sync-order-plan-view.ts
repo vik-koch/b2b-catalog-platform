@@ -125,7 +125,7 @@ const KIND_TONE: Record<AnsweredOrder['kind'], StatusTone> = {
   payment: 'ok',
 };
 
-/** An order this run wrote — what the list shows. */
+/** An order this run wrote, as the list shows it. */
 type AnsweredOrder = OrderWriteResult & {
   kind: Exclude<OrderWriteResult['kind'], 'unchanged'>;
 };

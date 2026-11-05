@@ -133,8 +133,8 @@ async function render(
     fixture.componentRef.setInput(name, value);
     await settle();
   };
-  /** The name, which shares its cell with the email — the first line of it,
-   * and a link to the account's own page. */
+  /** The name: its cell's first line above the email, linking to the
+   * account's page. */
   const names = () =>
     [...el.querySelectorAll('tbody tr')].map((row) =>
       row.querySelector('td a')?.textContent?.trim(),
@@ -206,9 +206,8 @@ describe('UserListPage', () => {
     expect(row?.textContent).toContain('Wholesale');
   });
 
-  // The cells of a row are written by the page and the columns are declared
-  // beside them, so nothing but this holds the two lists to the same length —
-  // and this component has two column sets, one per kind.
+  // Cells and columns are declared apart, so only this holds them to one
+  // length, for both column sets.
   it('draws one cell per declared column, on both lists', async () => {
     for (const kind of ['customer', 'staff'] as const) {
       const { el } = await render({ kind, users: [user()] });
@@ -227,8 +226,8 @@ describe('UserListPage', () => {
       ],
     });
 
-    // No tier *is* the storefront's list — the same state a guest is in — so
-    // the cell names that list rather than sitting blank.
+    // No tier is the storefront's list, as for a guest, so the cell names it
+    // rather than sitting blank.
     expect(el.querySelector('tbody tr')?.textContent).toContain('Base');
   });
 
@@ -337,8 +336,8 @@ describe('UserListPage', () => {
 
   it('shows company ID for customers and a role filter for staff', async () => {
     const customers = await render({ users: [user()] });
-    // Company ID is a customer column — a filter, so its "all" option is what
-    // names it. The role filter is not offered where every row is one role.
+    // Company ID is a customer column and a filter, named by its "all"
+    // option. The role filter is not offered where every row is one role.
     expect(customers.el.textContent).toContain(text.companyIdFormatAll);
     expect(customers.el.textContent).not.toContain(text.roleAll);
 
@@ -350,11 +349,8 @@ describe('UserListPage', () => {
     expect(staff.el.textContent).toContain(text.roleAll);
   });
 
-  /**
-   * The registration-number column becomes a filter exactly when there is
-   * something to narrow to — which is the same rule the entry field uses for
-   * its picker: one configured shape is no choice at all.
-   */
+  /** The registration-number column filters only with something to narrow
+   * to, like the entry field's picker: one shape is no choice. */
   describe('the kind-of-number filter', () => {
     const twoFormats = {
       ...defaultDeploymentConfig,
@@ -429,8 +425,8 @@ describe('UserListPage', () => {
       users: [user({ id: 'p1', status: 'pending', tierId: null })],
     });
 
-    // Approving is a decision made in the editor, where the details that
-    // justify it are on screen — the row only points at it.
+    // Approval happens in the editor, beside the details that justify it; the
+    // row only points there.
     const approve = rowLink(text.approve);
     expect(approve?.path).toBe('/admin/users/p1/edit');
     // …and carries the way back to this list, filters and all.
@@ -450,8 +446,8 @@ describe('UserListPage', () => {
       users: [user({ id: 'x1', status: 'anonymized' })],
     });
 
-    // The name still opens the account — a closed one is a record, and a
-    // record is there to be read. What goes is every control that acts on it.
+    // The name still opens a closed account, a record to read; every control
+    // that acts on it goes.
     expect(
       [...el.querySelectorAll('tbody a')].map((a) => a.getAttribute('href')),
     ).toEqual(['/admin/users/x1?from=%2F']);
@@ -469,12 +465,9 @@ describe('UserListPage', () => {
     expect(service.remove).toHaveBeenCalledWith('p1');
   });
 
-  /**
-   * The area closed whole (FR-ADM-10): the buttons stay where they are and the
-   * dialog explains instead of asking — the same answer the catalog's delete
-   * dialog gives, and for the same reason. A control that vanishes teaches
-   * nobody why.
-   */
+  /** The area closed whole (FR-ADM-10): the buttons stay and the dialog
+   * explains, like the catalogue's delete: a vanished control teaches nobody
+   * why. */
   describe('while an external system owns customer accounts', () => {
     it('explains instead of asking, and declines nothing', async () => {
       const { service, confirm, rowAction } = await render({

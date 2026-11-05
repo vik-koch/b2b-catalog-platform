@@ -92,9 +92,8 @@ describe('ProductPackagingEditor', () => {
     });
   });
 
-  // A minimum of 1 is a shop that sells single pieces out of a pack, which is a
-  // decision rather than an unset field — raising it to the pack silently made
-  // that shop sell packs.
+  // A minimum of 1 sells single pieces from a pack: a decision, not an unset
+  // field, so it is never raised to the pack.
   it('leaves a minimum of one alone when a pack is added', () => {
     const { fixture, emitted } = render(emptyPackaging());
 

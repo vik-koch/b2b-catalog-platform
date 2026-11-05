@@ -100,14 +100,8 @@ async function render(
   };
   const byLabel = (label: string) =>
     el.querySelector<HTMLButtonElement>(`[aria-label="${label}"]`);
-  /**
-   * Ticks one capability in the create form, by its accessible name.
-   *
-   * The boxes sit in a grid of areas and columns rather than in a list of
-   * labelled rows, so each carries the full sentence as an `aria-label` — the
-   * label a screen reader reads out, which is the one a test should look for
-   * too.
-   */
+  /** Ticks one capability by its accessible name: in a grid of areas and
+   * columns each box carries its sentence as `aria-label`. */
   const tick = async (label: string) => {
     const box = el.querySelector<HTMLInputElement>(
       `input[type="checkbox"][aria-label="${label}"]`,
@@ -188,9 +182,8 @@ describe('ApiTokenListPage', () => {
     const { el, click } = await render();
     await click('button[uiButton]');
 
-    // The column headings, and one box per capability that exists — the
-    // catalog's read square is empty, because nothing reads the catalog
-    // outward and a box for it would be a capability nobody can grant.
+    // One box per existing capability: the catalogue's read square is empty,
+    // as nothing reads it outward.
     expect(el.textContent).toContain(text.scopeKind.read);
     expect(el.textContent).toContain(text.scopeKind.submit);
     expect(el.textContent).toContain(text.scopeArea.orders);

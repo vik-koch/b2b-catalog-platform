@@ -155,7 +155,7 @@ describe('AdminOrderRevisionPage (FR-ORD-03)', () => {
     const { el } = await render(version);
 
     expect(el.textContent).toContain('Espresso cups');
-    // Their unit and the pieces behind it — not the basis units staff work in.
+    // Their unit and its pieces, not the units staff work in.
     expect(el.textContent).toContain('2 ');
     expect(el.textContent).not.toContain('10 ×');
   });
@@ -174,11 +174,8 @@ describe('AdminOrderRevisionPage (FR-ORD-03)', () => {
     );
   });
 
-  /**
-   * The order's files, read from where this page stands (FR-ORD-05): what can
-   * be opened is listed, and supplying or sending one is not offered — those
-   * are acts on the order, and this screen answers nothing.
-   */
+  /** The order's files as of this page (FR-ORD-05): listed, never supplied
+   * or sent, as this screen answers nothing. */
   it('lists what can be opened on the order, with nothing to press', async () => {
     const { el } = await render(version);
 

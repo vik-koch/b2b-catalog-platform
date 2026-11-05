@@ -80,8 +80,8 @@ export const adminCatalogTextShape = {
           filterDocument: z.string(),
           clearDocumentAria: z.string(),
           stateAll: z.string(),
-          /** The column's own noun, for the phone's sort picker — where "All
-           * states" would read as an ordering rather than a column. */
+          /** The column's noun for the phone's sort picker, where "All states"
+           * would read as an order. */
           state: z.string(),
           stateLive: z.string(),
           /** Under the empty list when a search found nothing in the catalog
@@ -102,9 +102,8 @@ export const adminCatalogTextShape = {
           /** Read out with the figure, so the badge's colour is never the
            * only thing carrying the state. `{count}` and `{state}`. */
           stockAria: z.string(),
-          /** The cell of a product whose stock nobody is counting — a word,
-           * not an empty cell, so "untracked" and "none left" cannot be
-           * confused. */
+          /** The cell of untracked stock: a word, not a blank, so it never
+           * reads as "none left". */
           stockUntracked: z.string(),
           /** The content filter (FR-ADM-20) and the line naming what keeps a product
            * incomplete; `{gaps}` joins the `gap` words. */
@@ -251,10 +250,8 @@ export const adminCatalogTextShape = {
               allWithheld: z.string(),
             })
             .strict(),
-          /**
-           * The per-line note a collective item may ask for (FR-CART-08) —
-           * the policy, not the customer's text.
-           */
+          /** The line note a collective item may ask for (FR-CART-08): the
+           * policy, not the customer's text. */
           /** The parts a product sold as a set is made of (FR-CAT-10). */
           parts: z
             .object({
@@ -305,7 +302,7 @@ export const adminCatalogTextShape = {
               hint: z.string(),
               add: z.string(),
               addPlaceholder: z.string(),
-              /** `{name}` substituted — the document being taken off. */
+              /** `{name}`: the document being taken off. */
               removeAria: z.string(),
               /** Per row. `{date}` substituted; `noExpiry` where there is none. */
               expires: z.string(),
@@ -323,9 +320,9 @@ export const adminCatalogTextShape = {
               /** The search field's label. */
               add: z.string(),
               addPlaceholder: z.string(),
-              /** `{name}` — the remove button's accessible name. */
+              /** `{name}`: the remove button's accessible name. */
               removeAria: z.string(),
-              /** `{count}` — shown once no more can be added. */
+              /** `{count}`: shown once no more can be added. */
               limit: z.string(),
               suggestionsAria: z.string(),
               noSuggestions: z.string(),
@@ -450,7 +447,7 @@ export const adminCatalogTextShape = {
         .object({
           resetConfirm: confirmText,
           page: pageText,
-          /** `{category}` substituted — the panel being edited. */
+          /** `{category}`: the panel being edited. */
           heading: z.string(),
           /** Where the list comes from, keyed by the contract's `source`.
            * `inherited` takes `{category}`. */
@@ -473,8 +470,7 @@ export const adminCatalogTextShape = {
           saveError: z.string(),
           /** Dropping the overlay so the category inherits again. */
           reset: z.string(),
-          /** Shown after a reset, which stays on the screen — unlike a
-           * save. */
+          /** After a reset, which stays on screen, unlike a save. */
           resetDone: z.string(),
           empty: z.string(),
           /** Offered nowhere: the registry itself is empty. */
@@ -499,9 +495,8 @@ export const adminCatalogTextShape = {
    * badge and what moving it costs. */
   tiers: z
     .object({
-      /** What an account with no tier of its own is charged, naming the
-       * storefront's list: `{list}`. A null tier is not a blank — it is the
-       * default list, and the screens say which one that is. */
+      /** What an untiered account pays, naming the storefront's list,
+       * `{list}`: a null tier is that list, not a blank. */
       defaultName: z.string(),
       deleteConfirm: confirmText,
       setDefaultConfirm: confirmText,
@@ -701,9 +696,8 @@ export const adminCatalogTextShape = {
           removeFile: z.string(),
           fileHint: z.string(),
           uploadError: z.string(),
-          /** The external link (FR-DOC-05) — a register entry, the issuer's
-           * page. Optional beside the file, but one of the two is
-           * required. */
+          /** The external link (FR-DOC-05), such as a register entry. Optional
+           * beside the file; one of the two is required. */
           link: z.string(),
           linkPlaceholder: z.string(),
           linkHint: z.string(),
