@@ -40,7 +40,9 @@ rules, held by `eslint-plugin-boundaries`:
    section. Each area keeps its tables in its core; the one foreign key against the table
    is a row's record of who changed it, which references `users` from any area.
 3. **Between areas, only along the table**, at the same level or downwards:
-   `admin/ordering` may import `admin/catalog` or `core/catalog`, never the reverse.
+   `admin/ordering` may import `admin/catalog` or `core/catalog`, never the reverse. An
+   area or platform that needs an answer from above declares the question as an interface,
+   and the root binds the upper area's answer (`app/area-ports.module.ts`).
 4. **The rule of two:** code enters `core/` when a second audience uses it, not before.
 
 <!-- prettier-ignore -->

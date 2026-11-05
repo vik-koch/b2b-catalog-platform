@@ -11,7 +11,10 @@ type ProductRead = NonNullable<
  * nothing. Read with no tier, as staff have none; an unpriced product's price
  * reads as zero, and `unpriced` says it has none.
  */
-export function productPageOf({ row, product }: ProductRead): ProductPage {
+export function productPageOf(
+  { row, product }: ProductRead,
+  ordered: boolean,
+): ProductPage {
   return {
     product,
     hidden: {
@@ -19,7 +22,7 @@ export function productPageOf({ row, product }: ProductRead): ProductPage {
       deletedByRun: row.deletedAt !== null && row.deletedBy === null,
       unpublished: row.publishedAt === null,
       unpriced: row.priceMinor === null,
-      ordered: row.orderLines > 0,
+      ordered,
     },
   };
 }

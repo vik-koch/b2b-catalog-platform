@@ -105,10 +105,10 @@ it replaces a release later. A migration that cannot run unattended makes the re
 - **Audience, then area.** In the API, the contracts and the web app a file lives in
   `<audience>/<area>/` (`storefront`, `admin`, `machine`), moves to `core/<area>/` only once a
   second audience uses it, and goes to `platform/` when it knows no area. Areas import each
-  other only along the table in `tools/lint/area-boundaries.mjs`; its exceptions are the
-  deployment config and texts, which compose every area, and a table's reference to `users`
-  for who changed a row. Texts split by
-  audience only. Lint fails a wrong-way import
+  other only along the table in `tools/lint/area-boundaries.mjs`, and ask one above through an
+  interface the root binds (`app/area-ports.module.ts`). The exceptions are the deployment
+  config and texts, which compose every area, and a table's reference to `users` for who
+  changed a row. Texts split by audience only. Lint fails a wrong-way import
   ([ADR 0069](adr/0069-split-web-texts-and-contracts-by-audience.md),
   [ADR 0073](adr/0073-cut-the-code-by-area-and-audience.md)).
 - **Views in `ui/`, containers at the feature root.** A component that only draws (inputs,

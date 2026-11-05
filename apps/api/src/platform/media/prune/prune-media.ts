@@ -5,7 +5,7 @@ import { Client } from 'pg';
 import { DOCUMENT_SUBDIR } from '../media-store';
 import {
   collectReferencedFilenames,
-  DOCUMENT_REFERENCE_SOURCES,
+  MediaReferences,
 } from './media-references';
 
 export interface PruneResult {
@@ -78,10 +78,10 @@ export async function pruneMediaFiles({
   return result;
 }
 
-/** Two sweeps: the image sources never see a document's row, so documents,
- * in their subdirectory, are swept against their own. */
+/** Two sweeps, one per kind of source. */
 export async function runMediaPrune(params: {
   connectionString: string;
+  sources: MediaReferences;
   mediaRoot: string;
   graceMs: number;
   dryRun?: boolean;
@@ -102,11 +102,11 @@ export async function runMediaPrune(params: {
 
     const images = await sweep(
       params.mediaRoot,
-      await collectReferencedFilenames(db),
+      await collectReferencedFilenames(db, params.sources.media),
     );
     const documents = await sweep(
       join(params.mediaRoot, DOCUMENT_SUBDIR),
-      await collectReferencedFilenames(db, DOCUMENT_REFERENCE_SOURCES),
+      await collectReferencedFilenames(db, params.sources.documents),
     );
     return addResults(images, documents);
   } finally {

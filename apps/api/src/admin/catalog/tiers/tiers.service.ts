@@ -17,20 +17,15 @@ import {
   productPrices,
   products,
 } from '../../../core/catalog/catalog-schema';
-// eslint-disable-next-line boundaries/dependencies -- to turn around: accounts should count a tier's customers
-import { users } from '../../../core/accounts/accounts-schema';
+import {
+  TIER_ACCOUNTS,
+  TierAccounts,
+} from '../../../core/catalog/tier-accounts';
 import { OwnershipState } from '../../../platform/settings/ownership-state';
 import { catalogExternallyOwned } from '../../../platform/settings/ownership.refusals';
 import { publiclyVisible } from '../../../core/catalog/product-view';
 import { tierPriceCondition } from '../products/grid/tier-price-filter';
 import { Database } from '../../../platform/db/database';
-
-/**
- * Who a price list's account count covers: active customers. Staff, pending
- * requests and anonymized accounts carry a null `tierId` too, and none of them
- * is sold to. The delete guard counts differently (`countsFor`).
- */
-const isCustomer = and(eq(users.role, 'user'), eq(users.status, 'active'));
 
 /** A function, so each throw gets its own stack. */
 const notFound = () =>
@@ -51,6 +46,7 @@ export class TiersService {
   constructor(
     @Inject(DRIZZLE) private readonly db: Database,
     private readonly ownership: OwnershipState,
+    @Inject(TIER_ACCOUNTS) private readonly accounts: TierAccounts,
   ) {}
 
   /**
@@ -60,7 +56,7 @@ export class TiersService {
    * give one state two spellings.
    */
   async listTiers(): Promise<{ tiers: CustomerTier[]; productCount: number }> {
-    const [rows, defaultUserCount, productCount] = await Promise.all([
+    const [rows, customers, productCount] = await Promise.all([
       this.db
         .select({
           id: customerTiers.id,
@@ -69,12 +65,6 @@ export class TiersService {
           sortOrder: customerTiers.sortOrder,
           isDefault: customerTiers.isDefault,
           updatedAt: customerTiers.updatedAt,
-          // `$count`: in an `sql` subquery the outer `customer_tiers.id` would
-          // bind unqualified to `users.id`.
-          userCount: this.db.$count(
-            users,
-            and(eq(users.tierId, customerTiers.id), isCustomer),
-          ),
           priceCount: this.db.$count(
             productPrices,
             eq(productPrices.tierId, customerTiers.id),
@@ -87,14 +77,14 @@ export class TiersService {
         })
         .from(customerTiers)
         .orderBy(asc(customerTiers.sortOrder), asc(customerTiers.label)),
-      this.db.$count(users, and(isNull(users.tierId), isCustomer)),
+      this.accounts.customersByTier(),
       this.db.$count(products, isNull(products.deletedAt)),
     ]);
 
     return {
       tiers: rows.map((r) => ({
         ...r,
-        userCount: r.isDefault ? defaultUserCount : r.userCount,
+        userCount: customers.get(r.isDefault ? null : r.id) ?? 0,
         updatedAt: r.updatedAt.toISOString(),
       })),
       productCount,
@@ -301,7 +291,7 @@ export class TiersService {
     id: string,
   ): Promise<{ userCount: number; priceCount: number }> {
     const [userCount, priceCount] = await Promise.all([
-      this.db.$count(users, eq(users.tierId, id)),
+      this.accounts.countOn(id),
       this.db.$count(productPrices, eq(productPrices.tierId, id)),
     ]);
     return { userCount, priceCount };

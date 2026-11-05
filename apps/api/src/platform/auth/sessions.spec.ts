@@ -11,7 +11,6 @@ const user = {
   id: '00000000-0000-0000-0000-000000000001',
   email: 'jane@example.com',
   role: 'user',
-  status: 'active',
   tokenVersion: 2,
 } as SessionUser;
 
@@ -92,17 +91,6 @@ describe('Sessions', () => {
         sessions.read(withCookie(await signed())),
       ).resolves.toBeNull();
     });
-
-    it.each(['pending', 'disabled', 'anonymized'] as const)(
-      'reads the session of a %s account as none',
-      async (status) => {
-        find.mockResolvedValue({ ...user, status });
-
-        await expect(
-          sessions.read(withCookie(await signed())),
-        ).resolves.toBeNull();
-      },
-    );
 
     it('answers the row, not the token, for a valid session', async () => {
       const row = { ...user, role: 'manager' } as SessionUser;

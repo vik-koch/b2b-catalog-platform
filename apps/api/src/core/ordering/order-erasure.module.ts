@@ -1,14 +1,13 @@
 import { Module } from '@nestjs/common';
 import { MediaModule } from '../../platform/media/media.module';
-import { OrderCounts } from './order-counts';
 import { OrderDocumentFiles } from './order-document-files';
 import { OrderErasure } from './order-erasure';
 
-/** Ordering's answers to accounts: the erasure step and the order counts. */
+/** Ordering's step in an account's erasure. */
 @Module({
   // The document store the supplied files are removed from.
   imports: [MediaModule],
-  providers: [OrderErasure, OrderDocumentFiles, OrderCounts],
-  exports: [OrderErasure, OrderCounts],
+  providers: [OrderErasure, OrderDocumentFiles],
+  exports: [OrderErasure],
 })
 export class OrderErasureModule {}

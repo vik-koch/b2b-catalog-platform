@@ -2,6 +2,7 @@ import {
   CanActivate,
   ExecutionContext,
   ForbiddenException,
+  Inject,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -9,7 +10,7 @@ import { Reflector } from '@nestjs/core';
 import { bearerToken } from './api-token-value';
 import { MachineRequest } from './machine-client';
 import { MachineScope } from './machine-scope.decorator';
-import { MachineTokens } from './machine-tokens';
+import { MACHINE_TOKENS, MachineTokens } from './machine-tokens';
 
 /**
  * Authenticates an automated client from its bearer token (NFR-SEC-09). No
@@ -19,7 +20,7 @@ import { MachineTokens } from './machine-tokens';
 @Injectable()
 export class MachineTokenGuard implements CanActivate {
   constructor(
-    private readonly tokens: MachineTokens,
+    @Inject(MACHINE_TOKENS) private readonly tokens: MachineTokens,
     private readonly reflector: Reflector,
   ) {}
 

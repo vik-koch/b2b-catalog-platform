@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import type { Request, Response } from 'express';
 import { AUTH_COOKIE } from '@b2b-catalog-platform/shared/platform';
-import { SessionUser, SessionUsers } from './session-users';
+import { SESSION_USERS, SessionUser, SessionUsers } from './session-users';
 import { JwtPayload } from './jwt-payload';
 import { issueSession } from './session-cookie';
 
@@ -30,7 +30,7 @@ export class Sessions {
   constructor(
     @Inject(SESSION_IDLE_DAYS) idleDays: number,
     private readonly jwt: JwtService,
-    private readonly users: SessionUsers,
+    @Inject(SESSION_USERS) private readonly users: SessionUsers,
   ) {
     this.lifetimeS = idleDays * DAY_S;
   }
@@ -67,13 +67,7 @@ export class Sessions {
     }
 
     const user = await this.users.find(payload.sub);
-    if (
-      !user ||
-      user.tokenVersion !== payload.tokenVersion ||
-      user.status !== 'active'
-    ) {
-      return null;
-    }
+    if (!user || user.tokenVersion !== payload.tokenVersion) return null;
     return { payload, user };
   }
 

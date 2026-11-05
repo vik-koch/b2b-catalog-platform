@@ -24,8 +24,10 @@ import {
 } from '@b2b-catalog-platform/shared/admin/catalog';
 import { DRIZZLE } from '../../../../platform/db/database.module';
 import { categories, products } from '../../../../core/catalog/catalog-schema';
-// eslint-disable-next-line boundaries/dependencies -- to turn around: ordering should say which products were ordered
-import { orderItems } from '../../../../core/ordering/ordering-schema';
+import {
+  PRODUCT_ORDERS,
+  ProductOrders,
+} from '../../../../core/catalog/product-orders';
 import { attributeValuesCondition } from '../../../../core/catalog/attribute-filter';
 import { documentCondition } from './document-filter';
 import {
@@ -69,6 +71,7 @@ export class ProductGridService {
   constructor(
     @Inject(DRIZZLE) private db: Database,
     private readonly reader: CatalogReader,
+    @Inject(PRODUCT_ORDERS) private readonly orders: ProductOrders,
     @Inject(ALTERNATE_LAYOUT)
     private readonly alternateLayout: KeyboardLayout | null,
   ) {}
@@ -128,6 +131,7 @@ export class ProductGridService {
 
       const rows = await tx
         .select({
+          id: products.id,
           slug: products.slug,
           name: products.name,
           priceMinor: resolvedPriceMinor(null),
@@ -136,12 +140,6 @@ export class ProductGridService {
           images: products.images,
           deletedAt: products.deletedAt,
           deletedBy: products.deletedBy,
-          // `$count` rather than a hand-written `exists`: inside an `sql`
-          // template the outer `products.id` would bind unqualified.
-          orderLines: this.db.$count(
-            orderItems,
-            eq(orderItems.productId, products.id),
-          ),
           publishedAt: products.publishedAt,
           updatedAt: products.updatedAt,
           availability: products.availability,
@@ -154,6 +152,7 @@ export class ProductGridService {
         .orderBy(...gridOrderBy(query.sort, score))
         .limit(pageSize)
         .offset((query.page - 1) * pageSize);
+      const ordered = await this.orders.orderedAmong(rows.map((r) => r.id));
 
       return {
         items: rows.map((r) => ({
@@ -169,7 +168,7 @@ export class ProductGridService {
           features: PRODUCT_FEATURES.filter((feature) => r.features[feature]),
           deletedAt: r.deletedAt?.toISOString() ?? null,
           deletedByRun: deletedByRun(r),
-          ordered: r.orderLines > 0,
+          ordered: ordered.has(r.id),
           publishedAt: r.publishedAt?.toISOString() ?? null,
           updatedAt: r.updatedAt.toISOString(),
         })),

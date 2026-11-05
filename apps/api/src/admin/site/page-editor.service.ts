@@ -8,15 +8,17 @@ import {
 import { sanitizeRichText } from '@b2b-catalog-platform/shared/node';
 import { DRIZZLE } from '../../platform/db/database.module';
 import { pageVersions } from '../../core/site/site-schema';
-// eslint-disable-next-line boundaries/dependencies -- to turn around: accounts should give an actor's email
-import { users } from '../../core/accounts/accounts-schema';
+import { ACTOR_EMAILS, ActorEmails } from '../../platform/actor-emails';
 import { currentPageVersion, toPage } from '../../core/site/page-versions';
 import { AuthUser } from '@b2b-catalog-platform/shared/platform';
 import { Database } from '../../platform/db/database';
 
 @Injectable()
 export class PageEditorService {
-  constructor(@Inject(DRIZZLE) private db: Database) {}
+  constructor(
+    @Inject(DRIZZLE) private db: Database,
+    @Inject(ACTOR_EMAILS) private readonly actors: ActorEmails,
+  ) {}
 
   /**
    * Saves a new version. The body is sanitized here, on the only write path.
@@ -62,14 +64,17 @@ export class PageEditorService {
   /** Newest first. */
   async listVersions(slug: PageSlug): Promise<PageVersion[]> {
     const rows = await this.db
-      .select({ row: pageVersions, email: users.email })
+      .select()
       .from(pageVersions)
-      .leftJoin(users, eq(users.id, pageVersions.createdBy))
       .where(eq(pageVersions.slug, slug))
       .orderBy(desc(pageVersions.version));
-    return rows.map(({ row, email }) => ({
+    const emails = await this.actors.currentOf(
+      rows.flatMap((row) => row.createdBy ?? []),
+    );
+    return rows.map((row) => ({
       ...toPage(row),
-      editorEmail: email ?? row.createdByEmail,
+      editorEmail:
+        (row.createdBy && emails.get(row.createdBy)) ?? row.createdByEmail,
     }));
   }
 }

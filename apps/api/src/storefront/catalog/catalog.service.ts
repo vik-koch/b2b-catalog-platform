@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { PgColumn } from 'drizzle-orm/pg-core';
-import { and, asc, count, eq, inArray, max, SQL } from 'drizzle-orm';
+import { and, asc, count, eq, inArray, SQL } from 'drizzle-orm';
 import {
   AttributeSelection,
   CategoryCrumb,
@@ -25,8 +25,7 @@ import {
   productPairings,
   products,
 } from '../../core/catalog/catalog-schema';
-// eslint-disable-next-line boundaries/dependencies -- to turn around: the sitemap's pages belong to site
-import { pageVersions } from '../../core/site/site-schema';
+import { SITEMAP_PAGES, SitemapPages } from '../../platform/sitemap-pages';
 import {
   ancestorsOf,
   categoryBySlug,
@@ -94,6 +93,7 @@ export class CatalogService {
   constructor(
     @Inject(DRIZZLE) private db: Database,
     private readonly reader: CatalogReader,
+    @Inject(SITEMAP_PAGES) private readonly pages: SitemapPages,
   ) {}
 
   /** The public tree (FR-CAT-01/02), pruned to what has something to show. */
@@ -292,16 +292,7 @@ export class CatalogService {
         .from(products)
         .where(publiclyVisible)
         .orderBy(asc(products.slug)),
-      this.db
-        .select({
-          slug: pageVersions.slug,
-          updatedAt: max(pageVersions.createdAt).mapWith(
-            pageVersions.createdAt,
-          ),
-        })
-        .from(pageVersions)
-        .groupBy(pageVersions.slug)
-        .orderBy(asc(pageVersions.slug)),
+      this.pages.list(),
     ]);
     const toEntry = (r: { slug: string; updatedAt: Date }): SitemapEntry => ({
       slug: r.slug,

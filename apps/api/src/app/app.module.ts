@@ -10,6 +10,7 @@ import { ConsentAdminModule } from '../admin/accounts/consent-admin.module';
 import { InquiryModule } from '../storefront/site/inquiry.module';
 import { DatabaseModule } from '../platform/db/database.module';
 import { AccountErasureModule } from './account-erasure.module';
+import { AreaPortsModule } from './area-ports.module';
 import { RetentionModule } from '../core/retention/retention.module';
 import { CatalogModule } from '../storefront/catalog/catalog.module';
 import { AdminCatalogModule } from '../admin/catalog/admin-catalog.module';
@@ -46,6 +47,7 @@ import { TextsModule } from './texts.module';
     ConsentAdminModule,
     RetentionModule,
     AccountErasureModule,
+    AreaPortsModule,
     AccountModule,
     OrderingModule,
     AdminOrderingModule,

@@ -1,18 +1,7 @@
-import { isNotNull } from 'drizzle-orm';
 import {
   DOCUMENT_URL_PREFIX,
   MEDIA_URL_PREFIX,
 } from '@b2b-catalog-platform/shared/platform';
-/* eslint-disable boundaries/dependencies -- to turn around: each area should
-   register its media references */
-import {
-  categories,
-  documents,
-  products,
-} from '../../../core/catalog/catalog-schema';
-import { pageVersions } from '../../../core/site/site-schema';
-import { orderItems } from '../../../core/ordering/ordering-schema';
-/* eslint-enable boundaries/dependencies */
 import { Database } from '../../db/database';
 
 /** The filenames under `prefix` in a stored string, in the charset the
@@ -33,75 +22,18 @@ export interface MediaReferenceSource {
   collect(db: Database): Promise<string[]>;
 }
 
-/** Every place a `/media` URL can be stored. A column missing here has its
- * files DELETED by the sweep as orphans. */
-export const MEDIA_REFERENCE_SOURCES: readonly MediaReferenceSource[] = [
-  {
-    // Every version: an old text must still render as it was published.
-    name: 'page bodies',
-    async collect(db) {
-      const rows = await db
-        .select({ bodyHtml: pageVersions.bodyHtml })
-        .from(pageVersions);
-      return rows.flatMap((row) => mediaFilenamesInHtml(row.bodyHtml));
-    },
-  },
-  {
-    // `{ full, thumb }` pairs; the text form holds both.
-    name: 'product images',
-    async collect(db) {
-      const rows = await db.select({ images: products.images }).from(products);
-      return rows.flatMap((row) =>
-        mediaFilenamesInHtml(JSON.stringify(row.images)),
-      );
-    },
-  },
-  {
-    // The thumbnail at ordering time, which the product may no longer hold.
-    name: 'order line thumbnails',
-    async collect(db) {
-      const rows = await db
-        .select({ thumbnail: orderItems.thumbnail })
-        .from(orderItems)
-        .where(isNotNull(orderItems.thumbnail));
-      return rows.flatMap((row) => mediaFilenamesInHtml(row.thumbnail ?? ''));
-    },
-  },
-  {
-    // A `{ full, thumb }` pair (FR-CAT-07).
-    name: 'category marks',
-    async collect(db) {
-      const rows = await db
-        .select({ mark: categories.mark })
-        .from(categories)
-        .where(isNotNull(categories.mark));
-      return rows.flatMap((row) =>
-        mediaFilenamesInHtml(JSON.stringify(row.mark)),
-      );
-    },
-  },
-];
-
-/** The same for `/documents`, swept on its own. A replaced file is referenced
- * by nothing, which is what the sweep deletes. */
-export const DOCUMENT_REFERENCE_SOURCES: readonly MediaReferenceSource[] = [
-  {
-    name: 'document files',
-    async collect(db) {
-      // A link-only document has no file to keep.
-      const rows = await db
-        .select({ fileUrl: documents.fileUrl })
-        .from(documents)
-        .where(isNotNull(documents.fileUrl));
-      return rows.flatMap((row) => documentFilenames(row.fileUrl ?? ''));
-    },
-  },
-];
+/** The sources of each sweep, composed at the root from every area's: the
+ * image sources never see a document's row, so documents, in their
+ * subdirectory, are swept against their own. */
+export interface MediaReferences {
+  readonly media: readonly MediaReferenceSource[];
+  readonly documents: readonly MediaReferenceSource[];
+}
 
 /** Union of the filenames every registered source currently references. */
 export async function collectReferencedFilenames(
   db: Database,
-  sources: readonly MediaReferenceSource[] = MEDIA_REFERENCE_SOURCES,
+  sources: readonly MediaReferenceSource[],
 ): Promise<Set<string>> {
   const referenced = new Set<string>();
   for (const source of sources) {

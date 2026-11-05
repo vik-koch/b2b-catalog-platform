@@ -23,8 +23,6 @@ import {
   productAttributes,
   products,
 } from './catalog-schema';
-// eslint-disable-next-line boundaries/dependencies -- to turn around: ordering should say which products were ordered
-import { orderItems } from '../ordering/ordering-schema';
 import { ancestorsOf, CategoryRow } from './catalog-tree';
 import {
   categoryChain,
@@ -144,12 +142,6 @@ export class CatalogReader {
         deletedAt: products.deletedAt,
         deletedBy: products.deletedBy,
         publishedAt: products.publishedAt,
-        // `$count` rather than a hand-written `exists`: inside an `sql`
-        // template the outer `products.id` would bind unqualified.
-        orderLines: this.db.$count(
-          orderItems,
-          eq(orderItems.productId, products.id),
-        ),
       })
       .from(products)
       .where(and(eq(products.slug, slug), visibility))

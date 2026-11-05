@@ -6,8 +6,6 @@ import {
   productPairings,
   products,
 } from '../../../core/catalog/catalog-schema';
-// eslint-disable-next-line boundaries/dependencies -- to turn around: ordering should say which products were ordered
-import { orderItems } from '../../../core/ordering/ordering-schema';
 import { OwnershipState } from '../../../platform/settings/ownership-state';
 import { catalogExternallyOwned } from '../../../platform/settings/ownership.refusals';
 import {
@@ -22,6 +20,10 @@ import {
   adminProductColumns,
 } from './product-records';
 import { Database } from '../../../platform/db/database';
+import {
+  PRODUCT_ORDERS,
+  ProductOrders,
+} from '../../../core/catalog/product-orders';
 
 /**
  * The removal steps and publication (FR-ADM-01/06/21): unpublish, delete,
@@ -34,6 +36,7 @@ export class ProductLifecycleService {
     @Inject(DRIZZLE) private db: Database,
     private readonly ownership: OwnershipState,
     private readonly records: ProductRecords,
+    @Inject(PRODUCT_ORDERS) private readonly orders: ProductOrders,
   ) {}
 
   /** Whether the exchange owns the catalog (FR-ADM-10); a cached read. */
@@ -132,11 +135,8 @@ export class ProductLifecycleService {
       if (this.catalogIsOwned && row.deletedBy !== null) {
         throw catalogExternallyOwned('delete permanently');
       }
-      const orderLines = await tx.$count(
-        orderItems,
-        eq(orderItems.productId, row.id),
-      );
-      if (orderLines > 0) throw productOrdered();
+      const ordered = await this.orders.orderedAmong([row.id]);
+      if (ordered.size > 0) throw productOrdered();
       try {
         await tx.delete(products).where(eq(products.id, row.id));
       } catch (error) {
