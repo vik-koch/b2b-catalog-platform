@@ -22,6 +22,7 @@ import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { funnelIcon } from '@b2b-catalog-platform/ui/icons/glyphs/funnel';
 import { plusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/plus';
 import { DialogTitle } from '@b2b-catalog-platform/ui/overlay/dialog-title';
+import { ADMIN_CATALOG_TEXT } from '../catalog-text';
 
 /**
  * The names the catalog already uses (FR-ATTR-09), one empty row appended per
@@ -118,8 +119,9 @@ export class AttributeKeyPicker {
   protected readonly funnelIcon = funnelIcon;
   protected readonly plusIcon = plusIcon;
   protected readonly adminText = inject(ADMIN_TEXT);
-  protected readonly text = inject(ADMIN_TEXT).products.editor.attributes;
-  private readonly productsText = inject(ADMIN_TEXT).products;
+  protected readonly text =
+    inject(ADMIN_CATALOG_TEXT).products.editor.attributes;
+  private readonly productsText = inject(ADMIN_CATALOG_TEXT).products;
   protected readonly actionText = inject(SHARED_TEXT).actions;
 
   /** Declared or freetext, alphabetically. */

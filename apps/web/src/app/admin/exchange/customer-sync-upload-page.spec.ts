@@ -1,3 +1,4 @@
+import { defaultAdminExchangeText } from './exchange-text.fixture';
 import { SHARED_TEXT } from '../../platform/config/shared-text';
 import { defaultSharedText } from '../../platform/config/shared-text.fixture';
 import { TestBed } from '@angular/core/testing';
@@ -14,7 +15,7 @@ import { provideOwnership } from '../platform/ownership/ownership.fixture';
 import { CustomerSyncUploadPage } from './customer-sync-upload-page';
 import { SyncService } from './sync.service';
 
-const text = defaultAdminText.sync;
+const text = defaultAdminExchangeText.sync;
 
 // Only the branding the page title is built from; nothing here reads a price.
 const config = {

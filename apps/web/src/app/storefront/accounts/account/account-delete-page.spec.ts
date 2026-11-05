@@ -1,3 +1,4 @@
+import { defaultStorefrontAccountsText } from '../accounts-text.fixture';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
 import { TestBed } from '@angular/core/testing';
@@ -10,7 +11,7 @@ import { AuthService } from '../../../platform/auth/auth.service';
 import { AccountDeletePage } from './account-delete-page';
 import { AccountService, DeleteAccountResult } from './account.service';
 
-const text = defaultStorefrontText.account.delete;
+const text = defaultStorefrontAccountsText.account.delete;
 
 async function render(outcome: DeleteAccountResult | 'throw') {
   const deleteAccount = vi.fn(async () => {
@@ -74,7 +75,7 @@ describe('AccountDeletePage', () => {
 
     expect(deleteAccount).not.toHaveBeenCalled();
     expect(el.textContent).toContain(
-      defaultStorefrontText.auth.validation.currentPasswordRequired,
+      defaultStorefrontAccountsText.auth.validation.currentPasswordRequired,
     );
   });
 

@@ -1,20 +1,18 @@
 import type { MockInstance } from 'vitest';
 import { Logger } from '@nestjs/common';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import {
   OrderSubmission,
   deliveryConfigSchema,
 } from '@b2b-catalog-platform/shared/core/ordering';
 import { AddressesService } from '../../core/accounts/addresses.service';
-import { PickupLocation } from '../../platform/config/deployment-config';
-import * as schema from '../../platform/db/schema';
+import { PickupLocation } from '../../core/ordering/ordering-config';
+import { productPairings } from '../../core/catalog/catalog-schema';
+import { users } from '../../core/accounts/accounts-schema';
 import {
   orderItems,
   orderRevisions,
   orders,
-  productPairings,
-  users,
-} from '../../platform/db/schema';
+} from '../../core/ordering/ordering-schema';
 import { OrderNotifications } from '../../core/ordering/order-notifications';
 import { TermsPdf } from '../../core/ordering/terms-pdf';
 import { demoAdminOrder } from '../../core/ordering/order.fixture';
@@ -25,6 +23,7 @@ import { CheckoutService } from './checkout.service';
 import { CartChangedException } from '../../core/ordering/cart-changed-exception';
 import { PairingUnsatisfiedException } from '../../core/ordering/pairing-unsatisfied-exception';
 import { CustomerType } from '@b2b-catalog-platform/shared/core/accounts';
+import { Database } from '../../platform/db/database';
 
 /**
  * Submission, without a database. What is worth pinning here is everything that
@@ -158,7 +157,7 @@ function testDb(
         // The pointer from the order to the revision it now shows.
         update: () => ({ set: () => ({ where: () => Promise.resolve() }) }),
       }) as Promise<unknown>,
-  } as unknown as NodePgDatabase<typeof schema>;
+  } as unknown as Database;
 
   const rowsOf = (table: unknown) =>
     inserts
@@ -195,7 +194,7 @@ const delivery = deliveryConfigSchema.parse({
 });
 
 function service(
-  db: NodePgDatabase<typeof schema>,
+  db: Database,
   billingAddressEnabled = true,
   pairingsEnforced = false,
   customerTypes: readonly CustomerType[] = ['person', 'company'],
@@ -220,11 +219,12 @@ function service(
     rules,
     notifications,
     {} as TermsPdf,
-    { prefix: 'CK', timezone: 'UTC' },
+    { prefix: 'CK' },
     'EUR',
     pairingsEnforced,
     false,
     { basis: 'included', rate: 19, statedAtPrices: true },
+    'UTC',
   );
 }
 

@@ -1,3 +1,5 @@
+import { ACCOUNTS_CONFIG } from '../../../core/accounts/accounts-config';
+import { ADMIN_ACCOUNTS_TEXT } from '../accounts-text';
 import {
   Component,
   computed,
@@ -10,6 +12,7 @@ import { RouterLink } from '@angular/router';
 import { CustomerTier } from '@b2b-catalog-platform/shared/admin/catalog';
 import { ADMIN_TEXT } from '../../../platform/config/admin-text';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { SHARED_ACCOUNTS_TEXT } from '../../../core/accounts/accounts-text';
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import { AuthService } from '../../../platform/auth/auth.service';
 import { formatPhone } from '../../../platform/contact-fields';
@@ -53,6 +56,8 @@ import {
   normalizePhone,
   fillText,
 } from '@b2b-catalog-platform/shared/platform';
+import { SITE_CONFIG } from '../../../core/site/site-config';
+import { ADMIN_CATALOG_TEXT } from '../../catalog/catalog-text';
 
 /**
  * One account, read rather than edited: the customer's own page seen from the
@@ -228,14 +233,18 @@ export class UserDetailPage {
   private readonly auth = inject(AuthService);
   private readonly ownership = inject(OwnershipService);
   private readonly config = inject(DEPLOYMENT_CONFIG);
+  private readonly accountsConfig = inject(ACCOUNTS_CONFIG);
+  private readonly siteConfig = inject(SITE_CONFIG);
   private readonly confirm = inject(ConfirmService);
 
-  protected readonly text = inject(ADMIN_TEXT).users.detail;
-  protected readonly listText = inject(ADMIN_TEXT).users.list;
-  protected readonly editorText = inject(ADMIN_TEXT).users.editor;
+  protected readonly text = inject(ADMIN_ACCOUNTS_TEXT).users.detail;
+  protected readonly listText = inject(ADMIN_ACCOUNTS_TEXT).users.list;
+  protected readonly editorText = inject(ADMIN_ACCOUNTS_TEXT).users.editor;
   private readonly sharedText = inject(SHARED_TEXT);
+  private readonly partyKind = inject(SHARED_ACCOUNTS_TEXT).partyKind;
   private readonly adminText = inject(ADMIN_TEXT);
-  protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
+  private readonly adminCatalogText = inject(ADMIN_CATALOG_TEXT);
+  protected readonly ownershipText = inject(ADMIN_ACCOUNTS_TEXT).ownership;
   private readonly actionText = inject(SHARED_TEXT).actions;
 
   private readonly phoneInput = this.config.phoneInput;
@@ -269,7 +278,7 @@ export class UserDetailPage {
     loader: async ({ params }) =>
       params.reads ? this.service.listConsents(params.id) : [],
   });
-  private readonly consentAsked = Object.values(this.config.consent).some(
+  private readonly consentAsked = Object.values(this.siteConfig.consent).some(
     Boolean,
   );
   protected readonly consentRecords = computed(() =>
@@ -330,11 +339,11 @@ export class UserDetailPage {
   /** Whether "they withdrew their consent" can be this account's reason. */
   private readonly accountConsentAsked = computed(
     () =>
-      this.config.consent.account ||
+      this.siteConfig.consent.account ||
       this.consentRecords().some((record) => record.purpose === 'account'),
   );
 
-  private readonly stepConfig = this.config.signInStep;
+  private readonly stepConfig = this.accountsConfig.signInStep;
 
   protected readonly asksCode = computed(() => {
     const person = this.user();
@@ -465,9 +474,7 @@ export class UserDetailPage {
     if (!person) return [];
     const editor = this.editorText;
     const fields = this.sharedText.fields;
-    const type = person.customerType
-      ? this.sharedText.partyKind[person.customerType]
-      : '';
+    const type = person.customerType ? this.partyKind[person.customerType] : '';
 
     return [
       { label: fields.email.label, value: person.email },
@@ -516,7 +523,7 @@ export class UserDetailPage {
     const tiers = this.tierList.value();
     return tierId
       ? (tiers?.find((t) => t.id === tierId)?.label ?? '—')
-      : baseTierName(this.adminText.tiers.defaultName, tiers);
+      : baseTierName(this.adminCatalogText.tiers.defaultName, tiers);
   }
 
   private roleLabel(role: StaffUser['role']): string {

@@ -36,6 +36,7 @@ import { triangleAlertIcon } from '@b2b-catalog-platform/ui/icons/glyphs/triangl
 import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
 import { SaveButton } from '../../platform/ui/save-button';
 import { CancelButton } from '../../platform/ui/cancel-button';
+import { ADMIN_CATALOG_TEXT } from '../catalog-text';
 
 /** A key across the catalog, or one value under a key. */
 type RenameTarget =
@@ -393,8 +394,8 @@ export class AttributeInventoryPage {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly location = inject(Location);
-  protected readonly text = inject(ADMIN_TEXT).attributes.inventory;
-  private readonly productsText = inject(ADMIN_TEXT).products;
+  protected readonly text = inject(ADMIN_CATALOG_TEXT).attributes.inventory;
+  private readonly productsText = inject(ADMIN_CATALOG_TEXT).products;
   protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly actionText = inject(SHARED_TEXT).actions;
 

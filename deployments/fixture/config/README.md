@@ -92,12 +92,17 @@ demo list is deliberately short; replace it, do not extend it in this repo.
 > only the API needs either. Keeping the files separate keeps that line visible
 > (ADR 0018).
 
+What belongs to one area of the shop sits in a block named after it, such as
+`site` for the pages, consent and the contact page; what the whole shop shares
+stays at the top of the file.
+
 Each file must be **complete** (no partial overrides), and an unknown key stops
 the boot as surely as a missing one. The authoritative shape of each is its Zod
-schema: `libs/shared/src/platform/config/deployment-config.ts` (read by both apps),
+schema, put together from the parts each area of the code owns:
+`libs/shared/src/platform/config/deployment-config.ts` (read by both apps),
 `apps/api/src/platform/config/api-config.ts`, `libs/shared/src/platform/config/shared-text.ts`,
-`apps/web/src/app/platform/config/storefront-text.type.ts`, `.../admin-text.type.ts`,
-`apps/api/src/platform/mail/mail-text.ts` and `apps/api/src/platform/pdf/pdf-text.ts`. The
+`apps/web/src/app/app.texts.ts` (storefront and admin texts),
+`apps/api/src/app/app.texts.ts` (mail and PDF texts). The
 committed demo files are the worked example to copy from.
 
 ### What describes your shop
@@ -106,9 +111,10 @@ Most of these files are wording any shop of the kind would use. These are the
 parts that are about one shop, and a new deployment rewrites all of them:
 
 - `deployment.json`: `branding` (the name, the tagline, the logo's size, the
-  colours, the first year of the copyright), `seller`, `contact`, `locations`
-  and `mapProvider`, `pickup`, `delivery`, `elsewhere`.
-- `texts/storefront.json`: `home`, `map`, `consent` and `footer`, first in the file.
+  colours, the first year of the copyright), `seller`, `contact`, `ordering.pickup`,
+  `ordering.delivery`, and `site.locations`, `site.mapProvider` and `site.elsewhere`.
+- `texts/storefront.json`: `home` and `footer`, first in the file, and
+  `site.map` and `site.consent`.
 - `assets/`: the logo and the favicon (below).
 - The static pages — about, conditions, terms, privacy, imprint, withdrawal and
   the contact page's text — are written in the admin, not here. The privacy
@@ -117,7 +123,7 @@ parts that are about one shop, and a new deployment rewrites all of them:
 
 `branding.tagline` says what the shop is in a line. It is the landing page's
 heading, and with the name the title of every page that has none of its own:
-`Coffee Kontor — Wholesale specialty coffee`. `mapProvider` is who serves the
+`Coffee Kontor — Wholesale specialty coffee`. `site.mapProvider` is who serves the
 map embeds; the map notice and the cookie banner name it as `{provider}`.
 
 ### Colours
@@ -156,7 +162,17 @@ It is the language every page and mail declares — what a screen reader picks
 its voice by — and the conventions every date, number and amount follows,
 on the pages, in the mails and in the PDFs. Set it to the language the texts
 are written in, with the region whose conventions the shop keeps. The
-currency itself is `catalog.currency.code`.
+currency itself is `currency.code`.
+
+`timeZone` is the shop's own day, as an IANA zone name:
+
+```json
+"timeZone": "Europe/Berlin"
+```
+
+An order reference is dated in it, and so are the dates in mails and PDFs and
+the line saying when a legal page last changed. A name the platform does not
+know stops the boot. Left out, the shop keeps UTC.
 
 ### Keeping two words on one line
 
@@ -230,9 +246,11 @@ Where a jurisdiction wants consent asked as a statement of its own, the shop
 offers two purposes, each switched on its own:
 
 ```json
-"consent": {
-  "contact": false,
-  "account": false
+"site": {
+  "consent": {
+    "contact": false,
+    "account": false
+  }
 }
 ```
 
@@ -245,7 +263,7 @@ Both keys are required. Switch a purpose on only where the processing rests on
 consent. Leave it off where it rests on the contract or the shop's legitimate
 interest, which is the usual case in the EU: the form then shows no box. The
 demo leaves both off. A consent text is not a published page, so neither
-`consent-contact` nor `consent-account` belongs in `pages.published`, and the
+`consent-contact` nor `consent-account` belongs in `site.pages.published`, and the
 config is refused if one is listed there.
 
 The text and the wording beside the box are written in the admin page editor,
@@ -257,13 +275,13 @@ purpose switched on whose text was never written refuses its form rather than
 sending it without the consent. So write the text before switching it on.
 
 Whether or not a box is asked, the contact form, registration and checkout
-carry a line pointing at the privacy page, worded by `privacyNotice` in
+carry a line pointing at the privacy page, worded by `site.privacyNotice` in
 `texts/storefront.json`. It shows only where `privacy` is published.
 
 ### Terms of sale
 
 Publishing `terms` gives the shop a page of terms that every order accepts.
-Checkout says so beside the submit button, worded by `termsNotice` in
+Checkout says so beside the submit button, worded by `site.termsNotice` in
 `texts/storefront.json`. Each order records the version of the terms current when it
 was sent. Staff see that version on the order, and the customer's receipt and
 the order summary name its date. A deployment that does not publish `terms`
@@ -272,8 +290,10 @@ anybody has written the page: write the terms before switching maintenance
 mode off.
 
 ```json
-"terms": {
-  "attachToReceipt": true
+"ordering": {
+  "terms": {
+    "attachToReceipt": true
+  }
 }
 ```
 
@@ -281,11 +301,11 @@ The switch is in `api.json`, since only the API acts on it, and
 `attachToReceipt` is required. Switch it on where the jurisdiction wants the
 terms on a medium the customer keeps, which a link to a page that can change
 is not: the receipt then carries the accepted version as a PDF, named by
-`terms.fileName` in `texts/pdf.json`. The demo switches it on, as
+`ordering.terms.fileName` in `texts/pdf.json`. The demo switches it on, as
 an EU shop would. The PDF is set in the same face as the order summary, so a
 deployment writing in a non-Latin script needs `branding.font.pdf` for it too.
 
-The order summary prints `orderSummary.returnNotice` from `texts/pdf.json`
+The order summary prints `ordering.orderSummary.returnNotice` from `texts/pdf.json`
 under the total, where it is set: the summary is the paper handed over with the
 goods, so it can tell the customer in writing how to return them. Leave the key
 out to print nothing.
@@ -318,7 +338,7 @@ say what it includes, as the demo does as an EU shop. The product page then
 states the basis under the price, and the listings once under the products.
 With it off, only the totals and the conditions page state the basis.
 Where the price beside a product should say more, such as that delivery comes
-on top, the optional app text `tax.atPrice` wraps the statement there
+on top, the optional `tax.atPrice` in `texts/shared.json` wraps the statement there
 (`{statement}`); the demo's reads "{statement}, plus delivery", and its listing
 lines say the same. Totals never carry it, since a pickup order has no
 delivery.
@@ -330,9 +350,9 @@ the basis it was submitted under, so changing `basis` later restates nothing
 the shop has already quoted.
 
 The statements are `tax` in `texts/shared.json`, one wording for the storefront,
-the mails and the order summary; `tax` in `texts/storefront.json` holds only what the
-storefront adds beside a price and under a listing, and `conditions.tax*` the
-conditions page. `{rate}` is the rate written as the deployment writes numbers;
+the mails and the order summary, with `tax.listing` under a listing and
+`tax.atPrice` beside a price; `ordering.conditions.tax*` in
+`texts/storefront.json` words the conditions page. `{rate}` is the rate written as the deployment writes numbers;
 the `mixed` forms are the totals that name no rate.
 
 ### Retention
@@ -375,15 +395,17 @@ limitation period for claims.
 A deployment can ask the person to prove they hold the account's mobile number
 after the password ([FR-AUTH-12](../../../docs/requirements.md#fr-auth-12)): by a
 code sent to it, or by a call from it to a number the site shows. Which of the
-two follows from the provider, below. The key is
-optional, and absent means off. The demo leaves it out.
+two follows from the provider, below. The key,
+`accounts.signInStep`, is optional, and absent means off. The demo leaves it out.
 
 ```json
-"signInStep": {
-  "mode": "always",
-  "roles": ["user", "manager", "admin"],
-  "exemptableRoles": ["manager", "admin"],
-  "trustDeviceDays": 30
+"accounts": {
+  "signInStep": {
+    "mode": "always",
+    "roles": ["user", "manager", "admin"],
+    "exemptableRoles": ["manager", "admin"],
+    "trustDeviceDays": 30
+  }
 }
 ```
 
@@ -412,7 +434,7 @@ The provider is a sidecar of the deployment's own, set in the environment (see
 `.env.example`), and a deployment sets one of the two:
 
 - `SIGN_IN_CODE_URL`: codes, sent by the code sidecar. The text a code travels
-  in is `signInCode.message` in `texts/mail.json`; keep it to one SMS, since a
+  in is `accounts.signInCode.message` in `texts/mail.json`; keep it to one SMS, since a
   second part costs a second message.
 - `SIGN_IN_CALL_URL`: calls, checked by the call sidecar. The site shows the
   number to call and goes on by itself once the call has come.
@@ -474,8 +496,8 @@ one of another shape and these two go with it.
 The **places the shop also exists** (FR-NAV-07) bring one icon each, beside the
 logo and on the same terms — a single-colour mark, painted as a mask so the row
 takes the site's own colours rather than reading as a strip of stickers. Each
-entry in `deployment.json` names the file, where it goes and the words that
-stand in for the mark:
+entry of `site.elsewhere` in `deployment.json` names the file, where it goes
+and the words that stand in for the mark:
 
 ```json
 "elsewhere": [

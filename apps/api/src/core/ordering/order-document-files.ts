@@ -1,11 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { eq, inArray } from 'drizzle-orm';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { DRIZZLE } from '../../platform/db/database.module';
-import * as schema from '../../platform/db/schema';
-import { orderDocuments, orders } from '../../platform/db/schema';
+import { orderDocuments, orders } from './ordering-schema';
 import { MEDIA_STORE, MediaStore } from '../../platform/media/media-store';
 import { OrderIds } from './order-scrub';
+import { Database } from '../../platform/db/database';
 
 /**
  * Deletes the files supplied for orders whose personal details go (FR-AUTH-06,
@@ -15,7 +14,7 @@ import { OrderIds } from './order-scrub';
 @Injectable()
 export class OrderDocumentFiles {
   constructor(
-    @Inject(DRIZZLE) private readonly db: NodePgDatabase<typeof schema>,
+    @Inject(DRIZZLE) private readonly db: Database,
     @Inject(MEDIA_STORE) private readonly store: MediaStore,
   ) {}
 

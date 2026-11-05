@@ -18,7 +18,6 @@ import {
   SQL,
   sql,
 } from 'drizzle-orm';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import {
   alternateLayoutQuery,
   KeyboardLayout,
@@ -27,15 +26,14 @@ import {
   companyIdFormatOf,
 } from '@b2b-catalog-platform/shared/platform';
 import {
-  ACCEPTED_CUSTOMER_TYPES,
   ALTERNATE_LAYOUT,
   COMPANY_ID_FORMATS,
   PHONE_RULE,
   PhoneRule,
 } from '../../platform/config/deployment-config';
+import { ACCEPTED_CUSTOMER_TYPES } from './accounts-config';
 import { DRIZZLE } from '../../platform/db/database.module';
-import * as schema from '../../platform/db/schema';
-import { users } from '../../platform/db/schema';
+import { users } from './accounts-schema';
 import { qualified } from '../../platform/db/sql-columns';
 import { storedPhone } from './stored-phone';
 import { withdrawAccountConsents } from '../site/consent-withdrawals';
@@ -50,6 +48,7 @@ import {
   UpdateUserRequest,
   UserKind,
 } from '@b2b-catalog-platform/shared/core/accounts';
+import { Database } from '../../platform/db/database';
 
 /** A function, so each throw carries its own stack. */
 const notFound = () =>
@@ -118,7 +117,7 @@ export interface ListUsersFilters {
 @Injectable()
 export class StaffUsersService {
   constructor(
-    @Inject(DRIZZLE) private readonly db: NodePgDatabase<typeof schema>,
+    @Inject(DRIZZLE) private readonly db: Database,
     private readonly users: UsersService,
     private readonly erasure: AccountErasure,
     @Inject(COMPANY_ID_FORMATS)

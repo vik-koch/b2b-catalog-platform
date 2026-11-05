@@ -1,3 +1,6 @@
+import { ADMIN_ORDERING_TEXT } from './ordering-text';
+import { SHARED_ORDERING_TEXT } from '../../core/ordering/ordering-text';
+import { ACCOUNTS_CONFIG } from '../../core/accounts/accounts-config';
 import {
   Component,
   computed,
@@ -27,6 +30,7 @@ import { orderChanges } from './order-changes';
 import { AdminOrdersService } from './orders.service';
 import { revisionKindLabel } from './revision-labels';
 import { staffBlockLabels } from './staff-block-labels';
+import { CATALOG_CONFIG } from '../../core/catalog/catalog-config';
 
 /**
  * Every version of an order, newest first (FR-ORD-03), with its note and its
@@ -152,15 +156,19 @@ import { staffBlockLabels } from './staff-block-labels';
 export class OrderVersionHistory {
   private readonly api = inject(AdminOrdersService);
   private readonly config = inject(DEPLOYMENT_CONFIG);
+  private readonly accountsConfig = inject(ACCOUNTS_CONFIG);
+  private readonly catalogConfig = inject(CATALOG_CONFIG);
   private readonly currency = moneyFormat(this.config);
   private readonly adminText = inject(ADMIN_TEXT);
-  private readonly ordersText = this.adminText.orders;
+  private readonly adminOrderingText = inject(ADMIN_ORDERING_TEXT);
+  private readonly ordersText = this.adminOrderingText.orders;
   protected readonly text = this.ordersText.detail.revisions;
   private readonly sharedText = inject(SHARED_TEXT);
-  protected readonly names = this.sharedText.order;
+  protected readonly sharedOrderingText = inject(SHARED_ORDERING_TEXT);
+  protected readonly names = this.sharedOrderingText.order;
   private readonly dateTimeFormat = orderDateTimeFormat(this.config.locale);
   private readonly blockLabels = staffBlockLabels(
-    this.sharedText,
+    this.sharedOrderingText,
     this.ordersText,
     this.ordersText.detail,
   );
@@ -253,11 +261,11 @@ export class OrderVersionHistory {
       this.sharedText,
       this.blockLabels,
       {
-        address: this.config.address,
+        address: this.accountsConfig.address,
         phoneInput: this.config.phoneInput,
         locale: this.config.locale,
         currency: this.currency,
-        boxUnits: this.config.catalog.boxUnits,
+        boxUnits: this.catalogConfig.boxUnits,
       },
     );
   }

@@ -10,9 +10,9 @@ import { OrderReferenceConfig } from '@b2b-catalog-platform/shared/core/ordering
 
 export const ORDER_REFERENCE_ATTEMPTS = 5;
 
-export function orderReferenceDate(now: Date, timezone: string): string {
+export function orderReferenceDate(now: Date, timeZone: string): string {
   const parts = new Intl.DateTimeFormat('en-CA', {
-    timeZone: timezone,
+    timeZone,
     year: '2-digit',
     month: '2-digit',
     day: '2-digit',
@@ -24,10 +24,11 @@ export function orderReferenceDate(now: Date, timezone: string): string {
 
 export function orderReference(
   config: OrderReferenceConfig,
+  timeZone: string,
   now: Date = new Date(),
   suffix: string = String(randomInt(0, 10_000)).padStart(4, '0'),
 ): string {
-  return `${config.prefix}-${orderReferenceDate(now, config.timezone)}-${suffix}`;
+  return `${config.prefix}-${orderReferenceDate(now, timeZone)}-${suffix}`;
 }
 
 /**

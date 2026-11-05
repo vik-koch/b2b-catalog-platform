@@ -51,6 +51,7 @@ import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
 import { plusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/plus';
 import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
+import { ADMIN_CATALOG_TEXT } from '../catalog-text';
 
 /** `due` is no state of its own: expiring and expired, the work the panel's
  * count links to. */
@@ -272,9 +273,9 @@ export class DocumentListPage {
   protected readonly trash2Icon = trash2Icon;
   private readonly service = inject(DocumentsService);
   private readonly confirm = inject(ConfirmService);
-  protected readonly text = inject(ADMIN_TEXT).documents.list;
+  protected readonly text = inject(ADMIN_CATALOG_TEXT).documents.list;
   private readonly sizes = inject(SHARED_TEXT).fileSize;
-  private readonly productsText = inject(ADMIN_TEXT).products;
+  private readonly productsText = inject(ADMIN_CATALOG_TEXT).products;
   protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly actionText = inject(SHARED_TEXT).actions;
   protected readonly editorFrom = injectEditorReturnParams();

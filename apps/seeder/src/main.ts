@@ -31,7 +31,10 @@ const env = z
 
 async function main() {
   const bundle = loadSeedBundle(env.SEED_PATH);
-  const { consent } = loadConfig(deploymentConfigSchema, 'deployment.json');
+  const { consent } = loadConfig(
+    deploymentConfigSchema,
+    'deployment.json',
+  ).site;
   await runSeed(env.DATABASE_URL, bundle, env.MEDIA_ROOT, {
     consent,
     pictures: env.SEED_PICTURES,

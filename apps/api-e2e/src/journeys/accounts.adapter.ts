@@ -120,9 +120,11 @@ async function idOf(ctx: AccountJourneyContext): Promise<string> {
  * it: a reworded template must not fail these specs. What they are about is
  * *which* message arrived — and, more often, that none did.
  */
-const mailText = JSON.parse(
-  readFileSync(configFile('texts/mail.json'), 'utf8'),
-) as Record<string, { heading?: string }>;
+const mailText = (
+  JSON.parse(readFileSync(configFile('texts/mail.json'), 'utf8')) as {
+    accounts: Record<string, { heading?: string }>;
+  }
+).accounts;
 
 /** Which message is which, by heading, in the names the journeys use. */
 const MAIL_KINDS: Readonly<Record<string, string>> = {

@@ -1,3 +1,6 @@
+export * from './accounts-area';
+export * from './accounts-config';
+export * from './accounts-text';
 export * from './address';
 export * from './address-config';
 export * from './address.contract';

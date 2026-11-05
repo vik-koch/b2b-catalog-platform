@@ -4,6 +4,8 @@ export * from './delivery-zone';
 export * from './order-config';
 export * from './order-documents';
 export * from './order-transitions';
+export * from './ordering-area';
+export * from './ordering-text';
 export * from './orders';
 export * from './orders.contract';
 export * from './shipment-estimate';

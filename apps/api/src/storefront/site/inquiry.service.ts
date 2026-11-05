@@ -4,7 +4,12 @@ import { PHONE_INPUT } from '../../platform/config/deployment-config';
 import { ConsentService } from '../../core/site/consent.service';
 import { env } from '../../platform/env';
 import { MailDispatcher } from '../../platform/mail/mail-dispatcher';
-import { MAIL_TEXT, MailText } from '../../platform/mail/mail-text';
+import {
+  MAIL_TEXT,
+  MailText,
+  mailTextBlock,
+} from '../../platform/mail/mail-text';
+import { SiteMailText } from './site-mail-text';
 import { SHARED_TEXT } from '../../platform/config/shared-text';
 import { inquiryMail } from './inquiry.template';
 import {
@@ -12,6 +17,7 @@ import {
   PhoneConfig,
   SharedText,
 } from '@b2b-catalog-platform/shared/platform';
+import { SITE_AREA } from '@b2b-catalog-platform/shared/core/site';
 
 @Injectable()
 export class InquiryService {
@@ -62,7 +68,11 @@ export class InquiryService {
     };
 
     await this.mail.dispatch(
-      inquiryMail(readable, this.text, this.common),
+      inquiryMail(
+        readable,
+        mailTextBlock<SiteMailText>(this.text, SITE_AREA),
+        this.common,
+      ),
       {
         to,
         // The submitter, so the shop can answer by hitting reply.

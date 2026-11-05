@@ -7,13 +7,13 @@ import {
 import { AddressesService } from '../../core/accounts/addresses.service';
 import { ConsentService } from '../../core/site/consent.service';
 import {
-  ACCEPTED_CUSTOMER_TYPES,
   COMPANY_ID_RULE,
   CompanyIdRule,
   PHONE_INPUT,
   PHONE_RULE,
   PhoneRule,
 } from '../../platform/config/deployment-config';
+import { ACCEPTED_CUSTOMER_TYPES } from '../../core/accounts/accounts-config';
 import { env } from '../../platform/env';
 import { MAIL_TEXT, MailText } from '../../platform/mail/mail-text';
 import { SHARED_TEXT } from '../../platform/config/shared-text';

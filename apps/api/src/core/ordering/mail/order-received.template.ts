@@ -1,3 +1,5 @@
+import { sharedOrderingText } from '../ordering-text';
+import { orderingMail } from './ordering-mail-text';
 import {
   SharedText,
   fillText,
@@ -37,8 +39,8 @@ export function orderReceivedMail(
   /** The shop's timezone, which the terms' date is read in. */
   timeZone: string,
 ): MailContent {
-  const t = text.orderReceived;
-  const names = common.order;
+  const t = orderingMail(text).orderReceived;
+  const names = sharedOrderingText(common).order;
 
   return {
     subject: `${t.subject} · ${order.reference}`,
@@ -51,10 +53,10 @@ export function orderReceivedMail(
     rows: [
       { label: names.reference, value: order.reference },
       {
-        label: common.fulfilment.label,
+        label: sharedOrderingText(common).fulfilment.label,
         value: order.pickup
-          ? common.fulfilment.pickup
-          : common.fulfilment.delivery,
+          ? sharedOrderingText(common).fulfilment.pickup
+          : sharedOrderingText(common).fulfilment.delivery,
       },
       {
         label: names.total,

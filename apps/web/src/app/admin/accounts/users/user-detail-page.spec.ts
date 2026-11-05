@@ -1,16 +1,14 @@
+import { withAccounts } from '../../../core/accounts/accounts-config.fixture';
+import { defaultAdminAccountsText } from '../accounts-text.fixture';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { CustomerTier } from '@b2b-catalog-platform/shared/admin/catalog';
-import {
-  OwnershipArea,
-  type DeploymentConfig,
-} from '@b2b-catalog-platform/shared/platform';
+import { OwnershipArea } from '@b2b-catalog-platform/shared/platform';
 import { ADMIN_TEXT } from '../../../platform/config/admin-text';
 import { defaultAdminText } from '../../../platform/config/admin-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
-import { defaultDeploymentConfig } from '../../../platform/config/deployment-config.fixture';
 import { AuthService } from '../../../platform/auth/auth.service';
 import { provideOwnership } from '../../platform/ownership/ownership.fixture';
 import { TiersService } from '../../catalog/tiers/tiers.service';
@@ -19,11 +17,15 @@ import { ConfirmAnswer } from '@b2b-catalog-platform/ui/overlay/confirm-dialog';
 import { UserDetailPage } from './user-detail-page';
 import { StaffUsersService } from './users.service';
 import { ConsentRecord } from '@b2b-catalog-platform/shared/admin/accounts';
-import { StaffUser } from '@b2b-catalog-platform/shared/core/accounts';
+import {
+  type AccountsConfig,
+  StaffUser,
+} from '@b2b-catalog-platform/shared/core/accounts';
+import { withSite } from '../../../core/site/site-config.fixture';
 
-const text = defaultAdminText.users.detail;
-const listText = defaultAdminText.users.list;
-const editorText = defaultAdminText.users.editor;
+const text = defaultAdminAccountsText.users.detail;
+const listText = defaultAdminAccountsText.users.list;
+const editorText = defaultAdminAccountsText.users.editor;
 
 function user(overrides: Partial<StaffUser> = {}): StaffUser {
   return {
@@ -83,7 +85,7 @@ async function render(
     /** How the delete confirmation is answered; null is "no". */
     answer?: ConfirmAnswer | null;
     /** The deployment's code after the password (FR-AUTH-12). */
-    signInStep?: DeploymentConfig['signInStep'];
+    signInStep?: AccountsConfig['signInStep'];
   } = {},
 ) {
   const account = options.account === undefined ? user() : options.account;
@@ -127,14 +129,15 @@ async function render(
       { provide: SHARED_TEXT, useValue: defaultSharedText },
       {
         provide: DEPLOYMENT_CONFIG,
-        useValue: {
-          ...defaultDeploymentConfig,
-          consent: {
-            contact: options.consentAsked ?? false,
-            account: options.consentAsked ?? false,
-          },
-          signInStep: options.signInStep,
-        },
+        useValue: withAccounts(
+          { signInStep: options.signInStep },
+          withSite({
+            consent: {
+              contact: options.consentAsked ?? false,
+              account: options.consentAsked ?? false,
+            },
+          }),
+        ),
       },
       {
         provide: AuthService,
@@ -282,7 +285,7 @@ describe('UserDetailPage', () => {
     const { link, text: body } = await render({ ownedAreas: ['customers'] });
 
     expect(body()).toContain('jane@example.com');
-    expect(body()).toContain(defaultAdminText.ownership.accountLocked);
+    expect(body()).toContain(defaultAdminAccountsText.ownership.accountLocked);
     expect(link(listText.edit)).toBeUndefined();
     expect(link(text.back)).toBeDefined();
   });

@@ -1,3 +1,4 @@
+import { ADMIN_EXCHANGE_TEXT } from '../exchange-text';
 import { Component, computed, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { fillText } from '@b2b-catalog-platform/shared/platform';
@@ -6,7 +7,6 @@ import {
   OrderSyncRowError,
   OrderWriteResult,
 } from '@b2b-catalog-platform/shared/core/exchange';
-import { ADMIN_TEXT } from '../../../platform/config/admin-text';
 import { Link } from '@b2b-catalog-platform/ui/actions/link';
 import {
   StatusBadge,
@@ -72,7 +72,7 @@ import { SyncRowErrors } from './sync-row-errors';
   `,
 })
 export class SyncOrderPlanView {
-  protected readonly text = inject(ADMIN_TEXT).sync;
+  protected readonly text = inject(ADMIN_EXCHANGE_TEXT).sync;
 
   readonly plan = input.required<OrderSyncPlan>();
 

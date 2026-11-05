@@ -12,8 +12,9 @@ import { ProductBuyControls } from './product-buy-controls';
 import { ProductPairings } from './product-pairings';
 import { productDetail } from '../product.fixture';
 import { provideFakeProductCart } from './product-cart.fixture';
+import { defaultSharedCatalogText } from '../catalog-text.fixture';
 
-const text = defaultStorefrontText.catalog.pairings;
+const text = defaultSharedCatalogText.pairings;
 
 async function render(
   variant: 'marker' | 'link',
@@ -61,7 +62,7 @@ describe('the sold-together marker (FR-SET-05)', () => {
     const { el } = await render('link');
 
     expect(el.querySelector('button')?.textContent).toContain(
-      defaultSharedText.product.pairings,
+      defaultSharedCatalogText.product.pairings,
     );
   });
 
@@ -75,7 +76,9 @@ describe('the sold-together marker (FR-SET-05)', () => {
 
     expect(el.querySelector('button')?.textContent?.trim()).toBe('Add 20 pc');
     expect(el.textContent).toContain('of what this is sold with.');
-    expect(el.textContent).not.toContain(defaultSharedText.product.pairings);
+    expect(el.textContent).not.toContain(
+      defaultSharedCatalogText.product.pairings,
+    );
   });
 
   it('opens the one panel, naming the product it was pressed on', async () => {

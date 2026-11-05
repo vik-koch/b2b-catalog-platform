@@ -1,18 +1,20 @@
 import { createHash } from 'node:crypto';
 import { Logger, Module } from '@nestjs/common';
 import {
-  ACCEPTED_CUSTOMER_TYPES,
   ALTERNATE_LAYOUT,
   COMPANY_ID_FORMATS,
-  loadAcceptedCustomerTypes,
   loadAlternateLayout,
   loadCompanyIdFormats,
   loadPhoneInput,
   loadPhoneRule,
-  loadSignInStep,
   PHONE_INPUT,
   PHONE_RULE,
 } from '../../platform/config/deployment-config';
+import {
+  ACCEPTED_CUSTOMER_TYPES,
+  loadAcceptedCustomerTypes,
+  loadSignInStep,
+} from './accounts-config';
 import { env } from '../../platform/env';
 import { MailModule } from '../../platform/mail/mail.module';
 import { MailService } from '../../platform/mail/mail.service';

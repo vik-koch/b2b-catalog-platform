@@ -92,7 +92,7 @@ const accountsFile = z.object({
 
 /** The part of the deployment config it needs: the shop's time zone. */
 const deploymentFile = z.object({
-  orderReference: z.object({ timezone: z.string() }).optional(),
+  timeZone: z.string().optional(),
 });
 
 export interface Loaded {
@@ -169,6 +169,6 @@ export function load(seedPath: string, configPath: string): Loaded {
     workingHours: simulation.workingHours,
     accountRules: simulation.accounts,
     // Where the deployment states none, its order dates are UTC too.
-    timeZone: config.orderReference?.timezone ?? 'UTC',
+    timeZone: config.timeZone ?? 'UTC',
   };
 }

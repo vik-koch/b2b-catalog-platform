@@ -1,3 +1,4 @@
+import { STOREFRONT_ORDERING_TEXT } from '../ordering-text';
 import { Component, computed, inject, input, resource } from '@angular/core';
 import { Params, RouterLink } from '@angular/router';
 import { fillText } from '@b2b-catalog-platform/shared/platform';
@@ -5,7 +6,6 @@ import {
   MY_ORDER_FILTERS,
   MyOrderFilter,
 } from '@b2b-catalog-platform/shared/core/ordering';
-import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
 import { delayedLoading } from '../../../platform/delayed-loading';
 import { usePageSeo } from '../../../platform/page-seo';
 import { stableValue } from '../../../platform/stable-value';
@@ -110,7 +110,7 @@ export class OrderListPage {
   protected readonly shoppingBasketIcon = shoppingBasketIcon;
   protected readonly xIcon = xIcon;
   private readonly api = inject(OrdersService);
-  protected readonly text = inject(STOREFRONT_TEXT).orders;
+  protected readonly text = inject(STOREFRONT_ORDERING_TEXT).orders;
 
   /** Bound from the `state` query param; absent arrives as `undefined`. An
    * unknown value is a stale link and shows the whole history. */

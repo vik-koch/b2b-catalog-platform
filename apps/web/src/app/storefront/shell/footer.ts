@@ -3,15 +3,15 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
 import { STOREFRONT_TEXT } from '../../platform/config/storefront-text';
 import { SHARED_TEXT } from '../../platform/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
-import {
-  type ElsewhereLink,
-  fillText,
-} from '@b2b-catalog-platform/shared/platform';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
+import { type ElsewhereLink } from '@b2b-catalog-platform/shared/core/site';
 import { ConsentService } from '../site/cookie-consent/consent.service';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { mailHref, telHref } from './contact-info';
 import { PAGE_LINK } from '../platform/nav-action';
 import { ScrollToTop } from './scroll-to-top';
+import { SITE_CONFIG } from '../../core/site/site-config';
+import { STOREFRONT_SITE_TEXT } from '../site/site-text';
 
 @Component({
   imports: [RouterLink, RouterLinkActive, Button, ScrollToTop],
@@ -130,7 +130,7 @@ import { ScrollToTop } from './scroll-to-top';
                          active:text-primary-press"
                   (click)="consent.withdraw()"
                 >
-                  {{ text.consent.settings }}
+                  {{ siteText.consent.settings }}
                 </button>
               }
             </nav>
@@ -173,14 +173,16 @@ export class Footer {
   readonly seamless = input(false);
 
   private readonly config = inject(DEPLOYMENT_CONFIG);
+  private readonly siteConfig = inject(SITE_CONFIG);
 
   protected readonly text = inject(STOREFRONT_TEXT);
+  protected readonly siteText = inject(STOREFRONT_SITE_TEXT);
   protected readonly nav = inject(SHARED_TEXT).nav;
   protected readonly consent = inject(ConsentService);
   protected readonly branding = this.config.branding;
-  protected readonly legalSlugs = this.config.pages.footerNav;
+  protected readonly legalSlugs = this.siteConfig.pages.footerNav;
   /** FR-NAV-07. */
-  protected readonly elsewhere = this.config.elsewhere ?? [];
+  protected readonly elsewhere = this.siteConfig.elsewhere ?? [];
   /** NFR-LEGAL-02: its own contact, or the header's. */
   protected readonly seller = this.config.seller;
   protected readonly contact = this.seller?.contact ?? this.config.contact;

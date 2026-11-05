@@ -61,18 +61,20 @@ const slugs = {
  * expectations are read from it rather than restated here — a renamed office
  * or a re-cut zone should move this suite, not break it.
  */
-const deployment = JSON.parse(
-  readFileSync(configFile('deployment.json'), 'utf8'),
-) as {
-  pickup?: { locations: { key: string; name: string }[] };
-  delivery?: {
-    zones: {
-      key: string;
-      freeFromMinor?: number;
-      match: { postalPrefixes?: string[] };
-    }[];
-  };
-};
+const deployment = (
+  JSON.parse(readFileSync(configFile('deployment.json'), 'utf8')) as {
+    ordering: {
+      pickup?: { locations: { key: string; name: string }[] };
+      delivery?: {
+        zones: {
+          key: string;
+          freeFromMinor?: number;
+          match: { postalPrefixes?: string[] };
+        }[];
+      };
+    };
+  }
+).ordering;
 const PICKUP = deployment.pickup?.locations[0];
 /** The first zone claimed by a postal prefix, and a code inside it. */
 const PREFIX_ZONE = deployment.delivery?.zones.find(

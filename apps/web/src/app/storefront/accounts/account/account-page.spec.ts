@@ -1,3 +1,5 @@
+import { defaultStorefrontAccountsText } from '../accounts-text.fixture';
+import { defaultSharedAccountsText } from '../../../core/accounts/accounts-text.fixture';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
@@ -16,8 +18,8 @@ import { AccountService } from './account.service';
 import { Address } from '@b2b-catalog-platform/shared/core/accounts';
 import { AccountProfile } from '@b2b-catalog-platform/shared/storefront/accounts';
 
-const text = defaultStorefrontText.auth;
-const accountText = defaultStorefrontText.account;
+const text = defaultStorefrontAccountsText.auth;
+const accountText = defaultStorefrontAccountsText.account;
 
 const customer: AccountProfile = {
   email: 'alex@example.com',
@@ -115,12 +117,17 @@ describe('AccountPage', () => {
     const { el } = await render(customer);
 
     expect(el.textContent).toContain(
-      text.greeting.replace('{name}', plainUser.firstName ?? ''),
+      defaultSharedAccountsText.signedInAs.greeting.replace(
+        '{name}',
+        plainUser.firstName ?? '',
+      ),
     );
     expect(el.textContent).toContain('Fischer Alex');
     expect(el.textContent).toContain(customer.email);
     expect(el.textContent).toContain(customer.phone);
-    expect(el.textContent).toContain(defaultSharedText.partyKind.company);
+    expect(el.textContent).toContain(
+      defaultSharedAccountsText.partyKind.company,
+    );
     expect(el.textContent).toContain(customer.companyRegistrationId);
   });
 

@@ -9,7 +9,6 @@ import {
   parsePriceInput,
   partialPriceRule,
 } from '../../../core/catalog/pricing/price';
-import { ADMIN_TEXT } from '../../../platform/config/admin-text';
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
 import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
@@ -18,6 +17,7 @@ import { UnitInput } from '@b2b-catalog-platform/ui/inputs/unit-input';
 import { UnitInputControl } from '@b2b-catalog-platform/ui/inputs/unit-input-control';
 import { LockedFieldMarker } from '../../platform/ownership/ui/locked-field-marker';
 import { Hint } from '@b2b-catalog-platform/ui/fields/hint';
+import { ADMIN_CATALOG_TEXT } from '../catalog-text';
 
 export interface TierPriceDraft {
   tierId: string;
@@ -81,7 +81,8 @@ export interface TierPriceDraft {
   `,
 })
 export class ProductTierPricesEditor {
-  protected readonly text = inject(ADMIN_TEXT).products.editor.tierPrices;
+  protected readonly text =
+    inject(ADMIN_CATALOG_TEXT).products.editor.tierPrices;
   private readonly currency = moneyFormat(inject(DEPLOYMENT_CONFIG));
   protected readonly currencySuffix = currencySymbol(this.currency);
   protected readonly partialPrice = partialPriceRule(this.currency);

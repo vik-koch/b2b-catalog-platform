@@ -1,10 +1,10 @@
 import { Component, computed, HostListener, inject } from '@angular/core';
-import { STOREFRONT_TEXT } from '../../platform/config/storefront-text';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { withExitAnimation } from './leave-animation';
 import { MobileSearch } from '../platform/mobile-search';
 import { SearchField } from '../catalog/search/search-field';
 import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
+import { STOREFRONT_CATALOG_TEXT } from '../catalog/catalog-text';
 
 /** The search field over the dimmed, held page below `sm`, once the header's
  * has scrolled away: the header's height and place, dropping in from the top
@@ -44,7 +44,7 @@ import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
 export class SearchOverlay {
   protected readonly xIcon = xIcon;
   protected readonly search = inject(MobileSearch);
-  protected readonly text = inject(STOREFRONT_TEXT).search;
+  protected readonly text = inject(STOREFRONT_CATALOG_TEXT).search;
 
   private readonly exit = withExitAnimation(this.search.open);
   protected readonly shown = this.exit.shown;

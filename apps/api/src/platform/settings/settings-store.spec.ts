@@ -1,6 +1,5 @@
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import * as schema from '../db/schema';
 import { SettingsRow, SettingsStore } from './settings-store';
+import { Database } from '../db/database';
 
 const settingsRow = (over: Partial<SettingsRow> = {}): SettingsRow => ({
   maintenanceMode: false,
@@ -17,7 +16,7 @@ function dbReturning(row: SettingsRow | 'throw') {
       }
       return { from: () => ({ where: () => Promise.resolve([row]) }) };
     },
-  } as unknown as NodePgDatabase<typeof schema>;
+  } as unknown as Database;
 }
 
 /** Reads `stored`, answers a write with `written` and keeps every inserted
@@ -47,7 +46,7 @@ function dbWriting(stored: SettingsRow, written: SettingsRow) {
       },
     }),
     transaction: <T>(fn: (tx: unknown) => Promise<T>) => fn(db),
-  } as unknown as NodePgDatabase<typeof schema>;
+  } as unknown as Database;
   return { db, inserted };
 }
 

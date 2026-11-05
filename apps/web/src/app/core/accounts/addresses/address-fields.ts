@@ -1,3 +1,4 @@
+import { ACCOUNTS_CONFIG } from '../accounts-config';
 import {
   Component,
   computed,
@@ -9,8 +10,7 @@ import {
   signal,
 } from '@angular/core';
 import { FormField } from '@angular/forms/signals';
-import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
-import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
+import { SHARED_ACCOUNTS_TEXT } from '../accounts-text';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { DigitMask } from '@b2b-catalog-platform/ui/inputs/digit-mask';
 import { FIELD_ATTEMPT } from '@b2b-catalog-platform/ui/fields/field-attempt';
@@ -212,10 +212,10 @@ let nextId = 0;
 export class AddressFields {
   private readonly instance = nextId++;
 
-  protected readonly text = inject(STOREFRONT_TEXT).address;
+  protected readonly text = inject(SHARED_ACCOUNTS_TEXT).address;
   protected readonly optional = inject(SHARED_TEXT).optional;
   protected readonly countries =
-    inject(DEPLOYMENT_CONFIG).address?.countries ?? [];
+    inject(ACCOUNTS_CONFIG).address?.countries ?? [];
 
   readonly form = input.required<AddressForm>();
   /** Off where there is no address book to file it under (checkout). */

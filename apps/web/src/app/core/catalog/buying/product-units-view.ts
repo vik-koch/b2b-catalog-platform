@@ -14,10 +14,11 @@ import {
   moneyFormat,
   formatMoneyMinor,
 } from '@b2b-catalog-platform/shared/platform';
-import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
-import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import { formatStoredDecimal, formatUnitQuantity } from './quantity';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { CATALOG_CONFIG } from '../catalog-config';
+import { SHARED_CATALOG_TEXT } from '../catalog-text';
 
 export interface UnitPriceRow {
   /** "per pcs". */
@@ -40,12 +41,13 @@ export interface UnitOption {
 /** A product's units of sale in words, alike on a tile and the product page.
  * Unit words are abbreviations after a number, so nothing inflects. */
 export function useProductUnits() {
-  const text = inject(STOREFRONT_TEXT).catalog.units;
+  const text = inject(SHARED_CATALOG_TEXT).unitFacts;
   const common = inject(SHARED_TEXT);
-  const units = common.units;
-  const packing = common.packaging;
+  const catalogText = inject(SHARED_CATALOG_TEXT);
+  const units = catalogText.units;
+  const packing = catalogText.packaging;
   const deployment = inject(DEPLOYMENT_CONFIG);
-  const config = deployment.catalog;
+  const config = inject(CATALOG_CONFIG);
   const currency = moneyFormat(deployment);
 
   const perUnit = (unit: string) => fillText(text.perUnit, { unit });

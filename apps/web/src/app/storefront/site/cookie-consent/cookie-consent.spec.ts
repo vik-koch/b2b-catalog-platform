@@ -8,11 +8,13 @@ import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import { DeploymentConfig } from '@b2b-catalog-platform/shared/platform';
 import { defaultDeploymentConfig } from '../../../platform/config/deployment-config.fixture';
 import { CookieConsent } from './cookie-consent';
+import { defaultStorefrontSiteText } from '../site-text.fixture';
+import { withSite } from '../../../core/site/site-config.fixture';
 
 const BANNER = 'aside[aria-label="Cookie consent"]';
 
 function config(cookieConsentEnabled: boolean): DeploymentConfig {
-  return { ...defaultDeploymentConfig, cookieConsentEnabled };
+  return withSite({ cookieConsentEnabled });
 }
 
 async function render(enabled: boolean) {
@@ -41,10 +43,16 @@ describe('CookieConsent', () => {
     const banner = el.querySelector(BANNER);
 
     expect(banner).not.toBeNull();
-    expect(banner?.textContent).toContain(defaultDeploymentConfig.mapProvider);
+    expect(banner?.textContent).toContain(
+      defaultDeploymentConfig.site.mapProvider,
+    );
     expect(banner?.textContent).not.toContain('{provider}');
-    expect(banner?.textContent).toContain(defaultStorefrontText.consent.accept);
-    expect(banner?.textContent).toContain(defaultStorefrontText.consent.reject);
+    expect(banner?.textContent).toContain(
+      defaultStorefrontSiteText.consent.accept,
+    );
+    expect(banner?.textContent).toContain(
+      defaultStorefrontSiteText.consent.reject,
+    );
   });
 
   it('never shows the banner when consent is disabled', async () => {
@@ -57,7 +65,7 @@ describe('CookieConsent', () => {
     const el = fixture.nativeElement as HTMLElement;
 
     const reject = Array.from(el.querySelectorAll('button')).find((b) =>
-      b.textContent?.includes(defaultStorefrontText.consent.reject),
+      b.textContent?.includes(defaultStorefrontSiteText.consent.reject),
     );
     reject?.click();
     await fixture.whenStable();

@@ -1,3 +1,4 @@
+import { STOREFRONT_ACCOUNTS_TEXT } from '../accounts-text';
 import {
   Component,
   computed,
@@ -7,7 +8,6 @@ import {
   signal,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { SignInService } from './sign-in.service';
 import { CallWait } from './call-wait';
@@ -62,7 +62,7 @@ import { Outcome } from '@b2b-catalog-platform/ui/content/outcome';
 export class SignInStepPanel {
   private readonly auth = inject(SignInService);
 
-  protected readonly text = inject(STOREFRONT_TEXT).auth.signInStep;
+  protected readonly text = inject(STOREFRONT_ACCOUNTS_TEXT).auth.signInStep;
 
   /** The session has started. */
   readonly done = output<void>();

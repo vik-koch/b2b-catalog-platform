@@ -1,4 +1,3 @@
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { and, eq, exists, isNull, not, or, SQL, sql } from 'drizzle-orm';
 import {
   INCOMPLETE_GAPS,
@@ -8,24 +7,22 @@ import {
   ProductGap,
   ProductGapFilter,
 } from '@b2b-catalog-platform/shared/admin/catalog';
-import * as schema from '../../../../platform/db/schema';
 import {
   documentProducts,
   productAttributes,
   productPairings,
   products,
-} from '../../../../platform/db/schema';
+} from '../../../../core/catalog/catalog-schema';
 import { resolvedPriceMinor } from '../../../../core/catalog/product-price';
 import { involves } from '../../../../core/catalog/product-pairings';
-
-type Db = NodePgDatabase<typeof schema>;
+import { Database } from '../../../../platform/db/database';
 
 /**
  * "This product lacks this content" (FR-ADM-20), one predicate for both the
  * filter and a row's gaps. A description of nothing but markup is missing: the
  * editor can save an empty paragraph. A price is the default list's.
  */
-function gapCondition(db: Db, gap: ProductGap): SQL {
+function gapCondition(db: Database, gap: ProductGap): SQL {
   switch (gap) {
     case 'price':
       return isNull(resolvedPriceMinor(null));
@@ -52,21 +49,24 @@ function gapCondition(db: Db, gap: ProductGap): SQL {
 
 /** The filter form: every entry must hold. */
 export function missingCondition(
-  db: Db,
+  db: Database,
   missing: readonly ProductGapFilter[],
 ): SQL | undefined {
   return and(...missing.map((entry) => missingEntry(db, entry)));
 }
 
 /** One entry: a gap, or `incomplete` for any of the four. */
-function missingEntry(db: Db, missing: ProductGapFilter): SQL | undefined {
+function missingEntry(
+  db: Database,
+  missing: ProductGapFilter,
+): SQL | undefined {
   if (missing !== 'incomplete') return gapCondition(db, missing);
   return or(...INCOMPLETE_GAPS.map((gap) => gapCondition(db, gap)));
 }
 
 /** The select-list form: one boolean column per gap a row names. */
 export function incompleteGapColumns(
-  db: Db,
+  db: Database,
 ): Record<IncompleteGap, SQL<boolean>> {
   return Object.fromEntries(
     INCOMPLETE_GAPS.map((gap) => [gap, gapCondition(db, gap) as SQL<boolean>]),
@@ -75,14 +75,16 @@ export function incompleteGapColumns(
 
 /** The filter form of the other half: every feature asked for must hold. */
 export function featureCondition(
-  db: Db,
+  db: Database,
   features: readonly ProductFeature[],
 ): SQL | undefined {
   return and(...features.map((feature) => featurePredicate(db, feature)));
 }
 
 /** The select-list form: one boolean column per feature, drawn as glyphs. */
-export function featureColumns(db: Db): Record<ProductFeature, SQL<boolean>> {
+export function featureColumns(
+  db: Database,
+): Record<ProductFeature, SQL<boolean>> {
   return Object.fromEntries(
     PRODUCT_FEATURES.map((feature) => [
       feature,
@@ -92,7 +94,7 @@ export function featureColumns(db: Db): Record<ProductFeature, SQL<boolean>> {
 }
 
 /** "This product carries this kind of content". */
-function featurePredicate(db: Db, feature: ProductFeature): SQL {
+function featurePredicate(db: Database, feature: ProductFeature): SQL {
   switch (feature) {
     case 'featured':
       return eq(products.featured, true);

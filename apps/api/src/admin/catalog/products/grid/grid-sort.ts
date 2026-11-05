@@ -1,6 +1,6 @@
 import { asc, desc, sql, SQL } from 'drizzle-orm';
 import { AdminProductSort } from '@b2b-catalog-platform/shared/admin/catalog';
-import { products } from '../../../../platform/db/schema';
+import { products } from '../../../../core/catalog/catalog-schema';
 import {
   OrderBy,
   productSortKeys,

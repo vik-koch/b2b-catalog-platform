@@ -18,7 +18,8 @@ import {
   demoSharedText,
   demoMailText,
 } from '../platform/mail/mail-text.fixture';
-import type { MailText } from '../platform/mail/mail-text';
+import { type MailText, mailTextBlock } from '../platform/mail/mail-text';
+import type { SiteMailText } from '../storefront/site/site-mail-text';
 import { demoAdminOrder } from '../core/ordering/order.fixture';
 import { accountDeletedMail } from '../core/accounts/mail/account-deleted.template';
 import { inquiryMail } from '../storefront/site/inquiry.template';
@@ -42,6 +43,7 @@ import {
   syncRecoveredMail,
   syncWaitingMail,
 } from '../core/exchange/sync-run.template';
+import { SITE_AREA } from '@b2b-catalog-platform/shared/core/site';
 
 /**
  * Every message the app can send, rendered from demo wording — the readable
@@ -75,7 +77,7 @@ export const demoMailBranding: MailBranding = {
   name: 'Demo Shop',
   primaryColor: '#6f4e37',
   colors: DEFAULT_MAIL_COLORS,
-  siteUrl: 'https://shop.example.com',
+  shopUrl: 'https://shop.example.com',
   locale: currency.locale,
 };
 
@@ -305,7 +307,7 @@ export function buildMailPreviews(
           preferredContact: 'email',
           message: 'Do you deliver to Altona?',
         },
-        text,
+        mailTextBlock<SiteMailText>(text, SITE_AREA),
         common,
       ),
     },

@@ -1,8 +1,7 @@
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import * as schema from '../../platform/db/schema';
 import { OrderReader } from '../../core/ordering/order-reader';
 import { OrderWriteBack } from './order-write-back';
 import { OrderWriter } from '../../core/ordering/order-writer';
+import { Database } from '../../platform/db/database';
 
 /**
  * The write-back with its collaborators stubbed. A stub lands where the method
@@ -18,7 +17,7 @@ const WRITER = new Set([
 
 function service() {
   return new OrderWriteBack(
-    {} as NodePgDatabase<typeof schema>,
+    {} as Database,
     {} as OrderReader,
     {} as OrderWriter,
   );

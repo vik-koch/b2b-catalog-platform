@@ -106,7 +106,7 @@ export default async function globalSetup() {
         resolve(workspaceRoot, 'deployments/fixture/config/deployment.json'),
         'utf8',
       ),
-    );
+    ).site;
     // Placeholders, not the bundle's photos: no test run needs the network.
     await seedDatabase(
       client,

@@ -7,12 +7,13 @@ import {
 } from '@b2b-catalog-platform/shared/platform';
 import { ShipmentSummary } from '@b2b-catalog-platform/shared/core/ordering';
 import { formatStoredDecimal } from '../../catalog/buying/quantity';
-import { useTaxStatement } from '../../catalog/pricing/tax-statement';
-import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
+import { useTaxStatement } from '../../../platform/tax-statement';
+import { SHARED_ORDERING_TEXT } from '../ordering-text';
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import { WarningNote } from '@b2b-catalog-platform/ui/content/warning-note';
 import { Card } from '@b2b-catalog-platform/ui/content/card';
+import { CATALOG_CONFIG } from '../../catalog/catalog-config';
 
 /**
  * What the order comes to: the same card on the cart, checkout and the order
@@ -25,11 +26,11 @@ import { Card } from '@b2b-catalog-platform/ui/content/card';
   host: { class: 'block' },
   template: `
     <div uiCard>
-      <h2 class="mb-3 font-medium">{{ text.summaryTitle }}</h2>
+      <h2 class="mb-3 font-medium">{{ text.title }}</h2>
       <dl class="space-y-2 text-sm">
         <!-- Before the estimate, which may never arrive. -->
         <div class="flex items-baseline justify-between gap-4">
-          <dt class="text-ink-subtle">{{ text.summaryLines }}</dt>
+          <dt class="text-ink-subtle">{{ text.lines }}</dt>
           <dd class="text-right">{{ lineCount() }}</dd>
         </div>
         @for (row of rows(); track row.label) {
@@ -73,10 +74,10 @@ import { Card } from '@b2b-catalog-platform/ui/content/card';
   `,
 })
 export class OrderSummary {
-  private readonly boxUnits = inject(DEPLOYMENT_CONFIG).catalog.boxUnits;
+  private readonly boxUnits = inject(CATALOG_CONFIG).boxUnits;
   private readonly currency = moneyFormat(inject(DEPLOYMENT_CONFIG));
 
-  protected readonly text = inject(STOREFRONT_TEXT).cart;
+  protected readonly text = inject(SHARED_ORDERING_TEXT).orderSummary;
   private readonly tax = useTaxStatement();
 
   readonly lineCount = input.required<number>();

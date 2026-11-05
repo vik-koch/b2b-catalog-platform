@@ -1,3 +1,4 @@
+import { accountsMail } from './accounts-mail-text';
 import { MailContent } from '../../../platform/mail/mail-layout';
 import { MailText } from '../../../platform/mail/mail-text';
 
@@ -7,7 +8,7 @@ import { MailText } from '../../../platform/mail/mail-text';
  * so what dev and the demo show is what a phone would receive.
  */
 export function signInCodeMail(text: MailText, code: string): MailContent {
-  const t = text.signInCode;
+  const t = accountsMail(text).signInCode;
   return {
     subject: t.subject,
     preheader: t.preheader,
@@ -18,7 +19,7 @@ export function signInCodeMail(text: MailText, code: string): MailContent {
 
 /** The message itself, as a provider sends it. */
 export function signInCodeText(text: MailText, code: string): string {
-  return text.signInCode.message.replaceAll('{code}', code);
+  return accountsMail(text).signInCode.message.replaceAll('{code}', code);
 }
 
 /**
@@ -27,7 +28,7 @@ export function signInCodeText(text: MailText, code: string): string {
  * goes on by itself.
  */
 export function signInCallMail(text: MailText, path: string): MailContent {
-  const t = text.signInCall;
+  const t = accountsMail(text).signInCall;
   return {
     subject: t.subject,
     preheader: t.preheader,

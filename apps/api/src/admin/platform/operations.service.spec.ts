@@ -1,7 +1,7 @@
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import * as schema from '../../platform/db/schema';
 import { env } from '../../platform/env';
 import { OperationsService } from './operations.service';
+import { Database } from '../../platform/db/database';
+import { ActorEmails } from '../../platform/actor-emails';
 
 describe('OperationsService build info', () => {
   // `env` is parsed once at import; these two are read straight off it, so
@@ -9,7 +9,7 @@ describe('OperationsService build info', () => {
   // a second parsed copy into later tests).
   const original = { ...env };
   afterEach(() => Object.assign(env, original));
-  const service = new OperationsService({} as NodePgDatabase<typeof schema>);
+  const service = new OperationsService({} as Database, {} as ActorEmails);
 
   it('reports the version and deploy time the stack was started with', () => {
     Object.assign(env, {

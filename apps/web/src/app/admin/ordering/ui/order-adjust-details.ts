@@ -1,3 +1,7 @@
+import { ADMIN_ORDERING_TEXT } from '../ordering-text';
+import { SHARED_ORDERING_TEXT } from '../../../core/ordering/ordering-text';
+import { ORDERING_CONFIG } from '../../../core/ordering/ordering-config';
+import { ACCOUNTS_CONFIG } from '../../../core/accounts/accounts-config';
 import { Component, computed, inject, input, output } from '@angular/core';
 import { type FieldTree } from '@angular/forms/signals';
 import { PaymentMethod } from '@b2b-catalog-platform/shared/core/ordering';
@@ -52,14 +56,14 @@ import {
 
     <section>
       <h2 class="mb-2 font-medium">
-        {{ sharedText.fulfilment.label }}
+        {{ sharedOrderingText.fulfilment.label }}
       </h2>
       <!-- Method and collection point share a line: one
            question. -->
       <div class="grid gap-6 sm:grid-cols-2">
         <div>
           <label uiFieldLabel for="adjust-fulfilment" class="sr-only">
-            {{ sharedText.fulfilment.label }}
+            {{ sharedOrderingText.fulfilment.label }}
           </label>
           <ui-select-input>
             <select
@@ -73,14 +77,14 @@ import {
                 value="delivery"
                 [selected]="fulfilmentMethod() === 'delivery'"
               >
-                {{ sharedText.fulfilment.delivery }}
+                {{ sharedOrderingText.fulfilment.delivery }}
               </option>
               @if (locations.length) {
                 <option
                   value="pickup"
                   [selected]="fulfilmentMethod() === 'pickup'"
                 >
-                  {{ sharedText.fulfilment.pickup }}
+                  {{ sharedOrderingText.fulfilment.pickup }}
                 </option>
               }
             </select>
@@ -243,18 +247,22 @@ import {
 })
 export class OrderAdjustDetails {
   private readonly config = inject(DEPLOYMENT_CONFIG);
+  private readonly orderingConfig = inject(ORDERING_CONFIG);
+  private readonly accountsConfig = inject(ACCOUNTS_CONFIG);
   private readonly adminText = inject(ADMIN_TEXT);
-  protected readonly text = this.adminText.orders.adjust;
-  protected readonly ordersText = this.adminText.orders;
+  private readonly adminOrderingText = inject(ADMIN_ORDERING_TEXT);
+  protected readonly text = this.adminOrderingText.orders.adjust;
+  protected readonly ordersText = this.adminOrderingText.orders;
   protected readonly sharedText = inject(SHARED_TEXT);
-  protected readonly names = this.sharedText.order;
+  protected readonly sharedOrderingText = inject(SHARED_ORDERING_TEXT);
+  protected readonly names = this.sharedOrderingText.order;
   protected readonly fields = staffFields(
     this.sharedText.fields,
     this.adminText.fields,
   );
   protected readonly phoneInput = this.config.phoneInput;
-  protected readonly locations = this.config.pickup?.locations ?? [];
-  protected readonly billingEnabled = this.config.billingAddressEnabled;
+  protected readonly locations = this.orderingConfig.pickup?.locations ?? [];
+  protected readonly billingEnabled = this.orderingConfig.billingAddressEnabled;
 
   readonly form = input.required<FieldTree<AdjustAnswers>>();
   readonly delivery = input.required<AddressForm>();
@@ -274,7 +282,7 @@ export class OrderAdjustDetails {
 
   /** In the deployment's order (FR-AUTH-13). */
   protected readonly partyKinds: SegmentOption<PartyKind>[] =
-    this.config.customerTypes.map((value) => ({
+    this.accountsConfig.customerTypes.map((value) => ({
       value,
       label:
         value === 'person'

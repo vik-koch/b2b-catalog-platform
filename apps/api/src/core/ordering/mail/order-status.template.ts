@@ -1,3 +1,7 @@
+import type { OrderingMailText } from './ordering-mail-text';
+import type { SharedOrderingText } from '@b2b-catalog-platform/shared/core/ordering';
+import { sharedOrderingText } from '../ordering-text';
+import { orderingMail } from './ordering-mail-text';
 import { SharedText, MoneyFormat } from '@b2b-catalog-platform/shared/platform';
 import {
   OrderDetail,
@@ -33,7 +37,7 @@ function wordingKey(
   order: OrderDetail,
   status: NotifiedStatus,
   notice: OrderNotice,
-): keyof MailText['orderStatusChanged']['statuses'] {
+): keyof OrderingMailText['orderStatusChanged']['statuses'] {
   if (notice === 'changed') return 'changed';
   if (status === 'requested') return 'reopened';
   if (status !== 'ready') return status;
@@ -47,7 +51,7 @@ function wordingKey(
  */
 function destination(
   order: OrderDetail,
-  names: SharedText['order'],
+  names: SharedOrderingText['order'],
 ): { label: string; value: string }[] {
   if (order.pickup) {
     return [
@@ -109,8 +113,8 @@ export function orderStatusChangedMail(
    * about is one nobody scrolls down to. */
   attached = false,
 ): MailContent {
-  const t = text.orderStatusChanged;
-  const names = common.order;
+  const t = orderingMail(text).orderStatusChanged;
+  const names = sharedOrderingText(common).order;
   const wording = t.statuses[wordingKey(order, status, notice)];
 
   return {

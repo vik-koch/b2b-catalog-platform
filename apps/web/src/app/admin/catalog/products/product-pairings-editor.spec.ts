@@ -11,8 +11,9 @@ import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import { defaultDeploymentConfig } from '../../../platform/config/deployment-config.fixture';
 import { ProductsService } from './products.service';
 import { ProductPairingsEditor } from './product-pairings-editor';
+import { defaultAdminCatalogText } from '../catalog-text.fixture';
 
-const text = defaultAdminText.products.editor.pairings;
+const text = defaultAdminCatalogText.products.editor.pairings;
 
 const listItem = (
   overrides: Partial<AdminProductListItem> & { slug: string; name: string },
@@ -225,7 +226,7 @@ describe('ProductPairingsEditor (FR-SET-01)', () => {
     ]);
 
     expect(el.textContent).toContain('Gone lid');
-    expect(el.textContent).toContain(defaultAdminText.products.deleted);
+    expect(el.textContent).toContain(defaultAdminCatalogText.products.deleted);
 
     const remove = el.querySelector<HTMLButtonElement>(
       `button[aria-label="${text.removeAria.replace('{name}', 'Gone lid')}"]`,

@@ -20,10 +20,12 @@ import { OwnershipStateModule } from '../../platform/settings/ownership-state.mo
 import { CatalogCoreModule } from '../../core/catalog/catalog-core.module';
 import {
   ALTERNATE_LAYOUT,
-  LOW_STOCK_THRESHOLD_PIECES,
   loadAlternateLayout,
-  loadLowStockThresholdPieces,
 } from '../../platform/config/deployment-config';
+import {
+  LOW_STOCK_THRESHOLD_PIECES,
+  loadLowStockThresholdPieces,
+} from '../../core/catalog/catalog-config';
 
 /**
  * The admin's catalog: products, categories, the attribute registry, documents

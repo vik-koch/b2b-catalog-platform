@@ -1,3 +1,4 @@
+import { defaultAdminOrderingText } from './ordering-text.fixture';
 import { SHARED_TEXT } from '../../platform/config/shared-text';
 import { defaultSharedText } from '../../platform/config/shared-text.fixture';
 import { TestBed } from '@angular/core/testing';
@@ -13,7 +14,7 @@ import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service
 import { OrderDocumentsPanel } from './order-documents-panel';
 import { AdminOrdersService } from './orders.service';
 
-const text = defaultAdminText.orders.detail.documents;
+const text = defaultAdminOrderingText.orders.detail.documents;
 
 const generated: AdminOrderDocument = {
   kind: 'order-summary',

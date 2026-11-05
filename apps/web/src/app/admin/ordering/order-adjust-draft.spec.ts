@@ -1,9 +1,9 @@
+import { defaultAdminOrderingText } from './ordering-text.fixture';
 import { moneyFormat } from '@b2b-catalog-platform/shared/platform';
 import {
   AdminOrderDetail,
   OrderAdjustmentPreview,
 } from '@b2b-catalog-platform/shared/core/ordering';
-import { defaultAdminText } from '../../platform/config/admin-text.fixture';
 import { defaultDeploymentConfig } from '../../platform/config/deployment-config.fixture';
 import {
   draftLines,
@@ -14,8 +14,8 @@ import {
 } from './order-adjust-draft';
 
 const currency = moneyFormat(defaultDeploymentConfig);
-const payments = defaultAdminText.orders.paymentMethods;
-const notices = defaultAdminText.orders.adjust.priceNotice;
+const payments = defaultAdminOrderingText.orders.paymentMethods;
+const notices = defaultAdminOrderingText.orders.adjust.priceNotice;
 
 /** Only what the draft functions read. */
 const order = {

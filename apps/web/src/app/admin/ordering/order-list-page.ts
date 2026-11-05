@@ -1,3 +1,5 @@
+import { SHARED_ORDERING_TEXT } from '../../core/ordering/ordering-text';
+import { ADMIN_ORDERING_TEXT } from './ordering-text';
 import {
   Component,
   computed,
@@ -23,8 +25,6 @@ import {
   staffPaymentFilterSchema,
 } from '@b2b-catalog-platform/shared/core/ordering';
 import { SEARCH_QUERY_MAX_LENGTH } from '@b2b-catalog-platform/shared/core/catalog';
-import { ADMIN_TEXT } from '../../platform/config/admin-text';
-import { SHARED_TEXT } from '../../platform/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
 import { delayedLoading } from '../../platform/delayed-loading';
 import { usePageSeo } from '../../platform/page-seo';
@@ -233,9 +233,9 @@ export class AdminOrderListPage {
   private readonly ownership = inject(OwnershipService);
   private readonly currency = moneyFormat(inject(DEPLOYMENT_CONFIG));
 
-  protected readonly text = inject(ADMIN_TEXT).orders.list;
-  protected readonly names = inject(SHARED_TEXT).order;
-  protected readonly ordersText = inject(ADMIN_TEXT).orders;
+  protected readonly text = inject(ADMIN_ORDERING_TEXT).orders.list;
+  protected readonly names = inject(SHARED_ORDERING_TEXT).order;
+  protected readonly ordersText = inject(ADMIN_ORDERING_TEXT).orders;
   private readonly statuses = this.ordersText.statuses;
 
   /** Whether an external system answers orders (FR-ADM-10); in flight counts as
@@ -412,8 +412,8 @@ export class AdminOrderListPage {
   }
 
   private readonly confirm = inject(ConfirmService);
-  private readonly detailText = inject(ADMIN_TEXT).orders.detail;
-  protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
+  private readonly detailText = inject(ADMIN_ORDERING_TEXT).orders.detail;
+  protected readonly ownershipText = inject(ADMIN_ORDERING_TEXT).ownership;
   /** So the order page returns to this list, filters and all. */
   protected readonly editorFrom = injectEditorReturnParams();
 

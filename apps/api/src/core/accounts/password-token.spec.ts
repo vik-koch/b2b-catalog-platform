@@ -1,6 +1,5 @@
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import * as schema from '../../platform/db/schema';
 import { PasswordTokenService } from './password-token.service';
+import { Database } from '../../platform/db/database';
 
 /**
  * Issuing a set-a-password link: minting the new one and expiring whatever was
@@ -25,7 +24,7 @@ function recordingDb(calls: string[]) {
       await run(tx);
       calls.push('commit');
     },
-  } as unknown as NodePgDatabase<typeof schema>;
+  } as unknown as Database;
 }
 
 describe('PasswordTokenService.issue', () => {

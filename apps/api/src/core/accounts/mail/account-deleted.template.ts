@@ -1,3 +1,4 @@
+import { accountsMail } from './accounts-mail-text';
 import { MailContent } from '../../../platform/mail/mail-layout';
 import { MailText } from '../../../platform/mail/mail-text';
 
@@ -8,7 +9,7 @@ import { MailText } from '../../../platform/mail/mail-text';
  * registering again is a new account rather than an undo.
  */
 export function accountDeletedMail(text: MailText): MailContent {
-  const t = text.accountDeleted;
+  const t = accountsMail(text).accountDeleted;
   return {
     subject: t.subject,
     preheader: t.preheader,

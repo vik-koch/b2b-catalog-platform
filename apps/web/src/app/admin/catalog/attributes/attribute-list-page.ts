@@ -51,6 +51,7 @@ import { DragGrip } from '../ui/drag-grip';
 import { EditTarget, RecordList, SortEntry } from '../ui/record-list';
 import { SaveButton } from '../../platform/ui/save-button';
 import { CancelButton } from '../../platform/ui/cancel-button';
+import { ADMIN_CATALOG_TEXT } from '../catalog-text';
 
 /** The row open for editing; `{ id: null }` is the add form. */
 interface AttributeDraft {
@@ -324,8 +325,8 @@ export class AttributeListPage {
   protected readonly trash2Icon = trash2Icon;
   private readonly service = inject(AttributesService);
   private readonly confirm = inject(ConfirmService);
-  protected readonly text = inject(ADMIN_TEXT).attributes.list;
-  private readonly productsText = inject(ADMIN_TEXT).products;
+  protected readonly text = inject(ADMIN_CATALOG_TEXT).attributes.list;
+  private readonly productsText = inject(ADMIN_CATALOG_TEXT).products;
   protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly actionText = inject(SHARED_TEXT).actions;
   protected readonly types = ATTRIBUTE_TYPES;

@@ -2,11 +2,11 @@ import { Test } from '@nestjs/testing';
 import { AddressesService } from '../../core/accounts/addresses.service';
 import { ConsentService } from '../../core/site/consent.service';
 import {
-  ACCEPTED_CUSTOMER_TYPES,
   COMPANY_ID_RULE,
   PHONE_INPUT,
   PHONE_RULE,
 } from '../../platform/config/deployment-config';
+import { ACCEPTED_CUSTOMER_TYPES } from '../../core/accounts/accounts-config';
 import { MAIL_TEXT } from '../../platform/mail/mail-text';
 import { SHARED_TEXT } from '../../platform/config/shared-text';
 import {

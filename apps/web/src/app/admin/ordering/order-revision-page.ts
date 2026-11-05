@@ -1,5 +1,8 @@
+import { SHARED_ORDERING_TEXT } from '../../core/ordering/ordering-text';
+import { ADMIN_ORDERING_TEXT } from './ordering-text';
+import { ACCOUNTS_CONFIG } from '../../core/accounts/accounts-config';
 import { Component, computed, inject, input, resource } from '@angular/core';
-import { useTaxStatement } from '../../core/catalog/pricing/tax-statement';
+import { useTaxStatement } from '../../platform/tax-statement';
 import { RouterLink } from '@angular/router';
 import {
   fillText,
@@ -7,7 +10,6 @@ import {
   formatMoneyMinor,
 } from '@b2b-catalog-platform/shared/platform';
 import { OrderSummary } from '../../core/ordering/ui/order-summary';
-import { ADMIN_TEXT } from '../../platform/config/admin-text';
 import { SHARED_TEXT } from '../../platform/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
 import { delayedLoading } from '../../platform/delayed-loading';
@@ -190,16 +192,18 @@ export class AdminOrderRevisionPage {
   private readonly api = inject(AdminOrdersService);
   private readonly ownership = inject(OwnershipService);
   private readonly config = inject(DEPLOYMENT_CONFIG);
+  private readonly accountsConfig = inject(ACCOUNTS_CONFIG);
   private readonly currency = moneyFormat(this.config);
   private readonly customerLabels = injectCustomerBlockLabels();
 
-  protected readonly detailText = inject(ADMIN_TEXT).orders.detail;
-  protected readonly ordersText = inject(ADMIN_TEXT).orders;
+  protected readonly detailText = inject(ADMIN_ORDERING_TEXT).orders.detail;
+  protected readonly ordersText = inject(ADMIN_ORDERING_TEXT).orders;
   private readonly sharedText = inject(SHARED_TEXT);
-  protected readonly names = this.sharedText.order;
+  protected readonly sharedOrderingText = inject(SHARED_ORDERING_TEXT);
+  protected readonly names = this.sharedOrderingText.order;
   protected readonly text = this.detailText.revisions;
   protected readonly documentsText = this.detailText.documents;
-  protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
+  protected readonly ownershipText = inject(ADMIN_ORDERING_TEXT).ownership;
   /** Whether an external system answers orders (FR-ADM-10): only the link's
    * wording changes. */
   protected readonly locked = computed(() => this.ownership.owns('orders'));
@@ -251,7 +255,7 @@ export class AdminOrderRevisionPage {
     const order = this.revision();
     if (!order) return [];
     return orderBlocks(order, this.customerLabels, {
-      address: this.config.address,
+      address: this.accountsConfig.address,
       phoneInput: this.config.phoneInput,
       locale: this.config.locale,
     });

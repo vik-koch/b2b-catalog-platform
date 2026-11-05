@@ -58,9 +58,9 @@ type SitemapResult =
   { kind: 'xml'; body: string } | { kind: 'status'; status: 404 | 503 };
 
 function publishes(slug: string): boolean {
-  return (getDeploymentConfig().pages.published as readonly string[]).includes(
-    slug,
-  );
+  return (
+    getDeploymentConfig().site.pages.published as readonly string[]
+  ).includes(slug);
 }
 
 export async function renderSitemap(): Promise<SitemapResult> {

@@ -5,18 +5,17 @@ import {
   Injectable,
   ServiceUnavailableException,
 } from '@nestjs/common';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { and, eq, isNull } from 'drizzle-orm';
 import {
   CONSENT_PAGE_SLUGS,
   ConsentPurpose,
   ConsentRefusalCode,
 } from '@b2b-catalog-platform/shared/core/site';
-import { CONSENT_PURPOSES_ASKED } from '../../platform/config/deployment-config';
+import { CONSENT_PURPOSES_ASKED } from './site-config';
 import { DRIZZLE } from '../../platform/db/database.module';
-import * as schema from '../../platform/db/schema';
-import { consents, consentWithdrawals } from '../../platform/db/schema';
+import { consents, consentWithdrawals } from './site-schema';
 import { currentPageVersion } from './page-versions';
+import { Database } from '../../platform/db/database';
 
 /** A consent that passed the check, ready to be recorded. */
 export interface CheckedConsent {
@@ -71,7 +70,7 @@ const refusals = {
 @Injectable()
 export class ConsentService {
   constructor(
-    @Inject(DRIZZLE) private readonly db: NodePgDatabase<typeof schema>,
+    @Inject(DRIZZLE) private readonly db: Database,
     @Inject(CONSENT_PURPOSES_ASKED)
     private readonly asked: readonly ConsentPurpose[],
   ) {}
@@ -104,7 +103,7 @@ export class ConsentService {
   async record(
     consent: CheckedConsent,
     holder: ConsentHolder,
-    db: Pick<NodePgDatabase<typeof schema>, 'insert'> = this.db,
+    db: Pick<Database, 'insert'> = this.db,
   ): Promise<void> {
     await db.insert(consents).values({
       purpose: consent.purpose,

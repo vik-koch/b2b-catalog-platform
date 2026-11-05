@@ -1,10 +1,9 @@
 import { and, eq, isNull } from 'drizzle-orm';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import * as schema from '../../platform/db/schema';
-import { consents, consentWithdrawals } from '../../platform/db/schema';
+import { consents, consentWithdrawals } from './site-schema';
 import { ConsentWithdrawalReason } from '@b2b-catalog-platform/shared/core/site';
+import { Database } from '../../platform/db/database';
 
-type Writer = Pick<NodePgDatabase<typeof schema>, 'select' | 'insert'>;
+type Writer = Pick<Database, 'select' | 'insert'>;
 
 /**
  * Ends every consent an account still holds (NFR-LEGAL-09), in the caller's

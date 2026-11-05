@@ -19,11 +19,11 @@ import { DialogPanel } from '@b2b-catalog-platform/ui/overlay/dialog-panel';
 import { filter } from 'rxjs';
 import { PairingsService } from '../../core/catalog/buying/pairings.service';
 import { SHARED_TEXT } from '../../platform/config/shared-text';
-import { STOREFRONT_TEXT } from '../../platform/config/storefront-text';
 import { delayedLoading } from '../../platform/delayed-loading';
 import { CatalogService } from './catalog.service';
 import { PRODUCT_ROWS, ProductRow } from './ui/product-row';
 import { DialogTitle } from '@b2b-catalog-platform/ui/overlay/dialog-title';
+import { SHARED_CATALOG_TEXT } from '../../core/catalog/catalog-text';
 
 /**
  * What a sold-together marker opens (FR-SET-05): the counterparts as product
@@ -95,8 +95,9 @@ import { DialogTitle } from '@b2b-catalog-platform/ui/overlay/dialog-title';
   `,
 })
 export class ProductPairingsDialog {
-  protected readonly text = inject(STOREFRONT_TEXT).catalog.pairings;
-  protected readonly pairingsName = inject(SHARED_TEXT).product.pairings;
+  protected readonly text = inject(SHARED_CATALOG_TEXT).pairings;
+  protected readonly pairingsName =
+    inject(SHARED_CATALOG_TEXT).product.pairings;
   protected readonly actionText = inject(SHARED_TEXT).actions;
   protected readonly rowList = PRODUCT_ROWS;
   protected readonly pairings = inject(PairingsService);

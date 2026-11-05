@@ -1,7 +1,6 @@
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { TaxConfig } from '@b2b-catalog-platform/shared/platform';
 import { PgDialect } from 'drizzle-orm/pg-core';
-import * as schema from '../../platform/db/schema';
+import { Database } from '../../platform/db/database';
 import { priceCart } from './cart-pricing';
 
 /**
@@ -18,9 +17,7 @@ function dbWith(rows: unknown[]) {
       return Promise.resolve(rows);
     },
   };
-  const db = { select: () => chain } as unknown as NodePgDatabase<
-    typeof schema
-  >;
+  const db = { select: () => chain } as unknown as Database;
   return { db, sql };
 }
 

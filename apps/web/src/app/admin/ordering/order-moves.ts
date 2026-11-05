@@ -1,3 +1,4 @@
+import type { AdminOrderingText } from './ordering-text.type';
 import { fillText } from '@b2b-catalog-platform/shared/platform';
 import {
   AdminOrderDetail,
@@ -22,9 +23,8 @@ import { Glyph } from '@b2b-catalog-platform/ui/icons/glyph';
 import { arrowLeftIcon } from '@b2b-catalog-platform/ui/icons/glyphs/arrow-left';
 import { arrowRightIcon } from '@b2b-catalog-platform/ui/icons/glyphs/arrow-right';
 import { circleSlashIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-slash';
-import { AdminText } from '../../platform/config/admin-text.type';
 
-type DetailText = AdminText['orders']['detail'];
+type DetailText = AdminOrderingText['orders']['detail'];
 
 /** A move's three choices, keyed to read the answer back. */
 export const SHOW_CUSTOMER = 'showCustomer';

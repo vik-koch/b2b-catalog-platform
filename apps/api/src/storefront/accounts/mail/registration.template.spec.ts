@@ -1,3 +1,9 @@
+import { demoAccountsMailText } from '../../../core/accounts/mail/accounts-mail-text.fixture';
+import { sharedTextBlock } from '../../../platform/config/shared-text';
+import {
+  ACCOUNTS_AREA,
+  type SharedAccountsText,
+} from '@b2b-catalog-platform/shared/core/accounts';
 import {
   demoSharedText,
   demoMailText,
@@ -9,11 +15,15 @@ describe('registrationReceivedMail', () => {
   const mail = registrationReceivedMail(demoMailText);
 
   it('uses the configured wording', () => {
-    expect(mail.subject).toBe(demoMailText.registrationReceived.subject);
-    expect(mail.heading).toBe(demoMailText.registrationReceived.heading);
+    expect(mail.subject).toBe(
+      demoAccountsMailText.registrationReceived.subject,
+    );
+    expect(mail.heading).toBe(
+      demoAccountsMailText.registrationReceived.heading,
+    );
     expect(mail.paragraphs).toEqual([
-      demoMailText.registrationReceived.body,
-      demoMailText.registrationReceived.nextSteps,
+      demoAccountsMailText.registrationReceived.body,
+      demoAccountsMailText.registrationReceived.nextSteps,
     ]);
   });
 
@@ -33,9 +43,12 @@ describe('newRegistrationMail', () => {
     phone: '+49 40 1234567',
     customerType: 'person',
   } as const;
-  const t = demoMailText.newRegistration;
+  const t = demoAccountsMailText.newRegistration;
   const fields = demoSharedText.fields;
-  const kinds = demoSharedText.partyKind;
+  const kinds = sharedTextBlock<SharedAccountsText>(
+    demoSharedText,
+    ACCOUNTS_AREA,
+  ).partyKind;
   const mail = newRegistrationMail(person, demoMailText, demoSharedText);
 
   // This mail is what a manager reads before deciding whether the applicant is
@@ -77,7 +90,7 @@ describe('newRegistrationMail', () => {
 
   it('links into the account list, as a path the layout resolves', () => {
     expect(mail.action).toEqual({
-      label: demoMailText.newRegistration.action,
+      label: demoAccountsMailText.newRegistration.action,
       path: '/admin/users',
     });
   });

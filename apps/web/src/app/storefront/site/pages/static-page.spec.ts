@@ -14,6 +14,7 @@ import { defaultDeploymentConfig } from '../../../platform/config/deployment-con
 import { EditModeService } from '../../../platform/edit-mode/edit-mode.service';
 import { StaticPage } from './static-page';
 import { PageService } from '../../../core/site/page.service';
+import { defaultStorefrontSiteText } from '../site-text.fixture';
 
 const about: PageContent = {
   version: 1,
@@ -60,7 +61,7 @@ async function render(
 
 const editLink = (el: HTMLElement) =>
   el.querySelector<HTMLAnchorElement>(
-    `a[aria-label="${defaultAdminText.pages.edit}"]`,
+    `a[aria-label="${defaultAdminText.editMode.editPage}"]`,
   );
 
 describe('StaticPage', () => {
@@ -153,7 +154,7 @@ describe('StaticPage — before it has been written', () => {
     expect(el.querySelector('h1')?.textContent).toContain(
       defaultSharedText.nav['about'],
     );
-    expect(el.textContent).toContain(defaultAdminText.pages.emptyNotice);
+    expect(el.textContent).toContain(defaultAdminText.editMode.emptyPage);
     expect(editLink(el)?.getAttribute('href')).toContain(
       '/admin/pages/about/edit',
     );
@@ -222,7 +223,7 @@ describe('StaticPage — the date a legal text changed', () => {
     const privacy = await render(false, about, true, 'privacy');
     const updated = privacy.querySelector('app-page-updated');
     expect(updated?.textContent?.trim()).toBe(
-      defaultStorefrontText.pageUpdated.label.replace(
+      defaultStorefrontSiteText.pageUpdated.label.replace(
         '{date}',
         new Intl.DateTimeFormat(defaultDeploymentConfig.locale, {
           dateStyle: 'long',

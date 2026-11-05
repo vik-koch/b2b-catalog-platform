@@ -1,6 +1,6 @@
 import { Component, inject, input, output } from '@angular/core';
 import { FormField, type FieldTree } from '@angular/forms/signals';
-import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
+import { SHARED_ACCOUNTS_TEXT } from '../accounts-text';
 import { Suggestion } from '@b2b-catalog-platform/ui/suggest/suggestion';
 import { MatchSegmentsPipe } from '../../catalog/search/match-segments.pipe';
 import { SuggestList } from '@b2b-catalog-platform/ui/suggest/suggest-list';
@@ -62,7 +62,7 @@ import {
 export class AddressSuggestInput {
   private readonly addresses = inject(AddressesService);
 
-  protected readonly text = inject(STOREFRONT_TEXT).address.suggest;
+  protected readonly text = inject(SHARED_ACCOUNTS_TEXT).address.suggest;
 
   readonly field = input.required<FieldTree<string>>();
   /** Biases the provider. */

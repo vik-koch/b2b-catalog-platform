@@ -15,6 +15,8 @@ import {
 } from '../../../core/catalog/product.fixture';
 import { provideUiText } from '../../../platform/config/shared-text';
 import { provideFakeProductCart } from '../../../core/catalog/buying/product-cart.fixture';
+import { defaultSharedCatalogText } from '../../../core/catalog/catalog-text.fixture';
+import { defaultStorefrontCatalogText } from '../catalog-text.fixture';
 
 type Products = NonNullable<
   Awaited<ReturnType<CatalogService['getCategoryProducts']>>
@@ -285,7 +287,7 @@ describe('CategoryGrid', () => {
     );
 
     expect(el(f).textContent).toContain(
-      defaultStorefrontText.catalog.emptyProducts,
+      defaultStorefrontCatalogText.listing.emptyProducts,
     );
   });
 
@@ -396,7 +398,7 @@ describe('CategoryGrid', () => {
 
       expect(sent).toEqual(['grind:fine']);
       expect(el(f).textContent).toContain(
-        defaultStorefrontText.catalog.filters.title,
+        defaultStorefrontCatalogText.listing.filters.title,
       );
       expect(el(f).textContent).toContain('Grind');
     });
@@ -535,8 +537,12 @@ describe('CategoryGrid', () => {
       );
 
       const text = el(f).textContent ?? '';
-      expect(text).toContain(defaultStorefrontText.catalog.filters.noMatches);
-      expect(text).not.toContain(defaultStorefrontText.catalog.emptyProducts);
+      expect(text).toContain(
+        defaultStorefrontCatalogText.listing.filters.noMatches,
+      );
+      expect(text).not.toContain(
+        defaultStorefrontCatalogText.listing.emptyProducts,
+      );
       expect(el(f).querySelector('input[type="checkbox"]')).not.toBeNull();
     });
   });
@@ -545,7 +551,7 @@ describe('CategoryGrid', () => {
     const f = await render(null);
 
     expect(el(f).textContent).toContain(
-      defaultStorefrontText.catalog.categoryNotFound,
+      defaultStorefrontCatalogText.listing.categoryNotFound,
     );
   });
 });
@@ -669,16 +675,16 @@ describe('CategoryGrid as the catalogue index (FR-CAT-02)', () => {
   it('heads the page as the catalogue, under a trail of one', async () => {
     const root = el(await renderCatalog(catalog()));
     const nav = root.querySelector(
-      `nav[aria-label="${defaultStorefrontText.catalog.catalogRoot}"]`,
+      `nav[aria-label="${defaultSharedCatalogText.catalogRoot}"]`,
     );
 
     expect(root.querySelector('h1')?.textContent).toContain(
-      defaultStorefrontText.catalog.catalogRoot,
+      defaultSharedCatalogText.catalogRoot,
     );
     // Where a category's breadcrumb stands, so nothing moves on the way down —
     // the current page, not a link to itself.
     expect(nav?.querySelector('[aria-current="page"]')?.textContent).toContain(
-      defaultStorefrontText.catalog.catalogRoot,
+      defaultSharedCatalogText.catalogRoot,
     );
     expect(nav?.querySelector('a')).toBeNull();
     expect(
@@ -738,7 +744,7 @@ describe('CategoryGrid as the catalogue index (FR-CAT-02)', () => {
     );
 
     expect(root.textContent).toContain(
-      defaultStorefrontText.catalog.emptyCategories,
+      defaultStorefrontCatalogText.listing.emptyCategories,
     );
   });
 });

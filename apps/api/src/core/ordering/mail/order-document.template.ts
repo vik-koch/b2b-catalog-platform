@@ -1,3 +1,5 @@
+import { sharedOrderingText } from '../ordering-text';
+import { orderingMail } from './ordering-mail-text';
 import { SharedText, MoneyFormat } from '@b2b-catalog-platform/shared/platform';
 import {
   OrderDetail,
@@ -28,8 +30,8 @@ export function orderDocumentMail(
   text: MailText,
   common: SharedText,
 ): MailContent {
-  const t = text.orderDocument;
-  const names = common.order;
+  const t = orderingMail(text).orderDocument;
+  const names = sharedOrderingText(common).order;
   const wording =
     kind === 'payment-instructions'
       ? t.kinds.paymentInstructions

@@ -1,17 +1,16 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import {
   CheckedConsent,
   ConsentService,
 } from '../../core/site/consent.service';
 import { DRIZZLE } from '../../platform/db/database.module';
-import * as schema from '../../platform/db/schema';
 import { UserRow, UsersService } from '../../core/accounts/users.service';
 import { PasswordPolicy } from '../../core/accounts/password-policy';
 import { PasswordTokenService } from '../../core/accounts/password-token.service';
 import { PasswordService } from '../../core/accounts/password.service';
 import { UserRole } from '@b2b-catalog-platform/shared/platform';
 import { PasswordTokenPurpose } from '@b2b-catalog-platform/shared/storefront/accounts';
+import { Database } from '../../platform/db/database';
 
 /**
  * Redeeming a set-a-password link, invitation or reset. The link is the whole
@@ -26,7 +25,7 @@ export class PasswordSetupService {
     private readonly passwords: PasswordService,
     private readonly policy: PasswordPolicy,
     private readonly consents: ConsentService,
-    @Inject(DRIZZLE) private readonly db: NodePgDatabase<typeof schema>,
+    @Inject(DRIZZLE) private readonly db: Database,
   ) {}
 
   /** What the form needs first. The purpose comes from the account's status;

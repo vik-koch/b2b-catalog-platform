@@ -1,7 +1,6 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { fillText } from '@b2b-catalog-platform/shared/platform';
 import { PublicDocument } from '@b2b-catalog-platform/shared/core/catalog';
-import { STOREFRONT_TEXT } from '../../../../platform/config/storefront-text';
 import { SHARED_TEXT } from '../../../../platform/config/shared-text';
 import {
   documentFileCaption,
@@ -12,6 +11,7 @@ import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Glyph } from '@b2b-catalog-platform/ui/icons/glyph';
 import { externalLinkIcon } from '@b2b-catalog-platform/ui/icons/glyphs/external-link';
 import { fileTextIcon } from '@b2b-catalog-platform/ui/icons/glyphs/file-text';
+import { SHARED_CATALOG_TEXT } from '../../catalog-text';
 
 /** With both a file and a link, the link is a second way in. */
 interface DocumentRow {
@@ -92,7 +92,7 @@ interface DocumentRow {
 })
 export class ProductDocuments {
   protected readonly externalLinkIcon = externalLinkIcon;
-  protected readonly text = inject(STOREFRONT_TEXT).catalog.documents;
+  protected readonly text = inject(SHARED_CATALOG_TEXT).documents;
   private readonly sizes = inject(SHARED_TEXT).fileSize;
   protected readonly hintId = 'product-documents-hint';
 

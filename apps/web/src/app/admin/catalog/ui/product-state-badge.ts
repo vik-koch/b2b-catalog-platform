@@ -3,7 +3,7 @@ import {
   StatusBadge,
   StatusTone,
 } from '@b2b-catalog-platform/ui/content/status-badge';
-import { ADMIN_TEXT } from '../../../platform/config/admin-text';
+import { ADMIN_CATALOG_TEXT } from '../catalog-text';
 
 export type ProductState = 'live' | 'unpublished' | 'deleted';
 
@@ -43,7 +43,7 @@ const TONES: Record<ProductState, StatusTone> = {
   `,
 })
 export class ProductStateBadge {
-  private readonly text = inject(ADMIN_TEXT).products;
+  private readonly text = inject(ADMIN_CATALOG_TEXT).products;
 
   readonly state = input.required<ProductState>();
   readonly live = input(false);

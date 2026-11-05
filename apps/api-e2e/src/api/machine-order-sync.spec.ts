@@ -910,9 +910,11 @@ describe('Order write-back (FR-ADM-08)', () => {
       it('reads the previous run by insertion, not by its clock', async () => {
         const subject = (
           JSON.parse(readFileSync(configFile('texts/mail.json'), 'utf8')) as {
-            syncRun: { areas: { orders: { failed: { subject: string } } } };
+            exchange: {
+              syncRun: { areas: { orders: { failed: { subject: string } } } };
+            };
           }
-        ).syncRun.areas.orders.failed.subject;
+        ).exchange.syncRun.areas.orders.failed.subject;
         const failedMail = `to:"${requireEnv('MAIL_ADMIN_TO')}" subject:"${subject}"`;
         await deleteMatching(failedMail);
         // Written just before the clock went back an hour.

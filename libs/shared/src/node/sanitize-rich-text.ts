@@ -4,7 +4,6 @@ import {
   RICH_TEXT_LINK_SCHEMES,
   RICH_TEXT_TAGS,
 } from '../platform/rich-text';
-import { PRODUCT_RICH_TEXT_TAGS } from '../admin/catalog/products';
 import { MEDIA_MAX_IMAGE_WIDTH, MEDIA_URL_PREFIX } from '../platform/media';
 
 const IMAGE_ALIGNMENTS = new Set<string>(RICH_TEXT_IMAGE_ALIGNMENTS);
@@ -75,11 +74,11 @@ export function sanitizeRichText(html: string): string {
   });
 }
 
-/** The same boundary for a product description, whose vocabulary allows no
- * attributes, so nothing needs a transform. */
-export function sanitizeProductRichText(html: string): string {
+/** The same boundary for a vocabulary of bare tags, such as a product
+ * description's: no attributes, so nothing needs a transform. */
+export function sanitizeToTags(html: string, tags: readonly string[]): string {
   return sanitizeHtml(html, {
-    allowedTags: [...PRODUCT_RICH_TEXT_TAGS],
+    allowedTags: [...tags],
     allowedAttributes: {},
     nonTextTags: NON_TEXT_TAGS,
   });

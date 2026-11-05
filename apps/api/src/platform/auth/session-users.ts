@@ -1,22 +1,23 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { eq } from 'drizzle-orm';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { DRIZZLE } from '../db/database.module';
-import * as schema from '../db/schema';
-import { users } from '../db/schema';
+import { UserRole } from '@b2b-catalog-platform/shared/platform';
 
-/** The account row a session names. */
-export type SessionUser = typeof users.$inferSelect;
-
-/** The row a session check reads. */
-@Injectable()
-export class SessionUsers {
-  constructor(
-    @Inject(DRIZZLE) private readonly db: NodePgDatabase<typeof schema>,
-  ) {}
-
-  async find(id: string): Promise<SessionUser | undefined> {
-    const rows = await this.db.select().from(users).where(eq(users.id, id));
-    return rows[0];
-  }
+/** What a session reads of the account it names. */
+export interface SessionUser {
+  readonly id: string;
+  readonly email: string;
+  readonly role: UserRole;
+  readonly tokenVersion: number;
+  readonly firstName: string | null;
+  readonly mustChangePassword: boolean;
+  readonly tierId: string | null;
 }
+
+/**
+ * The account behind a session. Platform may not import accounts, so accounts
+ * answers through this and the app root wires it.
+ */
+export interface SessionUsers {
+  /** Undefined for an account that is gone or may not sign in. */
+  find(id: string): Promise<SessionUser | undefined>;
+}
+
+export const SESSION_USERS = 'SESSION_USERS';

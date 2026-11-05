@@ -3,9 +3,10 @@ import { RouterLink } from '@angular/router';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
 import { fillText } from '@b2b-catalog-platform/shared/platform';
-import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import { ConsentService } from './consent.service';
 import { Link } from '@b2b-catalog-platform/ui/actions/link';
+import { STOREFRONT_SITE_TEXT } from '../site-text';
+import { SITE_CONFIG } from '../../../core/site/site-config';
 
 /**
  * Cookie-consent banner. Rendered only when the deployment enables consent AND
@@ -54,10 +55,10 @@ import { Link } from '@b2b-catalog-platform/ui/actions/link';
 })
 export class CookieConsent {
   protected readonly consent = inject(ConsentService);
-  protected readonly text = inject(STOREFRONT_TEXT).consent;
+  protected readonly text = inject(STOREFRONT_SITE_TEXT).consent;
   protected readonly a11y = inject(STOREFRONT_TEXT).a11y;
   protected readonly message = fillText(this.text.message, {
-    provider: inject(DEPLOYMENT_CONFIG).mapProvider,
+    provider: inject(SITE_CONFIG).mapProvider,
   });
   protected readonly ready = signal(false);
 

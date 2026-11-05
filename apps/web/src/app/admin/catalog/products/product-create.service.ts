@@ -1,6 +1,8 @@
 import { inject, Injectable } from '@angular/core';
 import { Params, Router } from '@angular/router';
-import { adminText } from '../../../platform/config/admin-text';
+import { adminText, adminTextBlock } from '../../../platform/config/admin-text';
+import { CATALOG_AREA } from '@b2b-catalog-platform/shared/core/catalog';
+import type { AdminCatalogText } from '../catalog-text.type';
 import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
 import { OwnershipService } from '../../platform/ownership/ownership.service';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
@@ -31,7 +33,8 @@ export class ProductCreateService {
     if (text && owned) {
       await this.confirm.tell({
         heading: text.editMode.addProduct,
-        message: text.ownership.productCreate,
+        message: adminTextBlock<AdminCatalogText>(text, CATALOG_AREA).ownership
+          .productCreate,
         closeLabel: this.actionText.close,
       });
       return;

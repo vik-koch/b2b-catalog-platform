@@ -9,8 +9,8 @@ import { useProductUnits } from './product-units-view';
 
 const config = {
   locale: 'de-DE',
+  currency: { code: 'EUR' },
   catalog: {
-    currency: { code: 'EUR' },
     boxUnits: { volume: 'm³', weight: 'kg' },
   },
 } as unknown as DeploymentConfig;

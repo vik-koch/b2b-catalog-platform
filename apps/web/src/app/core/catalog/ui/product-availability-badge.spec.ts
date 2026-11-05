@@ -6,8 +6,9 @@ import { ProductAvailability } from '@b2b-catalog-platform/shared/core/catalog';
 import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
 import { defaultStorefrontText } from '../../../platform/config/storefront-text.fixture';
 import { ProductAvailabilityBadge } from './product-availability-badge';
+import { defaultSharedCatalogText } from '../catalog-text.fixture';
 
-const text = defaultSharedText.product.availability;
+const text = defaultSharedCatalogText.product.availability;
 
 @Component({
   imports: [ProductAvailabilityBadge],

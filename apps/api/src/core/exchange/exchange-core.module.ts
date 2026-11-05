@@ -3,15 +3,19 @@ import { AccountsCoreModule } from '../accounts/accounts-core.module';
 import { OwnershipStateModule } from '../../platform/settings/ownership-state.module';
 import { MailModule } from '../../platform/mail/mail.module';
 import {
-  ACCEPTED_CUSTOMER_TYPES,
   CUSTOMER_SYNC_POLICY,
-  LOW_STOCK_THRESHOLD_PIECES,
   SYNC_POLICY,
-  loadAcceptedCustomerTypes,
   loadCustomerSyncPolicy,
-  loadLowStockThresholdPieces,
   loadSyncPolicy,
-} from '../../platform/config/deployment-config';
+} from './exchange-config';
+import {
+  ACCEPTED_CUSTOMER_TYPES,
+  loadAcceptedCustomerTypes,
+} from '../accounts/accounts-config';
+import {
+  LOW_STOCK_THRESHOLD_PIECES,
+  loadLowStockThresholdPieces,
+} from '../catalog/catalog-config';
 import { CatalogSyncService } from './catalog-sync.service';
 import { CustomerSyncService } from './customer-sync.service';
 import { SyncNotifications } from './sync-notifications';

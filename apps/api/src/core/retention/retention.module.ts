@@ -1,8 +1,5 @@
 import { Module } from '@nestjs/common';
-import {
-  loadRetention,
-  RETENTION,
-} from '../../platform/config/deployment-config';
+import { loadRetention, RETENTION } from './retention-config';
 import { MediaModule } from '../../platform/media/media.module';
 import { OrderDocumentFiles } from '../ordering/order-document-files';
 import { RetentionSweep } from './retention-sweep';

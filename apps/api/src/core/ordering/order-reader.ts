@@ -12,7 +12,6 @@ import { Pagination, TaxBasis } from '@b2b-catalog-platform/shared/platform';
 import { ProductUnit } from '@b2b-catalog-platform/shared/core/catalog';
 import { Inject, Injectable } from '@nestjs/common';
 import { and, asc, count, eq, inArray, sql, SQL } from 'drizzle-orm';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import {
   orderColumns,
   customerRevision,
@@ -26,15 +25,11 @@ import {
 } from './order-rows';
 import { publiclyVisible } from '../catalog/product-view';
 import { DRIZZLE } from '../../platform/db/database.module';
-import {
-  orderItems,
-  orderRevisions,
-  orders,
-  products,
-  users,
-} from '../../platform/db/schema';
+import { products } from '../catalog/catalog-schema';
+import { users } from '../accounts/accounts-schema';
+import { orderItems, orderRevisions, orders } from './ordering-schema';
 import { OrderDocumentsService } from './order-documents.service';
-import * as schema from '../../platform/db/schema';
+import { Database } from '../../platform/db/database';
 
 /**
  * Every read of an order (FR-ACC-01, FR-AUTH-03, ADR 0051): one projection for
@@ -43,7 +38,7 @@ import * as schema from '../../platform/db/schema';
 @Injectable()
 export class OrderReader {
   constructor(
-    @Inject(DRIZZLE) private readonly db: NodePgDatabase<typeof schema>,
+    @Inject(DRIZZLE) private readonly db: Database,
     private readonly documents: OrderDocumentsService,
   ) {}
 

@@ -13,13 +13,9 @@ import { asc, desc, getTableColumns, sql, SQL } from 'drizzle-orm';
 import { PricedAdjustment } from './order-adjustment';
 import { alias, PgColumn } from 'drizzle-orm/pg-core';
 import { AddressInput } from '@b2b-catalog-platform/shared/core/accounts';
-import { PickupLocation } from '../../platform/config/deployment-config';
-import {
-  orderItems,
-  orderRevisions,
-  orders,
-  pageVersions,
-} from '../../platform/db/schema';
+import { PickupLocation } from './ordering-config';
+import { pageVersions } from '../site/site-schema';
+import { orderItems, orderRevisions, orders } from './ordering-schema';
 
 /** The snapshot columns of a version, without its bookkeeping. */
 const {

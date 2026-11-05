@@ -10,6 +10,7 @@ const emptyResult: PruneResult = {
 
 const baseOptions = {
   connectionString: 'postgres://ignored',
+  sources: { media: [], documents: [] },
   mediaRoot: '/media',
   graceMs: 1000,
   intervalMs: 10_000,

@@ -14,8 +14,9 @@ import { defaultDeploymentConfig } from '../../../platform/config/deployment-con
 import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
 import { AttributeListPage } from './attribute-list-page';
 import { AttributesService } from './attributes.service';
+import { defaultAdminCatalogText } from '../catalog-text.fixture';
 
-const text = defaultAdminText.attributes.list;
+const text = defaultAdminCatalogText.attributes.list;
 
 function definition(
   overrides: Partial<AttributeDefinition> = {},
@@ -155,7 +156,7 @@ describe('AttributeListPage', () => {
     // any one value.
     expect(el.textContent).toContain(`${text.types.number} (cm)`);
     expect(el.textContent).toContain(
-      defaultAdminText.products.count.replace('{count}', '4'),
+      defaultAdminCatalogText.products.count.replace('{count}', '4'),
     );
     expect(el.textContent).toContain(text.values.replace('{count}', '3'));
   });

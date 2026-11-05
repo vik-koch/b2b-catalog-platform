@@ -24,7 +24,6 @@ import {
   formatMoneyMinor,
 } from '@b2b-catalog-platform/shared/platform';
 import { CartAddResult, ProductCart } from './product-cart';
-import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { ButtonBox } from '@b2b-catalog-platform/ui/actions/button-box';
@@ -48,6 +47,7 @@ import { plusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/plus';
 import { shoppingBasketIcon } from '@b2b-catalog-platform/ui/icons/glyphs/shopping-basket';
 import { numericRules } from '@b2b-catalog-platform/ui/inputs/numeric-rules';
 import { Allow } from '@b2b-catalog-platform/ui/inputs/allow';
+import { SHARED_CATALOG_TEXT } from '../catalog-text';
 
 /** How long a statement stays on screen before it fades away. */
 const NOTICE_MS = 5000;
@@ -384,7 +384,7 @@ export class ProductBuyControls {
   private readonly units = useProductUnits();
   private readonly currency = moneyFormat(inject(DEPLOYMENT_CONFIG));
 
-  protected readonly text = inject(STOREFRONT_TEXT).cart;
+  protected readonly text = inject(SHARED_CATALOG_TEXT).buying;
   protected readonly noticeMs = NOTICE_MS;
 
   readonly item = input.required<BuyableProduct>();
@@ -692,7 +692,7 @@ export class ProductBuyControls {
     if (!this.chosen.commit()) return;
     this.ownPopup.set({
       at: 'quantity',
-      message: this.text.issues.quantityCorrected,
+      message: this.text.quantityCorrected,
     });
   }
 

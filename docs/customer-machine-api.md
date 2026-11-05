@@ -328,7 +328,7 @@ counted in `summary.errors`; everything else still applies.
 | `staff-account` | (`email`) | the key or address names an admin/manager |
 | `cannot-send-link` | — | a link asked for an account that cannot sign in |
 | `company-details-incomplete` | — | a company with only one of name/registration id |
-| `customer-type-not-accepted` | `type` | a kind the shop does not sell to (`customerTypes`, FR-AUTH-13); a stated `null` counts as `person` |
+| `customer-type-not-accepted` | `type` | a kind the shop does not sell to (`accounts.customerTypes`, FR-AUTH-13); a stated `null` counts as `person` |
 | `invalid-value` | `column`, `value` | **CSV upload only** — a headless body is schema-refused |
 
 Note the asymmetry deliberately: a malformed _field_ in a headless submission

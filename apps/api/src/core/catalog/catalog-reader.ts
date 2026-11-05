@@ -1,5 +1,4 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { and, asc, eq, gte, isNull, or, SQL } from 'drizzle-orm';
 import {
   joinAttributeKey,
@@ -15,17 +14,15 @@ import {
 } from '@b2b-catalog-platform/shared/platform';
 import { TAX_CONFIG } from '../../platform/config/deployment-config';
 import { DRIZZLE } from '../../platform/db/database.module';
-import * as schema from '../../platform/db/schema';
 import {
   attributeDefinitions,
   categories,
   categoryAttributes,
   documentProducts,
   documents,
-  orderItems,
   productAttributes,
   products,
-} from '../../platform/db/schema';
+} from './catalog-schema';
 import { ancestorsOf, CategoryRow } from './catalog-tree';
 import {
   categoryChain,
@@ -44,6 +41,7 @@ import {
   unitColumns,
   unitPricesOf,
 } from './product-view';
+import { Database } from '../../platform/db/database';
 
 /**
  * The catalog reads both audiences make: the category rows, a category's
@@ -53,7 +51,7 @@ import {
 @Injectable()
 export class CatalogReader {
   constructor(
-    @Inject(DRIZZLE) private db: NodePgDatabase<typeof schema>,
+    @Inject(DRIZZLE) private db: Database,
     @Inject(TAX_CONFIG) private readonly tax: TaxConfig,
   ) {}
 
@@ -144,12 +142,6 @@ export class CatalogReader {
         deletedAt: products.deletedAt,
         deletedBy: products.deletedBy,
         publishedAt: products.publishedAt,
-        // `$count` rather than a hand-written `exists`: inside an `sql`
-        // template the outer `products.id` would bind unqualified.
-        orderLines: this.db.$count(
-          orderItems,
-          eq(orderItems.productId, products.id),
-        ),
       })
       .from(products)
       .where(and(eq(products.slug, slug), visibility))

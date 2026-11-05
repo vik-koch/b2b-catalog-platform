@@ -319,7 +319,7 @@ interface ToolbarAction {
   `,
 })
 export class RichTextEditor {
-  protected readonly text = inject(ADMIN_TEXT).pages;
+  protected readonly text = inject(ADMIN_TEXT).richText;
   protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly actionText = inject(SHARED_TEXT).actions;
   protected readonly link = this.text.linkPanel;

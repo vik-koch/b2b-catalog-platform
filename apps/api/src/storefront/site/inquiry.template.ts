@@ -1,7 +1,7 @@
 import { SharedText } from '@b2b-catalog-platform/shared/platform';
 import { InquiryRequest } from '@b2b-catalog-platform/shared/storefront/site';
 import { MailContent } from '../../platform/mail/mail-layout';
-import { MailText } from '../../platform/mail/mail-text';
+import { SiteMailText } from './site-mail-text';
 
 /**
  * The inquiry form's message to the shop (FR-NAV-06) — the one email with an
@@ -13,7 +13,7 @@ import { MailText } from '../../platform/mail/mail-text';
  */
 export function inquiryMail(
   submission: InquiryRequest,
-  text: MailText,
+  text: SiteMailText,
   common: SharedText,
 ): MailContent {
   const t = text.inquiry;

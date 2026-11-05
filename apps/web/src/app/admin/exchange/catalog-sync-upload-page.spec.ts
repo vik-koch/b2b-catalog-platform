@@ -1,3 +1,4 @@
+import { defaultAdminExchangeText } from './exchange-text.fixture';
 import { SHARED_TEXT } from '../../platform/config/shared-text';
 import { defaultSharedText } from '../../platform/config/shared-text.fixture';
 import { TestBed } from '@angular/core/testing';
@@ -16,12 +17,12 @@ import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
 import { CatalogSyncUploadPage } from './catalog-sync-upload-page';
 import { SyncService } from './sync.service';
 
-const text = defaultAdminText.sync;
+const text = defaultAdminExchangeText.sync;
 
 const config = {
   locale: 'de-DE',
   branding: { name: 'Test Shop', tagline: 'Test tagline' },
-  catalog: { currency: { code: 'EUR' } },
+  currency: { code: 'EUR' },
 } as unknown as DeploymentConfig;
 
 const emptySummary = {

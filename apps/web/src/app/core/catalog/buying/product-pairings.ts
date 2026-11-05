@@ -1,12 +1,11 @@
 import { Component, computed, inject, input } from '@angular/core';
-import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
-import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { fillText } from '@b2b-catalog-platform/shared/platform';
 import { Link } from '@b2b-catalog-platform/ui/actions/link';
 import { PairingsService } from './pairings.service';
 import { packagePlusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/package-plus';
+import { SHARED_CATALOG_TEXT } from '../catalog-text';
 
 /**
  * The sold-together marker (FR-SET-05), opening the shell's pairings dialog.
@@ -49,8 +48,8 @@ import { packagePlusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/package-p
 })
 export class ProductPairings {
   protected readonly packagePlusIcon = packagePlusIcon;
-  protected readonly text = inject(STOREFRONT_TEXT).catalog.pairings;
-  protected readonly product = inject(SHARED_TEXT).product;
+  protected readonly text = inject(SHARED_CATALOG_TEXT).pairings;
+  protected readonly product = inject(SHARED_CATALOG_TEXT).product;
   private readonly pairings = inject(PairingsService);
 
   readonly slug = input.required<string>();

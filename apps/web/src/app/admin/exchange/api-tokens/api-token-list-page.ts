@@ -1,3 +1,4 @@
+import { ADMIN_EXCHANGE_TEXT } from '../exchange-text';
 import { Component, computed, inject, resource, signal } from '@angular/core';
 import { form, maxLength, required, validate } from '@angular/forms/signals';
 import {
@@ -307,7 +308,7 @@ export class ApiTokenListPage {
   protected readonly plusIcon = plusIcon;
   private readonly service = inject(ApiTokensService);
   private readonly confirm = inject(ConfirmService);
-  protected readonly text = inject(ADMIN_TEXT).apiTokens;
+  protected readonly text = inject(ADMIN_EXCHANGE_TEXT).apiTokens;
   protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly actionText = inject(SHARED_TEXT).actions;
   private readonly locale = inject(DEPLOYMENT_CONFIG).locale;

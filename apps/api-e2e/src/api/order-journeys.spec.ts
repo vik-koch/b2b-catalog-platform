@@ -48,9 +48,11 @@ const TOTAL_MINOR = BASE_MINOR * PIECES;
  * own config rather than named here: a renamed or re-cut office should move
  * this suite, not break it.
  */
-const deployment = JSON.parse(
-  readFileSync(configFile('deployment.json'), 'utf8'),
-) as { pickup?: { locations: { key: string }[] } };
+const deployment = (
+  JSON.parse(readFileSync(configFile('deployment.json'), 'utf8')) as {
+    ordering: { pickup?: { locations: { key: string }[] } };
+  }
+).ordering;
 const PICKUP_KEY = deployment.pickup?.locations[0]?.key ?? null;
 
 const address = {

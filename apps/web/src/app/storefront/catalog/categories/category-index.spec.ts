@@ -10,6 +10,7 @@ import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
 import { defaultStorefrontText } from '../../../platform/config/storefront-text.fixture';
 import { CatalogService } from '../catalog.service';
 import { CategoryIndex } from './category-index';
+import { defaultStorefrontCatalogText } from '../catalog-text.fixture';
 
 const node = (
   slug: string,
@@ -128,7 +129,7 @@ describe('CategoryIndex', () => {
     const f = await render(async () => []);
 
     expect(el(f).textContent).toContain(
-      defaultStorefrontText.catalog.emptyCategories,
+      defaultStorefrontCatalogText.listing.emptyCategories,
     );
   });
 
@@ -138,7 +139,7 @@ describe('CategoryIndex', () => {
     });
 
     expect(el(f).textContent).toContain(
-      defaultStorefrontText.catalog.loadError,
+      defaultStorefrontCatalogText.listing.loadError,
     );
   });
 });

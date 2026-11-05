@@ -59,7 +59,7 @@ const rendered = (slug) =>
   `https://htmlpreview.github.io/?https://raw.githubusercontent.com/${repository}/HEAD/docs/mail/${slug}.html`;
 
 const { mailTextSchema } = await loadTypeScript(
-  'apps/api/src/platform/mail/mail-text.ts',
+  'apps/api/src/app/app.texts.ts',
 );
 const { sharedTextSchema } = await loadTypeScript(
   'libs/shared/src/platform/config/shared-text.ts',
@@ -101,7 +101,7 @@ const branding = {
   colors: mailColors(deployment.branding.theme),
   // Not the deployment's real origin: that is an environment variable, and a
   // gallery whose links changed with whoever generated it would be unreviewable.
-  siteUrl: 'https://shop.example.com',
+  shopUrl: 'https://shop.example.com',
   locale: deployment.locale,
 };
 

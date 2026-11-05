@@ -1,7 +1,8 @@
+import { ORDERING_CONFIG } from '../../../../core/ordering/ordering-config';
+import { STOREFRONT_ORDERING_TEXT } from '../../ordering-text';
+import { SHARED_ORDERING_TEXT } from '../../../../core/ordering/ordering-text';
 import { Component, inject, input, output, signal } from '@angular/core';
 import { FulfilmentMethod } from '@b2b-catalog-platform/shared/core/ordering';
-import { STOREFRONT_TEXT } from '../../../../platform/config/storefront-text';
-import { SHARED_TEXT } from '../../../../platform/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../../../platform/config/deployment-config';
 import { ChoiceCard } from '@b2b-catalog-platform/ui/choices/choice-card';
 import { DeliveryConditionsDialog } from './delivery-conditions-dialog';
@@ -66,12 +67,15 @@ import { Link } from '@b2b-catalog-platform/ui/actions/link';
 })
 export class FulfilmentChoice {
   private readonly config = inject(DEPLOYMENT_CONFIG);
+  private readonly orderingConfig = inject(ORDERING_CONFIG);
 
-  protected readonly text = inject(STOREFRONT_TEXT).checkout.fulfilment;
-  protected readonly names = inject(SHARED_TEXT).fulfilment;
+  protected readonly text = inject(STOREFRONT_ORDERING_TEXT).checkout
+    .fulfilment;
+  protected readonly names = inject(SHARED_ORDERING_TEXT).fulfilment;
   protected readonly hasPickup =
-    (this.config.pickup?.locations.length ?? 0) > 0;
-  protected readonly hasZones = (this.config.delivery?.zones.length ?? 0) > 0;
+    (this.orderingConfig.pickup?.locations.length ?? 0) > 0;
+  protected readonly hasZones =
+    (this.orderingConfig.delivery?.zones.length ?? 0) > 0;
 
   protected readonly showConditions = signal(false);
 

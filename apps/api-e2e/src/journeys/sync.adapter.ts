@@ -97,7 +97,9 @@ const row = (ctx: SyncJourneyContext, n: number, price = 1000) => ({
 const mailText = JSON.parse(
   readFileSync(configFile('texts/mail.json'), 'utf8'),
 ) as {
-  syncRun: { areas: { catalog: Record<string, { heading: string }> } };
+  exchange: {
+    syncRun: { areas: { catalog: Record<string, { heading: string }> } };
+  };
 };
 
 /** Which message is which, by heading, in the names the journeys use. */
@@ -162,7 +164,9 @@ const probes: Record<string, Probe<SyncJourneyContext>> = {
       for (const message of messages) {
         const body = await messageBody(message.ID);
         const match = Object.entries(MAIL_KINDS).find(([key]) =>
-          body.Text.includes(mailText.syncRun.areas.catalog[key].heading),
+          body.Text.includes(
+            mailText.exchange.syncRun.areas.catalog[key].heading,
+          ),
         );
         kinds.push(match ? match[1] : `unrecognised: ${message.Subject}`);
       }

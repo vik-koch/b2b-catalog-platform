@@ -1,3 +1,6 @@
+import { SHARED_ORDERING_TEXT } from '../../core/ordering/ordering-text';
+import { ADMIN_ORDERING_TEXT } from './ordering-text';
+import { ACCOUNTS_CONFIG } from '../../core/accounts/accounts-config';
 import {
   Component,
   computed,
@@ -6,7 +9,7 @@ import {
   resource,
   signal,
 } from '@angular/core';
-import { useTaxStatement } from '../../core/catalog/pricing/tax-statement';
+import { useTaxStatement } from '../../platform/tax-statement';
 import { RouterLink } from '@angular/router';
 import { Link } from '@b2b-catalog-platform/ui/actions/link';
 import {
@@ -19,9 +22,9 @@ import {
   fillText,
   moneyFormat,
   formatMoneyMinor,
+  shopTimeZone,
 } from '@b2b-catalog-platform/shared/platform';
 import { OrderSummary } from '../../core/ordering/ui/order-summary';
-import { ADMIN_TEXT } from '../../platform/config/admin-text';
 import { SHARED_TEXT } from '../../platform/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
 import { delayedLoading } from '../../platform/delayed-loading';
@@ -357,17 +360,19 @@ export class AdminOrderDetailPage {
   private readonly auth = inject(AuthService);
   private readonly isAdmin = computed(() => this.auth.user()?.role === 'admin');
   private readonly config = inject(DEPLOYMENT_CONFIG);
+  private readonly accountsConfig = inject(ACCOUNTS_CONFIG);
   private readonly currency = moneyFormat(this.config);
 
-  protected readonly text = inject(ADMIN_TEXT).orders.detail;
-  protected readonly ordersText = inject(ADMIN_TEXT).orders;
-  protected readonly names = inject(SHARED_TEXT).order;
+  protected readonly text = inject(ADMIN_ORDERING_TEXT).orders.detail;
+  protected readonly ordersText = inject(ADMIN_ORDERING_TEXT).orders;
+  private readonly sharedOrderingText = inject(SHARED_ORDERING_TEXT);
+  protected readonly names = this.sharedOrderingText.order;
   protected readonly pageNames = inject(SHARED_TEXT).nav;
   private readonly sharedText = inject(SHARED_TEXT);
   protected readonly revisionText = this.text.revisions;
   protected readonly documentsText = this.text.documents;
   protected readonly tellText = this.text.tellCustomer;
-  protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
+  protected readonly ownershipText = inject(ADMIN_ORDERING_TEXT).ownership;
   /** Whether an external system answers orders (FR-ADM-10); in flight counts as
    * not owned. Every control's computed returns nothing then: one rule, not a
    * condition per button. */
@@ -419,9 +424,9 @@ export class AdminOrderDetailPage {
     if (!order) return [];
     return orderBlocks(
       order,
-      staffBlockLabels(this.sharedText, this.ordersText, this.text),
+      staffBlockLabels(this.sharedOrderingText, this.ordersText, this.text),
       {
-        address: this.config.address,
+        address: this.accountsConfig.address,
         phoneInput: this.config.phoneInput,
         locale: this.config.locale,
       },
@@ -627,7 +632,7 @@ export class AdminOrderDetailPage {
   /** In the shop's timezone. */
   private readonly shopDayFormat = new Intl.DateTimeFormat(this.config.locale, {
     dateStyle: 'long',
-    timeZone: this.config.orderReference?.timezone ?? 'UTC',
+    timeZone: shopTimeZone(this.config),
   });
 
   /** For the last move and the payment record: moments, not days. */

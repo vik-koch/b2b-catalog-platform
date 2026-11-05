@@ -1,3 +1,4 @@
+import { ADMIN_EXCHANGE_TEXT } from './exchange-text';
 import {
   Component,
   computed,
@@ -16,7 +17,6 @@ import {
   SyncRun,
 } from '@b2b-catalog-platform/shared/core/exchange';
 import { AuthService } from '../../platform/auth/auth.service';
-import { ADMIN_TEXT } from '../../platform/config/admin-text';
 import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
 import { delayedLoading } from '../../platform/delayed-loading';
 import { usePageSeo } from '../../platform/page-seo';
@@ -185,8 +185,8 @@ export class SyncRunPage {
   private readonly sync = inject(SyncService);
   private readonly confirm = inject(ConfirmService);
   private readonly ownership = inject(OwnershipService);
-  protected readonly text = inject(ADMIN_TEXT).sync;
-  protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
+  protected readonly text = inject(ADMIN_EXCHANGE_TEXT).sync;
+  protected readonly ownershipText = inject(ADMIN_EXCHANGE_TEXT).ownership;
   protected readonly actionText = inject(SHARED_TEXT).actions;
   private readonly locale = inject(DEPLOYMENT_CONFIG).locale;
 

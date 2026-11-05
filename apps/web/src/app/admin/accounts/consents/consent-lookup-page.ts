@@ -1,3 +1,4 @@
+import { ADMIN_ACCOUNTS_TEXT } from '../accounts-text';
 import {
   Component,
   computed,
@@ -142,7 +143,7 @@ export class ConsentLookupPage {
   private readonly router = inject(Router);
   protected readonly phoneInput = inject(DEPLOYMENT_CONFIG).phoneInput;
 
-  protected readonly text = inject(ADMIN_TEXT).consents;
+  protected readonly text = inject(ADMIN_ACCOUNTS_TEXT).consents;
   private readonly fields = inject(ADMIN_TEXT).fields;
   private readonly actionText = inject(SHARED_TEXT).actions;
 

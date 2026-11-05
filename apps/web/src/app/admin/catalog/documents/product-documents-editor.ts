@@ -12,7 +12,6 @@ import { RouterLink } from '@angular/router';
 import { fillText } from '@b2b-catalog-platform/shared/platform';
 import { LinkedDocument } from '@b2b-catalog-platform/shared/admin/catalog';
 import { ADMIN_TEXT } from '../../../platform/config/admin-text';
-import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import { adminDayFormat } from '../../platform/dates/admin-date';
 import { Suggestion } from '@b2b-catalog-platform/ui/suggest/suggestion';
@@ -31,6 +30,8 @@ import { SuggestRow } from '@b2b-catalog-platform/ui/suggest/suggest-row';
 import { DocumentsService } from './documents.service';
 import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
 import { SubEditorFrame } from '../ui/sub-editor-frame';
+import { SHARED_CATALOG_TEXT } from '../../../core/catalog/catalog-text';
+import { ADMIN_CATALOG_TEXT } from '../catalog-text';
 
 /** `aria-controls` must name one panel, and a page may hold more than one. */
 let nextId = 0;
@@ -124,8 +125,9 @@ export class ProductDocumentsEditor implements OnInit {
   protected readonly xIcon = xIcon;
   private readonly service = inject(DocumentsService);
   protected readonly adminText = inject(ADMIN_TEXT);
-  protected readonly text = inject(ADMIN_TEXT).products.editor.documents;
-  protected readonly product = inject(SHARED_TEXT).product;
+  protected readonly text =
+    inject(ADMIN_CATALOG_TEXT).products.editor.documents;
+  protected readonly product = inject(SHARED_CATALOG_TEXT).product;
   protected readonly glyph = PRODUCT_FEATURE_GLYPHS.documents;
 
   readonly value = input.required<readonly LinkedDocument[]>();

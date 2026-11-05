@@ -1,3 +1,4 @@
+import { defaultStorefrontOrderingText } from '../ordering-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { OrderSummary } from '@b2b-catalog-platform/shared/core/ordering';
@@ -96,14 +97,18 @@ describe('RecentOrders', () => {
   it('says there are none yet, and where to start', async () => {
     const { el } = await render([]);
 
-    expect(el.textContent).toContain(defaultStorefrontText.orders.empty);
+    expect(el.textContent).toContain(
+      defaultStorefrontOrderingText.orders.empty,
+    );
     expect(el.querySelector('a[href="/catalog"]')).not.toBeNull();
   });
 
   it('reports orders it could not load', async () => {
     const { el } = await render('reject');
 
-    expect(el.textContent).toContain(defaultStorefrontText.orders.error);
+    expect(el.textContent).toContain(
+      defaultStorefrontOrderingText.orders.error,
+    );
   });
 
   /*

@@ -72,9 +72,9 @@ export function renderMail(
   };
 }
 
-/** `siteUrl` never ends in a slash (see loadMailBranding), a path always starts with one. */
+/** `shopUrl` never ends in a slash (see loadMailBranding), a path always starts with one. */
 const actionUrl = (path: string, branding: MailBranding): string =>
-  `${branding.siteUrl}${path.startsWith('/') ? path : `/${path}`}`;
+  `${branding.shopUrl}${path.startsWith('/') ? path : `/${path}`}`;
 
 const FONT =
   "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif";
@@ -198,8 +198,8 @@ ${parts.join('\n')}
 <tr><td style="padding:16px 28px;font-size:12px;line-height:1.6;color:${color.inkSubtle};">
 ${escapeHtml(footerNote)}<br>
 <a href="${escapeHtml(
-    branding.siteUrl,
-  )}" style="color:${color.inkSubtle};">${escapeHtml(branding.siteUrl)}</a>
+    branding.shopUrl,
+  )}" style="color:${color.inkSubtle};">${escapeHtml(branding.shopUrl)}</a>
 </td></tr>
 </table>
 </td></tr>
@@ -261,7 +261,7 @@ function renderText(
       `${content.action.label}: ${actionUrl(content.action.path, branding)}`,
     );
   }
-  blocks.push(`--\n${branding.name}\n${footerNote}\n${branding.siteUrl}`);
+  blocks.push(`--\n${branding.name}\n${footerNote}\n${branding.shopUrl}`);
 
   return blocks.join('\n\n');
 }

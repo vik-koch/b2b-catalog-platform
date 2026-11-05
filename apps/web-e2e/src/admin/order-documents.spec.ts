@@ -11,14 +11,18 @@ import { localtestEnv, workspaceRoot } from '../support/localtest';
  * endpoint's rules are covered by the API suite; what is proved here is that
  * the two ends agree on the address.
  */
-const text = JSON.parse(
-  readFileSync(
-    join(workspaceRoot, 'deployments/fixture/config/texts/admin.json'),
-    'utf8',
-  ),
-) as {
-  orders: { detail: { documents: { heading: string; summary: string } } };
-};
+const text = (
+  JSON.parse(
+    readFileSync(
+      join(workspaceRoot, 'deployments/fixture/config/texts/admin.json'),
+      'utf8',
+    ),
+  ) as {
+    ordering: {
+      orders: { detail: { documents: { heading: string; summary: string } } };
+    };
+  }
+).ordering;
 const documents = text.orders.detail.documents;
 
 const env = localtestEnv();

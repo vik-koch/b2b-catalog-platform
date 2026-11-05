@@ -1,3 +1,4 @@
+import { STOREFRONT_ACCOUNTS_TEXT } from '../accounts-text';
 import {
   afterNextRender,
   Component,
@@ -11,7 +12,6 @@ import {
 } from '@angular/core';
 import { form, maxLength, pattern, required } from '@angular/forms/signals';
 import { fillText } from '@b2b-catalog-platform/shared/platform';
-import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { Checkbox } from '@b2b-catalog-platform/ui/choices/checkbox';
 import { TickLabel } from '@b2b-catalog-platform/ui/choices/tick-label';
@@ -126,8 +126,8 @@ import {
   `,
 })
 export class CodeEntry {
-  protected readonly text = inject(STOREFRONT_TEXT).auth.signInStep;
-  private readonly closed = inject(STOREFRONT_TEXT).auth.closed;
+  protected readonly text = inject(STOREFRONT_ACCOUNTS_TEXT).auth.signInStep;
+  private readonly closed = inject(STOREFRONT_ACCOUNTS_TEXT).auth.closed;
   protected readonly inputId = 'signInCode';
   protected readonly fillText = fillText;
   protected readonly formatWait = formatWait;

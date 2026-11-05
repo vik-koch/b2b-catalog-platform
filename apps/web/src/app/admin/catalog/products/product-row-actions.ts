@@ -12,6 +12,7 @@ import { bookDashedIcon } from '@b2b-catalog-platform/ui/icons/glyphs/book-dashe
 import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
 import { rotateCcwIcon } from '@b2b-catalog-platform/ui/icons/glyphs/rotate-ccw';
 import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
+import { ADMIN_CATALOG_TEXT } from '../catalog-text';
 
 /** What the list knows about a product in order to act on it. */
 export interface ProductRowState {
@@ -124,8 +125,9 @@ export class ProductRowActions {
   private readonly confirm = inject(ConfirmService);
   private readonly ownership = inject(OwnershipService);
   protected readonly adminText = inject(ADMIN_TEXT);
+  private readonly adminCatalogText = inject(ADMIN_CATALOG_TEXT);
   protected readonly editText = inject(ADMIN_TEXT).editMode;
-  private readonly ownershipText = inject(ADMIN_TEXT).ownership;
+  private readonly ownershipText = inject(ADMIN_CATALOG_TEXT).ownership;
   protected readonly actionText = inject(SHARED_TEXT).actions;
 
   readonly product = input.required<ProductRowState>();
@@ -148,7 +150,7 @@ export class ProductRowActions {
   private refusalFor(catalogOwned: boolean): string | null {
     return purgeRefusal(
       {
-        ordered: this.adminText.catalogErrors['product-ordered'],
+        ordered: this.adminCatalogText.catalogErrors['product-ordered'],
         owned: this.ownershipText.productPurge,
       },
       this.product(),
@@ -178,7 +180,7 @@ export class ProductRowActions {
     if (this.cannotPublish()) {
       void this.confirm.tell({
         heading: this.editText.unpricedTitle,
-        message: this.adminText.catalogErrors['product-has-no-price'],
+        message: this.adminCatalogText.catalogErrors['product-has-no-price'],
         closeLabel: this.actionText.close,
       });
       return;

@@ -1,3 +1,4 @@
+import { ADMIN_EXCHANGE_TEXT } from '../exchange-text';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -12,7 +13,6 @@ import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { Notice } from '@b2b-catalog-platform/ui/content/notice';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { Input } from '@b2b-catalog-platform/ui/inputs/input';
-import { ADMIN_TEXT } from '../../../platform/config/admin-text';
 
 /**
  * The decisions on a staged run: apply, behind a typed word where it takes
@@ -71,7 +71,7 @@ import { ADMIN_TEXT } from '../../../platform/config/admin-text';
   `,
 })
 export class SyncPlanActions {
-  protected readonly text = inject(ADMIN_TEXT).sync;
+  protected readonly text = inject(ADMIN_EXCHANGE_TEXT).sync;
 
   /** The warning of a run that takes something away, which then needs the
    * word typed; null where it takes nothing. */

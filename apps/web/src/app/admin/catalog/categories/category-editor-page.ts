@@ -46,6 +46,7 @@ import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { SaveButton } from '../../platform/ui/save-button';
 import { CancelButton } from '../../platform/ui/cancel-button';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { ADMIN_CATALOG_TEXT } from '../catalog-text';
 
 interface CategoryDraft {
   name: string;
@@ -222,10 +223,11 @@ interface CategoryDraft {
 export class CategoryEditorPage implements UnsavedChangesAware, FieldAttempt {
   private readonly service = inject(CategoriesService);
   private readonly route = inject(ActivatedRoute);
-  protected readonly text = inject(ADMIN_TEXT).categories.editor;
+  protected readonly text = inject(ADMIN_CATALOG_TEXT).categories.editor;
   protected readonly adminText = inject(ADMIN_TEXT);
+  private readonly adminCatalogText = inject(ADMIN_CATALOG_TEXT);
   protected readonly actionText = inject(SHARED_TEXT).actions;
-  protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
+  protected readonly ownershipText = inject(ADMIN_CATALOG_TEXT).ownership;
   private readonly ownership = inject(OwnershipService);
 
   /**
@@ -406,7 +408,7 @@ export class CategoryEditorPage implements UnsavedChangesAware, FieldAttempt {
   private refusalText(code: CategorySaveErrorCode): string {
     return code === 'catalog-externally-owned'
       ? this.ownershipText.fieldLocked
-      : this.adminText.catalogErrors[code];
+      : this.adminCatalogText.catalogErrors[code];
   }
 
   protected cancel(): void {

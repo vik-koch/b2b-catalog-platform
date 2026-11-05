@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
-import { STOREFRONT_TEXT } from '../../platform/config/storefront-text';
-import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
 import { PageLinkSentence } from './ui/page-link-sentence';
+import { SITE_CONFIG } from '../../core/site/site-config';
+import { STOREFRONT_SITE_TEXT } from './site-text';
 
 /**
  * How a form's personal details are handled. Owed whatever the processing
@@ -17,7 +17,7 @@ import { PageLinkSentence } from './ui/page-link-sentence';
   `,
 })
 export class PrivacyNotice {
-  protected readonly text = inject(STOREFRONT_TEXT).privacyNotice;
+  protected readonly text = inject(STOREFRONT_SITE_TEXT).privacyNotice;
   protected readonly published =
-    inject(DEPLOYMENT_CONFIG).pages.published.includes('privacy');
+    inject(SITE_CONFIG).pages.published.includes('privacy');
 }

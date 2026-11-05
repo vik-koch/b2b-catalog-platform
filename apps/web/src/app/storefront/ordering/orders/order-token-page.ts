@@ -1,3 +1,5 @@
+import { STOREFRONT_ORDERING_TEXT } from '../ordering-text';
+import { STOREFRONT_ACCOUNTS_TEXT } from '../../accounts/accounts-text';
 import { Component, computed, inject, input, resource } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../../platform/auth/auth.service';
@@ -103,9 +105,11 @@ export class OrderTokenPage {
   private readonly api = inject(OrdersService);
   private readonly auth = inject(AuthService);
   private readonly storefrontText = inject(STOREFRONT_TEXT);
-  protected readonly orderText = this.storefrontText.orders;
+  private readonly storefrontOrderingText = inject(STOREFRONT_ORDERING_TEXT);
+  protected readonly orderText = this.storefrontOrderingText.orders;
   protected readonly text = this.orderText.public;
-  protected readonly invite = this.storefrontText.auth.registerInvite;
+  protected readonly invite = inject(STOREFRONT_ACCOUNTS_TEXT).auth
+    .registerInvite;
 
   /** The cookie hint too, so the offer is absent from the first frame. No
    * redirect to the account's page: the link holder may not own the order. */

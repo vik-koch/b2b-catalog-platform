@@ -5,7 +5,6 @@ import { env } from '../env';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { OptionalAuthGuard } from './optional-auth.guard';
 import { RolesGuard } from './roles.guard';
-import { SessionUsers } from './session-users';
 import { SessionVaryingInterceptor } from './session-varying.interceptor';
 import { SESSION_IDLE_DAYS, Sessions } from './sessions';
 
@@ -31,7 +30,6 @@ export function jwtSecret(): string {
   providers: [
     { provide: SESSION_IDLE_DAYS, useFactory: loadSessionIdleDays },
     Sessions,
-    SessionUsers,
     JwtAuthGuard,
     OptionalAuthGuard,
     RolesGuard,

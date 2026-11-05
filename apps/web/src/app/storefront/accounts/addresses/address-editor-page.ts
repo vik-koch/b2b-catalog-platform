@@ -1,3 +1,5 @@
+import { STOREFRONT_ACCOUNTS_TEXT } from '../accounts-text';
+import { SHARED_ACCOUNTS_TEXT } from '../../../core/accounts/accounts-text';
 import {
   Component,
   computed,
@@ -8,7 +10,6 @@ import {
 } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { fillText } from '@b2b-catalog-platform/shared/platform';
-import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
 import { delayedLoading } from '../../../platform/delayed-loading';
 import { usePageSeo } from '../../../platform/page-seo';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
@@ -79,8 +80,8 @@ export class AddressEditorPage {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
-  protected readonly text = inject(STOREFRONT_TEXT).account.addresses;
-  private readonly fieldText = inject(STOREFRONT_TEXT).address;
+  protected readonly text = inject(STOREFRONT_ACCOUNTS_TEXT).account.addresses;
+  private readonly fieldText = inject(SHARED_ACCOUNTS_TEXT).address;
   protected readonly actionText = inject(SHARED_TEXT).actions;
 
   private readonly addressId = this.route.snapshot.paramMap.get('id');

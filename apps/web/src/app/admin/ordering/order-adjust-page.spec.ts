@@ -1,3 +1,7 @@
+import { withOrdering } from '../../core/ordering/ordering-config.fixture';
+import { defaultSharedOrderingText } from '../../core/ordering/ordering-text.fixture';
+import { defaultAdminOrderingText } from './ordering-text.fixture';
+import { withAccounts } from '../../core/accounts/accounts-config.fixture';
 import { SHARED_TEXT } from '../../platform/config/shared-text';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
@@ -22,8 +26,8 @@ import { AdminOrdersService } from './orders.service';
 import { provideDigitMaskFormat } from '../../platform/contact-fields';
 import { provideFakeWorkRefresh } from '../../platform/work-refresh.fixture';
 
-const text = defaultAdminText.orders.adjust;
-const names = defaultSharedText.order;
+const text = defaultAdminOrderingText.orders.adjust;
+const names = defaultSharedOrderingText.order;
 
 const address = {
   street: 'Hafenstraße 12',
@@ -249,10 +253,7 @@ describe('AdminOrderAdjustPage (FR-ORD-03)', () => {
   it('offers only the kind of party the shop sells to', async () => {
     const { el } = await settled(
       {},
-      {
-        ...defaultDeploymentConfig,
-        customerTypes: ['person'],
-      },
+      withAccounts({ customerTypes: ['person'] }),
     );
 
     expect(el.querySelector('input[name="adjust-party-kind"]')).toBeNull();
@@ -276,10 +277,7 @@ describe('AdminOrderAdjustPage (FR-ORD-03)', () => {
   it('keeps an invoice address the deployment no longer asks for', async () => {
     const { el } = await settled(
       {},
-      {
-        ...defaultDeploymentConfig,
-        billingAddressEnabled: false,
-      },
+      withOrdering({ billingAddressEnabled: false }),
     );
 
     expect(el.textContent).toContain(text.changes.none);
@@ -385,7 +383,9 @@ describe('AdminOrderAdjustPage while orders are externally owned', () => {
     owned = ['orders'];
     const { el } = await settled();
 
-    expect(el.textContent).toContain(defaultAdminText.ownership.orderLocked);
+    expect(el.textContent).toContain(
+      defaultAdminOrderingText.ownership.orderLocked,
+    );
     expect(el.querySelectorAll('input')).toHaveLength(0);
     expect(el.textContent).not.toContain(text.save);
     expect(el.textContent).toContain(text.cancel);

@@ -104,7 +104,7 @@ describe('BottomNav', () => {
     await view.rerender();
 
     const hrefs = view.rows().map((row) => row.getAttribute('href'));
-    for (const slug of defaultDeploymentConfig.pages.headerNav) {
+    for (const slug of defaultDeploymentConfig.site.pages.headerNav) {
       expect(hrefs).toContain(`/${slug}`);
     }
   });

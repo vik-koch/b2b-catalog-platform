@@ -1,7 +1,7 @@
+import { STOREFRONT_ACCOUNTS_TEXT } from '../accounts-text';
 import { Component, computed, inject, input, signal } from '@angular/core';
 import { form, required } from '@angular/forms/signals';
 import { Router, RouterLink } from '@angular/router';
-import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { usePageSeo } from '../../../platform/page-seo';
 import { emailAddress } from '../../../platform/field-rules';
@@ -104,7 +104,7 @@ export class LoginPage {
   private readonly session = inject(AuthService);
   private readonly router = inject(Router);
 
-  protected readonly text = inject(STOREFRONT_TEXT).auth;
+  protected readonly text = inject(STOREFRONT_ACCOUNTS_TEXT).auth;
   protected readonly fields = inject(SHARED_TEXT).fields;
   /** The last answer, kept while the next request is out so the message
    * does not vanish and come back. */

@@ -1,5 +1,4 @@
 import { and, inArray } from 'drizzle-orm';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import {
   CartLine,
   CartLineIssue,
@@ -20,8 +19,11 @@ import {
   unitQuantity,
 } from '@b2b-catalog-platform/shared/core/catalog';
 import { pairingShortfalls } from './pairing-check';
-import * as schema from '../../platform/db/schema';
-import { products } from '../../platform/db/schema';
+import {
+  products,
+  type ProductImageRef,
+  type ProductVariantRef,
+} from '../catalog/catalog-schema';
 import { livePriceMinor } from '../catalog/product-price';
 import {
   listItemColumns,
@@ -31,6 +33,7 @@ import {
   unitPricesOf,
 } from '../catalog/product-view';
 import { pairingsAmong } from '../catalog/product-pairings';
+import { Database } from '../../platform/db/database';
 
 /**
  * Pricing a cart, once, for the preview and the submission alike. A cart is
@@ -69,8 +72,8 @@ type ProductRow = {
   name: string;
   sourceId: string;
   priceMinor: number;
-  images: schema.ProductImageRef[];
-  variants: schema.ProductVariantRef[];
+  images: ProductImageRef[];
+  variants: ProductVariantRef[];
   boxVolume: string | null;
   boxWeight: string | null;
   boxCount: number;
@@ -89,7 +92,7 @@ type ProductRow = {
 };
 
 export async function priceCart(
-  db: NodePgDatabase<typeof schema>,
+  db: Database,
   lines: readonly CartLine[],
   tierId: string | null,
   tax: TaxConfig,
@@ -136,7 +139,7 @@ export async function priceCart(
  * lines still offered: one query for the edges between them.
  */
 async function applyPairingShortfalls(
-  db: NodePgDatabase<typeof schema>,
+  db: Database,
   priced: readonly PricedLine[],
   rows: ReadonlyMap<string, ProductRow>,
 ): Promise<void> {
@@ -179,7 +182,7 @@ async function applyPairingShortfalls(
 }
 
 async function loadProducts(
-  db: NodePgDatabase<typeof schema>,
+  db: Database,
   lines: readonly CartLine[],
   tierId: string | null,
 ): Promise<Map<string, ProductRow>> {

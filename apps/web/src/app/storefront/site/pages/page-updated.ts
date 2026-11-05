@@ -1,8 +1,12 @@
 import { Component, computed, inject, input } from '@angular/core';
-import { fillText, shopDay } from '@b2b-catalog-platform/shared/platform';
+import {
+  fillText,
+  shopDay,
+  shopTimeZone,
+} from '@b2b-catalog-platform/shared/platform';
 import { isDatedPage } from '@b2b-catalog-platform/shared/storefront/site';
-import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
+import { STOREFRONT_SITE_TEXT } from '../site-text';
 
 /**
  * The date in the shop's timezone, so server and browser agree on the day. No
@@ -21,9 +25,9 @@ export class PageUpdated {
   readonly slug = input.required<string>();
   readonly updatedAt = input.required<string>();
 
-  private readonly text = inject(STOREFRONT_TEXT).pageUpdated;
+  private readonly text = inject(STOREFRONT_SITE_TEXT).pageUpdated;
   private readonly config = inject(DEPLOYMENT_CONFIG);
-  private readonly timeZone = this.config.orderReference?.timezone ?? 'UTC';
+  private readonly timeZone = shopTimeZone(this.config);
 
   protected readonly label = computed(() =>
     isDatedPage(this.slug())

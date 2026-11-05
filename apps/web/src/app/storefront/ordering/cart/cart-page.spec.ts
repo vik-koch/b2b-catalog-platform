@@ -1,3 +1,5 @@
+import { defaultStorefrontOrderingText } from '../ordering-text.fixture';
+import { defaultSharedOrderingText } from '../../../core/ordering/ordering-text.fixture';
 import {
   SHARED_TEXT,
   provideUiText,
@@ -18,8 +20,11 @@ import { CartPreviewService } from './cart-preview.service';
 import { CartService } from './cart.service';
 import { CartAddition } from '../../../core/catalog/buying/product-cart';
 import { ProductCart } from '../../../core/catalog/buying/product-cart';
+import { defaultSharedCatalogText } from '../../../core/catalog/catalog-text.fixture';
 
-const text = defaultStorefrontText.cart;
+const text = defaultStorefrontOrderingText.cart;
+const summaryText = defaultSharedOrderingText.orderSummary;
+const buyText = defaultSharedCatalogText.buying;
 
 function addition(overrides: Partial<CartAddition> = {}): CartAddition {
   return {
@@ -189,18 +194,18 @@ async function render(
     quantities: () =>
       [
         ...el.querySelectorAll(
-          `input[aria-label="${defaultStorefrontText.cart.quantityAria}"]`,
+          `input[aria-label="${defaultSharedCatalogText.buying.quantityAria}"]`,
         ),
       ].map((input) => (input as HTMLInputElement).value),
     rowLabels: () => [...el.querySelectorAll('dt')].map((d) => d.textContent),
     /** The first row's quantity field. */
     quantityInput: () =>
       el.querySelector(
-        `input[aria-label="${defaultStorefrontText.cart.quantityAria}"]`,
+        `input[aria-label="${defaultSharedCatalogText.buying.quantityAria}"]`,
       ) as HTMLInputElement,
     async type(value: string) {
       const input = el.querySelector(
-        `input[aria-label="${defaultStorefrontText.cart.quantityAria}"]`,
+        `input[aria-label="${defaultSharedCatalogText.buying.quantityAria}"]`,
       ) as HTMLInputElement;
       input.value = value;
       input.dispatchEvent(new Event('input'));
@@ -209,7 +214,7 @@ async function render(
     async blurQuantity() {
       (
         el.querySelector(
-          `input[aria-label="${defaultStorefrontText.cart.quantityAria}"]`,
+          `input[aria-label="${defaultSharedCatalogText.buying.quantityAria}"]`,
         ) as HTMLInputElement
       ).dispatchEvent(new Event('blur'));
       await rerender();
@@ -271,7 +276,7 @@ describe('CartPage', () => {
   it('edits the line in place from the row’s own controls', async () => {
     const view = await render({ lines: [addition()] });
 
-    await view.click(text.increaseAria);
+    await view.click(buyText.increaseAria);
 
     expect(view.cart.lines()[0].pieces).toBe(18);
     expect(view.quantities()).toEqual(['3']);
@@ -288,7 +293,7 @@ describe('CartPage', () => {
     });
     expect(view.photos()).toEqual(['/media/thumb.webp']);
 
-    await view.chooseUnit(defaultStorefrontText.catalog.units.select.box);
+    await view.chooseUnit(defaultSharedCatalogText.unitFacts.select.box);
 
     // The unit really did change, and the row kept everything it had.
     expect(view.cart.lines()[0].unit).toBe('box');
@@ -426,7 +431,7 @@ describe('CartPage', () => {
 
     expect(view.text()).toContain('7,500');
     expect(view.text()).toContain('0,060');
-    expect(view.rowLabels()).toContain(text.shipmentCartons);
+    expect(view.rowLabels()).toContain(summaryText.shipmentCartons);
   });
 
   // The point of holding the figures: what the order weighs follows the
@@ -442,7 +447,7 @@ describe('CartPage', () => {
     expect(view.text()).toContain('7,500');
 
     // Two packs to three, which is three quarters of a box.
-    await view.click(text.increaseAria);
+    await view.click(buyText.increaseAria);
 
     expect(view.quantities()).toEqual(['3']);
     expect(view.text()).toContain('11,250');
@@ -498,7 +503,9 @@ describe('CartPage', () => {
     const link = paired.el.querySelector('app-product-pairings');
     const field = paired.el.querySelector('textarea');
     if (!link || !field) throw new Error('expected both the link and the note');
-    expect(link.textContent).toContain(defaultSharedText.product.pairings);
+    expect(link.textContent).toContain(
+      defaultSharedCatalogText.product.pairings,
+    );
     // Above the note, because it is something the shop says about the product
     // and the note is something the customer writes about the line.
     expect(
@@ -521,12 +528,12 @@ describe('CartPage', () => {
     expect(view.el.textContent).toContain(
       text.pairing.shortAction
         .replace('{count}', '20')
-        .replace('{unit}', defaultSharedText.units.piece),
+        .replace('{unit}', defaultSharedCatalogText.units.piece),
     );
     expect(view.el.textContent).toContain(text.pairing.shortReason);
     // The shortfall speaks instead of the marker's own word, not over it.
     expect(view.el.textContent).not.toContain(
-      defaultSharedText.product.pairings,
+      defaultSharedCatalogText.product.pairings,
     );
     // Last in its column, so it sits on the row's bottom edge: nudged down to
     // read level with the controls across from it.
@@ -553,7 +560,7 @@ describe('CartPage', () => {
     expect(view.el.textContent).toContain(
       text.pairing.shortAction
         .replace('{count}', '20')
-        .replace('{unit}', defaultSharedText.units.piece),
+        .replace('{unit}', defaultSharedCatalogText.units.piece),
     );
   });
 
@@ -695,7 +702,7 @@ describe('CartPage', () => {
     expect(view.text()).toContain(text.issues.unavailable);
     // The stored name stands in, because an unavailable line answers none.
     expect(view.text()).toContain('Filter Roast');
-    expect(view.text()).toContain(text.noPrice);
+    expect(view.text()).toContain(buyText.noPrice);
   });
 
   // The row is drawn from the browser's own copy, which keeps the last-known
@@ -720,7 +727,7 @@ describe('CartPage', () => {
     // The same cart, opened again with nothing yet answered for it.
     const view = await render({ reload: true, answer: new Error('offline') });
 
-    expect(view.text()).toContain(text.noPrice);
+    expect(view.text()).toContain(buyText.noPrice);
     expect(view.text()).toContain(text.issues.unavailable);
     expect(view.text()).not.toContain('144,00');
   });
@@ -746,7 +753,7 @@ describe('CartPage', () => {
     const controls = [
       ...view.el.querySelectorAll('app-product-row button'),
     ] as HTMLButtonElement[];
-    for (const label of [text.decreaseAria, text.increaseAria]) {
+    for (const label of [buyText.decreaseAria, buyText.increaseAria]) {
       const key = controls.find((b) => b.getAttribute('aria-label') === label);
       expect(key?.disabled).toBe(true);
     }
@@ -765,7 +772,7 @@ describe('CartPage', () => {
       ]),
     });
 
-    expect(view.text()).toContain(text.totalIncomplete);
+    expect(view.text()).toContain(summaryText.totalIncomplete);
   });
 
   it('names only the basis once the lines differ, and each line its rate', async () => {
@@ -824,15 +831,15 @@ describe('CartPage', () => {
     // comes to in cartons. Nothing about how or when it arrives: the cart has
     // not asked, and a row of placeholders answers nothing.
     expect(view.rowLabels()).toEqual([
-      text.summaryLines,
-      text.shipmentWeight,
-      text.shipmentVolume,
-      text.shipmentCartons,
-      text.subtotal,
+      summaryText.lines,
+      summaryText.shipmentWeight,
+      summaryText.shipmentVolume,
+      summaryText.shipmentCartons,
+      summaryText.subtotal,
     ]);
     expect(view.text()).toContain('1,250');
     expect(view.text()).toContain('18,400');
-    expect(view.text()).toContain(text.shipmentApproximate);
+    expect(view.text()).toContain(summaryText.shipmentApproximate);
     expect(view.text()).toContain('Lines not covered by this estimate: 2');
   });
 
@@ -841,8 +848,8 @@ describe('CartPage', () => {
   it('leaves out every estimate row when the estimate covers nothing', async () => {
     const view = await render({ lines: [addition()] });
 
-    expect(view.rowLabels()).toEqual([text.summaryLines, text.subtotal]);
-    expect(view.text()).not.toContain(text.shipmentApproximate);
+    expect(view.rowLabels()).toEqual([summaryText.lines, summaryText.subtotal]);
+    expect(view.text()).not.toContain(summaryText.shipmentApproximate);
   });
 
   it('removes one line at the customer’s word', async () => {

@@ -5,12 +5,10 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { and, asc, eq } from 'drizzle-orm';
-import { ADDRESS_CONFIG } from '../../platform/config/deployment-config';
+import { ADDRESS_CONFIG } from './accounts-config';
 import { DRIZZLE } from '../../platform/db/database.module';
-import * as schema from '../../platform/db/schema';
-import { addresses } from '../../platform/db/schema';
+import { addresses } from './accounts-schema';
 import {
   Address,
   ADDRESS_BOOK_MAX,
@@ -19,6 +17,7 @@ import {
   postalCodeRuleFor,
   AddressConfig,
 } from '@b2b-catalog-platform/shared/core/accounts';
+import { Database } from '../../platform/db/database';
 
 type AddressRow = typeof addresses.$inferSelect;
 
@@ -51,7 +50,7 @@ export class AddressesService {
   private readonly logger = new Logger(AddressesService.name);
 
   constructor(
-    @Inject(DRIZZLE) private readonly db: NodePgDatabase<typeof schema>,
+    @Inject(DRIZZLE) private readonly db: Database,
     @Inject(ADDRESS_CONFIG) private readonly config: AddressConfig | undefined,
   ) {}
 

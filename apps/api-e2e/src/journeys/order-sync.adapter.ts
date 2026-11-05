@@ -99,17 +99,21 @@ const asStaff = (ctx: OrderSyncJourneyContext, url: string) =>
 const mailText = JSON.parse(
   readFileSync(configFile('texts/mail.json'), 'utf8'),
 ) as {
-  orderReceived: { subject: string };
-  orderStatusChanged: {
-    subject: string;
-    statuses: Record<string, { heading: string }>;
+  ordering: {
+    orderReceived: { subject: string };
+    orderStatusChanged: {
+      subject: string;
+      statuses: Record<string, { heading: string }>;
+    };
+    orderDocument: {
+      subject: string;
+      kinds: Record<string, { heading: string }>;
+    };
   };
-  orderDocument: {
-    subject: string;
-    kinds: Record<string, { heading: string }>;
-  };
-  syncRun: {
-    areas: { orders: Record<string, { heading: string }> };
+  exchange: {
+    syncRun: {
+      areas: { orders: Record<string, { heading: string }> };
+    };
   };
 };
 
@@ -128,12 +132,12 @@ const SHOP_MAIL_KINDS: Readonly<Record<string, string>> = {
 async function classify(id: string, subject: string): Promise<string> {
   const message = await messageBody(id);
   const carried = message.Attachments.length > 0 ? '+attached' : '';
-  if (subject.startsWith(mailText.orderReceived.subject)) {
+  if (subject.startsWith(mailText.ordering.orderReceived.subject)) {
     return `receipt${carried}`;
   }
-  const headings = subject.startsWith(mailText.orderDocument.subject)
-    ? Object.entries(mailText.orderDocument.kinds)
-    : Object.entries(mailText.orderStatusChanged.statuses);
+  const headings = subject.startsWith(mailText.ordering.orderDocument.subject)
+    ? Object.entries(mailText.ordering.orderDocument.kinds)
+    : Object.entries(mailText.ordering.orderStatusChanged.statuses);
   const match = headings.find(([, wording]) =>
     message.Text.includes(wording.heading),
   );
@@ -250,7 +254,9 @@ const probes: Record<string, Probe<OrderSyncJourneyContext>> = {
       for (const message of messages) {
         const body = await messageBody(message.ID);
         const match = Object.entries(SHOP_MAIL_KINDS).find(([key]) =>
-          body.Text.includes(mailText.syncRun.areas.orders[key].heading),
+          body.Text.includes(
+            mailText.exchange.syncRun.areas.orders[key].heading,
+          ),
         );
         kinds.push(match ? match[1] : `unrecognised: ${message.Subject}`);
       }

@@ -1,6 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { and, asc, eq, gte, sql } from 'drizzle-orm';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import {
   CustomerAccountRecord,
   CustomerAccountState,
@@ -9,9 +8,10 @@ import {
 } from '@b2b-catalog-platform/shared/machine/exchange';
 import { UserStatus } from '@b2b-catalog-platform/shared/core/accounts';
 import { DRIZZLE } from '../../platform/db/database.module';
-import * as schema from '../../platform/db/schema';
-import { customerTiers, users } from '../../platform/db/schema';
+import { customerTiers } from '../../core/catalog/catalog-schema';
+import { users } from '../../core/accounts/accounts-schema';
 import { encodeMachineCursor, parseMachineCursor } from './machine-cursor';
+import { Database } from '../../platform/db/database';
 
 /**
  * The outbound read of customer accounts (FR-ADM-18). Gated by the token's
@@ -20,9 +20,7 @@ import { encodeMachineCursor, parseMachineCursor } from './machine-cursor';
  */
 @Injectable()
 export class CustomerReadService {
-  constructor(
-    @Inject(DRIZZLE) private readonly db: NodePgDatabase<typeof schema>,
-  ) {}
+  constructor(@Inject(DRIZZLE) private readonly db: Database) {}
 
   /**
    * One page, oldest change first: a puller asks what moved since it last

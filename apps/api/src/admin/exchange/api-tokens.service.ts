@@ -5,12 +5,11 @@ import {
 } from '@b2b-catalog-platform/shared/admin/exchange';
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { and, desc, eq, isNull } from 'drizzle-orm';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { DRIZZLE } from '../../platform/db/database.module';
-import * as schema from '../../platform/db/schema';
-import { apiTokens } from '../../platform/db/schema';
+import { apiTokens } from '../../core/exchange/exchange-schema';
 import { Actor } from '../../core/exchange/sync-run';
 import { generateToken } from '../../platform/auth/api-token-value';
+import { Database } from '../../platform/db/database';
 
 const notFound = () =>
   new NotFoundException({
@@ -37,9 +36,7 @@ function toApiToken(row: ApiTokenRow): ApiToken {
 /** Issues, lists and revokes machine tokens (NFR-SEC-09). */
 @Injectable()
 export class ApiTokensService {
-  constructor(
-    @Inject(DRIZZLE) private readonly db: NodePgDatabase<typeof schema>,
-  ) {}
+  constructor(@Inject(DRIZZLE) private readonly db: Database) {}
 
   /** Newest first, revoked rows included: a retired token is part of the trail. */
   async listApiTokens(): Promise<ApiToken[]> {
@@ -79,9 +76,11 @@ export class ApiTokensService {
       .returning();
     if (row) return toApiToken(row);
 
-    const existing = await this.db.query.apiTokens.findFirst({
-      where: eq(apiTokens.id, id),
-    });
+    const [existing] = await this.db
+      .select()
+      .from(apiTokens)
+      .where(eq(apiTokens.id, id))
+      .limit(1);
     if (!existing) throw notFound();
     return toApiToken(existing);
   }

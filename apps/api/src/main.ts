@@ -10,6 +10,7 @@ import { runBootstrapAdmin } from './admin/accounts/bootstrap-admin';
 import { scheduleMediaPrune } from './platform/media/prune/media-prune-scheduler';
 import { RetentionSweep } from './core/retention/retention-sweep';
 import { env } from './platform/env';
+import { MEDIA_REFERENCES } from './app/app.media-references';
 import { MACHINE_SYNC_RUNS_PATHS } from './machine/exchange/machine-sync-body-paths';
 
 // Let the server settle and serve traffic before the first maintenance sweep.
@@ -74,6 +75,7 @@ async function bootstrap() {
   // is never swept mid-edit.
   scheduleMediaPrune({
     connectionString: env.DATABASE_URL,
+    sources: MEDIA_REFERENCES,
     mediaRoot: env.MEDIA_ROOT as string,
     graceMs: env.MEDIA_PRUNE_GRACE_HOURS * 60 * 60 * 1000,
     intervalMs: env.MEDIA_PRUNE_INTERVAL_HOURS * 60 * 60 * 1000,

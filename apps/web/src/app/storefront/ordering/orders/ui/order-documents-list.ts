@@ -1,9 +1,9 @@
+import { STOREFRONT_ORDERING_TEXT } from '../../ordering-text';
 import { Component, computed, inject, input } from '@angular/core';
 import {
   OrderDocument,
   orderDocumentPath,
 } from '@b2b-catalog-platform/shared/core/ordering';
-import { STOREFRONT_TEXT } from '../../../../platform/config/storefront-text';
 import { SHARED_TEXT } from '../../../../platform/config/shared-text';
 import { AcceptedDocumentMime } from '@b2b-catalog-platform/shared/platform';
 import {
@@ -42,7 +42,8 @@ import { Card } from '@b2b-catalog-platform/ui/content/card';
 })
 export class OrderDocumentsList {
   protected readonly fileTextIcon = fileTextIcon;
-  protected readonly text = inject(STOREFRONT_TEXT).orders.detail.documents;
+  protected readonly text = inject(STOREFRONT_ORDERING_TEXT).orders.detail
+    .documents;
   private readonly sizes = inject(SHARED_TEXT).fileSize;
 
   readonly documents = input.required<readonly OrderDocument[]>();

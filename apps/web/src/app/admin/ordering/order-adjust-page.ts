@@ -1,3 +1,7 @@
+import { SHARED_ORDERING_TEXT } from '../../core/ordering/ordering-text';
+import { ORDERING_CONFIG } from '../../core/ordering/ordering-config';
+import { ADMIN_ORDERING_TEXT } from './ordering-text';
+import { ACCOUNTS_CONFIG } from '../../core/accounts/accounts-config';
 import {
   Component,
   computed,
@@ -10,7 +14,7 @@ import {
   signal,
   untracked,
 } from '@angular/core';
-import { useTaxStatement } from '../../core/catalog/pricing/tax-statement';
+import { useTaxStatement } from '../../platform/tax-statement';
 import { apply, form, hidden, required } from '@angular/forms/signals';
 import { Router, RouterLink } from '@angular/router';
 import {
@@ -87,6 +91,7 @@ import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { Hint } from '@b2b-catalog-platform/ui/fields/hint';
 import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
 import { SummaryLayout } from '@b2b-catalog-platform/ui/content/summary-layout';
+import { CATALOG_CONFIG } from '../../core/catalog/catalog-config';
 
 /** The typing pause before re-pricing. */
 const PREVIEW_DEBOUNCE_MS = 250;
@@ -407,27 +412,31 @@ export class AdminOrderAdjustPage implements FieldAttempt {
   private readonly confirm = inject(ConfirmService);
   private readonly router = inject(Router);
   private readonly config = inject(DEPLOYMENT_CONFIG);
+  private readonly orderingConfig = inject(ORDERING_CONFIG);
+  private readonly accountsConfig = inject(ACCOUNTS_CONFIG);
+  private readonly catalogConfig = inject(CATALOG_CONFIG);
   protected readonly phoneInput = this.config.phoneInput;
   private readonly currency = moneyFormat(this.config);
 
-  protected readonly text = inject(ADMIN_TEXT).orders.adjust;
-  protected readonly detailText = inject(ADMIN_TEXT).orders.detail;
-  protected readonly ordersText = inject(ADMIN_TEXT).orders;
-  private readonly changeText = inject(ADMIN_TEXT).orders.changes;
+  protected readonly text = inject(ADMIN_ORDERING_TEXT).orders.adjust;
+  protected readonly detailText = inject(ADMIN_ORDERING_TEXT).orders.detail;
+  protected readonly ordersText = inject(ADMIN_ORDERING_TEXT).orders;
+  private readonly changeText = inject(ADMIN_ORDERING_TEXT).orders.changes;
   protected readonly sharedText = inject(SHARED_TEXT);
-  protected readonly names = this.sharedText.order;
+  protected readonly sharedOrderingText = inject(SHARED_ORDERING_TEXT);
+  protected readonly names = this.sharedOrderingText.order;
   protected readonly fields = staffFields(
     this.sharedText.fields,
     inject(ADMIN_TEXT).fields,
   );
   private readonly payments = this.ordersText.paymentMethods;
   protected readonly adminText = inject(ADMIN_TEXT);
-  protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
+  protected readonly ownershipText = inject(ADMIN_ORDERING_TEXT).ownership;
   /** Whether an external system answers orders (FR-ADM-10): then nothing is
    * offered. */
   protected readonly locked = computed(() => this.ownership.owns('orders'));
-  protected readonly locations = this.config.pickup?.locations ?? [];
-  protected readonly billingEnabled = this.config.billingAddressEnabled;
+  protected readonly locations = this.orderingConfig.pickup?.locations ?? [];
+  protected readonly billingEnabled = this.orderingConfig.billingAddressEnabled;
   protected readonly noteMax = ORDER_ADJUSTMENT_NOTE_MAX;
   protected readonly itemsPanelId = 'adjust-items';
   protected readonly detailsPanelId = 'adjust-details';
@@ -444,7 +453,7 @@ export class AdminOrderAdjustPage implements FieldAttempt {
     'delivery',
   );
 
-  private readonly countries = this.config.address?.countries;
+  private readonly countries = this.accountsConfig.address?.countries;
   private readonly addressRules = injectAddressRules();
   private readonly model = signal<AdjustAnswers>({
     party: { personName: '', companyName: '', companyId: '' },
@@ -769,11 +778,11 @@ export class AdminOrderAdjustPage implements FieldAttempt {
     if (!order) return [];
     const preview = this.preview();
     const config = {
-      address: this.config.address,
+      address: this.accountsConfig.address,
       phoneInput: this.config.phoneInput,
       locale: this.config.locale,
       currency: this.currency,
-      boxUnits: this.config.catalog.boxUnits,
+      boxUnits: this.catalogConfig.boxUnits,
     };
     const proposed = this.proposed(order, preview);
     return [
@@ -789,7 +798,11 @@ export class AdminOrderAdjustPage implements FieldAttempt {
       ...orderBlockChanges(
         order,
         proposed,
-        staffBlockLabels(this.sharedText, this.ordersText, this.detailText),
+        staffBlockLabels(
+          this.sharedOrderingText,
+          this.ordersText,
+          this.detailText,
+        ),
         config,
       ),
     ];
@@ -1006,9 +1019,9 @@ export class AdminOrderAdjustPage implements FieldAttempt {
     const kind = company ? 'company' : 'person';
     // A kind no longer sold to opens on one that is, that half empty.
     this.setPartyKind(
-      this.config.customerTypes.includes(kind)
+      this.accountsConfig.customerTypes.includes(kind)
         ? kind
-        : this.config.customerTypes[0],
+        : this.accountsConfig.customerTypes[0],
     );
     this.model.update((answers) => ({
       ...answers,

@@ -1,3 +1,4 @@
+import { defaultStorefrontOrderingText } from '../ordering-text.fixture';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
 import { PLATFORM_ID } from '@angular/core';
@@ -12,7 +13,7 @@ import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import { defaultDeploymentConfig } from '../../../platform/config/deployment-config.fixture';
 import { CartLink } from './cart-link';
 
-const text = defaultStorefrontText.cart;
+const text = defaultStorefrontOrderingText.cart;
 
 function normalize(value: string | null | undefined): string {
   return (value ?? '').replace(/\s+/g, ' ').trim();

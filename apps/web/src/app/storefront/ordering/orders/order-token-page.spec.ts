@@ -1,3 +1,6 @@
+import { defaultSharedOrderingText } from '../../../core/ordering/ordering-text.fixture';
+import { defaultStorefrontOrderingText } from '../ordering-text.fixture';
+import { defaultStorefrontAccountsText } from '../../accounts/accounts-text.fixture';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
@@ -12,7 +15,7 @@ import { defaultDeploymentConfig } from '../../../platform/config/deployment-con
 import { OrderTokenPage } from './order-token-page';
 import { OrdersService } from './orders.service';
 
-const text = defaultStorefrontText.orders.public;
+const text = defaultStorefrontOrderingText.orders.public;
 
 const address = {
   street: 'Hafenstraße 12',
@@ -124,10 +127,12 @@ describe('OrderTokenPage (FR-NOTIF-06)', () => {
     expect(getByToken).toHaveBeenCalledWith('tok-123');
     expect(el.textContent).toContain(placed.reference);
     expect(el.textContent).toContain(
-      defaultSharedText.order.statuses.requested,
+      defaultSharedOrderingText.order.statuses.requested,
     );
     expect(el.textContent).toContain('2 pk (12 pcs)');
-    expect(el.textContent).toContain(defaultSharedText.order.invoicedTo);
+    expect(el.textContent).toContain(
+      defaultSharedOrderingText.order.invoicedTo,
+    );
   });
 
   // Approval takes days, so the account is offered here rather than between a
@@ -136,7 +141,7 @@ describe('OrderTokenPage (FR-NOTIF-06)', () => {
     const { el } = await render(placed);
 
     expect(el.textContent).toContain(
-      defaultStorefrontText.auth.registerInvite.text,
+      defaultStorefrontAccountsText.auth.registerInvite.text,
     );
     expect(el.querySelector('a[href="/register"]')).not.toBeNull();
   });
@@ -147,7 +152,7 @@ describe('OrderTokenPage (FR-NOTIF-06)', () => {
     const { el } = await render(placed, 'user');
 
     expect(el.textContent).not.toContain(
-      defaultStorefrontText.auth.registerInvite.text,
+      defaultStorefrontAccountsText.auth.registerInvite.text,
     );
     expect(el.querySelector('a[href="/register"]')).toBeNull();
     // Still their order, still readable: the token is the credential here, and
@@ -179,7 +184,7 @@ describe('OrderTokenPage (FR-NOTIF-06)', () => {
     const { el } = await render('reject');
 
     expect(el.querySelector('[role="alert"]')?.textContent).toContain(
-      defaultStorefrontText.orders.error,
+      defaultStorefrontOrderingText.orders.error,
     );
   });
 });

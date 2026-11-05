@@ -1,3 +1,4 @@
+import { STOREFRONT_ORDERING_TEXT } from '../ordering-text';
 import {
   Component,
   computed,
@@ -21,7 +22,6 @@ import {
   ProductRow,
   RowProduct,
 } from '../../catalog/ui/product-row';
-import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import { debounced } from '@b2b-catalog-platform/ui/core/debounced';
@@ -42,7 +42,7 @@ import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { LastListingService } from '../../catalog/last-listing.service';
 import { CartPreviewService } from './cart-preview.service';
-import { useTaxStatement } from '../../../core/catalog/pricing/tax-statement';
+import { useTaxStatement } from '../../../platform/tax-statement';
 import { OrderSummary } from '../../../core/ordering/ui/order-summary';
 import { CartChange, CartService } from './cart.service';
 import { WarningNote } from '@b2b-catalog-platform/ui/content/warning-note';
@@ -51,6 +51,8 @@ import { shoppingBasketIcon } from '@b2b-catalog-platform/ui/icons/glyphs/shoppi
 import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
 import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
 import { SummaryLayout } from '@b2b-catalog-platform/ui/content/summary-layout';
+import { SHARED_CATALOG_TEXT } from '../../../core/catalog/catalog-text';
+import { CATALOG_CONFIG } from '../../../core/catalog/catalog-config';
 
 /** Lines per cart page (FR-CART-02): a row is a product row, and a long scroll
  * leaves the summary behind. Not in the URL: the cart is this browser's
@@ -362,17 +364,19 @@ export class CartPage {
   private readonly lastListing = inject(LastListingService);
   private readonly router = inject(Router);
   private readonly confirm = inject(ConfirmService);
-  private readonly catalogConfig = inject(DEPLOYMENT_CONFIG).catalog;
+  private readonly catalogConfig = inject(CATALOG_CONFIG);
   private readonly currency = moneyFormat(inject(DEPLOYMENT_CONFIG));
   private readonly boxUnits = this.catalogConfig.boxUnits;
 
-  protected readonly text = inject(STOREFRONT_TEXT).cart;
+  protected readonly text = inject(STOREFRONT_ORDERING_TEXT).cart;
+
+  private readonly buyText = inject(SHARED_CATALOG_TEXT).buying;
   protected readonly changeText = this.text.changes;
   protected readonly changes = this.cart.changes;
   /** The listing's pager words. */
   protected readonly rowList = PRODUCT_ROWS;
   protected readonly pairingText = this.text.pairing;
-  private readonly pieceUnit = inject(SHARED_TEXT).units.piece;
+  private readonly pieceUnit = inject(SHARED_CATALOG_TEXT).units.piece;
   protected readonly actionText = inject(SHARED_TEXT).actions;
   /** Whether an unsatisfied pairing refuses checkout here (FR-SET-04). */
   private readonly pairingsEnforced = this.catalogConfig.pairingsEnforced;
@@ -458,7 +462,7 @@ export class CartPage {
         },
         name: line.name,
         note: line.note,
-        notePrompt: line.notePrompt ?? this.text.notePrompt,
+        notePrompt: line.notePrompt ?? this.buyText.notePrompt,
         takesNote: line.noteEnabled,
         pairedCount: line.pairedCount,
         taxNote:
@@ -612,7 +616,7 @@ export class CartPage {
 
   private money(minor: number | null): string {
     return minor === null
-      ? this.text.noPrice
+      ? this.buyText.noPrice
       : formatMoneyMinor(minor, this.currency);
   }
 

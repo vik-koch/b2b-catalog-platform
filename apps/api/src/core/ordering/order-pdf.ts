@@ -1,3 +1,4 @@
+import { sharedOrderingText, orderingPdf } from './ordering-text';
 import {
   SharedText,
   fillText,
@@ -12,15 +13,14 @@ import {
 import {
   OrderAddress,
   OrderDetail,
-  OrderReferenceConfig,
 } from '@b2b-catalog-platform/shared/core/ordering';
 import { Inject, Injectable } from '@nestjs/common';
 import { PDFDocument } from 'pdf-lib';
 import {
-  ADDRESS_CONFIG,
   MONEY_FORMAT,
-  ORDER_REFERENCE_CONFIG,
+  SHOP_TIME_ZONE,
 } from '../../platform/config/deployment-config';
+import { ADDRESS_CONFIG } from '../accounts/accounts-config';
 import { MAIL_BRANDING, MailBranding } from '../../platform/mail/mail-branding';
 import { SHARED_TEXT } from '../../platform/config/shared-text';
 import { PdfFaces } from '../../platform/pdf/pdf-faces';
@@ -31,6 +31,11 @@ import {
   addressLines,
   type AddressConfig,
 } from '@b2b-catalog-platform/shared/core/accounts';
+import {
+  CATALOG_AREA,
+  type SharedCatalogText,
+} from '@b2b-catalog-platform/shared/core/catalog';
+import { sharedTextBlock } from '../../platform/config/shared-text';
 
 /**
  * The order summary the platform draws (FR-ORD-05, FR-ACC-02, ADR 0052), from
@@ -46,13 +51,12 @@ export class OrderPdf {
     @Inject(MONEY_FORMAT) private readonly currency: MoneyFormat,
     @Inject(ADDRESS_CONFIG) private readonly address: AddressConfig | undefined,
     private readonly faces: PdfFaces,
-    @Inject(ORDER_REFERENCE_CONFIG)
-    private readonly reference: OrderReferenceConfig,
+    @Inject(SHOP_TIME_ZONE) private readonly timeZone: string,
   ) {}
 
   async orderSummary(order: OrderDetail): Promise<Buffer> {
-    const t = this.text.orderSummary;
-    const names = this.common.order;
+    const t = orderingPdf(this.text).orderSummary;
+    const names = sharedOrderingText(this.common).order;
     const pdf = await PDFDocument.create();
     const { faces, encode } = await this.faces.embed(pdf);
 
@@ -93,11 +97,7 @@ export class OrderPdf {
       sheet.field(
         this.common.nav.terms,
         fillText(names.termsVersion, {
-          date: shopDay(
-            order.termsDate,
-            this.branding.locale,
-            this.reference.timezone,
-          ),
+          date: shopDay(order.termsDate, this.branding.locale, this.timeZone),
         }),
       );
     }
@@ -140,14 +140,14 @@ export class OrderPdf {
   /** Where the order stands, in the customer's words: `ready` reads by how
    * the goods reach them. */
   private status(order: OrderDetail): string {
-    const statuses = this.common.order.statuses;
+    const statuses = sharedOrderingText(this.common).order.statuses;
     if (order.status !== 'ready') return statuses[order.status];
     return order.pickup ? statuses.readyPickup : statuses.readyDelivery;
   }
 
   /** How the order is paid, and whether it has been. */
   private payment(order: OrderDetail): string {
-    const names = this.common.order;
+    const names = sharedOrderingText(this.common).order;
     const methods = names.paymentMethods;
     const states = names.paymentStates;
     const method = {
@@ -165,7 +165,10 @@ export class OrderPdf {
 
   /** The unit read and the piece count, as the mails state them. */
   private quantity(line: OrderDetail['lines'][number]): string {
-    const units = this.common.units;
+    const { units } = sharedTextBlock<SharedCatalogText>(
+      this.common,
+      CATALOG_AREA,
+    );
     return line.unit === 'piece'
       ? fillText(this.common.quantity, {
           qty: line.quantity,

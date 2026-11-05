@@ -1,3 +1,4 @@
+import { ADMIN_EXCHANGE_TEXT } from '../exchange-text';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -5,7 +6,6 @@ import {
   input,
 } from '@angular/core';
 import { fillText } from '@b2b-catalog-platform/shared/platform';
-import { ADMIN_TEXT } from '../../../platform/config/admin-text';
 
 export interface SyncRowErrorLine {
   row: number;
@@ -34,7 +34,7 @@ export interface SyncRowErrorLine {
   `,
 })
 export class SyncRowErrors {
-  protected readonly text = inject(ADMIN_TEXT).sync;
+  protected readonly text = inject(ADMIN_EXCHANGE_TEXT).sync;
 
   readonly errors = input.required<readonly SyncRowErrorLine[]>();
 

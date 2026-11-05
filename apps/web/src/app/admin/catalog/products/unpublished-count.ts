@@ -3,6 +3,7 @@ import { Params, RouterLink } from '@angular/router';
 import { fillText } from '@b2b-catalog-platform/shared/platform';
 import { ADMIN_TEXT } from '../../../platform/config/admin-text';
 import { Link } from '@b2b-catalog-platform/ui/actions/link';
+import { ADMIN_CATALOG_TEXT } from '../catalog-text';
 
 /**
  * How many of a product count are off the storefront, in amber like the
@@ -29,6 +30,7 @@ import { Link } from '@b2b-catalog-platform/ui/actions/link';
 })
 export class UnpublishedCount {
   private readonly adminText = inject(ADMIN_TEXT);
+  private readonly adminCatalogText = inject(ADMIN_CATALOG_TEXT);
 
   readonly count = input.required<number>();
   /** The narrowing the count beside it links with. */
@@ -39,6 +41,8 @@ export class UnpublishedCount {
     state: 'unpublished',
   }));
   protected readonly label = computed(() =>
-    fillText(this.adminText.products.unpublishedCount, { count: this.count() }),
+    fillText(this.adminCatalogText.products.unpublishedCount, {
+      count: this.count(),
+    }),
   );
 }

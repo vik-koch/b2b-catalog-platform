@@ -1,10 +1,10 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { ProductAvailability } from '@b2b-catalog-platform/shared/core/catalog';
-import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import {
   StatusBadge,
   StatusTone,
 } from '@b2b-catalog-platform/ui/content/status-badge';
+import { SHARED_CATALOG_TEXT } from '../catalog-text';
 
 /** Green, amber, grey: an empty shelf is a fact, not a refusal. */
 export const AVAILABILITY_TONES: Record<ProductAvailability, StatusTone> = {
@@ -45,7 +45,7 @@ export class ProductAvailabilityBadge {
     () => AVAILABILITY_TONES[this.availability() ?? 'in'],
   );
 
-  private readonly text = inject(SHARED_TEXT).product.availability;
+  private readonly text = inject(SHARED_CATALOG_TEXT).product.availability;
 
   protected readonly label = computed(() => {
     const state = this.availability();

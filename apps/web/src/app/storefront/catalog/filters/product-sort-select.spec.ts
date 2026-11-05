@@ -19,6 +19,7 @@ import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import { defaultDeploymentConfig } from '../../../platform/config/deployment-config.fixture';
 import { defaultStorefrontText } from '../../../platform/config/storefront-text.fixture';
 import { ProductSortSelect } from './product-sort-select';
+import { defaultStorefrontCatalogText } from '../catalog-text.fixture';
 
 /** A host page the control can navigate within, so the URL is observable. */
 @Component({
@@ -108,7 +109,7 @@ describe('ProductSortSelect', () => {
       ...catalogSortSchema.options,
     ]);
     expect(select.options[0].textContent?.trim()).toBe(
-      defaultStorefrontText.catalog.sort.category,
+      defaultStorefrontCatalogText.listing.sort.category,
     );
   });
 
@@ -117,7 +118,7 @@ describe('ProductSortSelect', () => {
 
     expect([...select.options].map((o) => o.textContent?.trim())).toEqual(
       searchSortSchema.options.map(
-        (o) => defaultStorefrontText.catalog.sort[o],
+        (o) => defaultStorefrontCatalogText.listing.sort[o],
       ),
     );
   });

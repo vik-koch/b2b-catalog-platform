@@ -17,12 +17,12 @@ import { BottomNav } from './storefront/shell/bottom-nav';
 import { Footer } from './storefront/shell/footer';
 import { Header } from './storefront/shell/header';
 import { SearchOverlay } from './storefront/shell/search-overlay';
-import { SiteNotice } from './storefront/shell/site-notice';
+import { ShopNotice } from './storefront/shell/shop-notice';
 
 @Component({
   imports: [
     RouterOutlet,
-    SiteNotice,
+    ShopNotice,
     Header,
     BottomNav,
     SearchOverlay,
@@ -41,7 +41,7 @@ import { SiteNotice } from './storefront/shell/site-notice';
     <div class="flex min-h-dvh flex-col text-ink" [class]="pageBackground()">
       <!-- Above the header and scrolled away with the page; the header's
            stickiness starts where the notice ends. -->
-      <app-site-notice />
+      <app-shop-notice />
       <app-header />
       <!-- The wide frame, and one of only two page widths. Anything
            multi-column — catalog grids, admin tables, dashboards — fills it;

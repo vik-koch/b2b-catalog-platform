@@ -6,7 +6,7 @@ import {
   PLATFORM_ID,
   signal,
 } from '@angular/core';
-import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
+import { SITE_CONFIG } from '../../../core/site/site-config';
 
 export type ConsentChoice = 'accepted' | 'rejected';
 
@@ -39,7 +39,7 @@ export class ConsentService {
   private readonly decision = signal<ConsentDecision | null>(this.read());
 
   /** Whether the consent mechanism is active at all for this deployment. */
-  readonly enabled = inject(DEPLOYMENT_CONFIG).cookieConsentEnabled;
+  readonly enabled = inject(SITE_CONFIG).cookieConsentEnabled;
 
   /** True while the visitor still has to make (or remake) a choice. */
   readonly needsDecision = computed(

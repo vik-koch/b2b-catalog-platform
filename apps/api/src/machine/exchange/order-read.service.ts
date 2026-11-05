@@ -1,6 +1,5 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { and, asc, eq, gte, inArray, sql } from 'drizzle-orm';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import {
   FulfilmentMethod,
   OrderStatus,
@@ -16,15 +15,15 @@ import {
   MachineOrdersPage,
 } from '@b2b-catalog-platform/shared/machine/exchange';
 import { DRIZZLE } from '../../platform/db/database.module';
-import * as schema from '../../platform/db/schema';
+import { users } from '../../core/accounts/accounts-schema';
 import {
   orderItems,
   orderRevisions,
   orders,
-  users,
-} from '../../platform/db/schema';
+} from '../../core/ordering/ordering-schema';
 import { encodeMachineCursor, parseMachineCursor } from './machine-cursor';
 import { cancelledByCustomer } from './order-write-back';
+import { Database } from '../../platform/db/database';
 
 /**
  * The outbound read of orders (FR-ADM-08): the current version only, whose
@@ -33,9 +32,7 @@ import { cancelledByCustomer } from './order-write-back';
  */
 @Injectable()
 export class OrderReadService {
-  constructor(
-    @Inject(DRIZZLE) private readonly db: NodePgDatabase<typeof schema>,
-  ) {}
+  constructor(@Inject(DRIZZLE) private readonly db: Database) {}
 
   /**
    * One page, oldest change first: by `updatedAt`, not placement, since a
@@ -130,11 +127,7 @@ export class OrderReadService {
  * inner join: the pointer is null only inside the transaction that writes the
  * first version.
  */
-function orderRows(
-  db: NodePgDatabase<typeof schema>,
-  where: ReturnType<typeof and>,
-  limit: number,
-) {
+function orderRows(db: Database, where: ReturnType<typeof and>, limit: number) {
   return db
     .select({
       id: orders.id,

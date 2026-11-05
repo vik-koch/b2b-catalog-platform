@@ -9,7 +9,7 @@ import { and, eq, SQL } from 'drizzle-orm';
 import { toSummary } from '../../core/ordering/order-rows';
 import { OrderReader } from '../../core/ordering/order-reader';
 import { OrderWriter } from '../../core/ordering/order-writer';
-import { orders } from '../../platform/db/schema';
+import { orders } from '../../core/ordering/ordering-schema';
 import { MY_ORDER_CONDITIONS } from '../../core/ordering/my-order-filters';
 import { OrderNotifications } from '../../core/ordering/order-notifications';
 

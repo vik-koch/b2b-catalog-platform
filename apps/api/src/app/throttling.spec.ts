@@ -2,6 +2,7 @@ import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { ConsentService } from '../core/site/consent.service';
 import { InquiryModule } from '../storefront/site/inquiry.module';
+import { TextsModule } from './texts.module';
 import { MAILER, Mailer } from '../platform/mail/mailer';
 import { ThrottlingModule } from '../platform/throttling/throttling.module';
 import { MAIL_TEXT } from '../platform/mail/mail-text';
@@ -31,7 +32,7 @@ describe('Throttling', () => {
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
-      imports: [ThrottlingModule, InquiryModule],
+      imports: [TextsModule, ThrottlingModule, InquiryModule],
     })
       .overrideProvider(MAILER)
       .useValue({ send } satisfies Mailer)

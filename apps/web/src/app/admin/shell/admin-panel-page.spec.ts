@@ -1,3 +1,4 @@
+import { defaultAdminAccountsText } from '../accounts/accounts-text.fixture';
 import { SHARED_TEXT } from '../../platform/config/shared-text';
 import { defaultSharedText } from '../../platform/config/shared-text.fixture';
 import { signal } from '@angular/core';
@@ -23,6 +24,7 @@ import { adminUser, managerUser } from '../../platform/auth/auth-user.fixture';
 import { WorkService } from '../../core/work/work.service';
 import { workStub } from '../../core/work/work.fixture';
 import { AuthUser } from '@b2b-catalog-platform/shared/platform';
+import { withSite } from '../../core/site/site-config.fixture';
 
 // The committed demo config — its de-DE locale is what formats the deploy date.
 const config = defaultDeploymentConfig;
@@ -353,11 +355,9 @@ describe('AdminPanelPage runtime state', () => {
 });
 
 describe('AdminPanelPage consents (NFR-LEGAL-09)', () => {
-  const text = defaultAdminText.consents;
-  const asking = (contact: boolean, account: boolean) => ({
-    ...config,
-    consent: { contact, account },
-  });
+  const text = defaultAdminAccountsText.consents;
+  const asking = (contact: boolean, account: boolean) =>
+    withSite({ consent: { contact, account } }, config);
   const renderAs = (user: AuthUser, deployment = asking(true, false)) =>
     render(
       { version: null, deployedAt: null },

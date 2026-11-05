@@ -1,10 +1,10 @@
+import { ADMIN_ORDERING_TEXT } from '../ordering-text';
 import { Component, computed, inject, input, output } from '@angular/core';
 import { Params, RouterLink } from '@angular/router';
 import {
   allowedTransitions,
   OrderStatus,
 } from '@b2b-catalog-platform/shared/core/ordering';
-import { ADMIN_TEXT } from '../../../platform/config/admin-text';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
 import { StaffOrderSummary } from '@b2b-catalog-platform/shared/admin/ordering';
@@ -53,7 +53,7 @@ export class OrderRowActions {
   protected readonly circleCheckIcon = circleCheckIcon;
   protected readonly circleSlashIcon = circleSlashIcon;
   protected readonly pencilIcon = pencilIcon;
-  protected readonly text = inject(ADMIN_TEXT).orders.detail;
+  protected readonly text = inject(ADMIN_ORDERING_TEXT).orders.detail;
 
   readonly order = input.required<StaffOrderSummary>();
   /** So the order page returns to this list, filters and all. */

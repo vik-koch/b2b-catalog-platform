@@ -1,11 +1,10 @@
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import * as schema from '../../platform/db/schema';
 import { CatalogReader } from '../../core/catalog/catalog-reader';
 import { CatalogService } from './catalog.service';
+import { Database } from '../../platform/db/database';
 
 /**
  * A drizzle stand-in for the sitemap selects. Each chain resolves to the next
- * queued result array — categories, products, pages (the Promise.all order in
+ * queued result array: categories, products (the Promise.all order in
  * getSitemap), then the live-category ids the pruning reads.
  */
 function dbReturning(results: unknown[][]) {
@@ -22,13 +21,18 @@ function dbReturning(results: unknown[][]) {
   return {
     select: () => chain,
     selectDistinct: () => chain,
-  } as unknown as NodePgDatabase<typeof schema>;
+  } as unknown as Database;
 }
 
 /** The service over one queue, which its reader draws from as well. */
-function serviceOver(results: unknown[][]): CatalogService {
+function serviceOver(
+  results: unknown[][],
+  pages: { slug: string; updatedAt: Date }[] = [],
+): CatalogService {
   const db = dbReturning(results);
-  return new CatalogService(db, new CatalogReader(db, { basis: 'none' }));
+  return new CatalogService(db, new CatalogReader(db, { basis: 'none' }), {
+    list: async () => pages,
+  });
 }
 
 const category = (
@@ -44,18 +48,20 @@ const category = (
 
 describe('CatalogService.getSitemap', () => {
   it('returns category and product slugs with ISO lastmod timestamps', async () => {
-    const service = serviceOver([
-      [category('cb', 'coffee-beans')],
+    const service = serviceOver(
       [
-        {
-          slug: 'hafen-espresso',
-          updatedAt: new Date('2026-02-02T09:30:00Z'),
-        },
-        { slug: 'filter-blend', updatedAt: new Date('2026-03-03T12:00:00Z') },
+        [category('cb', 'coffee-beans')],
+        [
+          {
+            slug: 'hafen-espresso',
+            updatedAt: new Date('2026-02-02T09:30:00Z'),
+          },
+          { slug: 'filter-blend', updatedAt: new Date('2026-03-03T12:00:00Z') },
+        ],
+        [{ id: 'cb' }],
       ],
       [{ slug: 'about', updatedAt: new Date('2026-04-04T08:00:00Z') }],
-      [{ id: 'cb' }],
-    ]);
+    );
 
     const result = await service.getSitemap();
 
@@ -82,7 +88,6 @@ describe('CatalogService.getSitemap', () => {
         category('tea', 'tea'),
       ],
       [],
-      [],
       [{ id: 'esp' }],
     ]);
 
@@ -95,7 +100,7 @@ describe('CatalogService.getSitemap', () => {
   });
 
   it('yields empty lists when there is no catalog content', async () => {
-    const service = serviceOver([[], [], [], []]);
+    const service = serviceOver([[], [], []]);
 
     await expect(service.getSitemap()).resolves.toEqual({
       categories: [],

@@ -14,9 +14,10 @@ import {
   packagedPackaging,
   productDetail,
 } from './core/catalog/product.fixture';
+import { defaultSharedCatalogText } from './core/catalog/catalog-text.fixture';
 
-const text = defaultStorefrontText.cart;
-const unitText = defaultStorefrontText.catalog.units;
+const text = defaultSharedCatalogText.buying;
+const unitText = defaultSharedCatalogText.unitFacts;
 
 /**
  * Ten to a pack, four packs to a box (so forty pieces), and a hundred-piece
@@ -127,10 +128,10 @@ describe('ProductBuyBlock', () => {
     const view = await render(packaged);
 
     expect(view.text()).toContain(
-      `${unitText.minQuantity}: 100 ${defaultSharedText.units.piece}`,
+      `${unitText.minQuantity}: 100 ${defaultSharedCatalogText.units.piece}`,
     );
     expect(view.text()).toContain(
-      `${defaultSharedText.packaging.heading}: 4 pk × 10 pcs`,
+      `${defaultSharedCatalogText.packaging.heading}: 4 pk × 10 pcs`,
     );
   });
 
@@ -222,7 +223,9 @@ describe('ProductBuyBlock', () => {
     const field = el.querySelector('textarea');
     if (!link || !facts || !field) throw new Error('expected all three');
 
-    expect(link.textContent).toContain(defaultSharedText.product.pairings);
+    expect(link.textContent).toContain(
+      defaultSharedCatalogText.product.pairings,
+    );
     expect(
       facts.compareDocumentPosition(link) & Node.DOCUMENT_POSITION_FOLLOWING,
     ).toBeTruthy();

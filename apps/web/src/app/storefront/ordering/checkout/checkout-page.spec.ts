@@ -1,3 +1,8 @@
+import { withOrdering } from '../../../core/ordering/ordering-config.fixture';
+import { defaultStorefrontOrderingText } from '../ordering-text.fixture';
+import { defaultSharedOrderingText } from '../../../core/ordering/ordering-text.fixture';
+import { withAccounts } from '../../../core/accounts/accounts-config.fixture';
+import { defaultSharedAccountsText } from '../../../core/accounts/accounts-text.fixture';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
@@ -31,14 +36,16 @@ import { OrdersService, SubmitOrderResult } from '../orders/orders.service';
 import { PageService } from '../../../core/site/page.service';
 import { provideDigitMaskFormat } from '../../../platform/contact-fields';
 import { Address } from '@b2b-catalog-platform/shared/core/accounts';
+import { defaultStorefrontSiteText } from '../../site/site-text.fixture';
+import { withSite } from '../../../core/site/site-config.fixture';
 
 /** A day the form actually offers, from whenever the suite is run: a literal
  * date here would be a working weekday now and a past Saturday later. */
 const wishedDate = firstOrderDate(localToday());
 
-const text = defaultStorefrontText.checkout;
-const names = defaultSharedText.order;
-const fulfilment = defaultSharedText.fulfilment;
+const text = defaultStorefrontOrderingText.checkout;
+const names = defaultSharedOrderingText.order;
+const fulfilment = defaultSharedOrderingText.fulfilment;
 
 function addition(): CartAddition {
   return {
@@ -289,20 +296,13 @@ async function render(options: Options = {}) {
 }
 
 /** A deployment that invoices no address of its own (FR-CART-07). */
-const noBillingAddress: DeploymentConfig = {
-  ...defaultDeploymentConfig,
-  billingAddressEnabled: false,
-};
+const noBillingAddress = withOrdering({ billingAddressEnabled: false });
 
 function withPickupPoints(count: number): DeploymentConfig {
-  const locations = (defaultDeploymentConfig.pickup?.locations ?? []).slice(
-    0,
-    count,
-  );
-  return {
-    ...defaultDeploymentConfig,
-    pickup: locations.length ? { locations } : undefined,
-  };
+  const locations = (
+    defaultDeploymentConfig.ordering.pickup?.locations ?? []
+  ).slice(0, count);
+  return withOrdering({ pickup: locations.length ? { locations } : undefined });
 }
 
 /**
@@ -339,7 +339,8 @@ describe('CheckoutPage', () => {
       await page.settle();
 
       expect(page.text()).toContain(text.fulfilment.pickupHeading);
-      for (const point of defaultDeploymentConfig.pickup?.locations ?? []) {
+      for (const point of defaultDeploymentConfig.ordering.pickup?.locations ??
+        []) {
         expect(page.text()).toContain(point.name);
         expect(page.text()).toContain(point.address);
       }
@@ -349,7 +350,7 @@ describe('CheckoutPage', () => {
     // a previous visit, never passing through the fulfilment click.
     it('answers a single collection point itself, however pickup was reached', async () => {
       const only = withPickupPoints(1);
-      const key = only.pickup?.locations[0].key;
+      const key = only.ordering.pickup?.locations[0].key;
 
       const clicked = await render({ config: only });
       clicked.pick('fulfilment', 'pickup');
@@ -387,7 +388,8 @@ describe('CheckoutPage', () => {
 
     it('takes the message back once a point is chosen', async () => {
       const page = await render();
-      const key = defaultDeploymentConfig.pickup?.locations[0].key ?? '';
+      const key =
+        defaultDeploymentConfig.ordering.pickup?.locations[0].key ?? '';
 
       page.drafts.patch({ fulfilmentMethod: 'pickup' });
       await page.settle();
@@ -431,10 +433,7 @@ describe('CheckoutPage', () => {
   });
 
   describe('a shop that sells to one kind of customer (FR-AUTH-13)', () => {
-    const companiesOnly = {
-      ...defaultDeploymentConfig,
-      customerTypes: ['company' as const],
-    };
+    const companiesOnly = withAccounts({ customerTypes: ['company'] });
 
     it('asks a guest for the company straight away, and invoices it', async () => {
       const page = await render({ guest: true, config: companiesOnly });
@@ -466,7 +465,7 @@ describe('CheckoutPage', () => {
     it('asks a persons-only shop’s customer for a name alone when invoicing somebody else', async () => {
       const page = await render({
         person: true,
-        config: { ...defaultDeploymentConfig, customerTypes: ['person'] },
+        config: withAccounts({ customerTypes: ['person'] }),
       });
 
       page.pick('party', 'other');
@@ -595,7 +594,7 @@ describe('CheckoutPage', () => {
       expect(postcodeShown(page.el)).toBe(false);
       // The way out is on screen from the start, not after a provider fails.
       expect(page.text()).toContain(
-        defaultStorefrontText.address.enterManually,
+        defaultSharedAccountsText.address.enterManually,
       );
     });
 
@@ -658,7 +657,7 @@ describe('CheckoutPage', () => {
 
       expect(postcodeShown(page.el)).toBe(true);
       expect(page.text()).not.toContain(
-        defaultStorefrontText.address.enterManually,
+        defaultSharedAccountsText.address.enterManually,
       );
     });
 
@@ -709,7 +708,9 @@ describe('CheckoutPage', () => {
       const page = await render({ config: noBillingAddress });
 
       await page.review();
-      expect(page.text()).not.toContain(text.review.billingSame);
+      expect(page.text()).not.toContain(
+        defaultSharedOrderingText.orderBlocks.billingSame,
+      );
 
       page.button(text.submit)?.click();
       await page.settle();
@@ -1073,9 +1074,13 @@ describe('CheckoutPage', () => {
       expect(page.text()).toContain('Filter Roast');
       expect(page.text()).toContain(fulfilment.delivery);
       expect(page.text()).toContain('Hafenstraße 12');
-      expect(page.text()).toContain(text.review.billingSame);
+      expect(page.text()).toContain(
+        defaultSharedOrderingText.orderBlocks.billingSame,
+      );
       expect(page.text()).toContain(names.preferredDelivery);
-      expect(page.text()).toContain(text.review.whenAny);
+      expect(page.text()).toContain(
+        defaultSharedOrderingText.orderBlocks.whenAny,
+      );
       // The unit it was bought in, and what that comes to in pieces.
       expect(page.text()).toContain('2 pk (12 pcs)');
       expect(page.text()).toContain(names.paymentMethods.transfer);
@@ -1118,9 +1123,9 @@ describe('CheckoutPage', () => {
 
       const link = page.el.querySelector('a[href="/terms"]');
       expect(link?.textContent?.trim()).toBe(
-        defaultStorefrontText.termsNotice.link,
+        defaultStorefrontSiteText.termsNotice.link,
       );
-      expect(page.text()).toContain(defaultStorefrontText.termsNotice.text);
+      expect(page.text()).toContain(defaultStorefrontSiteText.termsNotice.text);
       expect(page.el.querySelector('input[type="checkbox"]')).toBeNull();
     });
 
@@ -1132,28 +1137,28 @@ describe('CheckoutPage', () => {
       await page.review();
 
       expect(page.text()).toContain(text.review.title);
-      expect(page.text()).not.toContain(defaultStorefrontText.termsNotice.text);
+      expect(page.text()).not.toContain(
+        defaultStorefrontSiteText.termsNotice.text,
+      );
     });
 
     it('says nothing of terms a deployment does not publish', async () => {
-      const config = {
-        ...defaultDeploymentConfig,
+      const { pages } = defaultDeploymentConfig.site;
+      const config = withSite({
         pages: {
-          ...defaultDeploymentConfig.pages,
-          published: defaultDeploymentConfig.pages.published.filter(
-            (slug) => slug !== 'terms',
-          ),
-          footerNav: defaultDeploymentConfig.pages.footerNav.filter(
-            (slug) => slug !== 'terms',
-          ),
+          ...pages,
+          published: pages.published.filter((slug) => slug !== 'terms'),
+          footerNav: pages.footerNav.filter((slug) => slug !== 'terms'),
         },
-      };
+      });
       const page = await render({ config });
 
       await page.review();
 
       expect(page.text()).toContain(text.review.title);
-      expect(page.text()).not.toContain(defaultStorefrontText.termsNotice.text);
+      expect(page.text()).not.toContain(
+        defaultStorefrontSiteText.termsNotice.text,
+      );
     });
   });
 

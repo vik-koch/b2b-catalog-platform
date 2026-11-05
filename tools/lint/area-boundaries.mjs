@@ -89,15 +89,35 @@ function allowedTypes(type) {
 }
 
 /**
- * The one exception to "platform imports no area": the deployment config, the
- * texts and the database schema are composed of every area's part. Imported
- * like platform.
+ * An exception to "platform imports no area": the deployment config and
+ * the texts are composed of every area's part. Imported like platform.
  */
 const COMPOSING = [
   'libs/shared/src/platform/config',
   'apps/api/src/platform/config',
-  'apps/api/src/platform/db',
 ];
+
+/**
+ * The other exception, for foreign keys only: every area's tables, and
+ * platform's, record who changed a row, so a schema module may reference
+ * `users`. A query still reads tables only along the table.
+ */
+const ACTOR_REFERENCES = {
+  from: {
+    element: {
+      types: { anyOf: ['platform', ...ENABLED.map((area) => `core:${area}`)] },
+      fileInternalPath: ['*-schema.ts', 'db/schema.ts'],
+    },
+  },
+  allow: {
+    to: {
+      element: {
+        type: 'core:accounts',
+        fileInternalPath: 'accounts-schema.ts',
+      },
+    },
+  },
+};
 
 const TYPES = [
   'platform:composing',
@@ -150,7 +170,9 @@ export function areaBoundaries(source) {
               from: { element: { type } },
               disallow: { to: { element: { types: { anyOf: refused } } } },
               message: `${type} may import ${allowed(type).join(', ')} (ADR 0073, tools/lint/area-boundaries.mjs).`,
-            })),
+            }))
+            // Last, as the last matching policy wins.
+            .concat(ACTOR_REFERENCES),
         },
       ],
     },

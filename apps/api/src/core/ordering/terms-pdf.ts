@@ -1,19 +1,13 @@
+import { sharedOrderingText, orderingPdf } from './ordering-text';
 import { SharedText, fillText } from '@b2b-catalog-platform/shared/platform';
-import {
-  AdminOrderDetail,
-  OrderReferenceConfig,
-} from '@b2b-catalog-platform/shared/core/ordering';
+import { AdminOrderDetail } from '@b2b-catalog-platform/shared/core/ordering';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { and, eq } from 'drizzle-orm';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { PDFDocument } from 'pdf-lib';
-import {
-  ORDER_REFERENCE_CONFIG,
-  TERMS_ATTACHED,
-} from '../../platform/config/deployment-config';
+import { SHOP_TIME_ZONE } from '../../platform/config/deployment-config';
+import { TERMS_ATTACHED } from './terms-config';
 import { DRIZZLE } from '../../platform/db/database.module';
-import * as schema from '../../platform/db/schema';
-import { pageVersions } from '../../platform/db/schema';
+import { pageVersions } from '../site/site-schema';
 import { MAIL_BRANDING, MailBranding } from '../../platform/mail/mail-branding';
 import { SHARED_TEXT } from '../../platform/config/shared-text';
 import { PDF_TEXT, PdfText } from '../../platform/pdf/pdf-text';
@@ -22,6 +16,7 @@ import { PdfFaces } from '../../platform/pdf/pdf-faces';
 import { Sheet } from '../../platform/pdf/pdf-sheet';
 import { richTextBlocks } from '../../platform/pdf/rich-text-blocks';
 import { shopDay, shopIsoDay } from '@b2b-catalog-platform/shared/platform';
+import { Database } from '../../platform/db/database';
 
 const HEADING_SIZES = { 2: 13, 3: 11.5, 4: 10.5 } as const;
 
@@ -34,13 +29,12 @@ export class TermsPdf {
   private readonly logger = new Logger(TermsPdf.name);
 
   constructor(
-    @Inject(DRIZZLE) private readonly db: NodePgDatabase<typeof schema>,
+    @Inject(DRIZZLE) private readonly db: Database,
     @Inject(TERMS_ATTACHED) private readonly attached: boolean,
     @Inject(PDF_TEXT) private readonly text: PdfText,
     @Inject(SHARED_TEXT) private readonly common: SharedText,
     @Inject(MAIL_BRANDING) private readonly branding: MailBranding,
-    @Inject(ORDER_REFERENCE_CONFIG)
-    private readonly reference: OrderReferenceConfig,
+    @Inject(SHOP_TIME_ZONE) private readonly timeZone: string,
     private readonly faces: PdfFaces,
   ) {}
 
@@ -63,16 +57,16 @@ export class TermsPdf {
         .limit(1);
       if (!version) return [];
       const iso = version.createdAt.toISOString();
-      const zone = this.reference.timezone;
+      const zone = this.timeZone;
       return [
         {
-          fileName: fillText(this.text.terms.fileName, {
+          fileName: fillText(orderingPdf(this.text).terms.fileName, {
             date: shopIsoDay(iso, zone),
           }),
           contentType: 'application/pdf',
           bytes: await this.render(
             version,
-            fillText(this.common.order.termsVersion, {
+            fillText(sharedOrderingText(this.common).order.termsVersion, {
               date: shopDay(iso, this.branding.locale, zone),
             }),
           ),

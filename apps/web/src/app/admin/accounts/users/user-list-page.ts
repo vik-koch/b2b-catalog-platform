@@ -1,3 +1,4 @@
+import { ADMIN_ACCOUNTS_TEXT } from '../accounts-text';
 import {
   Component,
   computed,
@@ -53,6 +54,7 @@ import {
   userRoleSchema,
   fillText,
 } from '@b2b-catalog-platform/shared/platform';
+import { ADMIN_CATALOG_TEXT } from '../../catalog/catalog-text';
 
 const USER_SORTS = [
   'name',
@@ -261,7 +263,7 @@ export class UserListPage {
   private readonly service = inject(StaffUsersService);
   private readonly ownership = inject(OwnershipService);
   private readonly tiers = inject(TiersService);
-  protected readonly text = inject(ADMIN_TEXT).users.list;
+  protected readonly text = inject(ADMIN_ACCOUNTS_TEXT).users.list;
   protected readonly fields = inject(SHARED_TEXT).fields;
   protected readonly defaultSort = DEFAULT_USER_SORT;
   protected readonly dash = '—';
@@ -486,7 +488,7 @@ export class UserListPage {
 
   private readonly baseTierLabel = computed(() =>
     baseTierName(
-      this.adminText.tiers.defaultName,
+      this.adminCatalogText.tiers.defaultName,
       this.tierList.value()?.tiers,
     ),
   );
@@ -494,7 +496,8 @@ export class UserListPage {
   private readonly confirm = inject(ConfirmService);
   private readonly router = inject(Router);
   private readonly adminText = inject(ADMIN_TEXT);
-  private readonly ownershipText = inject(ADMIN_TEXT).ownership;
+  private readonly adminCatalogText = inject(ADMIN_CATALOG_TEXT);
+  private readonly ownershipText = inject(ADMIN_ACCOUNTS_TEXT).ownership;
   private readonly actionText = inject(SHARED_TEXT).actions;
   /** An editor opened from here returns to this list, filters and all. */
   protected readonly editorFrom = injectEditorReturnParams();

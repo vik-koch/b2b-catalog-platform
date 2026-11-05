@@ -4,7 +4,6 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { asc, count, eq, sql } from 'drizzle-orm';
 import {
   AdminCategory,
@@ -12,8 +11,7 @@ import {
   ReorderCategoriesRequest,
 } from '@b2b-catalog-platform/shared/admin/catalog';
 import { DRIZZLE } from '../../../platform/db/database.module';
-import * as schema from '../../../platform/db/schema';
-import { categories, products } from '../../../platform/db/schema';
+import { categories, products } from '../../../core/catalog/catalog-schema';
 import { OwnershipState } from '../../../platform/settings/ownership-state';
 import { catalogExternallyOwned } from '../../../platform/settings/ownership.refusals';
 import { changedCategoryFields } from '../owned-fields';
@@ -27,6 +25,7 @@ import {
   resolveCategorySourceIdOverride,
   runUnique,
 } from '../catalog-identity';
+import { Database } from '../../../platform/db/database';
 
 /** A function, so each throw gets its own stack; the message may name the row
  * for a log reader, the code a screen reads never varies. */
@@ -36,7 +35,7 @@ export const categoryNotFound = (message = 'Category not found') =>
 /** That a category exists, before a row points at it: a 404 rather than a
  * foreign-key error. A function, so a product write needs no service. */
 export async function assertCategoryExists(
-  db: NodePgDatabase<typeof schema>,
+  db: Database,
   id: string,
 ): Promise<void> {
   const [row] = await db
@@ -55,7 +54,7 @@ export async function assertCategoryExists(
 @Injectable()
 export class CategoriesService {
   constructor(
-    @Inject(DRIZZLE) private db: NodePgDatabase<typeof schema>,
+    @Inject(DRIZZLE) private db: Database,
     private readonly ownership: OwnershipState,
   ) {}
 

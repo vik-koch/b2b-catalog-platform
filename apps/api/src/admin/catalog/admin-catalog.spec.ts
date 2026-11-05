@@ -3,6 +3,7 @@ import { APP_FILTER } from '@nestjs/core';
 import { Test } from '@nestjs/testing';
 import { CategoriesController } from './categories/categories.controller';
 import { ProductsController } from './products/products.controller';
+import { PRODUCT_ORDERS } from '../../core/catalog/product-orders';
 import { CatalogReader } from '../../core/catalog/catalog-reader';
 import { CategoriesService } from './categories/categories.service';
 import { ProductEditorService } from './products/product-editor.service';
@@ -72,6 +73,7 @@ describe('the admin catalog routes', () => {
           { provide: ProductLifecycleService, useValue: {} },
           { provide: CategoriesService, useValue: categories },
           { provide: CatalogReader, useValue: {} },
+          { provide: PRODUCT_ORDERS, useValue: {} },
           { provide: AuditLogger, useValue: { record: vi.fn() } },
           { provide: APP_FILTER, useClass: ContractErrorFilter },
         ],

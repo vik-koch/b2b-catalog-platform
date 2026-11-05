@@ -1,6 +1,6 @@
 import { getTableName } from 'drizzle-orm';
-import { drizzle, NodePgDatabase } from 'drizzle-orm/node-postgres';
-import * as schema from '../../platform/db/schema';
+import { drizzle } from 'drizzle-orm/node-postgres';
+import { Database } from '../../platform/db/database';
 
 export interface Captured {
   table: string;
@@ -19,7 +19,7 @@ export function renderingDb(
   locks: Captured[] = [],
   reads: Captured[] = [],
 ) {
-  const real = drizzle({ client: {} as never, schema });
+  const real = drizzle({ client: {} as never });
 
   const settle = (
     table: string,
@@ -96,5 +96,5 @@ export function renderingDb(
   return {
     select,
     transaction: (run: (tx: unknown) => Promise<unknown>) => run(tx),
-  } as unknown as NodePgDatabase<typeof schema>;
+  } as unknown as Database;
 }

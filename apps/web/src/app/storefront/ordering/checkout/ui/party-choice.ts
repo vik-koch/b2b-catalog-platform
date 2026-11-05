@@ -1,8 +1,9 @@
+import { STOREFRONT_ORDERING_TEXT } from '../../ordering-text';
+import { ACCOUNTS_CONFIG } from '../../../../core/accounts/accounts-config';
+import { STOREFRONT_ACCOUNTS_TEXT } from '../../../accounts/accounts-text';
 import { Component, inject, input, output } from '@angular/core';
 import { FormField, type FieldTree } from '@angular/forms/signals';
 import { NgTemplateOutlet } from '@angular/common';
-import { STOREFRONT_TEXT } from '../../../../platform/config/storefront-text';
-import { DEPLOYMENT_CONFIG } from '../../../../platform/config/deployment-config';
 import { CompanyFields } from '../../../../core/accounts/parties/company-fields';
 import { ChoiceBranch } from '@b2b-catalog-platform/ui/choices/choice-branch';
 import { Field } from '@b2b-catalog-platform/ui/fields/field';
@@ -117,11 +118,11 @@ import { WarningNote } from '@b2b-catalog-platform/ui/content/warning-note';
   `,
 })
 export class PartyChoice {
-  protected readonly text = inject(STOREFRONT_TEXT).checkout.party;
-  private readonly partyChoice = inject(STOREFRONT_TEXT).partyChoice;
+  protected readonly text = inject(STOREFRONT_ORDERING_TEXT).checkout.party;
+  private readonly partyChoice = inject(STOREFRONT_ACCOUNTS_TEXT).partyChoice;
   /** The whole choice type: the page holds it, account included. */
   protected readonly kinds: readonly SegmentOption<Party>[] = inject(
-    DEPLOYMENT_CONFIG,
+    ACCOUNTS_CONFIG,
   ).customerTypes.map((value) => ({
     value,
     label: this.partyChoice[value],

@@ -1,12 +1,12 @@
 import { Component, inject, input, resource } from '@angular/core';
 import { fillText } from '@b2b-catalog-platform/shared/platform';
 import { PageSlug } from '@b2b-catalog-platform/shared/core/site';
-import { ADMIN_TEXT } from '../../../platform/config/admin-text';
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import { adminDayFormat } from '../../platform/dates/admin-date';
 import { PageEditingService } from './page-editing.service';
 import { trustedRichText } from '../../../platform/trusted-rich-text';
 import { DetailsSummary } from '@b2b-catalog-platform/ui/disclosure/details-summary';
+import { ADMIN_SITE_TEXT } from '../site-text';
 
 /**
  * Read-only: a consent or an order points at a version, and the admin reads it
@@ -68,7 +68,7 @@ import { DetailsSummary } from '@b2b-catalog-platform/ui/disclosure/details-summ
 })
 export class PageHistory {
   private readonly pageService = inject(PageEditingService);
-  protected readonly text = inject(ADMIN_TEXT).pages.history;
+  protected readonly text = inject(ADMIN_SITE_TEXT).pages.history;
   protected readonly safeBody = trustedRichText();
 
   readonly slug = input.required<PageSlug>();

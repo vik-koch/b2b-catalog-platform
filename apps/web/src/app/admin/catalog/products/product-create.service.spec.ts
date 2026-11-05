@@ -1,3 +1,4 @@
+import { defaultAdminCatalogText } from '../catalog-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { defaultAdminText } from '../../../platform/config/admin-text.fixture';
@@ -57,7 +58,7 @@ describe('ProductCreateService', () => {
     expect(tell).toHaveBeenCalledWith(
       expect.objectContaining({
         heading: defaultAdminText.editMode.addProduct,
-        message: defaultAdminText.ownership.productCreate,
+        message: defaultAdminCatalogText.ownership.productCreate,
       }),
     );
   });

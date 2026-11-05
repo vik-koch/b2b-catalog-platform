@@ -14,6 +14,7 @@ export * from './iso-day';
 export * from './keyboard-layout';
 export * from './list-param.contract';
 export * from './media';
+export * from './merge-shapes';
 export * from './money';
 export * from './ownership';
 export * from './pagination.contract';

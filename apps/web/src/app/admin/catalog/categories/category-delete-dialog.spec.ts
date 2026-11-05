@@ -10,6 +10,7 @@ import { defaultStorefrontText } from '../../../platform/config/storefront-text.
 import { defaultAdminText } from '../../../platform/config/admin-text.fixture';
 import { CategoriesService } from './categories.service';
 import { CategoryDeleteDialog } from './category-delete-dialog';
+import { defaultAdminCatalogText } from '../catalog-text.fixture';
 
 // jsdom's <dialog> has no showModal/close; the dialog opens itself on render.
 beforeAll(() => {
@@ -118,7 +119,7 @@ describe('CategoryDeleteDialog', () => {
     expect(ci.mode()).toBe('reassign');
     const shown = (fixture.nativeElement as HTMLElement).textContent ?? '';
     expect(shown).toContain(
-      defaultAdminText.categories.list.deleteReassignDeleted.replace(
+      defaultAdminCatalogText.categories.list.deleteReassignDeleted.replace(
         '{count}',
         '2',
       ),
@@ -132,7 +133,7 @@ describe('CategoryDeleteDialog', () => {
     expect(ci.mode()).toBe('blocked-owned');
     const shown = (fixture.nativeElement as HTMLElement).textContent ?? '';
     expect(shown).toContain(
-      defaultAdminText.ownership.categoryHasDeletedProducts.replace(
+      defaultAdminCatalogText.ownership.categoryHasDeletedProducts.replace(
         '{count}',
         '2',
       ),

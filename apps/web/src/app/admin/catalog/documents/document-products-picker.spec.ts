@@ -13,8 +13,9 @@ import { defaultDeploymentConfig } from '../../../platform/config/deployment-con
 import { CategoriesService } from '../categories/categories.service';
 import { ProductsService } from '../products/products.service';
 import { DocumentProductsPicker } from './document-products-picker';
+import { defaultAdminCatalogText } from '../catalog-text.fixture';
 
-const text = defaultAdminText.documents.editor.products;
+const text = defaultAdminCatalogText.documents.editor.products;
 
 const listItem = (
   overrides: Partial<AdminProductListItem> & { slug: string; name: string },

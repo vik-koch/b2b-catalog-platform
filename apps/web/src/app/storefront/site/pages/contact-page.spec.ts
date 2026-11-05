@@ -4,14 +4,12 @@ import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
 import { defaultStorefrontText } from '../../../platform/config/storefront-text.fixture';
 import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
-import {
-  ContactLocation,
-  DeploymentConfig,
-} from '@b2b-catalog-platform/shared/platform';
-import { defaultDeploymentConfig } from '../../../platform/config/deployment-config.fixture';
+import { DeploymentConfig } from '@b2b-catalog-platform/shared/platform';
+import { ContactLocation } from '@b2b-catalog-platform/shared/core/site';
 import { EditModeService } from '../../../platform/edit-mode/edit-mode.service';
 import { ContactPage } from './contact-page';
 import { PageService } from '../../../core/site/page.service';
+import { withSite } from '../../../core/site/site-config.fixture';
 
 /** The page's prose is a Page body now; the locations around it stay config. */
 const contactBody = {
@@ -21,7 +19,7 @@ const contactBody = {
 };
 
 function config(locations: readonly ContactLocation[]): DeploymentConfig {
-  return { ...defaultDeploymentConfig, locations };
+  return withSite({ locations });
 }
 
 async function render(

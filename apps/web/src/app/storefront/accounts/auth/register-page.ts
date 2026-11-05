@@ -1,3 +1,5 @@
+import { ACCOUNTS_CONFIG } from '../../../core/accounts/accounts-config';
+import { STOREFRONT_ACCOUNTS_TEXT } from '../accounts-text';
 import { Component, computed, inject, signal } from '@angular/core';
 import { form, hidden, required } from '@angular/forms/signals';
 import { RouterLink } from '@angular/router';
@@ -195,17 +197,18 @@ interface Registration {
 export class RegisterPage {
   private readonly auth = inject(SignInService);
   private readonly config = inject(DEPLOYMENT_CONFIG);
+  private readonly accountsConfig = inject(ACCOUNTS_CONFIG);
 
-  protected readonly text = inject(STOREFRONT_TEXT).auth;
+  protected readonly text = inject(STOREFRONT_ACCOUNTS_TEXT).auth;
   protected readonly fields = inject(SHARED_TEXT).fields;
-  private readonly partyChoice = inject(STOREFRONT_TEXT).partyChoice;
+  private readonly partyChoice = inject(STOREFRONT_ACCOUNTS_TEXT).partyChoice;
   /** In the deployment's order: the first is where the form starts. */
   protected readonly customerTypes: readonly SegmentOption<CustomerType>[] =
-    this.config.customerTypes.map((value) => ({
+    this.accountsConfig.customerTypes.map((value) => ({
       value,
       label: this.partyChoice[value],
     }));
-  private readonly firstType = this.config.customerTypes[0];
+  private readonly firstType = this.accountsConfig.customerTypes[0];
   protected readonly home = inject(STOREFRONT_TEXT).errors.notFoundBack;
   protected readonly actionText = inject(SHARED_TEXT).actions;
   protected readonly phoneInput = this.config.phoneInput;

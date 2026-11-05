@@ -1,7 +1,6 @@
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { and, eq, exists, inArray, SQL, sql } from 'drizzle-orm';
-import * as schema from '../../platform/db/schema';
-import { productAttributes, products } from '../../platform/db/schema';
+import { productAttributes, products } from './catalog-schema';
+import { Database } from '../../platform/db/database';
 
 /**
  * "This product carries this attribute", behind the inventory's drill-down
@@ -11,7 +10,7 @@ import { productAttributes, products } from '../../platform/db/schema';
  * condition.
  */
 export function attributeValuesCondition(
-  db: NodePgDatabase<typeof schema>,
+  db: Database,
   key: string | undefined,
   values: string[],
 ): SQL | undefined {

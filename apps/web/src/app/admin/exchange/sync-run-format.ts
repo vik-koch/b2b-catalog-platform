@@ -1,10 +1,10 @@
+import type { AdminExchangeText } from './exchange-text.type';
 import { StatusTone } from '@b2b-catalog-platform/ui/content/status-badge';
 import {
   SyncRun,
   SyncRunStatus,
   SyncSummary,
 } from '@b2b-catalog-platform/shared/core/exchange';
-import { AdminText } from '../../platform/config/admin-text.type';
 
 /** Amber where somebody has to act, green for what went through, red for
  * what broke, grey for a run that is simply over. */
@@ -19,7 +19,10 @@ export const SYNC_RUN_TONE: Record<SyncRunStatus, StatusTone> = {
 
 /** Who or what ran it: a machine run's only identity is its token's name,
  * the one an operator revokes. */
-export function syncRunActor(run: SyncRun, text: AdminText['sync']): string {
+export function syncRunActor(
+  run: SyncRun,
+  text: AdminExchangeText['sync'],
+): string {
   return run.tokenName ?? run.actorEmail ?? text.sourceUpload;
 }
 

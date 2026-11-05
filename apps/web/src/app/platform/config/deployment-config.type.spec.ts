@@ -10,7 +10,10 @@ import { defaultDeploymentConfig } from './deployment-config.fixture';
 function parse(pages: Record<string, unknown>) {
   return deploymentConfigSchema.safeParse({
     ...defaultDeploymentConfig,
-    pages: { ...defaultDeploymentConfig.pages, ...pages },
+    site: {
+      ...defaultDeploymentConfig.site,
+      pages: { ...defaultDeploymentConfig.site.pages, ...pages },
+    },
   });
 }
 
@@ -39,7 +42,11 @@ describe('deploymentConfigSchema — pages', () => {
 
     expect(result.success).toBe(false);
     expect(result.error?.issues[0]?.message).toContain('not published');
-    expect(result.error?.issues[0]?.path).toEqual(['pages', 'footerNav']);
+    expect(result.error?.issues[0]?.path).toEqual([
+      'site',
+      'pages',
+      'footerNav',
+    ]);
   });
 
   it('rejects a header link to an unpublished page', () => {
@@ -49,7 +56,11 @@ describe('deploymentConfigSchema — pages', () => {
     });
 
     expect(result.success).toBe(false);
-    expect(result.error?.issues[0]?.path).toEqual(['pages', 'headerNav']);
+    expect(result.error?.issues[0]?.path).toEqual([
+      'site',
+      'pages',
+      'headerNav',
+    ]);
   });
 
   it('rejects a slug that is not a known page', () => {

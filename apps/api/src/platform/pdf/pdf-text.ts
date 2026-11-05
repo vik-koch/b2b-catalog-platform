@@ -1,41 +1,13 @@
-import {
-  DeepReadonly,
-  refuseCountForms,
-} from '@b2b-catalog-platform/shared/platform';
-import * as z from 'zod';
+/** The keys of `texts/pdf.json` no area claims: the file is the documents'
+ * wording, and each area's documents are its own block. */
+export const pdfTextShape = {};
 
-/** `texts/pdf.json`: the wording of the documents the API draws. */
-export const pdfTextSchema = z
-  .object({
-    /** The order summary (FR-ORD-05, FR-ACC-02). */
-    orderSummary: z
-      .object({
-        /** Carries `{reference}`. */
-        title: z.string(),
-        placedLabel: z.string(),
-        /** Where the customer named no date. */
-        whenAny: z.string(),
-        itemsLabel: z.string(),
-        quantityLabel: z.string(),
-        lineTotalLabel: z.string(),
-        /** How to return the goods, under the total (NFR-LEGAL-10): the
-         * summary is the paper handed over with them. */
-        returnNotice: z.string().optional(),
-        /** On every page: what this document is, and what it is not. */
-        footer: z.string(),
-      })
-      .strict(),
-    /** The terms of sale attached to a receipt (NFR-LEGAL-10). */
-    terms: z
-      .object({
-        /** `{date}` is the version's day as YYYY-MM-DD. */
-        fileName: z.string(),
-      })
-      .strict(),
-  })
-  .strict()
-  .superRefine(refuseCountForms);
-
-export type PdfText = DeepReadonly<z.infer<typeof pdfTextSchema>>;
+/** The whole validated file; an area reads its block with `pdfTextBlock`. */
+export type PdfText = Readonly<Record<string, unknown>>;
 
 export const PDF_TEXT = 'PDF_TEXT';
+
+/** An area's block of the PDF text, checked with the whole file at boot. */
+export function pdfTextBlock<T>(text: PdfText, area: string): T {
+  return (text as unknown as Record<string, T>)[area];
+}

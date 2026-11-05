@@ -1,3 +1,5 @@
+import { withAccounts } from '../../../core/accounts/accounts-config.fixture';
+import { defaultAdminAccountsText } from '../accounts-text.fixture';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
 import { TestBed } from '@angular/core/testing';
@@ -23,7 +25,7 @@ import { StaffUsersService } from './users.service';
 import { provideDigitMaskFormat } from '../../../platform/contact-fields';
 import { StaffUser } from '@b2b-catalog-platform/shared/core/accounts';
 
-const text = defaultAdminText.users.editor;
+const text = defaultAdminAccountsText.users.editor;
 
 /** The demo deployment's own rules, which the form is built from. */
 const phone = defaultDeploymentConfig.phoneInput;
@@ -382,10 +384,7 @@ describe('UserEditorPage', () => {
   });
 
   describe('a shop that sells to companies only (FR-AUTH-13)', () => {
-    const companiesOnly = {
-      ...defaultDeploymentConfig,
-      customerTypes: ['company' as const],
-    };
+    const companiesOnly = withAccounts({ customerTypes: ['company'] });
 
     it('creates a customer as a company, with nothing to choose', async () => {
       const { el, service, type, press, field } = await render({
@@ -504,7 +503,7 @@ describe('UserEditorPage', () => {
     const { el } = await render({ account: user({ status: 'disabled' }) });
 
     expect(el.textContent).toContain(
-      defaultAdminText.users.list.statusDisabled,
+      defaultAdminAccountsText.users.list.statusDisabled,
     );
   });
 
@@ -527,7 +526,7 @@ describe('UserEditorPage', () => {
       });
 
       expect(el.textContent).toContain(
-        defaultAdminText.ownership.accountLocked,
+        defaultAdminAccountsText.ownership.accountLocked,
       );
       expect((field('firstName') as HTMLInputElement).disabled).toBe(true);
       expect(button(defaultAdminText.actions.save)).toBeUndefined();
@@ -552,7 +551,7 @@ describe('UserEditorPage', () => {
       });
 
       expect(el.textContent).toContain(
-        defaultAdminText.ownership.accountCreate,
+        defaultAdminAccountsText.ownership.accountCreate,
       );
       expect(field('firstName')).toBeNull();
       expect(button(defaultSharedText.actions.cancel)).toBeDefined();
@@ -580,7 +579,7 @@ describe('UserEditorPage', () => {
     await press(defaultAdminText.actions.save);
 
     expect(el.querySelector('[role="alert"]')?.textContent).toContain(
-      defaultAdminText.users.list.errors['last-admin'],
+      defaultAdminAccountsText.users.list.errors['last-admin'],
     );
     expect(navigateByUrl).not.toHaveBeenCalled();
   });

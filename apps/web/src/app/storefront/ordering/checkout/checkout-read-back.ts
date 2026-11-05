@@ -1,3 +1,7 @@
+import { ORDERING_CONFIG } from '../../../core/ordering/ordering-config';
+import { STOREFRONT_ORDERING_TEXT } from '../ordering-text';
+import { SHARED_ORDERING_TEXT } from '../../../core/ordering/ordering-text';
+import { ACCOUNTS_CONFIG } from '../../../core/accounts/accounts-config';
 import { computed, inject, Signal } from '@angular/core';
 import {
   fillText,
@@ -12,15 +16,15 @@ import {
 } from '@b2b-catalog-platform/shared/core/accounts';
 import { CartService, CartStoredLine } from '../cart/cart.service';
 import { formatUnitQuantity } from '../../../core/catalog/buying/quantity';
-import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
-import { useTaxStatement } from '../../../core/catalog/pricing/tax-statement';
+import { useTaxStatement } from '../../../platform/tax-statement';
 import {
   ReadBackLine,
   ReviewBlock,
 } from '../../../core/ordering/ui/order-read-back';
 import { CheckoutDraft } from './checkout-draft';
+import { SHARED_CATALOG_TEXT } from '../../../core/catalog/catalog-text';
 
 /** What the draft alone cannot say: the settled addresses, the account's name,
  * whether an invoice address exists. */
@@ -51,15 +55,18 @@ export interface ReadBackDeps {
 export function createCheckoutReadBack(deps: ReadBackDeps) {
   const cart = inject(CartService);
   const config = inject(DEPLOYMENT_CONFIG);
-  const text = inject(STOREFRONT_TEXT).checkout;
+  const accountsConfig = inject(ACCOUNTS_CONFIG);
+  const text = inject(STOREFRONT_ORDERING_TEXT).checkout;
+  const blockText = inject(SHARED_ORDERING_TEXT).orderBlocks;
   const common = inject(SHARED_TEXT);
-  const names = common.order;
-  const locations = config.pickup?.locations ?? [];
+  const units = inject(SHARED_CATALOG_TEXT).units;
+  const orderingNames = inject(SHARED_ORDERING_TEXT);
+  const names = orderingNames.order;
+  const locations = inject(ORDERING_CONFIG).pickup?.locations ?? [];
 
   /** The ordered quantity and, for another unit, its pieces (FR-UNIT-01): the
    * figure the shop picks. */
   const lineQuantity = (line: CartStoredLine): string => {
-    const units = common.units;
     const qty = formatUnitQuantity(
       unitQuantity(line.packaging, line.unit, line.pieces) ?? line.pieces,
       moneyFormat(config),
@@ -104,7 +111,7 @@ export function createCheckoutReadBack(deps: ReadBackDeps) {
 
   const lines = (address: AddressInput | null): string[] => {
     if (!address) return [];
-    return addressLines(address, config.address);
+    return addressLines(address, accountsConfig.address);
   };
 
   const tax = useTaxStatement();
@@ -135,12 +142,11 @@ export function createCheckoutReadBack(deps: ReadBackDeps) {
 
     blocks: computed<ReviewBlock[]>(() => {
       const draft = deps.draft();
-      const review = text.review;
 
       const arrival = deps.isPickup()
-        ? [common.fulfilment.pickup, ...pickupLines()]
+        ? [orderingNames.fulfilment.pickup, ...pickupLines()]
         : [
-            common.fulfilment.delivery,
+            orderingNames.fulfilment.delivery,
             ...lines(
               deps.addressFor(draft.deliveryAddressId, deps.deliveryForm),
             ),
@@ -153,11 +159,11 @@ export function createCheckoutReadBack(deps: ReadBackDeps) {
           ...lines(deps.addressFor(draft.billingAddressId, deps.billingForm)),
         );
       } else if (deps.billingEnabled) {
-        invoice.push(review.billingSame);
+        invoice.push(blockText.billingSame);
       }
 
       const blocks: ReviewBlock[] = [
-        { heading: common.fulfilment.label, lines: arrival },
+        { heading: orderingNames.fulfilment.label, lines: arrival },
         { heading: names.invoicedTo, lines: invoice },
         {
           // The form's own words: what is recorded is a wish.
@@ -167,7 +173,7 @@ export function createCheckoutReadBack(deps: ReadBackDeps) {
           lines: [
             draft.preferredDate
               ? formatDate(draft.preferredDate)
-              : review.whenAny,
+              : blockText.whenAny,
           ],
         },
         {

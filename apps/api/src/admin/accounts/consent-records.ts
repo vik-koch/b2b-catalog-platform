@@ -4,7 +4,6 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { AnyPgColumn } from 'drizzle-orm/pg-core';
 import { desc, eq, inArray, or, SQL } from 'drizzle-orm';
 import {
@@ -12,23 +11,21 @@ import {
   ConsentWithdrawalReason,
 } from '@b2b-catalog-platform/shared/core/site';
 import { DRIZZLE } from '../../platform/db/database.module';
-import * as schema from '../../platform/db/schema';
 import {
   consents,
   consentWithdrawals,
   pageVersions,
-  users,
-} from '../../platform/db/schema';
+} from '../../core/site/site-schema';
+import { users } from '../../core/accounts/accounts-schema';
 import { AuthUser } from '@b2b-catalog-platform/shared/platform';
 import { formatPersonName } from '@b2b-catalog-platform/shared/core/accounts';
 import { ConsentRecord } from '@b2b-catalog-platform/shared/admin/accounts';
+import { Database } from '../../platform/db/database';
 
 /** Consent records as staff read them (NFR-LEGAL-09), with their accounts. */
 @Injectable()
 export class ConsentRecords {
-  constructor(
-    @Inject(DRIZZLE) private readonly db: NodePgDatabase<typeof schema>,
-  ) {}
+  constructor(@Inject(DRIZZLE) private readonly db: Database) {}
 
   /**
    * The records naming this address or number, newest first, and those of

@@ -1,14 +1,11 @@
 import { ConflictException, Inject, Injectable } from '@nestjs/common';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { and, asc, eq, isNotNull, isNull, or, sql } from 'drizzle-orm';
 import { AdminProduct } from '@b2b-catalog-platform/shared/admin/catalog';
 import { DRIZZLE } from '../../../platform/db/database.module';
-import * as schema from '../../../platform/db/schema';
 import {
-  orderItems,
   productPairings,
   products,
-} from '../../../platform/db/schema';
+} from '../../../core/catalog/catalog-schema';
 import { OwnershipState } from '../../../platform/settings/ownership-state';
 import { catalogExternallyOwned } from '../../../platform/settings/ownership.refusals';
 import {
@@ -22,6 +19,11 @@ import {
   productNotFound,
   adminProductColumns,
 } from './product-records';
+import { Database } from '../../../platform/db/database';
+import {
+  PRODUCT_ORDERS,
+  ProductOrders,
+} from '../../../core/catalog/product-orders';
 
 /**
  * The removal steps and publication (FR-ADM-01/06/21): unpublish, delete,
@@ -31,9 +33,10 @@ import {
 @Injectable()
 export class ProductLifecycleService {
   constructor(
-    @Inject(DRIZZLE) private db: NodePgDatabase<typeof schema>,
+    @Inject(DRIZZLE) private db: Database,
     private readonly ownership: OwnershipState,
     private readonly records: ProductRecords,
+    @Inject(PRODUCT_ORDERS) private readonly orders: ProductOrders,
   ) {}
 
   /** Whether the exchange owns the catalog (FR-ADM-10); a cached read. */
@@ -132,11 +135,8 @@ export class ProductLifecycleService {
       if (this.catalogIsOwned && row.deletedBy !== null) {
         throw catalogExternallyOwned('delete permanently');
       }
-      const orderLines = await tx.$count(
-        orderItems,
-        eq(orderItems.productId, row.id),
-      );
-      if (orderLines > 0) throw productOrdered();
+      const ordered = await this.orders.orderedAmong([row.id]);
+      if (ordered.size > 0) throw productOrdered();
       try {
         await tx.delete(products).where(eq(products.id, row.id));
       } catch (error) {

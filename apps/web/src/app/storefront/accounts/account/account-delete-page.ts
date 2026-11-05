@@ -1,3 +1,4 @@
+import { STOREFRONT_ACCOUNTS_TEXT } from '../accounts-text';
 import { Component, computed, inject, resource, signal } from '@angular/core';
 import { form, required } from '@angular/forms/signals';
 import { RouterLink } from '@angular/router';
@@ -101,9 +102,10 @@ export class AccountDeletePage {
   private readonly account = inject(AccountService);
   private readonly auth = inject(AuthService);
 
-  protected readonly text = inject(STOREFRONT_TEXT).account.delete;
-  protected readonly password = inject(STOREFRONT_TEXT).auth.password;
-  private readonly validation = inject(STOREFRONT_TEXT).auth.validation;
+  protected readonly text = inject(STOREFRONT_ACCOUNTS_TEXT).account.delete;
+  protected readonly password = inject(STOREFRONT_ACCOUNTS_TEXT).auth.password;
+  private readonly validation = inject(STOREFRONT_ACCOUNTS_TEXT).auth
+    .validation;
   protected readonly home = inject(STOREFRONT_TEXT).errors.notFoundBack;
   protected readonly actionText = inject(SHARED_TEXT).actions;
   protected readonly status = signal<Status>('idle');

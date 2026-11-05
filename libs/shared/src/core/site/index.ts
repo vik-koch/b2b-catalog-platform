@@ -5,3 +5,5 @@ export * from './maintenance.contract';
 export * from './page.contract';
 export * from './pages';
 export * from './pages-config';
+export * from './site-area';
+export * from './site-config';

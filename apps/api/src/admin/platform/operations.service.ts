@@ -5,17 +5,18 @@ import {
   SettingChange,
 } from '@b2b-catalog-platform/shared/admin/platform';
 import { desc, eq } from 'drizzle-orm';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { DRIZZLE } from '../../platform/db/database.module';
-import * as schema from '../../platform/db/schema';
-import { settingChanges, users } from '../../platform/db/schema';
+import { settingChanges } from '../../platform/db/schema';
+import { ACTOR_EMAILS, ActorEmails } from '../../platform/actor-emails';
 import { env } from '../../platform/env';
+import { Database } from '../../platform/db/database';
 
 /** What the operations page and the panel's footer read beside the switches. */
 @Injectable()
 export class OperationsService {
   constructor(
-    @Inject(DRIZZLE) private readonly db: NodePgDatabase<typeof schema>,
+    @Inject(DRIZZLE) private readonly db: Database,
+    @Inject(ACTOR_EMAILS) private readonly actors: ActorEmails,
   ) {}
 
   /**
@@ -31,9 +32,8 @@ export class OperationsService {
   }
 
   /**
-   * The recent trail, newest first. Joined to `users` so a live account's
-   * current address is shown; the stored copy is the fallback for an account
-   * that is gone.
+   * The recent trail, newest first. A live account shows its current
+   * address; the stored copy is the fallback for an account that is gone.
    */
   async listChanges(): Promise<SettingChange[]> {
     const rows = await this.db
@@ -43,20 +43,23 @@ export class OperationsService {
         area: settingChanges.area,
         enabled: settingChanges.enabled,
         changedAt: settingChanges.changedAt,
-        email: users.email,
+        changedBy: settingChanges.changedBy,
         storedEmail: settingChanges.changedByEmail,
       })
       .from(settingChanges)
-      .leftJoin(users, eq(users.id, settingChanges.changedBy))
       .orderBy(desc(settingChanges.changedAt))
       .limit(SETTING_CHANGES_PAGE_SIZE);
+    const emails = await this.actors.currentOf(
+      rows.flatMap((row) => row.changedBy ?? []),
+    );
     return rows.map((row) => ({
       id: row.id,
       kind: row.kind,
       area: row.area,
       enabled: row.enabled,
       changedAt: row.changedAt.toISOString(),
-      actorEmail: row.email ?? row.storedEmail,
+      actorEmail:
+        (row.changedBy && emails.get(row.changedBy)) ?? row.storedEmail,
     }));
   }
 }

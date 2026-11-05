@@ -3,9 +3,8 @@ import {
   ProductImage,
   ProductVariant,
 } from '@b2b-catalog-platform/shared/core/catalog';
-import { STOREFRONT_TEXT } from '../../../../platform/config/storefront-text';
-import { SHARED_TEXT } from '../../../../platform/config/shared-text';
 import { SectionTitle } from '@b2b-catalog-platform/ui/content/section-title';
+import { SHARED_CATALOG_TEXT } from '../../catalog-text';
 
 /** Where a variant's first picture is in the gallery, or -1 where it has none
  * on show — none uploaded yet, or withheld while it is unavailable. */
@@ -62,8 +61,8 @@ export function firstPictureOf(
   `,
 })
 export class ProductVariantList {
-  protected readonly text = inject(STOREFRONT_TEXT).catalog.variants;
-  protected readonly product = inject(SHARED_TEXT).product;
+  protected readonly text = inject(SHARED_CATALOG_TEXT).variants;
+  protected readonly product = inject(SHARED_CATALOG_TEXT).product;
 
   readonly variants = input.required<readonly ProductVariant[]>();
   /** The pictures on show, in gallery order. */

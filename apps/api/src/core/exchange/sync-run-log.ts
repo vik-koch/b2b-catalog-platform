@@ -1,6 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { and, desc, eq, isNotNull, lt, or } from 'drizzle-orm';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import {
   MachineSyncRun,
   SyncArea,
@@ -9,9 +8,9 @@ import {
   SyncRunStatus,
 } from '@b2b-catalog-platform/shared/core/exchange';
 import { DRIZZLE } from '../../platform/db/database.module';
-import * as schema from '../../platform/db/schema';
-import { syncRuns } from '../../platform/db/schema';
+import { syncRuns } from './exchange-schema';
 import { Submitter, runNotFound } from './sync-run';
+import { Database } from '../../platform/db/database';
 
 /** Staged rows and finished runs are audit data, not archive data. */
 const RUN_RETENTION_DAYS = 90;
@@ -20,9 +19,7 @@ const RUN_RETENTION_DAYS = 90;
  * next one replaces, and where the feed stood before it. */
 @Injectable()
 export class SyncRunLog {
-  constructor(
-    @Inject(DRIZZLE) private readonly db: NodePgDatabase<typeof schema>,
-  ) {}
+  constructor(@Inject(DRIZZLE) private readonly db: Database) {}
 
   /**
    * The area's previous automated run's status, or null. Uploads are not the

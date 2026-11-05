@@ -1,10 +1,11 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
-import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
-import { fillText, MapEmbed } from '@b2b-catalog-platform/shared/platform';
-import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
+import { MapEmbed } from '@b2b-catalog-platform/shared/core/site';
 import { ConsentService } from '../cookie-consent/consent.service';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
+import { STOREFRONT_SITE_TEXT } from '../site-text';
+import { SITE_CONFIG } from '../../../core/site/site-config';
 
 /** The one place a map embed is created: one that sets cookies waits for
  * consent behind a placeholder. */
@@ -53,9 +54,9 @@ export class MapFrame {
     this.portraitOnPhone() ? 'aspect-[3/4] sm:aspect-video' : 'aspect-video',
   );
 
-  protected readonly text = inject(STOREFRONT_TEXT).map;
+  protected readonly text = inject(STOREFRONT_SITE_TEXT).map;
   protected readonly notice = fillText(this.text.consentNotice, {
-    provider: inject(DEPLOYMENT_CONFIG).mapProvider,
+    provider: inject(SITE_CONFIG).mapProvider,
   });
 
   // Deployment-owned, and a URL only: trusted as a resource, never as script.

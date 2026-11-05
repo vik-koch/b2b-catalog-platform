@@ -1,3 +1,4 @@
+import { ADMIN_ORDERING_TEXT } from './ordering-text';
 import {
   Component,
   computed,
@@ -187,7 +188,7 @@ export class OrderDocumentsPanel {
   protected readonly uploadIcon = uploadIcon;
   private readonly api = inject(AdminOrdersService);
   private readonly confirm = inject(ConfirmService);
-  protected readonly text = inject(ADMIN_TEXT).orders.detail.documents;
+  protected readonly text = inject(ADMIN_ORDERING_TEXT).orders.detail.documents;
   protected readonly adminText = inject(ADMIN_TEXT);
   // The size words the document list owns.
   private readonly sizes = inject(SHARED_TEXT).fileSize;

@@ -49,6 +49,7 @@ import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
 import { uploadIcon } from '@b2b-catalog-platform/ui/icons/glyphs/upload';
 import { SaveButton } from '../../platform/ui/save-button';
 import { CancelButton } from '../../platform/ui/cancel-button';
+import { ADMIN_CATALOG_TEXT } from '../catalog-text';
 
 interface DocumentDraft {
   title: string;
@@ -305,7 +306,7 @@ export class DocumentEditorPage implements UnsavedChangesAware, FieldAttempt {
   protected readonly uploadIcon = uploadIcon;
   private readonly service = inject(DocumentsService);
   private readonly route = inject(ActivatedRoute);
-  protected readonly text = inject(ADMIN_TEXT).documents.editor;
+  protected readonly text = inject(ADMIN_CATALOG_TEXT).documents.editor;
   private readonly sizes = inject(SHARED_TEXT).fileSize;
   protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly actionText = inject(SHARED_TEXT).actions;

@@ -19,13 +19,14 @@ import {
   lte,
   ne,
 } from 'drizzle-orm';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { DRIZZLE } from '../../platform/db/database.module';
 import { resolvedPriceMinor } from '../catalog/product-price';
 import { MY_ORDER_CONDITIONS } from '../ordering/my-order-filters';
-import * as schema from '../../platform/db/schema';
-
-const { documents, orderRevisions, orders, products, syncRuns, users } = schema;
+import { Database } from '../../platform/db/database';
+import { documents, products } from '../catalog/catalog-schema';
+import { users } from '../accounts/accounts-schema';
+import { orderRevisions, orders } from '../ordering/ordering-schema';
+import { syncRuns } from '../exchange/exchange-schema';
 
 /**
  * The one authorization rule outside a guard (FR-WORK-04): the route takes any
@@ -54,9 +55,7 @@ const QUEUES_BY_ROLE: Record<UserRole, readonly WorkQueue[]> = {
  */
 @Injectable()
 export class WorkService {
-  constructor(
-    @Inject(DRIZZLE) private readonly db: NodePgDatabase<typeof schema>,
-  ) {}
+  constructor(@Inject(DRIZZLE) private readonly db: Database) {}
 
   /** Typed by queue, so a queue added to the contract needs a count here. */
   private readonly counters: Record<

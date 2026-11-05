@@ -26,6 +26,7 @@ import { Input } from '@b2b-catalog-platform/ui/inputs/input';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
 import { SubEditorFrame } from '../ui/sub-editor-frame';
+import { ADMIN_CATALOG_TEXT } from '../catalog-text';
 
 /** `aria-controls` must name one panel, and a page may hold more than one. */
 let nextId = 0;
@@ -116,7 +117,7 @@ let nextId = 0;
 export class ProductPartsEditor implements OnInit {
   protected readonly xIcon = xIcon;
   protected readonly adminText = inject(ADMIN_TEXT);
-  protected readonly text = inject(ADMIN_TEXT).products.editor.parts;
+  protected readonly text = inject(ADMIN_CATALOG_TEXT).products.editor.parts;
   protected readonly glyph = PRODUCT_FEATURE_GLYPHS.set;
 
   readonly value = input.required<readonly string[]>();

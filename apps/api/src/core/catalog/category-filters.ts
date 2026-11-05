@@ -6,10 +6,7 @@
  * overlay was saved is offered only where nothing is overlaid.
  */
 
-import {
-  attributeDefinitions,
-  categoryAttributes,
-} from '../../platform/db/schema';
+import { attributeDefinitions, categoryAttributes } from './catalog-schema';
 import { CategoryRow } from './catalog-tree';
 
 /** A registry row as the facets need it. */

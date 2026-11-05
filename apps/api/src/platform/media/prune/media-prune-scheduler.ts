@@ -1,7 +1,9 @@
+import { MediaReferences } from './media-references';
 import { runMediaPrune, type PruneResult } from './prune-media';
 
 interface MediaPruneScheduleOptions {
   connectionString: string;
+  sources: MediaReferences;
   mediaRoot: string;
   graceMs: number;
   /** How often the background sweep runs. */
@@ -22,6 +24,7 @@ export function scheduleMediaPrune(
 ): () => void {
   const {
     connectionString,
+    sources,
     mediaRoot,
     graceMs,
     intervalMs,
@@ -41,6 +44,7 @@ export function scheduleMediaPrune(
     try {
       const result = await run({
         connectionString,
+        sources,
         mediaRoot,
         graceMs,
         dryRun,

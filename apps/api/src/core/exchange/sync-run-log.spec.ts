@@ -1,6 +1,6 @@
-import { drizzle, NodePgDatabase } from 'drizzle-orm/node-postgres';
-import * as schema from '../../platform/db/schema';
+import { drizzle } from 'drizzle-orm/node-postgres';
 import { SyncRunLog } from './sync-run-log';
+import { Database } from '../../platform/db/database';
 
 /**
  * Retention, rendered rather than executed: which statements prune writes,
@@ -10,7 +10,7 @@ describe('SyncRunLog.prune', () => {
   const statements: { sql: string; params: unknown[] }[] = [];
 
   beforeAll(async () => {
-    const real = drizzle({ client: {} as never, schema });
+    const real = drizzle({ client: {} as never });
     const settle = (query: {
       toSQL: () => { sql: string; params: unknown[] };
     }) => {
@@ -28,7 +28,7 @@ describe('SyncRunLog.prune', () => {
             settle(real.update(table).set(values).where(condition)),
         }),
       }),
-    } as unknown as NodePgDatabase<typeof schema>;
+    } as unknown as Database;
 
     await new SyncRunLog(db).prune();
   });

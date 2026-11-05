@@ -1,10 +1,11 @@
+import { ACCOUNTS_CONFIG } from '../../../core/accounts/accounts-config';
 import { computed, inject, Signal } from '@angular/core';
 import {
   formatMoneyMinor,
   moneyFormat,
 } from '@b2b-catalog-platform/shared/platform';
 import { OrderDetail } from '@b2b-catalog-platform/shared/core/ordering';
-import { useTaxStatement } from '../../../core/catalog/pricing/tax-statement';
+import { useTaxStatement } from '../../../platform/tax-statement';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import {
@@ -24,6 +25,7 @@ export function useCustomerOrderView(order: Signal<OrderDetail | null>): {
   blocks: Signal<ReviewBlock[]>;
 } {
   const config = inject(DEPLOYMENT_CONFIG);
+  const accountsConfig = inject(ACCOUNTS_CONFIG);
   const currency = moneyFormat(config);
   const sharedText = inject(SHARED_TEXT);
   const labels = injectCustomerBlockLabels();
@@ -53,7 +55,7 @@ export function useCustomerOrderView(order: Signal<OrderDetail | null>): {
     const detail = order();
     return detail
       ? orderBlocks(detail, labels, {
-          address: config.address,
+          address: accountsConfig.address,
           phoneInput: config.phoneInput,
           locale: config.locale,
         })

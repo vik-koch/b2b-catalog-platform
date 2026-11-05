@@ -4,7 +4,6 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { and, asc, eq, inArray, notInArray } from 'drizzle-orm';
 import {
   parseAttributeNumber,
@@ -17,11 +16,11 @@ import {
   LinkedDocument,
   LinkedProduct,
   ProductInput,
+  PRODUCT_RICH_TEXT_TAGS,
   ProductTierPrice,
 } from '@b2b-catalog-platform/shared/admin/catalog';
-import { sanitizeProductRichText } from '@b2b-catalog-platform/shared/node';
+import { sanitizeToTags } from '@b2b-catalog-platform/shared/node';
 import { DRIZZLE } from '../../../platform/db/database.module';
-import * as schema from '../../../platform/db/schema';
 import {
   customerTiers,
   documentProducts,
@@ -30,7 +29,7 @@ import {
   productPairings,
   productPrices,
   products,
-} from '../../../platform/db/schema';
+} from '../../../core/catalog/catalog-schema';
 import { excluded } from '../../../platform/db/sql-columns';
 import { OwnershipState } from '../../../platform/settings/ownership-state';
 import { catalogExternallyOwned } from '../../../platform/settings/ownership.refusals';
@@ -40,7 +39,7 @@ import {
   involves,
 } from '../../../core/catalog/product-pairings';
 import { defaultTierId } from './default-tier';
-import { LOW_STOCK_THRESHOLD_PIECES } from '../../../platform/config/deployment-config';
+import { LOW_STOCK_THRESHOLD_PIECES } from '../../../core/catalog/catalog-config';
 import {
   resolveNewSlug,
   resolveNewProductSourceId,
@@ -59,6 +58,7 @@ import {
   toAdminProduct,
   toLinkedProduct,
 } from './product-records';
+import { Database } from '../../../platform/db/database';
 
 /** What a save links to, resolved before it is written. */
 interface SaveLinks {
@@ -71,7 +71,7 @@ interface SaveLinks {
 @Injectable()
 export class ProductEditorService {
   constructor(
-    @Inject(DRIZZLE) private db: NodePgDatabase<typeof schema>,
+    @Inject(DRIZZLE) private db: Database,
     // The deployment's "few left" fallback.
     @Inject(LOW_STOCK_THRESHOLD_PIECES) private lowStockFallback: number,
     private readonly ownership: OwnershipState,
@@ -191,7 +191,10 @@ export class ProductEditorService {
       name: input.name,
       categoryId: input.categoryId,
       // The single write path, so nothing reaches the column unsanitized.
-      descriptionHtml: sanitizeProductRichText(input.descriptionHtml),
+      descriptionHtml: sanitizeToTags(
+        input.descriptionHtml,
+        PRODUCT_RICH_TEXT_TAGS,
+      ),
       images: input.images,
       variants: input.variants,
       featured: input.featured,
@@ -210,7 +213,7 @@ export class ProductEditorService {
    * product as the save leaves it.
    */
   private async writeLists(
-    tx: NodePgDatabase<typeof schema>,
+    tx: Database,
     row: Omit<ProductRow, 'priceMinor'>,
     input: ProductInput,
     { paired, linked }: SaveLinks,
@@ -259,7 +262,7 @@ export class ProductEditorService {
    * publication.
    */
   private async writeDefaultPrice(
-    tx: NodePgDatabase<typeof schema>,
+    tx: Database,
     productId: string,
     tierId: string,
     priceMinor: number | null,
@@ -290,7 +293,7 @@ export class ProductEditorService {
    * `writeDefaultPrice` answers for it.
    */
   private async replaceTierPrices(
-    tx: NodePgDatabase<typeof schema>,
+    tx: Database,
     productId: string,
     defaultTier: string,
     entries: ProductTierPrice[],
@@ -330,7 +333,7 @@ export class ProductEditorService {
    * number, whether or not a definition claims the key.
    */
   private async replaceAttributes(
-    tx: NodePgDatabase<typeof schema>,
+    tx: Database,
     productId: string,
     entries: StoredAttribute[],
   ): Promise<void> {
@@ -408,7 +411,7 @@ export class ProductEditorService {
   /** This product's document links, from its side only: every other product
    * a document is on keeps it. */
   private async replaceDocumentLinks(
-    tx: NodePgDatabase<typeof schema>,
+    tx: Database,
     productId: string,
     linked: LinkedDocument[],
   ): Promise<void> {
@@ -437,7 +440,7 @@ export class ProductEditorService {
    * a save does not re-date them.
    */
   private async replacePairings(
-    tx: NodePgDatabase<typeof schema>,
+    tx: Database,
     productId: string,
     counterpartIds: string[],
   ): Promise<void> {

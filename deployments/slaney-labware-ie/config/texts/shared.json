@@ -29,11 +29,6 @@
   "imagePlaceholder": "No image available",
   "showMore": "Show more",
   "showLess": "Show less",
-  "units": {
-    "piece": "pcs",
-    "pack": "pk",
-    "box": "bx"
-  },
   "quantity": "{qty} {unit}",
   "quantityPieces": "{qty} {unit} ({pieces} {pieceUnit})",
   "tax": {
@@ -44,74 +39,16 @@
       "included": "incl. VAT at the rate each item states",
       "added": "plus VAT at the rate each item states"
     },
-    "line": "{rate} % VAT"
-  },
-  "packaging": {
-    "heading": "Packaging",
-    "packContains": "Pack contains",
-    "boxContains": "Box contains",
-    "boxVolume": "Box volume",
-    "boxWeight": "Box weight"
-  },
-  "product": {
-    "description": "Description",
-    "documents": "Documents",
-    "variants": "Variants",
-    "pairings": "Sold together",
-    "availability": {
-      "in": "In stock",
-      "low": "Few left",
-      "out": "Out of stock"
-    }
+    "line": "{rate} % VAT",
+    "listing": {
+      "included": "All prices include VAT, plus delivery.",
+      "added": "All prices are net, plus VAT and delivery."
+    },
+    "atPrice": "{statement}, plus delivery"
   },
   "fileSize": {
     "kb": "{size} kB",
     "mb": "{size} MB"
-  },
-  "order": {
-    "reference": "Order",
-    "status": "Status",
-    "total": "Order total",
-    "reason": "Reason",
-    "changeNote": "Change note",
-    "contact": "Contact",
-    "invoicedTo": "Invoiced to",
-    "payment": "Payment",
-    "deliveryAddress": "Delivery address",
-    "preferredDelivery": "Preferred delivery date",
-    "preferredPickup": "Preferred collection date",
-    "items": "Your items",
-    "note": "Your note",
-    "pickupPoint": "Collect from",
-    "termsVersion": "As updated on {date}",
-    "statuses": {
-      "requested": "Awaiting confirmation",
-      "approved": "Confirmed",
-      "readyDelivery": "On its way to you",
-      "readyPickup": "Ready to collect",
-      "completed": "Complete",
-      "declined": "Declined",
-      "cancelled": "Cancelled"
-    },
-    "paymentMethods": {
-      "cash": "Cash",
-      "transfer": "Bank transfer",
-      "card": "Card, arranged with us"
-    },
-    "paymentStates": {
-      "notDue": "Nothing due yet",
-      "awaiting": "Awaiting payment",
-      "paid": "Paid"
-    }
-  },
-  "fulfilment": {
-    "label": "How it arrives",
-    "delivery": "Delivery",
-    "pickup": "Self-pickup"
-  },
-  "partyKind": {
-    "person": "Private person",
-    "company": "Company"
   },
   "fields": {
     "name": {
@@ -150,5 +87,176 @@
     "previous": "Previous",
     "next": "Next",
     "status": "Page {page} of {total}"
+  },
+  "catalog": {
+    "units": {
+      "piece": "pcs",
+      "pack": "pk",
+      "box": "bx"
+    },
+    "packaging": {
+      "heading": "Packaging",
+      "packContains": "Pack contains",
+      "boxContains": "Box contains",
+      "boxVolume": "Box volume",
+      "boxWeight": "Box weight"
+    },
+    "product": {
+      "description": "Description",
+      "documents": "Documents",
+      "variants": "Variants",
+      "pairings": "Sold together",
+      "availability": {
+        "in": "In stock",
+        "low": "Few left",
+        "out": "Out of stock"
+      }
+    },
+    "set": {
+      "short": "Set",
+      "full": "Sold as a set: {parts}"
+    },
+    "variants": {
+      "unavailable": "currently unavailable",
+      "note": "Variants carry no stock of their own; which are available is confirmed with you after the order is placed.",
+      "markLabel": "Show the variants ({count})"
+    },
+    "pairings": {
+      "marker": "Sold together with other products ({count})",
+      "intro": "These are sold with this product. Add what you need without leaving the page.",
+      "loadError": "Something went wrong loading these — please try again later."
+    },
+    "documents": {
+      "hintAria": "Opens in a new tab",
+      "linkAria": "Look it up at {host}"
+    },
+    "unitFacts": {
+      "perUnit": "per {unit}",
+      "packagingFormula": "{packs} {packUnit} × {pieces} {pieceUnit} = {total} {pieceUnit}",
+      "packagingPerPack": "{pieces} {pieceUnit} per {packUnit}",
+      "minQuantity": "Minimum order",
+      "boxCountSuffix": "(for {count})",
+      "select": {
+        "piece": "Piece",
+        "pack": "Pack",
+        "box": "Box"
+      }
+    },
+    "specifications": "Specifications",
+    "mainSpecifications": "Main specifications",
+    "allSpecifications": "All specifications",
+    "catalogRoot": "Catalogue",
+    "viewImageAria": "Show image {n}",
+    "buying": {
+      "unitAria": "Unit",
+      "quantityAria": "Quantity",
+      "unitNotSold": "This product is not sold in this unit.",
+      "decreaseAria": "Decrease the quantity",
+      "increaseAria": "Increase the quantity",
+      "noteLabel": "Note",
+      "notePrompt": "Anything we should know about this line?",
+      "noteAdd": "Add a note to this line",
+      "noteEdit": "Edit the note on this line",
+      "add": "Add to cart",
+      "addedFor": "Added for {total}",
+      "full": "Your cart is full — please place this order before adding more products.",
+      "removeQuestion": "Take this out of the cart?",
+      "removeYes": "Remove",
+      "removeNo": "Keep",
+      "noPrice": "On request",
+      "quantityCorrected": "The quantity was adjusted to the nearest we can supply."
+    }
+  },
+  "accounts": {
+    "partyKind": {
+      "person": "Private person",
+      "company": "Company"
+    },
+    "signedInAs": {
+      "greeting": "Hello, {name}",
+      "logout": "Log out"
+    },
+    "companySuggest": {
+      "suggestionsAria": "Company suggestions",
+      "noSuggestions": "No matching companies. Carry on typing it yourself.",
+      "suggestionCountAria": "Company suggestions: {count}"
+    },
+    "address": {
+      "label": "Name for this address",
+      "labelHint": "Only if you keep several — “Shop”, “Warehouse”, “Home”. Left empty, it is listed by its street.",
+      "enterManually": "Enter the address manually",
+      "addressLine": "Address",
+      "street": "Street and number",
+      "street2": "Address line 2",
+      "postalCode": "Postcode",
+      "city": "City",
+      "region": "Region",
+      "country": "Country",
+      "required": "Please fill this in.",
+      "postalCodeFormat": "A postcode here looks like {example}.",
+      "suggest": {
+        "suggestionsAria": "Address suggestions",
+        "noSuggestions": "No matching addresses. Carry on typing it yourself.",
+        "suggestionCountAria": "Address suggestions: {count}"
+      }
+    }
+  },
+  "ordering": {
+    "order": {
+      "reference": "Order",
+      "status": "Status",
+      "total": "Order total",
+      "reason": "Reason",
+      "changeNote": "Change note",
+      "contact": "Contact",
+      "invoicedTo": "Invoiced to",
+      "payment": "Payment",
+      "deliveryAddress": "Delivery address",
+      "preferredDelivery": "Preferred delivery date",
+      "preferredPickup": "Preferred collection date",
+      "items": "Your items",
+      "note": "Your note",
+      "pickupPoint": "Collect from",
+      "termsVersion": "As updated on {date}",
+      "statuses": {
+        "requested": "Awaiting confirmation",
+        "approved": "Confirmed",
+        "readyDelivery": "On its way to you",
+        "readyPickup": "Ready to collect",
+        "completed": "Complete",
+        "declined": "Declined",
+        "cancelled": "Cancelled"
+      },
+      "paymentMethods": {
+        "cash": "Cash",
+        "transfer": "Bank transfer",
+        "card": "Card, arranged with us"
+      },
+      "paymentStates": {
+        "notDue": "Nothing due yet",
+        "awaiting": "Awaiting payment",
+        "paid": "Paid"
+      }
+    },
+    "fulfilment": {
+      "label": "How it arrives",
+      "delivery": "Delivery",
+      "pickup": "Self-pickup"
+    },
+    "orderSummary": {
+      "title": "Your order",
+      "lines": "Line items",
+      "subtotal": "Subtotal",
+      "totalIncomplete": "Some lines could not be priced — the subtotal covers the rest.",
+      "shipmentCartons": "Cartons",
+      "shipmentVolume": "Volume",
+      "shipmentWeight": "Weight",
+      "shipmentApproximate": "Approximate — we confirm the actual consignment with your order.",
+      "shipmentUncovered": "Lines not covered by this estimate: {count}"
+    },
+    "orderBlocks": {
+      "billingSame": "Invoiced to the same address.",
+      "whenAny": "As soon as you can"
+    }
   }
 }

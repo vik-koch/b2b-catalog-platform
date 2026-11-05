@@ -51,6 +51,7 @@ import { rotateCcwIcon } from '@b2b-catalog-platform/ui/icons/glyphs/rotate-ccw'
 import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
 import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
 import { DragGrip } from '../ui/drag-grip';
+import { ADMIN_CATALOG_TEXT } from '../catalog-text';
 
 /** Pixels per tree level, for the rows and the drop line alike. */
 const INDENT = 24;
@@ -341,8 +342,8 @@ export class CategoryListPage {
   protected readonly trash2Icon = trash2Icon;
   private readonly service = inject(CategoriesService);
   protected readonly adminText = inject(ADMIN_TEXT);
-  protected readonly text = inject(ADMIN_TEXT).categories.list;
-  private readonly productsText = inject(ADMIN_TEXT).products;
+  protected readonly text = inject(ADMIN_CATALOG_TEXT).categories.list;
+  private readonly productsText = inject(ADMIN_CATALOG_TEXT).products;
   protected readonly editorFrom = injectEditorReturnParams();
 
   protected productsLabel(count: number): string {

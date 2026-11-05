@@ -1,7 +1,11 @@
+import { ADMIN_ACCOUNTS_TEXT } from '../accounts/accounts-text';
 import { Route } from '@angular/router';
 import { requireAuth } from '../../platform/auth/auth.guard';
+import { inject } from '@angular/core';
 import { adminTextGuard } from '../../platform/config/admin-text';
+import { ADMIN_SITE_TEXT } from '../site/site-text';
 import { unsavedChangesGuard } from '../platform/unsaved-changes.guard';
+import { ADMIN_CATALOG_TEXT } from '../catalog/catalog-text';
 
 /*
  * Staff routes, lazy and client-rendered. Each also waits on adminTextGuard:
@@ -107,7 +111,9 @@ export const adminRoutes: Route[] = [
     path: 'admin/documents/new',
     canActivate: [requireAuth('admin'), adminTextGuard],
     canDeactivate: [
-      unsavedChangesGuard((t) => t.documents.editor.discardConfirm),
+      unsavedChangesGuard(
+        () => inject(ADMIN_CATALOG_TEXT).documents.editor.discardConfirm,
+      ),
     ],
     loadComponent: () =>
       import('../catalog/documents/document-editor-page').then(
@@ -118,7 +124,9 @@ export const adminRoutes: Route[] = [
     path: 'admin/documents/:id/edit',
     canActivate: [requireAuth('admin'), adminTextGuard],
     canDeactivate: [
-      unsavedChangesGuard((t) => t.documents.editor.discardConfirm),
+      unsavedChangesGuard(
+        () => inject(ADMIN_CATALOG_TEXT).documents.editor.discardConfirm,
+      ),
     ],
     loadComponent: () =>
       import('../catalog/documents/document-editor-page').then(
@@ -168,7 +176,11 @@ export const adminRoutes: Route[] = [
     path: 'admin/users/new',
     data: { kind: 'customer' },
     canActivate: [requireAuth('admin', 'manager'), adminTextGuard],
-    canDeactivate: [unsavedChangesGuard((t) => t.users.editor.discardConfirm)],
+    canDeactivate: [
+      unsavedChangesGuard(
+        () => inject(ADMIN_ACCOUNTS_TEXT).users.editor.discardConfirm,
+      ),
+    ],
     loadComponent: () =>
       import('../accounts/users/user-editor-page').then(
         (m) => m.UserEditorPage,
@@ -178,7 +190,11 @@ export const adminRoutes: Route[] = [
     path: 'admin/users/staff/new',
     data: { kind: 'staff' },
     canActivate: [requireAuth('admin'), adminTextGuard],
-    canDeactivate: [unsavedChangesGuard((t) => t.users.editor.discardConfirm)],
+    canDeactivate: [
+      unsavedChangesGuard(
+        () => inject(ADMIN_ACCOUNTS_TEXT).users.editor.discardConfirm,
+      ),
+    ],
     loadComponent: () =>
       import('../accounts/users/user-editor-page').then(
         (m) => m.UserEditorPage,
@@ -196,7 +212,11 @@ export const adminRoutes: Route[] = [
     // Which accounts a manager may open is the API's call.
     path: 'admin/users/:id/edit',
     canActivate: [requireAuth('admin', 'manager'), adminTextGuard],
-    canDeactivate: [unsavedChangesGuard((t) => t.users.editor.discardConfirm)],
+    canDeactivate: [
+      unsavedChangesGuard(
+        () => inject(ADMIN_ACCOUNTS_TEXT).users.editor.discardConfirm,
+      ),
+    ],
     loadComponent: () =>
       import('../accounts/users/user-editor-page').then(
         (m) => m.UserEditorPage,
@@ -258,7 +278,9 @@ export const adminRoutes: Route[] = [
     path: 'admin/categories/new',
     canActivate: [requireAuth('admin'), adminTextGuard],
     canDeactivate: [
-      unsavedChangesGuard((t) => t.categories.editor.discardConfirm),
+      unsavedChangesGuard(
+        () => inject(ADMIN_CATALOG_TEXT).categories.editor.discardConfirm,
+      ),
     ],
     loadComponent: () =>
       import('../catalog/categories/category-editor-page').then(
@@ -269,7 +291,9 @@ export const adminRoutes: Route[] = [
     path: 'admin/categories/:slug/edit',
     canActivate: [requireAuth('admin'), adminTextGuard],
     canDeactivate: [
-      unsavedChangesGuard((t) => t.categories.editor.discardConfirm),
+      unsavedChangesGuard(
+        () => inject(ADMIN_CATALOG_TEXT).categories.editor.discardConfirm,
+      ),
     ],
     loadComponent: () =>
       import('../catalog/categories/category-editor-page').then(
@@ -299,7 +323,9 @@ export const adminRoutes: Route[] = [
     path: 'admin/products/new',
     canActivate: [requireAuth('admin'), adminTextGuard],
     canDeactivate: [
-      unsavedChangesGuard((t) => t.products.editor.discardConfirm),
+      unsavedChangesGuard(
+        () => inject(ADMIN_CATALOG_TEXT).products.editor.discardConfirm,
+      ),
     ],
     loadComponent: () =>
       import('../catalog/products/product-editor-page').then(
@@ -310,7 +336,9 @@ export const adminRoutes: Route[] = [
     path: 'admin/products/:slug/edit',
     canActivate: [requireAuth('admin'), adminTextGuard],
     canDeactivate: [
-      unsavedChangesGuard((t) => t.products.editor.discardConfirm),
+      unsavedChangesGuard(
+        () => inject(ADMIN_CATALOG_TEXT).products.editor.discardConfirm,
+      ),
     ],
     loadComponent: () =>
       import('../catalog/products/product-editor-page').then(
@@ -321,7 +349,9 @@ export const adminRoutes: Route[] = [
   {
     path: 'admin/pages/:slug/edit',
     canActivate: [requireAuth('admin'), adminTextGuard],
-    canDeactivate: [unsavedChangesGuard((t) => t.pages.discardConfirm)],
+    canDeactivate: [
+      unsavedChangesGuard(() => inject(ADMIN_SITE_TEXT).pages.discardConfirm),
+    ],
     // A slug change is a fresh activation, so the guard runs.
     data: { noReuse: true },
     loadComponent: () =>

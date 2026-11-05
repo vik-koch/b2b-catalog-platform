@@ -3,37 +3,43 @@ import { AddressBookModule } from '../accounts/address-book.module';
 import { AuditLogger } from '../../platform/audit/audit.logger';
 import { SessionModule } from '../../platform/auth/session.module';
 import {
-  ACCEPTED_CUSTOMER_TYPES,
-  loadAcceptedCustomerTypes,
   ALTERNATE_LAYOUT,
   loadAlternateLayout,
-  BILLING_ADDRESS_ENABLED,
   COMPANY_ID_RULE,
-  DELIVERY_CONFIG,
   MONEY_FORMAT,
   ORDER_CURRENCY,
-  ORDER_REFERENCE_CONFIG,
-  PAIRINGS_ENFORCED,
+  SHOP_TIME_ZONE,
   PDF_FONT,
-  PICKUP_LOCATIONS,
-  TERMS_ATTACHED,
-  TERMS_PUBLISHED,
-  ADDRESS_CONFIG,
-  loadAddressConfig,
-  loadBillingAddressEnabled,
   loadCompanyIdRule,
-  loadDeliveryConfig,
   loadMoneyFormat,
   loadOrderCurrency,
-  loadOrderReferenceConfig,
-  loadPairingsEnforced,
+  loadShopTimeZone,
   loadPdfFont,
-  loadPickupLocations,
   loadTaxConfig,
-  loadTermsAttached,
   TAX_CONFIG,
-  loadTermsPublished,
 } from '../../platform/config/deployment-config';
+import { TERMS_ATTACHED, loadTermsAttached } from './terms-config';
+import {
+  BILLING_ADDRESS_ENABLED,
+  DELIVERY_CONFIG,
+  ORDER_REFERENCE_CONFIG,
+  PICKUP_LOCATIONS,
+  loadBillingAddressEnabled,
+  loadDeliveryConfig,
+  loadOrderReferenceConfig,
+  loadPickupLocations,
+} from './ordering-config';
+import {
+  ACCEPTED_CUSTOMER_TYPES,
+  loadAcceptedCustomerTypes,
+  ADDRESS_CONFIG,
+  loadAddressConfig,
+} from '../accounts/accounts-config';
+import {
+  PAIRINGS_ENFORCED,
+  loadPairingsEnforced,
+} from '../catalog/catalog-config';
+import { loadTermsPublished, TERMS_PUBLISHED } from '../site/site-config';
 import { MailModule } from '../../platform/mail/mail.module';
 import { MediaModule } from '../../platform/media/media.module';
 import { OrderDocumentActs } from './order-document-acts';
@@ -91,6 +97,7 @@ import { OrderWriter } from './order-writer';
     // Whether an unsatisfied pairing refuses the order (FR-SET-04).
     { provide: PAIRINGS_ENFORCED, useFactory: loadPairingsEnforced },
     { provide: ORDER_REFERENCE_CONFIG, useFactory: loadOrderReferenceConfig },
+    { provide: SHOP_TIME_ZONE, useFactory: loadShopTimeZone },
     { provide: ORDER_CURRENCY, useFactory: loadOrderCurrency },
     // The same currency with its locale: what the order mails format against.
     { provide: MONEY_FORMAT, useFactory: loadMoneyFormat },
@@ -118,6 +125,7 @@ import { OrderWriter } from './order-writer';
     TermsPdf,
     // What the storefront's checkout and the staff screens read.
     ORDER_REFERENCE_CONFIG,
+    SHOP_TIME_ZONE,
     ORDER_CURRENCY,
     PAIRINGS_ENFORCED,
     TERMS_PUBLISHED,

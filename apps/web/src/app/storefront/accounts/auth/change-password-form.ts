@@ -1,3 +1,4 @@
+import { STOREFRONT_ACCOUNTS_TEXT } from '../accounts-text';
 import {
   Component,
   computed,
@@ -9,7 +10,6 @@ import {
 } from '@angular/core';
 import { form, required } from '@angular/forms/signals';
 import { fillText } from '@b2b-catalog-platform/shared/platform';
-import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
 import { confirmation, newPassword } from './password';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
@@ -88,7 +88,7 @@ import { PASSWORD_MIN_LENGTH } from '@b2b-catalog-platform/shared/core/accounts'
 export class ChangePasswordForm {
   private readonly auth = inject(SignInService);
 
-  private readonly authText = inject(STOREFRONT_TEXT).auth;
+  private readonly authText = inject(STOREFRONT_ACCOUNTS_TEXT).auth;
   protected readonly text = this.authText.changePassword;
   private readonly validation = this.authText.validation;
   private readonly rejected = this.authText.passwordRejected;

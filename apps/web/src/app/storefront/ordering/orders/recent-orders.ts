@@ -1,7 +1,7 @@
+import { STOREFRONT_ORDERING_TEXT } from '../ordering-text';
 import { Component, computed, inject, input, resource } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { fillText } from '@b2b-catalog-platform/shared/platform';
-import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { ActionLink } from '@b2b-catalog-platform/ui/actions/action-link';
 import { shoppingBasketIcon } from '@b2b-catalog-platform/ui/icons/glyphs/shopping-basket';
@@ -90,7 +90,7 @@ export class RecentOrders {
   protected readonly shoppingBasketIcon = shoppingBasketIcon;
 
   private readonly api = inject(OrdersService);
-  protected readonly orderText = inject(STOREFRONT_TEXT).orders;
+  protected readonly orderText = inject(STOREFRONT_ORDERING_TEXT).orders;
 
   /** What waits on the holder; zero or absent draws no line. */
   readonly payments = input<number>();

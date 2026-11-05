@@ -40,6 +40,7 @@ import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { DragGrip } from '../ui/drag-grip';
 import { SaveButton } from '../../platform/ui/save-button';
 import { CancelButton } from '../../platform/ui/cancel-button';
+import { ADMIN_CATALOG_TEXT } from '../catalog-text';
 
 /** Where the panel closes to when it was not opened from in the app. */
 const FALLBACK_RETURN = '/admin/categories';
@@ -233,7 +234,7 @@ export class CategoryFiltersPage {
   private readonly service = inject(AttributesService);
   private readonly confirm = inject(ConfirmService);
   private readonly returnTo = injectEditorReturn();
-  protected readonly text = inject(ADMIN_TEXT).categories.filters;
+  protected readonly text = inject(ADMIN_CATALOG_TEXT).categories.filters;
   protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly actionText = inject(SHARED_TEXT).actions;
 

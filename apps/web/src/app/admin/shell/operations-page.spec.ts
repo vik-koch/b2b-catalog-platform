@@ -1,3 +1,4 @@
+import { defaultAdminExchangeText } from '../exchange/exchange-text.fixture';
 import { SHARED_TEXT } from '../../platform/config/shared-text';
 import { defaultSharedText } from '../../platform/config/shared-text.fixture';
 import { TestBed } from '@angular/core/testing';
@@ -17,15 +18,16 @@ import { OwnershipSwitchService } from '../exchange/ownership-switch.service';
 import { MaintenanceSwitchService } from '../site/maintenance-switch.service';
 import { SettingChangesService } from '../platform/setting-changes.service';
 import { OperationsPage } from './operations-page';
+import { defaultAdminSiteText } from '../site/site-text.fixture';
 
 const text = defaultAdminText.operations;
-const ownershipText = defaultAdminText.ownership;
-const maintenanceText = defaultAdminText.maintenance;
+const ownershipText = defaultAdminExchangeText.ownership;
+const maintenanceText = defaultAdminSiteText.maintenance;
 
 const config = {
   locale: 'de-DE',
   branding: { name: 'Test Shop', tagline: 'Test tagline' },
-  catalog: { currency: { code: 'EUR' } },
+  currency: { code: 'EUR' },
 } as unknown as DeploymentConfig;
 
 const change = (over: Partial<SettingChange> = {}): SettingChange => ({

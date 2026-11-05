@@ -1,15 +1,14 @@
 import { createHash, randomInt, timingSafeEqual } from 'node:crypto';
 import { Inject, Injectable } from '@nestjs/common';
 import { and, eq, gt, isNotNull, lt, sql } from 'drizzle-orm';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { DRIZZLE } from '../../../platform/db/database.module';
-import * as schema from '../../../platform/db/schema';
-import { signInCodes } from '../../../platform/db/schema';
+import { signInCodePurpose, signInCodes } from '../accounts-schema';
 import { MAIL_TEXT, MailText } from '../../../platform/mail/mail-text';
 import { signInCodeText } from '../mail/sign-in-code.template';
 import { SIGN_IN_PROOF, SignInProof } from './sign-in-proof';
 import { CodeResendLimitError } from './code-resend-limit-error';
 import { SIGN_IN_CODE_LENGTH } from '@b2b-catalog-platform/shared/core/accounts';
+import { Database } from '../../../platform/db/database';
 
 const CODE_TTL_MS = 10 * 60 * 1000;
 /** Three codes of three tries leave a guesser nine in a million per pause. */
@@ -23,7 +22,7 @@ const CODE_WAITS_MS = [60 * 1000, 2 * 60 * 1000] as const;
 /** Counted from the last send. */
 const CODE_PAUSE_MS = 30 * 60 * 1000;
 
-export type CodePurpose = (typeof schema.signInCodePurpose.enumValues)[number];
+export type CodePurpose = (typeof signInCodePurpose.enumValues)[number];
 
 export type CodeCheck =
   | { result: 'ok'; purpose: CodePurpose; phone: string }
@@ -64,7 +63,7 @@ type Proof = (
 @Injectable()
 export class SignInCodes {
   constructor(
-    @Inject(DRIZZLE) private readonly db: NodePgDatabase<typeof schema>,
+    @Inject(DRIZZLE) private readonly db: Database,
     @Inject(SIGN_IN_PROOF) private readonly proof: SignInProof,
     @Inject(MAIL_TEXT) private readonly text: MailText,
   ) {}

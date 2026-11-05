@@ -1,11 +1,10 @@
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { and, eq, exists, not, SQL, sql } from 'drizzle-orm';
-import * as schema from '../../../../platform/db/schema';
 import {
   customerTiers,
   productPrices,
   products,
-} from '../../../../platform/db/schema';
+} from '../../../../core/catalog/catalog-schema';
+import { Database } from '../../../../platform/db/database';
 
 /**
  * "This tier has a price of its own for this product": where the tier list's
@@ -14,7 +13,7 @@ import {
  * the gap instead.
  */
 export function tierPriceCondition(
-  db: NodePgDatabase<typeof schema>,
+  db: Database,
   tierId: string | typeof customerTiers.id | undefined,
   priced: 'yes' | 'no' = 'yes',
 ): SQL | undefined {

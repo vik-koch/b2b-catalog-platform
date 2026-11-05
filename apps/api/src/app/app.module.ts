@@ -10,6 +10,7 @@ import { ConsentAdminModule } from '../admin/accounts/consent-admin.module';
 import { InquiryModule } from '../storefront/site/inquiry.module';
 import { DatabaseModule } from '../platform/db/database.module';
 import { AccountErasureModule } from './account-erasure.module';
+import { AreaPortsModule } from './area-ports.module';
 import { RetentionModule } from '../core/retention/retention.module';
 import { CatalogModule } from '../storefront/catalog/catalog.module';
 import { AdminCatalogModule } from '../admin/catalog/admin-catalog.module';
@@ -24,9 +25,11 @@ import { AdminPlatformModule } from '../admin/platform/admin-platform.module';
 import { MachineExchangeModule } from '../machine/exchange/machine-exchange.module';
 import { StaffUsersModule } from '../admin/accounts/staff-users.module';
 import { WorkModule } from '../core/work/work.module';
+import { TextsModule } from './texts.module';
 
 @Module({
   imports: [
+    TextsModule,
     ThrottlingModule,
     DatabaseModule,
     AuthModule,
@@ -44,6 +47,7 @@ import { WorkModule } from '../core/work/work.module';
     ConsentAdminModule,
     RetentionModule,
     AccountErasureModule,
+    AreaPortsModule,
     AccountModule,
     OrderingModule,
     AdminOrderingModule,

@@ -1,14 +1,13 @@
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import * as schema from '../../platform/db/schema';
-import { products } from '../../platform/db/schema';
+import { products } from '../../core/catalog/catalog-schema';
 import { CategoryRow } from '../../core/catalog/catalog-tree';
 import { publiclyVisible } from '../../core/catalog/product-view';
 import { stockedCategoryIds } from './category-tree';
+import { Database } from '../../platform/db/database';
 
 /** The categories worth linking to, read from where the visible products sit:
  * what is not stocked is not linked to. */
 export async function stockedCategories(
-  db: NodePgDatabase<typeof schema>,
+  db: Database,
   rows: Pick<CategoryRow, 'id' | 'parentId'>[],
 ): Promise<Set<string>> {
   const live = await db

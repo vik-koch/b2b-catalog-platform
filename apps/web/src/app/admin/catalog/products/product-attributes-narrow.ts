@@ -35,6 +35,7 @@ import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
 import { triangleAlertIcon } from '@b2b-catalog-platform/ui/icons/glyphs/triangle-alert';
 import { DragGrip } from '../ui/drag-grip';
 import { CancelButton } from '../../platform/ui/cancel-button';
+import { ADMIN_CATALOG_TEXT } from '../catalog-text';
 
 /**
  * The product's attributes on a phone (FR-CAT-05), where the spreadsheet's
@@ -189,7 +190,8 @@ export class ProductAttributesNarrow {
   protected readonly trash2Icon = trash2Icon;
   protected readonly triangleAlertIcon = triangleAlertIcon;
   protected readonly adminText = inject(ADMIN_TEXT);
-  protected readonly text = inject(ADMIN_TEXT).products.editor.attributes;
+  protected readonly text =
+    inject(ADMIN_CATALOG_TEXT).products.editor.attributes;
   protected readonly actionText = inject(SHARED_TEXT).actions;
   protected readonly dash = '—';
 

@@ -4,9 +4,9 @@ import {
   StaffUser,
   UserStatus,
 } from '@b2b-catalog-platform/shared/core/accounts';
-import type { AdminText } from '../../../platform/config/admin-text.type';
+import type { AdminAccountsText } from '../accounts-text.type';
 
-type ListText = AdminText['users']['list'];
+type ListText = AdminAccountsText['users']['list'];
 
 /**
  * The badge tone per account state, shared so the list, the detail page and

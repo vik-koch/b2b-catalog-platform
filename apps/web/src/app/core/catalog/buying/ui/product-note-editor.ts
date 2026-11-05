@@ -10,7 +10,6 @@ import {
   viewChild,
 } from '@angular/core';
 import { CART_NOTE_MAX } from '@b2b-catalog-platform/shared/core/catalog';
-import { STOREFRONT_TEXT } from '../../../../platform/config/storefront-text';
 import { injectNarrowScreen } from '@b2b-catalog-platform/ui/core/narrow-screen';
 import { AutoGrow } from '@b2b-catalog-platform/ui/inputs/auto-grow';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
@@ -24,6 +23,7 @@ import { Popover } from '@b2b-catalog-platform/ui/overlay/popover';
 import { SHARED_TEXT } from '../../../../platform/config/shared-text';
 import { messageCircleCheckIcon } from '@b2b-catalog-platform/ui/icons/glyphs/message-circle-check';
 import { messageCirclePlusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/message-circle-plus';
+import { SHARED_CATALOG_TEXT } from '../../catalog-text';
 
 /**
  * The line note's button and field (FR-CART-08): a bubble, a modal on a phone.
@@ -122,7 +122,7 @@ import { messageCirclePlusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/mes
 export class ProductNoteEditor {
   protected readonly messageCircleCheckIcon = messageCircleCheckIcon;
   protected readonly messageCirclePlusIcon = messageCirclePlusIcon;
-  protected readonly text = inject(STOREFRONT_TEXT).cart;
+  protected readonly text = inject(SHARED_CATALOG_TEXT).buying;
   protected readonly actionText = inject(SHARED_TEXT).actions;
   protected readonly noteMax = CART_NOTE_MAX;
 

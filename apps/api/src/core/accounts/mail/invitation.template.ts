@@ -1,3 +1,4 @@
+import { accountsMail } from './accounts-mail-text';
 import { MailContent } from '../../../platform/mail/mail-layout';
 import { MailText } from '../../../platform/mail/mail-text';
 
@@ -22,8 +23,8 @@ export function invitationMail(
   kind: InvitationKind,
 ): MailContent {
   const t = {
-    approved: text.accountApproved,
-    created: text.accountCreated,
+    approved: accountsMail(text).accountApproved,
+    created: accountsMail(text).accountCreated,
   }[kind];
   return {
     subject: t.subject,

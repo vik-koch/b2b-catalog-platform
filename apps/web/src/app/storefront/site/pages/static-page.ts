@@ -54,7 +54,7 @@ import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
             variant="inline"
             [editLink]="['/admin/pages', slug(), 'edit']"
             [editParams]="editorFrom()"
-            [editLabel]="editorText.edit"
+            [editLabel]="editorText.editPage"
           />
         }
       </div>
@@ -70,7 +70,7 @@ import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
           [updatedAt]="content.updatedAt"
         />
       } @else if (canEdit(); as editorText) {
-        <p class="text-ink-subtle">{{ editorText.emptyNotice }}</p>
+        <p class="text-ink-subtle">{{ editorText.emptyPage }}</p>
       }
       @if (configured(); as configured) {
         <div class="mt-8">
@@ -110,7 +110,6 @@ export class StaticPage {
 
   private readonly content = editAwareContent({
     ready: computed(() => this.page() !== undefined),
-    section: 'pages',
   });
   protected readonly ready = this.content.ready;
   protected readonly canEdit = this.content.controls;

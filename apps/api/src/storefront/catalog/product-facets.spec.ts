@@ -1,12 +1,15 @@
-import { drizzle, NodePgDatabase } from 'drizzle-orm/node-postgres';
+import { drizzle } from 'drizzle-orm/node-postgres';
 import { and, SQL } from 'drizzle-orm';
-import * as schema from '../../platform/db/schema';
-import { products } from '../../platform/db/schema';
+import {
+  attributeDefinitions,
+  products,
+} from '../../core/catalog/catalog-schema';
 import {
   buildFacets,
   resolveSelections,
   selectionConditions,
 } from './product-facets';
+import { Database } from '../../platform/db/database';
 
 const definition = (
   name: string,
@@ -24,13 +27,13 @@ const definition = (
     createdAt: new Date(),
     updatedAt: new Date(),
     updatedBy: null,
-  }) as typeof schema.attributeDefinitions.$inferSelect;
+  }) as typeof attributeDefinitions.$inferSelect;
 
 const colour = definition('Colour', 'colour');
 const length = definition('Length', 'length', 'number', 'cm');
 
 /** Rendering db: fragments are only ever inspected as SQL, never executed. */
-const renderDb = drizzle({ client: {} as never, schema });
+const renderDb = drizzle({ client: {} as never });
 
 const render = (condition: SQL | undefined) =>
   renderDb
@@ -55,7 +58,7 @@ function dbReturning(results: unknown[][]) {
   return {
     select: () => chain,
     queries: () => i,
-  } as unknown as NodePgDatabase<typeof schema> & { queries(): number };
+  } as unknown as Database & { queries(): number };
 }
 
 const row = (key: string, value: string, count: number) => ({

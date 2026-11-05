@@ -1,5 +1,5 @@
+import { STOREFRONT_ACCOUNTS_TEXT } from '../accounts-text';
 import { Component, inject } from '@angular/core';
-import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
 import { usePageSeo } from '../../../platform/page-seo';
 import { ChangePasswordForm } from './change-password-form';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
@@ -18,7 +18,8 @@ import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
   `,
 })
 export class ChangePasswordPage {
-  protected readonly text = inject(STOREFRONT_TEXT).auth.changePassword;
+  protected readonly text = inject(STOREFRONT_ACCOUNTS_TEXT).auth
+    .changePassword;
 
   constructor() {
     usePageSeo({ name: () => this.text.heading });

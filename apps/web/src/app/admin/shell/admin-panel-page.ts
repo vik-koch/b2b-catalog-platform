@@ -1,3 +1,6 @@
+import { ADMIN_EXCHANGE_TEXT } from '../exchange/exchange-text';
+import { ADMIN_ORDERING_TEXT } from '../ordering/ordering-text';
+import { ADMIN_ACCOUNTS_TEXT } from '../accounts/accounts-text';
 import { Component, computed, inject, resource, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
@@ -12,7 +15,7 @@ import {
   fillText,
 } from '@b2b-catalog-platform/shared/platform';
 import { AuthService } from '../../platform/auth/auth.service';
-import { SignedInAs } from '../../platform/auth/signed-in-as';
+import { SignedInAs } from '../../core/accounts/auth/signed-in-as';
 import { ADMIN_TEXT } from '../../platform/config/admin-text';
 import { SHARED_TEXT } from '../../platform/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
@@ -37,6 +40,8 @@ import { lockIcon } from '@b2b-catalog-platform/ui/icons/glyphs/lock';
 import { packageIcon } from '@b2b-catalog-platform/ui/icons/glyphs/package';
 import { usersIcon } from '@b2b-catalog-platform/ui/icons/glyphs/users';
 import { wrenchIcon } from '@b2b-catalog-platform/ui/icons/glyphs/wrench';
+import { SITE_CONFIG } from '../../core/site/site-config';
+import { ADMIN_CATALOG_TEXT } from '../catalog/catalog-text';
 
 /**
  * The staff's first screen: orders and accounts, then what changes the shop's
@@ -360,22 +365,23 @@ export class AdminPanelPage {
   protected readonly title = computed(() =>
     this.isAdmin() ? this.panelText.adminPanel : this.panelText.staffArea,
   );
-  protected readonly productText = inject(ADMIN_TEXT).products.list;
-  protected readonly categoryText = inject(ADMIN_TEXT).categories.list;
-  protected readonly documentText = inject(ADMIN_TEXT).documents.list;
-  protected readonly attributeText = inject(ADMIN_TEXT).attributes.list;
-  protected readonly inventoryText = inject(ADMIN_TEXT).attributes.inventory;
-  protected readonly tierText = inject(ADMIN_TEXT).tiers;
-  protected readonly apiTokenText = inject(ADMIN_TEXT).apiTokens;
+  protected readonly productText = inject(ADMIN_CATALOG_TEXT).products.list;
+  protected readonly categoryText = inject(ADMIN_CATALOG_TEXT).categories.list;
+  protected readonly documentText = inject(ADMIN_CATALOG_TEXT).documents.list;
+  protected readonly attributeText = inject(ADMIN_CATALOG_TEXT).attributes.list;
+  protected readonly inventoryText =
+    inject(ADMIN_CATALOG_TEXT).attributes.inventory;
+  protected readonly tierText = inject(ADMIN_CATALOG_TEXT).tiers;
+  protected readonly apiTokenText = inject(ADMIN_EXCHANGE_TEXT).apiTokens;
   protected readonly operationsText = inject(ADMIN_TEXT).operations;
-  protected readonly userText = inject(ADMIN_TEXT).users.list;
-  protected readonly consentText = inject(ADMIN_TEXT).consents;
-  protected readonly orderText = inject(ADMIN_TEXT).orders.list;
+  protected readonly userText = inject(ADMIN_ACCOUNTS_TEXT).users.list;
+  protected readonly consentText = inject(ADMIN_ACCOUNTS_TEXT).consents;
+  protected readonly orderText = inject(ADMIN_ORDERING_TEXT).orders.list;
   protected readonly navText = inject(SHARED_TEXT).nav;
-  protected readonly syncText = inject(ADMIN_TEXT).sync;
+  protected readonly syncText = inject(ADMIN_EXCHANGE_TEXT).sync;
   /** Only what is published has a route to edit it against. */
-  protected readonly pageSlugs = inject(DEPLOYMENT_CONFIG).pages.published;
-  private readonly consentAsked = inject(DEPLOYMENT_CONFIG).consent;
+  protected readonly pageSlugs = inject(SITE_CONFIG).pages.published;
+  private readonly consentAsked = inject(SITE_CONFIG).consent;
   protected readonly consentPurposes = CONSENT_PURPOSES.filter(
     (purpose) => this.consentAsked[purpose],
   );

@@ -1,10 +1,11 @@
+import { ORDERING_CONFIG } from '../../../../core/ordering/ordering-config';
+import { STOREFRONT_ORDERING_TEXT } from '../../ordering-text';
 import { Component, inject, input } from '@angular/core';
 import {
   fillText,
   moneyFormat,
   formatMoneyMinor,
 } from '@b2b-catalog-platform/shared/platform';
-import { STOREFRONT_TEXT } from '../../../../platform/config/storefront-text';
 import { DEPLOYMENT_CONFIG } from '../../../../platform/config/deployment-config';
 import { EmphasisedText } from '@b2b-catalog-platform/ui/content/emphasised-text';
 import { mapIcon } from '@b2b-catalog-platform/ui/icons/glyphs/map';
@@ -53,10 +54,12 @@ const SPAN: Record<number, string> = {
 export class DeliveryZoneList {
   protected readonly mapIcon = mapIcon;
   private readonly config = inject(DEPLOYMENT_CONFIG);
+  private readonly orderingConfig = inject(ORDERING_CONFIG);
   private readonly currency = moneyFormat(this.config);
 
-  protected readonly text = inject(STOREFRONT_TEXT).checkout.fulfilment;
-  protected readonly zones = this.config.delivery?.zones ?? [];
+  protected readonly text = inject(STOREFRONT_ORDERING_TEXT).checkout
+    .fulfilment;
+  protected readonly zones = this.orderingConfig.delivery?.zones ?? [];
 
   /** A glyph per card, and levels side by side. */
   readonly spread = input(false);

@@ -1,3 +1,8 @@
+/** The shop's time zone; a deployment that names none keeps UTC. */
+export function shopTimeZone(config: { readonly timeZone?: string }): string {
+  return config.timeZone ?? 'UTC';
+}
+
 /** A moment as the shop's own day, in its time zone: the same day on a page,
  * in a mail and in a PDF. */
 export function shopDay(

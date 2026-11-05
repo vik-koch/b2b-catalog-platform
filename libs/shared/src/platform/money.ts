@@ -9,9 +9,9 @@ export interface MoneyFormat {
 
 export function moneyFormat(config: {
   readonly locale: string;
-  readonly catalog: { readonly currency: { readonly code: string } };
+  readonly currency: { readonly code: string };
 }): MoneyFormat {
-  return { code: config.catalog.currency.code, locale: config.locale };
+  return { code: config.currency.code, locale: config.locale };
 }
 
 // Constructing a formatter is expensive: one per locale and code.

@@ -1,16 +1,12 @@
 import { SQL } from 'drizzle-orm';
 import { PgDialect } from 'drizzle-orm/pg-core';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import * as schema from '../../platform/db/schema';
-import {
-  documents,
-  orders,
-  products,
-  syncRuns,
-  users,
-} from '../../platform/db/schema';
+import { documents, products } from '../catalog/catalog-schema';
+import { users } from '../accounts/accounts-schema';
+import { orders } from '../ordering/ordering-schema';
+import { syncRuns } from '../exchange/exchange-schema';
 import { WorkService } from './work.service';
 import { AuthUser } from '@b2b-catalog-platform/shared/platform';
+import { Database } from '../../platform/db/database';
 
 interface Ask {
   table: unknown;
@@ -45,7 +41,7 @@ function testDb(counts: number[] = []) {
       return chain;
     },
   };
-  return { db: db as unknown as NodePgDatabase<typeof schema>, asks };
+  return { db: db as unknown as Database, asks };
 }
 
 const user = (role: AuthUser['role']): AuthUser => ({

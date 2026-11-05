@@ -1,8 +1,10 @@
+import * as z from 'zod';
 import { loadConfig } from '@b2b-catalog-platform/shared/node';
-import { AdminText, adminTextSchema } from './admin-text.type';
+import { AdminText, adminTextShape } from './admin-text.type';
 
-/** The fixture's admin text, for specs. */
+/** The fixture's admin text, for specs. Loose, so the areas' parts ride along
+ * for their tokens. */
 export const defaultAdminText: AdminText = loadConfig(
-  adminTextSchema,
+  z.looseObject(adminTextShape),
   'texts/admin.json',
 );

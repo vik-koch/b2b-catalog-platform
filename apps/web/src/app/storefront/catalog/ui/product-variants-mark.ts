@@ -24,7 +24,7 @@ import { DialogPanel } from '@b2b-catalog-platform/ui/overlay/dialog-panel';
 import { Popover } from '@b2b-catalog-platform/ui/overlay/popover';
 import { ProductVariantGallery } from '../../../core/catalog/product-page/ui/product-variant-gallery';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
-import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
+import { SHARED_CATALOG_TEXT } from '../../../core/catalog/catalog-text';
 
 /**
  * Opens a product's variants where its picture is too small to label them: a
@@ -102,8 +102,8 @@ import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
 })
 export class ProductVariantsMark {
   protected readonly paletteIcon = paletteIcon;
-  protected readonly text = inject(STOREFRONT_TEXT).catalog.variants;
-  protected readonly product = inject(SHARED_TEXT).product;
+  protected readonly text = inject(SHARED_CATALOG_TEXT).variants;
+  protected readonly product = inject(SHARED_CATALOG_TEXT).product;
   protected readonly actionText = inject(SHARED_TEXT).actions;
 
   readonly variants = input.required<readonly ProductVariant[]>();

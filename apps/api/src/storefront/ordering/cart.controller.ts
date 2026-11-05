@@ -7,9 +7,8 @@ import { PricingTier } from '../../platform/auth/pricing-tier.decorator';
 import { TAX_CONFIG } from '../../platform/config/deployment-config';
 import { DRIZZLE } from '../../platform/db/database.module';
 import { SearchThrottle } from '../../platform/throttling/throttle-presets';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import * as schema from '../../platform/db/schema';
 import { priceCart } from '../../core/ordering/cart-pricing';
+import { Database } from '../../platform/db/database';
 
 /**
  * Pricing the browser's cart (FR-CART-01/02). `OptionalAuthGuard` rather than
@@ -20,7 +19,7 @@ import { priceCart } from '../../core/ordering/cart-pricing';
 @Controller()
 export class CartController {
   constructor(
-    @Inject(DRIZZLE) private readonly db: NodePgDatabase<typeof schema>,
+    @Inject(DRIZZLE) private readonly db: Database,
     @Inject(TAX_CONFIG) private readonly tax: TaxConfig,
   ) {}
 

@@ -1,6 +1,6 @@
+import { ADMIN_ACCOUNTS_TEXT } from '../accounts-text';
 import { Component, inject, input, output } from '@angular/core';
 import { RouterLink, Params } from '@angular/router';
-import { ADMIN_TEXT } from '../../../platform/config/admin-text';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
 import { circleCheckIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-check';
@@ -74,7 +74,7 @@ export class UserRowActions {
   protected readonly pencilIcon = pencilIcon;
   protected readonly rotateCcwIcon = rotateCcwIcon;
   protected readonly trash2Icon = trash2Icon;
-  protected readonly text = inject(ADMIN_TEXT).users.list;
+  protected readonly text = inject(ADMIN_ACCOUNTS_TEXT).users.list;
 
   readonly user = input.required<StaffUser>();
   /** The editor returns to this list, filters and all. */

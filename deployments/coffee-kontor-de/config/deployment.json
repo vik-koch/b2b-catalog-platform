@@ -1,5 +1,9 @@
 {
   "locale": "de-DE",
+  "timeZone": "Europe/Berlin",
+  "currency": {
+    "code": "EUR"
+  },
   "branding": {
     "name": "Coffee Kontor",
     "tagline": "Spezialitätenkaffee für den Großhandel",
@@ -15,23 +19,6 @@
       "accent": "#b45309"
     }
   },
-  "pages": {
-    "published": [
-      "about",
-      "contact",
-      "conditions",
-      "terms",
-      "privacy",
-      "imprint",
-      "withdrawal"
-    ],
-    "headerNav": ["about", "contact", "conditions"],
-    "footerNav": ["terms", "privacy", "imprint", "withdrawal", "licenses"]
-  },
-  "consent": {
-    "contact": false,
-    "account": false
-  },
   "seller": {
     "name": "Coffee Kontor GmbH",
     "registration": ["HRB 000000 Hamburg", "USt-IdNr. DE000000000"]
@@ -41,12 +28,7 @@
     "rate": 19,
     "statedAtPrices": true
   },
-  "cookieConsentEnabled": true,
-  "billingAddressEnabled": true,
   "catalog": {
-    "currency": {
-      "code": "EUR"
-    },
     "boxUnits": {
       "volume": "m³",
       "weight": "kg"
@@ -58,51 +40,10 @@
   "search": {
     "alternateLayout": "de"
   },
-  "locations": [
-    {
-      "name": "Büro Speicherstadt",
-      "description": "Am Sandtorkai 30, 20457 Hamburg",
-      "map": {
-        "url": "https://www.openstreetmap.org/export/embed.html?bbox=9.9820%2C53.5400%2C9.9950%2C53.5460&layer=mapnik&marker=53.5430%2C9.9880",
-        "consentRequired": true
-      }
-    }
-  ],
-  "mapProvider": "OpenStreetMap",
-  "pickup": {
-    "locations": [
-      {
-        "key": "speicherstadt",
-        "name": "Büro Speicherstadt",
-        "address": "Am Sandtorkai 30, 20457 Hamburg",
-        "description": "Werktags 9:00–17:00 Uhr, am Tresen im Erdgeschoss.",
-        "mapUrl": "https://www.openstreetmap.org/?mlat=53.5430&mlon=9.9880#map=17/53.5430/9.9880"
-      },
-      {
-        "key": "altona",
-        "name": "Lager Altona",
-        "address": "Ottenser Hauptstraße 10, 22765 Hamburg",
-        "description": "Werktags 7:00–15:00 Uhr, Laderampe auf der Rückseite.",
-        "mapUrl": "https://www.openstreetmap.org/?mlat=53.5510&mlon=9.9350#map=17/53.5510/9.9350"
-      }
-    ]
-  },
   "contact": {
     "phone": "+49 40 1234567",
     "email": "hallo@coffee-kontor.example"
   },
-  "elsewhere": [
-    {
-      "label": "Bohnenpost",
-      "url": "https://bohnenpost.example/coffee-kontor",
-      "icon": "bohnenpost.svg"
-    },
-    {
-      "label": "Marktplatz",
-      "url": "https://marktplatz.example/shops/coffee-kontor",
-      "icon": "marktplatz.svg"
-    }
-  ],
   "notice": {
     "text": "Coffee Kontor ist ein Demo-Shop.",
     "link": {
@@ -113,59 +54,6 @@
   "phoneInput": {
     "countryCode": "+49",
     "mask": "(###) ###-####"
-  },
-  "orderReference": {
-    "prefix": "CK",
-    "timezone": "Europe/Berlin"
-  },
-  "delivery": {
-    "zones": [
-      {
-        "key": "city",
-        "title": "Stadtgebiet Hamburg",
-        "description": "Mit unserem eigenen Transporter, meist innerhalb von zwei Werktagen.",
-        "freeFromMinor": 15000,
-        "match": {
-          "postalPrefixes": ["20", "21", "22"]
-        }
-      },
-      {
-        "key": "north",
-        "title": "Norddeutschland",
-        "description": "Über unsere Spedition, zwei bis vier Werktage.",
-        "freeFromMinor": 40000,
-        "match": {
-          "postalRanges": [
-            {
-              "from": "17000",
-              "to": "27999"
-            }
-          ]
-        }
-      },
-      {
-        "key": "rest",
-        "title": "Übriges Deutschland",
-        "description": "Holen Sie Ihre Bestellung bei uns ab oder schicken Sie Ihre eigene Spedition zu unserem Lager.",
-        "delivers": false,
-        "match": {
-          "all": true
-        }
-      }
-    ]
-  },
-  "address": {
-    "countries": [
-      {
-        "code": "DE",
-        "label": "Deutschland",
-        "postalCode": {
-          "pattern": "^[0-9]{5}$",
-          "example": "20457",
-          "mask": "#####"
-        }
-      }
-    ]
   },
   "companyIdInput": {
     "formats": [
@@ -183,5 +71,123 @@
       }
     ]
   },
-  "customerTypes": ["person", "company"]
+  "site": {
+    "pages": {
+      "published": [
+        "about",
+        "contact",
+        "conditions",
+        "terms",
+        "privacy",
+        "imprint",
+        "withdrawal"
+      ],
+      "headerNav": ["about", "contact", "conditions"],
+      "footerNav": ["terms", "privacy", "imprint", "withdrawal", "licenses"]
+    },
+    "consent": {
+      "contact": false,
+      "account": false
+    },
+    "cookieConsentEnabled": true,
+    "locations": [
+      {
+        "name": "Büro Speicherstadt",
+        "description": "Am Sandtorkai 30, 20457 Hamburg",
+        "map": {
+          "url": "https://www.openstreetmap.org/export/embed.html?bbox=9.9820%2C53.5400%2C9.9950%2C53.5460&layer=mapnik&marker=53.5430%2C9.9880",
+          "consentRequired": true
+        }
+      }
+    ],
+    "mapProvider": "OpenStreetMap",
+    "elsewhere": [
+      {
+        "label": "Bohnenpost",
+        "url": "https://bohnenpost.example/coffee-kontor",
+        "icon": "bohnenpost.svg"
+      },
+      {
+        "label": "Marktplatz",
+        "url": "https://marktplatz.example/shops/coffee-kontor",
+        "icon": "marktplatz.svg"
+      }
+    ]
+  },
+  "accounts": {
+    "customerTypes": ["person", "company"],
+    "address": {
+      "countries": [
+        {
+          "code": "DE",
+          "label": "Deutschland",
+          "postalCode": {
+            "pattern": "^[0-9]{5}$",
+            "example": "20457",
+            "mask": "#####"
+          }
+        }
+      ]
+    }
+  },
+  "ordering": {
+    "billingAddressEnabled": true,
+    "pickup": {
+      "locations": [
+        {
+          "key": "speicherstadt",
+          "name": "Büro Speicherstadt",
+          "address": "Am Sandtorkai 30, 20457 Hamburg",
+          "description": "Werktags 9:00–17:00 Uhr, am Tresen im Erdgeschoss.",
+          "mapUrl": "https://www.openstreetmap.org/?mlat=53.5430&mlon=9.9880#map=17/53.5430/9.9880"
+        },
+        {
+          "key": "altona",
+          "name": "Lager Altona",
+          "address": "Ottenser Hauptstraße 10, 22765 Hamburg",
+          "description": "Werktags 7:00–15:00 Uhr, Laderampe auf der Rückseite.",
+          "mapUrl": "https://www.openstreetmap.org/?mlat=53.5510&mlon=9.9350#map=17/53.5510/9.9350"
+        }
+      ]
+    },
+    "delivery": {
+      "zones": [
+        {
+          "key": "city",
+          "title": "Stadtgebiet Hamburg",
+          "description": "Mit unserem eigenen Transporter, meist innerhalb von zwei Werktagen.",
+          "freeFromMinor": 15000,
+          "match": {
+            "postalPrefixes": ["20", "21", "22"]
+          }
+        },
+        {
+          "key": "north",
+          "title": "Norddeutschland",
+          "description": "Über unsere Spedition, zwei bis vier Werktage.",
+          "freeFromMinor": 40000,
+          "match": {
+            "postalRanges": [
+              {
+                "from": "17000",
+                "to": "27999"
+              }
+            ]
+          }
+        },
+        {
+          "key": "rest",
+          "title": "Übriges Deutschland",
+          "description": "Holen Sie Ihre Bestellung bei uns ab oder schicken Sie Ihre eigene Spedition zu unserem Lager.",
+          "delivers": false,
+          "match": {
+            "all": true
+          }
+        }
+      ]
+    },
+    "orderReference": {
+      "prefix": "CK"
+    }
+  }
 }

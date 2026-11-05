@@ -1,3 +1,4 @@
+import { STOREFRONT_ACCOUNTS_TEXT } from '../accounts-text';
 import {
   Component,
   computed,
@@ -8,7 +9,6 @@ import {
 } from '@angular/core';
 import { form, required } from '@angular/forms/signals';
 import { Router, RouterLink } from '@angular/router';
-import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import {
@@ -132,8 +132,8 @@ export class AccountEditPage {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
 
-  protected readonly text = inject(STOREFRONT_TEXT).account.edit;
-  protected readonly accountText = inject(STOREFRONT_TEXT).account;
+  protected readonly text = inject(STOREFRONT_ACCOUNTS_TEXT).account.edit;
+  protected readonly accountText = inject(STOREFRONT_ACCOUNTS_TEXT).account;
   protected readonly fields = inject(SHARED_TEXT).fields;
   protected readonly actionText = inject(SHARED_TEXT).actions;
   protected readonly phoneInput = inject(DEPLOYMENT_CONFIG).phoneInput;

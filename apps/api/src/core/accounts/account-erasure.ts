@@ -1,17 +1,14 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { AccountDeletionReason } from '@b2b-catalog-platform/shared/core/accounts';
-import * as schema from '../../platform/db/schema';
 import {
   ACCOUNT_DELETION_CATEGORIES,
   recordDestruction,
   REGISTRATION_CATEGORIES,
 } from '../../platform/destruction-record';
+import { Database } from '../../platform/db/database';
 
 /** The transaction handle Drizzle hands a `db.transaction` callback. */
-export type Tx = Parameters<
-  Parameters<NodePgDatabase<typeof schema>['transaction']>[0]
->[0];
+export type Tx = Parameters<Parameters<Database['transaction']>[0]>[0];
 
 /** An account on its way out, as the steps that erase it are told. */
 export interface ErasedAccount {

@@ -1,3 +1,4 @@
+import { accountsMail } from './accounts-mail-text';
 import { SharedText, fillText } from '@b2b-catalog-platform/shared/platform';
 import { MailContent } from '../../../platform/mail/mail-layout';
 import { MailText } from '../../../platform/mail/mail-text';
@@ -30,7 +31,7 @@ export function accountClosedMail(
   text: MailText,
   common: SharedText,
 ): MailContent {
-  const t = text.accountClosed;
+  const t = accountsMail(text).accountClosed;
 
   return {
     subject: t.subject,

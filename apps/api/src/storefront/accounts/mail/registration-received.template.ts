@@ -1,3 +1,4 @@
+import { accountsMail } from '../../../core/accounts/mail/accounts-mail-text';
 import { MailContent } from '../../../platform/mail/mail-layout';
 import { MailText } from '../../../platform/mail/mail-text';
 
@@ -8,7 +9,7 @@ import { MailText } from '../../../platform/mail/mail-text';
  * back into the app: the account cannot sign in until it is approved.
  */
 export function registrationReceivedMail(text: MailText): MailContent {
-  const t = text.registrationReceived;
+  const t = accountsMail(text).registrationReceived;
   return {
     subject: t.subject,
     preheader: t.preheader,

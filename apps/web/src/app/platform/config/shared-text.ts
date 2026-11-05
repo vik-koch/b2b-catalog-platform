@@ -17,3 +17,9 @@ export function provideSharedText(): Provider {
 export function provideUiText(): Provider {
   return { provide: UI_TEXT, useFactory: (): UiText => inject(SHARED_TEXT) };
 }
+
+/** An area's block of the shared text. Typed apart, but the server checks the
+ * file whole against every area's shape, so the block is always there. */
+export function sharedTextBlock<T>(text: SharedText, area: string): T {
+  return (text as unknown as Record<string, T>)[area];
+}

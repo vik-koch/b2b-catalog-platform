@@ -11,3 +11,9 @@ export const confirmText = z
     warning: z.string().optional(),
   })
   .strict();
+
+/** A page's heading, and the paragraph under it where a deployment writes
+ * one: absent, nothing is drawn there. */
+export const pageText = z
+  .object({ title: z.string(), intro: z.string().optional() })
+  .strict();

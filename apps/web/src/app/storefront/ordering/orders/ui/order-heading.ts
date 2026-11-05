@@ -1,8 +1,8 @@
+import { STOREFRONT_ORDERING_TEXT } from '../../ordering-text';
+import { SHARED_ORDERING_TEXT } from '../../../../core/ordering/ordering-text';
 import { Component, computed, inject, input } from '@angular/core';
 import { fillText } from '@b2b-catalog-platform/shared/platform';
 import { OrderDetail } from '@b2b-catalog-platform/shared/core/ordering';
-import { STOREFRONT_TEXT } from '../../../../platform/config/storefront-text';
-import { SHARED_TEXT } from '../../../../platform/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../../../platform/config/deployment-config';
 import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
@@ -48,8 +48,9 @@ import {
   `,
 })
 export class OrderHeading {
-  private readonly placedText = inject(STOREFRONT_TEXT).orders.detail.placed;
-  protected readonly names = inject(SHARED_TEXT).order;
+  private readonly placedText = inject(STOREFRONT_ORDERING_TEXT).orders.detail
+    .placed;
+  protected readonly names = inject(SHARED_ORDERING_TEXT).order;
   private readonly dateFormat = new Intl.DateTimeFormat(
     inject(DEPLOYMENT_CONFIG).locale,
     { dateStyle: 'long' },

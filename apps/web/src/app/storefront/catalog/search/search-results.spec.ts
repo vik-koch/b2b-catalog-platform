@@ -16,6 +16,7 @@ import { CatalogSearchService } from './catalog-search.service';
 import { productListItem } from '../../../core/catalog/product.fixture';
 import { SearchResults } from './search-results';
 import { provideFakeProductCart } from '../../../core/catalog/buying/product-cart.fixture';
+import { defaultStorefrontCatalogText } from '../catalog-text.fixture';
 
 const item = (slug: string, name: string): ProductListItem =>
   productListItem({ slug, name });
@@ -125,7 +126,9 @@ describe('SearchResults', () => {
   it('prompts rather than reporting a miss when there is no query at all', async () => {
     const el = await render('', page([]));
 
-    expect(el.textContent).toContain(defaultStorefrontText.search.emptyQuery);
+    expect(el.textContent).toContain(
+      defaultStorefrontCatalogText.search.emptyQuery,
+    );
   });
 
   it('keeps itself out of the index (NFR-SEO-04)', async () => {
@@ -221,7 +224,7 @@ describe('SearchResults', () => {
 
       expect(sent).toEqual(['grind:fine']);
       expect(el.textContent).toContain(
-        defaultStorefrontText.catalog.filters.title,
+        defaultStorefrontCatalogText.listing.filters.title,
       );
     });
 
@@ -240,10 +243,10 @@ describe('SearchResults', () => {
       const el = await render('espresso', filtered([]), { attr: 'grind:fine' });
 
       expect(el.textContent).toContain(
-        defaultStorefrontText.catalog.filters.noMatches,
+        defaultStorefrontCatalogText.listing.filters.noMatches,
       );
       expect(el.textContent).not.toContain(
-        defaultStorefrontText.search.noResultsHint,
+        defaultStorefrontCatalogText.search.noResultsHint,
       );
       expect(el.querySelector('input[type="checkbox"]')).not.toBeNull();
     });

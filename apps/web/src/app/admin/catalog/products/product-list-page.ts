@@ -77,6 +77,8 @@ import { AVAILABILITY_TONES } from '../../../core/catalog/ui/product-availabilit
 import { plusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/plus';
 import { ProductStateBadge, productState } from '../ui/product-state-badge';
 import { pageNumber } from '../../../platform/page-number';
+import { SHARED_CATALOG_TEXT } from '../../../core/catalog/catalog-text';
+import { ADMIN_CATALOG_TEXT } from '../catalog-text';
 
 /** The category filter's "without subcategories" option; a uuid never ends
  * this way. */
@@ -379,23 +381,24 @@ export class ProductListPage {
   private readonly documentService = inject(DocumentsService);
   private readonly router = inject(Router);
   protected readonly adminText = inject(ADMIN_TEXT);
-  protected readonly text = inject(ADMIN_TEXT).products.list;
+  private readonly adminCatalogText = inject(ADMIN_CATALOG_TEXT);
+  protected readonly text = inject(ADMIN_CATALOG_TEXT).products.list;
   protected readonly editText = inject(ADMIN_TEXT).editMode;
-  protected readonly productStates = inject(ADMIN_TEXT).products;
+  protected readonly productStates = inject(ADMIN_CATALOG_TEXT).products;
   protected readonly actionText = inject(SHARED_TEXT).actions;
   private readonly purgeText: PurgeText = {
     ...this.editText,
     cancel: this.actionText.cancel,
     close: this.actionText.close,
-    owned: inject(ADMIN_TEXT).ownership.productPurge,
-    errors: this.adminText.catalogErrors,
+    owned: inject(ADMIN_CATALOG_TEXT).ownership.productPurge,
+    errors: this.adminCatalogText.catalogErrors,
   };
   private readonly confirm = inject(ConfirmService);
   private readonly productCreate = inject(ProductCreateService);
-  protected readonly productText = inject(ADMIN_TEXT).products.editor;
+  protected readonly productText = inject(ADMIN_CATALOG_TEXT).products.editor;
   /** The storefront's words, so grid and product page name one fact alike. */
   protected readonly availabilityText =
-    inject(SHARED_TEXT).product.availability;
+    inject(SHARED_CATALOG_TEXT).product.availability;
   protected readonly editorFrom = injectEditorReturnParams();
 
   /** The grid's state comes from the URL, each input named for its query
@@ -713,7 +716,7 @@ export class ProductListPage {
     return AVAILABILITY_TONES[item.availability ?? 'in'];
   }
 
-  protected readonly pieceSuffix = inject(SHARED_TEXT).units.piece;
+  protected readonly pieceSuffix = inject(SHARED_CATALOG_TEXT).units.piece;
 
   /** The unit is in `stockAria`'s wording, so it is not read out twice. */
   protected stockLabel(item: {

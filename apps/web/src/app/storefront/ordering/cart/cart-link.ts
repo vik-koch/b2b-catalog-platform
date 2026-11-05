@@ -1,3 +1,4 @@
+import { STOREFRONT_ORDERING_TEXT } from '../ordering-text';
 import { isPlatformBrowser } from '@angular/common';
 import { Component, computed, inject, input, PLATFORM_ID } from '@angular/core';
 import { RouterLink } from '@angular/router';
@@ -7,7 +8,6 @@ import {
   formatMoneyMinor,
 } from '@b2b-catalog-platform/shared/platform';
 import { CartService } from './cart.service';
-import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import { currentPath } from '../../../platform/current-url';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
@@ -86,7 +86,7 @@ export class CartLink {
   private readonly currency = moneyFormat(inject(DEPLOYMENT_CONFIG));
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
-  protected readonly text = inject(STOREFRONT_TEXT).cart;
+  protected readonly text = inject(STOREFRONT_ORDERING_TEXT).cart;
 
   /** False on the server, which has no cart to read. */
   protected readonly ready = this.isBrowser;

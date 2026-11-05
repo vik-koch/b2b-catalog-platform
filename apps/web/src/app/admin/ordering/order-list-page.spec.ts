@@ -1,3 +1,4 @@
+import { defaultAdminOrderingText } from './ordering-text.fixture';
 import { SHARED_TEXT } from '../../platform/config/shared-text';
 import { defaultSharedText } from '../../platform/config/shared-text.fixture';
 import { TestBed } from '@angular/core/testing';
@@ -18,7 +19,7 @@ import { StaffOrderSummary } from '@b2b-catalog-platform/shared/admin/ordering';
 import { provideUiText } from '../../platform/config/shared-text';
 import { provideGridText } from '../platform/provide-grid-text';
 
-const text = defaultAdminText.orders.list;
+const text = defaultAdminOrderingText.orders.list;
 
 const placed: StaffOrderSummary = {
   reference: 'DEMO-260826-4831',
@@ -134,7 +135,7 @@ describe('AdminOrderListPage (FR-AUTH-03)', () => {
     expect(el.textContent).toContain('Alex Fischer');
     expect(el.textContent).toContain('alex@example.com');
     expect(el.textContent).toContain(
-      defaultAdminText.orders.statuses.requested,
+      defaultAdminOrderingText.orders.statuses.requested,
     );
     expect(
       // The title opens the version the row describes, read-only; the row's
@@ -160,7 +161,7 @@ describe('AdminOrderListPage (FR-AUTH-03)', () => {
   it('names a guest order as one', async () => {
     const { el } = await render([{ ...placed, customerEmail: null }]);
 
-    expect(el.textContent).toContain(defaultAdminText.orders.guest);
+    expect(el.textContent).toContain(defaultAdminOrderingText.orders.guest);
   });
 
   it('passes the status filter to the API, and drops a nonsense one', async () => {
@@ -254,7 +255,7 @@ describe('AdminOrderListPage row actions', () => {
     [...el.querySelectorAll('tbody a, tbody button')].map((control) =>
       control.getAttribute('aria-label'),
     );
-  const actions = defaultAdminText.orders.detail.actions;
+  const actions = defaultAdminOrderingText.orders.detail.actions;
 
   it('marks an unanswered row as a decision, and offers to decline it', async () => {
     const { el } = await render([placed]);
@@ -315,7 +316,7 @@ describe('AdminOrderListPage row actions', () => {
  * to be able to see what the customer sees.
  */
 describe('AdminOrderListPage while orders are externally owned', () => {
-  const actions = defaultAdminText.orders.detail.actions;
+  const actions = defaultAdminOrderingText.orders.detail.actions;
   const labels = (el: HTMLElement) =>
     [...el.querySelectorAll('tbody a, tbody button')].map((control) =>
       control.getAttribute('aria-label'),

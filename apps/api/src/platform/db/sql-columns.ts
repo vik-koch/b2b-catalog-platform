@@ -14,3 +14,17 @@ export function qualified(
 export function excluded(column: PgColumn): SQL {
   return sql`excluded.${sql.identifier(column.name)}`;
 }
+
+/**
+ * A closed set of strings as a check, not an enum. Migrations run as one
+ * transaction, and Postgres refuses to use an enum value added in the same
+ * one: a migration adding a status and using it would fail on a fresh
+ * database only. A check is recreated freely; an enum value never goes.
+ *
+ * Raw, not bound: these are the contract's constants, and a parameter would
+ * land in the migration as a placeholder.
+ */
+export function oneOf(column: string, values: readonly string[]) {
+  const list = values.map((value) => `'${value}'`).join(', ');
+  return sql.raw(`"${column}" in (${list})`);
+}

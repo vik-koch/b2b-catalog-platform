@@ -1,6 +1,5 @@
 import { drizzle } from 'drizzle-orm/node-postgres';
-import * as schema from '../../platform/db/schema';
-import { products } from '../../platform/db/schema';
+import { products } from './catalog-schema';
 import { counterpartOf, pairedCountOf } from './product-pairings';
 
 /**
@@ -14,7 +13,7 @@ describe('pairedCountOf', () => {
    * it is embedded, and only the embedded form can show the correlation
    * binding to the wrong table. */
   const rendered = (): string => {
-    const db = drizzle({ client: {} as never, schema });
+    const db = drizzle({ client: {} as never });
     return db.select({ pairedCount: pairedCountOf() }).from(products).toSQL()
       .sql;
   };
@@ -46,7 +45,7 @@ describe('pairedCountOf', () => {
 
 describe('counterpartOf', () => {
   it('binds the product id as a parameter rather than inlining it', () => {
-    const db = drizzle({ client: {} as never, schema });
+    const db = drizzle({ client: {} as never });
     const { sql: text, params } = db
       .select({ other: counterpartOf("'; drop table users--") })
       .from(products)

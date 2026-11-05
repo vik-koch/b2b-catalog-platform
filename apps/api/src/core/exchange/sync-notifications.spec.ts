@@ -1,3 +1,4 @@
+import { demoExchangeMailText } from './exchange-mail-text.fixture';
 import type { Mock, MockInstance } from 'vitest';
 import { Logger } from '@nestjs/common';
 import {
@@ -74,8 +75,8 @@ describe('SyncNotifications', () => {
   const recipients = () =>
     send.mock.calls.map((call) => (call[1] as { to: string }).to);
 
-  const t = demoMailText.syncRun.areas.catalog;
-  const customers = demoMailText.syncRun.areas.customers;
+  const t = demoExchangeMailText.syncRun.areas.catalog;
+  const customers = demoExchangeMailText.syncRun.areas.customers;
 
   beforeEach(() => {
     send = vi.fn().mockResolvedValue(undefined);

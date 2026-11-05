@@ -1,13 +1,15 @@
 {
-  "terms": {
-    "attachToReceipt": true
-  },
   "retention": {
     "consentRecordDays": 1095,
     "destructionRecordDays": 1095,
     "orderDays": 1095
   },
-  "sync": {
+  "ordering": {
+    "terms": {
+      "attachToReceipt": true
+    }
+  },
+  "exchange": {
     "autoApply": {
       "maxCreates": 100,
       "maxSoftDeletes": 0,

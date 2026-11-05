@@ -1,3 +1,5 @@
+import { sharedOrderingText } from '../ordering-text';
+import { orderingMail } from './ordering-mail-text';
 import { SharedText, MoneyFormat } from '@b2b-catalog-platform/shared/platform';
 import { AdminOrderDetail } from '@b2b-catalog-platform/shared/core/ordering';
 import { MailContent } from '../../../platform/mail/mail-layout';
@@ -19,9 +21,9 @@ export function newOrderMail(
   text: MailText,
   common: SharedText,
 ): MailContent {
-  const t = text.newOrder;
-  const names = common.order;
-  const staff = text.orders;
+  const t = orderingMail(text).newOrder;
+  const names = sharedOrderingText(common).order;
+  const staff = orderingMail(text).orders;
   const party = order.party.registrationId
     ? `${order.party.name} · ${order.party.registrationId}`
     : order.party.name;
@@ -49,10 +51,10 @@ export function newOrderMail(
       },
       { label: names.invoicedTo, value: party },
       {
-        label: common.fulfilment.label,
+        label: sharedOrderingText(common).fulfilment.label,
         value: order.pickup
-          ? `${common.fulfilment.pickup} · ${order.pickup.name}`
-          : common.fulfilment.delivery,
+          ? `${sharedOrderingText(common).fulfilment.pickup} · ${order.pickup.name}`
+          : sharedOrderingText(common).fulfilment.delivery,
       },
       {
         label: names.payment,

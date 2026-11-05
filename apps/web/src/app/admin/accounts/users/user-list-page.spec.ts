@@ -1,3 +1,4 @@
+import { defaultAdminAccountsText } from '../accounts-text.fixture';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
@@ -21,7 +22,7 @@ import {
   UserKind,
 } from '@b2b-catalog-platform/shared/core/accounts';
 
-const text = defaultAdminText.users.list;
+const text = defaultAdminAccountsText.users.list;
 
 function user(overrides: Partial<StaffUser> = {}): StaffUser {
   return {
@@ -485,7 +486,7 @@ describe('UserListPage', () => {
 
       expect(confirm.ask).toHaveBeenCalledWith(
         expect.objectContaining({
-          message: defaultAdminText.ownership.accountDecline,
+          message: defaultAdminAccountsText.ownership.accountDecline,
           confirmLabel: null,
         }),
       );
@@ -502,7 +503,7 @@ describe('UserListPage', () => {
 
       expect(confirm.ask).toHaveBeenCalledWith(
         expect.objectContaining({
-          message: defaultAdminText.ownership.accountActive,
+          message: defaultAdminAccountsText.ownership.accountActive,
           confirmLabel: null,
         }),
       );
@@ -578,7 +579,7 @@ describe('UserListPage', () => {
     expect(navigate).not.toHaveBeenCalled();
     expect(confirm.tell).toHaveBeenCalledWith(
       expect.objectContaining({
-        message: defaultAdminText.ownership.accountCreate,
+        message: defaultAdminAccountsText.ownership.accountCreate,
       }),
     );
   });

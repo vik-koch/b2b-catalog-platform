@@ -1,8 +1,9 @@
+import { defaultSharedAccountsText } from '../accounts-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
 import { form } from '@angular/forms/signals';
-import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
-import { defaultStorefrontText } from '../../../platform/config/storefront-text.fixture';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
 import { PartiesService } from './parties.service';
 import { PartySuggestInput } from './party-suggest-input';
 import { PartySuggestion } from '@b2b-catalog-platform/shared/core/accounts';
@@ -18,7 +19,7 @@ const kontor: PartySuggestion = {
   address: { city: 'Hamburg', postalCode: '20359' },
 };
 
-const text = defaultStorefrontText.companySuggest;
+const text = defaultSharedAccountsText.companySuggest;
 
 async function render() {
   const suggest = vi.fn(async () => {
@@ -30,7 +31,7 @@ async function render() {
     imports: [PartySuggestInput],
     providers: [
       { provide: PartiesService, useValue: { suggest } },
-      { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
+      { provide: SHARED_TEXT, useValue: defaultSharedText },
     ],
   });
 

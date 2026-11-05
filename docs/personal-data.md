@@ -73,7 +73,7 @@ stored. The same goes for the terms attached to an order confirmation.
 | `session` | Cookie, httpOnly | A signed token naming the account. | 7 days without use (⚙ `session.idleDays`), or signing out. |
 | `session_role` | Cookie | The role only, so the first frame renders the right controls. | Like the session. |
 | `sign_in_step` | Cookie, httpOnly | A signed token naming the account between the password and the code. | 15 minutes, or the code being entered. |
-| `remembered_browser` | Cookie, httpOnly | A signed token naming the account, set only when the person ticks the box on the code screen, so this browser skips the code. | ⚙ `signInStep.trustDeviceDays`, a changed number, or the account being disabled or deleted. Not signing out. |
+| `remembered_browser` | Cookie, httpOnly | A signed token naming the account, set only when the person ticks the box on the code screen, so this browser skips the code. | ⚙ `accounts.signInStep.trustDeviceDays`, a changed number, or the account being disabled or deleted. Not signing out. |
 | `product_layout` | Cookie | Cards or lines. | One year. |
 | `cart` | Local storage | The cart's lines, including line notes, which a customer can fill with anything. | Until the order is placed or the cart is emptied. |
 | `checkout-draft` | Session storage | Checkout answers so far, including contact details, addresses and the note. | Closing the tab, or placing the order. |
@@ -94,7 +94,7 @@ embedded map loads, as described below.
 | **The mail provider** | Every mail: to customers, to the shop's own addresses, and every contact-form message. They carry names, addresses, order contents and contact details. | Every mail sent. | ⚙ `MAIL_HOST` and the rest of the `MAIL_*` settings. The shop's own inbox (`MAIL_STAFF_TO`, `MAIL_ADMIN_TO`) is the shop's system, and nothing deleted here reaches it. |
 | **An external system that owns or reads customers or orders** (an ERP) | Account details and orders, read outward ([FR-ADM-08](requirements.md#fr-adm-08), [FR-ADM-18](requirements.md#fr-adm-18)). Account details sent inward ([FR-ADM-11](requirements.md#fr-adm-11)). | Only once a machine credential carrying the matching scope is issued ([NFR-LEGAL-07](requirements.md#nfr-legal-07)). | ⚙ An admin issuing the credential. A deleted account is reported as withdrawn, and that system keeps its own record ([NFR-LEGAL-08](requirements.md#nfr-legal-08)). |
 | **The suggestion provider** | What a person types into a company or address field at registration or checkout, passed on by the deployment's sidecar. | While they type, if the deployment runs a sidecar. Nothing is stored or logged here. | ⚙ `SUGGESTION_SIDECAR_URL`. The provider behind the sidecar is the deployment's. |
-| **The code or call provider** | The account's phone number, and for a code the message carrying it, passed on by the deployment's sidecar. A call provider also sees the call it receives from that number. | Each time a code is sent or a call check is started and read ([FR-AUTH-12](requirements.md#fr-auth-12)). | ⚙ `signInStep` in `deployment.json`, and `SIGN_IN_CODE_URL` or `SIGN_IN_CALL_URL`. Without either, mail stands in, through the mail provider. |
+| **The code or call provider** | The account's phone number, and for a code the message carrying it, passed on by the deployment's sidecar. A call provider also sees the call it receives from that number. | Each time a code is sent or a call check is started and read ([FR-AUTH-12](requirements.md#fr-auth-12)). | ⚙ `accounts.signInStep` in `deployment.json`, and `SIGN_IN_CODE_URL` or `SIGN_IN_CALL_URL`. Without either, mail stands in, through the mail provider. |
 | **The map provider** | The visitor's IP address and whatever the provider's own embed collects. | Once the contact page's map loads. Where the embed is marked `consentRequired`, only after the visitor allows it, from the cookie banner or the map's own button ([NFR-LEGAL-03](requirements.md#nfr-legal-03)). The demo marks it. | ⚙ The map's embed URL and its `consentRequired` flag in `deployment.json`. |
 
 The web app loads nothing else from another host: fonts, scripts and images are all
@@ -105,10 +105,10 @@ served by the platform itself.
 <!-- prettier-ignore -->
 | Setting | Decides |
 | --- | --- |
-| `consent.contact`, `consent.account` | Whether consent is asked for and recorded at all ([NFR-LEGAL-09](requirements.md#nfr-legal-09)). Where it is off, the processing rests on another ground, and the privacy policy says which. |
+| `site.consent.contact`, `site.consent.account` | Whether consent is asked for and recorded at all ([NFR-LEGAL-09](requirements.md#nfr-legal-09)). Where it is off, the processing rests on another ground, and the privacy policy says which. |
 | `retention.orderDays` | How long a finished order keeps its personal details. |
 | `retention.consentRecordDays`, `retention.destructionRecordDays` | How long consent and destruction records outlive what they record. |
-| `cookieConsentEnabled`, the map's `consentRequired` | Whether non-essential cookies wait for a choice. |
+| `site.cookieConsentEnabled`, the map's `consentRequired` | Whether non-essential cookies wait for a choice. |
 | `BACKUP_KEEP_DAYS`, `BACKUP_KEEP_WEEKS`, `BACKUP_KEEP_MONTHS`, `MEDIA_BACKUP_KEEP_DAYS`, the bucket's lifecycle rule | How long a deleted person survives in backups. |
 | `MAIL_*`, `SUGGESTION_SIDECAR_URL`, `SIGN_IN_CODE_URL`, `SIGN_IN_CALL_URL`, the map's embed URL, `BACKUP_S3_ENDPOINT` | Which providers receive data. |
 | The machine credentials an admin issues | Whether an external system receives account details and orders. |
