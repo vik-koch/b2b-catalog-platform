@@ -1,6 +1,5 @@
 import { MEDIA_URL_PREFIX } from '@b2b-catalog-platform/shared/platform';
 import { drizzle } from 'drizzle-orm/node-postgres';
-import * as schema from '../../db/schema';
 import {
   collectReferencedFilenames,
   documentFilenames,
@@ -81,7 +80,7 @@ function fakeDb(rows: unknown[][]) {
       return { rows, rowCount: rows.length, fields: [] };
     },
   };
-  return { db: drizzle({ client: client as never, schema }), asked };
+  return { db: drizzle({ client: client as never }), asked };
 }
 
 describe('MEDIA_REFERENCE_SOURCES', () => {

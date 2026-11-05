@@ -1,13 +1,12 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { Page } from '@b2b-catalog-platform/shared/core/site';
 import { DRIZZLE } from '../../platform/db/database.module';
-import * as schema from '../../platform/db/schema';
 import { currentPageVersion, toPage } from '../../core/site/page-versions';
+import { Database } from '../../platform/db/database';
 
 @Injectable()
 export class PageService {
-  constructor(@Inject(DRIZZLE) private db: NodePgDatabase<typeof schema>) {}
+  constructor(@Inject(DRIZZLE) private db: Database) {}
 
   async getPage(slug: string): Promise<Page | undefined> {
     const row = await currentPageVersion(this.db, slug);

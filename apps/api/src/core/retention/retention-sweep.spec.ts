@@ -1,8 +1,8 @@
 import { getTableName } from 'drizzle-orm';
-import { drizzle, NodePgDatabase } from 'drizzle-orm/node-postgres';
-import * as schema from '../../platform/db/schema';
+import { drizzle } from 'drizzle-orm/node-postgres';
 import { OrderDocumentFiles } from '../ordering/order-document-files';
 import { RetentionSweep } from './retention-sweep';
+import { Database } from '../../platform/db/database';
 
 /** Through a real drizzle over a client that records each statement. */
 describe('RetentionSweep.sweep', () => {
@@ -23,7 +23,7 @@ describe('RetentionSweep.sweep', () => {
         return { rows: [], rowCount: 4, fields: [] };
       },
     };
-    const db = drizzle({ client: client as never, schema });
+    const db = drizzle({ client: client as never });
     const result = await new RetentionSweep(
       db,
       { consentRecordDays: 30, destructionRecordDays: 365, orderDays: 1095 },
@@ -110,7 +110,7 @@ describe('RetentionSweep.sweep', () => {
 /** The scrub itself is asserted where account deletion uses it. */
 describe('RetentionSweep.sweepOrders', () => {
   const now = new Date('2026-10-06T12:00:00Z');
-  const real = drizzle({ client: {} as never, schema });
+  const real = drizzle({ client: {} as never });
 
   const run = async (due: { id: string; userId: string | null }[]) => {
     const steps: string[] = [];
@@ -152,7 +152,7 @@ describe('RetentionSweep.sweepOrders', () => {
         steps.push('commit');
         return result;
       },
-    } as unknown as NodePgDatabase<typeof schema>;
+    } as unknown as Database;
     const documents = {
       removeForOrders: (ids: readonly string[]) => {
         steps.push('files');

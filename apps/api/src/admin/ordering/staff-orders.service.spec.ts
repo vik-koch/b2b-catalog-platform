@@ -1,11 +1,10 @@
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import * as schema from '../../platform/db/schema';
 import { OrderReader } from '../../core/ordering/order-reader';
 import { OrderWriter } from '../../core/ordering/order-writer';
 import { OrderRules } from '../../core/ordering/order-rules';
 import { OrderNotifications } from '../../core/ordering/order-notifications';
 import { OrderDocumentsService } from '../../core/ordering/order-documents.service';
 import { StaffOrdersService } from './staff-orders.service';
+import { Database } from '../../platform/db/database';
 
 describe('StaffOrdersService on an order whose personal details were removed', () => {
   // Finished for good (NFR-LEGAL-14): nobody to deliver to, and a mail would
@@ -25,7 +24,7 @@ describe('StaffOrdersService on an order whose personal details were removed', (
 
   // The real writer, so a move is refused where every move is checked.
   function scrubbedService(row: Record<string, unknown> = scrubbed) {
-    const db = {} as NodePgDatabase<typeof schema>;
+    const db = {} as Database;
     const reads = {
       row: vi.fn().mockResolvedValue(row),
       customerThread: vi.fn().mockResolvedValue({ number: 1 }),

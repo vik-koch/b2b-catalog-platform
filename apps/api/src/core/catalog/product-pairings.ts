@@ -5,11 +5,10 @@
  */
 
 import { and, eq, inArray, or, SQL, sql } from 'drizzle-orm';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import * as schema from '../../platform/db/schema';
 import { PgColumn } from 'drizzle-orm/pg-core';
-import { productPairings, products } from '../../platform/db/schema';
+import { productPairings, products } from './catalog-schema';
 import { qualified } from '../../platform/db/sql-columns';
+import { Database } from '../../platform/db/database';
 
 /**
  * How many products a customer could add alongside the row being selected: a
@@ -54,7 +53,7 @@ export function involves(productId: string | typeof products.id) {
 /** The pairings with both ends in the set, as `[a, b]` id pairs: all the
  * cart's check needs, since a counterpart nobody added covers nothing. */
 export async function pairingsAmong(
-  db: NodePgDatabase<typeof schema>,
+  db: Database,
   productIds: readonly string[],
 ): Promise<[string, string][]> {
   if (productIds.length < 2) return [];

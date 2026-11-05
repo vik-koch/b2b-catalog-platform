@@ -4,7 +4,6 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import {
   and,
   asc,
@@ -30,14 +29,13 @@ import {
   ReorderAttributesRequest,
 } from '@b2b-catalog-platform/shared/admin/catalog';
 import { DRIZZLE } from '../../../platform/db/database.module';
-import * as schema from '../../../platform/db/schema';
 import {
   attributeDefinitions,
   catalogAttributes,
   categoryAttributes,
   productAttributes,
   products,
-} from '../../../platform/db/schema';
+} from '../../../core/catalog/catalog-schema';
 import {
   categoryChain,
   DefinitionRow,
@@ -50,6 +48,7 @@ import {
 import { CatalogReader } from '../../../core/catalog/catalog-reader';
 import { categoryNotFound } from '../categories/categories.service';
 import { resolveNewSlug, resolveSlugOverride } from '../catalog-identity';
+import { Database } from '../../../platform/db/database';
 
 /** The one 404 this surface has; a function so each throw gets its own stack. */
 const notFound = () =>
@@ -159,7 +158,7 @@ function numericColumnValue(value: string): string | null {
 @Injectable()
 export class AttributesService {
   constructor(
-    @Inject(DRIZZLE) private readonly db: NodePgDatabase<typeof schema>,
+    @Inject(DRIZZLE) private readonly db: Database,
     private readonly reader: CatalogReader,
   ) {}
 

@@ -6,7 +6,6 @@ import {
   Logger,
 } from '@nestjs/common';
 import { and, eq, inArray, isNull, sql } from 'drizzle-orm';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import {
   CustomerSyncOptions,
   CustomerSyncPlan,
@@ -23,13 +22,9 @@ import {
   SyncCommitResponse,
 } from '@b2b-catalog-platform/shared/core/exchange';
 import { DRIZZLE } from '../../platform/db/database.module';
-import * as schema from '../../platform/db/schema';
-import {
-  customerTiers,
-  passwordTokens,
-  syncRuns,
-  users,
-} from '../../platform/db/schema';
+import { customerTiers } from '../catalog/catalog-schema';
+import { passwordTokens, users } from '../accounts/accounts-schema';
+import { syncRuns } from './exchange-schema';
 import { CUSTOMER_SYNC_POLICY } from './exchange-config';
 import { ACCEPTED_CUSTOMER_TYPES } from '../accounts/accounts-config';
 import { OwnershipState } from '../../platform/settings/ownership-state';
@@ -57,6 +52,7 @@ import { SyncRunLog, toSyncRun } from './sync-run-log';
 import { SyncNotifications } from './sync-notifications';
 import { StagedPayloadOf, stagedPayload } from './sync-run-payload';
 import { CustomerType } from '@b2b-catalog-platform/shared/core/accounts';
+import { Database } from '../../platform/db/database';
 
 /** A sent mail counts, as do skipped rows: an unreadable file is not a
  * quiet night. */
@@ -85,7 +81,7 @@ export class CustomerSyncService {
   private readonly logger = new Logger('CustomerSync');
 
   constructor(
-    @Inject(DRIZZLE) private readonly db: NodePgDatabase<typeof schema>,
+    @Inject(DRIZZLE) private readonly db: Database,
     @Inject(CUSTOMER_SYNC_POLICY) private readonly policy: CustomerSyncPolicy,
     @Inject(ACCEPTED_CUSTOMER_TYPES)
     private readonly customerTypes: readonly CustomerType[],

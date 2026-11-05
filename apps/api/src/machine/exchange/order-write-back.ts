@@ -23,7 +23,6 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { eq, inArray } from 'drizzle-orm';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import {
   refuseIfDetailsRemoved,
   adjustedItems,
@@ -35,12 +34,13 @@ import {
 import { OrderReader } from '../../core/ordering/order-reader';
 import { OrderWriter } from '../../core/ordering/order-writer';
 import { DRIZZLE } from '../../platform/db/database.module';
-import { orderItems, orders, products } from '../../platform/db/schema';
+import { products } from '../../core/catalog/catalog-schema';
+import { orderItems, orders } from '../../core/ordering/ordering-schema';
 import {
   priceAdjustment,
   PricedAdjustment,
 } from '../../core/ordering/order-adjustment';
-import * as schema from '../../platform/db/schema';
+import { Database } from '../../platform/db/database';
 
 /**
  * Whether the customer called the order off themselves (FR-ADM-08/10), read
@@ -64,7 +64,7 @@ export function cancelledByCustomer(row: {
 @Injectable()
 export class OrderWriteBack {
   constructor(
-    @Inject(DRIZZLE) private readonly db: NodePgDatabase<typeof schema>,
+    @Inject(DRIZZLE) private readonly db: Database,
     private readonly reads: OrderReader,
     private readonly writer: OrderWriter,
   ) {}

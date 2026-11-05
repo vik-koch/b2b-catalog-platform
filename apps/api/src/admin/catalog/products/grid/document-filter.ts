@@ -1,12 +1,14 @@
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { and, eq, exists, SQL, sql } from 'drizzle-orm';
-import * as schema from '../../../../platform/db/schema';
-import { documentProducts, products } from '../../../../platform/db/schema';
+import {
+  documentProducts,
+  products,
+} from '../../../../core/catalog/catalog-schema';
+import { Database } from '../../../../platform/db/database';
 
 /** "This product shows this document": where the document list's count
  * leads (FR-DOC-02). */
 export function documentCondition(
-  db: NodePgDatabase<typeof schema>,
+  db: Database,
   documentId: string | undefined,
 ): SQL | undefined {
   if (!documentId) return undefined;

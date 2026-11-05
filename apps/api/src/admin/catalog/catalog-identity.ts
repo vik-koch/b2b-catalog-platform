@@ -5,19 +5,16 @@
  */
 
 import { ConflictException } from '@nestjs/common';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { eq } from 'drizzle-orm';
 import { randomUUID } from 'node:crypto';
 import { slugify } from '@b2b-catalog-platform/shared/core/catalog';
-import * as schema from '../../platform/db/schema';
 import {
   attributeDefinitions,
   categories,
   products,
-} from '../../platform/db/schema';
+} from '../../core/catalog/catalog-schema';
 import { isUniqueViolation } from '../../platform/db/pg-errors';
-
-type Db = NodePgDatabase<typeof schema>;
+import { Database } from '../../platform/db/database';
 
 /** The tables addressed by slug and sync key. */
 type IdentifiedTable = typeof products | typeof categories;
@@ -43,7 +40,7 @@ const sourceIdTaken = (sourceId: string) =>
 /** A slug on create: the admin's if given (409 if taken), else the name
  * transliterated, or `stem`, with a numeric suffix until unique. */
 export async function resolveNewSlug(
-  db: Db,
+  db: Database,
   table: SluggedTable,
   provided: string | undefined,
   name: string,
@@ -64,7 +61,7 @@ export async function resolveNewSlug(
 
 /** A slug on update: the old one unless a new, free slug is given. */
 export async function resolveSlugOverride(
-  db: Db,
+  db: Database,
   table: SluggedTable,
   provided: string | undefined,
   current: string,
@@ -76,7 +73,7 @@ export async function resolveSlugOverride(
 }
 
 async function slugExists(
-  db: Db,
+  db: Database,
   table: SluggedTable,
   slug: string,
 ): Promise<boolean> {
@@ -91,7 +88,7 @@ async function slugExists(
 /** A product made in the admin gets a key outside the source system's
  * namespace: every product is ordered and invoiced by one. */
 export async function resolveNewProductSourceId(
-  db: Db,
+  db: Database,
   provided: string | undefined,
 ): Promise<string> {
   if (!provided) return `manual:${randomUUID()}`;
@@ -104,7 +101,7 @@ export async function resolveNewProductSourceId(
 /** A category made without a key has none: null tells the ownership rules
  * nobody else writes it. */
 export async function resolveNewCategorySourceId(
-  db: Db,
+  db: Database,
   provided: string | null | undefined,
 ): Promise<string | null> {
   if (!provided) return null;
@@ -116,7 +113,7 @@ export async function resolveNewCategorySourceId(
 
 /** On update, an absent key means "leave it alone". */
 export async function resolveProductSourceIdOverride(
-  db: Db,
+  db: Database,
   provided: string | undefined,
   current: string,
 ): Promise<string> {
@@ -129,7 +126,7 @@ export async function resolveProductSourceIdOverride(
 
 /** The same, plus null, which detaches a category from the exchange. */
 export async function resolveCategorySourceIdOverride(
-  db: Db,
+  db: Database,
   provided: string | null | undefined,
   current: string | null,
 ): Promise<string | null> {
@@ -142,7 +139,7 @@ export async function resolveCategorySourceIdOverride(
 }
 
 async function sourceIdExists(
-  db: Db,
+  db: Database,
   table: IdentifiedTable,
   sourceId: string,
 ): Promise<boolean> {

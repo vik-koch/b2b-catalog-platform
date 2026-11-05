@@ -1,10 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { createHash, randomBytes } from 'node:crypto';
 import { and, eq, gt, isNull } from 'drizzle-orm';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { DRIZZLE } from '../../platform/db/database.module';
-import * as schema from '../../platform/db/schema';
-import { passwordTokens } from '../../platform/db/schema';
+import { passwordTokens } from './accounts-schema';
+import { Database } from '../../platform/db/database';
 
 /** An invitation waits for someone to read their mail; a reset answers
  * someone at the form right now. */
@@ -12,7 +11,7 @@ export const INVITE_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 export const RESET_TTL_MS = 60 * 60 * 1000;
 
 /** The handle a write goes through: the pool, or a caller's transaction. */
-type Writer = Pick<NodePgDatabase<typeof schema>, 'update'>;
+type Writer = Pick<Database, 'update'>;
 
 /** Hex SHA-256, deterministic so the link can be looked up by itself. */
 const hashToken = (token: string): string =>
@@ -20,9 +19,7 @@ const hashToken = (token: string): string =>
 
 @Injectable()
 export class PasswordTokenService {
-  constructor(
-    @Inject(DRIZZLE) private readonly db: NodePgDatabase<typeof schema>,
-  ) {}
+  constructor(@Inject(DRIZZLE) private readonly db: Database) {}
 
   /** Mint a link, answering the only readable copy of its token. Earlier
    * unused links for the account expire, so only the newest works. */

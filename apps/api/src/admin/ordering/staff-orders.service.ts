@@ -24,7 +24,6 @@ import {
 } from '@b2b-catalog-platform/shared/platform';
 import { ConflictException, Inject, Injectable } from '@nestjs/common';
 import { and, desc, eq, ilike, inArray, ne, or, SQL } from 'drizzle-orm';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { AddressInput } from '@b2b-catalog-platform/shared/core/accounts';
 import {
   orderColumns,
@@ -47,19 +46,20 @@ import { OrderWriter } from '../../core/ordering/order-writer';
 import { OrderRules } from '../../core/ordering/order-rules';
 import { ALTERNATE_LAYOUT } from '../../platform/config/deployment-config';
 import { DRIZZLE } from '../../platform/db/database.module';
-import { orderRevisions, orders, users } from '../../platform/db/schema';
+import { users } from '../../core/accounts/accounts-schema';
+import { orderRevisions, orders } from '../../core/ordering/ordering-schema';
 import {
   priceAdjustment,
   PricedAdjustment,
 } from '../../core/ordering/order-adjustment';
 import { OrderDocumentsService } from '../../core/ordering/order-documents.service';
-import * as schema from '../../platform/db/schema';
+import { Database } from '../../platform/db/database';
 
 /** Staff answering orders (FR-AUTH-03, FR-ORD-02/03/04, FR-NOTIF-03). */
 @Injectable()
 export class StaffOrdersService {
   constructor(
-    @Inject(DRIZZLE) private readonly db: NodePgDatabase<typeof schema>,
+    @Inject(DRIZZLE) private readonly db: Database,
     private readonly reads: OrderReader,
     private readonly writer: OrderWriter,
     private readonly rules: OrderRules,

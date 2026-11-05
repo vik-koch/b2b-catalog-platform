@@ -11,7 +11,6 @@ import {
   Logger,
 } from '@nestjs/common';
 import { eq } from 'drizzle-orm';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { formatPersonName } from '@b2b-catalog-platform/shared/core/accounts';
 import {
   detailColumns,
@@ -31,13 +30,13 @@ import { PAIRINGS_ENFORCED } from '../../core/catalog/catalog-config';
 import { TERMS_PUBLISHED } from '../../core/site/site-config';
 import { DRIZZLE } from '../../platform/db/database.module';
 import { currentPageVersion } from '../../core/site/page-versions';
+import { customerTiers } from '../../core/catalog/catalog-schema';
+import { users } from '../../core/accounts/accounts-schema';
 import {
-  customerTiers,
   orderItems,
   orderRevisions,
   orders,
-  users,
-} from '../../platform/db/schema';
+} from '../../core/ordering/ordering-schema';
 import { priceCart, PricedCart } from '../../core/ordering/cart-pricing';
 import { CartChangedException } from '../../core/ordering/cart-changed-exception';
 import { PairingUnsatisfiedException } from '../../core/ordering/pairing-unsatisfied-exception';
@@ -49,7 +48,7 @@ import {
   orderPublicToken,
   orderReference,
 } from '../../core/ordering/order-reference';
-import * as schema from '../../platform/db/schema';
+import { Database } from '../../platform/db/database';
 
 /**
  * Placing an order (FR-CART-03/04). The cart is re-priced through the
@@ -61,7 +60,7 @@ export class CheckoutService {
   private readonly logger = new Logger('Orders');
 
   constructor(
-    @Inject(DRIZZLE) private readonly db: NodePgDatabase<typeof schema>,
+    @Inject(DRIZZLE) private readonly db: Database,
     private readonly reads: OrderReader,
     private readonly rules: OrderRules,
     private readonly notifications: OrderNotifications,

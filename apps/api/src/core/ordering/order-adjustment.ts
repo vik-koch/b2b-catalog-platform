@@ -1,5 +1,4 @@
 import { inArray } from 'drizzle-orm';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { BadRequestException } from '@nestjs/common';
 import {
   ProductAvailability,
@@ -15,10 +14,14 @@ import {
   AdjustmentLineFlag,
   OrderAdjustmentLine,
 } from '@b2b-catalog-platform/shared/core/ordering';
-import * as schema from '../../platform/db/schema';
-import { products } from '../../platform/db/schema';
+import {
+  products,
+  type ProductImageRef,
+  type ProductVariantRef,
+} from '../catalog/catalog-schema';
 import { resolvedPriceMinor } from '../catalog/product-price';
 import { packagingOf, unitColumns } from '../catalog/product-view';
+import { Database } from '../../platform/db/database';
 
 /**
  * Pricing an order as a manager writes it (FR-ORD-03), unlike a cart: a line
@@ -61,8 +64,8 @@ type ProductRow = {
   sourceId: string;
   /** Null where no list prices it: staff name the price. */
   priceMinor: number | null;
-  images: schema.ProductImageRef[];
-  variants: schema.ProductVariantRef[];
+  images: ProductImageRef[];
+  variants: ProductVariantRef[];
   boxVolume: string | null;
   boxWeight: string | null;
   boxCount: number;
@@ -78,7 +81,7 @@ type ProductRow = {
 
 /** `taxRateOf` resolves a product's rate under the order's own basis. */
 export async function priceAdjustment(
-  db: NodePgDatabase<typeof schema>,
+  db: Database,
   lines: readonly OrderAdjustmentLine[],
   tierId: string | null,
   taxRateOf: (own: number | null) => number | null,
@@ -107,7 +110,7 @@ export async function priceAdjustment(
 }
 
 async function loadProducts(
-  db: NodePgDatabase<typeof schema>,
+  db: Database,
   lines: readonly OrderAdjustmentLine[],
   tierId: string | null,
 ): Promise<Map<string, ProductRow>> {

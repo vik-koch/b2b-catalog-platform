@@ -2,7 +2,6 @@ import { readdir, rm, stat } from 'node:fs/promises';
 import { join } from 'node:path';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { Client } from 'pg';
-import * as schema from '../../db/schema';
 import { DOCUMENT_SUBDIR } from '../media-store';
 import {
   collectReferencedFilenames,
@@ -91,7 +90,7 @@ export async function runMediaPrune(params: {
   const client = new Client({ connectionString: params.connectionString });
   try {
     await client.connect();
-    const db = drizzle({ client, schema });
+    const db = drizzle({ client });
     const sweep = (mediaRoot: string, referenced: Set<string>) =>
       pruneMediaFiles({
         mediaRoot,

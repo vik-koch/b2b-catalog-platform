@@ -1,17 +1,14 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { and, count, eq, notInArray } from 'drizzle-orm';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { ENDED_ORDER_STATUSES } from '@b2b-catalog-platform/shared/core/ordering';
 import { DRIZZLE } from '../../platform/db/database.module';
-import * as schema from '../../platform/db/schema';
-import { orders } from '../../platform/db/schema';
+import { orders } from './ordering-schema';
 import { AccountOrders } from '../accounts/account-orders';
+import { Database } from '../../platform/db/database';
 
 @Injectable()
 export class OrderCounts implements AccountOrders {
-  constructor(
-    @Inject(DRIZZLE) private readonly db: NodePgDatabase<typeof schema>,
-  ) {}
+  constructor(@Inject(DRIZZLE) private readonly db: Database) {}
 
   async countOpen(userId: string): Promise<number> {
     const [row] = await this.db

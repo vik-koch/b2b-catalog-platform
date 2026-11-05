@@ -1,7 +1,6 @@
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import * as schema from '../../platform/db/schema';
 import { CatalogReader } from '../../core/catalog/catalog-reader';
 import { CatalogService } from './catalog.service';
+import { Database } from '../../platform/db/database';
 
 /**
  * A drizzle stand-in for the sitemap selects. Each chain resolves to the next
@@ -22,7 +21,7 @@ function dbReturning(results: unknown[][]) {
   return {
     select: () => chain,
     selectDistinct: () => chain,
-  } as unknown as NodePgDatabase<typeof schema>;
+  } as unknown as Database;
 }
 
 /** The service over one queue, which its reader draws from as well. */

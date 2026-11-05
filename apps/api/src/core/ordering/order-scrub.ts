@@ -1,9 +1,8 @@
 import { inArray, sql, SQLWrapper } from 'drizzle-orm';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import * as schema from '../../platform/db/schema';
-import { orderItems, orderRevisions, orders } from '../../platform/db/schema';
+import { orderItems, orderRevisions, orders } from './ordering-schema';
+import { Database } from '../../platform/db/database';
 
-type Writer = Pick<NodePgDatabase<typeof schema>, 'update' | 'select'>;
+type Writer = Pick<Database, 'update' | 'select'>;
 
 /** The orders to scrub: their ids, or a subquery selecting them. */
 export type OrderIds = string[] | SQLWrapper;

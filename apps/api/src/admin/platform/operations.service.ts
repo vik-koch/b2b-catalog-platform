@@ -5,18 +5,17 @@ import {
   SettingChange,
 } from '@b2b-catalog-platform/shared/admin/platform';
 import { desc, eq } from 'drizzle-orm';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { DRIZZLE } from '../../platform/db/database.module';
-import * as schema from '../../platform/db/schema';
-import { settingChanges, users } from '../../platform/db/schema';
+import { settingChanges } from '../../platform/db/schema';
+// eslint-disable-next-line boundaries/dependencies -- to turn around: accounts should give an actor's email
+import { users } from '../../core/accounts/accounts-schema';
 import { env } from '../../platform/env';
+import { Database } from '../../platform/db/database';
 
 /** What the operations page and the panel's footer read beside the switches. */
 @Injectable()
 export class OperationsService {
-  constructor(
-    @Inject(DRIZZLE) private readonly db: NodePgDatabase<typeof schema>,
-  ) {}
+  constructor(@Inject(DRIZZLE) private readonly db: Database) {}
 
   /**
    * What is deployed, straight from the environment the stack was started

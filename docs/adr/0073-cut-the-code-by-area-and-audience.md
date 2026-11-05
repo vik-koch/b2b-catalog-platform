@@ -37,7 +37,8 @@ rules, held by `eslint-plugin-boundaries`:
    `app.module`, and inside an audience its `shell/` (routes, layout, panel page).
 2. **Downwards only:** audience → core → platform. Platform imports no area, except what
    composes them all: the deployment schema and shared texts, built from each area's
-   section, and the database schema.
+   section. Each area keeps its tables in its core; the one foreign key against the table
+   is a row's record of who changed it, which references `users` from any area.
 3. **Between areas, only along the table**, at the same level or downwards:
    `admin/ordering` may import `admin/catalog` or `core/catalog`, never the reverse.
 4. **The rule of two:** code enters `core/` when a second audience uses it, not before.
@@ -53,7 +54,7 @@ rules, held by `eslint-plugin-boundaries`:
 | work | the staff's and the customers' queues | catalog, accounts, ordering, exchange |
 | retention | the retention sweeps over orders and consents | ordering, site |
 
-**Platform** holds the database, deployment config and texts, oRPC and the HTTP client,
+**Platform** holds the database connection and its own tables, deployment config and texts, oRPC and the HTTP client,
 guards and the session, the settings row and which areas another system owns, mail transport
 and layout, the media store, PDF rendering, audit and the destruction record, throttling and
 the suggestion sidecar. An area's mails live in its core; platform renders and sends them.

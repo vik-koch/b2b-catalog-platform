@@ -1,5 +1,4 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { desc, eq, sql } from 'drizzle-orm';
 import { Page, PageSlug } from '@b2b-catalog-platform/shared/core/site';
 import {
@@ -8,14 +7,16 @@ import {
 } from '@b2b-catalog-platform/shared/admin/site';
 import { sanitizeRichText } from '@b2b-catalog-platform/shared/node';
 import { DRIZZLE } from '../../platform/db/database.module';
-import * as schema from '../../platform/db/schema';
-import { pageVersions, users } from '../../platform/db/schema';
+import { pageVersions } from '../../core/site/site-schema';
+// eslint-disable-next-line boundaries/dependencies -- to turn around: accounts should give an actor's email
+import { users } from '../../core/accounts/accounts-schema';
 import { currentPageVersion, toPage } from '../../core/site/page-versions';
 import { AuthUser } from '@b2b-catalog-platform/shared/platform';
+import { Database } from '../../platform/db/database';
 
 @Injectable()
 export class PageEditorService {
-  constructor(@Inject(DRIZZLE) private db: NodePgDatabase<typeof schema>) {}
+  constructor(@Inject(DRIZZLE) private db: Database) {}
 
   /**
    * Saves a new version. The body is sanitized here, on the only write path.

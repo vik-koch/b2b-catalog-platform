@@ -1,16 +1,15 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { and, eq, inArray, sql } from 'drizzle-orm';
 import { DRIZZLE } from '../../platform/db/database.module';
-import * as schema from '../../platform/db/schema';
 import { withdrawAccountConsents } from '../site/consent-withdrawals';
-import { addresses, signInCodes, users } from '../../platform/db/schema';
+import { addresses, signInCodes, users } from './accounts-schema';
 import { AccountErasure, Tx } from './account-erasure';
 import { LastAdminError } from './last-admin-error';
 import {
   CustomerType,
   AccountDeletionReason,
 } from '@b2b-catalog-platform/shared/core/accounts';
+import { Database } from '../../platform/db/database';
 
 export type UserRow = typeof users.$inferSelect;
 
@@ -32,7 +31,7 @@ export interface PendingRegistration {
 @Injectable()
 export class UsersService {
   constructor(
-    @Inject(DRIZZLE) private readonly db: NodePgDatabase<typeof schema>,
+    @Inject(DRIZZLE) private readonly db: Database,
     private readonly erasure: AccountErasure,
   ) {}
 
@@ -197,7 +196,7 @@ export class UsersService {
   }
 
   private async anonymizeUser(
-    tx: Pick<NodePgDatabase<typeof schema>, 'update'>,
+    tx: Pick<Database, 'update'>,
     id: string,
     unusableHash: string,
   ): Promise<UserRow> {

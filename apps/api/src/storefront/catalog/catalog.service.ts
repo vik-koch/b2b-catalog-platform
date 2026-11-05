@@ -1,5 +1,4 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { PgColumn } from 'drizzle-orm/pg-core';
 import { and, asc, count, eq, inArray, max, SQL } from 'drizzle-orm';
 import {
@@ -19,15 +18,15 @@ import {
 } from '@b2b-catalog-platform/shared/storefront/catalog';
 import { Pagination } from '@b2b-catalog-platform/shared/platform';
 import { DRIZZLE } from '../../platform/db/database.module';
-import * as schema from '../../platform/db/schema';
 import {
   attributeDefinitions,
   catalogAttributes,
   categories,
-  pageVersions,
   productPairings,
   products,
-} from '../../platform/db/schema';
+} from '../../core/catalog/catalog-schema';
+// eslint-disable-next-line boundaries/dependencies -- to turn around: the sitemap's pages belong to site
+import { pageVersions } from '../../core/site/site-schema';
 import {
   ancestorsOf,
   categoryBySlug,
@@ -64,6 +63,7 @@ import {
 import { carriedSelections, selectionParams } from './subcategory-links';
 import { DefinitionRow } from '../../core/catalog/category-filters';
 import { CatalogReader } from '../../core/catalog/catalog-reader';
+import { Database } from '../../platform/db/database';
 
 interface CatalogProductsResult {
   categories: SubcategoryLink[];
@@ -92,7 +92,7 @@ interface CategoryProductsResult {
 @Injectable()
 export class CatalogService {
   constructor(
-    @Inject(DRIZZLE) private db: NodePgDatabase<typeof schema>,
+    @Inject(DRIZZLE) private db: Database,
     private readonly reader: CatalogReader,
   ) {}
 

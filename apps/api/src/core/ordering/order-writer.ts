@@ -24,7 +24,6 @@ import {
   Logger,
 } from '@nestjs/common';
 import { and, eq, getTableColumns, sql } from 'drizzle-orm';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import {
   orderMovedOn,
   refuseIfDetailsRemoved,
@@ -35,16 +34,12 @@ import {
 import { OrderReader } from './order-reader';
 import { TAX_CONFIG } from '../../platform/config/deployment-config';
 import { DRIZZLE } from '../../platform/db/database.module';
-import {
-  customerTiers,
-  orderItems,
-  orderRevisions,
-  orders,
-} from '../../platform/db/schema';
+import { customerTiers } from '../catalog/catalog-schema';
+import { orderItems, orderRevisions, orders } from './ordering-schema';
 import { OrderDocumentsService } from './order-documents.service';
 import { OrderNotifications } from './order-notifications';
 import { isUniqueViolation } from '../../platform/db/pg-errors';
-import * as schema from '../../platform/db/schema';
+import { Database } from '../../platform/db/database';
 
 /**
  * The one writer of order versions (ADR 0051): staff, the customer's cancel and
@@ -55,7 +50,7 @@ export class OrderWriter {
   private readonly logger = new Logger('Orders');
 
   constructor(
-    @Inject(DRIZZLE) private readonly db: NodePgDatabase<typeof schema>,
+    @Inject(DRIZZLE) private readonly db: Database,
     private readonly reads: OrderReader,
     private readonly notifications: OrderNotifications,
     private readonly documents: OrderDocumentsService,

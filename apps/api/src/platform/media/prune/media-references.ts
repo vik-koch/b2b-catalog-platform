@@ -1,19 +1,19 @@
 import { isNotNull } from 'drizzle-orm';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import {
   DOCUMENT_URL_PREFIX,
   MEDIA_URL_PREFIX,
 } from '@b2b-catalog-platform/shared/platform';
-import * as schema from '../../db/schema';
+/* eslint-disable boundaries/dependencies -- to turn around: each area should
+   register its media references */
 import {
   categories,
   documents,
-  orderItems,
-  pageVersions,
   products,
-} from '../../db/schema';
-
-type MediaReferenceDb = NodePgDatabase<typeof schema>;
+} from '../../../core/catalog/catalog-schema';
+import { pageVersions } from '../../../core/site/site-schema';
+import { orderItems } from '../../../core/ordering/ordering-schema';
+/* eslint-enable boundaries/dependencies */
+import { Database } from '../../db/database';
 
 /** The filenames under `prefix` in a stored string, in the charset the
  * sanitizer's src check admits. */
@@ -30,7 +30,7 @@ export const documentFilenames = filenamesUnder(DOCUMENT_URL_PREFIX);
 /** A place stored content can reference an uploaded file. */
 export interface MediaReferenceSource {
   readonly name: string;
-  collect(db: MediaReferenceDb): Promise<string[]>;
+  collect(db: Database): Promise<string[]>;
 }
 
 /** Every place a `/media` URL can be stored. A column missing here has its
@@ -100,7 +100,7 @@ export const DOCUMENT_REFERENCE_SOURCES: readonly MediaReferenceSource[] = [
 
 /** Union of the filenames every registered source currently references. */
 export async function collectReferencedFilenames(
-  db: MediaReferenceDb,
+  db: Database,
   sources: readonly MediaReferenceSource[] = MEDIA_REFERENCE_SOURCES,
 ): Promise<Set<string>> {
   const referenced = new Set<string>();

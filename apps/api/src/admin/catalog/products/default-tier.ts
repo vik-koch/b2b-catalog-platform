@@ -1,16 +1,13 @@
 import { eq } from 'drizzle-orm';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import * as schema from '../../../platform/db/schema';
-import { customerTiers } from '../../../platform/db/schema';
+import { customerTiers } from '../../../core/catalog/catalog-schema';
+import { Database } from '../../../platform/db/database';
 
 /**
  * The badged price list (FR-AUTH-05). Looked up, not cached: a stale cache
  * after a badge move would misprice the catalog. Throws rather than returning
  * null: exactly one row carries the badge, so none is a broken install.
  */
-export async function defaultTierId(
-  db: NodePgDatabase<typeof schema>,
-): Promise<string> {
+export async function defaultTierId(db: Database): Promise<string> {
   const [row] = await db
     .select({ id: customerTiers.id })
     .from(customerTiers)

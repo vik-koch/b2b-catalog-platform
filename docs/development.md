@@ -79,7 +79,9 @@ hand with `node tools/take-screenshots.mjs`; nothing checks them.
 
 ## Database changes
 
-The schema is [apps/api/src/platform/db/schema.ts](../apps/api/src/platform/db/schema.ts). After changing it,
+Each area keeps its tables in `apps/api/src/core/<area>/<area>-schema.ts`, platform its own in
+[platform/db/schema.ts](../apps/api/src/platform/db/schema.ts), and
+[app.schema.ts](../apps/api/src/app/app.schema.ts) composes them for drizzle-kit. After changing one,
 `npx nx run api:db-generate` writes a migration with drizzle-kit, and seeding or
 `npx nx run api:db-migrate` applies it. On a server, the migrate container applies it before the
 new apps start, so the running version briefly reads the new schema: add first, and remove what
@@ -103,8 +105,9 @@ it replaces a release later. A migration that cannot run unattended makes the re
 - **Audience, then area.** In the API, the contracts and the web app a file lives in
   `<audience>/<area>/` (`storefront`, `admin`, `machine`), moves to `core/<area>/` only once a
   second audience uses it, and goes to `platform/` when it knows no area. Areas import each
-  other only along the table in `tools/lint/area-boundaries.mjs`; its one exception is the
-  deployment config, texts and database schema, which compose every area. Texts split by
+  other only along the table in `tools/lint/area-boundaries.mjs`; its exceptions are the
+  deployment config and texts, which compose every area, and a table's reference to `users`
+  for who changed a row. Texts split by
   audience only. Lint fails a wrong-way import
   ([ADR 0069](adr/0069-split-web-texts-and-contracts-by-audience.md),
   [ADR 0073](adr/0073-cut-the-code-by-area-and-audience.md)).

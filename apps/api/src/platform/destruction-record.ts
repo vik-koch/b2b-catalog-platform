@@ -1,13 +1,12 @@
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import {
   DestructionCategory,
   DestructionReason,
   DestructionSubject,
 } from './destruction';
-import * as schema from './db/schema';
 import { destructionRecords } from './db/schema';
+import { Database } from './db/database';
 
-type Writer = Pick<NodePgDatabase<typeof schema>, 'insert'>;
+type Writer = Pick<Database, 'insert'>;
 
 /** What deleting an account destroys (FR-AUTH-06, FR-ADM-23). */
 export const ACCOUNT_DELETION_CATEGORIES: readonly DestructionCategory[] = [

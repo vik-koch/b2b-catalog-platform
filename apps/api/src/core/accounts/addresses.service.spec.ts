@@ -1,12 +1,11 @@
 import type { MockInstance } from 'vitest';
 import { ConflictException, Logger } from '@nestjs/common';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import * as schema from '../../platform/db/schema';
 import { AddressesService } from './addresses.service';
 import {
   AddressInput,
   AddressConfig,
 } from '@b2b-catalog-platform/shared/core/accounts';
+import { Database } from '../../platform/db/database';
 
 const address: AddressInput = {
   label: null,
@@ -41,10 +40,7 @@ function service(config?: AddressConfig): AddressesService {
   // trusted with, and the seed's silence. The reading and writing paths are
   // covered against a real Postgres in apps/api-e2e (addresses.spec.ts) —
   // stubbing a query builder to re-prove them would test the stub.
-  return new AddressesService(
-    undefined as unknown as NodePgDatabase<typeof schema>,
-    config,
-  );
+  return new AddressesService(undefined as unknown as Database, config);
 }
 
 /**

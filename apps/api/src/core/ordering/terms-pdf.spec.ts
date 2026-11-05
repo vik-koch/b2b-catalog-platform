@@ -1,6 +1,4 @@
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { PDFDocument } from 'pdf-lib';
-import * as schema from '../../platform/db/schema';
 import {
   demoSharedText,
   demoMailBranding,
@@ -9,6 +7,7 @@ import {
 import { PdfFaces } from '../../platform/pdf/pdf-faces';
 import { demoAdminOrder } from './order.fixture';
 import { TermsPdf } from './terms-pdf';
+import { Database } from '../../platform/db/database';
 
 const version = {
   title: 'Terms of sale',
@@ -24,7 +23,7 @@ const dbReturning = (rows: unknown[]) =>
     select: () => ({
       from: () => ({ where: () => ({ limit: async () => rows }) }),
     }),
-  }) as unknown as NodePgDatabase<typeof schema>;
+  }) as unknown as Database;
 
 const terms = (attached: boolean, rows: unknown[] = [version]) =>
   new TermsPdf(

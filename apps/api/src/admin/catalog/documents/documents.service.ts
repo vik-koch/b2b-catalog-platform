@@ -1,5 +1,4 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { and, asc, desc, eq, inArray, isNull, notInArray } from 'drizzle-orm';
 import {
   DocumentDetail,
@@ -9,16 +8,16 @@ import {
   StoredDocumentFile,
 } from '@b2b-catalog-platform/shared/admin/catalog';
 import { DRIZZLE } from '../../../platform/db/database.module';
-import * as schema from '../../../platform/db/schema';
 import {
   documentProducts,
   documents,
   products,
-} from '../../../platform/db/schema';
+} from '../../../core/catalog/catalog-schema';
 import {
   linkedProductColumns,
   toLinkedProduct,
 } from '../products/product-records';
+import { Database } from '../../../platform/db/database';
 
 /** A function, so each throw gets its own stack. */
 const notFound = () =>
@@ -72,9 +71,7 @@ function toDocument(
  */
 @Injectable()
 export class DocumentsService {
-  constructor(
-    @Inject(DRIZZLE) private readonly db: NodePgDatabase<typeof schema>,
-  ) {}
+  constructor(@Inject(DRIZZLE) private readonly db: Database) {}
 
   /** Every document, soonest expiry first, undated last. A few dozen rows, so
    * unpaged. */
@@ -215,7 +212,7 @@ export class DocumentsService {
   /** The links, replaced by what was posted; kept ones are left alone, so a
    * save does not re-date them. */
   private async replaceLinks(
-    tx: NodePgDatabase<typeof schema>,
+    tx: Database,
     documentId: string,
     productIds: string[],
   ): Promise<void> {

@@ -1,6 +1,6 @@
 import { MyOrderFilter } from '@b2b-catalog-platform/shared/core/ordering';
 import { and, eq, SQL } from 'drizzle-orm';
-import { orderRevisions, orders } from '../../platform/db/schema';
+import { orderRevisions, orders } from './ordering-schema';
 
 /** What waits on a customer, over `orders` joined to the revision they are on.
  * Their list filters by it and the work marker counts it, so the two agree. */

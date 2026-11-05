@@ -4,8 +4,7 @@ import {
   PRODUCT_FEATURES,
   PRODUCT_GAPS,
 } from '@b2b-catalog-platform/shared/admin/catalog';
-import * as schema from '../../../../platform/db/schema';
-import { products } from '../../../../platform/db/schema';
+import { products } from '../../../../core/catalog/catalog-schema';
 import { featureCondition, missingCondition } from './content-filter';
 
 /**
@@ -13,7 +12,7 @@ import { featureCondition, missingCondition } from './content-filter';
  * rendered alone qualifies every column, and inside a query a bare name binds
  * to whichever table in scope owns one.
  */
-const db = drizzle({ client: {} as never, schema });
+const db = drizzle({ client: {} as never });
 
 const render = (where: ReturnType<typeof and>) =>
   db.select({ slug: products.slug }).from(products).where(where).toSQL().sql;

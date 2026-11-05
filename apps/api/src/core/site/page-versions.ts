@@ -1,12 +1,11 @@
 import { desc, eq } from 'drizzle-orm';
 import { Page } from '@b2b-catalog-platform/shared/core/site';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import * as schema from '../../platform/db/schema';
-import { pageVersions } from '../../platform/db/schema';
+import { pageVersions } from './site-schema';
+import { Database } from '../../platform/db/database';
 
 export type PageVersionRow = typeof pageVersions.$inferSelect;
 
-type Reader = Pick<NodePgDatabase<typeof schema>, 'select'>;
+type Reader = Pick<Database, 'select'>;
 
 /**
  * A page is its slug's highest version. A function taking the db or a

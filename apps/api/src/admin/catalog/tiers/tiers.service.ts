@@ -4,7 +4,6 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { and, asc, eq, inArray, isNull, ne, sql } from 'drizzle-orm';
 import {
   CustomerTier,
@@ -13,17 +12,18 @@ import {
 } from '@b2b-catalog-platform/shared/admin/catalog';
 import { DRIZZLE } from '../../../platform/db/database.module';
 import { OWNED_TIER_FIELDS } from '../owned-fields';
-import * as schema from '../../../platform/db/schema';
 import {
   customerTiers,
   productPrices,
   products,
-  users,
-} from '../../../platform/db/schema';
+} from '../../../core/catalog/catalog-schema';
+// eslint-disable-next-line boundaries/dependencies -- to turn around: accounts should count a tier's customers
+import { users } from '../../../core/accounts/accounts-schema';
 import { OwnershipState } from '../../../platform/settings/ownership-state';
 import { catalogExternallyOwned } from '../../../platform/settings/ownership.refusals';
 import { publiclyVisible } from '../../../core/catalog/product-view';
 import { tierPriceCondition } from '../products/grid/tier-price-filter';
+import { Database } from '../../../platform/db/database';
 
 /**
  * Who a price list's account count covers: active customers. Staff, pending
@@ -37,10 +37,7 @@ const notFound = () =>
   new NotFoundException({ code: 'tier-not-found', message: 'Tier not found' });
 
 /** Live products a list does not price: what badging it would unpublish. */
-function unpricedLive(
-  db: NodePgDatabase<typeof schema>,
-  tierId: string | typeof customerTiers.id,
-) {
+function unpricedLive(db: Database, tierId: string | typeof customerTiers.id) {
   return and(publiclyVisible, tierPriceCondition(db, tierId, 'no'));
 }
 
@@ -52,7 +49,7 @@ function unpricedLive(
 @Injectable()
 export class TiersService {
   constructor(
-    @Inject(DRIZZLE) private readonly db: NodePgDatabase<typeof schema>,
+    @Inject(DRIZZLE) private readonly db: Database,
     private readonly ownership: OwnershipState,
   ) {}
 

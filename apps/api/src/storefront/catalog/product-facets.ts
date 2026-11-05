@@ -5,7 +5,6 @@
  * but not its own, so a greyed zero means something.
  */
 
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { and, countDistinct, eq, inArray, ne, SQL } from 'drizzle-orm';
 import {
   AttributeSelection,
@@ -15,18 +14,16 @@ import {
   Facet,
   FacetValue,
 } from '@b2b-catalog-platform/shared/storefront/catalog';
-import * as schema from '../../platform/db/schema';
-import { productAttributes, products } from '../../platform/db/schema';
+import { productAttributes, products } from '../../core/catalog/catalog-schema';
 import { attributeValuesCondition } from '../../core/catalog/attribute-filter';
 import { DefinitionRow } from '../../core/catalog/category-filters';
+import { Database } from '../../platform/db/database';
 
 /** One attribute's selection, resolved from its URL slug to its key. */
 export interface ResolvedSelection {
   definition: DefinitionRow;
   values: string[];
 }
-
-type Db = NodePgDatabase<typeof schema>;
 
 /** key → value → products carrying it within some scope. */
 type Counts = Map<string, Map<string, number>>;
@@ -57,7 +54,7 @@ function isFilterable(definition: DefinitionRow, value: string): boolean {
 
 /** The `where` fragments a selection adds, ANDed across attributes. */
 export function selectionConditions(
-  db: Db,
+  db: Database,
   selections: ResolvedSelection[],
 ): SQL[] {
   return selections.flatMap(({ definition, values }) => {
@@ -72,7 +69,7 @@ export function selectionConditions(
  * or older rows would become nameless checkboxes.
  */
 async function countValues(
-  db: Db,
+  db: Database,
   scope: SQL | undefined,
   keys: string[],
 ): Promise<Counts> {
@@ -127,7 +124,7 @@ function sortValues(values: FacetValue[], type: DefinitionRow['type']) {
  * per selected attribute: an unfiltered listing runs a single grouped query.
  */
 export async function buildFacets(
-  db: Db,
+  db: Database,
   scope: SQL | undefined,
   definitions: DefinitionRow[],
   selections: ResolvedSelection[],

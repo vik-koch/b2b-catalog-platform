@@ -1,5 +1,5 @@
 import { desc, isNull, ne, or, sql } from 'drizzle-orm';
-import { products } from '../../platform/db/schema';
+import { products } from '../../core/catalog/catalog-schema';
 
 /**
  * What the main page's row may draw on (FR-CAT-09) beyond being visible:

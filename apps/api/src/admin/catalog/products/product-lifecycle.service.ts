@@ -1,14 +1,13 @@
 import { ConflictException, Inject, Injectable } from '@nestjs/common';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { and, asc, eq, isNotNull, isNull, or, sql } from 'drizzle-orm';
 import { AdminProduct } from '@b2b-catalog-platform/shared/admin/catalog';
 import { DRIZZLE } from '../../../platform/db/database.module';
-import * as schema from '../../../platform/db/schema';
 import {
-  orderItems,
   productPairings,
   products,
-} from '../../../platform/db/schema';
+} from '../../../core/catalog/catalog-schema';
+// eslint-disable-next-line boundaries/dependencies -- to turn around: ordering should say which products were ordered
+import { orderItems } from '../../../core/ordering/ordering-schema';
 import { OwnershipState } from '../../../platform/settings/ownership-state';
 import { catalogExternallyOwned } from '../../../platform/settings/ownership.refusals';
 import {
@@ -22,6 +21,7 @@ import {
   productNotFound,
   adminProductColumns,
 } from './product-records';
+import { Database } from '../../../platform/db/database';
 
 /**
  * The removal steps and publication (FR-ADM-01/06/21): unpublish, delete,
@@ -31,7 +31,7 @@ import {
 @Injectable()
 export class ProductLifecycleService {
   constructor(
-    @Inject(DRIZZLE) private db: NodePgDatabase<typeof schema>,
+    @Inject(DRIZZLE) private db: Database,
     private readonly ownership: OwnershipState,
     private readonly records: ProductRecords,
   ) {}

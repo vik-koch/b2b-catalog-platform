@@ -5,17 +5,16 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { eq } from 'drizzle-orm';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { isOrderFinished } from '@b2b-catalog-platform/shared/core/ordering';
 import { DRIZZLE } from '../../platform/db/database.module';
-import * as schema from '../../platform/db/schema';
-import { orders } from '../../platform/db/schema';
+import { orders } from './ordering-schema';
 import {
   ORDER_REMOVAL_CATEGORIES,
   recordDestruction,
 } from '../../platform/destruction-record';
 import { OrderDocumentFiles } from './order-document-files';
 import { scrubOrders } from './order-scrub';
+import { Database } from '../../platform/db/database';
 
 /**
  * A guest's request to remove their order's details (NFR-LEGAL-14): they have
@@ -25,7 +24,7 @@ import { scrubOrders } from './order-scrub';
 @Injectable()
 export class OrderPersonalData {
   constructor(
-    @Inject(DRIZZLE) private readonly db: NodePgDatabase<typeof schema>,
+    @Inject(DRIZZLE) private readonly db: Database,
     private readonly documents: OrderDocumentFiles,
   ) {}
 

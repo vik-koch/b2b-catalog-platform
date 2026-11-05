@@ -1,8 +1,7 @@
 import { sql } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { PgDialect } from 'drizzle-orm/pg-core';
-import * as schema from '../../platform/db/schema';
-import { products } from '../../platform/db/schema';
+import { products } from './catalog-schema';
 import { resolvedPriceMinor } from './product-price';
 import { productSortKeys } from './product-sort';
 
@@ -60,7 +59,7 @@ describe('resolvedPriceMinor', () => {
     // Rendered on its own, drizzle qualifies every column; rendered as part of
     // a query it emits bare names, and a bare `"id"` in the subquery would bind
     // to whichever table in scope owns one. Only this form catches that.
-    const db = drizzle({ client: {} as never, schema });
+    const db = drizzle({ client: {} as never });
     const { sql: text } = db
       .select({ price: resolvedPriceMinor('tier-1') })
       .from(products)

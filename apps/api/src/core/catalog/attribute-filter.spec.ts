@@ -1,7 +1,6 @@
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { and } from 'drizzle-orm';
-import * as schema from '../../platform/db/schema';
-import { products } from '../../platform/db/schema';
+import { products } from './catalog-schema';
 import { attributeValuesCondition } from './attribute-filter';
 
 /**
@@ -9,7 +8,7 @@ import { attributeValuesCondition } from './attribute-filter';
  * when a fragment is rendered alone and emits bare names inside a query, where
  * a bare `"productId"` would bind to whichever table in scope owns one.
  */
-const db = drizzle({ client: {} as never, schema });
+const db = drizzle({ client: {} as never });
 
 const render = (key?: string, values: string[] = []) =>
   db

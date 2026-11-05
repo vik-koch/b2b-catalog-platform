@@ -1,5 +1,4 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import {
   and,
   asc,
@@ -24,12 +23,9 @@ import {
   PRODUCT_FEATURES,
 } from '@b2b-catalog-platform/shared/admin/catalog';
 import { DRIZZLE } from '../../../../platform/db/database.module';
-import * as schema from '../../../../platform/db/schema';
-import {
-  categories,
-  orderItems,
-  products,
-} from '../../../../platform/db/schema';
+import { categories, products } from '../../../../core/catalog/catalog-schema';
+// eslint-disable-next-line boundaries/dependencies -- to turn around: ordering should say which products were ordered
+import { orderItems } from '../../../../core/ordering/ordering-schema';
 import { attributeValuesCondition } from '../../../../core/catalog/attribute-filter';
 import { documentCondition } from './document-filter';
 import {
@@ -62,6 +58,7 @@ import { ALTERNATE_LAYOUT } from '../../../../platform/config/deployment-config'
 import { categoryNotFound } from '../../categories/categories.service';
 
 import { deletedByRun } from '../product-records';
+import { Database } from '../../../../platform/db/database';
 
 /**
  * The admin's product lists: the grid (FR-ADM-05) and what a category holds
@@ -70,7 +67,7 @@ import { deletedByRun } from '../product-records';
 @Injectable()
 export class ProductGridService {
   constructor(
-    @Inject(DRIZZLE) private db: NodePgDatabase<typeof schema>,
+    @Inject(DRIZZLE) private db: Database,
     private readonly reader: CatalogReader,
     @Inject(ALTERNATE_LAYOUT)
     private readonly alternateLayout: KeyboardLayout | null,

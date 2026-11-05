@@ -1,5 +1,4 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { and, asc, eq } from 'drizzle-orm';
 import {
   joinAttributeKey,
@@ -13,7 +12,6 @@ import {
   ProductTierPrice,
 } from '@b2b-catalog-platform/shared/admin/catalog';
 import { DRIZZLE } from '../../../platform/db/database.module';
-import * as schema from '../../../platform/db/schema';
 import {
   customerTiers,
   documentProducts,
@@ -24,12 +22,13 @@ import {
   ProductImageRef,
   products,
   ProductVariantRef,
-} from '../../../platform/db/schema';
+} from '../../../core/catalog/catalog-schema';
 import {
   counterpartOf,
   involves,
 } from '../../../core/catalog/product-pairings';
 import { resolvedPriceMinor } from '../../../core/catalog/product-price';
+import { Database } from '../../../platform/db/database';
 
 /** A function, so each throw gets its own stack. */
 export const productNotFound = () =>
@@ -143,7 +142,7 @@ export type StoredAttribute = PartKey & { value: string };
  * answers with, so a write reads back exactly what a load would. */
 @Injectable()
 export class ProductRecords {
-  constructor(@Inject(DRIZZLE) private db: NodePgDatabase<typeof schema>) {}
+  constructor(@Inject(DRIZZLE) private db: Database) {}
 
   /** Loads a product in editable form regardless of soft-delete state. */
   async get(slug: string): Promise<AdminProduct | null> {

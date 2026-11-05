@@ -1,5 +1,4 @@
 import { ConflictException, Inject, Injectable } from '@nestjs/common';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { and, count, desc, eq } from 'drizzle-orm';
 import { Pagination } from '@b2b-catalog-platform/shared/platform';
 import {
@@ -13,8 +12,7 @@ import {
   SyncRunStatus,
 } from '@b2b-catalog-platform/shared/core/exchange';
 import { DRIZZLE } from '../../platform/db/database.module';
-import * as schema from '../../platform/db/schema';
-import { syncRuns } from '../../platform/db/schema';
+import { syncRuns } from '../../core/exchange/exchange-schema';
 import { CatalogSyncService } from '../../core/exchange/catalog-sync.service';
 import { CustomerSyncService } from '../../core/exchange/customer-sync.service';
 import {
@@ -24,6 +22,7 @@ import {
 } from '../../core/exchange/sync-run';
 import { toSyncRun } from '../../core/exchange/sync-run-log';
 import { stagedPayload } from '../../core/exchange/sync-run-payload';
+import { Database } from '../../platform/db/database';
 
 /** Refuses a reader the run's area is not open to; called before any work. */
 export type AreaCheck = (area: SyncArea) => void;
@@ -35,7 +34,7 @@ export type AreaCheck = (area: SyncArea) => void;
 @Injectable()
 export class SyncService {
   constructor(
-    @Inject(DRIZZLE) private readonly db: NodePgDatabase<typeof schema>,
+    @Inject(DRIZZLE) private readonly db: Database,
     private readonly catalog: CatalogSyncService,
     private readonly customers: CustomerSyncService,
   ) {}

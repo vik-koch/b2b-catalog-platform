@@ -4,7 +4,6 @@ import {
   Inject,
   Injectable,
 } from '@nestjs/common';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { eq, inArray, isNull, sql } from 'drizzle-orm';
 import { slugify } from '@b2b-catalog-platform/shared/core/catalog';
 import {
@@ -27,14 +26,13 @@ import {
   catalogExternallyOwned,
   catalogNotExternallyOwned,
 } from '../../platform/settings/ownership.refusals';
-import * as schema from '../../platform/db/schema';
 import {
   categories,
   customerTiers,
   productPrices,
   products,
-  syncRuns,
-} from '../../platform/db/schema';
+} from '../catalog/catalog-schema';
+import { syncRuns } from './exchange-schema';
 import { excluded } from '../../platform/db/sql-columns';
 import { SyncActions, SyncCatalogState, planSync } from './sync-diff';
 import { StagedPayloadOf, stagedPayload } from './sync-run-payload';
@@ -50,6 +48,7 @@ import { SyncRunLog, toSyncRun } from './sync-run-log';
 import { SyncNotifications } from './sync-notifications';
 import { SYNC_POLICY } from './exchange-config';
 import { LOW_STOCK_THRESHOLD_PIECES } from '../catalog/catalog-config';
+import { Database } from '../../platform/db/database';
 
 /** Skipped rows count as something: an unreadable file is not a quiet
  * night. */
@@ -76,7 +75,7 @@ function isNoChange(plan: CatalogSyncPlan): boolean {
 @Injectable()
 export class CatalogSyncService {
   constructor(
-    @Inject(DRIZZLE) private readonly db: NodePgDatabase<typeof schema>,
+    @Inject(DRIZZLE) private readonly db: Database,
     @Inject(LOW_STOCK_THRESHOLD_PIECES)
     private readonly lowStockFallback: number,
     @Inject(SYNC_POLICY)

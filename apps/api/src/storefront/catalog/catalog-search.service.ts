@@ -1,5 +1,4 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { and, asc, count, desc, sql } from 'drizzle-orm';
 import {
   AttributeSelection,
@@ -19,8 +18,7 @@ import {
 } from '@b2b-catalog-platform/shared/platform';
 import { ALTERNATE_LAYOUT } from '../../platform/config/deployment-config';
 import { DRIZZLE } from '../../platform/db/database.module';
-import * as schema from '../../platform/db/schema';
-import { categories, products } from '../../platform/db/schema';
+import { categories, products } from '../../core/catalog/catalog-schema';
 import {
   categoryNameCondition,
   categoryNameScore,
@@ -45,6 +43,7 @@ import {
 } from './product-facets';
 import { stockedCategories } from './stocked-categories';
 import { SearchLogger } from './search.logger';
+import { Database } from '../../platform/db/database';
 
 /**
  * Product search by name and its type-ahead (FR-SEARCH-01…08). Each read runs
@@ -54,7 +53,7 @@ import { SearchLogger } from './search.logger';
 @Injectable()
 export class CatalogSearchService {
   constructor(
-    @Inject(DRIZZLE) private db: NodePgDatabase<typeof schema>,
+    @Inject(DRIZZLE) private db: Database,
     private readonly reader: CatalogReader,
     private readonly searchLog: SearchLogger,
     @Inject(ALTERNATE_LAYOUT)

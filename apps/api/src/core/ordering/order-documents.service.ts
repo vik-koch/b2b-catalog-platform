@@ -5,7 +5,6 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { and, eq, inArray } from 'drizzle-orm';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import {
   generatedSummaryFileName,
   OrderDetail,
@@ -14,15 +13,11 @@ import {
   AdminOrderDocument,
 } from '@b2b-catalog-platform/shared/core/ordering';
 import { DRIZZLE } from '../../platform/db/database.module';
-import * as schema from '../../platform/db/schema';
-import {
-  orderDocuments,
-  orderRevisions,
-  orders,
-} from '../../platform/db/schema';
+import { orderDocuments, orderRevisions, orders } from './ordering-schema';
 import { MEDIA_STORE, MediaStore } from '../../platform/media/media-store';
 import { MailAttachment } from '../../platform/mail/mailer';
 import { OrderPdf } from './order-pdf';
+import { Database } from '../../platform/db/database';
 
 /** A file on its way out: the bytes, and what the browser should call them. */
 export interface ServedDocument {
@@ -39,7 +34,7 @@ export interface ServedDocument {
 @Injectable()
 export class OrderDocumentsService {
   constructor(
-    @Inject(DRIZZLE) private readonly db: NodePgDatabase<typeof schema>,
+    @Inject(DRIZZLE) private readonly db: Database,
     @Inject(MEDIA_STORE) private readonly store: MediaStore,
     private readonly pdf: OrderPdf,
   ) {}
