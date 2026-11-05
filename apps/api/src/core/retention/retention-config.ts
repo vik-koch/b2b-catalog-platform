@@ -1,14 +1,10 @@
-import * as z from 'zod';
+import { loadApiConfigBlock } from '../../platform/config/api-config';
+import type { RetentionConfig } from './retention-api-config';
+import { RETENTION_AREA } from './retention-area';
 
-/** Days kept before the daily sweep. No default: each is a legal decision. */
-export const retentionConfigSchema = z
-  .object({
-    /** From a withdrawal, or a contact consent's giving (NFR-LEGAL-09). */
-    consentRecordDays: z.number().int().positive(),
-    /** From the destruction (NFR-LEGAL-12). */
-    destructionRecordDays: z.number().int().positive(),
-    /** From a finished order's last change (NFR-LEGAL-14). */
-    orderDays: z.number().int().positive(),
-  })
-  .strict();
-export type RetentionConfig = z.infer<typeof retentionConfigSchema>;
+/** How long consent and destruction records are kept before the sweep. */
+export const RETENTION = 'RETENTION';
+
+export function loadRetention(): RetentionConfig {
+  return loadApiConfigBlock<RetentionConfig>(RETENTION_AREA);
+}

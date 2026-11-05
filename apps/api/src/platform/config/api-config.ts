@@ -4,15 +4,13 @@ import { mergeShapes } from '@b2b-catalog-platform/shared/platform';
 import { ORDERING_AREA } from '@b2b-catalog-platform/shared/core/ordering';
 import { orderingApiConfigShape } from '../../core/ordering/ordering-api-config';
 import { exchangeApiConfigShape } from '../../core/exchange/exchange-api-config';
-import { retentionConfigSchema } from '../../core/retention/retention-config';
+import { retentionApiConfigShape } from '../../core/retention/retention-api-config';
+import { RETENTION_AREA } from '../../core/retention/retention-area';
 import { sessionConfigSchema } from '../auth/session-config';
 import * as z from 'zod';
 
 /** The keys of `api.json` no area claims. */
 const platformApiConfigShape = {
-  /** How long consent and destruction records, and finished orders' personal
-   * details, are kept (NFR-LEGAL-09/12/14). */
-  retention: retentionConfigSchema,
   /** How long a session lasts without use (FR-AUTH-12). */
   session: sessionConfigSchema.optional(),
 };
@@ -24,6 +22,7 @@ export const apiConfigSchema = z
     mergeShapes(platformApiConfigShape, {
       [ORDERING_AREA]: z.object(orderingApiConfigShape).strict(),
       [EXCHANGE_AREA]: z.object(exchangeApiConfigShape).strict().optional(),
+      [RETENTION_AREA]: z.object(retentionApiConfigShape).strict(),
     }),
   )
   .strict();
@@ -36,7 +35,10 @@ function loadWhole(): ApiConfig {
 }
 
 /** The keys no area claims; an area reads its block through its loader. */
-export function loadApiConfig(): Omit<ApiConfig, 'ordering' | 'exchange'> {
+export function loadApiConfig(): Omit<
+  ApiConfig,
+  'ordering' | 'exchange' | 'retention'
+> {
   return loadWhole();
 }
 
