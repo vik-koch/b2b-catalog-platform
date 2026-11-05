@@ -172,7 +172,7 @@ What it deliberately does not do is in [scope-and-limitations.md](scope-and-limi
   [FR-ADM-01](requirements.md#fr-adm-01)
 - **Publication gate** — a new product stays unpublished until someone reviews it, and one
   without a price cannot be published. [FR-ADM-06](requirements.md#fr-adm-06)
-- **Admin product list** — searchable, and filterable by what a product lacks or carries, with
+- **Admin product list** — searchable, and filterable by what a product has or lacks, with
   each row naming its gaps. [FR-ADM-05](requirements.md#fr-adm-05),
   [FR-ADM-20](requirements.md#fr-adm-20)
 - **Removing a product in steps** — unpublish, delete, then delete permanently; deleted

@@ -1003,6 +1003,18 @@ Notes:
   login that shows what it did and runs its cycle on request. It keeps no state, so it needs no
   reset of its own; the shop is reset when a release changes what it loads. It is demo tooling,
   not new scope, so the release that carries it is a patch.
+- **The product list asks both ways** (planned 2026-11-05,
+  [FR-ADM-20](requirements.md#fr-adm-20) and [FR-ADM-05](requirements.md#fr-adm-05) amended).
+  The content filter asked half of each question: the gaps only as missing, the features
+  only as present, so "without documents" could not be asked. Each of the twelve now takes
+  any, has or lacks. Two rows of chips above every page of the list was room the rows needed,
+  so the questions move into a panel opened from the thumbnail column's empty heading, which
+  carries how many are asked. What is asked stays in view as removable chips, the one thing a
+  hidden panel would otherwise cost. "Incomplete" is no longer a question of its own: it was
+  the one that meant any of four rather than all, and each row already names what keeps it
+  incomplete. The query drops it, and a page given an old link to it shows the list without
+  that narrowing rather than failing. It is new scope, so the release that carries it is a
+  minor.
 
 ## Explicitly out of scope for now
 
