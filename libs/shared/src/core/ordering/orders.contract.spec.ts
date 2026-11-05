@@ -32,21 +32,15 @@ const submission = (overrides: Record<string, unknown> = {}) => ({
 const accepts = (overrides: Record<string, unknown> = {}) =>
   orderSubmissionSchema.safeParse(submission(overrides)).success;
 
-/**
- * The one schema both apps validate an order against. What is worth pinning is
- * not the field list — the types carry that — but the rules a browser could
- * otherwise talk its way around, and the ones a refactor could quietly drop.
- */
+/** The schema both apps validate an order with. Pinned: not the fields,
+ * which the types carry, but rules a browser could dodge or a refactor drop. */
 describe('orderSubmissionSchema', () => {
   it('accepts an ordinary delivery order', () => {
     expect(accepts()).toBe(true);
   });
 
-  /**
-   * A hidden branch must be inert, not merely invisible (ADR 0039): an
-   * abandoned pickup choice must not ride along on a delivery order, or the
-   * order names two destinations and the shop picks one.
-   */
+  /** A hidden branch is inert, not just invisible: an abandoned pickup must
+   * not ride on a delivery, naming two destinations. */
   describe('fulfilment needs exactly its own destination', () => {
     it('refuses a delivery order that also names a collection point', () => {
       expect(accepts({ pickupLocationKey: 'speicherstadt' })).toBe(false);
@@ -82,9 +76,8 @@ describe('orderSubmissionSchema', () => {
     });
   });
 
-  // Whether an order carries an invoice address is the deployment's answer
-  // (`billingAddressEnabled`), which a shared schema cannot see — so the
-  // envelope takes either and the server holds the submission to the config.
+  // The deployment decides on an invoice address (`billingAddressEnabled`),
+  // which the schema cannot see: it takes either, the server checks.
   it('takes an order with no billing address', () => {
     expect(
       accepts({
@@ -125,8 +118,8 @@ describe('orderSubmissionSchema', () => {
     expect(accepts({ tierKey: 'wholesale' })).toBe(false);
   });
 
-  // ADR 0015's honeypot: a bot fills it, a person never sees it. Optional, so
-  // an honest form need not send it at all.
+  // The honeypot: a bot fills it, a person never sees it. Optional, so an
+  // honest form need not send it.
   it('allows the honeypot to be absent, present or empty', () => {
     expect(accepts({ website: undefined })).toBe(true);
     expect(accepts({ website: '' })).toBe(true);

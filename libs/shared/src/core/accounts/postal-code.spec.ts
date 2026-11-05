@@ -38,7 +38,7 @@ describe('the postal code rule', () => {
     expect(postalCodeMatches('ab1 2cd', uk)).toBe(true);
   });
 
-  /** No rule is no shape to be in — the contract still asks for a value. */
+  /** No rule, no shape: the contract still asks for a value. */
   it('accepts anything where the country has no rule', () => {
     expect(postalCodeMatches('anything', undefined)).toBe(true);
   });

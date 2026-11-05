@@ -12,11 +12,8 @@ import {
 } from './order-transitions';
 import { ORDER_STATUSES } from './orders';
 
-/**
- * The workflow rules, where they are actually decided (ADR 0050). Both sides
- * read this table — the API to refuse a move and the UI to draw the controls —
- * so what is pinned here is the shape of the rule, not one caller's use of it.
- */
+/** The workflow rules where they are decided: the API refuses moves and the
+ * UI draws controls from this table, so this pins the rule, not a caller. */
 describe('order transitions', () => {
   it('lets staff answer a request and nobody else', () => {
     expect(canTransition('staff', 'requested', 'approved')).toBe(true);
@@ -27,8 +24,8 @@ describe('order transitions', () => {
 
   it('lets a customer call off only an order the shop has not answered', () => {
     expect(canTransition('customer', 'requested', 'cancelled')).toBe(true);
-    // Once the shop has accepted it, stopping it is a phone call — including
-    // on an order the shop itself changed, which was agreed on that same call.
+    // Once accepted, stopping it is a phone call, changed orders included:
+    // those were agreed on a call.
     expect(canTransition('customer', 'approved', 'cancelled')).toBe(false);
     expect(canTransition('customer', 'ready', 'cancelled')).toBe(false);
   });
@@ -146,15 +143,10 @@ describe('order transitions', () => {
   });
 });
 
-/**
- * The second axis. The point of every case here is that payment does not
- * follow the status — it is a fact of its own that some transitions touch.
- */
-/**
- * Which way a move runs and whether it offers to write to the customer — one
- * rule read by the button's wording, the mail's framing and the tick in the
- * confirmation, so a disagreement between them is a disagreement here.
- */
+/** The second axis: payment does not follow the status; some moves touch
+ * it. */
+/** Which way a move runs and whether it offers to write to the customer:
+ * one rule for the button's wording, the mail's framing and the tick. */
 describe('moveDirection and notifyByDefault', () => {
   it('reads a step against the chain as backwards, and leaving it as not', () => {
     expect(moveDirection('ready', 'approved')).toBe('backward');
@@ -252,11 +244,8 @@ describe('paymentStateWithoutPayment', () => {
   });
 });
 
-/**
- * The one piece of work the two axes only name together (ADR 0050). Three
- * readers agree by reading this: the work queue's count, the staff list's
- * `unpaid` filter, and the amber on the payment badge.
- */
+/** The work only both axes name together, read by the queue's count, the
+ * list's `unpaid` filter and the badge's amber. */
 describe('awaitsPaymentRecord', () => {
   it('is the finished order nobody has recorded the money for', () => {
     expect(awaitsPaymentRecord('completed', 'not-due')).toBe(true);

@@ -65,7 +65,7 @@ describe('loadConfig', () => {
   });
 
   it('throws on a missing required key rather than filling a default', () => {
-    // cookieConsentEnabled omitted — no merge fills it, so validation fails.
+    // cookieConsentEnabled omitted: no merge fills it, so validation fails.
     const file = write(
       'partial.json',
       JSON.stringify({

@@ -2,12 +2,9 @@ import { DOCUMENT_EXPIRY_WARNING_DAYS } from '../../core/catalog/documents';
 import { documentExpiryState } from './documents';
 import { isoToday } from '../../platform/iso-day';
 
-/**
- * The one rule three surfaces share (FR-DOC-04): the badge in the admin list,
- * the filter that column carries, and the count on the panel. The boundaries
- * are what matter — a document that changed state a day early would make the
- * count and the list disagree.
- */
+/** One rule for the admin list's badge, its filter and the panel's count
+ * (FR-DOC-04). The boundaries matter: a state a day early makes count and list
+ * disagree. */
 describe('documentExpiryState', () => {
   const today = '2026-09-05';
 

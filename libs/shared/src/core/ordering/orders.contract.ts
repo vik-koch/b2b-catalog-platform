@@ -193,7 +193,7 @@ export const orderDeliveryZoneSchema = z
   .strict();
 
 /**
- * A document the reader can open (FR-ORD-05, ADR 0052): what exists, not what
+ * A document the reader can open (FR-ORD-05): what exists, not what
  * could. The bytes come from `orderDocumentPath`.
  */
 export const orderDocumentSchema = z

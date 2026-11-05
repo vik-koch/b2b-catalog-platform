@@ -80,7 +80,7 @@ export const adminOrderDetailSchema = orderDetailSchema.extend({
   /** The page version behind `termsDate`. */
   termsVersion: z.number().int().positive().nullable(),
   statusChangedAt: z.iso.datetime(),
-  /** The version shown (ADR 0051); an adjustment sends it back, so two
+  /** The version shown; an adjustment sends it back, so two
    * managers cannot overwrite each other. */
   revisionNumber: z.number().int().positive(),
   /** The version the customer's page reads (FR-NOTIF-03): behind after an
@@ -98,7 +98,7 @@ export const adminOrderDetailSchema = orderDetailSchema.extend({
 export type AdminOrderDetail = z.infer<typeof adminOrderDetailSchema>;
 
 /**
- * One version as staff read it back (ADR 0051): the whole snapshot, with its
+ * One version as staff read it back: the whole snapshot, with its
  * own status. Payment and documents are not versioned; each document is
  * marked `outdated` against the version it is read beside.
  */

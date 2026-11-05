@@ -21,7 +21,7 @@ const submissionErrors = {
   'party-required': { status: 400 },
   /** Role is not a pricing group: staff have no tier and nobody to invoice. */
   'staff-cannot-order': { status: 400 },
-  /** ADR 0015's honeypot. Its own code: a person tripped by autofill reads it. */
+  /** The honeypot. Its own code: a person tripped by autofill reads it. */
   rejected: { status: 400 },
   /** The deployment enforces pairings (FR-SET-04). Not `cart-changed`: the
    * cart is exactly the one the customer was shown. */

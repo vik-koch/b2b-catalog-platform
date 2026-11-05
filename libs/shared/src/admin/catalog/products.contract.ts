@@ -296,7 +296,8 @@ export const adminProductSchema = z
     categoryId: z.uuid(),
     sourceId: z.string(),
     descriptionHtml: z.string(),
-    /** Keys as written — "Colour (cup)" — so a save sends them back unchanged. */
+    /** Keys as written ("Colour (cup)"), so a save sends them back
+     * unchanged. */
     attributes: z.array(productAttributeSchema),
     parts: z.array(z.string()),
     images: z.array(

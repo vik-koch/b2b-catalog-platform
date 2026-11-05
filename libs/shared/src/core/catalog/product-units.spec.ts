@@ -23,7 +23,7 @@ const packaged: ProductPackaging = {
   minPieceQty: 6,
 };
 
-/** A product with no packaging at all — sold by the piece, one at a time. */
+/** No packaging: sold by the piece, one at a time. */
 const plain: ProductPackaging = {
   piecesPerPack: null,
   packsPerBox: null,
@@ -191,9 +191,8 @@ describe('pieceFloor', () => {
     expect(pieceFloor({ ...packOnly, minPieceQty: 95 })).toBe(95);
   });
 
-  // The rounding a lens used to need: a minimum of 24 read through a box of 24
-  // was one box, and through a pack of six was four packs. Both are the same
-  // 24 pieces, and that is now the only figure.
+  // A minimum of 24 is one box of 24 or four packs of six: 24 pieces, one
+  // figure.
   it('is one figure, whatever lens it is read through', () => {
     const min24: ProductPackaging = { ...packaged, minPieceQty: 24 };
     expect(pieceFloor(min24)).toBe(24);
@@ -209,8 +208,7 @@ describe('minimumFitsPacks', () => {
     expect(minimumFitsPacks(plain)).toBe(true);
   });
 
-  // The case the rule used to refuse, wrongly: a shop selling one package of a
-  // six-pack was made to sell six.
+  // A shop selling one package of a six-pack need not sell six.
   it('accepts a minimum under one pack, where packs are opened', () => {
     expect(minimumFitsPacks(loose)).toBe(true);
     expect(minimumFitsPacks({ ...packaged, minPieceQty: 5 })).toBe(true);
@@ -223,10 +221,8 @@ describe('minimumFitsPacks', () => {
 });
 
 describe('correctPieces', () => {
-  // The change this rule went through: the minimum used to be the increment
-  // too, so 140 against a minimum of 100 became 200. The pack is what cannot
-  // be broken, so 140 is now simply 140 — fourteen whole packs of ten, above a
-  // minimum of a hundred.
+  // The minimum is no increment: 140 against a minimum of 100 stays 140,
+  // fourteen whole packs of ten. Only the pack cannot be broken.
   it('rounds up to the next whole pack, never down', () => {
     expect(correctPieces(packOnly, 101)).toBe(110);
     expect(correctPieces(packOnly, 199)).toBe(200);
@@ -260,9 +256,8 @@ describe('correctPieces', () => {
     expect(correctPieces(packOnly, 90)).toBe(100);
   });
 
-  // The one place it rounds down, because up is nowhere: past the ceiling a
-  // line is no longer an order the contract will carry. Through a box lens a
-  // four-digit figure reaches it, so it is a typing accident within reach.
+  // The one place it rounds down, as past the ceiling the contract carries no
+  // order. A four-digit figure in boxes reaches it: a typo away.
   it('comes back down to the ceiling, and lands on the lattice doing it', () => {
     const capped = correctPieces(packaged, LINE_PIECES_MAX * 2);
     expect(capped).toBeLessThanOrEqual(LINE_PIECES_MAX);
@@ -270,8 +265,8 @@ describe('correctPieces', () => {
     expect(correctPieces(packaged, capped)).toBe(capped);
   });
 
-  // Raising rounds up, so a figure under the ceiling can be lifted over it —
-  // which is why the ceiling is checked against the raised figure.
+  // Rounding up can lift a figure over the ceiling, so the raised figure is
+  // checked.
   it('does not raise a quantity past the ceiling', () => {
     // 24 does not divide the ceiling, so the last whole box below it is short.
     const justUnder = LINE_PIECES_MAX - 1;
@@ -293,8 +288,7 @@ describe('unitQuantity', () => {
     expect(unitQuantity(packaged, 'box', 24)).toBe(1);
   });
 
-  // The change this whole model is: two packs of a ten-pack box used to have to
-  // become a whole box.
+  // Two packs of a ten-pack box stay two packs, not a whole box.
   it('reads a part box as the fraction it is', () => {
     const tenPackBox: ProductPackaging = {
       piecesPerPack: 6,

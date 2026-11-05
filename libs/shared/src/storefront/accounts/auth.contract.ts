@@ -235,10 +235,8 @@ export const authContract = {
       summary: 'Ask for a password-reset link (FR-AUTH-02)',
     })
     .input(z.object({ body: forgotPasswordSchema }))
-    // The same answer for an address with an account, one without, and one
-    // whose account may not sign in — for the same reason `register` gives one
-    // answer: this form must not become a way to test which addresses are
-    // customers. What happened is explained by mail, to the address.
+    // One answer for any address, like `register`, so nobody can probe which
+    // are customers. The mail to the address explains.
     .output(z.object({ ok: z.literal(true) })),
 
   checkPasswordToken: oc

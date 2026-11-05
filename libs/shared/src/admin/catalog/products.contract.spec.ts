@@ -25,8 +25,8 @@ describe('productInputSchema packaging', () => {
     });
   });
 
-  // The shape the constraint used to refuse: a shop selling one package of a
-  // six-pack, which is a per-piece price and a minimum of one.
+  // A shop selling one package of a six-pack: a piece price and a minimum of
+  // one.
   it('accepts a minimum under one pack', () => {
     expect(
       parse({ piecesPerPack: 6, packsPerBox: 4, minPieceQty: 1 }).success,

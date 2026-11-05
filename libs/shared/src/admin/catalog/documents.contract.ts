@@ -30,7 +30,7 @@ export const storedDocumentFileSchema = z
   .object({
     /** Same-origin URL under /documents, e.g. "/documents/9f3ac1b20e4d.pdf". */
     url: z.string(),
-    /** The uploaded file's own name. Display only — nothing resolves by it. */
+    /** The uploaded file's name, for display only. */
     name: z.string().max(DOCUMENT_FILE_NAME_MAX_LENGTH),
     /** The *sniffed* type, never the one the browser claimed. */
     contentType: z.enum(ACCEPTED_DOCUMENT_MIME_TYPES),

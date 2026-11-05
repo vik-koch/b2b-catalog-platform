@@ -151,7 +151,7 @@ export function paymentStateAfterAdjustment(
 }
 
 /**
- * What a move does to the payment axis (ADR 0050): landing in an accepted
+ * What a move does to the payment axis: landing in an accepted
  * state makes invoiced methods due, an ending un-dues what was never paid, and
  * nothing walks `paid` back.
  */
@@ -194,7 +194,7 @@ export function paymentStateWithoutPayment(
 }
 
 /**
- * Completed and not recorded as paid, whatever the method (ADR 0050). The work
+ * Completed and not recorded as paid, whatever the method. The work
  * queue's count, the staff list's `unpaid` filter and the payment badge must
  * agree, or a count links to a list that contradicts it.
  */

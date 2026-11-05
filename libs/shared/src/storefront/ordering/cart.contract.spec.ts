@@ -15,11 +15,8 @@ const line = (overrides: Record<string, unknown> = {}) => ({
 const accepts = (lines: unknown[]) =>
   cartRequestSchema.safeParse({ lines }).success;
 
-/**
- * The cart is browser-held, so this schema is the whole of what the API is
- * willing to be told about it — and `/cart/preview` is unauthenticated, which
- * makes every bound here a limit on what a stranger can ask the server to do.
- */
+/** The cart lives in the browser, so this schema is all the API accepts of
+ * it, and `/cart/preview` is open: each bound limits what a stranger asks. */
 describe('cartRequestSchema', () => {
   it('accepts an ordinary line', () => {
     expect(accepts([line()])).toBe(true);
@@ -29,11 +26,8 @@ describe('cartRequestSchema', () => {
     expect(accepts([])).toBe(true);
   });
 
-  /**
-   * The quantity is always an integer count of pieces, whatever unit it is
-   * read in (ADR 0042): 0.2 bx is two packs, and two packs of six is twelve.
-   * Nothing fractional ever reaches the wire.
-   */
+  /** Always whole pieces, whatever the unit: 0.2 bx is two packs, twelve
+   * pieces. Nothing fractional reaches the wire. */
   it('takes pieces as a positive whole number and nothing else', () => {
     expect(accepts([line({ pieces: 0.5 })])).toBe(false);
     expect(accepts([line({ pieces: 0 })])).toBe(false);
@@ -69,8 +63,7 @@ describe('cartRequestSchema', () => {
     });
   });
 
-  // Absent, null and written are three states; blank and whitespace are not a
-  // fourth — a note that says nothing is not a note.
+  // Absent, null and written; a blank note is no fourth state.
   it('takes a note as absent, null or actually written', () => {
     expect(accepts([line({ note: undefined })])).toBe(true);
     expect(accepts([line({ note: null })])).toBe(true);

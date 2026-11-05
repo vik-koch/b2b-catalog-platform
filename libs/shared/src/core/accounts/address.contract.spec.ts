@@ -17,11 +17,9 @@ const parse = (overrides: Record<string, unknown> = {}) =>
 const accepts = (overrides: Record<string, unknown> = {}) =>
   parse(overrides).success;
 
-/**
- * An address is a **place**, and the schema is where that is enforced: the
- * identity that used to live here is the order's own field now (ADR 0039), and
- * `strict` is what stops the old shape being sent anyway and silently ignored.
- */
+/** An address is a place, and the schema holds that: who is invoiced is the
+ * order's field, and `strict` refuses a party sent with the address instead of
+ * ignoring it. */
 describe('addressInputSchema', () => {
   it('accepts a place', () => {
     expect(accepts()).toBe(true);
