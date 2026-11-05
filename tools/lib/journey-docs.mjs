@@ -1,27 +1,15 @@
 /**
- * Rendering journeys into documentation — the half that is not about orders or
- * about accounts.
- *
- * A journey is data walked by a spec and printed here (see
- * `apps/api-e2e/src/support/journey/journey.ts`), so the two subjects that have
- * journeys today render identically: the same table, the same legend, the same
- * rule that a cell saying nothing is a reading asserted *unchanged* rather than
- * a gap in the documentation. Anything a subject needs of its own — an order's
- * states, an account's statuses — belongs in that subject's generator.
+ * Renders journeys into documentation, the part every subject shares. A
+ * journey is data a spec walks (`apps/api-e2e/src/support/journey/journey.ts`)
+ * and this prints, with one table, legend and rule: an empty cell is a
+ * reading asserted unchanged. A subject's own states belong in its generator.
  */
 
 /**
- * How one reading prints. Kept dumb on purpose: a value that needs explaining
- * in the documentation needs a better name in the journey.
- *
- * The exception is mail, where the name of a message is also the way to go and
- * read it — the gallery holds every one of them.
- *
- * A subject may have more than one inbox: the customer exchange reads what the
- * shop was told and what the account holder was told separately, because they
- * are different news to different people. So a mail probe is recognised by its
- * *name* — `mail`, or anything ending in `Mail` — rather than by there being
- * exactly one of them.
+ * How one reading prints, plainly: a value needing explanation needs a better
+ * name. Mail links to the gallery. A subject may read several inboxes (shop
+ * and account holder), so a mail probe is known by its name: `mail`, or one
+ * ending in `Mail`.
  */
 const isMailProbe = (probe) => probe === 'mail' || probe.endsWith('Mail');
 
@@ -54,15 +42,10 @@ export function journeyLegend(probes) {
 }
 
 /**
- * The journeys, from the same literals the spec walks against the running API.
- *
- * A cell that says nothing is not a gap: every step asserts the whole state, so
- * an unmentioned reading is being asserted *unchanged*, and an unmentioned mail
- * is being asserted not to have been sent.
- *
- * Each journey's steps are folded away. There are more of them than anybody
- * reads at once, and the summary line — what the journey is and what it covers
- * — is the part somebody scanning the document is looking for.
+ * The journeys, from the literals the spec walks against the API. Every step
+ * asserts the whole state, so an empty cell is a reading unchanged and a mail
+ * not sent. Steps are folded under the summary line, which is what a reader
+ * scans for.
  */
 export function journeyTables(journeys, probes, mailPreviewByKind, labels) {
   const changes = (expectations) =>

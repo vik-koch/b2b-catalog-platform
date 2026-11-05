@@ -14,8 +14,8 @@ const TOKEN_SHAPE = new RegExp(
  *
  * The token's value is handed in, never read from the bundle, and stored the
  * way the platform stores one it issued: the prefix in the clear, the whole
- * value hashed. Without a value the token is left out — the areas are still
- * owned, and nothing can feed them until a token is issued in the admin.
+ * value hashed. Without a value there is no token: the areas are owned, and
+ * nothing feeds them until the admin issues one.
  */
 export async function seedSettings(
   client: Client,

@@ -26,15 +26,14 @@ export async function seedAccounts(
     await upsertTierPrices(client, tier, tierId, catalog.products);
   }
 
-  // Both hashes computed once and shared by every row that needs them. Sharing
-  // is fine and self-documenting here — these are fixtures, and the accounts
-  // that can sign in all share the published demo password anyway.
+  // Both hashes computed once and shared: fixtures, and the accounts that sign
+  // in share the published demo password.
   const demoHash = await hash(accounts.password);
   // Nobody holds this one: an argon2 hash of a secret that is discarded the
   // moment it is used, which is how the app itself parks an account that has no
   // password yet (pending, invited) or may never have one again (disabled,
-  // anonymized). A real hash rather than a sentinel — argon2 throws on a
-  // malformed one, and a login attempt must fail, not error.
+  // anonymized). A real hash, not a sentinel: argon2 throws on a malformed
+  // one, and a login must fail, not error.
   const unusableHash = await hash(randomBytes(32).toString('hex'));
 
   // Staff first: they are the approver every approved customer points at.
@@ -95,11 +94,8 @@ function tierPriceMinor(
   return Math.max(1, Math.floor((priceMinor * (1 - discount)) / step) * step);
 }
 
-/**
- * The tier prices the demo advertises. Only the categories the discount table
- * names get a row — the rest fall back to the default list's price, which is
- * the behaviour worth being able to see on the demo.
- */
+/** The demo's tier prices: only the discount table's categories get a row,
+ * the rest fall back to the default list, as the demo shows. */
 async function upsertTierPrices(
   client: Client,
   tier: TierSeed,
@@ -134,12 +130,9 @@ interface Context {
 /** Only these have chosen a password and can sign in. */
 const canSignIn = (account: AccountSeed) => account.status === 'active';
 
-/**
- * Everything a staff member has ever decided on. `pending` is the one status
- * that carries neither approver nor tier — it is a request, not a customer.
- * `anonymized` keeps both: self-deletion erases who the person was, not the
- * fact that somebody once approved them.
- */
+/** Everything staff decided on. `pending` has neither approver nor tier, a
+ * request; `anonymized` keeps both, as erasure removes the person, not the
+ * approval. */
 const wasApproved = (account: AccountSeed) => account.status !== 'pending';
 
 async function insertAccount(

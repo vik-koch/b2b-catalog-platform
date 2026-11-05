@@ -24,24 +24,18 @@ const NEXT: Record<string, string> = {
   ready: 'completed',
 };
 
-/** Slack on the wait. A cycle starts at the same second of each hour, and the
- * platform stamps a step a moment after its cycle started — without this, an
- * order stepped at 08:00 would be a few milliseconds short at 09:00 and wait
- * for 10:00. */
+/** Slack on the wait: the platform stamps a step just after its cycle starts,
+ * so an order stepped at 08:00 is milliseconds short at 09:00. */
 const SLACK_MS = 5 * 60_000;
 
 /**
- * One step for every open order that has stood where it is for at least
- * `stepAfterHours`: accepted, then ready, then handed over — each told to the
- * customer, with their page moving on. Handing over records the payment too,
- * cash and invoice alike, and an order handed over earlier and still owed is
- * settled on its own; money is recorded without a version, so that one
- * notifies nobody.
+ * One step for each open order that stood `stepAfterHours`: accepted, ready,
+ * handed over, each told to the customer. Handing over records the payment,
+ * and an earlier handover still owed is settled silently, without a version.
  *
- * Everything is read off the order as it stands, so a cycle repeated or a
- * container restarted takes no step twice: the step moves `statusChangedAt`,
- * and the order then waits its hours again. An order the customer called off,
- * or one the shop refused, is left alone.
+ * Read off the order as it stands, so a repeat or restart takes no step twice:
+ * a step moves `statusChangedAt`. Called-off and refused orders are left
+ * alone.
  */
 export function stepsFor(
   orders: readonly Order[],

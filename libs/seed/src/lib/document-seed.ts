@@ -13,12 +13,9 @@ function day(days: number | null): string | null {
   return date.toISOString().slice(0, 10);
 }
 
-/**
- * Seeds the demo documents, each with a generated placeholder PDF written to
- * the document store unless it is a link only. Idempotent — matched by title, which is the only identity
- * a document has, and the files are content-addressed, so a re-seed neither
- * duplicates rows nor files.
- */
+/** Seeds the demo documents, each with a placeholder PDF unless it is a link
+ * only. Idempotent: matched by title, a document's only identity, with
+ * content-addressed files. */
 export async function seedDocuments(
   client: Client,
   documents: readonly DocumentSeed[],
@@ -64,12 +61,8 @@ export async function seedDocuments(
   }
 }
 
-/**
- * The demo's own links (FR-DOC-02). Only inserted, never removed — the same
- * rule the pairing seed follows: a link an admin made in the demo is
- * indistinguishable from one of these apart from the pair it names, and a
- * re-seed is not the place to decide it was a mistake.
- */
+/** The demo's own links (FR-DOC-02), only inserted, like pairings: an admin's
+ * link looks like these, and a re-seed is no place to remove it. */
 async function linkProducts(
   client: Client,
   documentId: string,

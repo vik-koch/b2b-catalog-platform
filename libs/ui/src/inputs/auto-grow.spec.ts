@@ -23,9 +23,8 @@ async function render() {
   };
 }
 
-// The height is measured from the content, and a test DOM lays nothing out —
-// what is asserted here is that the field is measured at all, and measured
-// again when what is in it changes. How tall it comes out is the browser's.
+// A test DOM lays nothing out, so this asserts the field is measured, and
+// again on change; how tall it comes out is the browser's.
 describe('AutoGrow', () => {
   it('sizes the field on the first render, not on the first keystroke', async () => {
     const { field } = await render();

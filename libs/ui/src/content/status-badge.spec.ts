@@ -47,8 +47,8 @@ describe('StatusBadge', () => {
     fixture.componentInstance.variant.set('dot');
     fixture.detectChanges();
 
-    // The dot is a pseudo-element, so the tone has to reach it through a
-    // variant class — the one thing a swapped colour could quietly drop.
+    // The dot is a pseudo-element, reached by a variant class, which a swapped
+    // colour could quietly drop.
     expect(badge.classList.contains('before:bg-success-dot')).toBe(true);
     // And the tone reaches nothing else: field, border and label stay neutral
     // whatever the state, which is the whole difference from the filled pill.

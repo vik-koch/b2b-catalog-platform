@@ -1,10 +1,8 @@
 #!/usr/bin/env node
 /**
- * Fills the generated sections of `docs/order-sync.md`.
- *
- * What is generated is the journeys — the very literals
- * `order-sync-journeys.spec.ts` walks against the running API — and their
- * legend. The prose around them is written by hand and left alone.
+ * Fills the generated sections of `docs/order-sync.md`: the journeys
+ * `order-sync-journeys.spec.ts` walks against the API, and their legend. The
+ * prose around them is hand-written and left alone.
  *
  * Run `node tools/generate-order-sync.mjs` after changing an order-exchange
  * journey. `--check` verifies the committed document matches, which is what CI

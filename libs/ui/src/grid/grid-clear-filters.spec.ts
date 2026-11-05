@@ -38,11 +38,8 @@ async function render(url = '/admin/products') {
 
 describe('GridClearFilters (FR-ADM-05)', () => {
   /*
-   * The only reading that matches the word on it: a sort is not a filter, it is
-   * how what is left is arranged. Clearing used to drop it too, which was the
-   * half of the inconsistency nobody could see — the other half being that the
-   * control stayed inert while only the sort had been changed, which is right
-   * exactly because it does not touch the sort.
+   * As the word says: a sort is no filter but how the rest is arranged, so
+   * clearing keeps it, and the control stays inert when only the sort changed.
    */
   it('clears the narrowing and keeps the ordering', async () => {
     const { fixture, control } = await render(

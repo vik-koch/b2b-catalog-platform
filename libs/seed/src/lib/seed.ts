@@ -18,8 +18,8 @@ import { seedSettings } from './settings-seed';
  * Bodies pass through the same sanitizer as admin edits, so seeds cannot drift
  * into markup the editor could never reproduce.
  */
-/** Static page content only — split out so tests can restore pages without
- * re-running the (image-generating) catalog seed. A seed that differs from the
+/** Static page content only, apart so tests restore pages without the
+ * image-drawing catalogue seed. A seed that differs from the
  * current text is saved as its next version, never over one. */
 export async function seedPages(
   client: Client,
@@ -83,8 +83,8 @@ export async function seedDatabase(
   await seedDocuments(client, bundle.documents, mediaRoot);
   // Last: the tier price lists need the products they price to exist.
   await seedAccounts(client, bundle);
-  // …and an order needs both — the products it lines up and the account it
-  // was priced for.
+  // …and an order needs both: its products and the account it was priced
+  // for.
   await seedOrders(client, bundle);
   // After the accounts and the pages: a record names both.
   await seedConsents(client, bundle.accounts, consent);
@@ -93,7 +93,7 @@ export async function seedDatabase(
   }
 }
 
-/** Connect, seed, disconnect — the one-shot's whole job. */
+/** Connect, seed, disconnect: the one-shot's whole job. */
 export async function runSeed(
   connectionString: string,
   bundle: SeedBundle,

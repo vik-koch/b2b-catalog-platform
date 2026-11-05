@@ -28,8 +28,8 @@ describe('the new-product pool', () => {
     expect(newProducts.map((p) => p.night)).toEqual(
       newProducts.map((_, index) => (index + 1) * every),
     );
-    // The category's own name, from the bundle — a different one would rename
-    // the category on the shop's side.
+    // The category's name from the bundle; another would rename it in the
+    // shop.
     expect(newProducts[0]).toMatchObject({
       sourceId: 'BEA-600',
       categorySourceId: 'beakers',

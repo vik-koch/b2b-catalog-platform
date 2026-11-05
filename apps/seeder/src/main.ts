@@ -17,8 +17,8 @@ const env = z
     CONFIG_PATH: z.string().min(1),
     // The seed bundle (deployments/fixture/seed/README.md).
     SEED_PATH: z.string().min(1),
-    // `placeholder` draws every picture instead of downloading the bundle's
-    // photos — what the e2e suites seed, so no test run needs the network.
+    // `placeholder` draws every picture instead of downloading photos, as the
+    // e2e suites seed, so no run needs the network.
     SEED_PICTURES: z.enum(['download', 'placeholder']).default('download'),
     // The value of the machine token the bundle's settings.json names. A
     // secret, so never in the bundle; empty is the same as unset.

@@ -6,12 +6,10 @@ import { CatalogImage } from '@b2b-catalog-platform/shared/core/catalog';
 import { MEDIA_URL_PREFIX } from '@b2b-catalog-platform/shared/platform';
 
 /**
- * Demo placeholder images. Real product photography comes from the client;
- * until then the seed renders a simple coffee-bean motif on a warm gradient —
- * or, for a bundle that names its own (`catalog.drawn`), its icons on its hue —
- * deterministically per seed string, so a re-seed produces byte-identical files
- * (same content hash → no duplicates). SVG is authored here but rasterised to
- * WebP with sharp, because the media store only accepts raster formats.
+ * Placeholder pictures for a product without a photo: a coffee bean on a warm
+ * gradient, or a bundle's own icons on its hue (`catalog.drawn`). Fixed per
+ * seed string, so a re-seed writes identical files and no duplicates. Drawn as
+ * SVG and rasterised to WebP with sharp: the media store takes raster only.
  */
 
 // Match the catalog media profile (MEDIA_CATALOG_FULL_WIDTH / _THUMB_WIDTH) so
@@ -48,7 +46,7 @@ function placeholderSvg(seed: string, px: number): string {
 </svg>`;
 }
 
-/** Rasterise, content-address, and write once — mirrors LocalMediaStore.put. */
+/** Rasterise, content-address and write once, as LocalMediaStore.put does. */
 async function store(mediaRoot: string, svg: string): Promise<string> {
   const bytes = await sharp(Buffer.from(svg)).webp({ quality: 80 }).toBuffer();
   return storeImage(mediaRoot, bytes);
@@ -71,10 +69,8 @@ export async function storeImage(
   return `${MEDIA_URL_PREFIX}/${filename}`;
 }
 
-/**
- * A bundle's own way of drawing (`catalog.drawn`): its hue, and the icon a
- * picture shows — the drawing inside a 24-unit stroked icon's `<svg>`.
- */
+/** A bundle's own drawing (`catalog.drawn`): its hue, and a picture's icon,
+ * the inside of a 24-unit stroked `<svg>`. */
 export interface DrawnArt {
   hue: number;
   icon: string;
@@ -113,8 +109,8 @@ export async function generateProductImage(
   seed: string,
   art?: DrawnArt,
 ): Promise<CatalogImage> {
-  // Same seed for both — the thumb is a smaller copy of the full image, not a
-  // different motif (hue and tilt derive from the seed).
+  // One seed for both: the thumb is a smaller copy, not another motif (hue
+  // and tilt come from the seed).
   const draw = (px: number) =>
     art ? drawnSvg(art, seed, px) : placeholderSvg(seed, px);
   const [full, thumb] = await Promise.all([
@@ -214,12 +210,10 @@ export async function generateGlazeImage(
 }
 
 /**
- * Category marks (FR-CAT-07): the bundle's icon on a tinted disc, with nothing
- * behind it — the mark sits on whatever surface draws the category, so the file
- * has to carry no background of its own. The chip draws the file edge to edge,
- * so the margin is in the file: the disc takes three quarters of the square
- * (or the bundle's `markSize`), centred, and the icon half of the disc. The
- * tint varies by category, the icon is what tells them apart.
+ * Category marks (FR-CAT-07): the icon on a tinted disc, no background, as the
+ * mark sits on any surface. The chip draws edge to edge, so the margin is in
+ * the file: the disc three quarters of the square (or `markSize`), the icon
+ * half the disc. The icon tells categories apart.
  */
 const MARK_FULL_PX = 1000;
 const MARK_THUMB_PX = 300;
@@ -246,9 +240,8 @@ function markSvg(
 </svg>`;
 }
 
-/** A category mark as a full + thumb pair, matching what the square upload
- * route stores (MEDIA_CATALOG_FULL_WIDTH / _THUMB_WIDTH, centre-cropped square
- * — these are already square). */
+/** A category mark as a full and thumb pair, as the square upload route stores
+ * them (MEDIA_CATALOG_FULL_WIDTH / _THUMB_WIDTH); these are square already. */
 export async function generateCategoryMark(
   mediaRoot: string,
   sourceId: string,

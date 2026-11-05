@@ -34,8 +34,8 @@ const format: DigitMaskFormat = {
 })
 class Host {
   prefix = signal('');
-  // A signal, so changing it marks the view for check — which is what makes
-  // the binding re-evaluate, as a picker changing the format does in the app.
+  // A signal, so a change marks the view for check and the binding
+  // re-evaluates, as when a picker changes the format.
   mask = signal('(###) ###-####');
   readonly value = signal('');
   readonly field = form(this.value);
@@ -62,12 +62,8 @@ async function render(mask?: string, prefix?: string) {
 }
 
 describe('DigitMask', () => {
-  /**
-   * The company-id picker changes the mask under a live field. What was written
-   * to it must be re-grouped by the new mask — from the value the form gave,
-   * not from what the old mask left on screen, which a shorter mask has already
-   * trimmed.
-   */
+  /** The company-id picker changes the mask under a live field, which
+   * re-groups the form's value, not what the old mask left on screen. */
   it('re-applies a changed mask to the value it was given', async () => {
     const { fixture, input } = await render('#####');
 

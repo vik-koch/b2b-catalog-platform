@@ -1,12 +1,6 @@
-/**
- * The parts every documentation generator here needs: loading TypeScript the
- * docs are generated *from*, and writing the result in a way CI can verify.
- *
- * Generated documentation is only worth having if it cannot drift, so every
- * generator supports `--check` and CI runs it. The check compares bytes, which
- * is why the generated files are kept out of Prettier's reach (.prettierignore)
- * — a formatter rewriting them would make the check fail on formatting.
- */
+/** What every docs generator needs: loading the TypeScript it reads, and
+ * writing so CI can verify. `--check` compares bytes, so generated files stay
+ * out of Prettier's reach (.prettierignore). */
 import { build } from 'esbuild';
 import { execFileSync } from 'node:child_process';
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
@@ -84,11 +78,8 @@ export function injectSection(document, marker, body) {
   return `${document.slice(0, start + open.length)}\n${body}\n${document.slice(end)}`;
 }
 
-/**
- * Writes every file, or — under `--check` — reports the first one that is out
- * of date and fails. One message names the command that fixes it, because the
- * person reading it in CI did not run the generator and may not know it exists.
- */
+/** Writes every file, or under `--check` fails on the first stale one,
+ * naming the fixing command for whoever reads CI. */
 export function writeOrCheck(files, command) {
   const check = process.argv.includes('--check');
   const stale = [];

@@ -1,8 +1,6 @@
-/**
- * The platform's machine API, as the back office sees it: a bearer token and
- * a few routes (docs/catalog-machine-api.md). Nothing here knows the platform's
- * code — this is the client an ERP adapter writes, in its smallest form.
- */
+/** The machine API as the back office sees it: a bearer token and a few
+ * routes (docs/catalog-machine-api.md). It knows no platform code: the client
+ * an ERP adapter writes, at its smallest. */
 
 /** What one write came to, sorted the way the simulator acts on it. */
 export type Outcome =
@@ -15,7 +13,7 @@ export type Outcome =
       /** The refused rows as the plan lists them, shortened for the log. */
       rowErrors: string;
     }
-  /** The area is the shop's own right now — expected, never a failure. */
+  /** The area is the shop's own right now: expected, never a failure. */
   | { kind: 'not-owned' }
   /** Anything else: worth a log line and a failure report. */
   | { kind: 'failed'; detail: string };
@@ -41,7 +39,7 @@ export class Platform {
     this.#token = token;
   }
 
-  /** The token's name and scopes — the credential check at boot. */
+  /** The token's name and scopes: the credential check at boot. */
   async identify(): Promise<{ name: string; scopes: string[] }> {
     const response = await this.#send('GET', '/machine/token');
     if (response.status !== 200) {
@@ -50,11 +48,8 @@ export class Platform {
     return JSON.parse(response.text);
   }
 
-  /**
-   * A whole book from one of the reads — `customers/accounts` or `orders` —
-   * following the cursor to its end. The reads are not gated on ownership, so
-   * the back office always sees what the shop holds.
-   */
+  /** A whole book from a read (`customers/accounts` or `orders`), cursor to
+   * the end. Reads ignore ownership, so the back office sees all. */
   async readAll<T>(path: string, key: string, limit: number): Promise<T[]> {
     const items: T[] = [];
     let cursor: string | null = null;

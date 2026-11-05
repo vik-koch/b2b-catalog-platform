@@ -48,8 +48,8 @@ describe('measured widths', () => {
     });
   });
 
-  // A table that has not been laid out yet — no rows, or not on screen — is not
-  // a measurement, and freezing it would keep the columns at their headings.
+  // A table not laid out yet (no rows, off screen) is no measurement;
+  // freezing it would keep the columns at their headings.
   it('measures nothing from a table with no width', () => {
     expect(measuredWidths(keys, [0, 0, 0])).toBeNull();
     expect(measuredWidths(keys, [100, 100])).toBeNull();
@@ -68,11 +68,9 @@ describe('fitting the measured widths to the room there is', () => {
   });
 
   /*
-   * A heading holding a filter is a `w-full` select and contributes nothing to
-   * the width the browser derives, so those columns measure as if they had no
-   * heading. Raised to their minimum, and the room comes from the columns that
-   * have some to give rather than from every column alike — which is what used
-   * to squeeze the raised ones straight back under their minimum.
+   * A filter heading is a `w-full` select adding no width, so its column is
+   * raised to its minimum, taking room only from columns with some to give,
+   * not from all alike, which would squeeze it back under.
    */
   it('raises a column to its minimum at the expense of the ones with slack', () => {
     const fitted = fitWidths(keys, [300, 40, 40], mins, 400) ?? {};

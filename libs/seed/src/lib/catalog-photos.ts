@@ -14,9 +14,9 @@ const DOWNLOAD_TIMEOUT_MS = 30_000;
 
 /**
  * The bundle's photos, downloaded once per URL and stored as an upload would
- * be: square, at the catalog's two sizes, WebP, content-addressed. A photo that
- * cannot be had is reported and left to the caller's placeholder — a dead link
- * in a demo costs one picture, not the seed.
+ * be: square, at the catalogue's two sizes, WebP, content-addressed. A photo
+ * that fails is reported and left to the caller's placeholder: a dead link
+ * costs one picture, not the seed.
  */
 export class CatalogPhotos {
   private readonly downloads = new Map<string, Promise<Buffer | null>>();

@@ -145,8 +145,8 @@ describe('GridNarrowControls (FR-ADM-05)', () => {
     const button = el.querySelector('button');
     const panel = el.querySelector(`#${button?.getAttribute('aria-controls')}`);
 
-    // Shut is a collapsed row of the grid the panel sits in — the only height
-    // a transition can run to "as tall as its content" from.
+    // Shut is a collapsed grid row, the only height a transition can run from
+    // to "as tall as its content".
     expect(button?.getAttribute('aria-expanded')).toBe('false');
     expect(panel?.parentElement?.parentElement?.classList).toContain(
       'grid-rows-[0fr]',

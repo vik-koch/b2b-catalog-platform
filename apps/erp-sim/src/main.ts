@@ -10,13 +10,13 @@ import { load } from './simulation';
 import { stockOnNight } from './stock';
 
 /**
- * The simulated back office of a demo shop (ADR 0068): it owns the shop's
+ * The simulated back office of a demo shop: it owns the shop's
  * catalog, customers and orders and drives them through the machine API on
  * the shop's own clock, the way a real source system would. Nightly, the
  * stock; hourly in working hours, the registrations and the orders waiting
  * for it. Started by infra/reset.sh after a reset, with the moment of that
  * reset as its epoch. What it sends follows from the seed bundle,
- * simulation.json, the nights since then and what the shop's books say now —
+ * simulation.json, the nights since then and what the shop's books say now:
  * it keeps nothing of its own.
  */
 const env = z
@@ -103,12 +103,9 @@ async function main() {
   // broke once, not on every retry.
   const reported = new Set<string>();
 
-  /**
-   * Logs what a run came to and says whether the cycle is done with it: a run
-   * the platform took, or an area the shop has taken back by hand, is done —
-   * the next cycle tries again either way. Only a failure is retried, and
-   * reported.
-   */
+  /** Logs a run's outcome and whether the cycle is done with it: a taken run
+   * or an area the shop took back is done. Only a failure is retried and
+   * reported. */
   const settle = async (
     area: Area,
     cycle: string,
