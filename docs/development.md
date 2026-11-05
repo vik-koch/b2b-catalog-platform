@@ -57,6 +57,8 @@ CI runs a few more checks, each a plain Node script:
 | `tools/check-licenses.mjs` | Every production dependency has an allowed licence |
 | `tools/check-deployments.mjs` | Every committed deployment boots and seeds; `--config-dir <dir>` checks one config directory |
 | `tools/check-aria-text.mjs` | A text meant only for screen readers is never shown on screen |
+| `tools/check-comments.mjs` | No comment uses an em dash as punctuation, and every path a comment names exists |
+| `tools/check-doc-links.mjs` | Every relative link in the Markdown leads to a file, folder or heading that exists |
 | `tools/check-initial-bundle.mjs` | The browser's first download stays within its budget and carries no Zod (after `nx build web --statsJson`); `--report` shows what the first load and each lazy page weigh, `--save`/`--baseline <file>` keep and compare a report |
 | `tools/migrate-config.mjs --check` | The last release's config, migrated with this release's map, still loads |
 

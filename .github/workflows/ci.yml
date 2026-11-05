@@ -77,6 +77,11 @@ jobs:
       # accessible name, a screen-reader-only hint or an announcement.
       - run: node tools/check-aria-text.mjs
 
+      # Files and headings move; a comment or a doc still pointing at the old
+      # place sends the reader nowhere, and nothing else notices.
+      - run: node tools/check-comments.mjs
+      - run: node tools/check-doc-links.mjs
+
       - run: cp .env.example .env
 
       - run: npx nx run-many -t lint typecheck test build format-check
