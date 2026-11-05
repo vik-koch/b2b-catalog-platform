@@ -683,7 +683,9 @@ describe('AdminOrderDetailPage while orders are externally owned', () => {
 
     expect(el.textContent).toContain(placed.reference);
     expect(el.textContent).toContain('alex@example.com');
-    expect(el.textContent).toContain(defaultAdminText.ownership.orderLocked);
+    expect(el.textContent).toContain(
+      defaultAdminOrderingText.ownership.orderLocked,
+    );
   });
 
   it('offers no move, no adjustment, no payment and no word to the customer', async () => {

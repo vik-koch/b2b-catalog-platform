@@ -431,7 +431,7 @@ export class AdminOrderAdjustPage implements FieldAttempt {
   );
   private readonly payments = this.ordersText.paymentMethods;
   protected readonly adminText = inject(ADMIN_TEXT);
-  protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
+  protected readonly ownershipText = inject(ADMIN_ORDERING_TEXT).ownership;
   /** Whether an external system answers orders (FR-ADM-10): then nothing is
    * offered. */
   protected readonly locked = computed(() => this.ownership.owns('orders'));

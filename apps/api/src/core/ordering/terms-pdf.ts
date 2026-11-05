@@ -5,10 +5,8 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import { and, eq } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { PDFDocument } from 'pdf-lib';
-import {
-  SHOP_TIME_ZONE,
-  TERMS_ATTACHED,
-} from '../../platform/config/deployment-config';
+import { SHOP_TIME_ZONE } from '../../platform/config/deployment-config';
+import { TERMS_ATTACHED } from './terms-config';
 import { DRIZZLE } from '../../platform/db/database.module';
 import * as schema from '../../platform/db/schema';
 import { pageVersions } from '../../platform/db/schema';

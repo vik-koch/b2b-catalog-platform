@@ -127,7 +127,7 @@ export class ProductRowActions {
   protected readonly adminText = inject(ADMIN_TEXT);
   private readonly adminCatalogText = inject(ADMIN_CATALOG_TEXT);
   protected readonly editText = inject(ADMIN_TEXT).editMode;
-  private readonly ownershipText = inject(ADMIN_TEXT).ownership;
+  private readonly ownershipText = inject(ADMIN_CATALOG_TEXT).ownership;
   protected readonly actionText = inject(SHARED_TEXT).actions;
 
   readonly product = input.required<ProductRowState>();

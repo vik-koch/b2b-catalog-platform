@@ -408,7 +408,7 @@ export class UserEditorPage implements UnsavedChangesAware {
   protected readonly adminText = inject(ADMIN_TEXT);
   private readonly adminCatalogText = inject(ADMIN_CATALOG_TEXT);
   protected readonly actionText = inject(SHARED_TEXT).actions;
-  protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
+  protected readonly ownershipText = inject(ADMIN_ACCOUNTS_TEXT).ownership;
   private readonly ownership = inject(OwnershipService);
   protected readonly baseTierLabel = computed(() =>
     baseTierName(this.adminCatalogText.tiers.defaultName, this.tiers()),

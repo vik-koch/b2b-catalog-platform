@@ -290,8 +290,10 @@ anybody has written the page: write the terms before switching maintenance
 mode off.
 
 ```json
-"terms": {
-  "attachToReceipt": true
+"ordering": {
+  "terms": {
+    "attachToReceipt": true
+  }
 }
 ```
 

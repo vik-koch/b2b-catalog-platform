@@ -280,6 +280,24 @@ export const adminAccountsTextShape = {
       withdrawError: z.string(),
     })
     .strict(),
+  /**
+   * Where the customers are owned by an automated source (FR-ADM-10). The
+   * area is closed whole rather than field by field, so this is one banner
+   * and three refusals: an editor whose every input is greyed needs no label
+   * on each.
+   */
+  ownership: z
+    .object({
+      accountLocked: z.string(),
+      /** The editor opened on a "new customer" route, which explains
+       * instead of rendering a form. */
+      accountCreate: z.string(),
+      /** The list's decline dialog, which explains instead of asking. */
+      accountDecline: z.string(),
+      /** The list's deactivate and reactivate dialogs, likewise. */
+      accountActive: z.string(),
+    })
+    .strict(),
 };
 
 export type AdminAccountsText = DeepReadonly<

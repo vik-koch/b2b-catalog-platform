@@ -390,7 +390,7 @@ export class ProductListPage {
     ...this.editText,
     cancel: this.actionText.cancel,
     close: this.actionText.close,
-    owned: inject(ADMIN_TEXT).ownership.productPurge,
+    owned: inject(ADMIN_CATALOG_TEXT).ownership.productPurge,
     errors: this.adminCatalogText.catalogErrors,
   };
   private readonly confirm = inject(ConfirmService);

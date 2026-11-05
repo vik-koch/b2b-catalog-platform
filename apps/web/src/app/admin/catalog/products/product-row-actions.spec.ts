@@ -179,7 +179,7 @@ describe('ProductRowActions', () => {
       expect(hidden.purgeRequested).not.toHaveBeenCalled();
       expect(hidden.tell).toHaveBeenCalledWith(
         expect.objectContaining({
-          message: defaultAdminText.ownership.productPurge,
+          message: defaultAdminCatalogText.ownership.productPurge,
         }),
       );
       TestBed.resetTestingModule();
@@ -229,7 +229,7 @@ describe('ProductRowActions', () => {
       expect(restored).not.toHaveBeenCalled();
       expect(tell).toHaveBeenCalledWith(
         expect.objectContaining({
-          heading: defaultAdminText.ownership.productRestoreTitle,
+          heading: defaultAdminCatalogText.ownership.productRestoreTitle,
         }),
       );
     });

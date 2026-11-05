@@ -526,7 +526,7 @@ describe('UserEditorPage', () => {
       });
 
       expect(el.textContent).toContain(
-        defaultAdminText.ownership.accountLocked,
+        defaultAdminAccountsText.ownership.accountLocked,
       );
       expect((field('firstName') as HTMLInputElement).disabled).toBe(true);
       expect(button(defaultAdminText.actions.save)).toBeUndefined();
@@ -551,7 +551,7 @@ describe('UserEditorPage', () => {
       });
 
       expect(el.textContent).toContain(
-        defaultAdminText.ownership.accountCreate,
+        defaultAdminAccountsText.ownership.accountCreate,
       );
       expect(field('firstName')).toBeNull();
       expect(button(defaultSharedText.actions.cancel)).toBeDefined();

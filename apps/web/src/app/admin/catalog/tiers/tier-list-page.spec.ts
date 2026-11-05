@@ -296,7 +296,7 @@ describe('TierListPage', () => {
   });
 
   describe('while an external system owns the catalog (FR-ADM-10)', () => {
-    const owned = defaultAdminText.ownership;
+    const owned = defaultAdminCatalogText.ownership;
 
     it('locks the sync key of a list that already exists, and nothing else', async () => {
       const { el, byLabel, fixture } = await render({

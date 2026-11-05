@@ -1,8 +1,11 @@
-import * as z from 'zod';
+import { ORDERING_AREA } from '@b2b-catalog-platform/shared/core/ordering';
+import { loadApiConfigBlock } from '../../platform/config/api-config';
+import type { OrderingApiConfig } from './ordering-api-config';
 
-/** The receipt always names the accepted terms' date (NFR-LEGAL-10), and
- * with `attachToReceipt` adds them as a PDF. No default: a legal decision.
- * Without published terms an order accepted none, so it does nothing. */
-export const termsConfigSchema = z
-  .object({ attachToReceipt: z.boolean() })
-  .strict();
+/** Whether the receipt attaches the accepted terms as a document. */
+export const TERMS_ATTACHED = 'TERMS_ATTACHED';
+
+export function loadTermsAttached(): boolean {
+  return loadApiConfigBlock<OrderingApiConfig>(ORDERING_AREA).terms
+    .attachToReceipt;
+}

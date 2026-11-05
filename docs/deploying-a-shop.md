@@ -64,7 +64,7 @@ sample content; a real shop starts empty and is filled in the admin panel or by 
 | When stock reads "few left", whether pairings are enforced, sort controls | `catalog` | `deployment.json` |
 | A second keyboard layout for search | `search.alternateLayout` | `deployment.json` |
 | A notice above every page, links to the shop elsewhere, the seller line | `notice`, `site.elsewhere`, `seller` | `deployment.json` |
-| Whether the receipt attaches the terms of sale | `terms.attachToReceipt` | `api.json` |
+| Whether the receipt attaches the terms of sale | `ordering.terms.attachToReceipt` | `api.json` |
 | How long orders, consent records and deletion records are kept | `retention` | `api.json` |
 | How long an unused session lasts | `session` | `api.json` |
 | What an automated import may apply without a person | `sync.autoApply`, `sync.customerAutoApply` | `api.json` |

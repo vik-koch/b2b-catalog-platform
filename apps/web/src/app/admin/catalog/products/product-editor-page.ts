@@ -665,7 +665,7 @@ export class ProductEditorPage implements UnsavedChangesAware, FieldAttempt {
   private readonly adminCatalogText = inject(ADMIN_CATALOG_TEXT);
   protected readonly text = inject(ADMIN_CATALOG_TEXT).products.editor;
   protected readonly glyphs = PRODUCT_FEATURE_GLYPHS;
-  protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
+  protected readonly ownershipText = inject(ADMIN_CATALOG_TEXT).ownership;
   protected readonly editText = inject(ADMIN_TEXT).editMode;
   protected readonly product = inject(SHARED_CATALOG_TEXT).product;
   protected readonly productStates = inject(ADMIN_CATALOG_TEXT).products;

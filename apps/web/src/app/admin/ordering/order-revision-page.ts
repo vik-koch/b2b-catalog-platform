@@ -10,7 +10,6 @@ import {
   formatMoneyMinor,
 } from '@b2b-catalog-platform/shared/platform';
 import { OrderSummary } from '../../core/ordering/ui/order-summary';
-import { ADMIN_TEXT } from '../../platform/config/admin-text';
 import { SHARED_TEXT } from '../../platform/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
 import { delayedLoading } from '../../platform/delayed-loading';
@@ -204,7 +203,7 @@ export class AdminOrderRevisionPage {
   protected readonly names = this.sharedOrderingText.order;
   protected readonly text = this.detailText.revisions;
   protected readonly documentsText = this.detailText.documents;
-  protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
+  protected readonly ownershipText = inject(ADMIN_ORDERING_TEXT).ownership;
   /** Whether an external system answers orders (FR-ADM-10): only the link's
    * wording changes. */
   protected readonly locked = computed(() => this.ownership.owns('orders'));

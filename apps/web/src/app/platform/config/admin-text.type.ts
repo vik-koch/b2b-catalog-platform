@@ -841,55 +841,12 @@ export const adminTextShape = {
         })
         .strict(),
       error: z.string(),
-      /** The banner at the top of an editor: why, and where to change it. */
-      fieldLocked: z.string(),
-      /** The same fact in one clause, for the mark beside each locked field —
-       * the banner above it already gives the long version. */
-      fieldLockedShort: z.string(),
-      /** The delete dialog, where reassigning would move products. */
-      categoryHasProducts: z.string(),
-      /** The same, where only deleted products are left in it, which no run
-       * will move (FR-ADM-22). `{count}` substituted. */
-      categoryHasDeletedProducts: z.string(),
-      /** Restore on a product a run deleted while the catalog is owned: only
-       * a run brings it back (FR-ADM-10). */
-      productRestoreTitle: z.string(),
-      /** Delete permanently refused for a product an admin hid while the
-       * source still sends it (FR-ADM-21). */
-      productPurge: z.string(),
-      productRestore: z.string(),
-      /** The product editor, opened on the "new" route. */
-      productCreate: z.string(),
-      /** The tier list, where only an existing list's sync key is locked. */
-      tierKeyLocked: z.string(),
-      /**
-       * The customer area is closed whole rather than field by field, so its
-       * copy is one banner and three refusals rather than a lock per field:
-       * an editor in which every input is greyed does not need each one
-       * labelled.
-       */
-      accountLocked: z.string(),
-      /** The editor opened on a "new customer" route, which explains
-       * instead of rendering a form. */
-      accountCreate: z.string(),
       /**
        * A staged upload opened after its area was handed over: the apply is
        * judged by the setting in force now, so the button is gone and this
        * is what stands in its place. Discarding it stays possible.
        */
       runStranded: z.string(),
-      /** The list's decline dialog, which explains instead of asking. */
-      accountDecline: z.string(),
-      /** The list's deactivate and reactivate dialogs, likewise. */
-      accountActive: z.string(),
-      /**
-       * Order processing is closed whole like the customer area, so it is one
-       * banner again — said at the top of every order screen that used to
-       * carry controls, including the adjustment form, which draws itself
-       * dead rather than not at all: the order it is about is still worth
-       * reading.
-       */
-      orderLocked: z.string(),
     })
     .strict(),
   /**

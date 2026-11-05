@@ -25,7 +25,6 @@ import {
   shopTimeZone,
 } from '@b2b-catalog-platform/shared/platform';
 import { OrderSummary } from '../../core/ordering/ui/order-summary';
-import { ADMIN_TEXT } from '../../platform/config/admin-text';
 import { SHARED_TEXT } from '../../platform/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
 import { delayedLoading } from '../../platform/delayed-loading';
@@ -373,7 +372,7 @@ export class AdminOrderDetailPage {
   protected readonly revisionText = this.text.revisions;
   protected readonly documentsText = this.text.documents;
   protected readonly tellText = this.text.tellCustomer;
-  protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
+  protected readonly ownershipText = inject(ADMIN_ORDERING_TEXT).ownership;
   /** Whether an external system answers orders (FR-ADM-10); in flight counts as
    * not owned. Every control's computed returns nothing then: one rule, not a
    * condition per button. */

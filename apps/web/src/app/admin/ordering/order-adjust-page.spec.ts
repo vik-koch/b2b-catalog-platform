@@ -383,7 +383,9 @@ describe('AdminOrderAdjustPage while orders are externally owned', () => {
     owned = ['orders'];
     const { el } = await settled();
 
-    expect(el.textContent).toContain(defaultAdminText.ownership.orderLocked);
+    expect(el.textContent).toContain(
+      defaultAdminOrderingText.ownership.orderLocked,
+    );
     expect(el.querySelectorAll('input')).toHaveLength(0);
     expect(el.textContent).not.toContain(text.save);
     expect(el.textContent).toContain(text.cancel);

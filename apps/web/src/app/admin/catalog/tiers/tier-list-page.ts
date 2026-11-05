@@ -301,7 +301,7 @@ export class TierListPage {
   private readonly ownership = inject(OwnershipService);
   protected readonly text = inject(ADMIN_CATALOG_TEXT).tiers;
   private readonly productsText = inject(ADMIN_CATALOG_TEXT).products;
-  protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
+  protected readonly ownershipText = inject(ADMIN_CATALOG_TEXT).ownership;
   protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly actionText = inject(SHARED_TEXT).actions;
 

@@ -227,7 +227,7 @@ export class CategoryEditorPage implements UnsavedChangesAware, FieldAttempt {
   protected readonly adminText = inject(ADMIN_TEXT);
   private readonly adminCatalogText = inject(ADMIN_CATALOG_TEXT);
   protected readonly actionText = inject(SHARED_TEXT).actions;
-  protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
+  protected readonly ownershipText = inject(ADMIN_CATALOG_TEXT).ownership;
   private readonly ownership = inject(OwnershipService);
 
   /**

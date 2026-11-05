@@ -1293,7 +1293,7 @@ describe('ProductEditorPage', () => {
         { catalogOwned: true },
       );
 
-      const explanation = defaultAdminText.ownership.fieldLocked;
+      const explanation = defaultAdminCatalogText.ownership.fieldLocked;
       const occurrences = [...el.querySelectorAll('p')].filter(
         (p) => p.textContent?.trim() === explanation,
       );
@@ -1315,7 +1315,7 @@ describe('ProductEditorPage', () => {
       );
       expect(locked).not.toContain('product-slug');
       expect(shownLocks(el)[0].querySelector('button')?.ariaLabel).toBe(
-        defaultAdminText.ownership.fieldLockedShort,
+        defaultAdminCatalogText.ownership.fieldLockedShort,
       );
     });
 
@@ -1337,7 +1337,7 @@ describe('ProductEditorPage', () => {
       const { el } = await render({ slug: null }, {}, { catalogOwned: true });
 
       expect(el.textContent).toContain(
-        defaultAdminText.ownership.productCreate,
+        defaultAdminCatalogText.ownership.productCreate,
       );
       expect(el.querySelector('input')).toBeNull();
     });

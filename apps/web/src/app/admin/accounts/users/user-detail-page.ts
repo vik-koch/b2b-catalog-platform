@@ -244,7 +244,7 @@ export class UserDetailPage {
   private readonly partyKind = inject(SHARED_ACCOUNTS_TEXT).partyKind;
   private readonly adminText = inject(ADMIN_TEXT);
   private readonly adminCatalogText = inject(ADMIN_CATALOG_TEXT);
-  protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
+  protected readonly ownershipText = inject(ADMIN_ACCOUNTS_TEXT).ownership;
   private readonly actionText = inject(SHARED_TEXT).actions;
 
   private readonly phoneInput = this.config.phoneInput;

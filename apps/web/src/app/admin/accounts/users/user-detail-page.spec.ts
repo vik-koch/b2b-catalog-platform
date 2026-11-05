@@ -285,7 +285,7 @@ describe('UserDetailPage', () => {
     const { link, text: body } = await render({ ownedAreas: ['customers'] });
 
     expect(body()).toContain('jane@example.com');
-    expect(body()).toContain(defaultAdminText.ownership.accountLocked);
+    expect(body()).toContain(defaultAdminAccountsText.ownership.accountLocked);
     expect(link(listText.edit)).toBeUndefined();
     expect(link(text.back)).toBeDefined();
   });

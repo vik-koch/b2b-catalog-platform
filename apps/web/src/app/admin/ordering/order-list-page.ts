@@ -25,7 +25,6 @@ import {
   staffPaymentFilterSchema,
 } from '@b2b-catalog-platform/shared/core/ordering';
 import { SEARCH_QUERY_MAX_LENGTH } from '@b2b-catalog-platform/shared/core/catalog';
-import { ADMIN_TEXT } from '../../platform/config/admin-text';
 import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
 import { delayedLoading } from '../../platform/delayed-loading';
 import { usePageSeo } from '../../platform/page-seo';
@@ -414,7 +413,7 @@ export class AdminOrderListPage {
 
   private readonly confirm = inject(ConfirmService);
   private readonly detailText = inject(ADMIN_ORDERING_TEXT).orders.detail;
-  protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
+  protected readonly ownershipText = inject(ADMIN_ORDERING_TEXT).ownership;
   /** So the order page returns to this list, filters and all. */
   protected readonly editorFrom = injectEditorReturnParams();
 

@@ -133,7 +133,7 @@ describe('CategoryDeleteDialog', () => {
     expect(ci.mode()).toBe('blocked-owned');
     const shown = (fixture.nativeElement as HTMLElement).textContent ?? '';
     expect(shown).toContain(
-      defaultAdminText.ownership.categoryHasDeletedProducts.replace(
+      defaultAdminCatalogText.ownership.categoryHasDeletedProducts.replace(
         '{count}',
         '2',
       ),

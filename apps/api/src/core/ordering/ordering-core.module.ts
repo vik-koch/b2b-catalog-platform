@@ -10,16 +10,15 @@ import {
   ORDER_CURRENCY,
   SHOP_TIME_ZONE,
   PDF_FONT,
-  TERMS_ATTACHED,
   loadCompanyIdRule,
   loadMoneyFormat,
   loadOrderCurrency,
   loadShopTimeZone,
   loadPdfFont,
   loadTaxConfig,
-  loadTermsAttached,
   TAX_CONFIG,
 } from '../../platform/config/deployment-config';
+import { TERMS_ATTACHED, loadTermsAttached } from './terms-config';
 import {
   BILLING_ADDRESS_ENABLED,
   DELIVERY_CONFIG,

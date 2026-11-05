@@ -261,6 +261,21 @@
     "deployment.json:billingAddressEnabled": "deployment.json:ordering.billingAddressEnabled",
     "deployment.json:pickup": "deployment.json:ordering.pickup",
     "deployment.json:delivery": "deployment.json:ordering.delivery",
-    "deployment.json:orderReference": "deployment.json:ordering.orderReference"
+    "deployment.json:orderReference": "deployment.json:ordering.orderReference",
+    "texts/admin.json:ownership.fieldLocked": "texts/admin.json:catalog.ownership.fieldLocked",
+    "texts/admin.json:ownership.fieldLockedShort": "texts/admin.json:catalog.ownership.fieldLockedShort",
+    "texts/admin.json:ownership.categoryHasProducts": "texts/admin.json:catalog.ownership.categoryHasProducts",
+    "texts/admin.json:ownership.categoryHasDeletedProducts": "texts/admin.json:catalog.ownership.categoryHasDeletedProducts",
+    "texts/admin.json:ownership.productRestoreTitle": "texts/admin.json:catalog.ownership.productRestoreTitle",
+    "texts/admin.json:ownership.productRestore": "texts/admin.json:catalog.ownership.productRestore",
+    "texts/admin.json:ownership.productPurge": "texts/admin.json:catalog.ownership.productPurge",
+    "texts/admin.json:ownership.productCreate": "texts/admin.json:catalog.ownership.productCreate",
+    "texts/admin.json:ownership.tierKeyLocked": "texts/admin.json:catalog.ownership.tierKeyLocked",
+    "texts/admin.json:ownership.accountLocked": "texts/admin.json:accounts.ownership.accountLocked",
+    "texts/admin.json:ownership.accountCreate": "texts/admin.json:accounts.ownership.accountCreate",
+    "texts/admin.json:ownership.accountDecline": "texts/admin.json:accounts.ownership.accountDecline",
+    "texts/admin.json:ownership.accountActive": "texts/admin.json:accounts.ownership.accountActive",
+    "texts/admin.json:ownership.orderLocked": "texts/admin.json:ordering.ownership.orderLocked",
+    "api.json:terms": "api.json:ordering.terms"
   }
 }

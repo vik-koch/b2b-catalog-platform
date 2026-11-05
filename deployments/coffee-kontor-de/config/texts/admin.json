@@ -681,6 +681,17 @@
           "document-product-not-found": "Eines der Produkte mit diesem Dokument gibt es nicht mehr. Laden Sie die Seite neu und wählen Sie die Produkte erneut."
         }
       }
+    },
+    "ownership": {
+      "fieldLocked": "Der Katalog wird von einem externen System verwaltet, daher wird das dort festgelegt statt hier. Um es im Shop zu bearbeiten, holen Sie den Katalog unter Datenhoheit in der Verwaltung zurück.",
+      "fieldLockedShort": "Vom externen System festgelegt, das den Katalog verwaltet.",
+      "categoryHasProducts": "Diese Kategorie enthält noch Produkte. Solange der Katalog von einem externen System verwaltet wird, lassen sich Produkte hier nicht zwischen Kategorien verschieben – leeren Sie sie zuerst in jenem System oder holen Sie den Katalog unter Datenhoheit in der Verwaltung zurück.",
+      "categoryHasDeletedProducts": "Gelöschte Produkte, die diese Kategorie noch enthält: {count}. Solange der Katalog von einem externen System verwaltet wird, lassen sie sich hier nicht zwischen Kategorien verschieben. Ein endgültig gelöschtes Produkt hält sie nicht mehr; eines, das je bestellt wurde, immer. Sie können sie weiterhin umbenennen, ihre Adresse ändern und ans Ende der Liste schieben.",
+      "productRestoreTitle": "Vom externen System entfernt",
+      "productRestore": "Das externe System hat dieses Produkt entfernt, weil es es nicht mehr schickt. Es kommt von selbst zurück, wenn jenes System es wieder schickt. Um es hier wiederherzustellen, holen Sie den Katalog unter Datenhoheit in der Verwaltung zurück.",
+      "productPurge": "Das externe System schickt dieses Produkt noch, daher würde es nach einer endgültigen Löschung nur als neues zurückkommen. Es bleibt gelöscht.",
+      "productCreate": "Der Katalog wird von einem externen System verwaltet, daher werden neue Produkte dort hinzugefügt. Um eines im Shop hinzuzufügen, holen Sie den Katalog unter Datenhoheit in der Verwaltung zurück.",
+      "tierKeyLocked": "Der Katalog wird von einem externen System verwaltet, daher wird der Schlüssel dieser Preisliste dort festgelegt. Den Namen können Sie in jedem Fall ändern, und Sie können weiterhin eine Preisliste hinzufügen oder eine unbenutzte entfernen."
     }
   },
   "sync": {
@@ -1058,21 +1069,7 @@
       "areasToggle": "Bereiche einzeln"
     },
     "error": "Bei dieser Änderung ist etwas schiefgegangen. Bitte versuchen Sie es noch einmal.",
-    "fieldLocked": "Der Katalog wird von einem externen System verwaltet, daher wird das dort festgelegt statt hier. Um es im Shop zu bearbeiten, holen Sie den Katalog unter Datenhoheit in der Verwaltung zurück.",
-    "fieldLockedShort": "Vom externen System festgelegt, das den Katalog verwaltet.",
-    "categoryHasProducts": "Diese Kategorie enthält noch Produkte. Solange der Katalog von einem externen System verwaltet wird, lassen sich Produkte hier nicht zwischen Kategorien verschieben – leeren Sie sie zuerst in jenem System oder holen Sie den Katalog unter Datenhoheit in der Verwaltung zurück.",
-    "categoryHasDeletedProducts": "Gelöschte Produkte, die diese Kategorie noch enthält: {count}. Solange der Katalog von einem externen System verwaltet wird, lassen sie sich hier nicht zwischen Kategorien verschieben. Ein endgültig gelöschtes Produkt hält sie nicht mehr; eines, das je bestellt wurde, immer. Sie können sie weiterhin umbenennen, ihre Adresse ändern und ans Ende der Liste schieben.",
-    "productPurge": "Das externe System schickt dieses Produkt noch, daher würde es nach einer endgültigen Löschung nur als neues zurückkommen. Es bleibt gelöscht.",
-    "productRestoreTitle": "Vom externen System entfernt",
-    "productRestore": "Das externe System hat dieses Produkt entfernt, weil es es nicht mehr schickt. Es kommt von selbst zurück, wenn jenes System es wieder schickt. Um es hier wiederherzustellen, holen Sie den Katalog unter Datenhoheit in der Verwaltung zurück.",
-    "productCreate": "Der Katalog wird von einem externen System verwaltet, daher werden neue Produkte dort hinzugefügt. Um eines im Shop hinzuzufügen, holen Sie den Katalog unter Datenhoheit in der Verwaltung zurück.",
-    "tierKeyLocked": "Der Katalog wird von einem externen System verwaltet, daher wird der Schlüssel dieser Preisliste dort festgelegt. Den Namen können Sie in jedem Fall ändern, und Sie können weiterhin eine Preisliste hinzufügen oder eine unbenutzte entfernen.",
-    "accountLocked": "Kundenkonten werden von einem externen System verwaltet, daher wird dieses Konto dort bearbeitet statt hier. Um es im Shop zu bearbeiten, holen Sie die Kundenkonten unter Datenhoheit in der Verwaltung zurück.",
-    "accountCreate": "Kundenkonten werden von einem externen System verwaltet, daher werden neue Kunden dort hinzugefügt. Um einen im Shop hinzuzufügen, holen Sie die Kundenkonten unter Datenhoheit in der Verwaltung zurück.",
-    "runStranded": "Diese Datei wurde hochgeladen, bevor der Bereich an ein externes System übergeben wurde, und lässt sich daher nicht mehr übernehmen. Verwerfen Sie sie oder holen Sie den Bereich unter Datenhoheit in der Verwaltung zurück.",
-    "accountDecline": "Kundenkonten werden von einem externen System verwaltet, daher wird dort über Anträge entschieden. Lehnen Sie diesen in jenem System ab oder holen Sie die Kundenkonten unter Datenhoheit in der Verwaltung zurück.",
-    "accountActive": "Kundenkonten werden von einem externen System verwaltet, daher geschieht das Ab- und Wiedereinschalten dort. Ändern Sie es in jenem System oder holen Sie die Kundenkonten unter Datenhoheit in der Verwaltung zurück.",
-    "orderLocked": "Bestellungen werden von einem externen System verwaltet, daher wird diese dort beantwortet statt hier. Kunden können weiterhin bestellen und unbeantwortete Bestellungen stornieren. Um Bestellungen im Shop zu bearbeiten, holen Sie die Bestellabwicklung unter Datenhoheit in der Verwaltung zurück."
+    "runStranded": "Diese Datei wurde hochgeladen, bevor der Bereich an ein externes System übergeben wurde, und lässt sich daher nicht mehr übernehmen. Verwerfen Sie sie oder holen Sie den Bereich unter Datenhoheit in der Verwaltung zurück."
   },
   "operations": {
     "page": {
@@ -1317,6 +1314,12 @@
         "confirm": "Widerruf eintragen",
         "warning": "Die Anfrage selbst ist eine E-Mail im Postfach des Shops, die hiervon unberührt bleibt. Löschen Sie sie dort ebenfalls."
       }
+    },
+    "ownership": {
+      "accountLocked": "Kundenkonten werden von einem externen System verwaltet, daher wird dieses Konto dort bearbeitet statt hier. Um es im Shop zu bearbeiten, holen Sie die Kundenkonten unter Datenhoheit in der Verwaltung zurück.",
+      "accountCreate": "Kundenkonten werden von einem externen System verwaltet, daher werden neue Kunden dort hinzugefügt. Um einen im Shop hinzuzufügen, holen Sie die Kundenkonten unter Datenhoheit in der Verwaltung zurück.",
+      "accountDecline": "Kundenkonten werden von einem externen System verwaltet, daher wird dort über Anträge entschieden. Lehnen Sie diesen in jenem System ab oder holen Sie die Kundenkonten unter Datenhoheit in der Verwaltung zurück.",
+      "accountActive": "Kundenkonten werden von einem externen System verwaltet, daher geschieht das Ab- und Wiedereinschalten dort. Ändern Sie es in jenem System oder holen Sie die Kundenkonten unter Datenhoheit in der Verwaltung zurück."
     }
   },
   "ordering": {
@@ -1594,6 +1597,9 @@
         "removed": "Entfernt",
         "shipment": "Geschätztes Gewicht und Volumen"
       }
+    },
+    "ownership": {
+      "orderLocked": "Bestellungen werden von einem externen System verwaltet, daher wird diese dort beantwortet statt hier. Kunden können weiterhin bestellen und unbeantwortete Bestellungen stornieren. Um Bestellungen im Shop zu bearbeiten, holen Sie die Bestellabwicklung unter Datenhoheit in der Verwaltung zurück."
     }
   }
 }

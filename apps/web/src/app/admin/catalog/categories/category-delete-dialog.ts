@@ -123,7 +123,7 @@ export class CategoryDeleteDialog {
   protected readonly adminText = inject(ADMIN_TEXT);
   private readonly adminCatalogText = inject(ADMIN_CATALOG_TEXT);
   protected readonly text = inject(ADMIN_CATALOG_TEXT).categories.list;
-  protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
+  protected readonly ownershipText = inject(ADMIN_CATALOG_TEXT).ownership;
   protected readonly actionText = inject(SHARED_TEXT).actions;
 
   private readonly dialog =
@@ -225,7 +225,7 @@ export class CategoryDeleteDialog {
       // Only a reassign is refused for ownership: it moves products.
       this.error.set(
         result.code === 'catalog-externally-owned'
-          ? this.adminText.ownership.fieldLocked
+          ? this.ownershipText.fieldLocked
           : this.adminCatalogText.catalogErrors[result.code],
       );
     } catch {

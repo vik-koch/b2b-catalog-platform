@@ -748,6 +748,31 @@ export const adminCatalogTextShape = {
         .strict(),
     })
     .strict(),
+  /** What an editor says where the catalog is owned by an automated source
+   * (FR-ADM-10). */
+  ownership: z
+    .object({
+      /** The banner at the top of an editor: why, and where to change it. */
+      fieldLocked: z.string(),
+      /** The same fact in one clause, for the mark beside each locked field. */
+      fieldLockedShort: z.string(),
+      /** The delete dialog, where reassigning would move products. */
+      categoryHasProducts: z.string(),
+      /** The same, where only deleted products are left in it, which no run
+       * will move (FR-ADM-22). `{count}` substituted. */
+      categoryHasDeletedProducts: z.string(),
+      /** Restore on a product a run deleted: only a run brings it back. */
+      productRestoreTitle: z.string(),
+      productRestore: z.string(),
+      /** Delete permanently refused for a product an admin hid while the
+       * source still sends it (FR-ADM-21). */
+      productPurge: z.string(),
+      /** The product editor, opened on the "new" route. */
+      productCreate: z.string(),
+      /** The tier list, where only an existing list's sync key is locked. */
+      tierKeyLocked: z.string(),
+    })
+    .strict(),
 };
 
 export type AdminCatalogText = DeepReadonly<

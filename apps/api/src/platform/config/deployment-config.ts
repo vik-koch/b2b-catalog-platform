@@ -84,13 +84,6 @@ export function loadPdfFont(): PdfFontFiles | undefined {
   return { regular: resolve(pdf.regular), bold: resolve(pdf.bold) };
 }
 
-/** Whether the receipt attaches the accepted terms as a document. */
-export const TERMS_ATTACHED = 'TERMS_ATTACHED';
-
-export function loadTermsAttached(): boolean {
-  return loadApiConfig().terms.attachToReceipt;
-}
-
 /** The tax basis, and the default a product's own rate falls back to. */
 export const TAX_CONFIG = 'TAX_CONFIG';
 

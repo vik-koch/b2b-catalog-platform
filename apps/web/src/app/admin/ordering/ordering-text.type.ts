@@ -429,6 +429,13 @@ export const adminOrderingTextShape = {
         .strict(),
     })
     .strict(),
+  /**
+   * Where order processing is owned by an automated source (FR-ADM-10):
+   * closed whole like the customers, so one banner on every order screen
+   * that carries controls. The adjustment form draws itself dead rather than
+   * not at all, as the order is still worth reading.
+   */
+  ownership: z.object({ orderLocked: z.string() }).strict(),
 };
 
 export type AdminOrderingText = DeepReadonly<

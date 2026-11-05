@@ -486,7 +486,7 @@ describe('UserListPage', () => {
 
       expect(confirm.ask).toHaveBeenCalledWith(
         expect.objectContaining({
-          message: defaultAdminText.ownership.accountDecline,
+          message: defaultAdminAccountsText.ownership.accountDecline,
           confirmLabel: null,
         }),
       );
@@ -503,7 +503,7 @@ describe('UserListPage', () => {
 
       expect(confirm.ask).toHaveBeenCalledWith(
         expect.objectContaining({
-          message: defaultAdminText.ownership.accountActive,
+          message: defaultAdminAccountsText.ownership.accountActive,
           confirmLabel: null,
         }),
       );
@@ -579,7 +579,7 @@ describe('UserListPage', () => {
     expect(navigate).not.toHaveBeenCalled();
     expect(confirm.tell).toHaveBeenCalledWith(
       expect.objectContaining({
-        message: defaultAdminText.ownership.accountCreate,
+        message: defaultAdminAccountsText.ownership.accountCreate,
       }),
     );
   });

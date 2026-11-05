@@ -1,7 +1,4 @@
 {
-  "terms": {
-    "attachToReceipt": true
-  },
   "retention": {
     "consentRecordDays": 1095,
     "destructionRecordDays": 1095,
@@ -20,6 +17,11 @@
       "maxDisables": 0,
       "maxClaims": 0,
       "maxIdClaims": 10
+    }
+  },
+  "ordering": {
+    "terms": {
+      "attachToReceipt": true
     }
   }
 }
