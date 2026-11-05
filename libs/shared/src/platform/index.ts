@@ -19,6 +19,7 @@ export * from './money';
 export * from './ownership';
 export * from './pagination.contract';
 export * from './rich-text';
+export * from './search';
 export * from './session';
 export * from './session.contract';
 export * from './settings';

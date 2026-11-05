@@ -1,5 +1,3 @@
-import { Logger } from '@nestjs/common';
-import { HttpAddressSuggestions } from './http-address-suggestions';
 import { AddressComponents } from '@b2b-catalog-platform/shared/core/accounts';
 
 /**
@@ -30,18 +28,4 @@ export class NoAddressSuggestions implements AddressSuggestionPort {
   async suggest(): Promise<AddressSuggestionResult[]> {
     return [];
   }
-}
-
-/** The sidecar URL is the only switch. The choice is logged at boot, or a
- * misspelled variable would turn suggestions off unnoticed. */
-export function createAddressSuggestionPort(
-  url: string | undefined,
-): AddressSuggestionPort {
-  const logger = new Logger('AddressSuggestions');
-  if (!url) {
-    logger.log('disabled: no SUGGESTION_SIDECAR_URL, addresses are typed');
-    return new NoAddressSuggestions();
-  }
-  logger.log(`enabled: suggestion sidecar at ${url}`);
-  return new HttpAddressSuggestions(url);
 }

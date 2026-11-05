@@ -22,11 +22,13 @@ import {
   RouterLink,
 } from '@angular/router';
 import { filter } from 'rxjs';
-import { fillText } from '@b2b-catalog-platform/shared/platform';
+import {
+  fillText,
+  SEARCH_QUERY_MAX_LENGTH,
+} from '@b2b-catalog-platform/shared/platform';
 import {
   pieceFloor,
   ProductListItem,
-  SEARCH_QUERY_MAX_LENGTH,
 } from '@b2b-catalog-platform/shared/core/catalog';
 import { SearchCategory } from '@b2b-catalog-platform/shared/storefront/catalog';
 import {
@@ -41,7 +43,7 @@ import { MobileSearch } from '../../platform/mobile-search';
 import { currentUrl } from '../../../platform/current-url';
 import { debounced } from '@b2b-catalog-platform/ui/core/debounced';
 import { HighlightedLine } from '@b2b-catalog-platform/ui/suggest/highlighted-line';
-import { MatchSegmentsPipe } from '../../../core/catalog/search/match-segments.pipe';
+import { MatchSegmentsPipe } from '../../../platform/search/match-segments.pipe';
 import { AlternateLayout } from '../../../platform/alternate-layout';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';

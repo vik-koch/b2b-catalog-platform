@@ -1,5 +1,5 @@
 import * as z from 'zod';
-import { SEARCH_QUERY_MAX_LENGTH } from './search';
+import { SEARCH_QUERY_MAX_LENGTH } from '../../platform/search';
 
 /**
  * A search box as a query parameter. Free text: the server tokenizes it, and a

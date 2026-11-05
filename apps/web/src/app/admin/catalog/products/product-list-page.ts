@@ -8,11 +8,13 @@ import {
   signal,
 } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { fillText } from '@b2b-catalog-platform/shared/platform';
+import {
+  fillText,
+  SEARCH_QUERY_MAX_LENGTH,
+} from '@b2b-catalog-platform/shared/platform';
 import {
   formatAttributeValue,
   ProductAvailability,
-  SEARCH_QUERY_MAX_LENGTH,
 } from '@b2b-catalog-platform/shared/core/catalog';
 import {
   AdminProductSort,

@@ -1,10 +1,10 @@
 import type { Mock, MockInstance } from 'vitest';
 import { Logger } from '@nestjs/common';
-import { HttpPartySuggestions } from './http-party-suggestions';
 import {
   createPartySuggestionPort,
-  NoPartySuggestions,
-} from './party-suggestion.port';
+  HttpPartySuggestions,
+} from './http-party-suggestions';
+import { NoPartySuggestions } from './party-suggestion.port';
 
 const kontor = {
   name: 'Kontor GmbH',

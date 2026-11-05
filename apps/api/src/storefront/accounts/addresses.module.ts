@@ -4,10 +4,8 @@ import { AddressBookModule } from '../../core/accounts/address-book.module';
 import { env } from '../../platform/env';
 import { SessionModule } from '../../platform/auth/session.module';
 import { AddressSuggestionController } from './address-suggestion.controller';
-import {
-  ADDRESS_SUGGESTION_PORT,
-  createAddressSuggestionPort,
-} from './address-suggestion.port';
+import { ADDRESS_SUGGESTION_PORT } from './address-suggestion.port';
+import { createAddressSuggestionPort } from './http-address-suggestions';
 import { AddressesController } from './addresses.controller';
 
 /** The address book and the suggestions that fill it in. */

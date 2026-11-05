@@ -132,7 +132,8 @@ code in the contract, never as a message to match on.
 into `<audience>/<area>/`: `storefront/` is what buyers use, `admin/` what staff use and
 `machine/` what a back office calls. Below them, `core/<area>/` holds what an area's audiences
 share (the price rules, the product views the admin preview shows) and `platform/` what knows
-no area: the database, configuration, the session, mail transport. An audience never imports
+no area: the database, configuration, the session, mail transport, and the ownership state every
+writer checks. An audience never imports
 another; only the roots (`app.ts`, `app.config.ts`, `app.routes.ts`, `app.module.ts`) and an
 audience's `shell/` compose. Edit mode, the admin's controls on storefront pages, reaches admin
 code through an injection token the root provides
@@ -171,19 +172,19 @@ flowchart TB
   exchange -->|11| catalog
   ordering -->|8| site
   ordering -->|31| accounts
-  ordering -->|26| catalog
+  ordering -->|25| catalog
   accounts -->|15| site
-  accounts -->|7| catalog
+  accounts -->|5| catalog
 ```
 
 | From      | To       | API | contracts | web | Note               |
 | --------- | -------- | --: | --------: | --: | ------------------ |
 | platform  | accounts |   1 |         0 |   0 | actor columns only |
 | catalog   | accounts |   1 |         0 |   0 | actor columns only |
-| accounts  | catalog  |   2 |         0 |   5 |                    |
+| accounts  | catalog  |   2 |         0 |   3 |                    |
 | accounts  | site     |   7 |         2 |   6 |                    |
 | site      | accounts |   1 |         0 |   0 | actor columns only |
-| ordering  | catalog  |  10 |         4 |  12 |                    |
+| ordering  | catalog  |  10 |         4 |  11 |                    |
 | ordering  | accounts |  10 |         4 |  17 |                    |
 | ordering  | site     |   5 |         0 |   3 |                    |
 | exchange  | catalog  |   7 |         4 |   0 |                    |
@@ -200,9 +201,12 @@ flowchart TB
 
 The direction lives in `tools/lint/area-boundaries.mjs`, which eslint-plugin-boundaries enforces
 in all three layers; `node tools/generate-area-graph.mjs` redraws the graph from the same table.
-Where an area needs an answer from one it may not import, the lower area declares a port and
-the root wires the higher area's implementation into it: catalog asks how many accounts sit on a
-price list through `TierAccounts`, which accounts implements. A text file is one per audience
+A query may read the tables of the areas its own may import, so ordering joins catalog's
+products rather than asking catalog for them: one database, read along the same edges. Where an
+area needs an answer from one it may not import, the lower area (or `platform`, when several
+ask) declares a port and the root wires the higher area's implementation into it: catalog asks
+how many accounts sit on a price list through `TierAccounts`, and the areas that clear work
+without a navigation tell the work marker through `WorkRefresh`. A text file is one per audience
 (`storefront.json`, `admin.json`, `shared.json`) with a block per area inside, and so is the
 deployment config; the contracts have an entry point per audience and area, plus `node` for
 what only the server runs ([ADR 0073](adr/0073-cut-the-code-by-area-and-audience.md)).

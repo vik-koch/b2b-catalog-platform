@@ -11,8 +11,9 @@ import {
 import { RouterLink } from '@angular/router';
 import {
   fillText,
-  moneyFormat,
   formatMoneyMinor,
+  moneyFormat,
+  SEARCH_QUERY_MAX_LENGTH,
 } from '@b2b-catalog-platform/shared/platform';
 import {
   notifyByDefault,
@@ -24,7 +25,6 @@ import {
   StaffPaymentFilter,
   staffPaymentFilterSchema,
 } from '@b2b-catalog-platform/shared/core/ordering';
-import { SEARCH_QUERY_MAX_LENGTH } from '@b2b-catalog-platform/shared/core/catalog';
 import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
 import { delayedLoading } from '../../platform/delayed-loading';
 import { usePageSeo } from '../../platform/page-seo';

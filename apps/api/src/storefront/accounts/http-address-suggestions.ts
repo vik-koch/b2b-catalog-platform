@@ -4,6 +4,7 @@ import { SuggestionSidecar } from '../../platform/suggestions/sidecar';
 import {
   AddressSuggestionPort,
   AddressSuggestionResult,
+  NoAddressSuggestions,
 } from './address-suggestion.port';
 import { addressSuggestionSchema } from '@b2b-catalog-platform/shared/core/accounts';
 
@@ -32,4 +33,18 @@ export class HttpAddressSuggestions implements AddressSuggestionPort {
       responseSchema,
     );
   }
+}
+
+/** The sidecar URL is the only switch. The choice is logged at boot, or a
+ * misspelled variable would turn suggestions off unnoticed. */
+export function createAddressSuggestionPort(
+  url: string | undefined,
+): AddressSuggestionPort {
+  const logger = new Logger('AddressSuggestions');
+  if (!url) {
+    logger.log('disabled: no SUGGESTION_SIDECAR_URL, addresses are typed');
+    return new NoAddressSuggestions();
+  }
+  logger.log(`enabled: suggestion sidecar at ${url}`);
+  return new HttpAddressSuggestions(url);
 }

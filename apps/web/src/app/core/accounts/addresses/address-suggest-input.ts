@@ -2,7 +2,7 @@ import { Component, inject, input, output } from '@angular/core';
 import { FormField, type FieldTree } from '@angular/forms/signals';
 import { SHARED_ACCOUNTS_TEXT } from '../accounts-text';
 import { Suggestion } from '@b2b-catalog-platform/ui/suggest/suggestion';
-import { MatchSegmentsPipe } from '../../catalog/search/match-segments.pipe';
+import { MatchSegmentsPipe } from '../../../platform/search/match-segments.pipe';
 import { SuggestList } from '@b2b-catalog-platform/ui/suggest/suggest-list';
 import { FieldBinding } from '@b2b-catalog-platform/ui/fields/field-binding';
 import { Input } from '@b2b-catalog-platform/ui/inputs/input';
