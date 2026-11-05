@@ -6,7 +6,7 @@ import {
   deliveryConfigSchema,
 } from '@b2b-catalog-platform/shared/core/ordering';
 import { AddressesService } from '../../core/accounts/addresses.service';
-import { PickupLocation } from '../../platform/config/deployment-config';
+import { PickupLocation } from '../../core/ordering/ordering-config';
 import * as schema from '../../platform/db/schema';
 import {
   orderItems,

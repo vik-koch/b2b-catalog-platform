@@ -46,7 +46,6 @@
     "rate": 23,
     "statedAtPrices": true
   },
-  "billingAddressEnabled": true,
   "catalog": {
     "boxUnits": {
       "volume": "m³",
@@ -57,24 +56,6 @@
     "sortControlsEnabled": true
   },
   "search": {},
-  "pickup": {
-    "locations": [
-      {
-        "key": "enniscorthy",
-        "name": "Enniscorthy Trade Counter",
-        "address": "Unit 7, Slaneyside Business Park, Enniscorthy, Y21 W8K4",
-        "description": "Weekdays 8:30–17:00, at the trade counter beside goods in.",
-        "mapUrl": "https://www.openstreetmap.org/?mlat=52.4985&mlon=-6.5660#map=17/52.4985/-6.5660"
-      },
-      {
-        "key": "dublin",
-        "name": "Dublin Collection Point",
-        "address": "Unit 22, Belgard Trade Park, Dublin 24, D24 R6X5",
-        "description": "Tuesdays and Thursdays 9:00–13:00; orders placed by noon the day before.",
-        "mapUrl": "https://www.openstreetmap.org/?mlat=53.3020&mlon=-6.3640#map=17/53.3020/-6.3640"
-      }
-    ]
-  },
   "contact": {
     "phone": "+353 53 923 4000",
     "email": "sales@slaney-labware.example"
@@ -88,40 +69,6 @@
   },
   "phoneInput": {
     "countryCode": "+353"
-  },
-  "orderReference": {
-    "prefix": "SL"
-  },
-  "delivery": {
-    "zones": [
-      {
-        "key": "south-east",
-        "title": "South-east",
-        "description": "Delivered by our own van, usually the next working day.",
-        "freeFromMinor": 15000,
-        "match": {
-          "postalPrefixes": [
-            "Y21",
-            "Y25",
-            "Y34",
-            "Y35",
-            "R93",
-            "R95",
-            "X91",
-            "R21"
-          ]
-        }
-      },
-      {
-        "key": "rest",
-        "title": "Rest of Ireland",
-        "description": "By courier, one to two working days.",
-        "freeFromMinor": 30000,
-        "match": {
-          "all": true
-        }
-      }
-    ]
   },
   "companyIdInput": {
     "formats": [
@@ -190,6 +137,61 @@
           }
         }
       ]
+    }
+  },
+  "ordering": {
+    "billingAddressEnabled": true,
+    "pickup": {
+      "locations": [
+        {
+          "key": "enniscorthy",
+          "name": "Enniscorthy Trade Counter",
+          "address": "Unit 7, Slaneyside Business Park, Enniscorthy, Y21 W8K4",
+          "description": "Weekdays 8:30–17:00, at the trade counter beside goods in.",
+          "mapUrl": "https://www.openstreetmap.org/?mlat=52.4985&mlon=-6.5660#map=17/52.4985/-6.5660"
+        },
+        {
+          "key": "dublin",
+          "name": "Dublin Collection Point",
+          "address": "Unit 22, Belgard Trade Park, Dublin 24, D24 R6X5",
+          "description": "Tuesdays and Thursdays 9:00–13:00; orders placed by noon the day before.",
+          "mapUrl": "https://www.openstreetmap.org/?mlat=53.3020&mlon=-6.3640#map=17/53.3020/-6.3640"
+        }
+      ]
+    },
+    "delivery": {
+      "zones": [
+        {
+          "key": "south-east",
+          "title": "South-east",
+          "description": "Delivered by our own van, usually the next working day.",
+          "freeFromMinor": 15000,
+          "match": {
+            "postalPrefixes": [
+              "Y21",
+              "Y25",
+              "Y34",
+              "Y35",
+              "R93",
+              "R95",
+              "X91",
+              "R21"
+            ]
+          }
+        },
+        {
+          "key": "rest",
+          "title": "Rest of Ireland",
+          "description": "By courier, one to two working days.",
+          "freeFromMinor": 30000,
+          "match": {
+            "all": true
+          }
+        }
+      ]
+    },
+    "orderReference": {
+      "prefix": "SL"
     }
   }
 }

@@ -1,3 +1,5 @@
+import { SHARED_ORDERING_TEXT } from '../../core/ordering/ordering-text';
+import { ADMIN_ORDERING_TEXT } from './ordering-text';
 import { ACCOUNTS_CONFIG } from '../../core/accounts/accounts-config';
 import { Component, computed, inject, input, resource } from '@angular/core';
 import { useTaxStatement } from '../../platform/tax-statement';
@@ -195,10 +197,11 @@ export class AdminOrderRevisionPage {
   private readonly currency = moneyFormat(this.config);
   private readonly customerLabels = injectCustomerBlockLabels();
 
-  protected readonly detailText = inject(ADMIN_TEXT).orders.detail;
-  protected readonly ordersText = inject(ADMIN_TEXT).orders;
+  protected readonly detailText = inject(ADMIN_ORDERING_TEXT).orders.detail;
+  protected readonly ordersText = inject(ADMIN_ORDERING_TEXT).orders;
   private readonly sharedText = inject(SHARED_TEXT);
-  protected readonly names = this.sharedText.order;
+  protected readonly sharedOrderingText = inject(SHARED_ORDERING_TEXT);
+  protected readonly names = this.sharedOrderingText.order;
   protected readonly text = this.detailText.revisions;
   protected readonly documentsText = this.detailText.documents;
   protected readonly ownershipText = inject(ADMIN_TEXT).ownership;

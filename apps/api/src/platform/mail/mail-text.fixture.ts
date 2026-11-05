@@ -3,7 +3,7 @@ import { MailBranding } from './mail-branding';
 import { DEFAULT_MAIL_COLORS } from './mail-colors';
 import * as z from 'zod';
 import { MailText, mailTextShape } from './mail-text';
-import { PdfText, pdfTextSchema } from '../pdf/pdf-text';
+import { PdfText, pdfTextShape } from '../pdf/pdf-text';
 import {
   PhoneConfig,
   SharedText,
@@ -25,7 +25,7 @@ export const demoSharedText: SharedText = loadConfigFile(
   'deployments/fixture/config/texts/shared.json',
 );
 export const demoPdfText: PdfText = loadConfigFile(
-  pdfTextSchema,
+  z.looseObject(pdfTextShape),
   'deployments/fixture/config/texts/pdf.json',
 );
 

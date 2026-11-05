@@ -5,7 +5,7 @@ import { readShellState } from './shell-state';
 /** An area's block is read through the area's own token. */
 type UnclaimedDeploymentConfig = Omit<
   DeploymentConfig,
-  'site' | 'catalog' | 'accounts'
+  'site' | 'catalog' | 'accounts' | 'ordering'
 >;
 
 export const DEPLOYMENT_CONFIG = new InjectionToken<UnclaimedDeploymentConfig>(

@@ -107,7 +107,7 @@
     "texts/shared.json:required": {
       "new": "required"
     },
-    "texts/admin.json:orders.adjust.lines.suggestionCountAria": {
+    "texts/admin.json:ordering.orders.adjust.lines.suggestionCountAria": {
       "new": "Product suggestions: {count}"
     },
     "texts/admin.json:editMode.editPage": {
@@ -242,6 +242,25 @@
     "texts/app.json:cart.shipmentApproximate": "texts/shared.json:ordering.orderSummary.shipmentApproximate",
     "texts/app.json:cart.shipmentUncovered": "texts/shared.json:ordering.orderSummary.shipmentUncovered",
     "texts/app.json:checkout.review.billingSame": "texts/shared.json:ordering.orderBlocks.billingSame",
-    "texts/app.json:checkout.review.whenAny": "texts/shared.json:ordering.orderBlocks.whenAny"
+    "texts/app.json:checkout.review.whenAny": "texts/shared.json:ordering.orderBlocks.whenAny",
+    "texts/app.json:cart": "texts/storefront.json:ordering.cart",
+    "texts/app.json:checkout": "texts/storefront.json:ordering.checkout",
+    "texts/app.json:orders": "texts/storefront.json:ordering.orders",
+    "texts/app.json:conditions": "texts/storefront.json:ordering.conditions",
+    "texts/admin.json:orders": "texts/admin.json:ordering.orders",
+    "texts/common.json:order": "texts/shared.json:ordering.order",
+    "texts/common.json:fulfilment": "texts/shared.json:ordering.fulfilment",
+    "texts/mail.json:orders": "texts/mail.json:ordering.orders",
+    "texts/mail.json:orderReceived": "texts/mail.json:ordering.orderReceived",
+    "texts/mail.json:newOrder": "texts/mail.json:ordering.newOrder",
+    "texts/mail.json:orderCancelled": "texts/mail.json:ordering.orderCancelled",
+    "texts/mail.json:orderStatusChanged": "texts/mail.json:ordering.orderStatusChanged",
+    "texts/mail.json:orderDocument": "texts/mail.json:ordering.orderDocument",
+    "texts/pdf.json:orderSummary": "texts/pdf.json:ordering.orderSummary",
+    "texts/pdf.json:terms": "texts/pdf.json:ordering.terms",
+    "deployment.json:billingAddressEnabled": "deployment.json:ordering.billingAddressEnabled",
+    "deployment.json:pickup": "deployment.json:ordering.pickup",
+    "deployment.json:delivery": "deployment.json:ordering.delivery",
+    "deployment.json:orderReference": "deployment.json:ordering.orderReference"
   }
 }

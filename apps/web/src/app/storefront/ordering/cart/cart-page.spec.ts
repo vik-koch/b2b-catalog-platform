@@ -1,3 +1,4 @@
+import { defaultStorefrontOrderingText } from '../ordering-text.fixture';
 import { defaultSharedOrderingText } from '../../../core/ordering/ordering-text.fixture';
 import {
   SHARED_TEXT,
@@ -21,7 +22,7 @@ import { CartAddition } from '../../../core/catalog/buying/product-cart';
 import { ProductCart } from '../../../core/catalog/buying/product-cart';
 import { defaultSharedCatalogText } from '../../../core/catalog/catalog-text.fixture';
 
-const text = defaultStorefrontText.cart;
+const text = defaultStorefrontOrderingText.cart;
 const summaryText = defaultSharedOrderingText.orderSummary;
 const buyText = defaultSharedCatalogText.buying;
 

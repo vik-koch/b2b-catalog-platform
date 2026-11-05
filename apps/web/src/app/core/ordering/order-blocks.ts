@@ -1,12 +1,11 @@
 import { inject } from '@angular/core';
-import { SharedText } from '@b2b-catalog-platform/shared/platform';
 import {
   OrderAddress,
   OrderDetail,
+  type SharedOrderingText,
 } from '@b2b-catalog-platform/shared/core/ordering';
 import { formatPhone } from '../../platform/contact-fields';
 import { addressLines } from '@b2b-catalog-platform/shared/core/accounts';
-import { SHARED_TEXT } from '../../platform/config/shared-text';
 import { SHARED_ORDERING_TEXT } from './ordering-text';
 import { ReviewBlock } from './ui/order-read-back';
 
@@ -38,7 +37,7 @@ export interface OrderBlockLabels {
 /** The shared names, plus the payment methods, the note and the two sentences
  * the reader's own text words. */
 export function orderBlockLabels(
-  names: SharedText,
+  names: SharedOrderingText,
   view: Pick<
     OrderBlockLabels,
     'billingSame' | 'whenAny' | 'note' | 'cash' | 'transfer' | 'card'
@@ -65,8 +64,8 @@ export function orderBlockLabels(
 
 /** The labels a customer reads an order under; call in an injection context. */
 export function injectCustomerBlockLabels(): OrderBlockLabels {
-  const names = inject(SHARED_TEXT);
-  const blocks = inject(SHARED_ORDERING_TEXT).orderBlocks;
+  const names = inject(SHARED_ORDERING_TEXT);
+  const blocks = names.orderBlocks;
   return orderBlockLabels(names, {
     billingSame: blocks.billingSame,
     whenAny: blocks.whenAny,

@@ -1,3 +1,5 @@
+import { SHARED_ORDERING_TEXT } from '../../core/ordering/ordering-text';
+import { ADMIN_ORDERING_TEXT } from './ordering-text';
 import { ACCOUNTS_CONFIG } from '../../core/accounts/accounts-config';
 import {
   Component,
@@ -362,9 +364,10 @@ export class AdminOrderDetailPage {
   private readonly accountsConfig = inject(ACCOUNTS_CONFIG);
   private readonly currency = moneyFormat(this.config);
 
-  protected readonly text = inject(ADMIN_TEXT).orders.detail;
-  protected readonly ordersText = inject(ADMIN_TEXT).orders;
-  protected readonly names = inject(SHARED_TEXT).order;
+  protected readonly text = inject(ADMIN_ORDERING_TEXT).orders.detail;
+  protected readonly ordersText = inject(ADMIN_ORDERING_TEXT).orders;
+  private readonly sharedOrderingText = inject(SHARED_ORDERING_TEXT);
+  protected readonly names = this.sharedOrderingText.order;
   protected readonly pageNames = inject(SHARED_TEXT).nav;
   private readonly sharedText = inject(SHARED_TEXT);
   protected readonly revisionText = this.text.revisions;
@@ -422,7 +425,7 @@ export class AdminOrderDetailPage {
     if (!order) return [];
     return orderBlocks(
       order,
-      staffBlockLabels(this.sharedText, this.ordersText, this.text),
+      staffBlockLabels(this.sharedOrderingText, this.ordersText, this.text),
       {
         address: this.accountsConfig.address,
         phoneInput: this.config.phoneInput,

@@ -1,4 +1,5 @@
 import * as z from 'zod';
+import type { DeepReadonly } from '../../platform/deep-readonly';
 import { normalizePostalCode } from '../accounts/postal-code';
 
 const postalCodeConfigSchema = z
@@ -154,7 +155,7 @@ const pickupConfigSchema = z
   })
   .strict();
 
-/** Ordering's keys of `deployment.json`. */
+/** Ordering's block of `deployment.json`. */
 export const orderingConfigShape = {
   /** Off: an order is invoiced to its delivery address, or none for a
    * pickup, so checkout asks for no invoice address at all. */
@@ -165,3 +166,7 @@ export const orderingConfigShape = {
   delivery: deliveryConfigSchema.optional(),
   orderReference: orderReferenceConfigSchema.optional(),
 };
+
+export type OrderingConfig = DeepReadonly<
+  z.infer<z.ZodObject<typeof orderingConfigShape>>
+>;

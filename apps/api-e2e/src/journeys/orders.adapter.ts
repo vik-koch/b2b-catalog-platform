@@ -98,19 +98,21 @@ const customerOrder = (ctx: OrderJourneyContext, cache: Map<string, unknown>) =>
  * *which* message arrived, and the heading is how a message is identified once
  * the words in it are not the point.
  */
-const mailText = JSON.parse(
-  readFileSync(configFile('texts/mail.json'), 'utf8'),
-) as {
-  orderReceived: { subject: string };
-  orderStatusChanged: {
-    subject: string;
-    statuses: Record<string, { heading: string }>;
-  };
-  orderDocument: {
-    subject: string;
-    kinds: Record<string, { heading: string }>;
-  };
-};
+const mailText = (
+  JSON.parse(readFileSync(configFile('texts/mail.json'), 'utf8')) as {
+    ordering: {
+      orderReceived: { subject: string };
+      orderStatusChanged: {
+        subject: string;
+        statuses: Record<string, { heading: string }>;
+      };
+      orderDocument: {
+        subject: string;
+        kinds: Record<string, { heading: string }>;
+      };
+    };
+  }
+).ordering;
 
 /**
  * What a message is, in the terms the journeys are written in — `approved`,

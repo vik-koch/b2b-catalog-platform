@@ -1,6 +1,6 @@
+import { STOREFRONT_ORDERING_TEXT } from '../../ordering-text';
+import { ORDERING_CONFIG } from '../../../../core/ordering/ordering-config';
 import { Component, inject, input, output } from '@angular/core';
-import { STOREFRONT_TEXT } from '../../../../platform/config/storefront-text';
-import { DEPLOYMENT_CONFIG } from '../../../../platform/config/deployment-config';
 import { EmphasisedText } from '@b2b-catalog-platform/ui/content/emphasised-text';
 import { Radio } from '@b2b-catalog-platform/ui/choices/radio';
 import { TextButton } from '@b2b-catalog-platform/ui/actions/text-button';
@@ -75,9 +75,10 @@ import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
   `,
 })
 export class PickupChoice {
-  protected readonly text = inject(STOREFRONT_TEXT).checkout.fulfilment;
+  protected readonly text = inject(STOREFRONT_ORDERING_TEXT).checkout
+    .fulfilment;
   protected readonly locations =
-    inject(DEPLOYMENT_CONFIG).pickup?.locations ?? [];
+    inject(ORDERING_CONFIG).pickup?.locations ?? [];
 
   readonly pickupKey = input.required<string | null>();
   /** Set after a submit with no answer: the group is no form field. */

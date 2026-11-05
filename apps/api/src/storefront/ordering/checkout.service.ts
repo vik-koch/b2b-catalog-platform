@@ -23,10 +23,10 @@ import { OrderReader } from '../../core/ordering/order-reader';
 import { OrderRules } from '../../core/ordering/order-rules';
 import {
   ORDER_CURRENCY,
-  ORDER_REFERENCE_CONFIG,
   SHOP_TIME_ZONE,
   TAX_CONFIG,
 } from '../../platform/config/deployment-config';
+import { ORDER_REFERENCE_CONFIG } from '../../core/ordering/ordering-config';
 import { PAIRINGS_ENFORCED } from '../../core/catalog/catalog-config';
 import { TERMS_PUBLISHED } from '../../core/site/site-config';
 import { DRIZZLE } from '../../platform/db/database.module';

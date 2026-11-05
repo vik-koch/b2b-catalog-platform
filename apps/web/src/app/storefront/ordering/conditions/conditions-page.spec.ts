@@ -1,8 +1,10 @@
+import { defaultSharedOrderingText } from '../../../core/ordering/ordering-text.fixture';
+import { defaultStorefrontOrderingText } from '../ordering-text.fixture';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
-import { StorefrontText } from '../../../platform/config/storefront-text.type';
+import type { StorefrontOrderingText } from '../ordering-text.type';
 import { defaultStorefrontText } from '../../../platform/config/storefront-text.fixture';
 import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
@@ -22,7 +24,7 @@ async function render(
   overrides: Partial<DeploymentConfig> = {},
   getPage: () => Promise<typeof conditionsBody | null> = async () =>
     conditionsBody,
-  conditionsText: Partial<StorefrontText['conditions']> = {},
+  conditionsText: Partial<StorefrontOrderingText['conditions']> = {},
 ) {
   TestBed.configureTestingModule({
     imports: [ConditionsPage],
@@ -33,9 +35,12 @@ async function render(
         provide: STOREFRONT_TEXT,
         useValue: {
           ...defaultStorefrontText,
-          conditions: {
-            ...defaultStorefrontText.conditions,
-            ...conditionsText,
+          ordering: {
+            ...defaultStorefrontOrderingText,
+            conditions: {
+              ...defaultStorefrontOrderingText.conditions,
+              ...conditionsText,
+            },
           },
         },
       },
@@ -60,9 +65,9 @@ async function render(
   return fixture.nativeElement as HTMLElement;
 }
 
-const fulfilment = defaultStorefrontText.checkout.fulfilment;
-const payment = defaultStorefrontText.checkout.payment;
-const paymentNames = defaultSharedText.order.paymentMethods;
+const fulfilment = defaultStorefrontOrderingText.checkout.fulfilment;
+const payment = defaultStorefrontOrderingText.checkout.payment;
+const paymentNames = defaultSharedOrderingText.order.paymentMethods;
 
 describe('ConditionsPage', () => {
   it('renders the body, then the zones, pickup points and payment methods', async () => {
@@ -73,7 +78,8 @@ describe('ConditionsPage', () => {
 
     expect(el.querySelector('section app-delivery-zone-list')).not.toBeNull();
     const text = el.textContent ?? '';
-    for (const point of defaultDeploymentConfig.pickup?.locations ?? []) {
+    for (const point of defaultDeploymentConfig.ordering.pickup?.locations ??
+      []) {
       expect(text).toContain(point.name);
       expect(text).toContain(point.address);
     }
@@ -84,15 +90,23 @@ describe('ConditionsPage', () => {
   });
 
   it('leaves out the zones and pickup where the deployment has none', async () => {
-    const el = await render({ delivery: undefined, pickup: undefined });
+    const el = await render({
+      ordering: {
+        ...defaultDeploymentConfig.ordering,
+        delivery: undefined,
+        pickup: undefined,
+      },
+    });
 
     const headings = [...el.querySelectorAll('h2')].map((h) => h.textContent);
     expect(headings.join()).not.toContain(fulfilment.conditionsHeading);
     expect(el.querySelector('app-delivery-zone-list')).toBeNull();
-    expect(headings.join()).not.toContain(defaultSharedText.fulfilment.pickup);
+    expect(headings.join()).not.toContain(
+      defaultSharedOrderingText.fulfilment.pickup,
+    );
     // Payment is the platform's rule, so it is there whatever is configured.
     expect(headings.join()).toContain(
-      defaultStorefrontText.conditions.paymentHeading,
+      defaultStorefrontOrderingText.conditions.paymentHeading,
     );
   });
 
@@ -128,14 +142,16 @@ describe('ConditionsPage', () => {
     });
 
     expect(el.textContent).toContain(
-      defaultStorefrontText.conditions.taxAdded.replace('{rate}', '7'),
+      defaultStorefrontOrderingText.conditions.taxAdded.replace('{rate}', '7'),
     );
   });
 
   it('says no tax is charged under `none`', async () => {
     const el = await render({ tax: { basis: 'none' } });
 
-    expect(el.textContent).toContain(defaultStorefrontText.conditions.taxNone);
+    expect(el.textContent).toContain(
+      defaultStorefrontOrderingText.conditions.taxNone,
+    );
   });
 
   it('puts the goods paragraphs before the tax sentence, bold kept', async () => {
@@ -146,7 +162,9 @@ describe('ConditionsPage', () => {
     const section = [...el.querySelectorAll('section')].find((s) =>
       s
         .querySelector('h2')
-        ?.textContent?.includes(defaultStorefrontText.conditions.goodsHeading),
+        ?.textContent?.includes(
+          defaultStorefrontOrderingText.conditions.goodsHeading,
+        ),
     );
     const paragraphs = [...(section?.querySelectorAll('p') ?? [])].map((p) =>
       p.textContent?.trim(),
@@ -165,9 +183,11 @@ describe('ConditionsPage', () => {
     });
 
     expect(el.textContent).toContain(
-      defaultStorefrontText.conditions.goodsHeading,
+      defaultStorefrontOrderingText.conditions.goodsHeading,
     );
-    expect(el.textContent).toContain(defaultStorefrontText.conditions.taxNone);
+    expect(el.textContent).toContain(
+      defaultStorefrontOrderingText.conditions.taxNone,
+    );
   });
 
   it('links the withdrawal page under the returns where it is published', async () => {
@@ -182,10 +202,10 @@ describe('ConditionsPage', () => {
     });
 
     expect(el.textContent).toContain(
-      defaultStorefrontText.conditions.returnsHeading,
+      defaultStorefrontOrderingText.conditions.returnsHeading,
     );
     expect(el.querySelector('a[href="/withdrawal"]')?.textContent?.trim()).toBe(
-      defaultStorefrontText.conditions.returnsWithdrawalLink,
+      defaultStorefrontOrderingText.conditions.returnsWithdrawalLink,
     );
   });
 
@@ -202,7 +222,7 @@ describe('ConditionsPage', () => {
     );
 
     expect(el.textContent).not.toContain(
-      defaultStorefrontText.conditions.returnsHeading,
+      defaultStorefrontOrderingText.conditions.returnsHeading,
     );
   });
 });

@@ -1,3 +1,5 @@
+import { ORDERING_CONFIG } from '../../../core/ordering/ordering-config';
+import { STOREFRONT_ORDERING_TEXT } from '../ordering-text';
 import { Component, computed, inject, input } from '@angular/core';
 import {
   fillText,
@@ -6,7 +8,6 @@ import {
 } from '@b2b-catalog-platform/shared/platform';
 import { resolveDeliveryZone } from '@b2b-catalog-platform/shared/core/ordering';
 import { CartService } from '../cart/cart.service';
-import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import { WarningNote } from '@b2b-catalog-platform/ui/content/warning-note';
 
@@ -37,11 +38,12 @@ import { WarningNote } from '@b2b-catalog-platform/ui/content/warning-note';
 })
 export class DeliveryZoneHint {
   private readonly config = inject(DEPLOYMENT_CONFIG);
+  private readonly orderingConfig = inject(ORDERING_CONFIG);
   private readonly currency = moneyFormat(this.config);
-  private readonly zones = this.config.delivery?.zones ?? [];
+  private readonly zones = this.orderingConfig.delivery?.zones ?? [];
   private readonly cart = inject(CartService);
 
-  protected readonly text = inject(STOREFRONT_TEXT).checkout.zone;
+  protected readonly text = inject(STOREFRONT_ORDERING_TEXT).checkout.zone;
 
   readonly postalCode = input<string>('');
 

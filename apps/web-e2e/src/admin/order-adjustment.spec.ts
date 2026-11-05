@@ -9,37 +9,43 @@ import { localtestEnv, workspaceRoot } from '../support/localtest';
  * that hardcodes them fails the next time somebody shortens a button rather
  * than the next time the button stops working.
  */
-const adminText = JSON.parse(
-  readFileSync(
-    join(workspaceRoot, 'deployments/fixture/config/texts/admin.json'),
-    'utf8',
-  ),
-) as {
-  orders: {
-    detail: {
-      actions: { adjust: string };
-      revisions: {
-        heading: string;
-        subheading: string;
-        changes: string;
-        openControls: string;
+const adminText = (
+  JSON.parse(
+    readFileSync(
+      join(workspaceRoot, 'deployments/fixture/config/texts/admin.json'),
+      'utf8',
+    ),
+  ) as {
+    ordering: {
+      orders: {
+        detail: {
+          actions: { adjust: string };
+          revisions: {
+            heading: string;
+            subheading: string;
+            changes: string;
+            openControls: string;
+          };
+          tellCustomer: { update: string };
+        };
+        adjust: {
+          save: string;
+          confirm: { confirm: string };
+          lines: { unitsAria: string };
+          changes: { none: string };
+        };
       };
-      tellCustomer: { update: string };
     };
-    adjust: {
-      save: string;
-      confirm: { confirm: string };
-      lines: { unitsAria: string };
-      changes: { none: string };
-    };
-  };
-};
-const sharedText = JSON.parse(
-  readFileSync(
-    join(workspaceRoot, 'deployments/fixture/config/texts/shared.json'),
-    'utf8',
-  ),
-) as { order: { total: string; changeNote: string } };
+  }
+).ordering;
+const sharedText = (
+  JSON.parse(
+    readFileSync(
+      join(workspaceRoot, 'deployments/fixture/config/texts/shared.json'),
+      'utf8',
+    ),
+  ) as { ordering: { order: { total: string; changeNote: string } } }
+).ordering;
 const detail = adminText.orders.detail;
 const adjust = adminText.orders.adjust;
 const names = sharedText.order;

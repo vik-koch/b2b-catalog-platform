@@ -1,9 +1,65 @@
 import * as z from 'zod';
 import type { DeepReadonly } from '../../platform/deep-readonly';
 
+/** An order status per reading: `ready` is on its way or waiting to be
+ * collected. The customers' set; staff have theirs in the admin text. */
+export const orderStatusLabels = z
+  .object({
+    requested: z.string(),
+    approved: z.string(),
+    readyDelivery: z.string(),
+    readyPickup: z.string(),
+    completed: z.string(),
+    declined: z.string(),
+    cancelled: z.string(),
+  })
+  .strict();
+
+export const paymentMethodLabels = z
+  .object({ cash: z.string(), transfer: z.string(), card: z.string() })
+  .strict();
+
+export const paymentStateLabels = z
+  .object({ notDue: z.string(), awaiting: z.string(), paid: z.string() })
+  .strict();
+
 /** Ordering's block of `texts/shared.json`: what its views say in both
  * audiences, an order being read back to staff as the customer saw it. */
 export const sharedOrderingTextShape = {
+  /**
+   * What an order and its parts are called. The names read the same to
+   * staff; the sets below them are the customer's, and staff have their own.
+   */
+  order: z
+    .object({
+      reference: z.string(),
+      status: z.string(),
+      total: z.string(),
+      reason: z.string(),
+      changeNote: z.string(),
+      contact: z.string(),
+      invoicedTo: z.string(),
+      payment: z.string(),
+      deliveryAddress: z.string(),
+      preferredDelivery: z.string(),
+      preferredPickup: z.string(),
+      /** The heading over an order's lines. */
+      items: z.string(),
+      /** The customer's own note on the order. */
+      note: z.string(),
+      /** Where a collected order is picked up. */
+      pickupPoint: z.string(),
+      /** `{date}` the accepted terms were last changed. */
+      termsVersion: z.string(),
+      statuses: orderStatusLabels,
+      paymentMethods: paymentMethodLabels,
+      paymentStates: paymentStateLabels,
+    })
+    .strict(),
+  /** How an order reaches the customer. */
+  fulfilment: z
+    .object({ label: z.string(), delivery: z.string(), pickup: z.string() })
+    .strict(),
   /** The summary card beside the lines: what the order is, then what the
    * estimate makes of it. */
   orderSummary: z

@@ -1,3 +1,5 @@
+import { ORDERING_CONFIG } from '../../../core/ordering/ordering-config';
+import { STOREFRONT_ORDERING_TEXT } from '../ordering-text';
 import { ACCOUNTS_CONFIG } from '../../../core/accounts/accounts-config';
 import { STOREFRONT_ACCOUNTS_TEXT } from '../../accounts/accounts-text';
 import {
@@ -23,7 +25,6 @@ import { AddressesService } from '../../../core/accounts/addresses/addresses.ser
 import { AuthService } from '../../../platform/auth/auth.service';
 import { CartService } from '../cart/cart.service';
 import { OrderSummary } from '../../../core/ordering/ui/order-summary';
-import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import { delayedLoading } from '../../../platform/delayed-loading';
 import { usePageSeo } from '../../../platform/page-seo';
@@ -419,8 +420,10 @@ export class CheckoutPage {
 
   private readonly config = inject(DEPLOYMENT_CONFIG);
 
+  private readonly orderingConfig = inject(ORDERING_CONFIG);
+
   private readonly accountsConfig = inject(ACCOUNTS_CONFIG);
-  private readonly locations = this.config.pickup?.locations ?? [];
+  private readonly locations = this.orderingConfig.pickup?.locations ?? [];
   private readonly book = inject(AddressesService);
   private readonly account = inject(AccountService);
   private readonly auth = inject(AuthService);
@@ -428,10 +431,10 @@ export class CheckoutPage {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
 
-  protected readonly text = inject(STOREFRONT_TEXT).checkout;
+  protected readonly text = inject(STOREFRONT_ORDERING_TEXT).checkout;
   protected readonly invite = inject(STOREFRONT_ACCOUNTS_TEXT).auth
     .registerInvite;
-  protected readonly cartText = inject(STOREFRONT_TEXT).cart;
+  protected readonly cartText = inject(STOREFRONT_ORDERING_TEXT).cart;
   protected readonly actionText = inject(SHARED_TEXT).actions;
   protected readonly addressText = this.text.addresses;
 
@@ -467,7 +470,7 @@ export class CheckoutPage {
     () => this.draft().fulfilmentMethod === 'pickup',
   );
   /** FR-CART-07: without it, no invoice address is asked for or sent. */
-  protected readonly billingEnabled = this.config.billingAddressEnabled;
+  protected readonly billingEnabled = this.orderingConfig.billingAddressEnabled;
 
   /** Pickup always asks; delivery once the invoice goes elsewhere. */
   protected readonly needsBillingPicker = computed(

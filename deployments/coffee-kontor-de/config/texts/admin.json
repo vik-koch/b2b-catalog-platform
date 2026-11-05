@@ -998,281 +998,6 @@
       "warning": "Was dieses Token verwendet, funktioniert ab der nächsten Anfrage nicht mehr. Der Widerruf lässt sich nicht rückgängig machen – stellen Sie ein neues Token aus und richten Sie den Client neu ein."
     }
   },
-  "orders": {
-    "notFound": "Es gibt keine Bestellung mit dieser Nummer.",
-    "loadError": "Die Bestellung konnte nicht geladen werden. Bitte versuchen Sie es noch einmal.",
-    "tier": "Preisliste",
-    "tierDefault": "Standard",
-    "account": "Konto",
-    "guest": "Gast",
-    "items": "Bestellt",
-    "note": "Anmerkung des Kunden",
-    "pickupPoint": "Abholort",
-    "termsVersion": "Version {version}, Stand vom {date}",
-    "statuses": {
-      "requested": "Angefragt",
-      "approved": "Bestätigt",
-      "readyDelivery": "Zur Lieferung übergeben",
-      "readyPickup": "Abholbereit",
-      "completed": "Abgeschlossen",
-      "declined": "Abgelehnt",
-      "cancelled": "Storniert"
-    },
-    "paymentMethods": {
-      "cash": "Barzahlung",
-      "transfer": "Überweisung",
-      "card": "Karte, nach Absprache mit dem Kunden"
-    },
-    "paymentStates": {
-      "notDue": "Nichts fällig",
-      "awaiting": "Zahlung ausstehend",
-      "paid": "Bezahlt",
-      "cashOnHandover": "Bar bei Übergabe"
-    },
-    "list": {
-      "page": {
-        "title": "Bestellungen"
-      },
-      "count": "Bestellungen: {count}",
-      "searchAria": "Bestellungen suchen",
-      "searchPlaceholder": "Nummer, Name, E-Mail…",
-      "clearSearch": "Suche leeren",
-      "empty": "Noch keine Bestellungen.",
-      "noResults": "Keine Bestellung passt zu diesen Filtern.",
-      "loadError": "Die Bestellliste konnte nicht geladen werden. Bitte versuchen Sie es noch einmal.",
-      "placed": "Gesendet",
-      "customer": "Kunde",
-      "items": "Inhalt",
-      "filterStatus": "Nach Status filtern",
-      "statusAll": "Alle Status",
-      "filterPayment": "Nach Zahlung filtern",
-      "paymentAll": "Alle Zahlungen",
-      "paymentUnpaid": "Nicht bezahlt",
-      "actionsAria": "Aktionen",
-      "itemCount": "Positionen: {count}"
-    },
-    "detail": {
-      "placed": "Gesendet am {date}",
-      "back": "Zurück zu den Bestellungen",
-      "guestView": "Ansicht des Kunden öffnen",
-      "billingSame": "Rechnung an dieselbe Adresse.",
-      "whenAny": "So bald wie möglich",
-      "notifyHint": "Der Kunde erhält die Bestellung in ihrem jetzigen Stand, zusammen mit allem, was der Shop seit der letzten Nachricht vermerkt hat.",
-      "pieceLine": "{count} × {price}",
-      "revisions": {
-        "heading": "Verlauf",
-        "subheading": "Fassungen",
-        "written": "Fassung {number} · {date} · {who}",
-        "authorCustomer": "der Kunde",
-        "authorUnknown": "Verfasser nicht erfasst",
-        "submitted": "Vom Kunden aufgegeben",
-        "moved": "Vom Shop weitergeschoben",
-        "changed": "Vom Shop geändert",
-        "customerView": "Was der Kunde sieht",
-        "changes": "Unterschiede",
-        "noChanges": "An der Bestellung selbst hat sich nichts geändert.",
-        "loadError": "Die früheren Fassungen konnten nicht geladen werden.",
-        "versionLabel": "Fassung {number}",
-        "versionInline": "Fassung {number}",
-        "writtenBy": "{date} · {who}",
-        "customerOn": "Der Kunde sieht Fassung {seen}",
-        "notified": "Gemailt am {date}",
-        "openControls": "Diese Bestellung beantworten",
-        "openRevision": "Diese Fassung lesen",
-        "openOrder": "Diese Bestellung öffnen"
-      },
-      "actions": {
-        "open": "Bestellung öffnen",
-        "answer": "Bestellung beantworten",
-        "approve": "Bestätigen",
-        "adjust": "Anpassen",
-        "reopen": "Wieder öffnen",
-        "backToRequested": "Zurück zu unbeantwortet",
-        "backToApproved": "Zurück zu bestätigt",
-        "backToReady": "Zurück zu bereit",
-        "ready": "Zur Lieferung übergeben",
-        "readyPickup": "Abholbereit",
-        "complete": "Als abgeschlossen markieren",
-        "decline": "Ablehnen",
-        "cancel": "Bestellung stornieren",
-        "showCustomer": "Auf der Seite des Kunden zeigen",
-        "showCustomerHint": "Lassen Sie das an, außer der Schritt war ein Fehler, den Sie gleich zurücknehmen – seine Seite soll zeigen, wo die Bestellung wirklich steht.",
-        "notify": "Den Kunden darüber per E-Mail informieren",
-        "markPaid": "Auch die Zahlung als erhalten verbuchen",
-        "markPaidHint": "Für Geld, das bei Übergabe der Ware gezahlt wird. Sie können das später zurücknehmen.",
-        "reasonLabel": "Warum – das wird dem Kunden zitiert",
-        "confirm": {
-          "heading": "{action}?",
-          "message": "Damit wird festgehalten, wo die Bestellung jetzt steht.",
-          "confirm": "{action}",
-          "cancel": "So lassen",
-          "warning": "Zu dieser Bestellung ist eine Zahlung verbucht. Wird sie hier beendet, wird nichts erstattet – klären Sie das direkt mit dem Kunden."
-        },
-        "notifyAttachment": "Die Zahlungsinformationen dieser Bestellung werden mitgeschickt.",
-        "notifyNoDocument": "Diese Bestellung wird per Überweisung bezahlt und hat noch keine Zahlungsinformationen – laden Sie sie zuerst hoch, wenn der Kunde sie mit dieser Nachricht bekommen soll.",
-        "error": "Das hat nicht geklappt. Vielleicht wurde die Bestellung schon beantwortet – laden Sie die Seite neu."
-      },
-      "tellCustomer": {
-        "heading": "Kunde",
-        "on": "Er sieht {current}.",
-        "behind": "Er sieht {seen}; diese Bestellung steht bei {current}.",
-        "emailedNever": "Zu dieser Bestellung ist noch keine E-Mail verschickt worden.",
-        "emailedOn": "Zuletzt gemailt zu {notified}.",
-        "update": "Seine Ansicht aktualisieren",
-        "updateConfirm": {
-          "heading": "Zeigen, wo die Bestellung steht?",
-          "message": "Seine Seite springt auf die Fassung, bei der diese Bestellung steht. Alles, was der Shop seit seinem letzten Blick geändert hat, ist darin.",
-          "confirm": "Seine Seite aktualisieren",
-          "cancel": "Jetzt nicht"
-        },
-        "updateNotify": "Ihn auch per E-Mail informieren",
-        "email": "Ihn per E-Mail informieren",
-        "emailAgain": "Erneut mailen",
-        "emailConfirm": {
-          "heading": "Dem Kunden mailen?",
-          "message": "Er erhält die Bestellung genau so, wie seine eigene Seite sie zeigt. An der Bestellung ändert sich nichts.",
-          "confirm": "Senden",
-          "cancel": "Jetzt nicht"
-        },
-        "error": "Das hat nicht geklappt. Laden Sie die Seite neu, um zu sehen, wo die Bestellung steht."
-      },
-      "paymentState": {
-        "paid": "Bezahlt am {date}",
-        "record": "Als bezahlt verbuchen",
-        "recordConfirm": {
-          "heading": "Diese Bestellung als bezahlt verbuchen?",
-          "message": "Tun Sie das erst, wenn das Geld tatsächlich eingegangen ist.",
-          "confirm": "Als bezahlt verbuchen",
-          "cancel": "Noch nicht"
-        },
-        "clear": "Zahlung zurücknehmen",
-        "clearConfirm": {
-          "heading": "Die verbuchte Zahlung zurücknehmen?",
-          "message": "Nur verwenden, wenn die Zahlung versehentlich verbucht wurde. Eine Erstattung gehört in Ihre eigene Buchhaltung.",
-          "confirm": "Zahlung zurücknehmen",
-          "cancel": "Noch nicht"
-        },
-        "error": "Das hat nicht geklappt. Vielleicht wurde die Zahlung schon verbucht – laden Sie die Seite neu."
-      },
-      "personalData": {
-        "heading": "Persönliche Angaben",
-        "kept": "An der Bestellung, bis ihre Aufbewahrungsfrist endet.",
-        "removed": "Entfernt am {date}",
-        "remove": "Auf Wunsch entfernen",
-        "confirm": {
-          "heading": "Die persönlichen Angaben aus dieser Bestellung entfernen?",
-          "message": "Name, Kontaktdaten, Adressen und Anmerkungen des Gasts werden aus jeder Fassung von Bestellung {reference} entfernt, zusammen mit allen dafür hochgeladenen Dokumenten. Die Bestellung, ihre Positionen und ihr Gesamtbetrag bleiben.",
-          "confirm": "Angaben entfernen",
-          "cancel": "Angaben behalten",
-          "warning": "Das lässt sich nicht rückgängig machen. Die übrigen Bestellungen des Gasts behalten ihre Angaben; finden Sie sie über die E-Mail-Adresse in der Bestellliste."
-        },
-        "error": "Das hat nicht geklappt. Vielleicht wurde die Bestellung wieder geöffnet – laden Sie die Seite neu."
-      },
-      "documents": {
-        "heading": "Dokumente",
-        "summary": "Bestellübersicht",
-        "paymentInstructions": "Zahlungsinformationen",
-        "generated": "Vom Shopsystem erstellt",
-        "supplied": "Hochgeladen am {date}",
-        "outdated": "Zu Fassung {number} hochgeladen; diese Bestellung steht bei {current}.",
-        "open": "Öffnen",
-        "upload": "Hochladen",
-        "replace": "Ersetzen",
-        "notify": "Dem Kunden mailen",
-        "notifyHint": "Wird als eigene Nachricht verschickt. Zahlungsinformationen gehen mit; eine Übersicht wird verlinkt.",
-        "notifyBehind": "Dem Kunden wurde die Fassung, zu der das gehört, noch nicht gezeigt.",
-        "notifySent": "Gesendet",
-        "notifyConfirm": {
-          "heading": "Dieses Dokument dem Kunden mailen?",
-          "message": "Er erhält eine kurze Nachricht dazu. An der Bestellung ändert sich nichts, und Sie können es später erneut senden.",
-          "confirm": "Senden",
-          "cancel": "Jetzt nicht"
-        },
-        "paymentHint": "Nur Sie können diese liefern – die eigenen Zahlungsinformationen des Shops zu dieser Bestellung.",
-        "summaryHint": "Das Shopsystem erstellt eine aus der Bestellung. Laden Sie eine Datei hoch, um stattdessen diese zu verwenden.",
-        "removeConfirm": {
-          "heading": "Dieses Dokument entfernen?",
-          "message": "Der Kunde sieht die hochgeladene Datei dann nicht mehr. Die Bestellübersicht ist wieder die vom Shopsystem erstellte.",
-          "confirm": "Entfernen",
-          "cancel": "Behalten"
-        },
-        "error": "Das hat nicht geklappt. Vielleicht ist die Datei zu groß oder hat einen nicht unterstützten Typ."
-      }
-    },
-    "adjust": {
-      "page": {
-        "title": "{reference} anpassen",
-        "intro": "Halten Sie fest, was Sie mit dem Kunden vereinbart haben. Dabei entsteht eine neue Fassung der Bestellung; Nummer, Link des Kunden und Stand der Bestellung bleiben, wie sie sind."
-      },
-      "save": "Anpassung speichern",
-      "cancel": "Zurück zur Bestellung",
-      "warnPaid": "Diese Bestellung ist bereits als bezahlt verbucht. Eine Änderung des Betrags bewegt kein Geld – bringen Sie das in Ihrer eigenen Buchhaltung in Ordnung.",
-      "warnReady": "Diese Bestellung ist bereits gepackt. Eine Änderung hält jetzt fest, was der Shop getan hat – sie stellt die Ware nicht zurück ins Regal.",
-      "warnEnded": "Diese Bestellung ist beendet. Eine Änderung hält fest, was der Shop getan hat – sie legt die Bestellung nicht zurück in die Bearbeitung, und der Kunde erfährt nichts, außer Sie veranlassen es.",
-      "notify": "Den Kunden über diese Änderung anschreiben",
-      "notifyHint": "Lassen Sie das aus, wenn der nächste Schritt es ihm ohnehin mitteilt – eine Bestätigung der Bestellung schickt die Änderungen mit.",
-      "lines": {
-        "unitsAria": "Menge",
-        "priceAria": "Preis",
-        "removeAria": "Position entfernen",
-        "moveUpAria": "Nach oben",
-        "moveDownAria": "Nach unten",
-        "addLabel": "Produkt hinzufügen",
-        "addPlaceholder": "Nach Name suchen",
-        "noMatches": "Nichts passt dazu.",
-        "suggestionCountAria": "Produktvorschläge: {count}",
-        "empty": "Eine Bestellung braucht mindestens eine Position.",
-        "offList": "Abweichend"
-      },
-      "partyKindPerson": "Eine Person",
-      "partyKindCompany": "Ein Unternehmen",
-      "reprice": "Nach dieser Liste neu bepreisen",
-      "detailsHeading": "Lieferung, Rechnung und Kontakt",
-      "billingAddress": "Rechnungsadresse",
-      "customerHeading": "Was der Kunde angefragt hat",
-      "wished": "Wunschtermin: {date}",
-      "customerNone": "Nichts angegeben",
-      "noteHint": "Der Kunde bekommt das per E-Mail, schreiben Sie es also für ihn.",
-      "noteRequired": "Sagen Sie, was sich geändert hat – der Kunde erfährt es.",
-      "changes": {
-        "heading": "Wird geändert",
-        "none": "Noch hat sich nichts geändert.",
-        "pricingPending": "Positionen und Gesamtbetrag lassen sich erst berechnen, wenn das Formular stimmt."
-      },
-      "priceNotice": {
-        "moved": "Positionspreise, die von der gespeicherten Fassung abweichen: {count}. Speichern Sie das nur, wenn es so vereinbart war.",
-        "offList": "Positionen mit anderem Preis als {tier}: {count}. Das ist erlaubt – prüfen Sie, ob es Absicht ist."
-      },
-      "confirm": {
-        "heading": "Diese Änderung speichern?",
-        "message": "Eine neue Fassung der Bestellung wird gespeichert. Der Stand der Bestellung ändert sich nicht, und der Kunde wird nur angeschrieben, wenn Sie das oben gewählt haben.",
-        "confirm": "Änderung speichern",
-        "cancel": "Weiter bearbeiten"
-      },
-      "errors": {
-        "order-changed": "Jemand anderes hat diese Bestellung angepasst, während Sie daran gearbeitet haben. Laden Sie die Seite neu und beginnen Sie von vorn.",
-        "no-change": "Nichts hier weicht von der Bestellung in ihrem jetzigen Stand ab. Eine Notiz allein ist keine Änderung – tragen Sie das Vereinbarte zuerst in die Positionen oder Angaben ein.",
-        "unknown-product": "Eine der Positionen nennt ein Produkt, das es nicht mehr gibt.",
-        "unknown-tier": "Diese Preisliste gibt es nicht mehr.",
-        "invalid-company-id": "Diese Unternehmenskennung hat kein Format, das dieser Shop akzeptiert.",
-        "unsupported-country": "Dieser Shop liefert nicht in dieses Land.",
-        "invalid-postal-code": "Diese Postleitzahl hat nicht die richtige Form für ihr Land.",
-        "unknown-pickup-location": "Diesen Abholort gibt es nicht mehr.",
-        "billing-details-required": "Eine Überweisung wird einem Unternehmen in Rechnung gestellt, und dafür braucht es seine Unternehmenskennung.",
-        "cash-not-available": "Ein Unternehmen zahlt per Überweisung, nie bar oder mit Karte.",
-        "billing-address-required": "Dieser Shop stellt Rechnungen an eine eigene Adresse aus, daher braucht die Bestellung eine.",
-        "customer-type-not-accepted": "An diese Kundenart verkauft dieser Shop nicht, daher kann die Bestellung nicht auf diese Partei ausgestellt werden.",
-        "order-not-found": "Es gibt keine Bestellung mit dieser Nummer.",
-        "unknown": "Das hat nicht geklappt. Bitte versuchen Sie es noch einmal."
-      }
-    },
-    "changes": {
-      "line": "Position",
-      "added": "Hinzugefügt",
-      "removed": "Entfernt",
-      "shipment": "Geschätztes Gewicht und Volumen"
-    }
-  },
   "ownership": {
     "intro": "Übergeben Sie einen Datenbereich des Shops an ein externes System oder holen Sie ihn zurück. Solange ein externes System einen Bereich verwaltet, schreibt nur es ihn: Der eigene Zugang des Shops ist abgeschaltet, und was es füllt, ist hier schreibgeschützt. Solange niemand ihn verwaltet, ist der Shop zuständig, und automatische Aktualisierungen werden abgewiesen.",
     "areaText": {
@@ -1591,6 +1316,283 @@
         "message": "Die Einwilligung von {holder} vom {date} endet jetzt und lässt sich nicht wieder erteilen. Ihr Eintrag bleibt für die Aufbewahrungsfrist erhalten.",
         "confirm": "Widerruf eintragen",
         "warning": "Die Anfrage selbst ist eine E-Mail im Postfach des Shops, die hiervon unberührt bleibt. Löschen Sie sie dort ebenfalls."
+      }
+    }
+  },
+  "ordering": {
+    "orders": {
+      "notFound": "Es gibt keine Bestellung mit dieser Nummer.",
+      "loadError": "Die Bestellung konnte nicht geladen werden. Bitte versuchen Sie es noch einmal.",
+      "tier": "Preisliste",
+      "tierDefault": "Standard",
+      "account": "Konto",
+      "guest": "Gast",
+      "items": "Bestellt",
+      "note": "Anmerkung des Kunden",
+      "pickupPoint": "Abholort",
+      "termsVersion": "Version {version}, Stand vom {date}",
+      "statuses": {
+        "requested": "Angefragt",
+        "approved": "Bestätigt",
+        "readyDelivery": "Zur Lieferung übergeben",
+        "readyPickup": "Abholbereit",
+        "completed": "Abgeschlossen",
+        "declined": "Abgelehnt",
+        "cancelled": "Storniert"
+      },
+      "paymentMethods": {
+        "cash": "Barzahlung",
+        "transfer": "Überweisung",
+        "card": "Karte, nach Absprache mit dem Kunden"
+      },
+      "paymentStates": {
+        "notDue": "Nichts fällig",
+        "awaiting": "Zahlung ausstehend",
+        "paid": "Bezahlt",
+        "cashOnHandover": "Bar bei Übergabe"
+      },
+      "list": {
+        "page": {
+          "title": "Bestellungen"
+        },
+        "count": "Bestellungen: {count}",
+        "searchAria": "Bestellungen suchen",
+        "searchPlaceholder": "Nummer, Name, E-Mail…",
+        "clearSearch": "Suche leeren",
+        "empty": "Noch keine Bestellungen.",
+        "noResults": "Keine Bestellung passt zu diesen Filtern.",
+        "loadError": "Die Bestellliste konnte nicht geladen werden. Bitte versuchen Sie es noch einmal.",
+        "placed": "Gesendet",
+        "customer": "Kunde",
+        "items": "Inhalt",
+        "filterStatus": "Nach Status filtern",
+        "statusAll": "Alle Status",
+        "filterPayment": "Nach Zahlung filtern",
+        "paymentAll": "Alle Zahlungen",
+        "paymentUnpaid": "Nicht bezahlt",
+        "actionsAria": "Aktionen",
+        "itemCount": "Positionen: {count}"
+      },
+      "detail": {
+        "placed": "Gesendet am {date}",
+        "back": "Zurück zu den Bestellungen",
+        "guestView": "Ansicht des Kunden öffnen",
+        "billingSame": "Rechnung an dieselbe Adresse.",
+        "whenAny": "So bald wie möglich",
+        "notifyHint": "Der Kunde erhält die Bestellung in ihrem jetzigen Stand, zusammen mit allem, was der Shop seit der letzten Nachricht vermerkt hat.",
+        "pieceLine": "{count} × {price}",
+        "revisions": {
+          "heading": "Verlauf",
+          "subheading": "Fassungen",
+          "written": "Fassung {number} · {date} · {who}",
+          "authorCustomer": "der Kunde",
+          "authorUnknown": "Verfasser nicht erfasst",
+          "submitted": "Vom Kunden aufgegeben",
+          "moved": "Vom Shop weitergeschoben",
+          "changed": "Vom Shop geändert",
+          "customerView": "Was der Kunde sieht",
+          "changes": "Unterschiede",
+          "noChanges": "An der Bestellung selbst hat sich nichts geändert.",
+          "loadError": "Die früheren Fassungen konnten nicht geladen werden.",
+          "versionLabel": "Fassung {number}",
+          "versionInline": "Fassung {number}",
+          "writtenBy": "{date} · {who}",
+          "customerOn": "Der Kunde sieht Fassung {seen}",
+          "notified": "Gemailt am {date}",
+          "openControls": "Diese Bestellung beantworten",
+          "openRevision": "Diese Fassung lesen",
+          "openOrder": "Diese Bestellung öffnen"
+        },
+        "actions": {
+          "open": "Bestellung öffnen",
+          "answer": "Bestellung beantworten",
+          "approve": "Bestätigen",
+          "adjust": "Anpassen",
+          "reopen": "Wieder öffnen",
+          "backToRequested": "Zurück zu unbeantwortet",
+          "backToApproved": "Zurück zu bestätigt",
+          "backToReady": "Zurück zu bereit",
+          "ready": "Zur Lieferung übergeben",
+          "readyPickup": "Abholbereit",
+          "complete": "Als abgeschlossen markieren",
+          "decline": "Ablehnen",
+          "cancel": "Bestellung stornieren",
+          "showCustomer": "Auf der Seite des Kunden zeigen",
+          "showCustomerHint": "Lassen Sie das an, außer der Schritt war ein Fehler, den Sie gleich zurücknehmen – seine Seite soll zeigen, wo die Bestellung wirklich steht.",
+          "notify": "Den Kunden darüber per E-Mail informieren",
+          "markPaid": "Auch die Zahlung als erhalten verbuchen",
+          "markPaidHint": "Für Geld, das bei Übergabe der Ware gezahlt wird. Sie können das später zurücknehmen.",
+          "reasonLabel": "Warum – das wird dem Kunden zitiert",
+          "confirm": {
+            "heading": "{action}?",
+            "message": "Damit wird festgehalten, wo die Bestellung jetzt steht.",
+            "confirm": "{action}",
+            "cancel": "So lassen",
+            "warning": "Zu dieser Bestellung ist eine Zahlung verbucht. Wird sie hier beendet, wird nichts erstattet – klären Sie das direkt mit dem Kunden."
+          },
+          "notifyAttachment": "Die Zahlungsinformationen dieser Bestellung werden mitgeschickt.",
+          "notifyNoDocument": "Diese Bestellung wird per Überweisung bezahlt und hat noch keine Zahlungsinformationen – laden Sie sie zuerst hoch, wenn der Kunde sie mit dieser Nachricht bekommen soll.",
+          "error": "Das hat nicht geklappt. Vielleicht wurde die Bestellung schon beantwortet – laden Sie die Seite neu."
+        },
+        "tellCustomer": {
+          "heading": "Kunde",
+          "on": "Er sieht {current}.",
+          "behind": "Er sieht {seen}; diese Bestellung steht bei {current}.",
+          "emailedNever": "Zu dieser Bestellung ist noch keine E-Mail verschickt worden.",
+          "emailedOn": "Zuletzt gemailt zu {notified}.",
+          "update": "Seine Ansicht aktualisieren",
+          "updateConfirm": {
+            "heading": "Zeigen, wo die Bestellung steht?",
+            "message": "Seine Seite springt auf die Fassung, bei der diese Bestellung steht. Alles, was der Shop seit seinem letzten Blick geändert hat, ist darin.",
+            "confirm": "Seine Seite aktualisieren",
+            "cancel": "Jetzt nicht"
+          },
+          "updateNotify": "Ihn auch per E-Mail informieren",
+          "email": "Ihn per E-Mail informieren",
+          "emailAgain": "Erneut mailen",
+          "emailConfirm": {
+            "heading": "Dem Kunden mailen?",
+            "message": "Er erhält die Bestellung genau so, wie seine eigene Seite sie zeigt. An der Bestellung ändert sich nichts.",
+            "confirm": "Senden",
+            "cancel": "Jetzt nicht"
+          },
+          "error": "Das hat nicht geklappt. Laden Sie die Seite neu, um zu sehen, wo die Bestellung steht."
+        },
+        "paymentState": {
+          "paid": "Bezahlt am {date}",
+          "record": "Als bezahlt verbuchen",
+          "recordConfirm": {
+            "heading": "Diese Bestellung als bezahlt verbuchen?",
+            "message": "Tun Sie das erst, wenn das Geld tatsächlich eingegangen ist.",
+            "confirm": "Als bezahlt verbuchen",
+            "cancel": "Noch nicht"
+          },
+          "clear": "Zahlung zurücknehmen",
+          "clearConfirm": {
+            "heading": "Die verbuchte Zahlung zurücknehmen?",
+            "message": "Nur verwenden, wenn die Zahlung versehentlich verbucht wurde. Eine Erstattung gehört in Ihre eigene Buchhaltung.",
+            "confirm": "Zahlung zurücknehmen",
+            "cancel": "Noch nicht"
+          },
+          "error": "Das hat nicht geklappt. Vielleicht wurde die Zahlung schon verbucht – laden Sie die Seite neu."
+        },
+        "personalData": {
+          "heading": "Persönliche Angaben",
+          "kept": "An der Bestellung, bis ihre Aufbewahrungsfrist endet.",
+          "removed": "Entfernt am {date}",
+          "remove": "Auf Wunsch entfernen",
+          "confirm": {
+            "heading": "Die persönlichen Angaben aus dieser Bestellung entfernen?",
+            "message": "Name, Kontaktdaten, Adressen und Anmerkungen des Gasts werden aus jeder Fassung von Bestellung {reference} entfernt, zusammen mit allen dafür hochgeladenen Dokumenten. Die Bestellung, ihre Positionen und ihr Gesamtbetrag bleiben.",
+            "confirm": "Angaben entfernen",
+            "cancel": "Angaben behalten",
+            "warning": "Das lässt sich nicht rückgängig machen. Die übrigen Bestellungen des Gasts behalten ihre Angaben; finden Sie sie über die E-Mail-Adresse in der Bestellliste."
+          },
+          "error": "Das hat nicht geklappt. Vielleicht wurde die Bestellung wieder geöffnet – laden Sie die Seite neu."
+        },
+        "documents": {
+          "heading": "Dokumente",
+          "summary": "Bestellübersicht",
+          "paymentInstructions": "Zahlungsinformationen",
+          "generated": "Vom Shopsystem erstellt",
+          "supplied": "Hochgeladen am {date}",
+          "outdated": "Zu Fassung {number} hochgeladen; diese Bestellung steht bei {current}.",
+          "open": "Öffnen",
+          "upload": "Hochladen",
+          "replace": "Ersetzen",
+          "notify": "Dem Kunden mailen",
+          "notifyHint": "Wird als eigene Nachricht verschickt. Zahlungsinformationen gehen mit; eine Übersicht wird verlinkt.",
+          "notifyBehind": "Dem Kunden wurde die Fassung, zu der das gehört, noch nicht gezeigt.",
+          "notifySent": "Gesendet",
+          "notifyConfirm": {
+            "heading": "Dieses Dokument dem Kunden mailen?",
+            "message": "Er erhält eine kurze Nachricht dazu. An der Bestellung ändert sich nichts, und Sie können es später erneut senden.",
+            "confirm": "Senden",
+            "cancel": "Jetzt nicht"
+          },
+          "paymentHint": "Nur Sie können diese liefern – die eigenen Zahlungsinformationen des Shops zu dieser Bestellung.",
+          "summaryHint": "Das Shopsystem erstellt eine aus der Bestellung. Laden Sie eine Datei hoch, um stattdessen diese zu verwenden.",
+          "removeConfirm": {
+            "heading": "Dieses Dokument entfernen?",
+            "message": "Der Kunde sieht die hochgeladene Datei dann nicht mehr. Die Bestellübersicht ist wieder die vom Shopsystem erstellte.",
+            "confirm": "Entfernen",
+            "cancel": "Behalten"
+          },
+          "error": "Das hat nicht geklappt. Vielleicht ist die Datei zu groß oder hat einen nicht unterstützten Typ."
+        }
+      },
+      "adjust": {
+        "page": {
+          "title": "{reference} anpassen",
+          "intro": "Halten Sie fest, was Sie mit dem Kunden vereinbart haben. Dabei entsteht eine neue Fassung der Bestellung; Nummer, Link des Kunden und Stand der Bestellung bleiben, wie sie sind."
+        },
+        "save": "Anpassung speichern",
+        "cancel": "Zurück zur Bestellung",
+        "warnPaid": "Diese Bestellung ist bereits als bezahlt verbucht. Eine Änderung des Betrags bewegt kein Geld – bringen Sie das in Ihrer eigenen Buchhaltung in Ordnung.",
+        "warnReady": "Diese Bestellung ist bereits gepackt. Eine Änderung hält jetzt fest, was der Shop getan hat – sie stellt die Ware nicht zurück ins Regal.",
+        "warnEnded": "Diese Bestellung ist beendet. Eine Änderung hält fest, was der Shop getan hat – sie legt die Bestellung nicht zurück in die Bearbeitung, und der Kunde erfährt nichts, außer Sie veranlassen es.",
+        "notify": "Den Kunden über diese Änderung anschreiben",
+        "notifyHint": "Lassen Sie das aus, wenn der nächste Schritt es ihm ohnehin mitteilt – eine Bestätigung der Bestellung schickt die Änderungen mit.",
+        "lines": {
+          "unitsAria": "Menge",
+          "priceAria": "Preis",
+          "removeAria": "Position entfernen",
+          "moveUpAria": "Nach oben",
+          "moveDownAria": "Nach unten",
+          "addLabel": "Produkt hinzufügen",
+          "addPlaceholder": "Nach Name suchen",
+          "noMatches": "Nichts passt dazu.",
+          "suggestionCountAria": "Produktvorschläge: {count}",
+          "empty": "Eine Bestellung braucht mindestens eine Position.",
+          "offList": "Abweichend"
+        },
+        "partyKindPerson": "Eine Person",
+        "partyKindCompany": "Ein Unternehmen",
+        "reprice": "Nach dieser Liste neu bepreisen",
+        "detailsHeading": "Lieferung, Rechnung und Kontakt",
+        "billingAddress": "Rechnungsadresse",
+        "customerHeading": "Was der Kunde angefragt hat",
+        "wished": "Wunschtermin: {date}",
+        "customerNone": "Nichts angegeben",
+        "noteHint": "Der Kunde bekommt das per E-Mail, schreiben Sie es also für ihn.",
+        "noteRequired": "Sagen Sie, was sich geändert hat – der Kunde erfährt es.",
+        "changes": {
+          "heading": "Wird geändert",
+          "none": "Noch hat sich nichts geändert.",
+          "pricingPending": "Positionen und Gesamtbetrag lassen sich erst berechnen, wenn das Formular stimmt."
+        },
+        "priceNotice": {
+          "moved": "Positionspreise, die von der gespeicherten Fassung abweichen: {count}. Speichern Sie das nur, wenn es so vereinbart war.",
+          "offList": "Positionen mit anderem Preis als {tier}: {count}. Das ist erlaubt – prüfen Sie, ob es Absicht ist."
+        },
+        "confirm": {
+          "heading": "Diese Änderung speichern?",
+          "message": "Eine neue Fassung der Bestellung wird gespeichert. Der Stand der Bestellung ändert sich nicht, und der Kunde wird nur angeschrieben, wenn Sie das oben gewählt haben.",
+          "confirm": "Änderung speichern",
+          "cancel": "Weiter bearbeiten"
+        },
+        "errors": {
+          "order-changed": "Jemand anderes hat diese Bestellung angepasst, während Sie daran gearbeitet haben. Laden Sie die Seite neu und beginnen Sie von vorn.",
+          "no-change": "Nichts hier weicht von der Bestellung in ihrem jetzigen Stand ab. Eine Notiz allein ist keine Änderung – tragen Sie das Vereinbarte zuerst in die Positionen oder Angaben ein.",
+          "unknown-product": "Eine der Positionen nennt ein Produkt, das es nicht mehr gibt.",
+          "unknown-tier": "Diese Preisliste gibt es nicht mehr.",
+          "invalid-company-id": "Diese Unternehmenskennung hat kein Format, das dieser Shop akzeptiert.",
+          "unsupported-country": "Dieser Shop liefert nicht in dieses Land.",
+          "invalid-postal-code": "Diese Postleitzahl hat nicht die richtige Form für ihr Land.",
+          "unknown-pickup-location": "Diesen Abholort gibt es nicht mehr.",
+          "billing-details-required": "Eine Überweisung wird einem Unternehmen in Rechnung gestellt, und dafür braucht es seine Unternehmenskennung.",
+          "cash-not-available": "Ein Unternehmen zahlt per Überweisung, nie bar oder mit Karte.",
+          "billing-address-required": "Dieser Shop stellt Rechnungen an eine eigene Adresse aus, daher braucht die Bestellung eine.",
+          "customer-type-not-accepted": "An diese Kundenart verkauft dieser Shop nicht, daher kann die Bestellung nicht auf diese Partei ausgestellt werden.",
+          "order-not-found": "Es gibt keine Bestellung mit dieser Nummer.",
+          "unknown": "Das hat nicht geklappt. Bitte versuchen Sie es noch einmal."
+        }
+      },
+      "changes": {
+        "line": "Position",
+        "added": "Hinzugefügt",
+        "removed": "Entfernt",
+        "shipment": "Geschätztes Gewicht und Volumen"
       }
     }
   }

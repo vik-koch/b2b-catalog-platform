@@ -1,7 +1,7 @@
+import { STOREFRONT_ORDERING_TEXT } from '../../ordering-text';
 import { ACCOUNTS_CONFIG } from '../../../../core/accounts/accounts-config';
 import { Component, inject, input, output } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
-import { STOREFRONT_TEXT } from '../../../../platform/config/storefront-text';
 import { SUGGESTIONS_ENABLED } from '../../../../platform/config/suggestions-enabled';
 import { AddressFields } from '../../../../core/accounts/addresses/address-fields';
 import { AddressForm } from '../../../../core/accounts/addresses/address-form';
@@ -104,7 +104,7 @@ export class AddressPicker {
   private readonly instance = nextId++;
   private readonly addressConfig = inject(ACCOUNTS_CONFIG).address;
 
-  protected readonly text = inject(STOREFRONT_TEXT).checkout.addresses;
+  protected readonly text = inject(STOREFRONT_ORDERING_TEXT).checkout.addresses;
   /** With suggestions, checkout asks for the street alone; the account editor
    * stays whole. */
   protected readonly suggests = inject(SUGGESTIONS_ENABLED);

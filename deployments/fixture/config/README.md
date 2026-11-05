@@ -102,7 +102,7 @@ schema, put together from the parts each area of the code owns:
 `libs/shared/src/platform/config/deployment-config.ts` (read by both apps),
 `apps/api/src/platform/config/api-config.ts`, `libs/shared/src/platform/config/shared-text.ts`,
 `apps/web/src/app/app.texts.ts` (storefront and admin texts),
-`apps/api/src/app/app.texts.ts` (mail texts) and `apps/api/src/platform/pdf/pdf-text.ts`. The
+`apps/api/src/app/app.texts.ts` (mail and PDF texts). The
 committed demo files are the worked example to copy from.
 
 ### What describes your shop
@@ -111,8 +111,8 @@ Most of these files are wording any shop of the kind would use. These are the
 parts that are about one shop, and a new deployment rewrites all of them:
 
 - `deployment.json`: `branding` (the name, the tagline, the logo's size, the
-  colours, the first year of the copyright), `seller`, `contact`, `pickup`,
-  `delivery`, and `site.locations`, `site.mapProvider` and `site.elsewhere`.
+  colours, the first year of the copyright), `seller`, `contact`, `ordering.pickup`,
+  `ordering.delivery`, and `site.locations`, `site.mapProvider` and `site.elsewhere`.
 - `texts/storefront.json`: `home` and `footer`, first in the file, and
   `site.map` and `site.consent`.
 - `assets/`: the logo and the favicon (below).
@@ -299,11 +299,11 @@ The switch is in `api.json`, since only the API acts on it, and
 `attachToReceipt` is required. Switch it on where the jurisdiction wants the
 terms on a medium the customer keeps, which a link to a page that can change
 is not: the receipt then carries the accepted version as a PDF, named by
-`terms.fileName` in `texts/pdf.json`. The demo switches it on, as
+`ordering.terms.fileName` in `texts/pdf.json`. The demo switches it on, as
 an EU shop would. The PDF is set in the same face as the order summary, so a
 deployment writing in a non-Latin script needs `branding.font.pdf` for it too.
 
-The order summary prints `orderSummary.returnNotice` from `texts/pdf.json`
+The order summary prints `ordering.orderSummary.returnNotice` from `texts/pdf.json`
 under the total, where it is set: the summary is the paper handed over with the
 goods, so it can tell the customer in writing how to return them. Leave the key
 out to print nothing.
@@ -348,9 +348,9 @@ the basis it was submitted under, so changing `basis` later restates nothing
 the shop has already quoted.
 
 The statements are `tax` in `texts/shared.json`, one wording for the storefront,
-the mails and the order summary; `tax` in `texts/storefront.json` holds only what the
-storefront adds beside a price and under a listing, and `conditions.tax*` the
-conditions page. `{rate}` is the rate written as the deployment writes numbers;
+the mails and the order summary, with `tax.listing` under a listing and
+`tax.atPrice` beside a price; `ordering.conditions.tax*` in
+`texts/storefront.json` words the conditions page. `{rate}` is the rate written as the deployment writes numbers;
 the `mixed` forms are the totals that name no rate.
 
 ### Retention

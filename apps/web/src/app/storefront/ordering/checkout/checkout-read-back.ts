@@ -1,3 +1,5 @@
+import { ORDERING_CONFIG } from '../../../core/ordering/ordering-config';
+import { STOREFRONT_ORDERING_TEXT } from '../ordering-text';
 import { SHARED_ORDERING_TEXT } from '../../../core/ordering/ordering-text';
 import { ACCOUNTS_CONFIG } from '../../../core/accounts/accounts-config';
 import { computed, inject, Signal } from '@angular/core';
@@ -14,7 +16,6 @@ import {
 } from '@b2b-catalog-platform/shared/core/accounts';
 import { CartService, CartStoredLine } from '../cart/cart.service';
 import { formatUnitQuantity } from '../../../core/catalog/buying/quantity';
-import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import { useTaxStatement } from '../../../platform/tax-statement';
@@ -55,12 +56,13 @@ export function createCheckoutReadBack(deps: ReadBackDeps) {
   const cart = inject(CartService);
   const config = inject(DEPLOYMENT_CONFIG);
   const accountsConfig = inject(ACCOUNTS_CONFIG);
-  const text = inject(STOREFRONT_TEXT).checkout;
+  const text = inject(STOREFRONT_ORDERING_TEXT).checkout;
   const blockText = inject(SHARED_ORDERING_TEXT).orderBlocks;
   const common = inject(SHARED_TEXT);
   const units = inject(SHARED_CATALOG_TEXT).units;
-  const names = common.order;
-  const locations = config.pickup?.locations ?? [];
+  const orderingNames = inject(SHARED_ORDERING_TEXT);
+  const names = orderingNames.order;
+  const locations = inject(ORDERING_CONFIG).pickup?.locations ?? [];
 
   /** The ordered quantity and, for another unit, its pieces (FR-UNIT-01): the
    * figure the shop picks. */
@@ -142,9 +144,9 @@ export function createCheckoutReadBack(deps: ReadBackDeps) {
       const draft = deps.draft();
 
       const arrival = deps.isPickup()
-        ? [common.fulfilment.pickup, ...pickupLines()]
+        ? [orderingNames.fulfilment.pickup, ...pickupLines()]
         : [
-            common.fulfilment.delivery,
+            orderingNames.fulfilment.delivery,
             ...lines(
               deps.addressFor(draft.deliveryAddressId, deps.deliveryForm),
             ),
@@ -161,7 +163,7 @@ export function createCheckoutReadBack(deps: ReadBackDeps) {
       }
 
       const blocks: ReviewBlock[] = [
-        { heading: common.fulfilment.label, lines: arrival },
+        { heading: orderingNames.fulfilment.label, lines: arrival },
         { heading: names.invoicedTo, lines: invoice },
         {
           // The form's own words: what is recorded is a wish.

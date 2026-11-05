@@ -1,3 +1,4 @@
+import { STOREFRONT_ORDERING_TEXT } from '../ordering-text';
 import { inject, Signal } from '@angular/core';
 import {
   OrderContact,
@@ -5,7 +6,6 @@ import {
 } from '@b2b-catalog-platform/shared/core/ordering';
 import { AddressForm } from '../../../core/accounts/addresses/address-form';
 import { CartService } from '../cart/cart.service';
-import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import { canonicalPhone } from '../../../platform/contact-fields';
 import { SubmitOrderResult } from '../orders/orders.service';
@@ -36,7 +36,7 @@ export interface SubmissionDeps {
 export function createCheckoutSubmission(deps: SubmissionDeps) {
   const cart = inject(CartService);
   const config = inject(DEPLOYMENT_CONFIG);
-  const text = inject(STOREFRONT_TEXT).checkout;
+  const text = inject(STOREFRONT_ORDERING_TEXT).checkout;
 
   /** The guest's answers, or the account's record: a customer is never asked.
    * */

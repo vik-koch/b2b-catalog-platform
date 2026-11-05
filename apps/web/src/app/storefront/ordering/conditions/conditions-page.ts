@@ -1,3 +1,7 @@
+import type { StorefrontOrderingText } from '../ordering-text.type';
+import { STOREFRONT_ORDERING_TEXT } from '../ordering-text';
+import { SHARED_ORDERING_TEXT } from '../../../core/ordering/ordering-text';
+import { ORDERING_CONFIG } from '../../../core/ordering/ordering-config';
 import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
@@ -7,7 +11,6 @@ import {
 } from '@b2b-catalog-platform/shared/platform';
 import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
-import { StorefrontText } from '../../../platform/config/storefront-text.type';
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import { EmphasisedText } from '@b2b-catalog-platform/ui/content/emphasised-text';
 import { TextButton } from '@b2b-catalog-platform/ui/actions/text-button';
@@ -55,7 +58,7 @@ import { SITE_CONFIG } from '../../../core/site/site-config';
           @if (pickupLocations.length) {
             <section>
               <h2 uiPageSectionTitle>
-                {{ sharedText.fulfilment.pickup }}
+                {{ sharedOrderingText.fulfilment.pickup }}
               </h2>
               <p class="mt-1 mb-4 text-ink-subtle">
                 {{ fulfilmentText.pickupDescription }}
@@ -164,27 +167,34 @@ export class ConditionsPage {
   protected readonly landmarkIcon = landmarkIcon;
   protected readonly mapPinIcon = mapPinIcon;
   private readonly storefrontText = inject(STOREFRONT_TEXT);
+  private readonly storefrontOrderingText = inject(STOREFRONT_ORDERING_TEXT);
   protected readonly sharedText = inject(SHARED_TEXT);
-  protected readonly paymentNames = this.sharedText.order.paymentMethods;
+  protected readonly sharedOrderingText = inject(SHARED_ORDERING_TEXT);
+  protected readonly paymentNames =
+    this.sharedOrderingText.order.paymentMethods;
   private readonly config = inject(DEPLOYMENT_CONFIG);
+  private readonly orderingConfig = inject(ORDERING_CONFIG);
   private readonly siteConfig = inject(SITE_CONFIG);
 
-  protected readonly pageText = this.storefrontText.conditions;
-  protected readonly fulfilmentText = this.storefrontText.checkout.fulfilment;
-  protected readonly paymentText = this.storefrontText.checkout.payment;
+  protected readonly pageText = this.storefrontOrderingText.conditions;
+  protected readonly fulfilmentText =
+    this.storefrontOrderingText.checkout.fulfilment;
+  protected readonly paymentText = this.storefrontOrderingText.checkout.payment;
 
   /** The basis in a sentence, naming the default rate where tax is charged. */
   protected readonly taxSentence = taxSentence(this.config, this.pageText);
 
-  protected readonly hasZones = (this.config.delivery?.zones.length ?? 0) > 0;
-  protected readonly pickupLocations = this.config.pickup?.locations ?? [];
+  protected readonly hasZones =
+    (this.orderingConfig.delivery?.zones.length ?? 0) > 0;
+  protected readonly pickupLocations =
+    this.orderingConfig.pickup?.locations ?? [];
   protected readonly withdrawalPublished =
     this.siteConfig.pages.published.includes('withdrawal');
 }
 
 function taxSentence(
   config: Pick<DeploymentConfig, 'tax' | 'locale'>,
-  text: StorefrontText['conditions'],
+  text: StorefrontOrderingText['conditions'],
 ): string {
   const { tax } = config;
   if (tax.basis === 'none') return text.taxNone;

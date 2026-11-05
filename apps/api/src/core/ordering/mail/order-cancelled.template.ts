@@ -1,3 +1,5 @@
+import { sharedOrderingText } from '../ordering-text';
+import { orderingMail } from './ordering-mail-text';
 import { SharedText, MoneyFormat } from '@b2b-catalog-platform/shared/platform';
 import { AdminOrderDetail } from '@b2b-catalog-platform/shared/core/ordering';
 import { MailContent } from '../../../platform/mail/mail-layout';
@@ -26,8 +28,8 @@ export function orderCancelledMail(
   text: MailText,
   common: SharedText,
 ): MailContent {
-  const t = text.orderCancelled;
-  const names = common.order;
+  const t = orderingMail(text).orderCancelled;
+  const names = sharedOrderingText(common).order;
 
   return {
     subject: `${t.subject} · ${order.reference}`,
@@ -43,8 +45,8 @@ export function orderCancelledMail(
     rows: [
       { label: names.reference, value: order.reference },
       {
-        label: text.orders.account,
-        value: order.customerEmail ?? text.orders.guest,
+        label: orderingMail(text).orders.account,
+        value: order.customerEmail ?? orderingMail(text).orders.guest,
       },
       {
         label: names.contact,

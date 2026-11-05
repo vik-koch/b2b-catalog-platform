@@ -37,7 +37,7 @@ const SCHEMAS = {
   ],
   'texts/admin.json': ['apps/web/src/app/app.texts.ts', 'adminTextSchema'],
   'texts/mail.json': ['apps/api/src/app/app.texts.ts', 'mailTextSchema'],
-  'texts/pdf.json': ['apps/api/src/platform/pdf/pdf-text.ts', 'pdfTextSchema'],
+  'texts/pdf.json': ['apps/api/src/app/app.texts.ts', 'pdfTextSchema'],
 };
 
 const at = process.argv.indexOf('--config-dir');

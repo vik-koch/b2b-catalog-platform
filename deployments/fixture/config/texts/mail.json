@@ -3,99 +3,6 @@
     "footerNote": "This message was sent automatically by our online shop. Please do not reply to this address.",
     "linkExpiry": "This link can be used once, and expires seven days after it was sent."
   },
-  "orders": {
-    "account": "Account",
-    "guest": "Guest",
-    "items": "Ordered",
-    "paymentMethods": {
-      "cash": "Cash",
-      "transfer": "Bank transfer",
-      "card": "Card, arranged with the customer"
-    }
-  },
-  "orderReceived": {
-    "subject": "We have your order request",
-    "preheader": "Your order request has reached us.",
-    "heading": "Thank you — we have your order",
-    "body": "Your order request {reference} has reached us. Nothing is charged and nothing is dispatched yet.",
-    "nextSteps": "We will confirm the details, the delivery and the price with you shortly. You can open your order with the link below at any time.",
-    "action": "Open your order"
-  },
-  "newOrder": {
-    "subject": "New order request",
-    "preheader": "A customer has sent an order request.",
-    "heading": "New order request",
-    "body": "A customer has sent an order request. Open it to check the lines and the price, then confirm it with them.",
-    "action": "Open the order"
-  },
-  "orderCancelled": {
-    "subject": "Order called off",
-    "preheader": "A customer has called off their order.",
-    "heading": "Order called off",
-    "body": "A customer has called off an order that was still waiting for an answer. Nothing more is expected of you — but if anything was already set aside for it, it can go back on the shelf.",
-    "reasonLabel": "Reason given",
-    "reasonNone": "None given",
-    "paidNote": "A payment is recorded against this order. Any refund is arranged with the customer directly — nothing here moves money.",
-    "itemsHeading": "Was ordered",
-    "action": "Open the order"
-  },
-  "orderStatusChanged": {
-    "subject": "Your order",
-    "preheader": "There is news about your order.",
-    "changedIntro": "We have changed this order since we last wrote to you — what we changed is noted below, and the contents and total are the ones that now apply.",
-    "correctedIntro": "We have corrected our record of this order: it had moved further along than it should have. Where it now stands is below.",
-    "attachedNote": "Our payment details for this order are attached to this message.",
-    "action": "Open your order",
-    "statuses": {
-      "changed": {
-        "heading": "We have changed your order",
-        "body": "Where your order stands has not changed — its contents and total have. The ones below are the ones that now apply."
-      },
-      "reopened": {
-        "heading": "Your order is back with us",
-        "body": "We have put your order back in our queue and will come back to you about it shortly. Anything we told you about it before no longer applies."
-      },
-      "approved": {
-        "heading": "Your order is confirmed",
-        "body": "We have confirmed your order. We will let you know as soon as it is ready."
-      },
-      "readyDelivery": {
-        "heading": "Your order is on its way",
-        "body": "Your order has left us for delivery to the address below."
-      },
-      "readyPickup": {
-        "heading": "Your order is ready to collect",
-        "body": "Your order is packed and waiting at the pickup location below. Please bring your order number."
-      },
-      "completed": {
-        "heading": "Your order is complete",
-        "body": "Your order is finished. Thank you — we look forward to the next one."
-      },
-      "declined": {
-        "heading": "We cannot fill this order",
-        "body": "We are sorry: we are unable to fill this order. The reason is below, and you are welcome to call us about it."
-      },
-      "cancelled": {
-        "heading": "Your order has been cancelled",
-        "body": "This order has been cancelled and will not be filled. The reason is below, and you are welcome to call us about it."
-      }
-    }
-  },
-  "orderDocument": {
-    "subject": "A document for your order",
-    "preheader": "There is a document with your order.",
-    "action": "Open your order",
-    "kinds": {
-      "paymentInstructions": {
-        "heading": "How to pay for your order",
-        "body": "Our payment details for this order are attached. Nothing about the order itself has changed."
-      },
-      "orderSummary": {
-        "heading": "A copy of your order",
-        "body": "We have put a copy of your order with it, which you can open from the link below. Nothing about the order itself has changed."
-      }
-    }
-  },
   "syncRun": {
     "startedLabel": "Started",
     "labelLabel": "Export",
@@ -252,6 +159,101 @@
       "ordersLabel": "Orders kept",
       "openOrdersNote": "Orders among them that have not ended yet: {count}. They are still yours to settle, and they can no longer be traced back to a customer — so check them before anything else.",
       "action": "Open the order list"
+    }
+  },
+  "ordering": {
+    "orders": {
+      "account": "Account",
+      "guest": "Guest",
+      "items": "Ordered",
+      "paymentMethods": {
+        "cash": "Cash",
+        "transfer": "Bank transfer",
+        "card": "Card, arranged with the customer"
+      }
+    },
+    "orderReceived": {
+      "subject": "We have your order request",
+      "preheader": "Your order request has reached us.",
+      "heading": "Thank you — we have your order",
+      "body": "Your order request {reference} has reached us. Nothing is charged and nothing is dispatched yet.",
+      "nextSteps": "We will confirm the details, the delivery and the price with you shortly. You can open your order with the link below at any time.",
+      "action": "Open your order"
+    },
+    "newOrder": {
+      "subject": "New order request",
+      "preheader": "A customer has sent an order request.",
+      "heading": "New order request",
+      "body": "A customer has sent an order request. Open it to check the lines and the price, then confirm it with them.",
+      "action": "Open the order"
+    },
+    "orderCancelled": {
+      "subject": "Order called off",
+      "preheader": "A customer has called off their order.",
+      "heading": "Order called off",
+      "body": "A customer has called off an order that was still waiting for an answer. Nothing more is expected of you — but if anything was already set aside for it, it can go back on the shelf.",
+      "reasonLabel": "Reason given",
+      "reasonNone": "None given",
+      "paidNote": "A payment is recorded against this order. Any refund is arranged with the customer directly — nothing here moves money.",
+      "itemsHeading": "Was ordered",
+      "action": "Open the order"
+    },
+    "orderStatusChanged": {
+      "subject": "Your order",
+      "preheader": "There is news about your order.",
+      "changedIntro": "We have changed this order since we last wrote to you — what we changed is noted below, and the contents and total are the ones that now apply.",
+      "correctedIntro": "We have corrected our record of this order: it had moved further along than it should have. Where it now stands is below.",
+      "attachedNote": "Our payment details for this order are attached to this message.",
+      "action": "Open your order",
+      "statuses": {
+        "changed": {
+          "heading": "We have changed your order",
+          "body": "Where your order stands has not changed — its contents and total have. The ones below are the ones that now apply."
+        },
+        "reopened": {
+          "heading": "Your order is back with us",
+          "body": "We have put your order back in our queue and will come back to you about it shortly. Anything we told you about it before no longer applies."
+        },
+        "approved": {
+          "heading": "Your order is confirmed",
+          "body": "We have confirmed your order. We will let you know as soon as it is ready."
+        },
+        "readyDelivery": {
+          "heading": "Your order is on its way",
+          "body": "Your order has left us for delivery to the address below."
+        },
+        "readyPickup": {
+          "heading": "Your order is ready to collect",
+          "body": "Your order is packed and waiting at the pickup location below. Please bring your order number."
+        },
+        "completed": {
+          "heading": "Your order is complete",
+          "body": "Your order is finished. Thank you — we look forward to the next one."
+        },
+        "declined": {
+          "heading": "We cannot fill this order",
+          "body": "We are sorry: we are unable to fill this order. The reason is below, and you are welcome to call us about it."
+        },
+        "cancelled": {
+          "heading": "Your order has been cancelled",
+          "body": "This order has been cancelled and will not be filled. The reason is below, and you are welcome to call us about it."
+        }
+      }
+    },
+    "orderDocument": {
+      "subject": "A document for your order",
+      "preheader": "There is a document with your order.",
+      "action": "Open your order",
+      "kinds": {
+        "paymentInstructions": {
+          "heading": "How to pay for your order",
+          "body": "Our payment details for this order are attached. Nothing about the order itself has changed."
+        },
+        "orderSummary": {
+          "heading": "A copy of your order",
+          "body": "We have put a copy of your order with it, which you can open from the link below. Nothing about the order itself has changed."
+        }
+      }
     }
   }
 }

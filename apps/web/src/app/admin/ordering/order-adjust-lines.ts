@@ -1,3 +1,4 @@
+import { ADMIN_ORDERING_TEXT } from './ordering-text';
 import {
   Component,
   computed,
@@ -12,7 +13,6 @@ import {
 } from '@b2b-catalog-platform/shared/platform';
 import { AdjustmentLineFlag } from '@b2b-catalog-platform/shared/core/ordering';
 import { AdminProductListItem } from '@b2b-catalog-platform/shared/admin/catalog';
-import { ADMIN_TEXT } from '../../platform/config/admin-text';
 import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
 import { partialPriceRule } from '../../core/catalog/pricing/price';
 import { Suggestion } from '@b2b-catalog-platform/ui/suggest/suggestion';
@@ -251,7 +251,7 @@ export class OrderAdjustLines {
   protected readonly chevronUpIcon = chevronUpIcon;
   protected readonly xIcon = xIcon;
   private readonly productsService = inject(ProductsService);
-  protected readonly text = inject(ADMIN_TEXT).orders.adjust.lines;
+  protected readonly text = inject(ADMIN_ORDERING_TEXT).orders.adjust.lines;
   protected readonly products = inject(ADMIN_CATALOG_TEXT).products;
   protected readonly pieceUnit = inject(SHARED_CATALOG_TEXT).units.piece;
   private readonly availability =

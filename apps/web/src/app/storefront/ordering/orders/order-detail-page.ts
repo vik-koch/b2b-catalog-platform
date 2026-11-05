@@ -1,3 +1,4 @@
+import { STOREFRONT_ORDERING_TEXT } from '../ordering-text';
 import {
   Component,
   computed,
@@ -14,7 +15,6 @@ import {
 } from '@b2b-catalog-platform/shared/core/ordering';
 import { fillText } from '@b2b-catalog-platform/shared/platform';
 import { OrderSummary } from '../../../core/ordering/ui/order-summary';
-import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { delayedLoading } from '../../../platform/delayed-loading';
 import { usePageSeo } from '../../../platform/page-seo';
@@ -127,7 +127,7 @@ export class OrderDetailPage {
   private readonly api = inject(OrdersService);
   private readonly confirm = inject(ConfirmService);
   private readonly actionText = inject(SHARED_TEXT).actions;
-  protected readonly text = inject(STOREFRONT_TEXT).orders.detail;
+  protected readonly text = inject(STOREFRONT_ORDERING_TEXT).orders.detail;
 
   /** Bound from the route's `:reference` segment. */
   readonly reference = input.required<string>();

@@ -3,99 +3,6 @@
     "footerNote": "Diese Nachricht wurde automatisch von unserem Onlineshop verschickt. Bitte antworten Sie nicht an diese Adresse.",
     "linkExpiry": "Dieser Link lässt sich einmal verwenden und läuft sieben Tage nach dem Versand ab."
   },
-  "orders": {
-    "account": "Konto",
-    "guest": "Gast",
-    "items": "Bestellt",
-    "paymentMethods": {
-      "cash": "Barzahlung",
-      "transfer": "Überweisung",
-      "card": "Karte, nach Absprache mit dem Kunden"
-    }
-  },
-  "orderReceived": {
-    "subject": "Ihre Bestellanfrage ist bei uns",
-    "preheader": "Ihre Bestellanfrage ist bei uns eingegangen.",
-    "heading": "Vielen Dank – Ihre Bestellung ist bei uns",
-    "body": "Ihre Bestellanfrage {reference} ist bei uns eingegangen. Noch wird nichts berechnet und nichts verschickt.",
-    "nextSteps": "Einzelheiten, Lieferung und Preis bestätigen wir Ihnen in Kürze. Über den Link unten können Sie Ihre Bestellung jederzeit öffnen.",
-    "action": "Bestellung öffnen"
-  },
-  "newOrder": {
-    "subject": "Neue Bestellanfrage",
-    "preheader": "Ein Kunde hat eine Bestellanfrage geschickt.",
-    "heading": "Neue Bestellanfrage",
-    "body": "Ein Kunde hat eine Bestellanfrage geschickt. Öffnen Sie sie, prüfen Sie Positionen und Preis und bestätigen Sie sie dann mit dem Kunden.",
-    "action": "Bestellung öffnen"
-  },
-  "orderCancelled": {
-    "subject": "Bestellung vom Kunden storniert",
-    "preheader": "Ein Kunde hat seine Bestellung storniert.",
-    "heading": "Bestellung vom Kunden storniert",
-    "body": "Ein Kunde hat eine Bestellung storniert, die noch auf eine Antwort wartete. Von Ihnen wird nichts mehr erwartet – aber falls schon etwas dafür zurückgelegt wurde, kann es zurück ins Regal.",
-    "reasonLabel": "Angegebener Grund",
-    "reasonNone": "Keiner angegeben",
-    "paidNote": "Zu dieser Bestellung ist eine Zahlung verbucht. Eine Erstattung klären Sie direkt mit dem Kunden – hier wird kein Geld bewegt.",
-    "itemsHeading": "Bestellt war",
-    "action": "Bestellung öffnen"
-  },
-  "orderStatusChanged": {
-    "subject": "Ihre Bestellung",
-    "preheader": "Es gibt Neuigkeiten zu Ihrer Bestellung.",
-    "changedIntro": "Wir haben diese Bestellung seit unserer letzten Nachricht geändert – was wir geändert haben, steht unten, und Inhalt und Gesamtbetrag sind die, die jetzt gelten.",
-    "correctedIntro": "Wir haben unseren Stand dieser Bestellung korrigiert: Sie war weiter vorangeschritten, als sie sollte. Wo sie jetzt steht, sehen Sie unten.",
-    "attachedNote": "Unsere Zahlungsinformationen zu dieser Bestellung hängen an dieser Nachricht.",
-    "action": "Bestellung öffnen",
-    "statuses": {
-      "changed": {
-        "heading": "Wir haben Ihre Bestellung geändert",
-        "body": "Der Stand Ihrer Bestellung ist unverändert – Inhalt und Gesamtbetrag haben sich geändert. Es gelten die unten aufgeführten."
-      },
-      "reopened": {
-        "heading": "Ihre Bestellung liegt wieder bei uns",
-        "body": "Wir haben Ihre Bestellung wieder in unsere Bearbeitung genommen und melden uns in Kürze dazu. Was wir Ihnen vorher dazu gesagt haben, gilt nicht mehr."
-      },
-      "approved": {
-        "heading": "Ihre Bestellung ist bestätigt",
-        "body": "Wir haben Ihre Bestellung bestätigt. Sobald sie bereit ist, sagen wir Ihnen Bescheid."
-      },
-      "readyDelivery": {
-        "heading": "Ihre Bestellung ist unterwegs",
-        "body": "Ihre Bestellung hat uns verlassen und wird an die Adresse unten geliefert."
-      },
-      "readyPickup": {
-        "heading": "Ihre Bestellung ist abholbereit",
-        "body": "Ihre Bestellung ist gepackt und wartet am Abholort unten. Bitte bringen Sie Ihre Bestellnummer mit."
-      },
-      "completed": {
-        "heading": "Ihre Bestellung ist abgeschlossen",
-        "body": "Ihre Bestellung ist erledigt. Vielen Dank – wir freuen uns auf die nächste."
-      },
-      "declined": {
-        "heading": "Wir können diese Bestellung nicht ausführen",
-        "body": "Es tut uns leid: Wir können diese Bestellung nicht ausführen. Den Grund finden Sie unten, und Sie können uns gern dazu anrufen."
-      },
-      "cancelled": {
-        "heading": "Ihre Bestellung wurde storniert",
-        "body": "Diese Bestellung wurde storniert und wird nicht ausgeführt. Den Grund finden Sie unten, und Sie können uns gern dazu anrufen."
-      }
-    }
-  },
-  "orderDocument": {
-    "subject": "Ein Dokument zu Ihrer Bestellung",
-    "preheader": "Zu Ihrer Bestellung gibt es ein Dokument.",
-    "action": "Bestellung öffnen",
-    "kinds": {
-      "paymentInstructions": {
-        "heading": "So bezahlen Sie Ihre Bestellung",
-        "body": "Unsere Zahlungsinformationen zu dieser Bestellung hängen an. An der Bestellung selbst hat sich nichts geändert."
-      },
-      "orderSummary": {
-        "heading": "Eine Kopie Ihrer Bestellung",
-        "body": "Wir haben eine Kopie Ihrer Bestellung beigelegt, die Sie über den Link unten öffnen können. An der Bestellung selbst hat sich nichts geändert."
-      }
-    }
-  },
   "syncRun": {
     "startedLabel": "Gestartet",
     "labelLabel": "Export",
@@ -252,6 +159,101 @@
       "ordersLabel": "Erhaltene Bestellungen",
       "openOrdersNote": "Davon noch nicht abgeschlossen: {count}. Sie müssen sie weiterhin abwickeln, und sie lassen sich keinem Kunden mehr zuordnen – prüfen Sie sie also zuerst.",
       "action": "Bestellliste öffnen"
+    }
+  },
+  "ordering": {
+    "orders": {
+      "account": "Konto",
+      "guest": "Gast",
+      "items": "Bestellt",
+      "paymentMethods": {
+        "cash": "Barzahlung",
+        "transfer": "Überweisung",
+        "card": "Karte, nach Absprache mit dem Kunden"
+      }
+    },
+    "orderReceived": {
+      "subject": "Ihre Bestellanfrage ist bei uns",
+      "preheader": "Ihre Bestellanfrage ist bei uns eingegangen.",
+      "heading": "Vielen Dank – Ihre Bestellung ist bei uns",
+      "body": "Ihre Bestellanfrage {reference} ist bei uns eingegangen. Noch wird nichts berechnet und nichts verschickt.",
+      "nextSteps": "Einzelheiten, Lieferung und Preis bestätigen wir Ihnen in Kürze. Über den Link unten können Sie Ihre Bestellung jederzeit öffnen.",
+      "action": "Bestellung öffnen"
+    },
+    "newOrder": {
+      "subject": "Neue Bestellanfrage",
+      "preheader": "Ein Kunde hat eine Bestellanfrage geschickt.",
+      "heading": "Neue Bestellanfrage",
+      "body": "Ein Kunde hat eine Bestellanfrage geschickt. Öffnen Sie sie, prüfen Sie Positionen und Preis und bestätigen Sie sie dann mit dem Kunden.",
+      "action": "Bestellung öffnen"
+    },
+    "orderCancelled": {
+      "subject": "Bestellung vom Kunden storniert",
+      "preheader": "Ein Kunde hat seine Bestellung storniert.",
+      "heading": "Bestellung vom Kunden storniert",
+      "body": "Ein Kunde hat eine Bestellung storniert, die noch auf eine Antwort wartete. Von Ihnen wird nichts mehr erwartet – aber falls schon etwas dafür zurückgelegt wurde, kann es zurück ins Regal.",
+      "reasonLabel": "Angegebener Grund",
+      "reasonNone": "Keiner angegeben",
+      "paidNote": "Zu dieser Bestellung ist eine Zahlung verbucht. Eine Erstattung klären Sie direkt mit dem Kunden – hier wird kein Geld bewegt.",
+      "itemsHeading": "Bestellt war",
+      "action": "Bestellung öffnen"
+    },
+    "orderStatusChanged": {
+      "subject": "Ihre Bestellung",
+      "preheader": "Es gibt Neuigkeiten zu Ihrer Bestellung.",
+      "changedIntro": "Wir haben diese Bestellung seit unserer letzten Nachricht geändert – was wir geändert haben, steht unten, und Inhalt und Gesamtbetrag sind die, die jetzt gelten.",
+      "correctedIntro": "Wir haben unseren Stand dieser Bestellung korrigiert: Sie war weiter vorangeschritten, als sie sollte. Wo sie jetzt steht, sehen Sie unten.",
+      "attachedNote": "Unsere Zahlungsinformationen zu dieser Bestellung hängen an dieser Nachricht.",
+      "action": "Bestellung öffnen",
+      "statuses": {
+        "changed": {
+          "heading": "Wir haben Ihre Bestellung geändert",
+          "body": "Der Stand Ihrer Bestellung ist unverändert – Inhalt und Gesamtbetrag haben sich geändert. Es gelten die unten aufgeführten."
+        },
+        "reopened": {
+          "heading": "Ihre Bestellung liegt wieder bei uns",
+          "body": "Wir haben Ihre Bestellung wieder in unsere Bearbeitung genommen und melden uns in Kürze dazu. Was wir Ihnen vorher dazu gesagt haben, gilt nicht mehr."
+        },
+        "approved": {
+          "heading": "Ihre Bestellung ist bestätigt",
+          "body": "Wir haben Ihre Bestellung bestätigt. Sobald sie bereit ist, sagen wir Ihnen Bescheid."
+        },
+        "readyDelivery": {
+          "heading": "Ihre Bestellung ist unterwegs",
+          "body": "Ihre Bestellung hat uns verlassen und wird an die Adresse unten geliefert."
+        },
+        "readyPickup": {
+          "heading": "Ihre Bestellung ist abholbereit",
+          "body": "Ihre Bestellung ist gepackt und wartet am Abholort unten. Bitte bringen Sie Ihre Bestellnummer mit."
+        },
+        "completed": {
+          "heading": "Ihre Bestellung ist abgeschlossen",
+          "body": "Ihre Bestellung ist erledigt. Vielen Dank – wir freuen uns auf die nächste."
+        },
+        "declined": {
+          "heading": "Wir können diese Bestellung nicht ausführen",
+          "body": "Es tut uns leid: Wir können diese Bestellung nicht ausführen. Den Grund finden Sie unten, und Sie können uns gern dazu anrufen."
+        },
+        "cancelled": {
+          "heading": "Ihre Bestellung wurde storniert",
+          "body": "Diese Bestellung wurde storniert und wird nicht ausgeführt. Den Grund finden Sie unten, und Sie können uns gern dazu anrufen."
+        }
+      }
+    },
+    "orderDocument": {
+      "subject": "Ein Dokument zu Ihrer Bestellung",
+      "preheader": "Zu Ihrer Bestellung gibt es ein Dokument.",
+      "action": "Bestellung öffnen",
+      "kinds": {
+        "paymentInstructions": {
+          "heading": "So bezahlen Sie Ihre Bestellung",
+          "body": "Unsere Zahlungsinformationen zu dieser Bestellung hängen an. An der Bestellung selbst hat sich nichts geändert."
+        },
+        "orderSummary": {
+          "heading": "Eine Kopie Ihrer Bestellung",
+          "body": "Wir haben eine Kopie Ihrer Bestellung beigelegt, die Sie über den Link unten öffnen können. An der Bestellung selbst hat sich nichts geändert."
+        }
+      }
     }
   }
 }

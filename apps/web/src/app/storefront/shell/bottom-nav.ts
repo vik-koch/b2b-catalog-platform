@@ -1,3 +1,4 @@
+import { STOREFRONT_ORDERING_TEXT } from '../ordering/ordering-text';
 import {
   Component,
   computed,
@@ -187,7 +188,7 @@ export class BottomNav {
 
   protected readonly text = inject(STOREFRONT_TEXT);
   protected readonly nav = inject(SHARED_TEXT).nav;
-  protected readonly orders = this.text.orders;
+  protected readonly orders = inject(STOREFRONT_ORDERING_TEXT).orders;
   protected readonly search = inject(STOREFRONT_CATALOG_TEXT).search;
   protected readonly a11y = this.text.a11y;
   protected readonly contact = this.config.contact;

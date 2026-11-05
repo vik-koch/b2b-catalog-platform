@@ -1,10 +1,11 @@
+import { STOREFRONT_ORDERING_TEXT } from '../../ordering-text';
+import { SHARED_ORDERING_TEXT } from '../../../../core/ordering/ordering-text';
 import { Component, inject, input, output } from '@angular/core';
 import { FulfilmentMethod } from '@b2b-catalog-platform/shared/core/ordering';
 import {
   firstOrderDate,
   localToday,
 } from '@b2b-catalog-platform/shared/storefront/ordering';
-import { STOREFRONT_TEXT } from '../../../../platform/config/storefront-text';
 import { SHARED_TEXT } from '../../../../platform/config/shared-text';
 import { DateInput } from '@b2b-catalog-platform/ui/inputs/date-input';
 import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
@@ -50,8 +51,8 @@ import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
   `,
 })
 export class PreferredDate {
-  protected readonly text = inject(STOREFRONT_TEXT).checkout.timing;
-  protected readonly names = inject(SHARED_TEXT).order;
+  protected readonly text = inject(STOREFRONT_ORDERING_TEXT).checkout.timing;
+  protected readonly names = inject(SHARED_ORDERING_TEXT).order;
   protected readonly optional = inject(SHARED_TEXT).optional;
   protected readonly id = 'preferred-date';
 

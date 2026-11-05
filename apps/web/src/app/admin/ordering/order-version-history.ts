@@ -1,3 +1,5 @@
+import { ADMIN_ORDERING_TEXT } from './ordering-text';
+import { SHARED_ORDERING_TEXT } from '../../core/ordering/ordering-text';
 import { ACCOUNTS_CONFIG } from '../../core/accounts/accounts-config';
 import {
   Component,
@@ -158,13 +160,15 @@ export class OrderVersionHistory {
   private readonly catalogConfig = inject(CATALOG_CONFIG);
   private readonly currency = moneyFormat(this.config);
   private readonly adminText = inject(ADMIN_TEXT);
-  private readonly ordersText = this.adminText.orders;
+  private readonly adminOrderingText = inject(ADMIN_ORDERING_TEXT);
+  private readonly ordersText = this.adminOrderingText.orders;
   protected readonly text = this.ordersText.detail.revisions;
   private readonly sharedText = inject(SHARED_TEXT);
-  protected readonly names = this.sharedText.order;
+  protected readonly sharedOrderingText = inject(SHARED_ORDERING_TEXT);
+  protected readonly names = this.sharedOrderingText.order;
   private readonly dateTimeFormat = orderDateTimeFormat(this.config.locale);
   private readonly blockLabels = staffBlockLabels(
-    this.sharedText,
+    this.sharedOrderingText,
     this.ordersText,
     this.ordersText.detail,
   );

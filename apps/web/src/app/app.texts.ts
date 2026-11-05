@@ -14,6 +14,9 @@ import { adminCatalogTextShape } from './admin/catalog/catalog-text.type';
 import { ACCOUNTS_AREA } from '@b2b-catalog-platform/shared/core/accounts';
 import { storefrontAccountsTextShape } from './storefront/accounts/accounts-text.type';
 import { adminAccountsTextShape } from './admin/accounts/accounts-text.type';
+import { ORDERING_AREA } from '@b2b-catalog-platform/shared/core/ordering';
+import { storefrontOrderingTextShape } from './storefront/ordering/ordering-text.type';
+import { adminOrderingTextShape } from './admin/ordering/ordering-text.type';
 
 // Zod only, so the tools that check a deployment can load these as well.
 
@@ -24,6 +27,7 @@ export const storefrontTextSchema = z
       [SITE_AREA]: z.object(storefrontSiteTextShape).strict(),
       [CATALOG_AREA]: z.object(storefrontCatalogTextShape).strict(),
       [ACCOUNTS_AREA]: z.object(storefrontAccountsTextShape).strict(),
+      [ORDERING_AREA]: z.object(storefrontOrderingTextShape).strict(),
     }),
   )
   .strict()
@@ -36,6 +40,7 @@ export const adminTextSchema = z
       [SITE_AREA]: z.object(adminSiteTextShape).strict(),
       [CATALOG_AREA]: z.object(adminCatalogTextShape).strict(),
       [ACCOUNTS_AREA]: z.object(adminAccountsTextShape).strict(),
+      [ORDERING_AREA]: z.object(adminOrderingTextShape).strict(),
     }),
   )
   .strict()

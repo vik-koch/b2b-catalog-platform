@@ -1,3 +1,4 @@
+import type { AdminOrderingText } from './ordering-text.type';
 import { fillText, MoneyFormat } from '@b2b-catalog-platform/shared/platform';
 import {
   AdminOrderDetail,
@@ -10,7 +11,6 @@ import {
   formatPriceInput,
   parsePriceInput,
 } from '../../core/catalog/pricing/price';
-import { AdminText } from '../../platform/config/admin-text.type';
 import { AdjustmentRefusal } from './orders.service';
 
 export type PartyKind = 'person' | 'company';
@@ -88,7 +88,7 @@ export function draftPrice(
  * offered. */
 export function paymentOptions(
   kind: PartyKind,
-  payments: AdminText['orders']['paymentMethods'],
+  payments: AdminOrderingText['orders']['paymentMethods'],
 ): { value: PaymentMethod; label: string }[] {
   const invoiced = {
     value: 'bank-transfer' as const,
@@ -118,7 +118,7 @@ export function offList(line: {
 export function priceNotices(
   order: AdminOrderDetail,
   preview: OrderAdjustmentPreview,
-  text: AdminText['orders']['adjust']['priceNotice'],
+  text: AdminOrderingText['orders']['adjust']['priceNotice'],
   tier: string,
 ): string[] {
   const was = new Map(order.lines.map((line) => [line.slug, line]));

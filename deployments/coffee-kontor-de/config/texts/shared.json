@@ -50,47 +50,6 @@
     "kb": "{size} kB",
     "mb": "{size} MB"
   },
-  "order": {
-    "reference": "Bestellung",
-    "status": "Status",
-    "total": "Gesamtbetrag",
-    "reason": "Grund",
-    "changeNote": "Hinweis zur Änderung",
-    "contact": "Ansprechperson",
-    "invoicedTo": "Rechnungsempfänger",
-    "payment": "Zahlung",
-    "deliveryAddress": "Lieferadresse",
-    "preferredDelivery": "Gewünschter Liefertermin",
-    "preferredPickup": "Gewünschter Abholtermin",
-    "items": "Ihre Positionen",
-    "note": "Ihre Anmerkung",
-    "pickupPoint": "Abholort",
-    "termsVersion": "Stand vom {date}",
-    "statuses": {
-      "requested": "Wartet auf Bestätigung",
-      "approved": "Bestätigt",
-      "readyDelivery": "Unterwegs zu Ihnen",
-      "readyPickup": "Abholbereit",
-      "completed": "Abgeschlossen",
-      "declined": "Abgelehnt",
-      "cancelled": "Storniert"
-    },
-    "paymentMethods": {
-      "cash": "Barzahlung",
-      "transfer": "Überweisung",
-      "card": "Karte, nach Absprache mit uns"
-    },
-    "paymentStates": {
-      "notDue": "Noch nichts fällig",
-      "awaiting": "Zahlung ausstehend",
-      "paid": "Bezahlt"
-    }
-  },
-  "fulfilment": {
-    "label": "Lieferart",
-    "delivery": "Lieferung",
-    "pickup": "Selbstabholung"
-  },
   "fields": {
     "name": {
       "label": "Name",
@@ -243,6 +202,47 @@
     }
   },
   "ordering": {
+    "order": {
+      "reference": "Bestellung",
+      "status": "Status",
+      "total": "Gesamtbetrag",
+      "reason": "Grund",
+      "changeNote": "Hinweis zur Änderung",
+      "contact": "Ansprechperson",
+      "invoicedTo": "Rechnungsempfänger",
+      "payment": "Zahlung",
+      "deliveryAddress": "Lieferadresse",
+      "preferredDelivery": "Gewünschter Liefertermin",
+      "preferredPickup": "Gewünschter Abholtermin",
+      "items": "Ihre Positionen",
+      "note": "Ihre Anmerkung",
+      "pickupPoint": "Abholort",
+      "termsVersion": "Stand vom {date}",
+      "statuses": {
+        "requested": "Wartet auf Bestätigung",
+        "approved": "Bestätigt",
+        "readyDelivery": "Unterwegs zu Ihnen",
+        "readyPickup": "Abholbereit",
+        "completed": "Abgeschlossen",
+        "declined": "Abgelehnt",
+        "cancelled": "Storniert"
+      },
+      "paymentMethods": {
+        "cash": "Barzahlung",
+        "transfer": "Überweisung",
+        "card": "Karte, nach Absprache mit uns"
+      },
+      "paymentStates": {
+        "notDue": "Noch nichts fällig",
+        "awaiting": "Zahlung ausstehend",
+        "paid": "Bezahlt"
+      }
+    },
+    "fulfilment": {
+      "label": "Lieferart",
+      "delivery": "Lieferung",
+      "pickup": "Selbstabholung"
+    },
     "orderSummary": {
       "title": "Ihre Bestellung",
       "lines": "Positionen",

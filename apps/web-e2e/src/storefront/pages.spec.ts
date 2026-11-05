@@ -10,27 +10,37 @@ const conditionsPageSeed = pageSeed(fixtureSeed, 'conditions');
 
 /** Read from the file the app states the conditions from, so this spec cannot
  * drift from the page it reads. */
-const deployment = JSON.parse(
-  readFileSync(
-    join(workspaceRoot, 'deployments/fixture/config/deployment.json'),
-    'utf8',
-  ),
-) as {
-  delivery: { zones: { title: string }[] };
-  pickup: { locations: { name: string; address: string }[] };
-};
-const storefrontText = JSON.parse(
-  readFileSync(
-    join(workspaceRoot, 'deployments/fixture/config/texts/storefront.json'),
-    'utf8',
-  ),
-) as { checkout: { fulfilment: { noDelivery: string } } };
-const sharedText = JSON.parse(
-  readFileSync(
-    join(workspaceRoot, 'deployments/fixture/config/texts/shared.json'),
-    'utf8',
-  ),
-) as { order: { paymentMethods: { cash: string; transfer: string } } };
+const deployment = (
+  JSON.parse(
+    readFileSync(
+      join(workspaceRoot, 'deployments/fixture/config/deployment.json'),
+      'utf8',
+    ),
+  ) as {
+    ordering: {
+      delivery: { zones: { title: string }[] };
+      pickup: { locations: { name: string; address: string }[] };
+    };
+  }
+).ordering;
+const storefrontText = (
+  JSON.parse(
+    readFileSync(
+      join(workspaceRoot, 'deployments/fixture/config/texts/storefront.json'),
+      'utf8',
+    ),
+  ) as { ordering: { checkout: { fulfilment: { noDelivery: string } } } }
+).ordering;
+const sharedText = (
+  JSON.parse(
+    readFileSync(
+      join(workspaceRoot, 'deployments/fixture/config/texts/shared.json'),
+      'utf8',
+    ),
+  ) as {
+    ordering: { order: { paymentMethods: { cash: string; transfer: string } } };
+  }
+).ordering;
 
 test('renders the about page from SSR without a browser refetch', async ({
   page,

@@ -1,3 +1,4 @@
+import { STOREFRONT_ORDERING_TEXT } from '../../ordering-text';
 import {
   afterNextRender,
   Component,
@@ -7,7 +8,6 @@ import {
   viewChild,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { STOREFRONT_TEXT } from '../../../../platform/config/storefront-text';
 import { DEPLOYMENT_CONFIG } from '../../../../platform/config/deployment-config';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { DialogPanel } from '@b2b-catalog-platform/ui/overlay/dialog-panel';
@@ -77,7 +77,8 @@ export class DeliveryConditionsDialog {
   private readonly config = inject(DEPLOYMENT_CONFIG);
   private readonly siteConfig = inject(SITE_CONFIG);
 
-  protected readonly text = inject(STOREFRONT_TEXT).checkout.fulfilment;
+  protected readonly text = inject(STOREFRONT_ORDERING_TEXT).checkout
+    .fulfilment;
   protected readonly actionText = inject(SHARED_TEXT).actions;
   /** Only where the page is published, or the link is a 404. */
   protected readonly conditionsPath = (

@@ -1,3 +1,5 @@
+import { defaultSharedOrderingText } from '../../../core/ordering/ordering-text.fixture';
+import { defaultStorefrontOrderingText } from '../ordering-text.fixture';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
@@ -12,8 +14,8 @@ import { OrderListPage } from './order-list-page';
 import { OrdersService } from './orders.service';
 import { provideUiText } from '../../../platform/config/shared-text';
 
-const text = defaultStorefrontText.orders;
-const names = defaultSharedText.order;
+const text = defaultStorefrontOrderingText.orders;
+const names = defaultSharedOrderingText.order;
 
 const placed: OrderSummary = {
   reference: 'DEMO-260826-4831',

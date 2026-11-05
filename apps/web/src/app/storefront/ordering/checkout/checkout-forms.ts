@@ -1,3 +1,4 @@
+import { STOREFRONT_ORDERING_TEXT } from '../ordering-text';
 import { ACCOUNTS_CONFIG } from '../../../core/accounts/accounts-config';
 import { inject, signal, Signal } from '@angular/core';
 import { apply, form, hidden, required } from '@angular/forms/signals';
@@ -9,7 +10,6 @@ import {
 } from '../../../core/accounts/addresses/address-form';
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
-import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
 import { completeMask, emailAddress } from '../../../platform/field-rules';
 import { companyIdFormat } from '../../../core/accounts/parties/company-id';
 import { CheckoutDraft, PartyChoice } from './checkout-draft';
@@ -49,7 +49,7 @@ export function createCheckoutForms(deps: {
   const config = inject(DEPLOYMENT_CONFIG);
   const accountsConfig = inject(ACCOUNTS_CONFIG);
   const fields = inject(SHARED_TEXT).fields;
-  const text = inject(STOREFRONT_TEXT);
+  const text = inject(STOREFRONT_ORDERING_TEXT);
   const countries = accountsConfig.address?.countries;
   const address = injectAddressRules();
 

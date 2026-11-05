@@ -1,3 +1,4 @@
+import { sharedOrderingText, orderingPdf } from './ordering-text';
 import {
   SharedText,
   fillText,
@@ -54,8 +55,8 @@ export class OrderPdf {
   ) {}
 
   async orderSummary(order: OrderDetail): Promise<Buffer> {
-    const t = this.text.orderSummary;
-    const names = this.common.order;
+    const t = orderingPdf(this.text).orderSummary;
+    const names = sharedOrderingText(this.common).order;
     const pdf = await PDFDocument.create();
     const { faces, encode } = await this.faces.embed(pdf);
 
@@ -139,14 +140,14 @@ export class OrderPdf {
   /** Where the order stands, in the customer's words: `ready` reads by how
    * the goods reach them. */
   private status(order: OrderDetail): string {
-    const statuses = this.common.order.statuses;
+    const statuses = sharedOrderingText(this.common).order.statuses;
     if (order.status !== 'ready') return statuses[order.status];
     return order.pickup ? statuses.readyPickup : statuses.readyDelivery;
   }
 
   /** How the order is paid, and whether it has been. */
   private payment(order: OrderDetail): string {
-    const names = this.common.order;
+    const names = sharedOrderingText(this.common).order;
     const methods = names.paymentMethods;
     const states = names.paymentStates;
     const method = {

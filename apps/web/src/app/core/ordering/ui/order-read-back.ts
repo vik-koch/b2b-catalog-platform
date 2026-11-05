@@ -1,6 +1,6 @@
+import { SHARED_ORDERING_TEXT } from '../ordering-text';
 import { Component, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { SHARED_TEXT } from '../../../platform/config/shared-text';
 
 /**
  * An order read back: its lines, then one block per question it answers. The
@@ -70,7 +70,7 @@ import { SHARED_TEXT } from '../../../platform/config/shared-text';
   `,
 })
 export class OrderReadBack {
-  protected readonly itemsDefault = inject(SHARED_TEXT).order.items;
+  protected readonly itemsDefault = inject(SHARED_ORDERING_TEXT).order.items;
 
   /** The lines' heading, where the page words it itself: admin text is a
    * separate file. */

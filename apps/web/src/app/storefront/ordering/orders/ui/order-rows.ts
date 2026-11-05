@@ -1,3 +1,5 @@
+import { STOREFRONT_ORDERING_TEXT } from '../../ordering-text';
+import { SHARED_ORDERING_TEXT } from '../../../../core/ordering/ordering-text';
 import { Component, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
@@ -6,8 +8,6 @@ import {
   formatMoneyMinor,
 } from '@b2b-catalog-platform/shared/platform';
 import { OrderSummary } from '@b2b-catalog-platform/shared/core/ordering';
-import { STOREFRONT_TEXT } from '../../../../platform/config/storefront-text';
-import { SHARED_TEXT } from '../../../../platform/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../../../platform/config/deployment-config';
 import {
   StatusBadge,
@@ -67,8 +67,8 @@ import {
 export class OrderRows {
   private readonly currency = moneyFormat(inject(DEPLOYMENT_CONFIG));
   private readonly locale = inject(DEPLOYMENT_CONFIG).locale;
-  private readonly text = inject(STOREFRONT_TEXT).orders;
-  private readonly statusNames = inject(SHARED_TEXT).order;
+  private readonly text = inject(STOREFRONT_ORDERING_TEXT).orders;
+  private readonly statusNames = inject(SHARED_ORDERING_TEXT).order;
 
   readonly orders = input.required<readonly OrderSummary[]>();
 

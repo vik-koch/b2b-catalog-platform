@@ -5,6 +5,7 @@ import { accountsConfigShape } from '../../core/accounts/accounts-config';
 import { CATALOG_AREA } from '../../core/catalog/catalog-area';
 import { catalogConfigShape } from '../../core/catalog/catalog-config';
 import { orderingConfigShape } from '../../core/ordering/order-config';
+import { ORDERING_AREA } from '../../core/ordering/ordering-area';
 import { siteConfigShape } from '../../core/site/site-config';
 import { companyIdInputSchema, phoneInputSchema } from '../contact-config';
 import { KEYBOARD_LAYOUTS } from '../keyboard-layout';
@@ -172,7 +173,7 @@ export const deploymentConfigSchema = z
       { [SITE_AREA]: z.object(siteConfigShape).strict() },
       { [CATALOG_AREA]: z.object(catalogConfigShape).strict() },
       { [ACCOUNTS_AREA]: z.object(accountsConfigShape).strict() },
-      orderingConfigShape,
+      { [ORDERING_AREA]: z.object(orderingConfigShape).strict() },
     ),
   )
   .strict();

@@ -1,3 +1,6 @@
+import { SHARED_ORDERING_TEXT } from '../../core/ordering/ordering-text';
+import { ORDERING_CONFIG } from '../../core/ordering/ordering-config';
+import { ADMIN_ORDERING_TEXT } from './ordering-text';
 import { ACCOUNTS_CONFIG } from '../../core/accounts/accounts-config';
 import {
   Component,
@@ -409,17 +412,19 @@ export class AdminOrderAdjustPage implements FieldAttempt {
   private readonly confirm = inject(ConfirmService);
   private readonly router = inject(Router);
   private readonly config = inject(DEPLOYMENT_CONFIG);
+  private readonly orderingConfig = inject(ORDERING_CONFIG);
   private readonly accountsConfig = inject(ACCOUNTS_CONFIG);
   private readonly catalogConfig = inject(CATALOG_CONFIG);
   protected readonly phoneInput = this.config.phoneInput;
   private readonly currency = moneyFormat(this.config);
 
-  protected readonly text = inject(ADMIN_TEXT).orders.adjust;
-  protected readonly detailText = inject(ADMIN_TEXT).orders.detail;
-  protected readonly ordersText = inject(ADMIN_TEXT).orders;
-  private readonly changeText = inject(ADMIN_TEXT).orders.changes;
+  protected readonly text = inject(ADMIN_ORDERING_TEXT).orders.adjust;
+  protected readonly detailText = inject(ADMIN_ORDERING_TEXT).orders.detail;
+  protected readonly ordersText = inject(ADMIN_ORDERING_TEXT).orders;
+  private readonly changeText = inject(ADMIN_ORDERING_TEXT).orders.changes;
   protected readonly sharedText = inject(SHARED_TEXT);
-  protected readonly names = this.sharedText.order;
+  protected readonly sharedOrderingText = inject(SHARED_ORDERING_TEXT);
+  protected readonly names = this.sharedOrderingText.order;
   protected readonly fields = staffFields(
     this.sharedText.fields,
     inject(ADMIN_TEXT).fields,
@@ -430,8 +435,8 @@ export class AdminOrderAdjustPage implements FieldAttempt {
   /** Whether an external system answers orders (FR-ADM-10): then nothing is
    * offered. */
   protected readonly locked = computed(() => this.ownership.owns('orders'));
-  protected readonly locations = this.config.pickup?.locations ?? [];
-  protected readonly billingEnabled = this.config.billingAddressEnabled;
+  protected readonly locations = this.orderingConfig.pickup?.locations ?? [];
+  protected readonly billingEnabled = this.orderingConfig.billingAddressEnabled;
   protected readonly noteMax = ORDER_ADJUSTMENT_NOTE_MAX;
   protected readonly itemsPanelId = 'adjust-items';
   protected readonly detailsPanelId = 'adjust-details';
@@ -793,7 +798,11 @@ export class AdminOrderAdjustPage implements FieldAttempt {
       ...orderBlockChanges(
         order,
         proposed,
-        staffBlockLabels(this.sharedText, this.ordersText, this.detailText),
+        staffBlockLabels(
+          this.sharedOrderingText,
+          this.ordersText,
+          this.detailText,
+        ),
         config,
       ),
     ];

@@ -1,6 +1,6 @@
+import { STOREFRONT_ORDERING_TEXT } from '../../ordering-text';
 import { Component, inject, input, output } from '@angular/core';
 import { ORDER_NOTE_MAX } from '@b2b-catalog-platform/shared/core/ordering';
-import { STOREFRONT_TEXT } from '../../../../platform/config/storefront-text';
 import { AutoGrow } from '@b2b-catalog-platform/ui/inputs/auto-grow';
 import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
 import { Input } from '@b2b-catalog-platform/ui/inputs/input';
@@ -31,7 +31,7 @@ import { SHARED_TEXT } from '../../../../platform/config/shared-text';
   `,
 })
 export class OrderNote {
-  protected readonly text = inject(STOREFRONT_TEXT).checkout.note;
+  protected readonly text = inject(STOREFRONT_ORDERING_TEXT).checkout.note;
   protected readonly optional = inject(SHARED_TEXT).optional;
   protected readonly id = 'order-note';
   protected readonly maxLength = ORDER_NOTE_MAX;

@@ -80,215 +80,6 @@
     "consentBanner": "Cookie-Einwilligung",
     "scrollToTop": "Nach oben"
   },
-  "cart": {
-    "navLabel": "Warenkorb",
-    "title": "Ihr Warenkorb",
-    "summaryAria": "Warenkorb: {total}, Positionen: {count}",
-    "empty": "Ihr Warenkorb ist leer.",
-    "emptyAction": "Zum Katalog",
-    "loadError": "Beim Berechnen Ihres Warenkorbs ist etwas schiefgegangen – bitte versuchen Sie es später noch einmal.",
-    "storageFailed": "Dieser Browser speichert Ihren Warenkorb nicht – er ist weg, sobald Sie diese Seite schließen.",
-    "lineNoteAria": "Anmerkung",
-    "removeAria": "{name} entfernen",
-    "selectLineAria": "{name} auswählen",
-    "selectAll": "Alle auswählen",
-    "clearSelection": "Auswahl aufheben",
-    "deleteSelected": "Auswahl löschen",
-    "deleteSelectedConfirm": {
-      "heading": "Ausgewählte Positionen löschen",
-      "message": "Die Auswahl aus Ihrem Warenkorb entfernen? Ausgewählte Positionen: {count}. Das lässt sich nicht rückgängig machen.",
-      "confirm": "Auswahl löschen"
-    },
-    "checkout": "Zur Kasse",
-    "continueShopping": "Weiter einkaufen",
-    "changes": {
-      "heading": "Was sich geändert hat, während Ihr Warenkorb wartete",
-      "dismissAria": "Diese Übersicht schließen",
-      "unavailable": "{name} ist nicht mehr erhältlich.",
-      "quantity": "{name}: Die Menge wurde auf die nächste lieferbare angepasst.",
-      "price": "{name}: Der Preis hat sich von {from} auf {to} geändert.",
-      "unpriced": "{name}: Für diese Position können wir gerade keinen Preis nennen – wir bestätigen ihn mit Ihnen.",
-      "outOfStock": "{name} ist ausverkauft und kann gerade nicht bestellt werden.",
-      "backInStock": "{name} ist wieder vorrätig."
-    },
-    "issues": {
-      "unavailable": "Nicht mehr erhältlich – bitte entfernen Sie diese Position.",
-      "unitUnavailable": "Dieses Produkt wird nicht mehr so verpackt, daher wird die Menge jetzt in Stück angezeigt.",
-      "quantityCorrected": "Die Menge wurde auf die nächste lieferbare angepasst.",
-      "noteNotAllowed": "Dieses Produkt nimmt keine Anmerkung mehr an, daher wurde Ihre entfernt.",
-      "priceUnavailable": "Für diese Position können wir gerade keinen Preis nennen – wir bestätigen ihn mit Ihnen.",
-      "outOfStock": "Ausverkauft – bitte entfernen Sie diese Position, um zu bestellen."
-    },
-    "pairing": {
-      "shortAction": "{count} {unit} hinzufügen",
-      "shortReason": "von dem, womit es zusammen verkauft wird.",
-      "summary": "Produkte im Warenkorb, denen fehlt, womit sie zusammen verkauft werden: {count}.",
-      "summaryEnforced": "Produkte im Warenkorb, die nicht ohne das bestellt werden können, womit sie zusammen verkauft werden: {count}."
-    }
-  },
-  "checkout": {
-    "title": "Kasse",
-    "intro": "Schicken Sie uns Ihre Bestellung, und wir stimmen die Einzelheiten mit Ihnen ab.",
-    "emptyCart": "In Ihrem Warenkorb ist nichts zu bestellen.",
-    "signInPrompt": "Schon Kunde? Melden Sie sich an, dann gelten Ihre vereinbarten Preise für diese Bestellung.",
-    "signInAction": "Anmelden",
-    "phoneMissing": "Für eine Bestellanfrage brauchen wir eine Telefonnummer, und zu diesem Konto ist keine hinterlegt – unser Team meldet sich telefonisch. Bitte ergänzen Sie eine in Ihrem Konto und kommen Sie dann hierher zurück; der Warenkorb bleibt erhalten.",
-    "phoneMissingAction": "Telefonnummer ergänzen",
-    "contact": {
-      "heading": "Wer bestellt?",
-      "name": "Ihr Name",
-      "contactName": "Nach wem sollen wir fragen?",
-      "nameRequired": "Bitte sagen Sie uns, nach wem wir fragen sollen.",
-      "note": "Die Rechnung geht an die Person, die Sie hier nennen; E-Mail und Telefon nutzen wir nur, um die Bestellung zu bestätigen."
-    },
-    "party": {
-      "heading": "An wen geht die Rechnung?",
-      "own": "An mich",
-      "other": "An jemand anderen",
-      "personName": "Name des Rechnungsempfängers",
-      "nameRequired": "Bitte nennen Sie den Namen für die Rechnung.",
-      "otherNotice": "Den Preis bestätigen wir mit Ihnen – Ihre vereinbarten Preise gelten nur für Ihr eigenes Konto."
-    },
-    "addresses": {
-      "deliveryHeading": "Wohin sollen wir liefern?",
-      "billingHeading": "Wohin soll die Rechnung gehen?",
-      "billingOnlyHeading": "Wohin soll die Rechnung gehen?",
-      "sameAsDelivery": "Die Rechnung auch an diese Adresse schicken",
-      "addNew": "Andere Adresse verwenden",
-      "loadError": "Ihre gespeicherten Adressen konnten nicht geladen werden – bitte geben Sie unten eine ein.",
-      "saveToBook": "Diese Adresse für das nächste Mal speichern"
-    },
-    "zone": {
-      "resolved": "Liefergebiet: {zone}",
-      "shortOf": "Noch {amount} bis zur kostenlosen Lieferung in diesem Gebiet.",
-      "qualifies": "Diese Bestellung wird in diesem Gebiet kostenlos geliefert.",
-      "noDelivery": "In dieses Gebiet liefern wir nicht. Geben Sie eine Adresse in einem unserer Liefergebiete an – etwa das Depot einer Spedition – oder schicken Sie die Bestellung so ab, und wir finden mit Ihnen einen Weg.",
-      "unknown": "Die Lieferung an diese Adresse bestätigen wir mit Ihnen."
-    },
-    "timing": {
-      "placeholder": "Datum wählen…",
-      "deliveryHint": "Nur Ihr Wunsch: Den tatsächlichen Liefertermin bestätigt unser Team.",
-      "pickupHint": "Nur Ihr Wunsch: Den tatsächlichen Abholtermin bestätigt unser Team.",
-      "unavailable": "An diesem Tag geht es leider nicht. Bitte wählen Sie einen Werktag ab dem nächsten."
-    },
-    "payment": {
-      "heading": "Wie möchten Sie bezahlen?",
-      "cashDeliveryDescription": "Sie bezahlen, wenn Sie Ihre Bestellung erhalten.",
-      "cashPickupDescription": "Sie bezahlen, wenn Sie Ihre Bestellung abholen.",
-      "transferDescription": "Sobald wir Ihre Bestellung bestätigen, schicken wir Ihnen eine Rechnung mit unserer Bankverbindung.",
-      "transferCompanyOnly": "Nur für Bestellungen mit einem Unternehmen als Rechnungsempfänger.",
-      "cashPersonOnly": "Nur für Bestellungen mit einer Privatperson als Rechnungsempfänger."
-    },
-    "note": {
-      "label": "Gibt es etwas, das wir wissen sollten?",
-      "placeholder": "Hinweise zur Lieferung, eine Referenz für Ihre Rechnung oder anderes."
-    },
-    "review": {
-      "title": "Bestellung prüfen",
-      "intro": "Noch ist nichts abgeschickt. Lesen Sie alles durch und senden Sie es ab, wenn es stimmt.",
-      "back": "Etwas ändern",
-      "backToCart": "Zurück zum Warenkorb",
-      "send": "Prüfen und absenden"
-    },
-    "submit": "Zahlungspflichtig bestellen",
-    "successHeading": "Vielen Dank – Ihre Bestellung ist bei uns",
-    "success": "Ihre Bestellanfrage hat die Nummer {reference}. Einzelheiten, Lieferung und Preis bestätigen wir Ihnen in Kürze.",
-    "successView": "Bestellung ansehen",
-    "successAction": "Zurück zum Katalog",
-    "errors": {
-      "incomplete": "Einige Angaben fehlen oder müssen korrigiert werden – sie sind im Formular markiert.",
-      "invalidCompanyId": "Diese Unternehmenskennung hat kein Format, auf das wir eine Rechnung ausstellen können. Bitte prüfen Sie sie.",
-      "unsupportedCountry": "In dieses Land liefern wir nicht. Bitte wählen Sie eine andere Adresse.",
-      "invalidPostalCode": "Diese Postleitzahl passt nicht zum gewählten Land. Bitte prüfen Sie sie.",
-      "unknownPickupLocation": "Dieser Abholort ist nicht mehr verfügbar. Bitte wählen Sie einen anderen.",
-      "billingDetailsRequired": "Für eine Überweisung brauchen wir ein Unternehmen als Rechnungsempfänger. Bitte wählen Sie einen anderen Empfänger oder eine andere Zahlungsart.",
-      "cashNotAvailable": "Bei einem Unternehmen als Rechnungsempfänger können wir keine Barzahlung annehmen. Bitte bezahlen Sie per Überweisung.",
-      "customerTypeNotAccepted": "Diese Bestellung kann nur auf eine Art von Kunde ausgestellt werden, an die wir verkaufen. Bitte prüfen Sie, wer die Rechnung erhält.",
-      "partyRequired": "Bitte sagen Sie uns, an wen die Rechnung gehen soll.",
-      "rejected": "Wir konnten diese Bestellung nicht annehmen. Bitte versuchen Sie es noch einmal.",
-      "cartChanged": "Preise oder Mengen in Ihrem Warenkorb haben sich geändert, während Sie das Formular ausgefüllt haben – bitte prüfen Sie Ihre Bestellung und senden Sie sie erneut ab.",
-      "pairingUnsatisfied": "Einigen Produkten in Ihrem Warenkorb fehlt, womit sie zusammen verkauft werden.",
-      "generic": "Beim Absenden Ihrer Bestellung ist etwas schiefgegangen. Bitte versuchen Sie es noch einmal.",
-      "staffAccount": "Mit einem Mitarbeiterkonto lassen sich keine Bestellanfragen senden – eine Bestellung braucht ein Kundenkonto, denn daran hängen die vereinbarten Preise und die Lieferadresse. Melden Sie sich als Kunde an, um die Kasse auszuprobieren."
-    },
-    "fulfilment": {
-      "heading": "Wie möchten Sie Ihre Bestellung erhalten?",
-      "pickupDescription": "Holen Sie Ihre Bestellung kostenlos selbst ab.",
-      "conditionsLink": "Lieferbedingungen",
-      "conditionsHeading": "Wohin wir liefern",
-      "conditionsNote": "Nur zur Orientierung – Lieferung und Kosten bestätigen wir mit jeder Bestellung.",
-      "conditionsMore": "Alle Bedingungen lesen",
-      "freeFrom": "Kostenlose Lieferung ab {amount}",
-      "noFreeDelivery": "Lieferkosten nach Angebot",
-      "noDelivery": "In dieses Gebiet liefern wir nicht.",
-      "pickupHeading": "Wo möchten Sie Ihre Bestellung abholen?",
-      "pickupRequired": "Bitte wählen Sie, wo Sie Ihre Bestellung abholen möchten.",
-      "mapLink": "Auf der Karte zeigen"
-    }
-  },
-  "orders": {
-    "heading": "Meine Bestellungen",
-    "intro": "Alle Bestellanfragen, die Sie uns geschickt haben, mit ihrem Inhalt.",
-    "action": "Alle meine Bestellungen",
-    "awaitingPayment": "Zu bezahlen: {count}",
-    "awaitingPickup": "Abholbereit: {count}",
-    "filterToPay": "Zu bezahlen",
-    "filterToCollect": "Abholbereit",
-    "filterRemoveAria": "Alle Bestellungen anzeigen ({label})",
-    "filterEmpty": "Gerade wartet nichts auf Sie.",
-    "empty": "Sie haben uns noch keine Bestellung geschickt.",
-    "emptyAction": "Zum Katalog",
-    "itemCount": "Positionen: {count}",
-    "error": "Ihre Bestellungen konnten gerade nicht geladen werden. Bitte versuchen Sie es später noch einmal.",
-    "back": "Zurück zu meinem Konto",
-    "detail": {
-      "placed": "Gesendet am {date}",
-      "notFound": "Diese Bestellung finden wir in Ihrem Konto nicht.",
-      "backToList": "Zurück zu meinen Bestellungen",
-      "error": "Diese Bestellung konnte gerade nicht geladen werden. Bitte versuchen Sie es später noch einmal.",
-      "cancel": {
-        "action": "Diese Bestellung stornieren",
-        "reasonLabel": "Bitte sagen Sie uns, warum",
-        "error": "Wir konnten diese Bestellung nicht stornieren. Vielleicht ist sie schon weiter – bitte laden Sie die Seite neu oder rufen Sie uns an."
-      },
-      "cancelConfirm": {
-        "heading": "Diese Bestellung stornieren?",
-        "message": "Wir arbeiten dann nicht weiter an Bestellung {reference}. Sie können uns jederzeit eine neue schicken.",
-        "confirm": "Bestellung stornieren",
-        "cancel": "Bestellung behalten",
-        "warning": "Für diese Bestellung haben wir bereits eine Zahlung verbucht. Eine Stornierung hier überweist das Geld nicht zurück – bitte klären Sie die Erstattung direkt mit uns."
-      },
-      "documents": {
-        "heading": "Dokumente",
-        "summary": "Ihre Bestellung als PDF",
-        "paymentInstructions": "So bezahlen Sie"
-      }
-    },
-    "public": {
-      "heading": "Ihre Bestellung",
-      "intro": "Das ist die Bestellanfrage, die Sie uns geschickt haben. Nichts wird berechnet und nichts verschickt, bevor wir sie mit Ihnen bestätigt haben.",
-      "notFound": "Dieser Link öffnet keine Bestellung. Vielleicht ist er falsch eingegeben, oder die Bestellung wurde entfernt.",
-      "home": "Zurück zum Shop"
-    }
-  },
-  "conditions": {
-    "paymentHeading": "Zahlung",
-    "cashDescription": "Bezahlt wird bei Übergabe der Bestellung – an Ihrer Tür oder an unserem Tresen.",
-    "goodsHeading": "Ware & Preise",
-    "goodsParagraphs": [
-      "Die Produktbilder zeigen die Ware so genau, wie wir können; Farben können am Bildschirm etwas anders wirken.",
-      "Manche Ware wird <b>sortiert</b> verkauft: Sie erhalten eines der gezeigten Motive. Ein Motiv, das Sie in Ihrer Bestellung nennen, ist ein Wunsch, den wir zu erfüllen versuchen, kein Versprechen."
-    ],
-    "taxIncluded": "Alle Preise enthalten {rate} % MwSt. Ware mit ermäßigtem Steuersatz nennt ihn auf ihrer Produktseite.",
-    "taxAdded": "Alle Preise sind Nettopreise. Die MwSt. von {rate} % kommt auf der Rechnung hinzu; Ware mit ermäßigtem Steuersatz nennt ihn auf ihrer Produktseite.",
-    "taxNone": "Wir berechnen keine MwSt.: Die Preise sind das, was Sie bezahlen.",
-    "returnsHeading": "Rücksendungen",
-    "returnsParagraphs": [
-      "Bitte prüfen Sie die Ware bei der Übergabe und sagen Sie uns sofort Bescheid, wenn etwas fehlt oder beschädigt ist.",
-      "Wenn Sie Ware zurückgeben möchten, melden Sie sich zuerst bei uns: Wir sagen Ihnen, wohin Sie sie schicken oder bringen. Bitte senden Sie sie vollständig und, wo möglich, in der Originalverpackung zurück."
-    ],
-    "returnsWithdrawalLink": "Ihr Widerrufsrecht"
-  },
   "errors": {
     "notFoundTitle": "Seite nicht gefunden",
     "notFoundBody": "Die gesuchte Seite gibt es nicht.",
@@ -530,6 +321,217 @@
     "partyChoice": {
       "person": "Privatperson",
       "company": "Unternehmen"
+    }
+  },
+  "ordering": {
+    "cart": {
+      "navLabel": "Warenkorb",
+      "title": "Ihr Warenkorb",
+      "summaryAria": "Warenkorb: {total}, Positionen: {count}",
+      "empty": "Ihr Warenkorb ist leer.",
+      "emptyAction": "Zum Katalog",
+      "loadError": "Beim Berechnen Ihres Warenkorbs ist etwas schiefgegangen – bitte versuchen Sie es später noch einmal.",
+      "storageFailed": "Dieser Browser speichert Ihren Warenkorb nicht – er ist weg, sobald Sie diese Seite schließen.",
+      "lineNoteAria": "Anmerkung",
+      "removeAria": "{name} entfernen",
+      "selectLineAria": "{name} auswählen",
+      "selectAll": "Alle auswählen",
+      "clearSelection": "Auswahl aufheben",
+      "deleteSelected": "Auswahl löschen",
+      "deleteSelectedConfirm": {
+        "heading": "Ausgewählte Positionen löschen",
+        "message": "Die Auswahl aus Ihrem Warenkorb entfernen? Ausgewählte Positionen: {count}. Das lässt sich nicht rückgängig machen.",
+        "confirm": "Auswahl löschen"
+      },
+      "checkout": "Zur Kasse",
+      "continueShopping": "Weiter einkaufen",
+      "changes": {
+        "heading": "Was sich geändert hat, während Ihr Warenkorb wartete",
+        "dismissAria": "Diese Übersicht schließen",
+        "unavailable": "{name} ist nicht mehr erhältlich.",
+        "quantity": "{name}: Die Menge wurde auf die nächste lieferbare angepasst.",
+        "price": "{name}: Der Preis hat sich von {from} auf {to} geändert.",
+        "unpriced": "{name}: Für diese Position können wir gerade keinen Preis nennen – wir bestätigen ihn mit Ihnen.",
+        "outOfStock": "{name} ist ausverkauft und kann gerade nicht bestellt werden.",
+        "backInStock": "{name} ist wieder vorrätig."
+      },
+      "issues": {
+        "unavailable": "Nicht mehr erhältlich – bitte entfernen Sie diese Position.",
+        "unitUnavailable": "Dieses Produkt wird nicht mehr so verpackt, daher wird die Menge jetzt in Stück angezeigt.",
+        "quantityCorrected": "Die Menge wurde auf die nächste lieferbare angepasst.",
+        "noteNotAllowed": "Dieses Produkt nimmt keine Anmerkung mehr an, daher wurde Ihre entfernt.",
+        "priceUnavailable": "Für diese Position können wir gerade keinen Preis nennen – wir bestätigen ihn mit Ihnen.",
+        "outOfStock": "Ausverkauft – bitte entfernen Sie diese Position, um zu bestellen."
+      },
+      "pairing": {
+        "shortAction": "{count} {unit} hinzufügen",
+        "shortReason": "von dem, womit es zusammen verkauft wird.",
+        "summary": "Produkte im Warenkorb, denen fehlt, womit sie zusammen verkauft werden: {count}.",
+        "summaryEnforced": "Produkte im Warenkorb, die nicht ohne das bestellt werden können, womit sie zusammen verkauft werden: {count}."
+      }
+    },
+    "checkout": {
+      "title": "Kasse",
+      "intro": "Schicken Sie uns Ihre Bestellung, und wir stimmen die Einzelheiten mit Ihnen ab.",
+      "emptyCart": "In Ihrem Warenkorb ist nichts zu bestellen.",
+      "signInPrompt": "Schon Kunde? Melden Sie sich an, dann gelten Ihre vereinbarten Preise für diese Bestellung.",
+      "signInAction": "Anmelden",
+      "phoneMissing": "Für eine Bestellanfrage brauchen wir eine Telefonnummer, und zu diesem Konto ist keine hinterlegt – unser Team meldet sich telefonisch. Bitte ergänzen Sie eine in Ihrem Konto und kommen Sie dann hierher zurück; der Warenkorb bleibt erhalten.",
+      "phoneMissingAction": "Telefonnummer ergänzen",
+      "contact": {
+        "heading": "Wer bestellt?",
+        "name": "Ihr Name",
+        "contactName": "Nach wem sollen wir fragen?",
+        "nameRequired": "Bitte sagen Sie uns, nach wem wir fragen sollen.",
+        "note": "Die Rechnung geht an die Person, die Sie hier nennen; E-Mail und Telefon nutzen wir nur, um die Bestellung zu bestätigen."
+      },
+      "party": {
+        "heading": "An wen geht die Rechnung?",
+        "own": "An mich",
+        "other": "An jemand anderen",
+        "personName": "Name des Rechnungsempfängers",
+        "nameRequired": "Bitte nennen Sie den Namen für die Rechnung.",
+        "otherNotice": "Den Preis bestätigen wir mit Ihnen – Ihre vereinbarten Preise gelten nur für Ihr eigenes Konto."
+      },
+      "addresses": {
+        "deliveryHeading": "Wohin sollen wir liefern?",
+        "billingHeading": "Wohin soll die Rechnung gehen?",
+        "billingOnlyHeading": "Wohin soll die Rechnung gehen?",
+        "sameAsDelivery": "Die Rechnung auch an diese Adresse schicken",
+        "addNew": "Andere Adresse verwenden",
+        "loadError": "Ihre gespeicherten Adressen konnten nicht geladen werden – bitte geben Sie unten eine ein.",
+        "saveToBook": "Diese Adresse für das nächste Mal speichern"
+      },
+      "zone": {
+        "resolved": "Liefergebiet: {zone}",
+        "shortOf": "Noch {amount} bis zur kostenlosen Lieferung in diesem Gebiet.",
+        "qualifies": "Diese Bestellung wird in diesem Gebiet kostenlos geliefert.",
+        "noDelivery": "In dieses Gebiet liefern wir nicht. Geben Sie eine Adresse in einem unserer Liefergebiete an – etwa das Depot einer Spedition – oder schicken Sie die Bestellung so ab, und wir finden mit Ihnen einen Weg.",
+        "unknown": "Die Lieferung an diese Adresse bestätigen wir mit Ihnen."
+      },
+      "timing": {
+        "placeholder": "Datum wählen…",
+        "deliveryHint": "Nur Ihr Wunsch: Den tatsächlichen Liefertermin bestätigt unser Team.",
+        "pickupHint": "Nur Ihr Wunsch: Den tatsächlichen Abholtermin bestätigt unser Team.",
+        "unavailable": "An diesem Tag geht es leider nicht. Bitte wählen Sie einen Werktag ab dem nächsten."
+      },
+      "payment": {
+        "heading": "Wie möchten Sie bezahlen?",
+        "cashDeliveryDescription": "Sie bezahlen, wenn Sie Ihre Bestellung erhalten.",
+        "cashPickupDescription": "Sie bezahlen, wenn Sie Ihre Bestellung abholen.",
+        "transferDescription": "Sobald wir Ihre Bestellung bestätigen, schicken wir Ihnen eine Rechnung mit unserer Bankverbindung.",
+        "transferCompanyOnly": "Nur für Bestellungen mit einem Unternehmen als Rechnungsempfänger.",
+        "cashPersonOnly": "Nur für Bestellungen mit einer Privatperson als Rechnungsempfänger."
+      },
+      "note": {
+        "label": "Gibt es etwas, das wir wissen sollten?",
+        "placeholder": "Hinweise zur Lieferung, eine Referenz für Ihre Rechnung oder anderes."
+      },
+      "review": {
+        "title": "Bestellung prüfen",
+        "intro": "Noch ist nichts abgeschickt. Lesen Sie alles durch und senden Sie es ab, wenn es stimmt.",
+        "back": "Etwas ändern",
+        "backToCart": "Zurück zum Warenkorb",
+        "send": "Prüfen und absenden"
+      },
+      "submit": "Zahlungspflichtig bestellen",
+      "successHeading": "Vielen Dank – Ihre Bestellung ist bei uns",
+      "success": "Ihre Bestellanfrage hat die Nummer {reference}. Einzelheiten, Lieferung und Preis bestätigen wir Ihnen in Kürze.",
+      "successView": "Bestellung ansehen",
+      "successAction": "Zurück zum Katalog",
+      "errors": {
+        "incomplete": "Einige Angaben fehlen oder müssen korrigiert werden – sie sind im Formular markiert.",
+        "invalidCompanyId": "Diese Unternehmenskennung hat kein Format, auf das wir eine Rechnung ausstellen können. Bitte prüfen Sie sie.",
+        "unsupportedCountry": "In dieses Land liefern wir nicht. Bitte wählen Sie eine andere Adresse.",
+        "invalidPostalCode": "Diese Postleitzahl passt nicht zum gewählten Land. Bitte prüfen Sie sie.",
+        "unknownPickupLocation": "Dieser Abholort ist nicht mehr verfügbar. Bitte wählen Sie einen anderen.",
+        "billingDetailsRequired": "Für eine Überweisung brauchen wir ein Unternehmen als Rechnungsempfänger. Bitte wählen Sie einen anderen Empfänger oder eine andere Zahlungsart.",
+        "cashNotAvailable": "Bei einem Unternehmen als Rechnungsempfänger können wir keine Barzahlung annehmen. Bitte bezahlen Sie per Überweisung.",
+        "customerTypeNotAccepted": "Diese Bestellung kann nur auf eine Art von Kunde ausgestellt werden, an die wir verkaufen. Bitte prüfen Sie, wer die Rechnung erhält.",
+        "partyRequired": "Bitte sagen Sie uns, an wen die Rechnung gehen soll.",
+        "rejected": "Wir konnten diese Bestellung nicht annehmen. Bitte versuchen Sie es noch einmal.",
+        "cartChanged": "Preise oder Mengen in Ihrem Warenkorb haben sich geändert, während Sie das Formular ausgefüllt haben – bitte prüfen Sie Ihre Bestellung und senden Sie sie erneut ab.",
+        "pairingUnsatisfied": "Einigen Produkten in Ihrem Warenkorb fehlt, womit sie zusammen verkauft werden.",
+        "generic": "Beim Absenden Ihrer Bestellung ist etwas schiefgegangen. Bitte versuchen Sie es noch einmal.",
+        "staffAccount": "Mit einem Mitarbeiterkonto lassen sich keine Bestellanfragen senden – eine Bestellung braucht ein Kundenkonto, denn daran hängen die vereinbarten Preise und die Lieferadresse. Melden Sie sich als Kunde an, um die Kasse auszuprobieren."
+      },
+      "fulfilment": {
+        "heading": "Wie möchten Sie Ihre Bestellung erhalten?",
+        "pickupDescription": "Holen Sie Ihre Bestellung kostenlos selbst ab.",
+        "conditionsLink": "Lieferbedingungen",
+        "conditionsHeading": "Wohin wir liefern",
+        "conditionsNote": "Nur zur Orientierung – Lieferung und Kosten bestätigen wir mit jeder Bestellung.",
+        "conditionsMore": "Alle Bedingungen lesen",
+        "freeFrom": "Kostenlose Lieferung ab {amount}",
+        "noFreeDelivery": "Lieferkosten nach Angebot",
+        "noDelivery": "In dieses Gebiet liefern wir nicht.",
+        "pickupHeading": "Wo möchten Sie Ihre Bestellung abholen?",
+        "pickupRequired": "Bitte wählen Sie, wo Sie Ihre Bestellung abholen möchten.",
+        "mapLink": "Auf der Karte zeigen"
+      }
+    },
+    "orders": {
+      "heading": "Meine Bestellungen",
+      "intro": "Alle Bestellanfragen, die Sie uns geschickt haben, mit ihrem Inhalt.",
+      "action": "Alle meine Bestellungen",
+      "awaitingPayment": "Zu bezahlen: {count}",
+      "awaitingPickup": "Abholbereit: {count}",
+      "filterToPay": "Zu bezahlen",
+      "filterToCollect": "Abholbereit",
+      "filterRemoveAria": "Alle Bestellungen anzeigen ({label})",
+      "filterEmpty": "Gerade wartet nichts auf Sie.",
+      "empty": "Sie haben uns noch keine Bestellung geschickt.",
+      "emptyAction": "Zum Katalog",
+      "itemCount": "Positionen: {count}",
+      "error": "Ihre Bestellungen konnten gerade nicht geladen werden. Bitte versuchen Sie es später noch einmal.",
+      "back": "Zurück zu meinem Konto",
+      "detail": {
+        "placed": "Gesendet am {date}",
+        "notFound": "Diese Bestellung finden wir in Ihrem Konto nicht.",
+        "backToList": "Zurück zu meinen Bestellungen",
+        "error": "Diese Bestellung konnte gerade nicht geladen werden. Bitte versuchen Sie es später noch einmal.",
+        "cancel": {
+          "action": "Diese Bestellung stornieren",
+          "reasonLabel": "Bitte sagen Sie uns, warum",
+          "error": "Wir konnten diese Bestellung nicht stornieren. Vielleicht ist sie schon weiter – bitte laden Sie die Seite neu oder rufen Sie uns an."
+        },
+        "cancelConfirm": {
+          "heading": "Diese Bestellung stornieren?",
+          "message": "Wir arbeiten dann nicht weiter an Bestellung {reference}. Sie können uns jederzeit eine neue schicken.",
+          "confirm": "Bestellung stornieren",
+          "cancel": "Bestellung behalten",
+          "warning": "Für diese Bestellung haben wir bereits eine Zahlung verbucht. Eine Stornierung hier überweist das Geld nicht zurück – bitte klären Sie die Erstattung direkt mit uns."
+        },
+        "documents": {
+          "heading": "Dokumente",
+          "summary": "Ihre Bestellung als PDF",
+          "paymentInstructions": "So bezahlen Sie"
+        }
+      },
+      "public": {
+        "heading": "Ihre Bestellung",
+        "intro": "Das ist die Bestellanfrage, die Sie uns geschickt haben. Nichts wird berechnet und nichts verschickt, bevor wir sie mit Ihnen bestätigt haben.",
+        "notFound": "Dieser Link öffnet keine Bestellung. Vielleicht ist er falsch eingegeben, oder die Bestellung wurde entfernt.",
+        "home": "Zurück zum Shop"
+      }
+    },
+    "conditions": {
+      "paymentHeading": "Zahlung",
+      "cashDescription": "Bezahlt wird bei Übergabe der Bestellung – an Ihrer Tür oder an unserem Tresen.",
+      "goodsHeading": "Ware & Preise",
+      "goodsParagraphs": [
+        "Die Produktbilder zeigen die Ware so genau, wie wir können; Farben können am Bildschirm etwas anders wirken.",
+        "Manche Ware wird <b>sortiert</b> verkauft: Sie erhalten eines der gezeigten Motive. Ein Motiv, das Sie in Ihrer Bestellung nennen, ist ein Wunsch, den wir zu erfüllen versuchen, kein Versprechen."
+      ],
+      "taxIncluded": "Alle Preise enthalten {rate} % MwSt. Ware mit ermäßigtem Steuersatz nennt ihn auf ihrer Produktseite.",
+      "taxAdded": "Alle Preise sind Nettopreise. Die MwSt. von {rate} % kommt auf der Rechnung hinzu; Ware mit ermäßigtem Steuersatz nennt ihn auf ihrer Produktseite.",
+      "taxNone": "Wir berechnen keine MwSt.: Die Preise sind das, was Sie bezahlen.",
+      "returnsHeading": "Rücksendungen",
+      "returnsParagraphs": [
+        "Bitte prüfen Sie die Ware bei der Übergabe und sagen Sie uns sofort Bescheid, wenn etwas fehlt oder beschädigt ist.",
+        "Wenn Sie Ware zurückgeben möchten, melden Sie sich zuerst bei uns: Wir sagen Ihnen, wohin Sie sie schicken oder bringen. Bitte senden Sie sie vollständig und, wo möglich, in der Originalverpackung zurück."
+      ],
+      "returnsWithdrawalLink": "Ihr Widerrufsrecht"
     }
   }
 }

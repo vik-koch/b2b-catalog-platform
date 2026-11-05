@@ -3,10 +3,6 @@
  * needs is provided under a token, so a spec hands one over without a file.
  */
 import {
-  DeliveryConfig,
-  OrderReferenceConfig,
-} from '@b2b-catalog-platform/shared/core/ordering';
-import {
   companyIdMatchesAny,
   KeyboardLayout,
   CompanyIdFormat,
@@ -38,7 +34,7 @@ type ApiDeploymentConfig = z.infer<typeof deploymentConfigSchema>;
 /** An area's block is read through the area's own loader. */
 type UnclaimedDeploymentConfig = Omit<
   ApiDeploymentConfig,
-  'site' | 'catalog' | 'accounts'
+  'site' | 'catalog' | 'accounts' | 'ordering'
 >;
 
 let cached: ApiDeploymentConfig | undefined;
@@ -86,13 +82,6 @@ export function loadPdfFont(): PdfFontFiles | undefined {
     return path;
   };
   return { regular: resolve(pdf.regular), bold: resolve(pdf.bold) };
-}
-
-/** Whether an order carries an invoice address of its own. */
-export const BILLING_ADDRESS_ENABLED = 'BILLING_ADDRESS_ENABLED';
-
-export function loadBillingAddressEnabled(): boolean {
-  return loadApiDeploymentConfig().billingAddressEnabled;
 }
 
 /** Whether the receipt attaches the accepted terms as a document. */
@@ -154,34 +143,6 @@ export const COMPANY_ID_FORMATS = 'COMPANY_ID_FORMATS';
 
 export function loadCompanyIdFormats(): readonly CompanyIdFormat[] {
   return loadApiDeploymentConfig().companyIdInput?.formats ?? [];
-}
-
-/** The collection points, as the order service needs them: what a key must
- * match, and what an order snapshots when it does. */
-export const PICKUP_LOCATIONS = 'PICKUP_LOCATIONS';
-
-export interface PickupLocation {
-  key: string;
-  name: string;
-  address: string;
-}
-
-export function loadPickupLocations(): readonly PickupLocation[] {
-  return loadApiDeploymentConfig().pickup?.locations ?? [];
-}
-
-/** The delivery zones, first match wins; with none, no address has a zone. */
-export const DELIVERY_CONFIG = 'DELIVERY_CONFIG';
-
-export function loadDeliveryConfig(): DeliveryConfig | undefined {
-  return loadApiDeploymentConfig().delivery;
-}
-
-/** Defaulted: a deployment that says nothing takes orders as `ORD`. */
-export const ORDER_REFERENCE_CONFIG = 'ORDER_REFERENCE_CONFIG';
-
-export function loadOrderReferenceConfig(): OrderReferenceConfig {
-  return loadApiDeploymentConfig().orderReference ?? { prefix: 'ORD' };
 }
 
 /** The shop's own day, in mails, PDFs and order references. */

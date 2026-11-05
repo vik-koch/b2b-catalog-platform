@@ -1,3 +1,4 @@
+import { STOREFRONT_ORDERING_TEXT } from '../ordering-text';
 import {
   Component,
   computed,
@@ -21,7 +22,6 @@ import {
   ProductRow,
   RowProduct,
 } from '../../catalog/ui/product-row';
-import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import { debounced } from '@b2b-catalog-platform/ui/core/debounced';
@@ -368,7 +368,7 @@ export class CartPage {
   private readonly currency = moneyFormat(inject(DEPLOYMENT_CONFIG));
   private readonly boxUnits = this.catalogConfig.boxUnits;
 
-  protected readonly text = inject(STOREFRONT_TEXT).cart;
+  protected readonly text = inject(STOREFRONT_ORDERING_TEXT).cart;
 
   private readonly buyText = inject(SHARED_CATALOG_TEXT).buying;
   protected readonly changeText = this.text.changes;

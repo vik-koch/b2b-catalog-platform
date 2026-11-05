@@ -99,14 +99,16 @@ const asStaff = (ctx: OrderSyncJourneyContext, url: string) =>
 const mailText = JSON.parse(
   readFileSync(configFile('texts/mail.json'), 'utf8'),
 ) as {
-  orderReceived: { subject: string };
-  orderStatusChanged: {
-    subject: string;
-    statuses: Record<string, { heading: string }>;
-  };
-  orderDocument: {
-    subject: string;
-    kinds: Record<string, { heading: string }>;
+  ordering: {
+    orderReceived: { subject: string };
+    orderStatusChanged: {
+      subject: string;
+      statuses: Record<string, { heading: string }>;
+    };
+    orderDocument: {
+      subject: string;
+      kinds: Record<string, { heading: string }>;
+    };
   };
   syncRun: {
     areas: { orders: Record<string, { heading: string }> };
@@ -128,12 +130,12 @@ const SHOP_MAIL_KINDS: Readonly<Record<string, string>> = {
 async function classify(id: string, subject: string): Promise<string> {
   const message = await messageBody(id);
   const carried = message.Attachments.length > 0 ? '+attached' : '';
-  if (subject.startsWith(mailText.orderReceived.subject)) {
+  if (subject.startsWith(mailText.ordering.orderReceived.subject)) {
     return `receipt${carried}`;
   }
-  const headings = subject.startsWith(mailText.orderDocument.subject)
-    ? Object.entries(mailText.orderDocument.kinds)
-    : Object.entries(mailText.orderStatusChanged.statuses);
+  const headings = subject.startsWith(mailText.ordering.orderDocument.subject)
+    ? Object.entries(mailText.ordering.orderDocument.kinds)
+    : Object.entries(mailText.ordering.orderStatusChanged.statuses);
   const match = headings.find(([, wording]) =>
     message.Text.includes(wording.heading),
   );

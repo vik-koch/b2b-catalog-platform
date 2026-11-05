@@ -50,47 +50,6 @@
     "kb": "{size} kB",
     "mb": "{size} MB"
   },
-  "order": {
-    "reference": "Order",
-    "status": "Status",
-    "total": "Order total",
-    "reason": "Reason",
-    "changeNote": "Change note",
-    "contact": "Contact",
-    "invoicedTo": "Invoiced to",
-    "payment": "Payment",
-    "deliveryAddress": "Delivery address",
-    "preferredDelivery": "Preferred delivery date",
-    "preferredPickup": "Preferred collection date",
-    "items": "Your items",
-    "note": "Your note",
-    "pickupPoint": "Collect from",
-    "termsVersion": "As updated on {date}",
-    "statuses": {
-      "requested": "Awaiting confirmation",
-      "approved": "Confirmed",
-      "readyDelivery": "On its way to you",
-      "readyPickup": "Ready to collect",
-      "completed": "Complete",
-      "declined": "Declined",
-      "cancelled": "Cancelled"
-    },
-    "paymentMethods": {
-      "cash": "Cash",
-      "transfer": "Bank transfer",
-      "card": "Card, arranged with us"
-    },
-    "paymentStates": {
-      "notDue": "Nothing due yet",
-      "awaiting": "Awaiting payment",
-      "paid": "Paid"
-    }
-  },
-  "fulfilment": {
-    "label": "How it arrives",
-    "delivery": "Delivery",
-    "pickup": "Self-pickup"
-  },
   "fields": {
     "name": {
       "label": "Name",
@@ -243,6 +202,47 @@
     }
   },
   "ordering": {
+    "order": {
+      "reference": "Order",
+      "status": "Status",
+      "total": "Order total",
+      "reason": "Reason",
+      "changeNote": "Change note",
+      "contact": "Contact",
+      "invoicedTo": "Invoiced to",
+      "payment": "Payment",
+      "deliveryAddress": "Delivery address",
+      "preferredDelivery": "Preferred delivery date",
+      "preferredPickup": "Preferred collection date",
+      "items": "Your items",
+      "note": "Your note",
+      "pickupPoint": "Collect from",
+      "termsVersion": "As updated on {date}",
+      "statuses": {
+        "requested": "Awaiting confirmation",
+        "approved": "Confirmed",
+        "readyDelivery": "On its way to you",
+        "readyPickup": "Ready to collect",
+        "completed": "Complete",
+        "declined": "Declined",
+        "cancelled": "Cancelled"
+      },
+      "paymentMethods": {
+        "cash": "Cash",
+        "transfer": "Bank transfer",
+        "card": "Card, arranged with us"
+      },
+      "paymentStates": {
+        "notDue": "Nothing due yet",
+        "awaiting": "Awaiting payment",
+        "paid": "Paid"
+      }
+    },
+    "fulfilment": {
+      "label": "How it arrives",
+      "delivery": "Delivery",
+      "pickup": "Self-pickup"
+    },
     "orderSummary": {
       "title": "Your order",
       "lines": "Line items",

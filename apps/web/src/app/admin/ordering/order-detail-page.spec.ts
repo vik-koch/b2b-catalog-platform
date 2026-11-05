@@ -1,3 +1,5 @@
+import { defaultSharedOrderingText } from '../../core/ordering/ordering-text.fixture';
+import { defaultAdminOrderingText } from './ordering-text.fixture';
 import { SHARED_TEXT } from '../../platform/config/shared-text';
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
@@ -20,8 +22,8 @@ import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service
 import { AdminOrderDetailPage } from './order-detail-page';
 import { AdminOrdersService } from './orders.service';
 
-const text = defaultAdminText.orders.detail;
-const names = defaultSharedText.order;
+const text = defaultAdminOrderingText.orders.detail;
+const names = defaultSharedOrderingText.order;
 
 const address = {
   street: 'Hafenstraße 12',
@@ -208,9 +210,9 @@ describe('AdminOrderDetailPage (FR-AUTH-03)', () => {
   it('shows what only staff see', async () => {
     const { el } = await render(placed);
 
-    expect(el.textContent).toContain(defaultAdminText.orders.account);
+    expect(el.textContent).toContain(defaultAdminOrderingText.orders.account);
     expect(el.textContent).toContain('alex@example.com');
-    expect(el.textContent).toContain(defaultAdminText.orders.tier);
+    expect(el.textContent).toContain(defaultAdminOrderingText.orders.tier);
     expect(el.textContent).toContain('wholesale');
   });
 
@@ -223,8 +225,10 @@ describe('AdminOrderDetailPage (FR-AUTH-03)', () => {
       customerEmail: null,
     });
 
-    expect(el.textContent).toContain(defaultAdminText.orders.tierDefault);
-    expect(el.textContent).toContain(defaultAdminText.orders.guest);
+    expect(el.textContent).toContain(
+      defaultAdminOrderingText.orders.tierDefault,
+    );
+    expect(el.textContent).toContain(defaultAdminOrderingText.orders.guest);
   });
 
   // NFR-LEGAL-10: the version to hand the customer, as the page editor
@@ -245,12 +249,12 @@ describe('AdminOrderDetailPage (FR-AUTH-03)', () => {
   it('reads the order back in the admin’s own words', async () => {
     const { el } = await render(placed);
 
-    expect(el.textContent).toContain(defaultAdminText.orders.items);
+    expect(el.textContent).toContain(defaultAdminOrderingText.orders.items);
     expect(el.textContent).toContain(names.invoicedTo);
     expect(el.textContent).toContain('Kontor GmbH · DE123456789');
     expect(el.textContent).toContain(text.billingSame);
     expect(el.textContent).toContain(
-      defaultAdminText.orders.paymentMethods.transfer,
+      defaultAdminOrderingText.orders.paymentMethods.transfer,
     );
     expect(el.textContent).toContain(text.whenAny);
   });
@@ -258,14 +262,14 @@ describe('AdminOrderDetailPage (FR-AUTH-03)', () => {
   it('says an unknown reference opens nothing', async () => {
     const { el } = await render(null);
 
-    expect(el.textContent).toContain(defaultAdminText.orders.notFound);
+    expect(el.textContent).toContain(defaultAdminOrderingText.orders.notFound);
   });
 
   it('says so when the order cannot be read', async () => {
     const { el } = await render('reject');
 
     expect(el.querySelector('[role="alert"]')?.textContent).toContain(
-      defaultAdminText.orders.loadError,
+      defaultAdminOrderingText.orders.loadError,
     );
   });
 });
@@ -338,7 +342,7 @@ describe('AdminOrderDetailPage answering an order', () => {
     const owing = await render({ ...placed, paymentState: 'awaiting' });
     expect(buttons(owing.el)).toContain(text.paymentState.record);
     expect(owing.el.textContent).toContain(
-      defaultAdminText.orders.paymentStates.awaiting,
+      defaultAdminOrderingText.orders.paymentStates.awaiting,
     );
 
     const settled = await render({

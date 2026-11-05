@@ -1,3 +1,4 @@
+import { sharedOrderingText, orderingPdf } from './ordering-text';
 import { SharedText, fillText } from '@b2b-catalog-platform/shared/platform';
 import { AdminOrderDetail } from '@b2b-catalog-platform/shared/core/ordering';
 import { Inject, Injectable, Logger } from '@nestjs/common';
@@ -62,13 +63,13 @@ export class TermsPdf {
       const zone = this.timeZone;
       return [
         {
-          fileName: fillText(this.text.terms.fileName, {
+          fileName: fillText(orderingPdf(this.text).terms.fileName, {
             date: shopIsoDay(iso, zone),
           }),
           contentType: 'application/pdf',
           bytes: await this.render(
             version,
-            fillText(this.common.order.termsVersion, {
+            fillText(sharedOrderingText(this.common).order.termsVersion, {
               date: shopDay(iso, this.branding.locale, zone),
             }),
           ),

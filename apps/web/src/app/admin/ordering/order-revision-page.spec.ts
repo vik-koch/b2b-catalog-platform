@@ -1,3 +1,4 @@
+import { defaultAdminOrderingText } from './ordering-text.fixture';
 import { SHARED_TEXT } from '../../platform/config/shared-text';
 import { defaultSharedText } from '../../platform/config/shared-text.fixture';
 import { TestBed } from '@angular/core/testing';
@@ -14,7 +15,7 @@ import { defaultDeploymentConfig } from '../../platform/config/deployment-config
 import { AdminOrderRevisionPage } from './order-revision-page';
 import { AdminOrdersService } from './orders.service';
 
-const text = defaultAdminText.orders.detail;
+const text = defaultAdminOrderingText.orders.detail;
 
 const address = {
   street: 'Hafenstraße 12',
@@ -169,7 +170,7 @@ describe('AdminOrderRevisionPage (FR-ORD-03)', () => {
     expect(el.textContent).toContain('Version 2');
     expect(el.textContent).toContain('version 3');
     expect(el.textContent).toContain(
-      defaultAdminText.orders.paymentStates.awaiting,
+      defaultAdminOrderingText.orders.paymentStates.awaiting,
     );
   });
 
@@ -212,6 +213,6 @@ describe('AdminOrderRevisionPage (FR-ORD-03)', () => {
   it('says so where the version is not there', async () => {
     const { el } = await render(null);
 
-    expect(el.textContent).toContain(defaultAdminText.orders.notFound);
+    expect(el.textContent).toContain(defaultAdminOrderingText.orders.notFound);
   });
 });

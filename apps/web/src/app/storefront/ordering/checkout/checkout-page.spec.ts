@@ -1,3 +1,5 @@
+import { withOrdering } from '../../../core/ordering/ordering-config.fixture';
+import { defaultStorefrontOrderingText } from '../ordering-text.fixture';
 import { defaultSharedOrderingText } from '../../../core/ordering/ordering-text.fixture';
 import { withAccounts } from '../../../core/accounts/accounts-config.fixture';
 import { defaultSharedAccountsText } from '../../../core/accounts/accounts-text.fixture';
@@ -41,9 +43,9 @@ import { withSite } from '../../../core/site/site-config.fixture';
  * date here would be a working weekday now and a past Saturday later. */
 const wishedDate = firstOrderDate(localToday());
 
-const text = defaultStorefrontText.checkout;
-const names = defaultSharedText.order;
-const fulfilment = defaultSharedText.fulfilment;
+const text = defaultStorefrontOrderingText.checkout;
+const names = defaultSharedOrderingText.order;
+const fulfilment = defaultSharedOrderingText.fulfilment;
 
 function addition(): CartAddition {
   return {
@@ -294,20 +296,13 @@ async function render(options: Options = {}) {
 }
 
 /** A deployment that invoices no address of its own (FR-CART-07). */
-const noBillingAddress: DeploymentConfig = {
-  ...defaultDeploymentConfig,
-  billingAddressEnabled: false,
-};
+const noBillingAddress = withOrdering({ billingAddressEnabled: false });
 
 function withPickupPoints(count: number): DeploymentConfig {
-  const locations = (defaultDeploymentConfig.pickup?.locations ?? []).slice(
-    0,
-    count,
-  );
-  return {
-    ...defaultDeploymentConfig,
-    pickup: locations.length ? { locations } : undefined,
-  };
+  const locations = (
+    defaultDeploymentConfig.ordering.pickup?.locations ?? []
+  ).slice(0, count);
+  return withOrdering({ pickup: locations.length ? { locations } : undefined });
 }
 
 /**
@@ -344,7 +339,8 @@ describe('CheckoutPage', () => {
       await page.settle();
 
       expect(page.text()).toContain(text.fulfilment.pickupHeading);
-      for (const point of defaultDeploymentConfig.pickup?.locations ?? []) {
+      for (const point of defaultDeploymentConfig.ordering.pickup?.locations ??
+        []) {
         expect(page.text()).toContain(point.name);
         expect(page.text()).toContain(point.address);
       }
@@ -354,7 +350,7 @@ describe('CheckoutPage', () => {
     // a previous visit, never passing through the fulfilment click.
     it('answers a single collection point itself, however pickup was reached', async () => {
       const only = withPickupPoints(1);
-      const key = only.pickup?.locations[0].key;
+      const key = only.ordering.pickup?.locations[0].key;
 
       const clicked = await render({ config: only });
       clicked.pick('fulfilment', 'pickup');
@@ -392,7 +388,8 @@ describe('CheckoutPage', () => {
 
     it('takes the message back once a point is chosen', async () => {
       const page = await render();
-      const key = defaultDeploymentConfig.pickup?.locations[0].key ?? '';
+      const key =
+        defaultDeploymentConfig.ordering.pickup?.locations[0].key ?? '';
 
       page.drafts.patch({ fulfilmentMethod: 'pickup' });
       await page.settle();

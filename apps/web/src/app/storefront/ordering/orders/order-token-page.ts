@@ -1,3 +1,4 @@
+import { STOREFRONT_ORDERING_TEXT } from '../ordering-text';
 import { STOREFRONT_ACCOUNTS_TEXT } from '../../accounts/accounts-text';
 import { Component, computed, inject, input, resource } from '@angular/core';
 import { RouterLink } from '@angular/router';
@@ -104,7 +105,8 @@ export class OrderTokenPage {
   private readonly api = inject(OrdersService);
   private readonly auth = inject(AuthService);
   private readonly storefrontText = inject(STOREFRONT_TEXT);
-  protected readonly orderText = this.storefrontText.orders;
+  private readonly storefrontOrderingText = inject(STOREFRONT_ORDERING_TEXT);
+  protected readonly orderText = this.storefrontOrderingText.orders;
   protected readonly text = this.orderText.public;
   protected readonly invite = inject(STOREFRONT_ACCOUNTS_TEXT).auth
     .registerInvite;

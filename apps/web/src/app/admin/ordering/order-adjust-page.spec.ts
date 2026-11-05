@@ -1,3 +1,6 @@
+import { withOrdering } from '../../core/ordering/ordering-config.fixture';
+import { defaultSharedOrderingText } from '../../core/ordering/ordering-text.fixture';
+import { defaultAdminOrderingText } from './ordering-text.fixture';
 import { withAccounts } from '../../core/accounts/accounts-config.fixture';
 import { SHARED_TEXT } from '../../platform/config/shared-text';
 import { TestBed } from '@angular/core/testing';
@@ -23,8 +26,8 @@ import { AdminOrdersService } from './orders.service';
 import { provideDigitMaskFormat } from '../../platform/contact-fields';
 import { provideFakeWorkRefresh } from '../../platform/work-refresh.fixture';
 
-const text = defaultAdminText.orders.adjust;
-const names = defaultSharedText.order;
+const text = defaultAdminOrderingText.orders.adjust;
+const names = defaultSharedOrderingText.order;
 
 const address = {
   street: 'Hafenstraße 12',
@@ -274,10 +277,7 @@ describe('AdminOrderAdjustPage (FR-ORD-03)', () => {
   it('keeps an invoice address the deployment no longer asks for', async () => {
     const { el } = await settled(
       {},
-      {
-        ...defaultDeploymentConfig,
-        billingAddressEnabled: false,
-      },
+      withOrdering({ billingAddressEnabled: false }),
     );
 
     expect(el.textContent).toContain(text.changes.none);

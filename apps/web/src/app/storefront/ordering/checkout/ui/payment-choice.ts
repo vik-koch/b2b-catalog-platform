@@ -1,10 +1,10 @@
+import { STOREFRONT_ORDERING_TEXT } from '../../ordering-text';
+import { SHARED_ORDERING_TEXT } from '../../../../core/ordering/ordering-text';
 import { Component, computed, inject, input, output } from '@angular/core';
 import {
   FulfilmentMethod,
   PaymentMethod,
 } from '@b2b-catalog-platform/shared/core/ordering';
-import { STOREFRONT_TEXT } from '../../../../platform/config/storefront-text';
-import { SHARED_TEXT } from '../../../../platform/config/shared-text';
 import { ChoiceCard } from '@b2b-catalog-platform/ui/choices/choice-card';
 
 /** How the order is paid (FR-CART-04): **recorded, never executed**; no wording
@@ -49,8 +49,8 @@ import { ChoiceCard } from '@b2b-catalog-platform/ui/choices/choice-card';
   `,
 })
 export class PaymentChoice {
-  protected readonly text = inject(STOREFRONT_TEXT).checkout.payment;
-  protected readonly names = inject(SHARED_TEXT).order.paymentMethods;
+  protected readonly text = inject(STOREFRONT_ORDERING_TEXT).checkout.payment;
+  protected readonly names = inject(SHARED_ORDERING_TEXT).order.paymentMethods;
 
   readonly method = input.required<PaymentMethod>();
   /** Cash's wording: handed over at the door or the counter. */

@@ -1,8 +1,8 @@
+import { ADMIN_ORDERING_TEXT } from './ordering-text';
 import { Component, computed, inject, input, output } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { fillText } from '@b2b-catalog-platform/shared/platform';
 import { AdminOrderDetail } from '@b2b-catalog-platform/shared/core/ordering';
-import { ADMIN_TEXT } from '../../platform/config/admin-text';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import {
   ConfirmService,
@@ -61,7 +61,7 @@ interface BehindPart {
 })
 export class OrderCustomerSync {
   private readonly confirm = inject(ConfirmService);
-  private readonly detailText = inject(ADMIN_TEXT).orders.detail;
+  private readonly detailText = inject(ADMIN_ORDERING_TEXT).orders.detail;
   protected readonly text = this.detailText.tellCustomer;
   protected readonly revisionText = this.detailText.revisions;
 

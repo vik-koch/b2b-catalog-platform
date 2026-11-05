@@ -1,3 +1,4 @@
+import { defaultStorefrontOrderingText } from '../ordering-text.fixture';
 import { defaultSharedOrderingText } from '../../../core/ordering/ordering-text.fixture';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { TestBed } from '@angular/core/testing';
@@ -12,8 +13,8 @@ import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service
 import { OrderDetailPage } from './order-detail-page';
 import { OrdersService } from './orders.service';
 
-const text = defaultStorefrontText.orders;
-const names = defaultSharedText.order;
+const text = defaultStorefrontOrderingText.orders;
+const names = defaultSharedOrderingText.order;
 
 const address = {
   street: 'Hafenstraße 12',
@@ -132,7 +133,9 @@ describe('OrderDetailPage (FR-ACC-01)', () => {
 
     expect(el.textContent).toContain(placed.reference);
     expect(el.textContent).toContain(names.statuses.requested);
-    expect(el.textContent).toContain(defaultSharedText.fulfilment.label);
+    expect(el.textContent).toContain(
+      defaultSharedOrderingText.fulfilment.label,
+    );
     expect(el.textContent).toContain(names.invoicedTo);
     // The party carries its registration number, and the invoice went to the
     // same place as the goods.
@@ -187,7 +190,9 @@ describe('OrderDetailPage (FR-ACC-01)', () => {
       pickup: { key: 'harbour', name: 'Harbour store', address: 'Quay 3' },
     });
 
-    expect(el.textContent).toContain(defaultSharedText.fulfilment.pickup);
+    expect(el.textContent).toContain(
+      defaultSharedOrderingText.fulfilment.pickup,
+    );
     expect(el.textContent).toContain('Harbour store');
     expect(el.textContent).toContain(names.preferredPickup);
     // Not "invoiced to the same address": there was no delivery address to
