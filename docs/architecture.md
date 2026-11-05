@@ -152,31 +152,28 @@ Between areas, imports run one way, in the domain's direction:
 | retention | the retention sweeps over orders and consents |
 
 The graph is counted from the code: each number is the files that import across that edge,
-broken down by layer in the table below it. A dotted edge with a number is the one exception to
-the direction: every table records who changed a row, so any schema module may reference
-`users`. A dotted edge without one would be a permission nothing uses.
+broken down by layer in the table below it. A dotted edge would be a permission nothing uses.
+The rows marked "actor columns only" are the one exception to the direction, left out of the
+graph: every table records who changed a row, so any schema module may reference `users`.
 
 <!-- generated:area-graph -->
 
 ```mermaid
-flowchart LR
-  platform -.->|actor 1| accounts
-  catalog -.->|actor 1| accounts
-  accounts -->|7| catalog
-  accounts -->|15| site
-  site -.->|actor 1| accounts
-  ordering -->|26| catalog
-  ordering -->|31| accounts
-  ordering -->|8| site
-  exchange -->|11| catalog
-  exchange -->|9| accounts
-  exchange -->|7| ordering
-  work -->|1| catalog
-  work -->|1| accounts
-  work -->|1| ordering
-  work -->|1| exchange
-  retention -->|1| site
+flowchart TB
   retention -->|2| ordering
+  retention -->|1| site
+  work -->|1| exchange
+  work -->|1| ordering
+  work -->|1| accounts
+  work -->|1| catalog
+  exchange -->|7| ordering
+  exchange -->|9| accounts
+  exchange -->|11| catalog
+  ordering -->|8| site
+  ordering -->|31| accounts
+  ordering -->|26| catalog
+  accounts -->|15| site
+  accounts -->|7| catalog
 ```
 
 | From      | To       | API | contracts | web | Note               |

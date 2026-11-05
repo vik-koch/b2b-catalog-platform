@@ -163,17 +163,21 @@ if (strays.length > 0) {
   process.exit(1);
 }
 
-const lines = keys.map((key) => {
-  const [from, to] = key.split('>');
-  if (!edges.has(key)) return `  ${from} -.-> ${to}`;
-  const label = actorOnly.get(key) ? `actor ${total(key)}` : `${total(key)}`;
-  const arrow = actorOnly.get(key) ? '-.->' : '-->';
-  return `  ${from} ${arrow}|${label}| ${to}`;
-});
+// Actor edges run against the direction and would cross every layer, so they
+// stay in the table. Top-down, highest area first: the layout ranks nodes in
+// the order it meets them, so this keeps the domain's layers as rows.
+const lines = keys
+  .filter((key) => !actorOnly.get(key))
+  .reverse()
+  .map((key) => {
+    const [from, to] = key.split('>');
+    if (!edges.has(key)) return `  ${from} -.-> ${to}`;
+    return `  ${from} -->|${total(key)}| ${to}`;
+  });
 
 const body = [
   '```mermaid',
-  'flowchart LR',
+  'flowchart TB',
   ...lines,
   '```',
   '',
