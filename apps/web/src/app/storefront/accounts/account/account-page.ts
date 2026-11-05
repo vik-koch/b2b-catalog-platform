@@ -6,9 +6,10 @@ import {
   addressDisplayName,
 } from '../../../core/accounts/addresses/address-format';
 import { AddressesService } from '../../../core/accounts/addresses/addresses.service';
-import { SignedInAs } from '../../../platform/auth/signed-in-as';
+import { SignedInAs } from '../../../core/accounts/auth/signed-in-as';
 import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { SHARED_ACCOUNTS_TEXT } from '../../../core/accounts/accounts-text';
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import { formatPhone } from '../../../platform/contact-fields';
 import { usePageSeo } from '../../../platform/page-seo';
@@ -246,6 +247,7 @@ export class AccountPage {
   protected readonly text = inject(STOREFRONT_TEXT).auth;
   protected readonly accountText = inject(STOREFRONT_TEXT).account;
   private readonly sharedText = inject(SHARED_TEXT);
+  private readonly partyKind = inject(SHARED_ACCOUNTS_TEXT).partyKind;
   protected readonly deleteText = inject(STOREFRONT_TEXT).account.delete;
   protected readonly addressText = inject(STOREFRONT_TEXT).account.addresses;
   protected readonly actionText = inject(SHARED_TEXT).actions;
@@ -302,7 +304,7 @@ export class AccountPage {
     const fields = this.sharedText.fields;
     const name = formatPersonName(profile.firstName, profile.lastName);
     const type = profile.customerType
-      ? this.sharedText.partyKind[profile.customerType]
+      ? this.partyKind[profile.customerType]
       : '';
 
     return [

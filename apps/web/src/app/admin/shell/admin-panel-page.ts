@@ -12,7 +12,7 @@ import {
   fillText,
 } from '@b2b-catalog-platform/shared/platform';
 import { AuthService } from '../../platform/auth/auth.service';
-import { SignedInAs } from '../../platform/auth/signed-in-as';
+import { SignedInAs } from '../../core/accounts/auth/signed-in-as';
 import { ADMIN_TEXT } from '../../platform/config/admin-text';
 import { SHARED_TEXT } from '../../platform/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';

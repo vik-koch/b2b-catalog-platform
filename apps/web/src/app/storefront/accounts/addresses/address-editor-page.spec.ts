@@ -1,3 +1,4 @@
+import { defaultSharedAccountsText } from '../../../core/accounts/accounts-text.fixture';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
 import { TestBed } from '@angular/core/testing';
@@ -19,7 +20,7 @@ import {
 } from '@b2b-catalog-platform/shared/core/accounts';
 
 const text = defaultStorefrontText.account.addresses;
-const fieldText = defaultStorefrontText.address;
+const fieldText = defaultSharedAccountsText.address;
 
 /** Two shapes, the short one first — the order a picker offers them in. */
 const shortFormat = {

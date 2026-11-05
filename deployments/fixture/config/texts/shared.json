@@ -91,10 +91,6 @@
     "delivery": "Delivery",
     "pickup": "Self-pickup"
   },
-  "partyKind": {
-    "person": "Private person",
-    "company": "Company"
-  },
   "fields": {
     "name": {
       "label": "Name",
@@ -210,6 +206,40 @@
       "removeNo": "Keep",
       "noPrice": "On request",
       "quantityCorrected": "The quantity was adjusted to the nearest we can supply."
+    }
+  },
+  "accounts": {
+    "partyKind": {
+      "person": "Private person",
+      "company": "Company"
+    },
+    "signedInAs": {
+      "greeting": "Hello, {name}",
+      "logout": "Log out"
+    },
+    "companySuggest": {
+      "suggestionsAria": "Company suggestions",
+      "noSuggestions": "No matching companies. Carry on typing it yourself.",
+      "suggestionCountAria": "Company suggestions: {count}"
+    },
+    "address": {
+      "label": "Name for this address",
+      "labelHint": "Only if you keep several — “Shop”, “Warehouse”, “Home”. Left empty, it is listed by its street.",
+      "enterManually": "Enter the address manually",
+      "addressLine": "Address",
+      "street": "Street and number",
+      "street2": "Address line 2",
+      "postalCode": "Postcode",
+      "city": "City",
+      "region": "Region",
+      "country": "Country",
+      "required": "Please fill this in.",
+      "postalCodeFormat": "A postcode here looks like {example}.",
+      "suggest": {
+        "suggestionsAria": "Address suggestions",
+        "noSuggestions": "No matching addresses. Carry on typing it yourself.",
+        "suggestionCountAria": "Address suggestions: {count}"
+      }
     }
   }
 }

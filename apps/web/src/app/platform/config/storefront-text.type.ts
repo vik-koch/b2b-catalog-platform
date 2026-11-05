@@ -2,16 +2,6 @@ import type { DeepReadonly } from '@b2b-catalog-platform/shared/platform';
 import * as z from 'zod';
 import { confirmText } from './text-shapes';
 
-/** A suggestion list under a field: its name, what it says when nothing
- * matches, and `{count}` for the live region. */
-const suggestText = z
-  .object({
-    suggestionsAria: z.string(),
-    noSuggestions: z.string(),
-    suggestionCountAria: z.string(),
-  })
-  .strict();
-
 /**
  * The keys of `texts/storefront.json` no area claims. The file is what a
  * logged-out visitor can reach, injected into every document; wording behind
@@ -598,9 +588,6 @@ export const storefrontTextShape = {
        * this is the only place the total is spelled out.
        */
       workMarkerAria: z.string(),
-      /** `{name}` — the account holder's first name, or their address when
-       * the account carries no name (staff, the bootstrap admin). */
-      greeting: z.string(),
       /** Heading of the change-password section on /account. The admin panel
        * has its own (`panel.securityHeading` in the admin text). */
       securityHeading: z.string(),
@@ -905,43 +892,6 @@ export const storefrontTextShape = {
           done: z.string(),
         })
         .strict(),
-    })
-    .strict(),
-  /** The company search under a registration number field, in every form
-   * that asks for one — the storefront's and the admin's alike. */
-  companySuggest: suggestText,
-  /**
-   * The address fields, in every form that asks for an address — the
-   * address book's, checkout's and the admin's order adjustment alike. An
-   * address is a place and carries no identity: who is invoiced is the
-   * order's own question. The suggestion wording is here rather than under
-   * a provider's name: a deployment with no adapter configured never shows
-   * it, but the file loads whole either way.
-   */
-  address: z
-    .object({
-      /** The address's own name, for a book that keeps several. */
-      label: z.string(),
-      labelHint: z.string(),
-      /** Opens the full address fields where the form asked for the street
-       * alone. Always offered, never only after a provider fails. */
-      enterManually: z.string(),
-      /** The one field a suggesting form asks for before anything is
-       * picked: it takes the whole address, and calling it the street
-       * would be asking for a part of what it wants. */
-      addressLine: z.string(),
-      street: z.string(),
-      street2: z.string(),
-      postalCode: z.string(),
-      city: z.string(),
-      region: z.string(),
-      country: z.string(),
-      required: z.string(),
-      /** `{example}` — a real code in the shape this country's take,
-       * from the deployment's own postal rule. */
-      postalCodeFormat: z.string(),
-      /** The suggestion combobox (FR-CART-11). */
-      suggest: suggestText,
     })
     .strict(),
   /** Who a registration or an order is for, as the choice offers it. */

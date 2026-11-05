@@ -1,3 +1,4 @@
+import { SHARED_ACCOUNTS_TEXT } from '../../../core/accounts/accounts-text';
 import {
   Component,
   computed,
@@ -80,7 +81,7 @@ export class AddressEditorPage {
   private readonly router = inject(Router);
 
   protected readonly text = inject(STOREFRONT_TEXT).account.addresses;
-  private readonly fieldText = inject(STOREFRONT_TEXT).address;
+  private readonly fieldText = inject(SHARED_ACCOUNTS_TEXT).address;
   protected readonly actionText = inject(SHARED_TEXT).actions;
 
   private readonly addressId = this.route.snapshot.paramMap.get('id');

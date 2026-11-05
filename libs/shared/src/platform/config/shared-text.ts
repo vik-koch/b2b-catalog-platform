@@ -2,6 +2,8 @@ import * as z from 'zod';
 import type { DeepReadonly } from '../deep-readonly';
 import { refuseCountForms } from '../fill-text';
 import { mergeShapes } from '../merge-shapes';
+import { ACCOUNTS_AREA } from '../../core/accounts/accounts-area';
+import { sharedAccountsTextShape } from '../../core/accounts/accounts-text';
 import { CATALOG_AREA } from '../../core/catalog/catalog-area';
 import { sharedCatalogTextShape } from '../../core/catalog/catalog-text';
 import { PAGE_SLUGS } from '../../core/site/pages';
@@ -149,9 +151,6 @@ export const sharedTextShape = {
   fulfilment: z
     .object({ label: z.string(), delivery: z.string(), pickup: z.string() })
     .strict(),
-  /** Whether a customer or an order's party is a private person or a
-   * company. */
-  partyKind: z.object({ person: z.string(), company: z.string() }).strict(),
   /** A person's or company's details: the labels, which staff read too, and
    * the checks as a customer is told about their own. `companyId.format`
    * carries `{examples}`. */
@@ -171,9 +170,11 @@ export const sharedTextShape = {
 /** Every area's block, so a missing key or a stray one stops the boot. */
 export const sharedTextSchema = z
   .object(
-    mergeShapes(sharedTextShape, {
-      [CATALOG_AREA]: z.object(sharedCatalogTextShape).strict(),
-    }),
+    mergeShapes(
+      sharedTextShape,
+      { [CATALOG_AREA]: z.object(sharedCatalogTextShape).strict() },
+      { [ACCOUNTS_AREA]: z.object(sharedAccountsTextShape).strict() },
+    ),
   )
   .strict()
   .superRefine(refuseCountForms);

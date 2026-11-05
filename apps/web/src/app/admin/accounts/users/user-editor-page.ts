@@ -4,6 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { CustomerTier } from '@b2b-catalog-platform/shared/admin/catalog';
 import { ADMIN_TEXT } from '../../../platform/config/admin-text';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { SHARED_ACCOUNTS_TEXT } from '../../../core/accounts/accounts-text';
 import { staffFields } from '../../platform/staff-fields';
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import { AuthService } from '../../../platform/auth/auth.service';
@@ -382,7 +383,7 @@ export class UserEditorPage implements UnsavedChangesAware {
     inject(SHARED_TEXT).fields,
     inject(ADMIN_TEXT).fields,
   );
-  private readonly kinds = inject(SHARED_TEXT).partyKind;
+  private readonly kinds = inject(SHARED_ACCOUNTS_TEXT).partyKind;
   protected readonly listText = inject(ADMIN_TEXT).users.list;
   /** In the deployment's order: the first is where a form starts. */
   protected readonly customerTypes: readonly SegmentOption<CustomerType>[] =

@@ -1,9 +1,12 @@
 import { SharedText } from '@b2b-catalog-platform/shared/platform';
 import { MailContent } from '../../../platform/mail/mail-layout';
 import { MailText } from '../../../platform/mail/mail-text';
+import { sharedTextBlock } from '../../../platform/config/shared-text';
 import {
+  ACCOUNTS_AREA,
   CustomerType,
   formatPersonName,
+  type SharedAccountsText,
 } from '@b2b-catalog-platform/shared/core/accounts';
 
 /** What the staff notification reports — the registration, as submitted. */
@@ -34,6 +37,10 @@ export function newRegistrationMail(
 ): MailContent {
   const t = text.newRegistration;
   const fields = common.fields;
+  const kinds = sharedTextBlock<SharedAccountsText>(
+    common,
+    ACCOUNTS_AREA,
+  ).partyKind;
   const isCompany = registration.customerType === 'company';
 
   return {
@@ -51,7 +58,7 @@ export function newRegistrationMail(
       { label: fields.phone.label, value: registration.phone },
       {
         label: t.customerTypeLabel,
-        value: isCompany ? common.partyKind.company : common.partyKind.person,
+        value: isCompany ? kinds.company : kinds.person,
       },
       // Only for a company: a dash against a private person would read as
       // details that failed to arrive. Both are what staff approve on — the

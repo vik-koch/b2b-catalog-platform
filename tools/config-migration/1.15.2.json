@@ -135,6 +135,13 @@
     "texts/admin.json:editMode.unpricedMessage": {
       "from": ["texts/admin.json:catalogErrors.product-has-no-price"],
       "copy": true
+    },
+    "texts/shared.json:accounts.signedInAs.greeting": {
+      "from": ["texts/app.json:auth.greeting"]
+    },
+    "texts/shared.json:accounts.signedInAs.logout": {
+      "from": ["texts/app.json:auth.logout"],
+      "copy": true
     }
   },
   "drop": [
@@ -203,6 +210,9 @@
     "texts/admin.json:tiers": "texts/admin.json:catalog.tiers",
     "texts/admin.json:attributes": "texts/admin.json:catalog.attributes",
     "texts/admin.json:documents": "texts/admin.json:catalog.documents",
-    "deployment.json:catalog.currency": "deployment.json:currency"
+    "deployment.json:catalog.currency": "deployment.json:currency",
+    "texts/common.json:partyKind": "texts/shared.json:accounts.partyKind",
+    "texts/app.json:companySuggest": "texts/shared.json:accounts.companySuggest",
+    "texts/app.json:address": "texts/shared.json:accounts.address"
   }
 }

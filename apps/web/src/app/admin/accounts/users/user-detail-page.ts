@@ -10,6 +10,7 @@ import { RouterLink } from '@angular/router';
 import { CustomerTier } from '@b2b-catalog-platform/shared/admin/catalog';
 import { ADMIN_TEXT } from '../../../platform/config/admin-text';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { SHARED_ACCOUNTS_TEXT } from '../../../core/accounts/accounts-text';
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import { AuthService } from '../../../platform/auth/auth.service';
 import { formatPhone } from '../../../platform/contact-fields';
@@ -237,6 +238,7 @@ export class UserDetailPage {
   protected readonly listText = inject(ADMIN_TEXT).users.list;
   protected readonly editorText = inject(ADMIN_TEXT).users.editor;
   private readonly sharedText = inject(SHARED_TEXT);
+  private readonly partyKind = inject(SHARED_ACCOUNTS_TEXT).partyKind;
   private readonly adminText = inject(ADMIN_TEXT);
   private readonly adminCatalogText = inject(ADMIN_CATALOG_TEXT);
   protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
@@ -469,9 +471,7 @@ export class UserDetailPage {
     if (!person) return [];
     const editor = this.editorText;
     const fields = this.sharedText.fields;
-    const type = person.customerType
-      ? this.sharedText.partyKind[person.customerType]
-      : '';
+    const type = person.customerType ? this.partyKind[person.customerType] : '';
 
     return [
       { label: fields.email.label, value: person.email },

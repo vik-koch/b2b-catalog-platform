@@ -287,7 +287,6 @@
     "logout": "Abmelden",
     "accountNav": "Konto",
     "workMarkerAria": "Wartet auf Sie: {count}",
-    "greeting": "Hallo, {name}",
     "securityHeading": "Passwort und Sicherheit",
     "account": "Mein Konto",
     "password": "Passwort",
@@ -460,30 +459,6 @@
       "error": "Beim Löschen Ihres Kontos ist etwas schiefgegangen. Bitte versuchen Sie es noch einmal.",
       "doneHeading": "Ihr Konto wurde gelöscht",
       "done": "Ihr Konto ist geschlossen, und Ihre persönlichen Angaben wurden entfernt. Eine Bestätigung haben wir an Ihre E-Mail-Adresse geschickt."
-    }
-  },
-  "companySuggest": {
-    "suggestionsAria": "Firmenvorschläge",
-    "noSuggestions": "Keine passenden Firmen. Tippen Sie sie einfach selbst ein.",
-    "suggestionCountAria": "Firmenvorschläge: {count}"
-  },
-  "address": {
-    "label": "Name für diese Adresse",
-    "labelHint": "Nur wenn Sie mehrere haben – „Laden“, „Lager“, „Zuhause“. Leer gelassen, erscheint sie unter ihrer Straße.",
-    "enterManually": "Adresse von Hand eingeben",
-    "addressLine": "Adresse",
-    "street": "Straße und Hausnummer",
-    "street2": "Adresszusatz",
-    "postalCode": "Postleitzahl",
-    "city": "Ort",
-    "region": "Region",
-    "country": "Land",
-    "required": "Bitte füllen Sie dieses Feld aus.",
-    "postalCodeFormat": "Eine Postleitzahl sieht hier so aus: {example}.",
-    "suggest": {
-      "suggestionsAria": "Adressvorschläge",
-      "noSuggestions": "Keine passenden Adressen. Tippen Sie sie einfach selbst ein.",
-      "suggestionCountAria": "Adressvorschläge: {count}"
     }
   },
   "partyChoice": {

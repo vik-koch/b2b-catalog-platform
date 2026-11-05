@@ -1,3 +1,8 @@
+import { sharedTextBlock } from '../../../platform/config/shared-text';
+import {
+  ACCOUNTS_AREA,
+  type SharedAccountsText,
+} from '@b2b-catalog-platform/shared/core/accounts';
 import {
   demoSharedText,
   demoMailText,
@@ -35,7 +40,10 @@ describe('newRegistrationMail', () => {
   } as const;
   const t = demoMailText.newRegistration;
   const fields = demoSharedText.fields;
-  const kinds = demoSharedText.partyKind;
+  const kinds = sharedTextBlock<SharedAccountsText>(
+    demoSharedText,
+    ACCOUNTS_AREA,
+  ).partyKind;
   const mail = newRegistrationMail(person, demoMailText, demoSharedText);
 
   // This mail is what a manager reads before deciding whether the applicant is

@@ -14,7 +14,7 @@ import {
   fillText,
 } from '@b2b-catalog-platform/shared/platform';
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
-import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
+import { SHARED_ACCOUNTS_TEXT } from '../accounts-text';
 import {
   ADDRESS_LINE_MAX_LENGTH,
   AddressComponents,
@@ -55,7 +55,7 @@ export function blankAddress(countries: Countries | undefined): AddressDraft {
  * postcode's shape is the chosen country's; empty is `required`'s.
  */
 export function injectAddressRules(): Schema<AddressDraft> {
-  const text = inject(STOREFRONT_TEXT).address;
+  const text = inject(SHARED_ACCOUNTS_TEXT).address;
   const countries = inject(DEPLOYMENT_CONFIG).address?.countries;
   return schema<AddressDraft>((address) => {
     required(address.street, { message: text.required });

@@ -1,8 +1,9 @@
+import { defaultSharedAccountsText } from '../accounts-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
 import { form } from '@angular/forms/signals';
-import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
-import { defaultStorefrontText } from '../../../platform/config/storefront-text.fixture';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
 import { AddressSuggestInput } from './address-suggest-input';
 import { AddressesService } from './addresses.service';
 import {
@@ -10,7 +11,7 @@ import {
   AddressSuggestion,
 } from '@b2b-catalog-platform/shared/core/accounts';
 
-const text = defaultStorefrontText.address;
+const text = defaultSharedAccountsText.address;
 
 /** What the stubbed provider answers with; set per test. */
 let answers: AddressSuggestion[] = [];
@@ -33,7 +34,7 @@ async function render() {
     imports: [AddressSuggestInput],
     providers: [
       { provide: AddressesService, useValue: { suggest } },
-      { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
+      { provide: SHARED_TEXT, useValue: defaultSharedText },
     ],
   });
 

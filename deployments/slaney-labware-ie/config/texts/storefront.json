@@ -287,7 +287,6 @@
     "logout": "Log out",
     "accountNav": "Account",
     "workMarkerAria": "{count} awaiting your attention",
-    "greeting": "Hello, {name}",
     "securityHeading": "Password and security",
     "account": "My account",
     "password": "Password",
@@ -460,30 +459,6 @@
       "error": "Something went wrong deleting your account. Please try again.",
       "doneHeading": "Your account has been deleted",
       "done": "Your account is closed and your personal details have been removed. We have sent a confirmation to your email address."
-    }
-  },
-  "companySuggest": {
-    "suggestionsAria": "Company suggestions",
-    "noSuggestions": "No matching companies. Carry on typing it yourself.",
-    "suggestionCountAria": "Company suggestions: {count}"
-  },
-  "address": {
-    "label": "Name for this address",
-    "labelHint": "Only if you keep several — “Shop”, “Warehouse”, “Home”. Left empty, it is listed by its street.",
-    "enterManually": "Enter the address manually",
-    "addressLine": "Address",
-    "street": "Street and number",
-    "street2": "Address line 2",
-    "postalCode": "Postcode",
-    "city": "City",
-    "region": "Region",
-    "country": "Country",
-    "required": "Please fill this in.",
-    "postalCodeFormat": "A postcode here looks like {example}.",
-    "suggest": {
-      "suggestionsAria": "Address suggestions",
-      "noSuggestions": "No matching addresses. Carry on typing it yourself.",
-      "suggestionCountAria": "Address suggestions: {count}"
     }
   },
   "partyChoice": {

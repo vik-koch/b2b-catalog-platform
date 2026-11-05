@@ -1,3 +1,4 @@
+import { defaultSharedAccountsText } from '../../../core/accounts/accounts-text.fixture';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
@@ -115,12 +116,17 @@ describe('AccountPage', () => {
     const { el } = await render(customer);
 
     expect(el.textContent).toContain(
-      text.greeting.replace('{name}', plainUser.firstName ?? ''),
+      defaultSharedAccountsText.signedInAs.greeting.replace(
+        '{name}',
+        plainUser.firstName ?? '',
+      ),
     );
     expect(el.textContent).toContain('Fischer Alex');
     expect(el.textContent).toContain(customer.email);
     expect(el.textContent).toContain(customer.phone);
-    expect(el.textContent).toContain(defaultSharedText.partyKind.company);
+    expect(el.textContent).toContain(
+      defaultSharedAccountsText.partyKind.company,
+    );
     expect(el.textContent).toContain(customer.companyRegistrationId);
   });
 

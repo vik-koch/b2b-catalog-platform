@@ -1,3 +1,4 @@
+import { defaultSharedAccountsText } from '../../../core/accounts/accounts-text.fixture';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
@@ -597,7 +598,7 @@ describe('CheckoutPage', () => {
       expect(postcodeShown(page.el)).toBe(false);
       // The way out is on screen from the start, not after a provider fails.
       expect(page.text()).toContain(
-        defaultStorefrontText.address.enterManually,
+        defaultSharedAccountsText.address.enterManually,
       );
     });
 
@@ -660,7 +661,7 @@ describe('CheckoutPage', () => {
 
       expect(postcodeShown(page.el)).toBe(true);
       expect(page.text()).not.toContain(
-        defaultStorefrontText.address.enterManually,
+        defaultSharedAccountsText.address.enterManually,
       );
     });
 

@@ -1,9 +1,9 @@
 import { Component, computed, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { STOREFRONT_TEXT } from '../config/storefront-text';
+import { AuthService } from '../../../platform/auth/auth.service';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { fillText } from '@b2b-catalog-platform/shared/platform';
-import { AuthService } from './auth.service';
+import { SHARED_ACCOUNTS_TEXT } from '../accounts-text';
 
 /** Who is signed in, and the way out, on /admin and /account alike. Nothing
  * until /auth/me answers, as on the server. */
@@ -34,7 +34,7 @@ export class SignedInAs {
   private readonly router = inject(Router);
 
   protected readonly auth = inject(AuthService);
-  protected readonly text = inject(STOREFRONT_TEXT).auth;
+  protected readonly text = inject(SHARED_ACCOUNTS_TEXT).signedInAs;
 
   /** By address where there is no first name, as for most staff. */
   protected readonly greeting = computed(() => {
