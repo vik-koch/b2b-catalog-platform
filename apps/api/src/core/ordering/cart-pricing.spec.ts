@@ -3,11 +3,8 @@ import { PgDialect } from 'drizzle-orm/pg-core';
 import { Database } from '../../platform/db/database';
 import { priceCart } from './cart-pricing';
 
-/**
- * A drizzle stand-in for the one select the pricer runs. It also records the
- * rendered SQL, so the visibility gate can be asserted rather than assumed —
- * a cart that prices an unpublished product is the whole trap here.
- */
+/** A stand-in for the pricer's one select that records the SQL, so the
+ * visibility gate is asserted: pricing an unpublished product is the trap. */
 function dbWith(rows: unknown[]) {
   const sql: string[] = [];
   const chain = {
@@ -148,9 +145,8 @@ describe('priceCart', () => {
   });
 
   it('answers one code for a product that is gone, whichever way it is gone', async () => {
-    // The query returns nothing for soft-deleted, unpublished and
-    // never-existed alike — the pricer cannot tell them apart, which is the
-    // point: preview must not enumerate the unpublished catalog by difference.
+    // Deleted, unpublished and never-existed read alike, so a preview cannot
+    // list the unpublished catalog by difference.
     const { db } = dbWith([]);
 
     const { preview, lines } = await priceCart(
@@ -208,8 +204,8 @@ describe('priceCart', () => {
   });
 
   it('falls a line off a unit the product is no longer sold in', async () => {
-    // Repackaged out of boxes. The pieces are untouched and still orderable,
-    // so only the lens moves — to the one unit every product has.
+    // Repackaged out of boxes: the pieces stand, and the line moves to the
+    // unit every product has.
     const { db } = dbWith([
       { ...coffee, piecesPerPack: null, packsPerBox: null },
     ]);
@@ -254,8 +250,8 @@ describe('priceCart', () => {
     expect(preview.lines[0].lineTotalMinor).toBe(1990);
   });
 
-  // The case that used to be unpriceable: a repackaged product whose pack no
-  // longer divides what the price was per. A piece price divides everything.
+  // A pack that no longer divides the old price unit: a piece price divides
+  // everything.
   it('prices a repackaged product rather than reporting no price', async () => {
     const { db } = dbWith([
       { ...coffee, piecesPerPack: 7, minPieceQty: 7, packsPerBox: null },
@@ -311,8 +307,8 @@ describe('priceCart', () => {
   });
 
   it('flags an out-of-stock line without unpricing it', async () => {
-    // Listed, reachable and priced — only the order it is part of is refused
-    // (FR-STOCK-04). The count behind the state never leaves the API.
+    // Listed and priced; only the order is refused (FR-STOCK-04). The count
+    // never leaves the API.
     const { db } = dbWith([{ ...coffee, availability: 'out' }]);
 
     const { preview, lines } = await priceCart(

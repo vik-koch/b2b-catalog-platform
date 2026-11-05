@@ -16,13 +16,9 @@ import { MACHINE_SYNC_RUNS_PATHS } from './machine/exchange/machine-sync-body-pa
 // Let the server settle and serve traffic before the first maintenance sweep.
 const PRUNE_STARTUP_DELAY_MS = 60_000;
 
-/**
- * Container logs are read by Loki, not by a person at a terminal (ADR 0016), so
- * in a deployed stack they are emitted as JSON and never colorized: ANSI escape
- * codes end up embedded in the stored line, where they defeat LogQL matching and
- * show up as noise in Grafana. Locally (`nx serve`, no NODE_ENV) the readable
- * console format stays.
- */
+/** Deployed, logs are JSON without colour: Loki reads them, and ANSI codes in
+ * a stored line defeat LogQL. Locally (`nx serve`, no NODE_ENV) the readable
+ * format stays. */
 function logger(): ConsoleLogger {
   const deployed = process.env['NODE_ENV'] === 'production';
   return new ConsoleLogger({ colors: !deployed, json: deployed });
@@ -31,7 +27,7 @@ function logger(): ConsoleLogger {
 async function bootstrap() {
   // Nest's own body parser is declined so that a bigger one can be mounted
   // ahead of it. A catalog of tens of thousands of rows is megabytes of JSON
-  // and the default ceiling is 100 kB — but raising that globally would widen
+  // and the default ceiling is 100 kB, but raising that globally would widen
   // every endpoint in the API to the same limit, so the large parser is
   // mounted on the paths that need it and everything else keeps the
   // default. body-parser marks a request it has already read, so the general
@@ -96,8 +92,8 @@ async function main() {
 
   // One-shot tool containers (compose.yml) that do their job and exit instead
   // of starting the server:
-  //   migrate         — apply pending migrations; api waits on it completing.
-  //   bootstrap-admin — create the first admin if missing (every env).
+  //   migrate:         apply pending migrations; api waits for it.
+  //   bootstrap-admin: create the first admin if missing (every env).
   if (env.RUN_MODE === 'migrate') {
     await runMigrations();
     Logger.log('Database migrations complete');
@@ -110,8 +106,8 @@ async function main() {
     if (!ADMIN_EMAIL || !ADMIN_PASSWORD) {
       throw new Error('ADMIN_EMAIL and ADMIN_PASSWORD are required');
     }
-    // Hash here (inside the app, with the shared argon2 params) and hand only
-    // the hash to the DB layer — plaintext never leaves this process.
+    // Hashed here, with the shared argon2 params: the plaintext never leaves
+    // this process.
     const passwordHash = await hashPassword(ADMIN_PASSWORD);
     const created = await runBootstrapAdmin(
       env.DATABASE_URL,

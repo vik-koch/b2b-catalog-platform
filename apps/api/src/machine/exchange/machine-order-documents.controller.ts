@@ -26,7 +26,7 @@ import { MachineThrottle } from '../../platform/throttling/throttle-presets';
  * FR-ADM-08).
  *
  * - Bytes, not markup: stored as it arrived, never redrawn from exchange data.
- * - Outside the run: no version, no `sync_runs` row (ADR 0051, ADR 0062).
+ * - Outside the run: no version, no `sync_runs` row.
  * - The `order-sync` scope: filing the invoice is the same pen as answering.
  *
  * The adapter supplies the file before the version that announces it, so one

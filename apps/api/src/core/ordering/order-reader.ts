@@ -32,7 +32,7 @@ import { OrderDocumentsService } from './order-documents.service';
 import { Database } from '../../platform/db/database';
 
 /**
- * Every read of an order (FR-ACC-01, FR-AUTH-03, ADR 0051): one projection for
+ * Every read of an order (FR-ACC-01, FR-AUTH-03): one projection for
  * every audience, so two screens cannot describe one order differently.
  */
 @Injectable()
@@ -271,8 +271,8 @@ export class OrderReader {
     return new Map(rows.map((row) => [row.revisionId, Number(row.items)]));
   }
 
-  /** Accounts by id, in one query — who placed each order in a list, and who
-   * wrote each version of one. */
+  /** Accounts by id in one query: who placed each order of a list, and who
+   * wrote each version. */
   async emailsOf(userIds: string[]): Promise<Map<string, string>> {
     const ids = [...new Set(userIds)];
     if (ids.length === 0) return new Map();

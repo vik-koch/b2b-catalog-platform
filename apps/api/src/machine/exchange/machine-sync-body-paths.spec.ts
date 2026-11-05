@@ -6,15 +6,9 @@ import {
 } from '@b2b-catalog-platform/shared/machine/exchange';
 import { MACHINE_SYNC_RUNS_PATHS } from './machine-sync-body-paths';
 
-/**
- * The bug this exists for: a fourth sync area ships, its submit route is
- * written in a contract, and nobody remembers that the body parser is mounted
- * on a URL in `main.ts`. Nothing fails — the route works until the first
- * export bigger than 100 kB, in production, on somebody else's schedule.
- *
- * So the expectation is derived from the contracts rather than typed out: a
- * submit route that exists and is not on the list fails here.
- */
+/** A new area's submit route works until its first export over 100 kB, in
+ * production, unless `main.ts` mounts the big parser on it. So the list is
+ * checked against the contracts: a submit route missing from it fails. */
 function submitRunPaths(): string[] {
   const minified = minifyContractRouter({
     catalog: machineCatalogSyncContract,

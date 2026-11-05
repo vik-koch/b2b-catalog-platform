@@ -11,12 +11,8 @@ function render(expression: unknown): { text: string; params: unknown[] } {
   return { text: query.sql, params: query.params };
 }
 
-/**
- * These assert the *shape* of the resolution — which column is read, whether a
- * join happens, and that the tier id is bound rather than interpolated. That
- * the fallback picks the right number for real rows needs a real Postgres and
- * is covered in api-e2e.
- */
+/** The resolution's shape: the column read, the join, the tier id bound, not
+ * interpolated. The fallback's figure needs a real Postgres (api-e2e). */
 describe('resolvedPriceMinor', () => {
   it('reads the badged list when there is no tier', () => {
     const { text, params } = render(resolvedPriceMinor(null));

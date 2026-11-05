@@ -4,22 +4,11 @@ import { MailContent, MailRow } from '../../platform/mail/mail-layout';
 import { MailText } from '../../platform/mail/mail-text';
 
 /**
- * What an automated exchange writes to the shop (FR-ADM-07/09, FR-NOTIF-09).
- *
- * Four messages in one file — the three every area sends and the catalog's
- * fourth — because they are outcomes of the same event and say it with the
- * same facts: the run, when it started, what it called itself, which
- * credential sent it. Only the sentence at the top and where the button goes
- * differ, so a reader following a broken feed across two mails is reading one
- * description of one thing.
- *
- * Which *words* those are is the run's area, read off the run itself rather
- * than passed in beside it: a run knows what it is about, and a second
- * argument saying so again is an argument that can disagree with it.
- *
- * Every mail links to the run rather than describing it in full. A mail is
- * read on a phone and the decision is not one to take there — what it has to
- * do is say something happened and be one tap from where it can be answered.
+ * What an automated exchange writes to the shop (FR-ADM-07/09, FR-NOTIF-09):
+ * the three every area sends and the catalog's fourth, one event told with the
+ * same facts. The words come from the run's own area, not a second argument
+ * that could disagree. Each links to the run: a mail is read on a phone, and
+ * the decision is taken elsewhere.
  */
 
 /** The sentences for the area this run belongs to. */
@@ -40,9 +29,8 @@ function runRows(run: SyncRun, text: MailText, formatted: string): MailRow[] {
   return rows;
 }
 
-/** Created, updated and hidden as one line — the three the reader acts on.
- * Unchanged rows are left out: a feed of ten thousand products that moved two
- * prices should read as two. */
+/** Created, updated and hidden in one line. Unchanged rows are left out: ten
+ * thousand products with two new prices read as two. */
 function changes(run: SyncRun, text: MailText): MailRow[] {
   const summary = run.summary;
   if (!summary) return [];
@@ -56,14 +44,9 @@ function changes(run: SyncRun, text: MailText): MailRow[] {
 
 const runPath = (run: SyncRun): string => `/admin/sync/runs/${run.id}`;
 
-/**
- * The feed stopped working (`fault` audience). The admin cannot fix it, so the
- * body says what is true for them — the shop is unchanged and going stale —
- * rather than anything about the exchange itself.
- *
- * `run.error` is the automated source's own account of what broke, which is
- * the one thing here nobody can look up: the run page has everything else.
- */
+/** The feed stopped (`fault` audience). The admin cannot fix it, so it says
+ * the shop is unchanged and going stale. `run.error` is the source's account,
+ * the one thing the run page lacks. */
 export function syncFailedMail(
   run: SyncRun,
   started: string,
@@ -116,9 +99,8 @@ export function syncWaitingMail(
   text: MailText,
 ): MailContent | null {
   const area = wording(run, text);
-  // An area whose runs are never staged has no such sentence and no such
-  // moment — see `orderSyncMails`. Answered here rather than at the call site
-  // so the one place that knows which areas wait is the text they wait with.
+  // An area whose runs never wait has no such text (`orderSyncMails`); the
+  // text is the one place that knows which areas wait.
   if (!('waiting' in area)) return null;
   const t = area.waiting;
   const reason = run.stagedReason
@@ -139,16 +121,9 @@ export function syncWaitingMail(
   };
 }
 
-/**
- * A run applied itself and brought new products (`admins` audience).
- * Catalog only — see `customerSyncMails` for why the customer exchange has no
- * counterpart.
- *
- * The only one of the four that does not link to the run: what is waiting is
- * not a decision about the import — that is already made — but a product page
- * to write, so it opens the list of everything awaiting publication. That the
- * list may hold more than this run brought is the point; it is the queue.
- */
+/** A run applied itself and brought new products (`admins` audience),
+ * catalog only. It opens the queue awaiting publication, not the run: what
+ * waits is a product page to write. */
 export function syncCreatedMail(
   run: SyncRun,
   started: string,

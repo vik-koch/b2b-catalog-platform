@@ -45,26 +45,12 @@ const catalogSyncMails = z
   })
   .strict();
 
-/**
- * The customer exchange's three.
- *
- * Deliberately without a `created`. The catalog's fourth mail exists because
- * an imported product leaves work on somebody's desk; an imported account does
- * not. What an invited account needs is a password, and the run has already
- * mailed the person themselves a link to set one (FR-ADM-13) — telling the
- * admin as well would be announcing a queue that nobody is standing in.
- */
+/** The customer exchange's three. No `created`: an imported account leaves
+ * staff no work, as the run already mailed the person a link (FR-ADM-13). */
 const customerSyncMails = z.object(syncFeedMails).strict();
 
-/**
- * The order exchange's two.
- *
- * Without a `waiting` as well as without a `created`, and the missing one is
- * the interesting one: an order write-back is never staged (ADR 0062), so
- * there is no run for a person to decide and no mail that could point at one.
- * A key here would be a sentence the deployment writes and the platform can
- * never send.
- */
+/** The order exchange's two. No `waiting`: a write-back is never staged, so
+ * the key would be words a deployment writes and nothing sends. */
 const orderSyncMails = z
   .object({ failed: syncMailText, recovered: syncMailText })
   .strict();
@@ -73,25 +59,16 @@ const orderSyncMails = z
 export const exchangeMailTextShape = {
   /**
    * What an automated exchange writes to the shop (FR-ADM-07/09,
-   * FR-NOTIF-09).
-   *
-   * One section rather than one per outcome, because these messages are the
-   * same message about different outcomes: they carry the same facts about
-   * the same run, and only the sentence at the top differs. The labels are
-   * shared for the same reason a status mail's are — a run described two
-   * ways in two mails is a run nobody can follow across them.
-   *
-   * The labels are shared across the areas too; the sentences are not.
-   * "Catalog update failed" is the wrong thing to send a manager about a
-   * customer run, and it is wrong in the one place a mail is read — the
-   * subject line — so the wording is keyed by area and the facts around it
-   * are not.
+   * FR-NOTIF-09). One section: the mails carry the same facts about a run and
+   * differ in the top sentence, so the labels are shared, across areas too.
+   * The sentences are keyed by area: "Catalog update failed" is wrong in a
+   * subject about a customer run.
    */
   syncRun: z
     .object({
       startedLabel: z.string(),
-      /** What the run called itself — a filename for an upload, a label the
-       * automated source chose for its export. */
+      /** What the run called itself: an upload's filename, or the source's
+       * label for its export. */
       labelLabel: z.string(),
       /** Which credential submitted it, so a deployment with more than one
        * source says which one this was. */
@@ -116,16 +93,10 @@ export const exchangeMailTextShape = {
       openRun: z.string(),
       /** The same button, from a run that waits for a decision. */
       reviewRun: z.string(),
-      /**
-       * The sentences, keyed by the area the run is about.
-       *
-       * An area carries its own wording rather than a placeholder filled
-       * with its name, because the sentence under the heading is not the
-       * same sentence with a noun swapped: a stale catalog is a shop selling
-       * yesterday's prices, and a stalled customer exchange is tiers that no
-       * longer match what the other system says. Both need saying, and
-       * neither is a template of the other.
-       */
+      /** The sentences, keyed by the run's area. Each area words its own: a
+       * stale catalogue sells yesterday's prices, a stalled customer
+       * exchange leaves tiers out of step, and neither is the other with a
+       * noun swapped. */
       areas: z
         .object({
           catalog: catalogSyncMails,

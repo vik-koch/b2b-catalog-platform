@@ -69,9 +69,8 @@ describe('renderMail', () => {
     expect(text).toContain('Footer note.');
   });
 
-  // The repeating line-item block (ADR 0033, amended): the order mails' lines,
-  // rendered by the layout so they are escaped and have a text part like
-  // everything else.
+  // The order mails' lines, drawn by the layout so they are escaped and get a
+  // text part.
   describe('line items', () => {
     const items = [
       {
@@ -93,8 +92,8 @@ describe('renderMail', () => {
       expect(html).toContain('Saucers');
     });
 
-    // A line note is customer-typed (FR-CART-08) — the case the escaping in
-    // this layout exists for.
+    // A line note is typed by the customer (FR-CART-08): why the layout
+    // escapes.
     it('escapes a line note, so a typed one cannot inject markup', () => {
       const { html } = render({ items });
 
@@ -166,7 +165,7 @@ describe('renderMail', () => {
     expect(html).not.toContain('First paragraph.');
     expect(html).not.toContain('shop.example/account');
     expect(text).toContain('Heading');
-    // The footer signature is still there — every message carries it.
+    // Every message keeps the footer.
     expect(text).toContain('Footer note.');
   });
 });

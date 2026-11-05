@@ -12,14 +12,9 @@ import { demoAdminOrder } from './order.fixture';
 
 const currency = { code: 'EUR', locale: 'de-DE' };
 
-/**
- * What the two order mails are addressed to, and — the point of the file — that
- * neither can take an order down with it (FR-NOTIF-05/06).
- *
- * A customer who has been shown a reference has an order. SMTP being reachable
- * is not part of that promise, so a mailer that throws must be logged and left
- * behind rather than propagated into the submission that placed the row.
- */
+/** Who the two order mails go to, and that neither takes an order down
+ * (FR-NOTIF-05/06): a customer shown a reference has an order, so a throwing
+ * mailer is logged, not propagated. */
 describe('OrderNotifications', () => {
   let send: Mock;
   let error: MockInstance;
@@ -100,11 +95,8 @@ describe('OrderNotifications', () => {
     });
   });
 
-  /**
-   * The token is a capability: it opens the order with no session at all. It
-   * therefore travels only where it is the only way in — a guest's mail — and
-   * never to somebody who can already open the order signed in (ADR 0038).
-   */
+  /** The token opens the order with no session, so it goes only where it is
+   * the only way in: a guest's mail. */
   describe('the capability token', () => {
     const tokenIn = (call: number) => JSON.stringify(send.mock.calls[call][0]);
 

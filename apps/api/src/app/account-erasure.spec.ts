@@ -5,14 +5,10 @@ import { OrderDocumentFiles } from '../core/ordering/order-document-files';
 import { OrderErasure } from '../core/ordering/order-erasure';
 
 /**
- * Account deletion (FR-AUTH-06) across the areas it reaches, rendered rather
- * than executed.
- *
- * The promise the app already makes — "past orders are kept for our
- * bookkeeping, with your details removed from them" — is one UPDATE, and the
- * columns it forgets are exactly the ones nobody notices. So this asserts the
- * statement itself: which columns are scrubbed, which are deliberately left
- * alone, and that the whole thing happens inside the one transaction.
+ * Account deletion (FR-AUTH-06) across its areas, rendered, not run. "Past
+ * orders are kept, with your details removed" is one UPDATE, and the columns
+ * it forgets are the ones nobody notices, so this asserts the statement:
+ * what is scrubbed, what is left, and that it is one transaction.
  */
 
 describe('UsersService.anonymize', () => {
@@ -40,8 +36,8 @@ describe('UsersService.anonymize', () => {
       // The account consent ends with the account (NFR-LEGAL-09).
       'consent_withdrawals',
       'order_items',
-      // Every version of every order, not the current one alone: a superseded
-      // revision holds the same name and the same address (ADR 0051).
+      // Every version, not the current one: an old one holds the same name
+      // and address.
       'order_revisions',
       // The orders themselves are touched only to say they changed.
       'orders',
@@ -122,10 +118,9 @@ describe('UsersService.anonymize', () => {
       'deliveryRegion',
       'preferredDate',
       'customerNote',
-      // A manager's account of an adjustment — their words, about this
-      // customer's order.
+      // A manager's words about this customer's order.
       'note',
-      // What this customer was charged — the same argument that nulls tierId.
+      // What this customer was charged, as with `tierId`.
       'tierKey',
     ]) {
       expect(sql).toContain(`"${column}"`);
@@ -146,9 +141,9 @@ describe('UsersService.anonymize', () => {
   it('keeps a delivery order’s destination non-null, as its constraint demands', () => {
     const { sql } = statement('order_revisions');
 
-    // `orders_fulfilment_destination` requires a delivery order to keep street,
-    // postcode, city and country — so those are overwritten where they are set
-    // and left null where they are not, rather than nulled outright.
+    // A delivery must keep street, postcode, city and country
+    // (`order_revisions_fulfilment_destination`): overwritten where set, not
+    // nulled.
     expect(sql).toContain(
       'case when "order_revisions"."deliveryStreet" is null then null else $',
     );
@@ -162,8 +157,8 @@ describe('UsersService.anonymize', () => {
 
     expect(sql).toContain('set "note" = $1');
     expect(params[0]).toBeNull();
-    // Scoped through this account's own orders, never all of them — by way of
-    // their revisions, which is what a line hangs off.
+    // Through this account's orders only, by their revisions, which lines
+    // hang off.
     expect(sql).toContain(
       '"revisionId" in (select "id" from "order_revisions"',
     );

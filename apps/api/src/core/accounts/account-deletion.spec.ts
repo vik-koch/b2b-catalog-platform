@@ -64,8 +64,8 @@ function build(options: {
   const dispatcher = dispatcherOver(mail.send);
   const settle = () => dispatcher.flush();
 
-  // The other areas' steps once the scrub has committed: the files supplied
-  // for this account's orders (ADR 0052), which no transaction can roll back.
+  // The other areas' steps after the scrub commits: the files supplied for
+  // this account's orders, which no transaction rolls back.
   const erasure = {
     afterCommit: vi.fn(async () => {
       calls.push('documents');
@@ -135,10 +135,8 @@ describe('AccountDeletion', () => {
   });
 
   /**
-   * The ordering constraint that is easy to get wrong: the write is what
-   * overwrites the address, so the address has to be *read* first — while the
-   * mail itself goes last, so a failed write never confirms a deletion that
-   * did not happen.
+   * The write overwrites the address, so it is read first; the mail goes
+   * last, so a failed write confirms nothing.
    */
   it('mails the original address after the row has been anonymized', async () => {
     const { deletion, calls, settle } = build({});
@@ -146,10 +144,9 @@ describe('AccountDeletion', () => {
     await deletion.delete('u1', 'correct');
     await settle();
 
-    // The documents go after the scrub and before the confirmation: they are
-    // part of the deletion, and the mail only reports it. The shop's own
-    // notification (FR-NOTIF-08) goes last of all — the customer is waiting on
-    // a page for theirs, and nobody is waiting for the shop's.
+    // The documents after the scrub and before the confirmation, which only
+    // reports. The shop's notice (FR-NOTIF-08) last: the customer is waiting
+    // on a page, nobody on the shop's mail.
     expect(calls).toEqual([
       'anonymize',
       'documents',

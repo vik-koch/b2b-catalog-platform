@@ -27,8 +27,8 @@ const score = sql<number>`relevance_placeholder`;
  */
 const LEAD = /^case[\s\S]*?end asc, /;
 
-/** What a storefront listing sorts by once the availability lead is taken off
- * — and proof that the lead is there at all. */
+/** What a listing sorts by after the availability lead, and that the lead is
+ * there. */
 function within(clauses: ReturnType<typeof productOrderBy>): string {
   const text = render(clauses);
   expect(text).toMatch(LEAD);
@@ -58,8 +58,8 @@ describe('productOrderBy', () => {
     },
   );
 
-  // FR-STOCK-05: out of stock last, everything else — including a product
-  // nobody is counting — ahead of it, whatever the chosen sort is.
+  // FR-STOCK-05: out of stock last, everything else first, untracked stock
+  // included, whatever the sort.
   it.each(searchSortSchema.options)(
     'leads %s with the availability of the row',
     (option) => {

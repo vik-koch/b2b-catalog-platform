@@ -62,9 +62,8 @@ describe('gridOrderBy', () => {
   });
 
   /**
-   * The keys agree; the lead does not. A manager narrowing the catalog is
-   * answering a question about it rather than shopping in it, so the grid is
-   * not to pin every empty shelf to the bottom of every page — it filters by
+   * The keys agree, the lead does not: a manager is asking about the catalog,
+   * not shopping, so empty shelves are not pinned last; the grid filters by
    * stock instead (FR-ADM-05).
    */
   it.each(SEARCH_SORTS)(

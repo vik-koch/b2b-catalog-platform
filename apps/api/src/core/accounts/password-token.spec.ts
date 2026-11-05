@@ -1,15 +1,9 @@
 import { PasswordTokenService } from './password-token.service';
 import { Database } from '../../platform/db/database';
 
-/**
- * Issuing a set-a-password link: minting the new one and expiring whatever was
- * outstanding are one change, not two.
- *
- * A link forwarded to the wrong person stays a way in for as long as it is
- * usable, so a re-sent invitation has to leave exactly one live link behind —
- * including when two requests arrive at once, which is what the transaction is
- * for.
- */
+/** Minting a password link and expiring the outstanding ones are one change:
+ * a forwarded link is a way in while it lives, so a resend leaves exactly one,
+ * even for two requests at once. */
 function recordingDb(calls: string[]) {
   const tx = {
     update: () => ({
@@ -42,7 +36,7 @@ describe('PasswordTokenService.issue', () => {
 
     const token = await tokens.issue('u1', 60_000);
 
-    // 32 random bytes, base64url — what is stored is its hash.
+    // 32 random bytes, base64url; only its hash is stored.
     expect(token).toMatch(/^[A-Za-z0-9_-]{43}$/);
   });
 });

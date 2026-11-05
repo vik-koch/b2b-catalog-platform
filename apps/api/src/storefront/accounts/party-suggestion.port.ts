@@ -3,7 +3,7 @@ import { HttpPartySuggestions } from './http-party-suggestions';
 import { PartySuggestion } from '@b2b-catalog-platform/shared/core/accounts';
 
 /**
- * What a company provider answers (ADR 0041), apart from addresses: a
+ * What a company provider answers, apart from addresses: a
  * provider may serve one and not the other. A suggestion fills a form;
  * nothing may require that one was picked.
  */

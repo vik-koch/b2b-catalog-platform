@@ -20,8 +20,8 @@ function withShopName(name: string, blocklist: string[] = []): PasswordPolicy {
   );
   process.env['CONFIG_PATH'] = dir;
 
-  // The blocklist is deployment configuration, so the spec supplies one — a
-  // few entries standing in for the published list a real deployment mounts.
+  // The blocklist is deployment config: a few entries stand in for the list a
+  // deployment mounts.
   const list = join(dir, 'blocklist.txt');
   writeFileSync(list, blocklist.join('\n'));
   process.env['PASSWORD_BLOCKLIST_FILE'] = list;
@@ -30,11 +30,8 @@ function withShopName(name: string, blocklist: string[] = []): PasswordPolicy {
   return new PasswordPolicy();
 }
 
-/**
- * The rules that replace composition requirements. Each case is a password
- * that would satisfy "a digit, a symbol and a capital" and still be a bad
- * password — which is the argument for having this file at all.
- */
+/** The rules in place of composition requirements: each case would pass "a
+ * digit, a symbol and a capital" and is still a bad password. */
 describe('PasswordPolicy', () => {
   const originalConfig = process.env['CONFIG_PATH'];
   const originalList = process.env['PASSWORD_BLOCKLIST_FILE'];
@@ -75,8 +72,8 @@ describe('PasswordPolicy', () => {
     expect(check('rainy tuesday in hamburg')).not.toThrow();
   });
 
-  // Without a configured list there is no blocklist, only the mechanical
-  // rules — the deployment decides which language's common passwords apply.
+  // No list, no blocklist: the deployment decides which language's common
+  // passwords apply.
   it('applies no blocklist when the deployment configures none', () => {
     const bare = withShopName('Coffee Kontor');
 
@@ -104,9 +101,8 @@ describe('PasswordPolicy', () => {
     expect(codeFor('aaaaaaaaaaaa')).toBe('password-predictable');
   });
 
-  // Separators do not make a pattern less predictable. Which rule catches it —
-  // the blocklist or the sequence check — is an implementation detail; being
-  // refused is the requirement.
+  // Separators hide nothing. Which rule catches it does not matter; being
+  // refused does.
   it('sees through punctuation used as camouflage', () => {
     expect(check('1-2-3-4-5-6-7-8')).toThrow(PasswordRejectedError);
     expect(check('a.b.c.d.e.f.g.h')).toThrow(PasswordRejectedError);

@@ -150,7 +150,7 @@ describe('buildFacets', () => {
         row('Length', '30', 2),
         row('Length', '40', 1),
       ],
-      // Every selection applied — what an unselected facet counts.
+      // Every selection applied: what an unselected facet counts.
       [row('Length', '30', 1)],
       // Colour, with the other selections only.
       [row('Colour', 'Blue', 1), row('Colour', 'Red', 1)],

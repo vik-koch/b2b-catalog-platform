@@ -17,8 +17,8 @@ const stored: StoredOwnedProduct = {
   ],
 };
 
-/** A save that carries everything back unchanged — what the editor sends when
- * somebody edited only the description. */
+/** A save carrying everything back unchanged, as the editor sends when only
+ * the description was edited. */
 const unchanged = () => ({
   name: stored.name,
   categoryId: stored.categoryId,
@@ -60,8 +60,7 @@ describe('changedProductFields', () => {
   });
 
   it('counts clearing the stock figure as a write', () => {
-    // Null is "not tracked", which is a different statement from "none left"
-    // — and the exchange is the one making it.
+    // Null is "not tracked", not "none left", and the exchange says which.
     expect(
       changedProductFields(stored, { ...unchanged(), stockPieces: null }),
     ).toEqual(['stockPieces']);
@@ -79,8 +78,8 @@ describe('changedProductFields', () => {
 
   describe('sourceId', () => {
     it('is not a write when the save omits it', () => {
-      // Omitted means "keep what is stored" — the server mints one only on
-      // create — so an editor that does not offer the field is not refused.
+      // Omitted keeps what is stored (one is minted only on create), so an
+      // editor without the field is not refused.
       const { ...input } = unchanged();
       expect(changedProductFields(stored, input)).toEqual([]);
     });
@@ -151,9 +150,8 @@ describe('changedCategoryFields', () => {
   const category = { name: 'Mugs', sourceId: 'GRP-1' };
 
   it('lets the presentation overlay through', () => {
-    // Nickname, parent, slug and mark are not in the owned list
-    // at all, so a save that moves only those has nothing to report — which is
-    // what keeps the tree restructurable while the catalog is owned.
+    // Nickname, parent, slug and mark are not owned, so the tree can be
+    // restructured while the catalog is owned.
     expect(changedCategoryFields(category, { name: 'Mugs' })).toEqual([]);
   });
 

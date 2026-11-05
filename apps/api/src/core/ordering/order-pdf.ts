@@ -38,7 +38,7 @@ import {
 import { sharedTextBlock } from '../../platform/config/shared-text';
 
 /**
- * The order summary the platform draws (FR-ORD-05, FR-ACC-02, ADR 0052), from
+ * The order summary the platform draws (FR-ORD-05, FR-ACC-02), from
  * the version the caller resolved, so it says what the page that offered it
  * says. Plain on purpose: a back office with its own paperwork supplies that.
  */

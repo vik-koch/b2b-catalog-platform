@@ -127,8 +127,8 @@ describe('AccountController', () => {
     expect(findById).toHaveBeenCalledWith('user-1');
   });
 
-  // The pricing group is staff's to assign and not the holder's to see
-  // (ADR 0031). The output schema is what keeps it off the wire.
+  // The price list is staff's to assign, not the holder's to see; the output
+  // schema keeps it off the wire.
   it('never sends the tier, whatever the row carries', async () => {
     findById.mockResolvedValue({ ...row, tierId: 'tier-wholesale' });
 

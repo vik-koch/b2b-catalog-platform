@@ -32,9 +32,7 @@ import { Database } from '../../platform/db/database';
  * with a *new* one rather than the same one.
  */
 
-/**
- * €19.99 per ten pieces, ten to a pack — the product the cart is priced from.
- */
+/** €19.99 per ten pieces, ten to a pack: what the cart is priced from. */
 const product = {
   id: 'product-1',
   slug: 'hafen-espresso',
@@ -142,9 +140,8 @@ function testDb(
               });
             }
             inserts.push({ table, values });
-            // Awaited directly for the items, and via `.returning()` for the
-            // order and the revision — which answer with their own ids, since
-            // the writes that follow are joined up by them.
+            // Awaited for the items, `.returning()` for the order and the
+            // revision, whose ids join the writes that follow.
             const result = Promise.resolve() as Promise<void> & {
               returning: () => Promise<{ id: string }[]>;
             };
@@ -164,7 +161,7 @@ function testDb(
       .filter((entry) => entry.table === table)
       .map((entry) => entry.values as Record<string, unknown>);
   const orderRows = () => rowsOf(orders);
-  /** What the order *says* — the snapshot half, which lives on revision 1. */
+  /** What the order says, on version 1. */
   const revisionRows = () => rowsOf(orderRevisions);
   const itemRows = () =>
     (inserts.find((entry) => entry.table === orderItems)?.values ??
@@ -249,14 +246,13 @@ const submission = (overrides: Record<string, unknown> = {}): OrderSubmission =>
     lines: [{ slug: 'hafen-espresso', unit: 'pack', pieces: 20 }],
     contact: { name: 'Ada', email: 'ada@example.com', phone: '+49 40 1' },
     fulfilmentMethod: 'delivery',
-    // Null is "the party this account is registered as", which the server
-    // reads for itself — the ordinary case, so it is the fixture's default.
+    // Null is the account's own party, read by the server: the usual case.
     party: null,
     deliveryAddress: address(),
     pickupLocationKey: null,
     billingAddress: address(),
-    // The fixture's default party is the account's own, and that account is a
-    // company — which is invoiced rather than paying cash (FR-CART-04).
+    // The account is a company, which is invoiced, not paying cash
+    // (FR-CART-04).
     paymentMethod: 'bank-transfer',
     preferredDate: null,
     customerNote: null,
@@ -267,8 +263,8 @@ const submission = (overrides: Record<string, unknown> = {}): OrderSubmission =>
 describe('CheckoutService.submit', () => {
   afterEach(() => vi.restoreAllMocks());
 
-  /** A cart of both products, paired with each other, in whatever quantities.
-   * 20 pieces of each is €39.98 + €19.98 — the pricer's own arithmetic. */
+  /** Both products, paired, in any quantities: 20 of each is €39.98 +
+   * €19.98. */
   const pairedCart = (cupPieces: number, lidPieces: number) => ({
     db: testDb(
       0,
@@ -335,10 +331,8 @@ describe('CheckoutService.submit', () => {
 
     expect(placed.reference).toMatch(/^CK-\d{6}-\d{4}$/);
     expect(placed.publicToken).toMatch(/^[A-Za-z0-9_-]{32}$/);
-    // The order row is identity and workflow; what it says is its first
-    // revision (ADR 0051).
-    // The basis it is submitted under (NFR-LEGAL-11), which every later view
-    // of it states rather than the deployment's current one.
+    // The row is identity and workflow; what the order says is its first
+    // version. The basis (NFR-LEGAL-11) is the one submitted under.
     expect(orderRows()[0]).toMatchObject({
       userId: 'user-1',
       taxBasis: 'included',
@@ -348,8 +342,8 @@ describe('CheckoutService.submit', () => {
       revisionNumber: 1,
       totalMinor: 3980,
       currency: 'EUR',
-      // Resolved from the postal code against the deployment's zones — nothing
-      // about the zone came from the submission.
+      // From the postal code and the deployment's zones, never the
+      // submission.
       deliveryZoneKey: 'city',
       deliveryFreeFromMinor: 15_000,
       pickupLocationKey: null,
@@ -469,13 +463,8 @@ describe('CheckoutService.submit', () => {
     });
   });
 
-  /**
-   * An order is a snapshot. One placed while the shop asked for an invoice
-   * address carries it for good, so a deployment that has since stopped asking
-   * must not delete it from the next version — which is what resolving the
-   * address from today's config alone would do, on every adjustment, without
-   * anybody having touched the field.
-   */
+  /** An order placed with an invoice address keeps it, even once the shop
+   * stops asking: today's config alone would drop it on every adjustment. */
   it('keeps an invoice address an adjustment no longer asks for', () => {
     const { db } = testDb();
     const carried = {
@@ -666,16 +655,10 @@ describe('CheckoutService.submit', () => {
 });
 
 /**
- * The order is committed before the mails are prepared, and the customer is
- * about to be shown its reference — so nothing in this step may fail the
- * request. An unreachable SMTP is already swallowed by the notifier itself;
- * what is asserted here is the rest of the step, which used to sit outside
- * that net: the read that assembles the mails, and a deployment missing the
- * staff inbox it sends one of them to.
- *
- * Failing instead would answer an error for an order that exists, and there is
- * no submission identity to make the customer's retry the same order — they
- * would simply place a second one.
+ * The order commits before the mails are built and its reference is shown,
+ * so nothing here may fail the request: not the read that assembles them, not
+ * a missing staff inbox. An error for an order that exists makes the customer
+ * place a second one.
  */
 describe('CheckoutService.notifyPlaced', () => {
   const placed = { reference: 'CK-0001', publicToken: 'token' };
@@ -703,8 +686,8 @@ describe('CheckoutService.notifyPlaced', () => {
     const orders = service(testDb(0, {}).db);
     vi.spyOn(orders['reads'], 'getForStaff').mockResolvedValue(demoAdminOrder);
     vi.spyOn(orders['notifications'], 'placed').mockImplementation(() => {
-      // Thrown, not rejected: the mails are queued, so what can still fail
-      // here is building them — a deployment with no staff inbox.
+      // Thrown, not rejected: the mails are queued, so only building them can
+      // fail here, as without a staff inbox.
       throw new Error('MAIL_STAFF_TO is not configured');
     });
 

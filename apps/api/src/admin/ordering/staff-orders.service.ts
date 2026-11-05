@@ -156,8 +156,7 @@ export class StaffOrdersService {
    * projection. The order is read first, so an unknown reference is a 404.
    */
   async getRevisions(reference: string): Promise<OrderRevisionEntry[]> {
-    // The order first, so a reference nobody has is a 404 rather than an empty
-    // list — an order with no versions does not exist.
+    // The order first, so an unknown reference is a 404, not an empty list.
     const current = await this.reads.row(eq(orders.reference, reference));
     const rows = await this.revisionRows(current.id);
     const notified = await this.reads.customerThread(current.id);
@@ -203,8 +202,8 @@ export class StaffOrdersService {
     );
   }
 
-  /** The order joined to its versions rather than to the one it stands on —
-   * every version, or the one asked for. */
+  /** The order joined to its versions, not to the current one: every version,
+   * or the one asked for. */
   private revisionRows(orderId: string, number?: number): Promise<OrderRow[]> {
     return this.db
       .select(orderColumns)
@@ -309,8 +308,8 @@ export class StaffOrdersService {
       lines: priced.lines.map((line) => ({
         name: line.name,
         slug: line.slug,
-        // A staff screen opens every line it can, whatever the storefront
-        // thinks of the product — the flags say what state it is in.
+        // Staff open every line, whatever the storefront shows; the flags say
+        // the product's state.
         linked: true,
         image: line.thumbnail
           ? { full: line.thumbnail, thumb: line.thumbnail }
@@ -343,7 +342,7 @@ export class StaffOrdersService {
   }
 
   /**
-   * Changes what an order says: a new version (FR-ORD-03, ADR 0051) that moves
+   * Changes what an order says: a new version (FR-ORD-03) that moves
    * nothing and mails no one unless asked. Guarded by the version it was
    * written against; the customer's own words are carried across.
    */

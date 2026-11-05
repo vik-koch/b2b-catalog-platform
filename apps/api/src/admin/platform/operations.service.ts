@@ -4,7 +4,7 @@ import {
   SETTING_CHANGES_PAGE_SIZE,
   SettingChange,
 } from '@b2b-catalog-platform/shared/admin/platform';
-import { desc, eq } from 'drizzle-orm';
+import { desc } from 'drizzle-orm';
 import { DRIZZLE } from '../../platform/db/database.module';
 import { settingChanges } from '../../platform/db/schema';
 import { ACTOR_EMAILS, ActorEmails } from '../../platform/actor-emails';

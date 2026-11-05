@@ -38,8 +38,8 @@ describe('orderReceivedMail', () => {
     expect(mail.action).toEqual({ label: t.action, path: '/orders/tok-123' });
   });
 
-  // An account holder can already open the order signed in, so no capability
-  // URL is mailed for it — and the token page is written for a stranger.
+  // An account holder opens the order signed in: no token link, whose page is
+  // written for a stranger.
   it('links an account holder to their own order page instead', () => {
     const mine = orderReceivedMail(
       order,
@@ -74,8 +74,8 @@ describe('orderReceivedMail', () => {
     expect(JSON.stringify(mail)).not.toContain('wholesale');
   });
 
-  // NFR-LEGAL-10: by its date, read in the shop's timezone like the page's own
-  // "Last updated" line — 23:30 UTC is already the next day in Berlin.
+  // NFR-LEGAL-10: by its date in the shop's time zone, like the page's "Last
+  // updated" line: 23:30 UTC is the next day in Berlin.
   // NFR-LEGAL-11: the basis the order was submitted under, after the total.
   it('names the rate its lines share after the total, and no line rate', () => {
     expect(mail.rows).toContainEqual({

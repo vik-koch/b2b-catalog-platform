@@ -61,8 +61,8 @@ describe('loadCompanyIdRule', () => {
     expect(matches('12345678901')).toBe(false);
   });
 
-  // Without a configured format there is no format rule — the contract's
-  // envelope (present, trimmed, length-capped) is all that applies.
+  // No format configured: only the contract's envelope applies (present,
+  // trimmed, capped).
   it('accepts anything when the deployment configures no pattern', () => {
     withConfig({ companyIdInput: undefined });
 
@@ -91,11 +91,8 @@ describe('loadCompanyIdRule', () => {
     expect(() => loadApiDeploymentConfig()).toThrow(/too long/);
   });
 
-  /**
-   * The example is the field's only hint and the only thing an error message
-   * can name, so it is checked against the pattern it claims to illustrate —
-   * otherwise the form teaches a value it will then refuse.
-   */
+  /** The example is the field's only hint and what an error names, so it
+   * must pass its own pattern, or the form teaches a value it refuses. */
   describe('the config self-check', () => {
     it('refuses an example that its own pattern rejects', () => {
       withConfig({

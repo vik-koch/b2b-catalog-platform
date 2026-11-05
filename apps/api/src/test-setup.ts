@@ -11,13 +11,11 @@ process.env['MAIL_PORT'] ??= '1025';
 process.env['MAIL_FROM'] ??= 'Test Shop <no-reply@example.test>';
 process.env['MAIL_STAFF_TO'] ??= 'shop@example.test';
 process.env['MAIL_ADMIN_TO'] ??= 'admin@example.test';
-// Needed by anything that reaches mail branding — the order PDF names the shop
-// and the mails link back to it.
+// For mail branding: the order PDF names the shop and the mails link to it.
 process.env['APP_ORIGIN'] ??= 'https://shop.example';
 process.env['JWT_SECRET'] ??= 'test-only-jwt-secret-at-least-32-chars-long';
-// The specs assert the test fixture's wording, so they read the fixture whatever
-// the workspace .env points the API at — assigned, never `??=`, or a demo
-// deployment named there fails them with no hint why.
+// The specs assert the fixture's wording, whatever the workspace .env names.
+// Assigned, never `??=`, or a demo deployment there fails them silently.
 process.env['CONFIG_PATH'] = 'deployments/fixture/config';
 process.env['PASSWORD_BLOCKLIST_FILE'] =
   'deployments/fixture/config/password-blocklist.txt';
@@ -28,7 +26,7 @@ process.env['PUBLIC_FORM_RATE_LIMIT'] = '10';
 process.env['AUTH_RATE_LIMIT'] = '10';
 // A throwaway dir for the LocalMediaStore. Assigned, never `??=`: the spec
 // deletes this directory between cases, and the workspace .env points
-// MEDIA_ROOT at ./.media — the images the local dev stack serves. Inheriting it
+// MEDIA_ROOT at ./.media, the images the local dev stack serves. Inheriting it
 // here means `nx test api` wipes them, and any file already there fails the
 // spec that asserts the store wrote exactly one. Per-pid so parallel workers
 // and a crashed previous run cannot collide.

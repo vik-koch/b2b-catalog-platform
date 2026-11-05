@@ -191,7 +191,7 @@ function nameScore(
       when position(${text} in ${foldedName}) > 0 then 2
       else 0
     end)`;
-  // An empty typed reading — all punctuation — would `like '%'` every row.
+  // A reading of only punctuation would `like '%'` every row.
   const tiers = [
     ...(query.normalized ? [tier(query.normalized)] : []),
     ...(query.otherNormalized === undefined

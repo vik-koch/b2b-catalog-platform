@@ -182,7 +182,7 @@ export class OrderRules {
     current: OrderRow,
   ): AddressInput | null {
     if (this.billingAddressEnabled) return this.billingAddress(input);
-    // The snapshot carries no label — nothing reads one off an order.
+    // The copy has no label: nothing reads one off an order.
     const carried = rowBillingAddress(current);
     return carried && { ...carried, label: null };
   }

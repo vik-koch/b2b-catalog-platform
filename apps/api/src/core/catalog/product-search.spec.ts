@@ -202,8 +202,8 @@ describe('adminSearchCondition', () => {
   });
 
   it('still filters on a query too short for the name matcher', () => {
-    // One character cannot run the name matcher, but it is a valid key
-    // fragment — dropping the filter would show the whole catalog instead.
+    // Too short for the name matcher but a valid key fragment: dropping the
+    // filter would show everything.
     const condition = adminSearchCondition('7');
     if (!condition) throw new Error('fixture should produce a condition');
     const { sql, params } = toQuery(condition);

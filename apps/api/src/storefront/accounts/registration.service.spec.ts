@@ -23,12 +23,8 @@ import { CustomerType } from '@b2b-catalog-platform/shared/core/accounts';
 import { RegisterRequest } from '@b2b-catalog-platform/shared/storefront/accounts';
 import { normalizePhone } from '@b2b-catalog-platform/shared/platform';
 
-/**
- * The rule this service exists to keep: a caller can never tell from the
- * outside whether an address already has an account. Every test here is a
- * variation on "what was written, and what was mailed" — the answer to the
- * caller is always the same.
- */
+/** No caller can tell whether an address has an account: each test varies
+ * what was written and mailed, never the answer. */
 describe('RegistrationService', () => {
   const findByEmail = vi.fn();
   const createPending = vi.fn();
@@ -142,11 +138,8 @@ describe('RegistrationService', () => {
     });
   });
 
-  /**
-   * The number is stored unmasked, but the staff notification is read by a
-   * person — often on a phone, deciding whether to approve — so it goes out
-   * grouped the way this deployment writes numbers.
-   */
+  /** Stored unmasked, but the staff mail is read on a phone, so it is grouped
+   * as the deployment writes numbers. */
   it('groups the phone number in the notification to the shop', async () => {
     await service.register(person);
     await settle();
@@ -174,8 +167,8 @@ describe('RegistrationService', () => {
     );
   });
 
-  // The contract cannot know a jurisdiction's format, so the deployment's own
-  // pattern is applied here too — a client-side-only rule is not a rule.
+  // The contract cannot know a jurisdiction's format, so the deployment's
+  // pattern applies here too: a browser-only rule is no rule.
   it('refuses a number the deployment pattern rejects, and writes nothing', async () => {
     await expect(
       service.register({ ...company, companyRegistrationId: 'DE12345' }),
@@ -262,8 +255,7 @@ describe('RegistrationService', () => {
   });
 
   describe('the first address (FR-AUTH-10)', () => {
-    // The street line as the adapter composed it — house number included, in
-    // the shape its own jurisdiction prints.
+    // The street line as the adapter composed it, house number included.
     const registered = {
       entityType: 'legal' as const,
       street: 'Hafenstraße 12',

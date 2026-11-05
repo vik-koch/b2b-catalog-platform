@@ -57,9 +57,9 @@ export const accountsMailTextShape = {
     .strict(),
   /**
    * A sign-in code (FR-AUTH-12). `message` is the whole text a provider
-   * sends, `{code}` included; keep it to one message — 70 characters in a
-   * non-Latin script — since a second part costs a second message. The rest
-   * is only for the mail delivery that dev and the demo use.
+   * sends, `{code}` included; keep it to one message (70 characters in a
+   * non-Latin script), as a second part costs again. The rest is for the mail
+   * delivery dev and the demo use.
    */
   signInCode: z
     .object({
@@ -86,19 +86,15 @@ export const accountsMailTextShape = {
       ignore: z.string(),
     })
     .strict(),
-  /**
-   * Confirms a self-deletion (FR-AUTH-06), to the address that asked for it —
-   * the last message it gets, since the record no longer carries it. No
-   * action: there is nothing to sign in to, and registering again starts a
-   * new account rather than restoring this one.
-   */
+  /** Confirms a self-deletion (FR-AUTH-06), the address's last message. No
+   * action: nothing is left to sign in to. */
   accountDeleted: z
     .object({
       subject: z.string(),
       preheader: z.string(),
       heading: z.string(),
       body: z.string(),
-      /** What was kept, and why — the honest half of "delete". */
+      /** What was kept, and why: the honest half of "delete". */
       orders: z.string(),
     })
     .strict(),
@@ -114,12 +110,8 @@ export const accountsMailTextShape = {
       action: z.string(),
     })
     .strict(),
-  /**
-   * Sent to the shop when an account closes itself (FR-NOTIF-08,
-   * FR-AUTH-06). The account is gone before this is read, so the mail
-   * carries what it was rather than a link to it — and names what the
-   * closure left behind, which is the half a manager has to act on.
-   */
+  /** Sent to the shop when an account closes itself (FR-NOTIF-08,
+   * FR-AUTH-06): what the account was, and what it left for a manager. */
   accountClosed: z
     .object({
       subject: z.string(),

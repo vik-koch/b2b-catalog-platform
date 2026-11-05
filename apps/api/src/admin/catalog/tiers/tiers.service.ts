@@ -317,7 +317,7 @@ export class TiersService {
   }
 }
 
-/** One spelling of a key, for comparison only — never for storage or display. */
+/** One spelling of a key, to compare with; never stored or shown. */
 function fold(key: string): string {
   return key.normalize('NFC').toLowerCase();
 }

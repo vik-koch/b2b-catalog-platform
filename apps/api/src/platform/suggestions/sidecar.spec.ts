@@ -104,9 +104,8 @@ describe('SuggestionSidecar', () => {
   });
 
   it('gives up on a sidecar that never answers', async () => {
-    // The real abort comes from `AbortSignal.timeout`; what is asserted is that
-    // the signal is passed at all and that an abort lands as an empty answer —
-    // waiting on a stalled provider is the one failure a customer would feel.
+    // `AbortSignal.timeout` aborts; this asserts the signal is passed and an
+    // abort is an empty answer: a stalled provider is what a customer feels.
     fetchMock.mockImplementation((_url, init: RequestInit) => {
       expect(init.signal).toBeInstanceOf(AbortSignal);
       return Promise.reject(

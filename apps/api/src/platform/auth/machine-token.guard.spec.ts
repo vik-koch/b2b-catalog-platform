@@ -66,8 +66,7 @@ describe('MachineTokenGuard', () => {
     ).rejects.toThrow(UnauthorizedException);
   });
 
-  /** The session cookie is not an alternative credential here — that is the
-   * whole discipline of the machine path. */
+  /** A session cookie is no credential on the machine path. */
   it('refuses a request carrying only a session cookie', async () => {
     requireScope('catalog-sync');
 
@@ -110,8 +109,7 @@ describe('MachineTokenGuard', () => {
     ).rejects.toThrow(ForbiddenException);
   });
 
-  /** One credential for a client that does several things — the reason the
-   * column is a set. */
+  /** One credential for a client that does several things. */
   it("admits a token carrying the route's capability among others", async () => {
     requireScope('catalog-sync');
     (tokens.authenticate as Mock).mockResolvedValue({

@@ -20,9 +20,8 @@ describe('mediaFilenamesInHtml', () => {
   it('ignores absolute URLs that only look like a media path', () => {
     // The prefix must match from its start; an external host is not a reference.
     const html = `<img src="https://evil.example.com${MEDIA_URL_PREFIX}/x.webp">`;
-    // The regex still finds the /media/ segment inside — but the sanitizer would
-    // never have stored such a src, so extraction only needs to be a superset of
-    // what is reachable. Documenting the behavior: the trailing segment is found.
+    // The segment inside is still found. The sanitiser never stores such a
+    // src, and finding too much only keeps a file.
     expect(mediaFilenamesInHtml(html)).toEqual(['x.webp']);
   });
 });

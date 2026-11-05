@@ -3,14 +3,9 @@ import { InquiryRequest } from '@b2b-catalog-platform/shared/storefront/site';
 import { MailContent } from '../../platform/mail/mail-layout';
 import { SiteMailText } from './site-mail-text';
 
-/**
- * The inquiry form's message to the shop (FR-NAV-06) — the one email with an
- * external sender, so the caller sets the submitter as Reply-To.
- *
- * Fields the visitor left empty are still listed, with a dash: the shop reads
- * these in sequence and a missing row would be easy to misread as a different
- * message shape.
- */
+/** The inquiry form's mail to the shop (FR-NAV-06), the one with an outside
+ * sender, who becomes the Reply-To. Empty fields show a dash, so every
+ * inquiry reads in the same shape. */
 export function inquiryMail(
   submission: InquiryRequest,
   text: SiteMailText,

@@ -11,13 +11,9 @@ import { CustomerOrdersService } from './customer-orders.service';
 import { CartChangedException } from '../../core/ordering/cart-changed-exception';
 import { SignedInAs, withSession } from '../../platform/auth/session.fixture';
 
-/**
- * The two refusals the controller makes on its own, before the service sees
- * anything — the honeypot and staff — plus the one that carries an answer with
- * it. All three are rules the storefront also enforces, which is exactly why
- * they are pinned here: a form can stop offering something, and that is not
- * the same as the server refusing it.
- */
+/** The controller's own refusals (the honeypot, staff) and the one carrying
+ * an answer. The storefront enforces them too, but a form that stops offering
+ * something is not a server refusing it. */
 describe('OrdersController', () => {
   let app: INestApplication;
   let baseUrl: string;
@@ -134,8 +130,8 @@ describe('OrdersController', () => {
 
   // The one refusal that carries an answer: the fresh pricing rides along so
   // the page can show what moved instead of asking again. The payload is held
-  // to the contract like any response — a preview that did not match would be
-  // downgraded to an undefined error rather than sent as this one.
+  // to the contract like any response: one that did not match would become an
+  // undefined error.
   it('sends the re-priced cart back with the refusal that caused it', async () => {
     const preview = {
       lines: [],

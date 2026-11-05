@@ -9,8 +9,7 @@ describe('judgeConsent', () => {
     expect(judgeConsent(3, undefined)).toBe('consent-required');
   });
 
-  // The text changed while the form was open: the person ticked wording that
-  // is no longer the current one.
+  // The text changed while the form was open: the person ticked old wording.
   it('refuses an older or unknown version as stale', () => {
     expect(judgeConsent(3, 2)).toBe('consent-stale');
     expect(judgeConsent(3, 4)).toBe('consent-stale');

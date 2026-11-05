@@ -116,8 +116,8 @@ describe('CatalogController', () => {
     expect(selectedAttributes()).toEqual(expected);
   });
 
-  // The panel can tick more boxes than a query string is usually asked to
-  // carry — and every layer between here and the browser has to keep them.
+  // The panel can tick more boxes than a query string usually carries, and
+  // every layer must keep them.
   it('reads a selection longer than any one page of facets', async () => {
     const query = Array.from(
       { length: 25 },

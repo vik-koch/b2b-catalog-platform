@@ -40,8 +40,8 @@ describe('richTextBlocks', () => {
     ]);
   });
 
-  // A printed link cannot be followed, so its address is printed beside it —
-  // but not twice where the words already are the address.
+  // A printed link cannot be followed, so its address is printed beside it,
+  // unless the words are the address.
   it('prints a link’s address beside its words', () => {
     const [mailed, shown] = richTextBlocks(
       '<p>Write to <a href="mailto:shop@example.com">us</a>.</p>' +

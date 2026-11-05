@@ -9,7 +9,7 @@ export type OrderIds = string[] | SQLWrapper;
 
 /**
  * Removes the personal details from orders (FR-AUTH-06, NFR-LEGAL-14) in the
- * caller's transaction, from every version (ADR 0051). The orders and their
+ * caller's transaction, from every version. The orders and their
  * prices stay. Addresses are overwritten, not nulled, so the not-null columns
  * and the fulfilment constraint hold. The caller deletes supplied files after
  * the commit.
@@ -57,8 +57,7 @@ export async function scrubOrders(tx: Writer, ids: OrderIds): Promise<void> {
       // What a manager wrote about an adjustment: their words, but about
       // this customer's order, and quite capable of naming them.
       note: null,
-      // Which list this customer was charged from — the same argument that
-      // nulls `users.tierId`.
+      // Which list this customer was charged from, as with `users.tierId`.
       tierKey: null,
     })
     .where(inArray(orderRevisions.orderId, ids));

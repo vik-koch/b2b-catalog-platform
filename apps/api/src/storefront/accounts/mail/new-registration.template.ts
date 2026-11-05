@@ -10,7 +10,7 @@ import {
   type SharedAccountsText,
 } from '@b2b-catalog-platform/shared/core/accounts';
 
-/** What the staff notification reports — the registration, as submitted. */
+/** The registration, as submitted. */
 export interface RegistrationSummary {
   readonly email: string;
   readonly firstName: string;
@@ -21,16 +21,9 @@ export interface RegistrationSummary {
   readonly companyRegistrationId?: string;
 }
 
-/**
- * Sent to the shop when someone registers (FR-NOTIF-04). Staff are the only
- * ones who can move the account forward, so this is the one mail that links
- * into the admin panel — the account list, where the pending request waits to
- * be approved and given a tier.
- *
- * It repeats every field the applicant submitted, because this mail is what a
- * manager reads on a phone before deciding whether the name and registration
- * number match a customer they already know.
- */
+/** Sent to the shop when someone registers (FR-NOTIF-04), linking to the
+ * account list where it waits for approval. Every field is repeated: a manager
+ * reads it on a phone, matching name and number to a known customer. */
 export function newRegistrationMail(
   registration: RegistrationSummary,
   text: MailText,
@@ -61,10 +54,8 @@ export function newRegistrationMail(
         label: t.customerTypeLabel,
         value: isCompany ? kinds.company : kinds.person,
       },
-      // Only for a company: a dash against a private person would read as
-      // details that failed to arrive. Both are what staff approve on — the
-      // name is what they match against their own records, the number is what
-      // they can check.
+      // Only for a company: a dash for a person would read as missing details.
+      // Staff approve on both: the name to match, the number to check.
       ...(isCompany
         ? [
             {

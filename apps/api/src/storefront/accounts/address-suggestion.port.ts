@@ -3,7 +3,7 @@ import { HttpAddressSuggestions } from './http-address-suggestions';
 import { AddressComponents } from '@b2b-catalog-platform/shared/core/accounts';
 
 /**
- * What an address provider answers (ADR 0040). A deployment supplies the
+ * What an address provider answers. A deployment supplies the
  * sidecar behind the `http` adapter, since no provider serves every region.
  * Components, never one line: the delivery zone keys off the postal code.
  */
