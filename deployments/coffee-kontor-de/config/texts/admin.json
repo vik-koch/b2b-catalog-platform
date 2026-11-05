@@ -32,27 +32,6 @@
   },
   "countSuffix": "({count})",
   "actorGone": "ein gelöschtes Konto",
-  "catalogErrors": {
-    "product-not-found": "Dieses Produkt gibt es nicht mehr. Laden Sie die Seite neu, um den aktuellen Katalog zu sehen.",
-    "category-not-found": "Diese Kategorie gibt es nicht mehr. Laden Sie die Seite neu, um die aktuellen Kategorien zu sehen.",
-    "reassign-target-not-found": "Die Kategorie, in die Sie die Produkte verschieben wollten, gibt es nicht mehr.",
-    "category-has-subcategories": "Diese Kategorie hat noch Unterkategorien. Löschen oder verschieben Sie diese zuerst.",
-    "category-has-products": "Diese Kategorie enthält noch Produkte. Wählen Sie eine Kategorie, in die sie verschoben werden.",
-    "category-reassign-to-self": "Die Produkte können nicht in die Kategorie verschoben werden, die gerade gelöscht wird.",
-    "category-cycle": "Eine Kategorie kann nicht in eine ihrer eigenen Unterkategorien verschoben werden.",
-    "slug-taken": "Diese Webadresse wird bereits verwendet. Bitte wählen Sie eine andere.",
-    "source-id-taken": "Dieser Abgleichschlüssel wird bereits von einem anderen Produkt oder einer anderen Kategorie verwendet.",
-    "tier-not-found": "Eine der Preislisten dieses Produkts gibt es nicht mehr. Laden Sie die Seite neu und legen Sie die Preise erneut fest.",
-    "paired-product-not-found": "Eines der Produkte, mit denen dieses zusammen verkauft wird, gibt es nicht mehr. Laden Sie die Seite neu und wählen Sie die Produkte erneut.",
-    "document-not-found": "Eines der Dokumente dieses Produkts gibt es nicht mehr. Laden Sie die Seite neu und wählen Sie die Dokumente erneut.",
-    "pairing-self": "Ein Produkt kann nicht mit sich selbst zusammen verkauft werden.",
-    "slug-or-source-id-taken": "Gerade hat jemand anderes eine kollidierende Webadresse oder einen kollidierenden Abgleichschlüssel gespeichert. Bitte versuchen Sie es noch einmal.",
-    "product-has-no-price": "Dieses Produkt hat keinen Preis in der Preisliste, die der Shop zeigt, und kann daher nicht veröffentlicht werden. Geben Sie ihm zuerst einen Preis.",
-    "product-published": "Dieses Produkt ist im Shop sichtbar. Ziehen Sie es zuerst zurück und löschen Sie es dann.",
-    "product-deleted": "Dieses Produkt ist gelöscht. Stellen Sie es zuerst wieder her und veröffentlichen Sie es dann.",
-    "product-not-deleted": "Nur ein gelöschtes Produkt lässt sich endgültig löschen. Löschen Sie es zuerst.",
-    "product-ordered": "Dieses Produkt steht in einer Bestellung und kann daher nicht endgültig gelöscht werden. Es bleibt stattdessen gelöscht."
-  },
   "fields": {
     "name": {
       "required": "Ein Name ist erforderlich."
@@ -147,7 +126,11 @@
       "heading": "Endgültig löschen",
       "message": "„{name}“ endgültig löschen? Preise, Merkmale, Zuordnungen und Dokumentverknüpfungen werden mit entfernt. Das lässt sich nicht rückgängig machen.",
       "confirm": "Endgültig löschen"
-    }
+    },
+    "deletedBadge": "Gelöscht",
+    "unpublishedBadge": "Nicht veröffentlicht",
+    "unpricedBadge": "Kein Preis",
+    "unpricedMessage": "Dieses Produkt hat keinen Preis in der Preisliste, die der Shop zeigt, und kann daher nicht veröffentlicht werden. Geben Sie ihm zuerst einen Preis."
   },
   "richText": {
     "toolbar": {
@@ -190,291 +173,513 @@
       "remove": "Bild entfernen"
     }
   },
-  "products": {
-    "deleted": "Gelöscht",
-    "unpublished": "Nicht veröffentlicht",
-    "unpriced": "Kein Preis",
-    "count": "Produkte: {count}",
-    "unpublishedCount": "{count} unveröffentlicht",
-    "list": {
-      "page": {
-        "title": "Produkte"
+  "catalog": {
+    "catalogErrors": {
+      "product-not-found": "Dieses Produkt gibt es nicht mehr. Laden Sie die Seite neu, um den aktuellen Katalog zu sehen.",
+      "category-not-found": "Diese Kategorie gibt es nicht mehr. Laden Sie die Seite neu, um die aktuellen Kategorien zu sehen.",
+      "reassign-target-not-found": "Die Kategorie, in die Sie die Produkte verschieben wollten, gibt es nicht mehr.",
+      "category-has-subcategories": "Diese Kategorie hat noch Unterkategorien. Löschen oder verschieben Sie diese zuerst.",
+      "category-has-products": "Diese Kategorie enthält noch Produkte. Wählen Sie eine Kategorie, in die sie verschoben werden.",
+      "category-reassign-to-self": "Die Produkte können nicht in die Kategorie verschoben werden, die gerade gelöscht wird.",
+      "category-cycle": "Eine Kategorie kann nicht in eine ihrer eigenen Unterkategorien verschoben werden.",
+      "slug-taken": "Diese Webadresse wird bereits verwendet. Bitte wählen Sie eine andere.",
+      "source-id-taken": "Dieser Abgleichschlüssel wird bereits von einem anderen Produkt oder einer anderen Kategorie verwendet.",
+      "tier-not-found": "Eine der Preislisten dieses Produkts gibt es nicht mehr. Laden Sie die Seite neu und legen Sie die Preise erneut fest.",
+      "paired-product-not-found": "Eines der Produkte, mit denen dieses zusammen verkauft wird, gibt es nicht mehr. Laden Sie die Seite neu und wählen Sie die Produkte erneut.",
+      "document-not-found": "Eines der Dokumente dieses Produkts gibt es nicht mehr. Laden Sie die Seite neu und wählen Sie die Dokumente erneut.",
+      "pairing-self": "Ein Produkt kann nicht mit sich selbst zusammen verkauft werden.",
+      "slug-or-source-id-taken": "Gerade hat jemand anderes eine kollidierende Webadresse oder einen kollidierenden Abgleichschlüssel gespeichert. Bitte versuchen Sie es noch einmal.",
+      "product-has-no-price": "Dieses Produkt hat keinen Preis in der Preisliste, die der Shop zeigt, und kann daher nicht veröffentlicht werden. Geben Sie ihm zuerst einen Preis.",
+      "product-published": "Dieses Produkt ist im Shop sichtbar. Ziehen Sie es zuerst zurück und löschen Sie es dann.",
+      "product-deleted": "Dieses Produkt ist gelöscht. Stellen Sie es zuerst wieder her und veröffentlichen Sie es dann.",
+      "product-not-deleted": "Nur ein gelöschtes Produkt lässt sich endgültig löschen. Löschen Sie es zuerst.",
+      "product-ordered": "Dieses Produkt steht in einer Bestellung und kann daher nicht endgültig gelöscht werden. Es bleibt stattdessen gelöscht."
+    },
+    "products": {
+      "deleted": "Gelöscht",
+      "unpublished": "Nicht veröffentlicht",
+      "unpriced": "Kein Preis",
+      "count": "Produkte: {count}",
+      "unpublishedCount": "{count} unveröffentlicht",
+      "list": {
+        "page": {
+          "title": "Produkte"
+        },
+        "empty": "Noch keine Produkte.",
+        "noResults": "Kein Produkt passt zu diesen Filtern.",
+        "updated": "Geändert",
+        "sourceId": "Abgleichschlüssel",
+        "searchAria": "Produkte suchen",
+        "searchPlaceholder": "Nach Name oder Abgleichschlüssel suchen",
+        "clearSearch": "Suche leeren",
+        "filterState": "Nach Zustand filtern",
+        "state": "Zustand",
+        "filterCategory": "Nach Kategorie filtern",
+        "stateAll": "Alle Zustände",
+        "stateLive": "Im Shop",
+        "deletedMatches": "Passende gelöschte Produkte: {count}.",
+        "showDeleted": "Gelöschte Produkte zeigen",
+        "allCategories": "Alle Kategorien",
+        "categoryDirect": "{name}, ohne Unterkategorien",
+        "stock": "Bestand",
+        "stockAll": "Jeder Bestand",
+        "filterStock": "Nach Bestand filtern",
+        "stockAria": "Auf Lager: {count} Stk. – {state}",
+        "stockUntracked": "—",
+        "filterAttribute": "Merkmal",
+        "clearAttributeAria": "Merkmalsfilter entfernen",
+        "filterTier": "Preisliste",
+        "clearTierAria": "Preislistenfilter entfernen",
+        "filterDocument": "Dokument",
+        "clearDocumentAria": "Dokumentfilter entfernen",
+        "tierPricedYes": "In dieser Liste bepreist",
+        "tierPricedNo": "In dieser Liste ohne Preis",
+        "noPrice": "—",
+        "missingGroupAria": "Fehlt",
+        "hasGroupAria": "Hat",
+        "missing": {
+          "incomplete": "Unvollständig",
+          "price": "Kein Preis",
+          "picture": "Kein Bild",
+          "description": "Keine Beschreibung",
+          "attributes": "Keine Merkmale",
+          "packaging": "Keine Verpackung",
+          "boxFacts": "Kein Kartonvolumen oder -gewicht"
+        },
+        "has": {
+          "featured": "Hervorgehoben",
+          "set": "Als Set verkauft",
+          "variants": "Varianten",
+          "pairings": "Zusammen verkauft",
+          "documents": "Dokumente",
+          "note": "Positionsanmerkung"
+        },
+        "gapsLabel": "Ohne {gaps}",
+        "gap": {
+          "price": "Preis",
+          "picture": "Bild",
+          "description": "Beschreibung",
+          "attributes": "Merkmale"
+        },
+        "bestMatch": "Beste Treffer"
       },
-      "empty": "Noch keine Produkte.",
-      "noResults": "Kein Produkt passt zu diesen Filtern.",
-      "updated": "Geändert",
-      "sourceId": "Abgleichschlüssel",
-      "searchAria": "Produkte suchen",
-      "searchPlaceholder": "Nach Name oder Abgleichschlüssel suchen",
-      "clearSearch": "Suche leeren",
-      "filterState": "Nach Zustand filtern",
-      "state": "Zustand",
-      "filterCategory": "Nach Kategorie filtern",
-      "stateAll": "Alle Zustände",
-      "stateLive": "Im Shop",
-      "deletedMatches": "Passende gelöschte Produkte: {count}.",
-      "showDeleted": "Gelöschte Produkte zeigen",
-      "allCategories": "Alle Kategorien",
-      "categoryDirect": "{name}, ohne Unterkategorien",
-      "stock": "Bestand",
-      "stockAll": "Jeder Bestand",
-      "filterStock": "Nach Bestand filtern",
-      "stockAria": "Auf Lager: {count} Stk. – {state}",
-      "stockUntracked": "—",
-      "filterAttribute": "Merkmal",
-      "clearAttributeAria": "Merkmalsfilter entfernen",
-      "filterTier": "Preisliste",
-      "clearTierAria": "Preislistenfilter entfernen",
-      "filterDocument": "Dokument",
-      "clearDocumentAria": "Dokumentfilter entfernen",
-      "tierPricedYes": "In dieser Liste bepreist",
-      "tierPricedNo": "In dieser Liste ohne Preis",
-      "noPrice": "—",
-      "missingGroupAria": "Fehlt",
-      "hasGroupAria": "Hat",
-      "missing": {
-        "incomplete": "Unvollständig",
-        "price": "Kein Preis",
-        "picture": "Kein Bild",
-        "description": "Keine Beschreibung",
-        "attributes": "Keine Merkmale",
-        "packaging": "Keine Verpackung",
-        "boxFacts": "Kein Kartonvolumen oder -gewicht"
-      },
-      "has": {
-        "featured": "Hervorgehoben",
-        "set": "Als Set verkauft",
-        "variants": "Varianten",
-        "pairings": "Zusammen verkauft",
-        "documents": "Dokumente",
-        "note": "Positionsanmerkung"
-      },
-      "gapsLabel": "Ohne {gaps}",
-      "gap": {
+      "editor": {
+        "newTitle": "Produkt hinzufügen",
+        "editTitle": "Produkt bearbeiten",
+        "name": "Name",
         "price": "Preis",
-        "picture": "Bild",
-        "description": "Beschreibung",
-        "attributes": "Merkmale"
-      },
-      "bestMatch": "Beste Treffer"
+        "category": "Kategorie",
+        "categoryPlaceholder": "Kategorie wählen…",
+        "slug": "URL-Kürzel",
+        "slugHint": "Wird in der Webadresse des Produkts verwendet. Lassen Sie es automatisch ausfüllen oder legen Sie es selbst fest – eine spätere Änderung ändert die URL.",
+        "sourceId": "Abgleichschlüssel (optional)",
+        "sourceIdHint": "Der Schlüssel aus Altbestand oder Import. Für ein hier angelegtes Produkt leer lassen; passend setzen, wenn ein künftiger Import es treffen soll.",
+        "previewNotice": "Vorschau – so sieht das Produkt nach dem Speichern aus.",
+        "discardConfirm": "Ihre ungespeicherten Änderungen an diesem Produkt verwerfen?",
+        "nameRequired": "Ein Produktname ist erforderlich.",
+        "categoryRequired": "Eine Kategorie ist erforderlich.",
+        "priceInvalid": "Dieser Preis ist ungültig.",
+        "saveError": "Beim Speichern dieses Produkts ist etwas schiefgegangen. Bitte versuchen Sie es noch einmal.",
+        "saveAndPublish": "Speichern und veröffentlichen",
+        "cancelToPage": "Verwerfen und Seite ansehen",
+        "publishError": "Die Sichtbarkeit dieses Produkts konnte nicht geändert werden. Bitte versuchen Sie es noch einmal.",
+        "attributes": {
+          "heading": "Merkmale",
+          "key": "Name",
+          "value": "Wert",
+          "addAria": "Merkmal hinzufügen",
+          "addKeys": "Merkmale hinzufügen",
+          "addKeysHint": "Merkmalsnamen, die der Katalog schon verwendet. Jeder hinzugefügte ergibt eine leere Zeile – wählen Sie den Namen hier, statt ihn neu zu tippen, dann bleiben die Produkte vergleichbar. Eine Zeile ohne Wert wird nicht gespeichert.",
+          "addKeysEmpty": "Noch kein Produkt hat ein Merkmal.",
+          "addKeysApply": "Merkmale hinzufügen ({count})",
+          "inTable": "schon vorhanden",
+          "filterable": "Der Shop filtert nach diesem Merkmal.",
+          "notNumeric": "Dieser Wert lässt sich nicht als Zahl lesen und fehlt daher im Filter dieses Merkmals. Auf der Produktseite erscheint er trotzdem.",
+          "strayPart": "„{part}“ ist keiner der Bestandteile dieses Produkts, daher wird diese Zeile nicht als „{key}“ gefiltert. Prüfen Sie die Schreibweise anhand der Bestandteile oben."
+        },
+        "images": {
+          "heading": "Bilder",
+          "add": "Bilder hinzufügen",
+          "variantAria": "Variante auf diesem Bild",
+          "noVariant": "Keine Variante",
+          "reframe": "Neu zuschneiden"
+        },
+        "variants": {
+          "hint": "Für ein sortiertes Produkt, dessen Farben oder Motive keine eigenen Produkte sind. Benennen Sie jede Variante und wählen Sie unter jedem Bild, welche es zeigt. Ein Bild des ganzen Sortiments zeigt keine. Markieren Sie eine Variante als derzeit nicht verfügbar, um ihre Bilder auszublenden, bis sie wieder da ist; löschen Sie sie nur, wenn sie nie wieder angeboten wird.",
+          "nameAria": "Name der Variante",
+          "add": "Variante hinzufügen",
+          "addPlaceholder": "Sand",
+          "addButton": "Hinzufügen",
+          "removeAria": "„{name}“ entfernen",
+          "unavailable": "Derzeit nicht verfügbar",
+          "picturesHeading": "Bilder",
+          "pictures": "Bilder damit: {count}",
+          "limit": "Ein Produkt kann bis zu {count} Varianten haben.",
+          "duplicate": "Jede Variante braucht einen eigenen Namen.",
+          "exists": "Eine Variante mit diesem Namen gibt es schon.",
+          "allWithheld": "Jedes Bild zeigt eine nicht verfügbare Variante, daher zeigt der Shop dieses Produkt ohne Bild."
+        },
+        "parts": {
+          "heading": "Als Set verkauft",
+          "hint": "Wenn ein Stück aus mehreren Dingen besteht, die zusammen verkauft werden, etwa eine Tasse und ihr Deckel, benennen Sie jeden Bestandteil. Ein Merkmal wie „Farbe (Tasse)“ filtert dann als „Farbe“.",
+          "add": "Bestandteil hinzufügen",
+          "addPlaceholder": "Tasse, oder Tasse + Deckel",
+          "addButton": "Hinzufügen",
+          "removeAria": "„{name}“ entfernen",
+          "limit": "Ein Set kann bis zu {count} Bestandteile haben.",
+          "tooFew": "Ein Set braucht mindestens zwei Bestandteile.",
+          "rejected": "Jeder Bestandteil muss neu sein, höchstens {max} Zeichen lang und ohne +, ( oder )."
+        },
+        "switchedOn": "(an)",
+        "featured": {
+          "heading": "Hervorgehoben",
+          "hint": "Die Startseite zeigt fünf Produkte: zuerst die hervorgehobenen, der Rest der Reihe per Zufall, alle in zufälliger Reihenfolge. Ein ausverkauftes Produkt erscheint nie.",
+          "enable": "Dieses Produkt hervorheben"
+        },
+        "lineNote": {
+          "heading": "Positionsanmerkung",
+          "hint": "Lässt Kunden an der Warenkorbposition in Worten sagen, welche Variante sie möchten.",
+          "enable": "Bei diesem Produkt nach einer Anmerkung fragen",
+          "prompt": "Wonach gefragt wird",
+          "promptHint": "Leer lassen, um die shopweite Formulierung zu verwenden.",
+          "promptPlaceholder": "Welche Farbe?"
+        },
+        "documents": {
+          "hint": "Zertifikate, Erklärungen und Datenblätter, die bei diesem Produkt erscheinen. Dieselben Dokumente lassen sich vom Dokument aus auf viele Produkte zugleich setzen.",
+          "add": "Dokument hinzufügen",
+          "addPlaceholder": "Dokumente nach Titel suchen…",
+          "removeAria": "„{name}“ entfernen",
+          "expires": "Läuft ab am {date}",
+          "noExpiry": "Ohne Ablaufdatum",
+          "suggestionsAria": "Dokumentvorschläge",
+          "noSuggestions": "Kein Dokument passt.",
+          "suggestionCountAria": "Dokumentvorschläge: {count}"
+        },
+        "pairings": {
+          "hint": "Produkte, mit denen dieses zusammen verkauft wird. Das gilt in beide Richtungen: Das gewählte Produkt wird auch diesem zugeordnet, und wer es hier entfernt, entfernt es auch dort.",
+          "add": "Produkt hinzufügen",
+          "addPlaceholder": "Produkte nach Name suchen…",
+          "removeAria": "„{name}“ entfernen",
+          "limit": "Einem Produkt lassen sich bis zu {count} Produkte zuordnen.",
+          "suggestionsAria": "Produktvorschläge",
+          "noSuggestions": "Kein Produkt passt.",
+          "suggestionCountAria": "Produktvorschläge: {count}"
+        },
+        "stock": {
+          "heading": "Bestand",
+          "hint": "Leer lassen, um den Bestand dieses Produkts nicht zu führen – dann erscheint kein Hinweis und nichts wird eingeschränkt.",
+          "pieces": "Stück auf Lager",
+          "threshold": "„Nur noch wenige“ unter",
+          "preview": "Kunden sehen derzeit:",
+          "untracked": "Nichts – der Bestand dieses Produkts wird nicht geführt."
+        },
+        "taxRate": {
+          "label": "MwSt.-Satz",
+          "notInEffect": "Derzeit wird keine MwSt. berechnet, daher wird dieser Satz gespeichert, aber nicht angewendet.",
+          "invalid": "Der MwSt.-Satz muss ein Prozentwert von 0 bis 100 mit höchstens zwei Nachkommastellen sein."
+        },
+        "packaging": {
+          "hint": "Lassen Sie eine Einheit leer, wenn das Produkt nicht so verkauft wird.",
+          "minPieceQty": "Mindeststückzahl",
+          "minPieceQtyHint": "Die kleinste Bestellung. Stückbestellungen steigen dann um eine Packung, oder um ein Stück, wenn dieser Wert unter einer Packung liegt.",
+          "boxCount": "Versandte Kartons",
+          "pricePerPack": "{price} pro Packung",
+          "pricePerBox": "{price} pro Karton",
+          "notSoldPerPack": "Nicht packungsweise verkauft",
+          "notSoldPerBox": "Nicht kartonweise verkauft",
+          "minMustFitPacks": "Das Minimum muss unter einer Packung liegen oder eine ganze Zahl von Packungen sein – dazwischen gibt es keine passende Mengenstufe.",
+          "invalid": "Verpackungsangaben müssen ganze Zahlen ab 1 sein."
+        },
+        "tierPrices": {
+          "heading": "Preise je Kundengruppe",
+          "hint": "Lassen Sie einen Preis leer, um dieser Liste den Shoppreis oben zu berechnen.",
+          "usesBase": "–",
+          "invalid": "Der Preis für „{tier}“ ist ungültig."
+        },
+        "priceWithList": "Preis ({list})",
+        "priceCleared": "Ohne Preis in dieser Liste kann das Produkt nicht im Shop stehen. Beim Speichern wird es zurückgezogen.",
+        "saveAndUnpublish": "Speichern und zurückziehen",
+        "packagingUnavailable": "—"
+      }
     },
-    "editor": {
-      "newTitle": "Produkt hinzufügen",
-      "editTitle": "Produkt bearbeiten",
-      "name": "Name",
-      "price": "Preis",
-      "category": "Kategorie",
-      "categoryPlaceholder": "Kategorie wählen…",
-      "slug": "URL-Kürzel",
-      "slugHint": "Wird in der Webadresse des Produkts verwendet. Lassen Sie es automatisch ausfüllen oder legen Sie es selbst fest – eine spätere Änderung ändert die URL.",
-      "sourceId": "Abgleichschlüssel (optional)",
-      "sourceIdHint": "Der Schlüssel aus Altbestand oder Import. Für ein hier angelegtes Produkt leer lassen; passend setzen, wenn ein künftiger Import es treffen soll.",
-      "previewNotice": "Vorschau – so sieht das Produkt nach dem Speichern aus.",
-      "discardConfirm": "Ihre ungespeicherten Änderungen an diesem Produkt verwerfen?",
-      "nameRequired": "Ein Produktname ist erforderlich.",
-      "categoryRequired": "Eine Kategorie ist erforderlich.",
-      "priceInvalid": "Dieser Preis ist ungültig.",
-      "saveError": "Beim Speichern dieses Produkts ist etwas schiefgegangen. Bitte versuchen Sie es noch einmal.",
-      "saveAndPublish": "Speichern und veröffentlichen",
-      "cancelToPage": "Verwerfen und Seite ansehen",
-      "publishError": "Die Sichtbarkeit dieses Produkts konnte nicht geändert werden. Bitte versuchen Sie es noch einmal.",
-      "attributes": {
-        "heading": "Merkmale",
-        "key": "Name",
-        "value": "Wert",
-        "addAria": "Merkmal hinzufügen",
-        "addKeys": "Merkmale hinzufügen",
-        "addKeysHint": "Merkmalsnamen, die der Katalog schon verwendet. Jeder hinzugefügte ergibt eine leere Zeile – wählen Sie den Namen hier, statt ihn neu zu tippen, dann bleiben die Produkte vergleichbar. Eine Zeile ohne Wert wird nicht gespeichert.",
-        "addKeysEmpty": "Noch kein Produkt hat ein Merkmal.",
-        "addKeysApply": "Merkmale hinzufügen ({count})",
-        "inTable": "schon vorhanden",
-        "filterable": "Der Shop filtert nach diesem Merkmal.",
-        "notNumeric": "Dieser Wert lässt sich nicht als Zahl lesen und fehlt daher im Filter dieses Merkmals. Auf der Produktseite erscheint er trotzdem.",
-        "strayPart": "„{part}“ ist keiner der Bestandteile dieses Produkts, daher wird diese Zeile nicht als „{key}“ gefiltert. Prüfen Sie die Schreibweise anhand der Bestandteile oben."
+    "categories": {
+      "list": {
+        "page": {
+          "title": "Kategorien"
+        },
+        "add": "Kategorie hinzufügen",
+        "addChild": "Unterkategorie hinzufügen",
+        "seeProducts": "Produkte der Kategorie ansehen",
+        "editProducts": "Produkte der Kategorie bearbeiten",
+        "noProducts": "Noch keine Produkte",
+        "directProducts": "Produkte ohne Unterkategorien: {count}",
+        "notShown": "Nicht im Shop sichtbar",
+        "editFilters": "Filter der Kategorie bearbeiten",
+        "catalogFilters": "Katalogfilter",
+        "empty": "Noch keine Kategorien.",
+        "reorderHint": "Ziehen Sie eine Kategorie an ihrem Griff, um sie zu verschieben; legen Sie sie weiter rechts ab, um sie zur Unterkategorie zu machen. Die Linie zeigt, wo sie landet. Änderungen werden sofort gespeichert.",
+        "undo": "Letzte Verschiebung rückgängig machen",
+        "reorderError": "Diese Verschiebung konnte nicht gespeichert werden. Bitte versuchen Sie es noch einmal.",
+        "deleteTitle": "Kategorie löschen",
+        "deleteConfirm": "„{name}“ löschen?",
+        "deleteReassignIntro": "Produkte noch in „{name}“: {count}. Wählen Sie eine Kategorie, in die sie verschoben werden, und löschen Sie dann.",
+        "deleteReassignDeleted": "Davon gelöschte Produkte: {count}. Sie werden mit verschoben.",
+        "reassignLabel": "Produkte verschieben nach",
+        "reassignPlaceholder": "Kategorie wählen…",
+        "deleteBlockedChildren": "„{name}“ hat Unterkategorien. Löschen oder verschieben Sie diese zuerst.",
+        "deleteError": "Diese Kategorie konnte nicht gelöscht werden. Bitte versuchen Sie es noch einmal."
       },
-      "images": {
-        "heading": "Bilder",
-        "add": "Bilder hinzufügen",
-        "variantAria": "Variante auf diesem Bild",
-        "noVariant": "Keine Variante",
-        "reframe": "Neu zuschneiden"
+      "editor": {
+        "newTitle": "Kategorie hinzufügen",
+        "editTitle": "Kategorie bearbeiten",
+        "name": "Name",
+        "shortName": "Kurzname (optional)",
+        "shortNameHint": "Eine kürzere Bezeichnung, wo die übergeordnete Kategorie schon zu sehen ist. Leer lassen, um immer den vollen Namen zu verwenden.",
+        "parent": "Übergeordnete Kategorie",
+        "noParent": "– Oberste Ebene –",
+        "slug": "URL-Kürzel",
+        "slugHint": "Wird in der Webadresse der Kategorie verwendet. Lassen Sie es automatisch ausfüllen oder legen Sie es selbst fest – eine spätere Änderung ändert die URL.",
+        "sourceId": "Abgleichschlüssel (optional)",
+        "sourceIdHint": "Der Schlüssel aus Altbestand oder Import. Für eine hier angelegte Kategorie leer lassen; passend setzen, wenn ein künftiger Import sie treffen soll.",
+        "mark": "Symbol",
+        "markHint": "Ein quadratisches Bild, das das rechte Ende des Kategorie-Chips randlos füllt. Planen Sie den gewünschten Abstand im Bild ein; ein transparenter Hintergrund lässt den Chip durchscheinen.",
+        "discardConfirm": "Ihre ungespeicherten Änderungen an dieser Kategorie verwerfen?",
+        "nameRequired": "Ein Kategoriename ist erforderlich.",
+        "saveError": "Diese Kategorie konnte nicht gespeichert werden. Bitte versuchen Sie es noch einmal."
       },
-      "variants": {
-        "hint": "Für ein sortiertes Produkt, dessen Farben oder Motive keine eigenen Produkte sind. Benennen Sie jede Variante und wählen Sie unter jedem Bild, welche es zeigt. Ein Bild des ganzen Sortiments zeigt keine. Markieren Sie eine Variante als derzeit nicht verfügbar, um ihre Bilder auszublenden, bis sie wieder da ist; löschen Sie sie nur, wenn sie nie wieder angeboten wird.",
-        "nameAria": "Name der Variante",
-        "add": "Variante hinzufügen",
-        "addPlaceholder": "Sand",
-        "addButton": "Hinzufügen",
-        "removeAria": "„{name}“ entfernen",
-        "unavailable": "Derzeit nicht verfügbar",
-        "picturesHeading": "Bilder",
-        "pictures": "Bilder damit: {count}",
-        "limit": "Ein Produkt kann bis zu {count} Varianten haben.",
-        "duplicate": "Jede Variante braucht einen eigenen Namen.",
-        "exists": "Eine Variante mit diesem Namen gibt es schon.",
-        "allWithheld": "Jedes Bild zeigt eine nicht verfügbare Variante, daher zeigt der Shop dieses Produkt ohne Bild."
-      },
-      "parts": {
-        "heading": "Als Set verkauft",
-        "hint": "Wenn ein Stück aus mehreren Dingen besteht, die zusammen verkauft werden, etwa eine Tasse und ihr Deckel, benennen Sie jeden Bestandteil. Ein Merkmal wie „Farbe (Tasse)“ filtert dann als „Farbe“.",
-        "add": "Bestandteil hinzufügen",
-        "addPlaceholder": "Tasse, oder Tasse + Deckel",
-        "addButton": "Hinzufügen",
-        "removeAria": "„{name}“ entfernen",
-        "limit": "Ein Set kann bis zu {count} Bestandteile haben.",
-        "tooFew": "Ein Set braucht mindestens zwei Bestandteile.",
-        "rejected": "Jeder Bestandteil muss neu sein, höchstens {max} Zeichen lang und ohne +, ( oder )."
-      },
-      "switchedOn": "(an)",
-      "featured": {
-        "heading": "Hervorgehoben",
-        "hint": "Die Startseite zeigt fünf Produkte: zuerst die hervorgehobenen, der Rest der Reihe per Zufall, alle in zufälliger Reihenfolge. Ein ausverkauftes Produkt erscheint nie.",
-        "enable": "Dieses Produkt hervorheben"
-      },
-      "lineNote": {
-        "heading": "Positionsanmerkung",
-        "hint": "Lässt Kunden an der Warenkorbposition in Worten sagen, welche Variante sie möchten.",
-        "enable": "Bei diesem Produkt nach einer Anmerkung fragen",
-        "prompt": "Wonach gefragt wird",
-        "promptHint": "Leer lassen, um die shopweite Formulierung zu verwenden.",
-        "promptPlaceholder": "Welche Farbe?"
-      },
-      "documents": {
-        "hint": "Zertifikate, Erklärungen und Datenblätter, die bei diesem Produkt erscheinen. Dieselben Dokumente lassen sich vom Dokument aus auf viele Produkte zugleich setzen.",
-        "add": "Dokument hinzufügen",
-        "addPlaceholder": "Dokumente nach Titel suchen…",
-        "removeAria": "„{name}“ entfernen",
-        "expires": "Läuft ab am {date}",
-        "noExpiry": "Ohne Ablaufdatum",
-        "suggestionsAria": "Dokumentvorschläge",
-        "noSuggestions": "Kein Dokument passt.",
-        "suggestionCountAria": "Dokumentvorschläge: {count}"
-      },
-      "pairings": {
-        "hint": "Produkte, mit denen dieses zusammen verkauft wird. Das gilt in beide Richtungen: Das gewählte Produkt wird auch diesem zugeordnet, und wer es hier entfernt, entfernt es auch dort.",
-        "add": "Produkt hinzufügen",
-        "addPlaceholder": "Produkte nach Name suchen…",
-        "removeAria": "„{name}“ entfernen",
-        "limit": "Einem Produkt lassen sich bis zu {count} Produkte zuordnen.",
-        "suggestionsAria": "Produktvorschläge",
-        "noSuggestions": "Kein Produkt passt.",
-        "suggestionCountAria": "Produktvorschläge: {count}"
-      },
-      "stock": {
-        "heading": "Bestand",
-        "hint": "Leer lassen, um den Bestand dieses Produkts nicht zu führen – dann erscheint kein Hinweis und nichts wird eingeschränkt.",
-        "pieces": "Stück auf Lager",
-        "threshold": "„Nur noch wenige“ unter",
-        "preview": "Kunden sehen derzeit:",
-        "untracked": "Nichts – der Bestand dieses Produkts wird nicht geführt."
-      },
-      "taxRate": {
-        "label": "MwSt.-Satz",
-        "notInEffect": "Derzeit wird keine MwSt. berechnet, daher wird dieser Satz gespeichert, aber nicht angewendet.",
-        "invalid": "Der MwSt.-Satz muss ein Prozentwert von 0 bis 100 mit höchstens zwei Nachkommastellen sein."
-      },
-      "packaging": {
-        "hint": "Lassen Sie eine Einheit leer, wenn das Produkt nicht so verkauft wird.",
-        "minPieceQty": "Mindeststückzahl",
-        "minPieceQtyHint": "Die kleinste Bestellung. Stückbestellungen steigen dann um eine Packung, oder um ein Stück, wenn dieser Wert unter einer Packung liegt.",
-        "boxCount": "Versandte Kartons",
-        "pricePerPack": "{price} pro Packung",
-        "pricePerBox": "{price} pro Karton",
-        "notSoldPerPack": "Nicht packungsweise verkauft",
-        "notSoldPerBox": "Nicht kartonweise verkauft",
-        "minMustFitPacks": "Das Minimum muss unter einer Packung liegen oder eine ganze Zahl von Packungen sein – dazwischen gibt es keine passende Mengenstufe.",
-        "invalid": "Verpackungsangaben müssen ganze Zahlen ab 1 sein."
-      },
-      "tierPrices": {
-        "heading": "Preise je Kundengruppe",
-        "hint": "Lassen Sie einen Preis leer, um dieser Liste den Shoppreis oben zu berechnen.",
-        "usesBase": "–",
-        "invalid": "Der Preis für „{tier}“ ist ungültig."
-      },
-      "priceWithList": "Preis ({list})",
-      "priceCleared": "Ohne Preis in dieser Liste kann das Produkt nicht im Shop stehen. Beim Speichern wird es zurückgezogen.",
-      "saveAndUnpublish": "Speichern und zurückziehen",
-      "packagingUnavailable": "—"
-    }
-  },
-  "categories": {
-    "list": {
+      "filters": {
+        "page": {
+          "title": "Filter",
+          "intro": "Welche Merkmale diese Kategorie als Filter anbietet, und in welcher Reihenfolge. Unterkategorien folgen dieser Liste, solange sie keine eigene bekommen. Ein Merkmal, das kein Produkt hier hat, zeigt ohnehin keinen Filter – schalten Sie eines ab, wenn es vorhanden, aber zum Filtern nicht nützlich ist."
+        },
+        "heading": "Filter in {category}",
+        "sources": {
+          "own": "Diese Kategorie hat eine eigene Filterliste.",
+          "inherited": "Geerbt von {category}. Speichern gibt dieser Kategorie eine eigene Liste.",
+          "default": "Es ist keine Filterliste festgelegt, daher wird jedes Merkmal in der Reihenfolge der Merkmalsliste angeboten."
+        },
+        "products": "Produkte hier: {count}",
+        "notPresent": "Kein Produkt hier hat es",
+        "isNew": "Nach dem Speichern dieser Liste hinzugekommen, daher noch nicht angeboten.",
+        "show": "Als Filter anbieten",
+        "reorder": "Umsortieren",
+        "save": "Filter speichern",
+        "saveError": "Diese Filter konnten nicht gespeichert werden. Bitte versuchen Sie es noch einmal.",
+        "reset": "Geerbte Liste verwenden",
+        "resetDone": "Diese Kategorie folgt wieder der geerbten Liste.",
+        "empty": "Hier wird kein Merkmal angeboten, daher zeigt diese Kategorie keinen Filterbereich.",
+        "noDefinitions": "Noch ist kein Merkmal filterbar. Fügen Sie zuerst eines zur Merkmalsliste hinzu.",
+        "catalogHeading": "Filter über den ganzen Katalog",
+        "catalogIntro": "Welche Merkmale die Katalogseite als Filter über alle Produkte zugleich anbietet, und in welcher Reihenfolge – etwa eine Marke, die sich durch mehrere Kategorien zieht. Hier wird nichts angeboten, bevor es angehakt ist, und Kategorien behalten ihre eigenen Filterlisten.",
+        "catalogEmpty": "Es wird kein Merkmal angeboten, daher zeigt die Katalogseite keinen Filterbereich.",
+        "errors": {
+          "category-not-found": "Diese Kategorie gibt es nicht mehr.",
+          "attribute-not-found": "Eines dieser Merkmale gibt es nicht mehr. Laden Sie die Seite neu, um die aktuelle Liste zu sehen."
+        },
+        "resetConfirm": {
+          "heading": "Geerbte Liste verwenden",
+          "message": "Die eigene Filterliste dieser Kategorie verwerfen? Sie folgt dann wieder der übergeordneten, und Unterkategorien, die dieser folgen, ändern sich mit.",
+          "confirm": "Geerbte Liste verwenden"
+        }
+      }
+    },
+    "tiers": {
       "page": {
-        "title": "Kategorien"
+        "title": "Kundengruppen",
+        "intro": "Eine Kundengruppe ist eine Preisliste. Eine davon zeigt der Shop allen – Gästen, Mitarbeitenden und Kunden ohne Kundengruppe; die anderen enthalten nur die Produkte, die sie anders bepreisen. Kunden werden einer Kundengruppe zugeordnet, wenn ihr Konto freigegeben wird."
       },
-      "add": "Kategorie hinzufügen",
-      "addChild": "Unterkategorie hinzufügen",
-      "seeProducts": "Produkte der Kategorie ansehen",
-      "editProducts": "Produkte der Kategorie bearbeiten",
-      "noProducts": "Noch keine Produkte",
-      "directProducts": "Produkte ohne Unterkategorien: {count}",
-      "notShown": "Nicht im Shop sichtbar",
-      "editFilters": "Filter der Kategorie bearbeiten",
-      "catalogFilters": "Katalogfilter",
-      "empty": "Noch keine Kategorien.",
-      "reorderHint": "Ziehen Sie eine Kategorie an ihrem Griff, um sie zu verschieben; legen Sie sie weiter rechts ab, um sie zur Unterkategorie zu machen. Die Linie zeigt, wo sie landet. Änderungen werden sofort gespeichert.",
-      "undo": "Letzte Verschiebung rückgängig machen",
+      "add": "Kundengruppe hinzufügen",
+      "label": "Name",
+      "labelPlaceholder": "Großhandel",
+      "key": "Abgleichschlüssel",
+      "keyPlaceholder": "grosshandel",
+      "keyHint": "Die Katalogdatei spricht diese Liste als Spalte „price:grosshandel“ an. Ein Wort – Buchstaben, Ziffern, Bindestriche und Unterstriche.",
+      "accounts": "Kunden: {count}",
+      "seeAccounts": "Konten mit dieser Preisliste zeigen",
+      "seePrices": "Produkte zeigen, die diese Kundengruppe bepreist",
+      "defaultHint": "Gästen, Mitarbeitenden und Kunden ohne Kundengruppe wird diese Liste berechnet.",
+      "defaultName": "Standard ({list})",
+      "empty": "Noch keine Preislisten.",
+      "saveError": "Diese Kundengruppe konnte nicht gespeichert werden. Bitte versuchen Sie es noch einmal.",
+      "labelRequired": "Ein Name ist erforderlich.",
+      "keyInvalid": "Verwenden Sie Buchstaben, Ziffern, Bindestriche und Unterstriche in einem Wort, z. B. „grosshandel“.",
+      "deleteBlocked": "„{name}“ wird noch verwendet: {reason}",
+      "deleteError": "Diese Kundengruppe konnte nicht gelöscht werden. Bitte versuchen Sie es noch einmal.",
       "reorderError": "Diese Verschiebung konnte nicht gespeichert werden. Bitte versuchen Sie es noch einmal.",
-      "deleteTitle": "Kategorie löschen",
-      "deleteConfirm": "„{name}“ löschen?",
-      "deleteReassignIntro": "Produkte noch in „{name}“: {count}. Wählen Sie eine Kategorie, in die sie verschoben werden, und löschen Sie dann.",
-      "deleteReassignDeleted": "Davon gelöschte Produkte: {count}. Sie werden mit verschoben.",
-      "reassignLabel": "Produkte verschieben nach",
-      "reassignPlaceholder": "Kategorie wählen…",
-      "deleteBlockedChildren": "„{name}“ hat Unterkategorien. Löschen oder verschieben Sie diese zuerst.",
-      "deleteError": "Diese Kategorie konnte nicht gelöscht werden. Bitte versuchen Sie es noch einmal."
-    },
-    "editor": {
-      "newTitle": "Kategorie hinzufügen",
-      "editTitle": "Kategorie bearbeiten",
-      "name": "Name",
-      "shortName": "Kurzname (optional)",
-      "shortNameHint": "Eine kürzere Bezeichnung, wo die übergeordnete Kategorie schon zu sehen ist. Leer lassen, um immer den vollen Namen zu verwenden.",
-      "parent": "Übergeordnete Kategorie",
-      "noParent": "– Oberste Ebene –",
-      "slug": "URL-Kürzel",
-      "slugHint": "Wird in der Webadresse der Kategorie verwendet. Lassen Sie es automatisch ausfüllen oder legen Sie es selbst fest – eine spätere Änderung ändert die URL.",
-      "sourceId": "Abgleichschlüssel (optional)",
-      "sourceIdHint": "Der Schlüssel aus Altbestand oder Import. Für eine hier angelegte Kategorie leer lassen; passend setzen, wenn ein künftiger Import sie treffen soll.",
-      "mark": "Symbol",
-      "markHint": "Ein quadratisches Bild, das das rechte Ende des Kategorie-Chips randlos füllt. Planen Sie den gewünschten Abstand im Bild ein; ein transparenter Hintergrund lässt den Chip durchscheinen.",
-      "discardConfirm": "Ihre ungespeicherten Änderungen an dieser Kategorie verwerfen?",
-      "nameRequired": "Ein Kategoriename ist erforderlich.",
-      "saveError": "Diese Kategorie konnte nicht gespeichert werden. Bitte versuchen Sie es noch einmal."
-    },
-    "filters": {
-      "page": {
-        "title": "Filter",
-        "intro": "Welche Merkmale diese Kategorie als Filter anbietet, und in welcher Reihenfolge. Unterkategorien folgen dieser Liste, solange sie keine eigene bekommen. Ein Merkmal, das kein Produkt hier hat, zeigt ohnehin keinen Filter – schalten Sie eines ab, wenn es vorhanden, aber zum Filtern nicht nützlich ist."
-      },
-      "heading": "Filter in {category}",
-      "sources": {
-        "own": "Diese Kategorie hat eine eigene Filterliste.",
-        "inherited": "Geerbt von {category}. Speichern gibt dieser Kategorie eine eigene Liste.",
-        "default": "Es ist keine Filterliste festgelegt, daher wird jedes Merkmal in der Reihenfolge der Merkmalsliste angeboten."
-      },
-      "products": "Produkte hier: {count}",
-      "notPresent": "Kein Produkt hier hat es",
-      "isNew": "Nach dem Speichern dieser Liste hinzugekommen, daher noch nicht angeboten.",
-      "show": "Als Filter anbieten",
-      "reorder": "Umsortieren",
-      "save": "Filter speichern",
-      "saveError": "Diese Filter konnten nicht gespeichert werden. Bitte versuchen Sie es noch einmal.",
-      "reset": "Geerbte Liste verwenden",
-      "resetDone": "Diese Kategorie folgt wieder der geerbten Liste.",
-      "empty": "Hier wird kein Merkmal angeboten, daher zeigt diese Kategorie keinen Filterbereich.",
-      "noDefinitions": "Noch ist kein Merkmal filterbar. Fügen Sie zuerst eines zur Merkmalsliste hinzu.",
-      "catalogHeading": "Filter über den ganzen Katalog",
-      "catalogIntro": "Welche Merkmale die Katalogseite als Filter über alle Produkte zugleich anbietet, und in welcher Reihenfolge – etwa eine Marke, die sich durch mehrere Kategorien zieht. Hier wird nichts angeboten, bevor es angehakt ist, und Kategorien behalten ihre eigenen Filterlisten.",
-      "catalogEmpty": "Es wird kein Merkmal angeboten, daher zeigt die Katalogseite keinen Filterbereich.",
       "errors": {
-        "category-not-found": "Diese Kategorie gibt es nicht mehr.",
-        "attribute-not-found": "Eines dieser Merkmale gibt es nicht mehr. Laden Sie die Seite neu, um die aktuelle Liste zu sehen."
+        "tier-not-found": "Diese Kundengruppe gibt es nicht mehr. Laden Sie die Seite neu, um die aktuelle Liste zu sehen.",
+        "tier-key-taken": "Eine andere Kundengruppe verwendet diesen Abgleichschlüssel bereits.",
+        "tier-has-accounts": "Dieser Kundengruppe sind noch Kundenkonten zugeordnet. Verschieben Sie diese zuerst in eine andere.",
+        "tier-has-prices": "Diese Kundengruppe bepreist noch Produkte. Entfernen Sie diese Preise zuerst.",
+        "tier-is-default": "Das ist die Liste, die der Shop zeigt, daher lässt sie sich nicht löschen. Zeigen Sie zuerst eine andere Liste im Shop."
       },
-      "resetConfirm": {
-        "heading": "Geerbte Liste verwenden",
-        "message": "Die eigene Filterliste dieser Kategorie verwerfen? Sie folgt dann wieder der übergeordneten, und Unterkategorien, die dieser folgen, ändern sich mit.",
-        "confirm": "Geerbte Liste verwenden"
+      "defaultBadge": "Im Shop gezeigt",
+      "setDefault": "Diese Liste im Shop zeigen",
+      "setDefaultWarning": "Produkte ohne Preis in dieser Liste: {count}. Sie werden aus dem Shop genommen, bis jemand sie bepreist.",
+      "setDefaultNone": "Jedes Produkt im Shop hat einen Preis in dieser Liste.",
+      "setDefaultDone": "Aus dem Shop genommene Produkte: {count}.",
+      "setDefaultError": "Die Preisliste des Shops konnte nicht geändert werden. Bitte versuchen Sie es noch einmal.",
+      "seeUnpriced": "Produkte zeigen, die diese Liste nicht bepreist",
+      "unpriced": "{count} ohne Preis",
+      "setDefaultConfirm": {
+        "heading": "Preisliste des Shops ändern",
+        "message": "„{name}“ allen zeigen, die keiner Kundengruppe angehören?",
+        "confirm": "Diese Liste im Shop zeigen"
+      },
+      "deleteConfirm": {
+        "heading": "Kundengruppe löschen",
+        "message": "„{name}“ löschen? Der Katalogabgleich erkennt dann ihre Spalte „price:{key}“ nicht mehr.",
+        "confirm": "Löschen"
+      }
+    },
+    "attributes": {
+      "list": {
+        "page": {
+          "title": "Filterbare Merkmale",
+          "intro": "Eine Definition macht ein Produktmerkmal im Shop filterbar. Ihr Name muss genau dem Merkmalsnamen an den Produkten entsprechen – nichts wird neu eingegeben, und eine heute angelegte Definition gilt auch für Produkte, die vor langer Zeit erfasst wurden. Die Zahlen umfassen sichtbare und unveröffentlichte Produkte; gelöschte bleiben außen vor."
+        },
+        "add": "Merkmal hinzufügen",
+        "name": "Name",
+        "namePlaceholder": "Farbe",
+        "nameHint": "Genau so geschrieben wie in der Merkmalstabelle des Produkts. Die Einheit gehört hierher, nicht in die Werte: Geben Sie „30“ ein, nicht „30 cm“.",
+        "type": "Typ",
+        "types": {
+          "text": "Text",
+          "number": "Zahl"
+        },
+        "unit": "Einheit",
+        "unitPlaceholder": "cm",
+        "slug": "URL-Schlüssel",
+        "slugPlaceholder": "aus dem Namen",
+        "slugInvalid": "Verwenden Sie Kleinbuchstaben, Ziffern und Bindestriche, z. B. „farbe“.",
+        "values": "Werte: {count}",
+        "unparsed": "Werte, die sich nicht als Zahl lesen lassen: {count}. Sie bleiben auf der Produktseite und fehlen in diesem Filter.",
+        "noMatch": "Kein Produkt hat ein Merkmal mit diesem Namen. Prüfen Sie die Schreibweise anhand der Merkmalstabelle eines Produkts.",
+        "showProducts": "Produkte mit diesem Merkmal zeigen",
+        "showUsage": "Verwendete Werte zeigen",
+        "empty": "Noch keine filterbaren Merkmale – Produkte zeigen ihre Merkmale, aber nach keinem lässt sich filtern.",
+        "saveError": "Dieses Merkmal konnte nicht gespeichert werden. Bitte versuchen Sie es noch einmal.",
+        "nameRequired": "Ein Name ist erforderlich.",
+        "deleteError": "Dieses Merkmal konnte nicht gelöscht werden. Bitte versuchen Sie es noch einmal.",
+        "reorderError": "Diese Verschiebung konnte nicht gespeichert werden. Bitte versuchen Sie es noch einmal.",
+        "errors": {
+          "attribute-not-found": "Dieses Merkmal gibt es nicht mehr. Laden Sie die Seite neu, um die aktuelle Liste zu sehen.",
+          "attribute-name-taken": "Eine andere Definition verwendet diesen Namen bereits.",
+          "attribute-slug-taken": "Eine andere Definition verwendet diesen URL-Schlüssel bereits."
+        },
+        "deleteConfirm": {
+          "heading": "Merkmal löschen",
+          "message": "„{name}“ löschen? Der Shop bietet es dann nicht mehr als Filter an. Kein Produktmerkmal wird verändert.",
+          "confirm": "Löschen"
+        }
+      },
+      "inventory": {
+        "page": {
+          "title": "Verwendete Merkmale",
+          "intro": "Jeder Merkmalsname und -wert, den die Produkte tragen, ob der Shop danach filtert oder nicht. Merkmalstext wird exakt verglichen, daher steht ein Tippfehler hier neben der richtigen Schreibweise – benennen Sie ihn um, und jedes Produkt damit folgt. Die Zahlen umfassen sichtbare und unveröffentlichte Produkte; eine Umbenennung schreibt auch gelöschte um."
+        },
+        "toDefinitions": "Filterbare Merkmale",
+        "toDefinitionAria": "Filterbar – Definition zeigen",
+        "notFilterable": "Nicht filterbar",
+        "values": "Werte: {count}",
+        "notNumeric": "keine Zahl",
+        "emptyValue": "(kein Wert)",
+        "showProducts": "Produkte zeigen",
+        "renameKeyAria": "Dieses Merkmal umbenennen",
+        "renameValueAria": "Diesen Wert umbenennen",
+        "newTextAria": "Neuer Text",
+        "renameTitle": "Im ganzen Katalog umbenennen",
+        "renameConfirm": "„{from}“ bei jedem Produkt, das es trägt, in „{to}“ umbenennen?",
+        "mergeConfirm": "„{to}“ wird bereits verwendet. Das Umbenennen von „{from}“ führt beide zusammen – jedes Produkt mit „{from}“ trägt dann stattdessen „{to}“. Fortfahren?",
+        "renameDeleted": "Auch gelöschte Produkte werden umgeschrieben ({count}), damit sie nach einer Wiederherstellung den neuen Text tragen.",
+        "renameError": "Diese Umbenennung konnte nicht gespeichert werden. Bitte versuchen Sie es noch einmal.",
+        "empty": "Noch kein Produkt hat ein Merkmal."
+      }
+    },
+    "documents": {
+      "list": {
+        "page": {
+          "title": "Dokumente"
+        },
+        "count": "Dokumente: {count}",
+        "add": "Dokument hinzufügen",
+        "searchAria": "Dokument suchen",
+        "searchPlaceholder": "Nach Titel, Dateiname oder Link suchen",
+        "clearSearch": "Suche leeren",
+        "titleColumn": "Titel",
+        "fileColumn": "Datei und Link",
+        "link": "Link",
+        "issuedColumn": "Ausgestellt",
+        "expiresColumn": "Läuft ab",
+        "statusColumn": "Status",
+        "updatedColumn": "Geändert",
+        "noExpiry": "Ohne Ablaufdatum",
+        "statusAll": "Alle Status",
+        "statusDue": "Braucht Aufmerksamkeit",
+        "statusExpiring": "Läuft bald ab",
+        "statusExpired": "Abgelaufen",
+        "statusValid": "Gültig",
+        "filterStatus": "Nach Status filtern",
+        "productsColumn": "Produkte",
+        "seeProducts": "Produkte mit diesem Dokument zeigen",
+        "noProducts": "Noch kein Produkt zeigt dieses Dokument",
+        "empty": "Noch keine Dokumente.",
+        "noResults": "Kein Dokument passt zu dieser Suche.",
+        "loadError": "Die Dokumente konnten nicht geladen werden. Bitte versuchen Sie es noch einmal.",
+        "deleteError": "Dieses Dokument konnte nicht gelöscht werden. Bitte versuchen Sie es noch einmal.",
+        "deleteConfirm": {
+          "heading": "Dokument löschen",
+          "message": "„{name}“ löschen? Die Datei wird aus dem Shop entfernt.",
+          "confirm": "Löschen"
+        }
+      },
+      "editor": {
+        "newTitle": "Neues Dokument",
+        "editTitle": "Dokument bearbeiten",
+        "title": "Titel",
+        "titlePlaceholder": "Analysezertifikat",
+        "titleHint": "So heißt dieses Dokument überall, wo es aufgeführt wird.",
+        "datePlaceholder": "Datum wählen…",
+        "file": "Datei",
+        "dropHint": "Datei hier ablegen",
+        "choose": "oder eine Datei wählen",
+        "replace": "Datei ersetzen",
+        "open": "Öffnen",
+        "removeFile": "Datei entfernen",
+        "fileHint": "PDF oder ein Bild, bis 20 MB. Die Datei wird genau so gespeichert, wie sie hochgeladen wurde.",
+        "uploadError": "Diese Datei konnte nicht hochgeladen werden. Verwenden Sie PDF, PNG, JPEG, WebP oder GIF unter 20 MB.",
+        "link": "Link",
+        "linkPlaceholder": "https://",
+        "linkHint": "Wo sich das Dokument online prüfen lässt, etwa sein Eintrag in einem öffentlichen Register. Ein Dokument braucht eine Datei, einen Link oder beides.",
+        "openLink": "Link öffnen",
+        "linkInvalid": "Der Link muss eine vollständige Webadresse sein, die mit https:// oder http:// beginnt.",
+        "issuedAt": "Ausstellungsdatum",
+        "expiresAt": "Ablaufdatum",
+        "datesHint": "Beide Daten sind optional. Ein Dokument ohne Ablaufdatum ist immer aktuell.",
+        "products": {
+          "heading": "Gezeigt bei",
+          "hint": "Haken Sie die Produkte an, zu denen dieses Dokument gehört. Halten Sie beim Klicken die Umschalttaste gedrückt, um alles zwischen zwei Zeilen anzuhaken.",
+          "searchAria": "Produkt suchen",
+          "searchPlaceholder": "Produkte nach Name suchen…",
+          "categoryAria": "Kategorie",
+          "allCategories": "Alle Kategorien",
+          "showAll": "Katalog",
+          "showLinked": "Verknüpft ({count})",
+          "more": "Gezeigt werden die ersten {count} von {total}. Grenzen Sie die Suche ein oder wählen Sie eine Kategorie, um die übrigen zu erreichen.",
+          "empty": "Kein Produkt passt zu dieser Suche.",
+          "noneLinked": "Dieses Dokument ist noch bei keinem Produkt.",
+          "loadError": "Die Produkte konnten nicht geladen werden. Bitte versuchen Sie es noch einmal."
+        },
+        "titleRequired": "Ein Titel ist erforderlich.",
+        "fileOrLinkRequired": "Fügen Sie eine Datei, einen Link oder beides hinzu.",
+        "expiryBeforeIssue": "Das Ablaufdatum darf nicht vor dem Ausstellungsdatum liegen.",
+        "saveError": "Dieses Dokument konnte nicht gespeichert werden. Bitte versuchen Sie es noch einmal.",
+        "discardConfirm": "Ihre ungespeicherten Änderungen an diesem Dokument verwerfen?",
+        "notFound": "Dieses Dokument gibt es nicht mehr.",
+        "errors": {
+          "document-not-found": "Dieses Dokument gibt es nicht mehr. Laden Sie die Liste neu, um die aktuellen Dokumente zu sehen.",
+          "document-product-not-found": "Eines der Produkte mit diesem Dokument gibt es nicht mehr. Laden Sie die Seite neu und wählen Sie die Produkte erneut."
+        }
       }
     }
   },
@@ -744,55 +949,6 @@
       "confirm": "Diesen Lauf verwerfen"
     }
   },
-  "tiers": {
-    "page": {
-      "title": "Kundengruppen",
-      "intro": "Eine Kundengruppe ist eine Preisliste. Eine davon zeigt der Shop allen – Gästen, Mitarbeitenden und Kunden ohne Kundengruppe; die anderen enthalten nur die Produkte, die sie anders bepreisen. Kunden werden einer Kundengruppe zugeordnet, wenn ihr Konto freigegeben wird."
-    },
-    "add": "Kundengruppe hinzufügen",
-    "label": "Name",
-    "labelPlaceholder": "Großhandel",
-    "key": "Abgleichschlüssel",
-    "keyPlaceholder": "grosshandel",
-    "keyHint": "Die Katalogdatei spricht diese Liste als Spalte „price:grosshandel“ an. Ein Wort – Buchstaben, Ziffern, Bindestriche und Unterstriche.",
-    "accounts": "Kunden: {count}",
-    "seeAccounts": "Konten mit dieser Preisliste zeigen",
-    "seePrices": "Produkte zeigen, die diese Kundengruppe bepreist",
-    "defaultHint": "Gästen, Mitarbeitenden und Kunden ohne Kundengruppe wird diese Liste berechnet.",
-    "defaultName": "Standard ({list})",
-    "empty": "Noch keine Preislisten.",
-    "saveError": "Diese Kundengruppe konnte nicht gespeichert werden. Bitte versuchen Sie es noch einmal.",
-    "labelRequired": "Ein Name ist erforderlich.",
-    "keyInvalid": "Verwenden Sie Buchstaben, Ziffern, Bindestriche und Unterstriche in einem Wort, z. B. „grosshandel“.",
-    "deleteBlocked": "„{name}“ wird noch verwendet: {reason}",
-    "deleteError": "Diese Kundengruppe konnte nicht gelöscht werden. Bitte versuchen Sie es noch einmal.",
-    "reorderError": "Diese Verschiebung konnte nicht gespeichert werden. Bitte versuchen Sie es noch einmal.",
-    "errors": {
-      "tier-not-found": "Diese Kundengruppe gibt es nicht mehr. Laden Sie die Seite neu, um die aktuelle Liste zu sehen.",
-      "tier-key-taken": "Eine andere Kundengruppe verwendet diesen Abgleichschlüssel bereits.",
-      "tier-has-accounts": "Dieser Kundengruppe sind noch Kundenkonten zugeordnet. Verschieben Sie diese zuerst in eine andere.",
-      "tier-has-prices": "Diese Kundengruppe bepreist noch Produkte. Entfernen Sie diese Preise zuerst.",
-      "tier-is-default": "Das ist die Liste, die der Shop zeigt, daher lässt sie sich nicht löschen. Zeigen Sie zuerst eine andere Liste im Shop."
-    },
-    "defaultBadge": "Im Shop gezeigt",
-    "setDefault": "Diese Liste im Shop zeigen",
-    "setDefaultWarning": "Produkte ohne Preis in dieser Liste: {count}. Sie werden aus dem Shop genommen, bis jemand sie bepreist.",
-    "setDefaultNone": "Jedes Produkt im Shop hat einen Preis in dieser Liste.",
-    "setDefaultDone": "Aus dem Shop genommene Produkte: {count}.",
-    "setDefaultError": "Die Preisliste des Shops konnte nicht geändert werden. Bitte versuchen Sie es noch einmal.",
-    "seeUnpriced": "Produkte zeigen, die diese Liste nicht bepreist",
-    "unpriced": "{count} ohne Preis",
-    "setDefaultConfirm": {
-      "heading": "Preisliste des Shops ändern",
-      "message": "„{name}“ allen zeigen, die keiner Kundengruppe angehören?",
-      "confirm": "Diese Liste im Shop zeigen"
-    },
-    "deleteConfirm": {
-      "heading": "Kundengruppe löschen",
-      "message": "„{name}“ löschen? Der Katalogabgleich erkennt dann ihre Spalte „price:{key}“ nicht mehr.",
-      "confirm": "Löschen"
-    }
-  },
   "apiTokens": {
     "page": {
       "title": "Maschinen-Tokens",
@@ -840,156 +996,6 @@
       "message": "„{name}“ widerrufen?",
       "confirm": "Widerrufen",
       "warning": "Was dieses Token verwendet, funktioniert ab der nächsten Anfrage nicht mehr. Der Widerruf lässt sich nicht rückgängig machen – stellen Sie ein neues Token aus und richten Sie den Client neu ein."
-    }
-  },
-  "attributes": {
-    "list": {
-      "page": {
-        "title": "Filterbare Merkmale",
-        "intro": "Eine Definition macht ein Produktmerkmal im Shop filterbar. Ihr Name muss genau dem Merkmalsnamen an den Produkten entsprechen – nichts wird neu eingegeben, und eine heute angelegte Definition gilt auch für Produkte, die vor langer Zeit erfasst wurden. Die Zahlen umfassen sichtbare und unveröffentlichte Produkte; gelöschte bleiben außen vor."
-      },
-      "add": "Merkmal hinzufügen",
-      "name": "Name",
-      "namePlaceholder": "Farbe",
-      "nameHint": "Genau so geschrieben wie in der Merkmalstabelle des Produkts. Die Einheit gehört hierher, nicht in die Werte: Geben Sie „30“ ein, nicht „30 cm“.",
-      "type": "Typ",
-      "types": {
-        "text": "Text",
-        "number": "Zahl"
-      },
-      "unit": "Einheit",
-      "unitPlaceholder": "cm",
-      "slug": "URL-Schlüssel",
-      "slugPlaceholder": "aus dem Namen",
-      "slugInvalid": "Verwenden Sie Kleinbuchstaben, Ziffern und Bindestriche, z. B. „farbe“.",
-      "values": "Werte: {count}",
-      "unparsed": "Werte, die sich nicht als Zahl lesen lassen: {count}. Sie bleiben auf der Produktseite und fehlen in diesem Filter.",
-      "noMatch": "Kein Produkt hat ein Merkmal mit diesem Namen. Prüfen Sie die Schreibweise anhand der Merkmalstabelle eines Produkts.",
-      "showProducts": "Produkte mit diesem Merkmal zeigen",
-      "showUsage": "Verwendete Werte zeigen",
-      "empty": "Noch keine filterbaren Merkmale – Produkte zeigen ihre Merkmale, aber nach keinem lässt sich filtern.",
-      "saveError": "Dieses Merkmal konnte nicht gespeichert werden. Bitte versuchen Sie es noch einmal.",
-      "nameRequired": "Ein Name ist erforderlich.",
-      "deleteError": "Dieses Merkmal konnte nicht gelöscht werden. Bitte versuchen Sie es noch einmal.",
-      "reorderError": "Diese Verschiebung konnte nicht gespeichert werden. Bitte versuchen Sie es noch einmal.",
-      "errors": {
-        "attribute-not-found": "Dieses Merkmal gibt es nicht mehr. Laden Sie die Seite neu, um die aktuelle Liste zu sehen.",
-        "attribute-name-taken": "Eine andere Definition verwendet diesen Namen bereits.",
-        "attribute-slug-taken": "Eine andere Definition verwendet diesen URL-Schlüssel bereits."
-      },
-      "deleteConfirm": {
-        "heading": "Merkmal löschen",
-        "message": "„{name}“ löschen? Der Shop bietet es dann nicht mehr als Filter an. Kein Produktmerkmal wird verändert.",
-        "confirm": "Löschen"
-      }
-    },
-    "inventory": {
-      "page": {
-        "title": "Verwendete Merkmale",
-        "intro": "Jeder Merkmalsname und -wert, den die Produkte tragen, ob der Shop danach filtert oder nicht. Merkmalstext wird exakt verglichen, daher steht ein Tippfehler hier neben der richtigen Schreibweise – benennen Sie ihn um, und jedes Produkt damit folgt. Die Zahlen umfassen sichtbare und unveröffentlichte Produkte; eine Umbenennung schreibt auch gelöschte um."
-      },
-      "toDefinitions": "Filterbare Merkmale",
-      "toDefinitionAria": "Filterbar – Definition zeigen",
-      "notFilterable": "Nicht filterbar",
-      "values": "Werte: {count}",
-      "notNumeric": "keine Zahl",
-      "emptyValue": "(kein Wert)",
-      "showProducts": "Produkte zeigen",
-      "renameKeyAria": "Dieses Merkmal umbenennen",
-      "renameValueAria": "Diesen Wert umbenennen",
-      "newTextAria": "Neuer Text",
-      "renameTitle": "Im ganzen Katalog umbenennen",
-      "renameConfirm": "„{from}“ bei jedem Produkt, das es trägt, in „{to}“ umbenennen?",
-      "mergeConfirm": "„{to}“ wird bereits verwendet. Das Umbenennen von „{from}“ führt beide zusammen – jedes Produkt mit „{from}“ trägt dann stattdessen „{to}“. Fortfahren?",
-      "renameDeleted": "Auch gelöschte Produkte werden umgeschrieben ({count}), damit sie nach einer Wiederherstellung den neuen Text tragen.",
-      "renameError": "Diese Umbenennung konnte nicht gespeichert werden. Bitte versuchen Sie es noch einmal.",
-      "empty": "Noch kein Produkt hat ein Merkmal."
-    }
-  },
-  "documents": {
-    "list": {
-      "page": {
-        "title": "Dokumente"
-      },
-      "count": "Dokumente: {count}",
-      "add": "Dokument hinzufügen",
-      "searchAria": "Dokument suchen",
-      "searchPlaceholder": "Nach Titel, Dateiname oder Link suchen",
-      "clearSearch": "Suche leeren",
-      "titleColumn": "Titel",
-      "fileColumn": "Datei und Link",
-      "link": "Link",
-      "issuedColumn": "Ausgestellt",
-      "expiresColumn": "Läuft ab",
-      "statusColumn": "Status",
-      "updatedColumn": "Geändert",
-      "noExpiry": "Ohne Ablaufdatum",
-      "statusAll": "Alle Status",
-      "statusDue": "Braucht Aufmerksamkeit",
-      "statusExpiring": "Läuft bald ab",
-      "statusExpired": "Abgelaufen",
-      "statusValid": "Gültig",
-      "filterStatus": "Nach Status filtern",
-      "productsColumn": "Produkte",
-      "seeProducts": "Produkte mit diesem Dokument zeigen",
-      "noProducts": "Noch kein Produkt zeigt dieses Dokument",
-      "empty": "Noch keine Dokumente.",
-      "noResults": "Kein Dokument passt zu dieser Suche.",
-      "loadError": "Die Dokumente konnten nicht geladen werden. Bitte versuchen Sie es noch einmal.",
-      "deleteError": "Dieses Dokument konnte nicht gelöscht werden. Bitte versuchen Sie es noch einmal.",
-      "deleteConfirm": {
-        "heading": "Dokument löschen",
-        "message": "„{name}“ löschen? Die Datei wird aus dem Shop entfernt.",
-        "confirm": "Löschen"
-      }
-    },
-    "editor": {
-      "newTitle": "Neues Dokument",
-      "editTitle": "Dokument bearbeiten",
-      "title": "Titel",
-      "titlePlaceholder": "Analysezertifikat",
-      "titleHint": "So heißt dieses Dokument überall, wo es aufgeführt wird.",
-      "datePlaceholder": "Datum wählen…",
-      "file": "Datei",
-      "dropHint": "Datei hier ablegen",
-      "choose": "oder eine Datei wählen",
-      "replace": "Datei ersetzen",
-      "open": "Öffnen",
-      "removeFile": "Datei entfernen",
-      "fileHint": "PDF oder ein Bild, bis 20 MB. Die Datei wird genau so gespeichert, wie sie hochgeladen wurde.",
-      "uploadError": "Diese Datei konnte nicht hochgeladen werden. Verwenden Sie PDF, PNG, JPEG, WebP oder GIF unter 20 MB.",
-      "link": "Link",
-      "linkPlaceholder": "https://",
-      "linkHint": "Wo sich das Dokument online prüfen lässt, etwa sein Eintrag in einem öffentlichen Register. Ein Dokument braucht eine Datei, einen Link oder beides.",
-      "openLink": "Link öffnen",
-      "linkInvalid": "Der Link muss eine vollständige Webadresse sein, die mit https:// oder http:// beginnt.",
-      "issuedAt": "Ausstellungsdatum",
-      "expiresAt": "Ablaufdatum",
-      "datesHint": "Beide Daten sind optional. Ein Dokument ohne Ablaufdatum ist immer aktuell.",
-      "products": {
-        "heading": "Gezeigt bei",
-        "hint": "Haken Sie die Produkte an, zu denen dieses Dokument gehört. Halten Sie beim Klicken die Umschalttaste gedrückt, um alles zwischen zwei Zeilen anzuhaken.",
-        "searchAria": "Produkt suchen",
-        "searchPlaceholder": "Produkte nach Name suchen…",
-        "categoryAria": "Kategorie",
-        "allCategories": "Alle Kategorien",
-        "showAll": "Katalog",
-        "showLinked": "Verknüpft ({count})",
-        "more": "Gezeigt werden die ersten {count} von {total}. Grenzen Sie die Suche ein oder wählen Sie eine Kategorie, um die übrigen zu erreichen.",
-        "empty": "Kein Produkt passt zu dieser Suche.",
-        "noneLinked": "Dieses Dokument ist noch bei keinem Produkt.",
-        "loadError": "Die Produkte konnten nicht geladen werden. Bitte versuchen Sie es noch einmal."
-      },
-      "titleRequired": "Ein Titel ist erforderlich.",
-      "fileOrLinkRequired": "Fügen Sie eine Datei, einen Link oder beides hinzu.",
-      "expiryBeforeIssue": "Das Ablaufdatum darf nicht vor dem Ausstellungsdatum liegen.",
-      "saveError": "Dieses Dokument konnte nicht gespeichert werden. Bitte versuchen Sie es noch einmal.",
-      "discardConfirm": "Ihre ungespeicherten Änderungen an diesem Dokument verwerfen?",
-      "notFound": "Dieses Dokument gibt es nicht mehr.",
-      "errors": {
-        "document-not-found": "Dieses Dokument gibt es nicht mehr. Laden Sie die Liste neu, um die aktuellen Dokumente zu sehen.",
-        "document-product-not-found": "Eines der Produkte mit diesem Dokument gibt es nicht mehr. Laden Sie die Seite neu und wählen Sie die Produkte erneut."
-      }
     }
   },
   "orders": {

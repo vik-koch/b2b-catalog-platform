@@ -4,10 +4,10 @@ import {
   Facet,
   ListingSort,
 } from '@b2b-catalog-platform/shared/storefront/catalog';
-import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import { FacetSelection } from './facet-selection';
 import { ProductSortSelect } from './product-sort-select';
 import { FacetFilters, FacetValueToggle } from './ui/facet-filters';
+import { CATALOG_CONFIG } from '../../../core/catalog/catalog-config';
 
 /**
  * From 63.75rem the panel is a column beside the listing, else a disclosure
@@ -72,7 +72,7 @@ export class FacetPanel {
     this.sortControlsEnabled ? this.sort() : null,
   );
   private readonly sortControlsEnabled =
-    inject(DEPLOYMENT_CONFIG).catalog.sortControlsEnabled;
+    inject(CATALOG_CONFIG).sortControlsEnabled;
 
   protected toggle({ facet, value }: FacetValueToggle): void {
     this.selection.apply(this.facets(), facet.slug, (values) =>

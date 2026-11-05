@@ -29,8 +29,9 @@ import { AttributesService } from '../attributes/attributes.service';
 import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
 import { ProductEditorPage } from './product-editor-page';
 import { defaultSharedCatalogText } from '../../../core/catalog/catalog-text.fixture';
+import { defaultAdminCatalogText } from '../catalog-text.fixture';
 
-const text = defaultAdminText.products.editor;
+const text = defaultAdminCatalogText.products.editor;
 
 const category: AdminCategory = {
   id: 'cat-1',
@@ -84,8 +85,8 @@ const storedProduct: AdminProduct = {
 const config = {
   locale: 'de-DE',
   branding: { name: 'Test Shop', tagline: 'Test tagline' },
+  currency: { code: 'EUR' },
   catalog: {
-    currency: { code: 'EUR' },
     boxUnits: { volume: 'm³', weight: 'kg' },
   },
   tax: { basis: 'included', rate: 19, statedAtPrices: true },
@@ -1031,10 +1032,14 @@ describe('ProductEditorPage', () => {
       );
 
       expect(el.textContent).not.toContain(
-        defaultAdminText.products.unpublished,
+        defaultAdminCatalogText.products.unpublished,
       );
-      expect(el.textContent).not.toContain(defaultAdminText.products.unpriced);
-      expect(el.textContent).not.toContain(defaultAdminText.products.deleted);
+      expect(el.textContent).not.toContain(
+        defaultAdminCatalogText.products.unpriced,
+      );
+      expect(el.textContent).not.toContain(
+        defaultAdminCatalogText.products.deleted,
+      );
     });
 
     it('badges a deleted product as deleted only, and offers no publish', async () => {
@@ -1051,9 +1056,11 @@ describe('ProductEditorPage', () => {
 
       // Restoring is the one step back from deleted (FR-ADM-01), so the
       // unpublished badge and the publish button would only point past it.
-      expect(el.textContent).toContain(defaultAdminText.products.deleted);
+      expect(el.textContent).toContain(
+        defaultAdminCatalogText.products.deleted,
+      );
       expect(el.textContent).not.toContain(
-        defaultAdminText.products.unpublished,
+        defaultAdminCatalogText.products.unpublished,
       );
       expect(el.textContent).not.toContain(text.saveAndPublish);
     });
@@ -1065,14 +1072,18 @@ describe('ProductEditorPage', () => {
         { product: publishedProduct },
       );
 
-      expect(el.textContent).not.toContain(defaultAdminText.products.unpriced);
+      expect(el.textContent).not.toContain(
+        defaultAdminCatalogText.products.unpriced,
+      );
 
       setInput(inputByLabel(el, priceLabel), '');
       fixture.detectChanges();
 
       // What the product will be after the save, which is the question
       // somebody editing it is asking.
-      expect(el.textContent).toContain(defaultAdminText.products.unpriced);
+      expect(el.textContent).toContain(
+        defaultAdminCatalogText.products.unpriced,
+      );
     });
   });
 

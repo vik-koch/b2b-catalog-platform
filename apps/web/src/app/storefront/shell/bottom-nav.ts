@@ -9,6 +9,7 @@ import {
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../platform/auth/auth.service';
 import { STOREFRONT_TEXT } from '../../platform/config/storefront-text';
+import { STOREFRONT_CATALOG_TEXT } from '../catalog/catalog-text';
 import { SHARED_TEXT } from '../../platform/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
 import { currentPath } from '../../platform/current-url';
@@ -187,7 +188,7 @@ export class BottomNav {
   protected readonly text = inject(STOREFRONT_TEXT);
   protected readonly nav = inject(SHARED_TEXT).nav;
   protected readonly orders = this.text.orders;
-  protected readonly search = this.text.search;
+  protected readonly search = inject(STOREFRONT_CATALOG_TEXT).search;
   protected readonly a11y = this.text.a11y;
   protected readonly contact = this.config.contact;
   protected readonly tab = navActionClasses('tab');

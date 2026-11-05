@@ -41,7 +41,7 @@ import {
   involves,
 } from '../../../core/catalog/product-pairings';
 import { defaultTierId } from './default-tier';
-import { LOW_STOCK_THRESHOLD_PIECES } from '../../../platform/config/deployment-config';
+import { LOW_STOCK_THRESHOLD_PIECES } from '../../../core/catalog/catalog-config';
 import {
   resolveNewSlug,
   resolveNewProductSourceId,

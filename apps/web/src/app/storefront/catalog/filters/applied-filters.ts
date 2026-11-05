@@ -4,8 +4,8 @@ import { formatAttributeValue } from '@b2b-catalog-platform/shared/core/catalog'
 import { Facet } from '@b2b-catalog-platform/shared/storefront/catalog';
 import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
-import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
 import { FacetSelection, selectedValues } from './facet-selection';
+import { STOREFRONT_CATALOG_TEXT } from '../catalog-text';
 
 interface AppliedFilter {
   slug: string;
@@ -52,7 +52,7 @@ interface AppliedFilter {
 export class AppliedFilters {
   protected readonly xIcon = xIcon;
   private readonly selection = inject(FacetSelection);
-  protected readonly text = inject(STOREFRONT_TEXT).catalog.filters;
+  protected readonly text = inject(STOREFRONT_CATALOG_TEXT).listing.filters;
 
   readonly facets = input.required<readonly Facet[]>();
 

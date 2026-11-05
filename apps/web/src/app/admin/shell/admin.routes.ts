@@ -4,6 +4,7 @@ import { inject } from '@angular/core';
 import { ADMIN_TEXT, adminTextGuard } from '../../platform/config/admin-text';
 import { ADMIN_SITE_TEXT } from '../site/site-text';
 import { unsavedChangesGuard } from '../platform/unsaved-changes.guard';
+import { ADMIN_CATALOG_TEXT } from '../catalog/catalog-text';
 
 /*
  * Staff routes, lazy and client-rendered. Each also waits on adminTextGuard:
@@ -110,7 +111,7 @@ export const adminRoutes: Route[] = [
     canActivate: [requireAuth('admin'), adminTextGuard],
     canDeactivate: [
       unsavedChangesGuard(
-        () => inject(ADMIN_TEXT).documents.editor.discardConfirm,
+        () => inject(ADMIN_CATALOG_TEXT).documents.editor.discardConfirm,
       ),
     ],
     loadComponent: () =>
@@ -123,7 +124,7 @@ export const adminRoutes: Route[] = [
     canActivate: [requireAuth('admin'), adminTextGuard],
     canDeactivate: [
       unsavedChangesGuard(
-        () => inject(ADMIN_TEXT).documents.editor.discardConfirm,
+        () => inject(ADMIN_CATALOG_TEXT).documents.editor.discardConfirm,
       ),
     ],
     loadComponent: () =>
@@ -271,7 +272,7 @@ export const adminRoutes: Route[] = [
     canActivate: [requireAuth('admin'), adminTextGuard],
     canDeactivate: [
       unsavedChangesGuard(
-        () => inject(ADMIN_TEXT).categories.editor.discardConfirm,
+        () => inject(ADMIN_CATALOG_TEXT).categories.editor.discardConfirm,
       ),
     ],
     loadComponent: () =>
@@ -284,7 +285,7 @@ export const adminRoutes: Route[] = [
     canActivate: [requireAuth('admin'), adminTextGuard],
     canDeactivate: [
       unsavedChangesGuard(
-        () => inject(ADMIN_TEXT).categories.editor.discardConfirm,
+        () => inject(ADMIN_CATALOG_TEXT).categories.editor.discardConfirm,
       ),
     ],
     loadComponent: () =>
@@ -316,7 +317,7 @@ export const adminRoutes: Route[] = [
     canActivate: [requireAuth('admin'), adminTextGuard],
     canDeactivate: [
       unsavedChangesGuard(
-        () => inject(ADMIN_TEXT).products.editor.discardConfirm,
+        () => inject(ADMIN_CATALOG_TEXT).products.editor.discardConfirm,
       ),
     ],
     loadComponent: () =>
@@ -329,7 +330,7 @@ export const adminRoutes: Route[] = [
     canActivate: [requireAuth('admin'), adminTextGuard],
     canDeactivate: [
       unsavedChangesGuard(
-        () => inject(ADMIN_TEXT).products.editor.discardConfirm,
+        () => inject(ADMIN_CATALOG_TEXT).products.editor.discardConfirm,
       ),
     ],
     loadComponent: () =>

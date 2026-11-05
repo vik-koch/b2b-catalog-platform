@@ -34,6 +34,7 @@ import {
   ProductStateBadge,
 } from '../ui/product-state-badge';
 import { SHARED_CATALOG_TEXT } from '../../../core/catalog/catalog-text';
+import { ADMIN_CATALOG_TEXT } from '../catalog-text';
 
 /** `aria-controls` must name one list, and a page may hold more than one. */
 let nextId = 0;
@@ -125,9 +126,9 @@ export class ProductPairingsEditor implements OnInit {
   protected readonly xIcon = xIcon;
   private readonly service = inject(ProductsService);
   protected readonly adminText = inject(ADMIN_TEXT);
-  protected readonly text = inject(ADMIN_TEXT).products.editor.pairings;
+  protected readonly text = inject(ADMIN_CATALOG_TEXT).products.editor.pairings;
   protected readonly product = inject(SHARED_CATALOG_TEXT).product;
-  protected readonly productStates = inject(ADMIN_TEXT).products;
+  protected readonly productStates = inject(ADMIN_CATALOG_TEXT).products;
   protected readonly linkedState = linkedProductState;
   protected readonly glyph = PRODUCT_FEATURE_GLYPHS.pairings;
 

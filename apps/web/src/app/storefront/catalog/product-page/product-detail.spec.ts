@@ -26,6 +26,7 @@ import {
 } from '../../../core/catalog/product.fixture';
 import { provideFakeProductCart } from '../../../core/catalog/buying/product-cart.fixture';
 import { defaultSharedCatalogText } from '../../../core/catalog/catalog-text.fixture';
+import { defaultStorefrontCatalogText } from '../catalog-text.fixture';
 
 type Product = NonNullable<Awaited<ReturnType<CatalogService['getProduct']>>>;
 
@@ -60,7 +61,7 @@ async function render(
   const config = {
     locale: 'de-DE',
     branding: { name: 'Test Shop', tagline: 'Test tagline' },
-    catalog: { currency: { code: 'EUR' } },
+    currency: { code: 'EUR' },
     tax: defaultDeploymentConfig.tax,
   } as unknown as DeploymentConfig;
   TestBed.configureTestingModule({
@@ -257,7 +258,7 @@ describe('ProductDetail', () => {
     const root = el(await render(null));
 
     expect(root.textContent).toContain(
-      defaultStorefrontText.catalog.productNotFound,
+      defaultStorefrontCatalogText.listing.productNotFound,
     );
   });
 
@@ -277,7 +278,7 @@ describe('ProductDetail', () => {
       expect(getPage).toHaveBeenCalled();
       expect(el(fixture).textContent).toContain('Hafen Espresso');
       expect(el(fixture).textContent).not.toContain(
-        defaultStorefrontText.catalog.productNotFound,
+        defaultStorefrontCatalogText.listing.productNotFound,
       );
       expect(TestBed.inject(Meta).getTag('name="robots"')?.content).toBe(
         'noindex',
@@ -302,10 +303,10 @@ describe('ProductDetail', () => {
 
         const heading = el(fixture).querySelector('h1')?.parentElement;
         expect(heading?.textContent).toContain(
-          defaultAdminText.products.unpublished,
+          defaultAdminText.editMode.unpublishedBadge,
         );
         expect(heading?.textContent).toContain(
-          defaultAdminText.products.unpriced,
+          defaultAdminText.editMode.unpricedBadge,
         );
       } finally {
         vi.unstubAllGlobals();
@@ -318,7 +319,7 @@ describe('ProductDetail', () => {
       });
 
       expect(el(fixture).textContent).toContain(
-        defaultStorefrontText.catalog.productNotFound,
+        defaultStorefrontCatalogText.listing.productNotFound,
       );
     });
 

@@ -18,8 +18,9 @@ import { defaultDeploymentConfig } from '../../../platform/config/deployment-con
 import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
 import { AttributeInventoryPage } from './attribute-inventory-page';
 import { AttributesService } from './attributes.service';
+import { defaultAdminCatalogText } from '../catalog-text.fixture';
 
-const text = defaultAdminText.attributes.inventory;
+const text = defaultAdminCatalogText.attributes.inventory;
 
 function key(overrides: Partial<AttributeKeyUsage> = {}): AttributeKeyUsage {
   return {
@@ -177,7 +178,7 @@ describe('AttributeInventoryPage', () => {
 
     expect(el.textContent).toContain('Colour');
     expect(el.textContent).toContain(
-      defaultAdminText.products.count.replace('{count}', '4'),
+      defaultAdminCatalogText.products.count.replace('{count}', '4'),
     );
     expect(el.textContent).toContain(text.values.replace('{count}', '2'));
     // Most attributes are freetext, and none of them is a problem to be fixed:

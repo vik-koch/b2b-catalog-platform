@@ -35,7 +35,7 @@ const deployment = JSON.parse(
   ),
 );
 const { locale } = deployment;
-const { code } = deployment.catalog.currency;
+const { code } = deployment.currency;
 
 const currency = new Intl.NumberFormat(locale, {
   style: 'currency',

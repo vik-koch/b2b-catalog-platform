@@ -14,8 +14,9 @@ import { defaultDeploymentConfig } from '../../../platform/config/deployment-con
 import { FeaturedRow } from './featured-row';
 import { FeaturedRowService } from './featured-row.service';
 import { provideFakeProductCart } from '../../../core/catalog/buying/product-cart.fixture';
+import { defaultStorefrontCatalogText } from '../catalog-text.fixture';
 
-const text = defaultStorefrontText.home.featured;
+const text = defaultStorefrontCatalogText.featured;
 
 async function render(row: () => Promise<ProductListItem[] | undefined>) {
   TestBed.resetTestingModule();

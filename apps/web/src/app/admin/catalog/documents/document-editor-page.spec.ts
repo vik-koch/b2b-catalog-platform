@@ -14,8 +14,9 @@ import { CategoriesService } from '../categories/categories.service';
 import { ProductsService } from '../products/products.service';
 import { DocumentEditorPage } from './document-editor-page';
 import { DocumentsService } from './documents.service';
+import { defaultAdminCatalogText } from '../catalog-text.fixture';
 
-const text = defaultAdminText.documents.editor;
+const text = defaultAdminCatalogText.documents.editor;
 
 const storedFile = {
   url: '/documents/aaaaaaaaaaaa.pdf',

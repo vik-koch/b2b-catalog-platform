@@ -31,7 +31,6 @@ import {
 } from '@b2b-catalog-platform/ui/content/breadcrumbs';
 import { disclosureState } from '@b2b-catalog-platform/ui/disclosure/disclosure-state';
 import { ShowMoreToggle } from '@b2b-catalog-platform/ui/disclosure/show-more-toggle';
-import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
 import { usePageSeo } from '../../../platform/page-seo';
 import { stableValue } from '../../../platform/stable-value';
 import {
@@ -63,6 +62,7 @@ import { ProductListing } from '../ui/product-listing';
 import { CATEGORY_GRID } from './category-index';
 import { HiddenProductsSection } from './hidden-products-section';
 import { SHARED_CATALOG_TEXT } from '../../../core/catalog/catalog-text';
+import { STOREFRONT_CATALOG_TEXT } from '../catalog-text';
 
 /** The phone's clip (SUBS_CLIPPED) in px: four `h-16` chip rows, their
  * `gap-3`s and SUBS_LIST's 4px inset. The CSS clips; this only asks whether
@@ -334,7 +334,7 @@ export class CategoryGrid {
   private readonly destroyRef = inject(DestroyRef);
   private readonly productLayout = inject(ProductLayoutService);
   protected readonly editMode = inject(EditModeService);
-  protected readonly text = inject(STOREFRONT_TEXT).catalog;
+  protected readonly text = inject(STOREFRONT_CATALOG_TEXT).listing;
   protected readonly catalogText = inject(SHARED_CATALOG_TEXT);
   protected readonly filterText = this.text.filters;
   protected readonly editorFrom = injectEditorReturnParams();

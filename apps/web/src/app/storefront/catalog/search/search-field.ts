@@ -37,7 +37,6 @@ import { CatalogSearchService } from './catalog-search.service';
 import { CategoryChip } from '../ui/category-chip';
 import { ImagePlaceholder } from '@b2b-catalog-platform/ui/content/image-placeholder';
 import { useProductUnits } from '../../../core/catalog/buying/product-units-view';
-import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
 import { MobileSearch } from '../../platform/mobile-search';
 import { currentUrl } from '../../../platform/current-url';
 import { debounced } from '@b2b-catalog-platform/ui/core/debounced';
@@ -56,6 +55,7 @@ import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
 import { Frame } from '@b2b-catalog-platform/ui/content/frame';
 import { brokenImages } from '@b2b-catalog-platform/ui/core/broken-images';
 import { SHARED_CATALOG_TEXT } from '../../../core/catalog/catalog-text';
+import { STOREFRONT_CATALOG_TEXT } from '../catalog-text';
 
 /** Long enough that a fast typist produces one request per word rather than
  * one per letter, short enough that a pause feels answered immediately. */
@@ -521,7 +521,7 @@ export class SearchField {
     return '';
   });
 
-  protected readonly text = inject(STOREFRONT_TEXT).search;
+  protected readonly text = inject(STOREFRONT_CATALOG_TEXT).search;
   protected readonly buyText = inject(SHARED_CATALOG_TEXT).buying;
   protected readonly maxLength = SEARCH_QUERY_MAX_LENGTH;
   protected readonly listId = `search-suggestions-${nextId++}`;

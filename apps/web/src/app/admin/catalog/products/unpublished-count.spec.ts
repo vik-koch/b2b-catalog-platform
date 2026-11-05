@@ -5,6 +5,7 @@ import { provideRouter } from '@angular/router';
 import { ADMIN_TEXT } from '../../../platform/config/admin-text';
 import { defaultAdminText } from '../../../platform/config/admin-text.fixture';
 import { UnpublishedCount } from './unpublished-count';
+import { defaultAdminCatalogText } from '../catalog-text.fixture';
 
 function render(count: number) {
   TestBed.configureTestingModule({
@@ -28,7 +29,7 @@ describe('UnpublishedCount', () => {
 
     const link = el.querySelector('a');
     expect(link?.textContent?.trim()).toBe(
-      defaultAdminText.products.unpublishedCount.replace('{count}', '4'),
+      defaultAdminCatalogText.products.unpublishedCount.replace('{count}', '4'),
     );
     const href = link?.getAttribute('href') ?? '';
     expect(href).toContain('/admin/products');

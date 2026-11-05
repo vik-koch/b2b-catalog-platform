@@ -49,7 +49,7 @@
       "from": ["texts/app.json:catalog.loadError"],
       "copy": true
     },
-    "texts/admin.json:products.list.bestMatch": {
+    "texts/admin.json:catalog.products.list.bestMatch": {
       "from": ["texts/app.json:catalog.sort.relevance"],
       "copy": true
     },
@@ -119,6 +119,22 @@
     "texts/shared.json:catalog.buying.quantityCorrected": {
       "from": ["texts/app.json:cart.issues.quantityCorrected"],
       "copy": true
+    },
+    "texts/admin.json:editMode.deletedBadge": {
+      "from": ["texts/admin.json:products.deleted"],
+      "copy": true
+    },
+    "texts/admin.json:editMode.unpublishedBadge": {
+      "from": ["texts/admin.json:products.unpublished"],
+      "copy": true
+    },
+    "texts/admin.json:editMode.unpricedBadge": {
+      "from": ["texts/admin.json:products.unpriced"],
+      "copy": true
+    },
+    "texts/admin.json:editMode.unpricedMessage": {
+      "from": ["texts/admin.json:catalogErrors.product-has-no-price"],
+      "copy": true
     }
   },
   "drop": [
@@ -177,6 +193,16 @@
     "texts/app.json:cart.removeNo": "texts/shared.json:catalog.buying.removeNo",
     "texts/app.json:cart.noPrice": "texts/shared.json:catalog.buying.noPrice",
     "texts/app.json:tax.listing": "texts/shared.json:tax.listing",
-    "texts/app.json:tax.atPrice": "texts/shared.json:tax.atPrice"
+    "texts/app.json:tax.atPrice": "texts/shared.json:tax.atPrice",
+    "texts/app.json:catalog": "texts/storefront.json:catalog.listing",
+    "texts/app.json:search": "texts/storefront.json:catalog.search",
+    "texts/app.json:home.featured": "texts/storefront.json:catalog.featured",
+    "texts/admin.json:catalogErrors": "texts/admin.json:catalog.catalogErrors",
+    "texts/admin.json:products": "texts/admin.json:catalog.products",
+    "texts/admin.json:categories": "texts/admin.json:catalog.categories",
+    "texts/admin.json:tiers": "texts/admin.json:catalog.tiers",
+    "texts/admin.json:attributes": "texts/admin.json:catalog.attributes",
+    "texts/admin.json:documents": "texts/admin.json:catalog.documents",
+    "deployment.json:catalog.currency": "deployment.json:currency"
   }
 }

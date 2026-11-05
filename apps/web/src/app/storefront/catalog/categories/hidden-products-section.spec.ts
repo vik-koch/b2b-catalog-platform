@@ -34,7 +34,7 @@ const hidden = (overrides: Partial<HiddenProduct> = {}): HiddenProduct => ({
 
 const config = {
   locale: 'de-DE',
-  catalog: { currency: { code: 'EUR' } },
+  currency: { code: 'EUR' },
 } as unknown as DeploymentConfig;
 
 const tell = vi.fn(async () => undefined);
@@ -93,16 +93,24 @@ describe('HiddenProductsSection', () => {
 
     expect(el.textContent).toContain(text.hiddenHeading);
     expect(el.textContent).toContain('Old Roast');
-    expect(el.textContent).toContain(defaultAdminText.products.unpublished);
-    expect(el.textContent).not.toContain(defaultAdminText.products.unpriced);
-    expect(el.textContent).not.toContain(defaultAdminText.products.deleted);
+    expect(el.textContent).toContain(
+      defaultAdminText.editMode.unpublishedBadge,
+    );
+    expect(el.textContent).not.toContain(
+      defaultAdminText.editMode.unpricedBadge,
+    );
+    expect(el.textContent).not.toContain(
+      defaultAdminText.editMode.deletedBadge,
+    );
   });
 
   it('shows both reasons on a product that is unpublished and unpriced', async () => {
     const { el } = await render([hidden({ prices: null })]);
 
-    expect(el.textContent).toContain(defaultAdminText.products.unpublished);
-    expect(el.textContent).toContain(defaultAdminText.products.unpriced);
+    expect(el.textContent).toContain(
+      defaultAdminText.editMode.unpublishedBadge,
+    );
+    expect(el.textContent).toContain(defaultAdminText.editMode.unpricedBadge);
   });
 
   it('publishes a product and emits published', async () => {

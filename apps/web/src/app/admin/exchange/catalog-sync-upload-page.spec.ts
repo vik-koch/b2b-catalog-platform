@@ -21,7 +21,7 @@ const text = defaultAdminText.sync;
 const config = {
   locale: 'de-DE',
   branding: { name: 'Test Shop', tagline: 'Test tagline' },
-  catalog: { currency: { code: 'EUR' } },
+  currency: { code: 'EUR' },
 } as unknown as DeploymentConfig;
 
 const emptySummary = {

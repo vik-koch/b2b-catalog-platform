@@ -1,5 +1,4 @@
 import { Component, computed, inject, resource } from '@angular/core';
-import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
 import { EditActions } from '../../../platform/edit-mode/edit-actions';
 import { editAwareContent } from '../../../platform/edit-mode/edit-aware-content';
 import { injectEditorReturnParams } from '../../../platform/edit-mode/editor-return';
@@ -7,6 +6,7 @@ import { LoadErrorView } from '../../platform/load-error-view';
 import { CatalogService } from '../catalog.service';
 import { CategoryChip } from '../ui/category-chip';
 import { CategoryChildren } from './ui/category-children';
+import { STOREFRONT_CATALOG_TEXT } from '../catalog-text';
 
 /** The listing's 15rem column family (PRODUCT_GRID), so categories stand
  * where product cards do; also the grid of a listing's subcategory chips. One
@@ -59,7 +59,7 @@ export const CATEGORY_GRID = `grid gap-5 grid-cols-1
 })
 export class CategoryIndex {
   private readonly catalog = inject(CatalogService);
-  protected readonly text = inject(STOREFRONT_TEXT).catalog;
+  protected readonly text = inject(STOREFRONT_CATALOG_TEXT).listing;
   protected readonly editorFrom = injectEditorReturnParams();
   protected readonly gridClass = CATEGORY_GRID;
   protected readonly skeletons = Array.from({ length: 8 }, (_, i) => i);

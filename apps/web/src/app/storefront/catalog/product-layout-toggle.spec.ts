@@ -6,8 +6,9 @@ import { defaultStorefrontText } from '../../platform/config/storefront-text.fix
 import { ProductLayoutService } from './product-layout';
 import { ProductLayoutToggle } from './product-layout-toggle';
 import { LISTING_NARROW } from './ui/listing-narrow';
+import { defaultStorefrontCatalogText } from './catalog-text.fixture';
 
-const text = defaultStorefrontText.catalog.layout;
+const text = defaultStorefrontCatalogText.listing.layout;
 
 async function render() {
   TestBed.resetTestingModule();

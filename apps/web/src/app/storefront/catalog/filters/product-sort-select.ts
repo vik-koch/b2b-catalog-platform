@@ -6,9 +6,9 @@ import { Segment } from '@b2b-catalog-platform/ui/choices/segment';
 import { SegmentGroup } from '@b2b-catalog-platform/ui/choices/segment-group';
 import { Input } from '@b2b-catalog-platform/ui/inputs/input';
 import { SelectInput } from '@b2b-catalog-platform/ui/inputs/select-input';
-import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
-import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
 import { sortParam } from '../listing-params';
+import { STOREFRONT_CATALOG_TEXT } from '../catalog-text';
+import { CATALOG_CONFIG } from '../../../core/catalog/catalog-config';
 
 /**
  * A listing's sort control (FR-SEARCH-04). Segments above a wide listing, the
@@ -94,11 +94,10 @@ import { sortParam } from '../listing-params';
   `,
 })
 export class ProductSortSelect {
-  protected readonly enabled =
-    inject(DEPLOYMENT_CONFIG).catalog.sortControlsEnabled;
+  protected readonly enabled = inject(CATALOG_CONFIG).sortControlsEnabled;
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
-  protected readonly text = inject(STOREFRONT_TEXT).catalog;
+  protected readonly text = inject(STOREFRONT_CATALOG_TEXT).listing;
   /** A constant, so server and browser agree; the filter panel's copy passes
    * its own. */
   readonly fieldId = input('product-sort');

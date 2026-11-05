@@ -87,6 +87,7 @@ import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { Hint } from '@b2b-catalog-platform/ui/fields/hint';
 import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
 import { SummaryLayout } from '@b2b-catalog-platform/ui/content/summary-layout';
+import { CATALOG_CONFIG } from '../../core/catalog/catalog-config';
 
 /** The typing pause before re-pricing. */
 const PREVIEW_DEBOUNCE_MS = 250;
@@ -407,6 +408,7 @@ export class AdminOrderAdjustPage implements FieldAttempt {
   private readonly confirm = inject(ConfirmService);
   private readonly router = inject(Router);
   private readonly config = inject(DEPLOYMENT_CONFIG);
+  private readonly catalogConfig = inject(CATALOG_CONFIG);
   protected readonly phoneInput = this.config.phoneInput;
   private readonly currency = moneyFormat(this.config);
 
@@ -773,7 +775,7 @@ export class AdminOrderAdjustPage implements FieldAttempt {
       phoneInput: this.config.phoneInput,
       locale: this.config.locale,
       currency: this.currency,
-      boxUnits: this.config.catalog.boxUnits,
+      boxUnits: this.catalogConfig.boxUnits,
     };
     const proposed = this.proposed(order, preview);
     return [

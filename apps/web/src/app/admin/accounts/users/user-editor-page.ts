@@ -50,6 +50,7 @@ import {
   UserKind,
 } from '@b2b-catalog-platform/shared/core/accounts';
 import { UserRole } from '@b2b-catalog-platform/shared/platform';
+import { ADMIN_CATALOG_TEXT } from '../../catalog/catalog-text';
 
 interface UserDraft {
   email: string;
@@ -399,11 +400,12 @@ export class UserEditorPage implements UnsavedChangesAware {
     );
   });
   protected readonly adminText = inject(ADMIN_TEXT);
+  private readonly adminCatalogText = inject(ADMIN_CATALOG_TEXT);
   protected readonly actionText = inject(SHARED_TEXT).actions;
   protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
   private readonly ownership = inject(OwnershipService);
   protected readonly baseTierLabel = computed(() =>
-    baseTierName(this.adminText.tiers.defaultName, this.tiers()),
+    baseTierName(this.adminCatalogText.tiers.defaultName, this.tiers()),
   );
   protected readonly otherTiers = computed(() =>
     this.tiers().filter((t) => !t.isDefault),

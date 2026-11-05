@@ -13,7 +13,6 @@ import {
   MONEY_FORMAT,
   ORDER_CURRENCY,
   ORDER_REFERENCE_CONFIG,
-  PAIRINGS_ENFORCED,
   PDF_FONT,
   PICKUP_LOCATIONS,
   TERMS_ATTACHED,
@@ -25,13 +24,16 @@ import {
   loadMoneyFormat,
   loadOrderCurrency,
   loadOrderReferenceConfig,
-  loadPairingsEnforced,
   loadPdfFont,
   loadPickupLocations,
   loadTaxConfig,
   loadTermsAttached,
   TAX_CONFIG,
 } from '../../platform/config/deployment-config';
+import {
+  PAIRINGS_ENFORCED,
+  loadPairingsEnforced,
+} from '../catalog/catalog-config';
 import { loadTermsPublished, TERMS_PUBLISHED } from '../site/site-config';
 import { MailModule } from '../../platform/mail/mail.module';
 import { MediaModule } from '../../platform/media/media.module';

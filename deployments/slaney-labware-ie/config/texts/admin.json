@@ -32,27 +32,6 @@
   },
   "countSuffix": "({count})",
   "actorGone": "a deleted account",
-  "catalogErrors": {
-    "product-not-found": "This product no longer exists. Reload the page to see the current catalogue.",
-    "category-not-found": "That category no longer exists. Reload the page to see the current categories.",
-    "reassign-target-not-found": "The category you picked to move the products into no longer exists.",
-    "category-has-subcategories": "This category still has subcategories. Delete or move those first.",
-    "category-has-products": "This category still has products. Pick a category to move them into.",
-    "category-reassign-to-self": "The products cannot be moved into the category being deleted.",
-    "category-cycle": "A category cannot be moved inside one of its own subcategories.",
-    "slug-taken": "That web address is already used by something else. Please pick another.",
-    "source-id-taken": "That catalogue ID is already used by another product or category.",
-    "tier-not-found": "One of the price lists on this product no longer exists. Reload the page and set its prices again.",
-    "paired-product-not-found": "One of the products this one is sold with no longer exists. Reload the page and pick the products again.",
-    "document-not-found": "One of the documents on this product no longer exists. Reload the page and pick the documents again.",
-    "pairing-self": "A product cannot be sold together with itself.",
-    "slug-or-source-id-taken": "Somebody else saved a conflicting web address or catalogue ID just now. Please try again.",
-    "product-has-no-price": "This product has no price in the price list the storefront shows, so it cannot be published. Give it a price first.",
-    "product-published": "This product is on the storefront. Unpublish it first, then delete it.",
-    "product-deleted": "This product is deleted. Restore it first, then publish it.",
-    "product-not-deleted": "Only a deleted product can be deleted permanently. Delete it first.",
-    "product-ordered": "This product is on an order, so it cannot be deleted permanently. It stays deleted instead."
-  },
   "fields": {
     "name": {
       "required": "A name is required."
@@ -147,7 +126,11 @@
       "heading": "Delete permanently",
       "message": "Delete “{name}” permanently? Its prices, attributes, pairings and document links are removed with it. This cannot be undone.",
       "confirm": "Delete permanently"
-    }
+    },
+    "deletedBadge": "Deleted",
+    "unpublishedBadge": "Not published",
+    "unpricedBadge": "No price",
+    "unpricedMessage": "This product has no price in the price list the storefront shows, so it cannot be published. Give it a price first."
   },
   "richText": {
     "toolbar": {
@@ -190,291 +173,513 @@
       "remove": "Remove image"
     }
   },
-  "products": {
-    "deleted": "Deleted",
-    "unpublished": "Not published",
-    "unpriced": "No price",
-    "count": "Products: {count}",
-    "unpublishedCount": "{count} unpublished",
-    "list": {
-      "page": {
-        "title": "Products"
-      },
-      "empty": "No products yet.",
-      "noResults": "No products match these filters.",
-      "updated": "Updated",
-      "sourceId": "Sync key",
-      "searchAria": "Search products",
-      "searchPlaceholder": "Search by name or sync key",
-      "clearSearch": "Clear the search",
-      "filterState": "Filter by state",
-      "state": "State",
-      "filterCategory": "Filter by category",
-      "stateAll": "All states",
-      "stateLive": "Live",
-      "deletedMatches": "Deleted products matching: {count}.",
-      "showDeleted": "Show deleted products",
-      "allCategories": "All categories",
-      "categoryDirect": "{name}, without subcategories",
-      "stock": "Stock",
-      "stockAll": "Any stock",
-      "filterStock": "Filter by stock",
-      "stockAria": "In stock: {count} pcs — {state}",
-      "stockUntracked": "—",
-      "filterAttribute": "Attribute",
-      "clearAttributeAria": "Clear the attribute filter",
-      "filterTier": "Price list",
-      "clearTierAria": "Clear the price list filter",
-      "filterDocument": "Document",
-      "clearDocumentAria": "Clear the document filter",
-      "tierPricedYes": "Priced in this list",
-      "tierPricedNo": "Not priced in this list",
-      "noPrice": "—",
-      "missingGroupAria": "Missing",
-      "hasGroupAria": "Has",
-      "missing": {
-        "incomplete": "Incomplete",
-        "price": "No price",
-        "picture": "No picture",
-        "description": "No description",
-        "attributes": "No attributes",
-        "packaging": "No packaging",
-        "boxFacts": "No box volume or weight"
-      },
-      "has": {
-        "featured": "Featured",
-        "set": "Sold as a set",
-        "variants": "Variants",
-        "pairings": "Sold together",
-        "documents": "Documents",
-        "note": "Line note"
-      },
-      "gapsLabel": "No {gaps}",
-      "gap": {
-        "price": "price",
-        "picture": "picture",
-        "description": "description",
-        "attributes": "attributes"
-      },
-      "bestMatch": "Best match"
+  "catalog": {
+    "catalogErrors": {
+      "product-not-found": "This product no longer exists. Reload the page to see the current catalogue.",
+      "category-not-found": "That category no longer exists. Reload the page to see the current categories.",
+      "reassign-target-not-found": "The category you picked to move the products into no longer exists.",
+      "category-has-subcategories": "This category still has subcategories. Delete or move those first.",
+      "category-has-products": "This category still has products. Pick a category to move them into.",
+      "category-reassign-to-self": "The products cannot be moved into the category being deleted.",
+      "category-cycle": "A category cannot be moved inside one of its own subcategories.",
+      "slug-taken": "That web address is already used by something else. Please pick another.",
+      "source-id-taken": "That catalogue ID is already used by another product or category.",
+      "tier-not-found": "One of the price lists on this product no longer exists. Reload the page and set its prices again.",
+      "paired-product-not-found": "One of the products this one is sold with no longer exists. Reload the page and pick the products again.",
+      "document-not-found": "One of the documents on this product no longer exists. Reload the page and pick the documents again.",
+      "pairing-self": "A product cannot be sold together with itself.",
+      "slug-or-source-id-taken": "Somebody else saved a conflicting web address or catalogue ID just now. Please try again.",
+      "product-has-no-price": "This product has no price in the price list the storefront shows, so it cannot be published. Give it a price first.",
+      "product-published": "This product is on the storefront. Unpublish it first, then delete it.",
+      "product-deleted": "This product is deleted. Restore it first, then publish it.",
+      "product-not-deleted": "Only a deleted product can be deleted permanently. Delete it first.",
+      "product-ordered": "This product is on an order, so it cannot be deleted permanently. It stays deleted instead."
     },
-    "editor": {
-      "newTitle": "Add product",
-      "editTitle": "Edit product",
-      "name": "Name",
-      "price": "Price",
-      "category": "Category",
-      "categoryPlaceholder": "Select a category…",
-      "slug": "URL slug",
-      "slugHint": "Used in the product's web address. Leave it to fill in automatically, or set it yourself — changing it later changes the URL.",
-      "sourceId": "Article number (optional)",
-      "sourceIdHint": "The legacy/import key. Leave empty for a product created here; set it to match a future import.",
-      "previewNotice": "Preview — this is how the product will look once saved.",
-      "discardConfirm": "Discard your unsaved changes to this product?",
-      "nameRequired": "A product name is required.",
-      "categoryRequired": "A category is required.",
-      "priceInvalid": "This price is not valid.",
-      "saveError": "Something went wrong saving this product. Please try again.",
-      "saveAndPublish": "Save and publish",
-      "cancelToPage": "Discard and view page",
-      "publishError": "Could not change whether this product is published. Please try again.",
-      "attributes": {
-        "heading": "Characteristics",
-        "key": "Name",
-        "value": "Value",
-        "addAria": "Add characteristic",
-        "addKeys": "Add attributes",
-        "addKeysHint": "Attribute names the catalog already uses. Adding one appends an empty row — pick the name from here rather than retyping it, and the products stay comparable. A row you leave without a value is not saved.",
-        "addKeysEmpty": "No product carries an attribute yet.",
-        "addKeysApply": "Add attributes ({count})",
-        "inTable": "already here",
-        "filterable": "The shop filters by this attribute.",
-        "notNumeric": "This value cannot be read as a number, so it is left out of this attribute's filter. It still shows on the product page.",
-        "strayPart": "“{part}” is not one of this product's parts, so this row is not filtered as “{key}”. Check the spelling against the parts above."
+    "products": {
+      "deleted": "Deleted",
+      "unpublished": "Not published",
+      "unpriced": "No price",
+      "count": "Products: {count}",
+      "unpublishedCount": "{count} unpublished",
+      "list": {
+        "page": {
+          "title": "Products"
+        },
+        "empty": "No products yet.",
+        "noResults": "No products match these filters.",
+        "updated": "Updated",
+        "sourceId": "Sync key",
+        "searchAria": "Search products",
+        "searchPlaceholder": "Search by name or sync key",
+        "clearSearch": "Clear the search",
+        "filterState": "Filter by state",
+        "state": "State",
+        "filterCategory": "Filter by category",
+        "stateAll": "All states",
+        "stateLive": "Live",
+        "deletedMatches": "Deleted products matching: {count}.",
+        "showDeleted": "Show deleted products",
+        "allCategories": "All categories",
+        "categoryDirect": "{name}, without subcategories",
+        "stock": "Stock",
+        "stockAll": "Any stock",
+        "filterStock": "Filter by stock",
+        "stockAria": "In stock: {count} pcs — {state}",
+        "stockUntracked": "—",
+        "filterAttribute": "Attribute",
+        "clearAttributeAria": "Clear the attribute filter",
+        "filterTier": "Price list",
+        "clearTierAria": "Clear the price list filter",
+        "filterDocument": "Document",
+        "clearDocumentAria": "Clear the document filter",
+        "tierPricedYes": "Priced in this list",
+        "tierPricedNo": "Not priced in this list",
+        "noPrice": "—",
+        "missingGroupAria": "Missing",
+        "hasGroupAria": "Has",
+        "missing": {
+          "incomplete": "Incomplete",
+          "price": "No price",
+          "picture": "No picture",
+          "description": "No description",
+          "attributes": "No attributes",
+          "packaging": "No packaging",
+          "boxFacts": "No box volume or weight"
+        },
+        "has": {
+          "featured": "Featured",
+          "set": "Sold as a set",
+          "variants": "Variants",
+          "pairings": "Sold together",
+          "documents": "Documents",
+          "note": "Line note"
+        },
+        "gapsLabel": "No {gaps}",
+        "gap": {
+          "price": "price",
+          "picture": "picture",
+          "description": "description",
+          "attributes": "attributes"
+        },
+        "bestMatch": "Best match"
       },
-      "images": {
-        "heading": "Images",
-        "add": "Add images",
-        "variantAria": "Variant this picture shows",
-        "noVariant": "No variant",
-        "reframe": "Frame again"
+      "editor": {
+        "newTitle": "Add product",
+        "editTitle": "Edit product",
+        "name": "Name",
+        "price": "Price",
+        "category": "Category",
+        "categoryPlaceholder": "Select a category…",
+        "slug": "URL slug",
+        "slugHint": "Used in the product's web address. Leave it to fill in automatically, or set it yourself — changing it later changes the URL.",
+        "sourceId": "Article number (optional)",
+        "sourceIdHint": "The legacy/import key. Leave empty for a product created here; set it to match a future import.",
+        "previewNotice": "Preview — this is how the product will look once saved.",
+        "discardConfirm": "Discard your unsaved changes to this product?",
+        "nameRequired": "A product name is required.",
+        "categoryRequired": "A category is required.",
+        "priceInvalid": "This price is not valid.",
+        "saveError": "Something went wrong saving this product. Please try again.",
+        "saveAndPublish": "Save and publish",
+        "cancelToPage": "Discard and view page",
+        "publishError": "Could not change whether this product is published. Please try again.",
+        "attributes": {
+          "heading": "Characteristics",
+          "key": "Name",
+          "value": "Value",
+          "addAria": "Add characteristic",
+          "addKeys": "Add attributes",
+          "addKeysHint": "Attribute names the catalog already uses. Adding one appends an empty row — pick the name from here rather than retyping it, and the products stay comparable. A row you leave without a value is not saved.",
+          "addKeysEmpty": "No product carries an attribute yet.",
+          "addKeysApply": "Add attributes ({count})",
+          "inTable": "already here",
+          "filterable": "The shop filters by this attribute.",
+          "notNumeric": "This value cannot be read as a number, so it is left out of this attribute's filter. It still shows on the product page.",
+          "strayPart": "“{part}” is not one of this product's parts, so this row is not filtered as “{key}”. Check the spelling against the parts above."
+        },
+        "images": {
+          "heading": "Images",
+          "add": "Add images",
+          "variantAria": "Variant this picture shows",
+          "noVariant": "No variant",
+          "reframe": "Frame again"
+        },
+        "variants": {
+          "hint": "For an assorted article whose colours or designs are not separate articles. Name each variant, then choose under each picture which one it shows. A picture of the whole range shows none. Mark a variant currently unavailable to hide its pictures until it is back; delete it only if it will never be offered again.",
+          "nameAria": "Variant name",
+          "add": "Add a variant",
+          "addPlaceholder": "Sand",
+          "addButton": "Add",
+          "removeAria": "Remove “{name}”",
+          "unavailable": "Currently unavailable",
+          "picturesHeading": "Pictures",
+          "pictures": "Pictures showing it: {count}",
+          "limit": "A product can name up to {count} variants.",
+          "duplicate": "Each variant needs a name of its own.",
+          "exists": "A variant with this name already exists.",
+          "allWithheld": "Every picture shows an unavailable variant, so the shop shows this product without a picture."
+        },
+        "parts": {
+          "heading": "Sold as a set",
+          "hint": "Where one piece is several things sold together, such as a vial and its cap, name each part. An attribute written as “Colour (cap)” then filters as “Colour”.",
+          "add": "Add a part",
+          "addPlaceholder": "vial, or vial + cap",
+          "addButton": "Add",
+          "removeAria": "Remove “{name}”",
+          "limit": "A set can have up to {count} parts.",
+          "tooFew": "A set needs at least two parts.",
+          "rejected": "Each part must be new, at most {max} characters, and without +, ( or )."
+        },
+        "switchedOn": "(on)",
+        "featured": {
+          "heading": "Featured",
+          "hint": "The main page shows five products: featured ones first, the rest of the row drawn at random, all in a random order. A product out of stock is never shown.",
+          "enable": "Feature this product"
+        },
+        "lineNote": {
+          "heading": "Line note",
+          "hint": "Lets a customer say on the cart line, in words, which variant they want.",
+          "enable": "Ask for a note on this product",
+          "prompt": "What to ask for",
+          "promptHint": "Leave empty to use the shop-wide wording.",
+          "promptPlaceholder": "Which colour?"
+        },
+        "documents": {
+          "hint": "Certificates, declarations and data sheets shown on this product. The same documents can be put on many products at once from the document itself.",
+          "add": "Add a document",
+          "addPlaceholder": "Search documents by title…",
+          "removeAria": "Remove “{name}”",
+          "expires": "Expires {date}",
+          "noExpiry": "No expiry",
+          "suggestionsAria": "Document suggestions",
+          "noSuggestions": "No documents match.",
+          "suggestionCountAria": "Document suggestions: {count}"
+        },
+        "pairings": {
+          "hint": "Products this one is sold with. It works both ways: the product you pick is paired with this one too, and removing it here removes it there.",
+          "add": "Add a product",
+          "addPlaceholder": "Search products by name…",
+          "removeAria": "Remove “{name}”",
+          "limit": "Up to {count} products can be paired with one product.",
+          "suggestionsAria": "Product suggestions",
+          "noSuggestions": "No products match.",
+          "suggestionCountAria": "Product suggestions: {count}"
+        },
+        "stock": {
+          "heading": "Stock",
+          "hint": "Leave empty to not track this product's stock — no badge is shown and nothing is restricted.",
+          "pieces": "Pieces on hand",
+          "threshold": "“Few left” below",
+          "preview": "Customers currently see:",
+          "untracked": "Nothing — this product's stock is not tracked."
+        },
+        "taxRate": {
+          "label": "VAT rate",
+          "notInEffect": "No VAT is charged at the moment, so this rate is kept but not applied.",
+          "invalid": "The VAT rate must be a percent from 0 to 100, with at most two decimals."
+        },
+        "packaging": {
+          "hint": "Leave a unit empty if the product is not sold that way.",
+          "minPieceQty": "Minimum pieces",
+          "minPieceQtyHint": "The smallest order. Piece orders then move by one pack, or one piece if this is under a pack.",
+          "boxCount": "Boxes shipped",
+          "pricePerPack": "{price} per pack",
+          "pricePerBox": "{price} per box",
+          "notSoldPerPack": "Not sold per pack",
+          "notSoldPerBox": "Not sold per box",
+          "minMustFitPacks": "The minimum must be under one pack or a whole number of packs — in between, there is no quantity step that fits it.",
+          "invalid": "Packaging numbers must be whole numbers of 1 or more."
+        },
+        "tierPrices": {
+          "heading": "Tier prices",
+          "hint": "Leave a price empty to charge that list the storefront price above.",
+          "usesBase": "n/a",
+          "invalid": "The price for “{tier}” is not valid."
+        },
+        "priceWithList": "Price ({list})",
+        "priceCleared": "With no price in this list the product cannot be on the storefront. Saving will take it off.",
+        "saveAndUnpublish": "Save and unpublish",
+        "packagingUnavailable": "—"
+      }
+    },
+    "categories": {
+      "list": {
+        "page": {
+          "title": "Categories"
+        },
+        "add": "Add category",
+        "addChild": "Add subcategory",
+        "seeProducts": "See category products",
+        "editProducts": "Edit category products",
+        "noProducts": "No products yet",
+        "directProducts": "Products without subcategories: {count}",
+        "notShown": "Not shown in the shop",
+        "editFilters": "Edit category filters",
+        "catalogFilters": "Catalogue filters",
+        "empty": "No categories yet.",
+        "reorderHint": "Drag a category by its handle to move it; drop it further right to make it a subcategory. The line shows where it will land. Changes are saved right away.",
+        "undo": "Undo last move",
+        "reorderError": "This move could not be saved. Please try again.",
+        "deleteTitle": "Delete category",
+        "deleteConfirm": "Delete “{name}”?",
+        "deleteReassignIntro": "Products still in “{name}”: {count}. Choose a category to move them to, then delete.",
+        "deleteReassignDeleted": "Deleted products among them: {count}. They move too.",
+        "reassignLabel": "Move products to",
+        "reassignPlaceholder": "Select a category…",
+        "deleteBlockedChildren": "“{name}” has subcategories. Delete or move those first.",
+        "deleteError": "This category could not be deleted. Please try again."
       },
-      "variants": {
-        "hint": "For an assorted article whose colours or designs are not separate articles. Name each variant, then choose under each picture which one it shows. A picture of the whole range shows none. Mark a variant currently unavailable to hide its pictures until it is back; delete it only if it will never be offered again.",
-        "nameAria": "Variant name",
-        "add": "Add a variant",
-        "addPlaceholder": "Sand",
-        "addButton": "Add",
-        "removeAria": "Remove “{name}”",
-        "unavailable": "Currently unavailable",
-        "picturesHeading": "Pictures",
-        "pictures": "Pictures showing it: {count}",
-        "limit": "A product can name up to {count} variants.",
-        "duplicate": "Each variant needs a name of its own.",
-        "exists": "A variant with this name already exists.",
-        "allWithheld": "Every picture shows an unavailable variant, so the shop shows this product without a picture."
+      "editor": {
+        "newTitle": "Add category",
+        "editTitle": "Edit category",
+        "name": "Name",
+        "shortName": "Short name (optional)",
+        "shortNameHint": "A shorter label used where the parent category is already shown. Leave empty to always use the full name.",
+        "parent": "Parent category",
+        "noParent": "— Top level —",
+        "slug": "URL slug",
+        "slugHint": "Used in the category's web address. Leave it to fill in automatically, or set it yourself — changing it later changes the URL.",
+        "sourceId": "Category number (optional)",
+        "sourceIdHint": "The legacy/import key. Leave empty for a category created here; set it to match a future import.",
+        "mark": "Mark",
+        "markHint": "A square picture filling the right end of the category's chip, edge to edge. Leave the margin you want inside the picture; a transparent background shows the chip through.",
+        "discardConfirm": "Discard your unsaved changes to this category?",
+        "nameRequired": "A category name is required.",
+        "saveError": "This category could not be saved. Please try again."
       },
-      "parts": {
-        "heading": "Sold as a set",
-        "hint": "Where one piece is several things sold together, such as a vial and its cap, name each part. An attribute written as “Colour (cap)” then filters as “Colour”.",
-        "add": "Add a part",
-        "addPlaceholder": "vial, or vial + cap",
-        "addButton": "Add",
-        "removeAria": "Remove “{name}”",
-        "limit": "A set can have up to {count} parts.",
-        "tooFew": "A set needs at least two parts.",
-        "rejected": "Each part must be new, at most {max} characters, and without +, ( or )."
-      },
-      "switchedOn": "(on)",
-      "featured": {
-        "heading": "Featured",
-        "hint": "The main page shows five products: featured ones first, the rest of the row drawn at random, all in a random order. A product out of stock is never shown.",
-        "enable": "Feature this product"
-      },
-      "lineNote": {
-        "heading": "Line note",
-        "hint": "Lets a customer say on the cart line, in words, which variant they want.",
-        "enable": "Ask for a note on this product",
-        "prompt": "What to ask for",
-        "promptHint": "Leave empty to use the shop-wide wording.",
-        "promptPlaceholder": "Which colour?"
-      },
-      "documents": {
-        "hint": "Certificates, declarations and data sheets shown on this product. The same documents can be put on many products at once from the document itself.",
-        "add": "Add a document",
-        "addPlaceholder": "Search documents by title…",
-        "removeAria": "Remove “{name}”",
-        "expires": "Expires {date}",
-        "noExpiry": "No expiry",
-        "suggestionsAria": "Document suggestions",
-        "noSuggestions": "No documents match.",
-        "suggestionCountAria": "Document suggestions: {count}"
-      },
-      "pairings": {
-        "hint": "Products this one is sold with. It works both ways: the product you pick is paired with this one too, and removing it here removes it there.",
-        "add": "Add a product",
-        "addPlaceholder": "Search products by name…",
-        "removeAria": "Remove “{name}”",
-        "limit": "Up to {count} products can be paired with one product.",
-        "suggestionsAria": "Product suggestions",
-        "noSuggestions": "No products match.",
-        "suggestionCountAria": "Product suggestions: {count}"
-      },
-      "stock": {
-        "heading": "Stock",
-        "hint": "Leave empty to not track this product's stock — no badge is shown and nothing is restricted.",
-        "pieces": "Pieces on hand",
-        "threshold": "“Few left” below",
-        "preview": "Customers currently see:",
-        "untracked": "Nothing — this product's stock is not tracked."
-      },
-      "taxRate": {
-        "label": "VAT rate",
-        "notInEffect": "No VAT is charged at the moment, so this rate is kept but not applied.",
-        "invalid": "The VAT rate must be a percent from 0 to 100, with at most two decimals."
-      },
-      "packaging": {
-        "hint": "Leave a unit empty if the product is not sold that way.",
-        "minPieceQty": "Minimum pieces",
-        "minPieceQtyHint": "The smallest order. Piece orders then move by one pack, or one piece if this is under a pack.",
-        "boxCount": "Boxes shipped",
-        "pricePerPack": "{price} per pack",
-        "pricePerBox": "{price} per box",
-        "notSoldPerPack": "Not sold per pack",
-        "notSoldPerBox": "Not sold per box",
-        "minMustFitPacks": "The minimum must be under one pack or a whole number of packs — in between, there is no quantity step that fits it.",
-        "invalid": "Packaging numbers must be whole numbers of 1 or more."
-      },
-      "tierPrices": {
-        "heading": "Tier prices",
-        "hint": "Leave a price empty to charge that list the storefront price above.",
-        "usesBase": "n/a",
-        "invalid": "The price for “{tier}” is not valid."
-      },
-      "priceWithList": "Price ({list})",
-      "priceCleared": "With no price in this list the product cannot be on the storefront. Saving will take it off.",
-      "saveAndUnpublish": "Save and unpublish",
-      "packagingUnavailable": "—"
-    }
-  },
-  "categories": {
-    "list": {
+      "filters": {
+        "page": {
+          "title": "Filters",
+          "intro": "Which attributes this category offers as a filter, and in what order. Subcategories follow this list unless they are given one of their own. An attribute no product here carries never shows a filter anyway — turn one off when it is present but not worth filtering by."
+        },
+        "heading": "Filters in {category}",
+        "sources": {
+          "own": "This category has its own filter list.",
+          "inherited": "Inherited from {category}. Saving here gives this category a list of its own.",
+          "default": "No filter list has been set, so every attribute is offered in the order of the attribute list."
+        },
+        "products": "Products here: {count}",
+        "notPresent": "No product here carries it",
+        "isNew": "Added after this list was saved, so it is not offered yet.",
+        "show": "Offer as a filter",
+        "reorder": "Reorder",
+        "save": "Save filters",
+        "saveError": "These filters could not be saved. Please try again.",
+        "reset": "Use the inherited list",
+        "resetDone": "This category follows the inherited list again.",
+        "empty": "No attribute is offered here, so this category shows no filter panel.",
+        "noDefinitions": "No attribute is filterable yet. Add one to the attribute list first.",
+        "catalogHeading": "Filters across the catalogue",
+        "catalogIntro": "Which attributes the catalogue page offers as a filter over every product at once, and in what order — a brand, say, that runs through several categories. Nothing is offered here until it is ticked, and categories keep their own filter lists.",
+        "catalogEmpty": "No attribute is offered, so the catalogue page shows no filter panel.",
+        "errors": {
+          "category-not-found": "This category no longer exists.",
+          "attribute-not-found": "One of these attributes no longer exists. Reload the page to see the current list."
+        },
+        "resetConfirm": {
+          "heading": "Use the inherited list",
+          "message": "Drop this category's own filter list? It will follow its parent again, and subcategories that follow this one change with it.",
+          "confirm": "Use the inherited list"
+        }
+      }
+    },
+    "tiers": {
       "page": {
-        "title": "Categories"
+        "title": "Customer tiers",
+        "intro": "A tier is a price list. One of them is what the storefront shows everybody — guests, staff and customers who are not on a tier; the others carry only the products they price differently. Customers are put on a tier when their account is approved."
       },
-      "add": "Add category",
-      "addChild": "Add subcategory",
-      "seeProducts": "See category products",
-      "editProducts": "Edit category products",
-      "noProducts": "No products yet",
-      "directProducts": "Products without subcategories: {count}",
-      "notShown": "Not shown in the shop",
-      "editFilters": "Edit category filters",
-      "catalogFilters": "Catalogue filters",
-      "empty": "No categories yet.",
-      "reorderHint": "Drag a category by its handle to move it; drop it further right to make it a subcategory. The line shows where it will land. Changes are saved right away.",
-      "undo": "Undo last move",
+      "add": "Add tier",
+      "label": "Name",
+      "labelPlaceholder": "Wholesale",
+      "key": "Sync key",
+      "keyPlaceholder": "wholesale",
+      "keyHint": "The catalog file addresses this list as a “price:wholesale” column. One word — letters, digits, hyphens and underscores.",
+      "accounts": "Customers: {count}",
+      "seeAccounts": "Show the accounts on this price list",
+      "seePrices": "Show the products this tier prices",
+      "defaultHint": "Guests, staff and customers without a tier are charged this list.",
+      "defaultName": "Default ({list})",
+      "empty": "No price lists yet.",
+      "saveError": "This tier could not be saved. Please try again.",
+      "labelRequired": "A name is required.",
+      "keyInvalid": "Use letters, digits, hyphens and underscores, in one word, e.g. “wholesale”.",
+      "deleteBlocked": "“{name}” is still in use: {reason}",
+      "deleteError": "This tier could not be deleted. Please try again.",
       "reorderError": "This move could not be saved. Please try again.",
-      "deleteTitle": "Delete category",
-      "deleteConfirm": "Delete “{name}”?",
-      "deleteReassignIntro": "Products still in “{name}”: {count}. Choose a category to move them to, then delete.",
-      "deleteReassignDeleted": "Deleted products among them: {count}. They move too.",
-      "reassignLabel": "Move products to",
-      "reassignPlaceholder": "Select a category…",
-      "deleteBlockedChildren": "“{name}” has subcategories. Delete or move those first.",
-      "deleteError": "This category could not be deleted. Please try again."
-    },
-    "editor": {
-      "newTitle": "Add category",
-      "editTitle": "Edit category",
-      "name": "Name",
-      "shortName": "Short name (optional)",
-      "shortNameHint": "A shorter label used where the parent category is already shown. Leave empty to always use the full name.",
-      "parent": "Parent category",
-      "noParent": "— Top level —",
-      "slug": "URL slug",
-      "slugHint": "Used in the category's web address. Leave it to fill in automatically, or set it yourself — changing it later changes the URL.",
-      "sourceId": "Category number (optional)",
-      "sourceIdHint": "The legacy/import key. Leave empty for a category created here; set it to match a future import.",
-      "mark": "Mark",
-      "markHint": "A square picture filling the right end of the category's chip, edge to edge. Leave the margin you want inside the picture; a transparent background shows the chip through.",
-      "discardConfirm": "Discard your unsaved changes to this category?",
-      "nameRequired": "A category name is required.",
-      "saveError": "This category could not be saved. Please try again."
-    },
-    "filters": {
-      "page": {
-        "title": "Filters",
-        "intro": "Which attributes this category offers as a filter, and in what order. Subcategories follow this list unless they are given one of their own. An attribute no product here carries never shows a filter anyway — turn one off when it is present but not worth filtering by."
-      },
-      "heading": "Filters in {category}",
-      "sources": {
-        "own": "This category has its own filter list.",
-        "inherited": "Inherited from {category}. Saving here gives this category a list of its own.",
-        "default": "No filter list has been set, so every attribute is offered in the order of the attribute list."
-      },
-      "products": "Products here: {count}",
-      "notPresent": "No product here carries it",
-      "isNew": "Added after this list was saved, so it is not offered yet.",
-      "show": "Offer as a filter",
-      "reorder": "Reorder",
-      "save": "Save filters",
-      "saveError": "These filters could not be saved. Please try again.",
-      "reset": "Use the inherited list",
-      "resetDone": "This category follows the inherited list again.",
-      "empty": "No attribute is offered here, so this category shows no filter panel.",
-      "noDefinitions": "No attribute is filterable yet. Add one to the attribute list first.",
-      "catalogHeading": "Filters across the catalogue",
-      "catalogIntro": "Which attributes the catalogue page offers as a filter over every product at once, and in what order — a brand, say, that runs through several categories. Nothing is offered here until it is ticked, and categories keep their own filter lists.",
-      "catalogEmpty": "No attribute is offered, so the catalogue page shows no filter panel.",
       "errors": {
-        "category-not-found": "This category no longer exists.",
-        "attribute-not-found": "One of these attributes no longer exists. Reload the page to see the current list."
+        "tier-not-found": "This tier no longer exists. Reload the page to see the current list.",
+        "tier-key-taken": "Another tier already uses that sync key.",
+        "tier-has-accounts": "This tier still has customer accounts on it. Move them to another tier first.",
+        "tier-has-prices": "This tier still prices some products. Clear those prices first.",
+        "tier-is-default": "This is the list the storefront shows, so it cannot be deleted. Show another list on the storefront first."
       },
-      "resetConfirm": {
-        "heading": "Use the inherited list",
-        "message": "Drop this category's own filter list? It will follow its parent again, and subcategories that follow this one change with it.",
-        "confirm": "Use the inherited list"
+      "defaultBadge": "Shown on the storefront",
+      "setDefault": "Show this list on the storefront",
+      "setDefaultWarning": "Products without a price in this list: {count}. They will be taken off the storefront until somebody prices them.",
+      "setDefaultNone": "Every product on the storefront has a price in this list.",
+      "setDefaultDone": "Products taken off the storefront: {count}.",
+      "setDefaultError": "The storefront's price list could not be changed. Please try again.",
+      "seeUnpriced": "Show the products this list does not price",
+      "unpriced": "{count} not priced",
+      "setDefaultConfirm": {
+        "heading": "Change the storefront's price list",
+        "message": "Show “{name}” to everybody who is not on a tier?",
+        "confirm": "Show this list on the storefront"
+      },
+      "deleteConfirm": {
+        "heading": "Delete tier",
+        "message": "Delete “{name}”? The catalog sync will stop recognising its “price:{key}” column.",
+        "confirm": "Delete"
+      }
+    },
+    "attributes": {
+      "list": {
+        "page": {
+          "title": "Filterable attributes",
+          "intro": "A definition makes one product attribute filterable in the shop. Its name has to match the attribute's name on the products exactly — nothing is re-entered, and a definition added today applies to products entered long ago. The counts cover live and unpublished products; deleted ones are left out."
+        },
+        "add": "Add attribute",
+        "name": "Name",
+        "namePlaceholder": "Colour",
+        "nameHint": "Spelled exactly as in the product's attribute table. The unit belongs here, not in the values: enter “30”, not “30 cm”.",
+        "type": "Type",
+        "types": {
+          "text": "Text",
+          "number": "Number"
+        },
+        "unit": "Unit",
+        "unitPlaceholder": "cm",
+        "slug": "URL key",
+        "slugPlaceholder": "from the name",
+        "slugInvalid": "Use lowercase letters, digits and hyphens, e.g. “colour”.",
+        "values": "Values: {count}",
+        "unparsed": "Values that cannot be read as a number: {count}. They stay on the product page and are left out of this filter.",
+        "noMatch": "No product carries an attribute with this name. Check the spelling against a product's attribute table.",
+        "showProducts": "Show the products carrying this attribute",
+        "showUsage": "Show the values in use",
+        "empty": "No filterable attributes yet — products show their attributes but nothing can be filtered by them.",
+        "saveError": "This attribute could not be saved. Please try again.",
+        "nameRequired": "A name is required.",
+        "deleteError": "This attribute could not be deleted. Please try again.",
+        "reorderError": "This move could not be saved. Please try again.",
+        "errors": {
+          "attribute-not-found": "This attribute no longer exists. Reload the page to see the current list.",
+          "attribute-name-taken": "Another definition already uses that name.",
+          "attribute-slug-taken": "Another definition already uses that URL key."
+        },
+        "deleteConfirm": {
+          "heading": "Delete attribute",
+          "message": "Delete “{name}”? The shop stops offering it as a filter. No product attribute is changed.",
+          "confirm": "Delete"
+        }
+      },
+      "inventory": {
+        "page": {
+          "title": "Attributes in use",
+          "intro": "Every attribute key and value the products carry, whether or not the shop filters by it. Attribute text is matched exactly, so a misspelling sits next to the correct spelling here — rename it and every product carrying it follows. Counts cover live and unpublished products; a rename also rewrites deleted ones."
+        },
+        "toDefinitions": "Filterable attributes",
+        "toDefinitionAria": "Filterable — show its definition",
+        "notFilterable": "Not filterable",
+        "values": "Values: {count}",
+        "notNumeric": "not a number",
+        "emptyValue": "(no value)",
+        "showProducts": "Show the products",
+        "renameKeyAria": "Rename this attribute",
+        "renameValueAria": "Rename this value",
+        "newTextAria": "New text",
+        "renameTitle": "Rename across the catalog",
+        "renameConfirm": "Rename “{from}” to “{to}” on every product carrying it?",
+        "mergeConfirm": "“{to}” is already in use. Renaming “{from}” merges the two — every product carrying “{from}” will carry “{to}” instead. Continue?",
+        "renameDeleted": "It also rewrites deleted products ({count}), so they carry the new text if restored.",
+        "renameError": "This rename could not be saved. Please try again.",
+        "empty": "No product carries an attribute yet."
+      }
+    },
+    "documents": {
+      "list": {
+        "page": {
+          "title": "Documents"
+        },
+        "count": "Documents: {count}",
+        "add": "Add document",
+        "searchAria": "Find a document",
+        "searchPlaceholder": "Search by title, file name or link",
+        "clearSearch": "Clear the search",
+        "titleColumn": "Title",
+        "fileColumn": "File and link",
+        "link": "Link",
+        "issuedColumn": "Issued",
+        "expiresColumn": "Expires",
+        "statusColumn": "Status",
+        "updatedColumn": "Updated",
+        "noExpiry": "No expiry",
+        "statusAll": "All statuses",
+        "statusDue": "Needs attention",
+        "statusExpiring": "Expiring",
+        "statusExpired": "Expired",
+        "statusValid": "Valid",
+        "filterStatus": "Filter by status",
+        "productsColumn": "Products",
+        "seeProducts": "Show the products this document is on",
+        "noProducts": "No product shows this document yet",
+        "empty": "No documents yet.",
+        "noResults": "No document matches this search.",
+        "loadError": "The documents could not be loaded. Please try again.",
+        "deleteError": "This document could not be deleted. Please try again.",
+        "deleteConfirm": {
+          "heading": "Delete document",
+          "message": "Delete “{name}”? The file is removed from the shop.",
+          "confirm": "Delete"
+        }
+      },
+      "editor": {
+        "newTitle": "New document",
+        "editTitle": "Edit document",
+        "title": "Title",
+        "titlePlaceholder": "Certificate of analysis",
+        "titleHint": "What this document is called wherever it is listed.",
+        "datePlaceholder": "Select a date…",
+        "file": "File",
+        "dropHint": "Drop the file here",
+        "choose": "or choose a file",
+        "replace": "Replace file",
+        "open": "Open",
+        "removeFile": "Remove the file",
+        "fileHint": "PDF or an image, up to 20 MB. The file is stored exactly as uploaded.",
+        "uploadError": "That file could not be uploaded. Use a PDF, PNG, JPEG, WebP or GIF under 20 MB.",
+        "link": "Link",
+        "linkPlaceholder": "https://",
+        "linkHint": "Where the document can be checked online, such as its entry in a public register. A document needs a file, a link, or both.",
+        "openLink": "Open the link",
+        "linkInvalid": "The link must be a full web address starting with https:// or http://.",
+        "issuedAt": "Issue date",
+        "expiresAt": "Expiry date",
+        "datesHint": "Both dates are optional. A document with no expiry date is always current.",
+        "products": {
+          "heading": "Shown on",
+          "hint": "Tick the products this document belongs to. Hold Shift while clicking to tick everything between two rows.",
+          "searchAria": "Find a product",
+          "searchPlaceholder": "Search products by name…",
+          "categoryAria": "Category",
+          "allCategories": "All categories",
+          "showAll": "Catalogue",
+          "showLinked": "Linked ({count})",
+          "more": "Showing the first {count} of {total}. Narrow the search or pick a category to reach the rest.",
+          "empty": "No product matches this search.",
+          "noneLinked": "This document is not on any product yet.",
+          "loadError": "The products could not be loaded. Please try again."
+        },
+        "titleRequired": "A title is required.",
+        "fileOrLinkRequired": "Add a file, a link, or both.",
+        "expiryBeforeIssue": "The expiry date cannot be earlier than the issue date.",
+        "saveError": "This document could not be saved. Please try again.",
+        "discardConfirm": "Discard your unsaved changes to this document?",
+        "notFound": "This document no longer exists.",
+        "errors": {
+          "document-not-found": "This document no longer exists. Reload the list to see the current documents.",
+          "document-product-not-found": "One of the products this document is on no longer exists. Reload the page and pick the products again."
+        }
       }
     }
   },
@@ -744,55 +949,6 @@
       "confirm": "Discard this run"
     }
   },
-  "tiers": {
-    "page": {
-      "title": "Customer tiers",
-      "intro": "A tier is a price list. One of them is what the storefront shows everybody — guests, staff and customers who are not on a tier; the others carry only the products they price differently. Customers are put on a tier when their account is approved."
-    },
-    "add": "Add tier",
-    "label": "Name",
-    "labelPlaceholder": "Wholesale",
-    "key": "Sync key",
-    "keyPlaceholder": "wholesale",
-    "keyHint": "The catalog file addresses this list as a “price:wholesale” column. One word — letters, digits, hyphens and underscores.",
-    "accounts": "Customers: {count}",
-    "seeAccounts": "Show the accounts on this price list",
-    "seePrices": "Show the products this tier prices",
-    "defaultHint": "Guests, staff and customers without a tier are charged this list.",
-    "defaultName": "Default ({list})",
-    "empty": "No price lists yet.",
-    "saveError": "This tier could not be saved. Please try again.",
-    "labelRequired": "A name is required.",
-    "keyInvalid": "Use letters, digits, hyphens and underscores, in one word, e.g. “wholesale”.",
-    "deleteBlocked": "“{name}” is still in use: {reason}",
-    "deleteError": "This tier could not be deleted. Please try again.",
-    "reorderError": "This move could not be saved. Please try again.",
-    "errors": {
-      "tier-not-found": "This tier no longer exists. Reload the page to see the current list.",
-      "tier-key-taken": "Another tier already uses that sync key.",
-      "tier-has-accounts": "This tier still has customer accounts on it. Move them to another tier first.",
-      "tier-has-prices": "This tier still prices some products. Clear those prices first.",
-      "tier-is-default": "This is the list the storefront shows, so it cannot be deleted. Show another list on the storefront first."
-    },
-    "defaultBadge": "Shown on the storefront",
-    "setDefault": "Show this list on the storefront",
-    "setDefaultWarning": "Products without a price in this list: {count}. They will be taken off the storefront until somebody prices them.",
-    "setDefaultNone": "Every product on the storefront has a price in this list.",
-    "setDefaultDone": "Products taken off the storefront: {count}.",
-    "setDefaultError": "The storefront's price list could not be changed. Please try again.",
-    "seeUnpriced": "Show the products this list does not price",
-    "unpriced": "{count} not priced",
-    "setDefaultConfirm": {
-      "heading": "Change the storefront's price list",
-      "message": "Show “{name}” to everybody who is not on a tier?",
-      "confirm": "Show this list on the storefront"
-    },
-    "deleteConfirm": {
-      "heading": "Delete tier",
-      "message": "Delete “{name}”? The catalog sync will stop recognising its “price:{key}” column.",
-      "confirm": "Delete"
-    }
-  },
   "apiTokens": {
     "page": {
       "title": "Machine tokens",
@@ -840,156 +996,6 @@
       "message": "Revoke “{name}”?",
       "confirm": "Revoke",
       "warning": "Whatever uses this token stops working on its next request. Revoking cannot be undone — issue a new token and reconfigure the client."
-    }
-  },
-  "attributes": {
-    "list": {
-      "page": {
-        "title": "Filterable attributes",
-        "intro": "A definition makes one product attribute filterable in the shop. Its name has to match the attribute's name on the products exactly — nothing is re-entered, and a definition added today applies to products entered long ago. The counts cover live and unpublished products; deleted ones are left out."
-      },
-      "add": "Add attribute",
-      "name": "Name",
-      "namePlaceholder": "Colour",
-      "nameHint": "Spelled exactly as in the product's attribute table. The unit belongs here, not in the values: enter “30”, not “30 cm”.",
-      "type": "Type",
-      "types": {
-        "text": "Text",
-        "number": "Number"
-      },
-      "unit": "Unit",
-      "unitPlaceholder": "cm",
-      "slug": "URL key",
-      "slugPlaceholder": "from the name",
-      "slugInvalid": "Use lowercase letters, digits and hyphens, e.g. “colour”.",
-      "values": "Values: {count}",
-      "unparsed": "Values that cannot be read as a number: {count}. They stay on the product page and are left out of this filter.",
-      "noMatch": "No product carries an attribute with this name. Check the spelling against a product's attribute table.",
-      "showProducts": "Show the products carrying this attribute",
-      "showUsage": "Show the values in use",
-      "empty": "No filterable attributes yet — products show their attributes but nothing can be filtered by them.",
-      "saveError": "This attribute could not be saved. Please try again.",
-      "nameRequired": "A name is required.",
-      "deleteError": "This attribute could not be deleted. Please try again.",
-      "reorderError": "This move could not be saved. Please try again.",
-      "errors": {
-        "attribute-not-found": "This attribute no longer exists. Reload the page to see the current list.",
-        "attribute-name-taken": "Another definition already uses that name.",
-        "attribute-slug-taken": "Another definition already uses that URL key."
-      },
-      "deleteConfirm": {
-        "heading": "Delete attribute",
-        "message": "Delete “{name}”? The shop stops offering it as a filter. No product attribute is changed.",
-        "confirm": "Delete"
-      }
-    },
-    "inventory": {
-      "page": {
-        "title": "Attributes in use",
-        "intro": "Every attribute key and value the products carry, whether or not the shop filters by it. Attribute text is matched exactly, so a misspelling sits next to the correct spelling here — rename it and every product carrying it follows. Counts cover live and unpublished products; a rename also rewrites deleted ones."
-      },
-      "toDefinitions": "Filterable attributes",
-      "toDefinitionAria": "Filterable — show its definition",
-      "notFilterable": "Not filterable",
-      "values": "Values: {count}",
-      "notNumeric": "not a number",
-      "emptyValue": "(no value)",
-      "showProducts": "Show the products",
-      "renameKeyAria": "Rename this attribute",
-      "renameValueAria": "Rename this value",
-      "newTextAria": "New text",
-      "renameTitle": "Rename across the catalog",
-      "renameConfirm": "Rename “{from}” to “{to}” on every product carrying it?",
-      "mergeConfirm": "“{to}” is already in use. Renaming “{from}” merges the two — every product carrying “{from}” will carry “{to}” instead. Continue?",
-      "renameDeleted": "It also rewrites deleted products ({count}), so they carry the new text if restored.",
-      "renameError": "This rename could not be saved. Please try again.",
-      "empty": "No product carries an attribute yet."
-    }
-  },
-  "documents": {
-    "list": {
-      "page": {
-        "title": "Documents"
-      },
-      "count": "Documents: {count}",
-      "add": "Add document",
-      "searchAria": "Find a document",
-      "searchPlaceholder": "Search by title, file name or link",
-      "clearSearch": "Clear the search",
-      "titleColumn": "Title",
-      "fileColumn": "File and link",
-      "link": "Link",
-      "issuedColumn": "Issued",
-      "expiresColumn": "Expires",
-      "statusColumn": "Status",
-      "updatedColumn": "Updated",
-      "noExpiry": "No expiry",
-      "statusAll": "All statuses",
-      "statusDue": "Needs attention",
-      "statusExpiring": "Expiring",
-      "statusExpired": "Expired",
-      "statusValid": "Valid",
-      "filterStatus": "Filter by status",
-      "productsColumn": "Products",
-      "seeProducts": "Show the products this document is on",
-      "noProducts": "No product shows this document yet",
-      "empty": "No documents yet.",
-      "noResults": "No document matches this search.",
-      "loadError": "The documents could not be loaded. Please try again.",
-      "deleteError": "This document could not be deleted. Please try again.",
-      "deleteConfirm": {
-        "heading": "Delete document",
-        "message": "Delete “{name}”? The file is removed from the shop.",
-        "confirm": "Delete"
-      }
-    },
-    "editor": {
-      "newTitle": "New document",
-      "editTitle": "Edit document",
-      "title": "Title",
-      "titlePlaceholder": "Certificate of analysis",
-      "titleHint": "What this document is called wherever it is listed.",
-      "datePlaceholder": "Select a date…",
-      "file": "File",
-      "dropHint": "Drop the file here",
-      "choose": "or choose a file",
-      "replace": "Replace file",
-      "open": "Open",
-      "removeFile": "Remove the file",
-      "fileHint": "PDF or an image, up to 20 MB. The file is stored exactly as uploaded.",
-      "uploadError": "That file could not be uploaded. Use a PDF, PNG, JPEG, WebP or GIF under 20 MB.",
-      "link": "Link",
-      "linkPlaceholder": "https://",
-      "linkHint": "Where the document can be checked online, such as its entry in a public register. A document needs a file, a link, or both.",
-      "openLink": "Open the link",
-      "linkInvalid": "The link must be a full web address starting with https:// or http://.",
-      "issuedAt": "Issue date",
-      "expiresAt": "Expiry date",
-      "datesHint": "Both dates are optional. A document with no expiry date is always current.",
-      "products": {
-        "heading": "Shown on",
-        "hint": "Tick the products this document belongs to. Hold Shift while clicking to tick everything between two rows.",
-        "searchAria": "Find a product",
-        "searchPlaceholder": "Search products by name…",
-        "categoryAria": "Category",
-        "allCategories": "All categories",
-        "showAll": "Catalogue",
-        "showLinked": "Linked ({count})",
-        "more": "Showing the first {count} of {total}. Narrow the search or pick a category to reach the rest.",
-        "empty": "No product matches this search.",
-        "noneLinked": "This document is not on any product yet.",
-        "loadError": "The products could not be loaded. Please try again."
-      },
-      "titleRequired": "A title is required.",
-      "fileOrLinkRequired": "Add a file, a link, or both.",
-      "expiryBeforeIssue": "The expiry date cannot be earlier than the issue date.",
-      "saveError": "This document could not be saved. Please try again.",
-      "discardConfirm": "Discard your unsaved changes to this document?",
-      "notFound": "This document no longer exists.",
-      "errors": {
-        "document-not-found": "This document no longer exists. Reload the list to see the current documents.",
-        "document-product-not-found": "One of the products this document is on no longer exists. Reload the page and pick the products again."
-      }
     }
   },
   "orders": {

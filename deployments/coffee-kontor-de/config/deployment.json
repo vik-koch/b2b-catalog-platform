@@ -1,5 +1,8 @@
 {
   "locale": "de-DE",
+  "currency": {
+    "code": "EUR"
+  },
   "branding": {
     "name": "Coffee Kontor",
     "tagline": "Spezialitätenkaffee für den Großhandel",
@@ -26,9 +29,6 @@
   },
   "billingAddressEnabled": true,
   "catalog": {
-    "currency": {
-      "code": "EUR"
-    },
     "boxUnits": {
       "volume": "m³",
       "weight": "kg"

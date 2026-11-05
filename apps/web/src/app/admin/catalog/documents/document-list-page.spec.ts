@@ -14,8 +14,9 @@ import { DocumentListPage } from './document-list-page';
 import { DocumentsService } from './documents.service';
 import { provideUiText } from '../../../platform/config/shared-text';
 import { provideGridText } from '../../platform/provide-grid-text';
+import { defaultAdminCatalogText } from '../catalog-text.fixture';
 
-const text = defaultAdminText.documents.list;
+const text = defaultAdminCatalogText.documents.list;
 
 const storedFile = {
   url: '/documents/aaaaaaaaaaaa.pdf',
@@ -124,7 +125,7 @@ describe('DocumentListPage', () => {
       documents: [document({ productCount: 5, unpublishedProductCount: 4 })],
     });
 
-    const label = defaultAdminText.products.unpublishedCount.replace(
+    const label = defaultAdminCatalogText.products.unpublishedCount.replace(
       '{count}',
       '4',
     );

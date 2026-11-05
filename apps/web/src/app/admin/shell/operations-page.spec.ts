@@ -26,7 +26,7 @@ const maintenanceText = defaultAdminSiteText.maintenance;
 const config = {
   locale: 'de-DE',
   branding: { name: 'Test Shop', tagline: 'Test tagline' },
-  catalog: { currency: { code: 'EUR' } },
+  currency: { code: 'EUR' },
 } as unknown as DeploymentConfig;
 
 const change = (over: Partial<SettingChange> = {}): SettingChange => ({

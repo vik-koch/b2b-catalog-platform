@@ -15,6 +15,7 @@ import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import { defaultDeploymentConfig } from '../../../platform/config/deployment-config.fixture';
 import { defaultStorefrontText } from '../../../platform/config/storefront-text.fixture';
 import { FacetPanel } from './facet-panel';
+import { defaultStorefrontCatalogText } from '../catalog-text.fixture';
 
 const value = (v: string, count = 3, selected = false): FacetValue => ({
   value: v,
@@ -83,7 +84,7 @@ async function render(facets: Facet[], startUrl = '/catalog/espresso') {
   return { router, host, boxes, click, buttonWith, fixture };
 }
 
-const text = defaultStorefrontText.catalog.filters;
+const text = defaultStorefrontCatalogText.listing.filters;
 
 describe('FacetPanel', () => {
   it('writes a ticked value to the URL and returns to the first page', async () => {

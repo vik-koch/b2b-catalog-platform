@@ -8,6 +8,7 @@ import { OwnershipArea } from '@b2b-catalog-platform/shared/platform';
 import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
 import { provideOwnership } from '../../platform/ownership/ownership.fixture';
 import { ProductRowActions, ProductRowState } from './product-row-actions';
+import { defaultAdminCatalogText } from '../catalog-text.fixture';
 
 const text = defaultAdminText.editMode;
 
@@ -162,7 +163,7 @@ describe('ProductRowActions', () => {
       expect(purgeRequested).not.toHaveBeenCalled();
       expect(tell).toHaveBeenCalledWith(
         expect.objectContaining({
-          message: defaultAdminText.catalogErrors['product-ordered'],
+          message: defaultAdminCatalogText.catalogErrors['product-ordered'],
         }),
       );
     });

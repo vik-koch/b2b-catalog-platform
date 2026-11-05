@@ -1,6 +1,7 @@
 import * as z from 'zod';
 import type { DeepReadonly } from '../deep-readonly';
 import { accountsConfigShape } from '../../core/accounts/accounts-config';
+import { CATALOG_AREA } from '../../core/catalog/catalog-area';
 import { catalogConfigShape } from '../../core/catalog/catalog-config';
 import { orderingConfigShape } from '../../core/ordering/order-config';
 import { siteConfigShape } from '../../core/site/site-config';
@@ -58,6 +59,9 @@ const platformConfigShape = {
   locale: z.string().refine(isLocale, {
     message: 'not a BCP 47 language tag, such as "de-DE"',
   }),
+  /** Prices are integer minor units; this names their one currency, as
+   * ISO 4217 ("EUR"). */
+  currency: z.object({ code: z.string() }).strict(),
   branding: z
     .object({
       name: z.string(),
@@ -144,7 +148,7 @@ export const deploymentConfigSchema = z
     mergeShapes(
       platformConfigShape,
       { [SITE_AREA]: z.object(siteConfigShape).strict() },
-      catalogConfigShape,
+      { [CATALOG_AREA]: z.object(catalogConfigShape).strict() },
       accountsConfigShape,
       orderingConfigShape,
     ),

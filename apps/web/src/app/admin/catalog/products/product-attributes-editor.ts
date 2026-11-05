@@ -52,6 +52,7 @@ import { plusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/plus';
 import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
 import { triangleAlertIcon } from '@b2b-catalog-platform/ui/icons/glyphs/triangle-alert';
 import { DragGrip } from '../ui/drag-grip';
+import { ADMIN_CATALOG_TEXT } from '../catalog-text';
 
 /**
  * The product's attributes (FR-CAT-05) as a spreadsheet: `contenteditable` on
@@ -245,7 +246,8 @@ export class ProductAttributesEditor {
   protected readonly trash2Icon = trash2Icon;
   protected readonly triangleAlertIcon = triangleAlertIcon;
   protected readonly adminText = inject(ADMIN_TEXT);
-  protected readonly text = inject(ADMIN_TEXT).products.editor.attributes;
+  protected readonly text =
+    inject(ADMIN_CATALOG_TEXT).products.editor.attributes;
   protected readonly actionText = inject(SHARED_TEXT).actions;
   /** Not `sm`: the glyphs are finger-sized below `md`, and they and two cells
    * do not fit the table in between. */

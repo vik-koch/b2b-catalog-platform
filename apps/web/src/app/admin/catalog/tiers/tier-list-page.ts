@@ -39,6 +39,7 @@ import { DragGrip } from '../ui/drag-grip';
 import { EditTarget, RecordList, SortEntry } from '../ui/record-list';
 import { SaveButton } from '../../platform/ui/save-button';
 import { CancelButton } from '../../platform/ui/cancel-button';
+import { ADMIN_CATALOG_TEXT } from '../catalog-text';
 
 /**
  * The price lists (FR-AUTH-05). A tier is two fields, so rows edit in place
@@ -298,8 +299,8 @@ export class TierListPage {
   private readonly service = inject(TiersService);
   private readonly confirm = inject(ConfirmService);
   private readonly ownership = inject(OwnershipService);
-  protected readonly text = inject(ADMIN_TEXT).tiers;
-  private readonly productsText = inject(ADMIN_TEXT).products;
+  protected readonly text = inject(ADMIN_CATALOG_TEXT).tiers;
+  private readonly productsText = inject(ADMIN_CATALOG_TEXT).products;
   protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
   protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly actionText = inject(SHARED_TEXT).actions;

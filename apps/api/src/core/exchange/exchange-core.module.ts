@@ -5,13 +5,15 @@ import { MailModule } from '../../platform/mail/mail.module';
 import {
   ACCEPTED_CUSTOMER_TYPES,
   CUSTOMER_SYNC_POLICY,
-  LOW_STOCK_THRESHOLD_PIECES,
   SYNC_POLICY,
   loadAcceptedCustomerTypes,
   loadCustomerSyncPolicy,
-  loadLowStockThresholdPieces,
   loadSyncPolicy,
 } from '../../platform/config/deployment-config';
+import {
+  LOW_STOCK_THRESHOLD_PIECES,
+  loadLowStockThresholdPieces,
+} from '../catalog/catalog-config';
 import { CatalogSyncService } from './catalog-sync.service';
 import { CustomerSyncService } from './customer-sync.service';
 import { SyncNotifications } from './sync-notifications';

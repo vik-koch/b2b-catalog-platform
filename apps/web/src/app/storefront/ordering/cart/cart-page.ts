@@ -52,6 +52,7 @@ import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
 import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
 import { SummaryLayout } from '@b2b-catalog-platform/ui/content/summary-layout';
 import { SHARED_CATALOG_TEXT } from '../../../core/catalog/catalog-text';
+import { CATALOG_CONFIG } from '../../../core/catalog/catalog-config';
 
 /** Lines per cart page (FR-CART-02): a row is a product row, and a long scroll
  * leaves the summary behind. Not in the URL: the cart is this browser's
@@ -363,7 +364,7 @@ export class CartPage {
   private readonly lastListing = inject(LastListingService);
   private readonly router = inject(Router);
   private readonly confirm = inject(ConfirmService);
-  private readonly catalogConfig = inject(DEPLOYMENT_CONFIG).catalog;
+  private readonly catalogConfig = inject(CATALOG_CONFIG);
   private readonly currency = moneyFormat(inject(DEPLOYMENT_CONFIG));
   private readonly boxUnits = this.catalogConfig.boxUnits;
 

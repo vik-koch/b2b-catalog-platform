@@ -1,5 +1,8 @@
 {
   "locale": "en-IE",
+  "currency": {
+    "code": "EUR"
+  },
   "branding": {
     "name": "Slaney Labware",
     "tagline": "Laboratory consumables",
@@ -44,9 +47,6 @@
   },
   "billingAddressEnabled": true,
   "catalog": {
-    "currency": {
-      "code": "EUR"
-    },
     "boxUnits": {
       "volume": "m³",
       "weight": "kg"

@@ -50,32 +50,25 @@ describe('unsavedChangesGuard', () => {
   });
 
   it('lets a clean editor leave without asking', async () => {
-    const guard = unsavedChangesGuard(
-      () => inject(ADMIN_TEXT).products.editor.discardConfirm,
-    );
+    const guard = unsavedChangesGuard(() => 'Discard your changes?');
 
     expect(await run(guard, { hasUnsavedChanges: () => false })).toBe(true);
     expect(asked).toBeUndefined();
   });
 
   it('asks with the wording the caller picked', async () => {
-    const guard = unsavedChangesGuard(
-      () => inject(ADMIN_TEXT).products.editor.discardConfirm,
-    );
+    const guard = unsavedChangesGuard(() => 'Discard your changes?');
 
     expect(await run(guard, { hasUnsavedChanges: () => true })).toBe(true);
-    expect(asked?.message).toBe(
-      defaultAdminText.products.editor.discardConfirm,
-    );
+    expect(asked?.message).toBe('Discard your changes?');
   });
 
-  it('asks each editor its own question', async () => {
-    const guard = unsavedChangesGuard(
-      () => inject(ADMIN_TEXT).users.editor.discardConfirm,
-    );
+  // A route injects its area's text in the guard's own injection context.
+  it('reads its wording where it can inject', async () => {
+    const guard = unsavedChangesGuard(() => inject(ADMIN_TEXT).discard.heading);
 
     await run(guard, { hasUnsavedChanges: () => true });
 
-    expect(asked?.message).toBe(defaultAdminText.users.editor.discardConfirm);
+    expect(asked?.message).toBe(defaultAdminText.discard.heading);
   });
 });

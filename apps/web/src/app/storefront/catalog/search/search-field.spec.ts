@@ -22,6 +22,7 @@ import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import { defaultDeploymentConfig } from '../../../platform/config/deployment-config.fixture';
 import { SearchField } from './search-field';
 import { defaultSharedCatalogText } from '../../../core/catalog/catalog-text.fixture';
+import { defaultStorefrontCatalogText } from '../catalog-text.fixture';
 
 type Suggestion = ProductListItem;
 
@@ -451,7 +452,9 @@ describe('SearchField suggestions (FR-SEARCH-05/06)', () => {
     await typeQuery(fixture, el, 'espresso');
 
     const showAll = Array.from(el.querySelectorAll('button')).find((b) =>
-      b.textContent?.includes(defaultStorefrontText.search.showAllResults),
+      b.textContent?.includes(
+        defaultStorefrontCatalogText.search.showAllResults,
+      ),
     );
     showAll?.click();
 
@@ -724,7 +727,7 @@ describe('SearchField suggestions (FR-SEARCH-05/06)', () => {
 
     expect(options(el)).toHaveLength(0);
     expect(el.textContent).toContain(
-      defaultStorefrontText.search.noSuggestions,
+      defaultStorefrontCatalogText.search.noSuggestions,
     );
     expect(
       (el.querySelector('input') as HTMLInputElement).getAttribute(
@@ -765,7 +768,7 @@ describe('SearchField suggestions (FR-SEARCH-05/06)', () => {
     fixture.detectChanges();
 
     expect(el.textContent).not.toContain(
-      defaultStorefrontText.search.noSuggestions,
+      defaultStorefrontCatalogText.search.noSuggestions,
     );
     expect(
       (el.querySelector('input') as HTMLInputElement).getAttribute(
@@ -782,7 +785,7 @@ describe('SearchField suggestions (FR-SEARCH-05/06)', () => {
     suggestions = [];
     await typeQuery(fixture, el, 'zzz');
     expect(el.textContent).toContain(
-      defaultStorefrontText.search.noSuggestions,
+      defaultStorefrontCatalogText.search.noSuggestions,
     );
 
     holdNext = true;

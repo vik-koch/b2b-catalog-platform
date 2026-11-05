@@ -12,6 +12,7 @@ import {
 import { STOREFRONT_TEXT } from '../../../../platform/config/storefront-text';
 import { defaultStorefrontText } from '../../../../platform/config/storefront-text.fixture';
 import { FacetFilters, FacetValueToggle } from './facet-filters';
+import { defaultStorefrontCatalogText } from '../../catalog-text.fixture';
 
 const value = (v: string, count = 3, selected = false): FacetValue => ({
   value: v,
@@ -82,7 +83,7 @@ async function render(facets: Facet[]) {
   return { fixture, host, boxes, buttonWith, panelContent };
 }
 
-const text = defaultStorefrontText.catalog.filters;
+const text = defaultStorefrontCatalogText.listing.filters;
 
 describe('FacetFilters', () => {
   it('reports the value ticked, and the facet it belongs to', async () => {

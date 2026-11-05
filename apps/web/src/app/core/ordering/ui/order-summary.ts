@@ -13,6 +13,7 @@ import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import { WarningNote } from '@b2b-catalog-platform/ui/content/warning-note';
 import { Card } from '@b2b-catalog-platform/ui/content/card';
+import { CATALOG_CONFIG } from '../../catalog/catalog-config';
 
 /**
  * What the order comes to: the same card on the cart, checkout and the order
@@ -73,7 +74,7 @@ import { Card } from '@b2b-catalog-platform/ui/content/card';
   `,
 })
 export class OrderSummary {
-  private readonly boxUnits = inject(DEPLOYMENT_CONFIG).catalog.boxUnits;
+  private readonly boxUnits = inject(CATALOG_CONFIG).boxUnits;
   private readonly currency = moneyFormat(inject(DEPLOYMENT_CONFIG));
 
   protected readonly text = inject(STOREFRONT_TEXT).cart;

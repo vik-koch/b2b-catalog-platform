@@ -1,6 +1,5 @@
 import { Component, inject, input } from '@angular/core';
 import { ProductFeature } from '@b2b-catalog-platform/shared/admin/catalog';
-import { ADMIN_TEXT } from '../../../platform/config/admin-text';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Glyph } from '@b2b-catalog-platform/ui/icons/glyph';
 import { fileTextIcon } from '@b2b-catalog-platform/ui/icons/glyphs/file-text';
@@ -9,6 +8,7 @@ import { messageCircleIcon } from '@b2b-catalog-platform/ui/icons/glyphs/message
 import { packagePlusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/package-plus';
 import { paletteIcon } from '@b2b-catalog-platform/ui/icons/glyphs/palette';
 import { starIcon } from '@b2b-catalog-platform/ui/icons/glyphs/star';
+import { ADMIN_CATALOG_TEXT } from '../catalog-text';
 
 /** One glyph per thing a product can carry (FR-ADM-20), the same in the grid,
  * its chips and the editor. Variants, sets and pairings use the storefront's. */
@@ -40,7 +40,7 @@ export const PRODUCT_FEATURE_GLYPHS: Record<ProductFeature, Glyph> = {
   `,
 })
 export class ProductFeatureGlyphs {
-  protected readonly text = inject(ADMIN_TEXT).products.list.has;
+  protected readonly text = inject(ADMIN_CATALOG_TEXT).products.list.has;
   protected readonly glyphs = PRODUCT_FEATURE_GLYPHS;
 
   readonly features = input.required<readonly ProductFeature[]>();

@@ -19,8 +19,8 @@ import { DisclosureFrame } from '@b2b-catalog-platform/ui/disclosure/disclosure-
 import { disclosureState } from '@b2b-catalog-platform/ui/disclosure/disclosure-state';
 import { DisclosureToggle } from '@b2b-catalog-platform/ui/disclosure/disclosure-toggle';
 import { ShowMoreList } from '@b2b-catalog-platform/ui/disclosure/show-more-list';
-import { STOREFRONT_TEXT } from '../../../../platform/config/storefront-text';
 import { SectionTitle } from '@b2b-catalog-platform/ui/content/section-title';
+import { STOREFRONT_CATALOG_TEXT } from '../../catalog-text';
 
 const VALUES_COLLAPSED = 8;
 
@@ -169,7 +169,7 @@ export interface FacetValueToggle {
   `,
 })
 export class FacetFilters {
-  protected readonly text = inject(STOREFRONT_TEXT).catalog.filters;
+  protected readonly text = inject(STOREFRONT_CATALOG_TEXT).listing.filters;
   protected readonly VALUES_COLLAPSED = VALUES_COLLAPSED;
   /** A constant, so server and browser agree: a listing has one panel. */
   protected readonly panelId = 'facet-panel';

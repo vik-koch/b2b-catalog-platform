@@ -27,6 +27,7 @@ import { orderChanges } from './order-changes';
 import { AdminOrdersService } from './orders.service';
 import { revisionKindLabel } from './revision-labels';
 import { staffBlockLabels } from './staff-block-labels';
+import { CATALOG_CONFIG } from '../../core/catalog/catalog-config';
 
 /**
  * Every version of an order, newest first (FR-ORD-03), with its note and its
@@ -152,6 +153,7 @@ import { staffBlockLabels } from './staff-block-labels';
 export class OrderVersionHistory {
   private readonly api = inject(AdminOrdersService);
   private readonly config = inject(DEPLOYMENT_CONFIG);
+  private readonly catalogConfig = inject(CATALOG_CONFIG);
   private readonly currency = moneyFormat(this.config);
   private readonly adminText = inject(ADMIN_TEXT);
   private readonly ordersText = this.adminText.orders;
@@ -257,7 +259,7 @@ export class OrderVersionHistory {
         phoneInput: this.config.phoneInput,
         locale: this.config.locale,
         currency: this.currency,
-        boxUnits: this.config.catalog.boxUnits,
+        boxUnits: this.catalogConfig.boxUnits,
       },
     );
   }

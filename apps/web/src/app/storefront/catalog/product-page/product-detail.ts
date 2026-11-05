@@ -16,7 +16,6 @@ import {
 } from '../../../core/catalog/product-page/ui/product-detail-view';
 import { AuthService } from '../../../platform/auth/auth.service';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
-import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
 import { usePageSeo } from '../../../platform/page-seo';
 import { EditActions } from '../../../platform/edit-mode/edit-actions';
 import { editAwareContent } from '../../../platform/edit-mode/edit-aware-content';
@@ -25,6 +24,7 @@ import { LoadErrorView } from '../../platform/load-error-view';
 import { NotFoundView } from '../../platform/not-found-view';
 import { CatalogService } from '../catalog.service';
 import { hiddenProductText } from './hidden-product-text';
+import { STOREFRONT_CATALOG_TEXT } from '../catalog-text';
 
 /**
  * The product page (FR-CAT-05). An admin also gets a product the public cannot
@@ -83,15 +83,15 @@ import { hiddenProductText } from './hidden-product-text';
                 @if (statusText(); as status) {
                   @if (hidden.deleted) {
                     <span uiStatusBadge tone="danger">{{
-                      status.deleted
+                      status.deletedBadge
                     }}</span>
                   } @else {
                     <span uiStatusBadge tone="waiting">{{
-                      status.unpublished
+                      status.unpublishedBadge
                     }}</span>
                     @if (hidden.unpriced) {
                       <span uiStatusBadge tone="danger">{{
-                        status.unpriced
+                        status.unpricedBadge
                       }}</span>
                     }
                   }
@@ -137,7 +137,7 @@ export class ProductDetail {
   private readonly adminCatalog = inject(EDIT_MODE_CATALOG);
   private readonly confirm = inject(ConfirmService);
   private readonly auth = inject(AuthService);
-  protected readonly text = inject(STOREFRONT_TEXT).catalog;
+  protected readonly text = inject(STOREFRONT_CATALOG_TEXT).listing;
   protected readonly actionText = inject(SHARED_TEXT).actions;
   protected readonly columns = PRODUCT_PAGE_COLUMNS;
   protected readonly sectionCell = PRODUCT_PAGE_SECTION_CELL;

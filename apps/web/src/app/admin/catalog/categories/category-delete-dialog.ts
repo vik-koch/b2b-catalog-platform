@@ -26,6 +26,7 @@ import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
 import { DialogTitle } from '@b2b-catalog-platform/ui/overlay/dialog-title';
+import { ADMIN_CATALOG_TEXT } from '../catalog-text';
 
 /**
  * Every category delete (FR-ADM-01), from the storefront grid as well as the
@@ -120,7 +121,8 @@ export class CategoryDeleteDialog {
   protected readonly trash2Icon = trash2Icon;
   private readonly service = inject(CategoriesService);
   protected readonly adminText = inject(ADMIN_TEXT);
-  protected readonly text = inject(ADMIN_TEXT).categories.list;
+  private readonly adminCatalogText = inject(ADMIN_CATALOG_TEXT);
+  protected readonly text = inject(ADMIN_CATALOG_TEXT).categories.list;
   protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
   protected readonly actionText = inject(SHARED_TEXT).actions;
 
@@ -224,7 +226,7 @@ export class CategoryDeleteDialog {
       this.error.set(
         result.code === 'catalog-externally-owned'
           ? this.adminText.ownership.fieldLocked
-          : this.adminText.catalogErrors[result.code],
+          : this.adminCatalogText.catalogErrors[result.code],
       );
     } catch {
       this.error.set(this.text.deleteError);

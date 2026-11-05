@@ -2,7 +2,67 @@
   "home": {
     "eyebrow": "Hamburg · Speicherstadt",
     "intro": "Stöbern Sie unten nach Kategorien oder öffnen Sie den ganzen Katalog.",
-    "categoriesHeading": "Nach Kategorie stöbern",
+    "categoriesHeading": "Nach Kategorie stöbern"
+  },
+  "catalog": {
+    "listing": {
+      "emptyCategories": "Unser Katalog wird gerade eingerichtet – bitte schauen Sie bald wieder vorbei.",
+      "loadError": "Beim Laden des Katalogs ist etwas schiefgegangen – bitte versuchen Sie es später noch einmal.",
+      "emptyProducts": "In dieser Kategorie gibt es noch keine Produkte.",
+      "productCount": "Produkte: {count}",
+      "layout": {
+        "labelAria": "Ansicht",
+        "grid": "Als Kacheln anzeigen",
+        "list": "Als Liste anzeigen"
+      },
+      "sort": {
+        "label": "Sortieren nach",
+        "relevance": "Beste Treffer",
+        "category": "Nach Kategorie",
+        "name": "Name (A–Z)",
+        "name_desc": "Name (Z–A)",
+        "price": "Preis (aufsteigend)",
+        "price_desc": "Preis (absteigend)",
+        "fields": {
+          "relevance": "Beste Treffer",
+          "category": "Kategorie",
+          "name": "Name",
+          "price": "Preis"
+        }
+      },
+      "filters": {
+        "title": "Filter",
+        "selected": "({count})",
+        "clearAll": "Alle Filter zurücksetzen",
+        "appliedAria": "Aktive Filter",
+        "removeAria": "Filter {label} entfernen",
+        "noMatches": "Kein Produkt passt zu den gewählten Filtern."
+      },
+      "productNotFound": "Dieses Produkt wurde nicht gefunden. Vielleicht wurde es entfernt.",
+      "categoryNotFound": "Diese Kategorie wurde nicht gefunden. Vielleicht wurde sie entfernt.",
+      "backToCatalog": "Zurück zum Katalog"
+    },
+    "search": {
+      "placeholder": "Produkte suchen",
+      "submit": "Suchen",
+      "openSearch": "Suche öffnen",
+      "closeSearchAria": "Suche schließen",
+      "clearAria": "Suche leeren",
+      "searchNavAria": "Produktsuche",
+      "suggestionsAria": "Produktvorschläge",
+      "suggestionCountAria": "Vorschläge verfügbar: {count}. Mit den Pfeiltasten gehen Sie sie durch.",
+      "noSuggestions": "Nichts gefunden",
+      "categoriesLabel": "Passende Kategorien",
+      "showAllResults": "Alle Ergebnisse anzeigen",
+      "addSuggestionAria": "{name} in den Warenkorb legen",
+      "suggestionInCartAria": "{name} liegt in Ihrem Warenkorb",
+      "resultsTitle": "Ergebnisse für „{query}“",
+      "resultCount": "Gefundene Produkte: {count}",
+      "noResults": "Keine Treffer für „{query}“.",
+      "noResultsHint": "Prüfen Sie die Schreibweise oder versuchen Sie es mit weniger Wörtern.",
+      "emptyQuery": "Geben Sie einen Produktnamen ein, um den Katalog zu durchsuchen.",
+      "loadError": "Bei der Suche ist etwas schiefgegangen – bitte versuchen Sie es später noch einmal."
+    },
     "featured": {
       "heading": "Aus unserem Sortiment",
       "previousAria": "Vorherige Produkte",
@@ -19,43 +79,6 @@
     "legalNav": "Rechtliches",
     "consentBanner": "Cookie-Einwilligung",
     "scrollToTop": "Nach oben"
-  },
-  "catalog": {
-    "emptyCategories": "Unser Katalog wird gerade eingerichtet – bitte schauen Sie bald wieder vorbei.",
-    "loadError": "Beim Laden des Katalogs ist etwas schiefgegangen – bitte versuchen Sie es später noch einmal.",
-    "emptyProducts": "In dieser Kategorie gibt es noch keine Produkte.",
-    "productCount": "Produkte: {count}",
-    "layout": {
-      "labelAria": "Ansicht",
-      "grid": "Als Kacheln anzeigen",
-      "list": "Als Liste anzeigen"
-    },
-    "sort": {
-      "label": "Sortieren nach",
-      "relevance": "Beste Treffer",
-      "category": "Nach Kategorie",
-      "name": "Name (A–Z)",
-      "name_desc": "Name (Z–A)",
-      "price": "Preis (aufsteigend)",
-      "price_desc": "Preis (absteigend)",
-      "fields": {
-        "relevance": "Beste Treffer",
-        "category": "Kategorie",
-        "name": "Name",
-        "price": "Preis"
-      }
-    },
-    "filters": {
-      "title": "Filter",
-      "selected": "({count})",
-      "clearAll": "Alle Filter zurücksetzen",
-      "appliedAria": "Aktive Filter",
-      "removeAria": "Filter {label} entfernen",
-      "noMatches": "Kein Produkt passt zu den gewählten Filtern."
-    },
-    "productNotFound": "Dieses Produkt wurde nicht gefunden. Vielleicht wurde es entfernt.",
-    "categoryNotFound": "Diese Kategorie wurde nicht gefunden. Vielleicht wurde sie entfernt.",
-    "backToCatalog": "Zurück zum Katalog"
   },
   "cart": {
     "navLabel": "Warenkorb",
@@ -258,27 +281,6 @@
       "notFound": "Dieser Link öffnet keine Bestellung. Vielleicht ist er falsch eingegeben, oder die Bestellung wurde entfernt.",
       "home": "Zurück zum Shop"
     }
-  },
-  "search": {
-    "placeholder": "Produkte suchen",
-    "submit": "Suchen",
-    "openSearch": "Suche öffnen",
-    "closeSearchAria": "Suche schließen",
-    "clearAria": "Suche leeren",
-    "searchNavAria": "Produktsuche",
-    "suggestionsAria": "Produktvorschläge",
-    "suggestionCountAria": "Vorschläge verfügbar: {count}. Mit den Pfeiltasten gehen Sie sie durch.",
-    "noSuggestions": "Nichts gefunden",
-    "categoriesLabel": "Passende Kategorien",
-    "showAllResults": "Alle Ergebnisse anzeigen",
-    "addSuggestionAria": "{name} in den Warenkorb legen",
-    "suggestionInCartAria": "{name} liegt in Ihrem Warenkorb",
-    "resultsTitle": "Ergebnisse für „{query}“",
-    "resultCount": "Gefundene Produkte: {count}",
-    "noResults": "Keine Treffer für „{query}“.",
-    "noResultsHint": "Prüfen Sie die Schreibweise oder versuchen Sie es mit weniger Wörtern.",
-    "emptyQuery": "Geben Sie einen Produktnamen ein, um den Katalog zu durchsuchen.",
-    "loadError": "Bei der Suche ist etwas schiefgegangen – bitte versuchen Sie es später noch einmal."
   },
   "auth": {
     "login": "Anmelden",

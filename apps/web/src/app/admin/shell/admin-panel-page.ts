@@ -38,6 +38,7 @@ import { packageIcon } from '@b2b-catalog-platform/ui/icons/glyphs/package';
 import { usersIcon } from '@b2b-catalog-platform/ui/icons/glyphs/users';
 import { wrenchIcon } from '@b2b-catalog-platform/ui/icons/glyphs/wrench';
 import { SITE_CONFIG } from '../../core/site/site-config';
+import { ADMIN_CATALOG_TEXT } from '../catalog/catalog-text';
 
 /**
  * The staff's first screen: orders and accounts, then what changes the shop's
@@ -361,12 +362,13 @@ export class AdminPanelPage {
   protected readonly title = computed(() =>
     this.isAdmin() ? this.panelText.adminPanel : this.panelText.staffArea,
   );
-  protected readonly productText = inject(ADMIN_TEXT).products.list;
-  protected readonly categoryText = inject(ADMIN_TEXT).categories.list;
-  protected readonly documentText = inject(ADMIN_TEXT).documents.list;
-  protected readonly attributeText = inject(ADMIN_TEXT).attributes.list;
-  protected readonly inventoryText = inject(ADMIN_TEXT).attributes.inventory;
-  protected readonly tierText = inject(ADMIN_TEXT).tiers;
+  protected readonly productText = inject(ADMIN_CATALOG_TEXT).products.list;
+  protected readonly categoryText = inject(ADMIN_CATALOG_TEXT).categories.list;
+  protected readonly documentText = inject(ADMIN_CATALOG_TEXT).documents.list;
+  protected readonly attributeText = inject(ADMIN_CATALOG_TEXT).attributes.list;
+  protected readonly inventoryText =
+    inject(ADMIN_CATALOG_TEXT).attributes.inventory;
+  protected readonly tierText = inject(ADMIN_CATALOG_TEXT).tiers;
   protected readonly apiTokenText = inject(ADMIN_TEXT).apiTokens;
   protected readonly operationsText = inject(ADMIN_TEXT).operations;
   protected readonly userText = inject(ADMIN_TEXT).users.list;

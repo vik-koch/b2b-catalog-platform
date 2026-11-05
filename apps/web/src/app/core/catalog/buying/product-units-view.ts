@@ -17,6 +17,7 @@ import {
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import { formatStoredDecimal, formatUnitQuantity } from './quantity';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { CATALOG_CONFIG } from '../catalog-config';
 import { SHARED_CATALOG_TEXT } from '../catalog-text';
 
 export interface UnitPriceRow {
@@ -46,7 +47,7 @@ export function useProductUnits() {
   const units = catalogText.units;
   const packing = catalogText.packaging;
   const deployment = inject(DEPLOYMENT_CONFIG);
-  const config = deployment.catalog;
+  const config = inject(CATALOG_CONFIG);
   const currency = moneyFormat(deployment);
 
   const perUnit = (unit: string) => fillText(text.perUnit, { unit });

@@ -51,7 +51,7 @@ sample content; a real shop starts empty and is filled in the admin panel or by 
 <!-- prettier-ignore -->
 | Decision | Setting | File |
 | --- | --- | --- |
-| The language and the formats of dates, numbers and money | `locale`, `catalog.currency` | `deployment.json` |
+| The language and the formats of dates, numbers and money | `locale`, `currency` | `deployment.json` |
 | Who the shop sells to: companies, private persons or both | `customerTypes` | `deployment.json` |
 | Whether prices include tax, exclude it or carry none; the default rate | `tax` | `deployment.json` |
 | Pickup points, delivery zones and their free-delivery thresholds | `pickup`, `delivery` | `deployment.json` |

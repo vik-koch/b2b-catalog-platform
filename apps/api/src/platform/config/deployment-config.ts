@@ -6,7 +6,6 @@ import {
   DeliveryConfig,
   OrderReferenceConfig,
 } from '@b2b-catalog-platform/shared/core/ordering';
-import { DEFAULT_LOW_STOCK_THRESHOLD_PIECES } from '@b2b-catalog-platform/shared/core/catalog';
 import {
   companyIdMatchesAny,
   KeyboardLayout,
@@ -41,7 +40,7 @@ import {
 type ApiDeploymentConfig = z.infer<typeof deploymentConfigSchema>;
 
 /** An area's block is read through the area's own loader. */
-type UnclaimedDeploymentConfig = Omit<ApiDeploymentConfig, 'site'>;
+type UnclaimedDeploymentConfig = Omit<ApiDeploymentConfig, 'site' | 'catalog'>;
 
 let cached: ApiDeploymentConfig | undefined;
 function loadWhole(): ApiDeploymentConfig {
@@ -213,7 +212,7 @@ export function loadOrderReferenceConfig(): OrderReferenceConfig {
 export const ORDER_CURRENCY = 'ORDER_CURRENCY';
 
 export function loadOrderCurrency(): string {
-  return loadApiDeploymentConfig().catalog.currency.code;
+  return loadApiDeploymentConfig().currency.code;
 }
 
 /** The currency in the deployment's locale, for the order mails and PDF. */
@@ -221,23 +220,6 @@ export const MONEY_FORMAT = 'MONEY_FORMAT';
 
 export function loadMoneyFormat(): MoneyFormat {
   return moneyFormat(loadApiDeploymentConfig());
-}
-
-/** The deployment-wide "few left" figure, defaulted. */
-export const LOW_STOCK_THRESHOLD_PIECES = 'LOW_STOCK_THRESHOLD_PIECES';
-
-export function loadLowStockThresholdPieces(): number {
-  return (
-    loadApiDeploymentConfig().catalog.lowStockThresholdPieces ??
-    DEFAULT_LOW_STOCK_THRESHOLD_PIECES
-  );
-}
-
-/** Whether an unsatisfied pairing refuses the order (FR-SET-04). */
-export const PAIRINGS_ENFORCED = 'PAIRINGS_ENFORCED';
-
-export function loadPairingsEnforced(): boolean {
-  return loadApiDeploymentConfig().catalog.pairingsEnforced;
 }
 
 /** The ceilings an automated catalog run is judged against. */

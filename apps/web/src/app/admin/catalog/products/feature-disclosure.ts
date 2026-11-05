@@ -1,7 +1,7 @@
 import { Component, inject, input, OnInit, signal } from '@angular/core';
 import { Glyph } from '@b2b-catalog-platform/ui/icons/glyph';
-import { ADMIN_TEXT } from '../../../platform/config/admin-text';
 import { SubEditorFrame } from '../ui/sub-editor-frame';
+import { ADMIN_CATALOG_TEXT } from '../catalog-text';
 
 /** A switched feature's box (FR-ADM-20). Open on load where it is on; the lid
  * says "on" where the list-shaped boxes give a count. */
@@ -22,7 +22,7 @@ import { SubEditorFrame } from '../ui/sub-editor-frame';
   `,
 })
 export class FeatureDisclosure implements OnInit {
-  protected readonly text = inject(ADMIN_TEXT).products.editor;
+  protected readonly text = inject(ADMIN_CATALOG_TEXT).products.editor;
 
   readonly label = input.required<string>();
   readonly glyph = input.required<Glyph>();

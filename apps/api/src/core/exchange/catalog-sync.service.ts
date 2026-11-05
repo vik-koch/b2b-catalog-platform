@@ -48,10 +48,8 @@ import {
 } from './sync-run';
 import { SyncRunLog, toSyncRun } from './sync-run-log';
 import { SyncNotifications } from './sync-notifications';
-import {
-  LOW_STOCK_THRESHOLD_PIECES,
-  SYNC_POLICY,
-} from '../../platform/config/deployment-config';
+import { SYNC_POLICY } from '../../platform/config/deployment-config';
+import { LOW_STOCK_THRESHOLD_PIECES } from '../catalog/catalog-config';
 
 /** Skipped rows count as something: an unreadable file is not a quiet
  * night. */

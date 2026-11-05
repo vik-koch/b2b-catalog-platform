@@ -3,7 +3,7 @@ import { DeploymentConfig } from '@b2b-catalog-platform/shared/platform';
 import { readShellState } from './shell-state';
 
 /** An area's block is read through the area's own token. */
-type UnclaimedDeploymentConfig = Omit<DeploymentConfig, 'site'>;
+type UnclaimedDeploymentConfig = Omit<DeploymentConfig, 'site' | 'catalog'>;
 
 export const DEPLOYMENT_CONFIG = new InjectionToken<UnclaimedDeploymentConfig>(
   'DEPLOYMENT_CONFIG',

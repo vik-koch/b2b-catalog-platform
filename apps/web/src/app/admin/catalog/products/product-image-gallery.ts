@@ -33,6 +33,7 @@ import { cropIcon } from '@b2b-catalog-platform/ui/icons/glyphs/crop';
 import { gripVerticalIcon } from '@b2b-catalog-platform/ui/icons/glyphs/grip-vertical';
 import { imagePlusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/image-plus';
 import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
+import { ADMIN_CATALOG_TEXT } from '../catalog-text';
 
 /**
  * The product's pictures in display order (FR-CAT-04/05). One new picture
@@ -194,7 +195,7 @@ export class ProductImageGallery {
   protected readonly trash2Icon = trash2Icon;
   private readonly uploads = inject(CatalogUploadsService);
   private readonly framer = inject(ImageFramerService);
-  protected readonly text = inject(ADMIN_TEXT).products.editor.images;
+  protected readonly text = inject(ADMIN_CATALOG_TEXT).products.editor.images;
   protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly actionText = inject(SHARED_TEXT).actions;
   protected readonly accept = ACCEPTED_IMAGE_MIME_TYPES.join(',');

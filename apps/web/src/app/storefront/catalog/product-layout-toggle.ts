@@ -4,8 +4,8 @@ import { SegmentGroup } from '@b2b-catalog-platform/ui/choices/segment-group';
 import { layoutGridIcon } from '@b2b-catalog-platform/ui/icons/glyphs/layout-grid';
 import { layoutListIcon } from '@b2b-catalog-platform/ui/icons/glyphs/layout-list';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
-import { STOREFRONT_TEXT } from '../../platform/config/storefront-text';
 import { ProductLayoutService } from './product-layout';
+import { STOREFRONT_CATALOG_TEXT } from './catalog-text';
 
 /** Cards or lines (FR-CAT-06), on the neutral pill the sort beside it uses:
  * both arrange the listing rather than decide anything. Glyphs only; the
@@ -44,7 +44,7 @@ import { ProductLayoutService } from './product-layout';
 })
 export class ProductLayoutToggle {
   protected readonly layout = inject(ProductLayoutService);
-  protected readonly text = inject(STOREFRONT_TEXT).catalog.layout;
+  protected readonly text = inject(STOREFRONT_CATALOG_TEXT).listing.layout;
   protected readonly chosen = this.layout.layout;
   protected readonly options = [
     { layout: 'grid', glyph: layoutGridIcon, label: this.text.grid },

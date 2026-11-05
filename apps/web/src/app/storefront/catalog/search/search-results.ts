@@ -4,7 +4,6 @@ import { Params, RouterLink } from '@angular/router';
 import { fillText } from '@b2b-catalog-platform/shared/platform';
 import { SEARCH_SORTS } from '@b2b-catalog-platform/shared/core/catalog';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
-import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
 import { usePageSeo } from '../../../platform/page-seo';
 import { stableValue } from '../../../platform/stable-value';
 import { editAwareContent } from '../../../platform/edit-mode/edit-aware-content';
@@ -26,6 +25,7 @@ import { ProductLayoutToggle } from '../product-layout-toggle';
 import { PRODUCT_GRID } from '../ui/product-tile';
 import { ProductListing } from '../ui/product-listing';
 import { CatalogSearchService } from './catalog-search.service';
+import { STOREFRONT_CATALOG_TEXT } from '../catalog-text';
 
 /** Search results (FR-SEARCH-01…04): the category listing's cards and lines,
  * in relevance order, without the category chrome. */
@@ -160,8 +160,8 @@ export class SearchResults {
 
   private readonly search = inject(CatalogSearchService);
 
-  protected readonly text = inject(STOREFRONT_TEXT).search;
-  protected readonly catalogText = inject(STOREFRONT_TEXT).catalog;
+  protected readonly text = inject(STOREFRONT_CATALOG_TEXT).search;
+  protected readonly catalogText = inject(STOREFRONT_CATALOG_TEXT).listing;
   protected readonly filterText = this.catalogText.filters;
   protected readonly skeletons = Array.from({ length: 10 }, (_, i) => i);
 

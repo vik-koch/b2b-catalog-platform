@@ -16,8 +16,9 @@ import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service
 import { provideOwnership } from '../../platform/ownership/ownership.fixture';
 import { TierListPage } from './tier-list-page';
 import { TiersService } from './tiers.service';
+import { defaultAdminCatalogText } from '../catalog-text.fixture';
 
-const text = defaultAdminText.tiers;
+const text = defaultAdminCatalogText.tiers;
 
 function tier(overrides: Partial<CustomerTier> = {}): CustomerTier {
   return {
@@ -358,7 +359,7 @@ describe('TierListPage', () => {
     const alert = el.querySelector('[role="alert"]');
     expect(alert?.textContent).toContain(fillText(text.accounts, { count: 3 }));
     expect(alert?.textContent).toContain(
-      fillText(defaultAdminText.products.count, { count: 12 }),
+      fillText(defaultAdminCatalogText.products.count, { count: 12 }),
     );
   });
 

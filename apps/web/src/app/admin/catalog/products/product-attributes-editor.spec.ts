@@ -11,6 +11,7 @@ import {
 import { ADMIN_TEXT } from '../../../platform/config/admin-text';
 import { defaultAdminText } from '../../../platform/config/admin-text.fixture';
 import { ProductAttributesEditor } from './product-attributes-editor';
+import { defaultAdminCatalogText } from '../catalog-text.fixture';
 
 /**
  * The grid is one `contenteditable` region, so these drive it the way a browser
@@ -363,7 +364,7 @@ describe('ProductAttributesEditor grid', () => {
   });
 });
 
-const text = defaultAdminText.products.editor.attributes;
+const text = defaultAdminCatalogText.products.editor.attributes;
 
 const known = (key: string, productCount = 3): AttributeKeyUsage => ({
   key,

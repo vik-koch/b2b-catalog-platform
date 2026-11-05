@@ -54,6 +54,7 @@ import {
   fillText,
 } from '@b2b-catalog-platform/shared/platform';
 import { SITE_CONFIG } from '../../../core/site/site-config';
+import { ADMIN_CATALOG_TEXT } from '../../catalog/catalog-text';
 
 /**
  * One account, read rather than edited: the customer's own page seen from the
@@ -237,6 +238,7 @@ export class UserDetailPage {
   protected readonly editorText = inject(ADMIN_TEXT).users.editor;
   private readonly sharedText = inject(SHARED_TEXT);
   private readonly adminText = inject(ADMIN_TEXT);
+  private readonly adminCatalogText = inject(ADMIN_CATALOG_TEXT);
   protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
   private readonly actionText = inject(SHARED_TEXT).actions;
 
@@ -518,7 +520,7 @@ export class UserDetailPage {
     const tiers = this.tierList.value();
     return tierId
       ? (tiers?.find((t) => t.id === tierId)?.label ?? '—')
-      : baseTierName(this.adminText.tiers.defaultName, tiers);
+      : baseTierName(this.adminCatalogText.tiers.defaultName, tiers);
   }
 
   private roleLabel(role: StaffUser['role']): string {

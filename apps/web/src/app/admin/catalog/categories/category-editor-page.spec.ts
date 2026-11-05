@@ -14,8 +14,9 @@ import { CatalogUploadsService } from '../uploads/catalog-uploads.service';
 import { provideOwnership } from '../../platform/ownership/ownership.fixture';
 import { CategoriesService } from './categories.service';
 import { CategoryEditorPage } from './category-editor-page';
+import { defaultAdminCatalogText } from '../catalog-text.fixture';
 
-const text = defaultAdminText.categories.editor;
+const text = defaultAdminCatalogText.categories.editor;
 
 async function render(slug?: string) {
   let finish: (value: unknown) => void = () => undefined;

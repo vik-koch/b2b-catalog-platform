@@ -18,8 +18,7 @@ import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
 import { EDIT_MODE_CATALOG } from '../../../core/catalog/edit-mode-catalog';
 import { PricePipe } from '../../../core/catalog/pricing/price.pipe';
-// eslint-disable-next-line no-restricted-imports -- until the texts are cut by area: edit mode is staff reading a storefront page
-import { ADMIN_TEXT } from '../../../platform/config/admin-text';
+import { EDIT_MODE_TEXT } from '../../../platform/edit-mode/edit-mode-text';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { injectEditorReturnParams } from '../../../platform/edit-mode/editor-return';
 import {
@@ -66,11 +65,11 @@ import {
                   <div [class]="body">
                     <p class="mb-1 flex flex-wrap gap-1">
                       <span uiStatusBadge tone="waiting">{{
-                        productStates.unpublished
+                        text.unpublishedBadge
                       }}</span>
                       @if (item.prices === null) {
                         <span uiStatusBadge tone="danger">{{
-                          productStates.unpriced
+                          text.unpricedBadge
                         }}</span>
                       }
                     </p>
@@ -136,9 +135,7 @@ export class HiddenProductsSection {
   private readonly catalog = inject(EDIT_MODE_CATALOG);
   private readonly confirm = inject(ConfirmService);
   protected readonly editorFrom = injectEditorReturnParams();
-  private readonly adminText = inject(ADMIN_TEXT);
-  protected readonly text = this.adminText.editMode;
-  protected readonly productStates = this.adminText.products;
+  protected readonly text = inject(EDIT_MODE_TEXT);
   protected readonly actionText = inject(SHARED_TEXT).actions;
 
   readonly categorySlug = input.required<string>();
@@ -189,7 +186,7 @@ export class HiddenProductsSection {
     if (this.cannotPublish(item)) {
       await this.confirm.tell({
         heading: this.text.unpricedTitle,
-        message: this.adminText.catalogErrors['product-has-no-price'],
+        message: this.text.unpricedMessage,
         closeLabel: this.actionText.close,
       });
       return;

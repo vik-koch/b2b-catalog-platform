@@ -7,8 +7,9 @@ import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
 import { AttributeRowMarks } from './attribute-hints';
 import { ProductAttributesNarrow } from './product-attributes-narrow';
+import { defaultAdminCatalogText } from '../catalog-text.fixture';
 
-const text = defaultAdminText.products.editor.attributes;
+const text = defaultAdminCatalogText.products.editor.attributes;
 const plain: AttributeRowMarks = {
   filterable: false,
   stray: null,

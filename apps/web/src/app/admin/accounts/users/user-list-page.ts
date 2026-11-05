@@ -53,6 +53,7 @@ import {
   userRoleSchema,
   fillText,
 } from '@b2b-catalog-platform/shared/platform';
+import { ADMIN_CATALOG_TEXT } from '../../catalog/catalog-text';
 
 const USER_SORTS = [
   'name',
@@ -486,7 +487,7 @@ export class UserListPage {
 
   private readonly baseTierLabel = computed(() =>
     baseTierName(
-      this.adminText.tiers.defaultName,
+      this.adminCatalogText.tiers.defaultName,
       this.tierList.value()?.tiers,
     ),
   );
@@ -494,6 +495,7 @@ export class UserListPage {
   private readonly confirm = inject(ConfirmService);
   private readonly router = inject(Router);
   private readonly adminText = inject(ADMIN_TEXT);
+  private readonly adminCatalogText = inject(ADMIN_CATALOG_TEXT);
   private readonly ownershipText = inject(ADMIN_TEXT).ownership;
   private readonly actionText = inject(SHARED_TEXT).actions;
   /** An editor opened from here returns to this list, filters and all. */

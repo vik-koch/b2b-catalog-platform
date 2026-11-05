@@ -36,6 +36,7 @@ import { chevronDownIcon } from '@b2b-catalog-platform/ui/icons/glyphs/chevron-d
 import { chevronUpIcon } from '@b2b-catalog-platform/ui/icons/glyphs/chevron-up';
 import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
 import { SHARED_CATALOG_TEXT } from '../../core/catalog/catalog-text';
+import { ADMIN_CATALOG_TEXT } from '../catalog/catalog-text';
 
 /** `aria-controls` must name one list, and a page may hold more than one. */
 let nextId = 0;
@@ -251,7 +252,7 @@ export class OrderAdjustLines {
   protected readonly xIcon = xIcon;
   private readonly productsService = inject(ProductsService);
   protected readonly text = inject(ADMIN_TEXT).orders.adjust.lines;
-  protected readonly products = inject(ADMIN_TEXT).products;
+  protected readonly products = inject(ADMIN_CATALOG_TEXT).products;
   protected readonly pieceUnit = inject(SHARED_CATALOG_TEXT).units.piece;
   private readonly availability =
     inject(SHARED_CATALOG_TEXT).product.availability;

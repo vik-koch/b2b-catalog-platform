@@ -162,7 +162,7 @@ It is the language every page and mail declares — what a screen reader picks
 its voice by — and the conventions every date, number and amount follows,
 on the pages, in the mails and in the PDFs. Set it to the language the texts
 are written in, with the region whose conventions the shop keeps. The
-currency itself is `catalog.currency.code`.
+currency itself is `currency.code`.
 
 ### Keeping two words on one line
 

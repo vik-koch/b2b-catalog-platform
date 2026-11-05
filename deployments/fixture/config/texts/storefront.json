@@ -2,7 +2,67 @@
   "home": {
     "eyebrow": "Hamburg · Speicherstadt",
     "intro": "Browse our range by category below, or open the full catalogue.",
-    "categoriesHeading": "Browse by category",
+    "categoriesHeading": "Browse by category"
+  },
+  "catalog": {
+    "listing": {
+      "emptyCategories": "Our catalogue is being set up — please check back soon.",
+      "loadError": "Something went wrong loading the catalogue — please try again later.",
+      "emptyProducts": "No products in this category yet.",
+      "productCount": "Products: {count}",
+      "layout": {
+        "labelAria": "Layout",
+        "grid": "Show as cards",
+        "list": "Show as list"
+      },
+      "sort": {
+        "label": "Sort by",
+        "relevance": "Best match",
+        "category": "By category",
+        "name": "Name (A–Z)",
+        "name_desc": "Name (Z–A)",
+        "price": "Price (low to high)",
+        "price_desc": "Price (high to low)",
+        "fields": {
+          "relevance": "Best match",
+          "category": "Category",
+          "name": "Name",
+          "price": "Price"
+        }
+      },
+      "filters": {
+        "title": "Filters",
+        "selected": "({count})",
+        "clearAll": "Clear all filters",
+        "appliedAria": "Applied filters",
+        "removeAria": "Remove the filter {label}",
+        "noMatches": "No products match the selected filters."
+      },
+      "productNotFound": "This product could not be found. It may have been removed.",
+      "categoryNotFound": "This category could not be found. It may have been removed.",
+      "backToCatalog": "Back to the catalogue"
+    },
+    "search": {
+      "placeholder": "Search products",
+      "submit": "Search",
+      "openSearch": "Open search",
+      "closeSearchAria": "Close search",
+      "clearAria": "Clear search",
+      "searchNavAria": "Product search",
+      "suggestionsAria": "Product suggestions",
+      "suggestionCountAria": "Suggestions available: {count}. Use the arrow keys to review them.",
+      "noSuggestions": "Nothing found",
+      "categoriesLabel": "Matching categories",
+      "showAllResults": "Show all results",
+      "addSuggestionAria": "Add {name} to cart",
+      "suggestionInCartAria": "{name} is in your cart",
+      "resultsTitle": "Results for “{query}”",
+      "resultCount": "Products found: {count}",
+      "noResults": "Nothing matched “{query}”.",
+      "noResultsHint": "Check the spelling, or try fewer words.",
+      "emptyQuery": "Type a product name to search the catalogue.",
+      "loadError": "Something went wrong searching — please try again later."
+    },
     "featured": {
       "heading": "From our range",
       "previousAria": "Previous products",
@@ -19,43 +79,6 @@
     "legalNav": "Legal",
     "consentBanner": "Cookie consent",
     "scrollToTop": "Back to top"
-  },
-  "catalog": {
-    "emptyCategories": "Our catalogue is being set up — please check back soon.",
-    "loadError": "Something went wrong loading the catalogue — please try again later.",
-    "emptyProducts": "No products in this category yet.",
-    "productCount": "Products: {count}",
-    "layout": {
-      "labelAria": "Layout",
-      "grid": "Show as cards",
-      "list": "Show as list"
-    },
-    "sort": {
-      "label": "Sort by",
-      "relevance": "Best match",
-      "category": "By category",
-      "name": "Name (A–Z)",
-      "name_desc": "Name (Z–A)",
-      "price": "Price (low to high)",
-      "price_desc": "Price (high to low)",
-      "fields": {
-        "relevance": "Best match",
-        "category": "Category",
-        "name": "Name",
-        "price": "Price"
-      }
-    },
-    "filters": {
-      "title": "Filters",
-      "selected": "({count})",
-      "clearAll": "Clear all filters",
-      "appliedAria": "Applied filters",
-      "removeAria": "Remove the filter {label}",
-      "noMatches": "No products match the selected filters."
-    },
-    "productNotFound": "This product could not be found. It may have been removed.",
-    "categoryNotFound": "This category could not be found. It may have been removed.",
-    "backToCatalog": "Back to the catalogue"
   },
   "cart": {
     "navLabel": "Cart",
@@ -258,27 +281,6 @@
       "notFound": "This link does not open an order. It may have been mistyped, or the order may have been removed.",
       "home": "Back to the shop"
     }
-  },
-  "search": {
-    "placeholder": "Search products",
-    "submit": "Search",
-    "openSearch": "Open search",
-    "closeSearchAria": "Close search",
-    "clearAria": "Clear search",
-    "searchNavAria": "Product search",
-    "suggestionsAria": "Product suggestions",
-    "suggestionCountAria": "Suggestions available: {count}. Use the arrow keys to review them.",
-    "noSuggestions": "Nothing found",
-    "categoriesLabel": "Matching categories",
-    "showAllResults": "Show all results",
-    "addSuggestionAria": "Add {name} to cart",
-    "suggestionInCartAria": "{name} is in your cart",
-    "resultsTitle": "Results for “{query}”",
-    "resultCount": "Products found: {count}",
-    "noResults": "Nothing matched “{query}”.",
-    "noResultsHint": "Check the spelling, or try fewer words.",
-    "emptyQuery": "Type a product name to search the catalogue.",
-    "loadError": "Something went wrong searching — please try again later."
   },
   "auth": {
     "login": "Log in",

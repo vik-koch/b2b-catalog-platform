@@ -133,6 +133,8 @@ import { numericRules } from '@b2b-catalog-platform/ui/inputs/numeric-rules';
 import { SaveButton } from '../../platform/ui/save-button';
 import { CancelButton } from '../../platform/ui/cancel-button';
 import { SHARED_CATALOG_TEXT } from '../../../core/catalog/catalog-text';
+import { ADMIN_CATALOG_TEXT } from '../catalog-text';
+import { CATALOG_CONFIG } from '../../../core/catalog/catalog-config';
 
 /** Packaging with no pack and no box, for the reads that need only those. */
 const NO_PACKAGING = { piecesPerPack: null, packsPerBox: null };
@@ -657,15 +659,16 @@ export class ProductEditorPage implements UnsavedChangesAware, FieldAttempt {
   /** The last rung of the "few left" ladder; the API applies the same figure
    * from the same key. */
   private readonly lowStockFallback =
-    inject(DEPLOYMENT_CONFIG).catalog.lowStockThresholdPieces ??
+    inject(CATALOG_CONFIG).lowStockThresholdPieces ??
     DEFAULT_LOW_STOCK_THRESHOLD_PIECES;
   protected readonly adminText = inject(ADMIN_TEXT);
-  protected readonly text = inject(ADMIN_TEXT).products.editor;
+  private readonly adminCatalogText = inject(ADMIN_CATALOG_TEXT);
+  protected readonly text = inject(ADMIN_CATALOG_TEXT).products.editor;
   protected readonly glyphs = PRODUCT_FEATURE_GLYPHS;
   protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
   protected readonly editText = inject(ADMIN_TEXT).editMode;
   protected readonly product = inject(SHARED_CATALOG_TEXT).product;
-  protected readonly productStates = inject(ADMIN_TEXT).products;
+  protected readonly productStates = inject(ADMIN_CATALOG_TEXT).products;
   private readonly ownership = inject(OwnershipService);
 
   /** FR-ADM-10. Unknown reads as not owned: the form waits for the answer,
@@ -1269,7 +1272,7 @@ export class ProductEditorPage implements UnsavedChangesAware, FieldAttempt {
 
   private refusalText(code: ProductSaveErrorCode, creating: boolean): string {
     if (code !== 'catalog-externally-owned') {
-      return this.adminText.catalogErrors[code];
+      return this.adminCatalogText.catalogErrors[code];
     }
     return creating
       ? this.ownershipText.productCreate

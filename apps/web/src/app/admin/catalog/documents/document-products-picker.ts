@@ -11,7 +11,6 @@ import { ADMIN_CATALOG_PAGE_SIZE } from '@b2b-catalog-platform/shared/admin/cata
 import { fillText } from '@b2b-catalog-platform/shared/platform';
 import { LinkedProduct } from '@b2b-catalog-platform/shared/admin/catalog';
 
-import { ADMIN_TEXT } from '../../../platform/config/admin-text';
 import { debounced } from '@b2b-catalog-platform/ui/core/debounced';
 import { AlternateLayout } from '../../../platform/alternate-layout';
 import { Checkbox } from '@b2b-catalog-platform/ui/choices/checkbox';
@@ -30,6 +29,7 @@ import {
   linkedProductState,
   ProductStateBadge,
 } from '../ui/product-state-badge';
+import { ADMIN_CATALOG_TEXT } from '../catalog-text';
 
 /** `id`s must be unique on a page, and a form may hold more than one picker. */
 let nextId = 0;
@@ -150,7 +150,8 @@ export class DocumentProductsPicker {
   private readonly productsService = inject(ProductsService);
   private readonly categoriesService = inject(CategoriesService);
   private readonly layout = inject(AlternateLayout);
-  protected readonly text = inject(ADMIN_TEXT).documents.editor.products;
+  protected readonly text =
+    inject(ADMIN_CATALOG_TEXT).documents.editor.products;
   protected readonly linkedState = linkedProductState;
 
   readonly value = input.required<readonly LinkedProduct[]>();
