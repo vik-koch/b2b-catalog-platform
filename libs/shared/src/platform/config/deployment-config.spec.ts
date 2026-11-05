@@ -1,6 +1,6 @@
-import { deploymentConfigSchema } from './deployment-config';
+import { deploymentConfigShape } from './deployment-config';
 
-const timeZone = deploymentConfigSchema.shape.timeZone;
+const { timeZone } = deploymentConfigShape;
 
 describe('timeZone', () => {
   // A zone is used only when a date is formatted, so a typo left to runtime

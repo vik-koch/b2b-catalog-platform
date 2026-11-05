@@ -1,18 +1,9 @@
 import * as z from 'zod';
 import type { DeepReadonly } from '../deep-readonly';
-import { ACCOUNTS_AREA } from '../../core/accounts/accounts-area';
-import { accountsConfigShape } from '../../core/accounts/accounts-config';
-import { CATALOG_AREA } from '../../core/catalog/catalog-area';
-import { catalogConfigShape } from '../../core/catalog/catalog-config';
-import { orderingConfigShape } from '../../core/ordering/order-config';
-import { ORDERING_AREA } from '../../core/ordering/ordering-area';
-import { siteConfigShape } from '../../core/site/site-config';
 import { companyIdInputSchema, phoneInputSchema } from '../contact-config';
 import { KEYBOARD_LAYOUTS } from '../keyboard-layout';
-import { mergeShapes } from '../merge-shapes';
 import { taxConfigSchema } from '../tax-config';
 import { themeConfigSchema } from '../theme-config';
-import { SITE_AREA } from '../../core/site/site-area';
 
 /**
  * A line above every page and mail (FR-NAV-08), such as a holiday closure.
@@ -63,8 +54,12 @@ const contactLinesSchema = z
   })
   .strict();
 
-/** The platform's keys of `deployment.json`. */
-const platformConfigShape = {
+/**
+ * The keys of `deployment.json` no area claims: the deployment's public
+ * facts, read by the web and the API. Injected into every page, so a visitor
+ * can read all of it; what only the API needs is `api.json`.
+ */
+export const deploymentConfigShape = {
   /** The text's language and the conventions of every date, number and
    * amount, so a month name never comes out in another language than its
    * sentence. */
@@ -161,23 +156,8 @@ const platformConfigShape = {
   companyIdInput: companyIdInputSchema.optional(),
 };
 
-/**
- * The deployment's public facts, read by the web and the API. Injected into
- * every page, so a visitor can read all of it; what only the API needs is
- * `api.json`.
- */
-export const deploymentConfigSchema = z
-  .object(
-    mergeShapes(
-      platformConfigShape,
-      { [SITE_AREA]: z.object(siteConfigShape).strict() },
-      { [CATALOG_AREA]: z.object(catalogConfigShape).strict() },
-      { [ACCOUNTS_AREA]: z.object(accountsConfigShape).strict() },
-      { [ORDERING_AREA]: z.object(orderingConfigShape).strict() },
-    ),
-  )
-  .strict();
-
+/** The keys no area claims; an area reads its block through its own token
+ * or loader. */
 export type DeploymentConfig = DeepReadonly<
-  z.infer<typeof deploymentConfigSchema>
+  z.infer<z.ZodObject<typeof deploymentConfigShape>>
 >;

@@ -8,7 +8,7 @@ import {
   CompanyIdFormat,
   normalizePhone,
   PhoneConfig,
-  deploymentConfigSchema,
+  deploymentConfigShape,
   MoneyFormat,
   moneyFormat,
   shopTimeZone,
@@ -18,38 +18,43 @@ import { configPath, loadConfig } from '@b2b-catalog-platform/shared/node';
 import { DEFAULT_SESSION_IDLE_DAYS } from '../auth/session-config';
 import { join } from 'node:path';
 import { loadApiConfig } from './api-config';
-import type * as z from 'zod';
+import * as z from 'zod';
 
 /** The parsed value, not the read-only view the web injects: services are
  * typed by the shared schemas. */
-type ApiDeploymentConfig = z.infer<typeof deploymentConfigSchema>;
-
-/** An area's block is read through the area's own loader. */
-type UnclaimedDeploymentConfig = Omit<
-  ApiDeploymentConfig,
-  'site' | 'catalog' | 'accounts' | 'ordering'
->;
+type ApiDeploymentConfig = z.infer<z.ZodObject<typeof deploymentConfigShape>>;
 
 let cached: ApiDeploymentConfig | undefined;
-function loadWhole(): ApiDeploymentConfig {
+const blocks = new Map<string, unknown>();
+
+/** The keys no area claims. Loose, as each area checks its own block and the
+ * root checks the file whole at boot. */
+export function loadApiDeploymentConfig(): ApiDeploymentConfig {
   return (cached ??= loadConfig(
-    deploymentConfigSchema,
+    z.looseObject(deploymentConfigShape),
     'deployment.json',
   ) as ApiDeploymentConfig);
 }
 
-export function loadApiDeploymentConfig(): UnclaimedDeploymentConfig {
-  return loadWhole();
-}
-
-/** An area's block, checked with the whole file on first read. */
-export function loadDeploymentConfigBlock<T>(area: string): T {
-  return (loadWhole() as unknown as Record<string, T>)[area];
+/** An area's block, checked against the area's own schema on first read. */
+export function loadDeploymentConfigBlock<T>(
+  area: string,
+  schema: z.ZodType<T>,
+): T {
+  if (!blocks.has(area)) {
+    const file = loadConfig(
+      z.looseObject({ [area]: schema }),
+      'deployment.json',
+    ) as Record<string, T>;
+    blocks.set(area, file[area]);
+  }
+  return blocks.get(area) as T;
 }
 
 /** Test seam: drops the memoized config so a spec can load a different file. */
 export function resetApiDeploymentConfig(): void {
   cached = undefined;
+  blocks.clear();
 }
 
 /** The PDF faces' paths, in the config's `assets/` directory. */

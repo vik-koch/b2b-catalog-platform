@@ -8,7 +8,7 @@ import type { StorefrontOrderingText } from '../ordering-text.type';
 import { defaultStorefrontText } from '../../../platform/config/storefront-text.fixture';
 import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
-import { DeploymentConfig } from '@b2b-catalog-platform/shared/platform';
+import type { DeploymentConfigFile } from '@b2b-catalog-platform/shared/deployment';
 import { defaultDeploymentConfig } from '../../../platform/config/deployment-config.fixture';
 import { EditModeService } from '../../../platform/edit-mode/edit-mode.service';
 import { ConditionsPage } from './conditions-page';
@@ -21,7 +21,7 @@ const conditionsBody = {
 };
 
 async function render(
-  overrides: Partial<DeploymentConfig> = {},
+  overrides: Partial<DeploymentConfigFile> = {},
   getPage: () => Promise<typeof conditionsBody | null> = async () =>
     conditionsBody,
   conditionsText: Partial<StorefrontOrderingText['conditions']> = {},

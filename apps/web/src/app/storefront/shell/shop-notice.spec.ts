@@ -1,14 +1,15 @@
 import { TestBed } from '@angular/core/testing';
-import {
-  DeploymentConfig,
-  ShopNotice as Notice,
-} from '@b2b-catalog-platform/shared/platform';
+import { ShopNotice as Notice } from '@b2b-catalog-platform/shared/platform';
+import type { DeploymentConfigFile } from '@b2b-catalog-platform/shared/deployment';
 import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
 import { defaultDeploymentConfig } from '../../platform/config/deployment-config.fixture';
 import { ShopNotice } from './shop-notice';
 
 async function render(notice: Notice | undefined) {
-  const deployment: DeploymentConfig = { ...defaultDeploymentConfig, notice };
+  const deployment: DeploymentConfigFile = {
+    ...defaultDeploymentConfig,
+    notice,
+  };
   TestBed.configureTestingModule({
     imports: [ShopNotice],
     providers: [{ provide: DEPLOYMENT_CONFIG, useValue: deployment }],

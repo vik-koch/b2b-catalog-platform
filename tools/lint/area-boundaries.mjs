@@ -7,8 +7,9 @@
  * each other (Nx holds that), so the API's `admin/catalog` and the contracts'
  * `admin/catalog` are one element type, and each may import the other's level.
  *
- * Only the areas in `ENABLED` are classified. Everything else is unknown to the
- * plugin and neither checked nor refused, so an area moves without the others.
+ * What lies outside the cut, such as an app's root (`app/`, `main.ts`) or the
+ * library's `node` entry, is unknown to the plugin and neither checked nor
+ * refused.
  */
 import boundaries from 'eslint-plugin-boundaries';
 
@@ -28,16 +29,7 @@ export const AREA_EDGES = {
   retention: ['ordering', 'site'],
 };
 
-/** The areas already moved; the rest join as they move. */
-const ENABLED = [
-  'catalog',
-  'site',
-  'accounts',
-  'ordering',
-  'exchange',
-  'work',
-  'retention',
-];
+const AREAS = Object.keys(AREA_EDGES);
 
 /** The folders of the cut, relative to a layer, with the element type of each. */
 const FOLDERS = [
@@ -46,7 +38,7 @@ const FOLDERS = [
     { folder: `${audience}/platform`, type: `${audience}:platform` },
     { folder: `${audience}/shell`, type: `${audience}:shell` },
   ]),
-  ...ENABLED.flatMap((area) => [
+  ...AREAS.flatMap((area) => [
     { folder: `core/${area}`, type: `core:${area}` },
     ...AUDIENCES.map((audience) => ({
       folder: `${audience}/${area}`,
@@ -55,18 +47,23 @@ const FOLDERS = [
   ]),
 ];
 
-const reachable = (area) =>
-  [area, ...AREA_EDGES[area]].filter((to) => ENABLED.includes(to));
+const reachable = (area) => [area, ...AREA_EDGES[area]];
+
+/**
+ * The library's `deployment` entry: the files both apps read, whole, put
+ * together from every area's part. Only what lies outside the cut imports it,
+ * and a spec or fixture, to set the scene.
+ */
+const DEPLOYMENT = {
+  type: 'deployment',
+  pattern: 'libs/shared/src/deployment',
+  partialMatch: false,
+};
 
 /** What each type may import; anything not listed is refused. */
 function allowed(type) {
-  const types = allowedTypes(type);
-  return types.includes('platform') ? [...types, 'platform:composing'] : types;
-}
-
-function allowedTypes(type) {
-  if (type === 'platform:composing') {
-    return ['platform', ...ENABLED.map((area) => `core:${area}`)];
+  if (type === 'deployment') {
+    return ['platform', ...AREAS.map((area) => `core:${area}`)];
   }
   if (type === 'platform') return ['platform'];
   const [level, area] = type.split(':');
@@ -78,7 +75,7 @@ function allowedTypes(type) {
   if (area === 'shell') {
     return [
       `${level}:shell`,
-      ...ENABLED.flatMap((to) => [`${level}:${to}`, `core:${to}`]),
+      ...AREAS.flatMap((to) => [`${level}:${to}`, `core:${to}`]),
       ...below,
     ];
   }
@@ -89,23 +86,14 @@ function allowedTypes(type) {
 }
 
 /**
- * An exception to "platform imports no area": the deployment config and
- * the texts are composed of every area's part. Imported like platform.
- */
-const COMPOSING = [
-  'libs/shared/src/platform/config',
-  'apps/api/src/platform/config',
-];
-
-/**
- * The other exception, for foreign keys only: every area's tables, and
+ * The exception to "platform imports no area", for foreign keys only: every area's tables, and
  * platform's, record who changed a row, so a schema module may reference
  * `users`. A query still reads tables only along the table.
  */
 const ACTOR_REFERENCES = {
   from: {
     element: {
-      types: { anyOf: ['platform', ...ENABLED.map((area) => `core:${area}`)] },
+      types: { anyOf: ['platform', ...AREAS.map((area) => `core:${area}`)] },
       fileInternalPath: ['*-schema.ts', 'db/schema.ts'],
     },
   },
@@ -119,10 +107,13 @@ const ACTOR_REFERENCES = {
   },
 };
 
-const TYPES = [
-  'platform:composing',
-  ...new Set(FOLDERS.map(({ type }) => type)),
-];
+const TYPES = ['deployment', ...new Set(FOLDERS.map(({ type }) => type))];
+
+/** A spec or fixture may read a file whole, to set the scene. */
+const SCENE = {
+  from: { element: { fileInternalPath: ['**/*.spec.ts', '**/*.fixture.ts'] } },
+  allow: { to: { element: { type: 'deployment' } } },
+};
 
 /**
  * The lint block for the layer under `source` (`src`, `src/app`). Element
@@ -136,13 +127,8 @@ export function areaBoundaries(source) {
     settings: {
       'boundaries/root-path': ROOT,
       'boundaries/legacy-templates': false,
-      // First match wins, so the composing folders come before `platform`.
       'boundaries/elements': [
-        ...COMPOSING.map((pattern) => ({
-          type: 'platform:composing',
-          pattern,
-          partialMatch: false,
-        })),
+        DEPLOYMENT,
         ...LAYERS.flatMap((path) =>
           FOLDERS.map(({ folder, type }) => ({
             type,
@@ -159,7 +145,7 @@ export function areaBoundaries(source) {
       'boundaries/dependencies': [
         'error',
         {
-          // Unknown code (an area not yet moved) is neither checked nor refused.
+          // Code outside the cut is neither checked nor refused.
           default: 'allow',
           policies: TYPES.map((type) => ({
             type,
@@ -172,7 +158,7 @@ export function areaBoundaries(source) {
               message: `${type} may import ${allowed(type).join(', ')} (ADR 0073, tools/lint/area-boundaries.mjs).`,
             }))
             // Last, as the last matching policy wins.
-            .concat(ACTOR_REFERENCES),
+            .concat(ACTOR_REFERENCES, SCENE),
         },
       ],
     },

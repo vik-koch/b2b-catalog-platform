@@ -1,14 +1,14 @@
 import { loadConfig } from '@b2b-catalog-platform/shared/node';
 import {
-  DeploymentConfig,
+  DeploymentConfigFile,
   deploymentConfigSchema,
-} from '@b2b-catalog-platform/shared/platform';
+} from '@b2b-catalog-platform/shared/deployment';
 
-/** The fixture's config, for specs to override what they test:
+/** The fixture's config whole, for specs to override what they test:
  *
- *   { ...defaultDeploymentConfig, cookieConsentEnabled: true }
+ *   { ...defaultDeploymentConfig, notice }
  */
-export const defaultDeploymentConfig: DeploymentConfig = loadConfig(
+export const defaultDeploymentConfig: DeploymentConfigFile = loadConfig(
   deploymentConfigSchema,
   'deployment.json',
 );

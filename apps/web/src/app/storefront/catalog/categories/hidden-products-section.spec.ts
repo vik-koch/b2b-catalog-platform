@@ -3,7 +3,7 @@ import { defaultSharedText } from '../../../platform/config/shared-text.fixture'
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { HiddenProduct } from '@b2b-catalog-platform/shared/core/catalog';
-import { DeploymentConfig } from '@b2b-catalog-platform/shared/platform';
+import type { DeploymentConfigFile } from '@b2b-catalog-platform/shared/deployment';
 import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
 import { ADMIN_TEXT } from '../../../platform/config/admin-text';
 import { defaultStorefrontText } from '../../../platform/config/storefront-text.fixture';
@@ -35,7 +35,7 @@ const hidden = (overrides: Partial<HiddenProduct> = {}): HiddenProduct => ({
 const config = {
   locale: 'de-DE',
   currency: { code: 'EUR' },
-} as unknown as DeploymentConfig;
+} as unknown as DeploymentConfigFile;
 
 const tell = vi.fn(async () => undefined);
 

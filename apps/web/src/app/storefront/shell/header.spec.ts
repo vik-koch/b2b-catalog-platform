@@ -5,14 +5,14 @@ import { provideRouter, Router } from '@angular/router';
 import { STOREFRONT_TEXT } from '../../platform/config/storefront-text';
 import { defaultStorefrontText } from '../../platform/config/storefront-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
-import { DeploymentConfig } from '@b2b-catalog-platform/shared/platform';
+import type { DeploymentConfigFile } from '@b2b-catalog-platform/shared/deployment';
 import { defaultDeploymentConfig } from '../../platform/config/deployment-config.fixture';
 import { Header } from './header';
 import { provideFakeProductCart } from '../../core/catalog/buying/product-cart.fixture';
 
 async function render(
   url = '/',
-  deployment: DeploymentConfig = defaultDeploymentConfig,
+  deployment: DeploymentConfigFile = defaultDeploymentConfig,
 ) {
   TestBed.resetTestingModule();
   TestBed.configureTestingModule({

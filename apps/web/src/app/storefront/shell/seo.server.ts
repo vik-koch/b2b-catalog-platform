@@ -1,7 +1,18 @@
 import { SitemapEntry } from '@b2b-catalog-platform/shared/storefront/catalog';
 import { requireEnv } from '../../../env';
-import { getDeploymentConfig } from '../../platform/config/deployment-config.server';
+import * as z from 'zod';
+import {
+  SITE_AREA,
+  siteConfigShape,
+} from '@b2b-catalog-platform/shared/core/site';
+import { mountedBlock } from '../../platform/config/mounted-file.server';
 import { isMaintenanceOn } from '../site/maintenance/maintenance.server';
+
+const getSiteConfig = mountedBlock(
+  'deployment.json',
+  SITE_AREA,
+  z.object(siteConfigShape).strict(),
+);
 
 /**
  * robots.txt, sitemap.xml and the `noindex` switch. Two things keep crawlers
@@ -58,9 +69,7 @@ type SitemapResult =
   { kind: 'xml'; body: string } | { kind: 'status'; status: 404 | 503 };
 
 function publishes(slug: string): boolean {
-  return (
-    getDeploymentConfig().site.pages.published as readonly string[]
-  ).includes(slug);
+  return (getSiteConfig().pages.published as readonly string[]).includes(slug);
 }
 
 export async function renderSitemap(): Promise<SitemapResult> {

@@ -1,4 +1,4 @@
-import type { DeploymentConfig } from '@b2b-catalog-platform/shared/platform';
+import type { DeploymentConfigFile } from '@b2b-catalog-platform/shared/deployment';
 import { defaultDeploymentConfig } from '../../platform/config/deployment-config.fixture';
 import {
   ORDERING_AREA,
@@ -8,8 +8,8 @@ import {
 /** The fixture's deployment config with ordering's block changed. */
 export function withOrdering(
   ordering: Partial<OrderingConfig>,
-  config: DeploymentConfig = defaultDeploymentConfig,
-): DeploymentConfig {
+  config: DeploymentConfigFile = defaultDeploymentConfig,
+): DeploymentConfigFile {
   return {
     ...config,
     [ORDERING_AREA]: { ...config[ORDERING_AREA], ...ordering },

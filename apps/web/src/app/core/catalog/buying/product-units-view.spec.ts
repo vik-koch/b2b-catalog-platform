@@ -4,7 +4,7 @@ import { TestBed } from '@angular/core/testing';
 import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
 import { defaultStorefrontText } from '../../../platform/config/storefront-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
-import { DeploymentConfig } from '@b2b-catalog-platform/shared/platform';
+import type { DeploymentConfigFile } from '@b2b-catalog-platform/shared/deployment';
 import { useProductUnits } from './product-units-view';
 
 const config = {
@@ -13,7 +13,7 @@ const config = {
   catalog: {
     boxUnits: { volume: 'm³', weight: 'kg' },
   },
-} as unknown as DeploymentConfig;
+} as unknown as DeploymentConfigFile;
 
 const packaged = { piecesPerPack: 6, packsPerBox: 4, minPieceQty: 6 };
 const packOnly = { piecesPerPack: 10, packsPerBox: null, minPieceQty: 100 };

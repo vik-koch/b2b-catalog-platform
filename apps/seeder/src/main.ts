@@ -1,5 +1,5 @@
 import * as z from 'zod';
-import { deploymentConfigSchema } from '@b2b-catalog-platform/shared/platform';
+import { deploymentConfigSchema } from '@b2b-catalog-platform/shared/deployment';
 import { loadConfig } from '@b2b-catalog-platform/shared/node';
 import { loadSeedBundle, runSeed } from '@b2b-catalog-platform/seed';
 

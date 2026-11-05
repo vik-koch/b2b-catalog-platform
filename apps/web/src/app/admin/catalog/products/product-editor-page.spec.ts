@@ -7,10 +7,8 @@ import {
   ParamMap,
   Router,
 } from '@angular/router';
-import {
-  fillText,
-  DeploymentConfig,
-} from '@b2b-catalog-platform/shared/platform';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
+import type { DeploymentConfigFile } from '@b2b-catalog-platform/shared/deployment';
 import {
   AdminCategory,
   AdminProduct,
@@ -90,7 +88,7 @@ const config = {
     boxUnits: { volume: 'm³', weight: 'kg' },
   },
   tax: { basis: 'included', rate: 19, statedAtPrices: true },
-} as unknown as DeploymentConfig;
+} as unknown as DeploymentConfigFile;
 
 interface Harness {
   createProduct: ReturnType<typeof vi.fn>;

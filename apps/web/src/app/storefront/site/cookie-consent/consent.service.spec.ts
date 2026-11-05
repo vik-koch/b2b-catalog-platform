@@ -1,7 +1,7 @@
 import { PLATFORM_ID } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
-import { DeploymentConfig } from '@b2b-catalog-platform/shared/platform';
+import type { DeploymentConfigFile } from '@b2b-catalog-platform/shared/deployment';
 import { ConsentDecision, ConsentService } from './consent.service';
 import { withSite } from '../../../core/site/site-config.fixture';
 
@@ -12,7 +12,7 @@ function service(
   cookieConsentEnabled: boolean,
   platformId = 'browser',
 ): ConsentService {
-  const config: DeploymentConfig = withSite({ cookieConsentEnabled });
+  const config: DeploymentConfigFile = withSite({ cookieConsentEnabled });
   TestBed.configureTestingModule({
     providers: [
       { provide: DEPLOYMENT_CONFIG, useValue: config },

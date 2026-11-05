@@ -5,13 +5,13 @@ import { STOREFRONT_TEXT } from '../../platform/config/storefront-text';
 import { defaultStorefrontText } from '../../platform/config/storefront-text.fixture';
 import { defaultSharedText } from '../../platform/config/shared-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
-import { DeploymentConfig } from '@b2b-catalog-platform/shared/platform';
+import type { DeploymentConfigFile } from '@b2b-catalog-platform/shared/deployment';
 import { defaultDeploymentConfig } from '../../platform/config/deployment-config.fixture';
 import { Footer } from './footer';
 import { defaultStorefrontSiteText } from '../site/site-text.fixture';
 import { withSite } from '../../core/site/site-config.fixture';
 
-function config(cookieConsentEnabled: boolean): DeploymentConfig {
+function config(cookieConsentEnabled: boolean): DeploymentConfigFile {
   return withSite({ cookieConsentEnabled });
 }
 
@@ -19,7 +19,7 @@ async function render(enabled: boolean) {
   return renderWith(config(enabled));
 }
 
-async function renderWith(deployment: DeploymentConfig) {
+async function renderWith(deployment: DeploymentConfigFile) {
   TestBed.configureTestingModule({
     imports: [Footer],
     providers: [

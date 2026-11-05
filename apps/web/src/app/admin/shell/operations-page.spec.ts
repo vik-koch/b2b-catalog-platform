@@ -7,8 +7,8 @@ import { SettingChange } from '@b2b-catalog-platform/shared/admin/platform';
 import {
   OWNERSHIP_AREAS,
   OwnershipArea,
-  DeploymentConfig,
 } from '@b2b-catalog-platform/shared/platform';
+import type { DeploymentConfigFile } from '@b2b-catalog-platform/shared/deployment';
 import { ADMIN_TEXT } from '../../platform/config/admin-text';
 import { defaultAdminText } from '../../platform/config/admin-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
@@ -28,7 +28,7 @@ const config = {
   locale: 'de-DE',
   branding: { name: 'Test Shop', tagline: 'Test tagline' },
   currency: { code: 'EUR' },
-} as unknown as DeploymentConfig;
+} as unknown as DeploymentConfigFile;
 
 const change = (over: Partial<SettingChange> = {}): SettingChange => ({
   id: '00000000-0000-0000-0000-0000000000c1',

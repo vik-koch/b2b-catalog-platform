@@ -7,3 +7,4 @@ export * from './pages';
 export * from './pages-config';
 export * from './site-area';
 export * from './site-config';
+export * from './site-text';

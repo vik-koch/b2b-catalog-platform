@@ -1,17 +1,17 @@
-import type * as z from 'zod';
+import * as z from 'zod';
 import {
   type DeliveryConfig,
   ORDERING_AREA,
   type OrderReferenceConfig,
-  type orderingConfigShape,
+  orderingConfigShape,
 } from '@b2b-catalog-platform/shared/core/ordering';
 import { loadDeploymentConfigBlock } from '../../platform/config/deployment-config';
 
-/** Parsed, not read-only, as the API's services are typed by the schemas. */
-type OrderingConfig = z.infer<z.ZodObject<typeof orderingConfigShape>>;
-
 const loadOrderingConfig = () =>
-  loadDeploymentConfigBlock<OrderingConfig>(ORDERING_AREA);
+  loadDeploymentConfigBlock(
+    ORDERING_AREA,
+    z.object(orderingConfigShape).strict(),
+  );
 
 /** Whether an order carries an invoice address of its own. */
 export const BILLING_ADDRESS_ENABLED = 'BILLING_ADDRESS_ENABLED';

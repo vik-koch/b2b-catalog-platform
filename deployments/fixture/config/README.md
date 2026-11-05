@@ -99,9 +99,9 @@ stays at the top of the file.
 Each file must be **complete** (no partial overrides), and an unknown key stops
 the boot as surely as a missing one. The authoritative shape of each is its Zod
 schema, put together from the parts each area of the code owns:
-`libs/shared/src/platform/config/deployment-config.ts` (read by both apps),
-`apps/api/src/platform/config/api-config.ts`, `libs/shared/src/platform/config/shared-text.ts`,
-`apps/web/src/app/app.texts.ts` (storefront and admin texts),
+`libs/shared/src/deployment/deployment-config.ts` (read by both apps),
+`libs/shared/src/deployment/shared-text.ts`, `apps/api/src/app/app.config-files.ts`
+(`api.json`), `apps/web/src/app/app.texts.ts` (storefront and admin texts),
 `apps/api/src/app/app.texts.ts` (mail and PDF texts). The
 committed demo files are the worked example to copy from.
 

@@ -10,7 +10,7 @@ An entry point per audience and area, over `core/<area>` for what an area's audi
 <!-- prettier-ignore -->
 | Import | Folder | What it holds |
 | --- | --- | --- |
-| `@b2b-catalog-platform/shared/platform` | `src/platform/` | what knows no area: the deployment config and shared texts, money and tax, text filling, API errors, the session and its roles, the areas another system may own and their refusals, phone and email formats, media upload facts, the rich-text vocabulary, form fields, pagination, keyboard layouts, ISO days |
+| `@b2b-catalog-platform/shared/platform` | `src/platform/` | what knows no area: the deployment config's and shared texts' own keys, money and tax, text filling, API errors, the session and its roles, the areas another system may own and their refusals, phone and email formats, media upload facts, the rich-text vocabulary, form fields, pagination, keyboard layouts, ISO days |
 | `@b2b-catalog-platform/shared/core/catalog` | `src/core/catalog/` | the catalog's values and rules, and the product shapes both sides draw |
 | `@b2b-catalog-platform/shared/storefront/catalog` | `src/storefront/catalog/` | the storefront's catalog routes: tree, listings, facets, search, sitemap |
 | `@b2b-catalog-platform/shared/admin/catalog` | `src/admin/catalog/` | the staff's catalog routes: products, categories, attributes, documents, tiers |
@@ -26,12 +26,12 @@ An entry point per audience and area, over `core/<area>` for what an area's audi
 | `@b2b-catalog-platform/shared/admin/platform` | `src/admin/platform/` | what the admin reads that knows no area: the build info, the settings trail, which areas another system owns, media uploads |
 | `@b2b-catalog-platform/shared/core/work` | `src/core/work/` | the queues and the counts every signed-in account is shown |
 | `@b2b-catalog-platform/shared/node` | `src/node/` | what only runs on a server: loading the config directory, sanitizing rich text, the route access table |
+| `@b2b-catalog-platform/shared/deployment` | `src/deployment/` | `deployment.json` and `texts/shared.json` whole, every area's block in them: for the apps' roots, the seeder, the tools and the tests |
 
 An audience never imports another audience, and a staff shape and a customer shape are built
 from the same core values rather than from each other. `tools/lint/area-boundaries.mjs` holds
-this. Its one exception is `src/platform/config/`: the deployment schema and the shared
-texts are composed of every area's section, so they import the areas' cores. The web app's
-lint rules decide which entry points each of its parts may import.
+this, and refuses `src/deployment/` to everything inside the cut but specs and fixtures. The
+web app's lint rules decide which entry points each of its parts may import.
 
 - **`*.contract.ts`** — one Zod schema per API route, implemented by the API with oRPC and
   called by the web app, or in `core/` the schemas several routes are built from. A contract
@@ -40,8 +40,8 @@ lint rules decide which entry points each of its parts may import.
   imports beyond other plain modules, so a component that needs a limit does not pull Zod
   into the browser. The topic's schemas sit beside it in `<topic>.contract.ts`. A module
   splits further only for a heavy dependency (`slugify.ts`).
-- **`*-config.ts`** — the schema of one section of `deployment.json`, in the area that reads
-  it; `src/platform/config/` composes them.
+- **`*-config.ts`** — the schema of one block of `deployment.json`, in the area that reads
+  it; `src/deployment/` composes them.
 
 The browser never receives the schemas themselves: each side of the web app gets the route
 metadata generated into its own `contract-routes.generated.ts`. Regenerate them with

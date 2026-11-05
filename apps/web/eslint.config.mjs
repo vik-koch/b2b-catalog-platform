@@ -18,10 +18,6 @@ const UI_BARREL = {
     'Import a file of the UI library, not the library or a group of it (see libs/ui/README.md).',
 };
 
-/* The areas whose core code reads the shared text only; the rest join as
- * their texts are cut. */
-const TEXT_CUT_AREAS = ['site', 'catalog', 'accounts', 'ordering'];
-
 /* What a view in a `ui/` folder may not reach for: data. */
 const VIEW_MESSAGE =
   'A view takes inputs and gives outputs; services and API clients belong to its container (ADR 0072).';
@@ -79,48 +75,44 @@ export default [
   // The audiences and what they share: the storefront and the admin each
   // import platform and core code and never each other, platform and core
   // code import neither, and only the root (app.ts, app.config*, app.routes*)
-  // composes both. Their wording follows the same line: each side reads its
-  // own text and the shared text, core code the shared text only (the areas
-  // in TEXT_CUT_AREAS so far), and platform code both; a spec may read any,
-  // to set the scene. Areas within them are held by
-  // tools/lint/area-boundaries.mjs. A later block
-  // replaces an earlier `no-restricted-imports` rather than adding to it, so
-  // each one repeats the server-package pattern above.
+  // composes both and reads a config file whole (the library's `deployment`
+  // entry). Their wording follows the same line: each side reads its own text
+  // and the shared text, core code the shared text only, and platform code
+  // both; a spec or fixture may read any, to set the scene. Areas within them
+  // are held by tools/lint/area-boundaries.mjs. A later block replaces an
+  // earlier `no-restricted-imports` rather than adding to it, so each one
+  // repeats the server-package pattern above.
   ...[
     {
       part: 'storefront',
       forbidden: ['admin'],
       text: 'admin-text',
-      entries: ['admin', 'machine', 'node'],
+      entries: ['admin', 'machine', 'node', 'deployment'],
     },
     {
       part: 'admin',
       forbidden: ['storefront'],
       text: 'storefront-text',
-      entries: ['storefront', 'machine', 'node'],
+      entries: ['storefront', 'machine', 'node', 'deployment'],
     },
     {
       part: 'platform',
       forbidden: ['storefront', 'admin'],
-      entries: ['storefront', 'admin', 'machine', 'node'],
+      entries: ['storefront', 'admin', 'machine', 'node', 'deployment'],
     },
     {
       part: 'core',
       forbidden: ['storefront', 'admin'],
-      entries: ['storefront', 'admin', 'machine', 'node'],
-    },
-    ...TEXT_CUT_AREAS.map((area) => ({
-      part: `core/${area}`,
-      forbidden: ['storefront', 'admin'],
       text: 'storefront-text|admin-text',
-      entries: ['storefront', 'admin', 'machine', 'node'],
-    })),
+      entries: ['storefront', 'admin', 'machine', 'node', 'deployment'],
+    },
   ].flatMap(({ part, forbidden, text, entries }) => {
     const dir = `src/app/${part}/**`;
     const serverSide = [`${dir}/*.server.ts`, `${dir}/*.fixture.ts`];
     // What only runs on the server or in a test may load the deployment's
-    // files through the library's `node` entry.
+    // files through the library's `node` entry; a test may read them whole.
     const offServer = entries.filter((entry) => entry !== 'node');
+    const scene = offServer.filter((entry) => entry !== 'deployment');
     return [
       {
         files: [`${dir}/*.ts`],
@@ -128,12 +120,16 @@ export default [
         rules: rulesFor(part, forbidden, entries, text),
       },
       {
-        files: serverSide,
+        files: [`${dir}/*.server.ts`],
         rules: rulesFor(part, forbidden, offServer, text),
       },
       {
+        files: [`${dir}/*.fixture.ts`],
+        rules: rulesFor(part, forbidden, scene, text),
+      },
+      {
         files: [`${dir}/*.spec.ts`],
-        rules: rulesFor(part, forbidden, offServer),
+        rules: rulesFor(part, forbidden, scene),
       },
       // Views: a later block replaces the earlier rule, so these
       // carry the part's own patterns as well.
@@ -171,9 +167,10 @@ function rulesFor(part, forbidden, entries, text, extra = []) {
             ? [
                 {
                   regex: `(^|/)config/(${text})(\\.\\w+)?$`,
-                  message: part.startsWith('core/')
-                    ? `${part} code reads the shared text only (see eslint.config.mjs).`
-                    : `${part} code reads its own text and the shared text, not ${text} (see eslint.config.mjs).`,
+                  message:
+                    part === 'core'
+                      ? `${part} code reads the shared text only (see eslint.config.mjs).`
+                      : `${part} code reads its own text and the shared text, not ${text} (see eslint.config.mjs).`,
                 },
               ]
             : []),

@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
-import { DeploymentConfig } from '@b2b-catalog-platform/shared/platform';
+import type { DeploymentConfigFile } from '@b2b-catalog-platform/shared/deployment';
 import { PricePipe } from './price.pipe';
 
 const norm = (s: string): string => s.replace(/\u00A0/g, ' ');
@@ -9,7 +9,7 @@ function pipeWithCurrency(code: string, locale: string): PricePipe {
   const config = {
     locale,
     currency: { code },
-  } as unknown as DeploymentConfig;
+  } as unknown as DeploymentConfigFile;
   TestBed.configureTestingModule({
     providers: [PricePipe, { provide: DEPLOYMENT_CONFIG, useValue: config }],
   });

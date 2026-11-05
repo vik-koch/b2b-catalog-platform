@@ -3,7 +3,7 @@ import { SHARED_TEXT } from '../../platform/config/shared-text';
 import { defaultSharedText } from '../../platform/config/shared-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { DeploymentConfig } from '@b2b-catalog-platform/shared/platform';
+import type { DeploymentConfigFile } from '@b2b-catalog-platform/shared/deployment';
 import {
   CustomerSyncPlan,
   CustomerSyncPreviewResponse,
@@ -20,7 +20,7 @@ const text = defaultAdminExchangeText.sync;
 // Only the branding the page title is built from; nothing here reads a price.
 const config = {
   branding: { name: 'Test Shop', tagline: 'Test tagline' },
-} as unknown as DeploymentConfig;
+} as unknown as DeploymentConfigFile;
 
 const emptySummary = {
   rows: 1,

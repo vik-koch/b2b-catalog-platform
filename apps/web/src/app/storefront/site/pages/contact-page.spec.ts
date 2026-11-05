@@ -4,7 +4,7 @@ import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
 import { defaultStorefrontText } from '../../../platform/config/storefront-text.fixture';
 import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
-import { DeploymentConfig } from '@b2b-catalog-platform/shared/platform';
+import type { DeploymentConfigFile } from '@b2b-catalog-platform/shared/deployment';
 import { ContactLocation } from '@b2b-catalog-platform/shared/core/site';
 import { EditModeService } from '../../../platform/edit-mode/edit-mode.service';
 import { ContactPage } from './contact-page';
@@ -18,7 +18,7 @@ const contactBody = {
   updatedAt: '2026-07-31T10:00:00.000Z',
 };
 
-function config(locations: readonly ContactLocation[]): DeploymentConfig {
+function config(locations: readonly ContactLocation[]): DeploymentConfigFile {
   return withSite({ locations });
 }
 

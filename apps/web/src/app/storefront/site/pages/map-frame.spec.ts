@@ -4,7 +4,7 @@ import { TestBed } from '@angular/core/testing';
 import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
 import { defaultStorefrontText } from '../../../platform/config/storefront-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
-import { DeploymentConfig } from '@b2b-catalog-platform/shared/platform';
+import type { DeploymentConfigFile } from '@b2b-catalog-platform/shared/deployment';
 import { MapEmbed } from '@b2b-catalog-platform/shared/core/site';
 import { defaultDeploymentConfig } from '../../../platform/config/deployment-config.fixture';
 import { MapFrame } from './map-frame';
@@ -30,7 +30,7 @@ async function render(map: MapEmbed, consent: ConsentState = {}) {
   }
   // The consent gate only applies where the deployment enforces consent, which
   // is what each case sets via `consent.enabled`.
-  const config: DeploymentConfig = withSite({
+  const config: DeploymentConfigFile = withSite({
     cookieConsentEnabled: consent.enabled ?? false,
   });
   TestBed.configureTestingModule({

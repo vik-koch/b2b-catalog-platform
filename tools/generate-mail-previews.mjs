@@ -49,7 +49,7 @@ const { mailTextSchema } = await loadTypeScript(
   'apps/api/src/app/app.texts.ts',
 );
 const { sharedTextSchema } = await loadTypeScript(
-  'libs/shared/src/platform/config/shared-text.ts',
+  'libs/shared/src/deployment/shared-text.ts',
 );
 const { renderMailPreviews, MAIL_PREVIEW_GROUPS } = await loadTypeScript(
   'apps/api/src/app/mail-previews.ts',

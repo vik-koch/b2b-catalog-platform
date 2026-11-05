@@ -35,10 +35,11 @@ rules, held by `eslint-plugin-boundaries`:
 
 1. **An audience never imports another.** Only roots compose them: the app root and
    `app.module`, and inside an audience its `shell/` (routes, layout, panel page).
-2. **Downwards only:** audience → core → platform. Platform imports no area, except what
-   composes them all: the deployment schema and shared texts, built from each area's
-   section. Each area keeps its tables in its core; the one foreign key against the table
-   is a row's record of who changed it, which references `users` from any area.
+2. **Downwards only:** audience → core → platform. Platform imports no area. A config or
+   text file holds a block per area beside the keys platform owns, and only a root puts the
+   whole file's schema together and checks it at boot; each owner reads its own part. Each
+   area keeps its tables in its core; the one foreign key against the table is a row's
+   record of who changed it, which references `users` from any area.
 3. **Between areas, only along the table**, at the same level or downwards:
    `admin/ordering` may import `admin/catalog` or `core/catalog`, never the reverse. An
    area or platform that needs an answer from above declares the question as an interface,
@@ -64,7 +65,8 @@ Each audience may keep its own `platform/` for area-free pieces only it uses (th
 grid, dates, rich text, image framer).
 
 **Contracts:** an entry point per audience and area (`@b2b-catalog-platform/shared/admin/catalog`),
-plus `/core/<area>`, `/platform` and `/node`, mapped by one wildcard path. A resource's shape
+plus `/core/<area>`, `/platform`, `/node` and `/deployment` (the files both apps read, whole,
+for the roots, the tools and the tests), mapped by one wildcard path. A resource's shape
 is defined per audience; both build it from the area's core values (price, packaging,
 picture, availability) and never import each other's. Texts stay per audience, as ADR 0069
 has them.

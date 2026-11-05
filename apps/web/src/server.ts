@@ -10,9 +10,8 @@ import { existsSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { requireEnv } from './env';
-import { preloadSharedText } from './app/platform/config/shared-text.server';
 import { getAdminText, preloadTexts } from './app/app.texts.server';
-import { preloadDeploymentConfig } from './app/platform/config/deployment-config.server';
+import { preloadDeploymentConfig } from './app/app.deployment-config.server';
 import { injectCartShell } from './app/storefront/ordering/cart/cart-shell.server';
 import { injectSessionShell } from './app/storefront/accounts/auth/session-shell.server';
 import { sessionCookieIn } from './app/platform/auth/session-cookie';
@@ -273,7 +272,6 @@ if (isMainModule(import.meta.url) || process.env['pm_id']) {
   getAssetsMiddleware();
   preloadDeploymentConfig();
   preloadTexts();
-  preloadSharedText();
 
   const port = requireEnv('WEB_PORT');
   app.listen(port, () => {
