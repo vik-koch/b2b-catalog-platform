@@ -694,383 +694,6 @@
       "tierKeyLocked": "Der Katalog wird von einem externen System verwaltet, daher wird der Schlüssel dieser Preisliste dort festgelegt. Den Namen können Sie in jedem Fall ändern, und Sie können weiterhin eine Preisliste hinzufügen oder eine unbenutzte entfernen."
     }
   },
-  "sync": {
-    "description": "Laden Sie den Katalogexport hoch, um Produkte gesammelt zu aktualisieren. Geschrieben wird erst, wenn Sie die Änderungen geprüft und übernommen haben.",
-    "modeLabel": "Was ist das für eine Datei?",
-    "advanced": "Erweiterte Optionen",
-    "file": "Katalogdatei (CSV)",
-    "fileHint": "Spalten: sourceId (Pflicht), name, categorySourceId, categoryName, price, stock, taxRate. Preise sind ganze Zahlen in Cent; der Bestand ist eine ganze Stückzahl und darf negativ sein; taxRate ist ein Prozentwert wie 7 oder 5,5, und eine leere Zelle bedeutet den Regelsatz. Die Preisliste einer Kundengruppe ist eine eigene Spalte, geschrieben als „price:“ plus der Abgleichschlüssel der Gruppe – siehe Kundengruppen.",
-    "dropHint": "CSV-Datei hier ablegen",
-    "browse": "oder eine Datei wählen",
-    "changeFile": "Andere Datei ablegen oder zum Wechseln klicken",
-    "preview": "Änderungen anzeigen",
-    "previewing": "Datei wird gelesen…",
-    "previewError": "Diese Datei konnte nicht gelesen werden.",
-    "formatErrors": {
-      "no-file": "Es wurde keine Datei gesendet. Bitte wählen Sie eine Datei und versuchen Sie es noch einmal.",
-      "file-too-large": "Diese Datei ist zu groß zum Hochladen. Teilen Sie den Export in kleinere Dateien auf.",
-      "file-empty": "Diese Datei ist leer.",
-      "no-header-row": "Diese Datei hat keine Kopfzeile, daher lassen sich ihre Spalten nicht lesen.",
-      "malformed-quotes": "Um Zeile {row} wird ein Anführungszeichen geöffnet und nie geschlossen, daher lässt sich der Rest der Datei nicht lesen. Prüfen Sie, ob jedes \" sein schließendes Gegenstück hat und ein Anführungszeichen innerhalb eines Werts verdoppelt ist.",
-      "duplicate-column": "Die Spalte „{column}“ kommt mehr als einmal vor, daher ist unklar, welche gilt.",
-      "unknown-columns": "Diese Spalten sind unbekannt: {columns}. Erwartet wird eine von: {expected}.",
-      "missing-required-column": "Die Datei braucht eine Spalte „{column}“.",
-      "too-many-rows": "Diese Datei hat {rows} Zeilen; die Grenze liegt bei {limit}. Teilen Sie sie in kleinere Dateien auf.",
-      "options-invalid": "Die mit dieser Datei gesendeten Optionen waren ungültig. Laden Sie die Seite neu und versuchen Sie es noch einmal.",
-      "catalog-externally-owned": "Der Katalog wird von einem externen System verwaltet, daher sind Uploads abgeschaltet. Um eine Datei hochzuladen, holen Sie den Katalog unter Datenhoheit in der Verwaltung zurück.",
-      "customers-externally-owned": "Kundenkonten werden von einem angebundenen System aktuell gehalten, daher ist der Import aus einer Datei hier abgeschaltet. Holen Sie die Konten in den Einstellungen zurück, um von Hand zu importieren."
-    },
-    "summaryTitle": "Was dieser Lauf ändern würde",
-    "productsTitle": "Produkte",
-    "categoriesTitle": "Neue Kategorien",
-    "categoriesHint": "Diese werden ohne übergeordnete Kategorie angelegt. Ordnen Sie sie danach unter Kategorien in den Baum ein.",
-    "renamedCategoriesTitle": "Umbenannte Kategorien",
-    "renamedCategoriesHint": "Die Datei gibt diesen Kategorien einen neuen Namen. Ihr Platz im Baum und ihre Webadresse bleiben, wie sie sind.",
-    "emptiedTitle": "Leer gewordene Kategorien",
-    "emptiedHint": "Darin sind keine Produkte mehr. Der Abgleich löscht nie eine Kategorie – entfernen Sie sie selbst, wenn sie nicht mehr gebraucht werden.",
-    "keptTitle": "Behalten (hier angelegt, nicht in der Datei)",
-    "keptHint": "Diese Produkte wurden in der Verwaltung angelegt, sind daher nicht im Export und werden durch einen Abgleich nie ausgeblendet.",
-    "errorsTitle": "Übersprungene Zeilen",
-    "errorRow": "Zeile {row}",
-    "rowErrors": {
-      "missing-source-id": "Diese Zeile hat keine sourceId, daher gibt es kein Produkt, dem sie zugeordnet werden kann.",
-      "duplicate-source-id": "Diese sourceId kommt weiter oben in der Datei schon vor; nur die erste Zeile dafür wird verwendet.",
-      "category-id-without-name": "Die Kategorie „{category}“ hat eine ID, aber keinen Namen, und kann daher weder angelegt noch umbenannt werden.",
-      "category-name-without-id": "Die Kategorie „{category}“ hat einen Namen, aber keine ID, daher ist unklar, welche Kategorie gemeint ist.",
-      "price-not-an-integer": "Der Preis „{price}“ in Spalte „{column}“ ist keine ganze Zahl in Cent.",
-      "price-is-zero": "Der Preis in Spalte „{column}“ ist null. Ein Produkt ohne Preis wird ohne diese Spalte gesendet, nicht mit einer Null darin.",
-      "stock-not-an-integer": "Der Bestand „{stock}“ ist keine ganze Stückzahl.",
-      "tax-rate-invalid": "Der Steuersatz „{taxRate}“ ist kein Prozentwert von 0 bis 100.",
-      "unknown-price-list": "Es gibt keine Preisliste „{key}“ – dieser Katalog hat {known}.",
-      "category-name-conflict": "Die Kategorie „{key}“ heißt in dieser Datei sowohl „{first}“ als auch „{second}“.",
-      "unknown-category": "Die Kategorie „{name}“ ({key}) ist nicht im Katalog, und dieser Lauf legt keine Kategorien an.",
-      "cannot-create-product": "Dieses Produkt ist neu, und ein neues Produkt braucht einen Namen und eine Kategorie."
-    },
-    "customers": {
-      "accountsTitle": "Konten",
-      "uploadTitle": "Kundenimport",
-      "uploadDescription": "Importieren Sie Kundenangaben aus einer Datei – ihre Preisliste, ihre Firmenangaben und ob sie sich anmelden dürfen. Geschrieben und gemailt wird erst, wenn Sie die Änderungen geprüft und übernommen haben. Neue Konten werden ohne Passwort angelegt: Jede Person erhält einen Link, um ihr eigenes festzulegen.",
-      "file": "Kundendatei (CSV)",
-      "fileHint": "Spalten: {columns}. sourceId ist Pflicht und der Schlüssel, über den der Kunde zugeordnet wird. access ist „enabled“ oder „disabled“; sendPasswordLink ist „yes“ oder „no“. Eine leere Zelle lässt das Feld, wie es ist – sie leert es nie.",
-      "mode": {
-        "full": "Kundenliste",
-        "fullHint": "Die Datei enthält vollständige Kundendatensätze. Preislisten und Firmenangaben werden aktualisiert, und Kunden, die der Shop noch nicht hat, werden eingeladen – jeder per E-Mail.",
-        "tiers": "Preislisten-Aktualisierung",
-        "tiersHint": "Die Datei sagt nur, welche Preisliste jedem Kunden berechnet wird. Niemand wird eingeladen, niemand bekommt eine E-Mail, und niemandes Zugang ändert sich.",
-        "custom": "Benutzerdefiniert"
-      },
-      "option": {
-        "email": "E-Mail-Adressen aktualisieren",
-        "tier": "Preislisten aktualisieren",
-        "company": "Firmenangaben aktualisieren",
-        "createMissing": "Kunden einladen, die noch kein Konto haben",
-        "updateExisting": "Kunden aktualisieren, die schon ein Konto haben",
-        "claimByEmail": "Konten über die E-Mail-Adresse übernehmen – wo der Schlüssel unbekannt ist, sich aber jemand mit dieser Adresse hier registriert hat, dessen Konto übernehmen, statt die Zeile zu überspringen"
-      },
-      "count": {
-        "create": "Eingeladen",
-        "update": "Aktualisiert",
-        "softDelete": "Abgeschaltet",
-        "restore": "Wieder eingeschaltet",
-        "claimed": "Übernommen",
-        "claimedById": "Über ID übernommen",
-        "mailed": "Links verschickt",
-        "unchanged": "Unverändert",
-        "errors": "Übersprungen"
-      },
-      "field": {
-        "email": "E-Mail",
-        "tier": "Preisliste",
-        "customerType": "Kundenart",
-        "companyName": "Firma",
-        "companyId": "Unternehmenskennung"
-      },
-      "mailedRow": "schickt einen Link zum Festlegen des Passworts",
-      "rowErrors": {
-        "missing-source-id": "Diese Zeile hat keine sourceId, daher gibt es kein Konto, dem sie zugeordnet werden kann.",
-        "duplicate-source-id": "Diese sourceId kommt weiter oben in diesem Lauf schon vor; nur die erste Zeile dafür wird verwendet.",
-        "duplicate-email": "Zwei Zeilen in diesem Lauf beanspruchen die Adresse {email}; nur die erste wird verwendet.",
-        "email-taken": "Ein anderes Konto verwendet {email} bereits. Konten werden über ihre sourceId zugeordnet, daher bräuchte diese Zeile eine andere Adresse.",
-        "account-unclaimed": "Jemand hat sich hier mit {email} registriert und hat noch keinen Quellschlüssel – fast sicher dieser Kunde. Schalten Sie „Konten über die E-Mail-Adresse übernehmen“ ein, um das Konto zu übernehmen, oder geben Sie ihm seinen Schlüssel im Kontoeditor.",
-        "account-unknown": "Diese Zeile nennt das Konto {accountId}, und hier hat kein Konto diese ID. Das Quellsystem verweist auf etwas, das es hier nicht gibt – nichts anderes in der Zeile wird verwendet, um zu erraten, was gemeint war.",
-        "account-already-keyed": "Konto {accountId} hat bereits einen eigenen Quellschlüssel und ist im Quellsystem also schon jemand. Ein Konto kann nicht auf zwei Schlüssel hören.",
-        "account-unclaimed-by-id": "Diese Zeile nennt das Konto {accountId} ({email}), das noch keinen Quellschlüssel hat. Schalten Sie „Konten über die ID übernehmen“ ein, um es zu übernehmen, oder geben Sie ihm seinen Schlüssel im Kontoeditor.",
-        "unknown-tier": "Es gibt keine Preisliste „{key}“ – dieser Shop hat {known}.",
-        "cannot-create-account": "Dieser Kunde hat hier noch kein Konto, und ein neues braucht eine E-Mail-Adresse, an die der Link zum Festlegen des Passworts geht.",
-        "account-withdrawn": "Dieser Kunde hat sein Konto gelöscht. Von hier aus wird es nicht neu angelegt – er müsste sich selbst registrieren.",
-        "staff-account": "Diese Zeile verweist auf ein Mitarbeiterkonto. Mitarbeitende sind nie Kunden, und ihre Konten verwaltet weiterhin der Shop.",
-        "cannot-send-link": "Ein Link zum Festlegen des Passworts wurde angefordert, aber dieses Konto kann sich nicht anmelden – schalten Sie es im selben Lauf oder vorher ein.",
-        "company-details-incomplete": "Ein Unternehmen braucht einen Namen und eine Unternehmenskennung; diese Zeile hat nur eines davon.",
-        "customer-type-not-accepted": "Diese Zeile macht den Kunden zu einer Kundenart, an die dieser Shop nicht verkauft. Prüfen Sie die Kundenart, die das Quellsystem für ihn sendet.",
-        "invalid-value": "Die Spalte „{column}“ dieser Zeile enthält „{value}“, und das kann diese Spalte nicht aufnehmen. Die Zeile wird übersprungen, der Rest der Datei nicht."
-      },
-      "claimWarning": "Im Shop registrierte Konten, die dieser Lauf über ihre E-Mail-Adresse übernimmt: {count}. Ab dann bezeichnet der Quellschlüssel diese Person, und der nächste Lauf kann ihre Preisliste ändern oder sie abschalten. Prüfen Sie zuerst die Zeilen unten.",
-      "claimByIdWarning": "Konten, die dieser Lauf über die vom Quellsystem genannte ID übernimmt: {count}. Diese ID stammt aus diesem Shop, es ist also eine bewusste Wahl und keine Vermutung – aber nur so richtig wie die Zuordnung auf der anderen Seite. Ab dann bezeichnet der Quellschlüssel diese Person.",
-      "disableWarning": "Kunden, die ihren Zugang verlieren: {count}. Sie bleiben in der Kontenliste und lassen sich wieder einschalten."
-    },
-    "orders": {
-      "ordersTitle": "Bestellungen",
-      "count": {
-        "update": "Beantwortet",
-        "unchanged": "Unverändert",
-        "mailed": "Kunden benachrichtigt",
-        "errors": "Übersprungen"
-      },
-      "kind": {
-        "adjustment": "Geändert",
-        "transition": "Weitergeschoben",
-        "payment": "Zahlung"
-      },
-      "field": {
-        "status": "Status",
-        "lines": "Bestellpositionen",
-        "payment": "Zahlungen"
-      },
-      "notifiedRow": "Kunde wurde angeschrieben",
-      "rowErrors": {
-        "order-not-found": "Hier gibt es keine Bestellung mit der Nummer {reference}.",
-        "duplicate-reference": "Bestellung {reference} kommt weiter oben in dieser Aktualisierung schon vor; nur die erste Anweisung dafür wird verwendet.",
-        "order-changed": "Bestellung {reference} ist weitergegangen, seit Ihr System sie gelesen hat – sie steht jetzt bei Fassung {current}. Lesen Sie sie erneut und schicken Sie die Antwort zu dieser Fassung.",
-        "order-called-off": "Der Kunde hat Bestellung {reference} storniert, was er jederzeit tun darf, bevor sie beantwortet ist. Sie geht nur weiter, wenn Ihr System sagt, dass es die Stornierung zurücknimmt.",
-        "restore-not-announced": "Wer die Stornierung von Bestellung {reference} durch den Kunden zurücknimmt, muss ihn anschreiben und seine Bestellseite aktualisieren.",
-        "personal-data-removed": "Bei Bestellung {reference} wurden die persönlichen Angaben entfernt, daher lässt sie sich weder weiterschieben noch ändern.",
-        "transition-not-allowed": "Bestellung {reference} kann von ihrem jetzigen Stand nicht dorthin.",
-        "reason-required": "Wer eine Bestellung ablehnt, muss den Grund nennen, damit der Kunde ihn erfährt.",
-        "unknown-product": "Kein Produkt hier hat den Schlüssel {productSourceId}, daher kann es nicht auf Bestellung {reference} gesetzt werden.",
-        "duplicate-product": "Das Produkt {productSourceId} steht zweimal auf Bestellung {reference}.",
-        "payment-not-recordable": "Auf Bestellung {reference} ist nichts offen, daher lässt sich keine Zahlung dazu verbuchen."
-      }
-    },
-    "truncated": "Nur die ersten Einträge sind aufgeführt; die Zahlen oben gelten für die ganze Datei.",
-    "nothingToApply": "Dieser Lauf würde nichts ändern.",
-    "deleteWarning": "Produkte, die im Shop ausgeblendet werden: {count}. Sie bleiben im Katalog und lassen sich wiederherstellen.",
-    "deleteConfirmLabel": "Geben Sie zur Bestätigung {word} ein",
-    "deleteConfirmWord": "AUSBLENDEN",
-    "apply": "Diese Änderungen übernehmen",
-    "applying": "Wird übernommen…",
-    "applyErrors": {
-      "run-not-found": "Diesen Lauf gibt es nicht mehr. Laden Sie die Datei erneut hoch.",
-      "run-already-applied": "Diese Änderungen wurden bereits übernommen.",
-      "run-failed": "Dieser Lauf ist früher fehlgeschlagen und kann nicht übernommen werden. Laden Sie die Datei erneut hoch.",
-      "run-rows-pruned": "Diese Vorschau ist abgelaufen. Laden Sie die Datei erneut hoch, um die aktuellen Änderungen zu sehen.",
-      "run-superseded": "Ein neuerer Lauf hat diesen ersetzt. Öffnen Sie stattdessen den neuesten.",
-      "run-discarded": "Dieser Lauf wurde verworfen und kann nicht übernommen werden.",
-      "run-no-change": "Dieser Lauf hat nichts geändert, daher gibt es nichts zu übernehmen.",
-      "catalog-externally-owned": "Der Katalog wurde nach dem Hochladen dieser Datei an ein externes System übergeben, daher lässt sie sich nicht mehr übernehmen. Holen Sie den Katalog zurück, um sie zu übernehmen, oder verwerfen Sie sie.",
-      "customers-externally-owned": "Die Kundenkonten wurden nach dem Hochladen dieser Datei an ein angebundenes System übergeben, daher lässt sie sich nicht mehr übernehmen. Holen Sie die Konten in den Einstellungen zurück oder lassen Sie das angebundene System die Änderung schicken."
-    },
-    "applied": "Übernommen.",
-    "discard": "Verwerfen",
-    "historyEmpty": "Es ist noch kein Abgleich gelaufen.",
-    "historyCount": "Läufe: {count}",
-    "mode": {
-      "full": "Vollständiger Katalogexport",
-      "fullHint": "Die Datei führt jedes Produkt auf. Namen, Preise und Kategorien werden aktualisiert, neue Produkte hinzugefügt, und Produkte, die in der Datei fehlen, lassen sich ausblenden.",
-      "prices": "Preisaktualisierung",
-      "pricesHint": "Die Datei enthält nur Preise – die Grundliste, die Liste einer Kundengruppe oder beides. Nichts wird hinzugefügt, umbenannt, umkategorisiert oder ausgeblendet.",
-      "stock": "Bestandsaktualisierung",
-      "stockHint": "Die Datei enthält nur Bestandsmengen. Nichts wird hinzugefügt, umbenannt, umkategorisiert oder ausgeblendet.",
-      "custom": "Benutzerdefiniert"
-    },
-    "option": {
-      "name": "Produktnamen aktualisieren",
-      "category": "Produktkategorien aktualisieren",
-      "stock": "Bestandsmengen aktualisieren",
-      "taxRate": "MwSt.-Sätze aktualisieren",
-      "createMissing": "Produkte hinzufügen, die noch nicht im Katalog sind",
-      "updateExisting": "Produkte aktualisieren, die schon im Katalog sind",
-      "restoreReturning": "Ausgeblendete Produkte wiederherstellen, die wieder in der Datei auftauchen",
-      "createCategories": "Kategorien anlegen, die die Datei nennt, der Katalog aber nicht hat",
-      "authoritative": "Diese Datei ist der vollständige Katalog",
-      "softDelete": "Produkte ausblenden, die in der Datei fehlen",
-      "softDeleteHint": "Nur bei einem vollständigen Katalogexport möglich. Produkte, die hier in der Verwaltung angelegt wurden, werden so nie ausgeblendet."
-    },
-    "count": {
-      "create": "Hinzugefügt",
-      "update": "Aktualisiert",
-      "softDelete": "Ausgeblendet",
-      "restore": "Wiederhergestellt",
-      "unchanged": "Unverändert",
-      "categories": "Neue Kategorien",
-      "renamedCategories": "Umbenannte Kategorien",
-      "kept": "Behalten",
-      "errors": "Übersprungene Zeilen"
-    },
-    "status": {
-      "previewed": "Wartet",
-      "applied": "Übernommen",
-      "failed": "Fehlgeschlagen",
-      "superseded": "Ersetzt",
-      "discarded": "Verworfen",
-      "no-change": "Keine Änderung"
-    },
-    "col": {
-      "date": "Datum",
-      "file": "Datei",
-      "actor": "Von",
-      "status": "Status",
-      "changes": "Änderungen"
-    },
-    "statusAll": "Alle Läufe",
-    "filterStatus": "Nach Status filtern",
-    "stagedReason": {
-      "policy": "Wartet auf Prüfung: Dieser Lauf ändert mehr, als ohne Prüfung übernommen werden darf.",
-      "requested": "Wartet auf Prüfung: Das sendende System konnte nicht vollständig für das Gelesene einstehen."
-    },
-    "uploadTitle": "Manueller Abgleich",
-    "newRun": "Manueller Abgleich",
-    "backToRuns": "Alle Läufe",
-    "areas": {
-      "catalog": {
-        "title": "Katalogabgleich",
-        "runsDescription": "Jeder Katalog-Lauf, ob von Hand hochgeladen oder von einem angebundenen System geschickt. Ein Lauf, der auf Prüfung wartet, ändert nichts, bis er übernommen wird."
-      },
-      "customers": {
-        "title": "Kundenabgleich",
-        "runsDescription": "Jeder Kunden-Lauf, ob von Hand hochgeladen oder von einem angebundenen System geschickt. Ein Lauf, der auf Prüfung wartet, ändert nichts, bis er übernommen wird."
-      },
-      "orders": {
-        "title": "Bestellabgleich",
-        "runsDescription": "Jede Bestellaktualisierung, die Ihr angebundenes System zurückgeschickt hat. Sie werden beim Eintreffen übernommen – hier gibt es nichts zu prüfen, und dies ist das Protokoll dessen, was beantwortet wurde."
-      }
-    },
-    "sourceUpload": "Hochgeladen",
-    "runTitle": "Abgleichslauf",
-    "runLoadError": "Dieser Lauf konnte nicht geladen werden.",
-    "planUnavailable": "Die Änderungen dieses Laufs sind nicht mehr gespeichert.",
-    "failureTitle": "Was das sendende System gemeldet hat",
-    "noticeTitle": "Hinweis des sendenden Systems",
-    "startedLabel": "Gestartet",
-    "finishedLabel": "Beendet",
-    "discardRun": "Diesen Lauf verwerfen",
-    "summaryTitleApplied": "Was dieser Lauf geändert hat",
-    "nothingChanged": "Dieser Lauf hat nichts geändert.",
-    "field": {
-      "name": "Namen",
-      "category": "Kategorien",
-      "stock": "Bestände",
-      "taxRate": "MwSt.-Sätze",
-      "priceList": "Preise ({key})"
-    },
-    "moreFields": "+{count}",
-    "taxRateDefault": "Regelsatz",
-    "discardConfirm": {
-      "heading": "Diesen Lauf verwerfen?",
-      "message": "Nichts wird übernommen, und der Lauf bleibt als verworfen im Protokoll. Ein späterer Lauf kann dieselben Änderungen noch bringen.",
-      "confirm": "Diesen Lauf verwerfen"
-    }
-  },
-  "apiTokens": {
-    "page": {
-      "title": "Maschinen-Tokens",
-      "intro": "Ein Maschinen-Token lässt einen automatisierten Client – einen geplanten Import, eine Integration – ohne Anmeldung auf die API zugreifen. Es ist kein Konto: Es hat kein Passwort, kein Postfach und keine Rolle, nur die Dinge, die es tun darf."
-    },
-    "add": "Neues Token",
-    "create": "Token erstellen",
-    "name": "Name",
-    "namePlaceholder": "Nächtlicher Katalogimport",
-    "nameRequired": "Ein Name ist erforderlich.",
-    "scope": "Darf",
-    "scopeHint": "Ein Token kann nur, was es hier darf. Um das zu ändern, widerrufen Sie es und stellen Sie ein neues aus.",
-    "scopeRequired": "Wählen Sie mindestens eine Sache, die dieses Token tun darf.",
-    "scopeKind": {
-      "read": "Lesen",
-      "submit": "Senden"
-    },
-    "scopeArea": {
-      "catalog": "Katalog",
-      "customers": "Kundenkonten",
-      "orders": "Bestellungen"
-    },
-    "scopes": {
-      "catalog-sync": "Katalogimporte senden",
-      "customer-sync": "Kundenaktualisierungen senden",
-      "customer-read": "Kundenkonten lesen",
-      "order-read": "Bestellungen lesen",
-      "order-sync": "Bestellaktualisierungen senden"
-    },
-    "createdHeading": "„{name}“ erstellt",
-    "createdOnce": "Kopieren Sie den Wert jetzt – er wird nur dieses eine Mal angezeigt und lässt sich nicht wieder abrufen. Wenn Sie ihn verlieren, widerrufen Sie dieses Token und stellen Sie ein neues aus.",
-    "copy": "Kopieren",
-    "copied": "Kopiert",
-    "active": "Aktiv",
-    "revoked": "Widerrufen",
-    "created": "Erstellt am {date} von {actor}",
-    "lastUsed": "Zuletzt verwendet am {date}",
-    "neverUsed": "Nie verwendet",
-    "empty": "Noch keine Maschinen-Tokens.",
-    "createError": "Dieses Token konnte nicht erstellt werden. Bitte versuchen Sie es noch einmal.",
-    "revokeAria": "Widerrufen",
-    "revokeError": "Dieses Token konnte nicht widerrufen werden. Bitte versuchen Sie es noch einmal.",
-    "revokeConfirm": {
-      "heading": "Token widerrufen",
-      "message": "„{name}“ widerrufen?",
-      "confirm": "Widerrufen",
-      "warning": "Was dieses Token verwendet, funktioniert ab der nächsten Anfrage nicht mehr. Der Widerruf lässt sich nicht rückgängig machen – stellen Sie ein neues Token aus und richten Sie den Client neu ein."
-    }
-  },
-  "ownership": {
-    "intro": "Übergeben Sie einen Datenbereich des Shops an ein externes System oder holen Sie ihn zurück. Solange ein externes System einen Bereich verwaltet, schreibt nur es ihn: Der eigene Zugang des Shops ist abgeschaltet, und was es füllt, ist hier schreibgeschützt. Solange niemand ihn verwaltet, ist der Shop zuständig, und automatische Aktualisierungen werden abgewiesen.",
-    "areaText": {
-      "catalog": {
-        "name": "Katalog",
-        "description": "Produktnamen, Kategorien, Preise und Bestand. Beschreibungen, Fotos, Merkmale, Dokumente, Zuordnungen und welche Produkte der Shop zeigt, bleiben in jedem Fall bei Ihnen.",
-        "ownedEffect": "Datei-Uploads sind aus, und die obigen Felder sind im Katalogeditor schreibgeschützt.",
-        "ownEffect": "Datei-Uploads funktionieren, und automatische Aktualisierungen werden abgewiesen.",
-        "handTitle": "Katalog übergeben",
-        "handConfirm": "Den Katalog an ein externes System übergeben?",
-        "handWarning": "Datei-Uploads funktionieren dann nicht mehr, und Namen, Kategorien, Preise und Bestand werden im Katalogeditor schreibgeschützt. Eine bereits hochgeladene, wartende Datei lässt sich nicht mehr übernehmen.",
-        "takeTitle": "Katalog zurückholen",
-        "takeConfirm": "Den Katalog vom externen System zurückholen?",
-        "takeWarning": "Die Aktualisierungen des externen Systems werden ab seinem nächsten Versuch abgewiesen, und was es in dieser Zeit schickt, wird nicht gespeichert. Übergeben Sie den Katalog wieder, wenn Sie fertig sind."
-      },
-      "customers": {
-        "name": "Kundenkonten",
-        "description": "Wer sich anmelden darf, wie die Person heißt, für welches Unternehmen sie kauft und welche Preisliste für sie gilt. Ihre Bestellungen sind ein eigener Bereich.",
-        "ownedEffect": "Konten werden in jenem System freigegeben, bearbeitet, abgeschaltet und wieder eingeschaltet. Die Listen hier zeigen weiterhin alles.",
-        "ownEffect": "Konten werden hier freigegeben und bearbeitet, und automatische Aktualisierungen werden abgewiesen.",
-        "handTitle": "Kundenkonten übergeben",
-        "handConfirm": "Die Kundenkonten an ein externes System übergeben?",
-        "handWarning": "Anträge freigeben, Konten bearbeiten, Preislisten ändern, Konten ab- und wieder einschalten und Passwort-Links senden funktionieren dann hier nicht mehr und geschehen stattdessen in jenem System. Anträge kommen weiterhin an und werden gezählt, sodass Sie sehen, wer wartet – entschieden wird aber dort. Niemand wird abgemeldet, und nichts wird gelöscht.",
-        "takeTitle": "Kundenkonten zurückholen",
-        "takeConfirm": "Die Kundenkonten vom externen System zurückholen?",
-        "takeWarning": "Die Aktualisierungen des externen Systems werden ab seinem nächsten Versuch abgewiesen, und was es in dieser Zeit schickt, wird nicht gespeichert. Was es noch nicht geschickt hatte – eine Freigabe, eine Preisliste –, müssen Sie hier selbst festlegen."
-      },
-      "orders": {
-        "name": "Bestellabwicklung",
-        "description": "Bestellungen beantworten, ihren Inhalt ändern, Zahlungen verbuchen und die Dokumente, die das Team dazulegt. Eine Bestellung aufgeben und eine unbeantwortete stornieren gehören dem Kunden und bleiben in jedem Fall möglich.",
-        "ownedEffect": "Bestellungen werden in jenem System beantwortet, geändert und als bezahlt verbucht. Die Listen und die Bestellungen selbst zeigen weiterhin alles.",
-        "ownEffect": "Bestellungen werden hier beantwortet, und automatische Aktualisierungen werden abgewiesen.",
-        "handTitle": "Bestellabwicklung übergeben",
-        "handConfirm": "Die Bestellabwicklung an ein externes System übergeben?",
-        "handWarning": "Eine Bestellung annehmen, ablehnen und weiterschieben, ihren Inhalt ändern, eine Zahlung verbuchen, den Kunden informieren und ein Dokument dazulegen funktionieren dann hier nicht mehr und geschehen stattdessen in jenem System. Bestellungen kommen weiterhin an und werden gezählt, und ein Kunde kann eine unbeantwortete Bestellung weiterhin stornieren.",
-        "takeTitle": "Bestellabwicklung zurückholen",
-        "takeConfirm": "Die Bestellabwicklung vom externen System zurückholen?",
-        "takeWarning": "Die Aktualisierungen des externen Systems werden ab seinem nächsten Versuch abgewiesen, und was es in dieser Zeit schickt, wird nicht gespeichert. Was es noch nicht geschickt hatte – einen Status, eine Korrektur, eine Zahlung –, müssen Sie hier selbst erfassen."
-      }
-    },
-    "statusOwned": "Von einem externen System verwaltet",
-    "statusOwn": "Im Shop verwaltet",
-    "hand": "Übergeben",
-    "take": "Zurückholen",
-    "all": {
-      "heading": "Der ganze Shop",
-      "description": "Alle Bereiche auf einmal. Unten lassen sich Bereiche auch einzeln übergeben.",
-      "statusMixed": "Teilweise von einem externen System verwaltet",
-      "statusMixedEffect": "Von einem externen System verwaltete Bereiche: {count} von {total}.",
-      "hand": "Alles übergeben",
-      "take": "Alles zurückholen",
-      "handTitle": "Den ganzen Shop übergeben",
-      "handConfirm": "Alle Bereiche an ein externes System übergeben?",
-      "handWarning": "Das bewirkt für jeden Bereich, was eine einzelne Übergabe bewirken würde: Der eigene Zugang des Shops zu jedem ist abgeschaltet, und jenes System schreibt sie als Einziges. Bereiche, die es schon verwaltet, bleiben, wie sie sind.",
-      "takeTitle": "Den ganzen Shop zurückholen",
-      "takeConfirm": "Alle Bereiche vom externen System zurückholen?",
-      "takeWarning": "Die Aktualisierungen des externen Systems werden ab seinem nächsten Versuch in allen Bereichen abgewiesen, und was es in dieser Zeit schickt, wird nicht gespeichert. Übergeben Sie die Bereiche wieder, wenn Sie fertig sind.",
-      "areasToggle": "Bereiche einzeln"
-    },
-    "error": "Bei dieser Änderung ist etwas schiefgegangen. Bitte versuchen Sie es noch einmal.",
-    "runStranded": "Diese Datei wurde hochgeladen, bevor der Bereich an ein externes System übergeben wurde, und lässt sich daher nicht mehr übernehmen. Verwerfen Sie sie oder holen Sie den Bereich unter Datenhoheit in der Verwaltung zurück."
-  },
   "operations": {
     "page": {
       "title": "Wartung und Datenhoheit"
@@ -1600,6 +1223,385 @@
     },
     "ownership": {
       "orderLocked": "Bestellungen werden von einem externen System verwaltet, daher wird diese dort beantwortet statt hier. Kunden können weiterhin bestellen und unbeantwortete Bestellungen stornieren. Um Bestellungen im Shop zu bearbeiten, holen Sie die Bestellabwicklung unter Datenhoheit in der Verwaltung zurück."
+    }
+  },
+  "exchange": {
+    "sync": {
+      "description": "Laden Sie den Katalogexport hoch, um Produkte gesammelt zu aktualisieren. Geschrieben wird erst, wenn Sie die Änderungen geprüft und übernommen haben.",
+      "modeLabel": "Was ist das für eine Datei?",
+      "advanced": "Erweiterte Optionen",
+      "file": "Katalogdatei (CSV)",
+      "fileHint": "Spalten: sourceId (Pflicht), name, categorySourceId, categoryName, price, stock, taxRate. Preise sind ganze Zahlen in Cent; der Bestand ist eine ganze Stückzahl und darf negativ sein; taxRate ist ein Prozentwert wie 7 oder 5,5, und eine leere Zelle bedeutet den Regelsatz. Die Preisliste einer Kundengruppe ist eine eigene Spalte, geschrieben als „price:“ plus der Abgleichschlüssel der Gruppe – siehe Kundengruppen.",
+      "dropHint": "CSV-Datei hier ablegen",
+      "browse": "oder eine Datei wählen",
+      "changeFile": "Andere Datei ablegen oder zum Wechseln klicken",
+      "preview": "Änderungen anzeigen",
+      "previewing": "Datei wird gelesen…",
+      "previewError": "Diese Datei konnte nicht gelesen werden.",
+      "formatErrors": {
+        "no-file": "Es wurde keine Datei gesendet. Bitte wählen Sie eine Datei und versuchen Sie es noch einmal.",
+        "file-too-large": "Diese Datei ist zu groß zum Hochladen. Teilen Sie den Export in kleinere Dateien auf.",
+        "file-empty": "Diese Datei ist leer.",
+        "no-header-row": "Diese Datei hat keine Kopfzeile, daher lassen sich ihre Spalten nicht lesen.",
+        "malformed-quotes": "Um Zeile {row} wird ein Anführungszeichen geöffnet und nie geschlossen, daher lässt sich der Rest der Datei nicht lesen. Prüfen Sie, ob jedes \" sein schließendes Gegenstück hat und ein Anführungszeichen innerhalb eines Werts verdoppelt ist.",
+        "duplicate-column": "Die Spalte „{column}“ kommt mehr als einmal vor, daher ist unklar, welche gilt.",
+        "unknown-columns": "Diese Spalten sind unbekannt: {columns}. Erwartet wird eine von: {expected}.",
+        "missing-required-column": "Die Datei braucht eine Spalte „{column}“.",
+        "too-many-rows": "Diese Datei hat {rows} Zeilen; die Grenze liegt bei {limit}. Teilen Sie sie in kleinere Dateien auf.",
+        "options-invalid": "Die mit dieser Datei gesendeten Optionen waren ungültig. Laden Sie die Seite neu und versuchen Sie es noch einmal.",
+        "catalog-externally-owned": "Der Katalog wird von einem externen System verwaltet, daher sind Uploads abgeschaltet. Um eine Datei hochzuladen, holen Sie den Katalog unter Datenhoheit in der Verwaltung zurück.",
+        "customers-externally-owned": "Kundenkonten werden von einem angebundenen System aktuell gehalten, daher ist der Import aus einer Datei hier abgeschaltet. Holen Sie die Konten in den Einstellungen zurück, um von Hand zu importieren."
+      },
+      "summaryTitle": "Was dieser Lauf ändern würde",
+      "productsTitle": "Produkte",
+      "categoriesTitle": "Neue Kategorien",
+      "categoriesHint": "Diese werden ohne übergeordnete Kategorie angelegt. Ordnen Sie sie danach unter Kategorien in den Baum ein.",
+      "renamedCategoriesTitle": "Umbenannte Kategorien",
+      "renamedCategoriesHint": "Die Datei gibt diesen Kategorien einen neuen Namen. Ihr Platz im Baum und ihre Webadresse bleiben, wie sie sind.",
+      "emptiedTitle": "Leer gewordene Kategorien",
+      "emptiedHint": "Darin sind keine Produkte mehr. Der Abgleich löscht nie eine Kategorie – entfernen Sie sie selbst, wenn sie nicht mehr gebraucht werden.",
+      "keptTitle": "Behalten (hier angelegt, nicht in der Datei)",
+      "keptHint": "Diese Produkte wurden in der Verwaltung angelegt, sind daher nicht im Export und werden durch einen Abgleich nie ausgeblendet.",
+      "errorsTitle": "Übersprungene Zeilen",
+      "errorRow": "Zeile {row}",
+      "rowErrors": {
+        "missing-source-id": "Diese Zeile hat keine sourceId, daher gibt es kein Produkt, dem sie zugeordnet werden kann.",
+        "duplicate-source-id": "Diese sourceId kommt weiter oben in der Datei schon vor; nur die erste Zeile dafür wird verwendet.",
+        "category-id-without-name": "Die Kategorie „{category}“ hat eine ID, aber keinen Namen, und kann daher weder angelegt noch umbenannt werden.",
+        "category-name-without-id": "Die Kategorie „{category}“ hat einen Namen, aber keine ID, daher ist unklar, welche Kategorie gemeint ist.",
+        "price-not-an-integer": "Der Preis „{price}“ in Spalte „{column}“ ist keine ganze Zahl in Cent.",
+        "price-is-zero": "Der Preis in Spalte „{column}“ ist null. Ein Produkt ohne Preis wird ohne diese Spalte gesendet, nicht mit einer Null darin.",
+        "stock-not-an-integer": "Der Bestand „{stock}“ ist keine ganze Stückzahl.",
+        "tax-rate-invalid": "Der Steuersatz „{taxRate}“ ist kein Prozentwert von 0 bis 100.",
+        "unknown-price-list": "Es gibt keine Preisliste „{key}“ – dieser Katalog hat {known}.",
+        "category-name-conflict": "Die Kategorie „{key}“ heißt in dieser Datei sowohl „{first}“ als auch „{second}“.",
+        "unknown-category": "Die Kategorie „{name}“ ({key}) ist nicht im Katalog, und dieser Lauf legt keine Kategorien an.",
+        "cannot-create-product": "Dieses Produkt ist neu, und ein neues Produkt braucht einen Namen und eine Kategorie."
+      },
+      "customers": {
+        "accountsTitle": "Konten",
+        "uploadTitle": "Kundenimport",
+        "uploadDescription": "Importieren Sie Kundenangaben aus einer Datei – ihre Preisliste, ihre Firmenangaben und ob sie sich anmelden dürfen. Geschrieben und gemailt wird erst, wenn Sie die Änderungen geprüft und übernommen haben. Neue Konten werden ohne Passwort angelegt: Jede Person erhält einen Link, um ihr eigenes festzulegen.",
+        "file": "Kundendatei (CSV)",
+        "fileHint": "Spalten: {columns}. sourceId ist Pflicht und der Schlüssel, über den der Kunde zugeordnet wird. access ist „enabled“ oder „disabled“; sendPasswordLink ist „yes“ oder „no“. Eine leere Zelle lässt das Feld, wie es ist – sie leert es nie.",
+        "mode": {
+          "full": "Kundenliste",
+          "fullHint": "Die Datei enthält vollständige Kundendatensätze. Preislisten und Firmenangaben werden aktualisiert, und Kunden, die der Shop noch nicht hat, werden eingeladen – jeder per E-Mail.",
+          "tiers": "Preislisten-Aktualisierung",
+          "tiersHint": "Die Datei sagt nur, welche Preisliste jedem Kunden berechnet wird. Niemand wird eingeladen, niemand bekommt eine E-Mail, und niemandes Zugang ändert sich.",
+          "custom": "Benutzerdefiniert"
+        },
+        "option": {
+          "email": "E-Mail-Adressen aktualisieren",
+          "tier": "Preislisten aktualisieren",
+          "company": "Firmenangaben aktualisieren",
+          "createMissing": "Kunden einladen, die noch kein Konto haben",
+          "updateExisting": "Kunden aktualisieren, die schon ein Konto haben",
+          "claimByEmail": "Konten über die E-Mail-Adresse übernehmen – wo der Schlüssel unbekannt ist, sich aber jemand mit dieser Adresse hier registriert hat, dessen Konto übernehmen, statt die Zeile zu überspringen"
+        },
+        "count": {
+          "create": "Eingeladen",
+          "update": "Aktualisiert",
+          "softDelete": "Abgeschaltet",
+          "restore": "Wieder eingeschaltet",
+          "claimed": "Übernommen",
+          "claimedById": "Über ID übernommen",
+          "mailed": "Links verschickt",
+          "unchanged": "Unverändert",
+          "errors": "Übersprungen"
+        },
+        "field": {
+          "email": "E-Mail",
+          "tier": "Preisliste",
+          "customerType": "Kundenart",
+          "companyName": "Firma",
+          "companyId": "Unternehmenskennung"
+        },
+        "mailedRow": "schickt einen Link zum Festlegen des Passworts",
+        "rowErrors": {
+          "missing-source-id": "Diese Zeile hat keine sourceId, daher gibt es kein Konto, dem sie zugeordnet werden kann.",
+          "duplicate-source-id": "Diese sourceId kommt weiter oben in diesem Lauf schon vor; nur die erste Zeile dafür wird verwendet.",
+          "duplicate-email": "Zwei Zeilen in diesem Lauf beanspruchen die Adresse {email}; nur die erste wird verwendet.",
+          "email-taken": "Ein anderes Konto verwendet {email} bereits. Konten werden über ihre sourceId zugeordnet, daher bräuchte diese Zeile eine andere Adresse.",
+          "account-unclaimed": "Jemand hat sich hier mit {email} registriert und hat noch keinen Quellschlüssel – fast sicher dieser Kunde. Schalten Sie „Konten über die E-Mail-Adresse übernehmen“ ein, um das Konto zu übernehmen, oder geben Sie ihm seinen Schlüssel im Kontoeditor.",
+          "account-unknown": "Diese Zeile nennt das Konto {accountId}, und hier hat kein Konto diese ID. Das Quellsystem verweist auf etwas, das es hier nicht gibt – nichts anderes in der Zeile wird verwendet, um zu erraten, was gemeint war.",
+          "account-already-keyed": "Konto {accountId} hat bereits einen eigenen Quellschlüssel und ist im Quellsystem also schon jemand. Ein Konto kann nicht auf zwei Schlüssel hören.",
+          "account-unclaimed-by-id": "Diese Zeile nennt das Konto {accountId} ({email}), das noch keinen Quellschlüssel hat. Schalten Sie „Konten über die ID übernehmen“ ein, um es zu übernehmen, oder geben Sie ihm seinen Schlüssel im Kontoeditor.",
+          "unknown-tier": "Es gibt keine Preisliste „{key}“ – dieser Shop hat {known}.",
+          "cannot-create-account": "Dieser Kunde hat hier noch kein Konto, und ein neues braucht eine E-Mail-Adresse, an die der Link zum Festlegen des Passworts geht.",
+          "account-withdrawn": "Dieser Kunde hat sein Konto gelöscht. Von hier aus wird es nicht neu angelegt – er müsste sich selbst registrieren.",
+          "staff-account": "Diese Zeile verweist auf ein Mitarbeiterkonto. Mitarbeitende sind nie Kunden, und ihre Konten verwaltet weiterhin der Shop.",
+          "cannot-send-link": "Ein Link zum Festlegen des Passworts wurde angefordert, aber dieses Konto kann sich nicht anmelden – schalten Sie es im selben Lauf oder vorher ein.",
+          "company-details-incomplete": "Ein Unternehmen braucht einen Namen und eine Unternehmenskennung; diese Zeile hat nur eines davon.",
+          "customer-type-not-accepted": "Diese Zeile macht den Kunden zu einer Kundenart, an die dieser Shop nicht verkauft. Prüfen Sie die Kundenart, die das Quellsystem für ihn sendet.",
+          "invalid-value": "Die Spalte „{column}“ dieser Zeile enthält „{value}“, und das kann diese Spalte nicht aufnehmen. Die Zeile wird übersprungen, der Rest der Datei nicht."
+        },
+        "claimWarning": "Im Shop registrierte Konten, die dieser Lauf über ihre E-Mail-Adresse übernimmt: {count}. Ab dann bezeichnet der Quellschlüssel diese Person, und der nächste Lauf kann ihre Preisliste ändern oder sie abschalten. Prüfen Sie zuerst die Zeilen unten.",
+        "claimByIdWarning": "Konten, die dieser Lauf über die vom Quellsystem genannte ID übernimmt: {count}. Diese ID stammt aus diesem Shop, es ist also eine bewusste Wahl und keine Vermutung – aber nur so richtig wie die Zuordnung auf der anderen Seite. Ab dann bezeichnet der Quellschlüssel diese Person.",
+        "disableWarning": "Kunden, die ihren Zugang verlieren: {count}. Sie bleiben in der Kontenliste und lassen sich wieder einschalten."
+      },
+      "orders": {
+        "ordersTitle": "Bestellungen",
+        "count": {
+          "update": "Beantwortet",
+          "unchanged": "Unverändert",
+          "mailed": "Kunden benachrichtigt",
+          "errors": "Übersprungen"
+        },
+        "kind": {
+          "adjustment": "Geändert",
+          "transition": "Weitergeschoben",
+          "payment": "Zahlung"
+        },
+        "field": {
+          "status": "Status",
+          "lines": "Bestellpositionen",
+          "payment": "Zahlungen"
+        },
+        "notifiedRow": "Kunde wurde angeschrieben",
+        "rowErrors": {
+          "order-not-found": "Hier gibt es keine Bestellung mit der Nummer {reference}.",
+          "duplicate-reference": "Bestellung {reference} kommt weiter oben in dieser Aktualisierung schon vor; nur die erste Anweisung dafür wird verwendet.",
+          "order-changed": "Bestellung {reference} ist weitergegangen, seit Ihr System sie gelesen hat – sie steht jetzt bei Fassung {current}. Lesen Sie sie erneut und schicken Sie die Antwort zu dieser Fassung.",
+          "order-called-off": "Der Kunde hat Bestellung {reference} storniert, was er jederzeit tun darf, bevor sie beantwortet ist. Sie geht nur weiter, wenn Ihr System sagt, dass es die Stornierung zurücknimmt.",
+          "restore-not-announced": "Wer die Stornierung von Bestellung {reference} durch den Kunden zurücknimmt, muss ihn anschreiben und seine Bestellseite aktualisieren.",
+          "personal-data-removed": "Bei Bestellung {reference} wurden die persönlichen Angaben entfernt, daher lässt sie sich weder weiterschieben noch ändern.",
+          "transition-not-allowed": "Bestellung {reference} kann von ihrem jetzigen Stand nicht dorthin.",
+          "reason-required": "Wer eine Bestellung ablehnt, muss den Grund nennen, damit der Kunde ihn erfährt.",
+          "unknown-product": "Kein Produkt hier hat den Schlüssel {productSourceId}, daher kann es nicht auf Bestellung {reference} gesetzt werden.",
+          "duplicate-product": "Das Produkt {productSourceId} steht zweimal auf Bestellung {reference}.",
+          "payment-not-recordable": "Auf Bestellung {reference} ist nichts offen, daher lässt sich keine Zahlung dazu verbuchen."
+        }
+      },
+      "truncated": "Nur die ersten Einträge sind aufgeführt; die Zahlen oben gelten für die ganze Datei.",
+      "nothingToApply": "Dieser Lauf würde nichts ändern.",
+      "deleteWarning": "Produkte, die im Shop ausgeblendet werden: {count}. Sie bleiben im Katalog und lassen sich wiederherstellen.",
+      "deleteConfirmLabel": "Geben Sie zur Bestätigung {word} ein",
+      "deleteConfirmWord": "AUSBLENDEN",
+      "apply": "Diese Änderungen übernehmen",
+      "applying": "Wird übernommen…",
+      "applyErrors": {
+        "run-not-found": "Diesen Lauf gibt es nicht mehr. Laden Sie die Datei erneut hoch.",
+        "run-already-applied": "Diese Änderungen wurden bereits übernommen.",
+        "run-failed": "Dieser Lauf ist früher fehlgeschlagen und kann nicht übernommen werden. Laden Sie die Datei erneut hoch.",
+        "run-rows-pruned": "Diese Vorschau ist abgelaufen. Laden Sie die Datei erneut hoch, um die aktuellen Änderungen zu sehen.",
+        "run-superseded": "Ein neuerer Lauf hat diesen ersetzt. Öffnen Sie stattdessen den neuesten.",
+        "run-discarded": "Dieser Lauf wurde verworfen und kann nicht übernommen werden.",
+        "run-no-change": "Dieser Lauf hat nichts geändert, daher gibt es nichts zu übernehmen.",
+        "catalog-externally-owned": "Der Katalog wurde nach dem Hochladen dieser Datei an ein externes System übergeben, daher lässt sie sich nicht mehr übernehmen. Holen Sie den Katalog zurück, um sie zu übernehmen, oder verwerfen Sie sie.",
+        "customers-externally-owned": "Die Kundenkonten wurden nach dem Hochladen dieser Datei an ein angebundenes System übergeben, daher lässt sie sich nicht mehr übernehmen. Holen Sie die Konten in den Einstellungen zurück oder lassen Sie das angebundene System die Änderung schicken."
+      },
+      "applied": "Übernommen.",
+      "discard": "Verwerfen",
+      "historyEmpty": "Es ist noch kein Abgleich gelaufen.",
+      "historyCount": "Läufe: {count}",
+      "mode": {
+        "full": "Vollständiger Katalogexport",
+        "fullHint": "Die Datei führt jedes Produkt auf. Namen, Preise und Kategorien werden aktualisiert, neue Produkte hinzugefügt, und Produkte, die in der Datei fehlen, lassen sich ausblenden.",
+        "prices": "Preisaktualisierung",
+        "pricesHint": "Die Datei enthält nur Preise – die Grundliste, die Liste einer Kundengruppe oder beides. Nichts wird hinzugefügt, umbenannt, umkategorisiert oder ausgeblendet.",
+        "stock": "Bestandsaktualisierung",
+        "stockHint": "Die Datei enthält nur Bestandsmengen. Nichts wird hinzugefügt, umbenannt, umkategorisiert oder ausgeblendet.",
+        "custom": "Benutzerdefiniert"
+      },
+      "option": {
+        "name": "Produktnamen aktualisieren",
+        "category": "Produktkategorien aktualisieren",
+        "stock": "Bestandsmengen aktualisieren",
+        "taxRate": "MwSt.-Sätze aktualisieren",
+        "createMissing": "Produkte hinzufügen, die noch nicht im Katalog sind",
+        "updateExisting": "Produkte aktualisieren, die schon im Katalog sind",
+        "restoreReturning": "Ausgeblendete Produkte wiederherstellen, die wieder in der Datei auftauchen",
+        "createCategories": "Kategorien anlegen, die die Datei nennt, der Katalog aber nicht hat",
+        "authoritative": "Diese Datei ist der vollständige Katalog",
+        "softDelete": "Produkte ausblenden, die in der Datei fehlen",
+        "softDeleteHint": "Nur bei einem vollständigen Katalogexport möglich. Produkte, die hier in der Verwaltung angelegt wurden, werden so nie ausgeblendet."
+      },
+      "count": {
+        "create": "Hinzugefügt",
+        "update": "Aktualisiert",
+        "softDelete": "Ausgeblendet",
+        "restore": "Wiederhergestellt",
+        "unchanged": "Unverändert",
+        "categories": "Neue Kategorien",
+        "renamedCategories": "Umbenannte Kategorien",
+        "kept": "Behalten",
+        "errors": "Übersprungene Zeilen"
+      },
+      "status": {
+        "previewed": "Wartet",
+        "applied": "Übernommen",
+        "failed": "Fehlgeschlagen",
+        "superseded": "Ersetzt",
+        "discarded": "Verworfen",
+        "no-change": "Keine Änderung"
+      },
+      "col": {
+        "date": "Datum",
+        "file": "Datei",
+        "actor": "Von",
+        "status": "Status",
+        "changes": "Änderungen"
+      },
+      "statusAll": "Alle Läufe",
+      "filterStatus": "Nach Status filtern",
+      "stagedReason": {
+        "policy": "Wartet auf Prüfung: Dieser Lauf ändert mehr, als ohne Prüfung übernommen werden darf.",
+        "requested": "Wartet auf Prüfung: Das sendende System konnte nicht vollständig für das Gelesene einstehen."
+      },
+      "uploadTitle": "Manueller Abgleich",
+      "newRun": "Manueller Abgleich",
+      "backToRuns": "Alle Läufe",
+      "areas": {
+        "catalog": {
+          "title": "Katalogabgleich",
+          "runsDescription": "Jeder Katalog-Lauf, ob von Hand hochgeladen oder von einem angebundenen System geschickt. Ein Lauf, der auf Prüfung wartet, ändert nichts, bis er übernommen wird."
+        },
+        "customers": {
+          "title": "Kundenabgleich",
+          "runsDescription": "Jeder Kunden-Lauf, ob von Hand hochgeladen oder von einem angebundenen System geschickt. Ein Lauf, der auf Prüfung wartet, ändert nichts, bis er übernommen wird."
+        },
+        "orders": {
+          "title": "Bestellabgleich",
+          "runsDescription": "Jede Bestellaktualisierung, die Ihr angebundenes System zurückgeschickt hat. Sie werden beim Eintreffen übernommen – hier gibt es nichts zu prüfen, und dies ist das Protokoll dessen, was beantwortet wurde."
+        }
+      },
+      "sourceUpload": "Hochgeladen",
+      "runTitle": "Abgleichslauf",
+      "runLoadError": "Dieser Lauf konnte nicht geladen werden.",
+      "planUnavailable": "Die Änderungen dieses Laufs sind nicht mehr gespeichert.",
+      "failureTitle": "Was das sendende System gemeldet hat",
+      "noticeTitle": "Hinweis des sendenden Systems",
+      "startedLabel": "Gestartet",
+      "finishedLabel": "Beendet",
+      "discardRun": "Diesen Lauf verwerfen",
+      "summaryTitleApplied": "Was dieser Lauf geändert hat",
+      "nothingChanged": "Dieser Lauf hat nichts geändert.",
+      "field": {
+        "name": "Namen",
+        "category": "Kategorien",
+        "stock": "Bestände",
+        "taxRate": "MwSt.-Sätze",
+        "priceList": "Preise ({key})"
+      },
+      "moreFields": "+{count}",
+      "taxRateDefault": "Regelsatz",
+      "discardConfirm": {
+        "heading": "Diesen Lauf verwerfen?",
+        "message": "Nichts wird übernommen, und der Lauf bleibt als verworfen im Protokoll. Ein späterer Lauf kann dieselben Änderungen noch bringen.",
+        "confirm": "Diesen Lauf verwerfen"
+      }
+    },
+    "apiTokens": {
+      "page": {
+        "title": "Maschinen-Tokens",
+        "intro": "Ein Maschinen-Token lässt einen automatisierten Client – einen geplanten Import, eine Integration – ohne Anmeldung auf die API zugreifen. Es ist kein Konto: Es hat kein Passwort, kein Postfach und keine Rolle, nur die Dinge, die es tun darf."
+      },
+      "add": "Neues Token",
+      "create": "Token erstellen",
+      "name": "Name",
+      "namePlaceholder": "Nächtlicher Katalogimport",
+      "nameRequired": "Ein Name ist erforderlich.",
+      "scope": "Darf",
+      "scopeHint": "Ein Token kann nur, was es hier darf. Um das zu ändern, widerrufen Sie es und stellen Sie ein neues aus.",
+      "scopeRequired": "Wählen Sie mindestens eine Sache, die dieses Token tun darf.",
+      "scopeKind": {
+        "read": "Lesen",
+        "submit": "Senden"
+      },
+      "scopeArea": {
+        "catalog": "Katalog",
+        "customers": "Kundenkonten",
+        "orders": "Bestellungen"
+      },
+      "scopes": {
+        "catalog-sync": "Katalogimporte senden",
+        "customer-sync": "Kundenaktualisierungen senden",
+        "customer-read": "Kundenkonten lesen",
+        "order-read": "Bestellungen lesen",
+        "order-sync": "Bestellaktualisierungen senden"
+      },
+      "createdHeading": "„{name}“ erstellt",
+      "createdOnce": "Kopieren Sie den Wert jetzt – er wird nur dieses eine Mal angezeigt und lässt sich nicht wieder abrufen. Wenn Sie ihn verlieren, widerrufen Sie dieses Token und stellen Sie ein neues aus.",
+      "copy": "Kopieren",
+      "copied": "Kopiert",
+      "active": "Aktiv",
+      "revoked": "Widerrufen",
+      "created": "Erstellt am {date} von {actor}",
+      "lastUsed": "Zuletzt verwendet am {date}",
+      "neverUsed": "Nie verwendet",
+      "empty": "Noch keine Maschinen-Tokens.",
+      "createError": "Dieses Token konnte nicht erstellt werden. Bitte versuchen Sie es noch einmal.",
+      "revokeAria": "Widerrufen",
+      "revokeError": "Dieses Token konnte nicht widerrufen werden. Bitte versuchen Sie es noch einmal.",
+      "revokeConfirm": {
+        "heading": "Token widerrufen",
+        "message": "„{name}“ widerrufen?",
+        "confirm": "Widerrufen",
+        "warning": "Was dieses Token verwendet, funktioniert ab der nächsten Anfrage nicht mehr. Der Widerruf lässt sich nicht rückgängig machen – stellen Sie ein neues Token aus und richten Sie den Client neu ein."
+      }
+    },
+    "ownership": {
+      "intro": "Übergeben Sie einen Datenbereich des Shops an ein externes System oder holen Sie ihn zurück. Solange ein externes System einen Bereich verwaltet, schreibt nur es ihn: Der eigene Zugang des Shops ist abgeschaltet, und was es füllt, ist hier schreibgeschützt. Solange niemand ihn verwaltet, ist der Shop zuständig, und automatische Aktualisierungen werden abgewiesen.",
+      "areaText": {
+        "catalog": {
+          "name": "Katalog",
+          "description": "Produktnamen, Kategorien, Preise und Bestand. Beschreibungen, Fotos, Merkmale, Dokumente, Zuordnungen und welche Produkte der Shop zeigt, bleiben in jedem Fall bei Ihnen.",
+          "ownedEffect": "Datei-Uploads sind aus, und die obigen Felder sind im Katalogeditor schreibgeschützt.",
+          "ownEffect": "Datei-Uploads funktionieren, und automatische Aktualisierungen werden abgewiesen.",
+          "handTitle": "Katalog übergeben",
+          "handConfirm": "Den Katalog an ein externes System übergeben?",
+          "handWarning": "Datei-Uploads funktionieren dann nicht mehr, und Namen, Kategorien, Preise und Bestand werden im Katalogeditor schreibgeschützt. Eine bereits hochgeladene, wartende Datei lässt sich nicht mehr übernehmen.",
+          "takeTitle": "Katalog zurückholen",
+          "takeConfirm": "Den Katalog vom externen System zurückholen?",
+          "takeWarning": "Die Aktualisierungen des externen Systems werden ab seinem nächsten Versuch abgewiesen, und was es in dieser Zeit schickt, wird nicht gespeichert. Übergeben Sie den Katalog wieder, wenn Sie fertig sind."
+        },
+        "customers": {
+          "name": "Kundenkonten",
+          "description": "Wer sich anmelden darf, wie die Person heißt, für welches Unternehmen sie kauft und welche Preisliste für sie gilt. Ihre Bestellungen sind ein eigener Bereich.",
+          "ownedEffect": "Konten werden in jenem System freigegeben, bearbeitet, abgeschaltet und wieder eingeschaltet. Die Listen hier zeigen weiterhin alles.",
+          "ownEffect": "Konten werden hier freigegeben und bearbeitet, und automatische Aktualisierungen werden abgewiesen.",
+          "handTitle": "Kundenkonten übergeben",
+          "handConfirm": "Die Kundenkonten an ein externes System übergeben?",
+          "handWarning": "Anträge freigeben, Konten bearbeiten, Preislisten ändern, Konten ab- und wieder einschalten und Passwort-Links senden funktionieren dann hier nicht mehr und geschehen stattdessen in jenem System. Anträge kommen weiterhin an und werden gezählt, sodass Sie sehen, wer wartet – entschieden wird aber dort. Niemand wird abgemeldet, und nichts wird gelöscht.",
+          "takeTitle": "Kundenkonten zurückholen",
+          "takeConfirm": "Die Kundenkonten vom externen System zurückholen?",
+          "takeWarning": "Die Aktualisierungen des externen Systems werden ab seinem nächsten Versuch abgewiesen, und was es in dieser Zeit schickt, wird nicht gespeichert. Was es noch nicht geschickt hatte – eine Freigabe, eine Preisliste –, müssen Sie hier selbst festlegen."
+        },
+        "orders": {
+          "name": "Bestellabwicklung",
+          "description": "Bestellungen beantworten, ihren Inhalt ändern, Zahlungen verbuchen und die Dokumente, die das Team dazulegt. Eine Bestellung aufgeben und eine unbeantwortete stornieren gehören dem Kunden und bleiben in jedem Fall möglich.",
+          "ownedEffect": "Bestellungen werden in jenem System beantwortet, geändert und als bezahlt verbucht. Die Listen und die Bestellungen selbst zeigen weiterhin alles.",
+          "ownEffect": "Bestellungen werden hier beantwortet, und automatische Aktualisierungen werden abgewiesen.",
+          "handTitle": "Bestellabwicklung übergeben",
+          "handConfirm": "Die Bestellabwicklung an ein externes System übergeben?",
+          "handWarning": "Eine Bestellung annehmen, ablehnen und weiterschieben, ihren Inhalt ändern, eine Zahlung verbuchen, den Kunden informieren und ein Dokument dazulegen funktionieren dann hier nicht mehr und geschehen stattdessen in jenem System. Bestellungen kommen weiterhin an und werden gezählt, und ein Kunde kann eine unbeantwortete Bestellung weiterhin stornieren.",
+          "takeTitle": "Bestellabwicklung zurückholen",
+          "takeConfirm": "Die Bestellabwicklung vom externen System zurückholen?",
+          "takeWarning": "Die Aktualisierungen des externen Systems werden ab seinem nächsten Versuch abgewiesen, und was es in dieser Zeit schickt, wird nicht gespeichert. Was es noch nicht geschickt hatte – einen Status, eine Korrektur, eine Zahlung –, müssen Sie hier selbst erfassen."
+        }
+      },
+      "statusOwned": "Von einem externen System verwaltet",
+      "statusOwn": "Im Shop verwaltet",
+      "hand": "Übergeben",
+      "take": "Zurückholen",
+      "all": {
+        "heading": "Der ganze Shop",
+        "description": "Alle Bereiche auf einmal. Unten lassen sich Bereiche auch einzeln übergeben.",
+        "statusMixed": "Teilweise von einem externen System verwaltet",
+        "statusMixedEffect": "Von einem externen System verwaltete Bereiche: {count} von {total}.",
+        "hand": "Alles übergeben",
+        "take": "Alles zurückholen",
+        "handTitle": "Den ganzen Shop übergeben",
+        "handConfirm": "Alle Bereiche an ein externes System übergeben?",
+        "handWarning": "Das bewirkt für jeden Bereich, was eine einzelne Übergabe bewirken würde: Der eigene Zugang des Shops zu jedem ist abgeschaltet, und jenes System schreibt sie als Einziges. Bereiche, die es schon verwaltet, bleiben, wie sie sind.",
+        "takeTitle": "Den ganzen Shop zurückholen",
+        "takeConfirm": "Alle Bereiche vom externen System zurückholen?",
+        "takeWarning": "Die Aktualisierungen des externen Systems werden ab seinem nächsten Versuch in allen Bereichen abgewiesen, und was es in dieser Zeit schickt, wird nicht gespeichert. Übergeben Sie die Bereiche wieder, wenn Sie fertig sind.",
+        "areasToggle": "Bereiche einzeln"
+      },
+      "error": "Bei dieser Änderung ist etwas schiefgegangen. Bitte versuchen Sie es noch einmal.",
+      "runStranded": "Diese Datei wurde hochgeladen, bevor der Bereich an ein externes System übergeben wurde, und lässt sich daher nicht mehr übernehmen. Verwerfen Sie sie oder holen Sie den Bereich unter Datenhoheit in der Verwaltung zurück."
     }
   }
 }

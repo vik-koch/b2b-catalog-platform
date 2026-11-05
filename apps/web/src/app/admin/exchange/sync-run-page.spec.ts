@@ -1,3 +1,4 @@
+import { defaultAdminExchangeText } from './exchange-text.fixture';
 import { SHARED_TEXT } from '../../platform/config/shared-text';
 import { defaultSharedText } from '../../platform/config/shared-text.fixture';
 import { TestBed } from '@angular/core/testing';
@@ -24,8 +25,8 @@ import { SyncRunPage } from './sync-run-page';
 import { SyncService } from './sync.service';
 import { AuthUser } from '@b2b-catalog-platform/shared/platform';
 
-const text = defaultAdminText.sync;
-const ownershipText = defaultAdminText.ownership;
+const text = defaultAdminExchangeText.sync;
+const ownershipText = defaultAdminExchangeText.ownership;
 
 const summary: SyncSummary = {
   rows: 4,

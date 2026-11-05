@@ -1,11 +1,9 @@
-import {
-  customerSyncPolicySchema,
-  syncPolicySchema,
-} from '@b2b-catalog-platform/shared/core/exchange';
+import { EXCHANGE_AREA } from '@b2b-catalog-platform/shared/core/exchange';
 import { loadConfig } from '@b2b-catalog-platform/shared/node';
 import { mergeShapes } from '@b2b-catalog-platform/shared/platform';
 import { ORDERING_AREA } from '@b2b-catalog-platform/shared/core/ordering';
 import { orderingApiConfigShape } from '../../core/ordering/ordering-api-config';
+import { exchangeApiConfigShape } from '../../core/exchange/exchange-api-config';
 import { retentionConfigSchema } from '../../core/retention/retention-config';
 import { sessionConfigSchema } from '../auth/session-config';
 import * as z from 'zod';
@@ -17,14 +15,6 @@ const platformApiConfigShape = {
   retention: retentionConfigSchema,
   /** How long a session lasts without use (FR-AUTH-12). */
   session: sessionConfigSchema.optional(),
-  /** What an automated run may do without a person looking (FR-ADM-07). */
-  sync: z
-    .object({
-      autoApply: syncPolicySchema.optional(),
-      customerAutoApply: customerSyncPolicySchema.optional(),
-    })
-    .strict()
-    .optional(),
 };
 
 /** `api.json`: what only the API reads, kept out of `deployment.json`, which
@@ -33,6 +23,7 @@ export const apiConfigSchema = z
   .object(
     mergeShapes(platformApiConfigShape, {
       [ORDERING_AREA]: z.object(orderingApiConfigShape).strict(),
+      [EXCHANGE_AREA]: z.object(exchangeApiConfigShape).strict().optional(),
     }),
   )
   .strict();
@@ -45,7 +36,7 @@ function loadWhole(): ApiConfig {
 }
 
 /** The keys no area claims; an area reads its block through its loader. */
-export function loadApiConfig(): Omit<ApiConfig, 'ordering'> {
+export function loadApiConfig(): Omit<ApiConfig, 'ordering' | 'exchange'> {
   return loadWhole();
 }
 

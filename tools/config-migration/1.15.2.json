@@ -276,6 +276,12 @@
     "texts/admin.json:ownership.accountDecline": "texts/admin.json:accounts.ownership.accountDecline",
     "texts/admin.json:ownership.accountActive": "texts/admin.json:accounts.ownership.accountActive",
     "texts/admin.json:ownership.orderLocked": "texts/admin.json:ordering.ownership.orderLocked",
-    "api.json:terms": "api.json:ordering.terms"
+    "api.json:terms": "api.json:ordering.terms",
+    "texts/admin.json:sync": "texts/admin.json:exchange.sync",
+    "texts/admin.json:apiTokens": "texts/admin.json:exchange.apiTokens",
+    "texts/admin.json:ownership": "texts/admin.json:exchange.ownership",
+    "texts/mail.json:syncRun": "texts/mail.json:exchange.syncRun",
+    "api.json:sync.autoApply": "api.json:exchange.autoApply",
+    "api.json:sync.customerAutoApply": "api.json:exchange.customerAutoApply"
   }
 }

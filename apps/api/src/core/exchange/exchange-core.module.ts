@@ -7,7 +7,7 @@ import {
   SYNC_POLICY,
   loadCustomerSyncPolicy,
   loadSyncPolicy,
-} from '../../platform/config/deployment-config';
+} from './exchange-config';
 import {
   ACCEPTED_CUSTOMER_TYPES,
   loadAcceptedCustomerTypes,

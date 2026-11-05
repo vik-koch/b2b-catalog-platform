@@ -10,6 +10,8 @@ import { ACCOUNTS_AREA } from '@b2b-catalog-platform/shared/core/accounts';
 import { accountsMailTextShape } from '../core/accounts/mail/accounts-mail-text';
 import { ORDERING_AREA } from '@b2b-catalog-platform/shared/core/ordering';
 import { orderingMailTextShape } from '../core/ordering/mail/ordering-mail-text';
+import { EXCHANGE_AREA } from '@b2b-catalog-platform/shared/core/exchange';
+import { exchangeMailTextShape } from '../core/exchange/exchange-mail-text';
 import { pdfTextShape } from '../platform/pdf/pdf-text';
 import { orderingPdfTextShape } from '../core/ordering/ordering-pdf-text';
 
@@ -21,6 +23,7 @@ export const mailTextSchema = z
       [SITE_AREA]: z.object(siteMailTextShape).strict(),
       [ACCOUNTS_AREA]: z.object(accountsMailTextShape).strict(),
       [ORDERING_AREA]: z.object(orderingMailTextShape).strict(),
+      [EXCHANGE_AREA]: z.object(exchangeMailTextShape).strict(),
     }),
   )
   .strict()

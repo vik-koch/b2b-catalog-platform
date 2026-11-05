@@ -227,7 +227,9 @@ const probes: Record<string, Probe<CustomerSyncJourneyContext>> = {
       for (const message of messages) {
         const body = await messageBody(message.ID);
         const match = Object.entries(SHOP_MAIL_KINDS).find(([key]) =>
-          body.Text.includes(mailText.syncRun.areas.customers[key].heading),
+          body.Text.includes(
+            mailText.exchange.syncRun.areas.customers[key].heading,
+          ),
         );
         kinds.push(match ? match[1] : `unrecognised: ${message.Subject}`);
       }

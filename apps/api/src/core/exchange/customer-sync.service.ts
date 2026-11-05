@@ -30,7 +30,7 @@ import {
   syncRuns,
   users,
 } from '../../platform/db/schema';
-import { CUSTOMER_SYNC_POLICY } from '../../platform/config/deployment-config';
+import { CUSTOMER_SYNC_POLICY } from './exchange-config';
 import { ACCEPTED_CUSTOMER_TYPES } from '../accounts/accounts-config';
 import { OwnershipState } from '../../platform/settings/ownership-state';
 import {

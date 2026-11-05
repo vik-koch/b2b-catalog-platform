@@ -14,12 +14,6 @@ import {
   shopTimeZone,
   TaxConfig,
 } from '@b2b-catalog-platform/shared/platform';
-import {
-  CustomerSyncPolicy,
-  DEFAULT_CUSTOMER_SYNC_POLICY,
-  DEFAULT_SYNC_POLICY,
-  SyncPolicy,
-} from '@b2b-catalog-platform/shared/core/exchange';
 import { configPath, loadConfig } from '@b2b-catalog-platform/shared/node';
 import { DEFAULT_SESSION_IDLE_DAYS } from '../auth/session-config';
 import { RetentionConfig } from '../../core/retention/retention-config';
@@ -157,22 +151,6 @@ export const MONEY_FORMAT = 'MONEY_FORMAT';
 
 export function loadMoneyFormat(): MoneyFormat {
   return moneyFormat(loadApiDeploymentConfig());
-}
-
-/** The ceilings an automated catalog run is judged against. */
-export const SYNC_POLICY = 'SYNC_POLICY';
-
-export function loadSyncPolicy(): SyncPolicy {
-  return loadApiConfig().sync?.autoApply ?? DEFAULT_SYNC_POLICY;
-}
-
-/** The customer exchange's own ceilings (FR-ADM-11). */
-export const CUSTOMER_SYNC_POLICY = 'CUSTOMER_SYNC_POLICY';
-
-export function loadCustomerSyncPolicy(): CustomerSyncPolicy {
-  return (
-    loadApiConfig().sync?.customerAutoApply ?? DEFAULT_CUSTOMER_SYNC_POLICY
-  );
 }
 
 /** The second keyboard layout searches read a query on, or null for none. */

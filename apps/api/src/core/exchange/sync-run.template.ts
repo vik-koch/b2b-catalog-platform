@@ -1,3 +1,4 @@
+import { exchangeMail } from './exchange-mail-text';
 import { SyncRun } from '@b2b-catalog-platform/shared/core/exchange';
 import { MailContent, MailRow } from '../../platform/mail/mail-layout';
 import { MailText } from '../../platform/mail/mail-text';
@@ -23,13 +24,13 @@ import { MailText } from '../../platform/mail/mail-text';
 
 /** The sentences for the area this run belongs to. */
 function wording(run: SyncRun, text: MailText) {
-  return text.syncRun.areas[run.area];
+  return exchangeMail(text).syncRun.areas[run.area];
 }
 
 /** How a run is identified in any of the four: the same three lines, in the
  * same order, so two mails about one feed line up. */
 function runRows(run: SyncRun, text: MailText, formatted: string): MailRow[] {
-  const t = text.syncRun;
+  const t = exchangeMail(text).syncRun;
   const rows: MailRow[] = [{ label: t.startedLabel, value: formatted }];
   // A label is what the source chose to call its export. Absent on a failure
   // reported before there was one, and a blank row there would read as a
@@ -47,7 +48,7 @@ function changes(run: SyncRun, text: MailText): MailRow[] {
   if (!summary) return [];
   return [
     {
-      label: text.syncRun.changesLabel,
+      label: exchangeMail(text).syncRun.changesLabel,
       value: `+${summary.create} ~${summary.update} −${summary.softDelete}`,
     },
   ];
@@ -77,10 +78,10 @@ export function syncFailedMail(
     rows: [
       ...runRows(run, text, started),
       ...(run.error
-        ? [{ label: text.syncRun.errorLabel, value: run.error }]
+        ? [{ label: exchangeMail(text).syncRun.errorLabel, value: run.error }]
         : []),
     ],
-    action: { label: text.syncRun.openRun, path: runPath(run) },
+    action: { label: exchangeMail(text).syncRun.openRun, path: runPath(run) },
   };
 }
 
@@ -98,7 +99,7 @@ export function syncRecoveredMail(
     heading: t.heading,
     paragraphs: [t.body],
     rows: [...runRows(run, text, started), ...changes(run, text)],
-    action: { label: text.syncRun.openRun, path: runPath(run) },
+    action: { label: exchangeMail(text).syncRun.openRun, path: runPath(run) },
   };
 }
 
@@ -123,8 +124,8 @@ export function syncWaitingMail(
   const reason = run.stagedReason
     ? [
         {
-          label: text.syncRun.reasonLabel,
-          value: text.syncRun.reasons[run.stagedReason],
+          label: exchangeMail(text).syncRun.reasonLabel,
+          value: exchangeMail(text).syncRun.reasons[run.stagedReason],
         },
       ]
     : [];
@@ -134,7 +135,7 @@ export function syncWaitingMail(
     heading: t.heading,
     paragraphs: [t.body],
     rows: [...runRows(run, text, started), ...changes(run, text), ...reason],
-    action: { label: text.syncRun.reviewRun, path: runPath(run) },
+    action: { label: exchangeMail(text).syncRun.reviewRun, path: runPath(run) },
   };
 }
 
@@ -153,7 +154,7 @@ export function syncCreatedMail(
   started: string,
   text: MailText,
 ): MailContent {
-  const t = text.syncRun.areas.catalog.created;
+  const t = exchangeMail(text).syncRun.areas.catalog.created;
   return {
     subject: t.subject,
     preheader: t.preheader,

@@ -1,3 +1,4 @@
+import { defaultAdminExchangeText } from '../exchange/exchange-text.fixture';
 import { SHARED_TEXT } from '../../platform/config/shared-text';
 import { defaultSharedText } from '../../platform/config/shared-text.fixture';
 import { TestBed } from '@angular/core/testing';
@@ -20,7 +21,7 @@ import { OperationsPage } from './operations-page';
 import { defaultAdminSiteText } from '../site/site-text.fixture';
 
 const text = defaultAdminText.operations;
-const ownershipText = defaultAdminText.ownership;
+const ownershipText = defaultAdminExchangeText.ownership;
 const maintenanceText = defaultAdminSiteText.maintenance;
 
 const config = {

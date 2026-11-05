@@ -1,3 +1,4 @@
+import { ADMIN_EXCHANGE_TEXT } from './exchange-text';
 import { NgTemplateOutlet } from '@angular/common';
 import { Component, computed, inject, input, resource } from '@angular/core';
 import { RouterLink } from '@angular/router';
@@ -10,7 +11,6 @@ import {
   syncRunStatusSchema,
 } from '@b2b-catalog-platform/shared/core/exchange';
 import { AuthService } from '../../platform/auth/auth.service';
-import { ADMIN_TEXT } from '../../platform/config/admin-text';
 import { delayedLoading } from '../../platform/delayed-loading';
 import { usePageSeo } from '../../platform/page-seo';
 import { stableValue } from '../../platform/stable-value';
@@ -171,7 +171,7 @@ import { pageNumber } from '../../platform/page-number';
 export class SyncRunsPage {
   protected readonly uploadIcon = uploadIcon;
   private readonly sync = inject(SyncService);
-  protected readonly text = inject(ADMIN_TEXT).sync;
+  protected readonly text = inject(ADMIN_EXCHANGE_TEXT).sync;
   private readonly auth = inject(AuthService);
 
   /** Uploads are an admin's, so a manager gets no button to a guarded route. */

@@ -110,8 +110,10 @@ const mailText = JSON.parse(
       kinds: Record<string, { heading: string }>;
     };
   };
-  syncRun: {
-    areas: { orders: Record<string, { heading: string }> };
+  exchange: {
+    syncRun: {
+      areas: { orders: Record<string, { heading: string }> };
+    };
   };
 };
 
@@ -252,7 +254,9 @@ const probes: Record<string, Probe<OrderSyncJourneyContext>> = {
       for (const message of messages) {
         const body = await messageBody(message.ID);
         const match = Object.entries(SHOP_MAIL_KINDS).find(([key]) =>
-          body.Text.includes(mailText.syncRun.areas.orders[key].heading),
+          body.Text.includes(
+            mailText.exchange.syncRun.areas.orders[key].heading,
+          ),
         );
         kinds.push(match ? match[1] : `unrecognised: ${message.Subject}`);
       }

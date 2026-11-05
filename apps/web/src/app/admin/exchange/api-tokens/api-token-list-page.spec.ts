@@ -1,3 +1,4 @@
+import { defaultAdminExchangeText } from '../exchange-text.fixture';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
 import { TestBed } from '@angular/core/testing';
@@ -17,7 +18,7 @@ import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service
 import { ApiTokenListPage } from './api-token-list-page';
 import { ApiTokensService } from './api-tokens.service';
 
-const text = defaultAdminText.apiTokens;
+const text = defaultAdminExchangeText.apiTokens;
 
 function token(overrides: Partial<ApiToken> = {}): ApiToken {
   return {

@@ -1,3 +1,4 @@
+import { ADMIN_EXCHANGE_TEXT } from '../exchange-text';
 import { Component, computed, inject, input, output } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
@@ -11,7 +12,6 @@ import {
   CatalogSyncProductChange,
   CatalogSyncRowError,
 } from '@b2b-catalog-platform/shared/core/exchange';
-import { ADMIN_TEXT } from '../../../platform/config/admin-text';
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import { Link } from '@b2b-catalog-platform/ui/actions/link';
 import {
@@ -177,7 +177,7 @@ import { SyncRowErrors } from './sync-row-errors';
   `,
 })
 export class SyncCatalogPlanView {
-  protected readonly text = inject(ADMIN_TEXT).sync;
+  protected readonly text = inject(ADMIN_EXCHANGE_TEXT).sync;
   private readonly currency = moneyFormat(inject(DEPLOYMENT_CONFIG));
   private readonly locale = inject(DEPLOYMENT_CONFIG).locale;
 

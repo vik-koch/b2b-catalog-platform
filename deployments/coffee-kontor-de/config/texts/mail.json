@@ -3,83 +3,6 @@
     "footerNote": "Diese Nachricht wurde automatisch von unserem Onlineshop verschickt. Bitte antworten Sie nicht an diese Adresse.",
     "linkExpiry": "Dieser Link lässt sich einmal verwenden und läuft sieben Tage nach dem Versand ab."
   },
-  "syncRun": {
-    "startedLabel": "Gestartet",
-    "labelLabel": "Export",
-    "sourceLabel": "Quelle",
-    "changesLabel": "Änderungen",
-    "errorLabel": "Was schiefging",
-    "reasonLabel": "Warum er wartet",
-    "reasons": {
-      "policy": "Seine Auswirkung ist größer, als eine automatische Aktualisierung sein darf",
-      "requested": "Die Quelle hat um Prüfung gebeten"
-    },
-    "openRun": "Lauf öffnen",
-    "reviewRun": "Aktualisierung prüfen",
-    "areas": {
-      "catalog": {
-        "failed": {
-          "subject": "Katalogaktualisierung fehlgeschlagen",
-          "preheader": "Eine automatische Katalogaktualisierung ist nicht durchgegangen.",
-          "heading": "Eine automatische Katalogaktualisierung ist fehlgeschlagen",
-          "body": "Ihr Katalog ist unverändert, und der Shop zeigt, was er vorher gezeigt hat. Solange das nicht behoben ist, veralten Preise und Bestände nach und nach – geben Sie diese Nachricht an die Person weiter, die die Anbindung an Ihr System betreut."
-        },
-        "recovered": {
-          "subject": "Katalogaktualisierungen funktionieren wieder",
-          "preheader": "Die automatische Katalogaktualisierung ist durchgegangen.",
-          "heading": "Katalogaktualisierungen funktionieren wieder",
-          "body": "Die Anbindung an Ihr System liefert wieder, und Ihr Katalog ist aktuell. In der Zwischenzeit ist nichts verloren gegangen: Eine Aktualisierung bringt den aktuellen Stand, keine Liste von Änderungen."
-        },
-        "waiting": {
-          "subject": "Eine Katalogaktualisierung wartet auf Sie",
-          "preheader": "Eine automatische Katalogaktualisierung braucht Ihre Entscheidung.",
-          "heading": "Eine Katalogaktualisierung wartet auf Sie",
-          "body": "Sie wurde noch nicht übernommen. Sehen Sie sich an, was sie ändern würde, und übernehmen oder verwerfen Sie sie – im Shop ändert sich nichts, bis Sie das tun."
-        },
-        "created": {
-          "subject": "Neue Produkte aus Ihrem System",
-          "preheader": "Eine automatische Katalogaktualisierung hat neue Produkte gebracht.",
-          "heading": "Neue Produkte eingetroffen",
-          "body": "Sie sind in Ihrem Katalog, aber nicht im Shop: Ein neues Produkt bleibt unsichtbar, bis Sie ihm Beschreibung und Bilder gegeben und es veröffentlicht haben.",
-          "action": "Neue Produkte öffnen"
-        }
-      },
-      "customers": {
-        "failed": {
-          "subject": "Kundenaktualisierung fehlgeschlagen",
-          "preheader": "Eine automatische Kundenaktualisierung ist nicht durchgegangen.",
-          "heading": "Eine automatische Kundenaktualisierung ist fehlgeschlagen",
-          "body": "Ihre Kundenkonten sind unverändert, und wer sich anmelden konnte, kann es weiterhin. Solange das nicht behoben ist, erreichen neue Kunden und geänderte Kundengruppen den Shop nicht, und Sie müssen sie womöglich von Hand eintragen – geben Sie diese Nachricht an die Person weiter, die die Anbindung an Ihr System betreut."
-        },
-        "recovered": {
-          "subject": "Kundenaktualisierungen funktionieren wieder",
-          "preheader": "Die automatische Kundenaktualisierung ist durchgegangen.",
-          "heading": "Kundenaktualisierungen funktionieren wieder",
-          "body": "Die Anbindung an Ihr System liefert wieder, und Ihre Kundenkonten sind aktuell. In der Zwischenzeit ist nichts verloren gegangen: Eine Aktualisierung bringt den aktuellen Stand, keine Liste von Änderungen."
-        },
-        "waiting": {
-          "subject": "Eine Kundenaktualisierung wartet auf Sie",
-          "preheader": "Eine automatische Kundenaktualisierung braucht Ihre Entscheidung.",
-          "heading": "Eine Kundenaktualisierung wartet auf Sie",
-          "body": "Sie wurde noch nicht übernommen. Sehen Sie sich an, welche Konten sie einladen, ändern oder abschalten würde, und übernehmen oder verwerfen Sie sie – niemandes Zugang ändert sich, bis Sie das tun."
-        }
-      },
-      "orders": {
-        "failed": {
-          "subject": "Bestellaktualisierungen fehlgeschlagen",
-          "preheader": "Eine automatische Bestellaktualisierung ist nicht durchgegangen.",
-          "heading": "Eine automatische Bestellaktualisierung ist fehlgeschlagen",
-          "body": "Ihre Bestellungen sind unverändert – Kunden warten also auf Nachricht zum Stand ihrer Bestellung, und niemand hier ist beauftragt, ihnen von Hand zu antworten. Solange das nicht behoben ist, bleiben Bestellungen aus dem Shop unbeantwortet – geben Sie diese Nachricht an die Person weiter, die die Anbindung an Ihr System betreut."
-        },
-        "recovered": {
-          "subject": "Bestellaktualisierungen funktionieren wieder",
-          "preheader": "Die automatische Bestellaktualisierung ist durchgegangen.",
-          "heading": "Bestellaktualisierungen funktionieren wieder",
-          "body": "Die Anbindung an Ihr System beantwortet wieder Bestellungen. Was sie während der Unterbrechung bearbeitet hat, kommt mit der nächsten Aktualisierung: Eine Bestellung bringt ihren aktuellen Stand, keine Liste von Schritten."
-        }
-      }
-    }
-  },
   "site": {
     "inquiry": {
       "subject": "Anfrage",
@@ -252,6 +175,85 @@
         "orderSummary": {
           "heading": "Eine Kopie Ihrer Bestellung",
           "body": "Wir haben eine Kopie Ihrer Bestellung beigelegt, die Sie über den Link unten öffnen können. An der Bestellung selbst hat sich nichts geändert."
+        }
+      }
+    }
+  },
+  "exchange": {
+    "syncRun": {
+      "startedLabel": "Gestartet",
+      "labelLabel": "Export",
+      "sourceLabel": "Quelle",
+      "changesLabel": "Änderungen",
+      "errorLabel": "Was schiefging",
+      "reasonLabel": "Warum er wartet",
+      "reasons": {
+        "policy": "Seine Auswirkung ist größer, als eine automatische Aktualisierung sein darf",
+        "requested": "Die Quelle hat um Prüfung gebeten"
+      },
+      "openRun": "Lauf öffnen",
+      "reviewRun": "Aktualisierung prüfen",
+      "areas": {
+        "catalog": {
+          "failed": {
+            "subject": "Katalogaktualisierung fehlgeschlagen",
+            "preheader": "Eine automatische Katalogaktualisierung ist nicht durchgegangen.",
+            "heading": "Eine automatische Katalogaktualisierung ist fehlgeschlagen",
+            "body": "Ihr Katalog ist unverändert, und der Shop zeigt, was er vorher gezeigt hat. Solange das nicht behoben ist, veralten Preise und Bestände nach und nach – geben Sie diese Nachricht an die Person weiter, die die Anbindung an Ihr System betreut."
+          },
+          "recovered": {
+            "subject": "Katalogaktualisierungen funktionieren wieder",
+            "preheader": "Die automatische Katalogaktualisierung ist durchgegangen.",
+            "heading": "Katalogaktualisierungen funktionieren wieder",
+            "body": "Die Anbindung an Ihr System liefert wieder, und Ihr Katalog ist aktuell. In der Zwischenzeit ist nichts verloren gegangen: Eine Aktualisierung bringt den aktuellen Stand, keine Liste von Änderungen."
+          },
+          "waiting": {
+            "subject": "Eine Katalogaktualisierung wartet auf Sie",
+            "preheader": "Eine automatische Katalogaktualisierung braucht Ihre Entscheidung.",
+            "heading": "Eine Katalogaktualisierung wartet auf Sie",
+            "body": "Sie wurde noch nicht übernommen. Sehen Sie sich an, was sie ändern würde, und übernehmen oder verwerfen Sie sie – im Shop ändert sich nichts, bis Sie das tun."
+          },
+          "created": {
+            "subject": "Neue Produkte aus Ihrem System",
+            "preheader": "Eine automatische Katalogaktualisierung hat neue Produkte gebracht.",
+            "heading": "Neue Produkte eingetroffen",
+            "body": "Sie sind in Ihrem Katalog, aber nicht im Shop: Ein neues Produkt bleibt unsichtbar, bis Sie ihm Beschreibung und Bilder gegeben und es veröffentlicht haben.",
+            "action": "Neue Produkte öffnen"
+          }
+        },
+        "customers": {
+          "failed": {
+            "subject": "Kundenaktualisierung fehlgeschlagen",
+            "preheader": "Eine automatische Kundenaktualisierung ist nicht durchgegangen.",
+            "heading": "Eine automatische Kundenaktualisierung ist fehlgeschlagen",
+            "body": "Ihre Kundenkonten sind unverändert, und wer sich anmelden konnte, kann es weiterhin. Solange das nicht behoben ist, erreichen neue Kunden und geänderte Kundengruppen den Shop nicht, und Sie müssen sie womöglich von Hand eintragen – geben Sie diese Nachricht an die Person weiter, die die Anbindung an Ihr System betreut."
+          },
+          "recovered": {
+            "subject": "Kundenaktualisierungen funktionieren wieder",
+            "preheader": "Die automatische Kundenaktualisierung ist durchgegangen.",
+            "heading": "Kundenaktualisierungen funktionieren wieder",
+            "body": "Die Anbindung an Ihr System liefert wieder, und Ihre Kundenkonten sind aktuell. In der Zwischenzeit ist nichts verloren gegangen: Eine Aktualisierung bringt den aktuellen Stand, keine Liste von Änderungen."
+          },
+          "waiting": {
+            "subject": "Eine Kundenaktualisierung wartet auf Sie",
+            "preheader": "Eine automatische Kundenaktualisierung braucht Ihre Entscheidung.",
+            "heading": "Eine Kundenaktualisierung wartet auf Sie",
+            "body": "Sie wurde noch nicht übernommen. Sehen Sie sich an, welche Konten sie einladen, ändern oder abschalten würde, und übernehmen oder verwerfen Sie sie – niemandes Zugang ändert sich, bis Sie das tun."
+          }
+        },
+        "orders": {
+          "failed": {
+            "subject": "Bestellaktualisierungen fehlgeschlagen",
+            "preheader": "Eine automatische Bestellaktualisierung ist nicht durchgegangen.",
+            "heading": "Eine automatische Bestellaktualisierung ist fehlgeschlagen",
+            "body": "Ihre Bestellungen sind unverändert – Kunden warten also auf Nachricht zum Stand ihrer Bestellung, und niemand hier ist beauftragt, ihnen von Hand zu antworten. Solange das nicht behoben ist, bleiben Bestellungen aus dem Shop unbeantwortet – geben Sie diese Nachricht an die Person weiter, die die Anbindung an Ihr System betreut."
+          },
+          "recovered": {
+            "subject": "Bestellaktualisierungen funktionieren wieder",
+            "preheader": "Die automatische Bestellaktualisierung ist durchgegangen.",
+            "heading": "Bestellaktualisierungen funktionieren wieder",
+            "body": "Die Anbindung an Ihr System beantwortet wieder Bestellungen. Was sie während der Unterbrechung bearbeitet hat, kommt mit der nächsten Aktualisierung: Eine Bestellung bringt ihren aktuellen Stand, keine Liste von Schritten."
+          }
         }
       }
     }

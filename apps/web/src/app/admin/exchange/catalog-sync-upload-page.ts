@@ -1,3 +1,5 @@
+import type { AdminExchangeText } from './exchange-text.type';
+import { ADMIN_EXCHANGE_TEXT } from './exchange-text';
 import { Component, computed, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
@@ -9,8 +11,6 @@ import {
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { Link } from '@b2b-catalog-platform/ui/actions/link';
 import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
-import { ADMIN_TEXT } from '../../platform/config/admin-text';
-import { AdminText } from '../../platform/config/admin-text.type';
 import { SHARED_TEXT } from '../../platform/config/shared-text';
 import { usePageSeo } from '../../platform/page-seo';
 import { OwnershipService } from '../platform/ownership/ownership.service';
@@ -101,7 +101,7 @@ import { SyncUploadForm } from './ui/sync-upload-form';
   `,
 })
 export class CatalogSyncUploadPage {
-  protected readonly text = inject(ADMIN_TEXT).sync;
+  protected readonly text = inject(ADMIN_EXCHANGE_TEXT).sync;
   protected readonly navText = inject(SHARED_TEXT).nav;
   private readonly ownership = inject(OwnershipService);
   private readonly sync = inject(SyncService);
@@ -160,7 +160,7 @@ export class CatalogSyncUploadPage {
 
 type CatalogFlag = SyncFlag<
   CatalogSyncOptions,
-  keyof AdminText['sync']['option']
+  keyof AdminExchangeText['sync']['option']
 >;
 
 const field = (

@@ -1,3 +1,4 @@
+import { ADMIN_EXCHANGE_TEXT } from '../exchange-text';
 import { Component, inject, input, output } from '@angular/core';
 import { fillText } from '@b2b-catalog-platform/shared/platform';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
@@ -157,7 +158,7 @@ export interface SyncUploadFlagView {
 })
 export class SyncUploadForm {
   protected readonly uploadIcon = uploadIcon;
-  protected readonly text = inject(ADMIN_TEXT).sync;
+  protected readonly text = inject(ADMIN_EXCHANGE_TEXT).sync;
   protected readonly pasteHint = fillText(inject(ADMIN_TEXT).upload.pasteHint, {
     keys: pasteKeys(),
   });

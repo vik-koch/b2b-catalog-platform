@@ -67,7 +67,7 @@ sample content; a real shop starts empty and is filled in the admin panel or by 
 | Whether the receipt attaches the terms of sale | `ordering.terms.attachToReceipt` | `api.json` |
 | How long orders, consent records and deletion records are kept | `retention` | `api.json` |
 | How long an unused session lasts | `session` | `api.json` |
-| What an automated import may apply without a person | `sync.autoApply`, `sync.customerAutoApply` | `api.json` |
+| What an automated import may apply without a person | `exchange.autoApply`, `exchange.customerAutoApply` | `api.json` |
 | Where mail is sent from, and who at the shop receives enquiries, orders and import alerts | `MAIL_*` | environment |
 | Common passwords to refuse when a password is chosen | `password-blocklist.txt` | config directory |
 | Whether search engines may index the shop | `SEO_INDEXABLE` | environment |

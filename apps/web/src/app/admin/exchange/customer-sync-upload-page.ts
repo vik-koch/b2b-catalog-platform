@@ -1,3 +1,5 @@
+import type { AdminExchangeText } from './exchange-text.type';
+import { ADMIN_EXCHANGE_TEXT } from './exchange-text';
 import { ADMIN_ACCOUNTS_TEXT } from '../accounts/accounts-text';
 import { Component, computed, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
@@ -12,8 +14,6 @@ import {
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { Link } from '@b2b-catalog-platform/ui/actions/link';
 import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
-import { ADMIN_TEXT } from '../../platform/config/admin-text';
-import { AdminText } from '../../platform/config/admin-text.type';
 import { usePageSeo } from '../../platform/page-seo';
 import { OwnershipService } from '../platform/ownership/ownership.service';
 import {
@@ -106,7 +106,7 @@ import { SyncUploadForm } from './ui/sync-upload-form';
   `,
 })
 export class CustomerSyncUploadPage {
-  protected readonly text = inject(ADMIN_TEXT).sync;
+  protected readonly text = inject(ADMIN_EXCHANGE_TEXT).sync;
   protected readonly usersText = inject(ADMIN_ACCOUNTS_TEXT).users.list;
   private readonly ownership = inject(OwnershipService);
   private readonly sync = inject(SyncService);
@@ -165,7 +165,7 @@ export class CustomerSyncUploadPage {
 
 type CustomerFlag = SyncFlag<
   CustomerSyncOptions,
-  keyof AdminText['sync']['customers']['option']
+  keyof AdminExchangeText['sync']['customers']['option']
 >;
 
 const field = (name: (typeof CUSTOMER_SYNC_FIELDS)[number]): CustomerFlag => ({

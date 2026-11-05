@@ -1,3 +1,4 @@
+import { defaultAdminExchangeText } from '../exchange-text.fixture';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
 import { Component, signal } from '@angular/core';
@@ -12,7 +13,7 @@ import { ADMIN_TEXT } from '../../../platform/config/admin-text';
 import { defaultAdminText } from '../../../platform/config/admin-text.fixture';
 import { SyncOrderPlanView } from './sync-order-plan-view';
 
-const text = defaultAdminText.sync;
+const text = defaultAdminExchangeText.sync;
 
 const summary = (over: Partial<SyncSummary> = {}): SyncSummary => ({
   rows: 3,

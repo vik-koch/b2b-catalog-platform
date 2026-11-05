@@ -1,3 +1,4 @@
+import { defaultAdminExchangeText } from './exchange-text.fixture';
 import { SHARED_TEXT } from '../../platform/config/shared-text';
 import { defaultSharedText } from '../../platform/config/shared-text.fixture';
 import { TestBed } from '@angular/core/testing';
@@ -19,7 +20,7 @@ import { SyncService } from './sync.service';
 import { provideUiText } from '../../platform/config/shared-text';
 import { provideGridText } from '../platform/provide-grid-text';
 
-const text = defaultAdminText.sync;
+const text = defaultAdminExchangeText.sync;
 
 const summary: SyncSummary = {
   rows: 12,

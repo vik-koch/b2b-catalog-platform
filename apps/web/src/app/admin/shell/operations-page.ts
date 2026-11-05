@@ -1,3 +1,4 @@
+import { ADMIN_EXCHANGE_TEXT } from '../exchange/exchange-text';
 import {
   Component,
   computed,
@@ -257,7 +258,7 @@ import { ADMIN_SITE_TEXT } from '../site/site-text';
 })
 export class OperationsPage {
   protected readonly text = inject(ADMIN_TEXT).operations;
-  protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
+  protected readonly ownershipText = inject(ADMIN_EXCHANGE_TEXT).ownership;
   protected readonly maintenanceText = inject(ADMIN_SITE_TEXT).maintenance;
   protected readonly adminText = inject(ADMIN_TEXT);
   private readonly ownership = inject(OwnershipService);
@@ -273,7 +274,7 @@ export class OperationsPage {
     type: 'conjunction',
   });
 
-  protected readonly allText = inject(ADMIN_TEXT).ownership.all;
+  protected readonly allText = inject(ADMIN_EXCHANGE_TEXT).ownership.all;
   protected readonly actionText = inject(SHARED_TEXT).actions;
   protected readonly areas = OWNERSHIP_AREAS;
   protected readonly pageSize = SETTING_CHANGES_PAGE_SIZE;

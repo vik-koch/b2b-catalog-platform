@@ -46,11 +46,13 @@ function sessionCookie(setCookie: string[] | undefined): string {
 const mailText = JSON.parse(
   readFileSync(configFile('texts/mail.json'), 'utf8'),
 ) as {
-  syncRun: {
-    areas: Record<string, Record<string, { subject: string }>>;
+  exchange: {
+    syncRun: {
+      areas: Record<string, Record<string, { subject: string }>>;
+    };
   };
 };
-const WAITING = mailText.syncRun.areas.customers.waiting.subject;
+const WAITING = mailText.exchange.syncRun.areas.customers.waiting.subject;
 // Scoped to this suite's own mail: the admin inbox is shared with every other
 // suite, and the catalog's machine spec writes to it about its own runs.
 const WAITING_MAIL = `to:"${requireEnv('MAIL_ADMIN_TO')}" subject:"${WAITING}"`;
