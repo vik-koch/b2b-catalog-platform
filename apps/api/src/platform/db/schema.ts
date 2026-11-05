@@ -22,28 +22,20 @@ import {
 import { oneOf } from './sql-columns';
 import { users } from '../../core/accounts/accounts-schema';
 
-/**
- * Which areas an external system may be handed (FR-ADM-10). A Postgres enum
- * for the same reason `api_token_scope` is one: the set is a rule in code, and
- * a value nobody wrote a guard for should not be storable.
- */
+/** Which areas an external system may be handed (FR-ADM-10). An enum, as the
+ * set is a rule in code and a value no guard knows must not be storable. */
 export const ownershipArea = pgEnum('ownership_area', OWNERSHIP_AREAS);
 
-/**
- * Runtime application settings — a deliberate singleton (the `id = 1` check
- * permits exactly one row). This is mutable admin-toggled state, distinct from
- * the boot-time per-deployment `config/` surface.
- */
+/** The admin's switches, one row (the `id = 1` check); unlike `config/`,
+ * changed at runtime. */
 export const appSettings = pgTable(
   'app_settings',
   {
     id: integer('id').primaryKey().default(1),
     maintenanceMode: boolean('maintenanceMode').notNull().default(false),
-    // The areas currently owned from outside. An array rather than a column
-    // per area: iteration 13 hands over order processing by adding a value to
-    // the enum, not a migration to this table. Empty is the default and the
-    // only sane one for a fresh deployment — nothing has been handed over
-    // before anyone has configured anything to hand it to.
+    /** The areas owned from outside. An array, so a new area is an enum
+     * value, not a column. Empty by default: nothing is handed over before
+     * anything is set up to take it. */
     externallyOwnedAreas: ownershipArea('externallyOwnedAreas')
       .array()
       .notNull()
@@ -51,7 +43,7 @@ export const appSettings = pgTable(
     updatedAt: timestamp('updatedAt', { withTimezone: true })
       .notNull()
       .defaultNow(),
-    // Who last changed a setting, for audit. Null for the seeded default row.
+    /** Null on the seeded row. */
     updatedBy: uuid('updatedBy').references(() => users.id, {
       onDelete: 'set null',
     }),
@@ -65,28 +57,21 @@ export const settingChangeKind = pgEnum(
 );
 
 /**
- * Every change to a runtime setting, kept.
+ * Every change to a setting, kept: `app_settings` says only who touched the
+ * row last. Somebody who turned the exchange off to fix a price and went home
+ * leaves a week of stale catalogue that needs a name and a time.
  *
- * `app_settings` is a singleton carrying one `updatedBy`/`updatedAt` for the
- * whole row, which answers "who touched a setting last" and nothing else — and
- * once there were two settings in it, not even that unambiguously. The
- * question this table exists for is the one the ownership switch creates:
- * somebody turned the exchange off to fix a price and went home, and a week of
- * a stale catalog needs a name and a time against it.
- *
- * Append-only. Nothing updates or deletes a row here, so no `updatedAt` and no
- * soft delete; the actor is denormalized like every other audit row here so
- * the trail survives the account.
+ * Append-only, so no `updatedAt`; the actor's email is copied so the trail
+ * survives the account.
  */
 export const settingChanges = pgTable('setting_changes', {
   id: uuid('id').primaryKey().defaultRandom(),
   kind: settingChangeKind('kind').notNull(),
-  // Which area, for a setting that has parts; null for one that does not.
-  // Deliberately text rather than the `ownership_area` enum: this row is a
-  // record of what happened, and a retired area name must still read back.
+  /** The area, for a setting that has them. Text, not the enum: a retired
+   * area must still read back. */
   area: varchar('area', { length: 40 }),
-  // Which way it was moved. Both settings are switches; a setting that is not
-  // one gets its own column rather than a stringly-typed value here.
+  /** Which way the switch moved. A setting that is no switch gets its own
+   * column. */
   enabled: boolean('enabled').notNull(),
   changedAt: timestamp('changedAt', { withTimezone: true })
     .notNull()

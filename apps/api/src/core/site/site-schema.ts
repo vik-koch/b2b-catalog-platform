@@ -27,20 +27,20 @@ export const pageVersions = pgTable(
   'page_versions',
   {
     id: uuid('id').primaryKey().defaultRandom(),
-    // The public slug, one of the fixed set (shared PAGE_SLUGS).
+    /** One of the fixed set (`PAGE_SLUGS`). */
     slug: varchar('slug', { length: 64 }).notNull(),
     version: integer('version').notNull(),
     title: varchar('title', { length: 255 }).notNull(),
-    // Always sanitized: nothing writes here without passing through
-    // sanitizeRichText — neither the admin endpoint nor the seed.
+    /** Always sanitised: the admin endpoint and the seed both write through
+     * `sanitizeRichText`. */
     bodyHtml: text('bodyHtml').notNull(),
-    // The box wording, on a consent page only.
+    /** The box wording, on a consent page only. */
     consentLabel: text('consentLabel'),
     createdAt: timestamp('createdAt', { withTimezone: true })
       .notNull()
       .defaultNow(),
-    // Null for seeded content. The email is kept so the history still names
-    // the editor once the account is gone.
+    /** Null for seeded content. With the email beside it, so the history
+     * names the editor once the account is gone. */
     createdBy: uuid('createdBy').references(() => users.id, {
       onDelete: 'set null',
     }),
@@ -57,11 +57,10 @@ export const pageVersions = pgTable(
  * evidence of it. It points at the exact page version the person read, whose
  * box wording is what they ticked.
  *
- * Whose consent it is: an account's, or for an inquiry, nobody's but the
- * address or number given with it — an inquiry is mailed and never stored, so
- * this row is all that remains of it. The email is copied for an account too,
- * because a record that names nobody once the account is deleted proves
- * nothing.
+ * An account's, or for an inquiry, that of the address or number given: an
+ * inquiry is mailed, never stored, so this row is all that remains of it. The
+ * email is copied for an account too, as a record that names nobody once the
+ * account is gone proves nothing.
  *
  * Never updated, which a database trigger enforces: a record is
  * inserted, and deleted when its retention ends.
@@ -74,9 +73,8 @@ export const consents = pgTable(
     pageVersionId: uuid('pageVersionId')
       .notNull()
       .references(() => pageVersions.id, { onDelete: 'restrict' }),
-    // No foreign key: the row never changes, and `ON DELETE SET NULL` is a
-    // change. A declined registration's row is deleted (users are otherwise
-    // anonymized, never deleted), and its consent record outlives it.
+    /** No foreign key: the row never changes, and `set null` is a change. A
+     * declined registration is deleted, and its consent outlives it. */
     userId: uuid('userId'),
     email: varchar('email', { length: 320 }),
     phone: varchar('phone', { length: 50 }),
@@ -116,7 +114,7 @@ export const consentWithdrawals = pgTable(
     withdrawnAt: timestamp('withdrawnAt', { withTimezone: true })
       .notNull()
       .defaultNow(),
-    /** The admin who entered it, with their address copied as on a page save. */
+    /** The admin who entered it, their address copied as on a page save. */
     enteredBy: uuid('enteredBy').references(() => users.id),
     enteredByEmail: varchar('enteredByEmail', { length: 320 }),
     note: varchar('note', { length: CONSENT_WITHDRAWAL_NOTE_MAX }),

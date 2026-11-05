@@ -14,117 +14,92 @@ import {
 } from 'drizzle-orm/pg-core';
 import { customerTiers } from '../catalog/catalog-schema';
 
-// New signups default to `user`; `admin`/`manager` are assigned deliberately.
+/** A sign-up is a `user`; staff roles are given deliberately. */
 export const userRole = pgEnum('user_role', ['admin', 'manager', 'user']);
 
-// Account lifecycle. `pending` = self-registered, waiting for staff approval.
-// `invited` = staff approved it and a set-your-password link is out; the tier
-// is assigned but the account still has no password of its own. `active` = the
-// link was redeemed and the account can sign in. `anonymized` = self-deleted:
-// the row survives because audit entries and the `updatedBy` columns point at
-// it, but it can never sign in again.
-//
-// Only `active` may authenticate — see JwtAuthGuard. The state also tells a
-// password token what it is *for* without the token carrying a purpose: a link
-// redeemed by an `invited` account sets a first password, one redeemed by an
-// `active` account resets an existing one.
+/**
+ * `pending`: registered, waiting for staff. `invited`: approved, with a tier
+ * and a set-your-password link out but no password of its own. `active`: may
+ * sign in, and only this one may (SessionAccounts). `anonymized`: erased by
+ * its holder; the row stays because trails point at it.
+ *
+ * The status also says what a password link is for: an `invited` account sets
+ * its first password, an `active` one resets it.
+ */
 export const userStatus = pgEnum('user_status', [
   'pending',
   'invited',
   'active',
-  // Switched off by staff and switchable back on: the person who left, the
-  // customer who stopped ordering. Distinct from `anonymized`, which erases
-  // who they were — a deactivated account keeps its name so the audit trail
-  // and every approvedBy/updatedBy reference still point at somebody.
+  /** Switched off by staff, and back on again. Unlike `anonymized` it keeps
+   * the name, so trails still point at somebody. */
   'disabled',
   'anonymized',
 ]);
 
-// What kind of customer registered (FR-AUTH-01). Declared by the registrant and
-// left as declared: it is evidence for the staff member approving the account,
-// never an automatic tier assignment (ADR 0031 — a company can buy at retail
-// volumes, and no tier is a default).
+/** What kind of customer registered (FR-AUTH-01), as declared. Evidence for
+ * the approver, never a tier: a company can buy at retail volumes. */
 export const customerType = pgEnum('customer_type', ['person', 'company']);
 
-// Plural table name (the singular `user` is a Postgres reserved word, awkward in
-// the raw-SQL seed/bootstrap statements). Email is the login identifier.
+/** Plural, as `user` is reserved in Postgres. The email is the login. */
 export const users = pgTable('users', {
   id: uuid('id').primaryKey().defaultRandom(),
   email: varchar('email', { length: 255 }).notNull().unique(),
   passwordHash: text('passwordHash').notNull(),
   role: userRole('role').notNull().default('user'),
-  // The source system's own key for this customer, and the only identity the
-  // exchange matches on (FR-ADM-14) — never the email address, never the
-  // registration id, both of which a person can change and two people can
-  // share. Private: readable and editable by staff, never serialized to the
-  // storefront, exactly as a product's is (ADR 0054).
-  //
-  // Null for everyone who registered here and everyone who is not a customer:
-  // a staff account is not a customer and the exchange never sees one. Kept
-  // when an account is deleted and the rest of the row is cleared, so a later
-  // run meets a customer it must refuse rather than a stranger it recreates
-  // (NFR-LEGAL-08).
+  /**
+   * The source system's key, the only identity the exchange matches on
+   * (FR-ADM-14): an email or a registration id can change or be shared. Staff
+   * may see it; the storefront never does.
+   *
+   * Null for an account registered here and for staff. Kept when an account
+   * is erased, so a later run meets a customer it must refuse rather than a
+   * stranger it recreates (NFR-LEGAL-08).
+   */
   sourceId: varchar('sourceId', { length: 255 }).unique(),
-  // Defaults to `pending`, the safe end: an account only becomes usable when
-  // something sets `active` deliberately (staff approval, or the bootstrap
-  // admin insert). A forgotten status can lock an account out, never let one in.
+  /** `pending` by default: a forgotten status can lock an account out, never
+   * let one in. */
   status: userStatus('status').notNull().default('pending'),
-  // Who registered, as they described themselves. This is what makes approval a
-  // decidable act: staff match these against their own customer records, and a
-  // pending account has no way to be asked anything. All nullable — staff
-  // accounts are created by other staff and describe nobody, and
-  // anonymization clears every one of them.
+  /** Who registered, as they put it: what staff match against their records
+   * to approve. Nullable, as staff accounts describe nobody and erasure clears
+   * them. */
   firstName: varchar('firstName', { length: 200 }),
   lastName: varchar('lastName', { length: 200 }),
   phone: varchar('phone', { length: 50 }),
   customerType: customerType('customerType'),
-  // The invoiced party, as the customer gave it. Both are required for a
-  // `company` registration — enforced by the registration contract, not by the
-  // columns, since staff accounts describe nobody and rows predating this
-  // carry only the number.
-  //
-  // The name is here as well as on an address because an address may be
-  // invoiced to another of the customer's entities; this is the one the account
-  // was approved on, and what a new address prefills from.
+  /** The party the account was approved on, and what a new address
+   * prefills. Required for a `company` by the contract, not the column. An
+   * address may still be invoiced to another of the customer's entities. */
   companyName: varchar('companyName', { length: 255 }),
-  // Business registration number, stored normalized (no spaces, upper case —
-  // see the contract) so it matches the legacy system's records regardless of
-  // how it was typed.
+  /** Stored normalised (the contract's form), so it matches the source
+   * system's records however it was typed. */
   companyRegistrationId: varchar('companyRegistrationId', { length: 64 }),
-  // Set together when staff approve an account (or create one outright). Null
-  // on the bootstrap admin and on rows that predate registration.
+  /** Set together by an approval or a staff-created account. */
   approvedAt: timestamp('approvedAt', { withTimezone: true }),
   approvedBy: uuid('approvedBy').references((): AnyPgColumn => users.id, {
     onDelete: 'set null',
   }),
-  // When the account holder last chose a password of their own — null while
-  // the stored hash is the unusable stand-in nobody holds. It is the only way
-  // to tell those two apart, since the stand-in is a real argon2 hash by
-  // design, and it is what decides where a reactivated account lands: back to
-  // `active` if it has a password, to `invited` if it never chose one.
+  /** Null while the hash is the stand-in nobody holds, which is a real
+   * argon2 hash and cannot be told apart otherwise. Decides where a reactivated
+   * account lands: `active` with a password, `invited` without. */
   passwordSetAt: timestamp('passwordSetAt', { withTimezone: true }),
-  // When a session last started: a sign-in, or the first password chosen
-  // from an invitation or a reset link. Recorded so that a later rule can
-  // end an account nobody has used for a period, and null for every account
-  // that has not signed in since recording began. A session runs for days,
-  // so this is when the account was last used to within that.
+  /** When a session last started: a sign-in or a first password from a link.
+   * A session runs for days, so this is last use to within that. */
   lastSignInAt: timestamp('lastSignInAt', { withTimezone: true }),
-  // When the holder last entered a code sent to `phone` (FR-AUTH-12). A code
-  // goes only to a confirmed number. A trigger clears this whenever `phone`
-  // changes in a write that does not set it too, so a number changed by staff,
-  // by an external system or by anonymization is never taken as confirmed.
+  /** When the holder last entered a code sent to `phone` (FR-AUTH-12); codes
+   * go only to a confirmed number. A trigger clears it when a write changes
+   * `phone` without setting this too, so no other path confirms a number. */
   phoneConfirmedAt: timestamp('phoneConfirmedAt', { withTimezone: true }),
-  // An admin let this account sign in without the code (FR-AUTH-12), and who.
-  // Counts only while the deployment lets the account's role be exempted, so
-  // narrowing that list takes effect without touching the rows.
+  /** An admin let the account skip the code (FR-AUTH-12). Counts only while
+   * the deployment allows exempting its role, so narrowing that needs no
+   * write. */
   signInStepExemptAt: timestamp('signInStepExemptAt', { withTimezone: true }),
   signInStepExemptBy: uuid('signInStepExemptBy').references(
     (): AnyPgColumn => users.id,
     { onDelete: 'set null' },
   ),
-  // A remembered browser issued before this skips nothing (FR-AUTH-12). A
-  // trigger moves it when `phone` changes or the account is disabled or
-  // anonymized, so every path that does either forgets them all.
+  /** A remembered browser from before this skips nothing (FR-AUTH-12). A
+   * trigger moves it when `phone` changes or the account is disabled or
+   * anonymized. */
   devicesTrustedSince: timestamp('devicesTrustedSince', {
     withTimezone: true,
   }),
@@ -134,74 +109,65 @@ export const users = pgTable('users', {
   updatedAt: timestamp('updatedAt', { withTimezone: true })
     .notNull()
     .defaultNow(),
-  // Incremented on password change. The signed session token embeds the value
-  // it was issued with; the auth guard rejects a token whose version no longer
-  // matches.
+  /** Raised on a password change; a session token carrying an older value is
+   * refused. */
   tokenVersion: integer('tokenVersion').notNull().default(0),
-  // True while the account still carries a password it did not choose itself:
-  // the bootstrap admin's seeded one, and later any admin-issue reset.
-  // Cleared by setPassword.
+  /** The password is one the holder did not choose: the bootstrap admin's,
+   * or an admin's reset. */
   mustChangePassword: boolean('mustChangePassword').notNull().default(false),
-  // The pricing group (FR-AUTH-05) — independent of `role`, which is
-  // authorization only. Null is a normal, permanent state, not a placeholder:
-  // it means the default list, which is what staff and any customer not put in
-  // a specific tier get. Null stays the only spelling of that — guests have no
-  // account at all, so the null case exists regardless, and pointing accounts
-  // at the badged row as well would give one state two representations.
-  // Restricted, not nulled, on tier delete: silently moving a customer onto
-  // default prices is worse than refusing the delete.
+  /**
+   * The price list (FR-AUTH-05), independent of `role`. Null is the default
+   * list and its only spelling: guests have no row at all, so pointing
+   * accounts at the badged row too would give one state two forms. Restricts a
+   * list's delete: moving a customer onto default prices silently is worse.
+   */
   tierId: uuid('tierId').references(() => customerTiers.id, {
     onDelete: 'restrict',
   }),
 });
 
 /**
- * Single-use links that let someone set a password without one being mailed to
- * them: the invitation staff send on approval (FR-AUTH-01/03) and the reset a
- * visitor asks for (FR-AUTH-02). One table for both — what a link *means* is
- * read from the account's status, not stored here, so an expired invitation
- * followed by a reset request still lands on "choose your password".
+ * Single-use links to set a password: the invitation on approval
+ * (FR-AUTH-01/03) and a requested reset (FR-AUTH-02). What a link does is read
+ * from the account's status, so an expired invitation followed by a reset
+ * still lands on "choose your password".
  *
- * Only the SHA-256 of the token is stored, never the token: whoever holds the
- * link holds the credential, and a leaked database must not yield working
- * links. SHA-256 rather than argon2 precisely because it is deterministic —
- * the token is 256 bits of randomness, so it needs no slow KDF, and a
- * deterministic hash is what lets the link be looked up by itself instead of
- * carrying a row id beside the secret.
+ * Only the SHA-256 of the token is kept, so a leaked database yields no links.
+ * Not argon2: 256 random bits need no slow hash, and a deterministic one lets
+ * the link be found by itself, with no row id beside the secret.
  */
 export const passwordTokens = pgTable('password_tokens', {
   id: uuid('id').primaryKey().defaultRandom(),
   userId: uuid('userId')
     .notNull()
-    // A purged registration takes its unredeemed invitation with it.
+    // A purged registration takes its open invitation with it.
     .references(() => users.id, { onDelete: 'cascade' }),
   tokenHash: varchar('tokenHash', { length: 64 }).notNull().unique(),
   expiresAt: timestamp('expiresAt', { withTimezone: true }).notNull(),
-  // Set on redemption. Kept rather than deleted so a second click on the same
-  // link can say "already used" instead of "never existed".
+  /** Kept on redemption, so a second click says "already used" rather than
+   * "never existed". */
   usedAt: timestamp('usedAt', { withTimezone: true }),
   createdAt: timestamp('createdAt', { withTimezone: true })
     .notNull()
     .defaultNow(),
 });
 
-// What a sign-in code is for: the second step of a sign-in, or confirming the
-// number it is sent to, which writes that number to the account on success.
+/** A sign-in's second step, or confirming the number the code goes to, which
+ * writes it to the account. */
 export const signInCodePurpose = pgEnum('sign_in_code_purpose', [
   'sign-in',
   'confirm',
 ]);
 
 /**
- * The one code or call check an account is waiting on (FR-AUTH-12, ADR 0066).
- * One row per account: a new sign-in while one is open reuses it rather than
- * paying for another.
+ * The one code or call check an account is waiting on (FR-AUTH-12). One row
+ * per account: a new sign-in reuses an open one rather than paying for
+ * another.
  *
- * A code row keeps only the SHA-256 of the code. A call row keeps the
- * provider's reference, which never leaves the API, and the number to call,
- * so a repeated sign-in can show it again. The phone is kept because
- * confirming writes it to the account, and the sends carry over to a
- * replacement row, so changing the number does not reset the send limit.
+ * A code keeps only its SHA-256; a call keeps the provider's reference, which
+ * never leaves the API, and the number to call, so a repeated sign-in shows it
+ * again. `phone` is kept because confirming writes it, and `sends` carries
+ * over to a replacement row, so a new number does not reset the limit.
  */
 export const signInCodes = pgTable(
   'sign_in_codes',
@@ -220,7 +186,7 @@ export const signInCodes = pgTable(
     expiresAt: timestamp('expiresAt', { withTimezone: true }).notNull(),
   },
   (t) => [
-    // A code or a call, never both and never neither; a call has its number.
+    // A code or a call, never both or neither; a call has its number.
     check(
       'sign_in_codes_one_kind',
       sql`(${t.codeHash} IS NULL) <> (${t.callReference} IS NULL)
@@ -230,17 +196,11 @@ export const signInCodes = pgTable(
 );
 
 /**
- * The account's address book (FR-CART-04) — where its orders are delivered and
- * invoiced. Rows belong to one account and are always read through its id.
- *
- * A row is a **place**, and carries no identity: who an order is invoiced to is
- * a field of the order (ADR 0039), not a property of the address it is sent to.
- * `label` is an optional name for it — an address the customer never bothered
- * to name is shown by its own first line.
- *
- * Rows are **not typed** as delivery or billing either. The same address usually
- * serves both, and a stored role would be a second source of truth that the row
- * itself contradicts the moment it is edited. Checkout picks a role per order.
+ * The account's address book (FR-CART-04), always read through its account.
+ * A row is a place with no identity: who an order is invoiced to is the
+ * order's own field. Nor is it typed as delivery or billing: one address
+ * usually serves both, and checkout picks per order. Without a `label` it
+ * shows by its first line.
  */
 export const addresses = pgTable(
   'addresses',
@@ -248,22 +208,17 @@ export const addresses = pgTable(
     id: uuid('id').primaryKey().defaultRandom(),
     userId: uuid('userId')
       .notNull()
-      // Deleting an account takes its book with it; orders keep their own
-      // snapshot of the address, so nothing readable is lost.
+      // Orders keep their own copy of the address, so the book can go.
       .references(() => users.id, { onDelete: 'cascade' }),
     label: varchar('label', { length: 100 }),
-    // An address is a place, and carries no identity: who an order is invoiced
-    // to is the order's own field, resolved from the account or typed, never
-    // merged into the row a customer picked.
-    // The street line as it is printed, house number included.
+    /** As printed, house number included. */
     street: varchar('street', { length: 255 }).notNull(),
     street2: varchar('street2', { length: 255 }),
     postalCode: varchar('postalCode', { length: 32 }).notNull(),
     city: varchar('city', { length: 255 }).notNull(),
     region: varchar('region', { length: 255 }),
-    // ISO 3166-1 alpha-2. A code, not free text: it is snapshotted onto orders,
-    // and a column that reads `DE` on one and `Deutschland` on the next is one
-    // nobody can group by. Which codes are accepted is deployment config.
+    /** ISO 3166-1 alpha-2, as orders copy it and `DE` beside `Deutschland`
+     * groups nothing. The accepted codes are deployment config. */
     country: varchar('country', { length: 2 }).notNull(),
     createdAt: timestamp('createdAt', { withTimezone: true })
       .notNull()
