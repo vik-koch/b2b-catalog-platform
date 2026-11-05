@@ -1,3 +1,4 @@
+import { defaultSharedOrderingText } from '../../../core/ordering/ordering-text.fixture';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
@@ -13,7 +14,6 @@ import { OrdersService } from './orders.service';
 
 const text = defaultStorefrontText.orders;
 const names = defaultSharedText.order;
-const review = defaultStorefrontText.checkout.review;
 
 const address = {
   street: 'Hafenstraße 12',
@@ -137,7 +137,9 @@ describe('OrderDetailPage (FR-ACC-01)', () => {
     // The party carries its registration number, and the invoice went to the
     // same place as the goods.
     expect(el.textContent).toContain('Kontor GmbH · DE123456789');
-    expect(el.textContent).toContain(review.billingSame);
+    expect(el.textContent).toContain(
+      defaultSharedOrderingText.orderBlocks.billingSame,
+    );
     expect(el.textContent).toContain(names.paymentMethods.transfer);
     // The contact block is this page's own: weeks later it says who to ring.
     expect(el.textContent).toContain(names.contact);
@@ -190,14 +192,18 @@ describe('OrderDetailPage (FR-ACC-01)', () => {
     expect(el.textContent).toContain(names.preferredPickup);
     // Not "invoiced to the same address": there was no delivery address to
     // repeat, so the billing one is written out.
-    expect(el.textContent).not.toContain(review.billingSame);
+    expect(el.textContent).not.toContain(
+      defaultSharedOrderingText.orderBlocks.billingSame,
+    );
     expect(el.textContent).toContain('20359 Hamburg');
   });
 
   it('says when no date was asked for', async () => {
     const { el } = await render({ ...placed, preferredDate: null });
 
-    expect(el.textContent).toContain(review.whenAny);
+    expect(el.textContent).toContain(
+      defaultSharedOrderingText.orderBlocks.whenAny,
+    );
   });
 
   // Somebody else's reference and one that never existed look identical here,

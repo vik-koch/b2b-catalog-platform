@@ -164,6 +164,16 @@ on the pages, in the mails and in the PDFs. Set it to the language the texts
 are written in, with the region whose conventions the shop keeps. The
 currency itself is `currency.code`.
 
+`timeZone` is the shop's own day, as an IANA zone name:
+
+```json
+"timeZone": "Europe/Berlin"
+```
+
+An order reference is dated in it, and so are the dates in mails and PDFs and
+the line saying when a legal page last changed. A name the platform does not
+know stops the boot. Left out, the shop keeps UTC.
+
 ### Keeping two words on one line
 
 Where a phrase must never break across lines — a short label in a table column

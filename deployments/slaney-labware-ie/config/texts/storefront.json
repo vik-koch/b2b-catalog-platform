@@ -99,17 +99,8 @@
       "message": "Remove the selection from your cart? Lines selected: {count}. This cannot be undone.",
       "confirm": "Delete selection"
     },
-    "subtotal": "Subtotal",
-    "totalIncomplete": "Some lines could not be priced — the subtotal covers the rest.",
     "checkout": "Proceed to checkout",
     "continueShopping": "Continue shopping",
-    "summaryTitle": "Your order",
-    "summaryLines": "Line items",
-    "shipmentCartons": "Cartons",
-    "shipmentVolume": "Volume",
-    "shipmentWeight": "Weight",
-    "shipmentApproximate": "Approximate — we confirm the actual consignment with your order.",
-    "shipmentUncovered": "Lines not covered by this estimate: {count}",
     "changes": {
       "heading": "What changed while your cart waited",
       "dismissAria": "Dismiss this summary",
@@ -195,8 +186,6 @@
     "review": {
       "title": "Check your order",
       "intro": "Nothing has been sent yet. Read it over, and send it when it is right.",
-      "billingSame": "Invoiced to the same address.",
-      "whenAny": "As soon as you can",
       "back": "Change something",
       "backToCart": "Back to cart",
       "send": "Review and send"

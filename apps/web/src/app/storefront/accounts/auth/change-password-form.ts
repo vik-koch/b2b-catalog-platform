@@ -10,7 +10,6 @@ import {
 } from '@angular/core';
 import { form, required } from '@angular/forms/signals';
 import { fillText } from '@b2b-catalog-platform/shared/platform';
-import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
 import { confirmation, newPassword } from './password';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';

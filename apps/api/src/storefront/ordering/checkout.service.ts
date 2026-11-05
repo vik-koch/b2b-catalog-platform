@@ -24,6 +24,7 @@ import { OrderRules } from '../../core/ordering/order-rules';
 import {
   ORDER_CURRENCY,
   ORDER_REFERENCE_CONFIG,
+  SHOP_TIME_ZONE,
   TAX_CONFIG,
 } from '../../platform/config/deployment-config';
 import { PAIRINGS_ENFORCED } from '../../core/catalog/catalog-config';
@@ -71,6 +72,7 @@ export class CheckoutService {
     @Inject(PAIRINGS_ENFORCED) private readonly pairingsEnforced: boolean,
     @Inject(TERMS_PUBLISHED) private readonly termsPublished: boolean,
     @Inject(TAX_CONFIG) private readonly tax: TaxConfig,
+    @Inject(SHOP_TIME_ZONE) private readonly timeZone: string,
   ) {}
 
   /**
@@ -228,7 +230,7 @@ export class CheckoutService {
     // A random reference collides now and then by design: retried against the
     // unique index, bounded, with both random values drawn again.
     for (let attempt = 1; attempt <= ORDER_REFERENCE_ATTEMPTS; attempt += 1) {
-      const reference = orderReference(this.reference);
+      const reference = orderReference(this.reference, this.timeZone);
       const publicToken = orderPublicToken();
       try {
         await this.db.transaction(async (tx) => {

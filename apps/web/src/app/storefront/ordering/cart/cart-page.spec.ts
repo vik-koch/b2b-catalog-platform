@@ -1,3 +1,4 @@
+import { defaultSharedOrderingText } from '../../../core/ordering/ordering-text.fixture';
 import {
   SHARED_TEXT,
   provideUiText,
@@ -21,6 +22,7 @@ import { ProductCart } from '../../../core/catalog/buying/product-cart';
 import { defaultSharedCatalogText } from '../../../core/catalog/catalog-text.fixture';
 
 const text = defaultStorefrontText.cart;
+const summaryText = defaultSharedOrderingText.orderSummary;
 const buyText = defaultSharedCatalogText.buying;
 
 function addition(overrides: Partial<CartAddition> = {}): CartAddition {
@@ -428,7 +430,7 @@ describe('CartPage', () => {
 
     expect(view.text()).toContain('7,500');
     expect(view.text()).toContain('0,060');
-    expect(view.rowLabels()).toContain(text.shipmentCartons);
+    expect(view.rowLabels()).toContain(summaryText.shipmentCartons);
   });
 
   // The point of holding the figures: what the order weighs follows the
@@ -769,7 +771,7 @@ describe('CartPage', () => {
       ]),
     });
 
-    expect(view.text()).toContain(text.totalIncomplete);
+    expect(view.text()).toContain(summaryText.totalIncomplete);
   });
 
   it('names only the basis once the lines differ, and each line its rate', async () => {
@@ -828,15 +830,15 @@ describe('CartPage', () => {
     // comes to in cartons. Nothing about how or when it arrives: the cart has
     // not asked, and a row of placeholders answers nothing.
     expect(view.rowLabels()).toEqual([
-      text.summaryLines,
-      text.shipmentWeight,
-      text.shipmentVolume,
-      text.shipmentCartons,
-      text.subtotal,
+      summaryText.lines,
+      summaryText.shipmentWeight,
+      summaryText.shipmentVolume,
+      summaryText.shipmentCartons,
+      summaryText.subtotal,
     ]);
     expect(view.text()).toContain('1,250');
     expect(view.text()).toContain('18,400');
-    expect(view.text()).toContain(text.shipmentApproximate);
+    expect(view.text()).toContain(summaryText.shipmentApproximate);
     expect(view.text()).toContain('Lines not covered by this estimate: 2');
   });
 
@@ -845,8 +847,8 @@ describe('CartPage', () => {
   it('leaves out every estimate row when the estimate covers nothing', async () => {
     const view = await render({ lines: [addition()] });
 
-    expect(view.rowLabels()).toEqual([text.summaryLines, text.subtotal]);
-    expect(view.text()).not.toContain(text.shipmentApproximate);
+    expect(view.rowLabels()).toEqual([summaryText.lines, summaryText.subtotal]);
+    expect(view.text()).not.toContain(summaryText.shipmentApproximate);
   });
 
   it('removes one line at the customer’s word', async () => {

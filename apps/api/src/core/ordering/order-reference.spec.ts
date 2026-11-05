@@ -5,7 +5,7 @@ import {
 } from './order-reference';
 
 describe('orderReferenceDate', () => {
-  it('reads the date in the deployment timezone, not the server one', () => {
+  it("reads the date in the shop's time zone, not the server's", () => {
     // 22:30 UTC on the 3rd is already the 4th in Berlin.
     const late = new Date('2026-08-03T22:30:00.000Z');
 
@@ -17,7 +17,8 @@ describe('orderReferenceDate', () => {
 describe('orderReference', () => {
   it('reads as prefix, date and a four-digit suffix', () => {
     const reference = orderReference(
-      { prefix: 'CK', timezone: 'UTC' },
+      { prefix: 'CK' },
+      'UTC',
       new Date('2026-08-24T09:00:00.000Z'),
       '0042',
     );
@@ -27,7 +28,7 @@ describe('orderReference', () => {
 
   it('pads a random suffix to four digits, so references sort as text', () => {
     const references = Array.from({ length: 50 }, () =>
-      orderReference({ prefix: 'CK', timezone: 'UTC' }),
+      orderReference({ prefix: 'CK' }, 'UTC'),
     );
 
     for (const reference of references) {

@@ -98,18 +98,9 @@ export const deliveryConfigSchema = z
   .strict();
 export type DeliveryConfig = z.infer<typeof deliveryConfigSchema>;
 
-function isKnownTimezone(zone: string): boolean {
-  try {
-    new Intl.DateTimeFormat('en-CA', { timeZone: zone });
-    return true;
-  } catch {
-    return false;
-  }
-}
-
 /**
  * `{prefix}-YYMMDD-NNNN`: a random suffix, so a reference does not publish how
- * many orders a day the shop takes, and the date in the shop's time zone.
+ * many orders a day the shop takes, and the date in the shop's `timeZone`.
  */
 export const orderReferenceConfigSchema = z
   .object({
@@ -122,13 +113,6 @@ export const orderReferenceConfigSchema = z
         /^[\p{Lu}\p{N}]+$/u,
         'an order prefix is upper-case letters or digits, in any script',
       ),
-    /** Checked at boot: an unknown zone throws only when a reference is
-     * made, so a typo would boot cleanly and refuse every order. */
-    timezone: z
-      .string()
-      .trim()
-      .min(1)
-      .refine(isKnownTimezone, 'not a time zone this platform knows'),
   })
   .strict();
 export type OrderReferenceConfig = z.infer<typeof orderReferenceConfigSchema>;

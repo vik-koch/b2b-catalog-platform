@@ -42,10 +42,7 @@ describe('OrderNotifications', () => {
       demoMailText,
       demoSharedText,
       currency,
-      {
-        prefix: 'CK',
-        timezone: 'UTC',
-      },
+      'UTC',
     );
   });
 

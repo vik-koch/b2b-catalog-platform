@@ -241,5 +241,22 @@
         "suggestionCountAria": "Adressvorschläge: {count}"
       }
     }
+  },
+  "ordering": {
+    "orderSummary": {
+      "title": "Ihre Bestellung",
+      "lines": "Positionen",
+      "subtotal": "Zwischensumme",
+      "totalIncomplete": "Einige Positionen konnten nicht berechnet werden – die Zwischensumme umfasst die übrigen.",
+      "shipmentCartons": "Kartons",
+      "shipmentVolume": "Volumen",
+      "shipmentWeight": "Gewicht",
+      "shipmentApproximate": "Ungefähr – die tatsächliche Sendung bestätigen wir mit Ihrer Bestellung.",
+      "shipmentUncovered": "Positionen ohne Schätzung: {count}"
+    },
+    "orderBlocks": {
+      "billingSame": "Rechnung an dieselbe Adresse.",
+      "whenAny": "So bald wie möglich"
+    }
   }
 }

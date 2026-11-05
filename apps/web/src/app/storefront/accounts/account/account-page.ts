@@ -9,7 +9,6 @@ import {
 } from '../../../core/accounts/addresses/address-format';
 import { AddressesService } from '../../../core/accounts/addresses/addresses.service';
 import { SignedInAs } from '../../../core/accounts/auth/signed-in-as';
-import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { SHARED_ACCOUNTS_TEXT } from '../../../core/accounts/accounts-text';
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';

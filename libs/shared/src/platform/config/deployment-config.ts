@@ -43,6 +43,16 @@ function isLocale(tag: string): boolean {
   }
 }
 
+/** Whether `zone` is an IANA zone `Intl` knows, such as "Europe/Berlin". */
+function isTimeZone(zone: string): boolean {
+  try {
+    new Intl.DateTimeFormat('en-CA', { timeZone: zone });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 /** How the header, footer or seller line reaches the shop; a field left out
  * is not drawn. */
 const contactLinesSchema = z
@@ -60,6 +70,17 @@ const platformConfigShape = {
   locale: z.string().refine(isLocale, {
     message: 'not a BCP 47 language tag, such as "de-DE"',
   }),
+  /**
+   * The shop's own day: an order reference's date, the dates in mails, PDFs
+   * and on pages. Checked at boot, as an unknown zone throws only when a date
+   * is formatted. Absent means UTC (`shopTimeZone`).
+   */
+  timeZone: z
+    .string()
+    .trim()
+    .min(1)
+    .refine(isTimeZone, 'not a time zone this platform knows')
+    .optional(),
   /** Prices are integer minor units; this names their one currency, as
    * ISO 4217 ("EUR"). */
   currency: z.object({ code: z.string() }).strict(),

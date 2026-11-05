@@ -15,6 +15,7 @@ import {
   deploymentConfigSchema,
   MoneyFormat,
   moneyFormat,
+  shopTimeZone,
   TaxConfig,
 } from '@b2b-catalog-platform/shared/platform';
 import {
@@ -176,16 +177,18 @@ export function loadDeliveryConfig(): DeliveryConfig | undefined {
   return loadApiDeploymentConfig().delivery;
 }
 
-/** Defaulted: a deployment that says nothing takes orders as `ORD`, in UTC. */
+/** Defaulted: a deployment that says nothing takes orders as `ORD`. */
 export const ORDER_REFERENCE_CONFIG = 'ORDER_REFERENCE_CONFIG';
 
 export function loadOrderReferenceConfig(): OrderReferenceConfig {
-  return (
-    loadApiDeploymentConfig().orderReference ?? {
-      prefix: 'ORD',
-      timezone: 'UTC',
-    }
-  );
+  return loadApiDeploymentConfig().orderReference ?? { prefix: 'ORD' };
+}
+
+/** The shop's own day, in mails, PDFs and order references. */
+export const SHOP_TIME_ZONE = 'SHOP_TIME_ZONE';
+
+export function loadShopTimeZone(): string {
+  return shopTimeZone(loadApiDeploymentConfig());
 }
 
 /** The currency code an order is priced in. */

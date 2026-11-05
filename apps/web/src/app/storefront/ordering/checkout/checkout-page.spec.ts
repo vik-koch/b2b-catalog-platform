@@ -1,3 +1,4 @@
+import { defaultSharedOrderingText } from '../../../core/ordering/ordering-text.fixture';
 import { withAccounts } from '../../../core/accounts/accounts-config.fixture';
 import { defaultSharedAccountsText } from '../../../core/accounts/accounts-text.fixture';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
@@ -710,7 +711,9 @@ describe('CheckoutPage', () => {
       const page = await render({ config: noBillingAddress });
 
       await page.review();
-      expect(page.text()).not.toContain(text.review.billingSame);
+      expect(page.text()).not.toContain(
+        defaultSharedOrderingText.orderBlocks.billingSame,
+      );
 
       page.button(text.submit)?.click();
       await page.settle();
@@ -1074,9 +1077,13 @@ describe('CheckoutPage', () => {
       expect(page.text()).toContain('Filter Roast');
       expect(page.text()).toContain(fulfilment.delivery);
       expect(page.text()).toContain('Hafenstraße 12');
-      expect(page.text()).toContain(text.review.billingSame);
+      expect(page.text()).toContain(
+        defaultSharedOrderingText.orderBlocks.billingSame,
+      );
       expect(page.text()).toContain(names.preferredDelivery);
-      expect(page.text()).toContain(text.review.whenAny);
+      expect(page.text()).toContain(
+        defaultSharedOrderingText.orderBlocks.whenAny,
+      );
       // The unit it was bought in, and what that comes to in pieces.
       expect(page.text()).toContain('2 pk (12 pcs)');
       expect(page.text()).toContain(names.paymentMethods.transfer);

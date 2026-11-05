@@ -1,5 +1,4 @@
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
-import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
@@ -12,14 +11,6 @@ import { defaultDeploymentConfig } from '../../../platform/config/deployment-con
 import { EditModeService } from '../../../platform/edit-mode/edit-mode.service';
 import { ConditionsPage } from './conditions-page';
 import { PageService } from '../../../core/site/page.service';
-
-@Component({
-  imports: [ConditionsPage],
-  template: `<app-conditions-page
-    ><p id="zones">Zones</p></app-conditions-page
-  >`,
-})
-class Host {}
 
 const conditionsBody = {
   title: 'Payment & delivery',
@@ -34,7 +25,7 @@ async function render(
   conditionsText: Partial<StorefrontText['conditions']> = {},
 ) {
   TestBed.configureTestingModule({
-    imports: [Host],
+    imports: [ConditionsPage],
     providers: [
       provideRouter([]),
       { provide: SHARED_TEXT, useValue: defaultSharedText },
@@ -63,7 +54,7 @@ async function render(
       },
     ],
   });
-  const fixture = TestBed.createComponent(Host);
+  const fixture = TestBed.createComponent(ConditionsPage);
   await fixture.whenStable();
   fixture.detectChanges();
   return fixture.nativeElement as HTMLElement;
@@ -80,7 +71,7 @@ describe('ConditionsPage', () => {
     expect(el.querySelector('h1')?.textContent).toContain('Payment & delivery');
     expect(el.querySelector('.prose')?.innerHTML).toContain('14 days');
 
-    expect(el.querySelector('section #zones')).not.toBeNull();
+    expect(el.querySelector('section app-delivery-zone-list')).not.toBeNull();
     const text = el.textContent ?? '';
     for (const point of defaultDeploymentConfig.pickup?.locations ?? []) {
       expect(text).toContain(point.name);
@@ -97,7 +88,7 @@ describe('ConditionsPage', () => {
 
     const headings = [...el.querySelectorAll('h2')].map((h) => h.textContent);
     expect(headings.join()).not.toContain(fulfilment.conditionsHeading);
-    expect(el.querySelector('#zones')).toBeNull();
+    expect(el.querySelector('app-delivery-zone-list')).toBeNull();
     expect(headings.join()).not.toContain(defaultSharedText.fulfilment.pickup);
     // Payment is the platform's rule, so it is there whatever is configured.
     expect(headings.join()).toContain(

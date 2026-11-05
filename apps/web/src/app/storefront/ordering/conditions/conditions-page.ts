@@ -16,14 +16,14 @@ import { landmarkIcon } from '@b2b-catalog-platform/ui/icons/glyphs/landmark';
 import { mapPinIcon } from '@b2b-catalog-platform/ui/icons/glyphs/map-pin';
 import { MarkedCard } from '@b2b-catalog-platform/ui/content/marked-card';
 import { PageSectionTitle } from '@b2b-catalog-platform/ui/content/page-section-title';
-import { StaticPage } from './static-page';
+import { StaticPage } from '../../site/pages/static-page';
+import { DeliveryZoneList } from '../checkout/ui/delivery-zone-list';
 import { SITE_CONFIG } from '../../../core/site/site-config';
 
 /**
  * The editable prose, then the conditions read from where checkout reads them
  * and worded as checkout words them, so they cannot disagree with the form
  * that takes the order. A section the deployment has nothing for is left out.
- * The zone list is checkout's, so the shell projects it.
  */
 @Component({
   selector: 'app-conditions-page',
@@ -34,6 +34,7 @@ import { SITE_CONFIG } from '../../../core/site/site-config';
     EmphasisedText,
     RouterLink,
     TextButton,
+    DeliveryZoneList,
   ],
   template: `
     <app-static-page slug="conditions">
@@ -44,7 +45,7 @@ import { SITE_CONFIG } from '../../../core/site/site-config';
               <h2 uiPageSectionTitle class="mb-4">
                 {{ fulfilmentText.conditionsHeading }}
               </h2>
-              <ng-content />
+              <app-delivery-zone-list [spread]="true" />
               <p class="mt-4 text-sm text-ink-subtle">
                 {{ fulfilmentText.conditionsNote }}
               </p>

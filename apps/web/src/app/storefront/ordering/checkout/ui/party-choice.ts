@@ -4,7 +4,6 @@ import { Component, inject, input, output } from '@angular/core';
 import { FormField, type FieldTree } from '@angular/forms/signals';
 import { NgTemplateOutlet } from '@angular/common';
 import { STOREFRONT_TEXT } from '../../../../platform/config/storefront-text';
-import { DEPLOYMENT_CONFIG } from '../../../../platform/config/deployment-config';
 import { CompanyFields } from '../../../../core/accounts/parties/company-fields';
 import { ChoiceBranch } from '@b2b-catalog-platform/ui/choices/choice-branch';
 import { Field } from '@b2b-catalog-platform/ui/fields/field';

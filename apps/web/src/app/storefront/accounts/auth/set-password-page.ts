@@ -3,7 +3,6 @@ import { Component, inject, input, OnInit, signal } from '@angular/core';
 import { fillText } from '@b2b-catalog-platform/shared/platform';
 import { form } from '@angular/forms/signals';
 import { Router, RouterLink } from '@angular/router';
-import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
 import { usePageSeo } from '../../../platform/page-seo';
 import { confirmation, generatePassword, newPassword } from './password';
 import { AuthCard } from './auth-card';

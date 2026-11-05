@@ -1,5 +1,6 @@
 {
   "locale": "de-DE",
+  "timeZone": "Europe/Berlin",
   "currency": {
     "code": "EUR"
   },
@@ -74,8 +75,7 @@
     "mask": "(###) ###-####"
   },
   "orderReference": {
-    "prefix": "CK",
-    "timezone": "Europe/Berlin"
+    "prefix": "CK"
   },
   "delivery": {
     "zones": [

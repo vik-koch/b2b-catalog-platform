@@ -20,6 +20,7 @@ import {
   fillText,
   moneyFormat,
   formatMoneyMinor,
+  shopTimeZone,
 } from '@b2b-catalog-platform/shared/platform';
 import { OrderSummary } from '../../core/ordering/ui/order-summary';
 import { ADMIN_TEXT } from '../../platform/config/admin-text';
@@ -629,7 +630,7 @@ export class AdminOrderDetailPage {
   /** In the shop's timezone. */
   private readonly shopDayFormat = new Intl.DateTimeFormat(this.config.locale, {
     dateStyle: 'long',
-    timeZone: this.config.orderReference?.timezone ?? 'UTC',
+    timeZone: shopTimeZone(this.config),
   });
 
   /** For the last move and the payment record: moments, not days. */

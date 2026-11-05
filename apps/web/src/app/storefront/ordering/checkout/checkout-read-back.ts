@@ -1,3 +1,4 @@
+import { SHARED_ORDERING_TEXT } from '../../../core/ordering/ordering-text';
 import { ACCOUNTS_CONFIG } from '../../../core/accounts/accounts-config';
 import { computed, inject, Signal } from '@angular/core';
 import {
@@ -55,6 +56,7 @@ export function createCheckoutReadBack(deps: ReadBackDeps) {
   const config = inject(DEPLOYMENT_CONFIG);
   const accountsConfig = inject(ACCOUNTS_CONFIG);
   const text = inject(STOREFRONT_TEXT).checkout;
+  const blockText = inject(SHARED_ORDERING_TEXT).orderBlocks;
   const common = inject(SHARED_TEXT);
   const units = inject(SHARED_CATALOG_TEXT).units;
   const names = common.order;
@@ -138,7 +140,6 @@ export function createCheckoutReadBack(deps: ReadBackDeps) {
 
     blocks: computed<ReviewBlock[]>(() => {
       const draft = deps.draft();
-      const review = text.review;
 
       const arrival = deps.isPickup()
         ? [common.fulfilment.pickup, ...pickupLines()]
@@ -156,7 +157,7 @@ export function createCheckoutReadBack(deps: ReadBackDeps) {
           ...lines(deps.addressFor(draft.billingAddressId, deps.billingForm)),
         );
       } else if (deps.billingEnabled) {
-        invoice.push(review.billingSame);
+        invoice.push(blockText.billingSame);
       }
 
       const blocks: ReviewBlock[] = [
@@ -170,7 +171,7 @@ export function createCheckoutReadBack(deps: ReadBackDeps) {
           lines: [
             draft.preferredDate
               ? formatDate(draft.preferredDate)
-              : review.whenAny,
+              : blockText.whenAny,
           ],
         },
         {

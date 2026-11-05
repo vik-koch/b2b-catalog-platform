@@ -12,13 +12,12 @@ import {
 import {
   OrderAddress,
   OrderDetail,
-  OrderReferenceConfig,
 } from '@b2b-catalog-platform/shared/core/ordering';
 import { Inject, Injectable } from '@nestjs/common';
 import { PDFDocument } from 'pdf-lib';
 import {
   MONEY_FORMAT,
-  ORDER_REFERENCE_CONFIG,
+  SHOP_TIME_ZONE,
 } from '../../platform/config/deployment-config';
 import { ADDRESS_CONFIG } from '../accounts/accounts-config';
 import { MAIL_BRANDING, MailBranding } from '../../platform/mail/mail-branding';
@@ -51,8 +50,7 @@ export class OrderPdf {
     @Inject(MONEY_FORMAT) private readonly currency: MoneyFormat,
     @Inject(ADDRESS_CONFIG) private readonly address: AddressConfig | undefined,
     private readonly faces: PdfFaces,
-    @Inject(ORDER_REFERENCE_CONFIG)
-    private readonly reference: OrderReferenceConfig,
+    @Inject(SHOP_TIME_ZONE) private readonly timeZone: string,
   ) {}
 
   async orderSummary(order: OrderDetail): Promise<Buffer> {
@@ -98,11 +96,7 @@ export class OrderPdf {
       sheet.field(
         this.common.nav.terms,
         fillText(names.termsVersion, {
-          date: shopDay(
-            order.termsDate,
-            this.branding.locale,
-            this.reference.timezone,
-          ),
+          date: shopDay(order.termsDate, this.branding.locale, this.timeZone),
         }),
       );
     }

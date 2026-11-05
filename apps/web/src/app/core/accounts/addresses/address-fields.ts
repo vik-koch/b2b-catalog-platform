@@ -11,7 +11,6 @@ import {
 } from '@angular/core';
 import { FormField } from '@angular/forms/signals';
 import { SHARED_ACCOUNTS_TEXT } from '../accounts-text';
-import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { DigitMask } from '@b2b-catalog-platform/ui/inputs/digit-mask';
 import { FIELD_ATTEMPT } from '@b2b-catalog-platform/ui/fields/field-attempt';

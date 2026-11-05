@@ -2,7 +2,6 @@ import { PLATFORM_ID } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import { DeploymentConfig } from '@b2b-catalog-platform/shared/platform';
-import { defaultDeploymentConfig } from '../../../platform/config/deployment-config.fixture';
 import { ConsentDecision, ConsentService } from './consent.service';
 import { withSite } from '../../../core/site/site-config.fixture';
 

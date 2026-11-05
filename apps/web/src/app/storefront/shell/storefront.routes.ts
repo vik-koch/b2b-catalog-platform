@@ -195,7 +195,9 @@ export const storefrontRoutes: Route[] = [
     canMatch: [publishesPage('conditions')],
     canActivate: [maintenanceGate],
     loadComponent: () =>
-      import('./conditions-home-page').then((m) => m.ConditionsHomePage),
+      import('../ordering/conditions/conditions-page').then(
+        (m) => m.ConditionsPage,
+      ),
   },
   { path: 'inquiry', component: InquiryPage, canActivate: [maintenanceGate] },
   // The consent texts (NFR-LEGAL-09), each under the form that asks for it.

@@ -2,7 +2,7 @@ import { ADMIN_ACCOUNTS_TEXT } from '../accounts/accounts-text';
 import { Route } from '@angular/router';
 import { requireAuth } from '../../platform/auth/auth.guard';
 import { inject } from '@angular/core';
-import { ADMIN_TEXT, adminTextGuard } from '../../platform/config/admin-text';
+import { adminTextGuard } from '../../platform/config/admin-text';
 import { ADMIN_SITE_TEXT } from '../site/site-text';
 import { unsavedChangesGuard } from '../platform/unsaved-changes.guard';
 import { ADMIN_CATALOG_TEXT } from '../catalog/catalog-text';

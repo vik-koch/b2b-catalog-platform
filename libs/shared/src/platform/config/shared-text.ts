@@ -5,6 +5,8 @@ import { mergeShapes } from '../merge-shapes';
 import { ACCOUNTS_AREA } from '../../core/accounts/accounts-area';
 import { sharedAccountsTextShape } from '../../core/accounts/accounts-text';
 import { CATALOG_AREA } from '../../core/catalog/catalog-area';
+import { ORDERING_AREA } from '../../core/ordering/ordering-area';
+import { sharedOrderingTextShape } from '../../core/ordering/ordering-text';
 import { sharedCatalogTextShape } from '../../core/catalog/catalog-text';
 import { PAGE_SLUGS } from '../../core/site/pages';
 
@@ -174,6 +176,7 @@ export const sharedTextSchema = z
       sharedTextShape,
       { [CATALOG_AREA]: z.object(sharedCatalogTextShape).strict() },
       { [ACCOUNTS_AREA]: z.object(sharedAccountsTextShape).strict() },
+      { [ORDERING_AREA]: z.object(sharedOrderingTextShape).strict() },
     ),
   )
   .strict()

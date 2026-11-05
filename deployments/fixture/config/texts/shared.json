@@ -241,5 +241,22 @@
         "suggestionCountAria": "Address suggestions: {count}"
       }
     }
+  },
+  "ordering": {
+    "orderSummary": {
+      "title": "Your order",
+      "lines": "Line items",
+      "subtotal": "Subtotal",
+      "totalIncomplete": "Some lines could not be priced — the subtotal covers the rest.",
+      "shipmentCartons": "Cartons",
+      "shipmentVolume": "Volume",
+      "shipmentWeight": "Weight",
+      "shipmentApproximate": "Approximate — we confirm the actual consignment with your order.",
+      "shipmentUncovered": "Lines not covered by this estimate: {count}"
+    },
+    "orderBlocks": {
+      "billingSame": "Invoiced to the same address.",
+      "whenAny": "As soon as you can"
+    }
   }
 }

@@ -220,11 +220,12 @@ function service(
     rules,
     notifications,
     {} as TermsPdf,
-    { prefix: 'CK', timezone: 'UTC' },
+    { prefix: 'CK' },
     'EUR',
     pairingsEnforced,
     false,
     { basis: 'included', rate: 19, statedAtPrices: true },
+    'UTC',
   );
 }
 

@@ -57,50 +57,21 @@ describe('deliveryConfigSchema', () => {
 });
 
 describe('orderReferenceConfigSchema', () => {
-  it('accepts an upper-case prefix and a zone name', () => {
-    expect(
-      orderReferenceConfigSchema.parse({
-        prefix: 'CK',
-        timezone: 'Europe/Berlin',
-      }),
-    ).toEqual({ prefix: 'CK', timezone: 'Europe/Berlin' });
+  it('accepts an upper-case prefix', () => {
+    expect(orderReferenceConfigSchema.parse({ prefix: 'CK' })).toEqual({
+      prefix: 'CK',
+    });
   });
 
   it('accepts an upper-case prefix outside the Latin alphabet', () => {
-    expect(
-      orderReferenceConfigSchema.safeParse({
-        prefix: 'ÄÖ',
-        timezone: 'Europe/Berlin',
-      }).success,
-    ).toBe(true);
+    expect(orderReferenceConfigSchema.safeParse({ prefix: 'ÄÖ' }).success).toBe(
+      true,
+    );
   });
 
   it('refuses a prefix with separators in it, which the format supplies', () => {
     expect(
-      orderReferenceConfigSchema.safeParse({
-        prefix: 'CK-',
-        timezone: 'Europe/Berlin',
-      }).success,
+      orderReferenceConfigSchema.safeParse({ prefix: 'CK-' }).success,
     ).toBe(false);
-  });
-
-  // The only use of the zone is on the way to a reference, so a typo left to
-  // runtime is a shop that boots cleanly and then refuses every order.
-  it('refuses a zone name the platform does not know, at config time', () => {
-    expect(
-      orderReferenceConfigSchema.safeParse({
-        prefix: 'CK',
-        timezone: 'Europe/Berlim',
-      }).success,
-    ).toBe(false);
-  });
-
-  it('accepts UTC and a fixed offset, which are zones too', () => {
-    for (const timezone of ['UTC', 'Etc/GMT+3']) {
-      expect(
-        orderReferenceConfigSchema.safeParse({ prefix: 'CK', timezone })
-          .success,
-      ).toBe(true);
-    }
   });
 });

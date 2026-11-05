@@ -4,11 +4,10 @@ import {
   OrderDocumentKind,
   AdminOrderDetail,
   OrderNotice,
-  OrderReferenceConfig,
 } from '@b2b-catalog-platform/shared/core/ordering';
 import {
   MONEY_FORMAT,
-  ORDER_REFERENCE_CONFIG,
+  SHOP_TIME_ZONE,
 } from '../../platform/config/deployment-config';
 import { MailDispatcher } from '../../platform/mail/mail-dispatcher';
 import { MAIL_TEXT, MailText } from '../../platform/mail/mail-text';
@@ -39,8 +38,7 @@ export class OrderNotifications {
     @Inject(MAIL_TEXT) private readonly text: MailText,
     @Inject(SHARED_TEXT) private readonly common: SharedText,
     @Inject(MONEY_FORMAT) private readonly currency: MoneyFormat,
-    @Inject(ORDER_REFERENCE_CONFIG)
-    private readonly reference: OrderReferenceConfig,
+    @Inject(SHOP_TIME_ZONE) private readonly timeZone: string,
   ) {}
 
   async placed(
@@ -60,7 +58,7 @@ export class OrderNotifications {
         this.currency,
         this.text,
         this.common,
-        this.reference.timezone,
+        this.timeZone,
       ),
       { to: order.contact.email, attachments },
       'order confirmation',

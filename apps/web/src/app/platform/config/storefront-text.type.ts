@@ -81,38 +81,12 @@ export const storefrontTextShape = {
       deleteSelected: z.string(),
       /** `{count}` lines in the message. */
       deleteSelectedConfirm: confirmText,
-      subtotal: z.string(),
-      /** The subtotal covers only the priceable lines. */
-      totalIncomplete: z.string(),
 
       /** Leaves the cart for the checkout form, and goes back to the shelf
        * the visitor was standing at — the category, page and filters the URL
        * was carrying, or the catalogue where this visit has seen none. */
       checkout: z.string(),
       continueShopping: z.string(),
-      /**
-       * The shipment estimate (FR-UNIT-11), rendered as labelled rows — so
-       * these are row captions, and the figures beside them come from the
-       * estimate and the deployment's own box units.
-       */
-      /** The summary card beside the lines: what the order is, then what
-       * the estimate makes of it. */
-      summaryTitle: z.string(),
-      /** How many lines the cart holds — the cart's own figure, stated
-       * whether or not an estimate arrives. */
-      summaryLines: z.string(),
-      shipmentCartons: z.string(),
-      shipmentVolume: z.string(),
-      shipmentWeight: z.string(),
-      shipmentApproximate: z.string(),
-      /**
-       * How many lines the estimate could not cover. Worded so `{count}`
-       * lands at the end: there is no plural machinery here (one locale per
-       * deployment, no i18n framework), so a sentence that reads "1 lines"
-       * is a sentence to rewrite rather than a rule to add.
-       */
-      shipmentUncovered: z.string(),
-
       /**
        * What changed while the cart waited (FR-CART-10), shown once on
        * return and dismissed with one control. One sentence per line, each
@@ -373,11 +347,6 @@ export const storefrontTextShape = {
           /** Says nothing has gone anywhere yet: the whole point of the
            * screen is that this is the last reversible moment. */
           intro: z.string(),
-          /** Where the invoice goes to the delivery address, said instead of
-           * printing the same four lines twice. */
-          billingSame: z.string(),
-          /** No date asked for, which is an answer rather than a blank. */
-          whenAny: z.string(),
           /** Back to the form. Not "edit": there is one form and this is a
            * look at it, not a separate document. */
           back: z.string(),

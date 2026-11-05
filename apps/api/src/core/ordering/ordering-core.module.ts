@@ -11,6 +11,7 @@ import {
   MONEY_FORMAT,
   ORDER_CURRENCY,
   ORDER_REFERENCE_CONFIG,
+  SHOP_TIME_ZONE,
   PDF_FONT,
   PICKUP_LOCATIONS,
   TERMS_ATTACHED,
@@ -20,6 +21,7 @@ import {
   loadMoneyFormat,
   loadOrderCurrency,
   loadOrderReferenceConfig,
+  loadShopTimeZone,
   loadPdfFont,
   loadPickupLocations,
   loadTaxConfig,
@@ -94,6 +96,7 @@ import { OrderWriter } from './order-writer';
     // Whether an unsatisfied pairing refuses the order (FR-SET-04).
     { provide: PAIRINGS_ENFORCED, useFactory: loadPairingsEnforced },
     { provide: ORDER_REFERENCE_CONFIG, useFactory: loadOrderReferenceConfig },
+    { provide: SHOP_TIME_ZONE, useFactory: loadShopTimeZone },
     { provide: ORDER_CURRENCY, useFactory: loadOrderCurrency },
     // The same currency with its locale: what the order mails format against.
     { provide: MONEY_FORMAT, useFactory: loadMoneyFormat },
@@ -121,6 +124,7 @@ import { OrderWriter } from './order-writer';
     TermsPdf,
     // What the storefront's checkout and the staff screens read.
     ORDER_REFERENCE_CONFIG,
+    SHOP_TIME_ZONE,
     ORDER_CURRENCY,
     PAIRINGS_ENFORCED,
     TERMS_PUBLISHED,

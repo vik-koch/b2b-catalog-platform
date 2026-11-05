@@ -9,7 +9,6 @@ import {
   viewChild,
 } from '@angular/core';
 import { Router } from '@angular/router';
-import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { DialogPanel } from '@b2b-catalog-platform/ui/overlay/dialog-panel';
 import { AuthService } from '../../../platform/auth/auth.service';

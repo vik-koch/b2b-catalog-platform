@@ -99,17 +99,8 @@
       "message": "Die Auswahl aus Ihrem Warenkorb entfernen? Ausgewählte Positionen: {count}. Das lässt sich nicht rückgängig machen.",
       "confirm": "Auswahl löschen"
     },
-    "subtotal": "Zwischensumme",
-    "totalIncomplete": "Einige Positionen konnten nicht berechnet werden – die Zwischensumme umfasst die übrigen.",
     "checkout": "Zur Kasse",
     "continueShopping": "Weiter einkaufen",
-    "summaryTitle": "Ihre Bestellung",
-    "summaryLines": "Positionen",
-    "shipmentCartons": "Kartons",
-    "shipmentVolume": "Volumen",
-    "shipmentWeight": "Gewicht",
-    "shipmentApproximate": "Ungefähr – die tatsächliche Sendung bestätigen wir mit Ihrer Bestellung.",
-    "shipmentUncovered": "Positionen ohne Schätzung: {count}",
     "changes": {
       "heading": "Was sich geändert hat, während Ihr Warenkorb wartete",
       "dismissAria": "Diese Übersicht schließen",
@@ -195,8 +186,6 @@
     "review": {
       "title": "Bestellung prüfen",
       "intro": "Noch ist nichts abgeschickt. Lesen Sie alles durch und senden Sie es ab, wenn es stimmt.",
-      "billingSame": "Rechnung an dieselbe Adresse.",
-      "whenAny": "So bald wie möglich",
       "back": "Etwas ändern",
       "backToCart": "Zurück zum Warenkorb",
       "send": "Prüfen und absenden"

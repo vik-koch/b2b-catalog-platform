@@ -7,7 +7,7 @@ import {
 import { formatPhone } from '../../platform/contact-fields';
 import { addressLines } from '@b2b-catalog-platform/shared/core/accounts';
 import { SHARED_TEXT } from '../../platform/config/shared-text';
-import { STOREFRONT_TEXT } from '../../platform/config/storefront-text';
+import { SHARED_ORDERING_TEXT } from './ordering-text';
 import { ReviewBlock } from './ui/order-read-back';
 
 /**
@@ -66,10 +66,10 @@ export function orderBlockLabels(
 /** The labels a customer reads an order under; call in an injection context. */
 export function injectCustomerBlockLabels(): OrderBlockLabels {
   const names = inject(SHARED_TEXT);
-  const review = inject(STOREFRONT_TEXT).checkout.review;
+  const blocks = inject(SHARED_ORDERING_TEXT).orderBlocks;
   return orderBlockLabels(names, {
-    billingSame: review.billingSame,
-    whenAny: review.whenAny,
+    billingSame: blocks.billingSame,
+    whenAny: blocks.whenAny,
     note: names.order.note,
     ...names.order.paymentMethods,
   });

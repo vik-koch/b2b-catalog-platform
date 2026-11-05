@@ -230,6 +230,18 @@
     "texts/mail.json:accountClosed": "texts/mail.json:accounts.accountClosed",
     "deployment.json:customerTypes": "deployment.json:accounts.customerTypes",
     "deployment.json:signInStep": "deployment.json:accounts.signInStep",
-    "deployment.json:address": "deployment.json:accounts.address"
+    "deployment.json:address": "deployment.json:accounts.address",
+    "deployment.json:orderReference.timezone": "deployment.json:timeZone",
+    "texts/app.json:cart.summaryTitle": "texts/shared.json:ordering.orderSummary.title",
+    "texts/app.json:cart.summaryLines": "texts/shared.json:ordering.orderSummary.lines",
+    "texts/app.json:cart.subtotal": "texts/shared.json:ordering.orderSummary.subtotal",
+    "texts/app.json:cart.totalIncomplete": "texts/shared.json:ordering.orderSummary.totalIncomplete",
+    "texts/app.json:cart.shipmentCartons": "texts/shared.json:ordering.orderSummary.shipmentCartons",
+    "texts/app.json:cart.shipmentVolume": "texts/shared.json:ordering.orderSummary.shipmentVolume",
+    "texts/app.json:cart.shipmentWeight": "texts/shared.json:ordering.orderSummary.shipmentWeight",
+    "texts/app.json:cart.shipmentApproximate": "texts/shared.json:ordering.orderSummary.shipmentApproximate",
+    "texts/app.json:cart.shipmentUncovered": "texts/shared.json:ordering.orderSummary.shipmentUncovered",
+    "texts/app.json:checkout.review.billingSame": "texts/shared.json:ordering.orderBlocks.billingSame",
+    "texts/app.json:checkout.review.whenAny": "texts/shared.json:ordering.orderBlocks.whenAny"
   }
 }

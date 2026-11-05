@@ -6,7 +6,6 @@ import {
   CONSENT_PAGE_SLUGS,
   consentLabelParts,
 } from '@b2b-catalog-platform/shared/core/site';
-import { ADMIN_TEXT } from '../../../platform/config/admin-text';
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import { formatPhone } from '../../../platform/contact-fields';
 import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';

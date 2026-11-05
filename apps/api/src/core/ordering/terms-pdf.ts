@@ -1,14 +1,11 @@
 import { SharedText, fillText } from '@b2b-catalog-platform/shared/platform';
-import {
-  AdminOrderDetail,
-  OrderReferenceConfig,
-} from '@b2b-catalog-platform/shared/core/ordering';
+import { AdminOrderDetail } from '@b2b-catalog-platform/shared/core/ordering';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { and, eq } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { PDFDocument } from 'pdf-lib';
 import {
-  ORDER_REFERENCE_CONFIG,
+  SHOP_TIME_ZONE,
   TERMS_ATTACHED,
 } from '../../platform/config/deployment-config';
 import { DRIZZLE } from '../../platform/db/database.module';
@@ -39,8 +36,7 @@ export class TermsPdf {
     @Inject(PDF_TEXT) private readonly text: PdfText,
     @Inject(SHARED_TEXT) private readonly common: SharedText,
     @Inject(MAIL_BRANDING) private readonly branding: MailBranding,
-    @Inject(ORDER_REFERENCE_CONFIG)
-    private readonly reference: OrderReferenceConfig,
+    @Inject(SHOP_TIME_ZONE) private readonly timeZone: string,
     private readonly faces: PdfFaces,
   ) {}
 
@@ -63,7 +59,7 @@ export class TermsPdf {
         .limit(1);
       if (!version) return [];
       const iso = version.createdAt.toISOString();
-      const zone = this.reference.timezone;
+      const zone = this.timeZone;
       return [
         {
           fileName: fillText(this.text.terms.fileName, {

@@ -6,7 +6,6 @@ import { defaultSharedText } from '../../../platform/config/shared-text.fixture'
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import { DeploymentConfig } from '@b2b-catalog-platform/shared/platform';
 import { ContactLocation } from '@b2b-catalog-platform/shared/core/site';
-import { defaultDeploymentConfig } from '../../../platform/config/deployment-config.fixture';
 import { EditModeService } from '../../../platform/edit-mode/edit-mode.service';
 import { ContactPage } from './contact-page';
 import { PageService } from '../../../core/site/page.service';

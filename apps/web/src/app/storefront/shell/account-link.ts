@@ -1,7 +1,6 @@
 import { STOREFRONT_ACCOUNTS_TEXT } from '../accounts/accounts-text';
 import { Component, computed, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { STOREFRONT_TEXT } from '../../platform/config/storefront-text';
 import { AuthService } from '../../platform/auth/auth.service';
 import { landingFor } from '../../platform/auth/auth.guard';
 import { currentPath, isUnder } from '../../platform/current-url';
