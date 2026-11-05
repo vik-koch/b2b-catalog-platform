@@ -146,8 +146,8 @@ describe('OrderTokenPage (FR-NOTIF-06)', () => {
     expect(el.querySelector('a[href="/register"]')).not.toBeNull();
   });
 
-  // The link is reachable by anyone holding it, a customer with an account
-  // included — and telling them to ask for one they already have is nonsense.
+  // Anyone holding the link reaches it, account holders too, who need no
+  // invitation to make one.
   it('makes no account offer to a reader who has one', async () => {
     const { el } = await render(placed, 'user');
 
@@ -160,7 +160,7 @@ describe('OrderTokenPage (FR-NOTIF-06)', () => {
     expect(el.textContent).toContain(placed.reference);
   });
 
-  // The URL is the whole credential (ADR 0038), so it must not travel in a
+  // The URL is the whole credential, so it must not travel in a
   // `Referer` header to whatever the reader clicks next.
   it('keeps the page out of the index and out of referrers', async () => {
     await render(placed);

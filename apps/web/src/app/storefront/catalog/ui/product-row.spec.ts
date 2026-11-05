@@ -50,10 +50,8 @@ class Host {
 }
 
 async function render(available = true, given = item) {
-  // The row carries real buying controls, which read the cart out of
-  // localStorage. A line left behind by anything that ran before makes them
-  // render as "Added for …" instead of "Add to cart" — a failure that lands on
-  // whichever test happens to run first.
+  // Real buying controls read the cart from localStorage: a line left by an
+  // earlier test renders "Added for …" and fails whichever runs first.
   localStorage.clear();
   TestBed.resetTestingModule();
   TestBed.configureTestingModule({

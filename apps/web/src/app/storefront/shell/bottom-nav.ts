@@ -236,7 +236,7 @@ export class BottomNav {
     this.menuOpen.set(false);
   }
 
-  /** Hands the tap to whichever field is reachable — see MobileSearch. */
+  /** Hands the tap to whichever field is reachable (MobileSearch). */
   protected openSearch(): void {
     this.close();
     this.mobileSearch.activate();

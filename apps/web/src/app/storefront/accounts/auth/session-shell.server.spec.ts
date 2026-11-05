@@ -19,13 +19,9 @@ function run(): string | null {
   return root.classList.contains('session-anonymous') ? 'anonymous' : null;
 }
 
-/**
- * The script reads the same cookie `readSessionHint` does, in plain ES5,
- * because it runs before any of the app exists. These are what hold the two to
- * the same answer — a disagreement would show as the account label changing
- * the moment Angular boots, which is the flicker the script is there to
- * remove.
- */
+/** The script reads `readSessionHint`'s cookie in plain ES5, before the app
+ * exists. These hold both to one answer, or the account label flickers as
+ * Angular boots. */
 describe('the pre-paint session script', () => {
   afterEach(() => hint(null));
 

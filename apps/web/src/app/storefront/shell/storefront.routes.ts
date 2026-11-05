@@ -58,8 +58,8 @@ export const storefrontRoutes: Route[] = [
   // Session-scoped routes, lazy so the public bundle carries none of them.
   // `layout: 'centered'` is the signed-out treatment: the shell paints a recessed
   // grey background (see app.ts) and the page draws its form in an AuthCard on top.
-  // These four are the whole of it — every other route is a page of the app,
-  // with content around it that the card would fight.
+  // Only these four: every other route is a page with content the card would
+  // fight.
   {
     path: 'login',
     canActivate: [guestOnly],
@@ -120,8 +120,7 @@ export const storefrontRoutes: Route[] = [
       import('../ordering/orders/order-list-page').then((m) => m.OrderListPage),
   },
   {
-    // The reference is the identity a customer was quoted and a mail links to,
-    // so it is what the URL carries — never the row's id.
+    // The reference, as quoted and mailed, never the row's id.
     path: 'account/orders/:reference',
     canActivate: [requireAuth(), staffToAdminOrder(), maintenanceGate],
     loadComponent: () =>
@@ -162,11 +161,9 @@ export const storefrontRoutes: Route[] = [
         (m) => m.ChangePasswordPage,
       ),
   },
-  // The order summary a confirmation mail links to (FR-NOTIF-06). Public by
-  // capability: the token in the URL is the whole credential, so there is no
-  // guard — and no session either, which is the point for a guest. Server-
-  // rendered like the rest of the storefront (nothing here is browser-held),
-  // and kept out of the index by the page itself.
+  // The order summary a confirmation mail links to (FR-NOTIF-06). The token
+  // is the whole credential: no guard, no session, as for a guest.
+  // Server-rendered; the page keeps itself out of the index.
   {
     path: 'orders/:token',
     canActivate: [maintenanceGate],
@@ -175,13 +172,13 @@ export const storefrontRoutes: Route[] = [
         (m) => m.OrderTokenPage,
       ),
   },
-  // The public maintenance screen (FR-ADM-04). Ungated — it is where the gate
-  // sends visitors — and never a page slug, so it sits before the :slug route.
+  // The maintenance screen (FR-ADM-04). Ungated, as the gate sends visitors
+  // here, and before the :slug route.
   { path: 'maintenance', component: MaintenanceScreen },
   // Code pages are declared before the generic :slug route. Each public route
   // carries the maintenance gate so the storefront is hidden when it is on.
-  // Code routes, but their prose is a page body — so publishing governs them
-  // the same way, and a deployment without the page has no dangling route.
+  // Code routes whose prose is a page body, so publishing governs them, and a
+  // deployment without the page has no dangling route.
   {
     path: 'contact',
     component: ContactPage,
@@ -218,8 +215,8 @@ export const storefrontRoutes: Route[] = [
   },
   // Open-source attribution (see LicensesPage). Not a page slug and not
   // deployment-configurable: it attributes the code every deployment ships, so
-  // it is present wherever the app is. Lazy — a footer link nobody follows
-  // twice has no business in the bundle every visitor downloads.
+  // it is present wherever the app is. Lazy: a footer link nobody follows
+  // twice stays out of every visitor's bundle.
   {
     path: 'licenses',
     canActivate: [maintenanceGate],

@@ -32,12 +32,8 @@ function normalize(value: string): string {
   return value.replace(/\s+/g, ' ').trim();
 }
 
-/**
- * The script writes to the document root, which every case in this file
- * shares. Reset explicitly between them rather than relying on the next run to
- * overwrite it — a case that expects *nothing* to be written can only tell the
- * difference against a clean root.
- */
+/** The script writes to the shared document root, reset between cases: one
+ * expecting nothing written needs a clean root. */
 function resetRoot(): void {
   const root = document.documentElement;
   root.classList.remove('cart-filled');
@@ -59,13 +55,9 @@ function run(): { count: string; total: string } | null {
     : null;
 }
 
-/**
- * The script formats the total a second time, in plain ES5, because it runs
- * before any of the app exists. These are what hold it to the same answer
- * `formatPriceMinorShort` gives — a disagreement would show as the navbar
- * total changing the moment Angular boots, which is the flicker the script is
- * there to remove.
- */
+/** The script formats the total again in plain ES5, before the app exists.
+ * These hold it to `formatPriceMinorShort`, or the navbar total flickers as
+ * Angular boots. */
 describe('the pre-paint cart script', () => {
   beforeEach(() => {
     localStorage.clear();

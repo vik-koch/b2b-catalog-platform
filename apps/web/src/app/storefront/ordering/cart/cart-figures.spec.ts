@@ -57,8 +57,8 @@ function render(platformId = 'browser') {
 
   return {
     cart,
-    // The figures live on <html>, not in any markup — see cart-figures.ts.
-    // What the stylesheet would draw is what this reads back.
+    // The figures live on <html>, not in markup (cart-figures.ts); this reads
+    // back what the stylesheet would draw.
     figures: () => {
       const root = document.documentElement;
       return root.classList.contains('cart-filled')
@@ -75,8 +75,8 @@ function render(platformId = 'browser') {
   };
 }
 
-/** The figures live on <html>, which outlives a TestBed — so a cart left
- * behind by one spec would otherwise look like the next one's. */
+/** The figures live on <html>, which outlives a TestBed, so one spec's cart
+ * would look like the next one's. */
 function clearFigures(): void {
   document.documentElement.classList.remove('cart-filled');
   document.documentElement.style.removeProperty('--cart-count');
@@ -120,9 +120,8 @@ describe('CartFigures', () => {
     expect(view.figures()?.total).toBe('20 €');
   });
 
-  // Emptying the cart has to put the caption back — the stylesheet keys the
-  // swap on the class, so leaving it behind would leave an empty chip in the
-  // navbar.
+  // Emptying puts the caption back: the stylesheet keys on the class, so a
+  // leftover would leave an empty chip.
   it('takes the figures down again when the cart is emptied', () => {
     const view = render();
     view.cart.add(addition());

@@ -18,10 +18,8 @@ The MIT License (MIT)
 
 const realFetch = globalThis.fetch;
 
-/**
- * The notice file comes from the SSR tier, not the API, so there is no ts-rest
- * client to stub — the page uses `fetch` and so does the test.
- */
+/** The notice file comes from the SSR tier, not the API: the page and the
+ * test both use `fetch`. */
 function stubFetch(response: { ok: boolean; body?: string }) {
   globalThis.fetch = (async () => ({
     ok: response.ok,

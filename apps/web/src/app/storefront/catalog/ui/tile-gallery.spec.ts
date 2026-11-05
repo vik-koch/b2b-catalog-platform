@@ -98,11 +98,8 @@ describe('TileGallery', () => {
     expect(activeIndex(f)).toBe(0);
   });
 
-  /**
-   * Every photo used to get a src up front. The extra copies sit in the
-   * viewport at opacity 0, and opacity does not stop a download, so a category
-   * page fetched one image per photo to show one per product.
-   */
+  /** The extra copies sit at opacity 0, which does not stop a download, so
+   * a src up front would fetch every photo to show one per product. */
   it('gives a source only to images that have been revealed', () => {
     const f = render([img(1), img(2), img(3)]);
     const sources = () =>

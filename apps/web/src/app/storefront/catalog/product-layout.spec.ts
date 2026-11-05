@@ -52,8 +52,8 @@ describe('ProductLayoutService', () => {
     expect(service().layout()).toBe('list');
   });
 
-  // The listings are server-rendered, so the first HTML has to be the layout
-  // the visitor chose — otherwise the page rearranges itself after hydration.
+  // Server-rendered, so the first HTML is the visitor's layout, or the page
+  // rearranges after hydration.
   it('reads the request’s cookie on the server', () => {
     expect(
       service({ server: true, cookie: 'product_layout=list' }).layout(),

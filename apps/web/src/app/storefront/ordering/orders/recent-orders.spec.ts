@@ -112,11 +112,9 @@ describe('RecentOrders', () => {
   });
 
   /*
-   * What waits on the customer (FR-WORK-03), above the rows it is about —
-   * the other end of the marker on the account control. Two queues rather
-   * than one figure: each note links to the history narrowed to exactly the
-   * orders it counted, so a customer who came to pay lands on what is owed
-   * and not on their whole history.
+   * What waits on the customer (FR-WORK-03), where the account marker leads.
+   * Two queues, each linking to exactly the orders it counted, so a customer
+   * who came to pay lands on what is owed.
    */
   it('says what is waiting on the account holder, and links to it', async () => {
     const { el } = await render([order('CK-2026-0001')], {

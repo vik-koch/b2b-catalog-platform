@@ -43,12 +43,8 @@ function pieceAddition(overrides: Partial<CartAddition> = {}): CartAddition {
   };
 }
 
-/**
- * Six to a pack at €70 a pack, four packs to a box. Every figure is the same
- * lot price multiplied out — a pack *is* the lot here — because that is what
- * the arithmetic guarantees and a fixture that disagreed with it would be
- * testing a shop that cannot exist.
- */
+/** Six to a pack at €70 a pack, four packs to a box: one lot price
+ * multiplied out, as the arithmetic guarantees. */
 function packAddition(overrides: Partial<CartAddition> = {}): CartAddition {
   return {
     slug: 'filter-roast',
@@ -559,11 +555,8 @@ describe('CartService', () => {
       expect(cart.lines()[0].unitPriceMinor).toBe(1200);
     });
 
-    /**
-     * FR-CART-10. The baseline is what the *previous* visit wrote down, so
-     * every one of these prices a cart, forgets it, and reads it back — a
-     * fresh service is a return visit.
-     */
+    /** FR-CART-10. The baseline is the previous visit's, so each case prices
+     * a cart, forgets it and reads it back: a return visit. */
     describe('the change summary', () => {
       function returning(): CartService {
         TestBed.resetTestingModule();
@@ -634,12 +627,9 @@ describe('CartService', () => {
         ]);
       });
 
-      /**
-       * FR-STOCK-04 through FR-CART-10: the shelf emptying is what stops the
-       * order being placed, and it filling again is the news that it no longer
-       * does. Both are reported ahead of a price or a quantity, and neither is
-       * reported for "few left".
-       */
+      /** FR-STOCK-04 and FR-CART-10: an emptied shelf stops the order, a
+       * refilled one lifts that. Both come before price or quantity; "few
+       * left" is not reported. */
       it('says when a line went off the shelf while the cart waited', () => {
         service().add(packAddition({ pieces: 6, availability: 'in' }));
 
@@ -651,7 +641,7 @@ describe('CartService', () => {
         expect(cart.changes().map((change) => change.kind)).toEqual([
           'out-of-stock',
         ]);
-        // The line is otherwise untouched — named, priced, still in the cart.
+        // Otherwise untouched: named, priced, in the cart.
         expect(cart.lines()[0]).toMatchObject({
           availability: 'out',
           lineTotalMinor: 7200,
@@ -680,8 +670,8 @@ describe('CartService', () => {
         expect(cart.changes()).toEqual([]);
       });
 
-      // A cart written before the state was recorded reads as untracked, and a
-      // product nobody counts stays untracked — so neither is news.
+      // A cart without a recorded state reads as untracked, as does an
+      // uncounted product: neither is news.
       it('says nothing where nobody is counting the stock', () => {
         service().add(packAddition({ pieces: 6 }));
 

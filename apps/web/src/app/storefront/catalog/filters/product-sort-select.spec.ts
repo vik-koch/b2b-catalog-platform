@@ -77,12 +77,8 @@ async function render(
 }
 
 describe('ProductSortSelect', () => {
-  /**
-   * FR-SEARCH-04's second half: what a deployment switches off is the control.
-   * The ordering is the URL's, so a link somebody saved still opens the
-   * listing they saved — which is why this asserts the missing control and not
-   * a missing sort.
-   */
+  /** FR-SEARCH-04: a deployment switches off the control, not the sort; a
+   * saved link keeps its order. */
   it('draws nothing where the deployment has turned the control off', async () => {
     await expect(
       render(PRODUCT_SORTS, '/catalog/espresso?sort=price', false),

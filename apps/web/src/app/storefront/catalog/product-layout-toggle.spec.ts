@@ -70,10 +70,9 @@ describe('ProductLayoutToggle', () => {
     const fixture = await render();
     const host = fixture.nativeElement as HTMLElement;
 
-    // On the *listing's* container and on the convergence's own figure — not
-    // the `sm` viewport breakpoint it was derived from. The two part company
-    // on a viewport with no classic scrollbar, and for that band the control
-    // would vanish while the two layouts still looked different.
+    // On the listing's container and the convergence's own figure, not the
+    // `sm` breakpoint: without a classic scrollbar the two part, and the
+    // control would vanish while the layouts still differ.
     expect(host.className).toContain(`@min-[${LISTING_NARROW}]/listing:block`);
     expect(host.className).toContain('hidden');
     expect(host.className).not.toContain('sm:block');

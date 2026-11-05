@@ -94,8 +94,8 @@ describe('ContactPage', () => {
   const locations = [{ name: 'HQ', map: { url: 'https://maps.example/hq' } }];
 
   it('shows the load error instead of a half page when the body fails', async () => {
-    // The office list alone under an empty heading would look like the page,
-    // in a 200 — LoadErrorView says the site is broken and answers 503.
+    // The office list under an empty heading would pass as the page in a 200;
+    // LoadErrorView answers 503.
     const el = await render(locations, () => Promise.reject(new Error('down')));
 
     expect(el.textContent).toContain(

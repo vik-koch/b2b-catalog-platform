@@ -16,8 +16,8 @@ function anchorAt(bottom: number, top = 0): SearchAnchor & { focused: number } {
   return anchor;
 }
 
-/** The reals, captured once at module load, and put back after every test —
- * a global left behind is what makes these fail only in CI. */
+/** The reals, captured at load and restored after each test: a leftover
+ * global fails these only in CI. */
 const realScrollTo = window.scrollTo;
 const realMatchMedia = window.matchMedia;
 
@@ -32,13 +32,9 @@ function setUp() {
   return TestBed.inject(MobileSearch);
 }
 
-/**
- * Whether the visitor has asked for less movement. Stated rather than assumed:
- * a smooth scroll is only the answer for someone who has not, so a test that
- * asserts one has to say which visitor it is talking about — otherwise it is
- * really asserting whatever `matchMedia` some earlier spec happened to leave
- * on the window.
- */
+/** Whether the visitor asked for less movement, stated: a smooth scroll is
+ * for one who did not, and otherwise a test asserts an earlier spec's
+ * `matchMedia`. */
 function prefersReducedMotion(reduced: boolean): void {
   window.matchMedia = ((query: string) =>
     ({
@@ -59,9 +55,8 @@ describe('MobileSearch', () => {
     window.matchMedia = realMatchMedia;
   });
 
-  // A visitor who can see the field expects a search button to put the caret
-  // in it, not to draw a second one over the page — and not to throw away
-  // where they were standing to do it.
+  // With the field in view, the search button puts the caret in it: no second
+  // field, no lost place.
   it('focuses the header field while any of its row is on screen', () => {
     const search = setUp();
     const anchor = anchorAt(1);
@@ -71,8 +66,8 @@ describe('MobileSearch', () => {
 
     expect(anchor.focused).toBe(1);
     expect(search.open()).toBe(false);
-    // Whole and on screen — the results page, or the top of any page. Moving
-    // the page under a visitor who can already see the field buys nothing.
+    // Whole and on screen, as on the results page or a page's top: moving the
+    // page buys nothing.
     expect(scrolled).toEqual([]);
   });
 
@@ -136,8 +131,8 @@ describe('MobileSearch', () => {
   });
 
   // The page behind a keyboard must not move: it would take the field with it.
-  // And it must be handed back where it was — fixing the body without lifting
-  // it by the offset it was scrolled to shows as a jump to the top.
+  // And handed back where it was: a fixed body not lifted by its scroll
+  // offset jumps to the top.
   it('holds the page still, and gives it back where it was', () => {
     const search = setUp();
     const locked = () =>

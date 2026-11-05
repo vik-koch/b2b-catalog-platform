@@ -8,16 +8,9 @@ import { Link } from '@b2b-catalog-platform/ui/actions/link';
 import { STOREFRONT_SITE_TEXT } from '../site-text';
 import { SITE_CONFIG } from '../../../core/site/site-config';
 
-/**
- * Cookie-consent banner. Rendered only when the deployment enables consent AND
- * no choice is recorded yet.
- *
- * Non-blocking by design: an elevated card near the bottom, not a modal.
- *
- * Gated on `ready` (set in afterNextRender) so it appears only after
- * hydration: the server renders nothing (no localStorage there), and matching
- * that on the client's first paint avoids a hydration mismatch.
- */
+/** The cookie banner, where consent is enabled and no choice recorded: a card
+ * near the bottom, never a modal. Gated on `ready` (afterNextRender), as the
+ * server renders none and the first paint must match. */
 @Component({
   selector: 'app-cookie-consent',
   imports: [RouterLink, Button, Link],

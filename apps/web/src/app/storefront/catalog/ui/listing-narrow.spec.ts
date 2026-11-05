@@ -8,12 +8,8 @@ import {
   NARROW_PHOTO_IN_LINE,
 } from './listing-narrow';
 
-/**
- * Below the narrow threshold a card and a line are one drawing, and the only
- * thing that may differ between the two spellings is which container each asks.
- * They drifted once — the card's photo lost its frame — and drift is invisible
- * until someone opens a phone.
- */
+/** Below the narrow threshold a card and a line are one drawing, differing
+ * only in the container each asks; a drift shows only on a phone. */
 describe('the narrow shape', () => {
   const asLine = (classes: string) => classes.split('/listing:').join('/line:');
 

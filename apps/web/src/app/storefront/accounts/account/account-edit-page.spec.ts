@@ -24,9 +24,9 @@ const stored: AccountProfile = {
   role: 'user',
   firstName: 'Alex',
   lastName: 'Fischer',
-  // Stored canonically: the country code the form shows as a prefix, then the
-  // national part it owns, grouped by the deployment's own mask — which is
-  // also what makes it *complete*, and so saveable without being retyped.
+  // Stored canonically: the code the form shows as a prefix, then the national
+  // part grouped by the deployment's mask, which makes it complete and so
+  // saveable without retyping.
   phone: `${config.phoneInput?.countryCode}4012345678`,
   companyName: 'Kontor GmbH',
   customerType: 'company',

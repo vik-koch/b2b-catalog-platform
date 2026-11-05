@@ -178,7 +178,7 @@ describe('CategoryGrid', () => {
     expect(nav?.textContent).toContain('Beans');
     expect(nav?.textContent).toContain('Espresso');
     expect(nav?.textContent).not.toContain('Coffee Beans');
-    // The heading keeps the full name — it stands on its own.
+    // The heading keeps the full name: it stands on its own.
     expect(root.querySelector('h1')?.textContent?.trim()).toBe(
       'Espresso Roasts',
     );
@@ -219,8 +219,8 @@ describe('CategoryGrid', () => {
     const list = () =>
       el(f).querySelector('a[href="/catalog/a"]')?.closest('ul');
 
-    // Every chip is rendered at all times — how many are visible is the
-    // browser's answer, given by clipping the list to four rows.
+    // Every chip is always rendered; clipping to four rows decides how many
+    // show.
     expect(chipCount()).toBe(6);
     expect(list()?.className).toContain('max-h-75');
     // ...and only on a phone: from the viewport's `sm` the clip is lifted in
@@ -245,8 +245,7 @@ describe('CategoryGrid', () => {
     expect(list()?.className).toContain('var(--subs-full');
     expect(toggle(defaultSharedText.showLess)).toBeTruthy();
 
-    // The toggle is hidden wherever the clip is lifted — a button offering to
-    // show what is already shown.
+    // No toggle where nothing is clipped: it would offer what is shown.
     expect(
       toggle(defaultSharedText.showLess)?.closest('ui-show-more-toggle')
         ?.className,
@@ -561,9 +560,8 @@ describe('CategoryGrid layout', () => {
     document.cookie = 'product_layout=;path=/;max-age=0';
   });
 
-  // Cards and lines are different markup, not one set of elements styled two
-  // ways, so the choice has to reach the listing itself — and the category
-  // listing and the search results have to answer it the same way.
+  // Cards and lines are different markup, so the choice reaches the listing,
+  // and category listing and search results answer it alike.
   it('draws lines instead of cards once the visitor asks for them', async () => {
     const cards = await render(response());
     expect(el(cards).querySelector('app-product-tile')).not.toBeNull();
@@ -681,7 +679,7 @@ describe('CategoryGrid as the catalogue index (FR-CAT-02)', () => {
     expect(root.querySelector('h1')?.textContent).toContain(
       defaultSharedCatalogText.catalogRoot,
     );
-    // Where a category's breadcrumb stands, so nothing moves on the way down —
+    // Where a category's breadcrumb stands, so nothing moves on the way down:
     // the current page, not a link to itself.
     expect(nav?.querySelector('[aria-current="page"]')?.textContent).toContain(
       defaultSharedCatalogText.catalogRoot,

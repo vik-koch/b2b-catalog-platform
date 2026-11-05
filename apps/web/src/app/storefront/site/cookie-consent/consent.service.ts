@@ -27,12 +27,9 @@ const CONSENT_VERSION = 1;
 // off every request, unlike a cookie.
 const STORAGE_KEY = 'cookie-consent';
 
-/**
- * Records and exposes the visitor's cookie choice. Only governs NON-essential
- * storage: strictly-necessary storage (auth session, this record) is set
- * regardless of the choice. SSR-safe — localStorage is only touched in the
- * browser; on the server there is never a decision.
- */
+/** The visitor's cookie choice, for non-essential storage only: the session
+ * and this record are set regardless. localStorage only in the browser; the
+ * server never has a decision. */
 @Injectable({ providedIn: 'root' })
 export class ConsentService {
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
@@ -49,12 +46,8 @@ export class ConsentService {
   /** The current choice, or null if none has been recorded. */
   readonly choice = computed(() => this.decision()?.choice ?? null);
 
-  /**
-   * Whether non-essential storage/embeds may load now — true when consent is
-   * not enforced for this deployment (e.g. a no-rules jurisdiction, flag off)
-   * or the visitor has accepted. Consent-gated widgets (e.g. a cookie-setting
-   * map) check this before loading.
-   */
+  /** Whether non-essential storage and embeds may load: consent not enforced
+   * here (flag off), or accepted. Gated widgets check it first. */
   readonly canUse = computed(
     () => !this.enabled || this.choice() === 'accepted',
   );
@@ -67,8 +60,8 @@ export class ConsentService {
     this.persist('rejected');
   }
 
-  /** Re-open the choice — wired to a persistent "Cookie settings" control so
-   *  consent is as easy to withdraw as it is to give. */
+  /** Reopens the choice, from a persistent "Cookie settings" control, so
+   * withdrawing is as easy as giving. */
   withdraw(): void {
     if (this.isBrowser) {
       localStorage.removeItem(STORAGE_KEY);

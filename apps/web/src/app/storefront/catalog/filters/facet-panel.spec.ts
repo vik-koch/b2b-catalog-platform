@@ -71,9 +71,8 @@ async function render(facets: Facet[], startUrl = '/catalog/espresso') {
     boxes()[index].click();
     await fixture.whenStable();
   };
-  /** By text or by accessible name: the clear-all is a glyph now, and the
-   * panel draws it twice — as the column heading's control, and beside the
-   * disclosure toggle — of which only one is ever on screen. */
+  /** By text or accessible name: the clear-all is a glyph, drawn twice (by
+   * the column heading and the disclosure toggle), one on screen. */
   const buttonWith = (label: string) =>
     [...host.querySelectorAll('button')].find(
       (b) =>

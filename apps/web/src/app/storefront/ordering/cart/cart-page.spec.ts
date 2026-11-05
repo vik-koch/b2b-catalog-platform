@@ -104,12 +104,11 @@ function preview(
 async function render(
   options: {
     lines?: CartAddition[];
-    /** One answer for every call, or a run of them — the page re-prices the
-     * cart whenever it folds one in, so a second answer is what the first one
-     * made true. The last is repeated once the run is spent. */
+    /** One answer for every call, or a run: the page re-prices whenever
+     * it folds one in. The last repeats once the run is spent. */
     answer?: CartPreview | Error | CartPreview[];
     confirm?: boolean;
-    /** Keeps what the last render wrote down — a reload, not a first visit. */
+    /** Keeps what the last render wrote down: a reload, not a first visit. */
     reload?: boolean;
     /** A deployment that refuses an unsatisfied cart (FR-SET-04). */
     pairingsEnforced?: boolean;
@@ -174,7 +173,7 @@ async function render(
     /** The cart's lines. By the row component, not by `li`: the change
      * summary above them is a list too. */
     rows: () => el.querySelectorAll('app-product-row'),
-    /** The rows' own tick boxes — the one above the list has no line to name. */
+    /** The rows' own tick boxes; the one above the list names no line. */
     boxes: () =>
       [
         ...el.querySelectorAll('input[type=checkbox][aria-label]'),
@@ -219,7 +218,7 @@ async function render(
       ).dispatchEvent(new Event('blur'));
       await rerender();
     },
-    /** A press landing outside any bubble — what dismisses one. */
+    /** A press outside any bubble, which dismisses one. */
     async pressOutside() {
       document.body.dispatchEvent(
         new MouseEvent('pointerdown', { bubbles: true }),
@@ -282,9 +281,8 @@ describe('CartPage', () => {
     expect(view.quantities()).toEqual(['3']);
   });
 
-  // The photo is the line's own, not the answer's: a row drawn from whatever
-  // the last call returned blanks itself for as long as the next one is in
-  // flight — the row blinked on every edit.
+  // The photo is the line's own, not the answer's, or the row blanks while
+  // the next call is in flight.
   it('keeps a line’s photo when its unit changes', async () => {
     const image = { thumb: '/media/thumb.webp', full: '/media/full.webp' };
     const view = await render({
@@ -300,9 +298,8 @@ describe('CartPage', () => {
     expect(view.photos()).toEqual(['/media/thumb.webp']);
   });
 
-  // A correction is feedback on something already done, so it goes in the
-  // bubble under the stepper it is about — not into the list of states under
-  // the name, which the customer would have to read and then ignore.
+  // A correction is feedback on something done, so it goes in the bubble
+  // under its stepper, not the states under the name.
   it('shows a corrected quantity in a bubble, not as a line of text', async () => {
     const view = await render({
       lines: [addition()],
@@ -414,8 +411,8 @@ describe('CartPage', () => {
     expect(view.el.querySelector('ui-popover')).toBeNull();
   });
 
-  // The figures are on the lines, so the estimate is the cart's own
-  // arithmetic — a reload draws the card complete without asking anything.
+  // The figures are on the lines, so a reload draws the estimate without
+  // asking anything.
   it('adds the shipment estimate up from the lines it was told', async () => {
     await render({
       lines: [addition()],
@@ -467,8 +464,8 @@ describe('CartPage', () => {
     expect(view.text()).toContain('Filter Roast');
   });
 
-  // FR-CART-08 on the cart: a field, not a bubble — this is the page where a
-  // note is re-read before the order goes in.
+  // FR-CART-08 on the cart: a field, not a bubble, as a note is re-read here
+  // before ordering.
   it('writes a line note from the field under the row', async () => {
     const view = await render({
       lines: [addition({ lineNoteEnabled: true })],
@@ -492,8 +489,8 @@ describe('CartPage', () => {
     expect(view.el.querySelector('textarea')).toBeNull();
   });
 
-  // FR-SET-05 on the cart: the word, not the glyph — this line has a column to
-  // spare for it, and the panel is worth naming before it is opened.
+  // FR-SET-05 on the cart: the word, not the glyph, as the line has room and
+  // the panel is worth naming.
   it('names the counterparts above the note, and only where there are any', async () => {
     const paired = await render({
       lines: [addition({ pairedCount: 2, lineNoteEnabled: true })],
@@ -671,8 +668,8 @@ describe('CartPage', () => {
     expect(field?.value).toBe('100 in red');
   });
 
-  // Preview is the authority on price, and its answer becomes the cart's own
-  // baseline — so the header and this page cannot disagree.
+  // The preview's prices become the cart's, so header and page cannot
+  // disagree.
   it('takes the fresh price over the stored one and writes it back', async () => {
     const view = await render({
       lines: [addition()],
@@ -799,7 +796,7 @@ describe('CartPage', () => {
       .replace('{rate}', '19')
       .replace(/\s+/g, ' ');
 
-    // Once, inside the summary's own statement — never again on the line.
+    // Once, in the summary's statement, never again on the line.
     expect(view.text().split(rate)).toHaveLength(2);
   });
 
@@ -843,8 +840,8 @@ describe('CartPage', () => {
     expect(view.text()).toContain('Lines not covered by this estimate: 2');
   });
 
-  // The card still has to state the total, so it stays — with nothing above
-  // the subtotal rather than a row of zeroes the estimate cannot vouch for.
+  // The card still states the total, with nothing above the subtotal rather
+  // than zeroes it cannot vouch for.
   it('leaves out every estimate row when the estimate covers nothing', async () => {
     const view = await render({ lines: [addition()] });
 
@@ -897,7 +894,7 @@ describe('CartPage', () => {
     expect(view.cart.count()).toBe(1);
   });
 
-  // What "empty the cart" used to be, in the two controls that already exist.
+  // "Empty the cart" through the two controls that exist.
   it('empties the cart by selecting every line and deleting the selection', async () => {
     const view = await render({
       lines: [addition(), addition({ slug: 'espresso-roast', unit: 'piece' })],

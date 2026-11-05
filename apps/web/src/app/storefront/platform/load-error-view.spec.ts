@@ -6,12 +6,9 @@ import { STOREFRONT_TEXT } from '../../platform/config/storefront-text';
 import { defaultStorefrontText } from '../../platform/config/storefront-text.fixture';
 import { LoadErrorView } from './load-error-view';
 
-/**
- * The status is the point of this component. Rendering an apology inside a 200
- * invites a crawler to index the error page and, worse, leaves every
- * status-based monitor — the Traefik access logs this platform treats as its
- * request-level signal — reporting a healthy site during an outage.
- */
+/** The status is the point: an apology in a 200 gets indexed, and the
+ * Traefik access logs, the request-level signal, report a healthy site in an
+ * outage. */
 function render(responseInit?: ResponseInit) {
   TestBed.configureTestingModule({
     imports: [LoadErrorView],

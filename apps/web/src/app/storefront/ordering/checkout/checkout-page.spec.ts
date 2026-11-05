@@ -94,15 +94,15 @@ interface Options {
   companyName?: string;
   /** Whether the cart has anything in it. */
   empty?: boolean;
-  /** Whether the deployment has a suggestion provider behind it — the
-   * environment's answer, not the config's. */
+  /** Whether a suggestion provider is behind it: the environment's answer,
+   * not the config's. */
   suggests?: boolean;
   /** What placing the order comes to. Accepted unless a test says otherwise. */
   submit?: SubmitOrderResult;
   /** No session at all (FR-CART-03). */
   guest?: boolean;
-  /** An account whose record carries no telephone number — which staff can
-   * create, and which the order contract will not accept. */
+  /** An account without a phone number: staff can create one, the order
+   * contract refuses it. */
   noPhone?: boolean;
   /** The session's role. Staff do not buy; everything else assumes a customer. */
   role?: 'user' | 'manager' | 'admin';
@@ -245,9 +245,8 @@ async function render(options: Options = {}) {
     fixture,
     drafts: TestBed.inject(CheckoutDraftService),
     el,
-    /** Types into a field the way a customer does, so the form's own
-     * subscriptions run. Both events, because a field takes whichever it
-     * needs — a date is committed on change, a note as it is written. */
+    /** Types as a customer does, so the form's subscriptions run. Both events:
+     * a date commits on change, a note as written. */
     type: (selector: string, value: string) => {
       const input = el.querySelector<HTMLInputElement>(selector);
       if (!input) throw new Error(`No ${selector} on the page`);
@@ -305,12 +304,9 @@ function withPickupPoints(count: number): DeploymentConfig {
   return withOrdering({ pickup: locations.length ? { locations } : undefined });
 }
 
-/**
- * Whether the compacted address form is asking for the postcode itself. The
- * field is in the page either way — folded away it sits off-screen and out of
- * the tab order, so browser autofill can still reach it — so its absence is no
- * longer the tell.
- */
+/** Whether the compact address form asks for the postcode. Folded away the
+ * field is still there, off-screen for autofill, so its presence tells
+ * nothing. */
 const postcodeShown = (el: HTMLElement): boolean =>
   el.querySelector('[id$="-postalCode"]')?.getAttribute('tabindex') !== '-1';
 
@@ -346,8 +342,8 @@ describe('CheckoutPage', () => {
       }
     });
 
-    // A list of one is not a question — and the draft may arrive on pickup from
-    // a previous visit, never passing through the fulfilment click.
+    // A list of one is no question, and a draft may arrive on pickup from an
+    // earlier visit, skipping the click.
     it('answers a single collection point itself, however pickup was reached', async () => {
       const only = withPickupPoints(1);
       const key = only.ordering.pickup?.locations[0].key;
@@ -369,8 +365,8 @@ describe('CheckoutPage', () => {
       expect(restored.drafts.draft().pickupLocationKey).toBe(key);
     });
 
-    // Two points is a real question, so nothing is chosen for the customer —
-    // which makes saying so on refusal the whole of the feedback they get.
+    // Two points is a real question, so nothing is chosen, and the refusal is
+    // all the feedback.
     it('says which answer is missing when several points go unchosen', async () => {
       const page = await render();
 
@@ -921,7 +917,7 @@ describe('CheckoutPage', () => {
       const page = await render({ guest: true });
 
       expect(page.text()).toContain(text.signInPrompt);
-      // The form is right there — the offer is beside it, not in front of it.
+      // The form is right there: the offer sits beside it, not in front.
       expect(page.text()).toContain(text.fulfilment.heading);
     });
 
@@ -970,9 +966,8 @@ describe('CheckoutPage', () => {
       });
     });
 
-    // The one input rule the form and the server used to disagree about: a
-    // domain with no TLD passes Angular's own email validator and is refused
-    // by the contract, so the form applies the contract's rule instead.
+    // A domain without a TLD passes Angular's email validator and fails the
+    // contract, so the form applies the contract's rule.
     it('holds the email to the same rule sign-up does', async () => {
       const page = await render({ guest: true });
 

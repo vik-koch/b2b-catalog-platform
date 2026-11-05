@@ -101,8 +101,8 @@ async function render(
   return { fixture, el: fixture.nativeElement as HTMLElement, h };
 }
 
-/** An icon-only button, found by the accessible name it carries instead of
- * text — `template` is the storefront-text line with `{label}` still in it. */
+/** An icon-only button, found by its accessible name; `template` is the text
+ * line with `{label}` still in it. */
 function buttonByLabel(el: HTMLElement, template: string): HTMLButtonElement {
   const prefix = template.split('{label}')[0];
   const button = [...el.querySelectorAll('button')].find((b) =>
@@ -177,8 +177,8 @@ describe('AccountPage', () => {
       ).toBe(accountText.addresses.removeAria.replace('{label}', 'Shop'));
     });
 
-    // Nothing was named at checkout, so the row is headed by its own first
-    // line — and that line is not then printed twice.
+    // Unnamed, so the row is headed by its first line, which is not printed
+    // twice.
     it('names an unlabelled address by its first line', async () => {
       const { el } = await render(customer, [{ ...savedAddress, label: null }]);
 
@@ -198,8 +198,8 @@ describe('AccountPage', () => {
       expect(el.textContent).toContain('20359 Hamburg');
     });
 
-    // The deployment ships to one country, so printing it on every address
-    // says nothing — but a row in another one is exactly what the line is for.
+    // One shipping country says nothing on every address; a row in another is
+    // what the line is for.
     it('names a country only when it is not the deployment’s own', async () => {
       const { el } = await render(customer, [
         { ...savedAddress, city: 'Wien', country: 'AT' },

@@ -24,7 +24,7 @@ import {
 const text = defaultStorefrontAccountsText.account.addresses;
 const fieldText = defaultSharedAccountsText.address;
 
-/** Two shapes, the short one first — the order a picker offers them in. */
+/** Two shapes, the short one first, as a picker offers them. */
 const shortFormat = {
   key: 'short',
   label: 'Short number',
@@ -181,8 +181,8 @@ async function render(options: Options = {}) {
 
 describe('AddressEditorPage', () => {
   describe('adding', () => {
-    // Whichever of the deployment's shapes the account is registered under, the
-    // field shows the number itself — there is no shape to get wrong any more.
+    // Whatever shape the account is registered under, the field shows the
+    // number itself, with no shape to get wrong.
     // One configured country is not a question worth asking; the code still
     // travels with the address, and the server still checks it.
     it('asks for no country where the deployment ships to one', async () => {
@@ -212,8 +212,8 @@ describe('AddressEditorPage', () => {
       );
     });
 
-    // Rarely typed by hand, but a suggestion fills it and what it fills is
-    // printed on the address — so the field is always there to be corrected.
+    // Rarely typed, but a suggestion fills it and it is printed, so the field
+    // is always there to correct.
     it('asks for the region', async () => {
       const { field } = await render();
 
@@ -394,9 +394,8 @@ describe('AddressEditorPage', () => {
       expect(h.update.mock.calls[0][1]).toMatchObject({ label: 'Warehouse' });
     });
 
-    // Wrong here is not cosmetic: the field masks the number into the shape it
-    // was told, so a number dressed in a shape it does not fit is truncated on
-    // screen — and the next save stores the truncation.
+    // Not cosmetic: the field masks the number into the shape it is told, so a
+    // wrong shape truncates it on screen, and the next save stores that.
     it('says so when the id names no address of this account', async () => {
       const { el } = await render({ id: 'not-mine' });
 

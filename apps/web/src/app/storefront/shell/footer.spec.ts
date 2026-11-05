@@ -71,9 +71,8 @@ describe('Footer', () => {
     expect(el.textContent).toContain(defaultSharedText.nav['imprint']);
   });
 
-  // The attribution page is a code route, not a published page, so the only
-  // thing that decides whether it is advertised is its place in footerNav — a
-  // deployment with no obligation to show it drops it there.
+  // The attribution page is a code route, so only footerNav decides whether it
+  // is linked; a deployment drops it there.
   it('links the license notice when the deployment lists it', async () => {
     const el = await render(false);
     expect(el.textContent).toContain(defaultSharedText.nav['licenses']);

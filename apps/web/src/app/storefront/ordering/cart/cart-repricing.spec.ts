@@ -8,8 +8,8 @@ import { CartRepricing } from './cart-repricing';
 import { CartService } from './cart.service';
 import { CartAddition } from '../../../core/catalog/buying/product-cart';
 
-/** Six to a pack at €70 a pack, four packs to a box — the same lot price
- * multiplied out, as the arithmetic requires. */
+/** Six to a pack at €70 a pack, four packs to a box: one lot price
+ * multiplied out. */
 function addition(): CartAddition {
   return {
     slug: 'filter-roast',
@@ -87,11 +87,8 @@ function hint(role: string | null): void {
       : `session_role=${role}; max-age=60`;
 }
 
-/**
- * Fills a cart as a guest, then boots with the session the hint cookie
- * describes — which is what a customer signing in and then browsing on looks
- * like from here.
- */
+/** Fills a cart as a guest, then boots with the hint cookie's session: a
+ * customer signing in and browsing on. */
 function boot(options: { answer?: CartPreview | Error; empty?: boolean } = {}) {
   TestBed.resetTestingModule();
   localStorage.clear();
@@ -198,8 +195,8 @@ describe('CartRepricing', () => {
     await view.signIn('user');
     expect(view.priced).toHaveBeenCalledTimes(1);
 
-    // Still holding guest prices, because the first attempt failed — so the
-    // next identity to settle is still owed a pricing call.
+    // Still guest prices after a failed attempt, so the next identity is owed
+    // a pricing call.
     view.user.set({ id: 'u2' });
     await view.settle();
 
@@ -219,12 +216,8 @@ describe('CartRepricing', () => {
     expect(view.cart.changes()).toEqual([]);
   });
 
-  /**
-   * The trap the class comment names: `user()` alone folds "not known yet"
-   * into "signed out", which would price a signed-in customer's cart as a
-   * guest's on every cold load — and then quietly overwrite their own prices
-   * with the default list's.
-   */
+  /** `user()` alone reads "not known yet" as "signed out", pricing a
+   * customer's cart as a guest's on every cold load. */
   it('waits for the session to be an answer, not an absence', async () => {
     const view = boot();
 
