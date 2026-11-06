@@ -63,6 +63,7 @@ import {
 } from './product-grid-query';
 import { GridCardTemplate } from '@b2b-catalog-platform/ui/grid/grid-card-template';
 import { GridRowTemplate } from '@b2b-catalog-platform/ui/grid/grid-row-template';
+import { GridKey } from '@b2b-catalog-platform/ui/grid/grid-key';
 import { GridTitle } from '@b2b-catalog-platform/ui/grid/grid-title';
 import { GridTitleLink } from '@b2b-catalog-platform/ui/grid/grid-title-link';
 import { GridTimestamp } from '../../platform/dates/grid-timestamp';
@@ -117,6 +118,7 @@ function knownValues<T extends string>(
     GridHeader,
     DataGrid,
     GridRowTemplate,
+    GridKey,
     GridTitle,
     GridTitleLink,
     GridCardTemplate,
@@ -297,12 +299,9 @@ function knownValues<T extends string>(
               [state]="stateOf(item)"
               [live]="true"
             />
-            <span
-              class="max-w-full truncate rounded-sm bg-surface px-1.5 py-0.5
-                     font-mono text-xs"
-              [class.opacity-50]="isDeleted(item)"
-              >{{ item.sourceId }}</span
-            >
+            <span uiGridKey [class.opacity-50]="isDeleted(item)">{{
+              item.sourceId
+            }}</span>
             <ng-container
               [ngTemplateOutlet]="content"
               [ngTemplateOutletContext]="{ $implicit: item, card: true }"

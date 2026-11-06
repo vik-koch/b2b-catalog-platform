@@ -1,4 +1,5 @@
 import { Component, input } from '@angular/core';
+import { GridKey } from './grid-key';
 
 /**
  * A record's name in a grid row, wrapping to three lines. An optional key
@@ -11,13 +12,14 @@ import { Component, input } from '@angular/core';
  */
 @Component({
   selector: 'ui-grid-title',
+  imports: [GridKey],
   // The word spacing is the gap before the key; the link resets it.
   host: { class: 'line-clamp-3 wrap-break-word [word-spacing:0.25rem]' },
   template: `<ng-content />
     @if (key(); as key) {
       &ngsp;<span
-        class="inline-block max-w-full truncate rounded-sm bg-surface px-1.5
-               py-0.5 align-middle font-mono text-xs [word-spacing:normal]"
+        uiGridKey
+        class="inline-block align-middle [word-spacing:normal]"
         [title]="key"
         >{{ key }}</span
       >

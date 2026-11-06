@@ -24,6 +24,7 @@ import { GridColumn } from '@b2b-catalog-platform/ui/grid/grid-column';
 import { GridFilterOption } from '@b2b-catalog-platform/ui/grid/grid-filter-select';
 import { GridCardTemplate } from '@b2b-catalog-platform/ui/grid/grid-card-template';
 import { GridRowTemplate } from '@b2b-catalog-platform/ui/grid/grid-row-template';
+import { GridKey } from '@b2b-catalog-platform/ui/grid/grid-key';
 import { GridTitle } from '@b2b-catalog-platform/ui/grid/grid-title';
 import { GridTitleLink } from '@b2b-catalog-platform/ui/grid/grid-title-link';
 import { GridTimestamp } from '../../platform/dates/grid-timestamp';
@@ -108,6 +109,7 @@ const typeRank = (t: StaffUser['customerType']): number =>
     GridHeader,
     DataGrid,
     GridRowTemplate,
+    GridKey,
     GridTitle,
     GridTitleLink,
     GridCardTemplate,
@@ -160,7 +162,7 @@ const typeRank = (t: StaffUser['customerType']): number =>
           <!-- Name and email in one cell, as on the order list. The name opens
                the account to read; the pencil opens the editor. -->
           <td [title]="user.email">
-            <ui-grid-title>
+            <ui-grid-title [key]="user.sourceId">
               <a
                 uiGridTitleLink
                 [routerLink]="['/admin/users', user.id]"
@@ -213,7 +215,7 @@ const typeRank = (t: StaffUser['customerType']): number =>
           <!-- Greyed when closed, but never the badge that says so. -->
           <ui-record-row>
             <a
-              class="truncate font-medium text-ink"
+              class="line-clamp-2 font-medium wrap-break-word text-ink"
               [class.opacity-50]="isClosed(user)"
               [routerLink]="['/admin/users', user.id]"
               [queryParams]="editorFrom()"
@@ -227,6 +229,11 @@ const typeRank = (t: StaffUser['customerType']): number =>
               [tone]="statusTone(user.status)"
               >{{ statusLabel(user.status) }}</span
             >
+            @if (user.sourceId) {
+              <span uiGridKey [class.opacity-50]="isClosed(user)">{{
+                user.sourceId
+              }}</span>
+            }
             <div recordBody [class.opacity-50]="isClosed(user)">
               <p class="mt-1 truncate text-sm text-ink-subtle">
                 {{ user.email }}
