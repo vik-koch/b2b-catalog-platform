@@ -11,6 +11,7 @@ import { CartService } from './cart.service';
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import { currentPath } from '../../../platform/current-url';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import { COUNT_DOT } from '@b2b-catalog-platform/ui/content/count-dot';
 import { navActionClasses, NavVariant } from '../../platform/nav-action';
 import { shoppingBasketIcon } from '@b2b-catalog-platform/ui/icons/glyphs/shopping-basket';
 
@@ -35,14 +36,8 @@ import { shoppingBasketIcon } from '@b2b-catalog-platform/ui/icons/glyphs/shoppi
            off centre. -->
       <span class="relative inline-flex">
         <ui-icon [glyph]="shoppingBasketIcon" class="size-6" />
-        <!-- The waiting-work dot: a filled cart is work too. White on it is
-             3.2:1; dark digits read as a foreign colour. -->
-        <span
-          aria-hidden="true"
-          class="cart-count absolute -top-0.75 -right-2 h-3 min-w-3
-                 items-center justify-center rounded-full bg-warning-dot p-0.5
-                 text-[0.625rem]/3 text-white font-normal transition-colors"
-        ></span>
+        <!-- The waiting-work dot: a filled cart is work too. -->
+        <span aria-hidden="true" [class]="countDot"></span>
       </span>
       <span [class]="cls().labelRow">
         <!-- A chip, so the total does not read as a nav word. Negative margins
@@ -67,6 +62,9 @@ import { shoppingBasketIcon } from '@b2b-catalog-platform/ui/icons/glyphs/shoppi
 })
 export class CartLink {
   protected readonly shoppingBasketIcon = shoppingBasketIcon;
+  /** Its display and figure come from styles.css (`.cart-count`). */
+  protected readonly countDot = `cart-count ${COUNT_DOT} bg-warning-dot
+                                 transition-colors`;
   /** Which of the two navbars is drawing this control. */
   readonly variant = input<NavVariant>('bar');
   protected readonly cls = computed(() => navActionClasses(this.variant()));

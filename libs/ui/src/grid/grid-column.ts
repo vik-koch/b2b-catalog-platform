@@ -1,5 +1,6 @@
 import { GridFilterOption } from './grid-filter-select';
 import { Glyph } from '../icons/glyph';
+import { fill } from '../core/fill';
 
 /** How a column is ordered: the key each direction writes to `sort`. */
 export interface GridSort {
@@ -56,6 +57,9 @@ export interface GridColumn {
   /** Exactly this many pixels, always (actions, a thumbnail): never measured,
    * dragged or reset; the rest share what it leaves. */
   fixedWidth?: number;
+  /** The heading holds the fact filter's button: a column with no heading of
+   * its own. */
+  factsHeading?: boolean;
 }
 
 /** Fits a date or a short badge; keeps a heading off three lines. */
@@ -87,38 +91,88 @@ export interface GridChip {
   label: string;
   /** What it is narrowed to. */
   value: string;
-  /** The parameters that undo it, all null. */
-  clearParams: Record<string, null>;
+  /** The parameters that undo it: null, or a list without the entry. */
+  clearParams: Record<string, readonly string[] | null>;
   /** Names the button that undoes it. */
   clearLabel: string;
 }
 
-/** Narrowings switched on and off on their own; all that are on must hold. */
-export interface GridToggleGroup {
-  /** What the group asks, for a screen reader. */
-  ariaLabel: string;
-  /** The query parameter it writes, as a list. */
-  param: string;
-  options: readonly GridToggleOption[];
-  /** The values in effect. */
-  selected: readonly string[];
+/**
+ * Facts asked either way: each one had, lacking or not asked, all that are
+ * asked holding at once. Two list parameters carry it, one per way.
+ */
+export interface GridFactFilter {
+  /** Names the heading's button and the panel it opens. */
+  label: string;
+  hasParam: string;
+  missingParam: string;
+  facts: readonly GridFact[];
+  /** The values in effect, per way. */
+  has: readonly string[];
+  missing: readonly string[];
 }
 
-export interface GridToggleOption {
+export interface GridFact {
   value: string;
   label: string;
   icon?: Glyph;
+}
+
+export type GridFactState = 'any' | 'has' | 'missing';
+
+export function factState(
+  filter: GridFactFilter,
+  value: string,
+): GridFactState {
+  if (filter.has.includes(value)) return 'has';
+  if (filter.missing.includes(value)) return 'missing';
+  return 'any';
+}
+
+/** Both lists rewritten, so a fact moves between ways in one navigation; an
+ * empty list clears its parameter. */
+export function factParams(
+  filter: GridFactFilter,
+  value: string,
+  state: GridFactState,
+): Record<string, string[] | null> {
+  const has = filter.has.filter((v) => v !== value);
+  const missing = filter.missing.filter((v) => v !== value);
+  if (state === 'has') has.push(value);
+  if (state === 'missing') missing.push(value);
+  return {
+    [filter.hasParam]: has.length ? has : null,
+    [filter.missingParam]: missing.length ? missing : null,
+  };
+}
+
+/** One chip per fact asked, in the filter's order, each undoing only itself. */
+export function factChips(
+  filter: GridFactFilter | null,
+  words: { has: string; missing: string; clearLabel: string },
+): GridChip[] {
+  if (!filter) return [];
+  return filter.facts.flatMap((fact) => {
+    const state = factState(filter, fact.value);
+    if (state === 'any') return [];
+    const way = state === 'has' ? words.has : words.missing;
+    return [
+      {
+        label: way,
+        value: fact.label,
+        clearParams: factParams(filter, fact.value, 'any'),
+        clearLabel: fill(words.clearLabel, { way, fact: fact.label }),
+      },
+    ];
+  });
 }
 
 /** The filters in effect, with and without a column, for the panel's badge. */
 export function activeFilterCount(
   columns: readonly GridColumn[],
   chips: readonly GridChip[] = [],
-  toggles: readonly GridToggleGroup[] = [],
 ): number {
   return (
-    columns.filter((c) => c.filter && c.filter.value).length +
-    chips.length +
-    toggles.reduce((sum, group) => sum + group.selected.length, 0)
+    columns.filter((c) => c.filter && c.filter.value).length + chips.length
   );
 }

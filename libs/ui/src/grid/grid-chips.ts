@@ -12,7 +12,7 @@ import { GridChip } from './grid-column';
   host: { class: 'block' },
   template: `
     <ul class="flex flex-wrap gap-2 text-sm">
-      @for (chip of chips(); track chip.label) {
+      @for (chip of chips(); track chip.label + chip.value) {
         <li class="flex items-center gap-2 rounded-full bg-surface px-3 py-1">
           <span class="text-ink-subtle">{{ chip.label }}</span>
           <span class="font-medium">{{ chip.value }}</span>

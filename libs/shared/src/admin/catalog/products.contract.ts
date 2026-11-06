@@ -45,11 +45,7 @@ import {
   ATTRIBUTE_VALUE_MAX_LENGTH,
 } from '../../core/catalog/attributes';
 import { PRODUCT_AVAILABILITIES } from '../../core/catalog/product-availability';
-import {
-  INCOMPLETE_GAPS,
-  PRODUCT_FEATURES,
-  PRODUCT_GAP_FILTERS,
-} from './product-content';
+import { askedBothWays, PRODUCT_FACTS } from './product-content';
 import {
   isValidPartList,
   PRODUCT_PART_MAX_LENGTH,
@@ -353,10 +349,9 @@ export const adminProductListItemSchema = z
     /** The figure behind the badge (FR-STOCK-01), for restocking from the
      * grid. Null where untracked. */
     stockPieces: z.number().int().nullable(),
-    /** What keeps it incomplete (FR-ADM-20), so a row says why it is. */
-    gaps: z.array(z.enum(INCOMPLETE_GAPS)),
-    /** What it carries beyond a name and a price, drawn as glyphs. */
-    features: z.array(z.enum(PRODUCT_FEATURES)),
+    /** What it has (FR-ADM-20), so a row can say what it carries and what
+     * it lacks. */
+    facts: z.array(z.enum(PRODUCT_FACTS)),
     deletedAt: z.iso.datetime().nullable(),
     /** See `adminProductSchema`. */
     deletedByRun: z.boolean(),
@@ -409,39 +404,44 @@ export const adminProductSortSchema = z.enum([
 export type AdminProductSort = z.infer<typeof adminProductSortSchema>;
 
 /** The admin grid's query (FR-ADM-05). */
-export const adminProductListQuerySchema = z.object({
-  page: pageParamSchema,
-  /** The category and everything beneath it (FR-ADM-19). */
-  categoryId: z.uuid().optional(),
-  /** `direct` leaves out the subcategories' products: the way to find one
-   * left in a parent. Ignored without `categoryId`. */
-  categoryScope: z.enum(['subtree', 'direct']).optional(),
-  state: adminProductStateSchema.optional().default('all'),
-  /** One of the three stock states, or absent for any (FR-STOCK-02). */
-  availability: adminProductAvailabilityFilterSchema.optional(),
-  /** The name, as the storefront search matches it, or the `sourceId` as a
-   * substring: one box for either handle an admin has. */
-  q: searchQueryParamSchema,
-  sort: adminProductSortSchema.optional().default('relevance'),
-  /** The products carrying one attribute key, optionally one of its values:
-   * where the attribute inventory leads (FR-ATTR-09). Matched exactly; the
-   * value is ignored without a key. */
-  attributeKey: z.string().max(ATTRIBUTE_NAME_MAX_LENGTH).optional(),
-  attributeValue: z.string().max(ATTRIBUTE_VALUE_MAX_LENGTH).optional(),
-  /** The products one tier prices: where the tier list's count leads. */
-  tierId: z.uuid().optional(),
-  /** `no` shows the products the tier does not price: the gap a tier review
-   * ends on. Ignored without `tierId`. */
-  tierPriced: z.enum(['yes', 'no']).optional(),
-  /** The products one document is shown on: where the document list's count
-   * leads (FR-DOC-02). */
-  documentId: z.uuid().optional(),
-  /** What the product lacks (FR-ADM-20). Every entry must hold, and so must
-   * `has` beside them: "featured, without a picture" is one question. */
-  missing: listParam(z.enum(PRODUCT_GAP_FILTERS)),
-  /** What the product carries beyond a name and a price; all must hold. */
-  has: listParam(z.enum(PRODUCT_FEATURES)),
-});
+export const adminProductListQuerySchema = z
+  .object({
+    page: pageParamSchema,
+    /** The category and everything beneath it (FR-ADM-19). */
+    categoryId: z.uuid().optional(),
+    /** `direct` leaves out the subcategories' products: the way to find one
+     * left in a parent. Ignored without `categoryId`. */
+    categoryScope: z.enum(['subtree', 'direct']).optional(),
+    state: adminProductStateSchema.optional().default('all'),
+    /** One of the three stock states, or absent for any (FR-STOCK-02). */
+    availability: adminProductAvailabilityFilterSchema.optional(),
+    /** The name, as the storefront search matches it, or the `sourceId` as a
+     * substring: one box for either handle an admin has. */
+    q: searchQueryParamSchema,
+    sort: adminProductSortSchema.optional().default('relevance'),
+    /** The products carrying one attribute key, optionally one of its values:
+     * where the attribute inventory leads (FR-ATTR-09). Matched exactly; the
+     * value is ignored without a key. */
+    attributeKey: z.string().max(ATTRIBUTE_NAME_MAX_LENGTH).optional(),
+    attributeValue: z.string().max(ATTRIBUTE_VALUE_MAX_LENGTH).optional(),
+    /** The products one tier prices: where the tier list's count leads. */
+    tierId: z.uuid().optional(),
+    /** `no` shows the products the tier does not price: the gap a tier review
+     * ends on. Ignored without `tierId`. */
+    tierPriced: z.enum(['yes', 'no']).optional(),
+    /** The products one document is shown on: where the document list's count
+     * leads (FR-DOC-02). */
+    documentId: z.uuid().optional(),
+    /** What the product lacks (FR-ADM-20). Every entry must hold, and so must
+     * `has` beside them: "featured, without a picture" is one question. */
+    missing: listParam(z.enum(PRODUCT_FACTS)),
+    /** What the product has, content or feature; all must hold. */
+    has: listParam(z.enum(PRODUCT_FACTS)),
+  })
+  .refine((query) => !askedBothWays(query.has, query.missing), {
+    message: 'A fact is asked as both had and lacking.',
+    path: ['has'],
+  });
 export type AdminProductListQuery = z.infer<typeof adminProductListQuerySchema>;
 
 /** A missing row is a 404; everything else is a conflict. */

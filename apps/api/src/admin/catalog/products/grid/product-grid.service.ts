@@ -19,8 +19,7 @@ import {
   AdminProductListItem,
   AdminProductListQuery,
   AdminProductState,
-  INCOMPLETE_GAPS,
-  PRODUCT_FEATURES,
+  PRODUCT_FACTS,
 } from '@b2b-catalog-platform/shared/admin/catalog';
 import { DRIZZLE } from '../../../../platform/db/database.module';
 import { categories, products } from '../../../../core/catalog/catalog-schema';
@@ -30,12 +29,7 @@ import {
 } from '../../../../core/catalog/product-orders';
 import { attributeValuesCondition } from '../../../../core/catalog/attribute-filter';
 import { documentCondition } from './document-filter';
-import {
-  featureColumns,
-  featureCondition,
-  incompleteGapColumns,
-  missingCondition,
-} from './content-filter';
+import { contentCondition, factColumns } from './content-filter';
 import { tierPriceCondition } from './tier-price-filter';
 import {
   categoryBySlug,
@@ -106,8 +100,7 @@ export class ProductGridService {
       ),
       tierPriceCondition(this.db, query.tierId, query.tierPriced),
       documentCondition(this.db, query.documentId),
-      missingCondition(this.db, query.missing),
-      featureCondition(this.db, query.has),
+      contentCondition(this.db, query.has, query.missing),
       adminSearchCondition(query.q, this.alternateLayout) ?? undefined,
     );
     const where = and(stateCondition(query.state), narrowing);
@@ -144,8 +137,7 @@ export class ProductGridService {
           updatedAt: products.updatedAt,
           availability: products.availability,
           stockPieces: products.stockPieces,
-          gaps: incompleteGapColumns(this.db),
-          features: featureColumns(this.db),
+          facts: factColumns(this.db),
         })
         .from(products)
         .where(where)
@@ -164,8 +156,7 @@ export class ProductGridService {
           thumb: r.images[0]?.thumb ?? null,
           availability: r.availability,
           stockPieces: r.stockPieces,
-          gaps: INCOMPLETE_GAPS.filter((gap) => r.gaps[gap]),
-          features: PRODUCT_FEATURES.filter((feature) => r.features[feature]),
+          facts: PRODUCT_FACTS.filter((fact) => r.facts[fact]),
           deletedAt: r.deletedAt?.toISOString() ?? null,
           deletedByRun: deletedByRun(r),
           ordered: ordered.has(r.id),

@@ -10,8 +10,7 @@ import {
   AdminProductSort,
   AdminProductState,
   ProductErrorCode,
-  ProductFeature,
-  ProductGapFilter,
+  ProductFact,
   ProductInput,
 } from '@b2b-catalog-platform/shared/admin/catalog';
 import { adminProductsContract } from '../contract-routes.generated';
@@ -177,9 +176,9 @@ export interface ProductGridQuery {
   tierId?: string;
   tierPriced?: 'yes' | 'no';
   documentId?: string;
-  /** What the product's own content lacks or carries (FR-ADM-20). */
-  missing?: ProductGapFilter[];
-  has?: ProductFeature[];
+  /** What the product has or lacks (FR-ADM-20). */
+  missing?: ProductFact[];
+  has?: ProductFact[];
 }
 
 /** A product refusal, including the ownership one (FR-ADM-10). */

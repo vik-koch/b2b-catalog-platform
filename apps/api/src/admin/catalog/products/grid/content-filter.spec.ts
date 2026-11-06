@@ -1,11 +1,17 @@
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { and } from 'drizzle-orm';
-import {
-  PRODUCT_FEATURES,
-  PRODUCT_GAPS,
-} from '@b2b-catalog-platform/shared/admin/catalog';
+import { PRODUCT_FACTS } from '@b2b-catalog-platform/shared/admin/catalog';
 import { products } from '../../../../core/catalog/catalog-schema';
-import { featureCondition, missingCondition } from './content-filter';
+import { contentCondition } from './content-filter';
+
+const missingCondition = (
+  db: Parameters<typeof contentCondition>[0],
+  missing: Parameters<typeof contentCondition>[2],
+) => contentCondition(db, [], missing);
+const hasCondition = (
+  db: Parameters<typeof contentCondition>[0],
+  has: Parameters<typeof contentCondition>[1],
+) => contentCondition(db, has, []);
 
 /**
  * Rendered inside a real query, as the document filter's spec is: a fragment
@@ -22,14 +28,10 @@ describe('missingCondition', () => {
     expect(missingCondition(db, [])).toBeUndefined();
   });
 
-  it.each(PRODUCT_GAPS)('renders the %s gap', (gap) => {
-    expect(() => render(missingCondition(db, [gap]))).not.toThrow();
-  });
-
   it('requires every entry, so two gaps narrow to products lacking both', () => {
     const text = render(missingCondition(db, ['picture', 'packaging']));
     expect(text).toContain('"images"');
-    expect(text).toContain('"piecesPerPack" is null');
+    expect(text).toContain('not "products"."piecesPerPack" is not null');
     expect(text).toContain(' and ');
   });
 
@@ -40,35 +42,37 @@ describe('missingCondition', () => {
       '"product_attributes"."productId" = "products"."id"',
     );
   });
-
-  it('reads incomplete as any of the three page gaps, never packaging', () => {
-    const text = render(missingCondition(db, ['incomplete']));
-    expect(text).toContain('"images"');
-    expect(text).toContain('"descriptionHtml"');
-    expect(text).toContain('"product_attributes"');
-    expect(text).toContain(' or ');
-    expect(text).not.toContain('"piecesPerPack"');
-    expect(text).not.toContain('"boxVolume"');
-  });
 });
 
-describe('featureCondition', () => {
-  it('is absent without a feature', () => {
-    expect(featureCondition(db, [])).toBeUndefined();
+describe('the has form', () => {
+  it('is absent with neither list, so an unfiltered grid stays unfiltered', () => {
+    expect(contentCondition(db, [], [])).toBeUndefined();
   });
 
-  it.each(PRODUCT_FEATURES)('renders the %s feature', (feature) => {
-    expect(() => render(featureCondition(db, [feature]))).not.toThrow();
+  it.each(PRODUCT_FACTS)('renders having %s, and lacking it', (fact) => {
+    expect(() => render(hasCondition(db, [fact]))).not.toThrow();
+    expect(() => render(missingCondition(db, [fact]))).not.toThrow();
+  });
+
+  it.each(PRODUCT_FACTS)('reads lacking %s as having it negated', (fact) => {
+    expect(render(missingCondition(db, [fact]))).toMatch(/\bnot\b/);
+  });
+
+  it('requires both lists at once', () => {
+    const text = render(contentCondition(db, ['featured'], ['documents']));
+    expect(text).toContain('"featured"');
+    expect(text).toContain('not exists');
+    expect(text).toContain(' and ');
   });
 
   it('finds a pairing from either side of its canonical order', () => {
-    const text = render(featureCondition(db, ['pairings']));
+    const text = render(hasCondition(db, ['pairings']));
     expect(text).toContain('"product_pairings"."productAId" = "products"."id"');
     expect(text).toContain('"product_pairings"."productBId" = "products"."id"');
   });
 
   it('correlates documents on the product row rather than joining', () => {
-    const text = render(featureCondition(db, ['documents']));
+    const text = render(hasCondition(db, ['documents']));
     expect(text).toContain('"document_products"."productId" = "products"."id"');
     expect(text).not.toContain('join');
   });

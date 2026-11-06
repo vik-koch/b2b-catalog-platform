@@ -62,6 +62,13 @@ export const adminTextShape = {
       /** One line of the phone's sort picker: `{column}`. */
       sortAscending: z.string(),
       sortDescending: z.string(),
+      /** The three ways a fact filter asks, and the chip's word for the two
+       * that narrow. */
+      factAny: z.string(),
+      factHas: z.string(),
+      factMissing: z.string(),
+      /** A fact chip's remove button: `{way}` and `{fact}`. */
+      factClearAria: z.string(),
     })
     .strict(),
   /** How many are in effect, beside the word naming them (grid filters,

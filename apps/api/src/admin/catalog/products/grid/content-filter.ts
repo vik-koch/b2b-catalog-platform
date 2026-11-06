@@ -1,11 +1,7 @@
-import { and, eq, exists, isNull, not, or, SQL, sql } from 'drizzle-orm';
+import { and, eq, exists, isNotNull, not, SQL, sql } from 'drizzle-orm';
 import {
-  INCOMPLETE_GAPS,
-  IncompleteGap,
-  PRODUCT_FEATURES,
-  ProductFeature,
-  ProductGap,
-  ProductGapFilter,
+  PRODUCT_FACTS,
+  ProductFact,
 } from '@b2b-catalog-platform/shared/admin/catalog';
 import {
   documentProducts,
@@ -17,85 +13,55 @@ import { resolvedPriceMinor } from '../../../../core/catalog/product-price';
 import { involves } from '../../../../core/catalog/product-pairings';
 import { Database } from '../../../../platform/db/database';
 
+/** The filter form: every entry of both lists must hold. Every predicate is
+ * two-valued over NOT NULL columns, so `not` is its exact opposite. */
+export function contentCondition(
+  db: Database,
+  has: readonly ProductFact[],
+  missing: readonly ProductFact[],
+): SQL | undefined {
+  return and(
+    ...has.map((fact) => factPredicate(db, fact)),
+    ...missing.map((fact) => not(factPredicate(db, fact))),
+  );
+}
+
+/** The select-list form: one boolean column per fact. */
+export function factColumns(db: Database): Record<ProductFact, SQL<boolean>> {
+  return Object.fromEntries(
+    PRODUCT_FACTS.map((fact) => [
+      fact,
+      factPredicate(db, fact) as SQL<boolean>,
+    ]),
+  ) as Record<ProductFact, SQL<boolean>>;
+}
+
 /**
- * "This product lacks this content" (FR-ADM-20), one predicate for both the
- * filter and a row's gaps. A description of nothing but markup is missing: the
- * editor can save an empty paragraph. A price is the default list's.
+ * "This product carries this content" (FR-ADM-20), one predicate for the
+ * filter and a row's facts. A description of nothing but markup is
+ * missing: the editor can save an empty paragraph. A price is the default
+ * list's.
  */
-function gapCondition(db: Database, gap: ProductGap): SQL {
-  switch (gap) {
+function factPredicate(db: Database, fact: ProductFact): SQL {
+  switch (fact) {
     case 'price':
-      return isNull(resolvedPriceMinor(null));
+      return isNotNull(resolvedPriceMinor(null));
     case 'picture':
-      return sql`${products.images} = '[]'::jsonb`;
+      return sql`${products.images} <> '[]'::jsonb`;
     case 'description':
-      return sql`btrim(regexp_replace(${products.descriptionHtml}, '<[^>]*>|&nbsp;', '', 'g')) = ''`;
+      return sql`btrim(regexp_replace(${products.descriptionHtml}, '<[^>]*>|&nbsp;', '', 'g')) <> ''`;
     case 'attributes':
-      return not(
-        exists(
-          db
-            .select({ one: sql`1` })
-            .from(productAttributes)
-            .where(eq(productAttributes.productId, products.id)),
-        ),
+      return exists(
+        db
+          .select({ one: sql`1` })
+          .from(productAttributes)
+          .where(eq(productAttributes.productId, products.id)),
       );
     case 'packaging':
-      return isNull(products.piecesPerPack);
-    // Either figure is something to show; neither is the gap.
+      return isNotNull(products.piecesPerPack);
+    // Either figure is something to show.
     case 'boxFacts':
-      return sql`(${isNull(products.boxVolume)} and ${isNull(products.boxWeight)})`;
-  }
-}
-
-/** The filter form: every entry must hold. */
-export function missingCondition(
-  db: Database,
-  missing: readonly ProductGapFilter[],
-): SQL | undefined {
-  return and(...missing.map((entry) => missingEntry(db, entry)));
-}
-
-/** One entry: a gap, or `incomplete` for any of the four. */
-function missingEntry(
-  db: Database,
-  missing: ProductGapFilter,
-): SQL | undefined {
-  if (missing !== 'incomplete') return gapCondition(db, missing);
-  return or(...INCOMPLETE_GAPS.map((gap) => gapCondition(db, gap)));
-}
-
-/** The select-list form: one boolean column per gap a row names. */
-export function incompleteGapColumns(
-  db: Database,
-): Record<IncompleteGap, SQL<boolean>> {
-  return Object.fromEntries(
-    INCOMPLETE_GAPS.map((gap) => [gap, gapCondition(db, gap) as SQL<boolean>]),
-  ) as Record<IncompleteGap, SQL<boolean>>;
-}
-
-/** The filter form of the other half: every feature asked for must hold. */
-export function featureCondition(
-  db: Database,
-  features: readonly ProductFeature[],
-): SQL | undefined {
-  return and(...features.map((feature) => featurePredicate(db, feature)));
-}
-
-/** The select-list form: one boolean column per feature, drawn as glyphs. */
-export function featureColumns(
-  db: Database,
-): Record<ProductFeature, SQL<boolean>> {
-  return Object.fromEntries(
-    PRODUCT_FEATURES.map((feature) => [
-      feature,
-      featurePredicate(db, feature) as SQL<boolean>,
-    ]),
-  ) as Record<ProductFeature, SQL<boolean>>;
-}
-
-/** "This product carries this kind of content". */
-function featurePredicate(db: Database, feature: ProductFeature): SQL {
-  switch (feature) {
+      return sql`(${isNotNull(products.boxVolume)} or ${isNotNull(products.boxWeight)})`;
     case 'featured':
       return eq(products.featured, true);
     case 'set':

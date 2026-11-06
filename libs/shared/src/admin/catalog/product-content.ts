@@ -1,35 +1,16 @@
 /**
- * What the admin grid can ask about a product's own content (FR-ADM-20). The
- * first four gaps make a product incomplete: every product page shows them.
- * Packaging and box facts can be asked about but never count: a product sold
- * by the piece rightly has neither.
+ * What the admin grid can ask and tell about a product (FR-ADM-20): its own
+ * content, then what it carries beyond a name and a price, as the editor
+ * orders them. Which of them a row names as missing or draws as glyphs is the
+ * grid's choice, not the wire's.
  */
-export const PRODUCT_GAPS = [
+export const PRODUCT_FACTS = [
   'price',
   'picture',
   'description',
   'attributes',
   'packaging',
   'boxFacts',
-] as const;
-export type ProductGap = (typeof PRODUCT_GAPS)[number];
-
-/** The gaps that make a product incomplete, and that a row names. */
-export const INCOMPLETE_GAPS = [
-  'price',
-  'picture',
-  'description',
-  'attributes',
-] as const satisfies readonly ProductGap[];
-export type IncompleteGap = (typeof INCOMPLETE_GAPS)[number];
-
-/** A gap filter's values: one gap, or `incomplete` for any of the four. */
-export const PRODUCT_GAP_FILTERS = [...PRODUCT_GAPS, 'incomplete'] as const;
-export type ProductGapFilter = (typeof PRODUCT_GAP_FILTERS)[number];
-
-/** What a product can carry beyond its name and price, in the one order the
- * grid, its filter and the editor's boxes all follow. */
-export const PRODUCT_FEATURES = [
   'featured',
   'variants',
   'note',
@@ -37,4 +18,12 @@ export const PRODUCT_FEATURES = [
   'pairings',
   'documents',
 ] as const;
-export type ProductFeature = (typeof PRODUCT_FEATURES)[number];
+export type ProductFact = (typeof PRODUCT_FACTS)[number];
+
+/** A fact asked both ways can match nothing; the query refuses it. */
+export function askedBothWays(
+  has: readonly string[],
+  missing: readonly string[],
+): boolean {
+  return has.some((fact) => missing.includes(fact));
+}
