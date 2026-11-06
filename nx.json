@@ -22,7 +22,9 @@
         "{workspaceRoot}/eslint.config.mjs",
         "{projectRoot}/eslint.config.mjs",
         "{workspaceRoot}/tools/lint/**/*",
-        { "externalDependencies": ["eslint"] }
+        {
+          "externalDependencies": ["eslint"]
+        }
       ]
     },
     "@angular/build:application": {
@@ -66,6 +68,19 @@
         "watchDepsTargetName": "watch-deps",
         "serveStaticTargetName": "serve-static"
       }
+    },
+    {
+      "plugin": "@nx/vitest",
+      "options": {
+        "testMode": "run",
+        "testTargetName": "test"
+      },
+      "include": [
+        "apps/api/**/*",
+        "apps/erp-sim/**/*",
+        "libs/seed/**/*",
+        "libs/shared/**/*"
+      ]
     }
   ],
   "generators": {
@@ -75,5 +90,8 @@
       "style": "scss",
       "unitTestRunner": "vitest-angular"
     }
+  },
+  "affected": {
+    "legacy": true
   }
 }

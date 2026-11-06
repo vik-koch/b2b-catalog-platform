@@ -84,11 +84,10 @@
       }
     },
     "test": {
-      "executor": "@nx/vitest:test",
-      "outputs": ["{workspaceRoot}/coverage/apps/api"],
       "options": {
-        "passWithNoTests": true,
-        "tsConfig": "apps/api/tsconfig.spec.json"
+        "cwd": ".",
+        "config": "apps/api/vite.config.ts",
+        "passWithNoTests": true
       }
     },
     "db-generate": {

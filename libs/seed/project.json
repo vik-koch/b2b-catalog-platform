@@ -6,11 +6,11 @@
   "tags": ["scope:shared", "platform:node"],
   "targets": {
     "test": {
-      "executor": "@nx/vitest:test",
       "outputs": ["{workspaceRoot}/coverage/libs/seed"],
       "options": {
-        "passWithNoTests": true,
-        "tsConfig": "libs/seed/tsconfig.spec.json"
+        "cwd": ".",
+        "config": "libs/seed/vite.config.ts",
+        "passWithNoTests": true
       }
     },
     "typecheck": {
