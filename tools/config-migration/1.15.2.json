@@ -107,6 +107,11 @@
     "texts/shared.json:required": {
       "new": "required"
     },
+    "deployment.json:ordering.orderReference.format": {
+      "from": ["deployment.json:orderReference.prefix"],
+      "template": "{value}-{date}-####",
+      "new": "ORD-{date}-####"
+    },
     "texts/shared.json:honeypot": {
       "new": "Leave this field empty"
     },

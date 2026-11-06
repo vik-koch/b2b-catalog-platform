@@ -15,24 +15,28 @@ describe('orderReferenceDate', () => {
 });
 
 describe('orderReference', () => {
-  it('reads as prefix, date and a four-digit suffix', () => {
-    const reference = orderReference(
-      { prefix: 'CK' },
-      'UTC',
-      new Date('2026-08-24T09:00:00.000Z'),
-      '0042',
-    );
+  const at = new Date('2026-11-06T09:00:00.000Z');
+  const counting = () => {
+    let next = 0;
+    return () => next++ % 10;
+  };
 
-    expect(reference).toBe('CK-260824-0042');
+  it('fills the date and each # in the deployment format', () => {
+    expect(
+      orderReference({ format: 'CK{date}-####' }, 'UTC', at, counting()),
+    ).toBe('CK261106-0123');
+    expect(
+      orderReference({ format: '{date}-CK-#####' }, 'UTC', at, counting()),
+    ).toBe('261106-CK-01234');
   });
 
-  it('pads a random suffix to four digits, so references sort as text', () => {
+  it('draws a random digit for every #', () => {
     const references = Array.from({ length: 50 }, () =>
-      orderReference({ prefix: 'CK' }, 'UTC'),
+      orderReference({ format: 'CK{date}-####' }, 'UTC'),
     );
 
     for (const reference of references) {
-      expect(reference).toMatch(/^CK-\d{6}-\d{4}$/);
+      expect(reference).toMatch(/^CK\d{6}-\d{4}$/);
     }
   });
 });

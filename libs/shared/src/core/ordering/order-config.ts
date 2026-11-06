@@ -99,21 +99,48 @@ export const deliveryConfigSchema = z
   .strict();
 export type DeliveryConfig = z.infer<typeof deliveryConfigSchema>;
 
+/** Stands for the shop's day, as YYMMDD, in a reference's format. */
+export const ORDER_REFERENCE_DATE = '{date}';
+/** Each `#` is a random digit. Fewer than four, and a busy day runs out of
+ * references: they and the date keep orders apart, and a clash is retried
+ * only a few times. */
+export const ORDER_REFERENCE_MIN_RANDOM = 4;
+/** The stored column's width; `{date}` fills in at the length it is written. */
+export const ORDER_REFERENCE_MAX_LENGTH = 32;
+
 /**
- * `{prefix}-YYMMDD-NNNN`: a random suffix, so a reference does not publish how
- * many orders a day the shop takes, and the date in the shop's `timeZone`.
+ * What an order reference looks like, as `CK{date}-####`: the date once, at
+ * least four `#`, and fixed text in upper-case letters, digits, `-`, `_` or
+ * `.`. No `/`: a reference is part of an order's URL. Random, so it does not
+ * tell how many orders a day the shop takes.
  */
 export const orderReferenceConfigSchema = z
   .object({
-    prefix: z
+    format: z
       .string()
-      .trim()
-      .min(1)
-      .max(8)
-      .regex(
-        /^[\p{Lu}\p{N}]+$/u,
-        'an order prefix is upper-case letters or digits, in any script',
-      ),
+      .max(ORDER_REFERENCE_MAX_LENGTH)
+      .superRefine((format, ctx) => {
+        const parts = format.split(ORDER_REFERENCE_DATE);
+        if (parts.length !== 2) {
+          ctx.addIssue({
+            code: 'custom',
+            message: `an order reference format holds ${ORDER_REFERENCE_DATE} exactly once`,
+          });
+        }
+        if (!/^[\p{Lu}\p{N}#._-]*$/u.test(parts.join(''))) {
+          ctx.addIssue({
+            code: 'custom',
+            message:
+              'an order reference format is upper-case letters, digits, "-", "_", "." and "#" around its date',
+          });
+        }
+        if (format.split('#').length - 1 < ORDER_REFERENCE_MIN_RANDOM) {
+          ctx.addIssue({
+            code: 'custom',
+            message: `an order reference format holds at least ${ORDER_REFERENCE_MIN_RANDOM} "#"`,
+          });
+        }
+      }),
   })
   .strict();
 export type OrderReferenceConfig = z.infer<typeof orderReferenceConfigSchema>;
@@ -164,7 +191,7 @@ export const orderingConfigShape = {
   pickup: pickupConfigSchema.optional(),
   /** Quoted, never enforced, and no zone prices a delivery: a manager does. */
   delivery: deliveryConfigSchema.optional(),
-  orderReference: orderReferenceConfigSchema.optional(),
+  orderReference: orderReferenceConfigSchema,
 };
 
 export type OrderingConfig = DeepReadonly<

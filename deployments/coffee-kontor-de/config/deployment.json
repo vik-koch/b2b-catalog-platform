@@ -187,7 +187,7 @@
       ]
     },
     "orderReference": {
-      "prefix": "CK"
+      "format": "CK{date}-####"
     }
   }
 }

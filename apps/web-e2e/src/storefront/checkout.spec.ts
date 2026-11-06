@@ -100,7 +100,7 @@ test('a guest orders, and the mailed link opens it without a session', async ({
   const confirmation = await page
     .getByText(/Your order request is/)
     .innerText();
-  const reference = /\b(CK-\d{6}-\d{4})\b/.exec(confirmation)?.[1] ?? '';
+  const reference = /\b(CK\d{6}-\d{4})\b/.exec(confirmation)?.[1] ?? '';
   expect(reference).not.toBe('');
 
   // Placing it empties the cart: what was ordered is no longer waiting to be.

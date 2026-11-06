@@ -43,9 +43,9 @@ export const orders = pgTable(
   'orders',
   {
     id: uuid('id').primaryKey().defaultRandom(),
-    /** Quoted on the phone: `{prefix}-YYMMDD-NNNN`, the suffix random so no
-     * mail shows the daily volume. It survives every adjustment, which is why
-     * adjustments are versions. */
+    /** Quoted on the phone, in the deployment's format (dated, partly random,
+     * so no mail shows the daily volume). It survives every adjustment, which
+     * is why adjustments are versions. */
     reference: varchar('reference', { length: 32 }).notNull().unique(),
     /** The only credential of a mailed link (FR-NOTIF-06): a guest has no
      * account to read the order through. */

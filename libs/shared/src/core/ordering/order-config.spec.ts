@@ -57,21 +57,41 @@ describe('deliveryConfigSchema', () => {
 });
 
 describe('orderReferenceConfigSchema', () => {
-  it('accepts an upper-case prefix', () => {
-    expect(orderReferenceConfigSchema.parse({ prefix: 'CK' })).toEqual({
-      prefix: 'CK',
-    });
+  const valid = (format: string) =>
+    orderReferenceConfigSchema.safeParse({ format }).success;
+
+  it.each([
+    'CK{date}-####',
+    '{date}-CK-####',
+    '{date}-#####',
+    'ÄÖ.{date}_####',
+  ])(
+    'takes a format with its date and random digits anywhere: %s',
+    (format) => {
+      expect(valid(format)).toBe(true);
+    },
+  );
+
+  it('needs the date exactly once', () => {
+    expect(valid('CK-####')).toBe(false);
+    expect(valid('{date}{date}-####')).toBe(false);
   });
 
-  it('accepts an upper-case prefix outside the Latin alphabet', () => {
-    expect(orderReferenceConfigSchema.safeParse({ prefix: 'ÄÖ' }).success).toBe(
-      true,
-    );
+  it('needs four random digits, or a busy day runs out of references', () => {
+    expect(valid('CK{date}-###')).toBe(false);
+    expect(valid('CK{date}-#-#-#-#')).toBe(true);
   });
 
-  it('refuses a prefix with separators in it, which the format supplies', () => {
-    expect(
-      orderReferenceConfigSchema.safeParse({ prefix: 'CK-' }).success,
-    ).toBe(false);
+  // A reference is part of an order's URL.
+  it('refuses a character a URL or a phone call would trip over', () => {
+    expect(valid('CK/{date}/####')).toBe(false);
+    expect(valid('ck{date}-####')).toBe(false);
+    expect(valid('CK {date}-####')).toBe(false);
+    expect(valid('CK{day}-####{date}')).toBe(false);
+  });
+
+  it('fits the stored column once the date is filled in', () => {
+    expect(valid(`${'A'.repeat(22)}{date}####`)).toBe(true);
+    expect(valid(`${'A'.repeat(23)}{date}####`)).toBe(false);
   });
 });

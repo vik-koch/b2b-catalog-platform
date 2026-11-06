@@ -1,11 +1,13 @@
 import { randomBytes, randomInt } from 'node:crypto';
-import { OrderReferenceConfig } from '@b2b-catalog-platform/shared/core/ordering';
+import {
+  ORDER_REFERENCE_DATE,
+  OrderReferenceConfig,
+} from '@b2b-catalog-platform/shared/core/ordering';
 
 /**
- * `{prefix}-YYMMDD-NNNN`: readable down a phone, dated, and with a random
- * suffix, so a reference does not tell how many orders a day the shop takes.
- * Collisions are retried against the unique index. The date is the
- * deployment's own day.
+ * A reference in the deployment's format: readable down a phone, dated, and
+ * random where it says `#`. Collisions are retried against the unique index.
+ * The date is the deployment's own day.
  */
 
 export const ORDER_REFERENCE_ATTEMPTS = 5;
@@ -26,9 +28,12 @@ export function orderReference(
   config: OrderReferenceConfig,
   timeZone: string,
   now: Date = new Date(),
-  suffix: string = String(randomInt(0, 10_000)).padStart(4, '0'),
+  digit: () => number = () => randomInt(0, 10),
 ): string {
-  return `${config.prefix}-${orderReferenceDate(now, timeZone)}-${suffix}`;
+  return config.format
+    .split(ORDER_REFERENCE_DATE)
+    .join(orderReferenceDate(now, timeZone))
+    .replace(/#/g, () => String(digit()));
 }
 
 /**

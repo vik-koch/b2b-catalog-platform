@@ -216,7 +216,7 @@ function service(
     rules,
     notifications,
     {} as TermsPdf,
-    { prefix: 'CK' },
+    { format: 'CK-{date}-####' },
     'EUR',
     pairingsEnforced,
     false,
