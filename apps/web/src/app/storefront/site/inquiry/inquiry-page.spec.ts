@@ -7,6 +7,11 @@ import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
 import { defaultStorefrontText } from '../../../platform/config/storefront-text.fixture';
 import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
+import {
+  INQUIRY_MESSAGE_MAX_LENGTH,
+  INQUIRY_NAME_MAX_LENGTH,
+  INQUIRY_PHONE_MAX_LENGTH,
+} from '@b2b-catalog-platform/shared/storefront/site';
 import { InquiryPage } from './inquiry-page';
 import { InquiryService } from './inquiry.service';
 import { PageService } from '../../../core/site/page.service';
@@ -98,6 +103,16 @@ describe('InquiryPage', () => {
 
     expect(submit).not.toHaveBeenCalled();
     expect(el.textContent).toContain(defaultSharedText.fields.name.required);
+  });
+
+  it("caps the fields at the contract's lengths", async () => {
+    const { el } = await render();
+    const cap = (selector: string) =>
+      el.querySelector(selector)?.getAttribute('maxlength');
+
+    expect(cap('#name')).toBe(String(INQUIRY_NAME_MAX_LENGTH));
+    expect(cap('#phone')).toBe(String(INQUIRY_PHONE_MAX_LENGTH));
+    expect(cap('#message')).toBe(String(INQUIRY_MESSAGE_MAX_LENGTH));
   });
 
   it('requires email when "by email" is chosen (the default)', async () => {

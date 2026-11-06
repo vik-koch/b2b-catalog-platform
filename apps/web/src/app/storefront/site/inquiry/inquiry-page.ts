@@ -1,7 +1,12 @@
 import { Component, inject, signal } from '@angular/core';
-import { form, required } from '@angular/forms/signals';
+import { form, maxLength, required } from '@angular/forms/signals';
 import { RouterLink } from '@angular/router';
-import { InquiryRequest } from '@b2b-catalog-platform/shared/storefront/site';
+import {
+  INQUIRY_MESSAGE_MAX_LENGTH,
+  INQUIRY_NAME_MAX_LENGTH,
+  INQUIRY_PHONE_MAX_LENGTH,
+  InquiryRequest,
+} from '@b2b-catalog-platform/shared/storefront/site';
 import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
@@ -167,6 +172,9 @@ export class InquiryPage {
     }),
     (inquiry) => {
       required(inquiry.name, { message: this.fields.name.required });
+      maxLength(inquiry.name, INQUIRY_NAME_MAX_LENGTH);
+      maxLength(inquiry.phone, INQUIRY_PHONE_MAX_LENGTH);
+      maxLength(inquiry.message, INQUIRY_MESSAGE_MAX_LENGTH);
       // The chosen channel is required; the other field stays optional. Both
       // keep their format rule either way: a number typed into the other field
       // is still going to be dialled, so half of one is no more use there.
