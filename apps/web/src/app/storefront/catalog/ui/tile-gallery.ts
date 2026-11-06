@@ -40,16 +40,17 @@ export type ImagePriority = 'lazy' | 'eager' | 'high';
             [class.opacity-100]="$index === selected()"
             [class.opacity-0]="$index !== selected()"
           />
-        } @else {
-          <!-- No src until revealed: an empty one fetches the page URL.
-               loading before src, or the fetch may start before it learns
-               the image can wait. -->
+        } @else if (isRevealed($index)) {
+          <!-- No element until revealed: Angular writes a null src as "",
+               which fires error and would mark the photo broken. loading
+               before src, or the fetch may start before it learns the image
+               can wait. -->
           <img
             [attr.loading]="priority() === 'lazy' ? 'lazy' : null"
             [attr.fetchpriority]="
               priority() === 'high' && $index === 0 ? 'high' : null
             "
-            [attr.src]="sourceFor($index)"
+            [src]="img.thumb"
             [alt]="altFor(img)"
             class="absolute inset-0 size-full bg-white object-contain
                    transition-opacity duration-200"
@@ -128,8 +129,8 @@ export class TileGallery {
     computation: () => 0,
   });
 
-  /** Indices asked for. The rest stack at `opacity: 0`, which does not stop a
-   * download, so each gets its `src` only when wanted. */
+  /** Indices asked for. A photo at `opacity: 0` still downloads, so each is
+   * rendered only when wanted. */
   private readonly revealed = linkedSignal<
     readonly ProductImage[],
     Set<number>
@@ -138,10 +139,8 @@ export class TileGallery {
     computation: () => new Set([0]),
   });
 
-  protected sourceFor(index: number): string | null {
-    return this.revealed().has(index)
-      ? (this.images()[index]?.thumb ?? null)
-      : null;
+  protected isRevealed(index: number): boolean {
+    return this.revealed().has(index);
   }
 
   private reveal(index: number): void {

@@ -73,18 +73,26 @@ test.describe('adjusting an order', () => {
 
     // The lid of the versions panel, which is labelled for what it opens
     // rather than for the row it sits in.
-    await page
-      .getByRole('button', { name: RegExp(detail.revisions.subheading) })
-      .click();
+    const lid = page.getByRole('button', {
+      name: RegExp(detail.revisions.subheading),
+    });
+    await lid.click();
+    // Inside the panel: the order's own note block repeats the seeded note
+    // once the desktop run has added a version.
+    const versions = page.locator(
+      `#${await lid.getAttribute('aria-controls')}`,
+    );
 
     // What the shop said it changed and, unfolded, the difference, computed
     // only for the opened version.
-    await expect(page.getByText(/Only 12 of the espresso left/)).toBeVisible();
-    await page
+    await expect(
+      versions.getByText(/Only 12 of the espresso left/),
+    ).toBeVisible();
+    await versions
       .getByRole('button', { name: detail.revisions.changes })
       .first()
       .click();
-    await expect(page.getByText(names.total).first()).toBeVisible();
+    await expect(versions.getByText(names.total).first()).toBeVisible();
   });
 
   /** Reading a version and answering are two screens: the list's title opens
