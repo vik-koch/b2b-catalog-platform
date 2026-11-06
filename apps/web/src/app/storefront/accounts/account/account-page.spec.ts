@@ -225,6 +225,20 @@ describe('AccountPage', () => {
       expect(h.list).toHaveBeenCalledTimes(2);
     });
 
+    it('keeps both cards on screen while the list is re-read', async () => {
+      const { fixture, el, h } = await render(customer, [savedAddress]);
+      h.list.mockReturnValue(new Promise<Address[]>(() => undefined));
+
+      buttonByLabel(el, accountText.addresses.removeAria).click();
+      // Not `whenStable`: the reload is held open on purpose.
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      fixture.detectChanges();
+
+      expect(h.list).toHaveBeenCalledTimes(2);
+      expect(el.textContent).toContain('Fischer Alex');
+      expect(el.textContent).toContain('Shop');
+    });
+
     it('leaves the address alone when the question is declined', async () => {
       const { fixture, el, h } = await render(customer, [savedAddress], false);
 
