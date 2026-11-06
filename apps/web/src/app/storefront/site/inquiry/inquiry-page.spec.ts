@@ -10,6 +10,7 @@ import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
 import { defaultStorefrontText } from '../../../platform/config/storefront-text.fixture';
 import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
+import { EMAIL_MAX_LENGTH } from '@b2b-catalog-platform/shared/platform';
 import {
   INQUIRY_MESSAGE_MAX_LENGTH,
   INQUIRY_NAME_MAX_LENGTH,
@@ -115,6 +116,7 @@ describe('InquiryPage', () => {
       el.querySelector(selector)?.getAttribute('maxlength');
 
     expect(cap('#name')).toBe(String(INQUIRY_NAME_MAX_LENGTH));
+    expect(cap('#email')).toBe(String(EMAIL_MAX_LENGTH));
     expect(cap('#phone')).toBe(String(INQUIRY_PHONE_MAX_LENGTH));
     expect(cap('#message')).toBe(String(INQUIRY_MESSAGE_MAX_LENGTH));
   });

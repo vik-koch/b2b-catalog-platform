@@ -104,7 +104,7 @@ export type UpdateUserRequest = z.infer<typeof updateUserSchema>;
  * password, as an approved registration does. */
 export const createUserSchema = z
   .object({
-    email: emailField(320),
+    email: emailField,
     role: userRoleSchema,
     tierId: z.uuid().nullable(),
     firstName: z.string().trim().min(1).max(200),

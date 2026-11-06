@@ -51,7 +51,7 @@ export const callWaitingSchema = z
 // strict: unknown keys are rejected, not stripped (NFR-SEC-05).
 export const loginSchema = z
   .object({
-    email: emailField(320),
+    email: emailField,
     password: z.string().min(1),
   })
   .strict();
@@ -89,9 +89,7 @@ export type ChangePasswordRequest = z.infer<typeof changePasswordSchema>;
 
 /** Asking for a reset link (FR-AUTH-02): the address alone, as the proof is
  * that the mail arrives. */
-export const forgotPasswordSchema = z
-  .object({ email: emailField(320) })
-  .strict();
+export const forgotPasswordSchema = z.object({ email: emailField }).strict();
 
 /**
  * Registration (FR-AUTH-01): a request to become a customer, carrying what
@@ -101,7 +99,7 @@ export const forgotPasswordSchema = z
  */
 export const registerSchema = z
   .object({
-    email: emailField(320),
+    email: emailField,
     firstName: z.string().trim().min(1).max(200),
     lastName: z.string().trim().min(1).max(200),
     phone: z.string().trim().min(1).max(50),

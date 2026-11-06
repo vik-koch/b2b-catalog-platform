@@ -17,7 +17,7 @@ import {
 export const inquiryRequestSchema = z
   .object({
     name: z.string().trim().min(1).max(INQUIRY_NAME_MAX_LENGTH),
-    email: blankAsAbsent(emailField(320).optional()),
+    email: blankAsAbsent(emailField.optional()),
     phone: blankAsAbsent(
       z.string().trim().max(INQUIRY_PHONE_MAX_LENGTH).optional(),
     ),

@@ -6,6 +6,10 @@
 export const EMAIL_PATTERN =
   /^[^\s@,;:<>()[\]\\"]+@[^\s@.,;:<>()[\]\\"]+(?:\.[^\s@.,;:<>()[\]\\"]+)+$/;
 
+/** The longest address a form takes or a column holds. A mailbox path is
+ * at most 254 characters, so no deliverable address is longer. */
+export const EMAIL_MAX_LENGTH = 255;
+
 export function isEmailAddress(value: string): boolean {
   return EMAIL_PATTERN.test(value);
 }

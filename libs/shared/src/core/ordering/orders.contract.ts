@@ -66,7 +66,7 @@ export type OrderingParty = z.infer<typeof orderingPartySchema>;
 export const orderContactSchema = z
   .object({
     name: z.string().trim().min(1).max(200),
-    email: lowercaseEmailField(255),
+    email: lowercaseEmailField,
     phone: z.string().trim().min(1).max(50),
   })
   .strict();

@@ -1,4 +1,5 @@
 import {
+  maxLength,
   required,
   validate,
   type PathKind,
@@ -7,6 +8,7 @@ import {
 } from '@angular/forms/signals';
 import {
   digitsOf,
+  EMAIL_MAX_LENGTH,
   isEmailAddress,
   maskLength,
 } from '@b2b-catalog-platform/shared/platform';
@@ -31,11 +33,13 @@ export function filled<K extends PathKind>(
   );
 }
 
-/** The API's email rule, without Zod. Empty is `required`'s message. */
+/** The API's email rule, without Zod. Empty is `required`'s message; the
+ * cap becomes the control's `maxlength`, so it needs no message. */
 export function emailAddress<K extends PathKind>(
   path: StringPath<K>,
   message: string,
 ): void {
+  maxLength(path, EMAIL_MAX_LENGTH);
   validate(path, ({ value }) => {
     const address = value().trim();
     return !address || isEmailAddress(address)

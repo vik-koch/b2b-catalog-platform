@@ -16,6 +16,7 @@ import {
   lowercaseEmailField,
   storedEmailField,
 } from './contact-config';
+import { EMAIL_MAX_LENGTH } from './email-format';
 
 const config: PhoneConfig = { countryCode: '+49', mask: '(###) ###-####' };
 /** A deployment that fixes a country code but does not group the digits. */
@@ -236,7 +237,7 @@ describe('companyIdMatchesAny', () => {
 });
 
 describe('emailField', () => {
-  const field = emailField(320);
+  const field = emailField;
 
   it('accepts an address pasted with space around it, and keeps the trim', () => {
     expect(field.parse('  jane@example.com  ')).toBe('jane@example.com');
@@ -247,15 +248,15 @@ describe('emailField', () => {
   });
 
   it('measures the length against the trimmed value', () => {
-    // 300 + '@example.com' = 312 characters.
-    const long = `${'a'.repeat(300)}@example.com`;
+    const local = 'a'.repeat(EMAIL_MAX_LENGTH - '@example.com'.length);
+    const longest = `${local}@example.com`;
 
-    expect(emailField(320).safeParse(`  ${long}  `).success).toBe(true);
-    expect(emailField(100).safeParse(long).success).toBe(false);
+    expect(field.safeParse(`  ${longest}  `).success).toBe(true);
+    expect(field.safeParse(`a${longest}`).success).toBe(false);
   });
 
   it('lowercases where the address is stored folded', () => {
-    expect(lowercaseEmailField(255).parse(' Jane@Example.COM ')).toBe(
+    expect(lowercaseEmailField.parse(' Jane@Example.COM ')).toBe(
       'jane@example.com',
     );
   });
@@ -269,7 +270,7 @@ describe('storedEmailField', () => {
     'jane@example.com',
     'deleted-6f1c0c7e-0000-4000-8000-000000000000@deleted.invalid',
   ])('reads back an address the writing side accepts: %s', (address) => {
-    expect(emailField(320).safeParse(address).success).toBe(true);
+    expect(emailField.safeParse(address).success).toBe(true);
     expect(storedEmailField.safeParse(address).success).toBe(true);
   });
 
