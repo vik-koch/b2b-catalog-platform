@@ -23,7 +23,10 @@ import { Outcome } from '@b2b-catalog-platform/ui/content/outcome';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { Hint } from '@b2b-catalog-platform/ui/fields/hint';
 import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
-import { PASSWORD_MIN_LENGTH } from '@b2b-catalog-platform/shared/core/accounts';
+import {
+  PASSWORD_MAX_LENGTH,
+  PASSWORD_MIN_LENGTH,
+} from '@b2b-catalog-platform/shared/core/accounts';
 import { PasswordTokenPurpose } from '@b2b-catalog-platform/shared/storefront/accounts';
 
 type Status =
@@ -192,6 +195,9 @@ export class SetPasswordPage implements OnInit {
     this.auth.validation.newPasswordTooShort,
     { min: PASSWORD_MIN_LENGTH },
   );
+  private readonly tooLong = fillText(this.auth.validation.newPasswordTooLong, {
+    max: PASSWORD_MAX_LENGTH,
+  });
 
   /** From the query string. */
   readonly token = input<string>('');
@@ -212,7 +218,8 @@ export class SetPasswordPage implements OnInit {
     (password) => {
       newPassword(password.newPassword, {
         required: this.validation.newPasswordRequired,
-        length: this.tooShort,
+        tooShort: this.tooShort,
+        tooLong: this.tooLong,
       });
       confirmation(
         password.confirmPassword,

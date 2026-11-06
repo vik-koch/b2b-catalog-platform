@@ -110,6 +110,9 @@
     "texts/shared.json:honeypot": {
       "new": "Leave this field empty"
     },
+    "texts/storefront.json:accounts.auth.validation.newPasswordTooLong": {
+      "new": "Please use at most {max} characters."
+    },
     "texts/admin.json:ordering.orders.adjust.lines.suggestionCountAria": {
       "new": "Product suggestions: {count}"
     },

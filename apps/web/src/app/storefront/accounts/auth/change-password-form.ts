@@ -17,7 +17,10 @@ import { Input } from '@b2b-catalog-platform/ui/inputs/input';
 import { SubmitAttempt } from '@b2b-catalog-platform/ui/fields/submit-attempt';
 import { SignInService, ChangePasswordResult } from './sign-in.service';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
-import { PASSWORD_MIN_LENGTH } from '@b2b-catalog-platform/shared/core/accounts';
+import {
+  PASSWORD_MAX_LENGTH,
+  PASSWORD_MIN_LENGTH,
+} from '@b2b-catalog-platform/shared/core/accounts';
 
 /** No required marks: marking every field on a form marks none. */
 @Component({
@@ -122,6 +125,9 @@ export class ChangePasswordForm {
     this.validation.newPasswordTooShort,
     { min: PASSWORD_MIN_LENGTH },
   );
+  private readonly tooLong = fillText(this.validation.newPasswordTooLong, {
+    max: PASSWORD_MAX_LENGTH,
+  });
 
   private readonly empty = {
     currentPassword: '',
@@ -137,7 +143,8 @@ export class ChangePasswordForm {
       });
       newPassword(change.newPassword, {
         required: this.validation.newPasswordRequired,
-        length: this.minLengthHint,
+        tooShort: this.minLengthHint,
+        tooLong: this.tooLong,
       });
       confirmation(
         change.confirmPassword,

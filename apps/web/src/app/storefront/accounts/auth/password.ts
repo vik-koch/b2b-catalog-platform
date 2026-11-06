@@ -18,19 +18,22 @@ type StringPath<K extends PathKind> = SchemaPath<
 
 /**
  * Within the contract's limits, from its constants so the page loads no Zod.
- * The ceiling is far past anything typed, so it shares the floor's wording.
+ * The ceiling is a message, not a `maxlength`: a pasted password cut short
+ * would be saved as one its owner never had.
  */
 export function newPassword<K extends PathKind>(
   path: StringPath<K>,
-  text: { required: string; length: string },
+  text: { required: string; tooShort: string; tooLong: string },
 ): void {
   required(path, { message: text.required });
   validate(path, ({ value }) => {
     const length = value().length;
-    return length === 0 ||
-      (length >= PASSWORD_MIN_LENGTH && length <= PASSWORD_MAX_LENGTH)
+    if (length > PASSWORD_MAX_LENGTH) {
+      return { kind: 'length', message: text.tooLong };
+    }
+    return length === 0 || length >= PASSWORD_MIN_LENGTH
       ? undefined
-      : { kind: 'length', message: text.length };
+      : { kind: 'length', message: text.tooShort };
   });
 }
 
