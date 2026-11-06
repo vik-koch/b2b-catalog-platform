@@ -1,6 +1,6 @@
 # 0020 — Store rich text as sanitized HTML, edit it with a schema-constrained Tiptap
 
-**Status:** accepted (amended 2026-10-04, 2026-10-09) · **Date:** 2026-07-25
+**Status:** accepted (amended 2026-10-04, 2026-10-09, 2026-10-27) · **Date:** 2026-07-25
 
 ## Context
 
@@ -124,7 +124,7 @@ differs between dev and prod. A protocol-relative `//host` stays refused, so a
 scheme-less link can only ever stay on the site. The storefront sends a click
 on a root-relative link through the router rather than reloading the app.
 
-## Amendment — 2026-10-27 (v1.15.2): the editor is not a form control
+## Amendment — 2026-10-27 (v1.16.0): the editor is not a form control
 
 The editor was built as a plain component, not the `ControlValueAccessor`
 the decision names. It takes its starting HTML as `value`, read once when the

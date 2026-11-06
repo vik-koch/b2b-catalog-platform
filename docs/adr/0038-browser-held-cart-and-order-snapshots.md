@@ -268,7 +268,7 @@ constraint too — so the reasoning below about a line having no exact per-unit
 price, and about the basis being what keeps a line reconstructible, no longer
 applies. See [ADR 0058](0058-the-price-is-per-piece.md).
 
-## Amendment — 2026-11-06 (v1.15.2): the reference's format is configured
+## Amendment — 2026-11-06 (v1.16.0): the reference's format is configured
 
 The deployment writes the whole reference as a format, `CK{date}-####`, in
 place of a prefix in front of a fixed `-YYMMDD-NNNN`: the date and the random

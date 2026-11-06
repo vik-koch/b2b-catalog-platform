@@ -121,7 +121,7 @@ has not loaded.
   validation runtime is among them, which is the rule this decision made rather
   than a number that moves with the app.
 
-## Amendment — 2026-10-26 (v1.15.2): the inquiry page loads lazily
+## Amendment — 2026-10-26 (v1.16.0): the inquiry page loads lazily
 
 The inquiry page is built on Signal Forms (ADR 0070), which builds on the
 reactive forms classes rather than replacing them. Eager, it put both in every

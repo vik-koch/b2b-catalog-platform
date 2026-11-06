@@ -41,10 +41,25 @@ function touchEvent(type: string, clientX: number): Event {
   return event;
 }
 
-/** Index of the currently-visible (opacity-100) image. */
+/** The photos rendered, each by its source: an unrevealed one has no
+ * element, so position says nothing. */
+function rendered(f: ComponentFixture<TileGallery>): HTMLImageElement[] {
+  return [...(f.nativeElement as HTMLElement).querySelectorAll('img')];
+}
+
+/** Index, among the images given, of the one on show (opacity-100). */
 function activeIndex(f: ComponentFixture<TileGallery>): number {
-  const imgs = [...(f.nativeElement as HTMLElement).querySelectorAll('img')];
-  return imgs.findIndex((el) => el.classList.contains('opacity-100'));
+  const shown = rendered(f).find((el) => el.classList.contains('opacity-100'));
+  const thumbs = f.componentInstance.images().map((image) => image.thumb);
+  return shown ? thumbs.indexOf(shown.getAttribute('src') ?? '') : -1;
+}
+
+/** Hovering warms the second photo, so two are rendered. */
+function revealSecond(f: ComponentFixture<TileGallery>): void {
+  (f.nativeElement as HTMLElement)
+    .querySelector('a')
+    ?.dispatchEvent(new PointerEvent('pointerenter'));
+  f.detectChanges();
 }
 
 describe('TileGallery', () => {
@@ -68,6 +83,7 @@ describe('TileGallery', () => {
   it('swaps a failed image for the placeholder in its slot', () => {
     const f = render([img(1), img(2)]);
     const root = f.nativeElement as HTMLElement;
+    revealSecond(f);
 
     root.querySelectorAll('img')[0].dispatchEvent(new Event('error'));
     f.detectChanges();
@@ -99,15 +115,17 @@ describe('TileGallery', () => {
   });
 
   /** The extra copies sit at opacity 0, which does not stop a download, so
-   * a src up front would fetch every photo to show one per product. */
-  it('gives a source only to images that have been revealed', () => {
+   * rendering them up front would fetch every photo to show one per product.
+   * Nor may one carry an empty src: that fires error and marks it broken. */
+  it('renders only the images that have been revealed', () => {
     const f = render([img(1), img(2), img(3)]);
-    const sources = () =>
-      [...(f.nativeElement as HTMLElement).querySelectorAll('img')].map((el) =>
-        el.getAttribute('src'),
-      );
 
-    expect(sources()).toEqual([img(1).thumb, null, null]);
+    expect(rendered(f).map((el) => el.getAttribute('src'))).toEqual([
+      img(1).thumb,
+    ]);
+    expect(
+      (f.nativeElement as HTMLElement).querySelectorAll('ui-image-placeholder'),
+    ).toHaveLength(0);
   });
 
   it('reveals the next image when a pointer enters the tile', () => {
@@ -119,12 +137,12 @@ describe('TileGallery', () => {
     anchor.dispatchEvent(new PointerEvent('pointerenter'));
     f.detectChanges();
 
-    const sources = [
-      ...(f.nativeElement as HTMLElement).querySelectorAll('img'),
-    ].map((el) => el.getAttribute('src'));
     // The one after the current, so the fade has something to show; the third
     // stays unfetched until the gesture actually reaches it.
-    expect(sources).toEqual([img(1).thumb, img(2).thumb, null]);
+    expect(rendered(f).map((el) => el.getAttribute('src'))).toEqual([
+      img(1).thumb,
+      img(2).thumb,
+    ]);
   });
 
   it('reveals an image when a swipe selects it', () => {
@@ -138,11 +156,9 @@ describe('TileGallery', () => {
     f.detectChanges();
 
     expect(activeIndex(f)).toBe(1);
-    expect(
-      [
-        ...(f.nativeElement as HTMLElement).querySelectorAll('img'),
-      ][1].getAttribute('src'),
-    ).toBe(img(2).thumb);
+    expect(rendered(f).map((el) => el.getAttribute('src'))).toContain(
+      img(2).thumb,
+    );
   });
 
   /**
@@ -186,9 +202,8 @@ describe('TileGallery', () => {
 
   it('waits for the viewport unless told it leads the page', () => {
     const f = render([img(1), img(2)]);
-    const imgs = () => [
-      ...(f.nativeElement as HTMLElement).querySelectorAll('img'),
-    ];
+    revealSecond(f);
+    const imgs = () => rendered(f);
     expect(imgs().map((el) => el.getAttribute('loading'))).toEqual([
       'lazy',
       'lazy',
@@ -242,9 +257,8 @@ describe('TileGallery labels (FR-CAT-11)', () => {
 
   it('names the variant in the picture’s text alternative', () => {
     const f = renderLabeled();
-    const alts = [
-      ...(f.nativeElement as HTMLElement).querySelectorAll('img'),
-    ].map((image) => image.alt);
+    revealSecond(f);
+    const alts = rendered(f).map((image) => image.alt);
 
     expect(alts).toEqual(['Test product', 'Test product — Speckled off-white']);
   });

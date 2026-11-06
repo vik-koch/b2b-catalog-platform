@@ -2,7 +2,7 @@
 
 **Status:** accepted · **Date:** 2026-07-23 · **Amended:** 2026-10-17 (the
 directory's layout, which text goes where, how keys are grouped and named, one
-locale, and a migration for each release that moves keys or files) — see the _Amendment_
+locale, and a migration for each release that moves keys or files), 2026-10-23, 2026-10-25: see the _Amendments_
 below
 
 ## Context
@@ -190,7 +190,7 @@ default to fall back on, so `CONFIG_DIR` names the deployment on every deploy,
 and the unit specs pin `CONFIG_PATH` to the fixture rather than read whichever
 deployment the workspace `.env` names.
 
-## Amendment — 2026-10-25 (v1.15.2): the text files are named by their reader
+## Amendment — 2026-10-25 (v1.16.0): the text files are named by their reader
 
 `texts/common.json` is now `texts/shared.json`, and `texts/app.json` is
 `texts/storefront.json`, so each name says whose wording it holds
