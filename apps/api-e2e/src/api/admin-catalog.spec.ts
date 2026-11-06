@@ -1013,7 +1013,7 @@ describe('Admin catalog (FR-ADM-01)', () => {
       expect(res.status).toBe(200);
       return (
         res.data as {
-          items: { slug: string; gaps: string[]; features: string[] }[];
+          items: { slug: string; facts: string[] }[];
         }
       ).items;
     };
@@ -1053,24 +1053,23 @@ describe('Admin catalog (FR-ADM-01)', () => {
       slugs['complete'] = complete.data.slug;
     });
 
-    it('names what keeps each row incomplete', async () => {
+    it('tells each row what it has', async () => {
       const rows = await byContent();
-      const gaps = Object.fromEntries(rows.map((r) => [r.slug, r.gaps]));
+      const facts = Object.fromEntries(rows.map((r) => [r.slug, r.facts]));
 
-      expect(gaps[slugs['bare']]).toEqual([
+      expect(facts[slugs['bare']]).toEqual([]);
+      expect(facts[slugs['emptyText']]).toEqual([
+        'price',
+        'picture',
+        'attributes',
+      ]);
+      expect(facts[slugs['complete']]).toEqual([
         'price',
         'picture',
         'description',
         'attributes',
+        'featured',
       ]);
-      expect(gaps[slugs['emptyText']]).toEqual(['description']);
-      expect(gaps[slugs['complete']]).toEqual([]);
-    });
-
-    it('reads incomplete as any of the four gaps', async () => {
-      expect(slugsOf(await byContent('missing=incomplete'))).toEqual(
-        [slugs['bare'], slugs['emptyText']].sort(),
-      );
     });
 
     it('narrows to one gap', async () => {
@@ -1083,16 +1082,16 @@ describe('Admin catalog (FR-ADM-01)', () => {
       ]);
     });
 
-    it('asks about packaging without counting it as incomplete', async () => {
-      // None of the three has a pack, the complete one included, so packaging
-      // is no part of "incomplete".
-      expect(await byContent('missing=packaging')).toHaveLength(3);
+    it('asks about packaging like any other fact', async () => {
+      const rows = await byContent('missing=packaging');
+      expect(rows).toHaveLength(3);
+      expect(rows.flatMap((row) => row.facts)).not.toContain('packaging');
     });
 
     it('narrows to what a product carries, and names it on the row', async () => {
       const rows = await byContent('has=featured');
       expect(slugsOf(rows)).toEqual([slugs['complete']]);
-      expect(rows[0].features).toEqual(['featured']);
+      expect(rows[0].facts).toContain('featured');
       expect(await byContent('has=pairings')).toHaveLength(0);
     });
 
@@ -1105,10 +1104,46 @@ describe('Admin catalog (FR-ADM-01)', () => {
       expect(await byContent('missing=picture&has=featured')).toHaveLength(0);
     });
 
+    it('asks content as something a product has', async () => {
+      expect(slugsOf(await byContent('has=picture'))).toEqual(
+        [slugs['emptyText'], slugs['complete']].sort(),
+      );
+      // Empty markup is no description either way round.
+      expect(slugsOf(await byContent('has=description'))).toEqual([
+        slugs['complete'],
+      ]);
+    });
+
+    it('asks a feature as something a product lacks', async () => {
+      expect(slugsOf(await byContent('missing=featured'))).toEqual(
+        [slugs['bare'], slugs['emptyText']].sort(),
+      );
+      expect(await byContent('missing=documents')).toHaveLength(3);
+    });
+
+    it('holds both ways at once', async () => {
+      expect(slugsOf(await byContent('has=picture&missing=featured'))).toEqual([
+        slugs['emptyText'],
+      ]);
+    });
+
     it('refuses a gap that is not one of them', async () => {
       const res = await adminGet(`/admin/catalog/products?missing=stock`);
 
       expect(res.status).toBe(400);
+    });
+
+    it('refuses a fact asked both ways, and incomplete as a fact', async () => {
+      const both = await adminGet(
+        `/admin/catalog/products?has=picture&missing=picture`,
+      );
+      expect(both.status).toBe(400);
+
+      // Incomplete is the grid's reading of a row's facts, not a fact.
+      const incomplete = await adminGet(
+        `/admin/catalog/products?missing=incomplete`,
+      );
+      expect(incomplete.status).toBe(400);
     });
   });
 

@@ -142,11 +142,71 @@
     "texts/shared.json:accounts.signedInAs.logout": {
       "from": ["texts/app.json:auth.logout"],
       "copy": true
+    },
+    "texts/admin.json:grid.factAny": {
+      "new": "Any"
+    },
+    "texts/admin.json:grid.factHas": {
+      "new": "Has"
+    },
+    "texts/admin.json:grid.factMissing": {
+      "new": "Missing"
+    },
+    "texts/admin.json:grid.factClearAria": {
+      "new": "Remove the filter {way} {fact}"
+    },
+    "texts/admin.json:catalog.products.list.contentFilter": {
+      "new": "Filter by content"
+    },
+    "texts/admin.json:catalog.products.list.fact.price": {
+      "new": "Price"
+    },
+    "texts/admin.json:catalog.products.list.fact.picture": {
+      "new": "Picture"
+    },
+    "texts/admin.json:catalog.products.list.fact.description": {
+      "new": "Description"
+    },
+    "texts/admin.json:catalog.products.list.fact.attributes": {
+      "new": "Attributes"
+    },
+    "texts/admin.json:catalog.products.list.fact.packaging": {
+      "new": "Packaging"
+    },
+    "texts/admin.json:catalog.products.list.fact.boxFacts": {
+      "new": "Box volume or weight"
+    },
+    "texts/admin.json:catalog.products.list.fact.featured": {
+      "from": ["texts/admin.json:products.list.has.featured"]
+    },
+    "texts/admin.json:catalog.products.list.fact.variants": {
+      "from": ["texts/admin.json:products.list.has.variants"]
+    },
+    "texts/admin.json:catalog.products.list.fact.note": {
+      "from": ["texts/admin.json:products.list.has.note"]
+    },
+    "texts/admin.json:catalog.products.list.fact.set": {
+      "from": ["texts/admin.json:products.list.has.set"]
+    },
+    "texts/admin.json:catalog.products.list.fact.pairings": {
+      "from": ["texts/admin.json:products.list.has.pairings"]
+    },
+    "texts/admin.json:catalog.products.list.fact.documents": {
+      "from": ["texts/admin.json:products.list.has.documents"]
     }
   },
   "drop": [
     "deployment.json:branding.theme.muted",
-    "deployment.json:branding.theme.neutrals"
+    "deployment.json:branding.theme.neutrals",
+    "texts/admin.json:products.list.missingGroupAria",
+    "texts/admin.json:products.list.hasGroupAria",
+    "texts/admin.json:products.list.missing.price",
+    "texts/admin.json:products.list.missing.picture",
+    "texts/admin.json:products.list.missing.description",
+    "texts/admin.json:products.list.missing.attributes",
+    "texts/admin.json:products.list.missing.packaging",
+    "texts/admin.json:products.list.missing.boxFacts",
+    "texts/admin.json:products.list.missing.incomplete"
   ],
   "moves": {
     "texts/admin.json:pages.toolbar": "texts/admin.json:richText.toolbar",

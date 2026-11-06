@@ -49,6 +49,7 @@ const columns: GridColumn[] = [
       [trackBy]="byId"
       [sort]="null"
       [total]="total()"
+      [filtered]="filtered()"
       countLabel="Rows: {count}"
       emptyMessage="Nothing here"
     >
@@ -67,6 +68,7 @@ class Host {
   readonly columns = columns;
   readonly rows = signal<Row[]>(rows);
   readonly total = signal<number | null>(null);
+  readonly filtered = signal(false);
   readonly byId = (row: Row): string => row.id;
 }
 
@@ -199,6 +201,15 @@ describe('DataGrid on a desktop (FR-ADM-05)', () => {
     expect(el.textContent).toContain('Nothing here');
     // The empty message already says it; "0 rows" beside it says it twice.
     expect(el.textContent).not.toContain('Rows:');
+  });
+
+  it('counts a narrowed list down to none, beside what narrowed it', () => {
+    const { fixture, el } = render();
+    fixture.componentInstance.rows.set([]);
+    fixture.componentInstance.filtered.set(true);
+    fixture.detectChanges();
+
+    expect(el.textContent).toContain('Rows: 0');
   });
 });
 

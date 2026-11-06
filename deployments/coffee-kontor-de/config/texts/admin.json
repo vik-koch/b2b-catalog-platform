@@ -28,7 +28,11 @@
     "sort": "Sortierung",
     "sortDefault": "Standardreihenfolge",
     "sortAscending": "{column}, aufsteigend",
-    "sortDescending": "{column}, absteigend"
+    "sortDescending": "{column}, absteigend",
+    "factAny": "Beliebig",
+    "factHas": "Hat",
+    "factMissing": "Fehlt",
+    "factClearAria": "Filter {way} {fact} entfernen"
   },
   "countSuffix": "({count})",
   "actorGone": "ein gelöschtes Konto",
@@ -235,24 +239,20 @@
         "tierPricedYes": "In dieser Liste bepreist",
         "tierPricedNo": "In dieser Liste ohne Preis",
         "noPrice": "—",
-        "missingGroupAria": "Fehlt",
-        "hasGroupAria": "Hat",
-        "missing": {
-          "incomplete": "Unvollständig",
-          "price": "Kein Preis",
-          "picture": "Kein Bild",
-          "description": "Keine Beschreibung",
-          "attributes": "Keine Merkmale",
-          "packaging": "Keine Verpackung",
-          "boxFacts": "Kein Kartonvolumen oder -gewicht"
-        },
-        "has": {
+        "contentFilter": "Nach Inhalt filtern",
+        "fact": {
+          "price": "Preis",
+          "picture": "Bild",
+          "description": "Beschreibung",
+          "attributes": "Merkmale",
+          "packaging": "Verpackung",
+          "boxFacts": "Kartonvolumen oder -gewicht",
           "featured": "Hervorgehoben",
-          "set": "Als Set verkauft",
           "variants": "Varianten",
+          "note": "Positionsanmerkung",
+          "set": "Als Set verkauft",
           "pairings": "Zusammen verkauft",
-          "documents": "Dokumente",
-          "note": "Positionsanmerkung"
+          "documents": "Dokumente"
         },
         "gapsLabel": "Ohne {gaps}",
         "gap": {

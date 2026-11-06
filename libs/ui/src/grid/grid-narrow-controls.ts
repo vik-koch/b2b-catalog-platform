@@ -8,14 +8,14 @@ import { Input } from '../inputs/input';
 import { SelectInput } from '../inputs/select-input';
 import { GridClearFilters } from './grid-clear-filters';
 import { GridChips } from './grid-chips';
-import { GridToggles } from './grid-toggles';
+import { GridFacts } from './grid-facts';
 import {
   activeFilterCount,
   filterableColumns,
   filterParams,
   GridChip,
-  GridToggleGroup,
   GridColumn,
+  GridFactFilter,
   sortableColumns,
 } from './grid-column';
 import { gridParam, injectGridNav } from './grid-nav';
@@ -40,7 +40,7 @@ interface SortOption {
     Input,
     SelectInput,
     GridClearFilters,
-    GridToggles,
+    GridFacts,
     DisclosureFrame,
     Collapsible,
   ],
@@ -131,8 +131,11 @@ interface SortOption {
                 </label>
               }
 
-              @if (toggles().length) {
-                <ui-grid-toggles [groups]="toggles()" />
+              @if (facts(); as filter) {
+                <div role="group" [attr.aria-label]="filter.label">
+                  <p class="mb-1 text-sm text-ink-subtle">{{ filter.label }}</p>
+                  <ui-grid-facts [filter]="filter" />
+                </div>
               }
 
               @if (chips().length) {
@@ -159,7 +162,8 @@ export class GridNarrowControls {
 
   readonly columns = input.required<readonly GridColumn[]>();
   readonly chips = input<readonly GridChip[]>([]);
-  readonly toggles = input<readonly GridToggleGroup[]>([]);
+  /** Asked inside the panel; its chips arrive with `chips`. */
+  readonly facts = input<GridFactFilter | null>(null);
   /** The sort in effect, resolved; null where no column owns it. */
   readonly sort = input.required<string | null>();
   /** The key written as an absent parameter. */
@@ -179,12 +183,15 @@ export class GridNarrowControls {
     filterableColumns(this.columns()),
   );
   protected readonly activeCount = computed(() =>
-    activeFilterCount(this.columns(), this.chips(), this.toggles()),
+    activeFilterCount(this.columns(), this.chips()),
   );
 
   /** No filter and no sort: no row at all. */
   protected readonly anything = computed(
-    () => this.filters().length > 0 || this.sortOptions().length > 0,
+    () =>
+      this.filters().length > 0 ||
+      this.sortOptions().length > 0 ||
+      this.facts() !== null,
   );
 
   /** Every sortable column both ways, the direction in words: an option is

@@ -105,31 +105,27 @@ export const adminCatalogTextShape = {
           /** The cell of untracked stock: a word, not a blank, so it never
            * reads as "none left". */
           stockUntracked: z.string(),
-          /** The content filter (FR-ADM-20) and the line naming what keeps a product
-           * incomplete; `{gaps}` joins the `gap` words. */
-          missingGroupAria: z.string(),
-          hasGroupAria: z.string(),
-          missing: z
+          /** The content filter (FR-ADM-20): its button and panel, and one
+           * name per fact, which a chip pairs with "has" or "missing". */
+          contentFilter: z.string(),
+          fact: z
             .object({
-              incomplete: z.string(),
               price: z.string(),
               picture: z.string(),
               description: z.string(),
               attributes: z.string(),
               packaging: z.string(),
               boxFacts: z.string(),
-            })
-            .strict(),
-          has: z
-            .object({
               featured: z.string(),
-              set: z.string(),
               variants: z.string(),
+              note: z.string(),
+              set: z.string(),
               pairings: z.string(),
               documents: z.string(),
-              note: z.string(),
             })
             .strict(),
+          /** The line naming what keeps a product incomplete; `{gaps}` joins
+           * the `gap` words. */
           gapsLabel: z.string(),
           gap: z
             .object({

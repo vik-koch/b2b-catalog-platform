@@ -28,7 +28,11 @@
     "sort": "Sort",
     "sortDefault": "Default order",
     "sortAscending": "{column}, ascending",
-    "sortDescending": "{column}, descending"
+    "sortDescending": "{column}, descending",
+    "factAny": "Any",
+    "factHas": "Has",
+    "factMissing": "Missing",
+    "factClearAria": "Remove the filter {way} {fact}"
   },
   "countSuffix": "({count})",
   "actorGone": "a deleted account",
@@ -235,24 +239,20 @@
         "tierPricedYes": "Priced in this list",
         "tierPricedNo": "Not priced in this list",
         "noPrice": "—",
-        "missingGroupAria": "Missing",
-        "hasGroupAria": "Has",
-        "missing": {
-          "incomplete": "Incomplete",
-          "price": "No price",
-          "picture": "No picture",
-          "description": "No description",
-          "attributes": "No attributes",
-          "packaging": "No packaging",
-          "boxFacts": "No box volume or weight"
-        },
-        "has": {
+        "contentFilter": "Filter by content",
+        "fact": {
+          "price": "Price",
+          "picture": "Picture",
+          "description": "Description",
+          "attributes": "Attributes",
+          "packaging": "Packaging",
+          "boxFacts": "Box volume or weight",
           "featured": "Featured",
-          "set": "Sold as a set",
           "variants": "Variants",
+          "note": "Line note",
+          "set": "Sold as a set",
           "pairings": "Sold together",
-          "documents": "Documents",
-          "note": "Line note"
+          "documents": "Documents"
         },
         "gapsLabel": "No {gaps}",
         "gap": {

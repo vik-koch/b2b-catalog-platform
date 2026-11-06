@@ -18,9 +18,8 @@ import {
 } from '@b2b-catalog-platform/shared/core/catalog';
 import {
   AdminProductSort,
-  IncompleteGap,
-  PRODUCT_FEATURES,
-  PRODUCT_GAP_FILTERS,
+  PRODUCT_FACTS,
+  ProductFact,
 } from '@b2b-catalog-platform/shared/admin/catalog';
 import { NgTemplateOutlet } from '@angular/common';
 import { PricePipe } from '../../../core/catalog/pricing/price.pipe';
@@ -51,7 +50,7 @@ import { DataGrid } from '@b2b-catalog-platform/ui/grid/data-grid';
 import {
   GridChip,
   GridColumn,
-  GridToggleGroup,
+  GridFactFilter,
 } from '@b2b-catalog-platform/ui/grid/grid-column';
 import { GridFilterOption } from '@b2b-catalog-platform/ui/grid/grid-filter-select';
 import { GridPagination } from '@b2b-catalog-platform/ui/grid/grid-pagination';
@@ -72,9 +71,10 @@ import { TiersService } from '../tiers/tiers.service';
 import { purgeWithConfirmation, PurgeText } from './product-removal';
 import { ProductRowActions, ProductRowState } from './product-row-actions';
 import {
-  PRODUCT_FEATURE_GLYPHS,
+  PRODUCT_FACT_GLYPHS,
   ProductFeatureGlyphs,
 } from './product-feature-glyphs';
+import { featuresOf, gapsOf, IncompleteFact } from './product-facts';
 import { AVAILABILITY_TONES } from '../../../core/catalog/ui/product-availability-badge';
 import { plusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/plus';
 import { ProductStateBadge, productState } from '../ui/product-state-badge';
@@ -153,7 +153,7 @@ function knownValues<T extends string>(
         [defaultSort]="defaultSort"
         [defaultSortLabel]="text.bestMatch"
         [chips]="chips()"
-        [toggles]="toggles()"
+        [facts]="facts()"
         [busy]="products.isLoading()"
         [filtered]="filtered()"
         [emptyMessage]="filtered() ? text.noResults : text.empty"
@@ -356,17 +356,19 @@ function knownValues<T extends string>(
          so they read as work. In the card it flows beside the sync key,
          where a top margin would lift it off the line. -->
     <ng-template #content let-item let-card="card">
-      @if (item.features.length || item.gaps.length) {
+      @let features = featuresOf(item.facts);
+      @let gaps = gapsOf(item.facts);
+      @if (features.length || gaps.length) {
         <div
           class="flex flex-wrap items-center gap-x-2 gap-y-1"
           [class.mt-1]="!card"
           [class.opacity-50]="isDeleted(item)"
         >
-          @if (item.features.length) {
-            <app-product-feature-glyphs [features]="item.features" />
+          @if (features.length) {
+            <app-product-feature-glyphs [features]="features" />
           }
-          @if (item.gaps.length) {
-            <span class="text-xs text-warning">{{ gapsLabel(item.gaps) }}</span>
+          @if (gaps.length) {
+            <span class="text-xs text-warning">{{ gapsLabel(gaps) }}</span>
           }
         </div>
       }
@@ -457,35 +459,34 @@ export class ProductListPage {
   /** FR-ADM-20. One entry arrives as a bare string, more as an array. */
   readonly missing = input<string | readonly string[] | undefined>(undefined);
   readonly has = input<string | readonly string[] | undefined>(undefined);
-  protected readonly missingKeys = computed(() =>
-    knownValues(this.missing(), PRODUCT_GAP_FILTERS),
-  );
-  protected readonly hasKeys = computed(() =>
-    knownValues(this.has(), PRODUCT_FEATURES),
-  );
+  /** A fact in both lists can match nothing, and the API refuses it: the
+   * view drops it from both rather than failing. */
+  protected readonly missingKeys = computed(() => {
+    const has = knownValues(this.has(), PRODUCT_FACTS);
+    return knownValues(this.missing(), PRODUCT_FACTS).filter(
+      (value) => !has.includes(value),
+    );
+  });
+  protected readonly hasKeys = computed(() => {
+    const missing = knownValues(this.missing(), PRODUCT_FACTS);
+    return knownValues(this.has(), PRODUCT_FACTS).filter(
+      (value) => !missing.includes(value),
+    );
+  });
 
-  /** What a product has, with its row's glyphs, then the gaps. */
-  protected readonly toggles = computed<GridToggleGroup[]>(() => [
-    {
-      ariaLabel: this.text.hasGroupAria,
-      param: 'has',
-      options: PRODUCT_FEATURES.map((feature) => ({
-        value: feature,
-        label: this.text.has[feature],
-        icon: PRODUCT_FEATURE_GLYPHS[feature],
-      })),
-      selected: this.hasKeys(),
-    },
-    {
-      ariaLabel: this.text.missingGroupAria,
-      param: 'missing',
-      options: PRODUCT_GAP_FILTERS.map((gap) => ({
-        value: gap,
-        label: this.text.missing[gap],
-      })),
-      selected: this.missingKeys(),
-    },
-  ]);
+  /** The content, then the features, in the editor's order. */
+  protected readonly facts = computed<GridFactFilter>(() => ({
+    label: this.text.contentFilter,
+    hasParam: 'has',
+    missingParam: 'missing',
+    facts: PRODUCT_FACTS.map((fact: ProductFact) => ({
+      value: fact,
+      label: this.text.fact[fact],
+      icon: PRODUCT_FACT_GLYPHS[fact],
+    })),
+    has: this.hasKeys(),
+    missing: this.missingKeys(),
+  }));
 
   // The chips' names are fetched only while a chip shows, and a failure
   // leaves the chip absent or unadorned rather than the list broken.
@@ -595,7 +596,10 @@ export class ProductListPage {
     {
       key: 'thumb',
       srLabel: this.productText.images.heading,
-      fixedWidth: 48,
+      // The 40px thumbnail and the cell's 16px right padding, so the
+      // filter's button centres on the picture.
+      fixedWidth: 56,
+      factsHeading: true,
     },
     {
       key: 'name',
@@ -743,7 +747,10 @@ export class ProductListPage {
     return fillText(this.text.deletedMatches, { count });
   }
 
-  protected gapsLabel(gaps: readonly IncompleteGap[]): string {
+  protected readonly featuresOf = featuresOf;
+  protected readonly gapsOf = gapsOf;
+
+  protected gapsLabel(gaps: readonly IncompleteFact[]): string {
     return fillText(this.text.gapsLabel, {
       gaps: gaps.map((gap) => this.text.gap[gap]).join(', '),
     });

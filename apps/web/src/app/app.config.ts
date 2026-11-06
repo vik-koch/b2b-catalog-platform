@@ -1,3 +1,4 @@
+import { skipInPageTransitions } from './platform/in-page-transitions';
 import { isPlatformBrowser } from '@angular/common';
 import {
   ApplicationConfig,
@@ -45,11 +46,14 @@ export const appConfig: ApplicationConfig = {
     // View transitions let the browser cross-fade the outgoing and incoming
     // pages natively, which is most of what makes a client-side navigation feel
     // less abrupt. Browsers without the API just swap pages, so there is no
-    // fallback to write.
+    // fallback to write. Only between pages: see skipInPageTransitions.
     provideRouter(
       appRoutes,
       withComponentInputBinding(),
-      withViewTransitions({ skipInitialTransition: true }),
+      withViewTransitions({
+        skipInitialTransition: true,
+        onViewTransitionCreated: skipInPageTransitions,
+      }),
       // A new navigation starts at the top, or paging a grid leaves the
       // visitor halfway down. Back and forward return
       // to where the visitor was; the URL carries the page, sort and filters,

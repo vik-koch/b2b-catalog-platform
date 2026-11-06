@@ -13,6 +13,10 @@ export const testGridText: GridText = {
   sortDefault: 'Default order',
   sortAscending: '{column}, ascending',
   sortDescending: '{column}, descending',
+  factAny: 'Any',
+  factHas: 'Has',
+  factMissing: 'Missing',
+  factClearAria: 'Remove {way} {fact}',
   countSuffix: '({count})',
 };
 
