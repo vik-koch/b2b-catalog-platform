@@ -66,7 +66,7 @@ export type OrderingParty = z.infer<typeof orderingPartySchema>;
  * Kept on the order: a guest has no account, and a customer may name a
  * colleague. The name is not `personNameField`: a customer's is copied from
  * the account, which may predate that rule or have come from the exchange, so
- * the forms check the names people type (FR-AUTH-14).
+ * the forms check the names people type.
  */
 export const orderContactSchema = z
   .object({

@@ -88,7 +88,7 @@ export function createCheckoutForms(deps: {
       // A customer's contact is their account's record, never asked.
       hidden(contact, { when: () => !deps.guest() });
       required(contact.name, { message: text.checkout.contact.nameRequired });
-      personName(contact.name);
+      personName(contact.name, fields.name.invalid);
       required(contact.email, { message: fields.email.required });
       emailAddress(contact.email, fields.email.invalid);
       required(contact.phone, { message: fields.phone.required });

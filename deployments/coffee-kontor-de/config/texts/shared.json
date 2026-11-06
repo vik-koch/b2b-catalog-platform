@@ -54,15 +54,18 @@
   "fields": {
     "name": {
       "label": "Name",
-      "required": "Bitte geben Sie Ihren Namen ein."
+      "required": "Bitte geben Sie Ihren Namen ein.",
+      "invalid": "Ein Name enthält keine Ziffern: Bitte geben Sie Ihren Namen ein."
     },
     "firstName": {
       "label": "Vorname",
-      "required": "Bitte geben Sie Ihren Vornamen ein."
+      "required": "Bitte geben Sie Ihren Vornamen ein.",
+      "invalid": "Ein Name enthält keine Ziffern: Bitte geben Sie Ihren Vornamen ein."
     },
     "lastName": {
       "label": "Nachname",
-      "required": "Bitte geben Sie Ihren Nachnamen ein."
+      "required": "Bitte geben Sie Ihren Nachnamen ein.",
+      "invalid": "Ein Name enthält keine Ziffern: Bitte geben Sie Ihren Nachnamen ein."
     },
     "email": {
       "label": "E-Mail",

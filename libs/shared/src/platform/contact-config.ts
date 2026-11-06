@@ -1,6 +1,6 @@
 import * as z from 'zod';
 import { EMAIL_MAX_LENGTH, EMAIL_PATTERN } from './email-format';
-import { PERSON_NAME_MAX_LENGTH } from './person-name';
+import { PERSON_NAME_MAX_LENGTH, PERSON_NAME_PATTERN } from './person-name';
 import {
   normalizeCompanyId,
   type CompanyIdFormat,
@@ -116,10 +116,15 @@ export const lowercaseEmailField = z
  * fail a stored `a@a.a`, and with it every list that row is on. */
 export const storedEmailField = z.string().regex(EMAIL_PATTERN);
 
-/** A first, last or contact name as a person types it (FR-AUTH-14). Only for
- * writes: a stored name may predate the rule, or come from the exchange. */
+/**
+ * A first, last or inquiry name as a person types it. Only for writes: a
+ * stored name may predate the rule, and the customer exchange is not held to
+ * it, as source systems keep placeholders such as "Kunde 123" and refusing
+ * one would fail a run. Such an account is asked again at its next hand edit.
+ */
 export const personNameField = z
   .string()
   .trim()
   .min(1)
-  .max(PERSON_NAME_MAX_LENGTH);
+  .max(PERSON_NAME_MAX_LENGTH)
+  .regex(PERSON_NAME_PATTERN);

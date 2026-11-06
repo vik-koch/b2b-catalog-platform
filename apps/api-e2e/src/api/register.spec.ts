@@ -181,6 +181,13 @@ describe('POST /auth/register', () => {
     expect(await rowsFor(email)).toEqual([]);
   });
 
+  it('rejects a name with a digit in it', async () => {
+    const res = await register({ ...person, lastName: 'D0e' });
+
+    expect(res.status).toBe(400);
+    expect(await rowsFor(NEW_EMAIL)).toEqual([]);
+  });
+
   it('stores both halves of the invoiced party', async () => {
     const res = await register(company);
 

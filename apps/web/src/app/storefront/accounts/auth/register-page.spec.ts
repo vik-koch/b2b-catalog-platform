@@ -216,6 +216,23 @@ describe('RegisterPage', () => {
     expect(el.textContent).toContain(defaultSharedText.fields.email.invalid);
   });
 
+  it('refuses a name with a digit in it', async () => {
+    const { el, sync } = await render();
+
+    setInput(el, '#firstName', 'Jane2');
+    blur(el, '#firstName');
+    setInput(el, '#lastName', 'Doe');
+    blur(el, '#lastName');
+    await sync();
+
+    expect(el.textContent).toContain(
+      defaultSharedText.fields.firstName.invalid,
+    );
+    expect(el.textContent).not.toContain(
+      defaultSharedText.fields.lastName.invalid,
+    );
+  });
+
   // Reward the correction: the message goes on the keystroke that fixes it.
   it('clears the message as soon as the address becomes valid', async () => {
     const { el, sync } = await render();

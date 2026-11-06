@@ -159,8 +159,8 @@ export class AccountEditPage {
     (account) => {
       required(account.firstName, { message: this.fields.firstName.required });
       required(account.lastName, { message: this.fields.lastName.required });
-      personName(account.firstName);
-      personName(account.lastName);
+      personName(account.firstName, this.fields.firstName.invalid);
+      personName(account.lastName, this.fields.lastName.invalid);
       // Optional, but half a number is a typo.
       completeMask(
         account.phone,

@@ -54,15 +54,18 @@
   "fields": {
     "name": {
       "label": "Name",
-      "required": "Please enter your name."
+      "required": "Please enter your name.",
+      "invalid": "A name has no digits: please enter your name."
     },
     "firstName": {
       "label": "First name",
-      "required": "Please enter your first name."
+      "required": "Please enter your first name.",
+      "invalid": "A name has no digits: please enter your first name."
     },
     "lastName": {
       "label": "Last name",
-      "required": "Please enter your last name."
+      "required": "Please enter your last name.",
+      "invalid": "A name has no digits: please enter your last name."
     },
     "email": {
       "label": "Email",

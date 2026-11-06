@@ -171,7 +171,7 @@ export class InquiryPage {
     }),
     (inquiry) => {
       required(inquiry.name, { message: this.fields.name.required });
-      personName(inquiry.name);
+      personName(inquiry.name, this.fields.name.invalid);
       maxLength(inquiry.phone, INQUIRY_PHONE_MAX_LENGTH);
       maxLength(inquiry.message, INQUIRY_MESSAGE_MAX_LENGTH);
       // The chosen channel is required; the other field stays optional. Both

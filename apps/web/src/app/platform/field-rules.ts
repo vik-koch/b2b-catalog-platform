@@ -10,6 +10,7 @@ import {
   digitsOf,
   EMAIL_MAX_LENGTH,
   isEmailAddress,
+  isPersonName,
   maskLength,
   PERSON_NAME_MAX_LENGTH,
 } from '@b2b-catalog-platform/shared/platform';
@@ -49,9 +50,15 @@ export function emailAddress<K extends PathKind>(
   });
 }
 
-/** A person's name holds no digit (FR-AUTH-14). Empty is `required`'s. */
-export function personName<K extends PathKind>(path: StringPath<K>): void {
+/** A person's name holds no digit. Empty is `required`'s. */
+export function personName<K extends PathKind>(
+  path: StringPath<K>,
+  message: string,
+): void {
   maxLength(path, PERSON_NAME_MAX_LENGTH);
+  validate(path, ({ value }) =>
+    isPersonName(value()) ? undefined : { kind: 'personName', message },
+  );
 }
 
 /** Filled to the mask, even where optional: half a number is a typo. */

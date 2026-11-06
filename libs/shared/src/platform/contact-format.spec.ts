@@ -14,9 +14,11 @@ import {
 import {
   emailField,
   lowercaseEmailField,
+  personNameField,
   storedEmailField,
 } from './contact-config';
 import { EMAIL_MAX_LENGTH } from './email-format';
+import { isPersonName } from './person-name';
 
 const config: PhoneConfig = { countryCode: '+49', mask: '(###) ###-####' };
 /** A deployment that fixes a country code but does not group the digits. */
@@ -259,6 +261,27 @@ describe('emailField', () => {
     expect(lowercaseEmailField.parse(' Jane@Example.COM ')).toBe(
       'jane@example.com',
     );
+  });
+});
+
+describe('personNameField', () => {
+  it.each([
+    'Jane',
+    'Anne-Marie',
+    "O'Brien",
+    'Müller',
+    'Łukasz',
+    '张伟',
+    'José María',
+  ])('takes a name as people write it: %s', (name) => {
+    expect(personNameField.safeParse(name).success).toBe(true);
+    expect(isPersonName(name)).toBe(true);
+  });
+
+  // Western digits and those of other scripts alike.
+  it.each(['Jane2', 'Kunde 123', 'Ali ٣'])('refuses a digit: %s', (name) => {
+    expect(personNameField.safeParse(name).success).toBe(false);
+    expect(isPersonName(name)).toBe(false);
   });
 });
 

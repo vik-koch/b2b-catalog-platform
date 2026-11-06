@@ -239,8 +239,8 @@ export class RegisterPage {
       required(registration.lastName, {
         message: this.fields.lastName.required,
       });
-      personName(registration.firstName);
-      personName(registration.lastName);
+      personName(registration.firstName, this.fields.firstName.invalid);
+      personName(registration.lastName, this.fields.lastName.invalid);
       required(registration.email, { message: this.fields.email.required });
       emailAddress(registration.email, this.fields.email.invalid);
       required(registration.phone, { message: this.fields.phone.required });

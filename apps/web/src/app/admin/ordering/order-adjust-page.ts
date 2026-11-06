@@ -491,7 +491,7 @@ export class AdminOrderAdjustPage implements FieldAttempt {
       );
 
       required(contact.name, { message: this.fields.name.required });
-      personName(contact.name);
+      personName(contact.name, this.fields.name.invalid);
       required(contact.email, { message: this.fields.email.required });
       emailAddress(contact.email, this.fields.email.invalid);
       required(contact.phone, { message: this.fields.phone.required });

@@ -86,13 +86,13 @@ export const sharedTextShape = {
   /** A document's size: `{size}` in kilobytes, or megabytes from one up. */
   fileSize: z.object({ kb: z.string(), mb: z.string() }).strict(),
   /** A person's or company's details: the labels, which staff read too, and
-   * the checks as a customer is told about their own. `companyId.format`
-   * carries `{examples}`. */
+   * the checks as a customer is told about their own. A name's `invalid` is
+   * a digit in it; `companyId.format` carries `{examples}`. */
   fields: z
     .object({
-      name: field({ required: z.string() }),
-      firstName: field({ required: z.string() }),
-      lastName: field({ required: z.string() }),
+      name: field({ required: z.string(), invalid: z.string() }),
+      firstName: field({ required: z.string(), invalid: z.string() }),
+      lastName: field({ required: z.string(), invalid: z.string() }),
       email: field({ required: z.string(), invalid: z.string() }),
       phone: field({ required: z.string(), incomplete: z.string() }),
       companyName: field({ required: z.string() }),

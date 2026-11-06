@@ -123,6 +123,18 @@ describe('InquiryPage', () => {
     expect(cap('#message')).toBe(String(INQUIRY_MESSAGE_MAX_LENGTH));
   });
 
+  it('refuses a name with a digit in it', async () => {
+    const { el, submit, sync } = await render();
+
+    setInput(el, '#name', 'Jane D0e');
+    setInput(el, '#email', 'jane@example.com');
+    submitForm(el);
+    await sync();
+
+    expect(submit).not.toHaveBeenCalled();
+    expect(el.textContent).toContain(defaultSharedText.fields.name.invalid);
+  });
+
   it('requires email when "by email" is chosen (the default)', async () => {
     const { el, submit, sync } = await render();
 

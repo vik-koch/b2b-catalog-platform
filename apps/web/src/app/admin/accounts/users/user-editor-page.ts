@@ -496,8 +496,8 @@ export class UserEditorPage implements UnsavedChangesAware {
       }
       required(user.firstName, { message: this.fields.firstName.required });
       required(user.lastName, { message: this.fields.lastName.required });
-      personName(user.firstName);
-      personName(user.lastName);
+      personName(user.firstName, this.fields.firstName.invalid);
+      personName(user.lastName, this.fields.lastName.invalid);
       completeMask(
         user.phone,
         this.phoneInput?.mask,

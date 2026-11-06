@@ -113,6 +113,15 @@
     "texts/storefront.json:accounts.auth.validation.newPasswordTooLong": {
       "new": "Please use at most {max} characters."
     },
+    "texts/shared.json:fields.name.invalid": {
+      "new": "A name has no digits: please enter your name."
+    },
+    "texts/shared.json:fields.firstName.invalid": {
+      "new": "A name has no digits: please enter your first name."
+    },
+    "texts/shared.json:fields.lastName.invalid": {
+      "new": "A name has no digits: please enter your last name."
+    },
     "texts/admin.json:ordering.orders.adjust.lines.suggestionCountAria": {
       "new": "Product suggestions: {count}"
     },
