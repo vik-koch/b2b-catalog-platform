@@ -177,18 +177,17 @@ test.describe('without JavaScript', () => {
 
   test('still searches, because the suggestions sit on top of a real form', async ({
     page,
-    isMobile,
   }) => {
     // The one that would silently rot: the field is SSR'd into every page, and
     // a form without action/method submits to the current URL, sending the
     // home page's box to /?q=…, as if nothing happened.
-    test.skip(isMobile, 'the mobile toggle needs JavaScript to open the field');
     await page.goto('/');
 
     // Still addressed as a combobox: the role is in the SSR'd markup and does
     // not wait for hydration to appear.
     await page.getByRole('combobox', { name: 'Search products' }).fill('hafen');
-    await page.getByRole('button', { name: 'Search' }).click();
+    // Exact: on a phone the tab bar has a search button of its own.
+    await page.getByRole('button', { name: 'Search', exact: true }).click();
 
     await expect(page).toHaveURL(/\/search\?q=hafen$/);
     // A tile links to its product twice (image and name), so this takes the

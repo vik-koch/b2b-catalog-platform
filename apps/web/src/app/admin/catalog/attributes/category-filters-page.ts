@@ -26,7 +26,6 @@ import { delayedLoading } from '../../../platform/delayed-loading';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { Checkbox } from '@b2b-catalog-platform/ui/choices/checkbox';
 import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
-import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Link } from '@b2b-catalog-platform/ui/actions/link';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
@@ -71,7 +70,6 @@ function isCategoryPanel(panel: Panel): panel is CategoryFilters {
     Button,
     Checkbox,
     IconButton,
-    Icon,
     RecordRow,
     Skeleton,
     Link,

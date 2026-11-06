@@ -1,6 +1,6 @@
 import { defaultStorefrontAccountsText } from '../accounts-text.fixture';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
-import { signal } from '@angular/core';
+import { PLATFORM_ID, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
@@ -30,7 +30,11 @@ function submitForm(root: HTMLElement): void {
   root.querySelector<HTMLButtonElement>('button[type="submit"]')?.click();
 }
 
-async function render(result: LoginResult = 'ok', signedIn: AuthUser = admin) {
+async function render(
+  result: LoginResult = 'ok',
+  signedIn: AuthUser = admin,
+  platform: 'browser' | 'server' = 'browser',
+) {
   const user = signal<AuthUser | null>(null);
   const login = vi.fn<SignInService['login']>().mockImplementation(async () => {
     if (result === 'ok') user.set(signedIn);
@@ -45,6 +49,7 @@ async function render(result: LoginResult = 'ok', signedIn: AuthUser = admin) {
       { provide: SHARED_TEXT, useValue: defaultSharedText },
       { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
       { provide: AuthService, useValue: { user } },
+      { provide: PLATFORM_ID, useValue: platform },
       {
         provide: SignInService,
         useValue: {
@@ -81,6 +86,18 @@ async function render(result: LoginResult = 'ok', signedIn: AuthUser = admin) {
 }
 
 describe('LoginPage', () => {
+  // A password typed before hydration is dropped, or sent in the URL by a
+  // form that has no handler yet (NFR-SEO-05).
+  it('takes no input as the server renders it', async () => {
+    const { el } = await render('ok', admin, 'server');
+
+    const inputs = [...el.querySelectorAll('input:not([tabindex="-1"])')];
+    expect(inputs.length).toBeGreaterThanOrEqual(2);
+    for (const input of inputs) {
+      expect(input.hasAttribute('readonly')).toBe(true);
+    }
+  });
+
   it('blocks submit and reports both missing fields', async () => {
     const { el, login, sync } = await render();
 

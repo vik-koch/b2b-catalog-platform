@@ -10,7 +10,12 @@ import {
 } from '../../../core/accounts/addresses/address-form';
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
-import { completeMask, emailAddress } from '../../../platform/field-rules';
+import {
+  completeMask,
+  emailAddress,
+  personName,
+  untilInteractive,
+} from '../../../platform/field-rules';
 import { companyIdFormat } from '../../../core/accounts/parties/company-id';
 import { CheckoutDraft, PartyChoice } from './checkout-draft';
 
@@ -63,6 +68,7 @@ export function createCheckoutForms(deps: {
   const field = form(
     model,
     (answers) => {
+      untilInteractive(answers);
       const { party, contact } = answers;
       // A guest's private party is the contact: one name, asked once.
       hidden(party.personName, {
@@ -84,6 +90,7 @@ export function createCheckoutForms(deps: {
       // A customer's contact is their account's record, never asked.
       hidden(contact, { when: () => !deps.guest() });
       required(contact.name, { message: text.checkout.contact.nameRequired });
+      personName(contact.name, fields.name.invalid);
       required(contact.email, { message: fields.email.required });
       emailAddress(contact.email, fields.email.invalid);
       required(contact.phone, { message: fields.phone.required });

@@ -8,6 +8,7 @@ export * from './contact-config';
 export * from './contact-format';
 export * from './deep-readonly';
 export * from './email-format';
+export * from './person-name';
 export * from './fill-text';
 export * from './form-fields.contract';
 export * from './iso-day';

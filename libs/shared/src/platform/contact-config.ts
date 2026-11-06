@@ -1,5 +1,6 @@
 import * as z from 'zod';
-import { EMAIL_PATTERN } from './email-format';
+import { EMAIL_MAX_LENGTH, EMAIL_PATTERN } from './email-format';
+import { PERSON_NAME_MAX_LENGTH, PERSON_NAME_PATTERN } from './person-name';
 import {
   normalizeCompanyId,
   type CompanyIdFormat,
@@ -99,16 +100,31 @@ export const companyRegistrationIdSchema = z.preprocess(
 /** Free text and not a key: no registry spelling outranks the company's own. */
 export const companyNameSchema = z.string().trim().min(1).max(255);
 
-const emailRule = (max: number) => z.string().regex(EMAIL_PATTERN).max(max);
+const emailRule = z.string().regex(EMAIL_PATTERN).max(EMAIL_MAX_LENGTH);
 
 /** Trimmed before the check, as a pasted address often carries a space. */
-export const emailField = (max: number) =>
-  z.string().trim().pipe(emailRule(max));
+export const emailField = z.string().trim().pipe(emailRule);
 
 /** The same, for the addresses stored and looked up in lower case. */
-export const lowercaseEmailField = (max: number) =>
-  z.string().trim().toLowerCase().pipe(emailRule(max));
+export const lowercaseEmailField = z
+  .string()
+  .trim()
+  .toLowerCase()
+  .pipe(emailRule);
 
 /** A read applies the write's rule and no more: a stricter `z.email()` would
  * fail a stored `a@a.a`, and with it every list that row is on. */
 export const storedEmailField = z.string().regex(EMAIL_PATTERN);
+
+/**
+ * A first, last or inquiry name as a person types it. Only for writes: a
+ * stored name may predate the rule, and the customer exchange is not held to
+ * it, as source systems keep placeholders such as "Kunde 123" and refusing
+ * one would fail a run. Such an account is asked again at its next hand edit.
+ */
+export const personNameField = z
+  .string()
+  .trim()
+  .min(1)
+  .max(PERSON_NAME_MAX_LENGTH)
+  .regex(PERSON_NAME_PATTERN);

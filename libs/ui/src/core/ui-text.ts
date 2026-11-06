@@ -6,6 +6,8 @@ export interface UiText {
   readonly required: string;
   /** Caption and accessible name of a missing picture. */
   readonly imagePlaceholder: string;
+  /** The label of the decoy field bots fill; nobody sees or hears it. */
+  readonly honeypot: string;
   /** The toggle under something cut short, before and after it opens. */
   readonly showMore: string;
   readonly showLess: string;

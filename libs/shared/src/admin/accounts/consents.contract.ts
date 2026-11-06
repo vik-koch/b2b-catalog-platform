@@ -7,6 +7,7 @@ import {
   CONSENT_WITHDRAWAL_REASONS,
 } from '../../core/site/consents';
 import { USER_STATUSES } from '../../core/accounts/users';
+import { EMAIL_MAX_LENGTH } from '../../platform/email-format';
 
 /**
  * One consent as staff read it (NFR-LEGAL-09), with the box wording that was
@@ -89,7 +90,7 @@ export const consentRecordListSchema = z
  */
 export const findConsentsQuerySchema = z
   .object({
-    email: z.string().trim().max(320).optional(),
+    email: z.string().trim().max(EMAIL_MAX_LENGTH).optional(),
     /** As the forms store it: the country code and the digits. */
     phone: z.string().trim().max(50).optional(),
   })

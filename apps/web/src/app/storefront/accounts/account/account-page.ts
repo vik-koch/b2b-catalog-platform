@@ -38,12 +38,11 @@ import {
   formatPersonName,
 } from '@b2b-catalog-platform/shared/core/accounts';
 
-/** An answer of any kind; `isLoading` alone is false before the start. */
-function settled(resource: {
-  isLoading: Signal<boolean>;
-  status: Signal<string>;
-}): boolean {
-  return !resource.isLoading() && resource.status() !== 'idle';
+/** An answer of any kind, kept while a reload fetches the next one: a removed
+ * address must not drop both cards back to skeleton bars. */
+function settled(resource: { status: Signal<string> }): boolean {
+  const status = resource.status();
+  return status !== 'idle' && status !== 'loading';
 }
 
 /**

@@ -17,7 +17,7 @@ const EnvSchema = z
     RUN_MODE: z.enum(['migrate', 'bootstrap-admin']).optional(),
     // The bootstrap admin, required in that mode only. The app's own email
     // rule: an address registration accepts must not stop the boot.
-    ADMIN_EMAIL: emailField(320).optional(),
+    ADMIN_EMAIL: emailField.optional(),
     ADMIN_PASSWORD: z.string().min(8).optional(),
     // Off for a stack reset to a seed bundle, which recreates the account on
     // every reset and would ask again each time.

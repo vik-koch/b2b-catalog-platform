@@ -386,10 +386,9 @@ export class ApiTokenListPage {
   /** A token nobody uses looks like a working one until this line says so. */
   protected usedLine(token: ApiToken): string {
     if (!token.lastUsedAt) return this.text.neverUsed;
-    return this.text.lastUsed.replace(
-      '{date}',
-      this.moment().format(new Date(token.lastUsedAt)),
-    );
+    return fillText(this.text.lastUsed, {
+      date: this.moment().format(new Date(token.lastUsedAt)),
+    });
   }
 
   protected startAdd(): void {

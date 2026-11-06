@@ -204,6 +204,8 @@ export const storefrontAccountsTextShape = {
           newPasswordRequired: z.string(),
           /** Carries the minimum length; `{min}` is substituted at render. */
           newPasswordTooShort: z.string(),
+          /** The ceiling, `{max}`: only a generator reaches it. */
+          newPasswordTooLong: z.string(),
           confirmPasswordMismatch: z.string(),
         })
         .strict(),

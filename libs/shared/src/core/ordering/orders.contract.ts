@@ -19,6 +19,7 @@ import {
   companyRegistrationIdSchema,
   lowercaseEmailField,
 } from '../../platform/contact-config';
+import { PERSON_NAME_MAX_LENGTH } from '../../platform/person-name';
 import { cartLineSchema, cartPreviewSchema } from './cart.contract';
 import { CART_LINES_MAX } from './cart';
 import {
@@ -61,12 +62,16 @@ export const orderingPartySchema = z
   .strict();
 export type OrderingParty = z.infer<typeof orderingPartySchema>;
 
-/** Kept on the order: a guest has no account, and a customer may name a
- * colleague. */
+/**
+ * Kept on the order: a guest has no account, and a customer may name a
+ * colleague. The name is not `personNameField`: a customer's is copied from
+ * the account, which may predate that rule or have come from the exchange, so
+ * the forms check the names people type.
+ */
 export const orderContactSchema = z
   .object({
-    name: z.string().trim().min(1).max(200),
-    email: lowercaseEmailField(255),
+    name: z.string().trim().min(1).max(PERSON_NAME_MAX_LENGTH),
+    email: lowercaseEmailField,
     phone: z.string().trim().min(1).max(50),
   })
   .strict();

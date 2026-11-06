@@ -40,6 +40,8 @@ import { GridColumn } from '@b2b-catalog-platform/ui/grid/grid-column';
 import { GridFilterOption } from '@b2b-catalog-platform/ui/grid/grid-filter-select';
 import { GridCardTemplate } from '@b2b-catalog-platform/ui/grid/grid-card-template';
 import { GridRowTemplate } from '@b2b-catalog-platform/ui/grid/grid-row-template';
+import { GridTitle } from '@b2b-catalog-platform/ui/grid/grid-title';
+import { GridTitleLink } from '@b2b-catalog-platform/ui/grid/grid-title-link';
 import { GridTimestamp } from '../../platform/dates/grid-timestamp';
 import { GridHeader } from '@b2b-catalog-platform/ui/grid/grid-header';
 import { RecordRow } from '@b2b-catalog-platform/ui/lists/record-row';
@@ -78,6 +80,8 @@ type DocumentStatusFilter = (typeof STATUS_FILTERS)[number];
     GridHeader,
     DataGrid,
     GridRowTemplate,
+    GridTitle,
+    GridTitleLink,
     GridCardTemplate,
     GridTimestamp,
     RecordRow,
@@ -127,17 +131,17 @@ type DocumentStatusFilter = (typeof STATUS_FILTERS)[number];
       >
         <ng-template uiGridRow [of]="data" let-document>
           <!-- The title opens the file, or the link where there is none. -->
-          <td class="truncate">
-            <a
-              class="block truncate wrap-break-word font-medium text-ink
-                     hover:text-accent"
-              [href]="opens(document)"
-              target="_blank"
-              rel="noopener"
-              [title]="document.title"
-            >
-              {{ document.title }}
-            </a>
+          <td>
+            <ui-grid-title>
+              <a
+                uiGridTitleLink
+                [href]="opens(document)"
+                target="_blank"
+                rel="noopener"
+                [title]="document.title"
+                >{{ document.title }}</a
+              >
+            </ui-grid-title>
           </td>
           <td class="truncate text-ink-subtle" [title]="names(document)">
             <span class="block truncate">{{ fileLabel(document) }}</span>

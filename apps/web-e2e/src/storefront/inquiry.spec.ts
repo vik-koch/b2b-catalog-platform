@@ -21,8 +21,12 @@ test('submitting the inquiry form delivers an email to the shop', async ({
   // A per-run token keeps the Mailpit assertion isolated: the mobile-chrome
   // project runs this same spec against the same sink in parallel, so we search
   // for our own message instead of clearing shared state and counting. Hyphens
-  // are stripped: Mailpit reads a leading '-' as exclusion.
-  const name = `Jane Doe ${randomUUID().replaceAll('-', '')}`;
+  // are stripped, as Mailpit reads a leading '-' as exclusion, and digits
+  // spelled as letters, as a person's name holds none.
+  const token = randomUUID()
+    .replaceAll('-', '')
+    .replace(/\d/g, (digit) => 'ghijklmnop'[Number(digit)]);
+  const name = `Jane Doe ${token}`;
 
   await page.goto('/inquiry');
 

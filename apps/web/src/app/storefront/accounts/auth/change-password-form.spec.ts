@@ -1,3 +1,4 @@
+import { fillText } from '@b2b-catalog-platform/shared/platform';
 import { defaultStorefrontAccountsText } from '../accounts-text.fixture';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
@@ -6,7 +7,10 @@ import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
 import { defaultStorefrontText } from '../../../platform/config/storefront-text.fixture';
 import { SignInService, ChangePasswordResult } from './sign-in.service';
 import { ChangePasswordForm } from './change-password-form';
-import { PASSWORD_MIN_LENGTH } from '@b2b-catalog-platform/shared/core/accounts';
+import {
+  PASSWORD_MAX_LENGTH,
+  PASSWORD_MIN_LENGTH,
+} from '@b2b-catalog-platform/shared/core/accounts';
 
 const text = defaultStorefrontAccountsText.auth.changePassword;
 const validation = defaultStorefrontAccountsText.auth.validation;
@@ -90,6 +94,24 @@ describe('ChangePasswordForm', () => {
         '{min}',
         String(PASSWORD_MIN_LENGTH),
       ),
+    );
+  });
+
+  // Not "too short": the one message used to cover both ends.
+  it('says a password over the ceiling is too long', async () => {
+    const { el, changePassword, submit, sync } = await render();
+    const tooLong = 'a'.repeat(PASSWORD_MAX_LENGTH + 1);
+
+    fill(el, { next: tooLong, confirm: tooLong });
+    submit();
+    await sync();
+
+    expect(changePassword).not.toHaveBeenCalled();
+    expect(el.textContent).toContain(
+      fillText(validation.newPasswordTooLong, { max: PASSWORD_MAX_LENGTH }),
+    );
+    expect(el.textContent).not.toContain(
+      fillText(validation.newPasswordTooShort, { min: PASSWORD_MIN_LENGTH }),
     );
   });
 

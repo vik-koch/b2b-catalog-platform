@@ -38,7 +38,7 @@ export const customerSyncRowSchema = z
   .object({
     sourceId: z.string().trim().min(1).max(255),
     /** Required to create; writable after, as the holder cannot change it. */
-    email: lowercaseEmailField(255).optional(),
+    email: lowercaseEmailField.optional(),
     /** The platform's id, from the outward read (FR-ADM-18). Read only to
      * claim a keyless account (FR-ADM-17); a key always wins (FR-ADM-14). */
     accountId: z.uuid().optional(),

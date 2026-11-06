@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { Client } from 'pg';
+import { EMAIL_MAX_LENGTH } from '@b2b-catalog-platform/shared/platform';
 import { consentVersion } from '../support/consent';
 import { requireEnv } from '../support/env';
 import { deleteMatching, messagesMatching } from '../support/mailpit';
@@ -169,6 +170,22 @@ describe('POST /auth/register', () => {
 
     expect(res.status).toBe(400);
     await expectNoMail();
+  });
+
+  // Longer than the column: refused by the contract, not by the insert.
+  it('rejects an address over the length cap with a 400', async () => {
+    const email = `${'a'.repeat(EMAIL_MAX_LENGTH)}@example.com`;
+    const res = await register({ ...person, email });
+
+    expect(res.status).toBe(400);
+    expect(await rowsFor(email)).toEqual([]);
+  });
+
+  it('rejects a name with a digit in it', async () => {
+    const res = await register({ ...person, lastName: 'D0e' });
+
+    expect(res.status).toBe(400);
+    expect(await rowsFor(NEW_EMAIL)).toEqual([]);
   });
 
   it('stores both halves of the invoiced party', async () => {

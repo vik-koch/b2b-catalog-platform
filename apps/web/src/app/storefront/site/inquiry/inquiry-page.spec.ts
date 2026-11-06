@@ -1,4 +1,8 @@
-import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import {
+  provideUiText,
+  SHARED_TEXT,
+} from '../../../platform/config/shared-text';
+import { PLATFORM_ID } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import type { DeploymentConfigFile } from '@b2b-catalog-platform/shared/deployment';
 import { Page } from '@b2b-catalog-platform/shared/core/site';
@@ -7,6 +11,14 @@ import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
 import { defaultStorefrontText } from '../../../platform/config/storefront-text.fixture';
 import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
+import {
+  EMAIL_MAX_LENGTH,
+  PERSON_NAME_MAX_LENGTH,
+} from '@b2b-catalog-platform/shared/platform';
+import {
+  INQUIRY_MESSAGE_MAX_LENGTH,
+  INQUIRY_PHONE_MAX_LENGTH,
+} from '@b2b-catalog-platform/shared/storefront/site';
 import { InquiryPage } from './inquiry-page';
 import { InquiryService } from './inquiry.service';
 import { PageService } from '../../../core/site/page.service';
@@ -56,7 +68,11 @@ function submitForm(root: HTMLElement): void {
 }
 
 async function render(
-  options: { config?: DeploymentConfigFile; page?: Page | null } = {},
+  options: {
+    config?: DeploymentConfigFile;
+    page?: Page | null;
+    platform?: 'browser' | 'server';
+  } = {},
 ) {
   const submit = vi.fn<InquiryService['submit']>().mockResolvedValue('ok');
   const getPage = vi
@@ -70,9 +86,11 @@ async function render(
       provideRouter([]),
       { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
       { provide: SHARED_TEXT, useValue: defaultSharedText },
+      provideUiText(),
       { provide: DEPLOYMENT_CONFIG, useValue: options.config ?? testConfig },
       { provide: InquiryService, useValue: { submit } },
       { provide: PageService, useValue: { getPage } },
+      { provide: PLATFORM_ID, useValue: options.platform ?? 'browser' },
     ],
   });
 
@@ -98,6 +116,43 @@ describe('InquiryPage', () => {
 
     expect(submit).not.toHaveBeenCalled();
     expect(el.textContent).toContain(defaultSharedText.fields.name.required);
+  });
+
+  it('refuses input as the server renders it, which hydration would drop', async () => {
+    const { el } = await render({ platform: 'server' });
+
+    for (const id of ['#name', '#email', '#phone', '#message']) {
+      expect(el.querySelector(id)?.hasAttribute('readonly')).toBe(true);
+    }
+  });
+
+  it('takes input once the browser has rendered it', async () => {
+    const { el } = await render();
+
+    expect(el.querySelector('#name')?.hasAttribute('readonly')).toBe(false);
+  });
+
+  it("caps the fields at the contract's lengths", async () => {
+    const { el } = await render();
+    const cap = (selector: string) =>
+      el.querySelector(selector)?.getAttribute('maxlength');
+
+    expect(cap('#name')).toBe(String(PERSON_NAME_MAX_LENGTH));
+    expect(cap('#email')).toBe(String(EMAIL_MAX_LENGTH));
+    expect(cap('#phone')).toBe(String(INQUIRY_PHONE_MAX_LENGTH));
+    expect(cap('#message')).toBe(String(INQUIRY_MESSAGE_MAX_LENGTH));
+  });
+
+  it('refuses a name with a digit in it', async () => {
+    const { el, submit, sync } = await render();
+
+    setInput(el, '#name', 'Jane D0e');
+    setInput(el, '#email', 'jane@example.com');
+    submitForm(el);
+    await sync();
+
+    expect(submit).not.toHaveBeenCalled();
+    expect(el.textContent).toContain(defaultSharedText.fields.name.invalid);
   });
 
   it('requires email when "by email" is chosen (the default)', async () => {

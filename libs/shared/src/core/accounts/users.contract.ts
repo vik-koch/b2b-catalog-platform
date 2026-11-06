@@ -9,6 +9,7 @@ import {
   companyNameSchema,
   companyRegistrationIdSchema,
   emailField,
+  personNameField,
   storedEmailField,
 } from '../../platform/contact-config';
 import { userRoleSchema } from '../../platform/session.contract';
@@ -64,8 +65,8 @@ export type StaffUser = z.infer<typeof staffUserSchema>;
  */
 export const updateUserSchema = z
   .object({
-    firstName: z.string().trim().min(1).max(200),
-    lastName: z.string().trim().min(1).max(200),
+    firstName: personNameField,
+    lastName: personNameField,
     /** Null clears it; staff accounts often have none. */
     phone: z.string().trim().max(50).nullable(),
     customerType: customerTypeSchema.nullable(),
@@ -104,11 +105,11 @@ export type UpdateUserRequest = z.infer<typeof updateUserSchema>;
  * password, as an approved registration does. */
 export const createUserSchema = z
   .object({
-    email: emailField(320),
+    email: emailField,
     role: userRoleSchema,
     tierId: z.uuid().nullable(),
-    firstName: z.string().trim().min(1).max(200),
-    lastName: z.string().trim().min(1).max(200),
+    firstName: personNameField,
+    lastName: personNameField,
     phone: z.string().trim().max(50).optional(),
     customerType: customerTypeSchema.optional(),
     companyName: companyNameSchema.optional(),

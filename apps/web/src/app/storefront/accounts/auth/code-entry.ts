@@ -13,8 +13,6 @@ import {
 import { form, maxLength, pattern, required } from '@angular/forms/signals';
 import { fillText } from '@b2b-catalog-platform/shared/platform';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
-import { Checkbox } from '@b2b-catalog-platform/ui/choices/checkbox';
-import { TickLabel } from '@b2b-catalog-platform/ui/choices/tick-label';
 import { CodeInput } from '@b2b-catalog-platform/ui/inputs/code-input';
 import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
 import { SubmitAttempt } from '@b2b-catalog-platform/ui/fields/submit-attempt';
@@ -22,11 +20,13 @@ import { TextButton } from '@b2b-catalog-platform/ui/actions/text-button';
 import type { CodeResult, SendResult } from './sign-in.service';
 import { formatWait, tickingNow } from './countdown';
 import { placeholderRuns } from './placeholder-runs';
+import { RememberBrowser } from './ui/remember-browser';
 import { sendFailureLine } from './send-failure-line';
 import {
   CodeSent,
   SIGN_IN_CODE_LENGTH,
 } from '@b2b-catalog-platform/shared/core/accounts';
+import { untilInteractive } from '../../../platform/field-rules';
 
 /**
  * Entering a code sent to a phone; the caller supplies what a code and a
@@ -35,7 +35,7 @@ import {
  */
 @Component({
   selector: 'app-code-entry',
-  imports: [FORM_FIELDS, Button, Checkbox, TickLabel, CodeInput, TextButton],
+  imports: [FORM_FIELDS, Button, CodeInput, RememberBrowser, TextButton],
   host: { class: 'block' },
   template: `
     <p class="text-ink-subtle">
@@ -55,20 +55,10 @@ import {
       <!-- Above the boxes, not below: six digits submit by themselves, so a
            box after them would be passed before anyone reached it. -->
       @if (rememberDays() > 0) {
-        <div>
-          <label uiTickLabel>
-            <input
-              uiCheckbox
-              type="checkbox"
-              [formField]="form.remember"
-              aria-describedby="rememberBrowserHint"
-            />
-            <span>{{ rememberLabel() }}</span>
-          </label>
-          <p id="rememberBrowserHint" class="mt-1 pl-6 text-sm text-ink-subtle">
-            {{ text.rememberHint }}
-          </p>
-        </div>
+        <app-remember-browser
+          [days]="rememberDays()"
+          [formField]="form.remember"
+        />
       }
 
       <ui-field
@@ -142,9 +132,6 @@ export class CodeEntry {
     input.required<(code: string, remember: boolean) => Promise<CodeResult>>();
   /** Above 0, a box offers to remember this browser for that many days. */
   readonly rememberDays = input(0);
-  protected readonly rememberLabel = computed(() =>
-    fillText(this.text.remember, { days: this.rememberDays() }),
-  );
   readonly resendCode = input.required<() => Promise<SendResult>>();
   /** The wait a "no new code yet" refusal named, in seconds. */
   readonly retryAfter = input<() => number | null>(() => null);
@@ -173,6 +160,7 @@ export class CodeEntry {
   protected readonly form = form(
     this.model,
     (entry) => {
+      untilInteractive(entry);
       required(entry.code, { message: this.text.codeRequired });
       maxLength(entry.code, SIGN_IN_CODE_LENGTH);
       pattern(entry.code, new RegExp(`^\\d{${SIGN_IN_CODE_LENGTH}}$`), {

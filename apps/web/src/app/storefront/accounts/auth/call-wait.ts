@@ -13,11 +13,10 @@ import {
 } from '@angular/core';
 import { fillText } from '@b2b-catalog-platform/shared/platform';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
-import { Checkbox } from '@b2b-catalog-platform/ui/choices/checkbox';
-import { TickLabel } from '@b2b-catalog-platform/ui/choices/tick-label';
 import type { CallResult, SendResult } from './sign-in.service';
 import { formatWait, tickingNow } from './countdown';
 import { placeholderRuns } from './placeholder-runs';
+import { RememberBrowser } from './ui/remember-browser';
 import { sendFailureLine } from './send-failure-line';
 import { CallStep } from '@b2b-catalog-platform/shared/core/accounts';
 
@@ -31,7 +30,7 @@ const POLL_MS = 3000;
  */
 @Component({
   selector: 'app-call-wait',
-  imports: [Button, Checkbox, TickLabel],
+  imports: [Button, RememberBrowser],
   host: { class: 'block' },
   template: `
     <p class="text-ink-subtle">
@@ -49,21 +48,10 @@ const POLL_MS = 3000;
 
     <div class="mt-6 space-y-6">
       @if (step().rememberDays > 0) {
-        <div>
-          <label uiTickLabel>
-            <input
-              uiCheckbox
-              type="checkbox"
-              [checked]="remember()"
-              (change)="remember.set($any($event.target).checked)"
-              aria-describedby="rememberBrowserHint"
-            />
-            <span>{{ rememberLabel() }}</span>
-          </label>
-          <p id="rememberBrowserHint" class="mt-1 pl-6 text-sm text-ink-subtle">
-            {{ text.rememberHint }}
-          </p>
-        </div>
+        <app-remember-browser
+          [days]="step().rememberDays"
+          [(checked)]="remember"
+        />
       }
 
       @if (!byMail() && !over()) {
@@ -123,9 +111,6 @@ export class CallWait {
   readonly restart = output<void>();
 
   protected readonly remember = signal(false);
-  protected readonly rememberLabel = computed(() =>
-    fillText(this.text.remember, { days: this.step().rememberDays }),
-  );
   protected readonly byMail = computed(() => this.step().sentTo !== undefined);
 
   protected readonly intro = computed(() => {

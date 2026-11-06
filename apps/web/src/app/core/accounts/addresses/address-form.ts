@@ -1,6 +1,7 @@
 import { ACCOUNTS_CONFIG } from '../accounts-config';
 import { computed, inject, signal } from '@angular/core';
 import {
+  apply,
   form,
   maxLength,
   required,
@@ -20,6 +21,7 @@ import {
   postalCodeMatches,
   postalCodeRuleFor,
 } from '@b2b-catalog-platform/shared/core/accounts';
+import { untilInteractive } from '../../../platform/field-rules';
 
 type Countries = NonNullable<AccountsConfig['address']>['countries'];
 
@@ -146,9 +148,14 @@ export function createAddressForm(
   submission?: FormSubmitOptions<AddressDraft, unknown>,
 ): AddressForm {
   const countries = inject(ACCOUNTS_CONFIG).address?.countries;
-  const field = form(signal(blankAddress(countries)), injectAddressRules(), {
-    name: 'address',
-    submission,
-  });
+  const rules = injectAddressRules();
+  const field = form(
+    signal(blankAddress(countries)),
+    (address) => {
+      untilInteractive(address);
+      apply(address, rules);
+    },
+    { name: 'address', submission },
+  );
   return new AddressForm(field, countries);
 }

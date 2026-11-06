@@ -253,6 +253,7 @@
         "currentPasswordRequired": "Bitte geben Sie Ihr aktuelles Passwort ein.",
         "newPasswordRequired": "Bitte geben Sie ein neues Passwort ein.",
         "newPasswordTooShort": "Bitte verwenden Sie mindestens {min} Zeichen.",
+        "newPasswordTooLong": "Bitte verwenden Sie höchstens {max} Zeichen.",
         "confirmPasswordMismatch": "Die beiden Passwörter stimmen nicht überein."
       },
       "passwordRejected": {

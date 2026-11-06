@@ -5,6 +5,7 @@ import { UI_TEXT, UiText } from './ui-text';
 export const testUiText: UiText = {
   required: 'required',
   imagePlaceholder: 'No image',
+  honeypot: 'Leave this field empty',
   showMore: 'Show more',
   showLess: 'Show less',
   pagination: {

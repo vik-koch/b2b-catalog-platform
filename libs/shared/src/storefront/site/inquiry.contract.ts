@@ -1,21 +1,29 @@
 import { oc } from '@orpc/contract';
 import * as z from 'zod';
-import { emailField } from '../../platform/contact-config';
+import { emailField, personNameField } from '../../platform/contact-config';
 import {
   blankAsAbsent,
   honeypotField,
 } from '../../platform/form-fields.contract';
 import { consentErrors } from '../../core/site/pages';
 import { consentVersionField } from '../../core/site/page.contract';
+import {
+  INQUIRY_MESSAGE_MAX_LENGTH,
+  INQUIRY_PHONE_MAX_LENGTH,
+} from './inquiry';
 
 /** At least one of email or phone; `preferredContact` says which to use. */
 export const inquiryRequestSchema = z
   .object({
-    name: z.string().trim().min(1).max(200),
-    email: blankAsAbsent(emailField(320).optional()),
-    phone: blankAsAbsent(z.string().trim().max(50).optional()),
+    name: personNameField,
+    email: blankAsAbsent(emailField.optional()),
+    phone: blankAsAbsent(
+      z.string().trim().max(INQUIRY_PHONE_MAX_LENGTH).optional(),
+    ),
     preferredContact: z.enum(['email', 'phone']),
-    message: blankAsAbsent(z.string().trim().max(5000).optional()),
+    message: blankAsAbsent(
+      z.string().trim().max(INQUIRY_MESSAGE_MAX_LENGTH).optional(),
+    ),
     website: honeypotField,
     consentVersion: consentVersionField,
   })

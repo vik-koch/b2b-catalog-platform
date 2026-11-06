@@ -8,7 +8,12 @@ import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { usePageSeo } from '../../../platform/page-seo';
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import { canonicalPhone } from '../../../platform/contact-fields';
-import { completeMask, emailAddress } from '../../../platform/field-rules';
+import {
+  completeMask,
+  emailAddress,
+  personName,
+  untilInteractive,
+} from '../../../platform/field-rules';
 import { CompanyFields } from '../../../core/accounts/parties/company-fields';
 import { companyIdFormat } from '../../../core/accounts/parties/company-id';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
@@ -165,11 +170,7 @@ interface Registration {
             <ui-phone-input [field]="form.phone" [phone]="phoneInput" />
           </ui-field>
 
-          <ui-honeypot-field
-            controlId="website"
-            [field]="form.website"
-            label="Leave this field empty"
-          />
+          <ui-honeypot-field controlId="website" [field]="form.website" />
 
           <app-consent-field [consent]="consent" />
 
@@ -233,12 +234,15 @@ export class RegisterPage {
   protected readonly form = form(
     this.model,
     (registration) => {
+      untilInteractive(registration);
       required(registration.firstName, {
         message: this.fields.firstName.required,
       });
       required(registration.lastName, {
         message: this.fields.lastName.required,
       });
+      personName(registration.firstName, this.fields.firstName.invalid);
+      personName(registration.lastName, this.fields.lastName.invalid);
       required(registration.email, { message: this.fields.email.required });
       emailAddress(registration.email, this.fields.email.invalid);
       required(registration.phone, { message: this.fields.phone.required });

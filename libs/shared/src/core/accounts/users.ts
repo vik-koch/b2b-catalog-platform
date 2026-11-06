@@ -35,3 +35,6 @@ export const ACCOUNT_DELETION_REASONS = [
   'request',
   'consent-withdrawn',
 ] as const;
+
+/** The longest search the staff account list takes, in its field too. */
+export const USER_QUERY_MAX_LENGTH = 200;

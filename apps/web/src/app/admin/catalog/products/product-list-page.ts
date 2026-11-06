@@ -63,6 +63,9 @@ import {
 } from './product-grid-query';
 import { GridCardTemplate } from '@b2b-catalog-platform/ui/grid/grid-card-template';
 import { GridRowTemplate } from '@b2b-catalog-platform/ui/grid/grid-row-template';
+import { GridKey } from '@b2b-catalog-platform/ui/grid/grid-key';
+import { GridTitle } from '@b2b-catalog-platform/ui/grid/grid-title';
+import { GridTitleLink } from '@b2b-catalog-platform/ui/grid/grid-title-link';
 import { GridTimestamp } from '../../platform/dates/grid-timestamp';
 import { RecordRow } from '@b2b-catalog-platform/ui/lists/record-row';
 import { GridHeader } from '@b2b-catalog-platform/ui/grid/grid-header';
@@ -115,6 +118,9 @@ function knownValues<T extends string>(
     GridHeader,
     DataGrid,
     GridRowTemplate,
+    GridKey,
+    GridTitle,
+    GridTitleLink,
     GridCardTemplate,
     GridPagination,
     GridTimestamp,
@@ -190,20 +196,14 @@ function knownValues<T extends string>(
             </div>
           </td>
           <td>
-            <!-- The sync key trails the name in one flow, so a wrapping name
-                 does not push it onto a line of its own. -->
-            <div class="line-clamp-3 wrap-break-word [word-spacing:0.25rem]">
+            <ui-grid-title [key]="item.sourceId">
               <a
+                uiGridTitleLink
                 [routerLink]="['/product', item.slug]"
                 [queryParams]="editorFrom()"
-                class="align-middle font-medium text-ink hover:text-accent [word-spacing:normal]"
                 >{{ item.name }}</a
-              >&ngsp;<span
-                class="inline-block max-w-full truncate rounded-sm bg-surface px-1.5 py-0.5 align-middle font-mono text-xs [word-spacing:normal]"
-                [title]="item.sourceId"
-                >{{ item.sourceId }}</span
               >
-            </div>
+            </ui-grid-title>
             <ng-container
               [ngTemplateOutlet]="content"
               [ngTemplateOutletContext]="{ $implicit: item }"
@@ -299,12 +299,9 @@ function knownValues<T extends string>(
               [state]="stateOf(item)"
               [live]="true"
             />
-            <span
-              class="max-w-full truncate rounded-sm bg-surface px-1.5 py-0.5
-                     font-mono text-xs"
-              [class.opacity-50]="isDeleted(item)"
-              >{{ item.sourceId }}</span
-            >
+            <span uiGridKey [class.opacity-50]="isDeleted(item)">{{
+              item.sourceId
+            }}</span>
             <ng-container
               [ngTemplateOutlet]="content"
               [ngTemplateOutletContext]="{ $implicit: item, card: true }"

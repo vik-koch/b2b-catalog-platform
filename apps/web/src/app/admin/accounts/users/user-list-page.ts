@@ -24,6 +24,9 @@ import { GridColumn } from '@b2b-catalog-platform/ui/grid/grid-column';
 import { GridFilterOption } from '@b2b-catalog-platform/ui/grid/grid-filter-select';
 import { GridCardTemplate } from '@b2b-catalog-platform/ui/grid/grid-card-template';
 import { GridRowTemplate } from '@b2b-catalog-platform/ui/grid/grid-row-template';
+import { GridKey } from '@b2b-catalog-platform/ui/grid/grid-key';
+import { GridTitle } from '@b2b-catalog-platform/ui/grid/grid-title';
+import { GridTitleLink } from '@b2b-catalog-platform/ui/grid/grid-title-link';
 import { GridTimestamp } from '../../platform/dates/grid-timestamp';
 import { RecordRow } from '@b2b-catalog-platform/ui/lists/record-row';
 import { GridHeader } from '@b2b-catalog-platform/ui/grid/grid-header';
@@ -45,13 +48,13 @@ import {
   COMPANY_ID_NONE,
   formatPersonName,
   StaffUser,
+  USER_QUERY_MAX_LENGTH,
   USER_STATUSES,
   UserKind,
   userStatusSchema,
 } from '@b2b-catalog-platform/shared/core/accounts';
 import {
   fillText,
-  SEARCH_QUERY_MAX_LENGTH,
   userRoleSchema,
 } from '@b2b-catalog-platform/shared/platform';
 import { ADMIN_CATALOG_TEXT } from '../../catalog/catalog-text';
@@ -59,8 +62,6 @@ import { ADMIN_CATALOG_TEXT } from '../../catalog/catalog-text';
 const USER_SORTS = [
   'name',
   'name_desc',
-  'type',
-  'type_desc',
   'registered',
   'registered_desc',
   'status',
@@ -86,11 +87,6 @@ function resolveUserSort(raw: string): UserSort {
     : DEFAULT_USER_SORT;
 }
 
-/** Person before company before none, so the type sort groups the two kinds. */
-const TYPE_RANK: Record<string, number> = { person: 0, company: 1 };
-const typeRank = (t: StaffUser['customerType']): number =>
-  t ? TYPE_RANK[t] : 2;
-
 /**
  * The account list, as two screens by the route's `kind`: customers, and
  * staff (admin and manager). Two screens, not two tabs: the split is a
@@ -106,6 +102,9 @@ const typeRank = (t: StaffUser['customerType']): number =>
     GridHeader,
     DataGrid,
     GridRowTemplate,
+    GridKey,
+    GridTitle,
+    GridTitleLink,
     GridCardTemplate,
     GridTimestamp,
     RecordRow,
@@ -155,14 +154,15 @@ const typeRank = (t: StaffUser['customerType']): number =>
         <ng-template uiGridRow [of]="data" let-user>
           <!-- Name and email in one cell, as on the order list. The name opens
                the account to read; the pencil opens the editor. -->
-          <td class="truncate" [title]="user.email">
-            <a
-              class="block truncate font-medium text-ink hover:text-accent"
-              [routerLink]="['/admin/users', user.id]"
-              [queryParams]="editorFrom()"
-            >
-              {{ name(user) }}
-            </a>
+          <td [title]="user.email">
+            <ui-grid-title [key]="user.sourceId">
+              <a
+                uiGridTitleLink
+                [routerLink]="['/admin/users', user.id]"
+                [queryParams]="editorFrom()"
+                >{{ name(user) }}</a
+              >
+            </ui-grid-title>
             <span class="block truncate text-xs text-ink-subtle">
               {{ user.email }}
             </span>
@@ -208,7 +208,7 @@ const typeRank = (t: StaffUser['customerType']): number =>
           <!-- Greyed when closed, but never the badge that says so. -->
           <ui-record-row>
             <a
-              class="truncate font-medium text-ink"
+              class="line-clamp-2 font-medium wrap-break-word text-ink"
               [class.opacity-50]="isClosed(user)"
               [routerLink]="['/admin/users', user.id]"
               [queryParams]="editorFrom()"
@@ -222,6 +222,11 @@ const typeRank = (t: StaffUser['customerType']): number =>
               [tone]="statusTone(user.status)"
               >{{ statusLabel(user.status) }}</span
             >
+            @if (user.sourceId) {
+              <span uiGridKey [class.opacity-50]="isClosed(user)">{{
+                user.sourceId
+              }}</span>
+            }
             <div recordBody [class.opacity-50]="isClosed(user)">
               <p class="mt-1 truncate text-sm text-ink-subtle">
                 {{ user.email }}
@@ -258,7 +263,7 @@ const typeRank = (t: StaffUser['customerType']): number =>
   `,
 })
 export class UserListPage {
-  protected readonly searchMaxLength = SEARCH_QUERY_MAX_LENGTH;
+  protected readonly searchMaxLength = USER_QUERY_MAX_LENGTH;
   protected readonly plusIcon = plusIcon;
   private readonly service = inject(StaffUsersService);
   private readonly ownership = inject(OwnershipService);
@@ -620,7 +625,6 @@ export class UserListPage {
     type Compare = (a: StaffUser, b: StaffUser) => number;
     const byField: Record<string, Compare> = {
       name: (a, b) => this.collator.compare(this.nameKey(a), this.nameKey(b)),
-      type: (a, b) => typeRank(a.customerType) - typeRank(b.customerType),
       registered: (a, b) => a.createdAt.localeCompare(b.createdAt),
       status: (a, b) => STATUS_RANK[a.status] - STATUS_RANK[b.status],
     };

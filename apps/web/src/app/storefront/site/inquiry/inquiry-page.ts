@@ -1,12 +1,21 @@
 import { Component, inject, signal } from '@angular/core';
-import { form, required } from '@angular/forms/signals';
+import { form, maxLength, required } from '@angular/forms/signals';
 import { RouterLink } from '@angular/router';
-import { InquiryRequest } from '@b2b-catalog-platform/shared/storefront/site';
+import {
+  INQUIRY_MESSAGE_MAX_LENGTH,
+  INQUIRY_PHONE_MAX_LENGTH,
+  InquiryRequest,
+} from '@b2b-catalog-platform/shared/storefront/site';
 import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import { canonicalPhone } from '../../../platform/contact-fields';
-import { completeMask, emailAddress } from '../../../platform/field-rules';
+import {
+  completeMask,
+  emailAddress,
+  personName,
+  untilInteractive,
+} from '../../../platform/field-rules';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { HoneypotField } from '@b2b-catalog-platform/ui/fields/honeypot-field';
 import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
@@ -119,11 +128,7 @@ interface Inquiry {
             ></textarea>
           </ui-field>
 
-          <ui-honeypot-field
-            controlId="website"
-            [field]="form.website"
-            label="Leave this field empty"
-          />
+          <ui-honeypot-field controlId="website" [field]="form.website" />
 
           <app-consent-field [consent]="consent" />
 
@@ -166,7 +171,11 @@ export class InquiryPage {
       website: '',
     }),
     (inquiry) => {
+      untilInteractive(inquiry);
       required(inquiry.name, { message: this.fields.name.required });
+      personName(inquiry.name, this.fields.name.invalid);
+      maxLength(inquiry.phone, INQUIRY_PHONE_MAX_LENGTH);
+      maxLength(inquiry.message, INQUIRY_MESSAGE_MAX_LENGTH);
       // The chosen channel is required; the other field stays optional. Both
       // keep their format rule either way: a number typed into the other field
       // is still going to be dialled, so half of one is no more use there.

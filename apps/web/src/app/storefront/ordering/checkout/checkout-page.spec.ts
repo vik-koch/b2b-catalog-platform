@@ -3,7 +3,10 @@ import { defaultStorefrontOrderingText } from '../ordering-text.fixture';
 import { defaultSharedOrderingText } from '../../../core/ordering/ordering-text.fixture';
 import { withAccounts } from '../../../core/accounts/accounts-config.fixture';
 import { defaultSharedAccountsText } from '../../../core/accounts/accounts-text.fixture';
-import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import {
+  provideUiText,
+  SHARED_TEXT,
+} from '../../../platform/config/shared-text';
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
@@ -139,6 +142,7 @@ async function render(options: Options = {}) {
       provideRouter([]),
       { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
       { provide: SHARED_TEXT, useValue: defaultSharedText },
+      provideUiText(),
       {
         provide: DEPLOYMENT_CONFIG,
         useValue: options.config ?? defaultDeploymentConfig,

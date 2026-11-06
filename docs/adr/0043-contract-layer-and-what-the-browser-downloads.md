@@ -121,16 +121,28 @@ has not loaded.
   validation runtime is among them, which is the rule this decision made rather
   than a number that moves with the app.
 
-## Amendment — 2026-10-26 (v1.15.2): the forms runtime in the first load
+## Amendment — 2026-10-26 (v1.15.2): the inquiry page loads lazily
 
-The inquiry page, eager under this decision, is built on Signal Forms (ADR 0070).
-Signal Forms builds on the reactive forms classes rather than replacing them,
-so the first load now carries both: **+ 17.1 kB raw / 7.0 kB gzip** of
-JavaScript, 682.0 → 699.1 kB (the build's initial total, styles included,
-810 → 828 kB, under its 850 kB warning). That is accepted as the price of one
-form model across the app. The rule this record made still holds: no
-validation runtime is reachable from the first load, and
-`check-initial-bundle.mjs` still checks it.
+The inquiry page is built on Signal Forms (ADR 0070), which builds on the
+reactive forms classes rather than replacing them. Eager, it put both in every
+first load. It is lazy now, which takes about 80 kB of JavaScript out of the
+first load.
+
+The reason for keeping it eager did not hold. Text typed before hydration was
+lost on the eager page too, with event replay on: probed from first paint, the
+eager page dropped a few hundred milliseconds of typing on a desktop and
+seconds of it on a throttled phone, and the lazy one about half a second more
+there. Eager narrowed the window and never closed it.
+
+Every server-rendered form closes it instead (NFR-SEO-05): its fields are
+read-only until the browser's first render (`untilInteractive`, from
+`FirstRender.interactive`), so the server's markup refuses input it would drop.
+Read-only rather than disabled, so nothing flashes grey on every load; the
+submit button stays as it is, as with nothing typed a press only reloads the
+page. The search box is left alone: it works without JavaScript.
+
+The rule this record made still holds: no validation runtime is reachable from
+the first load, and `check-initial-bundle.mjs` still checks it.
 
 Four lazy pages no longer load Zod. Set-password and change-password checked a
 length with `newPasswordSchema`; the tier and attribute lists checked a key and
@@ -138,6 +150,3 @@ a slug with `tierKeySchema` and `slugSchema`. Each pulled in 100–113 kB gzip t
 test a string. The limits and patterns now live in import-free modules
 (`auth-constants.ts`, `tier-constants.ts`, `slug-constants.ts`); the schemas
 and the forms both read them, as this record's split intends.
-
-Text typed before hydration is lost on the eager page as well, with event
-replay on. Keeping the page eager narrows that window; it does not close it.

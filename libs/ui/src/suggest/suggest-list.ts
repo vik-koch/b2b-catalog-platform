@@ -8,6 +8,7 @@ import {
   signal,
 } from '@angular/core';
 import { debounced } from '../core/debounced';
+import { fill } from '../core/fill';
 
 export interface SuggestListText {
   readonly suggestionsAria: string;
@@ -99,7 +100,7 @@ export class SuggestList<T> {
     const count = this.suggestions().length;
     return count === 0
       ? text.noSuggestions
-      : text.suggestionCountAria.replace('{count}', String(count));
+      : fill(text.suggestionCountAria, { count });
   }
 
   type(value: string): void {

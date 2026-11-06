@@ -12,7 +12,11 @@ import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import { AuthService } from '../../../platform/auth/auth.service';
 import { canonicalPhone, typedPhone } from '../../../platform/contact-fields';
 import { delayedLoading } from '../../../platform/delayed-loading';
-import { completeMask, emailAddress } from '../../../platform/field-rules';
+import {
+  completeMask,
+  emailAddress,
+  personName,
+} from '../../../platform/field-rules';
 import { companyIdFormat } from '../../../core/accounts/parties/company-id';
 import { usePageSeo } from '../../../platform/page-seo';
 import { UnsavedChangesAware } from '../../platform/unsaved-changes.guard';
@@ -492,6 +496,8 @@ export class UserEditorPage implements UnsavedChangesAware {
       }
       required(user.firstName, { message: this.fields.firstName.required });
       required(user.lastName, { message: this.fields.lastName.required });
+      personName(user.firstName, this.fields.firstName.invalid);
+      personName(user.lastName, this.fields.lastName.invalid);
       completeMask(
         user.phone,
         this.phoneInput?.mask,

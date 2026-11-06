@@ -15,6 +15,7 @@ import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
 import { Outcome } from '@b2b-catalog-platform/ui/content/outcome';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
+import { untilInteractive } from '../../../platform/field-rules';
 
 type Status =
   'idle' | 'submitting' | 'wrong-password' | 'last-admin' | 'error' | 'done';
@@ -124,6 +125,7 @@ export class AccountDeletePage {
   protected readonly form = form(
     signal({ password: '' }),
     (request) => {
+      untilInteractive(request);
       required(request.password, {
         message: this.validation.currentPasswordRequired,
       });

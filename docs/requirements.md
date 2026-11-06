@@ -230,6 +230,7 @@ survives a retitling; the Contents block below is generated from those headings 
 - [NFR-SEO-02](#nfr-seo-02) — Sitemap and robots.txt
 - [NFR-SEO-03](#nfr-seo-03) — Responsive layout
 - [NFR-SEO-04](#nfr-seo-04) — Listing variants kept out of the index
+- [NFR-SEO-05](#nfr-seo-05) — A form takes input only once it works
 
 **[Operability (NFR-OPS)](#nfr-ops)**
 
@@ -1045,6 +1046,10 @@ The platform displays correctly on mobile devices (responsive layout).
 #### <a id="nfr-seo-04"></a>NFR-SEO-04 — Listing variants kept out of the index
 
 Listing views that are not content in their own right — search results, and sorted, paginated or attribute-filtered variants of a category — are kept out of the index: search results are `noindex`, and sorted/paged/filtered variants declare a canonical URL.
+
+#### <a id="nfr-seo-05"></a>NFR-SEO-05 — A form takes input only once it works
+
+A form rendered on the server shows before the page can act on it. Until it can, its fields take no input, so nothing typed in those first moments is silently lost, and nothing typed can leave in a submission the page did not handle. It looks no different meanwhile: the wait is short on most connections. The search box is the exception, as it works without JavaScript.
 
 ---
 
