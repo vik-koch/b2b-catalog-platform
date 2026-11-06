@@ -6,6 +6,7 @@ import {
   phoneFormatErrors,
 } from '../../platform/api-error';
 import { userRoleSchema } from '../../platform/session.contract';
+import { USER_QUERY_MAX_LENGTH } from '../../core/accounts/users';
 import {
   userStatusSchema,
   staffUserSchema,
@@ -41,7 +42,7 @@ export const listUsersQuerySchema = z.object({
    * the keys are config: an unknown one matches nothing. */
   companyIdFormat: z.string().trim().max(64).optional(),
   /** Matches email, first or last name, or the registration number. */
-  q: z.string().trim().max(200).optional(),
+  q: z.string().trim().max(USER_QUERY_MAX_LENGTH).optional(),
 });
 export type ListUsersQuery = z.infer<typeof listUsersQuerySchema>;
 

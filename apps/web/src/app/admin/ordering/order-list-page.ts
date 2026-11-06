@@ -13,10 +13,10 @@ import {
   fillText,
   formatMoneyMinor,
   moneyFormat,
-  SEARCH_QUERY_MAX_LENGTH,
 } from '@b2b-catalog-platform/shared/platform';
 import {
   notifyByDefault,
+  ORDER_QUERY_MAX_LENGTH,
   ORDER_STATUS_REASON_MAX,
   OrderStatus,
   orderStatusSchema,
@@ -228,7 +228,7 @@ import { pageNumber } from '../../platform/page-number';
   `,
 })
 export class AdminOrderListPage {
-  protected readonly searchMaxLength = SEARCH_QUERY_MAX_LENGTH;
+  protected readonly searchMaxLength = ORDER_QUERY_MAX_LENGTH;
   private readonly api = inject(AdminOrdersService);
   private readonly ownership = inject(OwnershipService);
   private readonly currency = moneyFormat(inject(DEPLOYMENT_CONFIG));

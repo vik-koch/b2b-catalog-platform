@@ -314,18 +314,6 @@ describe('UserListPage', () => {
     expect(names()).toEqual(['Newer Jane', 'Older Jane']);
   });
 
-  it('sorts by customer type, persons before companies', async () => {
-    const { names, setInput } = await render({
-      users: [
-        user({ id: 'c', lastName: 'Corp', customerType: 'company' }),
-        user({ id: 'p', lastName: 'Person', customerType: 'person' }),
-      ],
-    });
-
-    await setInput('sort', 'type');
-    expect(names()).toEqual(['Person Jane', 'Corp Jane']);
-  });
-
   it('asks the server for the view this route is (customer vs staff)', async () => {
     const { service } = await render({ kind: 'staff', users: [] });
 

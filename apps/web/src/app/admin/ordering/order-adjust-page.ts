@@ -37,7 +37,11 @@ import {
 } from '../../core/accounts/addresses/address-form';
 import { companyIdFormat } from '../../core/accounts/parties/company-id';
 import { canonicalPhone, typedPhone } from '../../platform/contact-fields';
-import { completeMask, emailAddress } from '../../platform/field-rules';
+import {
+  completeMask,
+  emailAddress,
+  personName,
+} from '../../platform/field-rules';
 import { formatPriceInput } from '../../core/catalog/pricing/price';
 import { ADMIN_TEXT } from '../../platform/config/admin-text';
 import { SHARED_TEXT } from '../../platform/config/shared-text';
@@ -487,6 +491,7 @@ export class AdminOrderAdjustPage implements FieldAttempt {
       );
 
       required(contact.name, { message: this.fields.name.required });
+      personName(contact.name);
       required(contact.email, { message: this.fields.email.required });
       emailAddress(contact.email, this.fields.email.invalid);
       required(contact.phone, { message: this.fields.phone.required });

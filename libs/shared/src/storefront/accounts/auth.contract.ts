@@ -16,6 +16,7 @@ import {
   companyNameSchema,
   companyRegistrationIdSchema,
   emailField,
+  personNameField,
   storedEmailField,
 } from '../../platform/contact-config';
 import { commonAuthErrors, phoneFormatErrors } from '../../platform/api-error';
@@ -100,8 +101,8 @@ export const forgotPasswordSchema = z.object({ email: emailField }).strict();
 export const registerSchema = z
   .object({
     email: emailField,
-    firstName: z.string().trim().min(1).max(200),
-    lastName: z.string().trim().min(1).max(200),
+    firstName: personNameField,
+    lastName: personNameField,
     phone: z.string().trim().min(1).max(50),
     customerType: customerTypeSchema,
     companyName: companyNameSchema.optional(),

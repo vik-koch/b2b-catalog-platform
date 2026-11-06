@@ -3,7 +3,10 @@ import * as z from 'zod';
 import { commonAuthErrors, phoneFormatErrors } from '../../platform/api-error';
 import { customerTypeSchema } from '../../core/accounts/users.contract';
 import { userRoleSchema } from '../../platform/session.contract';
-import { storedEmailField } from '../../platform/contact-config';
+import {
+  personNameField,
+  storedEmailField,
+} from '../../platform/contact-config';
 import { acknowledgementSchema } from '../../platform/acknowledgement.contract';
 
 /** The holder's own record: its own shape, not the staff one trimmed, and
@@ -32,8 +35,8 @@ export type AccountProfile = z.infer<typeof accountProfileSchema>;
  * and the company facts staff approved the account on are staff edits. */
 export const updateAccountProfileSchema = z
   .object({
-    firstName: z.string().trim().min(1).max(200),
-    lastName: z.string().trim().min(1).max(200),
+    firstName: personNameField,
+    lastName: personNameField,
     /** Null clears it: staff accounts often have none. */
     phone: z.string().trim().min(1).max(50).nullable(),
   })

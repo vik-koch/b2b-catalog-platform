@@ -3,7 +3,6 @@ import { form, maxLength, required } from '@angular/forms/signals';
 import { RouterLink } from '@angular/router';
 import {
   INQUIRY_MESSAGE_MAX_LENGTH,
-  INQUIRY_NAME_MAX_LENGTH,
   INQUIRY_PHONE_MAX_LENGTH,
   InquiryRequest,
 } from '@b2b-catalog-platform/shared/storefront/site';
@@ -11,7 +10,11 @@ import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import { canonicalPhone } from '../../../platform/contact-fields';
-import { completeMask, emailAddress } from '../../../platform/field-rules';
+import {
+  completeMask,
+  emailAddress,
+  personName,
+} from '../../../platform/field-rules';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { HoneypotField } from '@b2b-catalog-platform/ui/fields/honeypot-field';
 import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
@@ -168,7 +171,7 @@ export class InquiryPage {
     }),
     (inquiry) => {
       required(inquiry.name, { message: this.fields.name.required });
-      maxLength(inquiry.name, INQUIRY_NAME_MAX_LENGTH);
+      personName(inquiry.name);
       maxLength(inquiry.phone, INQUIRY_PHONE_MAX_LENGTH);
       maxLength(inquiry.message, INQUIRY_MESSAGE_MAX_LENGTH);
       // The chosen channel is required; the other field stays optional. Both

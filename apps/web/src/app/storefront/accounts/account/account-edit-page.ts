@@ -17,7 +17,7 @@ import {
   typedPhone,
 } from '../../../platform/contact-fields';
 import { delayedLoading } from '../../../platform/delayed-loading';
-import { completeMask } from '../../../platform/field-rules';
+import { completeMask, personName } from '../../../platform/field-rules';
 import { usePageSeo } from '../../../platform/page-seo';
 import { AuthService } from '../../../platform/auth/auth.service';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
@@ -159,6 +159,8 @@ export class AccountEditPage {
     (account) => {
       required(account.firstName, { message: this.fields.firstName.required });
       required(account.lastName, { message: this.fields.lastName.required });
+      personName(account.firstName);
+      personName(account.lastName);
       // Optional, but half a number is a typo.
       completeMask(
         account.phone,

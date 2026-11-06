@@ -48,13 +48,13 @@ import {
   COMPANY_ID_NONE,
   formatPersonName,
   StaffUser,
+  USER_QUERY_MAX_LENGTH,
   USER_STATUSES,
   UserKind,
   userStatusSchema,
 } from '@b2b-catalog-platform/shared/core/accounts';
 import {
   fillText,
-  SEARCH_QUERY_MAX_LENGTH,
   userRoleSchema,
 } from '@b2b-catalog-platform/shared/platform';
 import { ADMIN_CATALOG_TEXT } from '../../catalog/catalog-text';
@@ -62,8 +62,6 @@ import { ADMIN_CATALOG_TEXT } from '../../catalog/catalog-text';
 const USER_SORTS = [
   'name',
   'name_desc',
-  'type',
-  'type_desc',
   'registered',
   'registered_desc',
   'status',
@@ -88,11 +86,6 @@ function resolveUserSort(raw: string): UserSort {
     ? (raw as UserSort)
     : DEFAULT_USER_SORT;
 }
-
-/** Person before company before none, so the type sort groups the two kinds. */
-const TYPE_RANK: Record<string, number> = { person: 0, company: 1 };
-const typeRank = (t: StaffUser['customerType']): number =>
-  t ? TYPE_RANK[t] : 2;
 
 /**
  * The account list, as two screens by the route's `kind`: customers, and
@@ -270,7 +263,7 @@ const typeRank = (t: StaffUser['customerType']): number =>
   `,
 })
 export class UserListPage {
-  protected readonly searchMaxLength = SEARCH_QUERY_MAX_LENGTH;
+  protected readonly searchMaxLength = USER_QUERY_MAX_LENGTH;
   protected readonly plusIcon = plusIcon;
   private readonly service = inject(StaffUsersService);
   private readonly ownership = inject(OwnershipService);
@@ -632,7 +625,6 @@ export class UserListPage {
     type Compare = (a: StaffUser, b: StaffUser) => number;
     const byField: Record<string, Compare> = {
       name: (a, b) => this.collator.compare(this.nameKey(a), this.nameKey(b)),
-      type: (a, b) => typeRank(a.customerType) - typeRank(b.customerType),
       registered: (a, b) => a.createdAt.localeCompare(b.createdAt),
       status: (a, b) => STATUS_RANK[a.status] - STATUS_RANK[b.status],
     };

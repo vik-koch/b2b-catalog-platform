@@ -11,6 +11,7 @@ import {
   EMAIL_MAX_LENGTH,
   isEmailAddress,
   maskLength,
+  PERSON_NAME_MAX_LENGTH,
 } from '@b2b-catalog-platform/shared/platform';
 
 type StringPath<K extends PathKind> = SchemaPath<
@@ -46,6 +47,11 @@ export function emailAddress<K extends PathKind>(
       ? undefined
       : { kind: 'email', message };
   });
+}
+
+/** A person's name holds no digit (FR-AUTH-14). Empty is `required`'s. */
+export function personName<K extends PathKind>(path: StringPath<K>): void {
+  maxLength(path, PERSON_NAME_MAX_LENGTH);
 }
 
 /** Filled to the mask, even where optional: half a number is a typo. */

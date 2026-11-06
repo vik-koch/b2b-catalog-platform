@@ -1,5 +1,6 @@
 import * as z from 'zod';
 import { EMAIL_MAX_LENGTH, EMAIL_PATTERN } from './email-format';
+import { PERSON_NAME_MAX_LENGTH } from './person-name';
 import {
   normalizeCompanyId,
   type CompanyIdFormat,
@@ -114,3 +115,11 @@ export const lowercaseEmailField = z
 /** A read applies the write's rule and no more: a stricter `z.email()` would
  * fail a stored `a@a.a`, and with it every list that row is on. */
 export const storedEmailField = z.string().regex(EMAIL_PATTERN);
+
+/** A first, last or contact name as a person types it (FR-AUTH-14). Only for
+ * writes: a stored name may predate the rule, or come from the exchange. */
+export const personNameField = z
+  .string()
+  .trim()
+  .min(1)
+  .max(PERSON_NAME_MAX_LENGTH);

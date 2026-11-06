@@ -8,7 +8,11 @@ import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { usePageSeo } from '../../../platform/page-seo';
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import { canonicalPhone } from '../../../platform/contact-fields';
-import { completeMask, emailAddress } from '../../../platform/field-rules';
+import {
+  completeMask,
+  emailAddress,
+  personName,
+} from '../../../platform/field-rules';
 import { CompanyFields } from '../../../core/accounts/parties/company-fields';
 import { companyIdFormat } from '../../../core/accounts/parties/company-id';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
@@ -235,6 +239,8 @@ export class RegisterPage {
       required(registration.lastName, {
         message: this.fields.lastName.required,
       });
+      personName(registration.firstName);
+      personName(registration.lastName);
       required(registration.email, { message: this.fields.email.required });
       emailAddress(registration.email, this.fields.email.invalid);
       required(registration.phone, { message: this.fields.phone.required });
