@@ -597,7 +597,7 @@ the release's map, downloaded from the release tag with the map in a
 are enough. With `--write` it writes the release's files and removes the ones
 they replace. It reports what it cannot decide: wording new in the release
 (written in English), settings new in the release (set to the demo's value),
-keys merged from several old ones whose values differed in the deployment,
+settings it rewrote into a new form from the deployment's old value, keys merged from several old ones whose values differed in the deployment,
 counting texts still written in two forms, and keys the release requires that
 the deployment's files never had. A deployment several
 releases behind runs each release's map in order.

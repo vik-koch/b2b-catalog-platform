@@ -101,7 +101,8 @@ it replaces a release later. A migration that cannot run unattended makes the re
 - **A text or config key changes in every deployment.** The fixture and each directory under
   `deployments/` carry the same keys. A release that adds or moves keys ships a map in
   `tools/config-migration/<version>.json` for the deployments kept elsewhere: a moved key names
-  the old keys it comes `from`, a new one its `new` value. `node tools/migrate-config.mjs --check`
+  the old keys it comes `from`, a new one its `new` value, one whose meaning widened a `template`
+  for the old value. `node tools/migrate-config.mjs --check`
   fails CI when the map misses one.
 - **Contracts export schemas only.** Limits and helpers a component needs live in import-free
   modules, so they do not pull Zod into the browser ([libs/shared](../libs/shared/README.md)).

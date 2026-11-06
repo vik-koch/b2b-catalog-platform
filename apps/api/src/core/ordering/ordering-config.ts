@@ -41,9 +41,8 @@ export function loadDeliveryConfig(): DeliveryConfig | undefined {
   return loadOrderingConfig().delivery;
 }
 
-/** Defaulted: a deployment that says nothing takes orders as `ORD`. */
 export const ORDER_REFERENCE_CONFIG = 'ORDER_REFERENCE_CONFIG';
 
 export function loadOrderReferenceConfig(): OrderReferenceConfig {
-  return loadOrderingConfig().orderReference ?? { prefix: 'ORD' };
+  return loadOrderingConfig().orderReference;
 }

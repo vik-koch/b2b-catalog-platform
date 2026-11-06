@@ -191,7 +191,7 @@
       ]
     },
     "orderReference": {
-      "prefix": "SL"
+      "format": "SL{date}-####"
     }
   }
 }

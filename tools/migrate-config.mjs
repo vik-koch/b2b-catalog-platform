@@ -11,7 +11,9 @@
  * deployment has wins, and a later one with a different value is reported, as
  * the merge may not hold in that deployment's language. `new` marks wording
  * that did not exist before; `copy` takes a value without moving it, where the
- * old key stays as it is. `moves` carries a whole block, with whatever is left
+ * old key stays as it is. `template` writes the value found into a new form,
+ * where `{value}` stands for it, as when a setting's meaning widens; `new` then
+ * covers the deployment that had none. `moves` carries a whole block, with whatever is left
  * once those keys have gone, to a new place, another file too, or a single
  * value or list.
  * `files` names the files the deployment had at the release the map starts
@@ -145,7 +147,13 @@ const merge = (files, key, block) => {
  * operator about them. */
 function migrate(original) {
   const files = structuredClone(original);
-  const report = { added: [], conflicts: [], dropped: [], missing: [] };
+  const report = {
+    added: [],
+    rewritten: [],
+    conflicts: [],
+    dropped: [],
+    missing: [],
+  };
   const values = {};
 
   // Read every value before moving any: a target may sit where a source was.
@@ -155,6 +163,11 @@ function migrate(original) {
       .filter(({ value }) => value !== undefined);
     if (found.length > 0) {
       values[target] = found[0].value;
+      if (rule.template !== undefined) {
+        // split/join, not replace: a `$` in the old value is not a pattern.
+        values[target] = rule.template.split('{value}').join(found[0].value);
+        report.rewritten.push({ target, ...found[0], to: values[target] });
+      }
       const others = found.filter(({ value }) => value !== found[0].value);
       if (others.length > 0) {
         report.conflicts.push({ target, kept: found[0], others });
@@ -317,6 +330,13 @@ section(
   report.added
     .filter(({ file }) => !isText(file))
     .map(({ target, value }) => `${target} = ${quoted(value)}`),
+);
+section(
+  'Rewritten into a new form — check it reads as intended:',
+  report.rewritten.map(
+    ({ target, source, value, to }) =>
+      `${target} = ${quoted(to)}  (from ${source} = ${quoted(value)})`,
+  ),
 );
 section(
   'Merged keys whose values differed — the first was kept, check it reads right everywhere:',

@@ -1,6 +1,6 @@
 # 0038 — Hold the cart in the browser, and store an order as a self-contained snapshot
 
-**Status:** accepted (partly superseded by 0042 and 0058) · **Date:** 2026-08-23
+**Status:** accepted (partly superseded by 0042 and 0058; amended 2026-11-06) · **Date:** 2026-08-23
 
 ## Context
 
@@ -267,3 +267,14 @@ one piece and `lineTotalMinor = priceMinor × pieces`, which is the check
 constraint too — so the reasoning below about a line having no exact per-unit
 price, and about the basis being what keeps a line reconstructible, no longer
 applies. See [ADR 0058](0058-the-price-is-per-piece.md).
+
+## Amendment — 2026-11-06 (v1.15.2): the reference's format is configured
+
+The deployment writes the whole reference as a format, `CK{date}-####`, in
+place of a prefix in front of a fixed `-YYMMDD-NNNN`: the date and the random
+digits may sit in any order, with any of `-`, `_` and `.` between them or none.
+Each `#` is one random digit and the format holds at least four, the date
+exactly once, so the space per day this record relies on stays. No `/`: the
+reference is part of an order's URL. The upgrade rewrites a prefix `CK` into
+`CK-{date}-####`, so a deployment's references keep their look until it
+changes the format; stored references never change.

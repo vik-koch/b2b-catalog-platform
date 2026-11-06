@@ -563,7 +563,7 @@ describe('Cart and orders (FR-CART-01…04)', () => {
       const res = await post('/orders', submission());
 
       expect(res.status).toBe(201);
-      expect(res.data.reference).toMatch(/^[A-Z0-9]+-\d{6}-\d{4}$/);
+      expect(res.data.reference).toMatch(/^CK\d{6}-\d{4}$/);
       expect(res.data.publicToken).toMatch(/^[A-Za-z0-9_-]{32}$/);
 
       // The mailed link's view, which is the guest's only record of it.
