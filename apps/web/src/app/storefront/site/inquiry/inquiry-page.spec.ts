@@ -1,4 +1,7 @@
-import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import {
+  provideUiText,
+  SHARED_TEXT,
+} from '../../../platform/config/shared-text';
 import { TestBed } from '@angular/core/testing';
 import type { DeploymentConfigFile } from '@b2b-catalog-platform/shared/deployment';
 import { Page } from '@b2b-catalog-platform/shared/core/site';
@@ -75,6 +78,7 @@ async function render(
       provideRouter([]),
       { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
       { provide: SHARED_TEXT, useValue: defaultSharedText },
+      provideUiText(),
       { provide: DEPLOYMENT_CONFIG, useValue: options.config ?? testConfig },
       { provide: InquiryService, useValue: { submit } },
       { provide: PageService, useValue: { getPage } },

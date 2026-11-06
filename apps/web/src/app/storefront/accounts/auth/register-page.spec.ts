@@ -1,6 +1,9 @@
 import { withAccounts } from '../../../core/accounts/accounts-config.fixture';
 import { defaultStorefrontAccountsText } from '../accounts-text.fixture';
-import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import {
+  provideUiText,
+  SHARED_TEXT,
+} from '../../../platform/config/shared-text';
 import { TestBed } from '@angular/core/testing';
 import { Page } from '@b2b-catalog-platform/shared/core/site';
 import { provideRouter } from '@angular/router';
@@ -85,6 +88,7 @@ async function render(
       { provide: PartiesService, useValue: { suggest } },
       { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
       { provide: SHARED_TEXT, useValue: defaultSharedText },
+      provideUiText(),
       { provide: DEPLOYMENT_CONFIG, useValue: config },
       { provide: SignInService, useValue: { register } },
       { provide: PageService, useValue: { getPage } },

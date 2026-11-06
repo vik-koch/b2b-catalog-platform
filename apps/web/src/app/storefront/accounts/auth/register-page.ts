@@ -165,11 +165,7 @@ interface Registration {
             <ui-phone-input [field]="form.phone" [phone]="phoneInput" />
           </ui-field>
 
-          <ui-honeypot-field
-            controlId="website"
-            [field]="form.website"
-            label="Leave this field empty"
-          />
+          <ui-honeypot-field controlId="website" [field]="form.website" />
 
           <app-consent-field [consent]="consent" />
 

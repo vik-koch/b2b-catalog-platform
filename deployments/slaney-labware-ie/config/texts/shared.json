@@ -27,6 +27,7 @@
   "optional": "optional",
   "required": "required",
   "imagePlaceholder": "No image available",
+  "honeypot": "Leave this field empty",
   "showMore": "Show more",
   "showLess": "Show less",
   "quantity": "{qty} {unit}",

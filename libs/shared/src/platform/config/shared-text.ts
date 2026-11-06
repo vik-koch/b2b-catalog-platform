@@ -47,6 +47,9 @@ export const sharedTextShape = {
   required: z.string(),
   /** Stands in for a missing picture, as its caption and accessible name. */
   imagePlaceholder: z.string(),
+  /** The anti-spam decoy field's label: off screen and never read out, but
+   * a bot reads it, so it is in the shop's language. */
+  honeypot: z.string(),
   /** The toggle under a list or a description that is cut short. */
   showMore: z.string(),
   showLess: z.string(),

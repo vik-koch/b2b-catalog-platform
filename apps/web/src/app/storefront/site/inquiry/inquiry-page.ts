@@ -124,11 +124,7 @@ interface Inquiry {
             ></textarea>
           </ui-field>
 
-          <ui-honeypot-field
-            controlId="website"
-            [field]="form.website"
-            label="Leave this field empty"
-          />
+          <ui-honeypot-field controlId="website" [field]="form.website" />
 
           <app-consent-field [consent]="consent" />
 

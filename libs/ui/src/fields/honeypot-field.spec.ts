@@ -1,16 +1,13 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { form } from '@angular/forms/signals';
+import { provideTestUiText, testUiText } from '../core/ui-text.testing';
 import { HoneypotField } from './honeypot-field';
 
 @Component({
   imports: [HoneypotField],
   template: `
-    <ui-honeypot-field
-      controlId="website"
-      [field]="form.website"
-      label="Empty"
-    />
+    <ui-honeypot-field controlId="website" [field]="form.website" />
   `,
 })
 class Host {
@@ -19,7 +16,10 @@ class Host {
 
 async function render() {
   TestBed.resetTestingModule();
-  TestBed.configureTestingModule({ imports: [Host] });
+  TestBed.configureTestingModule({
+    imports: [Host],
+    providers: [provideTestUiText()],
+  });
   const fixture = TestBed.createComponent(Host);
   await fixture.whenStable();
   const el = fixture.nativeElement as HTMLElement;
@@ -35,6 +35,7 @@ describe('HoneypotField', () => {
     expect(host.getAttribute('aria-hidden')).toBe('true');
     expect(input.tabIndex).toBe(-1);
     expect(el.querySelector('label')?.htmlFor).toBe('website');
+    expect(el.querySelector('label')?.textContent).toBe(testUiText.honeypot);
   });
 
   it('writes what a bot types into the field', async () => {

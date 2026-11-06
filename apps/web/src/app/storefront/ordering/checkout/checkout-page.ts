@@ -226,7 +226,6 @@ import { IconNote } from '@b2b-catalog-platform/ui/content/icon-note';
                 <ui-honeypot-field
                   controlId="checkout-website"
                   [field]="checkoutForm.contact.website"
-                  label="Leave this field empty"
                 />
               }
 

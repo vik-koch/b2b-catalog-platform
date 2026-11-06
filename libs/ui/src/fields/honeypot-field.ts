@@ -1,18 +1,19 @@
-import { Component, input } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
+import { UI_TEXT } from '../core/ui-text';
 import { FormField, type FieldTree } from '@angular/forms/signals';
 
 /**
  * A decoy field off screen, never announced and out of the tab order: a person
  * leaves it empty, a bot that fills every input gives itself away.
  *
- *   <ui-honeypot-field controlId="website" [field]="form.website" label="…" />
+ *   <ui-honeypot-field controlId="website" [field]="form.website" />
  */
 @Component({
   selector: 'ui-honeypot-field',
   imports: [FormField],
   host: { class: 'absolute left-[-9999px]', 'aria-hidden': 'true' },
   template: `
-    <label [for]="controlId()">{{ label() }}</label>
+    <label [for]="controlId()">{{ label }}</label>
     <input
       [id]="controlId()"
       type="text"
@@ -25,5 +26,6 @@ import { FormField, type FieldTree } from '@angular/forms/signals';
 export class HoneypotField {
   readonly field = input.required<FieldTree<string>>();
   readonly controlId = input.required<string>();
-  readonly label = input.required<string>();
+
+  protected readonly label = inject(UI_TEXT).honeypot;
 }
