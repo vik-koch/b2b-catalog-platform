@@ -20,7 +20,19 @@ import {
   varchar,
 } from 'drizzle-orm/pg-core';
 import { oneOf } from './sql-columns';
-import { users } from '../../core/accounts/accounts-schema';
+
+/**
+ * Whoever can be named as having changed a row: what every area's actor
+ * columns reference, so none of them reaches into accounts. Only the id, as any
+ * further column would bring an area's rule down with it. Triggers on `users`
+ * insert and delete it with its account; nothing else writes it.
+ */
+export const identities = pgTable('identities', {
+  id: uuid('id').primaryKey(),
+  createdAt: timestamp('createdAt', { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
 
 /** Which areas an external system may be handed (FR-ADM-10). An enum, as the
  * set is a rule in code and a value no guard knows must not be storable. */
@@ -44,7 +56,7 @@ export const appSettings = pgTable(
       .notNull()
       .defaultNow(),
     /** Null on the seeded row. */
-    updatedBy: uuid('updatedBy').references(() => users.id, {
+    updatedBy: uuid('updatedBy').references(() => identities.id, {
       onDelete: 'set null',
     }),
   },
@@ -76,7 +88,7 @@ export const settingChanges = pgTable('setting_changes', {
   changedAt: timestamp('changedAt', { withTimezone: true })
     .notNull()
     .defaultNow(),
-  changedBy: uuid('changedBy').references(() => users.id, {
+  changedBy: uuid('changedBy').references(() => identities.id, {
     onDelete: 'set null',
   }),
   changedByEmail: varchar('changedByEmail', { length: 255 }),

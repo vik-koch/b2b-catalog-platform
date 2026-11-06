@@ -30,6 +30,7 @@ import {
 } from 'drizzle-orm/pg-core';
 import { oneOf } from '../../platform/db/sql-columns';
 import { users } from '../accounts/accounts-schema';
+import { identities } from '../../platform/db/schema';
 import { products } from '../catalog/catalog-schema';
 import { pageVersions } from '../site/site-schema';
 
@@ -77,7 +78,7 @@ export const orders = pgTable(
     statusChangedAt: timestamp('statusChangedAt', { withTimezone: true })
       .notNull()
       .defaultNow(),
-    statusChangedBy: uuid('statusChangedBy').references(() => users.id, {
+    statusChangedBy: uuid('statusChangedBy').references(() => identities.id, {
       onDelete: 'set null',
     }),
     /** Whether the money has arrived (FR-ORD-04), beside the status rather
@@ -88,7 +89,9 @@ export const orders = pgTable(
       .default('not-due'),
     /** The record that the money was received, and who said so. */
     paidAt: timestamp('paidAt', { withTimezone: true }),
-    paidBy: uuid('paidBy').references(() => users.id, { onDelete: 'set null' }),
+    paidBy: uuid('paidBy').references(() => identities.id, {
+      onDelete: 'set null',
+    }),
     /** The terms accepted on submission (NFR-LEGAL-10), on the order since no
      * adjustment accepts them again. Null where the shop publishes none or
      * published none yet. */
@@ -156,7 +159,7 @@ export const orderRevisions = pgTable(
       .notNull()
       .defaultNow(),
     /** A person: null on the customer's submission and on a write-back. */
-    createdBy: uuid('createdBy').references(() => users.id, {
+    createdBy: uuid('createdBy').references(() => identities.id, {
       onDelete: 'set null',
     }),
     /** Who wrote it from outside (FR-ADM-08): the owning system's name for
@@ -375,7 +378,7 @@ export const orderDocuments = pgTable(
      * somebody has their payment details must survive a reload. */
     notifiedAt: timestamp('notifiedAt', { withTimezone: true }),
     /** A person: null where a machine supplied it. */
-    suppliedBy: uuid('suppliedBy').references(() => users.id, {
+    suppliedBy: uuid('suppliedBy').references(() => identities.id, {
       onDelete: 'set null',
     }),
     /** The version the order stood on when it arrived. Nothing checks a file

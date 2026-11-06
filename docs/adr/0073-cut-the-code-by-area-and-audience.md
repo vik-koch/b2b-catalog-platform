@@ -1,6 +1,6 @@
 # 0073 — Cut every layer by area and audience, with a core per area
 
-**Status:** accepted · **Date:** 2026-10-29
+**Status:** accepted (amended 2026-11-06) · **Date:** 2026-10-29
 
 ## Context
 
@@ -104,3 +104,11 @@ has them.
   really needs it.
 - (−) The moves touch every file. They go area by area, catalog first, with the lint
   switched on per area, so both shapes stand side by side until the last one.
+
+## Amendment — 2026-11-06: who changed a row references an identity
+
+Rule 2's exception, every area's schema referencing `users` for who changed a row, was the
+graph's one upward edge. [ADR 0074](0074-anchor-actor-references-on-a-platform-identity.md)
+moves those references to platform's `identities`, which holds only the id; triggers on
+`users` create and delete it with the account. The exception and its lint rule are gone: platform imports no area, a
+schema module included.

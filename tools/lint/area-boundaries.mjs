@@ -85,28 +85,6 @@ function allowed(type) {
   ];
 }
 
-/**
- * The exception to "platform imports no area", for foreign keys only: every area's tables, and
- * platform's, record who changed a row, so a schema module may reference
- * `users`. A query still reads tables only along the table.
- */
-const ACTOR_REFERENCES = {
-  from: {
-    element: {
-      types: { anyOf: ['platform', ...AREAS.map((area) => `core:${area}`)] },
-      fileInternalPath: ['*-schema.ts', 'db/schema.ts'],
-    },
-  },
-  allow: {
-    to: {
-      element: {
-        type: 'core:accounts',
-        fileInternalPath: 'accounts-schema.ts',
-      },
-    },
-  },
-};
-
 const TYPES = ['deployment', ...new Set(FOLDERS.map(({ type }) => type))];
 
 /** A spec or fixture may read a file whole, to set the scene. */
@@ -158,7 +136,7 @@ export function areaBoundaries(source) {
               message: `${type} may import ${allowed(type).join(', ')} (ADR 0073, tools/lint/area-boundaries.mjs).`,
             }))
             // Last, as the last matching policy wins.
-            .concat(ACTOR_REFERENCES, SCENE),
+            .concat(SCENE),
         },
       ],
     },

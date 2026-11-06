@@ -1,6 +1,5 @@
 import { sql } from 'drizzle-orm';
 import {
-  AnyPgColumn,
   boolean,
   check,
   index,
@@ -13,6 +12,7 @@ import {
   varchar,
 } from 'drizzle-orm/pg-core';
 import { customerTiers } from '../catalog/catalog-schema';
+import { identities } from '../../platform/db/schema';
 
 /** A sign-up is a `user`; staff roles are given deliberately. */
 export const userRole = pgEnum('user_role', ['admin', 'manager', 'user']);
@@ -41,90 +41,113 @@ export const userStatus = pgEnum('user_status', [
 export const customerType = pgEnum('customer_type', ['person', 'company']);
 
 /** Plural, as `user` is reserved in Postgres. The email is the login. */
-export const users = pgTable('users', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  email: varchar('email', { length: 255 }).notNull().unique(),
-  passwordHash: text('passwordHash').notNull(),
-  role: userRole('role').notNull().default('user'),
-  /**
-   * The source system's key, the only identity the exchange matches on
-   * (FR-ADM-14): an email or a registration id can change or be shared. Staff
-   * may see it; the storefront never does.
-   *
-   * Null for an account registered here and for staff. Kept when an account
-   * is erased, so a later run meets a customer it must refuse rather than a
-   * stranger it recreates (NFR-LEGAL-08).
-   */
-  sourceId: varchar('sourceId', { length: 255 }).unique(),
-  /** `pending` by default: a forgotten status can lock an account out, never
-   * let one in. */
-  status: userStatus('status').notNull().default('pending'),
-  /** Who registered, as they put it: what staff match against their records
-   * to approve. Nullable, as staff accounts describe nobody and erasure clears
-   * them. */
-  firstName: varchar('firstName', { length: 200 }),
-  lastName: varchar('lastName', { length: 200 }),
-  phone: varchar('phone', { length: 50 }),
-  customerType: customerType('customerType'),
-  /** The party the account was approved on, and what a new address
-   * prefills. Required for a `company` by the contract, not the column. An
-   * address may still be invoiced to another of the customer's entities. */
-  companyName: varchar('companyName', { length: 255 }),
-  /** Stored normalised (the contract's form), so it matches the source
-   * system's records however it was typed. */
-  companyRegistrationId: varchar('companyRegistrationId', { length: 64 }),
-  /** Set together by an approval or a staff-created account. */
-  approvedAt: timestamp('approvedAt', { withTimezone: true }),
-  approvedBy: uuid('approvedBy').references((): AnyPgColumn => users.id, {
-    onDelete: 'set null',
-  }),
-  /** Null while the hash is the stand-in nobody holds, which is a real
-   * argon2 hash and cannot be told apart otherwise. Decides where a reactivated
-   * account lands: `active` with a password, `invited` without. */
-  passwordSetAt: timestamp('passwordSetAt', { withTimezone: true }),
-  /** When a session last started: a sign-in or a first password from a link.
-   * A session runs for days, so this is last use to within that. */
-  lastSignInAt: timestamp('lastSignInAt', { withTimezone: true }),
-  /** When the holder last entered a code sent to `phone` (FR-AUTH-12); codes
-   * go only to a confirmed number. A trigger clears it when a write changes
-   * `phone` without setting this too, so no other path confirms a number. */
-  phoneConfirmedAt: timestamp('phoneConfirmedAt', { withTimezone: true }),
-  /** An admin let the account skip the code (FR-AUTH-12). Counts only while
-   * the deployment allows exempting its role, so narrowing that needs no
-   * write. */
-  signInStepExemptAt: timestamp('signInStepExemptAt', { withTimezone: true }),
-  signInStepExemptBy: uuid('signInStepExemptBy').references(
-    (): AnyPgColumn => users.id,
-    { onDelete: 'set null' },
-  ),
-  /** A remembered browser from before this skips nothing (FR-AUTH-12). A
-   * trigger moves it when `phone` changes or the account is disabled or
-   * anonymized. */
-  devicesTrustedSince: timestamp('devicesTrustedSince', {
-    withTimezone: true,
-  }),
-  createdAt: timestamp('createdAt', { withTimezone: true })
-    .notNull()
-    .defaultNow(),
-  updatedAt: timestamp('updatedAt', { withTimezone: true })
-    .notNull()
-    .defaultNow(),
-  /** Raised on a password change; a session token carrying an older value is
-   * refused. */
-  tokenVersion: integer('tokenVersion').notNull().default(0),
-  /** The password is one the holder did not choose: the bootstrap admin's,
-   * or an admin's reset. */
-  mustChangePassword: boolean('mustChangePassword').notNull().default(false),
-  /**
-   * The price list (FR-AUTH-05), independent of `role`. Null is the default
-   * list and its only spelling: guests have no row at all, so pointing
-   * accounts at the badged row too would give one state two forms. Restricts a
-   * list's delete: moving a customer onto default prices silently is worse.
-   */
-  tierId: uuid('tierId').references(() => customerTiers.id, {
-    onDelete: 'restrict',
-  }),
-});
+export const users = pgTable(
+  'users',
+  {
+    /** Also the account's identity: triggers insert the `identities` row
+     * before the account and delete it after, so every path, raw SQL
+     * included, keeps the two one to one. */
+    id: uuid('id')
+      .primaryKey()
+      .defaultRandom()
+      .references(() => identities.id),
+    email: varchar('email', { length: 255 }).notNull().unique(),
+    passwordHash: text('passwordHash').notNull(),
+    role: userRole('role').notNull().default('user'),
+    /**
+     * The source system's key, the only identity the exchange matches on
+     * (FR-ADM-14): an email or a registration id can change or be shared. Staff
+     * may see it; the storefront never does.
+     *
+     * Null for an account registered here and for staff. Kept when an account
+     * is erased, so a later run meets a customer it must refuse rather than a
+     * stranger it recreates (NFR-LEGAL-08).
+     */
+    sourceId: varchar('sourceId', { length: 255 }).unique(),
+    /** `pending` by default: a forgotten status can lock an account out, never
+     * let one in. */
+    status: userStatus('status').notNull().default('pending'),
+    /** Who registered, as they put it: what staff match against their records
+     * to approve. Nullable, as staff accounts describe nobody and erasure clears
+     * them. */
+    firstName: varchar('firstName', { length: 200 }),
+    lastName: varchar('lastName', { length: 200 }),
+    phone: varchar('phone', { length: 50 }),
+    customerType: customerType('customerType'),
+    /** The party the account was approved on, and what a new address
+     * prefills. Required for a `company` by the contract, not the column. An
+     * address may still be invoiced to another of the customer's entities. */
+    companyName: varchar('companyName', { length: 255 }),
+    /** Stored normalised (the contract's form), so it matches the source
+     * system's records however it was typed. */
+    companyRegistrationId: varchar('companyRegistrationId', { length: 64 }),
+    /** Set together by an approval or a staff-created account. */
+    approvedAt: timestamp('approvedAt', { withTimezone: true }),
+    approvedBy: uuid('approvedBy').references(() => identities.id, {
+      onDelete: 'set null',
+    }),
+    /** Null while the hash is the stand-in nobody holds, which is a real
+     * argon2 hash and cannot be told apart otherwise. Decides where a reactivated
+     * account lands: `active` with a password, `invited` without. */
+    passwordSetAt: timestamp('passwordSetAt', { withTimezone: true }),
+    /** When a session last started: a sign-in or a first password from a link.
+     * A session runs for days, so this is last use to within that. */
+    lastSignInAt: timestamp('lastSignInAt', { withTimezone: true }),
+    /** When the holder last entered a code sent to `phone` (FR-AUTH-12); codes
+     * go only to a confirmed number. A trigger clears it when a write changes
+     * `phone` without setting this too, so no other path confirms a number. */
+    phoneConfirmedAt: timestamp('phoneConfirmedAt', { withTimezone: true }),
+    /** An admin let the account skip the code (FR-AUTH-12). Counts only while
+     * the deployment allows exempting its role, so narrowing that needs no
+     * write. */
+    signInStepExemptAt: timestamp('signInStepExemptAt', { withTimezone: true }),
+    signInStepExemptBy: uuid('signInStepExemptBy').references(
+      () => identities.id,
+      { onDelete: 'set null' },
+    ),
+    /** A remembered browser from before this skips nothing (FR-AUTH-12). A
+     * trigger moves it when `phone` changes or the account is disabled or
+     * anonymized. */
+    devicesTrustedSince: timestamp('devicesTrustedSince', {
+      withTimezone: true,
+    }),
+    createdAt: timestamp('createdAt', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp('updatedAt', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    /** Raised on a password change; a session token carrying an older value is
+     * refused. */
+    tokenVersion: integer('tokenVersion').notNull().default(0),
+    /** The password is one the holder did not choose: the bootstrap admin's,
+     * or an admin's reset. */
+    mustChangePassword: boolean('mustChangePassword').notNull().default(false),
+    /**
+     * The price list (FR-AUTH-05), independent of `role`. Null is the default
+     * list and its only spelling: guests have no row at all, so pointing
+     * accounts at the badged row too would give one state two forms. Restricts a
+     * list's delete: moving a customer onto default prices silently is worse.
+     */
+    tierId: uuid('tierId').references(() => customerTiers.id, {
+      onDelete: 'restrict',
+    }),
+  },
+  (t) => [
+    // A price list and a source key are a customer's: a staff account the
+    // exchange could address is one it could tier, disable or re-mail.
+    check(
+      'users_customer_only_fields',
+      sql`${t.role} = 'user' OR (${t.tierId} IS NULL AND ${t.sourceId} IS NULL)`,
+    ),
+    // Only on a company, or a person's orders would quote them. Not the
+    // reverse: a company registered before `companyName` existed has none.
+    check(
+      'users_company_fields_on_companies',
+      sql`${t.customerType} IS NOT DISTINCT FROM 'company' OR (${t.companyName} IS NULL AND ${t.companyRegistrationId} IS NULL)`,
+    ),
+  ],
+);
 
 /**
  * Single-use links to set a password: the invitation on approval

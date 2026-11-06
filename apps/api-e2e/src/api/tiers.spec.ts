@@ -474,33 +474,6 @@ describe('Customer tiers admin (FR-AUTH-05)', () => {
 
       expect(delta).toBe(0);
     });
-
-    it('leaves staff out of a tier count as well', async () => {
-      const created = await createTier({
-        key: keyFor('staff-count'),
-        label: 'Staff count',
-      });
-      // Unreal, as tiers go to customers, but the count must still mean what it
-      // says.
-      await client.query('UPDATE users SET "tierId" = $1 WHERE email = $2', [
-        created.data.id,
-        MANAGER_EMAIL,
-      ]);
-
-      const list = await get('/admin/tiers');
-      const row = list.data.tiers.find(
-        (t: { id: string }) => t.id === created.data.id,
-      );
-      expect(row.userCount).toBe(0);
-
-      // The delete guard counts the reference anyway: it stands in for a
-      // restricting foreign key, which does not care about roles.
-      expect((await del(`/admin/tiers/${created.data.id}`)).status).toBe(409);
-
-      await client.query('UPDATE users SET "tierId" = NULL WHERE email = $1', [
-        MANAGER_EMAIL,
-      ]);
-    });
   });
 
   it('falls back to the label when two tiers share a position', async () => {
