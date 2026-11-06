@@ -31,10 +31,9 @@
       }
     },
     "test": {
-      "executor": "@nx/vitest:test",
-      "outputs": ["{workspaceRoot}/coverage/apps/erp-sim"],
       "options": {
-        "tsConfig": "apps/erp-sim/tsconfig.spec.json"
+        "cwd": ".",
+        "config": "apps/erp-sim/vite.config.ts"
       }
     }
   }

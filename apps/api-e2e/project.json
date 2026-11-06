@@ -5,12 +5,12 @@
   "implicitDependencies": ["api", "seeder"],
   "targets": {
     "e2e": {
-      "executor": "@nx/vitest:test",
+      "executor": "nx:run-commands",
       "outputs": ["{workspaceRoot}/coverage/api-e2e"],
       "dependsOn": ["api:build", "seeder:build", "api:serve-e2e"],
+      "cache": false,
       "options": {
-        "passWithNoTests": true,
-        "tsConfig": "apps/api-e2e/tsconfig.spec.json"
+        "command": "vitest run --config=apps/api-e2e/vite.config.ts --passWithNoTests"
       }
     },
     "typecheck": {

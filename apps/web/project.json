@@ -66,6 +66,9 @@
         "development": {
           "buildTarget": "web:build:development"
         }
+      },
+      "readyWhen": {
+        "signal": true
       }
     },
     "test": {
@@ -87,6 +90,10 @@
     "serve-static": {
       "continuous": true,
       "executor": "@nx/web:file-server",
+      "readyWhen": {
+        "signal": true
+      },
+      "dependsOn": ["build"],
       "options": {
         "buildTarget": "web:build",
         "port": 4200,
