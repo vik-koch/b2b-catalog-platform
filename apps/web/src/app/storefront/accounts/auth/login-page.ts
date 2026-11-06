@@ -4,7 +4,7 @@ import { form, required } from '@angular/forms/signals';
 import { Router, RouterLink } from '@angular/router';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { usePageSeo } from '../../../platform/page-seo';
-import { emailAddress } from '../../../platform/field-rules';
+import { emailAddress, untilInteractive } from '../../../platform/field-rules';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
 import { Input } from '@b2b-catalog-platform/ui/inputs/input';
@@ -139,6 +139,7 @@ export class LoginPage {
   protected readonly form = form(
     signal({ email: '', password: '' }),
     (login) => {
+      untilInteractive(login);
       required(login.email, { message: this.fields.email.required });
       emailAddress(login.email, this.fields.email.invalid);
       // Presence only: the policy is the account's, not the sign-in's.

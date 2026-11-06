@@ -14,7 +14,6 @@ import {
 import { maintenanceGate } from '../site/maintenance/maintenance.guard';
 import { NotFoundPage } from '../platform/not-found-page';
 import { ContactPage } from '../site/pages/contact-page';
-import { InquiryPage } from '../site/inquiry/inquiry-page';
 import { MaintenanceScreen } from '../site/maintenance/maintenance-screen';
 import { Home } from './home';
 import { CategoryGrid } from '../catalog/categories/category-grid';
@@ -196,7 +195,12 @@ export const storefrontRoutes: Route[] = [
         (m) => m.ConditionsPage,
       ),
   },
-  { path: 'inquiry', component: InquiryPage, canActivate: [maintenanceGate] },
+  {
+    path: 'inquiry',
+    loadComponent: () =>
+      import('../site/inquiry/inquiry-page').then((m) => m.InquiryPage),
+    canActivate: [maintenanceGate],
+  },
   // The consent texts (NFR-LEGAL-09), each under the form that asks for it.
   // An ordinary page body, so the generic component renders it by its key.
   {

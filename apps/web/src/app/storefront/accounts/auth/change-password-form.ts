@@ -21,6 +21,7 @@ import {
   PASSWORD_MAX_LENGTH,
   PASSWORD_MIN_LENGTH,
 } from '@b2b-catalog-platform/shared/core/accounts';
+import { untilInteractive } from '../../../platform/field-rules';
 
 /** No required marks: marking every field on a form marks none. */
 @Component({
@@ -138,6 +139,7 @@ export class ChangePasswordForm {
   protected readonly form = form(
     this.model,
     (change) => {
+      untilInteractive(change);
       required(change.currentPassword, {
         message: this.validation.currentPasswordRequired,
       });

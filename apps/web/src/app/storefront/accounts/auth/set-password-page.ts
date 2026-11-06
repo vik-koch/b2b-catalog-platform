@@ -28,6 +28,7 @@ import {
   PASSWORD_MIN_LENGTH,
 } from '@b2b-catalog-platform/shared/core/accounts';
 import { PasswordTokenPurpose } from '@b2b-catalog-platform/shared/storefront/accounts';
+import { untilInteractive } from '../../../platform/field-rules';
 
 type Status =
   | 'checking'
@@ -216,6 +217,7 @@ export class SetPasswordPage implements OnInit {
   protected readonly form = form(
     this.model,
     (password) => {
+      untilInteractive(password);
       newPassword(password.newPassword, {
         required: this.validation.newPasswordRequired,
         tooShort: this.tooShort,

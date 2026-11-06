@@ -26,6 +26,7 @@ import {
   CodeSent,
   SIGN_IN_CODE_LENGTH,
 } from '@b2b-catalog-platform/shared/core/accounts';
+import { untilInteractive } from '../../../platform/field-rules';
 
 /**
  * Entering a code sent to a phone; the caller supplies what a code and a
@@ -159,6 +160,7 @@ export class CodeEntry {
   protected readonly form = form(
     this.model,
     (entry) => {
+      untilInteractive(entry);
       required(entry.code, { message: this.text.codeRequired });
       maxLength(entry.code, SIGN_IN_CODE_LENGTH);
       pattern(entry.code, new RegExp(`^\\d{${SIGN_IN_CODE_LENGTH}}$`), {

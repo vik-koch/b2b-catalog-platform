@@ -14,6 +14,7 @@ import {
   completeMask,
   emailAddress,
   personName,
+  untilInteractive,
 } from '../../../platform/field-rules';
 import { companyIdFormat } from '../../../core/accounts/parties/company-id';
 import { CheckoutDraft, PartyChoice } from './checkout-draft';
@@ -67,6 +68,7 @@ export function createCheckoutForms(deps: {
   const field = form(
     model,
     (answers) => {
+      untilInteractive(answers);
       const { party, contact } = answers;
       // A guest's private party is the contact: one name, asked once.
       hidden(party.personName, {

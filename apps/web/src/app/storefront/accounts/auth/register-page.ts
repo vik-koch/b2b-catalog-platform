@@ -12,6 +12,7 @@ import {
   completeMask,
   emailAddress,
   personName,
+  untilInteractive,
 } from '../../../platform/field-rules';
 import { CompanyFields } from '../../../core/accounts/parties/company-fields';
 import { companyIdFormat } from '../../../core/accounts/parties/company-id';
@@ -233,6 +234,7 @@ export class RegisterPage {
   protected readonly form = form(
     this.model,
     (registration) => {
+      untilInteractive(registration);
       required(registration.firstName, {
         message: this.fields.firstName.required,
       });

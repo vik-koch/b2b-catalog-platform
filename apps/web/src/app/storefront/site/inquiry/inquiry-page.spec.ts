@@ -2,6 +2,7 @@ import {
   provideUiText,
   SHARED_TEXT,
 } from '../../../platform/config/shared-text';
+import { PLATFORM_ID } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import type { DeploymentConfigFile } from '@b2b-catalog-platform/shared/deployment';
 import { Page } from '@b2b-catalog-platform/shared/core/site';
@@ -67,7 +68,11 @@ function submitForm(root: HTMLElement): void {
 }
 
 async function render(
-  options: { config?: DeploymentConfigFile; page?: Page | null } = {},
+  options: {
+    config?: DeploymentConfigFile;
+    page?: Page | null;
+    platform?: 'browser' | 'server';
+  } = {},
 ) {
   const submit = vi.fn<InquiryService['submit']>().mockResolvedValue('ok');
   const getPage = vi
@@ -85,6 +90,7 @@ async function render(
       { provide: DEPLOYMENT_CONFIG, useValue: options.config ?? testConfig },
       { provide: InquiryService, useValue: { submit } },
       { provide: PageService, useValue: { getPage } },
+      { provide: PLATFORM_ID, useValue: options.platform ?? 'browser' },
     ],
   });
 
@@ -110,6 +116,20 @@ describe('InquiryPage', () => {
 
     expect(submit).not.toHaveBeenCalled();
     expect(el.textContent).toContain(defaultSharedText.fields.name.required);
+  });
+
+  it('refuses input as the server renders it, which hydration would drop', async () => {
+    const { el } = await render({ platform: 'server' });
+
+    for (const id of ['#name', '#email', '#phone', '#message']) {
+      expect(el.querySelector(id)?.hasAttribute('readonly')).toBe(true);
+    }
+  });
+
+  it('takes input once the browser has rendered it', async () => {
+    const { el } = await render();
+
+    expect(el.querySelector('#name')?.hasAttribute('readonly')).toBe(false);
   });
 
   it("caps the fields at the contract's lengths", async () => {

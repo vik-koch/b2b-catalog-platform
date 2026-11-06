@@ -17,7 +17,11 @@ import {
   typedPhone,
 } from '../../../platform/contact-fields';
 import { delayedLoading } from '../../../platform/delayed-loading';
-import { completeMask, personName } from '../../../platform/field-rules';
+import {
+  completeMask,
+  personName,
+  untilInteractive,
+} from '../../../platform/field-rules';
 import { usePageSeo } from '../../../platform/page-seo';
 import { AuthService } from '../../../platform/auth/auth.service';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
@@ -157,6 +161,7 @@ export class AccountEditPage {
   protected readonly form = form(
     this.draft,
     (account) => {
+      untilInteractive(account);
       required(account.firstName, { message: this.fields.firstName.required });
       required(account.lastName, { message: this.fields.lastName.required });
       personName(account.firstName, this.fields.firstName.invalid);

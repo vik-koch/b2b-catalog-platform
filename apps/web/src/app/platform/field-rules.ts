@@ -1,5 +1,7 @@
+import { inject } from '@angular/core';
 import {
   maxLength,
+  readonly,
   required,
   validate,
   type PathKind,
@@ -14,12 +16,26 @@ import {
   maskLength,
   PERSON_NAME_MAX_LENGTH,
 } from '@b2b-catalog-platform/shared/platform';
+import { FirstRender } from './first-render';
 
 type StringPath<K extends PathKind> = SchemaPath<
   string,
   SchemaPathRules.Supported,
   K
 >;
+
+/**
+ * Read-only until the browser has claimed the server's markup, which drops
+ * whatever was typed into it (NFR-SEO-05). Not the submit button: disabled, a
+ * page's main button would flash grey on every load, and with nothing typed a
+ * press only reloads the page. Called from a schema, in `form()`'s context.
+ */
+export function untilInteractive<T, K extends PathKind>(
+  path: SchemaPath<T, SchemaPathRules.Supported, K>,
+): void {
+  const interactive = inject(FirstRender).interactive;
+  readonly(path, { when: () => !interactive() });
+}
 
 /** Required, with spaces alone counting as nothing, as the save trims them.
  * Both errors are of the `required` kind. */

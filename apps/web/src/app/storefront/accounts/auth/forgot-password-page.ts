@@ -3,7 +3,7 @@ import { Component, inject, signal } from '@angular/core';
 import { form, required } from '@angular/forms/signals';
 import { RouterLink } from '@angular/router';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
-import { emailAddress } from '../../../platform/field-rules';
+import { emailAddress, untilInteractive } from '../../../platform/field-rules';
 import { usePageSeo } from '../../../platform/page-seo';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
@@ -99,6 +99,7 @@ export class ForgotPasswordPage {
   protected readonly form = form(
     signal({ email: '' }),
     (request) => {
+      untilInteractive(request);
       required(request.email, { message: this.fields.email.required });
       emailAddress(request.email, this.fields.email.invalid);
     },

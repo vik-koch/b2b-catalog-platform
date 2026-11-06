@@ -14,6 +14,7 @@ import {
   completeMask,
   emailAddress,
   personName,
+  untilInteractive,
 } from '../../../platform/field-rules';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { HoneypotField } from '@b2b-catalog-platform/ui/fields/honeypot-field';
@@ -170,6 +171,7 @@ export class InquiryPage {
       website: '',
     }),
     (inquiry) => {
+      untilInteractive(inquiry);
       required(inquiry.name, { message: this.fields.name.required });
       personName(inquiry.name, this.fields.name.invalid);
       maxLength(inquiry.phone, INQUIRY_PHONE_MAX_LENGTH);
