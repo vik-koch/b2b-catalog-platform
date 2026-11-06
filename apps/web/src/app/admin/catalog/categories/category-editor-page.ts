@@ -23,7 +23,6 @@ import { delayedLoading } from '../../../platform/delayed-loading';
 import { UnsavedChangesAware } from '../../platform/unsaved-changes.guard';
 import { UnsavedChanges } from '../../platform/unsaved-changes';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
-import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import {
   FieldAttempt,
   FIELD_ATTEMPT,
@@ -70,7 +69,6 @@ interface CategoryDraft {
     FORM_FIELDS,
     LockedNote,
     Button,
-    Icon,
     CategoryPicker,
     FieldLabel,
     Input,
