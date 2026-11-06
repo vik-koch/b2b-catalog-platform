@@ -134,7 +134,7 @@ the standalone text controls — show password, generate, enter manually, a map
 link under an address, reset widths. A word inside a sentence keeps `uiLink`,
 and so does a count in a record row, which links to the list it counts.
 
-## Amendment — 2026-10-26 (v1.15.2): every colour is a role, and lint holds the line
+## Amendment — 2026-10-26 (v1.16.0): every colour is a role, and lint holds the line
 
 The semantic names covered the brand and the text, but the rest of the colour
 in the templates was still Tailwind's palette: the greys of every hover, ground
@@ -172,7 +172,7 @@ not at all, and nothing stopped a new template from adding more.
   it uses (`ink`, `inkSubtle`, `edge`, `surface`, `surfaceSubtle`) from the
   theme where they are set as hex, and the web app's defaults otherwise.
 
-## Amendment — 2026-10-27 (v1.15.2): icons are data
+## Amendment — 2026-10-27 (v1.16.0): icons are data
 
 Two icon components, a storefront set and an admin set, kept the admin glyphs out of a
 visitor's download: a component's `@switch` ships every glyph it holds, so the split was by

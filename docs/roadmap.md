@@ -23,7 +23,7 @@ Milestones (one per iteration). Release notes: GitHub Releases per semver tag.
 | 14<br>`v1.12.0` | Order exchange with the source system | [FR-ADM-08](requirements.md#fr-adm-08) | [FR-ADM-09](requirements.md#fr-adm-09)/[10](requirements.md#fr-adm-10)/[17](requirements.md#fr-adm-17),<br>[FR-ORD-02](requirements.md#fr-ord-02)/[03](requirements.md#fr-ord-03)/[05](requirements.md#fr-ord-05),<br>[FR-NOTIF-09](requirements.md#fr-notif-09),<br>[NFR-LEGAL-07](requirements.md#nfr-legal-07) |
 | 15<br>`v1.13.0` | Storefront presentation: links elsewhere, documents held elsewhere, category marks, the main page, richer search, the conditions page, subtree counts, sets, variants; the admin grid's content filter; removing a product in steps | [FR-NAV-07](requirements.md#fr-nav-07),<br>[FR-CAT-07](requirements.md#fr-cat-07)/[09](requirements.md#fr-cat-09)/[10](requirements.md#fr-cat-10)/[11](requirements.md#fr-cat-11)/[12](requirements.md#fr-cat-12)/[13](requirements.md#fr-cat-13),<br>[FR-SEARCH-06](requirements.md#fr-search-06)/[07](requirements.md#fr-search-07)/[08](requirements.md#fr-search-08),<br>[FR-ADM-19](requirements.md#fr-adm-19)/[20](requirements.md#fr-adm-20)/[21](requirements.md#fr-adm-21)/[22](requirements.md#fr-adm-22),<br>[FR-ATTR-12](requirements.md#fr-attr-12)/[13](requirements.md#fr-attr-13),<br>[FR-DOC-05](requirements.md#fr-doc-05) | [FR-NAV-03](requirements.md#fr-nav-03),<br>[FR-CAT-01](requirements.md#fr-cat-01)/[02](requirements.md#fr-cat-02)/[03](requirements.md#fr-cat-03),<br>[FR-SEARCH-02](requirements.md#fr-search-02)/[04](requirements.md#fr-search-04),<br>[FR-ADM-01](requirements.md#fr-adm-01)/[02](requirements.md#fr-adm-02)/[04](requirements.md#fr-adm-04)/[05](requirements.md#fr-adm-05)/[06](requirements.md#fr-adm-06)/[10](requirements.md#fr-adm-10),<br>[FR-ATTR-02](requirements.md#fr-attr-02),<br>[FR-CART-08](requirements.md#fr-cart-08),<br>[FR-DOC-01](requirements.md#fr-doc-01)/[03](requirements.md#fr-doc-03) |
 | 16<br>`v1.14.0` | Compliance pass before going live | [NFR-LEGAL-09](requirements.md#nfr-legal-09)/[10](requirements.md#nfr-legal-10)/[11](requirements.md#nfr-legal-11)/[12](requirements.md#nfr-legal-12)/[13](requirements.md#nfr-legal-13)/[14](requirements.md#nfr-legal-14),<br>[FR-ADM-23](requirements.md#fr-adm-23),<br>[FR-AUTH-12](requirements.md#fr-auth-12) | [NFR-LEGAL-01](requirements.md#nfr-legal-01)/[02](requirements.md#nfr-legal-02)/[04](requirements.md#nfr-legal-04)/[08](requirements.md#nfr-legal-08),<br>[FR-NAV-03](requirements.md#fr-nav-03)/[06](requirements.md#fr-nav-06),<br>[FR-ADM-01](requirements.md#fr-adm-01)/[02](requirements.md#fr-adm-02)/[03](requirements.md#fr-adm-03)/[07](requirements.md#fr-adm-07)/[08](requirements.md#fr-adm-08),<br>[FR-CART-02](requirements.md#fr-cart-02),<br>[FR-UNIT-06](requirements.md#fr-unit-06),<br>[FR-AUTH-01](requirements.md#fr-auth-01)/[04](requirements.md#fr-auth-04)/[06](requirements.md#fr-auth-06)/[11](requirements.md#fr-auth-11),<br>[FR-ORD-02](requirements.md#fr-ord-02)/[05](requirements.md#fr-ord-05),<br>[FR-ACC-01](requirements.md#fr-acc-01),<br>[FR-NOTIF-06](requirements.md#fr-notif-06),<br>[NFR-SEC-01](requirements.md#nfr-sec-01),<br>[NFR-OPS-04](requirements.md#nfr-ops-04) |
-| 17<br>`v1.14.1`, `v1.15.0`,<br>`v1.15.1`<br>_open_ | Maintainability and demo value: text structure, a UI library, two demo shops from one image, a simulated source system, capability docs | [FR-NAV-08](requirements.md#fr-nav-08),<br>[FR-AUTH-13](requirements.md#fr-auth-13) | — |
+| 17<br>`v1.14.1`, `v1.15.0`,<br>`v1.15.1`, `v1.16.0`<br>_open_ | Maintainability and demo value: text structure, a UI library, two demo shops from one image, a simulated source system, capability docs, the code cut by audience and area | [FR-NAV-08](requirements.md#fr-nav-08),<br>[FR-AUTH-13](requirements.md#fr-auth-13),<br>[NFR-SEO-05](requirements.md#nfr-seo-05) | [FR-ADM-05](requirements.md#fr-adm-05)/[20](requirements.md#fr-adm-20) |
 | later<br>_unscheduled_ | Online card payment — held until the shop is live and a merchant account exists | — | [FR-CART-04](requirements.md#fr-cart-04)/[06](requirements.md#fr-cart-06) |
 
 Notes:
@@ -1015,6 +1015,27 @@ Notes:
   incomplete. The query drops it, and a page given an old link to it shows the list without
   that narrowing rather than failing. It is new scope, so the release that carries it is a
   minor.
+- **The code is cut by audience and area** (v1.16.0, 2026-11-06,
+  [ADR 0069](adr/0069-split-web-texts-and-contracts-by-audience.md) to
+  [ADR 0073](adr/0073-cut-the-code-by-area-and-audience.md)). Two shops on one image made
+  the cost of the code's shape plain: a change to one screen reached into folders named by
+  layer, and the texts and contracts every page loaded were one block each. The API, the
+  shared contracts and the web app now share one layout, audience first and area second,
+  and lint holds the edges between them. The styling became a UI library apart from the app,
+  forms moved to Signal Forms, and views were kept apart from what loads their data. The
+  deployment's text files are named by their reader. Nothing a shop or a customer sees
+  changes because of it.
+- **A form takes input only once it works** (planned 2026-11-06,
+  [NFR-SEO-05](requirements.md#nfr-seo-05)). A page rendered on the server shows its forms
+  before the browser can handle them, and what a visitor typed in that moment was lost
+  without a word. Every such form now refuses input until it can act on it. It looks the
+  same meanwhile, because on most connections the wait is too short to notice.
+- **An order reference follows a format the deployment writes** (2026-11-06,
+  [ADR 0038](adr/0038-browser-held-cart-and-order-snapshots.md)). The reference was a prefix,
+  a date and four digits, in a fixed shape. A shop moving from another system wants its own
+  shape, so `ordering.orderReference.format` now states it, such as `CK{date}-####`: the date
+  once, at least four random digits. The 1.16.0 map writes the old shape out for an existing
+  deployment, and stored references never change.
 
 ## Explicitly out of scope for now
 
