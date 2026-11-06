@@ -45,6 +45,11 @@ jobs:
       # Attribution itself needs no CI step: the build emits the notice file.
       - run: node tools/check-licenses.mjs
 
+      # Only what ships is gated. Dev-only advisories sit deep in Nx, ESLint
+      # and Jest, where forcing a fixed major would break the tooling; they
+      # are reviewed at each release instead.
+      - run: npm audit --omit=dev --audit-level=moderate
+
       # The browser's copy of the contracts is generated from them, so a route
       # changed without regenerating would ship a client calling the old path.
       - run: node tools/generate-contract-routes.mjs --check
