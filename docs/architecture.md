@@ -154,8 +154,8 @@ Between areas, imports run one way, in the domain's direction:
 
 The graph is counted from the code: each number is the files that import across that edge,
 broken down by layer in the table below it. A dotted edge would be a permission nothing uses.
-The rows marked "actor columns only" are the one exception to the direction, left out of the
-graph: every table records who changed a row, so any schema module may reference `users`.
+Every table records who changed a row against platform's `identities`, so that reference
+crosses no edge ([ADR 0074](adr/0074-anchor-actor-references-on-a-platform-identity.md)).
 
 <!-- generated:area-graph -->
 
@@ -168,7 +168,7 @@ flowchart TB
   work -->|1| accounts
   work -->|1| catalog
   exchange -->|7| ordering
-  exchange -->|9| accounts
+  exchange -->|8| accounts
   exchange -->|11| catalog
   ordering -->|8| site
   ordering -->|31| accounts
@@ -177,25 +177,22 @@ flowchart TB
   accounts -->|5| catalog
 ```
 
-| From      | To       | API | contracts | web | Note               |
-| --------- | -------- | --: | --------: | --: | ------------------ |
-| platform  | accounts |   1 |         0 |   0 | actor columns only |
-| catalog   | accounts |   1 |         0 |   0 | actor columns only |
-| accounts  | catalog  |   2 |         0 |   3 |                    |
-| accounts  | site     |   7 |         2 |   6 |                    |
-| site      | accounts |   1 |         0 |   0 | actor columns only |
-| ordering  | catalog  |  10 |         4 |  11 |                    |
-| ordering  | accounts |  10 |         4 |  17 |                    |
-| ordering  | site     |   5 |         0 |   3 |                    |
-| exchange  | catalog  |   7 |         4 |   0 |                    |
-| exchange  | accounts |   6 |         2 |   1 |                    |
-| exchange  | ordering |   4 |         3 |   0 |                    |
-| work      | catalog  |   1 |         0 |   0 |                    |
-| work      | accounts |   1 |         0 |   0 |                    |
-| work      | ordering |   1 |         0 |   0 |                    |
-| work      | exchange |   1 |         0 |   0 |                    |
-| retention | site     |   1 |         0 |   0 |                    |
-| retention | ordering |   2 |         0 |   0 |                    |
+| From      | To       | API | contracts | web | Note |
+| --------- | -------- | --: | --------: | --: | ---- |
+| accounts  | catalog  |   2 |         0 |   3 |      |
+| accounts  | site     |   7 |         2 |   6 |      |
+| ordering  | catalog  |  10 |         4 |  11 |      |
+| ordering  | accounts |  10 |         4 |  17 |      |
+| ordering  | site     |   5 |         0 |   3 |      |
+| exchange  | catalog  |   7 |         4 |   0 |      |
+| exchange  | accounts |   5 |         2 |   1 |      |
+| exchange  | ordering |   4 |         3 |   0 |      |
+| work      | catalog  |   1 |         0 |   0 |      |
+| work      | accounts |   1 |         0 |   0 |      |
+| work      | ordering |   1 |         0 |   0 |      |
+| work      | exchange |   1 |         0 |   0 |      |
+| retention | site     |   1 |         0 |   0 |      |
+| retention | ordering |   2 |         0 |   0 |      |
 
 <!-- /generated:area-graph -->
 

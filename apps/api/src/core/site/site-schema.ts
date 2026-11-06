@@ -16,7 +16,7 @@ import {
   varchar,
 } from 'drizzle-orm/pg-core';
 import { oneOf } from '../../platform/db/sql-columns';
-import { users } from '../accounts/accounts-schema';
+import { identities } from '../../platform/db/schema';
 
 /**
  * Every save of a static page, one row each; the slug's highest version is the
@@ -41,7 +41,7 @@ export const pageVersions = pgTable(
       .defaultNow(),
     /** Null for seeded content. With the email beside it, so the history
      * names the editor once the account is gone. */
-    createdBy: uuid('createdBy').references(() => users.id, {
+    createdBy: uuid('createdBy').references(() => identities.id, {
       onDelete: 'set null',
     }),
     createdByEmail: varchar('createdByEmail', { length: 255 }),
@@ -115,7 +115,7 @@ export const consentWithdrawals = pgTable(
       .notNull()
       .defaultNow(),
     /** The admin who entered it, their address copied as on a page save. */
-    enteredBy: uuid('enteredBy').references(() => users.id),
+    enteredBy: uuid('enteredBy').references(() => identities.id),
     enteredByEmail: varchar('enteredByEmail', { length: 320 }),
     note: varchar('note', { length: CONSENT_WITHDRAWAL_NOTE_MAX }),
   },

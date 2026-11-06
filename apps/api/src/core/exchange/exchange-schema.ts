@@ -28,7 +28,7 @@ import {
   uuid,
   varchar,
 } from 'drizzle-orm/pg-core';
-import { users } from '../accounts/accounts-schema';
+import { identities } from '../../platform/db/schema';
 
 export const apiTokenScope = pgEnum('api_token_scope', API_TOKEN_SCOPES);
 
@@ -57,7 +57,7 @@ export const apiTokens = pgTable(
       .defaultNow(),
     /** With the email beside it, so the trail names who issued the token once
      * the account is gone. */
-    createdBy: uuid('createdBy').references(() => users.id, {
+    createdBy: uuid('createdBy').references(() => identities.id, {
       onDelete: 'set null',
     }),
     createdByEmail: varchar('createdByEmail', { length: 255 }),
@@ -127,7 +127,9 @@ export const syncRuns = pgTable('sync_runs', {
   finishedAt: timestamp('finishedAt', { withTimezone: true }),
   /** With the email beside it, so the trail names who ran it once the
    * account is gone. */
-  actorId: uuid('actorId').references(() => users.id, { onDelete: 'set null' }),
+  actorId: uuid('actorId').references(() => identities.id, {
+    onDelete: 'set null',
+  }),
   actorEmail: varchar('actorEmail', { length: 255 }),
   /** The credential behind a headless run, with its name beside it. A token
    * is revoked, never deleted, so the key holds. */

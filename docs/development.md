@@ -112,11 +112,11 @@ it replaces a release later. A migration that cannot run unattended makes the re
   other only along the table in `tools/lint/area-boundaries.mjs`, and ask one above through an
   interface the root binds (`app/area-ports.module.ts`). A config or text file has a block
   per area, and only a root reads it whole (for the files both apps read, through the shared
-  library's `deployment` entry); the one
-  exception is a table's reference to `users` for who changed a row. Texts split by audience
-  only. Lint fails a wrong-way import
+  library's `deployment` entry). Who changed a row references platform's `identities`, never
+  `users`. Texts split by audience only. Lint fails a wrong-way import
   ([ADR 0069](adr/0069-split-web-texts-and-contracts-by-audience.md),
-  [ADR 0073](adr/0073-cut-the-code-by-area-and-audience.md)).
+  [ADR 0073](adr/0073-cut-the-code-by-area-and-audience.md),
+  [ADR 0074](adr/0074-anchor-actor-references-on-a-platform-identity.md)).
 - **Views in `ui/`, containers at the feature root.** A component that only draws (inputs,
   outputs, texts and config) lives in the `ui/` folder of the nearest folder holding all its
   users (feature, area or `core/<area>`) and imports no service, API client or contract; pages

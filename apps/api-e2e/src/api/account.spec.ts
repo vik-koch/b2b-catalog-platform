@@ -411,9 +411,11 @@ describe('/account/profile', () => {
 
     // Staff leave like anyone else; the last-admin rule is the only limit.
     it('lets a manager delete their own account', async () => {
-      await client.query(`UPDATE users SET role = 'manager' WHERE id = $1`, [
-        leaverId,
-      ]);
+      // As a promotion does: a tier and a source key are a customer's.
+      await client.query(
+        `UPDATE users SET role = 'manager', "tierId" = NULL, "sourceId" = NULL WHERE id = $1`,
+        [leaverId],
+      );
 
       expect((await remove(leaverCookie, PASSWORD)).status).toBe(200);
     });

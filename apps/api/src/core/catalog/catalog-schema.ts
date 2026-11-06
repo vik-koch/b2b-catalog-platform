@@ -18,7 +18,7 @@ import {
   uuid,
   varchar,
 } from 'drizzle-orm/pg-core';
-import { users } from '../accounts/accounts-schema';
+import { identities } from '../../platform/db/schema';
 import { PRODUCT_AVAILABILITIES } from '@b2b-catalog-platform/shared/core/catalog';
 
 /** Postgres `tsvector`, which drizzle lacks. Written only by the database and
@@ -57,7 +57,7 @@ export const categories = pgTable('categories', {
     .notNull()
     .defaultNow(),
   /** Who last edited the admin's fields. Null for a row only a sync wrote. */
-  updatedBy: uuid('updatedBy').references(() => users.id, {
+  updatedBy: uuid('updatedBy').references(() => identities.id, {
     onDelete: 'set null',
   }),
 });
@@ -165,16 +165,16 @@ export const products = pgTable(
     updatedAt: timestamp('updatedAt', { withTimezone: true })
       .notNull()
       .defaultNow(),
-    updatedBy: uuid('updatedBy').references(() => users.id, {
+    updatedBy: uuid('updatedBy').references(() => identities.id, {
       onDelete: 'set null',
     }),
     /** Apart from `updatedBy`: a delete is soft, so who hid a product stays
      * answerable. */
-    deletedBy: uuid('deletedBy').references(() => users.id, {
+    deletedBy: uuid('deletedBy').references(() => identities.id, {
       onDelete: 'set null',
     }),
     /** Who took responsibility for the price going public. */
-    publishedBy: uuid('publishedBy').references(() => users.id, {
+    publishedBy: uuid('publishedBy').references(() => identities.id, {
       onDelete: 'set null',
     }),
     /** The name's search index (FR-SEARCH-02), kept by the database so no
@@ -302,7 +302,7 @@ export const attributeDefinitions = pgTable('attribute_definitions', {
   updatedAt: timestamp('updatedAt', { withTimezone: true })
     .notNull()
     .defaultNow(),
-  updatedBy: uuid('updatedBy').references((): AnyPgColumn => users.id, {
+  updatedBy: uuid('updatedBy').references(() => identities.id, {
     onDelete: 'set null',
   }),
 });
@@ -379,7 +379,7 @@ export const customerTiers = pgTable(
     updatedAt: timestamp('updatedAt', { withTimezone: true })
       .notNull()
       .defaultNow(),
-    updatedBy: uuid('updatedBy').references((): AnyPgColumn => users.id, {
+    updatedBy: uuid('updatedBy').references(() => identities.id, {
       onDelete: 'set null',
     }),
   },
@@ -490,7 +490,7 @@ export const documents = pgTable(
     updatedAt: timestamp('updatedAt', { withTimezone: true })
       .notNull()
       .defaultNow(),
-    updatedBy: uuid('updatedBy').references(() => users.id, {
+    updatedBy: uuid('updatedBy').references(() => identities.id, {
       onDelete: 'set null',
     }),
   },

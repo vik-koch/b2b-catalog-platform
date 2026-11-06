@@ -274,18 +274,17 @@ describe('Headless customer exchange (FR-ADM-11)', () => {
       expect(res.data.plan.summary).toMatchObject({ rows: 4000, create: 0 });
     });
 
+    // By id: a staff account holds no key for a row to name.
     it('skips a row that names a staff account', async () => {
       const { rows } = await client.query(
         'SELECT id FROM users WHERE email = $1',
         [MANAGER_EMAIL],
       );
-      await client.query('UPDATE users SET "sourceId" = $1 WHERE id = $2', [
-        key(99),
-        rows[0].id,
-      ]);
 
       const res = await submit({
-        rows: [{ sourceId: key(99), access: 'disabled' }],
+        rows: [
+          { sourceId: key(99), accountId: rows[0].id, access: 'disabled' },
+        ],
       });
 
       expect(res.data.plan.rowErrors[0].code).toBe('staff-account');
@@ -294,9 +293,6 @@ describe('Headless customer exchange (FR-ADM-11)', () => {
         [rows[0].id],
       );
       expect(after[0].status).toBe('active');
-      await client.query('UPDATE users SET "sourceId" = NULL WHERE id = $1', [
-        rows[0].id,
-      ]);
     });
 
     describe('a run that takes access away', () => {

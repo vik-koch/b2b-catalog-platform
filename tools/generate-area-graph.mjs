@@ -106,9 +106,8 @@ function target(file, specifier) {
   return null;
 }
 
-/** `from>to` → { layer → importing files }, and the schema-only edges. */
+/** `from>to` → { layer → importing files }. */
 const edges = new Map();
-const actorOnly = new Map();
 for (const layer of LAYERS) {
   for (const absolute of sourceFiles(join(ROOT, layer))) {
     const file = relative(ROOT, absolute);
@@ -124,11 +123,6 @@ for (const layer of LAYERS) {
       const layerFiles = files.get(layer) ?? new Set();
       files.set(layer, layerFiles);
       layerFiles.add(file);
-      // Allowed only for a schema's actor columns (ACTOR_REFERENCES).
-      const actor =
-        /-schema\.ts$|\/db\/schema\.ts$/.test(file) &&
-        /accounts-schema$/.test(path);
-      actorOnly.set(key, (actorOnly.get(key) ?? true) && actor);
     }
   }
 }
@@ -151,7 +145,6 @@ const total = (key) =>
   LAYERS.reduce((sum, layer) => sum + count(key, layer), 0);
 function note(key) {
   if (!edges.has(key)) return 'allowed, unused';
-  if (actorOnly.get(key)) return 'actor columns only';
   if (!allowed.has(key)) return 'not in the table';
   return '';
 }
@@ -163,17 +156,14 @@ if (strays.length > 0) {
   process.exit(1);
 }
 
-// Actor edges run against the direction and would cross every layer, so they
-// stay in the table. Top-down, highest area first: the layout ranks nodes in
-// the order it meets them, so this keeps the domain's layers as rows.
-const lines = keys
-  .filter((key) => !actorOnly.get(key))
-  .reverse()
-  .map((key) => {
-    const [from, to] = key.split('>');
-    if (!edges.has(key)) return `  ${from} -.-> ${to}`;
-    return `  ${from} -->|${total(key)}| ${to}`;
-  });
+// Top-down, highest area first: the layout ranks nodes in the order it meets
+// them, so this keeps the domain's layers as rows.
+// toReversed, as the table below reads `keys` in order.
+const lines = keys.toReversed().map((key) => {
+  const [from, to] = key.split('>');
+  if (!edges.has(key)) return `  ${from} -.-> ${to}`;
+  return `  ${from} -->|${total(key)}| ${to}`;
+});
 
 const body = [
   '```mermaid',
