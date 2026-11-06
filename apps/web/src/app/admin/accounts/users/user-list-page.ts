@@ -24,6 +24,8 @@ import { GridColumn } from '@b2b-catalog-platform/ui/grid/grid-column';
 import { GridFilterOption } from '@b2b-catalog-platform/ui/grid/grid-filter-select';
 import { GridCardTemplate } from '@b2b-catalog-platform/ui/grid/grid-card-template';
 import { GridRowTemplate } from '@b2b-catalog-platform/ui/grid/grid-row-template';
+import { GridTitle } from '@b2b-catalog-platform/ui/grid/grid-title';
+import { GridTitleLink } from '@b2b-catalog-platform/ui/grid/grid-title-link';
 import { GridTimestamp } from '../../platform/dates/grid-timestamp';
 import { RecordRow } from '@b2b-catalog-platform/ui/lists/record-row';
 import { GridHeader } from '@b2b-catalog-platform/ui/grid/grid-header';
@@ -106,6 +108,8 @@ const typeRank = (t: StaffUser['customerType']): number =>
     GridHeader,
     DataGrid,
     GridRowTemplate,
+    GridTitle,
+    GridTitleLink,
     GridCardTemplate,
     GridTimestamp,
     RecordRow,
@@ -155,14 +159,15 @@ const typeRank = (t: StaffUser['customerType']): number =>
         <ng-template uiGridRow [of]="data" let-user>
           <!-- Name and email in one cell, as on the order list. The name opens
                the account to read; the pencil opens the editor. -->
-          <td class="truncate" [title]="user.email">
-            <a
-              class="block truncate font-medium text-ink hover:text-accent"
-              [routerLink]="['/admin/users', user.id]"
-              [queryParams]="editorFrom()"
-            >
-              {{ name(user) }}
-            </a>
+          <td [title]="user.email">
+            <ui-grid-title>
+              <a
+                uiGridTitleLink
+                [routerLink]="['/admin/users', user.id]"
+                [queryParams]="editorFrom()"
+                >{{ name(user) }}</a
+              >
+            </ui-grid-title>
             <span class="block truncate text-xs text-ink-subtle">
               {{ user.email }}
             </span>
