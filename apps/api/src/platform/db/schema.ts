@@ -1,5 +1,6 @@
 import { sql } from 'drizzle-orm';
 import {
+  bigint,
   boolean,
   check,
   index,
@@ -80,6 +81,9 @@ export const settingChangeKind = pgEnum(
  */
 export const settingChanges = pgTable('setting_changes', {
   id: uuid('id').primaryKey().defaultRandom(),
+  /** Insertion order, which is what the trail is read in: a wall clock can
+   * step backwards, so `changedAt` cannot say it. */
+  seq: bigint('seq', { mode: 'number' }).generatedAlwaysAsIdentity(),
   kind: settingChangeKind('kind').notNull(),
   /** The area, for a setting that has them. Text, not the enum: a retired
    * area must still read back. */

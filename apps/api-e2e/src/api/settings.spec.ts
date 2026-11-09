@@ -135,6 +135,38 @@ describe('settings (maintenance toggle)', () => {
     expect(res.data).toEqual({ enabled: false });
   });
 
+  it('lists the trail in the order it was written, whatever the clock said', async () => {
+    const cookie = await login(ADMIN_EMAIL);
+    const set = (enabled: boolean) =>
+      axios.put(
+        '/settings/maintenance',
+        { enabled },
+        { headers: { Cookie: cookie }, validateStatus: () => true },
+      );
+    expect((await set(true)).status).toBe(200);
+    expect((await set(false)).status).toBe(200);
+
+    // The clock stepped back an hour between the two writes.
+    await client.query(
+      `UPDATE setting_changes SET "changedAt" = "changedAt" - interval '1 hour'
+        WHERE id = (SELECT id FROM setting_changes
+                     WHERE "changedByEmail" = $1 AND enabled = false
+                     ORDER BY "changedAt" DESC LIMIT 1)`,
+      [ADMIN_EMAIL],
+    );
+
+    const res = await axios.get('/settings/changes', {
+      headers: { Cookie: cookie },
+    });
+    const ours = res.data.changes.filter(
+      (change: { actorEmail: string | null; kind: string }) =>
+        change.actorEmail === ADMIN_EMAIL && change.kind === 'maintenance',
+    );
+    expect(
+      ours.slice(0, 2).map((c: { enabled: boolean }) => c.enabled),
+    ).toEqual([false, true]);
+  });
+
   describe('while the gate is on (FR-ADM-04)', () => {
     /** Turns the gate on, runs `body`, and always turns it back off. */
     const whileInMaintenance = async (body: () => Promise<void>) => {
