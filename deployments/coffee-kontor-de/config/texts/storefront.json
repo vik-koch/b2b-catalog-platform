@@ -453,6 +453,7 @@
         "rejected": "Wir konnten diese Bestellung nicht annehmen. Bitte versuchen Sie es noch einmal.",
         "cartChanged": "Preise oder Mengen in Ihrem Warenkorb haben sich geändert, während Sie das Formular ausgefüllt haben – bitte prüfen Sie Ihre Bestellung und senden Sie sie erneut ab.",
         "pairingUnsatisfied": "Einigen Produkten in Ihrem Warenkorb fehlt, womit sie zusammen verkauft werden.",
+        "preferredDateUnavailable": "Der gewünschte Tag ist nicht mehr möglich. Bitte wählen Sie unten einen anderen.",
         "generic": "Beim Absenden Ihrer Bestellung ist etwas schiefgegangen. Bitte versuchen Sie es noch einmal.",
         "staffAccount": "Mit einem Mitarbeiterkonto lassen sich keine Bestellanfragen senden – eine Bestellung braucht ein Kundenkonto, denn daran hängen die vereinbarten Preise und die Lieferadresse. Melden Sie sich als Kunde an, um die Kasse auszuprobieren."
       },

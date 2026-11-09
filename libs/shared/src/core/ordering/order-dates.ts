@@ -1,6 +1,7 @@
 /**
  * Which days a customer may ask for (FR-CART-07): not today, and not a
- * weekend. No holiday calendar: a manager confirms every date, and a
+ * weekend, both by the shop's calendar rather than the customer's. The API
+ * refuses what the checkout would not offer. No holiday calendar: a manager confirms every date, and a
  * half-right calendar is worse than two rules the customer can predict.
  */
 
@@ -35,10 +36,4 @@ export function isOrderDateAllowed(iso: string, today: string): boolean {
   const date = day(iso);
   if (!date) return false;
   return !isWeekend(date) && iso >= firstOrderDate(today);
-}
-
-/** Today where the reader is: `toISOString` would be UTC, a day out for part
- * of every day. `en-CA` formats ISO. */
-export function localToday(now: Date = new Date()): string {
-  return new Intl.DateTimeFormat('en-CA').format(now);
 }

@@ -24,6 +24,9 @@ const submissionErrors = {
   'staff-cannot-order': { status: 400 },
   /** The honeypot. Its own code: a person tripped by autofill reads it. */
   rejected: { status: 400 },
+  /** Today, a weekend or a day gone by in the shop (FR-CART-07): most often
+   * a checkout left open past midnight. */
+  'preferred-date-unavailable': { status: 400 },
   /** The deployment enforces pairings (FR-SET-04). Not `cart-changed`: the
    * cart is exactly the one the customer was shown. */
   'pairing-unsatisfied': {

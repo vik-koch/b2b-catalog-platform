@@ -3,12 +3,12 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 
 import { Address } from '@b2b-catalog-platform/shared/core/accounts';
-import { OrderSubmission } from '@b2b-catalog-platform/shared/core/ordering';
-import type { DeploymentConfigFile } from '@b2b-catalog-platform/shared/deployment';
 import {
   firstOrderDate,
-  localToday,
-} from '@b2b-catalog-platform/shared/storefront/ordering';
+  OrderSubmission,
+} from '@b2b-catalog-platform/shared/core/ordering';
+import type { DeploymentConfigFile } from '@b2b-catalog-platform/shared/deployment';
+import { shopTimeZone, shopToday } from '@b2b-catalog-platform/shared/platform';
 
 import { withAccounts } from '../../../core/accounts/accounts-config.fixture';
 import { defaultSharedAccountsText } from '../../../core/accounts/accounts-text.fixture';
@@ -46,7 +46,9 @@ import { CheckoutPage } from './checkout-page';
 
 /** A day the form actually offers, from whenever the suite is run: a literal
  * date here would be a working weekday now and a past Saturday later. */
-const wishedDate = firstOrderDate(localToday());
+const wishedDate = firstOrderDate(
+  shopToday(shopTimeZone(defaultDeploymentConfig)),
+);
 
 const text = defaultStorefrontOrderingText.checkout;
 const names = defaultSharedOrderingText.order;
@@ -1258,6 +1260,29 @@ describe('CheckoutPage', () => {
 
       expect(page.text()).toContain(text.errors.billingDetailsRequired);
       expect(page.text()).not.toContain(text.successHeading);
+    });
+
+    // Open past midnight: the day chosen yesterday is today now, and the
+    // server says so. The field has to agree, or the same day goes again.
+    it('takes a day no longer on offer back to the field that chose it', async () => {
+      const page = await render({
+        submit: { ok: false, code: 'preferred-date-unavailable' },
+      });
+      page.drafts.patch({ preferredDate: wishedDate });
+      await page.review();
+
+      vi.useFakeTimers({ toFake: ['Date'] });
+      try {
+        vi.setSystemTime(new Date(`${wishedDate}T10:00:00Z`));
+        page.button(text.submit)?.click();
+        await page.settle();
+
+        expect(page.text()).toContain(text.errors.preferredDateUnavailable);
+        expect(page.text()).toContain(text.timing.unavailable);
+        expect(page.text()).not.toContain(text.review.title);
+      } finally {
+        vi.useRealTimers();
+      }
     });
   });
 });

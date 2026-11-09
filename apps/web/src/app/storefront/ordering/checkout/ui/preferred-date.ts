@@ -1,10 +1,9 @@
-import { Component, inject, input, output } from '@angular/core';
+import { Component, computed, inject, input, output } from '@angular/core';
 
-import { FulfilmentMethod } from '@b2b-catalog-platform/shared/core/ordering';
 import {
   firstOrderDate,
-  localToday,
-} from '@b2b-catalog-platform/shared/storefront/ordering';
+  FulfilmentMethod,
+} from '@b2b-catalog-platform/shared/core/ordering';
 import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
 import { DateInput } from '@b2b-catalog-platform/ui/inputs/date-input';
 
@@ -14,7 +13,7 @@ import { STOREFRONT_ORDERING_TEXT } from '../../ordering-text';
 
 /** When the customer would like the order (FR-CART-07): a wish, not a booking;
  * optional. A native date field. Days on offer follow `order-dates` from the
- * browser's today. `min` still offers weekends, so the rule is said under the
+ * shop's today. `min` still offers weekends, so the rule is said under the
  * field and checked; the error replaces the hint. */
 @Component({
   selector: 'app-preferred-date',
@@ -31,7 +30,7 @@ import { STOREFRONT_ORDERING_TEXT } from '../../ordering-text';
       class="max-w-70"
       [fieldId]="id"
       [value]="date()"
-      [min]="floor"
+      [min]="floor()"
       [placeholder]="text.placeholder"
       [invalid]="invalid()"
       [describedBy]="id + '-hint'"
@@ -67,6 +66,8 @@ export class PreferredDate {
 
   readonly dateChange = output<string | null>();
 
-  /** Read once: midnight mid-checkout is not worth a ticking clock. */
-  protected readonly floor = firstOrderDate(localToday());
+  /** The shop's today, as the page holds it. */
+  readonly today = input.required<string>();
+
+  protected readonly floor = computed(() => firstOrderDate(this.today()));
 }

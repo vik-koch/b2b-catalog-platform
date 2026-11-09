@@ -314,6 +314,9 @@ export const storefrontOrderingTextShape = {
           /** Pairings enforced and the cart short (FR-SET-04): only from a page
            * out of step, as the cart disables its button. */
           pairingUnsatisfied: z.string(),
+          /** The day was on offer when chosen and is not now: a checkout left
+           * open past midnight. The field marks it. */
+          preferredDateUnavailable: z.string(),
           /** Anything else at all. */
           generic: z.string(),
         })

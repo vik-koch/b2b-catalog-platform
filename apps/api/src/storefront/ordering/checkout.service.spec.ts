@@ -197,6 +197,7 @@ function service(
   billingAddressEnabled = true,
   pairingsEnforced = false,
   customerTypes: readonly CustomerType[] = ['person', 'company'],
+  timeZone = 'UTC',
 ) {
   const addresses = { assertValid: vi.fn() } as unknown as AddressesService;
   // The mails are sent from a placed order and never allowed to fail it; what
@@ -223,7 +224,7 @@ function service(
     pairingsEnforced,
     false,
     { basis: 'included', rate: 19, statedAtPrices: true },
-    'UTC',
+    timeZone,
   );
 }
 
@@ -425,6 +426,58 @@ describe('CheckoutService.submit', () => {
       ),
     ).rejects.toBeInstanceOf(CartChangedException);
     expect(orderRows()).toHaveLength(0);
+  });
+
+  /** FR-CART-07, held here as well as in the form: a checkout left open past
+   * midnight, or a request that never saw the form. 2026-08-26 is a
+   * Wednesday. */
+  describe('the preferred date', () => {
+    beforeEach(() => {
+      vi.useFakeTimers({ toFake: ['Date'] });
+      vi.setSystemTime(new Date('2026-08-26T13:00:00Z'));
+    });
+    afterEach(() => vi.useRealTimers());
+
+    const wishing = (preferredDate: string, timeZone = 'UTC') => {
+      const { db, orderRows } = testDb();
+      const placing = service(
+        db,
+        true,
+        false,
+        ['person', 'company'],
+        timeZone,
+      ).submit(submission({ preferredDate }), 'user-1', null);
+      return { placing, orderRows };
+    };
+
+    it('takes a working day from tomorrow onwards', async () => {
+      const { placing, orderRows } = wishing('2026-08-27');
+
+      await expect(placing).resolves.toMatchObject({
+        reference: expect.stringMatching(/^CK-/),
+      });
+      expect(orderRows()).toHaveLength(1);
+    });
+
+    it('refuses today and a weekend, writing nothing', async () => {
+      for (const day of ['2026-08-26', '2026-08-29']) {
+        const { placing, orderRows } = wishing(day);
+
+        await expect(placing).rejects.toMatchObject({
+          response: { code: 'preferred-date-unavailable' },
+        });
+        expect(orderRows()).toHaveLength(0);
+      }
+    });
+
+    it('counts tomorrow from the shop’s day, not the server’s', async () => {
+      // Already 01:00 on Thursday in Auckland, so Thursday is today there.
+      const { placing } = wishing('2026-08-27', 'Pacific/Auckland');
+
+      await expect(placing).rejects.toMatchObject({
+        response: { code: 'preferred-date-unavailable' },
+      });
+    });
   });
 
   it('needs a company for a bank transfer, whoever is invoiced', async () => {
