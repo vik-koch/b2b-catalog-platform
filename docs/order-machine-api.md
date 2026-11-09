@@ -639,6 +639,10 @@ answer them by hand.
 
 Scope: `order-sync`. Refused unless the area is owned.
 
+Both routes check in one order: an unknown `{kind}` (400), then the area not
+owned (409), then an unknown `{reference}` (404). A request wrong in two ways
+gets the first of these on either route.
+
 What your back office prints — the payment invoice above all — is a real
 document with the shop's layout on it, and it arrives here as **bytes**. The
 platform draws only what it has the data for. A document **writes no version

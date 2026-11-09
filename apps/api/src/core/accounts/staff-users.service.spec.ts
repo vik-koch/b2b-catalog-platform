@@ -165,4 +165,67 @@ describe('StaffUsersService.create', () => {
 
     expect(inserted[0]).toMatchObject({ tierId: null, sourceId: null });
   });
+
+  /** A database whose checks find nothing and whose insert then collides on
+   * `constraint`, as a second create between the two would make it. */
+  const racing = (constraint: string) => {
+    const db = {
+      select: () => ({
+        from: () => ({ where: () => ({ limit: async () => [] }) }),
+      }),
+      insert: () => ({
+        values: () => ({
+          returning: () =>
+            Promise.reject(
+              new Error('Failed query', {
+                cause: { code: '23505', constraint },
+              }),
+            ),
+        }),
+      }),
+    };
+    return new StaffUsersService(
+      db as never,
+      { findByEmail: async () => undefined } as unknown as UsersService,
+      {} as AccountErasure,
+      [],
+      null,
+      (value: string) => value,
+      ['person', 'company'],
+    );
+  };
+
+  it('answers an email taken past the check as taken', async () => {
+    await expect(
+      racing('users_email_unique').create(
+        {
+          email: 'colleague@example.com',
+          role: 'manager',
+          tierId: null,
+          firstName: 'Ada',
+          lastName: 'Byrne',
+        },
+        'admin-1',
+        'hash',
+      ),
+    ).rejects.toMatchObject({ response: { code: 'email-taken' } });
+  });
+
+  it('answers a source key taken past the check as taken', async () => {
+    await expect(
+      racing('users_sourceId_unique').create(
+        {
+          email: 'buyer@example.com',
+          role: 'user',
+          tierId: null,
+          sourceId: 'C-1',
+          customerType: 'person',
+          firstName: 'Ada',
+          lastName: 'Byrne',
+        },
+        'admin-1',
+        'hash',
+      ),
+    ).rejects.toMatchObject({ response: { code: 'source-id-taken' } });
+  });
 });

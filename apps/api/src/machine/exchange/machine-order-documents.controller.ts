@@ -88,12 +88,11 @@ export class MachineOrderDocumentsController {
   async remove(
     @CurrentMachine() machine: ExchangeMachine,
     @Param('reference') reference: string,
-    @Param('kind') kind: string,
+    @Param('kind') kindParam: string,
   ): Promise<void> {
+    const kind = orderDocumentKind(kindParam);
     this.refuseUnlessOwned();
     await this.orders.getForStaff(reference);
-    await this.acts.remove(reference, orderDocumentKind(kind), {
-      token: machine.name,
-    });
+    await this.acts.remove(reference, kind, { token: machine.name });
   }
 }

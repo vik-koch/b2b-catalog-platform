@@ -15,11 +15,7 @@ import {
   PASSWORD_TOKEN_INVALID,
 } from '@b2b-catalog-platform/shared/core/accounts';
 import { passesMaintenance } from '@b2b-catalog-platform/shared/core/site';
-import {
-  AuthUser,
-  sessionContract,
-  UserRole,
-} from '@b2b-catalog-platform/shared/platform';
+import { AuthUser, UserRole } from '@b2b-catalog-platform/shared/platform';
 import { authContract } from '@b2b-catalog-platform/shared/storefront/accounts';
 
 import { PasswordRejectedError } from '../../core/accounts/password-rejected-error';
@@ -37,7 +33,6 @@ import { MaintenanceState } from '../../core/site/maintenance-state';
 import { toAuthUser } from '../../platform/auth/auth-user';
 import { Auth } from '../../platform/auth/auth.decorator';
 import { CurrentUser } from '../../platform/auth/current-user.decorator';
-import { endSession } from '../../platform/auth/session-cookie';
 import { Sessions } from '../../platform/auth/sessions';
 import { refusals } from '../../platform/orpc/refusals';
 import {
@@ -281,25 +276,6 @@ export class AuthController {
       throw new NotFoundException();
     }
     res.redirect(303, '/');
-  }
-
-  // Leaves a remembered browser standing: signing out ends the session, and
-  // the next sign-in on this browser still takes the password.
-  @MaintenanceExempt()
-  @Implement(sessionContract.logout)
-  logout(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
-    return implement(sessionContract.logout).handler(async () => {
-      endSession(req, res);
-      return { message: 'Logged out' };
-    });
-  }
-
-  // Exempt: the web gate needs it to tell staff from customers.
-  @MaintenanceExempt()
-  @Auth()
-  @Implement(sessionContract.me)
-  me(@CurrentUser() user: AuthUser) {
-    return implement(sessionContract.me).handler(async () => user);
   }
 
   @Auth()
