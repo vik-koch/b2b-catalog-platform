@@ -28,16 +28,13 @@ export function syncRunActor(
 }
 
 /** What a run came to in one line, only the figures that moved. */
-export function syncChangeSummary(
-  summary: SyncSummary | null,
-  { mailed = false } = {},
-): string {
+export function syncChangeSummary(summary: SyncSummary | null): string {
   if (!summary) return '';
   return [
     summary.create > 0 ? `+${summary.create}` : '',
     summary.update > 0 ? `~${summary.update}` : '',
     summary.softDelete > 0 ? `−${summary.softDelete}` : '',
-    mailed && summary.mailed > 0 ? `✉${summary.mailed}` : '',
+    summary.mailed > 0 ? `✉${summary.mailed}` : '',
     summary.errors > 0 ? `!${summary.errors}` : '',
   ]
     .filter(Boolean)
