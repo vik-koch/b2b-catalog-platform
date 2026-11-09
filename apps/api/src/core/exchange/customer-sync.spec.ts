@@ -2,6 +2,7 @@ import {
   CUSTOMER_SYNC_FIELDS,
   CustomerSyncOptions,
   CustomerSyncRow,
+  SYNC_PREVIEW_MAX_ITEMS,
 } from '@b2b-catalog-platform/shared/core/exchange';
 
 import {
@@ -76,6 +77,21 @@ describe('planCustomerSync', () => {
       ]);
 
       expect(plan.summary).toMatchObject({ rows: 0, errors: 1 });
+    });
+
+    it('says the list is cut short when only the errors overflow it', () => {
+      const errors = Array.from(
+        { length: SYNC_PREVIEW_MAX_ITEMS + 1 },
+        (_, i) => ({
+          row: i + 1,
+          sourceId: null,
+          code: 'missing-source-id' as const,
+        }),
+      );
+      const { plan } = planCustomerSync([], options(), state(), errors);
+
+      expect(plan.rowErrors).toHaveLength(SYNC_PREVIEW_MAX_ITEMS);
+      expect(plan.truncated).toBe(true);
     });
   });
 

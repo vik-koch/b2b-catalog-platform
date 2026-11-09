@@ -161,7 +161,7 @@ export class CustomerSyncUploadPage {
 
   /** The mails are the figure somebody will be asked about. */
   protected changeSummary(run: SyncRun): string {
-    return syncChangeSummary(run.summary, { mailed: true });
+    return syncChangeSummary(run.summary);
   }
 }
 

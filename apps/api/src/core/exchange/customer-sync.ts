@@ -409,7 +409,9 @@ export function planCustomerSync(
     fields: [...fieldsWritten],
   };
 
-  const truncated = changes.length > SYNC_PREVIEW_MAX_ITEMS;
+  const truncated =
+    changes.length > SYNC_PREVIEW_MAX_ITEMS ||
+    rowErrors.length > SYNC_PREVIEW_MAX_ITEMS;
   return {
     plan: {
       summary,

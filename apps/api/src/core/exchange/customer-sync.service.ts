@@ -163,8 +163,9 @@ export class CustomerSyncService {
     const nothingToDo = isNoChange(plan);
 
     await this.log.prune();
-    // Retires a machine run still staged from before the area was taken back.
-    await this.log.supersedeStaged('customers');
+    // An earlier upload, or a machine run staged before the area was taken
+    // back: either way, this file is what the admin means now.
+    await this.log.supersedeStaged('customers', { uploads: true });
     const [row] = await this.db
       .insert(syncRuns)
       .values({

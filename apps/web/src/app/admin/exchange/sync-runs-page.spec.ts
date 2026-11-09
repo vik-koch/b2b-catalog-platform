@@ -219,6 +219,21 @@ describe('SyncRunsPage', () => {
     expect(el.textContent).toContain(text.orders.field.lines);
   });
 
+  it('counts the mails a run sent beside what it changed', async () => {
+    const { el } = await render(
+      [
+        run({
+          area: 'customers',
+          summary: { ...summary, create: 2, update: 0, mailed: 2 },
+        }),
+      ],
+      '',
+      'customers',
+    );
+
+    expect(el.textContent).toContain('+2 ✉2');
+  });
+
   /** A run the source and the catalog agree about is over on arrival: it is
    * recorded, and it is not work. */
   it('shows a no-change run as such', async () => {
