@@ -3,6 +3,7 @@ import {
   ExecutionContext,
   ForbiddenException,
   Injectable,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 
@@ -29,7 +30,7 @@ export class RolesGuard implements CanActivate {
 
     // Applied without JwtAuthGuard in front: fail closed.
     if (!user) {
-      throw new ForbiddenException({
+      throw new UnauthorizedException({
         code: 'not-authenticated',
         message: 'Not authenticated',
       });

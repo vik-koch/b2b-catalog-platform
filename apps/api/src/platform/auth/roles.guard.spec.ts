@@ -1,4 +1,8 @@
-import { ExecutionContext, ForbiddenException } from '@nestjs/common';
+import {
+  ExecutionContext,
+  ForbiddenException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import type { Mock } from 'vitest';
 
@@ -54,11 +58,12 @@ describe('RolesGuard', () => {
     ).toThrow(ForbiddenException);
   });
 
-  it('forbids when no user is present (JwtAuthGuard missing)', () => {
+  // A 401, as `not-authenticated` is everywhere else.
+  it('refuses as unauthenticated when no user is present (JwtAuthGuard missing)', () => {
     requireRoles(['admin']);
 
     expect(() => guard.canActivate(contextWith(undefined))).toThrow(
-      ForbiddenException,
+      UnauthorizedException,
     );
   });
 });
