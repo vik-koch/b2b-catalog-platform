@@ -1,7 +1,7 @@
 import { Component, inject, input, resource } from '@angular/core';
 
 import { PageSlug } from '@b2b-catalog-platform/shared/core/site';
-import { fillText } from '@b2b-catalog-platform/shared/platform';
+import { fillText, shopTimeZone } from '@b2b-catalog-platform/shared/platform';
 import { DetailsSummary } from '@b2b-catalog-platform/ui/disclosure/details-summary';
 
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
@@ -80,10 +80,13 @@ export class PageHistory {
     loader: ({ params }) => this.pageService.listVersions(params.slug),
   });
 
-  private readonly locale = inject(DEPLOYMENT_CONFIG).locale;
-  private readonly dayFormat = adminDayFormat(this.locale);
+  private readonly config = inject(DEPLOYMENT_CONFIG);
+  private readonly locale = this.config.locale;
+  private readonly timeZone = shopTimeZone(this.config);
+  private readonly dayFormat = adminDayFormat(this.locale, this.timeZone);
   private readonly timeFormat = new Intl.DateTimeFormat(this.locale, {
     timeStyle: 'short',
+    timeZone: this.timeZone,
   });
 
   protected versionLabel(version: number): string {

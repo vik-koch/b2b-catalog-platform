@@ -8,7 +8,7 @@ import {
   StaffUser,
   UserKind,
 } from '@b2b-catalog-platform/shared/core/accounts';
-import { UserRole } from '@b2b-catalog-platform/shared/platform';
+import { shopTimeZone, UserRole } from '@b2b-catalog-platform/shared/platform';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import {
   Segmented,
@@ -555,6 +555,7 @@ export class UserEditorPage implements UnsavedChangesAware {
 
   private readonly dateFormat = new Intl.DateTimeFormat(this.config.locale, {
     dateStyle: 'medium',
+    timeZone: shopTimeZone(this.config),
   });
   protected readonly registered = computed(() => {
     const iso = this.account()?.createdAt;

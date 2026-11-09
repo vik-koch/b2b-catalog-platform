@@ -6,6 +6,7 @@ import {
   OrderDetail,
   type SharedOrderingText,
 } from '@b2b-catalog-platform/shared/core/ordering';
+import { calendarDay } from '@b2b-catalog-platform/shared/platform';
 
 import { formatPhone } from '../../platform/contact-fields';
 import { SHARED_ORDERING_TEXT } from './ordering-text';
@@ -120,7 +121,7 @@ export function orderBlocks(
       heading: order.pickup ? labels.pickupDate : labels.deliveryDate,
       lines: [
         order.preferredDate
-          ? formatDay(order.preferredDate, config.locale)
+          ? calendarDay(order.preferredDate, config.locale)
           : labels.whenAny,
       ],
     },
@@ -160,12 +161,4 @@ export function orderBlocks(
  * place. */
 function asAddress(address: OrderAddress) {
   return { ...address, label: null, id: '', createdAt: '', updatedAt: '' };
-}
-
-/** A preferred date carries no time: parsed as an instant, it shifts a day
- * with the timezone. */
-function formatDay(iso: string, locale: string): string {
-  return new Intl.DateTimeFormat(locale, { dateStyle: 'long' }).format(
-    new Date(`${iso}T00:00:00`),
-  );
 }

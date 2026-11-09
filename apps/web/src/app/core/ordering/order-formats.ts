@@ -40,14 +40,18 @@ export function customerQuantity(
 /**
  * The timestamp format of every order screen. Numeric (`26.08.2026, 09:15`):
  * a spelled-out month gives each a different width, and a version thread is
- * read as a column.
+ * read as a column. On the shop's clock.
  */
-export function orderDateTimeFormat(locale: string): Intl.DateTimeFormat {
+export function orderDateTimeFormat(
+  locale: string,
+  timeZone: string,
+): Intl.DateTimeFormat {
   return new Intl.DateTimeFormat(locale, {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',
     hour: '2-digit',
     minute: '2-digit',
+    timeZone,
   });
 }

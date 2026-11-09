@@ -16,6 +16,7 @@ import {
 import {
   AcceptedDocumentMime,
   fillText,
+  shopTimeZone,
 } from '@b2b-catalog-platform/shared/platform';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
@@ -195,7 +196,11 @@ export class OrderDocumentsPanel {
   // The size words the document list owns.
   private readonly sizes = inject(SHARED_TEXT).fileSize;
   protected readonly actionText = inject(SHARED_TEXT).actions;
-  private readonly dayFormat = adminDayFormat(inject(DEPLOYMENT_CONFIG).locale);
+  private readonly config = inject(DEPLOYMENT_CONFIG);
+  private readonly dayFormat = adminDayFormat(
+    this.config.locale,
+    shopTimeZone(this.config),
+  );
 
   readonly order = input.required<AdminOrderDetail>();
   /** Read-only, on the version screen: acting on the order from a superseded

@@ -20,3 +20,15 @@ export function shopDay(
 export function shopIsoDay(iso: string, timeZone: string): string {
   return new Intl.DateTimeFormat('en-CA', { timeZone }).format(new Date(iso));
 }
+
+/** A date that names a day and no moment, such as a preferred date: read and
+ * written in UTC, or a viewer west of it sees the day before. */
+export function calendarDay(
+  isoDate: string,
+  locale: string | undefined,
+): string {
+  return new Intl.DateTimeFormat(locale, {
+    dateStyle: 'long',
+    timeZone: 'UTC',
+  }).format(new Date(`${isoDate}T00:00:00Z`));
+}

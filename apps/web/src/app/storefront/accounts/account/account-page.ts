@@ -5,7 +5,11 @@ import {
   Address,
   formatPersonName,
 } from '@b2b-catalog-platform/shared/core/accounts';
-import { fillText } from '@b2b-catalog-platform/shared/platform';
+import {
+  fillText,
+  shopDay,
+  shopTimeZone,
+} from '@b2b-catalog-platform/shared/platform';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
 import { Card } from '@b2b-catalog-platform/ui/content/card';
@@ -239,7 +243,7 @@ export class AccountPage {
   protected readonly userIcon = userIcon;
 
   private readonly account = inject(AccountService);
-  private readonly locale = inject(DEPLOYMENT_CONFIG).locale;
+  private readonly config = inject(DEPLOYMENT_CONFIG);
   private readonly phoneInput = inject(DEPLOYMENT_CONFIG).phoneInput;
 
   private readonly addressBook = inject(AddressesService);
@@ -329,9 +333,7 @@ export class AccountPage {
   });
 
   private formatDate(iso: string): string {
-    return new Intl.DateTimeFormat(this.locale, { dateStyle: 'long' }).format(
-      new Date(iso),
-    );
+    return shopDay(iso, this.config.locale, shopTimeZone(this.config));
   }
 
   constructor() {

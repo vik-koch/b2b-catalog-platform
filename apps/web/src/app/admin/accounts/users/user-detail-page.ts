@@ -17,6 +17,7 @@ import {
 import {
   fillText,
   normalizePhone,
+  shopTimeZone,
 } from '@b2b-catalog-platform/shared/platform';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { Card } from '@b2b-catalog-platform/ui/content/card';
@@ -252,6 +253,7 @@ export class UserDetailPage {
   private readonly phoneInput = this.config.phoneInput;
   private readonly dateFormat = new Intl.DateTimeFormat(this.config.locale, {
     dateStyle: 'long',
+    timeZone: shopTimeZone(this.config),
   });
 
   /** From the route. */

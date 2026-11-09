@@ -10,7 +10,7 @@ import {
   API_TOKEN_SCOPES,
   ApiTokenScope,
 } from '@b2b-catalog-platform/shared/core/exchange';
-import { fillText } from '@b2b-catalog-platform/shared/platform';
+import { fillText, shopTimeZone } from '@b2b-catalog-platform/shared/platform';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
 import { Checkbox } from '@b2b-catalog-platform/ui/choices/checkbox';
@@ -313,7 +313,9 @@ export class ApiTokenListPage {
   protected readonly text = inject(ADMIN_EXCHANGE_TEXT).apiTokens;
   protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly actionText = inject(SHARED_TEXT).actions;
-  private readonly locale = inject(DEPLOYMENT_CONFIG).locale;
+  private readonly config = inject(DEPLOYMENT_CONFIG);
+  private readonly locale = this.config.locale;
+  private readonly timeZone = shopTimeZone(this.config);
 
   protected readonly scopeRows = SCOPE_ROWS;
 
@@ -347,7 +349,9 @@ export class ApiTokenListPage {
   protected readonly created = signal<CreatedApiToken | null>(null);
   protected readonly copied = signal(false);
 
-  private readonly moment = computed(() => adminMomentFormat(this.locale));
+  private readonly moment = computed(() =>
+    adminMomentFormat(this.locale, this.timeZone),
+  );
 
   constructor() {
     usePageSeo({ name: () => this.text.page.title, noindex: true });

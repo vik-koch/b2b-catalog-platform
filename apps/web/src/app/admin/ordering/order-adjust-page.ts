@@ -22,6 +22,7 @@ import {
   PaymentMethod,
 } from '@b2b-catalog-platform/shared/core/ordering';
 import {
+  calendarDay,
   fillText,
   formatMoneyMinor,
   moneyFormat,
@@ -930,10 +931,7 @@ export class AdminOrderAdjustPage implements FieldAttempt {
 
   private wish(order: AdminOrderDetail): string {
     if (!order.preferredDate) return this.detailText.whenAny;
-    return new Date(order.preferredDate).toLocaleDateString(
-      this.config.locale,
-      { dateStyle: 'long' },
-    );
+    return calendarDay(order.preferredDate, this.config.locale);
   }
 
   protected async save(): Promise<void> {
