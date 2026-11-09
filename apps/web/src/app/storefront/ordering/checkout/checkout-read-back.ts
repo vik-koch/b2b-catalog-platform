@@ -6,6 +6,7 @@ import {
 } from '@b2b-catalog-platform/shared/core/accounts';
 import { unitQuantity } from '@b2b-catalog-platform/shared/core/catalog';
 import {
+  calendarDay,
   fillText,
   formatMoneyMinor,
   moneyFormat,
@@ -118,11 +119,6 @@ export function createCheckoutReadBack(deps: ReadBackDeps) {
 
   const tax = useTaxStatement();
 
-  const formatDate = (iso: string): string =>
-    new Intl.DateTimeFormat(config.locale, {
-      dateStyle: 'long',
-    }).format(new Date(`${iso}T00:00:00`));
-
   return {
     lines: computed<ReadBackLine[]>(() => {
       // The cart's own rule: a line states its rate once the lines differ.
@@ -174,7 +170,7 @@ export function createCheckoutReadBack(deps: ReadBackDeps) {
             : names.preferredDelivery,
           lines: [
             draft.preferredDate
-              ? formatDate(draft.preferredDate)
+              ? calendarDay(draft.preferredDate, config.locale)
               : blockText.whenAny,
           ],
         },

@@ -448,7 +448,7 @@ export class AdminOrderDetailPage {
     if (order.termsVersion === null || order.termsDate === null) return null;
     return fillText(this.ordersText.termsVersion, {
       version: order.termsVersion,
-      date: this.shopDayFormat.format(new Date(order.termsDate)),
+      date: this.dateFormat.format(new Date(order.termsDate)),
     });
   }
 
@@ -629,16 +629,14 @@ export class AdminOrderDetailPage {
 
   private readonly dateFormat = new Intl.DateTimeFormat(this.config.locale, {
     dateStyle: 'long',
-  });
-
-  /** In the shop's timezone. */
-  private readonly shopDayFormat = new Intl.DateTimeFormat(this.config.locale, {
-    dateStyle: 'long',
     timeZone: shopTimeZone(this.config),
   });
 
   /** For the last move and the payment record: moments, not days. */
-  private readonly dateTimeFormat = orderDateTimeFormat(this.config.locale);
+  private readonly dateTimeFormat = orderDateTimeFormat(
+    this.config.locale,
+    shopTimeZone(this.config),
+  );
 
   constructor() {
     void this.ownership.load();

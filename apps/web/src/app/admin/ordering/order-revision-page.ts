@@ -5,6 +5,7 @@ import {
   fillText,
   formatMoneyMinor,
   moneyFormat,
+  shopTimeZone,
 } from '@b2b-catalog-platform/shared/platform';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { Card } from '@b2b-catalog-platform/ui/content/card';
@@ -347,9 +348,13 @@ export class AdminOrderRevisionPage {
     return state === 'awaiting' ? 'waiting' : 'neutral';
   }
 
-  private readonly dateTimeFormat = orderDateTimeFormat(this.config.locale);
+  private readonly dateTimeFormat = orderDateTimeFormat(
+    this.config.locale,
+    shopTimeZone(this.config),
+  );
   private readonly dateFormat = new Intl.DateTimeFormat(this.config.locale, {
     dateStyle: 'long',
+    timeZone: shopTimeZone(this.config),
   });
 
   constructor() {

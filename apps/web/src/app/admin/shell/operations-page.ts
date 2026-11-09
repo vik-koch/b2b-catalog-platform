@@ -16,6 +16,7 @@ import {
   fillText,
   OWNERSHIP_AREAS,
   OwnershipArea,
+  shopTimeZone,
 } from '@b2b-catalog-platform/shared/platform';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
@@ -268,8 +269,10 @@ export class OperationsPage {
   private readonly maintenance = inject(MaintenanceSwitchService);
   private readonly settingChanges = inject(SettingChangesService);
   private readonly confirm = inject(ConfirmService);
-  private readonly locale = inject(DEPLOYMENT_CONFIG).locale;
-  private readonly moment = adminMomentFormat(this.locale);
+  private readonly config = inject(DEPLOYMENT_CONFIG);
+  private readonly locale = this.config.locale;
+  private readonly timeZone = shopTimeZone(this.config);
+  private readonly moment = adminMomentFormat(this.locale, this.timeZone);
   /** "Catalog and Customer accounts", in the deployment's locale. */
   private readonly areaJoin = new Intl.ListFormat(this.locale, {
     style: 'long',

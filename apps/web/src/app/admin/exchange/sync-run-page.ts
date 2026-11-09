@@ -16,6 +16,7 @@ import {
   OrderSyncPlan,
   SyncRun,
 } from '@b2b-catalog-platform/shared/core/exchange';
+import { shopTimeZone } from '@b2b-catalog-platform/shared/platform';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { Notice } from '@b2b-catalog-platform/ui/content/notice';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
@@ -190,7 +191,9 @@ export class SyncRunPage {
   protected readonly text = inject(ADMIN_EXCHANGE_TEXT).sync;
   protected readonly ownershipText = inject(ADMIN_EXCHANGE_TEXT).ownership;
   protected readonly actionText = inject(SHARED_TEXT).actions;
-  private readonly locale = inject(DEPLOYMENT_CONFIG).locale;
+  private readonly config = inject(DEPLOYMENT_CONFIG);
+  private readonly locale = this.config.locale;
+  private readonly timeZone = shopTimeZone(this.config);
 
   constructor() {
     usePageSeo({ name: () => this.text.runTitle });
@@ -274,9 +277,10 @@ export class SyncRunPage {
     return `${this.dayFormat.format(at)} ${this.timeFormat.format(at)}`;
   }
 
-  private readonly dayFormat = adminDayFormat(this.locale);
+  private readonly dayFormat = adminDayFormat(this.locale, this.timeZone);
   private readonly timeFormat = new Intl.DateTimeFormat(this.locale, {
     timeStyle: 'short',
+    timeZone: this.timeZone,
   });
 
   protected async apply(id: string): Promise<void> {

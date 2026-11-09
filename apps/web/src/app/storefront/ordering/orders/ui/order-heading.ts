@@ -1,7 +1,11 @@
 import { Component, computed, inject, input } from '@angular/core';
 
 import { OrderDetail } from '@b2b-catalog-platform/shared/core/ordering';
-import { fillText } from '@b2b-catalog-platform/shared/platform';
+import {
+  fillText,
+  shopDay,
+  shopTimeZone,
+} from '@b2b-catalog-platform/shared/platform';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
 import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';
 
@@ -53,16 +57,17 @@ export class OrderHeading {
   private readonly placedText = inject(STOREFRONT_ORDERING_TEXT).orders.detail
     .placed;
   protected readonly names = inject(SHARED_ORDERING_TEXT).order;
-  private readonly dateFormat = new Intl.DateTimeFormat(
-    inject(DEPLOYMENT_CONFIG).locale,
-    { dateStyle: 'long' },
-  );
+  private readonly config = inject(DEPLOYMENT_CONFIG);
 
   readonly order = input.required<OrderDetail>();
 
   protected readonly placed = computed(() =>
     fillText(this.placedText, {
-      date: this.dateFormat.format(new Date(this.order().createdAt)),
+      date: shopDay(
+        this.order().createdAt,
+        this.config.locale,
+        shopTimeZone(this.config),
+      ),
     }),
   );
   protected readonly statusLabel = computed(() =>

@@ -15,7 +15,7 @@ import {
   FindConsentsQuery,
 } from '@b2b-catalog-platform/shared/admin/accounts';
 import { CONSENT_WITHDRAWAL_NOTE_MAX } from '@b2b-catalog-platform/shared/core/site';
-import { fillText } from '@b2b-catalog-platform/shared/platform';
+import { fillText, shopTimeZone } from '@b2b-catalog-platform/shared/platform';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import {
   Segmented,
@@ -139,7 +139,10 @@ interface ConsentSearch {
 export class ConsentLookupPage {
   private readonly service = inject(ConsentsService);
   private readonly confirm = inject(ConfirmService);
-  private readonly dayFormat = adminDayFormat(inject(DEPLOYMENT_CONFIG).locale);
+  private readonly dayFormat = adminDayFormat(
+    inject(DEPLOYMENT_CONFIG).locale,
+    shopTimeZone(inject(DEPLOYMENT_CONFIG)),
+  );
   /** Why the last withdrawal was not saved, until the next one is tried. */
   protected readonly withdrawError = signal<string | null>(null);
   private readonly router = inject(Router);

@@ -60,6 +60,7 @@ async function render(
   profile: AccountProfile | 'reject',
   addresses: Address[] | 'reject' = [],
   confirmed = true,
+  config = defaultDeploymentConfig,
 ) {
   const h: AddressHarness = {
     list: vi.fn(() =>
@@ -77,7 +78,7 @@ async function render(
       provideRouter([]),
       { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
       { provide: SHARED_TEXT, useValue: defaultSharedText },
-      { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
+      { provide: DEPLOYMENT_CONFIG, useValue: config },
       {
         provide: AuthService,
         useValue: { user: signal(plainUser), logout: vi.fn() },
@@ -131,6 +132,23 @@ describe('AccountPage', () => {
       defaultSharedAccountsText.partyKind.company,
     );
     expect(el.textContent).toContain(customer.companyRegistrationId);
+  });
+
+  it('dates the account by the shop’s day, not the viewer’s', async () => {
+    const { el } = await render(
+      { ...customer, createdAt: '2026-02-01T12:00:00.000Z' },
+      [],
+      true,
+      { ...defaultDeploymentConfig, timeZone: 'Pacific/Auckland' },
+    );
+
+    // Already the 2nd in Auckland; still the 1st in Europe and in UTC.
+    expect(el.textContent).toContain(
+      new Intl.DateTimeFormat(defaultDeploymentConfig.locale, {
+        dateStyle: 'long',
+        timeZone: 'Pacific/Auckland',
+      }).format(new Date('2026-02-01T12:00:00.000Z')),
+    );
   });
 
   // Absent, not empty: a staff account has no phone and no registration

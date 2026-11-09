@@ -9,7 +9,11 @@ import {
 import { RouterLink } from '@angular/router';
 
 import { AdminOrderDetail } from '@b2b-catalog-platform/shared/core/ordering';
-import { fillText, moneyFormat } from '@b2b-catalog-platform/shared/platform';
+import {
+  fillText,
+  moneyFormat,
+  shopTimeZone,
+} from '@b2b-catalog-platform/shared/platform';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';
 import { DisclosureFrame } from '@b2b-catalog-platform/ui/disclosure/disclosure-frame';
@@ -168,7 +172,10 @@ export class OrderVersionHistory {
   private readonly sharedText = inject(SHARED_TEXT);
   protected readonly sharedOrderingText = inject(SHARED_ORDERING_TEXT);
   protected readonly names = this.sharedOrderingText.order;
-  private readonly dateTimeFormat = orderDateTimeFormat(this.config.locale);
+  private readonly dateTimeFormat = orderDateTimeFormat(
+    this.config.locale,
+    shopTimeZone(this.config),
+  );
   private readonly blockLabels = staffBlockLabels(
     this.sharedOrderingText,
     this.ordersText,

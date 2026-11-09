@@ -29,7 +29,7 @@ import { AlternateLayout } from '../../../platform/alternate-layout';
 import { ADMIN_TEXT } from '../../../platform/config/admin-text';
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import { MatchSegmentsPipe } from '../../../platform/search/match-segments.pipe';
-import { adminDayFormat } from '../../platform/dates/admin-date';
+import { adminCalendarDayFormat } from '../../platform/dates/admin-date';
 import { ADMIN_CATALOG_TEXT } from '../catalog-text';
 import { PRODUCT_FEATURE_GLYPHS } from '../products/product-feature-glyphs';
 import { SubEditorFrame } from '../ui/sub-editor-frame';
@@ -140,7 +140,7 @@ export class ProductDocumentsEditor implements OnInit {
   protected readonly inputId = `document-search-${++nextId}`;
 
   private readonly locale = inject(DEPLOYMENT_CONFIG).locale;
-  private readonly dayFormat = adminDayFormat(this.locale);
+  private readonly dayFormat = adminCalendarDayFormat(this.locale);
 
   /** Projected to what a link carries: files and counts do not belong in a
    * product's save. */

@@ -6,7 +6,7 @@ import {
   CONSENT_PAGE_SLUGS,
   consentLabelParts,
 } from '@b2b-catalog-platform/shared/core/site';
-import { fillText } from '@b2b-catalog-platform/shared/platform';
+import { fillText, shopTimeZone } from '@b2b-catalog-platform/shared/platform';
 import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
 import { Link } from '@b2b-catalog-platform/ui/actions/link';
 import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';
@@ -107,7 +107,10 @@ export class ConsentRecordList {
   protected readonly slugs = CONSENT_PAGE_SLUGS;
 
   private readonly config = inject(DEPLOYMENT_CONFIG);
-  private readonly momentFormat = adminMomentFormat(this.config.locale);
+  private readonly momentFormat = adminMomentFormat(
+    this.config.locale,
+    shopTimeZone(this.config),
+  );
 
   protected moment(iso: string): string {
     return this.momentFormat.format(new Date(iso));

@@ -54,7 +54,7 @@ import {
 } from '../../../platform/document-file';
 import { injectEditorReturnParams } from '../../../platform/edit-mode/editor-return';
 import { usePageSeo } from '../../../platform/page-seo';
-import { adminDayFormat } from '../../platform/dates/admin-date';
+import { adminCalendarDayFormat } from '../../platform/dates/admin-date';
 import { GridTimestamp } from '../../platform/dates/grid-timestamp';
 import { ADMIN_CATALOG_TEXT } from '../catalog-text';
 import { UnpublishedCount } from '../products/unpublished-count';
@@ -291,7 +291,7 @@ export class DocumentListPage {
 
   private readonly locale = inject(DEPLOYMENT_CONFIG).locale;
   private readonly layout = inject(AlternateLayout);
-  private readonly dayFormat = adminDayFormat(this.locale);
+  private readonly dayFormat = adminCalendarDayFormat(this.locale);
 
   /** An absent query parameter arrives as `undefined`, not as this default,
    * so every read goes through `term`. */

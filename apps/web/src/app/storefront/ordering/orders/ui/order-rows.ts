@@ -6,6 +6,7 @@ import {
   fillText,
   formatMoneyMinor,
   moneyFormat,
+  shopTimeZone,
 } from '@b2b-catalog-platform/shared/platform';
 import {
   StatusBadge,
@@ -69,6 +70,7 @@ import { STOREFRONT_ORDERING_TEXT } from '../../ordering-text';
 export class OrderRows {
   private readonly currency = moneyFormat(inject(DEPLOYMENT_CONFIG));
   private readonly locale = inject(DEPLOYMENT_CONFIG).locale;
+  private readonly timeZone = shopTimeZone(inject(DEPLOYMENT_CONFIG));
   private readonly text = inject(STOREFRONT_ORDERING_TEXT).orders;
   private readonly statusNames = inject(SHARED_ORDERING_TEXT).order;
 
@@ -111,5 +113,6 @@ export class OrderRows {
 
   private readonly dateFormat = new Intl.DateTimeFormat(this.locale, {
     dateStyle: 'long',
+    timeZone: this.timeZone,
   });
 }

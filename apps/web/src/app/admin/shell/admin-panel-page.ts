@@ -11,6 +11,7 @@ import {
   fillText,
   OWNERSHIP_AREAS,
   OwnershipArea,
+  shopTimeZone,
 } from '@b2b-catalog-platform/shared/platform';
 import { ActionLink } from '@b2b-catalog-platform/ui/actions/action-link';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
@@ -393,8 +394,10 @@ export class AdminPanelPage {
       purpose: this.consentText.purposes[purpose],
     });
   }
-  private readonly locale = inject(DEPLOYMENT_CONFIG).locale;
-  private readonly moment = adminMomentFormat(this.locale);
+  private readonly config = inject(DEPLOYMENT_CONFIG);
+  private readonly locale = this.config.locale;
+  private readonly timeZone = shopTimeZone(this.config);
+  private readonly moment = adminMomentFormat(this.locale, this.timeZone);
   protected readonly editorFrom = injectEditorReturnParams();
 
   private readonly ownership = inject(OwnershipService);
@@ -478,6 +481,7 @@ export class AdminPanelPage {
           date: new Intl.DateTimeFormat(this.locale, {
             dateStyle: 'medium',
             timeStyle: 'short',
+            timeZone: this.timeZone,
           }).format(new Date(info.deployedAt)),
         })
       : null;

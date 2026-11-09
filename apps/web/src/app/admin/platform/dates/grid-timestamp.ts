@@ -6,6 +6,8 @@ import {
   input,
 } from '@angular/core';
 
+import { shopTimeZone } from '@b2b-catalog-platform/shared/platform';
+
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import { adminDayFormat } from './admin-date';
 
@@ -26,7 +28,9 @@ import { adminDayFormat } from './admin-date';
   host: { '[class]': 'inline() ? "inline-flex items-baseline gap-1" : ""' },
 })
 export class GridTimestamp {
-  private readonly locale = inject(DEPLOYMENT_CONFIG).locale;
+  private readonly config = inject(DEPLOYMENT_CONFIG);
+  private readonly locale = this.config.locale;
+  private readonly timeZone = shopTimeZone(this.config);
 
   /** An ISO instant, as every API here returns one. */
   readonly value = input.required<string>();
@@ -40,8 +44,9 @@ export class GridTimestamp {
   );
 
   /** Once per component: a grid renders one per row. */
-  private readonly dayFormat = adminDayFormat(this.locale);
+  private readonly dayFormat = adminDayFormat(this.locale, this.timeZone);
   private readonly timeFormat = new Intl.DateTimeFormat(this.locale, {
     timeStyle: 'medium',
+    timeZone: this.timeZone,
   });
 }
