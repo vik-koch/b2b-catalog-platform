@@ -10,8 +10,9 @@ import {
   publicDocumentSchema,
   TaxConfig,
 } from '@b2b-catalog-platform/shared/core/catalog';
-import { isoToday } from '@b2b-catalog-platform/shared/platform';
+import { shopToday } from '@b2b-catalog-platform/shared/platform';
 
+import { SHOP_TIME_ZONE } from '../../platform/config/deployment-config';
 import { Database } from '../../platform/db/database';
 import { DRIZZLE } from '../../platform/db/database.module';
 import { TAX_CONFIG } from './catalog-config';
@@ -53,6 +54,7 @@ export class CatalogReader {
   constructor(
     @Inject(DRIZZLE) private db: Database,
     @Inject(TAX_CONFIG) private readonly tax: TaxConfig,
+    @Inject(SHOP_TIME_ZONE) private readonly timeZone: string,
   ) {}
 
   categoryRows(): Promise<CategoryRow[]> {
@@ -240,7 +242,7 @@ export class CatalogReader {
    * first, undated ones last.
    */
   private async documentsFor(productId: string): Promise<PublicDocument[]> {
-    const today = isoToday();
+    const today = shopToday(this.timeZone);
     const rows = await this.db
       .select({
         title: documents.title,

@@ -16,11 +16,13 @@ import { SyncArea } from '@b2b-catalog-platform/shared/core/exchange';
 import { MyOrderFilter } from '@b2b-catalog-platform/shared/core/ordering';
 import { WorkCounts, WorkQueue } from '@b2b-catalog-platform/shared/core/work';
 import {
+  addIsoDays,
   AuthUser,
-  isoToday,
+  shopToday,
   UserRole,
 } from '@b2b-catalog-platform/shared/platform';
 
+import { SHOP_TIME_ZONE } from '../../platform/config/deployment-config';
 import { Database } from '../../platform/db/database';
 import { DRIZZLE } from '../../platform/db/database.module';
 import { users } from '../accounts/accounts-schema';
@@ -57,7 +59,10 @@ const QUEUES_BY_ROLE: Record<UserRole, readonly WorkQueue[]> = {
  */
 @Injectable()
 export class WorkService {
-  constructor(@Inject(DRIZZLE) private readonly db: Database) {}
+  constructor(
+    @Inject(DRIZZLE) private readonly db: Database,
+    @Inject(SHOP_TIME_ZONE) private readonly timeZone: string,
+  ) {}
 
   /** Typed by queue, so a queue added to the contract needs a count here. */
   private readonly counters: Record<
@@ -129,7 +134,7 @@ export class WorkService {
       documents,
       and(
         isNotNull(documents.expiresAt),
-        lt(documents.expiresAt, isoToday(new Date())),
+        lt(documents.expiresAt, shopToday(this.timeZone)),
       ),
     );
   }
@@ -137,15 +142,14 @@ export class WorkService {
   /** Bounded in days here rather than in SQL, so it is the same arithmetic as
    * the badge and the list filter. Today counts as expiring, not expired. */
   private expiringDocuments(): Promise<number> {
-    const today = new Date();
-    const due = new Date(today);
-    due.setUTCDate(due.getUTCDate() + DOCUMENT_EXPIRY_WARNING_DAYS);
+    const today = shopToday(this.timeZone);
+    const due = addIsoDays(today, DOCUMENT_EXPIRY_WARNING_DAYS);
     return this.db.$count(
       documents,
       and(
         isNotNull(documents.expiresAt),
-        gte(documents.expiresAt, isoToday(today)),
-        lte(documents.expiresAt, isoToday(due)),
+        gte(documents.expiresAt, today),
+        lte(documents.expiresAt, due),
       ),
     );
   }

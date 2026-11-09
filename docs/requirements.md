@@ -450,11 +450,11 @@ A document is linked to any number of products, and a product may carry any numb
 
 #### <a id="fr-doc-03"></a>FR-DOC-03 — Documents on the product page
 
-A product page lists the documents linked to that product as links that open the file in a new browser tab, or the document's link where it has one ([FR-DOC-05](#fr-doc-05)). A document whose expiry date has passed is not listed. Listings do not show documents.
+A product page lists the documents linked to that product as links that open the file in a new browser tab, or the document's link where it has one ([FR-DOC-05](#fr-doc-05)). A document whose expiry date has passed, by the shop's own calendar day, is not listed. Listings do not show documents.
 
 #### <a id="fr-doc-04"></a>FR-DOC-04 — Expiry states in the admin list
 
-The admin document list states each document's expiry state — valid, expiring within 30 days, expired — and can be filtered by it. Documents already expired and documents about to expire are each work awaiting the admin ([FR-WORK-02](#fr-work-02)), counted apart; the state clears when the document is given a current file and expiry, or is deleted.
+The admin document list states each document's expiry state — valid, expiring within 30 days, expired, counted by the shop's own calendar day — and can be filtered by it. Documents already expired and documents about to expire are each work awaiting the admin ([FR-WORK-02](#fr-work-02)), counted apart; the state clears when the document is given a current file and expiry, or is deleted.
 
 #### <a id="fr-doc-05"></a>FR-DOC-05 — A document held elsewhere
 

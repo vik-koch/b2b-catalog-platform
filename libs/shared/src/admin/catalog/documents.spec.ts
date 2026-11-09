@@ -1,5 +1,5 @@
 import { DOCUMENT_EXPIRY_WARNING_DAYS } from '../../core/catalog/documents';
-import { isoToday } from '../../platform/iso-day';
+import { addIsoDays } from '../../platform/iso-day';
 import { documentExpiryState } from './documents';
 
 /** One rule for the admin list's badge, its filter and the panel's count
@@ -27,9 +27,10 @@ describe('documentExpiryState', () => {
     expect(DOCUMENT_EXPIRY_WARNING_DAYS).toBe(30);
   });
 
-  // Days rather than instants: parsed in the server's zone, a container in the
-  // west would answer with yesterday's date for half the evening.
-  it('reads today as a UTC day', () => {
-    expect(isoToday(new Date('2026-09-05T23:30:00Z'))).toBe('2026-09-05');
+  // The window's far end, counted in days across a month's end.
+  it('counts the window in calendar days', () => {
+    expect(addIsoDays('2026-08-27', DOCUMENT_EXPIRY_WARNING_DAYS)).toBe(
+      '2026-09-26',
+    );
   });
 });

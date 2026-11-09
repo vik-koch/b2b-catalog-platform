@@ -1,5 +1,9 @@
 import { Module } from '@nestjs/common';
 
+import {
+  loadShopTimeZone,
+  SHOP_TIME_ZONE,
+} from '../../platform/config/deployment-config';
 import { loadTaxConfig, TAX_CONFIG } from './catalog-config';
 import { CatalogReader } from './catalog-reader';
 
@@ -8,6 +12,7 @@ import { CatalogReader } from './catalog-reader';
   providers: [
     CatalogReader,
     { provide: TAX_CONFIG, useFactory: loadTaxConfig },
+    { provide: SHOP_TIME_ZONE, useFactory: loadShopTimeZone },
   ],
   exports: [CatalogReader],
 })

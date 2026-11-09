@@ -67,6 +67,22 @@ describe('Footer', () => {
     );
   });
 
+  // New Year's Eve in UTC is already New Year's Day in Auckland.
+  it('ends the range in the shop’s year', async () => {
+    vi.useFakeTimers({ toFake: ['Date'] });
+    try {
+      vi.setSystemTime(new Date('2026-12-31T12:00:00Z'));
+      const el = await renderWith({
+        ...defaultDeploymentConfig,
+        timeZone: 'Pacific/Auckland',
+      });
+
+      expect(el.textContent).toContain('–2027');
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it('always renders the legal nav links', async () => {
     const el = await render(false);
     expect(el.textContent).toContain(defaultSharedText.nav['privacy']);

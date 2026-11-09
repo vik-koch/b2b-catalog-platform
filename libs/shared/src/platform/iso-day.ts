@@ -1,4 +1,7 @@
-/** Today as an ISO day, the format every document date is kept in. */
-export function isoToday(now: Date = new Date()): string {
-  return now.toISOString().slice(0, 10);
+/** An ISO day `days` later, in UTC arithmetic so no zone's clock change
+ * moves it. Today itself is the shop's: see `shopToday`. */
+export function addIsoDays(day: string, days: number): string {
+  const date = new Date(`${day}T00:00:00Z`);
+  date.setUTCDate(date.getUTCDate() + days);
+  return date.toISOString().slice(0, 10);
 }

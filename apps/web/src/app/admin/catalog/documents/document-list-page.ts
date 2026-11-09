@@ -16,8 +16,9 @@ import {
 } from '@b2b-catalog-platform/shared/admin/catalog';
 import {
   fillText,
-  isoToday,
   SEARCH_QUERY_MAX_LENGTH,
+  shopTimeZone,
+  shopToday,
 } from '@b2b-catalog-platform/shared/platform';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
@@ -376,8 +377,9 @@ export class DocumentListPage {
     { value: 'valid', label: this.text.statusValid },
   ];
 
-  /** Read once, so no two rows are judged by different midnights. */
-  private readonly today = isoToday();
+  /** The shop's, read once, so no two rows are judged by different
+   * midnights. */
+  private readonly today = shopToday(shopTimeZone(inject(DEPLOYMENT_CONFIG)));
 
   protected stateOf(document: ProductDocument): DocumentExpiryState {
     return documentExpiryState(document.expiresAt, this.today);

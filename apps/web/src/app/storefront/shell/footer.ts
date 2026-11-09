@@ -2,7 +2,11 @@ import { Component, inject, input } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 
 import { type ElsewhereLink } from '@b2b-catalog-platform/shared/core/site';
-import { fillText } from '@b2b-catalog-platform/shared/platform';
+import {
+  fillText,
+  shopTimeZone,
+  shopToday,
+} from '@b2b-catalog-platform/shared/platform';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 
 import { SITE_CONFIG } from '../../core/site/site-config';
@@ -206,7 +210,8 @@ export class Footer {
 
   private buildCopyright(): string {
     const start = this.branding.startYear;
-    const now = new Date().getFullYear();
+    // The shop's year: on New Year's Eve the server and the reader can differ.
+    const now = Number(shopToday(shopTimeZone(this.config)).slice(0, 4));
     const years = now > start ? `${start}–${now}` : `${start}`;
     return fillText(this.text.footer.copyright, {
       name: this.branding.name,
