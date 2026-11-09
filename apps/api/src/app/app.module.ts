@@ -12,6 +12,7 @@ import { RetentionModule } from '../core/retention/retention.module';
 import { SiteCoreModule } from '../core/site/site-core.module';
 import { WorkModule } from '../core/work/work.module';
 import { MachineExchangeModule } from '../machine/exchange/machine-exchange.module';
+import { SessionRoutesModule } from '../platform/auth/session-routes.module';
 import { DatabaseModule } from '../platform/db/database.module';
 import { ContractErrorFilter } from '../platform/orpc/contract-error.filter';
 import { SettingsStoreModule } from '../platform/settings/settings-store.module';
@@ -33,6 +34,7 @@ import { TextsModule } from './texts.module';
     TextsModule,
     ThrottlingModule,
     DatabaseModule,
+    SessionRoutesModule,
     AuthModule,
     CatalogModule,
     AdminCatalogModule,

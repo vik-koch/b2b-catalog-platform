@@ -3,6 +3,7 @@ import { Reflector } from '@nestjs/core';
 
 import { MachineScope } from '../../platform/auth/machine-scope.decorator';
 import { Roles } from '../../platform/auth/roles.decorator';
+import { SESSION_ROUTE } from '../../platform/auth/session-route.decorator';
 import { Sessions } from '../../platform/auth/sessions';
 import { MaintenanceState } from './maintenance-state';
 import { MaintenanceGuard } from './maintenance.guard';
@@ -14,12 +15,18 @@ describe('MaintenanceGuard', () => {
   const read = vi.fn();
   // Emulates the reflector reading metadata off the route: the roles array
   // when the route is marked as auth-guarded, the scope when it is a machine
-  // route, or the exempt flag.
-  const metadata: { roles?: unknown; scope?: unknown; exempt?: boolean } = {};
+  // route, the session-route flag, or the exempt flag.
+  const metadata: {
+    roles?: unknown;
+    scope?: unknown;
+    session?: boolean;
+    exempt?: boolean;
+  } = {};
   const reflector = {
     getAllAndOverride: (key: unknown) => {
       if (key === Roles) return metadata.roles;
       if (key === MachineScope) return metadata.scope;
+      if (key === SESSION_ROUTE) return metadata.session;
       return metadata.exempt;
     },
   } as unknown as Reflector;
@@ -48,6 +55,7 @@ describe('MaintenanceGuard', () => {
     setHeader.mockReset();
     metadata.roles = undefined;
     metadata.scope = undefined;
+    metadata.session = undefined;
     metadata.exempt = undefined;
   });
 
@@ -107,6 +115,15 @@ describe('MaintenanceGuard', () => {
   it('exempts a route carrying @Machine scope metadata', async () => {
     isMaintenanceEnabled.mockReturnValue(true);
     metadata.scope = 'catalog-sync';
+
+    await expect(guard.canActivate(context())).resolves.toBe(true);
+    expect(read).not.toHaveBeenCalled();
+  });
+
+  // Platform's own marker: the session's routes answer in any state.
+  it('exempts a @SessionRoute route', async () => {
+    isMaintenanceEnabled.mockReturnValue(true);
+    metadata.session = true;
 
     await expect(guard.canActivate(context())).resolves.toBe(true);
     expect(read).not.toHaveBeenCalled();

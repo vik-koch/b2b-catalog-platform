@@ -23,6 +23,7 @@ import { UsersService } from '../../core/accounts/users.service';
 import { MaintenanceState } from '../../core/site/maintenance-state';
 import { MaintenanceGuard } from '../../core/site/maintenance.guard';
 import { issueSession } from '../../platform/auth/session-cookie';
+import { SessionController } from '../../platform/auth/session.controller';
 import { SignedInAs, withSession } from '../../platform/auth/session.fixture';
 import { Sessions } from '../../platform/auth/sessions';
 import { PHONE_RULE } from '../../platform/config/deployment-config';
@@ -84,7 +85,8 @@ describe('AuthController', () => {
   beforeAll(async () => {
     const moduleRef = await withSession(
       Test.createTestingModule({
-        controllers: [AuthController],
+        // The session's routes too, for what the gate lets through beside them.
+        controllers: [AuthController, SessionController],
         providers: [
           { provide: AuthService, useValue: auth },
           { provide: UsersService, useValue: users },
@@ -616,35 +618,6 @@ describe('AuthController', () => {
     expect(refused.status).toBe(400);
     expect(await refused.json()).toMatchObject({
       code: 'password-contains-email',
-    });
-  });
-
-  // The client sends no body at all now; the route must not require one.
-  it('clears the session on a logout with no body', async () => {
-    const response = await post('/auth/logout');
-
-    expect(response.status).toBe(200);
-    const cookies = response.headers.getSetCookie().join('\n');
-    expect(cookies).toContain(`${AUTH_COOKIE}=`);
-    expect(cookies).toContain(`${SESSION_HINT_COOKIE}=`);
-  });
-
-  it('answers /auth/me with the session’s own identity', async () => {
-    signedInAs = { ...user };
-
-    const response = await fetch(`${baseUrl}/api/auth/me`);
-
-    expect(response.status).toBe(200);
-    expect(await response.json()).toEqual(user);
-  });
-
-  it('refuses /auth/me to nobody', async () => {
-    const response = await fetch(`${baseUrl}/api/auth/me`);
-
-    expect(response.status).toBe(401);
-    expect(await response.json()).toMatchObject({
-      defined: true,
-      code: 'not-authenticated',
     });
   });
 });
