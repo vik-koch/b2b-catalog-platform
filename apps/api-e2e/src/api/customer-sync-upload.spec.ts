@@ -208,6 +208,26 @@ describe('Manual customer import (FR-ADM-12)', () => {
       expect(await accountByKey(key(3))).toMatchObject({ status: 'invited' });
     });
 
+    /** Two files staged side by side would leave the reviewer to guess which
+     * one the admin meant: the newer one is. */
+    it('retires a file still staged when another goes up', async () => {
+      const first = await preview(
+        csvForm(`sourceId,email,access\n${key(9)},${address(9)},enabled\n`),
+      );
+      const second = await preview(
+        csvForm(`sourceId,email,access\n${key(10)},${address(10)},enabled\n`),
+      );
+      expect(second.data.run.status).toBe('previewed');
+
+      const stale = await commit(first.data.run.id);
+      expect(stale.status).toBe(409);
+      expect(stale.data.code).toBe('run-superseded');
+      expect(await accountByKey(key(9))).toBeUndefined();
+
+      expect((await commit(second.data.run.id)).status).toBe(200);
+      expect(await accountByKey(key(10))).toMatchObject({ status: 'invited' });
+    });
+
     /** The go-live's second file: the tiers move, nobody is invited, nobody
      * is emailed. */
     it('updates a price list without touching anybody’s access', async () => {

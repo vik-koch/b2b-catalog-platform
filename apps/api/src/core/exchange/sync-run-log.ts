@@ -54,8 +54,12 @@ export class SyncRunLog {
   }
 
   /** Retires the area's staged headless run: only the newest snapshot of a
-   * feed is worth applying. An admin's own upload is left alone. */
-  async supersedeStaged(area: SyncArea): Promise<void> {
+   * feed is worth applying. A feed leaves an admin's own upload alone; a new
+   * upload retires every staged run, its own kind included. */
+  async supersedeStaged(
+    area: SyncArea,
+    { uploads = false } = {},
+  ): Promise<void> {
     await this.db
       .update(syncRuns)
       .set({
@@ -67,7 +71,7 @@ export class SyncRunLog {
       .where(
         and(
           eq(syncRuns.status, 'previewed'),
-          eq(syncRuns.source, 'api'),
+          uploads ? undefined : eq(syncRuns.source, 'api'),
           eq(syncRuns.area, area),
         ),
       );
