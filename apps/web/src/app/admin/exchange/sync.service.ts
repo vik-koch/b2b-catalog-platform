@@ -19,7 +19,7 @@ import {
 } from '@b2b-catalog-platform/shared/admin/exchange';
 import { adminSyncContract } from './contract-routes.generated';
 import { createOrpcClient } from '../../platform/orpc-client';
-import { renderable } from '../../platform/renderable';
+import { renderable } from '../platform/renderable';
 
 /** A preview, or the refusal the page words from its code; null for a body
  * that is not the API's. */

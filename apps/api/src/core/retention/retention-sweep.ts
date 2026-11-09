@@ -8,10 +8,9 @@ import { destructionRecords } from '../../platform/db/schema';
 import { consents, consentWithdrawals } from '../site/site-schema';
 import { orders } from '../ordering/ordering-schema';
 import { OrderDocumentFiles } from '../ordering/order-document-files';
-import { scrubOrders } from '../ordering/order-scrub';
+import { ORDER_REMOVAL_CATEGORIES, scrubOrders } from '../ordering/order-scrub';
 import {
   Destruction,
-  ORDER_REMOVAL_CATEGORIES,
   recordDestruction,
 } from '../../platform/destruction-record';
 import { Database } from '../../platform/db/database';

@@ -1,7 +1,7 @@
 import { Component, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { STOREFRONT_TEXT } from '../../platform/config/storefront-text';
-import { setResponseStatus } from '../../platform/response-status';
+import { setResponseStatus } from './response-status';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
 import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';

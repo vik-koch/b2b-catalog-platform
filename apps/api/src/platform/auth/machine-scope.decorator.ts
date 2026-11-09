@@ -1,9 +1,8 @@
 import { Reflector } from '@nestjs/core';
-import { ApiTokenScope } from '@b2b-catalog-platform/shared/platform';
 
 /**
  * The scope a machine route requires. Its own file because the maintenance
  * gate reads it too, without the guard's database dependency. Applied through
- * `Machine()`.
+ * the exchange's `Machine()`, which names the scopes there are.
  */
-export const MachineScope = Reflector.createDecorator<ApiTokenScope>();
+export const MachineScope = Reflector.createDecorator<string>();

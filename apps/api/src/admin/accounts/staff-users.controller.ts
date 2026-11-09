@@ -6,7 +6,7 @@ import { Auth } from '../../platform/auth/auth.decorator';
 import { CurrentUser } from '../../platform/auth/current-user.decorator';
 import { ConsentRecords } from './consent-records';
 import { refusals } from '../../platform/orpc/refusals';
-import { customersExternallyOwned } from '../../platform/settings/ownership.refusals';
+import { customersExternallyOwned } from '../../core/accounts/customer-ownership-refusals';
 import { OwnershipState } from '../../platform/settings/ownership-state';
 import { SignInStep } from '../../core/accounts/sign-in-step/sign-in-step';
 import { AccountInvitations } from '../../core/accounts/account-invitations';

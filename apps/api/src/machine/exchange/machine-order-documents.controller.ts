@@ -15,10 +15,10 @@ import {
 } from '../../core/ordering/order-document-acts';
 import { OrderReader } from '../../core/ordering/order-reader';
 import { CurrentMachine } from '../../platform/auth/current-machine.decorator';
-import { MachineClient } from '../../platform/auth/machine-client';
-import { Machine } from '../../platform/auth/machine.decorator';
+import { ExchangeMachine } from '../../core/exchange/api-token-lookup';
+import { Machine } from './machine.decorator';
 import { OwnershipState } from '../../platform/settings/ownership-state';
-import { ordersNotExternallyOwned } from '../../platform/settings/ownership.refusals';
+import { ordersNotExternallyOwned } from '../../core/ordering/order-ownership-refusals';
 import { MachineThrottle } from '../../platform/throttling/throttle-presets';
 
 /**
@@ -60,7 +60,7 @@ export class MachineOrderDocumentsController {
     }),
   )
   async supply(
-    @CurrentMachine() machine: MachineClient,
+    @CurrentMachine() machine: ExchangeMachine,
     @Param('reference') reference: string,
     @Param('kind') kindParam: string,
     @UploadedFile() file: Express.Multer.File | undefined,
@@ -84,7 +84,7 @@ export class MachineOrderDocumentsController {
    * refused while orders are owned. */
   @Delete(':reference/documents/:kind')
   async remove(
-    @CurrentMachine() machine: MachineClient,
+    @CurrentMachine() machine: ExchangeMachine,
     @Param('reference') reference: string,
     @Param('kind') kind: string,
   ): Promise<void> {

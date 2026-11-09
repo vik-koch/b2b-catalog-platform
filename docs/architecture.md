@@ -167,12 +167,12 @@ flowchart TB
   work -->|1| ordering
   work -->|1| accounts
   work -->|1| catalog
-  exchange -->|7| ordering
+  exchange -->|8| ordering
   exchange -->|8| accounts
   exchange -->|11| catalog
   ordering -->|8| site
   ordering -->|31| accounts
-  ordering -->|25| catalog
+  ordering -->|27| catalog
   accounts -->|15| site
   accounts -->|5| catalog
 ```
@@ -181,12 +181,12 @@ flowchart TB
 | --------- | -------- | --: | --------: | --: | ---- |
 | accounts  | catalog  |   2 |         0 |   3 |      |
 | accounts  | site     |   7 |         2 |   6 |      |
-| ordering  | catalog  |  10 |         4 |  11 |      |
+| ordering  | catalog  |  12 |         4 |  11 |      |
 | ordering  | accounts |  10 |         4 |  17 |      |
 | ordering  | site     |   5 |         0 |   3 |      |
 | exchange  | catalog  |   7 |         4 |   0 |      |
 | exchange  | accounts |   5 |         2 |   1 |      |
-| exchange  | ordering |   4 |         3 |   0 |      |
+| exchange  | ordering |   5 |         3 |   0 |      |
 | work      | catalog  |   1 |         0 |   0 |      |
 | work      | accounts |   1 |         0 |   0 |      |
 | work      | ordering |   1 |         0 |   0 |      |

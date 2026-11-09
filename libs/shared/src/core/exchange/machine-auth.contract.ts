@@ -1,5 +1,5 @@
 import * as z from 'zod';
-import { API_TOKEN_SCOPES } from '../../platform/api-tokens';
+import { API_TOKEN_SCOPES } from './api-token-scopes';
 
 /** What a token may do; issued by an admin, checked on every machine route. */
 export const apiTokenScopeSchema = z.enum(API_TOKEN_SCOPES);

@@ -1,11 +1,22 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { AccountDeletionReason } from '@b2b-catalog-platform/shared/core/accounts';
-import {
-  ACCOUNT_DELETION_CATEGORIES,
-  recordDestruction,
-  REGISTRATION_CATEGORIES,
-} from '../../platform/destruction-record';
+import { recordDestruction } from '../../platform/destruction-record';
+import { DestructionCategory } from '../../platform/destruction';
 import { Tx } from '../../platform/db/database';
+
+/** What deleting an account destroys (FR-AUTH-06, FR-ADM-23). */
+const ACCOUNT_DELETION_CATEGORIES: readonly DestructionCategory[] = [
+  'account-details',
+  'addresses',
+  'order-details',
+  'order-documents',
+];
+
+/** What declining a registration destroys (FR-AUTH-11): it never ordered. */
+const REGISTRATION_CATEGORIES: readonly DestructionCategory[] = [
+  'account-details',
+  'addresses',
+];
 
 /** An account on its way out, as the steps that erase it are told. */
 export interface ErasedAccount {

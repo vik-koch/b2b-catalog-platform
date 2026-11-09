@@ -5,8 +5,8 @@ import { CatalogSyncService } from '../../core/exchange/catalog-sync.service';
 import { SyncRunLog } from '../../core/exchange/sync-run-log';
 import { refusals } from '../../platform/orpc/refusals';
 import { CurrentMachine } from '../../platform/auth/current-machine.decorator';
-import { MachineClient } from '../../platform/auth/machine-client';
-import { Machine } from '../../platform/auth/machine.decorator';
+import { ExchangeMachine } from '../../core/exchange/api-token-lookup';
+import { Machine } from './machine.decorator';
 import { MachineThrottle } from '../../platform/throttling/throttle-presets';
 
 /**
@@ -23,14 +23,14 @@ export class MachineCatalogSyncController {
   ) {}
 
   @Implement(machineCatalogSyncContract.submitRun)
-  submitRun(@CurrentMachine() machine: MachineClient) {
+  submitRun(@CurrentMachine() machine: ExchangeMachine) {
     return implement(machineCatalogSyncContract.submitRun)
       .use(refusals)
       .handler(({ input }) => this.service.submit(input.body, machine));
   }
 
   @Implement(machineCatalogSyncContract.reportFailure)
-  reportFailure(@CurrentMachine() machine: MachineClient) {
+  reportFailure(@CurrentMachine() machine: ExchangeMachine) {
     return implement(machineCatalogSyncContract.reportFailure)
       .use(refusals)
       .handler(({ input }) => this.service.reportFailure(input.body, machine));

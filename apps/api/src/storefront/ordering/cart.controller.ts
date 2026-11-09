@@ -3,7 +3,7 @@ import { Implement, implement } from '@orpc/nest';
 import { cartContract } from '@b2b-catalog-platform/shared/storefront/ordering';
 import { TaxConfig } from '@b2b-catalog-platform/shared/platform';
 import { OptionalAuthGuard } from '../../platform/auth/optional-auth.guard';
-import { PricingTier } from '../../platform/auth/pricing-tier.decorator';
+import { PricingTier } from '../../core/catalog/pricing-tier.decorator';
 import { TAX_CONFIG } from '../../platform/config/deployment-config';
 import { DRIZZLE } from '../../platform/db/database.module';
 import { SearchThrottle } from '../../platform/throttling/throttle-presets';

@@ -1,6 +1,14 @@
 import { inArray, sql, SQLWrapper } from 'drizzle-orm';
 import { orderItems, orderRevisions, orders } from './ordering-schema';
 import { Database } from '../../platform/db/database';
+import { DestructionCategory } from '../../platform/destruction';
+
+/** What removing an order's personal details destroys (NFR-LEGAL-14),
+ * whether its retention ended or a guest asked. */
+export const ORDER_REMOVAL_CATEGORIES: readonly DestructionCategory[] = [
+  'order-details',
+  'order-documents',
+];
 
 type Writer = Pick<Database, 'update' | 'select'>;
 

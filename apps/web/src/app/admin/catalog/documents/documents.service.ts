@@ -11,7 +11,7 @@ import {
 import { safe, type ClientPromiseResult } from '@orpc/client';
 import { documentsContract } from '../contract-routes.generated';
 import { createOrpcClient } from '../../../platform/orpc-client';
-import { renderable } from '../../../platform/renderable';
+import { renderable } from '../../platform/renderable';
 
 export type DocumentResult =
   | { ok: true; document: ProductDocument }

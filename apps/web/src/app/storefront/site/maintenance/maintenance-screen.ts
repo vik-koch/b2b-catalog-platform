@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { usePageSeo } from '../../../platform/page-seo';
-import { setResponseStatus } from '../../../platform/response-status';
+import { setResponseStatus } from '../../platform/response-status';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
 import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
 import { STOREFRONT_SITE_TEXT } from '../site-text';

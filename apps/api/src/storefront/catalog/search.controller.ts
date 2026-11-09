@@ -3,8 +3,8 @@ import { Implement, implement } from '@orpc/nest';
 import { catalogContract } from '@b2b-catalog-platform/shared/storefront/catalog';
 import { parseAttributeParams } from '@b2b-catalog-platform/shared/core/catalog';
 import { CatalogSearchService } from './catalog-search.service';
-import { PricingTier } from '../../platform/auth/pricing-tier.decorator';
-import { TierPriced } from '../../platform/auth/tier-priced.decorator';
+import { PricingTier } from '../../core/catalog/pricing-tier.decorator';
+import { TierPriced } from '../../core/catalog/tier-priced.decorator';
 import {
   SearchThrottle,
   SuggestionThrottle,

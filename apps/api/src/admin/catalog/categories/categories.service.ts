@@ -13,7 +13,7 @@ import {
 import { DRIZZLE } from '../../../platform/db/database.module';
 import { categories, products } from '../../../core/catalog/catalog-schema';
 import { OwnershipState } from '../../../platform/settings/ownership-state';
-import { catalogExternallyOwned } from '../../../platform/settings/ownership.refusals';
+import { catalogExternallyOwned } from '../../../core/catalog/catalog-ownership-refusals';
 import { changedCategoryFields } from '../owned-fields';
 import { publiclyVisible } from '../../../core/catalog/product-view';
 import { hasCycle } from './category-cycle';

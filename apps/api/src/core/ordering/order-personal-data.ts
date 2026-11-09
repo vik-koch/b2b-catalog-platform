@@ -8,12 +8,9 @@ import { eq } from 'drizzle-orm';
 import { isOrderFinished } from '@b2b-catalog-platform/shared/core/ordering';
 import { DRIZZLE } from '../../platform/db/database.module';
 import { orders } from './ordering-schema';
-import {
-  ORDER_REMOVAL_CATEGORIES,
-  recordDestruction,
-} from '../../platform/destruction-record';
+import { recordDestruction } from '../../platform/destruction-record';
 import { OrderDocumentFiles } from './order-document-files';
-import { scrubOrders } from './order-scrub';
+import { ORDER_REMOVAL_CATEGORIES, scrubOrders } from './order-scrub';
 import { Database } from '../../platform/db/database';
 
 /**

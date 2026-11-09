@@ -13,7 +13,7 @@ import { fillText } from '@b2b-catalog-platform/shared/platform';
 import { ADMIN_TEXT } from '../../../platform/config/admin-text';
 
 import { usePageSeo } from '../../../platform/page-seo';
-import { useRowAnchor } from '../../../platform/row-anchor';
+import { useRowAnchor } from '../../platform/row-anchor';
 import { delayedLoading } from '../../../platform/delayed-loading';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';

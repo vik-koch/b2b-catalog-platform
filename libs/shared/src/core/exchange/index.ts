@@ -1,3 +1,4 @@
+export * from './api-token-scopes';
 export * from './catalog-sync';
 export * from './catalog-sync.contract';
 export * from './customer-sync';
