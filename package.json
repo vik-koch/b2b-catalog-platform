@@ -17,6 +17,7 @@
     "@angular/language-service": "~22.2.1",
     "@axe-core/playwright": "^4.14.0",
     "@eslint/js": "^10.0.1",
+    "@ianvs/prettier-plugin-sort-imports": "4.7.1",
     "@nestjs/testing": "^12.4.0",
     "@nx/angular": "24.0.4",
     "@nx/devkit": "24.0.4",

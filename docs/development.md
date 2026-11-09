@@ -130,6 +130,11 @@ it replaces a release later. A migration that cannot run unattended makes the re
   without a variant come first, then one line per leading variant (`hover:`, `active:`,
   `disabled:`), aligned under the first class. Prettier leaves the inside of a string alone, so
   lint does it (`tools/lint/class-lines.mjs`); `npx nx lint web --fix` writes it.
+- **Imports come in three blocks:** packages, then `@b2b-catalog-platform/*`, then relative paths,
+  each sorted by path, with one import per module. Prettier writes it
+  (`@ianvs/prettier-plugin-sort-imports`), so a file shows at a glance which libraries, areas and
+  neighbours it leans on. It never sorts across a side-effect import (`import 'x';`), so one
+  that has to run first stays first.
 - **Comments say why, briefly.** A comment is there for what the code cannot show: a trap, an
   ordering constraint, an invariant. It does not retell the code or its history; git and the
   ADRs hold that.
