@@ -5,7 +5,7 @@ import {
   moneyFormat,
 } from '@b2b-catalog-platform/shared/platform';
 import { OrderDetail } from '@b2b-catalog-platform/shared/core/ordering';
-import { useTaxStatement } from '../../../platform/tax-statement';
+import { useTaxStatement } from '../../../core/catalog/tax-statement';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import {

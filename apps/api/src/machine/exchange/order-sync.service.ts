@@ -18,7 +18,7 @@ import { DRIZZLE } from '../../platform/db/database.module';
 import { syncRuns } from '../../core/exchange/exchange-schema';
 import { OrderWriteBack } from './order-write-back';
 import { OwnershipState } from '../../platform/settings/ownership-state';
-import { ordersNotExternallyOwned } from '../../platform/settings/ownership.refusals';
+import { ordersNotExternallyOwned } from '../../core/ordering/order-ownership-refusals';
 import { Submitter } from '../../core/exchange/sync-run';
 import { SyncRunLog, toSyncRun } from '../../core/exchange/sync-run-log';
 import { SyncNotifications } from '../../core/exchange/sync-notifications';

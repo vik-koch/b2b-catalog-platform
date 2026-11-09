@@ -2,7 +2,7 @@
  * role and cannot sign in; the admin issues and revokes it here. */
 import { oc } from '@orpc/contract';
 import * as z from 'zod';
-import { API_TOKEN_NAME_MAX_LENGTH } from '../../platform/api-tokens';
+import { API_TOKEN_NAME_MAX_LENGTH } from '../../core/exchange/api-token-scopes';
 import { commonAuthErrors } from '../../platform/api-error';
 import { storedEmailField } from '../../platform/contact-config';
 import { apiTokenScopeSchema } from '../../core/exchange/machine-auth.contract';

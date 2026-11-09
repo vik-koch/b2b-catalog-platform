@@ -1,6 +1,6 @@
 import { applyDecorators, UseGuards, UseInterceptors } from '@nestjs/common';
-import { OptionalAuthGuard } from './optional-auth.guard';
-import { SessionVaryingInterceptor } from './session-varying.interceptor';
+import { OptionalAuthGuard } from '../../platform/auth/optional-auth.guard';
+import { SessionVaryingInterceptor } from '../../platform/auth/session-varying.interceptor';
 
 /**
  * A public route whose prices depend on the caller (FR-AUTH-05). Guard and

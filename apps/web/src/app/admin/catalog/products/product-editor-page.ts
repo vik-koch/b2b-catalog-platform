@@ -20,12 +20,8 @@ import {
 } from '@angular/forms/signals';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
-  effectiveTaxRate,
   fillText,
-  formatTaxRate,
-  parseTaxRate,
   moneyFormat,
-  isPartialTaxRate,
   currencySymbol,
   decimalSeparator,
 } from '@b2b-catalog-platform/shared/platform';
@@ -41,6 +37,10 @@ import {
   lowStockThreshold,
   splitAttributeKey,
   totalMinor,
+  effectiveTaxRate,
+  formatTaxRate,
+  parseTaxRate,
+  isPartialTaxRate,
 } from '@b2b-catalog-platform/shared/core/catalog';
 import {
   AdminCategory,
@@ -655,7 +655,7 @@ export class ProductEditorPage implements UnsavedChangesAware, FieldAttempt {
   private readonly confirm = inject(ConfirmService);
   private readonly currency = moneyFormat(inject(DEPLOYMENT_CONFIG));
   private readonly locale = inject(DEPLOYMENT_CONFIG).locale;
-  private readonly tax = inject(DEPLOYMENT_CONFIG).tax;
+  private readonly tax = inject(CATALOG_CONFIG).tax;
   /** The last rung of the "few left" ladder; the API applies the same figure
    * from the same key. */
   private readonly lowStockFallback =

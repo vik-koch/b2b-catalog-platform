@@ -1,14 +1,14 @@
+import {
+  formatTaxRate,
+  type TaxConfig,
+} from '@b2b-catalog-platform/shared/core/catalog';
 import type { StorefrontOrderingText } from '../ordering-text.type';
 import { STOREFRONT_ORDERING_TEXT } from '../ordering-text';
 import { SHARED_ORDERING_TEXT } from '../../../core/ordering/ordering-text';
 import { ORDERING_CONFIG } from '../../../core/ordering/ordering-config';
 import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import {
-  fillText,
-  formatTaxRate,
-  DeploymentConfig,
-} from '@b2b-catalog-platform/shared/platform';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
 import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
@@ -22,6 +22,7 @@ import { PageSectionTitle } from '@b2b-catalog-platform/ui/content/page-section-
 import { StaticPage } from '../../site/pages/static-page';
 import { DeliveryZoneList } from '../checkout/ui/delivery-zone-list';
 import { SITE_CONFIG } from '../../../core/site/site-config';
+import { CATALOG_CONFIG } from '../../../core/catalog/catalog-config';
 
 /**
  * The editable prose, then the conditions read from where checkout reads them
@@ -172,7 +173,6 @@ export class ConditionsPage {
   protected readonly sharedOrderingText = inject(SHARED_ORDERING_TEXT);
   protected readonly paymentNames =
     this.sharedOrderingText.order.paymentMethods;
-  private readonly config = inject(DEPLOYMENT_CONFIG);
   private readonly orderingConfig = inject(ORDERING_CONFIG);
   private readonly siteConfig = inject(SITE_CONFIG);
 
@@ -182,7 +182,11 @@ export class ConditionsPage {
   protected readonly paymentText = this.storefrontOrderingText.checkout.payment;
 
   /** The basis in a sentence, naming the default rate where tax is charged. */
-  protected readonly taxSentence = taxSentence(this.config, this.pageText);
+  protected readonly taxSentence = taxSentence(
+    inject(CATALOG_CONFIG).tax,
+    inject(DEPLOYMENT_CONFIG).locale,
+    this.pageText,
+  );
 
   protected readonly hasZones =
     (this.orderingConfig.delivery?.zones.length ?? 0) > 0;
@@ -193,12 +197,12 @@ export class ConditionsPage {
 }
 
 function taxSentence(
-  config: Pick<DeploymentConfig, 'tax' | 'locale'>,
+  tax: TaxConfig,
+  locale: string,
   text: StorefrontOrderingText['conditions'],
 ): string {
-  const { tax } = config;
   if (tax.basis === 'none') return text.taxNone;
   return fillText(tax.basis === 'included' ? text.taxIncluded : text.taxAdded, {
-    rate: formatTaxRate(tax.rate, config.locale),
+    rate: formatTaxRate(tax.rate, locale),
   });
 }

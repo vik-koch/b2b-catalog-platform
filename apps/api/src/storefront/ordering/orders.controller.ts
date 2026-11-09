@@ -7,7 +7,7 @@ import {
   CurrentUserOptional,
 } from '../../platform/auth/current-user.decorator';
 import { OptionalAuthGuard } from '../../platform/auth/optional-auth.guard';
-import { PricingTier } from '../../platform/auth/pricing-tier.decorator';
+import { PricingTier } from '../../core/catalog/pricing-tier.decorator';
 import {
   OrderTokenThrottle,
   PublicFormThrottle,

@@ -2,7 +2,7 @@ import { Controller } from '@nestjs/common';
 import { Implement, implement } from '@orpc/nest';
 import { machineCustomerReadContract } from '@b2b-catalog-platform/shared/machine/exchange';
 import { refusals } from '../../platform/orpc/refusals';
-import { Machine } from '../../platform/auth/machine.decorator';
+import { Machine } from './machine.decorator';
 import { MachineThrottle } from '../../platform/throttling/throttle-presets';
 import { CustomerReadService } from './customer-read.service';
 

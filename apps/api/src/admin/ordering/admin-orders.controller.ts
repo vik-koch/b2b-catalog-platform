@@ -5,7 +5,7 @@ import { Auth } from '../../platform/auth/auth.decorator';
 import { CurrentUser } from '../../platform/auth/current-user.decorator';
 import { AuditLogger } from '../../platform/audit/audit.logger';
 import { refusals } from '../../platform/orpc/refusals';
-import { ordersExternallyOwned } from '../../platform/settings/ownership.refusals';
+import { ordersExternallyOwned } from '../../core/ordering/order-ownership-refusals';
 import { OwnershipState } from '../../platform/settings/ownership-state';
 import { OrderPersonalData } from '../../core/ordering/order-personal-data';
 import { OrderReader } from '../../core/ordering/order-reader';

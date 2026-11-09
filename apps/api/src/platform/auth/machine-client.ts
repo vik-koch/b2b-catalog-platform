@@ -1,11 +1,10 @@
-import { ApiTokenScope } from '@b2b-catalog-platform/shared/platform';
-
 /** Who a machine request is: deliberately not an `AuthUser`, so nothing
- * that reads a person can read it. */
-export interface MachineClient {
+ * that reads a person can read it. What a scope means is the exchange's; the
+ * guard only compares them. */
+export interface MachineClient<Scope extends string = string> {
   id: string;
   name: string;
-  scopes: ApiTokenScope[];
+  scopes: Scope[];
 }
 
 /** A request the machine guard has authenticated. */

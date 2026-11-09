@@ -2,6 +2,7 @@ import {
   CATALOG_AREA,
   catalogConfigShape,
   DEFAULT_LOW_STOCK_THRESHOLD_PIECES,
+  type TaxConfig,
 } from '@b2b-catalog-platform/shared/core/catalog';
 import * as z from 'zod';
 import { loadDeploymentConfigBlock } from '../../platform/config/deployment-config';
@@ -27,4 +28,11 @@ export const PAIRINGS_ENFORCED = 'PAIRINGS_ENFORCED';
 
 export function loadPairingsEnforced(): boolean {
   return loadCatalogConfig().pairingsEnforced;
+}
+
+/** The tax basis, and the default a product's own rate falls back to. */
+export const TAX_CONFIG = 'TAX_CONFIG';
+
+export function loadTaxConfig(): TaxConfig {
+  return loadCatalogConfig().tax;
 }

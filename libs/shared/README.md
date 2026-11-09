@@ -10,8 +10,8 @@ An entry point per audience and area, over `core/<area>` for what an area's audi
 <!-- prettier-ignore -->
 | Import | Folder | What it holds |
 | --- | --- | --- |
-| `@b2b-catalog-platform/shared/platform` | `src/platform/` | what knows no area: the deployment config's and shared texts' own keys, money and tax, text filling, API errors, the session and its roles, the areas another system may own and their refusals, phone and email formats, media upload facts, the rich-text vocabulary, form fields, pagination, keyboard layouts, ISO days |
-| `@b2b-catalog-platform/shared/core/catalog` | `src/core/catalog/` | the catalog's values and rules, and the product shapes both sides draw |
+| `@b2b-catalog-platform/shared/platform` | `src/platform/` | what knows no area: the deployment config's and shared texts' own keys, money, text filling, API errors, the session and its roles, the areas another system may own and their refusals, phone and email formats, media upload facts, the rich-text vocabulary, form fields, pagination, keyboard layouts, ISO days |
+| `@b2b-catalog-platform/shared/core/catalog` | `src/core/catalog/` | the catalog's values and rules, the tax basis and rates, and the product shapes both sides draw |
 | `@b2b-catalog-platform/shared/storefront/catalog` | `src/storefront/catalog/` | the storefront's catalog routes: tree, listings, facets, search, sitemap |
 | `@b2b-catalog-platform/shared/admin/catalog` | `src/admin/catalog/` | the staff's catalog routes: products, categories, attributes, documents, tiers |
 | `@b2b-catalog-platform/shared/core/accounts` | `src/core/accounts/` | the account's values and rules: sign-in and passwords, addresses, parties, the account shapes staff and the exchange act on |

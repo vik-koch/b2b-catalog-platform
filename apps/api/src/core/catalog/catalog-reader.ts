@@ -6,13 +6,11 @@ import {
   ProductDetailAttribute,
   PublicDocument,
   publicDocumentSchema,
-} from '@b2b-catalog-platform/shared/core/catalog';
-import {
-  isoToday,
   effectiveTaxRate,
   TaxConfig,
-} from '@b2b-catalog-platform/shared/platform';
-import { TAX_CONFIG } from '../../platform/config/deployment-config';
+} from '@b2b-catalog-platform/shared/core/catalog';
+import { isoToday } from '@b2b-catalog-platform/shared/platform';
+import { TAX_CONFIG } from './catalog-config';
 import { DRIZZLE } from '../../platform/db/database.module';
 import {
   attributeDefinitions,

@@ -9,7 +9,7 @@ import {
   resource,
   signal,
 } from '@angular/core';
-import { useTaxStatement } from '../../platform/tax-statement';
+import { useTaxStatement } from '../../core/catalog/tax-statement';
 import { RouterLink } from '@angular/router';
 import { Link } from '@b2b-catalog-platform/ui/actions/link';
 import {

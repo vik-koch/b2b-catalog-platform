@@ -62,7 +62,7 @@ async function render(
     locale: 'de-DE',
     branding: { name: 'Test Shop', tagline: 'Test tagline' },
     currency: { code: 'EUR' },
-    tax: defaultDeploymentConfig.tax,
+    catalog: defaultDeploymentConfig.catalog,
   } as unknown as DeploymentConfigFile;
   TestBed.configureTestingModule({
     imports: [ProductDetail],

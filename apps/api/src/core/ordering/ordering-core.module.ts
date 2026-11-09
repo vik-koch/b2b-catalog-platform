@@ -15,8 +15,6 @@ import {
   loadOrderCurrency,
   loadShopTimeZone,
   loadPdfFont,
-  loadTaxConfig,
-  TAX_CONFIG,
 } from '../../platform/config/deployment-config';
 import { TERMS_ATTACHED, loadTermsAttached } from './terms-config';
 import {
@@ -38,6 +36,8 @@ import {
 import {
   PAIRINGS_ENFORCED,
   loadPairingsEnforced,
+  loadTaxConfig,
+  TAX_CONFIG,
 } from '../catalog/catalog-config';
 import { loadTermsPublished, TERMS_PUBLISHED } from '../site/site-config';
 import { MailModule } from '../../platform/mail/mail.module';

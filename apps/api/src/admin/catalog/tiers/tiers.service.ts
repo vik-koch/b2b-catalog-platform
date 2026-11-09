@@ -22,7 +22,7 @@ import {
   TierAccounts,
 } from '../../../core/catalog/tier-accounts';
 import { OwnershipState } from '../../../platform/settings/ownership-state';
-import { catalogExternallyOwned } from '../../../platform/settings/ownership.refusals';
+import { catalogExternallyOwned } from '../../../core/catalog/catalog-ownership-refusals';
 import { publiclyVisible } from '../../../core/catalog/product-view';
 import { tierPriceCondition } from '../products/grid/tier-price-filter';
 import { Database } from '../../../platform/db/database';

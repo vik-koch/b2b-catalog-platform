@@ -1,0 +1,8 @@
+{
+  "from": "v1.16.0",
+  "keys": {},
+  "drop": [],
+  "moves": {
+    "deployment.json:tax": "deployment.json:catalog.tax"
+  }
+}

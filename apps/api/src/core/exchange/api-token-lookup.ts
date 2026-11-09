@@ -3,16 +3,20 @@ import { eq } from 'drizzle-orm';
 import { DRIZZLE } from '../../platform/db/database.module';
 import { Database } from '../../platform/db/database';
 import { hashToken } from '../../platform/auth/api-token-value';
+import { ApiTokenScope } from '@b2b-catalog-platform/shared/core/exchange';
 import { MachineClient } from '../../platform/auth/machine-client';
 import { MachineTokens } from '../../platform/auth/machine-tokens';
 import { apiTokens } from './exchange-schema';
+
+/** A machine client with the exchange's scopes, as this lookup made it. */
+export type ExchangeMachine = MachineClient<ApiTokenScope>;
 
 @Injectable()
 export class ApiTokenLookup implements MachineTokens {
   constructor(@Inject(DRIZZLE) private readonly db: Database) {}
 
   /** Stamps `lastUsedAt`, which a refused request is not. */
-  async authenticate(value: string): Promise<MachineClient | null> {
+  async authenticate(value: string): Promise<ExchangeMachine | null> {
     const [row] = await this.db
       .select()
       .from(apiTokens)

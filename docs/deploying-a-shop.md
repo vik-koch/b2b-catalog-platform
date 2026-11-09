@@ -53,7 +53,7 @@ sample content; a real shop starts empty and is filled in the admin panel or by 
 | --- | --- | --- |
 | The language, the formats of dates, numbers and money, and the shop's time zone | `locale`, `currency`, `timeZone` | `deployment.json` |
 | Who the shop sells to: companies, private persons or both | `accounts.customerTypes` | `deployment.json` |
-| Whether prices include tax, exclude it or carry none; the default rate | `tax` | `deployment.json` |
+| Whether prices include tax, exclude it or carry none; the default rate | `catalog.tax` | `deployment.json` |
 | Pickup points, delivery zones and their free-delivery thresholds | `ordering.pickup`, `ordering.delivery` | `deployment.json` |
 | Whether an order asks for a separate invoice address | `ordering.billingAddressEnabled` | `deployment.json` |
 | How phone numbers, company numbers and addresses are checked | `phoneInput`, `companyIdInput`, `accounts.address` | `deployment.json` |

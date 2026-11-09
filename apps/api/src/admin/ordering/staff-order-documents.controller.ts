@@ -17,7 +17,7 @@ import {
   orderDocumentKind,
 } from '../../core/ordering/order-document-acts';
 import { OrderReader } from '../../core/ordering/order-reader';
-import { ordersExternallyOwned } from '../../platform/settings/ownership.refusals';
+import { ordersExternallyOwned } from '../../core/ordering/order-ownership-refusals';
 import { OwnershipState } from '../../platform/settings/ownership-state';
 
 /**

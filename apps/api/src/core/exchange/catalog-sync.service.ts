@@ -25,7 +25,7 @@ import { OwnershipState } from '../../platform/settings/ownership-state';
 import {
   catalogExternallyOwned,
   catalogNotExternallyOwned,
-} from '../../platform/settings/ownership.refusals';
+} from '../catalog/catalog-ownership-refusals';
 import {
   categories,
   customerTiers,

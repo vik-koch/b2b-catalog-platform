@@ -1,12 +1,12 @@
 import { ADMIN_EXCHANGE_TEXT } from '../exchange-text';
 import { Component, computed, inject, resource, signal } from '@angular/core';
 import { form, maxLength, required, validate } from '@angular/forms/signals';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
 import {
   API_TOKEN_NAME_MAX_LENGTH,
   API_TOKEN_SCOPES,
   ApiTokenScope,
-  fillText,
-} from '@b2b-catalog-platform/shared/platform';
+} from '@b2b-catalog-platform/shared/core/exchange';
 import {
   ApiToken,
   CreatedApiToken,

@@ -3,7 +3,7 @@ import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { API_TOKEN_SCOPES } from '@b2b-catalog-platform/shared/platform';
+import { API_TOKEN_SCOPES } from '@b2b-catalog-platform/shared/core/exchange';
 import {
   ApiToken,
   CreatedApiToken,

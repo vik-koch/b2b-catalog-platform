@@ -86,8 +86,8 @@ const config = {
   currency: { code: 'EUR' },
   catalog: {
     boxUnits: { volume: 'm³', weight: 'kg' },
+    tax: { basis: 'included', rate: 19, statedAtPrices: true },
   },
-  tax: { basis: 'included', rate: 19, statedAtPrices: true },
 } as unknown as DeploymentConfigFile;
 
 interface Harness {

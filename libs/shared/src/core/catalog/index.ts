@@ -15,4 +15,6 @@ export * from './product-variants';
 export * from './products';
 export * from './search.contract';
 export * from './slugify';
+export * from './tax';
+export * from './tax-config';
 export * from './tiers';

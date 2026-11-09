@@ -16,7 +16,7 @@ import {
 import { adminProductsContract } from '../contract-routes.generated';
 import { safe, type ClientPromiseResult } from '@orpc/client';
 import { createOrpcClient } from '../../../platform/orpc-client';
-import { renderable } from '../../../platform/renderable';
+import { renderable } from '../../platform/renderable';
 import { WorkRefresh } from '../../../platform/work-refresh';
 import type { EditModeCatalog } from '../../../core/catalog/edit-mode-catalog';
 

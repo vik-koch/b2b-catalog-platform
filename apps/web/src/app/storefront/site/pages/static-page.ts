@@ -16,7 +16,7 @@ import { editAwareContent } from '../../../platform/edit-mode/edit-aware-content
 import { EditActions } from '../../../platform/edit-mode/edit-actions';
 import { usePageSeo } from '../../../platform/page-seo';
 import { PageService } from '../../../core/site/page.service';
-import { RichTextLinks } from '../../../platform/rich-text-links';
+import { RichTextLinks } from '../../platform/rich-text-links';
 import { trustedRichText } from '../../../platform/trusted-rich-text';
 import { LoadErrorView } from '../../platform/load-error-view';
 import { PageUpdated } from './page-updated';

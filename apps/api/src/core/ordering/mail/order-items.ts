@@ -2,15 +2,15 @@ import {
   SharedText,
   fillText,
   formatMoneyMinor,
-  formatTaxRate,
   MoneyFormat,
-  sharedTaxRate,
 } from '@b2b-catalog-platform/shared/platform';
 import { OrderDetail } from '@b2b-catalog-platform/shared/core/ordering';
 import { MailItem } from '../../../platform/mail/mail-layout';
 import {
   CATALOG_AREA,
   type SharedCatalogText,
+  formatTaxRate,
+  sharedTaxRate,
 } from '@b2b-catalog-platform/shared/core/catalog';
 import { sharedTextBlock } from '../../../platform/config/shared-text';
 

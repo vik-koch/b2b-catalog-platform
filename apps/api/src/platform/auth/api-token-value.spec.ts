@@ -1,7 +1,4 @@
-import {
-  API_TOKEN_PREFIX_LENGTH,
-  API_TOKEN_SCHEME,
-} from '@b2b-catalog-platform/shared/platform';
+import { API_TOKEN_PREFIX_LENGTH } from '@b2b-catalog-platform/shared/platform';
 import { bearerToken, generateToken, hashToken } from './api-token-value';
 
 describe('generateToken', () => {
@@ -36,7 +33,7 @@ describe('generateToken', () => {
 
 describe('bearerToken', () => {
   it('reads the value after the scheme', () => {
-    expect(bearerToken(`${API_TOKEN_SCHEME} abc.def`)).toBe('abc.def');
+    expect(bearerToken('Bearer abc.def')).toBe('abc.def');
   });
 
   it('accepts the scheme in any casing', () => {

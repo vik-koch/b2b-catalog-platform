@@ -8,7 +8,7 @@ import {
 import { adminCategoriesContract } from '../contract-routes.generated';
 import { safe, type ClientPromiseResult } from '@orpc/client';
 import { createOrpcClient } from '../../../platform/orpc-client';
-import { renderable } from '../../../platform/renderable';
+import { renderable } from '../../platform/renderable';
 
 /**
  * The admin category client. The declared refusals come back as typed results

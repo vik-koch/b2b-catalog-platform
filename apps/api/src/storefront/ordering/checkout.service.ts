@@ -1,9 +1,9 @@
+import { TaxConfig } from '@b2b-catalog-platform/shared/core/catalog';
 import {
   OrderingParty,
   OrderSubmission,
   OrderReferenceConfig,
 } from '@b2b-catalog-platform/shared/core/ordering';
-import { TaxConfig } from '@b2b-catalog-platform/shared/platform';
 import {
   BadRequestException,
   Inject,
@@ -23,10 +23,12 @@ import { OrderRules } from '../../core/ordering/order-rules';
 import {
   ORDER_CURRENCY,
   SHOP_TIME_ZONE,
-  TAX_CONFIG,
 } from '../../platform/config/deployment-config';
 import { ORDER_REFERENCE_CONFIG } from '../../core/ordering/ordering-config';
-import { PAIRINGS_ENFORCED } from '../../core/catalog/catalog-config';
+import {
+  PAIRINGS_ENFORCED,
+  TAX_CONFIG,
+} from '../../core/catalog/catalog-config';
 import { TERMS_PUBLISHED } from '../../core/site/site-config';
 import { DRIZZLE } from '../../platform/db/database.module';
 import { currentPageVersion } from '../../core/site/page-versions';

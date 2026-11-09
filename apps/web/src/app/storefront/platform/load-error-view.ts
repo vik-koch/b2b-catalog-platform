@@ -1,6 +1,6 @@
 import { Component, inject, input } from '@angular/core';
 import { STOREFRONT_TEXT } from '../../platform/config/storefront-text';
-import { setResponseStatus } from '../../platform/response-status';
+import { setResponseStatus } from './response-status';
 import { Outcome } from '@b2b-catalog-platform/ui/content/outcome';
 
 /** A page whose data could not be loaded, as a 503: a 200 would invite a

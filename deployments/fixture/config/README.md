@@ -321,10 +321,12 @@ and on the conditions page. It is a statement, not a calculation: the platform
 never works out a tax amount, because the shop's invoice states that figure.
 
 ```json
-"tax": {
-  "basis": "included",
-  "rate": 19,
-  "statedAtPrices": true
+"catalog": {
+  "tax": {
+    "basis": "included",
+    "rate": 19,
+    "statedAtPrices": true
+  }
 }
 ```
 

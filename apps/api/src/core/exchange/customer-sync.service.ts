@@ -31,7 +31,7 @@ import { OwnershipState } from '../../platform/settings/ownership-state';
 import {
   customersExternallyOwned,
   customersNotExternallyOwned,
-} from '../../platform/settings/ownership.refusals';
+} from '../accounts/customer-ownership-refusals';
 import { PasswordService } from '../accounts/password.service';
 import { AccountInvitations } from '../accounts/account-invitations';
 import { StaffUsersService } from '../accounts/staff-users.service';

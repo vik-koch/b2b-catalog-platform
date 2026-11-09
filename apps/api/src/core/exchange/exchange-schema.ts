@@ -1,10 +1,8 @@
 import { sql } from 'drizzle-orm';
+import { API_TOKEN_PREFIX_LENGTH } from '@b2b-catalog-platform/shared/platform';
 import {
   API_TOKEN_NAME_MAX_LENGTH,
-  API_TOKEN_PREFIX_LENGTH,
   API_TOKEN_SCOPES,
-} from '@b2b-catalog-platform/shared/platform';
-import {
   SYNC_AREAS,
   type CustomerSyncOptions,
   type CustomerSyncPlan,

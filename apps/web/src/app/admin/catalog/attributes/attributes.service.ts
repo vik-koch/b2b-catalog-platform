@@ -15,7 +15,7 @@ import {
 import { attributesContract } from '../contract-routes.generated';
 import { safe, type ClientPromiseResult } from '@orpc/client';
 import { createOrpcClient } from '../../../platform/orpc-client';
-import { renderable } from '../../../platform/renderable';
+import { renderable } from '../../platform/renderable';
 
 export type AttributeResult =
   | { ok: true; definition: AttributeDefinition }
