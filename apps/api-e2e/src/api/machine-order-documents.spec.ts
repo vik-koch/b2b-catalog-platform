@@ -301,6 +301,17 @@ describe('Order documents over the machine endpoint (FR-ORD-05)', () => {
         data: { code: 'orders-not-externally-owned' },
       });
     });
+
+    /** Both routes check kind, then ownership, then the reference, so a
+     * request wrong twice gets one answer whichever it was sent to. */
+    it('answers an unknown kind before anything else, on both routes', async () => {
+      const missing = `${SOURCE_PREFIX}-NOPE`;
+      const supplied = await supply(missing, 'delivery-note', pdfBytes('x'));
+      const removed = await unsupply(missing, 'delivery-note');
+
+      expect(supplied.status).toBe(400);
+      expect(removed.status).toBe(400);
+    });
   });
 
   describe('while order processing is externally owned', () => {
