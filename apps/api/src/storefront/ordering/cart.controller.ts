@@ -1,10 +1,10 @@
+import { TaxConfig } from '@b2b-catalog-platform/shared/core/catalog';
 import { Controller, Inject, UseGuards } from '@nestjs/common';
 import { Implement, implement } from '@orpc/nest';
 import { cartContract } from '@b2b-catalog-platform/shared/storefront/ordering';
-import { TaxConfig } from '@b2b-catalog-platform/shared/platform';
 import { OptionalAuthGuard } from '../../platform/auth/optional-auth.guard';
 import { PricingTier } from '../../core/catalog/pricing-tier.decorator';
-import { TAX_CONFIG } from '../../platform/config/deployment-config';
+import { TAX_CONFIG } from '../../core/catalog/catalog-config';
 import { DRIZZLE } from '../../platform/db/database.module';
 import { SearchThrottle } from '../../platform/throttling/throttle-presets';
 import { priceCart } from '../../core/ordering/cart-pricing';

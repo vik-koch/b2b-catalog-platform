@@ -42,7 +42,7 @@ import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { LastListingService } from '../../catalog/last-listing.service';
 import { CartPreviewService } from './cart-preview.service';
-import { useTaxStatement } from '../../../platform/tax-statement';
+import { useTaxStatement } from '../../../core/catalog/tax-statement';
 import { OrderSummary } from '../../../core/ordering/ui/order-summary';
 import { CartChange, CartService } from './cart.service';
 import { WarningNote } from '@b2b-catalog-platform/ui/content/warning-note';

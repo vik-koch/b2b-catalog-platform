@@ -18,7 +18,7 @@ import { CartService, CartStoredLine } from '../cart/cart.service';
 import { formatUnitQuantity } from '../../../core/catalog/buying/quantity';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
-import { useTaxStatement } from '../../../platform/tax-statement';
+import { useTaxStatement } from '../../../core/catalog/tax-statement';
 import {
   ReadBackLine,
   ReviewBlock,

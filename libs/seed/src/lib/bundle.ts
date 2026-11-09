@@ -7,11 +7,11 @@ import {
   PAYMENT_STATES,
 } from '@b2b-catalog-platform/shared/core/ordering';
 import { PAGE_SLUGS } from '@b2b-catalog-platform/shared/core/site';
-import { PRODUCT_UNITS } from '@b2b-catalog-platform/shared/core/catalog';
 import {
-  OWNERSHIP_AREAS,
+  PRODUCT_UNITS,
   TAX_BASES,
-} from '@b2b-catalog-platform/shared/platform';
+} from '@b2b-catalog-platform/shared/core/catalog';
+import { OWNERSHIP_AREAS } from '@b2b-catalog-platform/shared/platform';
 import { API_TOKEN_SCOPES } from '@b2b-catalog-platform/shared/core/exchange';
 import {
   CUSTOMER_TYPES,

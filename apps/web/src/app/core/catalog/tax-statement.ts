@@ -1,12 +1,13 @@
-import { inject } from '@angular/core';
 import {
-  fillText,
   formatTaxRate,
   sharedTaxRate,
   TaxBasis,
-} from '@b2b-catalog-platform/shared/platform';
-import { SHARED_TEXT } from './config/shared-text';
-import { DEPLOYMENT_CONFIG } from './config/deployment-config';
+} from '@b2b-catalog-platform/shared/core/catalog';
+import { inject } from '@angular/core';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
+import { SHARED_TEXT } from '../../platform/config/shared-text';
+import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
+import { CATALOG_CONFIG } from './catalog-config';
 
 /**
  * The tax basis in words (NFR-LEGAL-11), for every place that states it, so
@@ -14,9 +15,8 @@ import { DEPLOYMENT_CONFIG } from './config/deployment-config';
  * never a figure: the tax in an amount is the invoice's to state.
  */
 export function useTaxStatement() {
-  const config = inject(DEPLOYMENT_CONFIG);
-  const tax = config.tax;
-  const locale = config.locale;
+  const tax = inject(CATALOG_CONFIG).tax;
+  const locale = inject(DEPLOYMENT_CONFIG).locale;
   const statements = inject(SHARED_TEXT).tax;
 
   const rateText = (rate: number) => formatTaxRate(rate, locale);

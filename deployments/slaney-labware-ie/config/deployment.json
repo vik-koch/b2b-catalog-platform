@@ -41,12 +41,12 @@
     "name": "Slaney Labware Ltd",
     "registration": ["Company number 000000", "VAT IE0000000X"]
   },
-  "tax": {
-    "basis": "added",
-    "rate": 23,
-    "statedAtPrices": true
-  },
   "catalog": {
+    "tax": {
+      "basis": "added",
+      "rate": 23,
+      "statedAtPrices": true
+    },
     "boxUnits": {
       "volume": "m³",
       "weight": "kg"

@@ -18,7 +18,7 @@ import { ProductBuyControls } from '../buying/product-buy-controls';
 import { ProductPairings } from '../buying/product-pairings';
 import { ProductSetBadge } from '../ui/product-set-badge';
 import { ProductUnitFacts } from '../ui/product-unit-facts';
-import { useTaxStatement } from '../../../platform/tax-statement';
+import { useTaxStatement } from '../tax-statement';
 import { Card } from '@b2b-catalog-platform/ui/content/card';
 import { SHARED_CATALOG_TEXT } from '../catalog-text';
 

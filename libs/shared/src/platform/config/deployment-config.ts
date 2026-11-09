@@ -2,7 +2,6 @@ import * as z from 'zod';
 import type { DeepReadonly } from '../deep-readonly';
 import { companyIdInputSchema, phoneInputSchema } from '../contact-config';
 import { KEYBOARD_LAYOUTS } from '../keyboard-layout';
-import { taxConfigSchema } from '../tax-config';
 import { themeConfigSchema } from '../theme-config';
 
 /**
@@ -125,7 +124,6 @@ export const deploymentConfigShape = {
       theme: themeConfigSchema,
     })
     .strict(),
-  tax: taxConfigSchema,
   /** The keyboard layout a query is also read on, for a visitor typing with
    * the wrong one active (FR-SEARCH-08). */
   search: z

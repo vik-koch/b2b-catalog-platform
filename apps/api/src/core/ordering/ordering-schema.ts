@@ -10,8 +10,10 @@ import {
   PAYMENT_METHODS,
   PAYMENT_STATES,
 } from '@b2b-catalog-platform/shared/core/ordering';
-import { PRODUCT_UNITS } from '@b2b-catalog-platform/shared/core/catalog';
-import { TAX_BASES } from '@b2b-catalog-platform/shared/platform';
+import {
+  PRODUCT_UNITS,
+  TAX_BASES,
+} from '@b2b-catalog-platform/shared/core/catalog';
 import {
   AnyPgColumn,
   boolean,

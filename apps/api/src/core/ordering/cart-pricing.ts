@@ -8,15 +8,13 @@ import {
   shipmentEstimate,
 } from '@b2b-catalog-platform/shared/core/ordering';
 import {
-  effectiveTaxRate,
-  TaxConfig,
-} from '@b2b-catalog-platform/shared/platform';
-import {
   ProductAvailability,
   correctPieces,
   exactLineTotal,
   piecesPerUnit,
   unitQuantity,
+  effectiveTaxRate,
+  TaxConfig,
 } from '@b2b-catalog-platform/shared/core/catalog';
 import { pairingShortfalls } from './pairing-check';
 import {

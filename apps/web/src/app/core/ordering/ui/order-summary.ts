@@ -1,13 +1,13 @@
+import { TaxBasis } from '@b2b-catalog-platform/shared/core/catalog';
 import { Component, computed, inject, input } from '@angular/core';
 import {
   fillText,
-  TaxBasis,
   moneyFormat,
   formatMoneyMinor,
 } from '@b2b-catalog-platform/shared/platform';
 import { ShipmentSummary } from '@b2b-catalog-platform/shared/core/ordering';
 import { formatStoredDecimal } from '../../catalog/buying/quantity';
-import { useTaxStatement } from '../../../platform/tax-statement';
+import { useTaxStatement } from '../../catalog/tax-statement';
 import { SHARED_ORDERING_TEXT } from '../ordering-text';
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';

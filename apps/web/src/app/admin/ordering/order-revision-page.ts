@@ -2,7 +2,7 @@ import { SHARED_ORDERING_TEXT } from '../../core/ordering/ordering-text';
 import { ADMIN_ORDERING_TEXT } from './ordering-text';
 import { ACCOUNTS_CONFIG } from '../../core/accounts/accounts-config';
 import { Component, computed, inject, input, resource } from '@angular/core';
-import { useTaxStatement } from '../../platform/tax-statement';
+import { useTaxStatement } from '../../core/catalog/tax-statement';
 import { RouterLink } from '@angular/router';
 import {
   fillText,

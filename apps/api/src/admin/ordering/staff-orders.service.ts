@@ -1,3 +1,4 @@
+import { TaxBasis } from '@b2b-catalog-platform/shared/core/catalog';
 import {
   ACCEPTED_ORDER_STATUSES,
   moveDirection,
@@ -20,7 +21,6 @@ import {
   Pagination,
   alternateLayoutQuery,
   KeyboardLayout,
-  TaxBasis,
 } from '@b2b-catalog-platform/shared/platform';
 import { ConflictException, Inject, Injectable } from '@nestjs/common';
 import { and, desc, eq, ilike, inArray, ne, or, SQL } from 'drizzle-orm';

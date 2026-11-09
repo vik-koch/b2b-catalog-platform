@@ -10,7 +10,7 @@ import {
   PICKUP_LOCATION_KEY_MAX,
 } from './orders';
 import { ORDER_DOCUMENT_KINDS } from './order-documents';
-import { TAX_BASES } from '../../platform/tax';
+import { TAX_BASES } from '../catalog/tax';
 import {
   addressInputSchema,
   countryCodeSchema,

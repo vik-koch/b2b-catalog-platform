@@ -25,5 +25,3 @@ export * from './session';
 export * from './session.contract';
 export * from './settings';
 export * from './shop-day';
-export * from './tax';
-export * from './tax-config';

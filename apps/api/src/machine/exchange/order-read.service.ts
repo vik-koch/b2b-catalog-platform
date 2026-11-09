@@ -6,8 +6,10 @@ import {
   PaymentMethod,
   PaymentState,
 } from '@b2b-catalog-platform/shared/core/ordering';
-import { TaxBasis } from '@b2b-catalog-platform/shared/platform';
-import { ProductUnit } from '@b2b-catalog-platform/shared/core/catalog';
+import {
+  ProductUnit,
+  TaxBasis,
+} from '@b2b-catalog-platform/shared/core/catalog';
 import {
   ListMachineOrdersQuery,
   MachineOrder,

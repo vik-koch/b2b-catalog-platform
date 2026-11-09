@@ -1,8 +1,12 @@
 import * as z from 'zod';
 import type { DeepReadonly } from '../../platform/deep-readonly';
+import { taxConfigSchema } from './tax-config';
 
 /** The catalog's block of `deployment.json`. */
 export const catalogConfigShape = {
+  /** The basis every price is quoted on, and the default rate a product
+   * without its own falls back to. */
+  tax: taxConfigSchema,
   /** Whether a cart missing what its products are sold with may still be
    * ordered (FR-SET-04). Advisory by default; set, the API refuses too. */
   pairingsEnforced: z.boolean(),

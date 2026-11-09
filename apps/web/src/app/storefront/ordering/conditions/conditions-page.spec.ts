@@ -138,7 +138,10 @@ describe('ConditionsPage', () => {
 
   it('states the tax basis with the default rate', async () => {
     const el = await render({
-      tax: { basis: 'added', rate: 7, statedAtPrices: false },
+      catalog: {
+        ...defaultDeploymentConfig.catalog,
+        tax: { basis: 'added', rate: 7, statedAtPrices: false },
+      },
     });
 
     expect(el.textContent).toContain(
@@ -147,7 +150,9 @@ describe('ConditionsPage', () => {
   });
 
   it('says no tax is charged under `none`', async () => {
-    const el = await render({ tax: { basis: 'none' } });
+    const el = await render({
+      catalog: { ...defaultDeploymentConfig.catalog, tax: { basis: 'none' } },
+    });
 
     expect(el.textContent).toContain(
       defaultStorefrontOrderingText.conditions.taxNone,
@@ -178,9 +183,13 @@ describe('ConditionsPage', () => {
   });
 
   it('states the tax basis even with no goods paragraphs', async () => {
-    const el = await render({ tax: { basis: 'none' } }, undefined, {
-      goodsParagraphs: [],
-    });
+    const el = await render(
+      {
+        catalog: { ...defaultDeploymentConfig.catalog, tax: { basis: 'none' } },
+      },
+      undefined,
+      { goodsParagraphs: [] },
+    );
 
     expect(el.textContent).toContain(
       defaultStorefrontOrderingText.conditions.goodsHeading,

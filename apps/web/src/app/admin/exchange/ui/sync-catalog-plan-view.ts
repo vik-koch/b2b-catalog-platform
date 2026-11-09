@@ -1,9 +1,9 @@
+import { formatTaxRate } from '@b2b-catalog-platform/shared/core/catalog';
 import { ADMIN_EXCHANGE_TEXT } from '../exchange-text';
 import { Component, computed, inject, input, output } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
   fillText,
-  formatTaxRate,
   moneyFormat,
   formatMoneyMinor,
 } from '@b2b-catalog-platform/shared/platform';

@@ -8,7 +8,7 @@ import {
   STAFF_ORDER_SORTS,
   STAFF_PAYMENT_FILTERS,
 } from './orders';
-import { TAX_BASES } from '../../platform/tax';
+import { TAX_BASES } from '../catalog/tax';
 import { cartPreviewSchema } from './cart.contract';
 import { CART_LINES_MAX } from './cart';
 import { CART_NOTE_MAX, LINE_PIECES_MAX } from '../catalog/product-units';

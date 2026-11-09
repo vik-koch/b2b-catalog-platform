@@ -12,7 +12,6 @@ import {
   MoneyFormat,
   moneyFormat,
   shopTimeZone,
-  TaxConfig,
 } from '@b2b-catalog-platform/shared/platform';
 import { configPath, loadConfig } from '@b2b-catalog-platform/shared/node';
 import { DEFAULT_SESSION_IDLE_DAYS } from '../auth/session-config';
@@ -80,13 +79,6 @@ export function loadPdfFont(): PdfFontFiles | undefined {
     return path;
   };
   return { regular: resolve(pdf.regular), bold: resolve(pdf.bold) };
-}
-
-/** The tax basis, and the default a product's own rate falls back to. */
-export const TAX_CONFIG = 'TAX_CONFIG';
-
-export function loadTaxConfig(): TaxConfig {
-  return loadApiDeploymentConfig().tax;
 }
 
 /** The phone grouping, for the mails that quote a number to staff. */
