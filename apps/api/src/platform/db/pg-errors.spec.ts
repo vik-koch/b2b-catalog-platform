@@ -33,4 +33,13 @@ describe('isForeignKeyViolation', () => {
     ).toBe(true);
     expect(isForeignKeyViolation({ code: '23505' })).toBe(false);
   });
+
+  // An `ON DELETE RESTRICT` key refuses with its own code, not 23503.
+  it('recognises a restricting key', () => {
+    expect(
+      isForeignKeyViolation(
+        new Error('Failed query', { cause: { code: '23001' } }),
+      ),
+    ).toBe(true);
+  });
 });

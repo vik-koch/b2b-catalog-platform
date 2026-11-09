@@ -12,6 +12,8 @@ export function isUniqueViolation(error: unknown): boolean {
   return hasPgCode(error, '23505');
 }
 
+/** 23001 is what an `ON DELETE RESTRICT` key raises; only `NO ACTION` keys
+ * raise 23503. */
 export function isForeignKeyViolation(error: unknown): boolean {
-  return hasPgCode(error, '23503');
+  return hasPgCode(error, '23503') || hasPgCode(error, '23001');
 }
