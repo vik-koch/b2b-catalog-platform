@@ -435,6 +435,13 @@
       "when": 1793973407011,
       "tag": "0061_identities",
       "breakpoints": true
+    },
+    {
+      "idx": 62,
+      "version": "7",
+      "when": 1794254283886,
+      "tag": "0062_setting_changes_seq",
+      "breakpoints": true
     }
   ]
 }

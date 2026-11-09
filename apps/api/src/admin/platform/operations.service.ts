@@ -49,7 +49,7 @@ export class OperationsService {
         storedEmail: settingChanges.changedByEmail,
       })
       .from(settingChanges)
-      .orderBy(desc(settingChanges.changedAt))
+      .orderBy(desc(settingChanges.seq))
       .limit(SETTING_CHANGES_PAGE_SIZE);
     const emails = await this.actors.currentOf(
       rows.flatMap((row) => row.changedBy ?? []),
