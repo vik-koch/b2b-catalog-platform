@@ -14,21 +14,23 @@ import {
   isNull,
   sql,
 } from 'drizzle-orm';
-import { parseAttributeNumber } from '@b2b-catalog-platform/shared/core/catalog';
+
 import {
   AttributeDefinition,
   AttributeDefinitionInput,
+  AttributeKeyUsage,
+  AttributeValueUsage,
   CatalogFilters,
   CategoryFilters,
   CategoryFilterSource,
-  SaveCategoryFiltersRequest,
-  AttributeKeyUsage,
-  AttributeValueUsage,
   RenameAttributeKeyRequest,
   RenameAttributeValueRequest,
   ReorderAttributesRequest,
+  SaveCategoryFiltersRequest,
 } from '@b2b-catalog-platform/shared/admin/catalog';
-import { DRIZZLE } from '../../../platform/db/database.module';
+import { parseAttributeNumber } from '@b2b-catalog-platform/shared/core/catalog';
+
+import { CatalogReader } from '../../../core/catalog/catalog-reader';
 import {
   attributeDefinitions,
   catalogAttributes,
@@ -37,18 +39,18 @@ import {
   products,
 } from '../../../core/catalog/catalog-schema';
 import {
-  categoryChain,
-  DefinitionRow,
-} from '../../../core/catalog/category-filters';
-import {
   categoryBySlug,
   CategoryRow,
   descendantIds,
 } from '../../../core/catalog/catalog-tree';
-import { CatalogReader } from '../../../core/catalog/catalog-reader';
-import { categoryNotFound } from '../categories/categories.service';
-import { resolveNewSlug, resolveSlugOverride } from '../catalog-identity';
+import {
+  categoryChain,
+  DefinitionRow,
+} from '../../../core/catalog/category-filters';
 import { Database } from '../../../platform/db/database';
+import { DRIZZLE } from '../../../platform/db/database.module';
+import { resolveNewSlug, resolveSlugOverride } from '../catalog-identity';
+import { categoryNotFound } from '../categories/categories.service';
 
 /** The one 404 this surface has; a function so each throw gets its own stack. */
 const notFound = () =>

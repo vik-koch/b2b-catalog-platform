@@ -1,6 +1,7 @@
 import { Component, computed, input } from '@angular/core';
-import { Icon } from '../icons/icon';
+
 import { Glyph } from '../icons/glyph';
+import { Icon } from '../icons/icon';
 
 const glyph = 'size-10';
 

@@ -1,5 +1,6 @@
-import { defineConfig } from '@playwright/test';
 import { join } from 'node:path';
+import { defineConfig } from '@playwright/test';
+
 import base from './playwright.config.mts';
 
 const root = join(import.meta.dirname, '../..');

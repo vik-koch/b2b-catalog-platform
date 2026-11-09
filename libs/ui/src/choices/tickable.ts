@@ -1,4 +1,5 @@
 import { Directive, inject } from '@angular/core';
+
 import { TickLabel } from './tick-label';
 
 /** Onto the first 20px line of `text-sm`, which the 16px box is shorter than. */

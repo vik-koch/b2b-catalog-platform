@@ -1,4 +1,5 @@
 import { drizzle } from 'drizzle-orm/node-postgres';
+
 import { products } from './catalog-schema';
 import { counterpartOf, pairedCountOf } from './product-pairings';
 

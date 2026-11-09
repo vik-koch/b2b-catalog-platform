@@ -1,6 +1,7 @@
 import { Logger } from '@nestjs/common';
-import { MailService } from '../../../platform/mail/mail.service';
+
 import { MailText } from '../../../platform/mail/mail-text';
+import { MailService } from '../../../platform/mail/mail.service';
 import { signInCodeMail } from '../mail/sign-in-code.template';
 import { CodeDelivery, CodeDeliveryError, CodeMessage } from './code-delivery';
 

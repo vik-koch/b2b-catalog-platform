@@ -1,4 +1,5 @@
 import { Client } from 'pg';
+
 import { DocumentSeed } from './bundle';
 import {
   placeholderPdf,

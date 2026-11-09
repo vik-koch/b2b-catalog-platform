@@ -1,9 +1,10 @@
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
+import { ThrottlerGuard } from '@nestjs/throttler';
+
+import { withSession } from '../../platform/auth/session.fixture';
 import { CatalogController } from './catalog.controller';
 import { CatalogService } from './catalog.service';
-import { ThrottlerGuard } from '@nestjs/throttler';
-import { withSession } from '../../platform/auth/session.fixture';
 
 /**
  * Over a real server, for the three things that only exist there: how the

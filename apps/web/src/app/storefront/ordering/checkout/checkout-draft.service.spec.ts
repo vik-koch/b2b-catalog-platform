@@ -1,5 +1,6 @@
 import { PLATFORM_ID } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+
 import { CHECKOUT_DRAFT_KEY, CHECKOUT_DRAFT_VERSION } from './checkout-draft';
 import { CheckoutDraftService } from './checkout-draft.service';
 

@@ -1,18 +1,19 @@
 import {
   Component,
-  ElementRef,
   effect,
+  ElementRef,
   input,
   linkedSignal,
   untracked,
   viewChild,
 } from '@angular/core';
+
 import { debounced } from '../core/debounced';
-import { Input } from '../inputs/input';
-import { injectGridNav } from './grid-nav';
-import { Icon } from '../icons/icon';
 import { searchIcon } from '../icons/glyphs/search';
 import { xIcon } from '../icons/glyphs/x';
+import { Icon } from '../icons/icon';
+import { Input } from '../inputs/input';
+import { injectGridNav } from './grid-nav';
 
 /** One request per word for a fast typist; the storefront search waits as long. */
 const SEARCH_DEBOUNCE_MS = 200;

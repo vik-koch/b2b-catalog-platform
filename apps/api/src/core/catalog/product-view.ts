@@ -3,20 +3,22 @@
  * groups every product read selects, so the reads cannot drift.
  */
 
+import { and, isNotNull, isNull, SQL } from 'drizzle-orm';
+
 import {
   BoxDimensions,
+  piecesPerUnit,
   ProductAvailability,
+  ProductImage,
   ProductListItem,
   ProductPackaging,
-  ProductImage,
   ProductVariant,
-  UnitPrices,
-  piecesPerUnit,
   shownPictures,
   totalMinor,
+  UnitPrices,
 } from '@b2b-catalog-platform/shared/core/catalog';
-import { and, isNotNull, isNull, SQL } from 'drizzle-orm';
-import { ProductImageRef, ProductVariantRef, products } from './catalog-schema';
+
+import { ProductImageRef, products, ProductVariantRef } from './catalog-schema';
 import { pairedCountOf } from './product-pairings';
 
 /** What the storefront may show: live, and published. Every public read uses

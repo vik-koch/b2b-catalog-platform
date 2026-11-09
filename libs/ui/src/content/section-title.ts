@@ -1,4 +1,5 @@
 import { Component, input } from '@angular/core';
+
 import { Glyph } from '../icons/glyph';
 import { Icon } from '../icons/icon';
 

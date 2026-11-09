@@ -1,5 +1,10 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { and, asc, eq, gte, inArray, sql } from 'drizzle-orm';
+
+import {
+  ProductUnit,
+  TaxBasis,
+} from '@b2b-catalog-platform/shared/core/catalog';
 import {
   FulfilmentMethod,
   OrderStatus,
@@ -7,25 +12,22 @@ import {
   PaymentState,
 } from '@b2b-catalog-platform/shared/core/ordering';
 import {
-  ProductUnit,
-  TaxBasis,
-} from '@b2b-catalog-platform/shared/core/catalog';
-import {
   ListMachineOrdersQuery,
   MachineOrder,
   MachineOrderLine,
   MachineOrdersPage,
 } from '@b2b-catalog-platform/shared/machine/exchange';
-import { DRIZZLE } from '../../platform/db/database.module';
+
 import { users } from '../../core/accounts/accounts-schema';
 import {
   orderItems,
   orderRevisions,
   orders,
 } from '../../core/ordering/ordering-schema';
+import { Database } from '../../platform/db/database';
+import { DRIZZLE } from '../../platform/db/database.module';
 import { encodeMachineCursor, parseMachineCursor } from './machine-cursor';
 import { cancelledByCustomer } from './order-write-back';
-import { Database } from '../../platform/db/database';
 
 /**
  * The outbound read of orders (FR-ADM-08): the current version only, whose

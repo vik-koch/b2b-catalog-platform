@@ -5,23 +5,28 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { eq, inArray, isNull, sql } from 'drizzle-orm';
+
 import { slugify } from '@b2b-catalog-platform/shared/core/catalog';
 import {
-  decideAutoApply,
-  SyncFailureReport,
   CatalogSyncOptions,
+  catalogSyncOptionsSchema,
   CatalogSyncPlan,
-  SyncPolicy,
   CatalogSyncPreviewResponse,
   CatalogSyncRow,
-  SyncRun,
   CatalogSyncSubmission,
   CatalogSyncSubmitResponse,
-  catalogSyncOptionsSchema,
+  decideAutoApply,
   SyncCommitResponse,
+  SyncFailureReport,
+  SyncPolicy,
+  SyncRun,
 } from '@b2b-catalog-platform/shared/core/exchange';
+
+import { Database, Reader, Tx } from '../../platform/db/database';
 import { DRIZZLE } from '../../platform/db/database.module';
+import { excluded } from '../../platform/db/sql-columns';
 import { OwnershipState } from '../../platform/settings/ownership-state';
+import { LOW_STOCK_THRESHOLD_PIECES } from '../catalog/catalog-config';
 import {
   catalogExternallyOwned,
   catalogNotExternallyOwned,
@@ -32,16 +37,13 @@ import {
   productPrices,
   products,
 } from '../catalog/catalog-schema';
-import { syncRuns } from './exchange-schema';
-import { excluded } from '../../platform/db/sql-columns';
-import { SyncActions, SyncCatalogState, planSync } from './sync-diff';
-import { StagedPayloadOf, stagedPayload } from './sync-run-payload';
-import { Actor, CONFLICT_CODE, Submitter, runNotFound } from './sync-run';
-import { SyncRunLog, toSyncRun } from './sync-run-log';
-import { SyncNotifications } from './sync-notifications';
 import { SYNC_POLICY } from './exchange-config';
-import { LOW_STOCK_THRESHOLD_PIECES } from '../catalog/catalog-config';
-import { Database, Reader, Tx } from '../../platform/db/database';
+import { syncRuns } from './exchange-schema';
+import { planSync, SyncActions, SyncCatalogState } from './sync-diff';
+import { SyncNotifications } from './sync-notifications';
+import { Actor, CONFLICT_CODE, runNotFound, Submitter } from './sync-run';
+import { SyncRunLog, toSyncRun } from './sync-run-log';
+import { stagedPayload, StagedPayloadOf } from './sync-run-payload';
 
 /** Skipped rows count as something: an unreadable file is not a quiet
  * night. */

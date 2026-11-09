@@ -1,10 +1,12 @@
 import { Component, computed, inject, input } from '@angular/core';
+
 import {
   fillText,
   shopDay,
   shopTimeZone,
 } from '@b2b-catalog-platform/shared/platform';
 import { isDatedPage } from '@b2b-catalog-platform/shared/storefront/site';
+
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import { STOREFRONT_SITE_TEXT } from '../site-text';
 

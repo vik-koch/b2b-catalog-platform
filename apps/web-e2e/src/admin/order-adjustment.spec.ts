@@ -1,6 +1,7 @@
-import { expect, Page, test } from '@playwright/test';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { expect, Page, test } from '@playwright/test';
+
 import { localtestEnv, workspaceRoot } from '../support/localtest';
 
 /** The wording is read from the deployment's text, not repeated: a hardcoded

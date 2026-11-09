@@ -1,4 +1,3 @@
-import { ADMIN_ORDERING_TEXT } from './ordering-text';
 import {
   Component,
   computed,
@@ -7,36 +6,39 @@ import {
   output,
   signal,
 } from '@angular/core';
-import {
-  moneyFormat,
-  currencySymbol,
-} from '@b2b-catalog-platform/shared/platform';
-import { AdjustmentLineFlag } from '@b2b-catalog-platform/shared/core/ordering';
+
 import { AdminProductListItem } from '@b2b-catalog-platform/shared/admin/catalog';
-import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
-import { partialPriceRule } from '../../core/catalog/pricing/price';
-import { Suggestion } from '@b2b-catalog-platform/ui/suggest/suggestion';
-import { MatchSegmentsPipe } from '../../platform/search/match-segments.pipe';
-import { AlternateLayout } from '../../platform/alternate-layout';
-import { SuggestList } from '@b2b-catalog-platform/ui/suggest/suggest-list';
-import { ProductsService } from '../catalog/products/products.service';
-import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
+import { AdjustmentLineFlag } from '@b2b-catalog-platform/shared/core/ordering';
+import {
+  currencySymbol,
+  moneyFormat,
+} from '@b2b-catalog-platform/shared/platform';
 import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
-import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
-import { Input } from '@b2b-catalog-platform/ui/inputs/input';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
-import { Allow } from '@b2b-catalog-platform/ui/inputs/allow';
 import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';
-import { SuggestField } from '@b2b-catalog-platform/ui/suggest/suggest-field';
-import { SuggestInput } from '@b2b-catalog-platform/ui/suggest/suggest-input';
-import { SuggestRow } from '@b2b-catalog-platform/ui/suggest/suggest-row';
-import { UnitInput } from '@b2b-catalog-platform/ui/inputs/unit-input';
-import { UnitInputControl } from '@b2b-catalog-platform/ui/inputs/unit-input-control';
+import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
 import { chevronDownIcon } from '@b2b-catalog-platform/ui/icons/glyphs/chevron-down';
 import { chevronUpIcon } from '@b2b-catalog-platform/ui/icons/glyphs/chevron-up';
 import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import { Allow } from '@b2b-catalog-platform/ui/inputs/allow';
+import { Input } from '@b2b-catalog-platform/ui/inputs/input';
+import { UnitInput } from '@b2b-catalog-platform/ui/inputs/unit-input';
+import { UnitInputControl } from '@b2b-catalog-platform/ui/inputs/unit-input-control';
+import { SuggestField } from '@b2b-catalog-platform/ui/suggest/suggest-field';
+import { SuggestInput } from '@b2b-catalog-platform/ui/suggest/suggest-input';
+import { SuggestList } from '@b2b-catalog-platform/ui/suggest/suggest-list';
+import { SuggestRow } from '@b2b-catalog-platform/ui/suggest/suggest-row';
+import { Suggestion } from '@b2b-catalog-platform/ui/suggest/suggestion';
+
 import { SHARED_CATALOG_TEXT } from '../../core/catalog/catalog-text';
+import { partialPriceRule } from '../../core/catalog/pricing/price';
+import { AlternateLayout } from '../../platform/alternate-layout';
+import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
+import { MatchSegmentsPipe } from '../../platform/search/match-segments.pipe';
 import { ADMIN_CATALOG_TEXT } from '../catalog/catalog-text';
+import { ProductsService } from '../catalog/products/products.service';
+import { ADMIN_ORDERING_TEXT } from './ordering-text';
 
 /** `aria-controls` must name one list, and a page may hold more than one. */
 let nextId = 0;

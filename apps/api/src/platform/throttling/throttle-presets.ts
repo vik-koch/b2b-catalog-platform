@@ -1,6 +1,7 @@
 /** Named per-route limits, each keyed on the client IP (`TRUST_PROXY_HOPS`). */
 import { applyDecorators, UseGuards } from '@nestjs/common';
 import { seconds, Throttle, ThrottlerGuard } from '@nestjs/throttler';
+
 import { env } from '../env';
 
 const perMinute = (limit: number) =>

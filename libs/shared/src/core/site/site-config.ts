@@ -1,4 +1,5 @@
 import * as z from 'zod';
+
 import type { DeepReadonly } from '../../platform/deep-readonly';
 import { consentConfigSchema } from './consent-config';
 import { pagesConfigSchema } from './pages-config';

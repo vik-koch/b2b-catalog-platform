@@ -1,12 +1,14 @@
 import { Component, computed, input } from '@angular/core';
 import { Params, RouterLink } from '@angular/router';
+
 import {
   CatalogImage,
   categoryDisplayName,
 } from '@b2b-catalog-platform/shared/core/catalog';
-import { HighlightedLine } from '@b2b-catalog-platform/ui/suggest/highlighted-line';
-import { MatchSegmentsPipe } from '../../../platform/search/match-segments.pipe';
 import { brokenImages } from '@b2b-catalog-platform/ui/core/broken-images';
+import { HighlightedLine } from '@b2b-catalog-platform/ui/suggest/highlighted-line';
+
+import { MatchSegmentsPipe } from '../../../platform/search/match-segments.pipe';
 
 /** Both a tree node and a drill-down link fit as they arrive. */
 export interface CategoryChipTarget {

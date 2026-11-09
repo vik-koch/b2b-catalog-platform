@@ -9,20 +9,22 @@ import {
   output,
   viewChild,
 } from '@angular/core';
+
 import { CART_NOTE_MAX } from '@b2b-catalog-platform/shared/core/catalog';
-import { injectNarrowScreen } from '@b2b-catalog-platform/ui/core/narrow-screen';
-import { AutoGrow } from '@b2b-catalog-platform/ui/inputs/auto-grow';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
-import { DialogActions } from '@b2b-catalog-platform/ui/overlay/dialog-actions';
-import { DialogPanel } from '@b2b-catalog-platform/ui/overlay/dialog-panel';
-import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
-import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
-import { Input } from '@b2b-catalog-platform/ui/inputs/input';
-import { Popover } from '@b2b-catalog-platform/ui/overlay/popover';
-import { SHARED_TEXT } from '../../../../platform/config/shared-text';
+import { injectNarrowScreen } from '@b2b-catalog-platform/ui/core/narrow-screen';
+import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
 import { messageCircleCheckIcon } from '@b2b-catalog-platform/ui/icons/glyphs/message-circle-check';
 import { messageCirclePlusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/message-circle-plus';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import { AutoGrow } from '@b2b-catalog-platform/ui/inputs/auto-grow';
+import { Input } from '@b2b-catalog-platform/ui/inputs/input';
+import { DialogActions } from '@b2b-catalog-platform/ui/overlay/dialog-actions';
+import { DialogPanel } from '@b2b-catalog-platform/ui/overlay/dialog-panel';
+import { Popover } from '@b2b-catalog-platform/ui/overlay/popover';
+
+import { SHARED_TEXT } from '../../../../platform/config/shared-text';
 import { SHARED_CATALOG_TEXT } from '../../catalog-text';
 
 /**

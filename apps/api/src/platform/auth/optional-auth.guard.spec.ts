@@ -1,8 +1,9 @@
 import { ExecutionContext } from '@nestjs/common';
-import { SessionUser } from './session-users';
+
 import { AuthenticatedRequest } from './authenticated-request';
-import { Session, Sessions } from './sessions';
 import { OptionalAuthGuard } from './optional-auth.guard';
+import { SessionUser } from './session-users';
+import { Session, Sessions } from './sessions';
 
 const TIER = '00000000-0000-0000-0000-0000000000aa';
 

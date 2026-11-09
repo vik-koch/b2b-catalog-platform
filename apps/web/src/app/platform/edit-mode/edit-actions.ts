@@ -1,12 +1,13 @@
 import { Component, computed, input, output } from '@angular/core';
 import { Params, RouterLink } from '@angular/router';
+
 import { DiscButton } from '@b2b-catalog-platform/ui/actions/disc-button';
-import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { bookCheckIcon } from '@b2b-catalog-platform/ui/icons/glyphs/book-check';
 import { bookDashedIcon } from '@b2b-catalog-platform/ui/icons/glyphs/book-dashed';
 import { funnelIcon } from '@b2b-catalog-platform/ui/icons/glyphs/funnel';
 import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
 import { tableIcon } from '@b2b-catalog-platform/ui/icons/glyphs/table';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 
 /** `page`: pinned top right, level with the breadcrumb. `inline`: in the flow
  * of a row that has something on the left. `tile`: smaller, on a grid

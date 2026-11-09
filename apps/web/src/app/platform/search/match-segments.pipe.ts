@@ -1,5 +1,7 @@
 import { Pipe, PipeTransform } from '@angular/core';
+
 import { HighlightSegment } from '@b2b-catalog-platform/ui/suggest/highlighted-line';
+
 import { matchSegments } from './match-segments';
 
 /**

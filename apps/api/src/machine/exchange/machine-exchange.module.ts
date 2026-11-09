@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+
 import { ExchangeCoreModule } from '../../core/exchange/exchange-core.module';
 import { OrderingCoreModule } from '../../core/ordering/ordering-core.module';
 import { MachineAuthModule } from '../../platform/auth/machine-auth.module';

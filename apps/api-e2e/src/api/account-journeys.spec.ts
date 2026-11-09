@@ -1,13 +1,14 @@
 import { hash } from '@node-rs/argon2';
 import axios from 'axios';
 import { Client } from 'pg';
-import { requireEnv } from '../support/env';
-import { JourneyRun } from '../support/journey/journey';
+
 import {
   accountJourneyAdapter,
   AccountJourneyContext,
 } from '../journeys/accounts.adapter';
 import { accountJourneys } from '../journeys/accounts.journeys';
+import { requireEnv } from '../support/env';
+import { JourneyRun } from '../support/journey/journey';
 
 /**
  * An account's life, end to end (FR-AUTH-01…06, FR-NOTIF-01/02): what lands in

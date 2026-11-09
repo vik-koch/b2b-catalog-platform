@@ -1,7 +1,9 @@
 import { and, eq, isNull } from 'drizzle-orm';
-import { consents, consentWithdrawals } from './site-schema';
+
 import { ConsentWithdrawalReason } from '@b2b-catalog-platform/shared/core/site';
+
 import { Database } from '../../platform/db/database';
+import { consents, consentWithdrawals } from './site-schema';
 
 type Writer = Pick<Database, 'select' | 'insert'>;
 

@@ -1,5 +1,5 @@
 import { syncRuns } from './exchange-schema';
-import { StagedPayloadError, stagedPayload } from './sync-run-payload';
+import { stagedPayload, StagedPayloadError } from './sync-run-payload';
 
 type RunRow = typeof syncRuns.$inferSelect;
 

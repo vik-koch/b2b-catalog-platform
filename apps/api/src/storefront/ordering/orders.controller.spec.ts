@@ -2,14 +2,15 @@ import { INestApplication } from '@nestjs/common';
 import { APP_FILTER } from '@nestjs/core';
 import { Test } from '@nestjs/testing';
 import { ThrottlerGuard } from '@nestjs/throttler';
-import { AuditLogger } from '../../platform/audit/audit.logger';
-import { ContractErrorFilter } from '../../platform/orpc/contract-error.filter';
-import { OrdersController } from './orders.controller';
+
+import { CartChangedException } from '../../core/ordering/cart-changed-exception';
 import { OrderReader } from '../../core/ordering/order-reader';
+import { AuditLogger } from '../../platform/audit/audit.logger';
+import { SignedInAs, withSession } from '../../platform/auth/session.fixture';
+import { ContractErrorFilter } from '../../platform/orpc/contract-error.filter';
 import { CheckoutService } from './checkout.service';
 import { CustomerOrdersService } from './customer-orders.service';
-import { CartChangedException } from '../../core/ordering/cart-changed-exception';
-import { SignedInAs, withSession } from '../../platform/auth/session.fixture';
+import { OrdersController } from './orders.controller';
 
 /** The controller's own refusals (the honeypot, staff) and the one carrying
  * an answer. The storefront enforces them too, but a form that stops offering

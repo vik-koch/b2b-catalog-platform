@@ -1,8 +1,9 @@
 import { Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
+
 import { SessionModule } from '../../platform/auth/session.module';
-import { MaintenanceGuard } from './maintenance.guard';
 import { MaintenanceStateModule } from './maintenance-state.module';
+import { MaintenanceGuard } from './maintenance.guard';
 
 /**
  * The maintenance gate on every route of every audience, ahead of the

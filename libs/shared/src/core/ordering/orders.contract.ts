@@ -1,4 +1,23 @@
 import * as z from 'zod';
+
+import {
+  companyRegistrationIdSchema,
+  lowercaseEmailField,
+} from '../../platform/contact-config';
+import { honeypotField } from '../../platform/form-fields.contract';
+import { PERSON_NAME_MAX_LENGTH } from '../../platform/person-name';
+import {
+  addressInputSchema,
+  countryCodeSchema,
+} from '../accounts/address.contract';
+import {
+  catalogImageSchema,
+  productUnitSchema,
+} from '../catalog/catalog.contract';
+import { TAX_BASES } from '../catalog/tax';
+import { CART_LINES_MAX } from './cart';
+import { cartLineSchema, cartPreviewSchema } from './cart.contract';
+import { ORDER_DOCUMENT_KINDS } from './order-documents';
 import {
   FULFILMENT_METHODS,
   MY_ORDER_FILTERS,
@@ -9,24 +28,6 @@ import {
   PAYMENT_STATES,
   PICKUP_LOCATION_KEY_MAX,
 } from './orders';
-import { ORDER_DOCUMENT_KINDS } from './order-documents';
-import { TAX_BASES } from '../catalog/tax';
-import {
-  addressInputSchema,
-  countryCodeSchema,
-} from '../accounts/address.contract';
-import {
-  companyRegistrationIdSchema,
-  lowercaseEmailField,
-} from '../../platform/contact-config';
-import { PERSON_NAME_MAX_LENGTH } from '../../platform/person-name';
-import { cartLineSchema, cartPreviewSchema } from './cart.contract';
-import { CART_LINES_MAX } from './cart';
-import {
-  catalogImageSchema,
-  productUnitSchema,
-} from '../catalog/catalog.contract';
-import { honeypotField } from '../../platform/form-fields.contract';
 
 /**
  * An order is a request (FR-CART-03): priced, recorded and mailed, and

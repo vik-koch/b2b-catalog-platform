@@ -1,5 +1,6 @@
-import { storedPhone } from './stored-phone';
 import { normalizePhone } from '@b2b-catalog-platform/shared/platform';
+
+import { storedPhone } from './stored-phone';
 
 describe('storedPhone', () => {
   const rule = (value: string) =>

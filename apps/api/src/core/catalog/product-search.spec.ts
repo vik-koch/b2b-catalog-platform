@@ -1,5 +1,7 @@
 import { PgDialect } from 'drizzle-orm/pg-core';
+
 import { SEARCH_QUERY_MAX_LENGTH } from '@b2b-catalog-platform/shared/platform';
+
 import {
   adminSearchCondition,
   parseSearchQuery,

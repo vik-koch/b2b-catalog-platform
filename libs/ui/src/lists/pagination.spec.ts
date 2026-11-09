@@ -1,8 +1,9 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { Pagination } from './pagination';
+
 import { UI_TEXT } from '../core/ui-text';
+import { Pagination } from './pagination';
 
 const text = {
   previous: 'Previous',

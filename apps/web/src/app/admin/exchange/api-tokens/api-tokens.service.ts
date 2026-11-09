@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { safe } from '@orpc/client';
+
 import {
   API_TOKEN_ERROR_CODES,
   ApiToken,
@@ -7,8 +8,9 @@ import {
   ApiTokenInput,
   CreatedApiToken,
 } from '@b2b-catalog-platform/shared/admin/exchange';
-import { adminApiTokensContract } from '../contract-routes.generated';
+
 import { createOrpcClient } from '../../../platform/orpc-client';
+import { adminApiTokensContract } from '../contract-routes.generated';
 
 /** A revoke the server refused: the row is gone, the list stale. */
 export type RevokeResult =

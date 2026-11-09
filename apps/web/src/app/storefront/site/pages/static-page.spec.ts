@@ -1,20 +1,22 @@
-import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { signal } from '@angular/core';
-import { afterAll, beforeAll, vi } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { afterAll, beforeAll, vi } from 'vitest';
+
 import { Page as PageContent } from '@b2b-catalog-platform/shared/core/site';
-import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
+
+import { PageService } from '../../../core/site/page.service';
 import { loadAdminText } from '../../../platform/config/admin-text';
-import { defaultStorefrontText } from '../../../platform/config/storefront-text.fixture';
-import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
 import { defaultAdminText } from '../../../platform/config/admin-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import { defaultDeploymentConfig } from '../../../platform/config/deployment-config.fixture';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
+import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
+import { defaultStorefrontText } from '../../../platform/config/storefront-text.fixture';
 import { EditModeService } from '../../../platform/edit-mode/edit-mode.service';
-import { StaticPage } from './static-page';
-import { PageService } from '../../../core/site/page.service';
 import { defaultStorefrontSiteText } from '../site-text.fixture';
+import { StaticPage } from './static-page';
 
 const about: PageContent = {
   version: 1,

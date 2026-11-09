@@ -1,5 +1,6 @@
 import { isPlatformBrowser } from '@angular/common';
 import { computed, effect, inject, PLATFORM_ID, signal } from '@angular/core';
+
 import {
   editModeText,
   loadEditModeText,

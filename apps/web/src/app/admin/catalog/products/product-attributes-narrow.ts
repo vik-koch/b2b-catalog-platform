@@ -12,30 +12,32 @@ import {
   output,
   signal,
 } from '@angular/core';
-import { fillText } from '@b2b-catalog-platform/shared/platform';
-import { ProductAttribute } from '@b2b-catalog-platform/shared/core/catalog';
+
 import { PRODUCT_ATTRIBUTES_MAX } from '@b2b-catalog-platform/shared/admin/catalog';
-import { ADMIN_TEXT } from '../../../platform/config/admin-text';
+import { ProductAttribute } from '@b2b-catalog-platform/shared/core/catalog';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
-import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
-import { HintBadge } from '@b2b-catalog-platform/ui/content/hint-badge';
 import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
-import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
-import { Input } from '@b2b-catalog-platform/ui/inputs/input';
-import { RecordFields } from '@b2b-catalog-platform/ui/lists/record-fields';
-import { RecordFormActions } from '@b2b-catalog-platform/ui/lists/record-form-actions';
-import { RecordRow } from '@b2b-catalog-platform/ui/lists/record-row';
-import { AttributeRowMarks } from './attribute-hints';
-import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { HintBadge } from '@b2b-catalog-platform/ui/content/hint-badge';
+import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
 import { funnelIcon } from '@b2b-catalog-platform/ui/icons/glyphs/funnel';
 import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
 import { plusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/plus';
 import { saveIcon } from '@b2b-catalog-platform/ui/icons/glyphs/save';
 import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
 import { triangleAlertIcon } from '@b2b-catalog-platform/ui/icons/glyphs/triangle-alert';
-import { DragGrip } from '../ui/drag-grip';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import { Input } from '@b2b-catalog-platform/ui/inputs/input';
+import { RecordFields } from '@b2b-catalog-platform/ui/lists/record-fields';
+import { RecordFormActions } from '@b2b-catalog-platform/ui/lists/record-form-actions';
+import { RecordRow } from '@b2b-catalog-platform/ui/lists/record-row';
+
+import { ADMIN_TEXT } from '../../../platform/config/admin-text';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { CancelButton } from '../../platform/ui/cancel-button';
 import { ADMIN_CATALOG_TEXT } from '../catalog-text';
+import { DragGrip } from '../ui/drag-grip';
+import { AttributeRowMarks } from './attribute-hints';
 
 /**
  * The product's attributes on a phone (FR-CAT-05), where the spreadsheet's

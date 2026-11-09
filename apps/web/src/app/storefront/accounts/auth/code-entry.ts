@@ -1,4 +1,3 @@
-import { STOREFRONT_ACCOUNTS_TEXT } from '../accounts-text';
 import {
   afterNextRender,
   Component,
@@ -11,22 +10,25 @@ import {
   viewChild,
 } from '@angular/core';
 import { form, maxLength, pattern, required } from '@angular/forms/signals';
-import { fillText } from '@b2b-catalog-platform/shared/platform';
-import { Button } from '@b2b-catalog-platform/ui/actions/button';
-import { CodeInput } from '@b2b-catalog-platform/ui/inputs/code-input';
-import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
-import { SubmitAttempt } from '@b2b-catalog-platform/ui/fields/submit-attempt';
-import { TextButton } from '@b2b-catalog-platform/ui/actions/text-button';
-import type { CodeResult, SendResult } from './sign-in.service';
-import { formatWait, tickingNow } from './countdown';
-import { placeholderRuns } from './placeholder-runs';
-import { RememberBrowser } from './ui/remember-browser';
-import { sendFailureLine } from './send-failure-line';
+
 import {
   CodeSent,
   SIGN_IN_CODE_LENGTH,
 } from '@b2b-catalog-platform/shared/core/accounts';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
+import { TextButton } from '@b2b-catalog-platform/ui/actions/text-button';
+import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
+import { SubmitAttempt } from '@b2b-catalog-platform/ui/fields/submit-attempt';
+import { CodeInput } from '@b2b-catalog-platform/ui/inputs/code-input';
+
 import { untilInteractive } from '../../../platform/field-rules';
+import { STOREFRONT_ACCOUNTS_TEXT } from '../accounts-text';
+import { formatWait, tickingNow } from './countdown';
+import { placeholderRuns } from './placeholder-runs';
+import { sendFailureLine } from './send-failure-line';
+import type { CodeResult, SendResult } from './sign-in.service';
+import { RememberBrowser } from './ui/remember-browser';
 
 /**
  * Entering a code sent to a phone; the caller supplies what a code and a

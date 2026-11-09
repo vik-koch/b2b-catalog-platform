@@ -10,20 +10,22 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router } from '@angular/router';
+import { filter } from 'rxjs';
+
 import { ProductListItem } from '@b2b-catalog-platform/shared/core/catalog';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import { WarningNote } from '@b2b-catalog-platform/ui/content/warning-note';
 import { DialogActions } from '@b2b-catalog-platform/ui/overlay/dialog-actions';
 import { DialogPanel } from '@b2b-catalog-platform/ui/overlay/dialog-panel';
-import { filter } from 'rxjs';
+import { DialogTitle } from '@b2b-catalog-platform/ui/overlay/dialog-title';
+
 import { PairingsService } from '../../core/catalog/buying/pairings.service';
+import { SHARED_CATALOG_TEXT } from '../../core/catalog/catalog-text';
 import { SHARED_TEXT } from '../../platform/config/shared-text';
 import { delayedLoading } from '../../platform/delayed-loading';
 import { CatalogService } from './catalog.service';
 import { PRODUCT_ROWS, ProductRow } from './ui/product-row';
-import { DialogTitle } from '@b2b-catalog-platform/ui/overlay/dialog-title';
-import { SHARED_CATALOG_TEXT } from '../../core/catalog/catalog-text';
 
 /**
  * What a sold-together marker opens (FR-SET-05): the counterparts as product

@@ -1,16 +1,18 @@
-import { STOREFRONT_ORDERING_TEXT } from '../ordering-text';
 import { Component, computed, inject, input, resource } from '@angular/core';
 import { RouterLink } from '@angular/router';
+
 import { fillText } from '@b2b-catalog-platform/shared/platform';
-import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { ActionLink } from '@b2b-catalog-platform/ui/actions/action-link';
-import { shoppingBasketIcon } from '@b2b-catalog-platform/ui/icons/glyphs/shopping-basket';
-import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { Card } from '@b2b-catalog-platform/ui/content/card';
 import { SectionTitle } from '@b2b-catalog-platform/ui/content/section-title';
+import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
-import { OrderRows } from './ui/order-rows';
+import { shoppingBasketIcon } from '@b2b-catalog-platform/ui/icons/glyphs/shopping-basket';
+
+import { STOREFRONT_ORDERING_TEXT } from '../ordering-text';
 import { OrdersService } from './orders.service';
+import { OrderRows } from './ui/order-rows';
 
 /** Enough to find last week's order; the history page has the rest. */
 const RECENT_ORDERS = 5;

@@ -1,5 +1,3 @@
-import { SHARED_ORDERING_TEXT } from '../../core/ordering/ordering-text';
-import { ADMIN_ORDERING_TEXT } from './ordering-text';
 import {
   Component,
   computed,
@@ -9,11 +7,8 @@ import {
   signal,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import {
-  fillText,
-  formatMoneyMinor,
-  moneyFormat,
-} from '@b2b-catalog-platform/shared/platform';
+
+import { StaffOrderSummary } from '@b2b-catalog-platform/shared/admin/ordering';
 import {
   notifyByDefault,
   ORDER_QUERY_MAX_LENGTH,
@@ -25,40 +20,47 @@ import {
   StaffPaymentFilter,
   staffPaymentFilterSchema,
 } from '@b2b-catalog-platform/shared/core/ordering';
-import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
-import { delayedLoading } from '../../platform/delayed-loading';
-import { usePageSeo } from '../../platform/page-seo';
-import { stableValue } from '../../platform/stable-value';
+import {
+  fillText,
+  formatMoneyMinor,
+  moneyFormat,
+} from '@b2b-catalog-platform/shared/platform';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import {
   StatusBadge,
   StatusTone,
 } from '@b2b-catalog-platform/ui/content/status-badge';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
+import { DataGrid } from '@b2b-catalog-platform/ui/grid/data-grid';
+import { GridCardTemplate } from '@b2b-catalog-platform/ui/grid/grid-card-template';
+import { GridColumn } from '@b2b-catalog-platform/ui/grid/grid-column';
+import { GridFilterOption } from '@b2b-catalog-platform/ui/grid/grid-filter-select';
+import { GridHeader } from '@b2b-catalog-platform/ui/grid/grid-header';
+import { GridPagination } from '@b2b-catalog-platform/ui/grid/grid-pagination';
+import { GridRowTemplate } from '@b2b-catalog-platform/ui/grid/grid-row-template';
+import { RecordRow } from '@b2b-catalog-platform/ui/lists/record-row';
+import {
+  confirmRequest,
+  ConfirmService,
+} from '@b2b-catalog-platform/ui/overlay/confirm.service';
+
 import {
   orderStatusLabel,
   orderStatusTone,
   staffPaymentBadge,
 } from '../../core/ordering/order-status';
-import { GridHeader } from '@b2b-catalog-platform/ui/grid/grid-header';
-import { DataGrid } from '@b2b-catalog-platform/ui/grid/data-grid';
-import { GridColumn } from '@b2b-catalog-platform/ui/grid/grid-column';
-import { GridFilterOption } from '@b2b-catalog-platform/ui/grid/grid-filter-select';
-import { GridPagination } from '@b2b-catalog-platform/ui/grid/grid-pagination';
-import { GridCardTemplate } from '@b2b-catalog-platform/ui/grid/grid-card-template';
-import { GridRowTemplate } from '@b2b-catalog-platform/ui/grid/grid-row-template';
-import { GridTimestamp } from '../platform/dates/grid-timestamp';
-import { RecordRow } from '@b2b-catalog-platform/ui/lists/record-row';
+import { SHARED_ORDERING_TEXT } from '../../core/ordering/ordering-text';
+import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
+import { delayedLoading } from '../../platform/delayed-loading';
 import { injectEditorReturnParams } from '../../platform/edit-mode/editor-return';
-import {
-  ConfirmService,
-  confirmRequest,
-} from '@b2b-catalog-platform/ui/overlay/confirm.service';
-import { OwnershipService } from '../platform/ownership/ownership.service';
-import { OrderRowActions } from './ui/order-row-actions';
-import { AdminOrdersService } from './orders.service';
-import { StaffOrderSummary } from '@b2b-catalog-platform/shared/admin/ordering';
-import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { pageNumber } from '../../platform/page-number';
+import { usePageSeo } from '../../platform/page-seo';
+import { stableValue } from '../../platform/stable-value';
+import { GridTimestamp } from '../platform/dates/grid-timestamp';
+import { OwnershipService } from '../platform/ownership/ownership.service';
+import { ADMIN_ORDERING_TEXT } from './ordering-text';
+import { AdminOrdersService } from './orders.service';
+import { OrderRowActions } from './ui/order-row-actions';
 
 /** Every order request, for staff (FR-AUTH-03); answered on its own page, with
  * the row's two moves here. Status, search, payment and sort are query

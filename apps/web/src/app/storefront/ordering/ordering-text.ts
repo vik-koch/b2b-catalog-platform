@@ -1,5 +1,7 @@
 import { inject, InjectionToken } from '@angular/core';
+
 import { ORDERING_AREA } from '@b2b-catalog-platform/shared/core/ordering';
+
 import {
   STOREFRONT_TEXT,
   storefrontTextBlock,

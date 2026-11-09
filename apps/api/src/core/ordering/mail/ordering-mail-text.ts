@@ -1,10 +1,12 @@
-import type { DeepReadonly } from '@b2b-catalog-platform/shared/platform';
+import * as z from 'zod';
+
 import {
   ORDERING_AREA,
   paymentMethodLabels,
 } from '@b2b-catalog-platform/shared/core/ordering';
-import * as z from 'zod';
-import { type MailText, mailTextBlock } from '../../../platform/mail/mail-text';
+import type { DeepReadonly } from '@b2b-catalog-platform/shared/platform';
+
+import { mailTextBlock, type MailText } from '../../../platform/mail/mail-text';
 
 /** What one status says: the line at the top, and the line under it. */
 const statusMailText = z

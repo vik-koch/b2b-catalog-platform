@@ -1,30 +1,32 @@
-import { withOrdering } from '../../core/ordering/ordering-config.fixture';
-import { defaultSharedOrderingText } from '../../core/ordering/ordering-text.fixture';
-import { defaultAdminOrderingText } from './ordering-text.fixture';
-import { withAccounts } from '../../core/accounts/accounts-config.fixture';
-import { SHARED_TEXT } from '../../platform/config/shared-text';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+
 import {
   AdminOrderDetail,
   OrderAdjustment,
   OrderAdjustmentPreview,
 } from '@b2b-catalog-platform/shared/core/ordering';
 import { OwnershipArea } from '@b2b-catalog-platform/shared/platform';
+import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
+
+import { withAccounts } from '../../core/accounts/accounts-config.fixture';
+import { withOrdering } from '../../core/ordering/ordering-config.fixture';
+import { defaultSharedOrderingText } from '../../core/ordering/ordering-text.fixture';
 import { ADMIN_TEXT } from '../../platform/config/admin-text';
-import { provideOwnership } from '../platform/ownership/ownership.fixture';
 import { defaultAdminText } from '../../platform/config/admin-text.fixture';
+import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
+import { defaultDeploymentConfig } from '../../platform/config/deployment-config.fixture';
+import { SHARED_TEXT } from '../../platform/config/shared-text';
 import { defaultSharedText } from '../../platform/config/shared-text.fixture';
 import { STOREFRONT_TEXT } from '../../platform/config/storefront-text';
 import { defaultStorefrontText } from '../../platform/config/storefront-text.fixture';
-import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
-import { defaultDeploymentConfig } from '../../platform/config/deployment-config.fixture';
-import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
-import { TiersService } from '../catalog/tiers/tiers.service';
-import { AdminOrderAdjustPage } from './order-adjust-page';
-import { AdminOrdersService } from './orders.service';
 import { provideDigitMaskFormat } from '../../platform/contact-fields';
 import { provideFakeWorkRefresh } from '../../platform/work-refresh.fixture';
+import { TiersService } from '../catalog/tiers/tiers.service';
+import { provideOwnership } from '../platform/ownership/ownership.fixture';
+import { AdminOrderAdjustPage } from './order-adjust-page';
+import { defaultAdminOrderingText } from './ordering-text.fixture';
+import { AdminOrdersService } from './orders.service';
 
 const text = defaultAdminOrderingText.orders.adjust;
 const names = defaultSharedOrderingText.order;

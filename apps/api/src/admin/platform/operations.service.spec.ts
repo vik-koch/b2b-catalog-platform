@@ -1,7 +1,7 @@
+import { ActorEmails } from '../../platform/actor-emails';
+import { Database } from '../../platform/db/database';
 import { env } from '../../platform/env';
 import { OperationsService } from './operations.service';
-import { Database } from '../../platform/db/database';
-import { ActorEmails } from '../../platform/actor-emails';
 
 describe('OperationsService build info', () => {
   // `env` is parsed once at import; these two are read straight off it, so

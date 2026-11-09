@@ -2,36 +2,38 @@ import { INestApplication } from '@nestjs/common';
 import { APP_FILTER, APP_GUARD, Reflector } from '@nestjs/core';
 import { Test } from '@nestjs/testing';
 import { ThrottlerGuard } from '@nestjs/throttler';
-import { AuthController } from './auth.controller';
-import { AuthService } from './auth.service';
-import { UsersService } from '../../core/accounts/users.service';
-import { WrongCurrentPasswordError } from './wrong-current-password-error';
-import { PasswordRejectedError } from '../../core/accounts/password-rejected-error';
-import { PasswordResetService } from '../../core/accounts/password-reset.service';
-import { PasswordSetupService } from './password-setup.service';
-import { RegistrationService } from './registration.service';
-import { MaintenanceGuard } from '../../core/site/maintenance.guard';
-import { MaintenanceState } from '../../core/site/maintenance-state';
-import { ContractErrorFilter } from '../../platform/orpc/contract-error.filter';
-import { PHONE_RULE } from '../../platform/config/deployment-config';
-import { CodeDeliveryError } from '../../core/accounts/sign-in-step/code-delivery';
-import { MailCallCheck } from '../../core/accounts/sign-in-step/mail-call-check';
-import { CodeResendLimitError } from '../../core/accounts/sign-in-step/code-resend-limit-error';
-import { SignInStep } from '../../core/accounts/sign-in-step/sign-in-step';
-import { SIGN_IN_PROOF } from '../../core/accounts/sign-in-step/sign-in-proof';
-import { MailService } from '../../platform/mail/mail.service';
-import { demoMailText } from '../../platform/mail/mail-text.fixture';
-import { issueSession } from '../../platform/auth/session-cookie';
-import { Sessions } from '../../platform/auth/sessions';
-import {
-  AUTH_COOKIE,
-  SESSION_HINT_COOKIE,
-} from '@b2b-catalog-platform/shared/platform';
+
 import {
   MAINTENANCE_REFUSED,
   PASSWORD_TOKEN_INVALID,
 } from '@b2b-catalog-platform/shared/core/accounts';
+import {
+  AUTH_COOKIE,
+  SESSION_HINT_COOKIE,
+} from '@b2b-catalog-platform/shared/platform';
+
+import { PasswordRejectedError } from '../../core/accounts/password-rejected-error';
+import { PasswordResetService } from '../../core/accounts/password-reset.service';
+import { CodeDeliveryError } from '../../core/accounts/sign-in-step/code-delivery';
+import { CodeResendLimitError } from '../../core/accounts/sign-in-step/code-resend-limit-error';
+import { MailCallCheck } from '../../core/accounts/sign-in-step/mail-call-check';
+import { SIGN_IN_PROOF } from '../../core/accounts/sign-in-step/sign-in-proof';
+import { SignInStep } from '../../core/accounts/sign-in-step/sign-in-step';
+import { UsersService } from '../../core/accounts/users.service';
+import { MaintenanceState } from '../../core/site/maintenance-state';
+import { MaintenanceGuard } from '../../core/site/maintenance.guard';
+import { issueSession } from '../../platform/auth/session-cookie';
 import { SignedInAs, withSession } from '../../platform/auth/session.fixture';
+import { Sessions } from '../../platform/auth/sessions';
+import { PHONE_RULE } from '../../platform/config/deployment-config';
+import { demoMailText } from '../../platform/mail/mail-text.fixture';
+import { MailService } from '../../platform/mail/mail.service';
+import { ContractErrorFilter } from '../../platform/orpc/contract-error.filter';
+import { AuthController } from './auth.controller';
+import { AuthService } from './auth.service';
+import { PasswordSetupService } from './password-setup.service';
+import { RegistrationService } from './registration.service';
+import { WrongCurrentPasswordError } from './wrong-current-password-error';
 
 /** What these routes do not say, and what they set beside the body, which a
  * handler test cannot see: over a real server and maintenance gate. */

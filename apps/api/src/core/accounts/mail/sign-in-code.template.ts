@@ -1,6 +1,6 @@
-import { accountsMail } from './accounts-mail-text';
 import { MailContent } from '../../../platform/mail/mail-layout';
 import { MailText } from '../../../platform/mail/mail-text';
+import { accountsMail } from './accounts-mail-text';
 
 /**
  * A sign-in code by mail (FR-AUTH-12), for a deployment that delivers codes

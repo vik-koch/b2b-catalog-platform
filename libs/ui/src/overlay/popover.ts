@@ -1,3 +1,4 @@
+import { isPlatformBrowser } from '@angular/common';
 import {
   afterNextRender,
   Component,
@@ -11,7 +12,6 @@ import {
   PLATFORM_ID,
   viewChild,
 } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
 
 /** How close to the window's edge the panel may come before it is nudged in. */
 const EDGE_MARGIN_PX = 8;

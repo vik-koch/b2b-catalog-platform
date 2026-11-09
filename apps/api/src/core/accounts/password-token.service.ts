@@ -1,9 +1,10 @@
-import { Inject, Injectable } from '@nestjs/common';
 import { createHash, randomBytes } from 'node:crypto';
+import { Inject, Injectable } from '@nestjs/common';
 import { and, eq, gt, isNull } from 'drizzle-orm';
+
+import { Database } from '../../platform/db/database';
 import { DRIZZLE } from '../../platform/db/database.module';
 import { passwordTokens } from './accounts-schema';
-import { Database } from '../../platform/db/database';
 
 /** An invitation waits for someone to read their mail; a reset answers
  * someone at the form right now. */

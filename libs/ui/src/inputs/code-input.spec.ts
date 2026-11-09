@@ -1,8 +1,9 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { form, maxLength, pattern } from '@angular/forms/signals';
-import { CodeInput } from './code-input';
+
 import { FORM_FIELDS } from '../fields/form-fields';
+import { CodeInput } from './code-input';
 
 @Component({
   imports: [CodeInput, FORM_FIELDS],

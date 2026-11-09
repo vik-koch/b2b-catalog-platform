@@ -1,8 +1,9 @@
 import { getTableName } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/node-postgres';
+
+import { Database } from '../../platform/db/database';
 import { OrderDocumentFiles } from '../ordering/order-document-files';
 import { RetentionSweep } from './retention-sweep';
-import { Database } from '../../platform/db/database';
 
 /** Through a real drizzle over a client that records each statement. */
 describe('RetentionSweep.sweep', () => {

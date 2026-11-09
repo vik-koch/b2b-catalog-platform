@@ -1,63 +1,65 @@
-import { ACCOUNTS_CONFIG } from '../../../core/accounts/accounts-config';
-import { ADMIN_ACCOUNTS_TEXT } from '../accounts-text';
 import { Component, computed, inject, signal } from '@angular/core';
 import { disabled, form, hidden, required } from '@angular/forms/signals';
 import { ActivatedRoute, Router } from '@angular/router';
+
 import { CustomerTier } from '@b2b-catalog-platform/shared/admin/catalog';
-import { ADMIN_TEXT } from '../../../platform/config/admin-text';
-import { SHARED_TEXT } from '../../../platform/config/shared-text';
-import { SHARED_ACCOUNTS_TEXT } from '../../../core/accounts/accounts-text';
-import { staffFields } from '../../platform/staff-fields';
-import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
-import { AuthService } from '../../../platform/auth/auth.service';
-import { canonicalPhone, typedPhone } from '../../../platform/contact-fields';
-import { delayedLoading } from '../../../platform/delayed-loading';
-import {
-  completeMask,
-  emailAddress,
-  personName,
-} from '../../../platform/field-rules';
-import { companyIdFormat } from '../../../core/accounts/parties/company-id';
-import { usePageSeo } from '../../../platform/page-seo';
-import { UnsavedChangesAware } from '../../platform/unsaved-changes.guard';
-import { UnsavedChanges } from '../../platform/unsaved-changes';
-import { LockedNote } from '../../platform/ownership/ui/locked-note';
-import { Button } from '@b2b-catalog-platform/ui/actions/button';
-import { Notice } from '@b2b-catalog-platform/ui/content/notice';
-import { CompanyFields } from '../../../core/accounts/parties/company-fields';
-import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
-import { submitAttempt } from '@b2b-catalog-platform/ui/fields/submit-attempt';
-import { PhoneInput } from '@b2b-catalog-platform/ui/inputs/phone-input';
-import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
-import { Input } from '@b2b-catalog-platform/ui/inputs/input';
-import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
-import { injectEditorReturn } from '../../../platform/edit-mode/editor-return';
-import { OwnershipService } from '../../platform/ownership/ownership.service';
-import { TiersService } from '../../catalog/tiers/tiers.service';
-import { StaffUsersService } from './users.service';
-import { SelectInput } from '@b2b-catalog-platform/ui/inputs/select-input';
-import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';
-import { baseTierName, userStatusLabel, userStatusTone } from './user-status';
-import {
-  Segmented,
-  SegmentOption,
-} from '@b2b-catalog-platform/ui/choices/segmented';
-import { WarningNote } from '@b2b-catalog-platform/ui/content/warning-note';
-import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
-import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
-import { Glyph } from '@b2b-catalog-platform/ui/icons/glyph';
-import { circleCheckIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-check';
-import { saveIcon } from '@b2b-catalog-platform/ui/icons/glyphs/save';
-import { sendIcon } from '@b2b-catalog-platform/ui/icons/glyphs/send';
-import { SaveButton } from '../../platform/ui/save-button';
-import { CancelButton } from '../../platform/ui/cancel-button';
 import {
   CustomerType,
   StaffUser,
   UserKind,
 } from '@b2b-catalog-platform/shared/core/accounts';
 import { UserRole } from '@b2b-catalog-platform/shared/platform';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
+import {
+  Segmented,
+  SegmentOption,
+} from '@b2b-catalog-platform/ui/choices/segmented';
+import { Notice } from '@b2b-catalog-platform/ui/content/notice';
+import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
+import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
+import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';
+import { WarningNote } from '@b2b-catalog-platform/ui/content/warning-note';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
+import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
+import { submitAttempt } from '@b2b-catalog-platform/ui/fields/submit-attempt';
+import { Glyph } from '@b2b-catalog-platform/ui/icons/glyph';
+import { circleCheckIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-check';
+import { saveIcon } from '@b2b-catalog-platform/ui/icons/glyphs/save';
+import { sendIcon } from '@b2b-catalog-platform/ui/icons/glyphs/send';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import { Input } from '@b2b-catalog-platform/ui/inputs/input';
+import { PhoneInput } from '@b2b-catalog-platform/ui/inputs/phone-input';
+import { SelectInput } from '@b2b-catalog-platform/ui/inputs/select-input';
+
+import { ACCOUNTS_CONFIG } from '../../../core/accounts/accounts-config';
+import { SHARED_ACCOUNTS_TEXT } from '../../../core/accounts/accounts-text';
+import { CompanyFields } from '../../../core/accounts/parties/company-fields';
+import { companyIdFormat } from '../../../core/accounts/parties/company-id';
+import { AuthService } from '../../../platform/auth/auth.service';
+import { ADMIN_TEXT } from '../../../platform/config/admin-text';
+import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { canonicalPhone, typedPhone } from '../../../platform/contact-fields';
+import { delayedLoading } from '../../../platform/delayed-loading';
+import { injectEditorReturn } from '../../../platform/edit-mode/editor-return';
+import {
+  completeMask,
+  emailAddress,
+  personName,
+} from '../../../platform/field-rules';
+import { usePageSeo } from '../../../platform/page-seo';
 import { ADMIN_CATALOG_TEXT } from '../../catalog/catalog-text';
+import { TiersService } from '../../catalog/tiers/tiers.service';
+import { OwnershipService } from '../../platform/ownership/ownership.service';
+import { LockedNote } from '../../platform/ownership/ui/locked-note';
+import { staffFields } from '../../platform/staff-fields';
+import { CancelButton } from '../../platform/ui/cancel-button';
+import { SaveButton } from '../../platform/ui/save-button';
+import { UnsavedChanges } from '../../platform/unsaved-changes';
+import { UnsavedChangesAware } from '../../platform/unsaved-changes.guard';
+import { ADMIN_ACCOUNTS_TEXT } from '../accounts-text';
+import { baseTierName, userStatusLabel, userStatusTone } from './user-status';
+import { StaffUsersService } from './users.service';
 
 interface UserDraft {
   email: string;

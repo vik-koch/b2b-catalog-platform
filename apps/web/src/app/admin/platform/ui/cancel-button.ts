@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+
 import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 

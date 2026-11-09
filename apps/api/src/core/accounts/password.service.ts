@@ -1,5 +1,6 @@
-import { Injectable } from '@nestjs/common';
 import { randomBytes } from 'node:crypto';
+import { Injectable } from '@nestjs/common';
+
 import { hashPassword, verifyPassword } from './password-hashing';
 
 /** The argon2id helpers, injectable. */

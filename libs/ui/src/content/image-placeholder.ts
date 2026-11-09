@@ -1,7 +1,8 @@
 import { Component, computed, inject, input } from '@angular/core';
-import { Icon } from '../icons/icon';
-import { imageOffIcon } from '../icons/glyphs/image-off';
+
 import { UI_TEXT } from '../core/ui-text';
+import { imageOffIcon } from '../icons/glyphs/image-off';
+import { Icon } from '../icons/icon';
 
 /**
  * Stands in for a missing picture and fills its box. The caption shows from

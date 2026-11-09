@@ -1,15 +1,17 @@
-import { SHARED_TEXT } from '../../platform/config/shared-text';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+
+import type { DeploymentConfigFile } from '@b2b-catalog-platform/shared/deployment';
+
+import { withSite } from '../../core/site/site-config.fixture';
+import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
+import { defaultDeploymentConfig } from '../../platform/config/deployment-config.fixture';
+import { SHARED_TEXT } from '../../platform/config/shared-text';
+import { defaultSharedText } from '../../platform/config/shared-text.fixture';
 import { STOREFRONT_TEXT } from '../../platform/config/storefront-text';
 import { defaultStorefrontText } from '../../platform/config/storefront-text.fixture';
-import { defaultSharedText } from '../../platform/config/shared-text.fixture';
-import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
-import type { DeploymentConfigFile } from '@b2b-catalog-platform/shared/deployment';
-import { defaultDeploymentConfig } from '../../platform/config/deployment-config.fixture';
-import { Footer } from './footer';
 import { defaultStorefrontSiteText } from '../site/site-text.fixture';
-import { withSite } from '../../core/site/site-config.fixture';
+import { Footer } from './footer';
 
 function config(cookieConsentEnabled: boolean): DeploymentConfigFile {
   return withSite({ cookieConsentEnabled });

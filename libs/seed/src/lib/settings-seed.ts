@@ -1,6 +1,8 @@
 import { createHash } from 'node:crypto';
 import { Client } from 'pg';
+
 import { API_TOKEN_PREFIX_LENGTH } from '@b2b-catalog-platform/shared/platform';
+
 import { SettingsSeed } from './bundle';
 
 /** `<prefix>.<secret>`, both base64url: the shape the platform issues. */

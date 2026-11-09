@@ -1,8 +1,9 @@
 import { Module } from '@nestjs/common';
+
+import { MaintenanceStateModule } from '../../core/site/maintenance-state.module';
+import { MaintenanceController } from './maintenance.controller';
 import { PageController } from './page.controller';
 import { PageService } from './page.service';
-import { MaintenanceController } from './maintenance.controller';
-import { MaintenanceStateModule } from '../../core/site/maintenance-state.module';
 
 @Module({
   imports: [MaintenanceStateModule],

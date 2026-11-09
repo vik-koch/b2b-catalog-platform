@@ -1,22 +1,23 @@
 import { Component, computed, inject, input, output } from '@angular/core';
+
 import { totalMinor } from '@b2b-catalog-platform/shared/core/catalog';
 import {
   fillText,
-  moneyFormat,
   formatMoneyMinor,
+  moneyFormat,
 } from '@b2b-catalog-platform/shared/platform';
-
-import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import { injectNarrowScreen } from '@b2b-catalog-platform/ui/core/narrow-screen';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
+import { Allow } from '@b2b-catalog-platform/ui/inputs/allow';
+import { numericRules } from '@b2b-catalog-platform/ui/inputs/numeric-rules';
 import { UnitInput } from '@b2b-catalog-platform/ui/inputs/unit-input';
 import { UnitInputControl } from '@b2b-catalog-platform/ui/inputs/unit-input-control';
-import { numericRules } from '@b2b-catalog-platform/ui/inputs/numeric-rules';
-import { Allow } from '@b2b-catalog-platform/ui/inputs/allow';
-import { SHARED_CATALOG_TEXT } from '../../../core/catalog/catalog-text';
-import { ADMIN_CATALOG_TEXT } from '../catalog-text';
+
 import { CATALOG_CONFIG } from '../../../core/catalog/catalog-config';
+import { SHARED_CATALOG_TEXT } from '../../../core/catalog/catalog-text';
+import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
+import { ADMIN_CATALOG_TEXT } from '../catalog-text';
 
 /**
  * Strings, so a half-typed number survives; the page parses them on save.

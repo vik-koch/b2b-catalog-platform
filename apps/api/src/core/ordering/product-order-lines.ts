@@ -1,7 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { inArray } from 'drizzle-orm';
-import { DRIZZLE } from '../../platform/db/database.module';
+
 import { Database } from '../../platform/db/database';
+import { DRIZZLE } from '../../platform/db/database.module';
 import { ProductOrders } from '../catalog/product-orders';
 import { orderItems } from './ordering-schema';
 

@@ -9,24 +9,25 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import { fillText } from '@b2b-catalog-platform/shared/platform';
-import { AdminCategory } from '@b2b-catalog-platform/shared/admin/catalog';
 
-import { ADMIN_TEXT } from '../../../platform/config/admin-text';
-import { OwnershipService } from '../../platform/ownership/ownership.service';
+import { AdminCategory } from '@b2b-catalog-platform/shared/admin/catalog';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
+import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
+import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { DialogActions } from '@b2b-catalog-platform/ui/overlay/dialog-actions';
 import { DialogPanel } from '@b2b-catalog-platform/ui/overlay/dialog-panel';
-import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
-import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
+import { DialogTitle } from '@b2b-catalog-platform/ui/overlay/dialog-title';
+
+import { ADMIN_TEXT } from '../../../platform/config/admin-text';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { OwnershipService } from '../../platform/ownership/ownership.service';
+import { ADMIN_CATALOG_TEXT } from '../catalog-text';
 import { CategoriesService } from './categories.service';
 import { CategoryPicker } from './category-picker';
 import { categoriesOutside } from './category-tree';
-import { SHARED_TEXT } from '../../../platform/config/shared-text';
-import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
-import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
-import { DialogTitle } from '@b2b-catalog-platform/ui/overlay/dialog-title';
-import { ADMIN_CATALOG_TEXT } from '../catalog-text';
 
 /**
  * Every category delete (FR-ADM-01), from the storefront grid as well as the

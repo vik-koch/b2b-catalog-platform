@@ -6,6 +6,7 @@ import {
   Signal,
   signal,
 } from '@angular/core';
+
 import { adminText } from '../config/admin-text';
 import { AdminText } from '../config/admin-text.type';
 import { delayedLoading } from '../delayed-loading';

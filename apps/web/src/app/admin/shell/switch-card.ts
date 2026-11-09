@@ -1,4 +1,5 @@
 import { Component, input, output } from '@angular/core';
+
 import { Switch } from '@b2b-catalog-platform/ui/choices/switch';
 import { Card } from '@b2b-catalog-platform/ui/content/card';
 

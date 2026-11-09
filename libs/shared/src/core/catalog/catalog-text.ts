@@ -1,4 +1,5 @@
 import * as z from 'zod';
+
 import type { DeepReadonly } from '../../platform/deep-readonly';
 
 /** The catalog's block of `texts/shared.json`: what its views say in both

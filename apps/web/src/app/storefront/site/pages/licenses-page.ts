@@ -1,20 +1,22 @@
 import { isPlatformBrowser } from '@angular/common';
 import {
   Component,
-  PLATFORM_ID,
   computed,
   inject,
+  PLATFORM_ID,
   resource,
 } from '@angular/core';
+
+import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
+import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
+import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
+import { DetailsSummary } from '@b2b-catalog-platform/ui/disclosure/details-summary';
+
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { delayedLoading } from '../../../platform/delayed-loading';
 import { usePageSeo } from '../../../platform/page-seo';
-import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
-import { LicenseNotice, parseLicenseNotices } from './license-notice';
-import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
-import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
-import { DetailsSummary } from '@b2b-catalog-platform/ui/disclosure/details-summary';
 import { STOREFRONT_SITE_TEXT } from '../site-text';
+import { LicenseNotice, parseLicenseNotices } from './license-notice';
 
 /**
  * The notices of the JavaScript the site ships, from the build's own

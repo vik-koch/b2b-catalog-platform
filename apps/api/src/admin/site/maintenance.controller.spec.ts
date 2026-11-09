@@ -1,10 +1,11 @@
 import { INestApplication } from '@nestjs/common';
 import { APP_GUARD, Reflector } from '@nestjs/core';
 import { Test } from '@nestjs/testing';
-import { AdminMaintenanceController } from './maintenance.controller';
-import { MaintenanceSwitch } from './maintenance-switch';
+
 import { MaintenanceGuard } from '../../core/site/maintenance.guard';
 import { SignedInAs, withSession } from '../../platform/auth/session.fixture';
+import { MaintenanceSwitch } from './maintenance-switch';
+import { AdminMaintenanceController } from './maintenance.controller';
 
 /** Over a real server: the role guards and the gate must still find their
  * metadata on a handler the contract layer registered. */

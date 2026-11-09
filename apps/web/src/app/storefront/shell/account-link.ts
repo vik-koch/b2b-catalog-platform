@@ -1,16 +1,18 @@
-import { STOREFRONT_ACCOUNTS_TEXT } from '../accounts/accounts-text';
 import { Component, computed, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { AuthService } from '../../platform/auth/auth.service';
-import { landingFor } from '../../platform/auth/auth.guard';
-import { currentPath, isUnder } from '../../platform/current-url';
-import { navActionClasses, NavVariant } from '../platform/nav-action';
-import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+
 import { fillText } from '@b2b-catalog-platform/shared/platform';
-import { WorkService } from '../../core/work/work.service';
-import { circleUserRoundDotIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-user-round-dot';
 import { circleUserRoundIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-user-round';
+import { circleUserRoundDotIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-user-round-dot';
 import { userIcon } from '@b2b-catalog-platform/ui/icons/glyphs/user';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+
+import { WorkService } from '../../core/work/work.service';
+import { landingFor } from '../../platform/auth/auth.guard';
+import { AuthService } from '../../platform/auth/auth.service';
+import { currentPath, isUnder } from '../../platform/current-url';
+import { STOREFRONT_ACCOUNTS_TEXT } from '../accounts/accounts-text';
+import { navActionClasses, NavVariant } from '../platform/nav-action';
 
 /**
  * The account control, a plain link for every role: to sign in, or to the

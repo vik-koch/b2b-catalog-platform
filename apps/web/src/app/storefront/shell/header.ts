@@ -9,20 +9,22 @@ import {
   viewChild,
 } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
-import { STOREFRONT_TEXT } from '../../platform/config/storefront-text';
-import { SHARED_TEXT } from '../../platform/config/shared-text';
-import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
-import { currentPath } from '../../platform/current-url';
+
 import { fillText } from '@b2b-catalog-platform/shared/platform';
+
+import { SITE_CONFIG } from '../../core/site/site-config';
+import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
+import { SHARED_TEXT } from '../../platform/config/shared-text';
+import { STOREFRONT_TEXT } from '../../platform/config/storefront-text';
+import { currentPath } from '../../platform/current-url';
+import { HeaderCollapse } from '../../platform/header-collapse';
+import { SearchField } from '../catalog/search/search-field';
+import { CartLink } from '../ordering/cart/cart-link';
+import { MobileSearch, SearchAnchor } from '../platform/mobile-search';
 import { PAGE_LINK } from '../platform/nav-action';
 import { AccountLink } from './account-link';
-import { CartLink } from '../ordering/cart/cart-link';
 import { CatalogLink } from './catalog-link';
 import { ContactInfo } from './contact-info';
-import { HeaderCollapse } from '../../platform/header-collapse';
-import { MobileSearch, SearchAnchor } from '../platform/mobile-search';
-import { SearchField } from '../catalog/search/search-field';
-import { SITE_CONFIG } from '../../core/site/site-config';
 
 /**
  * Two rows. From `sm`: company pages and contact, then brand, search and the

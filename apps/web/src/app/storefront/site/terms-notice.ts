@@ -1,8 +1,9 @@
 import { Component, computed, inject, resource } from '@angular/core';
+
 import { PageService } from '../../core/site/page.service';
-import { PageLinkSentence } from './ui/page-link-sentence';
 import { SITE_CONFIG } from '../../core/site/site-config';
 import { STOREFRONT_SITE_TEXT } from './site-text';
+import { PageLinkSentence } from './ui/page-link-sentence';
 
 /**
  * Beside checkout's submit: sending the order accepts the terms, so a

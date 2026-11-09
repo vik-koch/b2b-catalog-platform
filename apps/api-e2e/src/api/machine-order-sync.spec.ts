@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs';
 import { hash } from '@node-rs/argon2';
 import axios from 'axios';
 import { Client } from 'pg';
+
 import { priceProduct } from '../support/catalog-fixture';
 import { configFile, requireEnv } from '../support/env';
 import { deleteMatching, messagesMatching } from '../support/mailpit';

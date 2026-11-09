@@ -1,5 +1,6 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+
 import { GridTitle } from './grid-title';
 import { GridTitleLink } from './grid-title-link';
 

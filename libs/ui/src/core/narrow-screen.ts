@@ -1,5 +1,5 @@
-import { DestroyRef, inject, PLATFORM_ID, signal, Signal } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
+import { DestroyRef, inject, PLATFORM_ID, signal, Signal } from '@angular/core';
 
 /**
  * The widths below which a screen is narrow: `sm` the phone line, `md` where

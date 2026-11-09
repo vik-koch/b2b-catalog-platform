@@ -1,5 +1,6 @@
 import { Component, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
+
 import { Link } from '@b2b-catalog-platform/ui/actions/link';
 
 export interface PageLinkSentenceText {

@@ -1,7 +1,9 @@
-import type { DeepReadonly } from '@b2b-catalog-platform/shared/platform';
-import { EXCHANGE_AREA } from '@b2b-catalog-platform/shared/core/exchange';
 import * as z from 'zod';
-import { type MailText, mailTextBlock } from '../../platform/mail/mail-text';
+
+import { EXCHANGE_AREA } from '@b2b-catalog-platform/shared/core/exchange';
+import type { DeepReadonly } from '@b2b-catalog-platform/shared/platform';
+
+import { mailTextBlock, type MailText } from '../../platform/mail/mail-text';
 
 /** One sync outcome: its own subject and its own two lines. Subject and
  * preheader are per outcome rather than shared, because these land in an

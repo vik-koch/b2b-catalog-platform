@@ -2,11 +2,12 @@ import {
   AttributeDefinition,
   AttributeKeyUsage,
 } from '@b2b-catalog-platform/shared/admin/catalog';
+
 import {
+  AttributeHint,
   attributeHints,
   attributeRowMarks,
   attributeRowStatus,
-  AttributeHint,
 } from './attribute-hints';
 
 const usage = (

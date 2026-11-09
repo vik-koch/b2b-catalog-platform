@@ -1,21 +1,23 @@
-import { STOREFRONT_ACCOUNTS_TEXT } from '../accounts-text';
 import { Component, computed, inject, resource, signal } from '@angular/core';
 import { form, required } from '@angular/forms/signals';
 import { RouterLink } from '@angular/router';
+
 import { fillText } from '@b2b-catalog-platform/shared/platform';
-import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
-import { AuthService } from '../../../platform/auth/auth.service';
-import { usePageSeo } from '../../../platform/page-seo';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
+import { Outcome } from '@b2b-catalog-platform/ui/content/outcome';
+import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
+import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
 import { Input } from '@b2b-catalog-platform/ui/inputs/input';
-import { AccountService } from './account.service';
+
+import { AuthService } from '../../../platform/auth/auth.service';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
-import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
-import { Outcome } from '@b2b-catalog-platform/ui/content/outcome';
-import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
-import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
+import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
 import { untilInteractive } from '../../../platform/field-rules';
+import { usePageSeo } from '../../../platform/page-seo';
+import { STOREFRONT_ACCOUNTS_TEXT } from '../accounts-text';
+import { AccountService } from './account.service';
 
 type Status =
   'idle' | 'submitting' | 'wrong-password' | 'last-admin' | 'error' | 'done';

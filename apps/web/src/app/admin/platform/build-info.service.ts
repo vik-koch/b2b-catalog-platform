@@ -1,7 +1,9 @@
 import { Injectable } from '@angular/core';
+
 import { BuildInfo } from '@b2b-catalog-platform/shared/admin/platform';
-import { adminOperationsContract } from './contract-routes.generated';
+
 import { createOrpcClient } from '../../platform/orpc-client';
+import { adminOperationsContract } from './contract-routes.generated';
 
 /** Memoized: only a redeploy changes it, and that replaces the app. */
 @Injectable({ providedIn: 'root' })

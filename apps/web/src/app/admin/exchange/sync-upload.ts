@@ -1,8 +1,10 @@
-import { ADMIN_EXCHANGE_TEXT } from './exchange-text';
 import { inject, signal, WritableSignal } from '@angular/core';
-import { fillText } from '@b2b-catalog-platform/shared/platform';
-import { SyncRun } from '@b2b-catalog-platform/shared/core/exchange';
+
 import { SyncFormatErrorBody } from '@b2b-catalog-platform/shared/admin/exchange';
+import { SyncRun } from '@b2b-catalog-platform/shared/core/exchange';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
+
+import { ADMIN_EXCHANGE_TEXT } from './exchange-text';
 import { PreviewResult, SyncService } from './sync.service';
 
 /** One checkbox of a run's advanced options, read and written on the options

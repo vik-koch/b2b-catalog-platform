@@ -1,4 +1,14 @@
 import {
+  BadRequestException,
+  ConflictException,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
+import { eq, inArray } from 'drizzle-orm';
+
+import { ProductUnit } from '@b2b-catalog-platform/shared/core/catalog';
+import { OrderWriteResult } from '@b2b-catalog-platform/shared/core/exchange';
+import {
   canTransition,
   moveDirection,
   nextPaymentState,
@@ -10,37 +20,29 @@ import {
   transitionHasReason,
   transitionNeedsReason,
 } from '@b2b-catalog-platform/shared/core/ordering';
-import { ProductUnit } from '@b2b-catalog-platform/shared/core/catalog';
 import {
   OrderSyncLine,
   OrderWrite,
 } from '@b2b-catalog-platform/shared/machine/exchange';
-import { OrderWriteResult } from '@b2b-catalog-platform/shared/core/exchange';
-import {
-  BadRequestException,
-  ConflictException,
-  Inject,
-  Injectable,
-} from '@nestjs/common';
-import { eq, inArray } from 'drizzle-orm';
-import {
-  refuseIfDetailsRemoved,
-  adjustedItems,
-  carriedSnapshot,
-  shipmentColumns,
-  OrderRow,
-  OrderSnapshot,
-} from '../../core/ordering/order-rows';
-import { OrderReader } from '../../core/ordering/order-reader';
-import { OrderWriter } from '../../core/ordering/order-writer';
-import { DRIZZLE } from '../../platform/db/database.module';
+
 import { products } from '../../core/catalog/catalog-schema';
-import { orderItems, orders } from '../../core/ordering/ordering-schema';
 import {
   priceAdjustment,
   PricedAdjustment,
 } from '../../core/ordering/order-adjustment';
+import { OrderReader } from '../../core/ordering/order-reader';
+import {
+  adjustedItems,
+  carriedSnapshot,
+  OrderRow,
+  OrderSnapshot,
+  refuseIfDetailsRemoved,
+  shipmentColumns,
+} from '../../core/ordering/order-rows';
+import { OrderWriter } from '../../core/ordering/order-writer';
+import { orderItems, orders } from '../../core/ordering/ordering-schema';
 import { Database } from '../../platform/db/database';
+import { DRIZZLE } from '../../platform/db/database.module';
 
 /**
  * Whether the customer called the order off themselves (FR-ADM-08/10), read

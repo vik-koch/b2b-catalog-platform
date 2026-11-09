@@ -6,6 +6,7 @@
  */
 
 import { and, countDistinct, eq, inArray, ne, SQL } from 'drizzle-orm';
+
 import {
   AttributeSelection,
   parseAttributeNumber,
@@ -14,8 +15,9 @@ import {
   Facet,
   FacetValue,
 } from '@b2b-catalog-platform/shared/storefront/catalog';
-import { productAttributes, products } from '../../core/catalog/catalog-schema';
+
 import { attributeValuesCondition } from '../../core/catalog/attribute-filter';
+import { productAttributes, products } from '../../core/catalog/catalog-schema';
 import { DefinitionRow } from '../../core/catalog/category-filters';
 import { Database } from '../../platform/db/database';
 

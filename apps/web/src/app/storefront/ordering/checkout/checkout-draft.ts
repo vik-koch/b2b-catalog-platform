@@ -1,9 +1,9 @@
+import { AddressInput } from '@b2b-catalog-platform/shared/core/accounts';
 import {
   FulfilmentMethod,
   OrderContact,
   PaymentMethod,
 } from '@b2b-catalog-platform/shared/core/ordering';
-import { AddressInput } from '@b2b-catalog-platform/shared/core/accounts';
 
 /** The storage key; the specs read it too. */
 export const CHECKOUT_DRAFT_KEY = 'checkout-draft';

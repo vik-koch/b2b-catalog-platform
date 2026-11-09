@@ -1,10 +1,12 @@
 import { inject, InjectionToken } from '@angular/core';
+
+import { SITE_AREA } from '@b2b-catalog-platform/shared/core/site';
+
 import {
   STOREFRONT_TEXT,
   storefrontTextBlock,
 } from '../../platform/config/storefront-text';
 import type { StorefrontSiteText } from './site-text.type';
-import { SITE_AREA } from '@b2b-catalog-platform/shared/core/site';
 
 export const STOREFRONT_SITE_TEXT = new InjectionToken<StorefrontSiteText>(
   'STOREFRONT_SITE_TEXT',

@@ -1,23 +1,25 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { PgColumn } from 'drizzle-orm/pg-core';
 import { and, asc, count, eq, inArray, SQL } from 'drizzle-orm';
+import { PgColumn } from 'drizzle-orm/pg-core';
+
 import {
   AttributeSelection,
   CategoryCrumb,
   ProductDetail,
   ProductListItem,
 } from '@b2b-catalog-platform/shared/core/catalog';
+import { Pagination } from '@b2b-catalog-platform/shared/platform';
 import {
   CATALOG_PAGE_SIZE,
-  Facet,
-  CategoryNode,
   CatalogSort,
-  SubcategoryLink,
+  CategoryNode,
+  Facet,
   FEATURED_ROW_SIZE,
   SitemapEntry,
+  SubcategoryLink,
 } from '@b2b-catalog-platform/shared/storefront/catalog';
-import { Pagination } from '@b2b-catalog-platform/shared/platform';
-import { DRIZZLE } from '../../platform/db/database.module';
+
+import { CatalogReader } from '../../core/catalog/catalog-reader';
 import {
   attributeDefinitions,
   catalogAttributes,
@@ -25,7 +27,6 @@ import {
   productPairings,
   products,
 } from '../../core/catalog/catalog-schema';
-import { SITEMAP_PAGES, SitemapPages } from '../../platform/sitemap-pages';
 import {
   ancestorsOf,
   categoryBySlug,
@@ -33,36 +34,37 @@ import {
   descendantIds,
   subtreeCounts,
 } from '../../core/catalog/catalog-tree';
+import { DefinitionRow } from '../../core/catalog/category-filters';
+import { counterpartOf, involves } from '../../core/catalog/product-pairings';
 import { livePriceMinor } from '../../core/catalog/product-price';
-import { catalogOrderBy } from './listing-sort';
+import {
+  listItemColumns,
+  publiclyVisible,
+  toListItem,
+} from '../../core/catalog/product-view';
+import { Database } from '../../platform/db/database';
+import { DRIZZLE } from '../../platform/db/database.module';
+import { paginationOf } from '../../platform/pagination';
+import { SITEMAP_PAGES, SitemapPages } from '../../platform/sitemap-pages';
 import {
   buildCategoryTree,
   categoryTreeOrder,
   directChildren,
 } from './category-tree';
 import {
-  listItemColumns,
-  publiclyVisible,
-  toListItem,
-} from '../../core/catalog/product-view';
-import { counterpartOf, involves } from '../../core/catalog/product-pairings';
-import { paginationOf } from '../../platform/pagination';
-import { stockedCategories } from './stocked-categories';
-import {
   featuredRowCandidate,
   featuredRowOrder,
   shuffled,
 } from './featured-row';
+import { catalogOrderBy } from './listing-sort';
 import {
   buildFacets,
   ResolvedSelection,
   resolveSelections,
   selectionConditions,
 } from './product-facets';
+import { stockedCategories } from './stocked-categories';
 import { carriedSelections, selectionParams } from './subcategory-links';
-import { DefinitionRow } from '../../core/catalog/category-filters';
-import { CatalogReader } from '../../core/catalog/catalog-reader';
-import { Database } from '../../platform/db/database';
 
 interface CatalogProductsResult {
   categories: SubcategoryLink[];

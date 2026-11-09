@@ -7,6 +7,7 @@ import {
   linkedSignal,
   signal,
 } from '@angular/core';
+
 import {
   CatalogImage,
   correctPieces,
@@ -20,34 +21,35 @@ import {
 } from '@b2b-catalog-platform/shared/core/catalog';
 import {
   fillText,
-  moneyFormat,
   formatMoneyMinor,
+  moneyFormat,
 } from '@b2b-catalog-platform/shared/platform';
-import { CartAddResult, ProductCart } from './product-cart';
-import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { ButtonBox } from '@b2b-catalog-platform/ui/actions/button-box';
-import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
-import { Input } from '@b2b-catalog-platform/ui/inputs/input';
-import { Popover } from '@b2b-catalog-platform/ui/overlay/popover';
 import {
   Segment,
   type SegmentState,
 } from '@b2b-catalog-platform/ui/choices/segment';
 import { SegmentGroup } from '@b2b-catalog-platform/ui/choices/segment-group';
-import { createBuyQuantity } from './buy-quantity';
-import { ProductNoteEditor } from './ui/product-note-editor';
-import { ProductPairings } from './product-pairings';
-import { ProductUnitFacts } from '../ui/product-unit-facts';
-import { useProductUnits } from './product-units-view';
 import { WarningNote } from '@b2b-catalog-platform/ui/content/warning-note';
-import { FirstRender } from '../../../platform/first-render';
 import { minusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/minus';
 import { plusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/plus';
 import { shoppingBasketIcon } from '@b2b-catalog-platform/ui/icons/glyphs/shopping-basket';
-import { numericRules } from '@b2b-catalog-platform/ui/inputs/numeric-rules';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Allow } from '@b2b-catalog-platform/ui/inputs/allow';
+import { Input } from '@b2b-catalog-platform/ui/inputs/input';
+import { numericRules } from '@b2b-catalog-platform/ui/inputs/numeric-rules';
+import { Popover } from '@b2b-catalog-platform/ui/overlay/popover';
+
+import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
+import { FirstRender } from '../../../platform/first-render';
 import { SHARED_CATALOG_TEXT } from '../catalog-text';
+import { ProductUnitFacts } from '../ui/product-unit-facts';
+import { createBuyQuantity } from './buy-quantity';
+import { CartAddResult, ProductCart } from './product-cart';
+import { ProductPairings } from './product-pairings';
+import { useProductUnits } from './product-units-view';
+import { ProductNoteEditor } from './ui/product-note-editor';
 
 /** How long a statement stays on screen before it fades away. */
 const NOTICE_MS = 5000;

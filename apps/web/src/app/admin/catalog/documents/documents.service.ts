@@ -1,6 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { DOCUMENT, inject, Injectable } from '@angular/core';
+import { safe, type ClientPromiseResult } from '@orpc/client';
 import { lastValueFrom } from 'rxjs';
+
 import {
   DocumentDetail,
   DocumentErrorCode,
@@ -8,10 +10,10 @@ import {
   ProductDocument,
   UploadDocumentResponse,
 } from '@b2b-catalog-platform/shared/admin/catalog';
-import { safe, type ClientPromiseResult } from '@orpc/client';
-import { documentsContract } from '../contract-routes.generated';
+
 import { createOrpcClient } from '../../../platform/orpc-client';
 import { renderable } from '../../platform/renderable';
+import { documentsContract } from '../contract-routes.generated';
 
 export type DocumentResult =
   | { ok: true; document: ProductDocument }

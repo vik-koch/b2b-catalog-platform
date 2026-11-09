@@ -1,22 +1,24 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { type FieldTree } from '@angular/forms/signals';
-import {
-  moneyFormat,
-  currencySymbol,
-} from '@b2b-catalog-platform/shared/platform';
+
 import { CustomerTier } from '@b2b-catalog-platform/shared/admin/catalog';
+import {
+  currencySymbol,
+  moneyFormat,
+} from '@b2b-catalog-platform/shared/platform';
+import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
+import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
+import { Hint } from '@b2b-catalog-platform/ui/fields/hint';
+import { Allow } from '@b2b-catalog-platform/ui/inputs/allow';
+import { UnitInput } from '@b2b-catalog-platform/ui/inputs/unit-input';
+import { UnitInputControl } from '@b2b-catalog-platform/ui/inputs/unit-input-control';
+
 import {
   parsePriceInput,
   partialPriceRule,
 } from '../../../core/catalog/pricing/price';
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
-import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
-import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
-import { Allow } from '@b2b-catalog-platform/ui/inputs/allow';
-import { UnitInput } from '@b2b-catalog-platform/ui/inputs/unit-input';
-import { UnitInputControl } from '@b2b-catalog-platform/ui/inputs/unit-input-control';
 import { LockedFieldMarker } from '../../platform/ownership/ui/locked-field-marker';
-import { Hint } from '@b2b-catalog-platform/ui/fields/hint';
 import { ADMIN_CATALOG_TEXT } from '../catalog-text';
 
 export interface TierPriceDraft {

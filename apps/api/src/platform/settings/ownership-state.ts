@@ -1,5 +1,7 @@
 import { Injectable } from '@nestjs/common';
+
 import { OwnershipArea } from '@b2b-catalog-platform/shared/platform';
+
 import { SettingsStore } from './settings-store';
 
 /**

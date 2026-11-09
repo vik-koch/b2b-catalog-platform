@@ -1,7 +1,8 @@
-import { drizzle } from 'drizzle-orm/node-postgres';
 import { and } from 'drizzle-orm';
-import { products } from './catalog-schema';
+import { drizzle } from 'drizzle-orm/node-postgres';
+
 import { attributeValuesCondition } from './attribute-filter';
+import { products } from './catalog-schema';
 
 /**
  * Rendered inside a real query, not on its own: drizzle qualifies every column

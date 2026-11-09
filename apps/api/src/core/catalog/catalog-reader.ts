@@ -1,17 +1,20 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { and, asc, eq, gte, isNull, or, SQL } from 'drizzle-orm';
+
 import {
+  effectiveTaxRate,
   joinAttributeKey,
   ProductDetail,
   ProductDetailAttribute,
   PublicDocument,
   publicDocumentSchema,
-  effectiveTaxRate,
   TaxConfig,
 } from '@b2b-catalog-platform/shared/core/catalog';
 import { isoToday } from '@b2b-catalog-platform/shared/platform';
-import { TAX_CONFIG } from './catalog-config';
+
+import { Database } from '../../platform/db/database';
 import { DRIZZLE } from '../../platform/db/database.module';
+import { TAX_CONFIG } from './catalog-config';
 import {
   attributeDefinitions,
   categories,
@@ -27,8 +30,8 @@ import {
   DefinitionRow,
   resolveCategoryDefinitions,
 } from './category-filters';
-import { livePriceMinor } from './product-price';
 import { pairedCountOf } from './product-pairings';
+import { livePriceMinor } from './product-price';
 import {
   availabilityColumns,
   boxDimensionsOf,
@@ -39,7 +42,6 @@ import {
   unitColumns,
   unitPricesOf,
 } from './product-view';
-import { Database } from '../../platform/db/database';
 
 /**
  * The catalog reads both audiences make: the category rows, a category's

@@ -1,15 +1,16 @@
 import { Module } from '@nestjs/common';
-import { CatalogController } from './catalog.controller';
-import { CatalogService } from './catalog.service';
-import { CatalogSearchService } from './catalog-search.service';
-import { SearchController } from './search.controller';
-import { SessionModule } from '../../platform/auth/session.module';
-import { SearchLogger } from './search.logger';
+
 import { CatalogCoreModule } from '../../core/catalog/catalog-core.module';
+import { SessionModule } from '../../platform/auth/session.module';
 import {
   ALTERNATE_LAYOUT,
   loadAlternateLayout,
 } from '../../platform/config/deployment-config';
+import { CatalogSearchService } from './catalog-search.service';
+import { CatalogController } from './catalog.controller';
+import { CatalogService } from './catalog.service';
+import { SearchController } from './search.controller';
+import { SearchLogger } from './search.logger';
 
 /** The storefront's catalog read API (FR-CAT, FR-SEARCH). DatabaseModule is
  * global, so DRIZZLE needs no import. */

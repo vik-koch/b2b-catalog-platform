@@ -1,5 +1,7 @@
 import { Provider, signal } from '@angular/core';
+
 import { OwnershipArea } from '@b2b-catalog-platform/shared/platform';
+
 import { OwnershipService } from './ownership.service';
 
 /** The ownership read for specs. Required: unstubbed, the real one fails

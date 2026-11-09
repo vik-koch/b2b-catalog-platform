@@ -1,10 +1,12 @@
 import { Controller } from '@nestjs/common';
 import { Implement, implement } from '@orpc/nest';
+
 import { machineCustomerReadContract } from '@b2b-catalog-platform/shared/machine/exchange';
+
 import { refusals } from '../../platform/orpc/refusals';
-import { Machine } from './machine.decorator';
 import { MachineThrottle } from '../../platform/throttling/throttle-presets';
 import { CustomerReadService } from './customer-read.service';
+import { Machine } from './machine.decorator';
 
 /**
  * The outbound read of customers (FR-ADM-18). `customer-read` is apart from

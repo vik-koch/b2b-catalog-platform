@@ -1,6 +1,7 @@
 import { drizzle } from 'drizzle-orm/node-postgres';
-import { SyncRunLog } from './sync-run-log';
+
 import { Database } from '../../platform/db/database';
+import { SyncRunLog } from './sync-run-log';
 
 /**
  * Retention, rendered rather than executed: which statements prune writes,

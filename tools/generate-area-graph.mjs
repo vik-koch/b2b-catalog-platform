@@ -15,12 +15,13 @@
 import { readdirSync, readFileSync } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
 import ts from 'typescript';
-import { AREA_EDGES, FOLDERS, LAYERS } from './lint/area-boundaries.mjs';
+
 import {
   formatted,
   injectSection,
   writeOrCheck,
 } from './lib/generated-docs.mjs';
+import { AREA_EDGES, FOLDERS, LAYERS } from './lint/area-boundaries.mjs';
 
 const DOC = 'docs/architecture.md';
 const COMMAND = 'tools/generate-area-graph.mjs';

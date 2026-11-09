@@ -1,6 +1,8 @@
 import * as z from 'zod';
-import { loadConfigFile } from '@b2b-catalog-platform/shared/node';
+
 import { ACCOUNTS_AREA } from '@b2b-catalog-platform/shared/core/accounts';
+import { loadConfigFile } from '@b2b-catalog-platform/shared/node';
+
 import { AccountsMailText, accountsMailTextShape } from './accounts-mail-text';
 
 /** The accounts' block of the demo mail text, for specs. */

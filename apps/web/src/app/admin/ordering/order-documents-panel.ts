@@ -1,4 +1,3 @@
-import { ADMIN_ORDERING_TEXT } from './ordering-text';
 import {
   Component,
   computed,
@@ -7,34 +6,37 @@ import {
   output,
   signal,
 } from '@angular/core';
+
 import {
-  orderDocumentPath,
-  OrderDocumentKind,
   AdminOrderDetail,
   AdminOrderDocument,
+  OrderDocumentKind,
+  orderDocumentPath,
 } from '@b2b-catalog-platform/shared/core/ordering';
-import { ADMIN_TEXT } from '../../platform/config/admin-text';
-import { SHARED_TEXT } from '../../platform/config/shared-text';
-import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
 import {
   AcceptedDocumentMime,
   fillText,
 } from '@b2b-catalog-platform/shared/platform';
-import { documentFileCaption } from '../../platform/document-file';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
-import {
-  ConfirmService,
-  confirmRequest,
-} from '@b2b-catalog-platform/ui/overlay/confirm.service';
-import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
-import { adminDayFormat } from '../platform/dates/admin-date';
-import { AdminOrdersService } from './orders.service';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { externalLinkIcon } from '@b2b-catalog-platform/ui/icons/glyphs/external-link';
 import { fileTextIcon } from '@b2b-catalog-platform/ui/icons/glyphs/file-text';
 import { sendIcon } from '@b2b-catalog-platform/ui/icons/glyphs/send';
 import { uploadIcon } from '@b2b-catalog-platform/ui/icons/glyphs/upload';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import {
+  confirmRequest,
+  ConfirmService,
+} from '@b2b-catalog-platform/ui/overlay/confirm.service';
+
+import { ADMIN_TEXT } from '../../platform/config/admin-text';
+import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
+import { SHARED_TEXT } from '../../platform/config/shared-text';
+import { documentFileCaption } from '../../platform/document-file';
+import { adminDayFormat } from '../platform/dates/admin-date';
+import { ADMIN_ORDERING_TEXT } from './ordering-text';
+import { AdminOrdersService } from './orders.service';
 
 /** One line of the list: a document that exists, or a kind that could. */
 interface DocumentRow {

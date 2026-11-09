@@ -1,9 +1,10 @@
 import { Component, input } from '@angular/core';
 import { FormField, type FieldTree } from '@angular/forms/signals';
-import { DigitMask } from './digit-mask';
+
 import { FieldBinding } from '../fields/field-binding';
-import { InputPrefix } from './input-prefix';
+import { DigitMask } from './digit-mask';
 import { Input } from './input';
+import { InputPrefix } from './input-prefix';
 
 export interface PhoneMask {
   readonly countryCode: string;

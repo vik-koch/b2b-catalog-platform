@@ -1,12 +1,13 @@
-import { demoAccountsMailText } from '../../../core/accounts/mail/accounts-mail-text.fixture';
-import { sharedTextBlock } from '../../../platform/config/shared-text';
 import {
   ACCOUNTS_AREA,
   type SharedAccountsText,
 } from '@b2b-catalog-platform/shared/core/accounts';
+
+import { demoAccountsMailText } from '../../../core/accounts/mail/accounts-mail-text.fixture';
+import { sharedTextBlock } from '../../../platform/config/shared-text';
 import {
-  demoSharedText,
   demoMailText,
+  demoSharedText,
 } from '../../../platform/mail/mail-text.fixture';
 import { newRegistrationMail } from './new-registration.template';
 import { registrationReceivedMail } from './registration-received.template';

@@ -6,8 +6,11 @@ import {
   Logger,
 } from '@nestjs/common';
 import { and, eq, inArray, isNull, sql } from 'drizzle-orm';
+
+import { CustomerType } from '@b2b-catalog-platform/shared/core/accounts';
 import {
   CustomerSyncOptions,
+  customerSyncOptionsSchema,
   CustomerSyncPlan,
   CustomerSyncPolicy,
   CustomerSyncPreviewResponse,
@@ -15,37 +18,36 @@ import {
   CustomerSyncRowError,
   CustomerSyncSubmission,
   CustomerSyncSubmitResponse,
-  SyncFailureReport,
-  SyncRun,
-  customerSyncOptionsSchema,
   decideCustomerAutoApply,
   SyncCommitResponse,
+  SyncFailureReport,
+  SyncRun,
 } from '@b2b-catalog-platform/shared/core/exchange';
+
+import { Database, Reader, Tx } from '../../platform/db/database';
 import { DRIZZLE } from '../../platform/db/database.module';
-import { customerTiers } from '../catalog/catalog-schema';
-import { passwordTokens, users } from '../accounts/accounts-schema';
-import { syncRuns } from './exchange-schema';
-import { CUSTOMER_SYNC_POLICY } from './exchange-config';
-import { ACCEPTED_CUSTOMER_TYPES } from '../accounts/accounts-config';
 import { OwnershipState } from '../../platform/settings/ownership-state';
+import { AccountInvitations } from '../accounts/account-invitations';
+import { ACCEPTED_CUSTOMER_TYPES } from '../accounts/accounts-config';
+import { passwordTokens, users } from '../accounts/accounts-schema';
 import {
   customersExternallyOwned,
   customersNotExternallyOwned,
 } from '../accounts/customer-ownership-refusals';
 import { PasswordService } from '../accounts/password.service';
-import { AccountInvitations } from '../accounts/account-invitations';
 import { StaffUsersService } from '../accounts/staff-users.service';
+import { customerTiers } from '../catalog/catalog-schema';
 import {
   CustomerSyncActions,
   CustomerSyncState,
   planCustomerSync,
 } from './customer-sync';
-import { Actor, CONFLICT_CODE, Submitter, runNotFound } from './sync-run';
-import { SyncRunLog, toSyncRun } from './sync-run-log';
+import { CUSTOMER_SYNC_POLICY } from './exchange-config';
+import { syncRuns } from './exchange-schema';
 import { SyncNotifications } from './sync-notifications';
-import { StagedPayloadOf, stagedPayload } from './sync-run-payload';
-import { CustomerType } from '@b2b-catalog-platform/shared/core/accounts';
-import { Database, Reader, Tx } from '../../platform/db/database';
+import { Actor, CONFLICT_CODE, runNotFound, Submitter } from './sync-run';
+import { SyncRunLog, toSyncRun } from './sync-run-log';
+import { stagedPayload, StagedPayloadOf } from './sync-run-payload';
 
 /** A sent mail counts, as do skipped rows: an unreadable file is not a
  * quiet night. */

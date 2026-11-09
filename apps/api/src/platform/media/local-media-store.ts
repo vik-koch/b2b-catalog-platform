@@ -1,4 +1,3 @@
-import { Injectable, Logger } from '@nestjs/common';
 import { createHash, randomBytes } from 'node:crypto';
 import {
   access,
@@ -9,10 +8,13 @@ import {
   writeFile,
 } from 'node:fs/promises';
 import { join } from 'node:path';
+import { Injectable, Logger } from '@nestjs/common';
+
 import {
   DOCUMENT_URL_PREFIX,
   MEDIA_URL_PREFIX,
 } from '@b2b-catalog-platform/shared/platform';
+
 import { env } from '../env';
 import {
   DOCUMENT_SUBDIR,

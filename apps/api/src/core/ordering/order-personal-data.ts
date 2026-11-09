@@ -5,13 +5,15 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { eq } from 'drizzle-orm';
+
 import { isOrderFinished } from '@b2b-catalog-platform/shared/core/ordering';
+
+import { Database } from '../../platform/db/database';
 import { DRIZZLE } from '../../platform/db/database.module';
-import { orders } from './ordering-schema';
 import { recordDestruction } from '../../platform/destruction-record';
 import { OrderDocumentFiles } from './order-document-files';
 import { ORDER_REMOVAL_CATEGORIES, scrubOrders } from './order-scrub';
-import { Database } from '../../platform/db/database';
+import { orders } from './ordering-schema';
 
 /**
  * A guest's request to remove their order's details (NFR-LEGAL-14): they have

@@ -1,18 +1,20 @@
 import { Component, computed, inject, input, output } from '@angular/core';
 import { Params, RouterLink } from '@angular/router';
-import { ADMIN_TEXT } from '../../../platform/config/admin-text';
-import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
-import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+
 import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
-import { OwnershipService } from '../../platform/ownership/ownership.service';
-import { mayRestore, purgeRefusal } from './product-removal';
-import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { bookCheckIcon } from '@b2b-catalog-platform/ui/icons/glyphs/book-check';
 import { bookDashedIcon } from '@b2b-catalog-platform/ui/icons/glyphs/book-dashed';
 import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
 import { rotateCcwIcon } from '@b2b-catalog-platform/ui/icons/glyphs/rotate-ccw';
 import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
+
+import { ADMIN_TEXT } from '../../../platform/config/admin-text';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { OwnershipService } from '../../platform/ownership/ownership.service';
 import { ADMIN_CATALOG_TEXT } from '../catalog-text';
+import { mayRestore, purgeRefusal } from './product-removal';
 
 /** What the list knows about a product in order to act on it. */
 export interface ProductRowState {

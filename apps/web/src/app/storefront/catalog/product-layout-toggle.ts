@@ -1,11 +1,13 @@
 import { Component, inject } from '@angular/core';
+
 import { Segment } from '@b2b-catalog-platform/ui/choices/segment';
 import { SegmentGroup } from '@b2b-catalog-platform/ui/choices/segment-group';
 import { layoutGridIcon } from '@b2b-catalog-platform/ui/icons/glyphs/layout-grid';
 import { layoutListIcon } from '@b2b-catalog-platform/ui/icons/glyphs/layout-list';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
-import { ProductLayoutService } from './product-layout';
+
 import { STOREFRONT_CATALOG_TEXT } from './catalog-text';
+import { ProductLayoutService } from './product-layout';
 
 /** Cards or lines (FR-CAT-06), on the neutral pill the sort beside it uses:
  * both arrange the listing rather than decide anything. Glyphs only; the

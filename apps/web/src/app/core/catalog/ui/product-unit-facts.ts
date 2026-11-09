@@ -1,8 +1,10 @@
 import { Component, computed, inject, input } from '@angular/core';
+
 import {
   ProductPackaging,
   ProductUnit,
 } from '@b2b-catalog-platform/shared/core/catalog';
+
 import { useProductUnits } from '../buying/product-units-view';
 import { SHARED_CATALOG_TEXT } from '../catalog-text';
 

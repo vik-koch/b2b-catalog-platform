@@ -1,6 +1,6 @@
 import { DOCUMENT_EXPIRY_WARNING_DAYS } from '../../core/catalog/documents';
-import { documentExpiryState } from './documents';
 import { isoToday } from '../../platform/iso-day';
+import { documentExpiryState } from './documents';
 
 /** One rule for the admin list's badge, its filter and the panel's count
  * (FR-DOC-04). The boundaries matter: a state a day early makes count and list

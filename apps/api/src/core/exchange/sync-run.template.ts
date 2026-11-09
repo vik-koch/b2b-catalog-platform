@@ -1,7 +1,8 @@
-import { exchangeMail } from './exchange-mail-text';
 import { SyncRun } from '@b2b-catalog-platform/shared/core/exchange';
+
 import { MailContent, MailRow } from '../../platform/mail/mail-layout';
 import { MailText } from '../../platform/mail/mail-text';
+import { exchangeMail } from './exchange-mail-text';
 
 /**
  * What an automated exchange writes to the shop (FR-ADM-07/09, FR-NOTIF-09):

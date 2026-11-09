@@ -1,12 +1,13 @@
 import { Component, computed, inject, resource } from '@angular/core';
+
 import { EditActions } from '../../../platform/edit-mode/edit-actions';
 import { editAwareContent } from '../../../platform/edit-mode/edit-aware-content';
 import { injectEditorReturnParams } from '../../../platform/edit-mode/editor-return';
 import { LoadErrorView } from '../../platform/load-error-view';
+import { STOREFRONT_CATALOG_TEXT } from '../catalog-text';
 import { CatalogService } from '../catalog.service';
 import { CategoryChip } from '../ui/category-chip';
 import { CategoryChildren } from './ui/category-children';
-import { STOREFRONT_CATALOG_TEXT } from '../catalog-text';
 
 /** The listing's 15rem column family (PRODUCT_GRID), so categories stand
  * where product cards do; also the grid of a listing's subcategory chips. One

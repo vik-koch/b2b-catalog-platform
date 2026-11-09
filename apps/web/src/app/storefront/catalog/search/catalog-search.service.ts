@@ -1,10 +1,12 @@
 import { Injectable } from '@angular/core';
 import { safe } from '@orpc/client';
+
 import {
   ProductListItem,
   SearchSort,
 } from '@b2b-catalog-platform/shared/core/catalog';
 import { SearchCategory } from '@b2b-catalog-platform/shared/storefront/catalog';
+
 import { createOrpcClient } from '../../../platform/orpc-client';
 import { catalogContract } from '../contract-routes.generated';
 

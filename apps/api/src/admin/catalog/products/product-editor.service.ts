@@ -5,22 +5,25 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { and, asc, eq, inArray, notInArray } from 'drizzle-orm';
-import {
-  parseAttributeNumber,
-  ProductAttribute,
-  splitAttributeKey,
-  productAvailability,
-} from '@b2b-catalog-platform/shared/core/catalog';
+
 import {
   AdminProduct,
   LinkedDocument,
   LinkedProduct,
-  ProductInput,
   PRODUCT_RICH_TEXT_TAGS,
+  ProductInput,
   ProductTierPrice,
 } from '@b2b-catalog-platform/shared/admin/catalog';
+import {
+  parseAttributeNumber,
+  ProductAttribute,
+  productAvailability,
+  splitAttributeKey,
+} from '@b2b-catalog-platform/shared/core/catalog';
 import { sanitizeToTags } from '@b2b-catalog-platform/shared/node';
-import { DRIZZLE } from '../../../platform/db/database.module';
+
+import { LOW_STOCK_THRESHOLD_PIECES } from '../../../core/catalog/catalog-config';
+import { catalogExternallyOwned } from '../../../core/catalog/catalog-ownership-refusals';
 import {
   customerTiers,
   documentProducts,
@@ -30,35 +33,34 @@ import {
   productPrices,
   products,
 } from '../../../core/catalog/catalog-schema';
-import { excluded } from '../../../platform/db/sql-columns';
-import { OwnershipState } from '../../../platform/settings/ownership-state';
-import { catalogExternallyOwned } from '../../../core/catalog/catalog-ownership-refusals';
-import { changedProductFields } from '../owned-fields';
 import {
   counterpartOf,
   involves,
 } from '../../../core/catalog/product-pairings';
-import { defaultTierId } from './default-tier';
-import { LOW_STOCK_THRESHOLD_PIECES } from '../../../core/catalog/catalog-config';
+import { Database } from '../../../platform/db/database';
+import { DRIZZLE } from '../../../platform/db/database.module';
+import { excluded } from '../../../platform/db/sql-columns';
+import { OwnershipState } from '../../../platform/settings/ownership-state';
 import {
-  resolveNewSlug,
   resolveNewProductSourceId,
-  resolveSlugOverride,
+  resolveNewSlug,
   resolveProductSourceIdOverride,
+  resolveSlugOverride,
   runUnique,
 } from '../catalog-identity';
 import { assertCategoryExists } from '../categories/categories.service';
+import { changedProductFields } from '../owned-fields';
+import { defaultTierId } from './default-tier';
 import {
   adminProductWriteColumns,
   linkedProductColumns,
-  ProductRecords,
   productNotFound,
+  ProductRecords,
   ProductRow,
   StoredAttribute,
   toAdminProduct,
   toLinkedProduct,
 } from './product-records';
-import { Database } from '../../../platform/db/database';
 
 /** What a save links to, resolved before it is written. */
 interface SaveLinks {

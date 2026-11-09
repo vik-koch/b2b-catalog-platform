@@ -1,5 +1,7 @@
-import { MyOrderFilter } from '@b2b-catalog-platform/shared/core/ordering';
 import { and, eq, SQL } from 'drizzle-orm';
+
+import { MyOrderFilter } from '@b2b-catalog-platform/shared/core/ordering';
+
 import { orderRevisions, orders } from './ordering-schema';
 
 /** What waits on a customer, over `orders` joined to the revision they are on.

@@ -1,10 +1,12 @@
 import { signal } from '@angular/core';
+
 import {
   ProductPackaging,
   ProductUnit,
 } from '@b2b-catalog-platform/shared/core/catalog';
-import { createBuyQuantity, QuantityLine } from './buy-quantity';
+
 import { packagedPackaging, plainPackaging } from '../product.fixture';
+import { createBuyQuantity, QuantityLine } from './buy-quantity';
 
 /** Six to a pack, four packs to a box, no fewer than six. */
 const packaged: ProductPackaging = { ...packagedPackaging };

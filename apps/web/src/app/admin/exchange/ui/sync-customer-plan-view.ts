@@ -1,18 +1,20 @@
-import { ADMIN_EXCHANGE_TEXT } from '../exchange-text';
 import { Component, computed, inject, input, output } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { fillText } from '@b2b-catalog-platform/shared/platform';
+
 import {
   CustomerAccountChange,
   CustomerSyncPlan,
   CustomerSyncRowError,
 } from '@b2b-catalog-platform/shared/core/exchange';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
 import { Link } from '@b2b-catalog-platform/ui/actions/link';
 import { Notice } from '@b2b-catalog-platform/ui/content/notice';
 import {
   StatusBadge,
   StatusTone,
 } from '@b2b-catalog-platform/ui/content/status-badge';
+
+import { ADMIN_EXCHANGE_TEXT } from '../exchange-text';
 import { SyncPlanActions } from './sync-plan-actions';
 import { SyncPlanTiles } from './sync-plan-tiles';
 import { SyncRowErrors } from './sync-row-errors';

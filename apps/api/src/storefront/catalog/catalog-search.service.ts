@@ -1,10 +1,15 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { and, asc, count, desc, sql } from 'drizzle-orm';
+
 import {
   AttributeSelection,
   ProductListItem,
   SearchSort,
 } from '@b2b-catalog-platform/shared/core/catalog';
+import {
+  KeyboardLayout,
+  Pagination,
+} from '@b2b-catalog-platform/shared/platform';
 import {
   CATALOG_PAGE_SIZE,
   Facet,
@@ -12,13 +17,10 @@ import {
   SEARCH_SUGGESTION_LIMIT,
   SearchCategory,
 } from '@b2b-catalog-platform/shared/storefront/catalog';
-import {
-  KeyboardLayout,
-  Pagination,
-} from '@b2b-catalog-platform/shared/platform';
-import { ALTERNATE_LAYOUT } from '../../platform/config/deployment-config';
-import { DRIZZLE } from '../../platform/db/database.module';
+
+import { CatalogReader } from '../../core/catalog/catalog-reader';
 import { categories, products } from '../../core/catalog/catalog-schema';
+import { livePriceMinor } from '../../core/catalog/product-price';
 import {
   categoryNameCondition,
   categoryNameScore,
@@ -27,13 +29,14 @@ import {
   searchCondition,
   setSearchThreshold,
 } from '../../core/catalog/product-search';
-import { livePriceMinor } from '../../core/catalog/product-price';
 import {
   listItemColumns,
   publiclyVisible,
   toListItem,
 } from '../../core/catalog/product-view';
-import { CatalogReader } from '../../core/catalog/catalog-reader';
+import { ALTERNATE_LAYOUT } from '../../platform/config/deployment-config';
+import { Database } from '../../platform/db/database';
+import { DRIZZLE } from '../../platform/db/database.module';
 import { paginationOf } from '../../platform/pagination';
 import { productOrderBy } from './listing-sort';
 import {
@@ -41,9 +44,8 @@ import {
   resolveSelections,
   selectionConditions,
 } from './product-facets';
-import { stockedCategories } from './stocked-categories';
 import { SearchLogger } from './search.logger';
-import { Database } from '../../platform/db/database';
+import { stockedCategories } from './stocked-categories';
 
 /**
  * Product search by name and its type-ahead (FR-SEARCH-01…08). Each read runs

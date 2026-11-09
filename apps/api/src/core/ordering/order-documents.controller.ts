@@ -1,7 +1,9 @@
 import { Controller, Get, Param, Res } from '@nestjs/common';
 import type { Response } from 'express';
+
 import { OrderDetail } from '@b2b-catalog-platform/shared/core/ordering';
 import { AuthUser } from '@b2b-catalog-platform/shared/platform';
+
 import { Auth } from '../../platform/auth/auth.decorator';
 import { CurrentUser } from '../../platform/auth/current-user.decorator';
 import { orderDocumentKind } from './order-document-acts';

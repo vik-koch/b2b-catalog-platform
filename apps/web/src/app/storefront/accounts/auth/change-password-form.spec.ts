@@ -1,16 +1,18 @@
-import { fillText } from '@b2b-catalog-platform/shared/platform';
-import { defaultStorefrontAccountsText } from '../accounts-text.fixture';
-import { SHARED_TEXT } from '../../../platform/config/shared-text';
-import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
 import { TestBed } from '@angular/core/testing';
-import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
-import { defaultStorefrontText } from '../../../platform/config/storefront-text.fixture';
-import { SignInService, ChangePasswordResult } from './sign-in.service';
-import { ChangePasswordForm } from './change-password-form';
+
 import {
   PASSWORD_MAX_LENGTH,
   PASSWORD_MIN_LENGTH,
 } from '@b2b-catalog-platform/shared/core/accounts';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
+
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
+import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
+import { defaultStorefrontText } from '../../../platform/config/storefront-text.fixture';
+import { defaultStorefrontAccountsText } from '../accounts-text.fixture';
+import { ChangePasswordForm } from './change-password-form';
+import { ChangePasswordResult, SignInService } from './sign-in.service';
 
 const text = defaultStorefrontAccountsText.auth.changePassword;
 const validation = defaultStorefrontAccountsText.auth.validation;

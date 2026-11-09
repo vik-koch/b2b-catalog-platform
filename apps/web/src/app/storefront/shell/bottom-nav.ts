@@ -1,4 +1,3 @@
-import { STOREFRONT_ORDERING_TEXT } from '../ordering/ordering-text';
 import {
   Component,
   computed,
@@ -8,26 +7,29 @@ import {
   signal,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { AuthService } from '../../platform/auth/auth.service';
-import { STOREFRONT_TEXT } from '../../platform/config/storefront-text';
-import { STOREFRONT_CATALOG_TEXT } from '../catalog/catalog-text';
-import { SHARED_TEXT } from '../../platform/config/shared-text';
-import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
-import { currentPath } from '../../platform/current-url';
-import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
-import { AccountLink } from './account-link';
-import { CartLink } from '../ordering/cart/cart-link';
-import { CatalogLink } from './catalog-link';
-import { mailHref, telHref } from './contact-info';
-import { withExitAnimation } from './leave-animation';
-import { MobileSearch } from '../platform/mobile-search';
-import { navActionClasses, TAB_CURRENT } from '../platform/nav-action';
+
 import { mailIcon } from '@b2b-catalog-platform/ui/icons/glyphs/mail';
 import { menuIcon } from '@b2b-catalog-platform/ui/icons/glyphs/menu';
 import { phoneIcon } from '@b2b-catalog-platform/ui/icons/glyphs/phone';
 import { searchIcon } from '@b2b-catalog-platform/ui/icons/glyphs/search';
 import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+
 import { SITE_CONFIG } from '../../core/site/site-config';
+import { AuthService } from '../../platform/auth/auth.service';
+import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
+import { SHARED_TEXT } from '../../platform/config/shared-text';
+import { STOREFRONT_TEXT } from '../../platform/config/storefront-text';
+import { currentPath } from '../../platform/current-url';
+import { STOREFRONT_CATALOG_TEXT } from '../catalog/catalog-text';
+import { CartLink } from '../ordering/cart/cart-link';
+import { STOREFRONT_ORDERING_TEXT } from '../ordering/ordering-text';
+import { MobileSearch } from '../platform/mobile-search';
+import { navActionClasses, TAB_CURRENT } from '../platform/nav-action';
+import { AccountLink } from './account-link';
+import { CatalogLink } from './catalog-link';
+import { mailHref, telHref } from './contact-info';
+import { withExitAnimation } from './leave-animation';
 
 /**
  * The phone's navigation below `sm`, keeping the cart in view for the whole

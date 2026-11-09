@@ -1,5 +1,5 @@
-import { PasswordTokenService } from './password-token.service';
 import { Database } from '../../platform/db/database';
+import { PasswordTokenService } from './password-token.service';
 
 /** Minting a password link and expiring the outstanding ones are one change:
  * a forwarded link is a way in while it lives, so a resend leaves exactly one,

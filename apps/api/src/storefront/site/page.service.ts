@@ -1,8 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
+
 import { Page } from '@b2b-catalog-platform/shared/core/site';
-import { DRIZZLE } from '../../platform/db/database.module';
+
 import { currentPageVersion, toPage } from '../../core/site/page-versions';
 import { Database } from '../../platform/db/database';
+import { DRIZZLE } from '../../platform/db/database.module';
 
 @Injectable()
 export class PageService {

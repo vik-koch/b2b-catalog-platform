@@ -1,13 +1,15 @@
 import { TestBed } from '@angular/core/testing';
-import { fillText } from '@b2b-catalog-platform/shared/platform';
+
 import { ProductAttribute } from '@b2b-catalog-platform/shared/core/catalog';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
+
 import { ADMIN_TEXT } from '../../../platform/config/admin-text';
 import { defaultAdminText } from '../../../platform/config/admin-text.fixture';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
+import { defaultAdminCatalogText } from '../catalog-text.fixture';
 import { AttributeRowMarks } from './attribute-hints';
 import { ProductAttributesNarrow } from './product-attributes-narrow';
-import { defaultAdminCatalogText } from '../catalog-text.fixture';
 
 const text = defaultAdminCatalogText.products.editor.attributes;
 const plain: AttributeRowMarks = {

@@ -1,10 +1,10 @@
-import { OrderReader } from '../../core/ordering/order-reader';
-import { OrderWriter } from '../../core/ordering/order-writer';
-import { OrderRules } from '../../core/ordering/order-rules';
-import { OrderNotifications } from '../../core/ordering/order-notifications';
 import { OrderDocumentsService } from '../../core/ordering/order-documents.service';
-import { StaffOrdersService } from './staff-orders.service';
+import { OrderNotifications } from '../../core/ordering/order-notifications';
+import { OrderReader } from '../../core/ordering/order-reader';
+import { OrderRules } from '../../core/ordering/order-rules';
+import { OrderWriter } from '../../core/ordering/order-writer';
 import { Database } from '../../platform/db/database';
+import { StaffOrdersService } from './staff-orders.service';
 
 describe('StaffOrdersService on an order whose personal details were removed', () => {
   // Finished for good (NFR-LEGAL-14): nobody to deliver to, and a mail would

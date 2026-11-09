@@ -1,8 +1,9 @@
-import { loadApiConfigBlock } from '../../platform/config/api-config';
 import * as z from 'zod';
+
+import { loadApiConfigBlock } from '../../platform/config/api-config';
 import {
-  type RetentionConfig,
   retentionApiConfigShape,
+  type RetentionConfig,
 } from './retention-api-config';
 import { RETENTION_AREA } from './retention-area';
 

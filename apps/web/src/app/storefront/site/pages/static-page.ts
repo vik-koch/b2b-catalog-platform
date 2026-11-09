@@ -1,3 +1,4 @@
+import { NgTemplateOutlet } from '@angular/common';
 import {
   Component,
   computed,
@@ -7,21 +8,22 @@ import {
   resource,
   TemplateRef,
 } from '@angular/core';
-import { NgTemplateOutlet } from '@angular/common';
+
 import { PageSlug } from '@b2b-catalog-platform/shared/core/site';
-import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
-import { SHARED_TEXT } from '../../../platform/config/shared-text';
-import { injectEditorReturnParams } from '../../../platform/edit-mode/editor-return';
-import { editAwareContent } from '../../../platform/edit-mode/edit-aware-content';
-import { EditActions } from '../../../platform/edit-mode/edit-actions';
-import { usePageSeo } from '../../../platform/page-seo';
-import { PageService } from '../../../core/site/page.service';
-import { RichTextLinks } from '../../platform/rich-text-links';
-import { trustedRichText } from '../../../platform/trusted-rich-text';
-import { LoadErrorView } from '../../platform/load-error-view';
-import { PageUpdated } from './page-updated';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
+
+import { PageService } from '../../../core/site/page.service';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
+import { EditActions } from '../../../platform/edit-mode/edit-actions';
+import { editAwareContent } from '../../../platform/edit-mode/edit-aware-content';
+import { injectEditorReturnParams } from '../../../platform/edit-mode/editor-return';
+import { usePageSeo } from '../../../platform/page-seo';
+import { trustedRichText } from '../../../platform/trusted-rich-text';
+import { LoadErrorView } from '../../platform/load-error-view';
+import { RichTextLinks } from '../../platform/rich-text-links';
+import { PageUpdated } from './page-updated';
 
 /**
  * A page's editable prose, with what a code route states from configuration

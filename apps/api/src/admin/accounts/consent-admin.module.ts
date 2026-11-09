@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+
 import { AuditLogger } from '../../platform/audit/audit.logger';
 import { SessionModule } from '../../platform/auth/session.module';
 import { ConsentAdminController } from './consent-admin.controller';

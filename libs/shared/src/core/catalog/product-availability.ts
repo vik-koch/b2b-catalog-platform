@@ -1,4 +1,4 @@
-import { type UnitSizes, piecesPerUnit } from './product-units';
+import { piecesPerUnit, type UnitSizes } from './product-units';
 
 /**
  * What a stock figure means to a customer (FR-STOCK-02). The count itself is

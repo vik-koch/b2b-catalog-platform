@@ -1,4 +1,3 @@
-import { ProductAvailability } from '@b2b-catalog-platform/shared/core/catalog';
 import {
   adminProductAvailabilityFilterSchema,
   AdminProductSort,
@@ -6,6 +5,7 @@ import {
   AdminProductState,
   adminProductStateSchema,
 } from '@b2b-catalog-platform/shared/admin/catalog';
+import { ProductAvailability } from '@b2b-catalog-platform/shared/core/catalog';
 
 /** The product grid's URL state (FR-ADM-05). */
 export const DEFAULT_SORT: AdminProductSort = 'relevance';

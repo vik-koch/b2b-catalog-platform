@@ -1,10 +1,12 @@
-import { STOREFRONT_ORDERING_TEXT } from '../../ordering-text';
 import { Component, inject, input, output } from '@angular/core';
+
 import { ORDER_NOTE_MAX } from '@b2b-catalog-platform/shared/core/ordering';
-import { AutoGrow } from '@b2b-catalog-platform/ui/inputs/auto-grow';
 import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
+import { AutoGrow } from '@b2b-catalog-platform/ui/inputs/auto-grow';
 import { Input } from '@b2b-catalog-platform/ui/inputs/input';
+
 import { SHARED_TEXT } from '../../../../platform/config/shared-text';
+import { STOREFRONT_ORDERING_TEXT } from '../../ordering-text';
 
 /** The order's note for the manager; per-line notes (FR-CART-08) are separate.
  * Capped at the contract's length rather than truncated by the server. */

@@ -1,8 +1,9 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { UserRow, UsersService } from '../../core/accounts/users.service';
+
 import { PasswordPolicy } from '../../core/accounts/password-policy';
 import { PasswordRejectedError } from '../../core/accounts/password-rejected-error';
 import { PasswordService } from '../../core/accounts/password.service';
+import { UserRow, UsersService } from '../../core/accounts/users.service';
 import { WrongCurrentPasswordError } from './wrong-current-password-error';
 
 /** Checking a password, and changing it. */

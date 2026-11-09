@@ -1,4 +1,5 @@
 import { ConflictException } from '@nestjs/common';
+
 import { runUnique } from './catalog-identity';
 
 /** A unique violation as drizzle throws it: the driver's error on `cause`. */

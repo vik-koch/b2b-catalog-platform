@@ -1,8 +1,10 @@
 import { inject, InjectionToken } from '@angular/core';
+
 import {
   ACCOUNTS_AREA,
   type SharedAccountsText,
 } from '@b2b-catalog-platform/shared/core/accounts';
+
 import {
   SHARED_TEXT,
   sharedTextBlock,

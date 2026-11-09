@@ -1,16 +1,17 @@
 import { oc } from '@orpc/contract';
 import * as z from 'zod';
-import { CATEGORY_NAME_MAX_LENGTH } from '../../core/catalog/categories';
-import { SOURCE_ID_MAX_LENGTH } from '../../core/catalog/products';
-import { commonAuthErrors } from '../../platform/api-error';
-import { ownershipErrors } from '../../platform/ownership';
+
 import {
   catalogImageSchema,
   shortNameSchema,
 } from '../../core/catalog/catalog.contract';
-import { slugSchema } from './slug.contract';
-import { type CategoryErrorCode } from './categories';
+import { CATEGORY_NAME_MAX_LENGTH } from '../../core/catalog/categories';
+import { SOURCE_ID_MAX_LENGTH } from '../../core/catalog/products';
 import { acknowledgementSchema } from '../../platform/acknowledgement.contract';
+import { commonAuthErrors } from '../../platform/api-error';
+import { ownershipErrors } from '../../platform/ownership';
+import { type CategoryErrorCode } from './categories';
+import { slugSchema } from './slug.contract';
 
 /** A category as the management screen sees it, in a flat list the client
  * shapes into the tree. */

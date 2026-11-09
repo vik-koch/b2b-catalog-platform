@@ -1,8 +1,9 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { form, required, validate } from '@angular/forms/signals';
-import { FORM_FIELDS } from './form-fields';
+
 import { UI_TEXT } from '../core/ui-text';
+import { FORM_FIELDS } from './form-fields';
 
 const uiText = { required: 'required' };
 

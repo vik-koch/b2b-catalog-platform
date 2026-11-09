@@ -1,4 +1,3 @@
-import { ADMIN_EXCHANGE_TEXT } from '../exchange/exchange-text';
 import {
   Component,
   computed,
@@ -8,36 +7,39 @@ import {
   signal,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
+
 import {
   SETTING_CHANGES_PAGE_SIZE,
   SettingChange,
 } from '@b2b-catalog-platform/shared/admin/platform';
 import {
+  fillText,
   OWNERSHIP_AREAS,
   OwnershipArea,
-  fillText,
 } from '@b2b-catalog-platform/shared/platform';
-import { ADMIN_TEXT } from '../../platform/config/admin-text';
-import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
-import { delayedLoading } from '../../platform/delayed-loading';
-import { usePageSeo } from '../../platform/page-seo';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
-import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
-import { DisclosureToggle } from '@b2b-catalog-platform/ui/disclosure/disclosure-toggle';
-import { DisclosureFrame } from '@b2b-catalog-platform/ui/disclosure/disclosure-frame';
+import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';
-import { adminMomentFormat } from '../platform/dates/admin-date';
-import { OwnershipService } from '../platform/ownership/ownership.service';
-import { OwnershipSwitchService } from '../exchange/ownership-switch.service';
-import { MaintenanceSwitchService } from '../site/maintenance-switch.service';
-import { SettingChangesService } from '../platform/setting-changes.service';
-import { SHARED_TEXT } from '../../platform/config/shared-text';
+import { DisclosureFrame } from '@b2b-catalog-platform/ui/disclosure/disclosure-frame';
+import { DisclosureToggle } from '@b2b-catalog-platform/ui/disclosure/disclosure-toggle';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { Hint } from '@b2b-catalog-platform/ui/fields/hint';
-import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
-import { SwitchCard } from './switch-card';
+import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
+
+import { ADMIN_TEXT } from '../../platform/config/admin-text';
+import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
+import { SHARED_TEXT } from '../../platform/config/shared-text';
+import { delayedLoading } from '../../platform/delayed-loading';
+import { usePageSeo } from '../../platform/page-seo';
+import { ADMIN_EXCHANGE_TEXT } from '../exchange/exchange-text';
+import { OwnershipSwitchService } from '../exchange/ownership-switch.service';
+import { adminMomentFormat } from '../platform/dates/admin-date';
+import { OwnershipService } from '../platform/ownership/ownership.service';
+import { SettingChangesService } from '../platform/setting-changes.service';
+import { MaintenanceSwitchService } from '../site/maintenance-switch.service';
 import { ADMIN_SITE_TEXT } from '../site/site-text';
+import { SwitchCard } from './switch-card';
 
 /**
  * The two runtime switches and their one trail, read together when something

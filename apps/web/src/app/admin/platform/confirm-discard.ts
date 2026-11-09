@@ -1,6 +1,8 @@
 import { inject } from '@angular/core';
-import { ADMIN_TEXT } from '../../platform/config/admin-text';
+
 import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
+
+import { ADMIN_TEXT } from '../../platform/config/admin-text';
 
 /** The discard-changes prompt for an editor's Cancel and its guard; only the
  * message differs. Call in an injection context. */

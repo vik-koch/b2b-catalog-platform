@@ -1,8 +1,10 @@
 import { hash } from '@node-rs/argon2';
 import axios from 'axios';
 import { Client } from 'pg';
-import { requireEnv } from '../support/env';
+
 import { ADDRESS_BOOK_MAX } from '@b2b-catalog-platform/shared/core/accounts';
+
+import { requireEnv } from '../support/env';
 
 /** The address book (FR-CART-04) and suggestion proxy (FR-CART-11), end to
  * end, for scoping: every route reads the account from the session, so no

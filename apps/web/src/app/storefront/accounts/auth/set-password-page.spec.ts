@@ -1,21 +1,23 @@
-import { defaultStorefrontAccountsText } from '../accounts-text.fixture';
-import { SHARED_TEXT } from '../../../platform/config/shared-text';
-import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
+
 import { Page } from '@b2b-catalog-platform/shared/core/site';
-import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
-import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
-import { defaultStorefrontText } from '../../../platform/config/storefront-text.fixture';
-import { PageService } from '../../../core/site/page.service';
-import { AuthService } from '../../../platform/auth/auth.service';
-import { SignInService } from './sign-in.service';
-import { adminUser } from '../../../platform/auth/auth-user.fixture';
-import { SetPasswordPage } from './set-password-page';
 import { AuthUser } from '@b2b-catalog-platform/shared/platform';
-import { defaultStorefrontSiteText } from '../../site/site-text.fixture';
+
+import { PageService } from '../../../core/site/page.service';
 import { withSite } from '../../../core/site/site-config.fixture';
+import { adminUser } from '../../../platform/auth/auth-user.fixture';
+import { AuthService } from '../../../platform/auth/auth.service';
+import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
+import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
+import { defaultStorefrontText } from '../../../platform/config/storefront-text.fixture';
+import { defaultStorefrontSiteText } from '../../site/site-text.fixture';
+import { defaultStorefrontAccountsText } from '../accounts-text.fixture';
+import { SetPasswordPage } from './set-password-page';
+import { SignInService } from './sign-in.service';
 
 const text = defaultStorefrontAccountsText.auth.setPassword;
 const rejected = defaultStorefrontAccountsText.auth.passwordRejected;

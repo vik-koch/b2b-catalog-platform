@@ -1,7 +1,8 @@
+import { readFile } from 'node:fs/promises';
 import { Inject, Injectable } from '@nestjs/common';
 import fontkit from '@pdf-lib/fontkit';
-import { readFile } from 'node:fs/promises';
 import { PDFDocument, StandardFonts } from 'pdf-lib';
+
 import { PDF_FONT, PdfFontFiles } from '../config/deployment-config';
 import { Faces, winAnsi } from './pdf-sheet';
 

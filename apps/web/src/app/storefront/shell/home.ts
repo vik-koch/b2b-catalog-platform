@@ -1,9 +1,10 @@
 import { Component, inject } from '@angular/core';
+
+import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
+import { STOREFRONT_TEXT } from '../../platform/config/storefront-text';
+import { usePageSeo } from '../../platform/page-seo';
 import { CategoryIndex } from '../catalog/categories/category-index';
 import { FeaturedRow } from '../catalog/featured/featured-row';
-import { STOREFRONT_TEXT } from '../../platform/config/storefront-text';
-import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
-import { usePageSeo } from '../../platform/page-seo';
 
 /** The white band out to the window's edges, as a border image's outset:
  * paint, not layout, as a box sized to the viewport counts the scrollbar. */

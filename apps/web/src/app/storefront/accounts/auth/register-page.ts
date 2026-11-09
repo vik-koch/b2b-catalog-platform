@@ -1,12 +1,32 @@
-import { ACCOUNTS_CONFIG } from '../../../core/accounts/accounts-config';
-import { STOREFRONT_ACCOUNTS_TEXT } from '../accounts-text';
 import { Component, computed, inject, signal } from '@angular/core';
 import { form, hidden, required } from '@angular/forms/signals';
 import { RouterLink } from '@angular/router';
-import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
-import { SHARED_TEXT } from '../../../platform/config/shared-text';
-import { usePageSeo } from '../../../platform/page-seo';
+
+import {
+  CustomerType,
+  PartySuggestion,
+} from '@b2b-catalog-platform/shared/core/accounts';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
+import { Link } from '@b2b-catalog-platform/ui/actions/link';
+import {
+  Segmented,
+  SegmentOption,
+} from '@b2b-catalog-platform/ui/choices/segmented';
+import { Outcome } from '@b2b-catalog-platform/ui/content/outcome';
+import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
+import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
+import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
+import { HoneypotField } from '@b2b-catalog-platform/ui/fields/honeypot-field';
+import { Input } from '@b2b-catalog-platform/ui/inputs/input';
+import { PhoneInput } from '@b2b-catalog-platform/ui/inputs/phone-input';
+
+import { ACCOUNTS_CONFIG } from '../../../core/accounts/accounts-config';
+import { CompanyFields } from '../../../core/accounts/parties/company-fields';
+import { companyIdFormat } from '../../../core/accounts/parties/company-id';
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
 import { canonicalPhone } from '../../../platform/contact-fields';
 import {
   completeMask,
@@ -14,30 +34,12 @@ import {
   personName,
   untilInteractive,
 } from '../../../platform/field-rules';
-import { CompanyFields } from '../../../core/accounts/parties/company-fields';
-import { companyIdFormat } from '../../../core/accounts/parties/company-id';
-import { Button } from '@b2b-catalog-platform/ui/actions/button';
-import { HoneypotField } from '@b2b-catalog-platform/ui/fields/honeypot-field';
-import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
-import { Input } from '@b2b-catalog-platform/ui/inputs/input';
-import { PhoneInput } from '@b2b-catalog-platform/ui/inputs/phone-input';
-import {
-  Segmented,
-  SegmentOption,
-} from '@b2b-catalog-platform/ui/choices/segmented';
+import { usePageSeo } from '../../../platform/page-seo';
+import { useConsent } from '../../site/consent';
+import { ConsentField } from '../../site/consent-field';
+import { STOREFRONT_ACCOUNTS_TEXT } from '../accounts-text';
 import { AuthCard } from './auth-card';
 import { SignInService } from './sign-in.service';
-import { Link } from '@b2b-catalog-platform/ui/actions/link';
-import { ConsentField } from '../../site/consent-field';
-import { useConsent } from '../../site/consent';
-import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
-import { Outcome } from '@b2b-catalog-platform/ui/content/outcome';
-import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
-import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
-import {
-  CustomerType,
-  PartySuggestion,
-} from '@b2b-catalog-platform/shared/core/accounts';
 
 type Status = 'idle' | 'success' | 'error';
 

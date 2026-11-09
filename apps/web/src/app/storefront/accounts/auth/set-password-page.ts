@@ -1,34 +1,36 @@
-import { STOREFRONT_ACCOUNTS_TEXT } from '../accounts-text';
 import { Component, inject, input, OnInit, signal } from '@angular/core';
-import { fillText } from '@b2b-catalog-platform/shared/platform';
 import { form } from '@angular/forms/signals';
 import { Router, RouterLink } from '@angular/router';
-import { usePageSeo } from '../../../platform/page-seo';
-import { confirmation, generatePassword, newPassword } from './password';
-import { AuthCard } from './auth-card';
-import { Button } from '@b2b-catalog-platform/ui/actions/button';
-import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
-import { Input } from '@b2b-catalog-platform/ui/inputs/input';
-import { AuthService } from '../../../platform/auth/auth.service';
-import { SignInService } from './sign-in.service';
-import { SignInStepPanel } from './sign-in-step';
-import { sendFailureLine } from './send-failure-line';
-import { landingFor } from '../../../platform/auth/auth.guard';
-import { TextButton } from '@b2b-catalog-platform/ui/actions/text-button';
-import { ConsentField } from '../../site/consent-field';
-import { useConsent } from '../../site/consent';
-import { SHARED_TEXT } from '../../../platform/config/shared-text';
-import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
-import { Outcome } from '@b2b-catalog-platform/ui/content/outcome';
-import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
-import { Hint } from '@b2b-catalog-platform/ui/fields/hint';
-import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
+
 import {
   PASSWORD_MAX_LENGTH,
   PASSWORD_MIN_LENGTH,
 } from '@b2b-catalog-platform/shared/core/accounts';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
 import { PasswordTokenPurpose } from '@b2b-catalog-platform/shared/storefront/accounts';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
+import { TextButton } from '@b2b-catalog-platform/ui/actions/text-button';
+import { Outcome } from '@b2b-catalog-platform/ui/content/outcome';
+import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
+import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
+import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
+import { Hint } from '@b2b-catalog-platform/ui/fields/hint';
+import { Input } from '@b2b-catalog-platform/ui/inputs/input';
+
+import { landingFor } from '../../../platform/auth/auth.guard';
+import { AuthService } from '../../../platform/auth/auth.service';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { untilInteractive } from '../../../platform/field-rules';
+import { usePageSeo } from '../../../platform/page-seo';
+import { useConsent } from '../../site/consent';
+import { ConsentField } from '../../site/consent-field';
+import { STOREFRONT_ACCOUNTS_TEXT } from '../accounts-text';
+import { AuthCard } from './auth-card';
+import { confirmation, generatePassword, newPassword } from './password';
+import { sendFailureLine } from './send-failure-line';
+import { SignInStepPanel } from './sign-in-step';
+import { SignInService } from './sign-in.service';
 
 type Status =
   | 'checking'

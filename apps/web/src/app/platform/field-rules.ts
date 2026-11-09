@@ -8,6 +8,7 @@ import {
   type SchemaPath,
   type SchemaPathRules,
 } from '@angular/forms/signals';
+
 import {
   digitsOf,
   EMAIL_MAX_LENGTH,
@@ -16,6 +17,7 @@ import {
   maskLength,
   PERSON_NAME_MAX_LENGTH,
 } from '@b2b-catalog-platform/shared/platform';
+
 import { FirstRender } from './first-render';
 
 type StringPath<K extends PathKind> = SchemaPath<

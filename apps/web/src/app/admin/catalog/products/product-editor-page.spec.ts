@@ -1,5 +1,3 @@
-import { SHARED_TEXT } from '../../../platform/config/shared-text';
-import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import {
   ActivatedRoute,
@@ -7,27 +5,31 @@ import {
   ParamMap,
   Router,
 } from '@angular/router';
-import { fillText } from '@b2b-catalog-platform/shared/platform';
-import type { DeploymentConfigFile } from '@b2b-catalog-platform/shared/deployment';
+
 import {
   AdminCategory,
   AdminProduct,
   CustomerTier,
 } from '@b2b-catalog-platform/shared/admin/catalog';
-import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
+import type { DeploymentConfigFile } from '@b2b-catalog-platform/shared/deployment';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
+import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
+
+import { defaultSharedCatalogText } from '../../../core/catalog/catalog-text.fixture';
 import { ADMIN_TEXT } from '../../../platform/config/admin-text';
-import { provideOwnership } from '../../platform/ownership/ownership.fixture';
-import { defaultStorefrontText } from '../../../platform/config/storefront-text.fixture';
 import { defaultAdminText } from '../../../platform/config/admin-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
-import { CategoriesService } from '../categories/categories.service';
-import { ProductsService } from './products.service';
-import { TiersService } from '../tiers/tiers.service';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
+import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
+import { defaultStorefrontText } from '../../../platform/config/storefront-text.fixture';
+import { provideOwnership } from '../../platform/ownership/ownership.fixture';
 import { AttributesService } from '../attributes/attributes.service';
-import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
-import { ProductEditorPage } from './product-editor-page';
-import { defaultSharedCatalogText } from '../../../core/catalog/catalog-text.fixture';
 import { defaultAdminCatalogText } from '../catalog-text.fixture';
+import { CategoriesService } from '../categories/categories.service';
+import { TiersService } from '../tiers/tiers.service';
+import { ProductEditorPage } from './product-editor-page';
+import { ProductsService } from './products.service';
 
 const text = defaultAdminCatalogText.products.editor;
 

@@ -1,12 +1,3 @@
-import { WorkCounts, WorkQueue } from '@b2b-catalog-platform/shared/core/work';
-import { DOCUMENT_EXPIRY_WARNING_DAYS } from '@b2b-catalog-platform/shared/core/catalog';
-import { MyOrderFilter } from '@b2b-catalog-platform/shared/core/ordering';
-import {
-  isoToday,
-  AuthUser,
-  UserRole,
-} from '@b2b-catalog-platform/shared/platform';
-import { SyncArea } from '@b2b-catalog-platform/shared/core/exchange';
 import { Inject, Injectable } from '@nestjs/common';
 import {
   and,
@@ -19,14 +10,25 @@ import {
   lte,
   ne,
 } from 'drizzle-orm';
-import { DRIZZLE } from '../../platform/db/database.module';
-import { resolvedPriceMinor } from '../catalog/product-price';
-import { MY_ORDER_CONDITIONS } from '../ordering/my-order-filters';
+
+import { DOCUMENT_EXPIRY_WARNING_DAYS } from '@b2b-catalog-platform/shared/core/catalog';
+import { SyncArea } from '@b2b-catalog-platform/shared/core/exchange';
+import { MyOrderFilter } from '@b2b-catalog-platform/shared/core/ordering';
+import { WorkCounts, WorkQueue } from '@b2b-catalog-platform/shared/core/work';
+import {
+  AuthUser,
+  isoToday,
+  UserRole,
+} from '@b2b-catalog-platform/shared/platform';
+
 import { Database } from '../../platform/db/database';
-import { documents, products } from '../catalog/catalog-schema';
+import { DRIZZLE } from '../../platform/db/database.module';
 import { users } from '../accounts/accounts-schema';
-import { orderRevisions, orders } from '../ordering/ordering-schema';
+import { documents, products } from '../catalog/catalog-schema';
+import { resolvedPriceMinor } from '../catalog/product-price';
 import { syncRuns } from '../exchange/exchange-schema';
+import { MY_ORDER_CONDITIONS } from '../ordering/my-order-filters';
+import { orderRevisions, orders } from '../ordering/ordering-schema';
 
 /**
  * The one authorization rule outside a guard (FR-WORK-04): the route takes any

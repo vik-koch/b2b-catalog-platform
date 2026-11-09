@@ -1,5 +1,7 @@
 import { inject, InjectionToken } from '@angular/core';
+
 import { ORDERING_AREA } from '@b2b-catalog-platform/shared/core/ordering';
+
 import { ADMIN_TEXT, adminTextBlock } from '../../platform/config/admin-text';
 import type { AdminOrderingText } from './ordering-text.type';
 

@@ -1,8 +1,10 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { Params, RouterLink } from '@angular/router';
+
 import { fillText } from '@b2b-catalog-platform/shared/platform';
-import { ADMIN_TEXT } from '../../../platform/config/admin-text';
 import { Link } from '@b2b-catalog-platform/ui/actions/link';
+
+import { ADMIN_TEXT } from '../../../platform/config/admin-text';
 import { ADMIN_CATALOG_TEXT } from '../catalog-text';
 
 /**

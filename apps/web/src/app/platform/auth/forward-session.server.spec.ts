@@ -9,11 +9,13 @@ import {
 } from '@angular/common/http/testing';
 import { REQUEST } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+
+import { AUTH_COOKIE } from '@b2b-catalog-platform/shared/platform';
+
 import {
   forwardSession,
   forwardVisitorAddress,
 } from './forward-session.server';
-import { AUTH_COOKIE } from '@b2b-catalog-platform/shared/platform';
 
 const API_URL = 'http://api.internal:3000/api';
 

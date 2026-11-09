@@ -1,5 +1,6 @@
 import { ApplicationRef, PLATFORM_ID } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+
 import { FirstRender } from './first-render';
 
 function setUp(platform: 'browser' | 'server'): FirstRender {

@@ -1,8 +1,9 @@
 import { oc } from '@orpc/contract';
 import * as z from 'zod';
-import { commonAuthErrors } from '../../platform/api-error';
-import { consentLabelParts, isConsentPage } from '../../core/site/pages';
+
 import { pageSchema, pageSlugSchema } from '../../core/site/page.contract';
+import { consentLabelParts, isConsentPage } from '../../core/site/pages';
+import { commonAuthErrors } from '../../platform/api-error';
 import {
   CONSENT_LABEL_MAX_LENGTH,
   PAGE_BODY_MAX_LENGTH,

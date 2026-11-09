@@ -1,21 +1,23 @@
 import { Controller, Inject } from '@nestjs/common';
 import { Implement, implement } from '@orpc/nest';
+
 import { adminProductsContract } from '@b2b-catalog-platform/shared/admin/catalog';
-import { Auth } from '../../../platform/auth/auth.decorator';
-import { CurrentUser } from '../../../platform/auth/current-user.decorator';
-import { AuditLogger } from '../../../platform/audit/audit.logger';
-import { refusals } from '../../../platform/orpc/refusals';
+import { AuthUser } from '@b2b-catalog-platform/shared/platform';
+
 import { CatalogReader } from '../../../core/catalog/catalog-reader';
 import {
   PRODUCT_ORDERS,
   ProductOrders,
 } from '../../../core/catalog/product-orders';
-import { ProductEditorService } from './product-editor.service';
+import { AuditLogger } from '../../../platform/audit/audit.logger';
+import { Auth } from '../../../platform/auth/auth.decorator';
+import { CurrentUser } from '../../../platform/auth/current-user.decorator';
+import { refusals } from '../../../platform/orpc/refusals';
 import { ProductGridService } from './grid/product-grid.service';
+import { ProductEditorService } from './product-editor.service';
 import { ProductLifecycleService } from './product-lifecycle.service';
-import { ProductRecords } from './product-records';
 import { productPageOf } from './product-page';
-import { AuthUser } from '@b2b-catalog-platform/shared/platform';
+import { ProductRecords } from './product-records';
 
 /**
  * The admin's product routes. The service raises the refusals the contract

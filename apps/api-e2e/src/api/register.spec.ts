@@ -1,6 +1,8 @@
 import axios from 'axios';
 import { Client } from 'pg';
+
 import { EMAIL_MAX_LENGTH } from '@b2b-catalog-platform/shared/platform';
+
 import { consentVersion } from '../support/consent';
 import { requireEnv } from '../support/env';
 import { deleteMatching, messagesMatching } from '../support/mailpit';

@@ -1,11 +1,13 @@
-import type { MockInstance } from 'vitest';
 import { ConflictException, Logger } from '@nestjs/common';
-import { AddressesService } from './addresses.service';
+import type { MockInstance } from 'vitest';
+
 import {
-  AddressInput,
   AddressConfig,
+  AddressInput,
 } from '@b2b-catalog-platform/shared/core/accounts';
+
 import { Database } from '../../platform/db/database';
+import { AddressesService } from './addresses.service';
 
 const address: AddressInput = {
   label: null,

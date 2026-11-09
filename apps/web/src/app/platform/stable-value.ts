@@ -1,4 +1,4 @@
-import { Resource, Signal, linkedSignal } from '@angular/core';
+import { linkedSignal, Resource, Signal } from '@angular/core';
 
 /**
  * A resource's value held through its reloads, so a new sort or page does not

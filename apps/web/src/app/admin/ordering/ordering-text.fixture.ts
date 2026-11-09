@@ -1,6 +1,8 @@
 import * as z from 'zod';
-import { loadConfig } from '@b2b-catalog-platform/shared/node';
+
 import { ORDERING_AREA } from '@b2b-catalog-platform/shared/core/ordering';
+import { loadConfig } from '@b2b-catalog-platform/shared/node';
+
 import {
   AdminOrderingText,
   adminOrderingTextShape,

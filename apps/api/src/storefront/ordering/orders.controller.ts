@@ -1,25 +1,27 @@
 import { Controller, Logger, UseGuards } from '@nestjs/common';
 import { Implement, implement } from '@orpc/nest';
+
+import { AuthUser } from '@b2b-catalog-platform/shared/platform';
 import { ordersContract } from '@b2b-catalog-platform/shared/storefront/ordering';
+
+import { PricingTier } from '../../core/catalog/pricing-tier.decorator';
+import { CartChangedException } from '../../core/ordering/cart-changed-exception';
+import { OrderReader } from '../../core/ordering/order-reader';
+import { PairingUnsatisfiedException } from '../../core/ordering/pairing-unsatisfied-exception';
+import { AuditLogger } from '../../platform/audit/audit.logger';
 import { Auth } from '../../platform/auth/auth.decorator';
 import {
   CurrentUser,
   CurrentUserOptional,
 } from '../../platform/auth/current-user.decorator';
 import { OptionalAuthGuard } from '../../platform/auth/optional-auth.guard';
-import { PricingTier } from '../../core/catalog/pricing-tier.decorator';
+import { refusals } from '../../platform/orpc/refusals';
 import {
   OrderTokenThrottle,
   PublicFormThrottle,
 } from '../../platform/throttling/throttle-presets';
-import { AuditLogger } from '../../platform/audit/audit.logger';
-import { refusals } from '../../platform/orpc/refusals';
-import { OrderReader } from '../../core/ordering/order-reader';
 import { CheckoutService } from './checkout.service';
 import { CustomerOrdersService } from './customer-orders.service';
-import { CartChangedException } from '../../core/ordering/cart-changed-exception';
-import { PairingUnsatisfiedException } from '../../core/ordering/pairing-unsatisfied-exception';
-import { AuthUser } from '@b2b-catalog-platform/shared/platform';
 
 /**
  * Placing an order and reading it back. Submission reads a session where one

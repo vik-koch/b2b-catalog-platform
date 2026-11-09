@@ -1,7 +1,7 @@
 import 'reflect-metadata';
+
 import { readdirSync } from 'node:fs';
 import { join } from 'node:path';
-import { describe, expect, it } from 'vitest';
 import { RequestMethod, Type } from '@nestjs/common';
 import {
   CONTROLLER_WATERMARK,
@@ -11,12 +11,15 @@ import {
   PATH_METADATA,
 } from '@nestjs/common/constants';
 import { Reflector } from '@nestjs/core';
+import { describe, expect, it } from 'vitest';
+
 import { ROUTE_ACCESS } from '@b2b-catalog-platform/shared/node';
-import { AppModule } from './app.module';
+
+import { JwtAuthGuard } from '../platform/auth/jwt-auth.guard';
 import { MachineScope } from '../platform/auth/machine-scope.decorator';
 import { MachineTokenGuard } from '../platform/auth/machine-token.guard';
-import { JwtAuthGuard } from '../platform/auth/jwt-auth.guard';
 import { Roles } from '../platform/auth/roles.decorator';
+import { AppModule } from './app.module';
 
 /**
  * Reads every mounted route's access off the guard metadata and holds it to

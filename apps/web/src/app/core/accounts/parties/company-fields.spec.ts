@@ -1,15 +1,17 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { By } from '@angular/platform-browser';
 import { form, required } from '@angular/forms/signals';
+import { By } from '@angular/platform-browser';
+
+import { PartySuggestion } from '@b2b-catalog-platform/shared/core/accounts';
+import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
+
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import { defaultDeploymentConfig } from '../../../platform/config/deployment-config.fixture';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
 import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
 import { defaultStorefrontText } from '../../../platform/config/storefront-text.fixture';
-import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
-import { PartySuggestion } from '@b2b-catalog-platform/shared/core/accounts';
 import { CompanyFields } from './company-fields';
 import { companyIdFormat } from './company-id';
 import { PartiesService } from './parties.service';

@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
-import { MEDIA_STORE } from './media-store';
+
 import { LocalMediaStore } from './local-media-store';
+import { MEDIA_STORE } from './media-store';
 
 /** The media store, bound to the local-volume adapter. */
 @Module({

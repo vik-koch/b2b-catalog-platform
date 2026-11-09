@@ -1,12 +1,13 @@
-import type { Mock, MockInstance } from 'vitest';
 import { Logger } from '@nestjs/common';
-import { dispatcherOver } from '../../platform/mail/mail-dispatcher.fixture';
-import { MailDispatcher } from '../../platform/mail/mail-dispatcher';
-import {
-  demoSharedText,
-  demoMailText,
-} from '../../platform/mail/mail-text.fixture';
+import type { Mock, MockInstance } from 'vitest';
+
 import { env } from '../../platform/env';
+import { MailDispatcher } from '../../platform/mail/mail-dispatcher';
+import { dispatcherOver } from '../../platform/mail/mail-dispatcher.fixture';
+import {
+  demoMailText,
+  demoSharedText,
+} from '../../platform/mail/mail-text.fixture';
 import { OrderNotifications } from './order-notifications';
 import { demoAdminOrder } from './order.fixture';
 

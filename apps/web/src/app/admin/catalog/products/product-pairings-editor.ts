@@ -7,34 +7,36 @@ import {
   output,
   signal,
 } from '@angular/core';
-import { fillText } from '@b2b-catalog-platform/shared/platform';
+
 import {
   AdminProductListItem,
   LinkedProduct,
   PRODUCT_PAIRINGS_MAX,
 } from '@b2b-catalog-platform/shared/admin/catalog';
-import { ADMIN_TEXT } from '../../../platform/config/admin-text';
-import { Suggestion } from '@b2b-catalog-platform/ui/suggest/suggestion';
-import { MatchSegmentsPipe } from '../../../platform/search/match-segments.pipe';
-import { AlternateLayout } from '../../../platform/alternate-layout';
-import { SuggestList } from '@b2b-catalog-platform/ui/suggest/suggest-list';
-import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
 import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
+import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
+import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
-import { PRODUCT_FEATURE_GLYPHS } from './product-feature-glyphs';
 import { Input } from '@b2b-catalog-platform/ui/inputs/input';
 import { SuggestField } from '@b2b-catalog-platform/ui/suggest/suggest-field';
 import { SuggestInput } from '@b2b-catalog-platform/ui/suggest/suggest-input';
+import { SuggestList } from '@b2b-catalog-platform/ui/suggest/suggest-list';
 import { SuggestRow } from '@b2b-catalog-platform/ui/suggest/suggest-row';
-import { ProductsService } from './products.service';
-import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
-import { SubEditorFrame } from '../ui/sub-editor-frame';
+import { Suggestion } from '@b2b-catalog-platform/ui/suggest/suggestion';
+
+import { SHARED_CATALOG_TEXT } from '../../../core/catalog/catalog-text';
+import { AlternateLayout } from '../../../platform/alternate-layout';
+import { ADMIN_TEXT } from '../../../platform/config/admin-text';
+import { MatchSegmentsPipe } from '../../../platform/search/match-segments.pipe';
+import { ADMIN_CATALOG_TEXT } from '../catalog-text';
 import {
   linkedProductState,
   ProductStateBadge,
 } from '../ui/product-state-badge';
-import { SHARED_CATALOG_TEXT } from '../../../core/catalog/catalog-text';
-import { ADMIN_CATALOG_TEXT } from '../catalog-text';
+import { SubEditorFrame } from '../ui/sub-editor-frame';
+import { PRODUCT_FEATURE_GLYPHS } from './product-feature-glyphs';
+import { ProductsService } from './products.service';
 
 /** `aria-controls` must name one list, and a page may hold more than one. */
 let nextId = 0;

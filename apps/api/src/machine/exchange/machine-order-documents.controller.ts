@@ -8,18 +8,20 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+
 import { ORDER_DOCUMENT_MAX_UPLOAD_BYTES } from '@b2b-catalog-platform/shared/core/ordering';
+
+import { ExchangeMachine } from '../../core/exchange/api-token-lookup';
 import {
   OrderDocumentActs,
   orderDocumentKind,
 } from '../../core/ordering/order-document-acts';
+import { ordersNotExternallyOwned } from '../../core/ordering/order-ownership-refusals';
 import { OrderReader } from '../../core/ordering/order-reader';
 import { CurrentMachine } from '../../platform/auth/current-machine.decorator';
-import { ExchangeMachine } from '../../core/exchange/api-token-lookup';
-import { Machine } from './machine.decorator';
 import { OwnershipState } from '../../platform/settings/ownership-state';
-import { ordersNotExternallyOwned } from '../../core/ordering/order-ownership-refusals';
 import { MachineThrottle } from '../../platform/throttling/throttle-presets';
+import { Machine } from './machine.decorator';
 
 /**
  * The shop's own paperwork from the system that prints it (FR-ORD-05,

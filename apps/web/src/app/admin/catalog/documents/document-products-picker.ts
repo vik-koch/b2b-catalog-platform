@@ -7,29 +7,32 @@ import {
   resource,
   signal,
 } from '@angular/core';
-import { ADMIN_CATALOG_PAGE_SIZE } from '@b2b-catalog-platform/shared/admin/catalog';
-import { fillText } from '@b2b-catalog-platform/shared/platform';
-import { LinkedProduct } from '@b2b-catalog-platform/shared/admin/catalog';
 
-import { debounced } from '@b2b-catalog-platform/ui/core/debounced';
-import { AlternateLayout } from '../../../platform/alternate-layout';
+import {
+  ADMIN_CATALOG_PAGE_SIZE,
+  LinkedProduct,
+} from '@b2b-catalog-platform/shared/admin/catalog';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
 import { Checkbox } from '@b2b-catalog-platform/ui/choices/checkbox';
+import {
+  Segmented,
+  SegmentOption,
+} from '@b2b-catalog-platform/ui/choices/segmented';
+import { debounced } from '@b2b-catalog-platform/ui/core/debounced';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
 import { Input } from '@b2b-catalog-platform/ui/inputs/input';
 import { SelectInput } from '@b2b-catalog-platform/ui/inputs/select-input';
-import {
-  SegmentOption,
-  Segmented,
-} from '@b2b-catalog-platform/ui/choices/segmented';
+
+import { AlternateLayout } from '../../../platform/alternate-layout';
+import { ADMIN_CATALOG_TEXT } from '../catalog-text';
 import { CategoriesService } from '../categories/categories.service';
-import { ProductsService } from '../products/products.service';
 import { flattenCategoryTree } from '../categories/category-tree';
-import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
+import { ProductsService } from '../products/products.service';
 import {
   linkedProductState,
   ProductStateBadge,
 } from '../ui/product-state-badge';
-import { ADMIN_CATALOG_TEXT } from '../catalog-text';
 
 /** `id`s must be unique on a page, and a form may hold more than one picker. */
 let nextId = 0;

@@ -1,8 +1,9 @@
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
-import { OwnershipSwitchController } from './ownership-switch.controller';
-import { OwnershipSwitch } from './ownership-switch';
+
 import { SignedInAs, withSession } from '../../platform/auth/session.fixture';
+import { OwnershipSwitch } from './ownership-switch';
+import { OwnershipSwitchController } from './ownership-switch.controller';
 
 /**
  * Over a real server, because the questions here are about what the framework

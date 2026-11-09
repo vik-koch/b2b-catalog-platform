@@ -1,12 +1,14 @@
 import { Controller } from '@nestjs/common';
 import { Implement, implement } from '@orpc/nest';
+
 import { documentsContract } from '@b2b-catalog-platform/shared/admin/catalog';
+import { AuthUser } from '@b2b-catalog-platform/shared/platform';
+
+import { AuditLogger } from '../../../platform/audit/audit.logger';
 import { Auth } from '../../../platform/auth/auth.decorator';
 import { CurrentUser } from '../../../platform/auth/current-user.decorator';
-import { AuditLogger } from '../../../platform/audit/audit.logger';
 import { refusals } from '../../../platform/orpc/refusals';
 import { DocumentsService } from './documents.service';
-import { AuthUser } from '@b2b-catalog-platform/shared/platform';
 
 /** Admin-only, like the rest of the catalog: a manager never edits it. */
 @Auth('admin')

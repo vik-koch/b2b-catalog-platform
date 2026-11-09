@@ -1,5 +1,6 @@
 import { hash } from '@node-rs/argon2';
 import { expect, test, TestInfo } from '@playwright/test';
+
 import { localtestDbClient, MAILPIT_API } from '../support/localtest';
 
 /**

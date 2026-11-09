@@ -1,5 +1,6 @@
-import type { DeepReadonly } from '@b2b-catalog-platform/shared/platform';
 import * as z from 'zod';
+
+import type { DeepReadonly } from '@b2b-catalog-platform/shared/platform';
 
 /** Ordering's block of `texts/pdf.json`: the documents an order carries. */
 export const orderingPdfTextShape = {

@@ -1,9 +1,10 @@
-import type { DeploymentConfigFile } from '@b2b-catalog-platform/shared/deployment';
-import { defaultDeploymentConfig } from '../../platform/config/deployment-config.fixture';
 import {
   ACCOUNTS_AREA,
   type AccountsConfig,
 } from '@b2b-catalog-platform/shared/core/accounts';
+import type { DeploymentConfigFile } from '@b2b-catalog-platform/shared/deployment';
+
+import { defaultDeploymentConfig } from '../../platform/config/deployment-config.fixture';
 
 /** The fixture's deployment config with the accounts' block changed. */
 export function withAccounts(

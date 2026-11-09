@@ -9,16 +9,17 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
+
 import { Button } from '../actions/button';
 import { Checkbox } from '../choices/checkbox';
 import { TickLabel } from '../choices/tick-label';
-import { AutoGrow } from '../inputs/auto-grow';
+import { WarningNote } from '../content/warning-note';
 import { FieldLabel } from '../fields/field-label';
+import { Hint } from '../fields/hint';
+import { AutoGrow } from '../inputs/auto-grow';
 import { Input } from '../inputs/input';
 import { DialogActions } from './dialog-actions';
 import { DialogPanel } from './dialog-panel';
-import { WarningNote } from '../content/warning-note';
-import { Hint } from '../fields/hint';
 import { DialogTitle } from './dialog-title';
 
 /** One thing that happens because the answer was yes, offered as a tick. */

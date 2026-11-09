@@ -1,6 +1,7 @@
 import { hash } from '@node-rs/argon2';
 import axios from 'axios';
 import { Client } from 'pg';
+
 import { requireEnv } from '../support/env';
 import { deleteMatching, messagesMatching } from '../support/mailpit';
 

@@ -1,14 +1,15 @@
-import { sharedOrderingText } from '../ordering-text';
-import { demoOrderingMailText } from './ordering-mail-text.fixture';
 import { MoneyFormat } from '@b2b-catalog-platform/shared/platform';
-import { demoAdminOrder as order } from '../order.fixture';
+
 import {
-  demoSharedText,
   demoMailText,
+  demoSharedText,
 } from '../../../platform/mail/mail-text.fixture';
+import { demoAdminOrder as order } from '../order.fixture';
+import { sharedOrderingText } from '../ordering-text';
 import { newOrderMail } from './new-order.template';
 import { orderReceivedMail } from './order-received.template';
 import { orderStatusChangedMail } from './order-status.template';
+import { demoOrderingMailText } from './ordering-mail-text.fixture';
 
 const demoOrderingNames = sharedOrderingText(demoSharedText);
 const currency: MoneyFormat = { code: 'EUR', locale: 'de-DE' };

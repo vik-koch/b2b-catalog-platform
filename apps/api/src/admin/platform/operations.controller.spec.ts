@@ -1,8 +1,9 @@
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
+
+import { SignedInAs, withSession } from '../../platform/auth/session.fixture';
 import { OperationsController } from './operations.controller';
 import { OperationsService } from './operations.service';
-import { SignedInAs, withSession } from '../../platform/auth/session.fixture';
 
 /** Over a real server: the role guards must still find their metadata on a
  * handler the contract layer registered. */

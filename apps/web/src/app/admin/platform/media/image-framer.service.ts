@@ -5,6 +5,7 @@ import {
   inject,
   Injectable,
 } from '@angular/core';
+
 import { ImageFramerDialog } from './image-framer-dialog';
 
 /** What the framer answers with: the framed picture, the picture untouched,

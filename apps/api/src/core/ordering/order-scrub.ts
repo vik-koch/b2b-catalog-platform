@@ -1,7 +1,8 @@
 import { inArray, sql, SQLWrapper } from 'drizzle-orm';
-import { orderItems, orderRevisions, orders } from './ordering-schema';
+
 import { Database } from '../../platform/db/database';
 import { DestructionCategory } from '../../platform/destruction';
+import { orderItems, orderRevisions, orders } from './ordering-schema';
 
 /** What removing an order's personal details destroys (NFR-LEGAL-14),
  * whether its retention ended or a guest asked. */

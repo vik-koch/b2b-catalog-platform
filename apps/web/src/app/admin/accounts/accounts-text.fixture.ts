@@ -1,6 +1,8 @@
 import * as z from 'zod';
-import { loadConfig } from '@b2b-catalog-platform/shared/node';
+
 import { ACCOUNTS_AREA } from '@b2b-catalog-platform/shared/core/accounts';
+import { loadConfig } from '@b2b-catalog-platform/shared/node';
+
 import {
   AdminAccountsText,
   adminAccountsTextShape,

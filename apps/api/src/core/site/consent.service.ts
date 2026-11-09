@@ -6,16 +6,18 @@ import {
   ServiceUnavailableException,
 } from '@nestjs/common';
 import { and, eq, isNull } from 'drizzle-orm';
+
 import {
   CONSENT_PAGE_SLUGS,
   ConsentPurpose,
   ConsentRefusalCode,
 } from '@b2b-catalog-platform/shared/core/site';
-import { CONSENT_PURPOSES_ASKED } from './site-config';
-import { DRIZZLE } from '../../platform/db/database.module';
-import { consents, consentWithdrawals } from './site-schema';
-import { currentPageVersion } from './page-versions';
+
 import { Database } from '../../platform/db/database';
+import { DRIZZLE } from '../../platform/db/database.module';
+import { currentPageVersion } from './page-versions';
+import { CONSENT_PURPOSES_ASKED } from './site-config';
+import { consents, consentWithdrawals } from './site-schema';
 
 /** A consent that passed the check, ready to be recorded. */
 export interface CheckedConsent {

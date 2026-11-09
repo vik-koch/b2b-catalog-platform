@@ -1,7 +1,8 @@
 import { Component, inject } from '@angular/core';
-import { PageLinkSentence } from './ui/page-link-sentence';
+
 import { SITE_CONFIG } from '../../core/site/site-config';
 import { STOREFRONT_SITE_TEXT } from './site-text';
+import { PageLinkSentence } from './ui/page-link-sentence';
 
 /**
  * How a form's personal details are handled. Owed whatever the processing

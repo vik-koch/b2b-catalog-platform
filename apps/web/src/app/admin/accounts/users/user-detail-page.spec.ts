@@ -1,27 +1,29 @@
-import { withAccounts } from '../../../core/accounts/accounts-config.fixture';
-import { defaultAdminAccountsText } from '../accounts-text.fixture';
-import { SHARED_TEXT } from '../../../platform/config/shared-text';
-import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+
+import { ConsentRecord } from '@b2b-catalog-platform/shared/admin/accounts';
 import { CustomerTier } from '@b2b-catalog-platform/shared/admin/catalog';
+import {
+  StaffUser,
+  type AccountsConfig,
+} from '@b2b-catalog-platform/shared/core/accounts';
 import { OwnershipArea } from '@b2b-catalog-platform/shared/platform';
+import { ConfirmAnswer } from '@b2b-catalog-platform/ui/overlay/confirm-dialog';
+import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
+
+import { withAccounts } from '../../../core/accounts/accounts-config.fixture';
+import { withSite } from '../../../core/site/site-config.fixture';
+import { AuthService } from '../../../platform/auth/auth.service';
 import { ADMIN_TEXT } from '../../../platform/config/admin-text';
 import { defaultAdminText } from '../../../platform/config/admin-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
-import { AuthService } from '../../../platform/auth/auth.service';
-import { provideOwnership } from '../../platform/ownership/ownership.fixture';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
 import { TiersService } from '../../catalog/tiers/tiers.service';
-import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
-import { ConfirmAnswer } from '@b2b-catalog-platform/ui/overlay/confirm-dialog';
+import { provideOwnership } from '../../platform/ownership/ownership.fixture';
+import { defaultAdminAccountsText } from '../accounts-text.fixture';
 import { UserDetailPage } from './user-detail-page';
 import { StaffUsersService } from './users.service';
-import { ConsentRecord } from '@b2b-catalog-platform/shared/admin/accounts';
-import {
-  type AccountsConfig,
-  StaffUser,
-} from '@b2b-catalog-platform/shared/core/accounts';
-import { withSite } from '../../../core/site/site-config.fixture';
 
 const text = defaultAdminAccountsText.users.detail;
 const listText = defaultAdminAccountsText.users.list;

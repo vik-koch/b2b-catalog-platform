@@ -1,23 +1,24 @@
 import { oc } from '@orpc/contract';
 import * as z from 'zod';
+
+import { USER_QUERY_MAX_LENGTH } from '../../core/accounts/users';
+import {
+  createUserSchema,
+  deleteAccountOnRequestSchema,
+  staffUserSchema,
+  updateUserSchema,
+  userKindSchema,
+  userStatusSchema,
+} from '../../core/accounts/users.contract';
+import { acknowledgementSchema } from '../../platform/acknowledgement.contract';
 import {
   COMMON_AUTH_ERROR_CODES,
   commonAuthErrors,
   phoneFormatErrors,
 } from '../../platform/api-error';
-import { userRoleSchema } from '../../platform/session.contract';
-import { USER_QUERY_MAX_LENGTH } from '../../core/accounts/users';
-import {
-  userStatusSchema,
-  staffUserSchema,
-  updateUserSchema,
-  createUserSchema,
-  deleteAccountOnRequestSchema,
-  userKindSchema,
-} from '../../core/accounts/users.contract';
 import { ownershipErrors } from '../../platform/ownership';
+import { userRoleSchema } from '../../platform/session.contract';
 import { consentRecordListSchema } from './consents.contract';
-import { acknowledgementSchema } from '../../platform/acknowledgement.contract';
 
 /** Approval (FR-AUTH-03). The tier is required: there is no default to fall
  * back to, and `null` is the base price list chosen on purpose. */

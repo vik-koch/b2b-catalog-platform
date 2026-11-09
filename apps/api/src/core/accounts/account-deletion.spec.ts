@@ -1,13 +1,13 @@
 import { env } from '../../platform/env';
+import { dispatcherOver } from '../../platform/mail/mail-dispatcher.fixture';
 import { MailText } from '../../platform/mail/mail-text';
 import {
-  demoSharedText,
   demoMailText,
+  demoSharedText,
 } from '../../platform/mail/mail-text.fixture';
-import { dispatcherOver } from '../../platform/mail/mail-dispatcher.fixture';
-import { UserRow } from './users.service';
-import { LastAdminError } from './last-admin-error';
 import { AccountDeletion } from './account-deletion';
+import { LastAdminError } from './last-admin-error';
+import { UserRow } from './users.service';
 
 const row = (overrides: Partial<UserRow> = {}): UserRow =>
   ({

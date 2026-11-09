@@ -1,4 +1,5 @@
 import { ServerRoute } from '@angular/ssr';
+
 import { adminServerRoutes } from './admin/shell/admin.routes.server';
 import { storefrontServerRoutes } from './storefront/shell/storefront.routes.server';
 

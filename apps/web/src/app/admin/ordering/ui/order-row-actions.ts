@@ -1,16 +1,18 @@
-import { ADMIN_ORDERING_TEXT } from '../ordering-text';
 import { Component, computed, inject, input, output } from '@angular/core';
 import { Params, RouterLink } from '@angular/router';
+
+import { StaffOrderSummary } from '@b2b-catalog-platform/shared/admin/ordering';
 import {
   allowedTransitions,
   OrderStatus,
 } from '@b2b-catalog-platform/shared/core/ordering';
-import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
-import { StaffOrderSummary } from '@b2b-catalog-platform/shared/admin/ordering';
 import { circleCheckIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-check';
 import { circleSlashIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-slash';
 import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+
+import { ADMIN_ORDERING_TEXT } from '../ordering-text';
 
 /** One order's list actions, as a table cell or a card's foot. Not a pencil and
  * a bin: orders are never deleted, and a bin standing for declining would one

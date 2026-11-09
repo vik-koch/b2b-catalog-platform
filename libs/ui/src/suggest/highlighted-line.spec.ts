@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+
 import { HighlightedLine } from './highlighted-line';
 
 function render(segments: { text: string; match: boolean }[]) {

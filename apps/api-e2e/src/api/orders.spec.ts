@@ -3,15 +3,17 @@ import { readFile } from 'node:fs/promises';
 import { hash } from '@node-rs/argon2';
 import axios, { AxiosResponse } from 'axios';
 import { Client } from 'pg';
+
 import { seedPages } from '@b2b-catalog-platform/seed';
+
 import { priceProduct } from '../support/catalog-fixture';
 import { configFile, mediaPath, requireEnv } from '../support/env';
-import { fixtureSeed } from '../support/seed-fixture';
 import {
   deleteMatching,
   messageBody,
   messagesMatching,
 } from '../support/mailpit';
+import { fixtureSeed } from '../support/seed-fixture';
 
 /**
  * Cart pricing and order submission (FR-CART-01…04, FR-ACC-01), end to end:

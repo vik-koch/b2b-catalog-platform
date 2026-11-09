@@ -1,8 +1,9 @@
+import { join } from 'node:path';
 import { Logger } from '@nestjs/common';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { migrate } from 'drizzle-orm/node-postgres/migrator';
-import { join } from 'node:path';
 import { Pool } from 'pg';
+
 import { env } from '../env';
 
 const MAX_ATTEMPTS = 30;

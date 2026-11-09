@@ -1,13 +1,14 @@
 import { Module } from '@nestjs/common';
+
 import { loadMailBranding, MAIL_BRANDING } from './mail-branding';
 import { MailDispatcher } from './mail-dispatcher';
 import { MailService } from './mail.service';
+import { MAILER } from './mailer';
 import {
   loadNotificationAddresses,
   NOTIFICATION_ADDRESSES,
   NotificationAudiences,
 } from './notification-audience';
-import { MAILER } from './mailer';
 import { SmtpMailer } from './smtp-mailer';
 
 /** Mail over the SMTP adapter, and the texts and branding it is written in:

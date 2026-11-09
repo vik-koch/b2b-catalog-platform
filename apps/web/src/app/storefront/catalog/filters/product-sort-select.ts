@@ -1,14 +1,16 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+
 import { PRODUCT_SORTS } from '@b2b-catalog-platform/shared/core/catalog';
 import { ListingSort } from '@b2b-catalog-platform/shared/storefront/catalog';
 import { Segment } from '@b2b-catalog-platform/ui/choices/segment';
 import { SegmentGroup } from '@b2b-catalog-platform/ui/choices/segment-group';
 import { Input } from '@b2b-catalog-platform/ui/inputs/input';
 import { SelectInput } from '@b2b-catalog-platform/ui/inputs/select-input';
-import { sortParam } from '../listing-params';
-import { STOREFRONT_CATALOG_TEXT } from '../catalog-text';
+
 import { CATALOG_CONFIG } from '../../../core/catalog/catalog-config';
+import { STOREFRONT_CATALOG_TEXT } from '../catalog-text';
+import { sortParam } from '../listing-params';
 
 /**
  * A listing's sort control (FR-SEARCH-04). Segments above a wide listing, the

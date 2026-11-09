@@ -1,5 +1,5 @@
-import { ADMIN_EXCHANGE_TEXT } from '../exchange-text';
 import { Component, inject, input, output } from '@angular/core';
+
 import { fillText } from '@b2b-catalog-platform/shared/platform';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { Checkbox } from '@b2b-catalog-platform/ui/choices/checkbox';
@@ -14,7 +14,9 @@ import {
   FileTarget,
   pasteKeys,
 } from '@b2b-catalog-platform/ui/inputs/file-target';
+
 import { ADMIN_TEXT } from '../../../platform/config/admin-text';
+import { ADMIN_EXCHANGE_TEXT } from '../exchange-text';
 
 export interface SyncUploadPresetView {
   name: string;

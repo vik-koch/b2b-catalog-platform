@@ -1,4 +1,9 @@
 import { Provider } from '@angular/core';
+
+import {
+  applyMask,
+  stripDialPrefix,
+} from '@b2b-catalog-platform/shared/platform';
 import { DIGIT_MASK_FORMAT } from '@b2b-catalog-platform/ui/inputs/digit-mask-format';
 
 /** A phone number stored whole and entered as a shown prefix and a masked
@@ -8,10 +13,6 @@ export {
   canonicalPhone,
   formatPhone,
   typedPhone,
-} from '@b2b-catalog-platform/shared/platform';
-import {
-  applyMask,
-  stripDialPrefix,
 } from '@b2b-catalog-platform/shared/platform';
 
 /** The masks' grouping rule for DigitMask, the one the API formats with. */

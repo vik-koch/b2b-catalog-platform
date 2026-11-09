@@ -16,6 +16,7 @@
  * committed files match, which is what CI runs.
  */
 import { readdirSync, readFileSync } from 'node:fs';
+
 import {
   formatted,
   loadTypeScript,

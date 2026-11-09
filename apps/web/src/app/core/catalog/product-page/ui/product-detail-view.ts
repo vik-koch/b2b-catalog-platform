@@ -12,29 +12,31 @@ import {
   viewChild,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
+
 import {
   categoryDisplayName,
   encodeAttributeParams,
   formatAttributeValue,
   ProductDetail,
 } from '@b2b-catalog-platform/shared/core/catalog';
-import { EDIT_ACTIONS_INSET } from '../../../../platform/edit-mode/edit-actions';
-import { trustedRichText } from '../../../../platform/trusted-rich-text';
-import { disclosureState } from '@b2b-catalog-platform/ui/disclosure/disclosure-state';
-import { ShowMoreToggle } from '@b2b-catalog-platform/ui/disclosure/show-more-toggle';
+import { Link } from '@b2b-catalog-platform/ui/actions/link';
+import { TextButton } from '@b2b-catalog-platform/ui/actions/text-button';
 import {
   Breadcrumbs,
   Crumb,
 } from '@b2b-catalog-platform/ui/content/breadcrumbs';
 import { SectionTitle } from '@b2b-catalog-platform/ui/content/section-title';
-import { Link } from '@b2b-catalog-platform/ui/actions/link';
-import { TextButton } from '@b2b-catalog-platform/ui/actions/text-button';
+import { disclosureState } from '@b2b-catalog-platform/ui/disclosure/disclosure-state';
+import { ShowMoreToggle } from '@b2b-catalog-platform/ui/disclosure/show-more-toggle';
+
+import { EDIT_ACTIONS_INSET } from '../../../../platform/edit-mode/edit-actions';
+import { trustedRichText } from '../../../../platform/trusted-rich-text';
+import { useProductUnits } from '../../buying/product-units-view';
+import { SHARED_CATALOG_TEXT } from '../../catalog-text';
 import { ProductBuyBlock } from '../product-buy-block';
 import { ProductDocuments } from './product-documents';
 import { ProductVariantGallery } from './product-variant-gallery';
 import { ProductVariantList } from './product-variant-list';
-import { useProductUnits } from '../../buying/product-units-view';
-import { SHARED_CATALOG_TEXT } from '../../catalog-text';
 
 /**
  * The product page's band: photo, main facts, buying panel; the readings go

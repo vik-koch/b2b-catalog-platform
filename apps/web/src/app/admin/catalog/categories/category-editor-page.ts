@@ -8,44 +8,47 @@ import {
   untracked,
 } from '@angular/core';
 import { disabled, form } from '@angular/forms/signals';
-import { filled } from '../../../platform/field-rules';
 import { ActivatedRoute } from '@angular/router';
-import { CatalogImage } from '@b2b-catalog-platform/shared/core/catalog';
+
 import { AdminCategory } from '@b2b-catalog-platform/shared/admin/catalog';
-import { slugify } from '@b2b-catalog-platform/shared/core/catalog';
-import { ADMIN_TEXT } from '../../../platform/config/admin-text';
-import { LockedFieldMarker } from '../../platform/ownership/ui/locked-field-marker';
-import { OwnershipService } from '../../platform/ownership/ownership.service';
-import { usePageSeo } from '../../../platform/page-seo';
-import { LockedNote } from '../../platform/ownership/ui/locked-note';
-import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
-import { delayedLoading } from '../../../platform/delayed-loading';
-import { UnsavedChangesAware } from '../../platform/unsaved-changes.guard';
-import { UnsavedChanges } from '../../platform/unsaved-changes';
-import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import {
-  FieldAttempt,
+  CatalogImage,
+  slugify,
+} from '@b2b-catalog-platform/shared/core/catalog';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
+import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
+import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
+import {
   FIELD_ATTEMPT,
+  FieldAttempt,
 } from '@b2b-catalog-platform/ui/fields/field-attempt';
 import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
 import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
 import { submitAttempt } from '@b2b-catalog-platform/ui/fields/submit-attempt';
 import { Input } from '@b2b-catalog-platform/ui/inputs/input';
+
+import { ADMIN_TEXT } from '../../../platform/config/admin-text';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { delayedLoading } from '../../../platform/delayed-loading';
+import { injectEditorReturn } from '../../../platform/edit-mode/editor-return';
+import { filled } from '../../../platform/field-rules';
+import { usePageSeo } from '../../../platform/page-seo';
+import { OwnershipService } from '../../platform/ownership/ownership.service';
+import { LockedFieldMarker } from '../../platform/ownership/ui/locked-field-marker';
+import { LockedNote } from '../../platform/ownership/ui/locked-note';
+import { CancelButton } from '../../platform/ui/cancel-button';
+import { SaveButton } from '../../platform/ui/save-button';
+import { UnsavedChanges } from '../../platform/unsaved-changes';
+import { UnsavedChangesAware } from '../../platform/unsaved-changes.guard';
+import { ADMIN_CATALOG_TEXT } from '../catalog-text';
+import { ImagePicker } from '../uploads/image-picker';
 import {
   CategoriesService,
   type CategorySaveErrorCode,
 } from './categories.service';
-import { injectEditorReturn } from '../../../platform/edit-mode/editor-return';
-import { categoriesOutside } from './category-tree';
-
-import { ImagePicker } from '../uploads/image-picker';
 import { CategoryPicker } from './category-picker';
-import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
-import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
-import { SaveButton } from '../../platform/ui/save-button';
-import { CancelButton } from '../../platform/ui/cancel-button';
-import { SHARED_TEXT } from '../../../platform/config/shared-text';
-import { ADMIN_CATALOG_TEXT } from '../catalog-text';
+import { categoriesOutside } from './category-tree';
 
 interface CategoryDraft {
   name: string;

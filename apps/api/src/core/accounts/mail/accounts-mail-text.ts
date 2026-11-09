@@ -1,7 +1,9 @@
-import type { DeepReadonly } from '@b2b-catalog-platform/shared/platform';
 import * as z from 'zod';
+
 import { ACCOUNTS_AREA } from '@b2b-catalog-platform/shared/core/accounts';
-import { type MailText, mailTextBlock } from '../../../platform/mail/mail-text';
+import type { DeepReadonly } from '@b2b-catalog-platform/shared/platform';
+
+import { mailTextBlock, type MailText } from '../../../platform/mail/mail-text';
 
 /** The accounts' block of `texts/mail.json`: one section per message. */
 export const accountsMailTextShape = {

@@ -1,8 +1,10 @@
 import { Component, computed, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { AuthService } from '../../../platform/auth/auth.service';
-import { Button } from '@b2b-catalog-platform/ui/actions/button';
+
 import { fillText } from '@b2b-catalog-platform/shared/platform';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
+
+import { AuthService } from '../../../platform/auth/auth.service';
 import { SHARED_ACCOUNTS_TEXT } from '../accounts-text';
 
 /** Who is signed in, and the way out, on /admin and /account alike. Nothing

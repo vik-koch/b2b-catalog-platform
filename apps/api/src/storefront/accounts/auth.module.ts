@@ -1,13 +1,14 @@
 import { Module } from '@nestjs/common';
+
+import { AccountsCoreModule } from '../../core/accounts/accounts-core.module';
+import { AddressBookModule } from '../../core/accounts/address-book.module';
+import { ConsentModule } from '../../core/site/consent.module';
+import { MaintenanceStateModule } from '../../core/site/maintenance-state.module';
 import {
   COMPANY_ID_RULE,
   loadCompanyIdRule,
 } from '../../platform/config/deployment-config';
 import { MailModule } from '../../platform/mail/mail.module';
-import { AccountsCoreModule } from '../../core/accounts/accounts-core.module';
-import { AddressBookModule } from '../../core/accounts/address-book.module';
-import { ConsentModule } from '../../core/site/consent.module';
-import { MaintenanceStateModule } from '../../core/site/maintenance-state.module';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { PasswordSetupService } from './password-setup.service';

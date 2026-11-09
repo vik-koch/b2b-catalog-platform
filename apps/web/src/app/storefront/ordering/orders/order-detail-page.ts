@@ -1,4 +1,3 @@
-import { STOREFRONT_ORDERING_TEXT } from '../ordering-text';
 import {
   Component,
   computed,
@@ -8,30 +7,33 @@ import {
   signal,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
+
 import {
   canTransition,
   ORDER_STATUS_REASON_MAX,
   OrderDetail,
 } from '@b2b-catalog-platform/shared/core/ordering';
 import { fillText } from '@b2b-catalog-platform/shared/platform';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
+import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
+import { SummaryLayout } from '@b2b-catalog-platform/ui/content/summary-layout';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
+import {
+  confirmRequest,
+  ConfirmService,
+} from '@b2b-catalog-platform/ui/overlay/confirm.service';
+
+import { OrderReadBack } from '../../../core/ordering/ui/order-read-back';
 import { OrderSummary } from '../../../core/ordering/ui/order-summary';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { delayedLoading } from '../../../platform/delayed-loading';
 import { usePageSeo } from '../../../platform/page-seo';
 import { NotFoundView } from '../../platform/not-found-view';
-import { Button } from '@b2b-catalog-platform/ui/actions/button';
-import {
-  confirmRequest,
-  ConfirmService,
-} from '@b2b-catalog-platform/ui/overlay/confirm.service';
-import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
-import { OrderDocumentsList } from './ui/order-documents-list';
-import { OrderReadBack } from '../../../core/ordering/ui/order-read-back';
-import { OrderHeading } from './ui/order-heading';
+import { STOREFRONT_ORDERING_TEXT } from '../ordering-text';
 import { useCustomerOrderView } from './customer-order-view';
 import { OrdersService } from './orders.service';
-import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
-import { SummaryLayout } from '@b2b-catalog-platform/ui/content/summary-layout';
+import { OrderDocumentsList } from './ui/order-documents-list';
+import { OrderHeading } from './ui/order-heading';
 
 /**
  * One of the account's own orders (FR-ACC-01). Read-only but for calling it

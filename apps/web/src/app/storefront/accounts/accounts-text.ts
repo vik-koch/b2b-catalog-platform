@@ -1,5 +1,7 @@
 import { inject, InjectionToken } from '@angular/core';
+
 import { ACCOUNTS_AREA } from '@b2b-catalog-platform/shared/core/accounts';
+
 import {
   STOREFRONT_TEXT,
   storefrontTextBlock,

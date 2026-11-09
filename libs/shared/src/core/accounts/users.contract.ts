@@ -1,10 +1,5 @@
 import * as z from 'zod';
-import {
-  ACCOUNT_DELETION_REASONS,
-  CUSTOMER_TYPES,
-  USER_KINDS,
-  USER_STATUSES,
-} from './users';
+
 import {
   companyNameSchema,
   companyRegistrationIdSchema,
@@ -13,6 +8,12 @@ import {
   storedEmailField,
 } from '../../platform/contact-config';
 import { userRoleSchema } from '../../platform/session.contract';
+import {
+  ACCOUNT_DELETION_REASONS,
+  CUSTOMER_TYPES,
+  USER_KINDS,
+  USER_STATUSES,
+} from './users';
 
 /**
  * An account as staff and the customer exchange act on it: the shape they

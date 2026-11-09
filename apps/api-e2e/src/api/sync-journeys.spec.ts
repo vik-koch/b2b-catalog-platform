@@ -1,13 +1,14 @@
 import { hash } from '@node-rs/argon2';
 import axios from 'axios';
 import { Client } from 'pg';
-import { requireEnv } from '../support/env';
-import { JourneyRun } from '../support/journey/journey';
+
 import {
   syncJourneyAdapter,
   SyncJourneyContext,
 } from '../journeys/sync.adapter';
 import { syncJourneys } from '../journeys/sync.journeys';
+import { requireEnv } from '../support/env';
+import { JourneyRun } from '../support/journey/journey';
 
 /**
  * A catalogue feed, run by run (FR-ADM-07/09, FR-WORK-02): what reaches the

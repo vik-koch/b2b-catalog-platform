@@ -1,4 +1,3 @@
-import { STOREFRONT_ACCOUNTS_TEXT } from '../accounts-text';
 import {
   Component,
   computed,
@@ -9,11 +8,14 @@ import {
   viewChild,
 } from '@angular/core';
 import { Router } from '@angular/router';
+
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { DialogPanel } from '@b2b-catalog-platform/ui/overlay/dialog-panel';
-import { AuthService } from '../../../platform/auth/auth.service';
-import { ChangePasswordForm } from './change-password-form';
 import { DialogTitle } from '@b2b-catalog-platform/ui/overlay/dialog-title';
+
+import { AuthService } from '../../../platform/auth/auth.service';
+import { STOREFRONT_ACCOUNTS_TEXT } from '../accounts-text';
+import { ChangePasswordForm } from './change-password-form';
 
 /**
  * Forces a password change on an account still on one it was handed (the

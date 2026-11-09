@@ -1,17 +1,19 @@
 import { Component, inject, input } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
-import { STOREFRONT_TEXT } from '../../platform/config/storefront-text';
-import { SHARED_TEXT } from '../../platform/config/shared-text';
-import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
-import { fillText } from '@b2b-catalog-platform/shared/platform';
+
 import { type ElsewhereLink } from '@b2b-catalog-platform/shared/core/site';
-import { ConsentService } from '../site/cookie-consent/consent.service';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
-import { mailHref, telHref } from './contact-info';
-import { PAGE_LINK } from '../platform/nav-action';
-import { ScrollToTop } from './scroll-to-top';
+
 import { SITE_CONFIG } from '../../core/site/site-config';
+import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
+import { SHARED_TEXT } from '../../platform/config/shared-text';
+import { STOREFRONT_TEXT } from '../../platform/config/storefront-text';
+import { PAGE_LINK } from '../platform/nav-action';
+import { ConsentService } from '../site/cookie-consent/consent.service';
 import { STOREFRONT_SITE_TEXT } from '../site/site-text';
+import { mailHref, telHref } from './contact-info';
+import { ScrollToTop } from './scroll-to-top';
 
 @Component({
   imports: [RouterLink, RouterLinkActive, Button, ScrollToTop],

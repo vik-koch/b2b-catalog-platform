@@ -1,4 +1,5 @@
 import { computed, Directive, inject, input } from '@angular/core';
+
 import { SegmentGroup, type SegmentTone } from './segment-group';
 
 const base = `text-center transition-colors select-none

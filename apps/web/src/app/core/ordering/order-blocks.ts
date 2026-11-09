@@ -1,11 +1,13 @@
 import { inject } from '@angular/core';
+
+import { addressLines } from '@b2b-catalog-platform/shared/core/accounts';
 import {
   OrderAddress,
   OrderDetail,
   type SharedOrderingText,
 } from '@b2b-catalog-platform/shared/core/ordering';
+
 import { formatPhone } from '../../platform/contact-fields';
-import { addressLines } from '@b2b-catalog-platform/shared/core/accounts';
 import { SHARED_ORDERING_TEXT } from './ordering-text';
 import { ReviewBlock } from './ui/order-read-back';
 

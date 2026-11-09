@@ -1,6 +1,6 @@
-import { accountsMail } from './accounts-mail-text';
 import { MailContent } from '../../../platform/mail/mail-layout';
 import { MailText } from '../../../platform/mail/mail-text';
+import { accountsMail } from './accounts-mail-text';
 
 /**
  * The link that makes an approved or staff-created account usable

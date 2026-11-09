@@ -1,5 +1,6 @@
-import { DeepReadonly } from '@b2b-catalog-platform/shared/platform';
 import * as z from 'zod';
+
+import { DeepReadonly } from '@b2b-catalog-platform/shared/platform';
 
 /**
  * The keys of `texts/mail.json` no area claims: one section per message, so

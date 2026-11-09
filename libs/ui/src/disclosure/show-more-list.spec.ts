@@ -1,7 +1,8 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { ShowMoreList } from './show-more-list';
+
 import { provideTestUiText } from '../core/ui-text.testing';
+import { ShowMoreList } from './show-more-list';
 
 interface Row {
   key: string;

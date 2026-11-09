@@ -1,14 +1,16 @@
-import { TaxConfig } from '@b2b-catalog-platform/shared/core/catalog';
 import { Controller, Inject, UseGuards } from '@nestjs/common';
 import { Implement, implement } from '@orpc/nest';
+
+import { TaxConfig } from '@b2b-catalog-platform/shared/core/catalog';
 import { cartContract } from '@b2b-catalog-platform/shared/storefront/ordering';
-import { OptionalAuthGuard } from '../../platform/auth/optional-auth.guard';
-import { PricingTier } from '../../core/catalog/pricing-tier.decorator';
+
 import { TAX_CONFIG } from '../../core/catalog/catalog-config';
+import { PricingTier } from '../../core/catalog/pricing-tier.decorator';
+import { priceCart } from '../../core/ordering/cart-pricing';
+import { OptionalAuthGuard } from '../../platform/auth/optional-auth.guard';
+import { Database } from '../../platform/db/database';
 import { DRIZZLE } from '../../platform/db/database.module';
 import { SearchThrottle } from '../../platform/throttling/throttle-presets';
-import { priceCart } from '../../core/ordering/cart-pricing';
-import { Database } from '../../platform/db/database';
 
 /**
  * Pricing the browser's cart (FR-CART-01/02). `OptionalAuthGuard` rather than

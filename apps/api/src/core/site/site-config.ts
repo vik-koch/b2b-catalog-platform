@@ -1,10 +1,12 @@
+import * as z from 'zod';
+
 import {
   CONSENT_PURPOSES,
   ConsentPurpose,
   SITE_AREA,
   siteConfigShape,
 } from '@b2b-catalog-platform/shared/core/site';
-import * as z from 'zod';
+
 import { loadDeploymentConfigBlock } from '../../platform/config/deployment-config';
 
 const loadSiteConfig = () =>

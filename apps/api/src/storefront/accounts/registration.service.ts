@@ -4,7 +4,20 @@ import {
   Injectable,
   Logger,
 } from '@nestjs/common';
+
+import { CustomerType } from '@b2b-catalog-platform/shared/core/accounts';
+import {
+  formatPhone,
+  PhoneConfig,
+  SharedText,
+} from '@b2b-catalog-platform/shared/platform';
+import { RegisterRequest } from '@b2b-catalog-platform/shared/storefront/accounts';
+
+import { ACCEPTED_CUSTOMER_TYPES } from '../../core/accounts/accounts-config';
 import { AddressesService } from '../../core/accounts/addresses.service';
+import { PasswordService } from '../../core/accounts/password.service';
+import { storedPhone } from '../../core/accounts/stored-phone';
+import { UsersService } from '../../core/accounts/users.service';
 import { ConsentService } from '../../core/site/consent.service';
 import {
   COMPANY_ID_RULE,
@@ -13,23 +26,12 @@ import {
   PHONE_RULE,
   PhoneRule,
 } from '../../platform/config/deployment-config';
-import { ACCEPTED_CUSTOMER_TYPES } from '../../core/accounts/accounts-config';
-import { env } from '../../platform/env';
-import { MAIL_TEXT, MailText } from '../../platform/mail/mail-text';
 import { SHARED_TEXT } from '../../platform/config/shared-text';
+import { env } from '../../platform/env';
 import { MailDispatcher } from '../../platform/mail/mail-dispatcher';
+import { MAIL_TEXT, MailText } from '../../platform/mail/mail-text';
 import { newRegistrationMail } from './mail/new-registration.template';
 import { registrationReceivedMail } from './mail/registration-received.template';
-import { storedPhone } from '../../core/accounts/stored-phone';
-import { UsersService } from '../../core/accounts/users.service';
-import { PasswordService } from '../../core/accounts/password.service';
-import { CustomerType } from '@b2b-catalog-platform/shared/core/accounts';
-import { RegisterRequest } from '@b2b-catalog-platform/shared/storefront/accounts';
-import {
-  formatPhone,
-  PhoneConfig,
-  SharedText,
-} from '@b2b-catalog-platform/shared/platform';
 
 /**
  * Self-registration (FR-AUTH-01): a `pending` account until staff approve it.

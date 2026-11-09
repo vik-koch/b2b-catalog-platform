@@ -1,9 +1,55 @@
 import { oc } from '@orpc/contract';
 import * as z from 'zod';
+
+import {
+  ATTRIBUTE_NAME_MAX_LENGTH,
+  ATTRIBUTE_VALUE_MAX_LENGTH,
+} from '../../core/catalog/attributes';
+import {
+  availabilitySchema,
+  catalogImageSchema,
+  priceMinorSchema,
+  productAttributeSchema,
+  productVariantSchema,
+} from '../../core/catalog/catalog.contract';
+import {
+  hiddenProductSchema,
+  productPageSchema,
+} from '../../core/catalog/edit-mode.contract';
+import { PRODUCT_AVAILABILITIES } from '../../core/catalog/product-availability';
+import {
+  isValidPartList,
+  PRODUCT_PART_MAX_LENGTH,
+  PRODUCT_PARTS_MAX,
+} from '../../core/catalog/product-parts';
+import { SEARCH_SORTS } from '../../core/catalog/product-sort';
+import { minimumFitsPacks } from '../../core/catalog/product-units';
+import {
+  hasDistinctVariants,
+  picturesNameKnownVariants,
+  PRODUCT_VARIANT_NAME_MAX_LENGTH,
+  PRODUCT_VARIANTS_MAX,
+} from '../../core/catalog/product-variants';
 import {
   PRODUCT_NAME_MAX_LENGTH,
   SOURCE_ID_MAX_LENGTH,
 } from '../../core/catalog/products';
+import { searchQueryParamSchema } from '../../core/catalog/search.contract';
+import { taxRateSchema } from '../../core/catalog/tax-config';
+import { commonAuthErrors } from '../../platform/api-error';
+import { listParam } from '../../platform/list-param.contract';
+import { ownershipErrors } from '../../platform/ownership';
+import {
+  pageParamSchema,
+  paginationSchema,
+} from '../../platform/pagination.contract';
+import { PRODUCT_DOCUMENTS_MAX } from './documents';
+import { linkedDocumentSchema } from './documents.contract';
+import {
+  linkedProductSchema,
+  productRefSchema,
+} from './linked-product.contract';
+import { askedBothWays, PRODUCT_FACTS } from './product-content';
 import {
   PRODUCT_ATTRIBUTES_MAX,
   PRODUCT_DESCRIPTION_MAX_LENGTH,
@@ -13,52 +59,7 @@ import {
   PRODUCT_TIER_PRICES_MAX,
   type ProductErrorCode,
 } from './products';
-import { commonAuthErrors } from '../../platform/api-error';
-import { ownershipErrors } from '../../platform/ownership';
-import {
-  availabilitySchema,
-  catalogImageSchema,
-  priceMinorSchema,
-  productAttributeSchema,
-  productVariantSchema,
-} from '../../core/catalog/catalog.contract';
-import { SEARCH_SORTS } from '../../core/catalog/product-sort';
-import { searchQueryParamSchema } from '../../core/catalog/search.contract';
-import { listParam } from '../../platform/list-param.contract';
-import {
-  pageParamSchema,
-  paginationSchema,
-} from '../../platform/pagination.contract';
-import {
-  hiddenProductSchema,
-  productPageSchema,
-} from '../../core/catalog/edit-mode.contract';
-import { PRODUCT_DOCUMENTS_MAX } from './documents';
-import { linkedDocumentSchema } from './documents.contract';
-import {
-  linkedProductSchema,
-  productRefSchema,
-} from './linked-product.contract';
-import { minimumFitsPacks } from '../../core/catalog/product-units';
-import {
-  ATTRIBUTE_NAME_MAX_LENGTH,
-  ATTRIBUTE_VALUE_MAX_LENGTH,
-} from '../../core/catalog/attributes';
-import { PRODUCT_AVAILABILITIES } from '../../core/catalog/product-availability';
-import { askedBothWays, PRODUCT_FACTS } from './product-content';
-import {
-  isValidPartList,
-  PRODUCT_PART_MAX_LENGTH,
-  PRODUCT_PARTS_MAX,
-} from '../../core/catalog/product-parts';
-import {
-  hasDistinctVariants,
-  picturesNameKnownVariants,
-  PRODUCT_VARIANT_NAME_MAX_LENGTH,
-  PRODUCT_VARIANTS_MAX,
-} from '../../core/catalog/product-variants';
 import { slugSchema } from './slug.contract';
-import { taxRateSchema } from '../../core/catalog/tax-config';
 
 /**
  * A price as it is written. Zero is refused: a product that costs nothing has

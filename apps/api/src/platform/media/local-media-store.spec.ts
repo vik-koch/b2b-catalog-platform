@@ -1,5 +1,6 @@
-import { rm, readdir, stat } from 'node:fs/promises';
+import { readdir, rm, stat } from 'node:fs/promises';
 import { join } from 'node:path';
+
 import { env } from '../env';
 import { LocalMediaStore } from './local-media-store';
 

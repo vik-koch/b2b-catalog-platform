@@ -1,4 +1,5 @@
 import { computed, signal } from '@angular/core';
+
 import { WorkCounts } from '@b2b-catalog-platform/shared/core/work';
 
 /** WorkService for component specs: the counts as given, no network. */

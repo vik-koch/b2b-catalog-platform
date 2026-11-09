@@ -1,7 +1,9 @@
-import { pageSeed } from '@b2b-catalog-platform/seed';
-import { expect, test } from '@playwright/test';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { expect, test } from '@playwright/test';
+
+import { pageSeed } from '@b2b-catalog-platform/seed';
+
 import { workspaceRoot } from '../support/localtest';
 import { fixtureSeed } from '../support/seed-fixture';
 

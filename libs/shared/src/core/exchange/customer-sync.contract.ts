@@ -5,12 +5,14 @@
  * the strongest row disables, and an account its owner closed is refused.
  */
 import * as z from 'zod';
-import { customerTypeSchema } from '../accounts/users.contract';
+
 import {
   companyNameSchema,
   companyRegistrationIdSchema,
   lowercaseEmailField,
 } from '../../platform/contact-config';
+import { customerTypeSchema } from '../accounts/users.contract';
+import { TIER_KEY_MAX_LENGTH } from '../catalog/tiers';
 import { CUSTOMER_SYNC_FIELDS } from './customer-sync';
 import {
   SYNC_FAILURE_MESSAGE_MAX_LENGTH,
@@ -18,7 +20,6 @@ import {
   SYNC_MAX_ROWS,
 } from './sync';
 import { syncRunSchema, syncSummarySchema } from './sync-run.contract';
-import { TIER_KEY_MAX_LENGTH } from '../catalog/tiers';
 
 /**
  * Two values, not the five statuses: those track how far the person got, and

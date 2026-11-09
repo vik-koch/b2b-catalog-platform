@@ -1,15 +1,17 @@
-import { ORDERING_CONFIG } from '../../../core/ordering/ordering-config';
-import { STOREFRONT_ORDERING_TEXT } from '../ordering-text';
 import { Component, computed, inject, input } from '@angular/core';
+
+import { resolveDeliveryZone } from '@b2b-catalog-platform/shared/core/ordering';
 import {
   fillText,
-  moneyFormat,
   formatMoneyMinor,
+  moneyFormat,
 } from '@b2b-catalog-platform/shared/platform';
-import { resolveDeliveryZone } from '@b2b-catalog-platform/shared/core/ordering';
-import { CartService } from '../cart/cart.service';
-import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import { WarningNote } from '@b2b-catalog-platform/ui/content/warning-note';
+
+import { ORDERING_CONFIG } from '../../../core/ordering/ordering-config';
+import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
+import { CartService } from '../cart/cart.service';
+import { STOREFRONT_ORDERING_TEXT } from '../ordering-text';
 
 /** The delivery area of the typed address and whether the order reaches its
  * free-delivery minimum (FR-CART-07). Advisory: the server re-derives the zone,

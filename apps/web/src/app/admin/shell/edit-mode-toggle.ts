@@ -1,8 +1,10 @@
 import { Component, inject } from '@angular/core';
-import { adminText } from '../../platform/config/admin-text';
-import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
-import { EditModeService } from '../../platform/edit-mode/edit-mode.service';
+
 import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+
+import { adminText } from '../../platform/config/admin-text';
+import { EditModeService } from '../../platform/edit-mode/edit-mode.service';
 
 /**
  * The admin's floating edit-mode toggle (FR-ADM-01), only on a page with

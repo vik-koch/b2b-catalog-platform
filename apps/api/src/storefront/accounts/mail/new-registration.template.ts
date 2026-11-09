@@ -1,14 +1,15 @@
-import { accountsMail } from '../../../core/accounts/mail/accounts-mail-text';
-import { SharedText } from '@b2b-catalog-platform/shared/platform';
-import { MailContent } from '../../../platform/mail/mail-layout';
-import { MailText } from '../../../platform/mail/mail-text';
-import { sharedTextBlock } from '../../../platform/config/shared-text';
 import {
   ACCOUNTS_AREA,
   CustomerType,
   formatPersonName,
   type SharedAccountsText,
 } from '@b2b-catalog-platform/shared/core/accounts';
+import { SharedText } from '@b2b-catalog-platform/shared/platform';
+
+import { accountsMail } from '../../../core/accounts/mail/accounts-mail-text';
+import { sharedTextBlock } from '../../../platform/config/shared-text';
+import { MailContent } from '../../../platform/mail/mail-layout';
+import { MailText } from '../../../platform/mail/mail-text';
 
 /** The registration, as submitted. */
 export interface RegistrationSummary {

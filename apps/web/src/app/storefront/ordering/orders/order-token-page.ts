@@ -1,23 +1,25 @@
-import { STOREFRONT_ORDERING_TEXT } from '../ordering-text';
-import { STOREFRONT_ACCOUNTS_TEXT } from '../../accounts/accounts-text';
 import { Component, computed, inject, input, resource } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { AuthService } from '../../../platform/auth/auth.service';
+
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
+import { Card } from '@b2b-catalog-platform/ui/content/card';
+import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
+import { SummaryLayout } from '@b2b-catalog-platform/ui/content/summary-layout';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
+
+import { OrderReadBack } from '../../../core/ordering/ui/order-read-back';
 import { OrderSummary } from '../../../core/ordering/ui/order-summary';
+import { AuthService } from '../../../platform/auth/auth.service';
 import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
 import { delayedLoading } from '../../../platform/delayed-loading';
 import { usePageSeo } from '../../../platform/page-seo';
+import { STOREFRONT_ACCOUNTS_TEXT } from '../../accounts/accounts-text';
 import { NotFoundView } from '../../platform/not-found-view';
-import { Button } from '@b2b-catalog-platform/ui/actions/button';
-import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
-import { OrderDocumentsList } from './ui/order-documents-list';
-import { OrderReadBack } from '../../../core/ordering/ui/order-read-back';
-import { OrderHeading } from './ui/order-heading';
+import { STOREFRONT_ORDERING_TEXT } from '../ordering-text';
 import { useCustomerOrderView } from './customer-order-view';
 import { OrdersService } from './orders.service';
-import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
-import { Card } from '@b2b-catalog-platform/ui/content/card';
-import { SummaryLayout } from '@b2b-catalog-platform/ui/content/summary-layout';
+import { OrderDocumentsList } from './ui/order-documents-list';
+import { OrderHeading } from './ui/order-heading';
 
 /**
  * An order opened by the link its mail carries (FR-NOTIF-06). The token is the

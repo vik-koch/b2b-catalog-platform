@@ -1,9 +1,11 @@
-import { inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
+import { inject, PLATFORM_ID } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
-import { AuthService } from '../../../platform/auth/auth.service';
-import { MaintenanceService } from '../../../core/site/maintenance.service';
+
 import { passesMaintenance } from '@b2b-catalog-platform/shared/core/site';
+
+import { MaintenanceService } from '../../../core/site/maintenance.service';
+import { AuthService } from '../../../platform/auth/auth.service';
 
 /**
  * The gate for in-app navigation, letting staff through. Browser-only: a cold

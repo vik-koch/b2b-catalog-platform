@@ -1,24 +1,26 @@
-import { DOCUMENT, Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { DOCUMENT, inject, Injectable } from '@angular/core';
+import { safe } from '@orpc/client';
 import { lastValueFrom } from 'rxjs';
+
+import { StaffOrderSummary } from '@b2b-catalog-platform/shared/admin/ordering';
 import {
-  OrderDocumentKind,
-  OrderStatus,
-  orderDocumentPath,
   AdminOrderDetail,
+  AdminOrderDocument,
   OrderAdjustment,
   OrderAdjustmentPreview,
-  AdminOrderDocument,
+  OrderDocumentKind,
+  orderDocumentPath,
   OrderRevision,
   OrderRevisionEntry,
+  OrderStatus,
   StaffOrderSort,
   StaffPaymentFilter,
 } from '@b2b-catalog-platform/shared/core/ordering';
-import { StaffOrderSummary } from '@b2b-catalog-platform/shared/admin/ordering';
 import { Pagination } from '@b2b-catalog-platform/shared/platform';
-import { adminOrdersContract } from './contract-routes.generated';
-import { safe } from '@orpc/client';
+
 import { createOrpcClient } from '../../platform/orpc-client';
+import { adminOrdersContract } from './contract-routes.generated';
 
 /** Why an adjustment was refused (FR-ORD-03), as contract codes the screen
  * words. */

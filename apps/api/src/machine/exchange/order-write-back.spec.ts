@@ -1,7 +1,7 @@
 import { OrderReader } from '../../core/ordering/order-reader';
-import { OrderWriteBack } from './order-write-back';
 import { OrderWriter } from '../../core/ordering/order-writer';
 import { Database } from '../../platform/db/database';
+import { OrderWriteBack } from './order-write-back';
 
 /**
  * The write-back with its collaborators stubbed. A stub lands where the method

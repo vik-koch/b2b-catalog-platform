@@ -1,4 +1,5 @@
 import { Component, input, model } from '@angular/core';
+
 import { DisclosureFrame } from '@b2b-catalog-platform/ui/disclosure/disclosure-frame';
 import { DisclosureToggle } from '@b2b-catalog-platform/ui/disclosure/disclosure-toggle';
 import { Glyph } from '@b2b-catalog-platform/ui/icons/glyph';

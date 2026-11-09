@@ -1,9 +1,10 @@
+import { readFileSync } from 'node:fs';
 import { hash } from '@node-rs/argon2';
 import axios from 'axios';
 import { Client } from 'pg';
+
 import { configFile, requireEnv } from '../support/env';
 import { deleteMatching, messagesMatching } from '../support/mailpit';
-import { readFileSync } from 'node:fs';
 
 /**
  * The headless customer exchange (FR-ADM-11), end to end, for what the differ

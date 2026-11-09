@@ -1,4 +1,10 @@
 import {
+  emailField,
+  lowercaseEmailField,
+  personNameField,
+  storedEmailField,
+} from './contact-config';
+import {
   applyMask,
   canonicalPhone,
   CompanyIdFormat,
@@ -11,12 +17,6 @@ import {
   stripDialPrefix,
   typedPhone,
 } from './contact-format';
-import {
-  emailField,
-  lowercaseEmailField,
-  personNameField,
-  storedEmailField,
-} from './contact-config';
 import { EMAIL_MAX_LENGTH } from './email-format';
 import { isPersonName } from './person-name';
 

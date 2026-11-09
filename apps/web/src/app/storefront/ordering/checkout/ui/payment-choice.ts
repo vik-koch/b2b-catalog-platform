@@ -1,11 +1,13 @@
-import { STOREFRONT_ORDERING_TEXT } from '../../ordering-text';
-import { SHARED_ORDERING_TEXT } from '../../../../core/ordering/ordering-text';
 import { Component, computed, inject, input, output } from '@angular/core';
+
 import {
   FulfilmentMethod,
   PaymentMethod,
 } from '@b2b-catalog-platform/shared/core/ordering';
 import { ChoiceCard } from '@b2b-catalog-platform/ui/choices/choice-card';
+
+import { SHARED_ORDERING_TEXT } from '../../../../core/ordering/ordering-text';
+import { STOREFRONT_ORDERING_TEXT } from '../../ordering-text';
 
 /** How the order is paid (FR-CART-04): **recorded, never executed**; no wording
  * may suggest a transaction. Card comes only after approval (FR-CART-06). A

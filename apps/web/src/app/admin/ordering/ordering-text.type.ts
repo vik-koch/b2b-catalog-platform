@@ -1,10 +1,12 @@
-import type { DeepReadonly } from '@b2b-catalog-platform/shared/platform';
+import * as z from 'zod';
+
 import {
   orderStatusLabels,
   paymentMethodLabels,
   paymentStateLabels,
 } from '@b2b-catalog-platform/shared/core/ordering';
-import * as z from 'zod';
+import type { DeepReadonly } from '@b2b-catalog-platform/shared/platform';
+
 import { confirmText, pageText } from '../../platform/config/text-shapes';
 
 /** Ordering's block of `texts/admin.json`. */

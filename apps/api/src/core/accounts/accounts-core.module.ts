@@ -1,5 +1,7 @@
 import { createHash } from 'node:crypto';
 import { Logger, Module } from '@nestjs/common';
+
+import { jwtSecret, SessionModule } from '../../platform/auth/session.module';
 import {
   ALTERNATE_LAYOUT,
   COMPANY_ID_FORMATS,
@@ -10,23 +12,22 @@ import {
   PHONE_INPUT,
   PHONE_RULE,
 } from '../../platform/config/deployment-config';
+import { env } from '../../platform/env';
+import { MAIL_TEXT, MailText } from '../../platform/mail/mail-text';
+import { MailModule } from '../../platform/mail/mail.module';
+import { MailService } from '../../platform/mail/mail.service';
+import { AccountDeletion } from './account-deletion';
+import { AccountErasure } from './account-erasure';
+import { AccountInvitations } from './account-invitations';
 import {
   ACCEPTED_CUSTOMER_TYPES,
   loadAcceptedCustomerTypes,
   loadSignInStep,
 } from './accounts-config';
-import { env } from '../../platform/env';
-import { MailModule } from '../../platform/mail/mail.module';
-import { MailService } from '../../platform/mail/mail.service';
-import { MAIL_TEXT, MailText } from '../../platform/mail/mail-text';
-import { jwtSecret, SessionModule } from '../../platform/auth/session.module';
-import { AccountDeletion } from './account-deletion';
-import { AccountErasure } from './account-erasure';
-import { AccountInvitations } from './account-invitations';
-import { PasswordService } from './password.service';
 import { PasswordPolicy } from './password-policy';
 import { PasswordResetService } from './password-reset.service';
 import { PasswordTokenService } from './password-token.service';
+import { PasswordService } from './password.service';
 import { HttpCallCheck } from './sign-in-step/http-call-check';
 import { HttpCodeDelivery } from './sign-in-step/http-code-delivery';
 import { MailCallCheck } from './sign-in-step/mail-call-check';

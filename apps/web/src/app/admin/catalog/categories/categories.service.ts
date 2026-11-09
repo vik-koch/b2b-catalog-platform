@@ -1,14 +1,16 @@
 import { Injectable } from '@angular/core';
+import { safe, type ClientPromiseResult } from '@orpc/client';
+
 import {
   AdminCategory,
   CategoryErrorCode,
   CategoryInput,
   ReorderCategoriesRequest,
 } from '@b2b-catalog-platform/shared/admin/catalog';
-import { adminCategoriesContract } from '../contract-routes.generated';
-import { safe, type ClientPromiseResult } from '@orpc/client';
+
 import { createOrpcClient } from '../../../platform/orpc-client';
 import { renderable } from '../../platform/renderable';
+import { adminCategoriesContract } from '../contract-routes.generated';
 
 /**
  * The admin category client. The declared refusals come back as typed results

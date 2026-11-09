@@ -1,10 +1,12 @@
 import { Controller } from '@nestjs/common';
 import { Implement, implement } from '@orpc/nest';
+
 import { adminPagesContract } from '@b2b-catalog-platform/shared/admin/site';
+import { AuthUser } from '@b2b-catalog-platform/shared/platform';
+
 import { Auth } from '../../platform/auth/auth.decorator';
 import { CurrentUser } from '../../platform/auth/current-user.decorator';
 import { PageEditorService } from './page-editor.service';
-import { AuthUser } from '@b2b-catalog-platform/shared/platform';
 
 @Controller()
 export class AdminPagesController {

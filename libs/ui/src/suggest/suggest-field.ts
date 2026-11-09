@@ -6,6 +6,7 @@ import {
   input,
   output,
 } from '@angular/core';
+
 import { SuggestList, SuggestListText } from './suggest-list';
 import { SuggestRow } from './suggest-row';
 

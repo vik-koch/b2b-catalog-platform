@@ -1,17 +1,19 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { desc, eq, sql } from 'drizzle-orm';
-import { Page, PageSlug } from '@b2b-catalog-platform/shared/core/site';
+
 import {
   PageVersion,
   UpdatePageRequest,
 } from '@b2b-catalog-platform/shared/admin/site';
+import { Page, PageSlug } from '@b2b-catalog-platform/shared/core/site';
 import { sanitizeRichText } from '@b2b-catalog-platform/shared/node';
-import { DRIZZLE } from '../../platform/db/database.module';
+import { AuthUser } from '@b2b-catalog-platform/shared/platform';
+
+import { currentPageVersion, toPage } from '../../core/site/page-versions';
 import { pageVersions } from '../../core/site/site-schema';
 import { ACTOR_EMAILS, ActorEmails } from '../../platform/actor-emails';
-import { currentPageVersion, toPage } from '../../core/site/page-versions';
-import { AuthUser } from '@b2b-catalog-platform/shared/platform';
 import { Database } from '../../platform/db/database';
+import { DRIZZLE } from '../../platform/db/database.module';
 
 @Injectable()
 export class PageEditorService {

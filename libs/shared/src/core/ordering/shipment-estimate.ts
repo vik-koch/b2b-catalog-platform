@@ -1,4 +1,4 @@
-import { ProductPackaging, piecesPerUnit } from '../catalog/product-units';
+import { piecesPerUnit, ProductPackaging } from '../catalog/product-units';
 
 /**
  * The shipment summary (FR-UNIT-11). `boxVolume` and `boxWeight` are for one

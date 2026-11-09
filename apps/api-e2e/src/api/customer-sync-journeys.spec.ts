@@ -1,13 +1,14 @@
 import { hash } from '@node-rs/argon2';
 import axios from 'axios';
 import { Client } from 'pg';
-import { requireEnv } from '../support/env';
-import { JourneyRun } from '../support/journey/journey';
+
 import {
   customerSyncJourneyAdapter,
   CustomerSyncJourneyContext,
 } from '../journeys/customer-sync.adapter';
 import { customerSyncJourneys } from '../journeys/customer-sync.journeys';
+import { requireEnv } from '../support/env';
+import { JourneyRun } from '../support/journey/journey';
 
 /**
  * The customer exchange, account by account (FR-ADM-11/13/15/17, FR-NOTIF-09,

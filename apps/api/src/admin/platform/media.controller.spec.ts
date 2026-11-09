@@ -1,4 +1,5 @@
 import { UnsupportedMediaTypeException } from '@nestjs/common';
+
 import { MediaStore } from '../../platform/media/media-store';
 import { pngUpload } from '../../platform/media/upload.fixture';
 import { MediaController } from './media.controller';

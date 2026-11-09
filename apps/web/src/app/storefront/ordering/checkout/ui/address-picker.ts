@@ -1,21 +1,23 @@
-import { STOREFRONT_ORDERING_TEXT } from '../../ordering-text';
-import { ACCOUNTS_CONFIG } from '../../../../core/accounts/accounts-config';
-import { Component, inject, input, output } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
-import { SUGGESTIONS_ENABLED } from '../../../../platform/config/suggestions-enabled';
+import { Component, inject, input, output } from '@angular/core';
+
+import {
+  Address,
+  AddressComponents,
+} from '@b2b-catalog-platform/shared/core/accounts';
+import { Checkbox } from '@b2b-catalog-platform/ui/choices/checkbox';
+import { ChoiceBranch } from '@b2b-catalog-platform/ui/choices/choice-branch';
+import { TickLabel } from '@b2b-catalog-platform/ui/choices/tick-label';
+
+import { ACCOUNTS_CONFIG } from '../../../../core/accounts/accounts-config';
 import { AddressFields } from '../../../../core/accounts/addresses/address-fields';
 import { AddressForm } from '../../../../core/accounts/addresses/address-form';
 import {
   addressDetailLines,
   addressDisplayName,
 } from '../../../../core/accounts/addresses/address-format';
-import { Checkbox } from '@b2b-catalog-platform/ui/choices/checkbox';
-import { TickLabel } from '@b2b-catalog-platform/ui/choices/tick-label';
-import { ChoiceBranch } from '@b2b-catalog-platform/ui/choices/choice-branch';
-import {
-  Address,
-  AddressComponents,
-} from '@b2b-catalog-platform/shared/core/accounts';
+import { SUGGESTIONS_ENABLED } from '../../../../platform/config/suggestions-enabled';
+import { STOREFRONT_ORDERING_TEXT } from '../../ordering-text';
 
 /** Unique per instance: a delivery and a billing picker share the page. */
 let nextId = 0;

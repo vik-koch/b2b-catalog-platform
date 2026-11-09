@@ -1,15 +1,17 @@
-import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { TestBed } from '@angular/core/testing';
-import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
-import { defaultStorefrontText } from '../../../platform/config/storefront-text.fixture';
-import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
-import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
-import type { DeploymentConfigFile } from '@b2b-catalog-platform/shared/deployment';
+
 import { ContactLocation } from '@b2b-catalog-platform/shared/core/site';
-import { EditModeService } from '../../../platform/edit-mode/edit-mode.service';
-import { ContactPage } from './contact-page';
+import type { DeploymentConfigFile } from '@b2b-catalog-platform/shared/deployment';
+
 import { PageService } from '../../../core/site/page.service';
 import { withSite } from '../../../core/site/site-config.fixture';
+import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
+import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
+import { defaultStorefrontText } from '../../../platform/config/storefront-text.fixture';
+import { EditModeService } from '../../../platform/edit-mode/edit-mode.service';
+import { ContactPage } from './contact-page';
 
 /** The page's prose is a Page body now; the locations around it stay config. */
 const contactBody = {

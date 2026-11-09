@@ -1,10 +1,11 @@
-import type { AdminExchangeText } from './exchange-text.type';
-import { StatusTone } from '@b2b-catalog-platform/ui/content/status-badge';
 import {
   SyncRun,
   SyncRunStatus,
   SyncSummary,
 } from '@b2b-catalog-platform/shared/core/exchange';
+import { StatusTone } from '@b2b-catalog-platform/ui/content/status-badge';
+
+import type { AdminExchangeText } from './exchange-text.type';
 
 /** Amber where somebody has to act, green for what went through, red for
  * what broke, grey for a run that is simply over. */

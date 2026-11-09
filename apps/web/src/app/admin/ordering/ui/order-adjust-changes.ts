@@ -1,4 +1,5 @@
 import { Component, input } from '@angular/core';
+
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 
 /** What an adjustment is about to change (FR-ORD-03), and nothing else: forty

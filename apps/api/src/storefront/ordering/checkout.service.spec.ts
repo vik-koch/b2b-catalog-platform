@@ -1,29 +1,31 @@
-import type { MockInstance } from 'vitest';
 import { Logger } from '@nestjs/common';
+import type { MockInstance } from 'vitest';
+
+import { CustomerType } from '@b2b-catalog-platform/shared/core/accounts';
 import {
-  OrderSubmission,
   deliveryConfigSchema,
+  OrderSubmission,
 } from '@b2b-catalog-platform/shared/core/ordering';
-import { AddressesService } from '../../core/accounts/addresses.service';
-import { PickupLocation } from '../../core/ordering/ordering-config';
-import { productPairings } from '../../core/catalog/catalog-schema';
+
 import { users } from '../../core/accounts/accounts-schema';
+import { AddressesService } from '../../core/accounts/addresses.service';
+import { productPairings } from '../../core/catalog/catalog-schema';
+import { CartChangedException } from '../../core/ordering/cart-changed-exception';
+import { OrderNotifications } from '../../core/ordering/order-notifications';
+import { OrderReader } from '../../core/ordering/order-reader';
+import * as reference from '../../core/ordering/order-reference';
+import { OrderRules } from '../../core/ordering/order-rules';
+import { demoAdminOrder } from '../../core/ordering/order.fixture';
+import { PickupLocation } from '../../core/ordering/ordering-config';
 import {
   orderItems,
   orderRevisions,
   orders,
 } from '../../core/ordering/ordering-schema';
-import { OrderNotifications } from '../../core/ordering/order-notifications';
-import { TermsPdf } from '../../core/ordering/terms-pdf';
-import { demoAdminOrder } from '../../core/ordering/order.fixture';
-import * as reference from '../../core/ordering/order-reference';
-import { OrderReader } from '../../core/ordering/order-reader';
-import { OrderRules } from '../../core/ordering/order-rules';
-import { CheckoutService } from './checkout.service';
-import { CartChangedException } from '../../core/ordering/cart-changed-exception';
 import { PairingUnsatisfiedException } from '../../core/ordering/pairing-unsatisfied-exception';
-import { CustomerType } from '@b2b-catalog-platform/shared/core/accounts';
+import { TermsPdf } from '../../core/ordering/terms-pdf';
 import { Database } from '../../platform/db/database';
+import { CheckoutService } from './checkout.service';
 
 /**
  * Submission, without a database. What is worth pinning here is everything that

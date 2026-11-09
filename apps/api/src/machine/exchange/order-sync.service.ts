@@ -1,4 +1,5 @@
 import { HttpException, Inject, Injectable } from '@nestjs/common';
+
 import {
   ORDER_SYNC_ROW_ERROR_CODES,
   OrderSyncPlan,
@@ -14,15 +15,16 @@ import {
   OrderSyncSubmission,
   OrderSyncSubmitResponse,
 } from '@b2b-catalog-platform/shared/machine/exchange';
-import { DRIZZLE } from '../../platform/db/database.module';
+
 import { syncRuns } from '../../core/exchange/exchange-schema';
-import { OrderWriteBack } from './order-write-back';
-import { OwnershipState } from '../../platform/settings/ownership-state';
-import { ordersNotExternallyOwned } from '../../core/ordering/order-ownership-refusals';
+import { SyncNotifications } from '../../core/exchange/sync-notifications';
 import { Submitter } from '../../core/exchange/sync-run';
 import { SyncRunLog, toSyncRun } from '../../core/exchange/sync-run-log';
-import { SyncNotifications } from '../../core/exchange/sync-notifications';
+import { ordersNotExternallyOwned } from '../../core/ordering/order-ownership-refusals';
 import { Database } from '../../platform/db/database';
+import { DRIZZLE } from '../../platform/db/database.module';
+import { OwnershipState } from '../../platform/settings/ownership-state';
+import { OrderWriteBack } from './order-write-back';
 
 /**
  * The order write-back (FR-ADM-08): a batch is one run, applied as it arrives,

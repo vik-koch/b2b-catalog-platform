@@ -1,16 +1,17 @@
 import { ConflictException, INestApplication } from '@nestjs/common';
 import { APP_FILTER } from '@nestjs/core';
 import { Test } from '@nestjs/testing';
-import { StaffUsersController } from './staff-users.controller';
-import { StaffUsersService } from '../../core/accounts/staff-users.service';
-import { SignInStep } from '../../core/accounts/sign-in-step/sign-in-step';
+
+import { AccountDeletion } from '../../core/accounts/account-deletion';
 import { AccountInvitations } from '../../core/accounts/account-invitations';
+import { SignInStep } from '../../core/accounts/sign-in-step/sign-in-step';
+import { StaffUsersService } from '../../core/accounts/staff-users.service';
 import { AuditLogger } from '../../platform/audit/audit.logger';
+import { SignedInAs, withSession } from '../../platform/auth/session.fixture';
 import { ContractErrorFilter } from '../../platform/orpc/contract-error.filter';
 import { OwnershipState } from '../../platform/settings/ownership-state';
 import { ConsentRecords } from './consent-records';
-import { AccountDeletion } from '../../core/accounts/account-deletion';
-import { SignedInAs, withSession } from '../../platform/auth/session.fixture';
+import { StaffUsersController } from './staff-users.controller';
 
 /**
  * The role boundary is the whole point of this surface, and it is the kind of

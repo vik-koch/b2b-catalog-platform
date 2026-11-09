@@ -1,11 +1,13 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { eq } from 'drizzle-orm';
-import { DRIZZLE } from '../../platform/db/database.module';
-import { Database } from '../../platform/db/database';
-import { hashToken } from '../../platform/auth/api-token-value';
+
 import { ApiTokenScope } from '@b2b-catalog-platform/shared/core/exchange';
+
+import { hashToken } from '../../platform/auth/api-token-value';
 import { MachineClient } from '../../platform/auth/machine-client';
 import { MachineTokens } from '../../platform/auth/machine-tokens';
+import { Database } from '../../platform/db/database';
+import { DRIZZLE } from '../../platform/db/database.module';
 import { apiTokens } from './exchange-schema';
 
 /** A machine client with the exchange's scopes, as this lookup made it. */

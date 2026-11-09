@@ -1,11 +1,13 @@
 import { Component, computed, inject, input } from '@angular/core';
-import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
-import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+
 import { fillText } from '@b2b-catalog-platform/shared/platform';
+import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
 import { Link } from '@b2b-catalog-platform/ui/actions/link';
-import { PairingsService } from './pairings.service';
 import { packagePlusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/package-plus';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+
 import { SHARED_CATALOG_TEXT } from '../catalog-text';
+import { PairingsService } from './pairings.service';
 
 /**
  * The sold-together marker (FR-SET-05), opening the shell's pairings dialog.

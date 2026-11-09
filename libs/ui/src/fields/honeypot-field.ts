@@ -1,6 +1,7 @@
 import { Component, inject, input } from '@angular/core';
-import { UI_TEXT } from '../core/ui-text';
 import { FormField, type FieldTree } from '@angular/forms/signals';
+
+import { UI_TEXT } from '../core/ui-text';
 
 /**
  * A decoy field off screen, never announced and out of the tab order: a person

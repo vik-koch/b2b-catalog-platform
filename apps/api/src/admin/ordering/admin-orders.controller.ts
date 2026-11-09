@@ -1,17 +1,19 @@
 import { Controller } from '@nestjs/common';
 import { Implement, implement } from '@orpc/nest';
+
 import { adminOrdersContract } from '@b2b-catalog-platform/shared/admin/ordering';
-import { Auth } from '../../platform/auth/auth.decorator';
-import { CurrentUser } from '../../platform/auth/current-user.decorator';
-import { AuditLogger } from '../../platform/audit/audit.logger';
-import { refusals } from '../../platform/orpc/refusals';
+import { AuthUser } from '@b2b-catalog-platform/shared/platform';
+
 import { ordersExternallyOwned } from '../../core/ordering/order-ownership-refusals';
-import { OwnershipState } from '../../platform/settings/ownership-state';
 import { OrderPersonalData } from '../../core/ordering/order-personal-data';
 import { OrderReader } from '../../core/ordering/order-reader';
 import { OrderWriter } from '../../core/ordering/order-writer';
+import { AuditLogger } from '../../platform/audit/audit.logger';
+import { Auth } from '../../platform/auth/auth.decorator';
+import { CurrentUser } from '../../platform/auth/current-user.decorator';
+import { refusals } from '../../platform/orpc/refusals';
+import { OwnershipState } from '../../platform/settings/ownership-state';
 import { StaffOrdersService } from './staff-orders.service';
-import { AuthUser } from '@b2b-catalog-platform/shared/platform';
 
 /**
  * Staff reading and answering orders (FR-AUTH-03, FR-ORD-01..04). The reads

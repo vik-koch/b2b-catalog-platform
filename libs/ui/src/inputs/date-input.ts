@@ -7,11 +7,12 @@ import {
   viewChild,
 } from '@angular/core';
 import { FormField, type FieldTree } from '@angular/forms/signals';
+
 import { FieldBinding } from '../fields/field-binding';
-import { injectCoarsePointer } from './coarse-pointer';
-import { Icon } from '../icons/icon';
-import { Input } from './input';
 import { calendarIcon } from '../icons/glyphs/calendar';
+import { Icon } from '../icons/icon';
+import { injectCoarsePointer } from './coarse-pointer';
+import { Input } from './input';
 
 /**
  * The engine's own affordance takes all three rules to hide: appearance-none

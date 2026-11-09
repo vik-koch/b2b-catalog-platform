@@ -1,8 +1,10 @@
 import { inject, InjectionToken } from '@angular/core';
+
 import {
   ORDERING_AREA,
   type OrderingConfig,
 } from '@b2b-catalog-platform/shared/core/ordering';
+
 import {
   DEPLOYMENT_CONFIG,
   deploymentConfigBlock,

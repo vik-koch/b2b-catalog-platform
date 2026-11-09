@@ -1,10 +1,11 @@
-import { AccountErasure } from './account-erasure';
-import { UsersService } from './users.service';
-import { StaffUsersService } from './staff-users.service';
 import {
   CustomerType,
   StaffUser,
 } from '@b2b-catalog-platform/shared/core/accounts';
+
+import { AccountErasure } from './account-erasure';
+import { StaffUsersService } from './staff-users.service';
+import { UsersService } from './users.service';
 
 /**
  * The staff editor's half of FR-AUTH-13: an account is only ever saved as a

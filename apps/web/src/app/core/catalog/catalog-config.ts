@@ -1,8 +1,10 @@
 import { inject, InjectionToken } from '@angular/core';
+
 import {
   CATALOG_AREA,
   type CatalogConfig,
 } from '@b2b-catalog-platform/shared/core/catalog';
+
 import {
   DEPLOYMENT_CONFIG,
   deploymentConfigBlock,

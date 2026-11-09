@@ -1,18 +1,20 @@
-import { defaultSharedOrderingText } from '../../../core/ordering/ordering-text.fixture';
-import { defaultStorefrontOrderingText } from '../ordering-text.fixture';
-import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
-import type { StorefrontOrderingText } from '../ordering-text.type';
-import { defaultStorefrontText } from '../../../platform/config/storefront-text.fixture';
-import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
-import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
+
 import type { DeploymentConfigFile } from '@b2b-catalog-platform/shared/deployment';
-import { defaultDeploymentConfig } from '../../../platform/config/deployment-config.fixture';
-import { EditModeService } from '../../../platform/edit-mode/edit-mode.service';
-import { ConditionsPage } from './conditions-page';
+
+import { defaultSharedOrderingText } from '../../../core/ordering/ordering-text.fixture';
 import { PageService } from '../../../core/site/page.service';
+import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
+import { defaultDeploymentConfig } from '../../../platform/config/deployment-config.fixture';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
+import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
+import { defaultStorefrontText } from '../../../platform/config/storefront-text.fixture';
+import { EditModeService } from '../../../platform/edit-mode/edit-mode.service';
+import { defaultStorefrontOrderingText } from '../ordering-text.fixture';
+import type { StorefrontOrderingText } from '../ordering-text.type';
+import { ConditionsPage } from './conditions-page';
 
 const conditionsBody = {
   title: 'Payment & delivery',

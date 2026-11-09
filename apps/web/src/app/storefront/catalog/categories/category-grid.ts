@@ -11,13 +11,14 @@ import {
   viewChild,
 } from '@angular/core';
 import { Params } from '@angular/router';
-import { fillText } from '@b2b-catalog-platform/shared/platform';
+
 import {
   CategoryCrumb,
   categoryDisplayName,
   PRODUCT_SORTS,
   ProductListItem,
 } from '@b2b-catalog-platform/shared/core/catalog';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
 import {
   CATALOG_SORTS,
   CatalogSort,
@@ -31,8 +32,8 @@ import {
 } from '@b2b-catalog-platform/ui/content/breadcrumbs';
 import { disclosureState } from '@b2b-catalog-platform/ui/disclosure/disclosure-state';
 import { ShowMoreToggle } from '@b2b-catalog-platform/ui/disclosure/show-more-toggle';
-import { usePageSeo } from '../../../platform/page-seo';
-import { stableValue } from '../../../platform/stable-value';
+
+import { SHARED_CATALOG_TEXT } from '../../../core/catalog/catalog-text';
 import {
   EDIT_ACTIONS_INSET,
   EditActions,
@@ -40,8 +41,11 @@ import {
 import { editAwareContent } from '../../../platform/edit-mode/edit-aware-content';
 import { EditModeService } from '../../../platform/edit-mode/edit-mode.service';
 import { injectEditorReturnParams } from '../../../platform/edit-mode/editor-return';
+import { usePageSeo } from '../../../platform/page-seo';
+import { stableValue } from '../../../platform/stable-value';
 import { LoadErrorView } from '../../platform/load-error-view';
 import { NotFoundView } from '../../platform/not-found-view';
+import { STOREFRONT_CATALOG_TEXT } from '../catalog-text';
 import { CatalogService } from '../catalog.service';
 import { AppliedFilters } from '../filters/applied-filters';
 import {
@@ -57,12 +61,10 @@ import { listingParams } from '../listing-params';
 import { ProductLayoutService } from '../product-layout';
 import { ProductLayoutToggle } from '../product-layout-toggle';
 import { CategoryChip } from '../ui/category-chip';
-import { PRODUCT_GRID } from '../ui/product-tile';
 import { ProductListing } from '../ui/product-listing';
+import { PRODUCT_GRID } from '../ui/product-tile';
 import { CATEGORY_GRID } from './category-index';
 import { HiddenProductsSection } from './hidden-products-section';
-import { SHARED_CATALOG_TEXT } from '../../../core/catalog/catalog-text';
-import { STOREFRONT_CATALOG_TEXT } from '../catalog-text';
 
 /** The phone's clip (SUBS_CLIPPED) in px: four `h-16` chip rows, their
  * `gap-3`s and SUBS_LIST's 4px inset. The CSS clips; this only asks whether

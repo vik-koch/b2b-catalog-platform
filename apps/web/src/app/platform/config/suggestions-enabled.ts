@@ -1,4 +1,5 @@
 import { InjectionToken, Provider } from '@angular/core';
+
 import { readShellState } from './shell-state';
 
 /** Whether a suggestion sidecar is configured: the environment's one URL, read

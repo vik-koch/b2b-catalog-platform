@@ -7,46 +7,48 @@ import {
   Req,
   Res,
 } from '@nestjs/common';
-import type { Request, Response } from 'express';
 import { Implement, implement } from '@orpc/nest';
+import type { Request, Response } from 'express';
+
 import {
-  AuthThrottle,
-  PublicFormThrottle,
-  SignInCallThrottle,
-} from '../../platform/throttling/throttle-presets';
-import { Auth } from '../../platform/auth/auth.decorator';
-import { CurrentUser } from '../../platform/auth/current-user.decorator';
-import { AuthService } from './auth.service';
-import { WrongCurrentPasswordError } from './wrong-current-password-error';
-import { PasswordRejectedError } from '../../core/accounts/password-rejected-error';
-import { PasswordResetService } from '../../core/accounts/password-reset.service';
-import { PasswordSetupService } from './password-setup.service';
-import { RegistrationService } from './registration.service';
-import { MaintenanceExempt } from '../../core/site/maintenance-exempt.decorator';
-import { MaintenanceState } from '../../core/site/maintenance-state';
-import { refusals } from '../../platform/orpc/refusals';
-import { endSession } from '../../platform/auth/session-cookie';
-import { Sessions } from '../../platform/auth/sessions';
-import { sending } from '../../core/accounts/sign-in-step/code-refusals';
-import { MailCallCheck } from '../../core/accounts/sign-in-step/mail-call-check';
-import { SignInStep } from '../../core/accounts/sign-in-step/sign-in-step';
-import {
-  SIGN_IN_PROOF,
-  SignInProof,
-} from '../../core/accounts/sign-in-step/sign-in-proof';
-import { UserRow, UsersService } from '../../core/accounts/users.service';
-import { toAuthUser } from '../../platform/auth/auth-user';
+  MAINTENANCE_REFUSED,
+  PASSWORD_TOKEN_INVALID,
+} from '@b2b-catalog-platform/shared/core/accounts';
+import { passesMaintenance } from '@b2b-catalog-platform/shared/core/site';
 import {
   AuthUser,
   sessionContract,
   UserRole,
 } from '@b2b-catalog-platform/shared/platform';
-import { passesMaintenance } from '@b2b-catalog-platform/shared/core/site';
-import {
-  MAINTENANCE_REFUSED,
-  PASSWORD_TOKEN_INVALID,
-} from '@b2b-catalog-platform/shared/core/accounts';
 import { authContract } from '@b2b-catalog-platform/shared/storefront/accounts';
+
+import { PasswordRejectedError } from '../../core/accounts/password-rejected-error';
+import { PasswordResetService } from '../../core/accounts/password-reset.service';
+import { sending } from '../../core/accounts/sign-in-step/code-refusals';
+import { MailCallCheck } from '../../core/accounts/sign-in-step/mail-call-check';
+import {
+  SIGN_IN_PROOF,
+  SignInProof,
+} from '../../core/accounts/sign-in-step/sign-in-proof';
+import { SignInStep } from '../../core/accounts/sign-in-step/sign-in-step';
+import { UserRow, UsersService } from '../../core/accounts/users.service';
+import { MaintenanceExempt } from '../../core/site/maintenance-exempt.decorator';
+import { MaintenanceState } from '../../core/site/maintenance-state';
+import { toAuthUser } from '../../platform/auth/auth-user';
+import { Auth } from '../../platform/auth/auth.decorator';
+import { CurrentUser } from '../../platform/auth/current-user.decorator';
+import { endSession } from '../../platform/auth/session-cookie';
+import { Sessions } from '../../platform/auth/sessions';
+import { refusals } from '../../platform/orpc/refusals';
+import {
+  AuthThrottle,
+  PublicFormThrottle,
+  SignInCallThrottle,
+} from '../../platform/throttling/throttle-presets';
+import { AuthService } from './auth.service';
+import { PasswordSetupService } from './password-setup.service';
+import { RegistrationService } from './registration.service';
+import { WrongCurrentPasswordError } from './wrong-current-password-error';
 
 @Controller()
 export class AuthController {

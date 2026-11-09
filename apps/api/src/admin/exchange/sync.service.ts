@@ -1,6 +1,6 @@
 import { ConflictException, Inject, Injectable } from '@nestjs/common';
 import { and, count, desc, eq } from 'drizzle-orm';
-import { Pagination } from '@b2b-catalog-platform/shared/platform';
+
 import {
   CatalogSyncPlan,
   CustomerSyncPlan,
@@ -11,10 +11,11 @@ import {
   SyncRun,
   SyncRunStatus,
 } from '@b2b-catalog-platform/shared/core/exchange';
-import { DRIZZLE } from '../../platform/db/database.module';
-import { syncRuns } from '../../core/exchange/exchange-schema';
+import { Pagination } from '@b2b-catalog-platform/shared/platform';
+
 import { CatalogSyncService } from '../../core/exchange/catalog-sync.service';
 import { CustomerSyncService } from '../../core/exchange/customer-sync.service';
+import { syncRuns } from '../../core/exchange/exchange-schema';
 import {
   Actor,
   CONFLICT_CODE,
@@ -23,6 +24,7 @@ import {
 import { toSyncRun } from '../../core/exchange/sync-run-log';
 import { stagedPayload } from '../../core/exchange/sync-run-payload';
 import { Database } from '../../platform/db/database';
+import { DRIZZLE } from '../../platform/db/database.module';
 
 /** Refuses a reader the run's area is not open to; called before any work. */
 export type AreaCheck = (area: SyncArea) => void;

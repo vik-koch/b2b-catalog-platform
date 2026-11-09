@@ -1,14 +1,27 @@
 import { Component, inject, signal } from '@angular/core';
 import { form, maxLength, required } from '@angular/forms/signals';
 import { RouterLink } from '@angular/router';
+
 import {
   INQUIRY_MESSAGE_MAX_LENGTH,
   INQUIRY_PHONE_MAX_LENGTH,
   InquiryRequest,
 } from '@b2b-catalog-platform/shared/storefront/site';
-import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
-import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
+import {
+  Segmented,
+  SegmentOption,
+} from '@b2b-catalog-platform/ui/choices/segmented';
+import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
+import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
+import { HoneypotField } from '@b2b-catalog-platform/ui/fields/honeypot-field';
+import { Input } from '@b2b-catalog-platform/ui/inputs/input';
+import { PhoneInput } from '@b2b-catalog-platform/ui/inputs/phone-input';
+
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
 import { canonicalPhone } from '../../../platform/contact-fields';
 import {
   completeMask,
@@ -16,21 +29,10 @@ import {
   personName,
   untilInteractive,
 } from '../../../platform/field-rules';
-import { Button } from '@b2b-catalog-platform/ui/actions/button';
-import { HoneypotField } from '@b2b-catalog-platform/ui/fields/honeypot-field';
-import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
-import { Input } from '@b2b-catalog-platform/ui/inputs/input';
-import { PhoneInput } from '@b2b-catalog-platform/ui/inputs/phone-input';
-import {
-  Segmented,
-  SegmentOption,
-} from '@b2b-catalog-platform/ui/choices/segmented';
-import { InquiryService } from './inquiry.service';
-import { ConsentField } from '../consent-field';
 import { useConsent } from '../consent';
-import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
-import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
+import { ConsentField } from '../consent-field';
 import { STOREFRONT_SITE_TEXT } from '../site-text';
+import { InquiryService } from './inquiry.service';
 
 type PreferredContact = InquiryRequest['preferredContact'];
 type Status = 'idle' | 'success' | 'error';

@@ -1,4 +1,5 @@
 import { Client } from 'pg';
+
 import { requireEnv } from '../support/env';
 
 const SUFFIX = Math.random().toString(36).slice(2, 10);

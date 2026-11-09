@@ -1,5 +1,5 @@
-import { MoneyFormat } from '@b2b-catalog-platform/shared/platform';
 import { computed, linkedSignal, Signal } from '@angular/core';
+
 import {
   correctPieces,
   pieceFloor,
@@ -10,6 +10,8 @@ import {
   unitQuantity,
   unitQuantityIsWhole,
 } from '@b2b-catalog-platform/shared/core/catalog';
+import { MoneyFormat } from '@b2b-catalog-platform/shared/platform';
+
 import { formatUnitQuantity, parseUnitQuantity } from './quantity';
 
 /** As much of a cart line as choosing a quantity needs to read. */

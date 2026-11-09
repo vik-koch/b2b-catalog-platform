@@ -1,11 +1,13 @@
 import { Injectable } from '@angular/core';
 import { isDefinedError, safe } from '@orpc/client';
-import { accountContract } from '../contract-routes.generated';
-import { createOrpcClient } from '../../../platform/orpc-client';
+
 import {
   AccountProfile,
   UpdateAccountProfileRequest,
 } from '@b2b-catalog-platform/shared/storefront/accounts';
+
+import { createOrpcClient } from '../../../platform/orpc-client';
+import { accountContract } from '../contract-routes.generated';
 
 /** What the delete form has to tell apart. */
 export type DeleteAccountResult = 'ok' | 'wrong-password' | 'last-admin';

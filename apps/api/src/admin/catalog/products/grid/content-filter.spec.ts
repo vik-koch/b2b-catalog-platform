@@ -1,6 +1,8 @@
-import { drizzle } from 'drizzle-orm/node-postgres';
 import { and } from 'drizzle-orm';
+import { drizzle } from 'drizzle-orm/node-postgres';
+
 import { PRODUCT_FACTS } from '@b2b-catalog-platform/shared/admin/catalog';
+
 import { products } from '../../../../core/catalog/catalog-schema';
 import { contentCondition } from './content-filter';
 

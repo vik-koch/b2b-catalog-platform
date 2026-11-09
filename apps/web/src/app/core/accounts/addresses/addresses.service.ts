@@ -1,15 +1,17 @@
 import { Injectable } from '@angular/core';
-import {
-  addressSuggestionContract,
-  addressesContract,
-} from '../contract-routes.generated';
 import { safe, type ClientPromiseResult } from '@orpc/client';
-import { createOrpcClient } from '../../../platform/orpc-client';
+
 import {
   Address,
   AddressInput,
   AddressSuggestion,
 } from '@b2b-catalog-platform/shared/core/accounts';
+
+import { createOrpcClient } from '../../../platform/orpc-client';
+import {
+  addressesContract,
+  addressSuggestionContract,
+} from '../contract-routes.generated';
 
 /** The refusals the form explains; any other error is thrown. */
 export type SaveAddressResult =

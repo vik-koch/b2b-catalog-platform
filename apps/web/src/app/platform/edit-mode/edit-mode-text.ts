@@ -1,4 +1,5 @@
 import { computed, inject, InjectionToken, Signal } from '@angular/core';
+
 import { ADMIN_TEXT, adminText, loadAdminText } from '../config/admin-text';
 import type { AdminText } from '../config/admin-text.type';
 

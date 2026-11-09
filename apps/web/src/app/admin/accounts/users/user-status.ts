@@ -1,9 +1,10 @@
-import { fillText } from '@b2b-catalog-platform/shared/platform';
-import { StatusTone } from '@b2b-catalog-platform/ui/content/status-badge';
 import {
   StaffUser,
   UserStatus,
 } from '@b2b-catalog-platform/shared/core/accounts';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
+import { StatusTone } from '@b2b-catalog-platform/ui/content/status-badge';
+
 import type { AdminAccountsText } from '../accounts-text.type';
 
 type ListText = AdminAccountsText['users']['list'];

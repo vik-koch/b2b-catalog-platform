@@ -1,23 +1,26 @@
-import { defaultAdminOrderingText } from './ordering-text.fixture';
-import { SHARED_TEXT } from '../../platform/config/shared-text';
-import { defaultSharedText } from '../../platform/config/shared-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { Pagination } from '@b2b-catalog-platform/shared/platform';
-import { OwnershipArea } from '@b2b-catalog-platform/shared/platform';
+
+import { StaffOrderSummary } from '@b2b-catalog-platform/shared/admin/ordering';
+import {
+  OwnershipArea,
+  Pagination,
+} from '@b2b-catalog-platform/shared/platform';
+import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
+
 import { ADMIN_TEXT } from '../../platform/config/admin-text';
-import { provideOwnership } from '../platform/ownership/ownership.fixture';
 import { defaultAdminText } from '../../platform/config/admin-text.fixture';
-import { STOREFRONT_TEXT } from '../../platform/config/storefront-text';
-import { defaultStorefrontText } from '../../platform/config/storefront-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
 import { defaultDeploymentConfig } from '../../platform/config/deployment-config.fixture';
-import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
-import { AdminOrderListPage } from './order-list-page';
-import { AdminOrdersService } from './orders.service';
-import { StaffOrderSummary } from '@b2b-catalog-platform/shared/admin/ordering';
-import { provideUiText } from '../../platform/config/shared-text';
+import { provideUiText, SHARED_TEXT } from '../../platform/config/shared-text';
+import { defaultSharedText } from '../../platform/config/shared-text.fixture';
+import { STOREFRONT_TEXT } from '../../platform/config/storefront-text';
+import { defaultStorefrontText } from '../../platform/config/storefront-text.fixture';
+import { provideOwnership } from '../platform/ownership/ownership.fixture';
 import { provideGridText } from '../platform/provide-grid-text';
+import { AdminOrderListPage } from './order-list-page';
+import { defaultAdminOrderingText } from './ordering-text.fixture';
+import { AdminOrdersService } from './orders.service';
 
 const text = defaultAdminOrderingText.orders.list;
 

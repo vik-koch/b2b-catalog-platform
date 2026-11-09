@@ -1,16 +1,18 @@
 import { signal, WritableSignal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
-import { AuthService } from '../../../platform/auth/auth.service';
-import { defaultSharedAccountsText } from '../accounts-text.fixture';
-import { SHARED_TEXT } from '../../../platform/config/shared-text';
-import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
-import { SignedInAs } from './signed-in-as';
+
+import { AuthUser } from '@b2b-catalog-platform/shared/platform';
+
 import {
   adminUser as admin,
   plainUser as customer,
 } from '../../../platform/auth/auth-user.fixture';
-import { AuthUser } from '@b2b-catalog-platform/shared/platform';
+import { AuthService } from '../../../platform/auth/auth.service';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
+import { defaultSharedAccountsText } from '../accounts-text.fixture';
+import { SignedInAs } from './signed-in-as';
 
 const text = defaultSharedAccountsText.signedInAs;
 

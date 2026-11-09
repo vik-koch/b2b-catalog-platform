@@ -7,14 +7,16 @@ import {
   viewChildren,
 } from '@angular/core';
 import { type FieldTree } from '@angular/forms/signals';
+
+import { PartySuggestion } from '@b2b-catalog-platform/shared/core/accounts';
 import { fillText } from '@b2b-catalog-platform/shared/platform';
-import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
-import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { Field } from '@b2b-catalog-platform/ui/fields/field';
+
+import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { companyIdExamples } from './company-id';
 import { PartySuggestInput } from './party-suggest-input';
-import { PartySuggestion } from '@b2b-catalog-platform/shared/core/accounts';
 
 /** Two pairs on one page would otherwise share the line's id. */
 let nextId = 0;

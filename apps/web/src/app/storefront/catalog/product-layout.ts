@@ -7,6 +7,7 @@ import {
   REQUEST,
   signal,
 } from '@angular/core';
+
 import { cookieValue } from '../../platform/cookie';
 
 export type ProductLayout = 'grid' | 'list';

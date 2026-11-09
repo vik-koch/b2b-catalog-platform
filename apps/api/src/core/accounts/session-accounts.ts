@@ -1,8 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { eq } from 'drizzle-orm';
-import { DRIZZLE } from '../../platform/db/database.module';
-import { Database } from '../../platform/db/database';
+
 import { SessionUser, SessionUsers } from '../../platform/auth/session-users';
+import { Database } from '../../platform/db/database';
+import { DRIZZLE } from '../../platform/db/database.module';
 import { users } from './accounts-schema';
 
 @Injectable()

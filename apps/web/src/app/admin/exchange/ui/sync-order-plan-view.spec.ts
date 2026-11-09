@@ -1,16 +1,18 @@
-import { defaultAdminExchangeText } from '../exchange-text.fixture';
-import { SHARED_TEXT } from '../../../platform/config/shared-text';
-import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+
 import {
   OrderSyncPlan,
   OrderWriteResult,
   SyncSummary,
 } from '@b2b-catalog-platform/shared/core/exchange';
+
 import { ADMIN_TEXT } from '../../../platform/config/admin-text';
 import { defaultAdminText } from '../../../platform/config/admin-text.fixture';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
+import { defaultAdminExchangeText } from '../exchange-text.fixture';
 import { SyncOrderPlanView } from './sync-order-plan-view';
 
 const text = defaultAdminExchangeText.sync;

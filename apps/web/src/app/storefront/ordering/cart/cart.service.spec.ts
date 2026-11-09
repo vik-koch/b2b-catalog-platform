@@ -1,12 +1,14 @@
 import { PLATFORM_ID } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+
 import { CartPreview } from '@b2b-catalog-platform/shared/core/ordering';
+
+import { CartAddition } from '../../../core/catalog/buying/product-cart';
 import {
   packagedPackaging,
   plainPackaging,
 } from '../../../core/catalog/product.fixture';
 import { CartService, CartStoredLine } from './cart.service';
-import { CartAddition } from '../../../core/catalog/buying/product-cart';
 
 const STORAGE_KEY = 'cart';
 

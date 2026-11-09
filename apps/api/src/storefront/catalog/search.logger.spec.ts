@@ -1,5 +1,6 @@
-import type { MockInstance } from 'vitest';
 import { Logger } from '@nestjs/common';
+import type { MockInstance } from 'vitest';
+
 import { SearchLogger } from './search.logger';
 
 /**

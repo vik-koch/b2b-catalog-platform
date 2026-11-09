@@ -1,11 +1,13 @@
 import { Controller } from '@nestjs/common';
 import { Implement, implement } from '@orpc/nest';
+
 import { adminApiTokensContract } from '@b2b-catalog-platform/shared/admin/exchange';
 import { AuthUser } from '@b2b-catalog-platform/shared/platform';
+
 import { AuditLogger } from '../../platform/audit/audit.logger';
-import { refusals } from '../../platform/orpc/refusals';
 import { Auth } from '../../platform/auth/auth.decorator';
 import { CurrentUser } from '../../platform/auth/current-user.decorator';
+import { refusals } from '../../platform/orpc/refusals';
 import { ApiTokensService } from './api-tokens.service';
 
 /** Machine tokens (NFR-SEC-09): admin-only, like every credential decision. */

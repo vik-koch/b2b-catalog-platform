@@ -1,16 +1,9 @@
-import {
-  provideUiText,
-  SHARED_TEXT,
-} from '../../../platform/config/shared-text';
 import { PLATFORM_ID } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import type { DeploymentConfigFile } from '@b2b-catalog-platform/shared/deployment';
-import { Page } from '@b2b-catalog-platform/shared/core/site';
 import { provideRouter } from '@angular/router';
-import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
-import { defaultStorefrontText } from '../../../platform/config/storefront-text.fixture';
-import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
-import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
+
+import { Page } from '@b2b-catalog-platform/shared/core/site';
+import type { DeploymentConfigFile } from '@b2b-catalog-platform/shared/deployment';
 import {
   EMAIL_MAX_LENGTH,
   PERSON_NAME_MAX_LENGTH,
@@ -19,12 +12,21 @@ import {
   INQUIRY_MESSAGE_MAX_LENGTH,
   INQUIRY_PHONE_MAX_LENGTH,
 } from '@b2b-catalog-platform/shared/storefront/site';
-import { InquiryPage } from './inquiry-page';
-import { InquiryService } from './inquiry.service';
+
 import { PageService } from '../../../core/site/page.service';
+import { withSite } from '../../../core/site/site-config.fixture';
+import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
+import {
+  provideUiText,
+  SHARED_TEXT,
+} from '../../../platform/config/shared-text';
+import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
+import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
+import { defaultStorefrontText } from '../../../platform/config/storefront-text.fixture';
 import { provideDigitMaskFormat } from '../../../platform/contact-fields';
 import { defaultStorefrontSiteText } from '../site-text.fixture';
-import { withSite } from '../../../core/site/site-config.fixture';
+import { InquiryPage } from './inquiry-page';
+import { InquiryService } from './inquiry.service';
 
 const text = defaultStorefrontSiteText.inquiry;
 const consentText = defaultStorefrontSiteText.consentBox;

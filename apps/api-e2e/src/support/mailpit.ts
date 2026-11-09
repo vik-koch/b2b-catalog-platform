@@ -1,4 +1,5 @@
 import axios from 'axios';
+
 import { requireEnv } from './env';
 
 // Mailpit's REST API (compose.api-e2e.yml): this suite's own email sink.

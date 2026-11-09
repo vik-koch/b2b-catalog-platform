@@ -1,8 +1,10 @@
 import { Component, inject } from '@angular/core';
+
+import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
+import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
+
 import { usePageSeo } from '../../../platform/page-seo';
 import { setResponseStatus } from '../../platform/response-status';
-import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
-import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
 import { STOREFRONT_SITE_TEXT } from '../site-text';
 
 /** Fetches nothing: behind the gate the API would refuse it. */

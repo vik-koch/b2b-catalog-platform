@@ -9,15 +9,19 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
+
 import {
   MEDIA_CATALOG_FULL_WIDTH,
   MEDIA_CATALOG_THUMB_WIDTH,
 } from '@b2b-catalog-platform/shared/platform';
-import { ADMIN_TEXT } from '../../../platform/config/admin-text';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
+import { TextButton } from '@b2b-catalog-platform/ui/actions/text-button';
 import { DialogActions } from '@b2b-catalog-platform/ui/overlay/dialog-actions';
 import { DialogPanel } from '@b2b-catalog-platform/ui/overlay/dialog-panel';
-import { TextButton } from '@b2b-catalog-platform/ui/actions/text-button';
+import { DialogTitle } from '@b2b-catalog-platform/ui/overlay/dialog-title';
+
+import { ADMIN_TEXT } from '../../../platform/config/admin-text';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import {
   clampFrame,
   filled,
@@ -28,8 +32,6 @@ import {
   ZOOM_MAX,
   ZOOM_MIN,
 } from './image-frame';
-import { SHARED_TEXT } from '../../../platform/config/shared-text';
-import { DialogTitle } from '@b2b-catalog-platform/ui/overlay/dialog-title';
 
 /** Arrow keys move by this share of the square, Shift by five times it. */
 const KEY_STEP = 0.01;

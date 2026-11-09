@@ -1,5 +1,3 @@
-import type { AdminOrderingText } from './ordering-text.type';
-import { fillText } from '@b2b-catalog-platform/shared/platform';
 import {
   AdminOrderDetail,
   allowedTransitions,
@@ -10,6 +8,11 @@ import {
   OrderStatus,
   transitionHasReason,
 } from '@b2b-catalog-platform/shared/core/ordering';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
+import { Glyph } from '@b2b-catalog-platform/ui/icons/glyph';
+import { arrowLeftIcon } from '@b2b-catalog-platform/ui/icons/glyphs/arrow-left';
+import { arrowRightIcon } from '@b2b-catalog-platform/ui/icons/glyphs/arrow-right';
+import { circleSlashIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-slash';
 import {
   ConfirmAnswer,
   ConfirmCheck,
@@ -19,10 +22,8 @@ import {
   ConfirmRequest,
   ReasonRequest,
 } from '@b2b-catalog-platform/ui/overlay/confirm.service';
-import { Glyph } from '@b2b-catalog-platform/ui/icons/glyph';
-import { arrowLeftIcon } from '@b2b-catalog-platform/ui/icons/glyphs/arrow-left';
-import { arrowRightIcon } from '@b2b-catalog-platform/ui/icons/glyphs/arrow-right';
-import { circleSlashIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-slash';
+
+import type { AdminOrderingText } from './ordering-text.type';
 
 type DetailText = AdminOrderingText['orders']['detail'];
 

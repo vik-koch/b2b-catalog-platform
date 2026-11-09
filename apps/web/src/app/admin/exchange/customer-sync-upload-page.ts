@@ -1,9 +1,6 @@
-import type { AdminExchangeText } from './exchange-text.type';
-import { ADMIN_EXCHANGE_TEXT } from './exchange-text';
-import { ADMIN_ACCOUNTS_TEXT } from '../accounts/accounts-text';
 import { Component, computed, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { fillText } from '@b2b-catalog-platform/shared/platform';
+
 import {
   CUSTOMER_SYNC_CSV_COLUMNS,
   CUSTOMER_SYNC_FIELDS,
@@ -11,16 +8,21 @@ import {
   CustomerSyncPreviewResponse,
   SyncRun,
 } from '@b2b-catalog-platform/shared/core/exchange';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { Link } from '@b2b-catalog-platform/ui/actions/link';
 import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
+
 import { usePageSeo } from '../../platform/page-seo';
+import { ADMIN_ACCOUNTS_TEXT } from '../accounts/accounts-text';
 import { OwnershipService } from '../platform/ownership/ownership.service';
 import {
   CUSTOMER_SYNC_PRESETS,
-  CustomerSyncPresetName,
   customerPresetFor,
+  CustomerSyncPresetName,
 } from './customer-sync-presets';
+import { ADMIN_EXCHANGE_TEXT } from './exchange-text';
+import type { AdminExchangeText } from './exchange-text.type';
 import { syncChangeSummary } from './sync-run-format';
 import { SyncFlag, SyncUpload, withField } from './sync-upload';
 import { SyncService } from './sync.service';

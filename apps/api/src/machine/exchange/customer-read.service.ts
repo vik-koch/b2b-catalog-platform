@@ -1,17 +1,19 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { and, asc, eq, gte, sql } from 'drizzle-orm';
+
+import { UserStatus } from '@b2b-catalog-platform/shared/core/accounts';
 import {
   CustomerAccountRecord,
-  CustomerAccountState,
   CustomerAccountsPage,
+  CustomerAccountState,
   ListCustomerAccountsQuery,
 } from '@b2b-catalog-platform/shared/machine/exchange';
-import { UserStatus } from '@b2b-catalog-platform/shared/core/accounts';
-import { DRIZZLE } from '../../platform/db/database.module';
-import { customerTiers } from '../../core/catalog/catalog-schema';
+
 import { users } from '../../core/accounts/accounts-schema';
-import { encodeMachineCursor, parseMachineCursor } from './machine-cursor';
+import { customerTiers } from '../../core/catalog/catalog-schema';
 import { Database } from '../../platform/db/database';
+import { DRIZZLE } from '../../platform/db/database.module';
+import { encodeMachineCursor, parseMachineCursor } from './machine-cursor';
 
 /**
  * The outbound read of customer accounts (FR-ADM-18). Gated by the token's

@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+
 import { Checkbox } from './checkbox';
 import { Radio } from './radio';
 import { TickLabel } from './tick-label';

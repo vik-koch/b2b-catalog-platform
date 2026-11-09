@@ -1,12 +1,14 @@
 import { Component, inject, input, resource } from '@angular/core';
-import { fillText } from '@b2b-catalog-platform/shared/platform';
+
 import { PageSlug } from '@b2b-catalog-platform/shared/core/site';
-import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
-import { adminDayFormat } from '../../platform/dates/admin-date';
-import { PageEditingService } from './page-editing.service';
-import { trustedRichText } from '../../../platform/trusted-rich-text';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
 import { DetailsSummary } from '@b2b-catalog-platform/ui/disclosure/details-summary';
+
+import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
+import { trustedRichText } from '../../../platform/trusted-rich-text';
+import { adminDayFormat } from '../../platform/dates/admin-date';
 import { ADMIN_SITE_TEXT } from '../site-text';
+import { PageEditingService } from './page-editing.service';
 
 /**
  * Read-only: a consent or an order points at a version, and the admin reads it

@@ -1,8 +1,7 @@
-import { ADMIN_EXCHANGE_TEXT } from './exchange-text';
 import { NgTemplateOutlet } from '@angular/common';
 import { Component, computed, inject, input, resource } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { fillText } from '@b2b-catalog-platform/shared/platform';
+
 import {
   CATALOG_SYNC_CSV_COLUMNS,
   SyncArea,
@@ -10,35 +9,38 @@ import {
   SyncRunStatus,
   syncRunStatusSchema,
 } from '@b2b-catalog-platform/shared/core/exchange';
-import { AuthService } from '../../platform/auth/auth.service';
-import { delayedLoading } from '../../platform/delayed-loading';
-import { usePageSeo } from '../../platform/page-seo';
-import { stableValue } from '../../platform/stable-value';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
-import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import {
   StatusBadge,
   StatusTone,
 } from '@b2b-catalog-platform/ui/content/status-badge';
 import { DataGrid } from '@b2b-catalog-platform/ui/grid/data-grid';
+import { GridCardTemplate } from '@b2b-catalog-platform/ui/grid/grid-card-template';
 import { GridColumn } from '@b2b-catalog-platform/ui/grid/grid-column';
 import { GridFilterOption } from '@b2b-catalog-platform/ui/grid/grid-filter-select';
-import { GridPagination } from '@b2b-catalog-platform/ui/grid/grid-pagination';
-import { GridCardTemplate } from '@b2b-catalog-platform/ui/grid/grid-card-template';
-import { GridRowTemplate } from '@b2b-catalog-platform/ui/grid/grid-row-template';
-import { GridTimestamp } from '../platform/dates/grid-timestamp';
 import { GridHeader } from '@b2b-catalog-platform/ui/grid/grid-header';
+import { GridPagination } from '@b2b-catalog-platform/ui/grid/grid-pagination';
+import { GridRowTemplate } from '@b2b-catalog-platform/ui/grid/grid-row-template';
+import { uploadIcon } from '@b2b-catalog-platform/ui/icons/glyphs/upload';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { RecordRow } from '@b2b-catalog-platform/ui/lists/record-row';
+
+import { AuthService } from '../../platform/auth/auth.service';
+import { delayedLoading } from '../../platform/delayed-loading';
+import { pageNumber } from '../../platform/page-number';
+import { usePageSeo } from '../../platform/page-seo';
+import { stableValue } from '../../platform/stable-value';
+import { GridTimestamp } from '../platform/dates/grid-timestamp';
+import { ADMIN_EXCHANGE_TEXT } from './exchange-text';
 import {
   SYNC_RUN_TONE,
   syncChangeSummary,
   syncRunActor,
 } from './sync-run-format';
 import { SyncService } from './sync.service';
-import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
-import { uploadIcon } from '@b2b-catalog-platform/ui/icons/glyphs/upload';
-import { pageNumber } from '../../platform/page-number';
 
 /**
  * One area's runs, newest first (FR-ADM-09), at `/admin/sync/<area>`. One

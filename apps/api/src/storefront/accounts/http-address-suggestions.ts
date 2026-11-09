@@ -1,12 +1,14 @@
 import { Logger } from '@nestjs/common';
 import * as z from 'zod';
+
+import { addressSuggestionSchema } from '@b2b-catalog-platform/shared/core/accounts';
+
 import { SuggestionSidecar } from '../../platform/suggestions/sidecar';
 import {
   AddressSuggestionPort,
   AddressSuggestionResult,
   NoAddressSuggestions,
 } from './address-suggestion.port';
-import { addressSuggestionSchema } from '@b2b-catalog-platform/shared/core/accounts';
 
 const responseSchema = z.object({ items: z.array(addressSuggestionSchema) });
 

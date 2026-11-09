@@ -1,6 +1,7 @@
+import { SESSION_HINT_COOKIE } from '@b2b-catalog-platform/shared/platform';
+
 import { readSessionHint } from '../../../platform/auth/session-hint';
 import { sessionShellSource } from './session-shell.server';
-import { SESSION_HINT_COOKIE } from '@b2b-catalog-platform/shared/platform';
 
 /** Sets the hint cookie for this document, or clears it. */
 function hint(value: string | null): void {

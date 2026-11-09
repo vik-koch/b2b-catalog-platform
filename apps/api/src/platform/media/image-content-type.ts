@@ -1,4 +1,5 @@
 import sharp from 'sharp';
+
 import { AcceptedImageMime } from '@b2b-catalog-platform/shared/platform';
 
 const FORMAT_TO_MIME: Record<string, AcceptedImageMime> = {

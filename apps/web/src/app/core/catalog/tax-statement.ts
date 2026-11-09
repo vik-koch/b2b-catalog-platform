@@ -1,12 +1,14 @@
+import { inject } from '@angular/core';
+
 import {
   formatTaxRate,
   sharedTaxRate,
   TaxBasis,
 } from '@b2b-catalog-platform/shared/core/catalog';
-import { inject } from '@angular/core';
 import { fillText } from '@b2b-catalog-platform/shared/platform';
-import { SHARED_TEXT } from '../../platform/config/shared-text';
+
 import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
+import { SHARED_TEXT } from '../../platform/config/shared-text';
 import { CATALOG_CONFIG } from './catalog-config';
 
 /**

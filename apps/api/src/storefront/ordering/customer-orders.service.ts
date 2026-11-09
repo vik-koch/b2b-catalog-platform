@@ -1,17 +1,19 @@
+import { Injectable, Logger } from '@nestjs/common';
+import { and, eq, SQL } from 'drizzle-orm';
+
 import {
   MyOrderFilter,
   OrderDetail,
   OrderSummary,
 } from '@b2b-catalog-platform/shared/core/ordering';
 import { Pagination } from '@b2b-catalog-platform/shared/platform';
-import { Injectable, Logger } from '@nestjs/common';
-import { and, eq, SQL } from 'drizzle-orm';
-import { toSummary } from '../../core/ordering/order-rows';
-import { OrderReader } from '../../core/ordering/order-reader';
-import { OrderWriter } from '../../core/ordering/order-writer';
-import { orders } from '../../core/ordering/ordering-schema';
+
 import { MY_ORDER_CONDITIONS } from '../../core/ordering/my-order-filters';
 import { OrderNotifications } from '../../core/ordering/order-notifications';
+import { OrderReader } from '../../core/ordering/order-reader';
+import { toSummary } from '../../core/ordering/order-rows';
+import { OrderWriter } from '../../core/ordering/order-writer';
+import { orders } from '../../core/ordering/ordering-schema';
 
 /** A customer's own orders (FR-ACC-01): their list, and calling one off. */
 @Injectable()

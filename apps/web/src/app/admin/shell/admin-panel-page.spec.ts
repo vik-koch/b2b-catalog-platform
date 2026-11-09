@@ -1,30 +1,31 @@
-import { defaultAdminAccountsText } from '../accounts/accounts-text.fixture';
-import { SHARED_TEXT } from '../../platform/config/shared-text';
-import { defaultSharedText } from '../../platform/config/shared-text.fixture';
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { WorkCounts } from '@b2b-catalog-platform/shared/core/work';
+
 import { BuildInfo } from '@b2b-catalog-platform/shared/admin/platform';
-import { OwnershipArea } from '@b2b-catalog-platform/shared/platform';
 import { SyncArea } from '@b2b-catalog-platform/shared/core/exchange';
-import { STOREFRONT_TEXT } from '../../platform/config/storefront-text';
+import { WorkCounts } from '@b2b-catalog-platform/shared/core/work';
+import { AuthUser, OwnershipArea } from '@b2b-catalog-platform/shared/platform';
+
+import { withSite } from '../../core/site/site-config.fixture';
+import { workStub } from '../../core/work/work.fixture';
+import { WorkService } from '../../core/work/work.service';
+import { adminUser, managerUser } from '../../platform/auth/auth-user.fixture';
+import { AuthService } from '../../platform/auth/auth.service';
 import { ADMIN_TEXT } from '../../platform/config/admin-text';
-import { defaultStorefrontText } from '../../platform/config/storefront-text.fixture';
 import { defaultAdminText } from '../../platform/config/admin-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
 import { defaultDeploymentConfig } from '../../platform/config/deployment-config.fixture';
-import { AdminPanelPage } from './admin-panel-page';
+import { SHARED_TEXT } from '../../platform/config/shared-text';
+import { defaultSharedText } from '../../platform/config/shared-text.fixture';
+import { STOREFRONT_TEXT } from '../../platform/config/storefront-text';
+import { defaultStorefrontText } from '../../platform/config/storefront-text.fixture';
+import { defaultAdminAccountsText } from '../accounts/accounts-text.fixture';
+import { SyncService } from '../exchange/sync.service';
+import { BuildInfoService } from '../platform/build-info.service';
 import { OwnershipService } from '../platform/ownership/ownership.service';
 import { MaintenanceSwitchService } from '../site/maintenance-switch.service';
-import { BuildInfoService } from '../platform/build-info.service';
-import { SyncService } from '../exchange/sync.service';
-import { AuthService } from '../../platform/auth/auth.service';
-import { adminUser, managerUser } from '../../platform/auth/auth-user.fixture';
-import { WorkService } from '../../core/work/work.service';
-import { workStub } from '../../core/work/work.fixture';
-import { AuthUser } from '@b2b-catalog-platform/shared/platform';
-import { withSite } from '../../core/site/site-config.fixture';
+import { AdminPanelPage } from './admin-panel-page';
 
 // The committed demo config, whose de-DE locale formats the deploy date.
 const config = defaultDeploymentConfig;

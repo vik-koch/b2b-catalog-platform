@@ -1,7 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { asc, max } from 'drizzle-orm';
-import { DRIZZLE } from '../../platform/db/database.module';
+
 import { Database } from '../../platform/db/database';
+import { DRIZZLE } from '../../platform/db/database.module';
 import { SitemapPages } from '../../platform/sitemap-pages';
 import { pageVersions } from './site-schema';
 

@@ -1,5 +1,7 @@
 import { InjectionToken, Provider } from '@angular/core';
+
 import { DeploymentConfig } from '@b2b-catalog-platform/shared/platform';
+
 import { readShellState } from './shell-state';
 
 /** The keys no area claims; an area reads its block through its own token. */

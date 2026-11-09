@@ -1,4 +1,5 @@
 import { encodeAttributeParams } from '@b2b-catalog-platform/shared/core/catalog';
+
 import { DefinitionRow } from '../../core/catalog/category-filters';
 import { ResolvedSelection } from './product-facets';
 

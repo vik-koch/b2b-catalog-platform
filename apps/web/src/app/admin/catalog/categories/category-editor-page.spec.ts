@@ -4,17 +4,18 @@ import {
   convertToParamMap,
   provideRouter,
 } from '@angular/router';
+
 import { ADMIN_TEXT } from '../../../platform/config/admin-text';
 import { defaultAdminText } from '../../../platform/config/admin-text.fixture';
-import { SHARED_TEXT } from '../../../platform/config/shared-text';
-import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import { defaultDeploymentConfig } from '../../../platform/config/deployment-config.fixture';
-import { CatalogUploadsService } from '../uploads/catalog-uploads.service';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
 import { provideOwnership } from '../../platform/ownership/ownership.fixture';
+import { defaultAdminCatalogText } from '../catalog-text.fixture';
+import { CatalogUploadsService } from '../uploads/catalog-uploads.service';
 import { CategoriesService } from './categories.service';
 import { CategoryEditorPage } from './category-editor-page';
-import { defaultAdminCatalogText } from '../catalog-text.fixture';
 
 const text = defaultAdminCatalogText.categories.editor;
 

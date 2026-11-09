@@ -1,3 +1,4 @@
+import { NgTemplateOutlet } from '@angular/common';
 import {
   Component,
   computed,
@@ -8,52 +9,73 @@ import {
   signal,
 } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import {
-  fillText,
-  SEARCH_QUERY_MAX_LENGTH,
-} from '@b2b-catalog-platform/shared/platform';
-import {
-  formatAttributeValue,
-  ProductAvailability,
-} from '@b2b-catalog-platform/shared/core/catalog';
+
 import {
   AdminProductSort,
   PRODUCT_FACTS,
   ProductFact,
 } from '@b2b-catalog-platform/shared/admin/catalog';
-import { NgTemplateOutlet } from '@angular/common';
-import { PricePipe } from '../../../core/catalog/pricing/price.pipe';
-import { ADMIN_TEXT } from '../../../platform/config/admin-text';
-import { SHARED_TEXT } from '../../../platform/config/shared-text';
-import { delayedLoading } from '../../../platform/delayed-loading';
-import { usePageSeo } from '../../../platform/page-seo';
-import { stableValue } from '../../../platform/stable-value';
+import {
+  formatAttributeValue,
+  ProductAvailability,
+} from '@b2b-catalog-platform/shared/core/catalog';
+import {
+  fillText,
+  SEARCH_QUERY_MAX_LENGTH,
+} from '@b2b-catalog-platform/shared/platform';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { Link } from '@b2b-catalog-platform/ui/actions/link';
-import {
-  confirmRequest,
-  ConfirmService,
-} from '@b2b-catalog-platform/ui/overlay/confirm.service';
-import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import {
   StatusBadge,
   StatusTone,
 } from '@b2b-catalog-platform/ui/content/status-badge';
-import { CategoriesService } from '../categories/categories.service';
-import { ProductsService } from './products.service';
-import { ProductCreateService } from './product-create.service';
-import { AttributesService } from '../attributes/attributes.service';
-import { flattenCategoryTree } from '../categories/category-tree';
-import { injectEditorReturnParams } from '../../../platform/edit-mode/editor-return';
 import { DataGrid } from '@b2b-catalog-platform/ui/grid/data-grid';
+import { GridCardTemplate } from '@b2b-catalog-platform/ui/grid/grid-card-template';
 import {
   GridChip,
   GridColumn,
   GridFactFilter,
 } from '@b2b-catalog-platform/ui/grid/grid-column';
 import { GridFilterOption } from '@b2b-catalog-platform/ui/grid/grid-filter-select';
+import { GridHeader } from '@b2b-catalog-platform/ui/grid/grid-header';
+import { GridKey } from '@b2b-catalog-platform/ui/grid/grid-key';
 import { GridPagination } from '@b2b-catalog-platform/ui/grid/grid-pagination';
+import { GridRowTemplate } from '@b2b-catalog-platform/ui/grid/grid-row-template';
+import { GridTitle } from '@b2b-catalog-platform/ui/grid/grid-title';
+import { GridTitleLink } from '@b2b-catalog-platform/ui/grid/grid-title-link';
+import { plusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/plus';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import { RecordRow } from '@b2b-catalog-platform/ui/lists/record-row';
+import {
+  confirmRequest,
+  ConfirmService,
+} from '@b2b-catalog-platform/ui/overlay/confirm.service';
+
+import { SHARED_CATALOG_TEXT } from '../../../core/catalog/catalog-text';
+import { PricePipe } from '../../../core/catalog/pricing/price.pipe';
+import { AVAILABILITY_TONES } from '../../../core/catalog/ui/product-availability-badge';
+import { ADMIN_TEXT } from '../../../platform/config/admin-text';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { delayedLoading } from '../../../platform/delayed-loading';
+import { injectEditorReturnParams } from '../../../platform/edit-mode/editor-return';
+import { pageNumber } from '../../../platform/page-number';
+import { usePageSeo } from '../../../platform/page-seo';
+import { stableValue } from '../../../platform/stable-value';
+import { GridTimestamp } from '../../platform/dates/grid-timestamp';
+import { AttributesService } from '../attributes/attributes.service';
+import { ADMIN_CATALOG_TEXT } from '../catalog-text';
+import { CategoriesService } from '../categories/categories.service';
+import { flattenCategoryTree } from '../categories/category-tree';
+import { DocumentsService } from '../documents/documents.service';
+import { TiersService } from '../tiers/tiers.service';
+import { productState, ProductStateBadge } from '../ui/product-state-badge';
+import { ProductCreateService } from './product-create.service';
+import { featuresOf, gapsOf, IncompleteFact } from './product-facts';
+import {
+  PRODUCT_FACT_GLYPHS,
+  ProductFeatureGlyphs,
+} from './product-feature-glyphs';
 import {
   DEFAULT_SORT,
   DEFAULT_STATE,
@@ -61,29 +83,9 @@ import {
   resolveSort,
   resolveState,
 } from './product-grid-query';
-import { GridCardTemplate } from '@b2b-catalog-platform/ui/grid/grid-card-template';
-import { GridRowTemplate } from '@b2b-catalog-platform/ui/grid/grid-row-template';
-import { GridKey } from '@b2b-catalog-platform/ui/grid/grid-key';
-import { GridTitle } from '@b2b-catalog-platform/ui/grid/grid-title';
-import { GridTitleLink } from '@b2b-catalog-platform/ui/grid/grid-title-link';
-import { GridTimestamp } from '../../platform/dates/grid-timestamp';
-import { RecordRow } from '@b2b-catalog-platform/ui/lists/record-row';
-import { GridHeader } from '@b2b-catalog-platform/ui/grid/grid-header';
-import { DocumentsService } from '../documents/documents.service';
-import { TiersService } from '../tiers/tiers.service';
-import { purgeWithConfirmation, PurgeText } from './product-removal';
+import { PurgeText, purgeWithConfirmation } from './product-removal';
 import { ProductRowActions, ProductRowState } from './product-row-actions';
-import {
-  PRODUCT_FACT_GLYPHS,
-  ProductFeatureGlyphs,
-} from './product-feature-glyphs';
-import { featuresOf, gapsOf, IncompleteFact } from './product-facts';
-import { AVAILABILITY_TONES } from '../../../core/catalog/ui/product-availability-badge';
-import { plusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/plus';
-import { ProductStateBadge, productState } from '../ui/product-state-badge';
-import { pageNumber } from '../../../platform/page-number';
-import { SHARED_CATALOG_TEXT } from '../../../core/catalog/catalog-text';
-import { ADMIN_CATALOG_TEXT } from '../catalog-text';
+import { ProductsService } from './products.service';
 
 /** The category filter's "without subcategories" option; a uuid never ends
  * this way. */

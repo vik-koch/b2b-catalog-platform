@@ -6,6 +6,7 @@ import {
   PLATFORM_ID,
   signal,
 } from '@angular/core';
+
 import { SITE_CONFIG } from '../../../core/site/site-config';
 
 export type ConsentChoice = 'accepted' | 'rejected';

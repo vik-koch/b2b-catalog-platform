@@ -1,11 +1,13 @@
-import { ADMIN_EXCHANGE_TEXT } from '../exchange-text';
 import {
   ChangeDetectionStrategy,
   Component,
   inject,
   input,
 } from '@angular/core';
+
 import { fillText } from '@b2b-catalog-platform/shared/platform';
+
+import { ADMIN_EXCHANGE_TEXT } from '../exchange-text';
 
 export interface SyncRowErrorLine {
   row: number;

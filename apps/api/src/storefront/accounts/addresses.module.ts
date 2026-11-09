@@ -1,12 +1,13 @@
 import { Module } from '@nestjs/common';
-import { AuditLogger } from '../../platform/audit/audit.logger';
+
 import { AddressBookModule } from '../../core/accounts/address-book.module';
-import { env } from '../../platform/env';
+import { AuditLogger } from '../../platform/audit/audit.logger';
 import { SessionModule } from '../../platform/auth/session.module';
+import { env } from '../../platform/env';
 import { AddressSuggestionController } from './address-suggestion.controller';
 import { ADDRESS_SUGGESTION_PORT } from './address-suggestion.port';
-import { createAddressSuggestionPort } from './http-address-suggestions';
 import { AddressesController } from './addresses.controller';
+import { createAddressSuggestionPort } from './http-address-suggestions';
 
 /** The address book and the suggestions that fill it in. */
 @Module({

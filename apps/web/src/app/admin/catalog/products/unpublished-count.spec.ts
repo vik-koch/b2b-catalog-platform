@@ -1,11 +1,12 @@
-import { SHARED_TEXT } from '../../../platform/config/shared-text';
-import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+
 import { ADMIN_TEXT } from '../../../platform/config/admin-text';
 import { defaultAdminText } from '../../../platform/config/admin-text.fixture';
-import { UnpublishedCount } from './unpublished-count';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
 import { defaultAdminCatalogText } from '../catalog-text.fixture';
+import { UnpublishedCount } from './unpublished-count';
 
 function render(count: number) {
   TestBed.configureTestingModule({

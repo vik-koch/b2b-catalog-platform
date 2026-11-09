@@ -1,26 +1,30 @@
-import { defaultAdminAccountsText } from '../accounts-text.fixture';
-import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
+
 import { CustomerTier } from '@b2b-catalog-platform/shared/admin/catalog';
-import { OwnershipArea } from '@b2b-catalog-platform/shared/platform';
-import { ADMIN_TEXT } from '../../../platform/config/admin-text';
-import { defaultAdminText } from '../../../platform/config/admin-text.fixture';
-import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
-import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
-import { defaultDeploymentConfig } from '../../../platform/config/deployment-config.fixture';
-import { AuthService } from '../../../platform/auth/auth.service';
-import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
-import { provideOwnership } from '../../platform/ownership/ownership.fixture';
-import { TiersService } from '../../catalog/tiers/tiers.service';
-import { UserListPage } from './user-list-page';
-import { StaffUsersService } from './users.service';
-import { provideUiText } from '../../../platform/config/shared-text';
-import { provideGridText } from '../../platform/provide-grid-text';
 import {
   StaffUser,
   UserKind,
 } from '@b2b-catalog-platform/shared/core/accounts';
+import { OwnershipArea } from '@b2b-catalog-platform/shared/platform';
+import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
+
+import { AuthService } from '../../../platform/auth/auth.service';
+import { ADMIN_TEXT } from '../../../platform/config/admin-text';
+import { defaultAdminText } from '../../../platform/config/admin-text.fixture';
+import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
+import { defaultDeploymentConfig } from '../../../platform/config/deployment-config.fixture';
+import {
+  provideUiText,
+  SHARED_TEXT,
+} from '../../../platform/config/shared-text';
+import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
+import { TiersService } from '../../catalog/tiers/tiers.service';
+import { provideOwnership } from '../../platform/ownership/ownership.fixture';
+import { provideGridText } from '../../platform/provide-grid-text';
+import { defaultAdminAccountsText } from '../accounts-text.fixture';
+import { UserListPage } from './user-list-page';
+import { StaffUsersService } from './users.service';
 
 const text = defaultAdminAccountsText.users.list;
 

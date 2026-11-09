@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
+
 import {
-  DEFAULT_SYNC_POLICY,
   decideAutoApply,
+  DEFAULT_SYNC_POLICY,
   SyncPolicy,
   syncPolicySchema,
 } from './sync-policy';

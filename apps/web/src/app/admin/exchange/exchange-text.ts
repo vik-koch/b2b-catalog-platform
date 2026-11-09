@@ -1,5 +1,7 @@
 import { inject, InjectionToken } from '@angular/core';
+
 import { EXCHANGE_AREA } from '@b2b-catalog-platform/shared/core/exchange';
+
 import { ADMIN_TEXT, adminTextBlock } from '../../platform/config/admin-text';
 import type { AdminExchangeText } from './exchange-text.type';
 

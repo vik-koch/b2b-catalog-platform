@@ -1,4 +1,5 @@
 import { type SharedText } from '@b2b-catalog-platform/shared/platform';
+
 import type { AdminText } from '../../platform/config/admin-text.type';
 
 type Fields = SharedText['fields'];

@@ -1,7 +1,16 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
+
+import { SITE_AREA } from '@b2b-catalog-platform/shared/core/site';
+import {
+  formatPhone,
+  PhoneConfig,
+  SharedText,
+} from '@b2b-catalog-platform/shared/platform';
 import { InquiryRequest } from '@b2b-catalog-platform/shared/storefront/site';
-import { PHONE_INPUT } from '../../platform/config/deployment-config';
+
 import { ConsentService } from '../../core/site/consent.service';
+import { PHONE_INPUT } from '../../platform/config/deployment-config';
+import { SHARED_TEXT } from '../../platform/config/shared-text';
 import { env } from '../../platform/env';
 import { MailDispatcher } from '../../platform/mail/mail-dispatcher';
 import {
@@ -9,15 +18,8 @@ import {
   MailText,
   mailTextBlock,
 } from '../../platform/mail/mail-text';
-import { SiteMailText } from './site-mail-text';
-import { SHARED_TEXT } from '../../platform/config/shared-text';
 import { inquiryMail } from './inquiry.template';
-import {
-  formatPhone,
-  PhoneConfig,
-  SharedText,
-} from '@b2b-catalog-platform/shared/platform';
-import { SITE_AREA } from '@b2b-catalog-platform/shared/core/site';
+import { SiteMailText } from './site-mail-text';
 
 @Injectable()
 export class InquiryService {

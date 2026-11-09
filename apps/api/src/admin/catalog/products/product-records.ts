@@ -1,25 +1,26 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { and, asc, eq } from 'drizzle-orm';
-import {
-  joinAttributeKey,
-  PartKey,
-  ProductAvailability,
-} from '@b2b-catalog-platform/shared/core/catalog';
+
 import {
   AdminProduct,
   LinkedDocument,
   LinkedProduct,
   ProductTierPrice,
 } from '@b2b-catalog-platform/shared/admin/catalog';
-import { DRIZZLE } from '../../../platform/db/database.module';
+import {
+  joinAttributeKey,
+  PartKey,
+  ProductAvailability,
+} from '@b2b-catalog-platform/shared/core/catalog';
+
 import {
   customerTiers,
   documentProducts,
   documents,
   productAttributes,
+  ProductImageRef,
   productPairings,
   productPrices,
-  ProductImageRef,
   products,
   ProductVariantRef,
 } from '../../../core/catalog/catalog-schema';
@@ -29,6 +30,7 @@ import {
 } from '../../../core/catalog/product-pairings';
 import { resolvedPriceMinor } from '../../../core/catalog/product-price';
 import { Database } from '../../../platform/db/database';
+import { DRIZZLE } from '../../../platform/db/database.module';
 
 /** A function, so each throw gets its own stack. */
 export const productNotFound = () =>

@@ -1,11 +1,13 @@
 import { Client } from 'pg';
+
 import { ConsentConfig } from '@b2b-catalog-platform/shared/core/site';
 import { sanitizeRichText } from '@b2b-catalog-platform/shared/node';
+
+import { seedAccounts } from './account-seed';
 import { SeedBundle } from './bundle';
 import { PictureMode } from './catalog-photos';
-import { seedAccounts } from './account-seed';
-import { seedConsents } from './consent-seed';
 import { seedCatalog } from './catalog-seed';
+import { seedConsents } from './consent-seed';
 import { seedDocuments } from './document-seed';
 import { seedOrders } from './order-seed';
 import { seedSettings } from './settings-seed';

@@ -1,11 +1,12 @@
 import { PLATFORM_ID } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+
+import { CartAddition } from '../../../core/catalog/buying/product-cart';
 import { plainPackaging } from '../../../core/catalog/product.fixture';
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import { defaultDeploymentConfig } from '../../../platform/config/deployment-config.fixture';
 import { CartFigures } from './cart-figures';
 import { CartService } from './cart.service';
-import { CartAddition } from '../../../core/catalog/buying/product-cart';
 
 function normalize(value: string): string {
   return value.replace(/\s+/g, ' ').trim();

@@ -1,6 +1,7 @@
 import { InjectionToken, Provider } from '@angular/core';
-import { StorefrontText } from './storefront-text.type';
+
 import { readShellState } from './shell-state';
+import { StorefrontText } from './storefront-text.type';
 
 export const STOREFRONT_TEXT = new InjectionToken<StorefrontText>(
   'STOREFRONT_TEXT',

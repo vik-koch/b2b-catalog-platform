@@ -1,15 +1,17 @@
-import { ORDERING_CONFIG } from '../../../../core/ordering/ordering-config';
-import { STOREFRONT_ORDERING_TEXT } from '../../ordering-text';
 import { Component, inject, input } from '@angular/core';
+
 import {
   fillText,
-  moneyFormat,
   formatMoneyMinor,
+  moneyFormat,
 } from '@b2b-catalog-platform/shared/platform';
-import { DEPLOYMENT_CONFIG } from '../../../../platform/config/deployment-config';
 import { EmphasisedText } from '@b2b-catalog-platform/ui/content/emphasised-text';
-import { mapIcon } from '@b2b-catalog-platform/ui/icons/glyphs/map';
 import { MarkedCard } from '@b2b-catalog-platform/ui/content/marked-card';
+import { mapIcon } from '@b2b-catalog-platform/ui/icons/glyphs/map';
+
+import { ORDERING_CONFIG } from '../../../../core/ordering/ordering-config';
+import { DEPLOYMENT_CONFIG } from '../../../../platform/config/deployment-config';
+import { STOREFRONT_ORDERING_TEXT } from '../../ordering-text';
 
 /**
  * How wide a card is in a row of `n`, on a twelve-column grid. Written out so

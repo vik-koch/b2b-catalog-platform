@@ -1,4 +1,5 @@
 import { inject } from '@angular/core';
+
 import {
   availableUnits,
   pieceFloor,
@@ -11,14 +12,15 @@ import {
 } from '@b2b-catalog-platform/shared/core/catalog';
 import {
   fillText,
-  moneyFormat,
   formatMoneyMinor,
+  moneyFormat,
 } from '@b2b-catalog-platform/shared/platform';
+
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
-import { formatStoredDecimal, formatUnitQuantity } from './quantity';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { CATALOG_CONFIG } from '../catalog-config';
 import { SHARED_CATALOG_TEXT } from '../catalog-text';
+import { formatStoredDecimal, formatUnitQuantity } from './quantity';
 
 export interface UnitPriceRow {
   /** "per pcs". */

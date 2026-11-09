@@ -1,21 +1,23 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { PasswordTokenService } from './password-token.service';
-import { PasswordService } from './password.service';
-import { MAIL_TEXT, MailText } from '../../platform/mail/mail-text';
+
+import { AccountDeletionReason } from '@b2b-catalog-platform/shared/core/accounts';
+import { SharedText } from '@b2b-catalog-platform/shared/platform';
+
 import { SHARED_TEXT } from '../../platform/config/shared-text';
+import { env } from '../../platform/env';
 import { MailDispatcher } from '../../platform/mail/mail-dispatcher';
+import { MAIL_TEXT, MailText } from '../../platform/mail/mail-text';
+import { AccountErasure } from './account-erasure';
+import { ACCOUNT_ORDERS, AccountOrders } from './account-orders';
+import { LastAdminError } from './last-admin-error';
 import {
   accountClosedMail,
   ClosedAccountSummary,
 } from './mail/account-closed.template';
 import { accountDeletedMail } from './mail/account-deleted.template';
-import { SharedText } from '@b2b-catalog-platform/shared/platform';
-import { ACCOUNT_ORDERS, AccountOrders } from './account-orders';
-import { AccountErasure } from './account-erasure';
+import { PasswordTokenService } from './password-token.service';
+import { PasswordService } from './password.service';
 import { UserRow, UsersService } from './users.service';
-import { LastAdminError } from './last-admin-error';
-import { env } from '../../platform/env';
-import { AccountDeletionReason } from '@b2b-catalog-platform/shared/core/accounts';
 
 /** Why a deletion was refused, when it was. */
 export type DeleteAccountResult =

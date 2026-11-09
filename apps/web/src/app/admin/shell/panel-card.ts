@@ -1,4 +1,5 @@
 import { Component, computed, input } from '@angular/core';
+
 import { Card } from '@b2b-catalog-platform/ui/content/card';
 import { SectionTitle } from '@b2b-catalog-platform/ui/content/section-title';
 import { Glyph } from '@b2b-catalog-platform/ui/icons/glyph';

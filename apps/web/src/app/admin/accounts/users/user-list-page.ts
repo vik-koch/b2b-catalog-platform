@@ -1,4 +1,3 @@
-import { ADMIN_ACCOUNTS_TEXT } from '../accounts-text';
 import {
   Component,
   computed,
@@ -8,42 +7,7 @@ import {
   signal,
 } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { ADMIN_TEXT } from '../../../platform/config/admin-text';
-import { SHARED_TEXT } from '../../../platform/config/shared-text';
-import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
-import { formatPhone } from '../../../platform/contact-fields';
-import { usePageSeo } from '../../../platform/page-seo';
-import { delayedLoading } from '../../../platform/delayed-loading';
-import { stableValue } from '../../../platform/stable-value';
-import { Button } from '@b2b-catalog-platform/ui/actions/button';
-import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
-import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
-import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
-import { DataGrid } from '@b2b-catalog-platform/ui/grid/data-grid';
-import { GridColumn } from '@b2b-catalog-platform/ui/grid/grid-column';
-import { GridFilterOption } from '@b2b-catalog-platform/ui/grid/grid-filter-select';
-import { GridCardTemplate } from '@b2b-catalog-platform/ui/grid/grid-card-template';
-import { GridRowTemplate } from '@b2b-catalog-platform/ui/grid/grid-row-template';
-import { GridKey } from '@b2b-catalog-platform/ui/grid/grid-key';
-import { GridTitle } from '@b2b-catalog-platform/ui/grid/grid-title';
-import { GridTitleLink } from '@b2b-catalog-platform/ui/grid/grid-title-link';
-import { GridTimestamp } from '../../platform/dates/grid-timestamp';
-import { RecordRow } from '@b2b-catalog-platform/ui/lists/record-row';
-import { GridHeader } from '@b2b-catalog-platform/ui/grid/grid-header';
-import { OwnershipService } from '../../platform/ownership/ownership.service';
-import { TiersService } from '../../catalog/tiers/tiers.service';
-import { UserRowActions } from './user-row-actions';
-import { injectEditorReturnParams } from '../../../platform/edit-mode/editor-return';
-import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';
-import { StaffUsersService } from './users.service';
-import {
-  baseTierName,
-  userRoleLabel,
-  userStatusLabel,
-  userStatusTone,
-} from './user-status';
-import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
-import { plusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/plus';
+
 import {
   COMPANY_ID_NONE,
   formatPersonName,
@@ -57,7 +21,45 @@ import {
   fillText,
   userRoleSchema,
 } from '@b2b-catalog-platform/shared/platform';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
+import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
+import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
+import { DataGrid } from '@b2b-catalog-platform/ui/grid/data-grid';
+import { GridCardTemplate } from '@b2b-catalog-platform/ui/grid/grid-card-template';
+import { GridColumn } from '@b2b-catalog-platform/ui/grid/grid-column';
+import { GridFilterOption } from '@b2b-catalog-platform/ui/grid/grid-filter-select';
+import { GridHeader } from '@b2b-catalog-platform/ui/grid/grid-header';
+import { GridKey } from '@b2b-catalog-platform/ui/grid/grid-key';
+import { GridRowTemplate } from '@b2b-catalog-platform/ui/grid/grid-row-template';
+import { GridTitle } from '@b2b-catalog-platform/ui/grid/grid-title';
+import { GridTitleLink } from '@b2b-catalog-platform/ui/grid/grid-title-link';
+import { plusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/plus';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import { RecordRow } from '@b2b-catalog-platform/ui/lists/record-row';
+import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
+
+import { ADMIN_TEXT } from '../../../platform/config/admin-text';
+import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { formatPhone } from '../../../platform/contact-fields';
+import { delayedLoading } from '../../../platform/delayed-loading';
+import { injectEditorReturnParams } from '../../../platform/edit-mode/editor-return';
+import { usePageSeo } from '../../../platform/page-seo';
+import { stableValue } from '../../../platform/stable-value';
 import { ADMIN_CATALOG_TEXT } from '../../catalog/catalog-text';
+import { TiersService } from '../../catalog/tiers/tiers.service';
+import { GridTimestamp } from '../../platform/dates/grid-timestamp';
+import { OwnershipService } from '../../platform/ownership/ownership.service';
+import { ADMIN_ACCOUNTS_TEXT } from '../accounts-text';
+import { UserRowActions } from './user-row-actions';
+import {
+  baseTierName,
+  userRoleLabel,
+  userStatusLabel,
+  userStatusTone,
+} from './user-status';
+import { StaffUsersService } from './users.service';
 
 const USER_SORTS = [
   'name',

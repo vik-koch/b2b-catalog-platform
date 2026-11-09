@@ -1,20 +1,22 @@
 import { Component, inject, input, output } from '@angular/core';
 import { FormField, type FieldTree } from '@angular/forms/signals';
-import { SHARED_ACCOUNTS_TEXT } from '../accounts-text';
-import { HighlightedLine } from '@b2b-catalog-platform/ui/suggest/highlighted-line';
-import { Suggestion } from '@b2b-catalog-platform/ui/suggest/suggestion';
-import { MatchSegmentsPipe } from '../../../platform/search/match-segments.pipe';
-import { SuggestList } from '@b2b-catalog-platform/ui/suggest/suggest-list';
-import { FieldBinding } from '@b2b-catalog-platform/ui/fields/field-binding';
-import { Input } from '@b2b-catalog-platform/ui/inputs/input';
-import { SuggestField } from '@b2b-catalog-platform/ui/suggest/suggest-field';
-import { SuggestInput } from '@b2b-catalog-platform/ui/suggest/suggest-input';
-import { SuggestRow } from '@b2b-catalog-platform/ui/suggest/suggest-row';
-import { PartiesService } from './parties.service';
+
 import {
   PARTY_QUERY_MIN_LENGTH,
   PartySuggestion,
 } from '@b2b-catalog-platform/shared/core/accounts';
+import { FieldBinding } from '@b2b-catalog-platform/ui/fields/field-binding';
+import { Input } from '@b2b-catalog-platform/ui/inputs/input';
+import { HighlightedLine } from '@b2b-catalog-platform/ui/suggest/highlighted-line';
+import { SuggestField } from '@b2b-catalog-platform/ui/suggest/suggest-field';
+import { SuggestInput } from '@b2b-catalog-platform/ui/suggest/suggest-input';
+import { SuggestList } from '@b2b-catalog-platform/ui/suggest/suggest-list';
+import { SuggestRow } from '@b2b-catalog-platform/ui/suggest/suggest-row';
+import { Suggestion } from '@b2b-catalog-platform/ui/suggest/suggestion';
+
+import { MatchSegmentsPipe } from '../../../platform/search/match-segments.pipe';
+import { SHARED_ACCOUNTS_TEXT } from '../accounts-text';
+import { PartiesService } from './parties.service';
 
 /**
  * A company input for either half, name or number: the provider takes both as

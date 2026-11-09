@@ -1,7 +1,7 @@
 import { Component, computed, inject, input } from '@angular/core';
+
+import { Segmented, SegmentOption } from '../choices/segmented';
 import { Icon } from '../icons/icon';
-import { SegmentOption, Segmented } from '../choices/segmented';
-import { GRID_TEXT } from './grid-text';
 import {
   factParams,
   factState,
@@ -10,6 +10,7 @@ import {
   GridFactState,
 } from './grid-column';
 import { injectGridNav } from './grid-nav';
+import { GRID_TEXT } from './grid-text';
 
 /**
  * A fact filter's questions, one line per fact: any, has or missing. A choice

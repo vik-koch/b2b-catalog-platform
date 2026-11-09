@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto';
 import { access, mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import sharp from 'sharp';
+
 import { CatalogImage } from '@b2b-catalog-platform/shared/core/catalog';
 import { MEDIA_URL_PREFIX } from '@b2b-catalog-platform/shared/platform';
 

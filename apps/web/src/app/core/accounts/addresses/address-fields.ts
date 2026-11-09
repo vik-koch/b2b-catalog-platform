@@ -1,4 +1,3 @@
-import { ACCOUNTS_CONFIG } from '../accounts-config';
 import {
   Component,
   computed,
@@ -10,19 +9,22 @@ import {
   signal,
 } from '@angular/core';
 import { FormField } from '@angular/forms/signals';
-import { SHARED_ACCOUNTS_TEXT } from '../accounts-text';
-import { SHARED_TEXT } from '../../../platform/config/shared-text';
-import { DigitMask } from '@b2b-catalog-platform/ui/inputs/digit-mask';
-import { FIELD_ATTEMPT } from '@b2b-catalog-platform/ui/fields/field-attempt';
-import { Field } from '@b2b-catalog-platform/ui/fields/field';
-import { FieldBinding } from '@b2b-catalog-platform/ui/fields/field-binding';
-import { Input } from '@b2b-catalog-platform/ui/inputs/input';
+
+import { AddressComponents } from '@b2b-catalog-platform/shared/core/accounts';
 import { TextButton } from '@b2b-catalog-platform/ui/actions/text-button';
-import { SelectInput } from '@b2b-catalog-platform/ui/inputs/select-input';
+import { Field } from '@b2b-catalog-platform/ui/fields/field';
+import { FIELD_ATTEMPT } from '@b2b-catalog-platform/ui/fields/field-attempt';
+import { FieldBinding } from '@b2b-catalog-platform/ui/fields/field-binding';
 import { submitAttempt } from '@b2b-catalog-platform/ui/fields/submit-attempt';
+import { DigitMask } from '@b2b-catalog-platform/ui/inputs/digit-mask';
+import { Input } from '@b2b-catalog-platform/ui/inputs/input';
+import { SelectInput } from '@b2b-catalog-platform/ui/inputs/select-input';
+
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { ACCOUNTS_CONFIG } from '../accounts-config';
+import { SHARED_ACCOUNTS_TEXT } from '../accounts-text';
 import { AddressForm } from './address-form';
 import { AddressSuggestInput } from './address-suggest-input';
-import { AddressComponents } from '@b2b-catalog-platform/shared/core/accounts';
 
 /** Checkout draws two of these on one page, so ids are per instance. */
 let nextId = 0;

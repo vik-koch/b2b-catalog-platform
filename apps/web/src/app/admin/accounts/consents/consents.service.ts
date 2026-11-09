@@ -1,13 +1,15 @@
 import { Injectable } from '@angular/core';
 import { safe } from '@orpc/client';
-import { consentsContract } from '../contract-routes.generated';
-import { createOrpcClient } from '../../../platform/orpc-client';
+
 import {
   CONSENT_WITHDRAWAL_ERROR_CODES,
   ConsentRecord,
   ConsentWithdrawalErrorCode,
   FindConsentsQuery,
 } from '@b2b-catalog-platform/shared/admin/accounts';
+
+import { createOrpcClient } from '../../../platform/orpc-client';
+import { consentsContract } from '../contract-routes.generated';
 
 /** An entered withdrawal: the record as it now reads, or why it was refused. */
 export type WithdrawResult =

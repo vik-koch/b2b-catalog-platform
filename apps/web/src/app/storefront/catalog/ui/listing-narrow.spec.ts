@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+
 import {
   NARROW_BODY_IN_GRID,
   NARROW_BODY_IN_LINE,

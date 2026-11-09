@@ -1,8 +1,10 @@
-import { STOREFRONT_ACCOUNTS_TEXT } from '../accounts-text';
 import { Component, inject } from '@angular/core';
-import { usePageSeo } from '../../../platform/page-seo';
-import { ChangePasswordForm } from './change-password-form';
+
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
+
+import { usePageSeo } from '../../../platform/page-seo';
+import { STOREFRONT_ACCOUNTS_TEXT } from '../accounts-text';
+import { ChangePasswordForm } from './change-password-form';
 
 /** Reachable by every signed-in role. */
 @Component({

@@ -1,15 +1,17 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { and, eq, inArray, sql } from 'drizzle-orm';
+
+import {
+  AccountDeletionReason,
+  CustomerType,
+} from '@b2b-catalog-platform/shared/core/accounts';
+
+import { Database, Tx } from '../../platform/db/database';
 import { DRIZZLE } from '../../platform/db/database.module';
 import { withdrawAccountConsents } from '../site/consent-withdrawals';
-import { addresses, signInCodes, users } from './accounts-schema';
 import { AccountErasure } from './account-erasure';
+import { addresses, signInCodes, users } from './accounts-schema';
 import { LastAdminError } from './last-admin-error';
-import {
-  CustomerType,
-  AccountDeletionReason,
-} from '@b2b-catalog-platform/shared/core/accounts';
-import { Database, Tx } from '../../platform/db/database';
 
 export type UserRow = typeof users.$inferSelect;
 

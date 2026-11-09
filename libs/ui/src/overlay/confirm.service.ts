@@ -1,3 +1,4 @@
+import { isPlatformBrowser } from '@angular/common';
 import {
   ApplicationRef,
   ComponentRef,
@@ -7,7 +8,7 @@ import {
   Injectable,
   PLATFORM_ID,
 } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
+
 import { ConfirmAnswer, ConfirmCheck, ConfirmDialog } from './confirm-dialog';
 
 export interface ConfirmRequest {

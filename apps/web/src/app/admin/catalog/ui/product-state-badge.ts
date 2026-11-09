@@ -1,8 +1,10 @@
 import { Component, computed, inject, input } from '@angular/core';
+
 import {
   StatusBadge,
   StatusTone,
 } from '@b2b-catalog-platform/ui/content/status-badge';
+
 import { ADMIN_CATALOG_TEXT } from '../catalog-text';
 
 export type ProductState = 'live' | 'unpublished' | 'deleted';

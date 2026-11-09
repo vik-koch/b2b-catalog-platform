@@ -1,32 +1,34 @@
-import { ADMIN_ORDERING_TEXT } from '../ordering-text';
-import { SHARED_ORDERING_TEXT } from '../../../core/ordering/ordering-text';
-import { ORDERING_CONFIG } from '../../../core/ordering/ordering-config';
-import { ACCOUNTS_CONFIG } from '../../../core/accounts/accounts-config';
 import { Component, computed, inject, input, output } from '@angular/core';
 import { type FieldTree } from '@angular/forms/signals';
+
 import { PaymentMethod } from '@b2b-catalog-platform/shared/core/ordering';
+import {
+  Segmented,
+  SegmentOption,
+} from '@b2b-catalog-platform/ui/choices/segmented';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
+import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
+import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
+import { Input } from '@b2b-catalog-platform/ui/inputs/input';
+import { PhoneInput } from '@b2b-catalog-platform/ui/inputs/phone-input';
+import { SelectInput } from '@b2b-catalog-platform/ui/inputs/select-input';
+
+import { ACCOUNTS_CONFIG } from '../../../core/accounts/accounts-config';
 import { AddressFields } from '../../../core/accounts/addresses/address-fields';
 import { AddressForm } from '../../../core/accounts/addresses/address-form';
 import { CompanyFields } from '../../../core/accounts/parties/company-fields';
+import { ORDERING_CONFIG } from '../../../core/ordering/ordering-config';
+import { SHARED_ORDERING_TEXT } from '../../../core/ordering/ordering-text';
 import { ADMIN_TEXT } from '../../../platform/config/admin-text';
-import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { staffFields } from '../../platform/staff-fields';
-import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
-import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
-import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
-import { Input } from '@b2b-catalog-platform/ui/inputs/input';
-import { PhoneInput } from '@b2b-catalog-platform/ui/inputs/phone-input';
-import {
-  SegmentOption,
-  Segmented,
-} from '@b2b-catalog-platform/ui/choices/segmented';
-import { SelectInput } from '@b2b-catalog-platform/ui/inputs/select-input';
 import {
   AdjustAnswers,
   PartyKind,
   paymentOptions,
 } from '../order-adjust-draft';
+import { ADMIN_ORDERING_TEXT } from '../ordering-text';
 
 /**
  * Who an adjusted order goes to and how it is paid (FR-ORD-03): fulfilment and

@@ -2,23 +2,30 @@ import { DOCUMENT, NgTemplateOutlet } from '@angular/common';
 import {
   afterNextRender,
   afterRenderEffect,
-  Injector,
   Component,
   computed,
   contentChild,
   effect,
   ElementRef,
   inject,
+  Injector,
   input,
   signal,
   untracked,
   viewChild,
   viewChildren,
 } from '@angular/core';
-import { fill } from '../core/fill';
-import { GRID_TEXT } from './grid-text';
-import { injectNarrowScreen, NarrowBreakpoint } from '../core/narrow-screen';
+
+import { IconButton } from '../actions/icon-button';
 import { TextButton } from '../actions/text-button';
+import { COUNT_DOT } from '../content/count-dot';
+import { fill } from '../core/fill';
+import { injectNarrowScreen, NarrowBreakpoint } from '../core/narrow-screen';
+import { funnelIcon } from '../icons/glyphs/funnel';
+import { Icon } from '../icons/icon';
+import { Popover } from '../overlay/popover';
+import { GridCardTemplate } from './grid-card-template';
+import { GridChips } from './grid-chips';
 import {
   columnMinWidth,
   factChips,
@@ -27,19 +34,13 @@ import {
   GridColumn,
   GridFactFilter,
 } from './grid-column';
-import { GridFilterSelect } from './grid-filter-select';
-import { GridChips } from './grid-chips';
 import { GridFacts } from './grid-facts';
-import { IconButton } from '../actions/icon-button';
-import { Icon } from '../icons/icon';
-import { funnelIcon } from '../icons/glyphs/funnel';
-import { COUNT_DOT } from '../content/count-dot';
-import { Popover } from '../overlay/popover';
+import { GridFilterSelect } from './grid-filter-select';
 import { GridNarrowControls } from './grid-narrow-controls';
 import { fitWidths, resizeBoundary } from './grid-resize';
-import { GridSortHeader } from './grid-sort-header';
-import { GridCardTemplate } from './grid-card-template';
 import { GridRowTemplate } from './grid-row-template';
+import { GridSortHeader } from './grid-sort-header';
+import { GRID_TEXT } from './grid-text';
 import { GridWidths, GridWidthsStore } from './grid-widths';
 
 /** How far one arrow-key press moves a boundary. */

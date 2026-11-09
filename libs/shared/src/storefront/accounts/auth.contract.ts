@@ -1,5 +1,6 @@
 import { oc } from '@orpc/contract';
 import * as z from 'zod';
+
 import { addressComponentsSchema } from '../../core/accounts/address.contract';
 import {
   MAINTENANCE_REFUSED,
@@ -12,6 +13,9 @@ import {
 import { partyEntityTypeSchema } from '../../core/accounts/party.contract';
 import { signInStepSchema } from '../../core/accounts/sign-in-step.contract';
 import { customerTypeSchema } from '../../core/accounts/users.contract';
+import { consentVersionField } from '../../core/site/page.contract';
+import { consentErrors } from '../../core/site/pages';
+import { commonAuthErrors, phoneFormatErrors } from '../../platform/api-error';
 import {
   companyNameSchema,
   companyRegistrationIdSchema,
@@ -19,9 +23,6 @@ import {
   personNameField,
   storedEmailField,
 } from '../../platform/contact-config';
-import { commonAuthErrors, phoneFormatErrors } from '../../platform/api-error';
-import { consentErrors } from '../../core/site/pages';
-import { consentVersionField } from '../../core/site/page.contract';
 import { honeypotField } from '../../platform/form-fields.contract';
 import { authUserSchema } from '../../platform/session.contract';
 

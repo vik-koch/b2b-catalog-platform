@@ -1,3 +1,4 @@
+import { NgTemplateOutlet } from '@angular/common';
 import {
   booleanAttribute,
   Component,
@@ -7,7 +8,7 @@ import {
   output,
   TemplateRef,
 } from '@angular/core';
-import { NgTemplateOutlet } from '@angular/common';
+
 import { Collapsible } from './collapsible';
 import { ShowMoreToggle } from './show-more-toggle';
 

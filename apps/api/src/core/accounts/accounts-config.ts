@@ -1,4 +1,5 @@
 import * as z from 'zod';
+
 import {
   ACCOUNTS_AREA,
   accountsConfigShape,
@@ -6,6 +7,7 @@ import {
   type CustomerType,
   type SignInStepConfig,
 } from '@b2b-catalog-platform/shared/core/accounts';
+
 import { loadDeploymentConfigBlock } from '../../platform/config/deployment-config';
 
 const loadAccountsConfig = () =>

@@ -1,9 +1,10 @@
-import { cookieValue } from '../cookie';
 import {
   SESSION_HINT_COOKIE,
   USER_ROLES,
   UserRole,
 } from '@b2b-catalog-platform/shared/platform';
+
+import { cookieValue } from '../cookie';
 
 /** The hint's role, for a right first frame before `/auth/me` answers; an
  * unrecognised value reads as signed out. */

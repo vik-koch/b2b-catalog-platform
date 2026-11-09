@@ -1,4 +1,5 @@
 import { CategoryNode } from '@b2b-catalog-platform/shared/storefront/catalog';
+
 import { CategoryRow } from '../../core/catalog/catalog-tree';
 
 /** The category forest from flat rows, pre-sorted by `sortOrder` then name;

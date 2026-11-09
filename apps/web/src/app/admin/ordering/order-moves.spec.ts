@@ -1,7 +1,7 @@
-import { defaultAdminOrderingText } from './ordering-text.fixture';
 import { AdminOrderDetail } from '@b2b-catalog-platform/shared/core/ordering';
 import { ConfirmCheck } from '@b2b-catalog-platform/ui/overlay/confirm-dialog';
 import { ReasonRequest } from '@b2b-catalog-platform/ui/overlay/confirm.service';
+
 import {
   MARK_PAID,
   moveOptions,
@@ -10,6 +10,7 @@ import {
   SHOW_CUSTOMER,
   staffMoves,
 } from './order-moves';
+import { defaultAdminOrderingText } from './ordering-text.fixture';
 
 const text = defaultAdminOrderingText.orders.detail;
 const actions = text.actions;

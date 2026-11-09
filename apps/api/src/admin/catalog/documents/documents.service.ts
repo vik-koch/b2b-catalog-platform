@@ -1,5 +1,6 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { and, asc, desc, eq, inArray, isNull, notInArray } from 'drizzle-orm';
+
 import {
   DocumentDetail,
   DocumentInput,
@@ -7,17 +8,18 @@ import {
   ProductDocument,
   StoredDocumentFile,
 } from '@b2b-catalog-platform/shared/admin/catalog';
-import { DRIZZLE } from '../../../platform/db/database.module';
+
 import {
   documentProducts,
   documents,
   products,
 } from '../../../core/catalog/catalog-schema';
+import { Database } from '../../../platform/db/database';
+import { DRIZZLE } from '../../../platform/db/database.module';
 import {
   linkedProductColumns,
   toLinkedProduct,
 } from '../products/product-records';
-import { Database } from '../../../platform/db/database';
 
 /** A function, so each throw gets its own stack. */
 const notFound = () =>

@@ -1,8 +1,9 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+
 import { Glyph } from './glyph';
-import { Icon } from './icon';
 import { xIcon } from './glyphs/x';
+import { Icon } from './icon';
 
 @Component({
   imports: [Icon],

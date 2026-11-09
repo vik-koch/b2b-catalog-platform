@@ -1,17 +1,19 @@
-import { SHARED_TEXT } from '../../../platform/config/shared-text';
-import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { fillText } from '@b2b-catalog-platform/shared/platform';
-import { ProductAttribute } from '@b2b-catalog-platform/shared/core/catalog';
+
 import {
   AttributeDefinition,
   AttributeKeyUsage,
 } from '@b2b-catalog-platform/shared/admin/catalog';
+import { ProductAttribute } from '@b2b-catalog-platform/shared/core/catalog';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
+
 import { ADMIN_TEXT } from '../../../platform/config/admin-text';
 import { defaultAdminText } from '../../../platform/config/admin-text.fixture';
-import { ProductAttributesEditor } from './product-attributes-editor';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
 import { defaultAdminCatalogText } from '../catalog-text.fixture';
+import { ProductAttributesEditor } from './product-attributes-editor';
 
 /** The grid is one `contenteditable` region, driven by real events on the
  * tbody, as a browser does. */

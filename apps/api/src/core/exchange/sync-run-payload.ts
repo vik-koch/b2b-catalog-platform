@@ -1,19 +1,21 @@
 import * as z from 'zod';
+
 import {
-  CustomerSyncOptions,
-  CustomerSyncRow,
-  CustomerSyncRowError,
-  SyncArea,
   CatalogSyncOptions,
+  catalogSyncOptionsSchema,
   CatalogSyncRow,
   CatalogSyncRowError,
-  customerSyncOptionsSchema,
-  customerSyncRowErrorSchema,
-  customerSyncRowSchema,
-  catalogSyncOptionsSchema,
   catalogSyncRowErrorSchema,
   catalogSyncRowSchema,
+  CustomerSyncOptions,
+  customerSyncOptionsSchema,
+  CustomerSyncRow,
+  CustomerSyncRowError,
+  customerSyncRowErrorSchema,
+  customerSyncRowSchema,
+  SyncArea,
 } from '@b2b-catalog-platform/shared/core/exchange';
+
 import { syncRuns } from './exchange-schema';
 
 type RunRow = typeof syncRuns.$inferSelect;

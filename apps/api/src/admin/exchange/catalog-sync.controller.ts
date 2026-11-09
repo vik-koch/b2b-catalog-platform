@@ -6,12 +6,14 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+
 import {
+  catalogSyncOptionsSchema,
   CatalogSyncPreviewResponse,
   SYNC_MAX_UPLOAD_BYTES,
-  catalogSyncOptionsSchema,
 } from '@b2b-catalog-platform/shared/core/exchange';
 import { AuthUser } from '@b2b-catalog-platform/shared/platform';
+
 import { CatalogSyncService } from '../../core/exchange/catalog-sync.service';
 import { Auth } from '../../platform/auth/auth.decorator';
 import { CurrentUser } from '../../platform/auth/current-user.decorator';

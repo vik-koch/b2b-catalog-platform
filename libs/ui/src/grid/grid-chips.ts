@@ -1,8 +1,9 @@
 import { Component, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { Icon } from '../icons/icon';
-import { xIcon } from '../icons/glyphs/x';
+
 import { IconButton } from '../actions/icon-button';
+import { xIcon } from '../icons/glyphs/x';
+import { Icon } from '../icons/icon';
 import { GridChip } from './grid-column';
 
 /** The narrowings with no column, each with its own way out. */

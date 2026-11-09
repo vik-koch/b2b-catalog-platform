@@ -7,14 +7,7 @@ import {
   PLATFORM_ID,
   signal,
 } from '@angular/core';
-import {
-  CART_LINES_MAX,
-  CartLine,
-  CartPreview,
-  CartPreviewLine,
-  shipmentEstimate,
-  ShipmentSummary,
-} from '@b2b-catalog-platform/shared/core/ordering';
+
 import {
   CART_NOTE_MAX,
   CatalogImage,
@@ -29,13 +22,22 @@ import {
   UnitPrices,
 } from '@b2b-catalog-platform/shared/core/catalog';
 import {
+  CART_LINES_MAX,
+  CartLine,
+  CartPreview,
+  CartPreviewLine,
+  shipmentEstimate,
+  ShipmentSummary,
+} from '@b2b-catalog-platform/shared/core/ordering';
+import { USER_ROLES, UserRole } from '@b2b-catalog-platform/shared/platform';
+
+import {
   CartAddition,
   CartAddResult,
   ProductCart,
 } from '../../../core/catalog/buying/product-cart';
 import { readSessionHint } from '../../../platform/auth/session-hint';
 import { CART_STORAGE_KEY, CART_STORAGE_VERSION } from './cart-storage';
-import { USER_ROLES, UserRole } from '@b2b-catalog-platform/shared/platform';
 
 /** A line as the browser keeps it: beyond the contract's fields, enough to draw
  * the whole row (photo, buying controls, shipment estimate) before `POST

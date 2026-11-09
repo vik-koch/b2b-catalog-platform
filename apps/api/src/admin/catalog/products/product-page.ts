@@ -1,4 +1,5 @@
 import { ProductPage } from '@b2b-catalog-platform/shared/core/catalog';
+
 import { CatalogReader } from '../../../core/catalog/catalog-reader';
 
 type ProductRead = NonNullable<

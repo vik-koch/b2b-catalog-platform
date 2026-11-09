@@ -1,4 +1,5 @@
 import { type ShopNotice } from '@b2b-catalog-platform/shared/platform';
+
 import { loadApiDeploymentConfig } from '../config/deployment-config';
 import { env } from '../env';
 import { MailColors, mailColors } from './mail-colors';

@@ -9,11 +9,12 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import { fillText } from '@b2b-catalog-platform/shared/platform';
+
 import {
   ProductImage,
   ProductVariant,
 } from '@b2b-catalog-platform/shared/core/catalog';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { Link } from '@b2b-catalog-platform/ui/actions/link';
 import { injectNarrowScreen } from '@b2b-catalog-platform/ui/core/narrow-screen';
@@ -22,9 +23,10 @@ import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { DialogActions } from '@b2b-catalog-platform/ui/overlay/dialog-actions';
 import { DialogPanel } from '@b2b-catalog-platform/ui/overlay/dialog-panel';
 import { Popover } from '@b2b-catalog-platform/ui/overlay/popover';
+
+import { SHARED_CATALOG_TEXT } from '../../../core/catalog/catalog-text';
 import { ProductVariantGallery } from '../../../core/catalog/product-page/ui/product-variant-gallery';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
-import { SHARED_CATALOG_TEXT } from '../../../core/catalog/catalog-text';
 
 /**
  * Opens a product's variants where its picture is too small to label them: a

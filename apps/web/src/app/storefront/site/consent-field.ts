@@ -1,13 +1,15 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { FormField } from '@angular/forms/signals';
 import { RouterLink } from '@angular/router';
+
 import { consentLabelParts } from '@b2b-catalog-platform/shared/core/site';
-import { Checkbox } from '@b2b-catalog-platform/ui/choices/checkbox';
 import { Link } from '@b2b-catalog-platform/ui/actions/link';
-import { ConsentRequest } from './consent';
-import { PrivacyNotice } from './privacy-notice';
+import { Checkbox } from '@b2b-catalog-platform/ui/choices/checkbox';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { FIELD_ATTEMPT } from '@b2b-catalog-platform/ui/fields/field-attempt';
+
+import { ConsentRequest } from './consent';
+import { PrivacyNotice } from './privacy-notice';
 import { STOREFRONT_SITE_TEXT } from './site-text';
 
 let nextId = 0;

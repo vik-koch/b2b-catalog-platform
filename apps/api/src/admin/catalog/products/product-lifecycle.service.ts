@@ -1,29 +1,31 @@
 import { ConflictException, Inject, Injectable } from '@nestjs/common';
 import { and, asc, eq, isNotNull, isNull, or, sql } from 'drizzle-orm';
+
 import { AdminProduct } from '@b2b-catalog-platform/shared/admin/catalog';
-import { DRIZZLE } from '../../../platform/db/database.module';
+
+import { catalogExternallyOwned } from '../../../core/catalog/catalog-ownership-refusals';
 import {
   productPairings,
   products,
 } from '../../../core/catalog/catalog-schema';
-import { OwnershipState } from '../../../platform/settings/ownership-state';
-import { catalogExternallyOwned } from '../../../core/catalog/catalog-ownership-refusals';
+import {
+  PRODUCT_ORDERS,
+  ProductOrders,
+} from '../../../core/catalog/product-orders';
 import {
   counterpartOf,
   involves,
   pairedCountOf,
 } from '../../../core/catalog/product-pairings';
-import { isForeignKeyViolation } from '../../../platform/db/pg-errors';
-import {
-  ProductRecords,
-  productNotFound,
-  adminProductColumns,
-} from './product-records';
 import { Database } from '../../../platform/db/database';
+import { DRIZZLE } from '../../../platform/db/database.module';
+import { isForeignKeyViolation } from '../../../platform/db/pg-errors';
+import { OwnershipState } from '../../../platform/settings/ownership-state';
 import {
-  PRODUCT_ORDERS,
-  ProductOrders,
-} from '../../../core/catalog/product-orders';
+  adminProductColumns,
+  productNotFound,
+  ProductRecords,
+} from './product-records';
 
 /**
  * The removal steps and publication (FR-ADM-01/06/21): unpublish, delete,

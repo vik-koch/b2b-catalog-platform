@@ -1,10 +1,5 @@
 import { sql } from 'drizzle-orm';
 import {
-  CONSENT_PURPOSES,
-  CONSENT_WITHDRAWAL_NOTE_MAX,
-  CONSENT_WITHDRAWAL_REASONS,
-} from '@b2b-catalog-platform/shared/core/site';
-import {
   check,
   index,
   integer,
@@ -15,8 +10,15 @@ import {
   uuid,
   varchar,
 } from 'drizzle-orm/pg-core';
-import { oneOf } from '../../platform/db/sql-columns';
+
+import {
+  CONSENT_PURPOSES,
+  CONSENT_WITHDRAWAL_NOTE_MAX,
+  CONSENT_WITHDRAWAL_REASONS,
+} from '@b2b-catalog-platform/shared/core/site';
+
 import { identities } from '../../platform/db/schema';
+import { oneOf } from '../../platform/db/sql-columns';
 
 /**
  * Every save of a static page, one row each; the slug's highest version is the

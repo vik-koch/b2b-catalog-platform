@@ -1,13 +1,14 @@
 import { oc } from '@orpc/contract';
 import * as z from 'zod';
-import { commonAuthErrors, phoneFormatErrors } from '../../platform/api-error';
+
 import { customerTypeSchema } from '../../core/accounts/users.contract';
-import { userRoleSchema } from '../../platform/session.contract';
+import { acknowledgementSchema } from '../../platform/acknowledgement.contract';
+import { commonAuthErrors, phoneFormatErrors } from '../../platform/api-error';
 import {
   personNameField,
   storedEmailField,
 } from '../../platform/contact-config';
-import { acknowledgementSchema } from '../../platform/acknowledgement.contract';
+import { userRoleSchema } from '../../platform/session.contract';
 
 /** The holder's own record: its own shape, not the staff one trimmed, and
  * without `tierId`, which is staff's to assign and not the customer's to see. */

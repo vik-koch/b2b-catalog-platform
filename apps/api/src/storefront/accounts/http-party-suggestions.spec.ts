@@ -1,5 +1,6 @@
-import type { Mock, MockInstance } from 'vitest';
 import { Logger } from '@nestjs/common';
+import type { Mock, MockInstance } from 'vitest';
+
 import {
   createPartySuggestionPort,
   HttpPartySuggestions,

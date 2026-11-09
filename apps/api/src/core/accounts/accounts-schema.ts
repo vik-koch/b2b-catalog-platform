@@ -11,8 +11,9 @@ import {
   uuid,
   varchar,
 } from 'drizzle-orm/pg-core';
-import { customerTiers } from '../catalog/catalog-schema';
+
 import { identities } from '../../platform/db/schema';
+import { customerTiers } from '../catalog/catalog-schema';
 
 /** A sign-up is a `user`; staff roles are given deliberately. */
 export const userRole = pgEnum('user_role', ['admin', 'manager', 'user']);

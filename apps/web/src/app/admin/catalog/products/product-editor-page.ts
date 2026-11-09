@@ -19,29 +19,7 @@ import {
   validate,
 } from '@angular/forms/signals';
 import { ActivatedRoute, Router } from '@angular/router';
-import {
-  fillText,
-  moneyFormat,
-  currencySymbol,
-  decimalSeparator,
-} from '@b2b-catalog-platform/shared/platform';
-import {
-  isValidPartList,
-  minimumFitsPacks,
-  piecesPerUnit,
-  ProductAttribute,
-  DEFAULT_LOW_STOCK_THRESHOLD_PIECES,
-  ProductAvailability,
-  productAvailability,
-  ProductDetail,
-  lowStockThreshold,
-  splitAttributeKey,
-  totalMinor,
-  effectiveTaxRate,
-  formatTaxRate,
-  parseTaxRate,
-  isPartialTaxRate,
-} from '@b2b-catalog-platform/shared/core/catalog';
+
 import {
   AdminCategory,
   AdminProduct,
@@ -50,91 +28,113 @@ import {
   CustomerTier,
   LinkedDocument,
   LinkedProduct,
+  PRODUCT_LINE_NOTE_PROMPT_MAX_LENGTH,
   ProductImageInput,
   ProductInput,
   ProductVariantInput,
-  PRODUCT_LINE_NOTE_PROMPT_MAX_LENGTH,
 } from '@b2b-catalog-platform/shared/admin/catalog';
 import {
+  DEFAULT_LOW_STOCK_THRESHOLD_PIECES,
+  effectiveTaxRate,
+  formatTaxRate,
   hasDistinctVariants,
+  isPartialTaxRate,
+  isValidPartList,
+  lowStockThreshold,
+  minimumFitsPacks,
+  parseTaxRate,
+  piecesPerUnit,
+  ProductAttribute,
+  ProductAvailability,
+  productAvailability,
+  ProductDetail,
   shownPictures,
   slugify,
+  splitAttributeKey,
+  totalMinor,
 } from '@b2b-catalog-platform/shared/core/catalog';
+import {
+  currencySymbol,
+  decimalSeparator,
+  fillText,
+  moneyFormat,
+} from '@b2b-catalog-platform/shared/platform';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
+import { Checkbox } from '@b2b-catalog-platform/ui/choices/checkbox';
+import { TickLabel } from '@b2b-catalog-platform/ui/choices/tick-label';
+import { Notice } from '@b2b-catalog-platform/ui/content/notice';
+import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
+import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
+import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
+import {
+  FIELD_ATTEMPT,
+  FieldAttempt,
+} from '@b2b-catalog-platform/ui/fields/field-attempt';
+import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
+import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
+import { submitAttempt } from '@b2b-catalog-platform/ui/fields/submit-attempt';
+import { circleCheckIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-check';
+import { eyeIcon } from '@b2b-catalog-platform/ui/icons/glyphs/eye';
+import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import { Allow } from '@b2b-catalog-platform/ui/inputs/allow';
+import { Input } from '@b2b-catalog-platform/ui/inputs/input';
+import { numericRules } from '@b2b-catalog-platform/ui/inputs/numeric-rules';
+import { UnitInput } from '@b2b-catalog-platform/ui/inputs/unit-input';
+import { UnitInputControl } from '@b2b-catalog-platform/ui/inputs/unit-input-control';
+import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
+
+import { formatStoredDecimal } from '../../../core/catalog/buying/quantity';
+import { CATALOG_CONFIG } from '../../../core/catalog/catalog-config';
+import { SHARED_CATALOG_TEXT } from '../../../core/catalog/catalog-text';
 import {
   formatPriceInput,
   parsePriceInput,
   partialPriceRule,
 } from '../../../core/catalog/pricing/price';
-import { LockedNote } from '../../platform/ownership/ui/locked-note';
-import { Allow } from '@b2b-catalog-platform/ui/inputs/allow';
-import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';
-import { LockedFieldMarker } from '../../platform/ownership/ui/locked-field-marker';
-import { OwnershipService } from '../../platform/ownership/ownership.service';
-import { ProductAvailabilityBadge } from '../../../core/catalog/ui/product-availability-badge';
-import { formatStoredDecimal } from '../../../core/catalog/buying/quantity';
 import { ProductDetailView } from '../../../core/catalog/product-page/ui/product-detail-view';
+import { ProductAvailabilityBadge } from '../../../core/catalog/ui/product-availability-badge';
 import { ADMIN_TEXT } from '../../../platform/config/admin-text';
-import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { delayedLoading } from '../../../platform/delayed-loading';
+import { injectEditorReturn } from '../../../platform/edit-mode/editor-return';
 import { filled } from '../../../platform/field-rules';
 import { usePageSeo } from '../../../platform/page-seo';
-import { UnsavedChangesAware } from '../../platform/unsaved-changes.guard';
+import { OwnershipService } from '../../platform/ownership/ownership.service';
+import { LockedFieldMarker } from '../../platform/ownership/ui/locked-field-marker';
+import { LockedNote } from '../../platform/ownership/ui/locked-note';
+import { RichTextEditor } from '../../platform/rich-text/rich-text-editor';
+import { CancelButton } from '../../platform/ui/cancel-button';
+import { SaveButton } from '../../platform/ui/save-button';
 import { UnsavedChanges } from '../../platform/unsaved-changes';
-import { Button } from '@b2b-catalog-platform/ui/actions/button';
-import { Notice } from '@b2b-catalog-platform/ui/content/notice';
-import { Checkbox } from '@b2b-catalog-platform/ui/choices/checkbox';
-import { TickLabel } from '@b2b-catalog-platform/ui/choices/tick-label';
-import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
-import {
-  FieldAttempt,
-  FIELD_ATTEMPT,
-} from '@b2b-catalog-platform/ui/fields/field-attempt';
-import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
-import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
-import { submitAttempt } from '@b2b-catalog-platform/ui/fields/submit-attempt';
-import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
-import { PRODUCT_FEATURE_GLYPHS } from './product-feature-glyphs';
-import { Input } from '@b2b-catalog-platform/ui/inputs/input';
-import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
-import { CategoriesService } from '../categories/categories.service';
-import { ProductsService, type ProductSaveErrorCode } from './products.service';
+import { UnsavedChangesAware } from '../../platform/unsaved-changes.guard';
 import { AttributesService } from '../attributes/attributes.service';
+import { ADMIN_CATALOG_TEXT } from '../catalog-text';
+import { CategoriesService } from '../categories/categories.service';
 import { CategoryPicker } from '../categories/category-picker';
 import { categoryAncestors } from '../categories/category-tree';
-import { injectEditorReturn } from '../../../platform/edit-mode/editor-return';
-import { RichTextEditor } from '../../platform/rich-text/rich-text-editor';
-import { TiersService } from '../tiers/tiers.service';
-import { ProductAttributesEditor } from './product-attributes-editor';
-import { ProductPartsEditor } from './product-parts-editor';
-import { FeatureDisclosure } from './feature-disclosure';
-import { ProductVariantsEditor } from './product-variants-editor';
-import { ProductImageGallery } from './product-image-gallery';
 import { ProductDocumentsEditor } from '../documents/product-documents-editor';
-import { ProductPairingsEditor } from './product-pairings-editor';
+import { TiersService } from '../tiers/tiers.service';
+import { FeatureDisclosure } from './feature-disclosure';
+import { ProductAttributesEditor } from './product-attributes-editor';
+import { PRODUCT_FEATURE_GLYPHS } from './product-feature-glyphs';
+import { ProductImageGallery } from './product-image-gallery';
 import {
   emptyPackaging,
   PackagingDraft,
   parseCount,
   ProductPackagingEditor,
 } from './product-packaging-editor';
+import { ProductPairingsEditor } from './product-pairings-editor';
+import { ProductPartsEditor } from './product-parts-editor';
 import {
   ProductTierPricesEditor,
   TierPriceDraft,
 } from './product-tier-prices-editor';
-import { UnitInput } from '@b2b-catalog-platform/ui/inputs/unit-input';
-import { UnitInputControl } from '@b2b-catalog-platform/ui/inputs/unit-input-control';
-import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
-import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
-import { circleCheckIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-check';
-import { eyeIcon } from '@b2b-catalog-platform/ui/icons/glyphs/eye';
-import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
-import { numericRules } from '@b2b-catalog-platform/ui/inputs/numeric-rules';
-import { SaveButton } from '../../platform/ui/save-button';
-import { CancelButton } from '../../platform/ui/cancel-button';
-import { SHARED_CATALOG_TEXT } from '../../../core/catalog/catalog-text';
-import { ADMIN_CATALOG_TEXT } from '../catalog-text';
-import { CATALOG_CONFIG } from '../../../core/catalog/catalog-config';
+import { ProductVariantsEditor } from './product-variants-editor';
+import { ProductsService, type ProductSaveErrorCode } from './products.service';
 
 /** Packaging with no pack and no box, for the reads that need only those. */
 const NO_PACKAGING = { piecesPerPack: null, packsPerBox: null };

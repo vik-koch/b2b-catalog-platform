@@ -1,4 +1,5 @@
 import * as z from 'zod';
+
 import { ACCOUNTS_AREA } from '../core/accounts/accounts-area';
 import { sharedAccountsTextShape } from '../core/accounts/accounts-text';
 import { CATALOG_AREA } from '../core/catalog/catalog-area';

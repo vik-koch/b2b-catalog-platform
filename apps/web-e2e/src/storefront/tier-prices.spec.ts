@@ -1,7 +1,8 @@
-import { hash } from '@node-rs/argon2';
-import { expect, Page, test, TestInfo } from '@playwright/test';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { hash } from '@node-rs/argon2';
+import { expect, Page, test, TestInfo } from '@playwright/test';
+
 import {
   documentOf,
   localtestDbClient,

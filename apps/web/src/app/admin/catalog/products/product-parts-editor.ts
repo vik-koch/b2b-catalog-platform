@@ -8,7 +8,7 @@ import {
   output,
   signal,
 } from '@angular/core';
-import { fillText } from '@b2b-catalog-platform/shared/platform';
+
 import {
   isValidPart,
   parsePartList,
@@ -16,17 +16,19 @@ import {
   PRODUCT_PARTS_MAX,
   PRODUCT_PARTS_MIN,
 } from '@b2b-catalog-platform/shared/core/catalog';
-import { ADMIN_TEXT } from '../../../platform/config/admin-text';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
-import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
 import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
-import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
-import { PRODUCT_FEATURE_GLYPHS } from './product-feature-glyphs';
-import { Input } from '@b2b-catalog-platform/ui/inputs/input';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
+import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
 import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
-import { SubEditorFrame } from '../ui/sub-editor-frame';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import { Input } from '@b2b-catalog-platform/ui/inputs/input';
+
+import { ADMIN_TEXT } from '../../../platform/config/admin-text';
 import { ADMIN_CATALOG_TEXT } from '../catalog-text';
+import { SubEditorFrame } from '../ui/sub-editor-frame';
+import { PRODUCT_FEATURE_GLYPHS } from './product-feature-glyphs';
 
 /** `aria-controls` must name one panel, and a page may hold more than one. */
 let nextId = 0;

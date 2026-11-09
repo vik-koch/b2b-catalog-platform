@@ -1,4 +1,5 @@
 import { applyDecorators, UseGuards, UseInterceptors } from '@nestjs/common';
+
 import { OptionalAuthGuard } from '../../platform/auth/optional-auth.guard';
 import { SessionVaryingInterceptor } from '../../platform/auth/session-varying.interceptor';
 

@@ -1,21 +1,23 @@
-import { defaultStorefrontAccountsText } from '../accounts-text.fixture';
-import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { PLATFORM_ID, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
-import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
-import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
-import { defaultDeploymentConfig } from '../../../platform/config/deployment-config.fixture';
-import { defaultStorefrontText } from '../../../platform/config/storefront-text.fixture';
-import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
-import { AuthService } from '../../../platform/auth/auth.service';
-import { LoginResult, SignInService } from './sign-in.service';
-import { LoginPage } from './login-page';
+
+import { AuthUser } from '@b2b-catalog-platform/shared/platform';
+
 import {
   adminUser as admin,
   plainUser,
 } from '../../../platform/auth/auth-user.fixture';
-import { AuthUser } from '@b2b-catalog-platform/shared/platform';
+import { AuthService } from '../../../platform/auth/auth.service';
+import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
+import { defaultDeploymentConfig } from '../../../platform/config/deployment-config.fixture';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
+import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
+import { defaultStorefrontText } from '../../../platform/config/storefront-text.fixture';
+import { defaultStorefrontAccountsText } from '../accounts-text.fixture';
+import { LoginPage } from './login-page';
+import { LoginResult, SignInService } from './sign-in.service';
 
 const text = defaultStorefrontAccountsText.auth;
 

@@ -1,18 +1,19 @@
 import { ConflictException, INestApplication } from '@nestjs/common';
 import { APP_FILTER } from '@nestjs/core';
 import { Test } from '@nestjs/testing';
-import { CategoriesController } from './categories/categories.controller';
-import { ProductsController } from './products/products.controller';
-import { PRODUCT_ORDERS } from '../../core/catalog/product-orders';
+
 import { CatalogReader } from '../../core/catalog/catalog-reader';
+import { PRODUCT_ORDERS } from '../../core/catalog/product-orders';
+import { AuditLogger } from '../../platform/audit/audit.logger';
+import { withSession } from '../../platform/auth/session.fixture';
+import { ContractErrorFilter } from '../../platform/orpc/contract-error.filter';
+import { CategoriesController } from './categories/categories.controller';
 import { CategoriesService } from './categories/categories.service';
-import { ProductEditorService } from './products/product-editor.service';
 import { ProductGridService } from './products/grid/product-grid.service';
+import { ProductEditorService } from './products/product-editor.service';
 import { ProductLifecycleService } from './products/product-lifecycle.service';
 import { ProductRecords } from './products/product-records';
-import { AuditLogger } from '../../platform/audit/audit.logger';
-import { ContractErrorFilter } from '../../platform/orpc/contract-error.filter';
-import { withSession } from '../../platform/auth/session.fixture';
+import { ProductsController } from './products/products.controller';
 
 /**
  * The write routes over a real server: the service's Nest exceptions arrive

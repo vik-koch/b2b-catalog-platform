@@ -1,14 +1,16 @@
 import { Controller } from '@nestjs/common';
 import { Implement, implement } from '@orpc/nest';
-import { catalogContract } from '@b2b-catalog-platform/shared/storefront/catalog';
+
 import { parseAttributeParams } from '@b2b-catalog-platform/shared/core/catalog';
-import { CatalogSearchService } from './catalog-search.service';
+import { catalogContract } from '@b2b-catalog-platform/shared/storefront/catalog';
+
 import { PricingTier } from '../../core/catalog/pricing-tier.decorator';
 import { TierPriced } from '../../core/catalog/tier-priced.decorator';
 import {
   SearchThrottle,
   SuggestionThrottle,
 } from '../../platform/throttling/throttle-presets';
+import { CatalogSearchService } from './catalog-search.service';
 
 /** Product search and its type-ahead (FR-SEARCH), tier-priced like the rest
  * of the catalog, and throttled: every request runs the matcher. */

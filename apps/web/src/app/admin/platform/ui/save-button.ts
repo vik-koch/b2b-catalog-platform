@@ -1,7 +1,9 @@
 import { Component, inject, input } from '@angular/core';
+
 import { Glyph } from '@b2b-catalog-platform/ui/icons/glyph';
 import { saveIcon } from '@b2b-catalog-platform/ui/icons/glyphs/save';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
 
 /**

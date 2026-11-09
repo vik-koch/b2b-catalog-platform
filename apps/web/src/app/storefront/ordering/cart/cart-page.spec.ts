@@ -1,26 +1,30 @@
-import { defaultStorefrontOrderingText } from '../ordering-text.fixture';
-import { defaultSharedOrderingText } from '../../../core/ordering/ordering-text.fixture';
-import {
-  SHARED_TEXT,
-  provideUiText,
-} from '../../../platform/config/shared-text';
-import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+
 import { CartPreview } from '@b2b-catalog-platform/shared/core/ordering';
 import { fillText } from '@b2b-catalog-platform/shared/platform';
+import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
+
+import {
+  CartAddition,
+  ProductCart,
+} from '../../../core/catalog/buying/product-cart';
+import { defaultSharedCatalogText } from '../../../core/catalog/catalog-text.fixture';
 import { packagedPackaging } from '../../../core/catalog/product.fixture';
-import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
-import { defaultStorefrontText } from '../../../platform/config/storefront-text.fixture';
+import { defaultSharedOrderingText } from '../../../core/ordering/ordering-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import { defaultDeploymentConfig } from '../../../platform/config/deployment-config.fixture';
-import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
+import {
+  provideUiText,
+  SHARED_TEXT,
+} from '../../../platform/config/shared-text';
+import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
+import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
+import { defaultStorefrontText } from '../../../platform/config/storefront-text.fixture';
+import { defaultStorefrontOrderingText } from '../ordering-text.fixture';
 import { CartPage } from './cart-page';
 import { CartPreviewService } from './cart-preview.service';
 import { CartService } from './cart.service';
-import { CartAddition } from '../../../core/catalog/buying/product-cart';
-import { ProductCart } from '../../../core/catalog/buying/product-cart';
-import { defaultSharedCatalogText } from '../../../core/catalog/catalog-text.fixture';
 
 const text = defaultStorefrontOrderingText.cart;
 const summaryText = defaultSharedOrderingText.orderSummary;

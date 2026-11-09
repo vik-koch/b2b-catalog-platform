@@ -3,12 +3,13 @@ import {
   CatalogSyncOptions,
   CatalogSyncRow,
 } from '@b2b-catalog-platform/shared/core/exchange';
+
 import {
   ExistingCategory,
   ExistingProduct,
   ExistingTier,
-  SyncCatalogState,
   planSync,
+  SyncCatalogState,
 } from './sync-diff';
 
 /** The storefront's list and the demo's one extra. Both are rows; only the

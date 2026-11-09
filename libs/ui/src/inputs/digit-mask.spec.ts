@@ -1,6 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { form, FormField } from '@angular/forms/signals';
+
 import { DigitMask } from './digit-mask';
 import { DIGIT_MASK_FORMAT, DigitMaskFormat } from './digit-mask-format';
 

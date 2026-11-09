@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
+
+import { ConsentService } from './consent.service';
 import {
   CONSENT_PURPOSES_ASKED,
   loadConsentPurposesAsked,
 } from './site-config';
-import { ConsentService } from './consent.service';
 
 @Module({
   providers: [

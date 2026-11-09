@@ -3,6 +3,7 @@ import {
   CustomerSyncOptions,
   CustomerSyncRow,
 } from '@b2b-catalog-platform/shared/core/exchange';
+
 import {
   CustomerSyncState,
   ExistingAccount,

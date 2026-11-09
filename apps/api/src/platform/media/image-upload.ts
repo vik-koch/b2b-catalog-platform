@@ -3,10 +3,12 @@ import {
   PayloadTooLargeException,
   UnsupportedMediaTypeException,
 } from '@nestjs/common';
+
 import {
   AcceptedImageMime,
   MEDIA_MAX_UPLOAD_BYTES,
 } from '@b2b-catalog-platform/shared/platform';
+
 import { sniffAcceptedImage } from './image-content-type';
 
 /**

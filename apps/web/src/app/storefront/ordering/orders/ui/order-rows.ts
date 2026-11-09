@@ -1,24 +1,26 @@
-import { STOREFRONT_ORDERING_TEXT } from '../../ordering-text';
-import { SHARED_ORDERING_TEXT } from '../../../../core/ordering/ordering-text';
 import { Component, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
+
+import { OrderSummary } from '@b2b-catalog-platform/shared/core/ordering';
 import {
   fillText,
-  moneyFormat,
   formatMoneyMinor,
+  moneyFormat,
 } from '@b2b-catalog-platform/shared/platform';
-import { OrderSummary } from '@b2b-catalog-platform/shared/core/ordering';
-import { DEPLOYMENT_CONFIG } from '../../../../platform/config/deployment-config';
 import {
   StatusBadge,
   StatusTone,
 } from '@b2b-catalog-platform/ui/content/status-badge';
+
 import {
   orderPaymentLabel,
   orderPaymentTone,
   orderStatusLabel,
   orderStatusTone,
 } from '../../../../core/ordering/order-status';
+import { SHARED_ORDERING_TEXT } from '../../../../core/ordering/ordering-text';
+import { DEPLOYMENT_CONFIG } from '../../../../platform/config/deployment-config';
+import { STOREFRONT_ORDERING_TEXT } from '../../ordering-text';
 
 /** The account's orders as rows, on the history page and the account page.
  * Rows, not a table: customers read this on phones. */

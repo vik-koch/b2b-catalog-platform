@@ -7,15 +7,17 @@ import {
   RouterStateSnapshot,
   UrlTree,
 } from '@angular/router';
-import { AuthService } from '../../../platform/auth/auth.service';
+
+import { AuthUser } from '@b2b-catalog-platform/shared/platform';
+
+import { MaintenanceService } from '../../../core/site/maintenance.service';
 import {
   adminUser as admin,
   managerUser as manager,
   plainUser,
 } from '../../../platform/auth/auth-user.fixture';
+import { AuthService } from '../../../platform/auth/auth.service';
 import { maintenanceGate } from './maintenance.guard';
-import { MaintenanceService } from '../../../core/site/maintenance.service';
-import { AuthUser } from '@b2b-catalog-platform/shared/platform';
 
 function setup(
   enabled: boolean,

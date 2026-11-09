@@ -1,9 +1,10 @@
-import { hash } from '@node-rs/argon2';
-import axios from 'axios';
 import { readFile } from 'node:fs/promises';
 import { basename } from 'node:path';
+import { hash } from '@node-rs/argon2';
+import axios from 'axios';
 import { Client } from 'pg';
 import sharp from 'sharp';
+
 import { mediaPath, requireEnv } from '../support/env';
 
 /** Product documents (FR-DOC-01/02): upload, the row's CRUD, the product

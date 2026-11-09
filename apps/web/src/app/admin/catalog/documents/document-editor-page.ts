@@ -1,55 +1,57 @@
 import { Component, computed, forwardRef, inject, signal } from '@angular/core';
 import { form, maxLength, required, validate } from '@angular/forms/signals';
-import { filled } from '../../../platform/field-rules';
 import { ActivatedRoute } from '@angular/router';
+
+import {
+  DOCUMENT_LINK_MAX_LENGTH,
+  DocumentInput,
+  LinkedProduct,
+  StoredDocumentFile,
+} from '@b2b-catalog-platform/shared/admin/catalog';
 import {
   ACCEPTED_DOCUMENT_MIME_TYPES,
   fillText,
 } from '@b2b-catalog-platform/shared/platform';
-import {
-  DocumentInput,
-  LinkedProduct,
-  StoredDocumentFile,
-  DOCUMENT_LINK_MAX_LENGTH,
-} from '@b2b-catalog-platform/shared/admin/catalog';
-import { ADMIN_TEXT } from '../../../platform/config/admin-text';
-import { SHARED_TEXT } from '../../../platform/config/shared-text';
-import { delayedLoading } from '../../../platform/delayed-loading';
-import { usePageSeo } from '../../../platform/page-seo';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
+import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
+import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
+import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import {
-  FieldAttempt,
   FIELD_ATTEMPT,
+  FieldAttempt,
 } from '@b2b-catalog-platform/ui/fields/field-attempt';
 import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
 import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
+import { Hint } from '@b2b-catalog-platform/ui/fields/hint';
 import { submitAttempt } from '@b2b-catalog-platform/ui/fields/submit-attempt';
-import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
+import { externalLinkIcon } from '@b2b-catalog-platform/ui/icons/glyphs/external-link';
+import { fileTextIcon } from '@b2b-catalog-platform/ui/icons/glyphs/file-text';
+import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
+import { uploadIcon } from '@b2b-catalog-platform/ui/icons/glyphs/upload';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { DateInput } from '@b2b-catalog-platform/ui/inputs/date-input';
-import { Input } from '@b2b-catalog-platform/ui/inputs/input';
-import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
-import { injectEditorReturn } from '../../../platform/edit-mode/editor-return';
-import { UnsavedChangesAware } from '../../platform/unsaved-changes.guard';
-import { UnsavedChanges } from '../../platform/unsaved-changes';
-import { documentFileCaption } from '../../../platform/document-file';
 import { DropZone } from '@b2b-catalog-platform/ui/inputs/drop-zone';
 import {
   FileTarget,
   pasteKeys,
 } from '@b2b-catalog-platform/ui/inputs/file-target';
+import { Input } from '@b2b-catalog-platform/ui/inputs/input';
+
+import { ADMIN_TEXT } from '../../../platform/config/admin-text';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { delayedLoading } from '../../../platform/delayed-loading';
+import { documentFileCaption } from '../../../platform/document-file';
+import { injectEditorReturn } from '../../../platform/edit-mode/editor-return';
+import { filled } from '../../../platform/field-rules';
+import { usePageSeo } from '../../../platform/page-seo';
+import { CancelButton } from '../../platform/ui/cancel-button';
+import { SaveButton } from '../../platform/ui/save-button';
+import { UnsavedChanges } from '../../platform/unsaved-changes';
+import { UnsavedChangesAware } from '../../platform/unsaved-changes.guard';
+import { ADMIN_CATALOG_TEXT } from '../catalog-text';
 import { DocumentProductsPicker } from './document-products-picker';
 import { DocumentsService } from './documents.service';
-import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
-import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
-import { Hint } from '@b2b-catalog-platform/ui/fields/hint';
-import { externalLinkIcon } from '@b2b-catalog-platform/ui/icons/glyphs/external-link';
-import { fileTextIcon } from '@b2b-catalog-platform/ui/icons/glyphs/file-text';
-import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
-import { uploadIcon } from '@b2b-catalog-platform/ui/icons/glyphs/upload';
-import { SaveButton } from '../../platform/ui/save-button';
-import { CancelButton } from '../../platform/ui/cancel-button';
-import { ADMIN_CATALOG_TEXT } from '../catalog-text';
 
 interface DocumentDraft {
   title: string;

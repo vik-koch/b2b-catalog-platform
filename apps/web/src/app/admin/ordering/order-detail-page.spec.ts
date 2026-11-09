@@ -1,25 +1,27 @@
-import { defaultSharedOrderingText } from '../../core/ordering/ordering-text.fixture';
-import { defaultAdminOrderingText } from './ordering-text.fixture';
-import { SHARED_TEXT } from '../../platform/config/shared-text';
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+
 import {
   AdminOrderDetail,
   OrderRevision,
 } from '@b2b-catalog-platform/shared/core/ordering';
 import { OwnershipArea } from '@b2b-catalog-platform/shared/platform';
+import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
+
+import { defaultSharedOrderingText } from '../../core/ordering/ordering-text.fixture';
+import { AuthService } from '../../platform/auth/auth.service';
 import { ADMIN_TEXT } from '../../platform/config/admin-text';
-import { provideOwnership } from '../platform/ownership/ownership.fixture';
 import { defaultAdminText } from '../../platform/config/admin-text.fixture';
+import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
+import { defaultDeploymentConfig } from '../../platform/config/deployment-config.fixture';
+import { SHARED_TEXT } from '../../platform/config/shared-text';
 import { defaultSharedText } from '../../platform/config/shared-text.fixture';
 import { STOREFRONT_TEXT } from '../../platform/config/storefront-text';
 import { defaultStorefrontText } from '../../platform/config/storefront-text.fixture';
-import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
-import { defaultDeploymentConfig } from '../../platform/config/deployment-config.fixture';
-import { AuthService } from '../../platform/auth/auth.service';
-import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
+import { provideOwnership } from '../platform/ownership/ownership.fixture';
 import { AdminOrderDetailPage } from './order-detail-page';
+import { defaultAdminOrderingText } from './ordering-text.fixture';
 import { AdminOrdersService } from './orders.service';
 
 const text = defaultAdminOrderingText.orders.detail;

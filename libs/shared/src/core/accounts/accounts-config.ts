@@ -1,4 +1,5 @@
 import * as z from 'zod';
+
 import type { DeepReadonly } from '../../platform/deep-readonly';
 import { addressConfigSchema } from './address-config';
 import { signInStepConfigSchema } from './sign-in-step-config';

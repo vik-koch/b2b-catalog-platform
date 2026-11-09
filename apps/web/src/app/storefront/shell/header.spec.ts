@@ -1,14 +1,16 @@
-import { SHARED_TEXT } from '../../platform/config/shared-text';
-import { defaultSharedText } from '../../platform/config/shared-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
+
+import type { DeploymentConfigFile } from '@b2b-catalog-platform/shared/deployment';
+
+import { provideFakeProductCart } from '../../core/catalog/buying/product-cart.fixture';
+import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
+import { defaultDeploymentConfig } from '../../platform/config/deployment-config.fixture';
+import { SHARED_TEXT } from '../../platform/config/shared-text';
+import { defaultSharedText } from '../../platform/config/shared-text.fixture';
 import { STOREFRONT_TEXT } from '../../platform/config/storefront-text';
 import { defaultStorefrontText } from '../../platform/config/storefront-text.fixture';
-import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
-import type { DeploymentConfigFile } from '@b2b-catalog-platform/shared/deployment';
-import { defaultDeploymentConfig } from '../../platform/config/deployment-config.fixture';
 import { Header } from './header';
-import { provideFakeProductCart } from '../../core/catalog/buying/product-cart.fixture';
 
 async function render(
   url = '/',

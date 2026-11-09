@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+
 import { localtestEnv } from '../support/localtest';
 import { fixtureSeed } from '../support/seed-fixture';
 import { CUSTOMER_EMAIL, ROLES, stateFile } from './routes';

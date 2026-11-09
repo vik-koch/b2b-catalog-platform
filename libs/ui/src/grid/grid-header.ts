@@ -1,8 +1,9 @@
 import { Component, computed, input } from '@angular/core';
+
+import { PageIntro } from '../content/page-intro';
 import { NarrowBreakpoint } from '../core/narrow-screen';
 import { GridClearFilters } from './grid-clear-filters';
 import { GridSearchField } from './grid-search-field';
-import { PageIntro } from '../content/page-intro';
 
 /** Below the grid's breakpoint the narrow controls carry clear-filters.
  * Written out: Tailwind cannot see an interpolated class. */

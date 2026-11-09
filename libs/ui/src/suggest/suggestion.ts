@@ -1,4 +1,5 @@
 import { Component, input } from '@angular/core';
+
 import { HighlightedLine, HighlightSegment } from './highlighted-line';
 
 /**

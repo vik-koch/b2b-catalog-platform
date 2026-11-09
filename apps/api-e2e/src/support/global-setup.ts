@@ -1,8 +1,9 @@
-import { killPort, waitForPortOpen } from '@nx/node/utils';
 import { execSync } from 'node:child_process';
 import { mkdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { killPort, waitForPortOpen } from '@nx/node/utils';
+
 import { requireEnv } from './env';
 
 // This file runs as ESM under vitest, so there is no __dirname to resolve from.

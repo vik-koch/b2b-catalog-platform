@@ -1,4 +1,5 @@
 import { Provider } from '@angular/core';
+
 import { UI_TEXT, UiText } from './ui-text';
 
 /** Stand-in words for the lib's own specs; the app's live in its texts. */

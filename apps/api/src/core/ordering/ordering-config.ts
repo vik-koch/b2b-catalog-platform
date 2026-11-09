@@ -1,10 +1,12 @@
 import * as z from 'zod';
+
 import {
-  type DeliveryConfig,
   ORDERING_AREA,
-  type OrderReferenceConfig,
   orderingConfigShape,
+  type DeliveryConfig,
+  type OrderReferenceConfig,
 } from '@b2b-catalog-platform/shared/core/ordering';
+
 import { loadDeploymentConfigBlock } from '../../platform/config/deployment-config';
 
 const loadOrderingConfig = () =>

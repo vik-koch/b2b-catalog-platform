@@ -1,20 +1,22 @@
-import { SHARED_TEXT } from './platform/config/shared-text';
-import { defaultSharedText } from './platform/config/shared-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+
 import { ProductDetail } from '@b2b-catalog-platform/shared/core/catalog';
-import { CartService } from './storefront/ordering/cart/cart.service';
+
 import { ProductCart } from './core/catalog/buying/product-cart';
-import { STOREFRONT_TEXT } from './platform/config/storefront-text';
-import { defaultStorefrontText } from './platform/config/storefront-text.fixture';
-import { DEPLOYMENT_CONFIG } from './platform/config/deployment-config';
-import { defaultDeploymentConfig } from './platform/config/deployment-config.fixture';
+import { defaultSharedCatalogText } from './core/catalog/catalog-text.fixture';
 import { ProductBuyBlock } from './core/catalog/product-page/product-buy-block';
 import {
   packagedPackaging,
   productDetail,
 } from './core/catalog/product.fixture';
-import { defaultSharedCatalogText } from './core/catalog/catalog-text.fixture';
+import { DEPLOYMENT_CONFIG } from './platform/config/deployment-config';
+import { defaultDeploymentConfig } from './platform/config/deployment-config.fixture';
+import { SHARED_TEXT } from './platform/config/shared-text';
+import { defaultSharedText } from './platform/config/shared-text.fixture';
+import { STOREFRONT_TEXT } from './platform/config/storefront-text';
+import { defaultStorefrontText } from './platform/config/storefront-text.fixture';
+import { CartService } from './storefront/ordering/cart/cart.service';
 
 const text = defaultSharedCatalogText.buying;
 const unitText = defaultSharedCatalogText.unitFacts;

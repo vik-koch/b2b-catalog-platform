@@ -1,42 +1,44 @@
-import { STOREFRONT_ACCOUNTS_TEXT } from '../accounts-text';
-import { ACCOUNTS_CONFIG } from '../../../core/accounts/accounts-config';
 import { Component, computed, inject, resource, Signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
+
+import {
+  Address,
+  formatPersonName,
+} from '@b2b-catalog-platform/shared/core/accounts';
 import { fillText } from '@b2b-catalog-platform/shared/platform';
-import {
-  addressDetailLines,
-  addressDisplayName,
-} from '../../../core/accounts/addresses/address-format';
-import { AddressesService } from '../../../core/accounts/addresses/addresses.service';
-import { SignedInAs } from '../../../core/accounts/auth/signed-in-as';
-import { SHARED_TEXT } from '../../../platform/config/shared-text';
-import { SHARED_ACCOUNTS_TEXT } from '../../../core/accounts/accounts-text';
-import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
-import { formatPhone } from '../../../platform/contact-fields';
-import { usePageSeo } from '../../../platform/page-seo';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
-import {
-  confirmRequest,
-  ConfirmService,
-} from '@b2b-catalog-platform/ui/overlay/confirm.service';
 import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
-import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
-import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
-import { AccountService } from './account.service';
+import { Card } from '@b2b-catalog-platform/ui/content/card';
+import { FACT_LIST } from '@b2b-catalog-platform/ui/content/fact-list';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
+import { SectionTitle } from '@b2b-catalog-platform/ui/content/section-title';
+import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { lockIcon } from '@b2b-catalog-platform/ui/icons/glyphs/lock';
 import { mapPinIcon } from '@b2b-catalog-platform/ui/icons/glyphs/map-pin';
 import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
 import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
 import { userIcon } from '@b2b-catalog-platform/ui/icons/glyphs/user';
-import { Card } from '@b2b-catalog-platform/ui/content/card';
-import { FACT_LIST } from '@b2b-catalog-platform/ui/content/fact-list';
-import { SectionTitle } from '@b2b-catalog-platform/ui/content/section-title';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import {
-  Address,
-  formatPersonName,
-} from '@b2b-catalog-platform/shared/core/accounts';
+  confirmRequest,
+  ConfirmService,
+} from '@b2b-catalog-platform/ui/overlay/confirm.service';
+
+import { ACCOUNTS_CONFIG } from '../../../core/accounts/accounts-config';
+import { SHARED_ACCOUNTS_TEXT } from '../../../core/accounts/accounts-text';
+import {
+  addressDetailLines,
+  addressDisplayName,
+} from '../../../core/accounts/addresses/address-format';
+import { AddressesService } from '../../../core/accounts/addresses/addresses.service';
+import { SignedInAs } from '../../../core/accounts/auth/signed-in-as';
+import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { formatPhone } from '../../../platform/contact-fields';
+import { usePageSeo } from '../../../platform/page-seo';
+import { STOREFRONT_ACCOUNTS_TEXT } from '../accounts-text';
+import { AccountService } from './account.service';
 
 /** An answer of any kind, kept while a reload fetches the next one: a removed
  * address must not drop both cards back to skeleton bars. */

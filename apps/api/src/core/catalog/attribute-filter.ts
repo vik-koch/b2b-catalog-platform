@@ -1,6 +1,7 @@
 import { and, eq, exists, inArray, SQL, sql } from 'drizzle-orm';
-import { productAttributes, products } from './catalog-schema';
+
 import { Database } from '../../platform/db/database';
+import { productAttributes, products } from './catalog-schema';
 
 /**
  * "This product carries this attribute", behind the inventory's drill-down

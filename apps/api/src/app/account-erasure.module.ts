@@ -1,4 +1,5 @@
 import { Global, Module } from '@nestjs/common';
+
 import { ACCOUNT_ERASURE_STEPS } from '../core/accounts/account-erasure';
 import { OrderErasure } from '../core/ordering/order-erasure';
 import { OrderErasureModule } from '../core/ordering/order-erasure.module';

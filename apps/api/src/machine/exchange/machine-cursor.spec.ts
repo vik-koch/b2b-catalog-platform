@@ -1,4 +1,5 @@
 import { BadRequestException } from '@nestjs/common';
+
 import { encodeMachineCursor, parseMachineCursor } from './machine-cursor';
 
 /**

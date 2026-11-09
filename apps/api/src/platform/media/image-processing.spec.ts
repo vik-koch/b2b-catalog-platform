@@ -1,9 +1,11 @@
 import sharp from 'sharp';
+
 import {
   MEDIA_CATALOG_FULL_WIDTH,
   MEDIA_CATALOG_THUMB_WIDTH,
   MEDIA_MAX_IMAGE_WIDTH,
 } from '@b2b-catalog-platform/shared/platform';
+
 import { processImage } from './image-processing';
 
 const solidPng = (width: number, height: number): Promise<Buffer> =>

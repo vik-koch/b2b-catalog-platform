@@ -1,16 +1,18 @@
+import { randomBytes } from 'node:crypto';
+import { readFile } from 'node:fs/promises';
+import { basename } from 'node:path';
 import { hash } from '@node-rs/argon2';
+import axios from 'axios';
+import { Client } from 'pg';
+import sharp from 'sharp';
+
 import { seedPages } from '@b2b-catalog-platform/seed';
 import {
   MEDIA_CATALOG_FULL_WIDTH,
   MEDIA_CATALOG_THUMB_WIDTH,
   MEDIA_MAX_UPLOAD_BYTES,
 } from '@b2b-catalog-platform/shared/platform';
-import axios from 'axios';
-import { randomBytes } from 'node:crypto';
-import { readFile } from 'node:fs/promises';
-import { basename } from 'node:path';
-import { Client } from 'pg';
-import sharp from 'sharp';
+
 import { mediaPath, requireEnv } from '../support/env';
 import { fixtureSeed } from '../support/seed-fixture';
 

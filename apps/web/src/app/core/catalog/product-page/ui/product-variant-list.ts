@@ -1,9 +1,11 @@
 import { Component, inject, input, output } from '@angular/core';
+
 import {
   ProductImage,
   ProductVariant,
 } from '@b2b-catalog-platform/shared/core/catalog';
 import { SectionTitle } from '@b2b-catalog-platform/ui/content/section-title';
+
 import { SHARED_CATALOG_TEXT } from '../../catalog-text';
 
 /** Where a variant's first picture is in the gallery, or -1 where none

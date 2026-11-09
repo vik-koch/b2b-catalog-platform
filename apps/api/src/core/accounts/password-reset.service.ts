@@ -1,14 +1,15 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { MAIL_TEXT, MailText } from '../../platform/mail/mail-text';
+
 import { MailDispatcher } from '../../platform/mail/mail-dispatcher';
+import { MAIL_TEXT, MailText } from '../../platform/mail/mail-text';
 import { invitationMail } from './mail/invitation.template';
 import { passwordResetMail } from './mail/password-reset.template';
-import { UsersService } from './users.service';
 import {
   INVITE_TTL_MS,
   PasswordTokenService,
   RESET_TTL_MS,
 } from './password-token.service';
+import { UsersService } from './users.service';
 
 /**
  * "I cannot get in" (FR-AUTH-02): asking for a link. The caller learns

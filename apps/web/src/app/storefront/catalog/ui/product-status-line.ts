@@ -1,10 +1,12 @@
 import { Component, computed, input } from '@angular/core';
+
 import {
   PRODUCT_PARTS_MIN,
   ProductAvailability,
   ProductImage,
   ProductVariant,
 } from '@b2b-catalog-platform/shared/core/catalog';
+
 import { ProductAvailabilityBadge } from '../../../core/catalog/ui/product-availability-badge';
 import { ProductSetBadge } from '../../../core/catalog/ui/product-set-badge';
 import { ProductVariantsMark } from './product-variants-mark';

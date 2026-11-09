@@ -4,17 +4,19 @@
  * is a pre-check; `runUnique` turns the race it cannot close into a 409.
  */
 
+import { randomUUID } from 'node:crypto';
 import { ConflictException } from '@nestjs/common';
 import { eq } from 'drizzle-orm';
-import { randomUUID } from 'node:crypto';
+
 import { slugify } from '@b2b-catalog-platform/shared/core/catalog';
+
 import {
   attributeDefinitions,
   categories,
   products,
 } from '../../core/catalog/catalog-schema';
-import { isUniqueViolation } from '../../platform/db/pg-errors';
 import { Database } from '../../platform/db/database';
+import { isUniqueViolation } from '../../platform/db/pg-errors';
 
 /** The tables addressed by slug and sync key. */
 type IdentifiedTable = typeof products | typeof categories;

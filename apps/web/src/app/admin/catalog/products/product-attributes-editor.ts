@@ -6,38 +6,40 @@ import {
   moveItemInArray,
 } from '@angular/cdk/drag-drop';
 import {
+  afterRenderEffect,
   Component,
+  computed,
   ElementRef,
   HostListener,
-  afterRenderEffect,
-  computed,
   inject,
   input,
   output,
   signal,
   viewChild,
 } from '@angular/core';
-import { ProductAttribute } from '@b2b-catalog-platform/shared/core/catalog';
-import { fillText } from '@b2b-catalog-platform/shared/platform';
+
 import {
   AttributeDefinition,
   AttributeKeyUsage,
   PRODUCT_ATTRIBUTES_MAX,
 } from '@b2b-catalog-platform/shared/admin/catalog';
-import { ADMIN_TEXT } from '../../../platform/config/admin-text';
-import { injectNarrowScreen } from '@b2b-catalog-platform/ui/core/narrow-screen';
+import { ProductAttribute } from '@b2b-catalog-platform/shared/core/catalog';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
 import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
-import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
-import { HintBadge } from '@b2b-catalog-platform/ui/content/hint-badge';
-import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
 import { TextButton } from '@b2b-catalog-platform/ui/actions/text-button';
-import {
-  AttributeHint,
-  attributeHints,
-  attributeRowMarks,
-} from './attribute-hints';
-import { AttributeKeyPicker } from './attribute-key-picker';
-import { ProductAttributesNarrow } from './product-attributes-narrow';
+import { HintBadge } from '@b2b-catalog-platform/ui/content/hint-badge';
+import { injectNarrowScreen } from '@b2b-catalog-platform/ui/core/narrow-screen';
+import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
+import { funnelIcon } from '@b2b-catalog-platform/ui/icons/glyphs/funnel';
+import { plusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/plus';
+import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
+import { triangleAlertIcon } from '@b2b-catalog-platform/ui/icons/glyphs/triangle-alert';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+
+import { ADMIN_TEXT } from '../../../platform/config/admin-text';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { ADMIN_CATALOG_TEXT } from '../catalog-text';
+import { DragGrip } from '../ui/drag-grip';
 import {
   applyPastedGrid,
   clearRange,
@@ -46,13 +48,13 @@ import {
   parseClipboardGrid,
   selectionToTsv,
 } from './attribute-grid';
-import { SHARED_TEXT } from '../../../platform/config/shared-text';
-import { funnelIcon } from '@b2b-catalog-platform/ui/icons/glyphs/funnel';
-import { plusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/plus';
-import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
-import { triangleAlertIcon } from '@b2b-catalog-platform/ui/icons/glyphs/triangle-alert';
-import { DragGrip } from '../ui/drag-grip';
-import { ADMIN_CATALOG_TEXT } from '../catalog-text';
+import {
+  AttributeHint,
+  attributeHints,
+  attributeRowMarks,
+} from './attribute-hints';
+import { AttributeKeyPicker } from './attribute-key-picker';
+import { ProductAttributesNarrow } from './product-attributes-narrow';
 
 /**
  * The product's attributes (FR-CAT-05) as a spreadsheet: `contenteditable` on

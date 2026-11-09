@@ -9,34 +9,35 @@ import {
   signal,
 } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { fillText } from '@b2b-catalog-platform/shared/platform';
-import { ADMIN_TEXT } from '../../../platform/config/admin-text';
 
-import { usePageSeo } from '../../../platform/page-seo';
-import { useRowAnchor } from '../../platform/row-anchor';
-import { delayedLoading } from '../../../platform/delayed-loading';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
-import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Link } from '@b2b-catalog-platform/ui/actions/link';
-import { Input } from '@b2b-catalog-platform/ui/inputs/input';
 import { HintBadge } from '@b2b-catalog-platform/ui/content/hint-badge';
+import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
-import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
-import { RecordRow } from '@b2b-catalog-platform/ui/lists/record-row';
-import { UnpublishedCount } from '../products/unpublished-count';
-import { AttributesService } from './attributes.service';
-import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { chevronDownIcon } from '@b2b-catalog-platform/ui/icons/glyphs/chevron-down';
 import { chevronRightIcon } from '@b2b-catalog-platform/ui/icons/glyphs/chevron-right';
 import { funnelIcon } from '@b2b-catalog-platform/ui/icons/glyphs/funnel';
 import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
 import { triangleAlertIcon } from '@b2b-catalog-platform/ui/icons/glyphs/triangle-alert';
-import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
-import { SaveButton } from '../../platform/ui/save-button';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import { Input } from '@b2b-catalog-platform/ui/inputs/input';
+import { RecordRow } from '@b2b-catalog-platform/ui/lists/record-row';
+import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
+
+import { ADMIN_TEXT } from '../../../platform/config/admin-text';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { delayedLoading } from '../../../platform/delayed-loading';
+import { usePageSeo } from '../../../platform/page-seo';
+import { useRowAnchor } from '../../platform/row-anchor';
 import { CancelButton } from '../../platform/ui/cancel-button';
+import { SaveButton } from '../../platform/ui/save-button';
 import { ADMIN_CATALOG_TEXT } from '../catalog-text';
+import { UnpublishedCount } from '../products/unpublished-count';
+import { AttributesService } from './attributes.service';
 
 /** A key across the catalog, or one value under a key. */
 type RenameTarget =

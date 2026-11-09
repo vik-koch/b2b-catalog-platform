@@ -1,49 +1,51 @@
-import { SHARED_ORDERING_TEXT } from '../../core/ordering/ordering-text';
-import { ADMIN_ORDERING_TEXT } from './ordering-text';
-import { ACCOUNTS_CONFIG } from '../../core/accounts/accounts-config';
 import { Component, computed, inject, input, resource } from '@angular/core';
-import { useTaxStatement } from '../../core/catalog/tax-statement';
 import { RouterLink } from '@angular/router';
+
 import {
   fillText,
-  moneyFormat,
   formatMoneyMinor,
+  moneyFormat,
 } from '@b2b-catalog-platform/shared/platform';
-import { OrderSummary } from '../../core/ordering/ui/order-summary';
-import { SHARED_TEXT } from '../../platform/config/shared-text';
-import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
-import { delayedLoading } from '../../platform/delayed-loading';
-import { usePageSeo } from '../../platform/page-seo';
-import {
-  injectCustomerBlockLabels,
-  orderBlocks,
-} from '../../core/ordering/order-blocks';
-import {
-  OrderReadBack,
-  ReadBackLine,
-  ReviewBlock,
-} from '../../core/ordering/ui/order-read-back';
-import {
-  orderStatusLabel,
-  orderStatusTone,
-} from '../../core/ordering/order-status';
-import {
-  customerQuantity,
-  orderDateTimeFormat,
-} from '../../core/ordering/order-formats';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
+import { Card } from '@b2b-catalog-platform/ui/content/card';
+import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import {
   StatusBadge,
   StatusTone,
 } from '@b2b-catalog-platform/ui/content/status-badge';
-import { AdminOrdersService } from './orders.service';
+import { SummaryLayout } from '@b2b-catalog-platform/ui/content/summary-layout';
+
+import { ACCOUNTS_CONFIG } from '../../core/accounts/accounts-config';
+import { useTaxStatement } from '../../core/catalog/tax-statement';
+import {
+  injectCustomerBlockLabels,
+  orderBlocks,
+} from '../../core/ordering/order-blocks';
+import {
+  customerQuantity,
+  orderDateTimeFormat,
+} from '../../core/ordering/order-formats';
+import {
+  orderStatusLabel,
+  orderStatusTone,
+} from '../../core/ordering/order-status';
+import { SHARED_ORDERING_TEXT } from '../../core/ordering/ordering-text';
+import {
+  OrderReadBack,
+  ReadBackLine,
+  ReviewBlock,
+} from '../../core/ordering/ui/order-read-back';
+import { OrderSummary } from '../../core/ordering/ui/order-summary';
+import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
+import { SHARED_TEXT } from '../../platform/config/shared-text';
+import { delayedLoading } from '../../platform/delayed-loading';
+import { usePageSeo } from '../../platform/page-seo';
 import { OwnershipService } from '../platform/ownership/ownership.service';
 import { OrderDocumentsPanel } from './order-documents-panel';
+import { ADMIN_ORDERING_TEXT } from './ordering-text';
+import { AdminOrdersService } from './orders.service';
 import { revisionKindLabel } from './revision-labels';
-import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
-import { Card } from '@b2b-catalog-platform/ui/content/card';
-import { SummaryLayout } from '@b2b-catalog-platform/ui/content/summary-layout';
 
 /** One version read back (FR-ORD-03): **the customer's page on a staff
  * screen**, plus which version it is, which they are shown, and the money. No

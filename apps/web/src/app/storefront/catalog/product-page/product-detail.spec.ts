@@ -1,32 +1,33 @@
-import { SHARED_TEXT } from '../../../platform/config/shared-text';
-import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
 import { signal } from '@angular/core';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Meta } from '@angular/platform-browser';
 import { provideRouter } from '@angular/router';
+
 import {
   HiddenReasons,
   ProductPage,
 } from '@b2b-catalog-platform/shared/core/catalog';
 import type { DeploymentConfigFile } from '@b2b-catalog-platform/shared/deployment';
+
+import { provideFakeProductCart } from '../../../core/catalog/buying/product-cart.fixture';
+import { defaultSharedCatalogText } from '../../../core/catalog/catalog-text.fixture';
 import { EDIT_MODE_CATALOG } from '../../../core/catalog/edit-mode-catalog';
+import {
+  plainPrices,
+  productDetail,
+} from '../../../core/catalog/product.fixture';
 import { AuthService } from '../../../platform/auth/auth.service';
 import { loadAdminText } from '../../../platform/config/admin-text';
 import { defaultAdminText } from '../../../platform/config/admin-text.fixture';
-import { TestBed } from '@angular/core/testing';
-import { ComponentFixture } from '@angular/core/testing';
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import { defaultDeploymentConfig } from '../../../platform/config/deployment-config.fixture';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
 import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
 import { defaultStorefrontText } from '../../../platform/config/storefront-text.fixture';
-import { ProductDetail } from './product-detail';
-import { CatalogService } from '../catalog.service';
-import {
-  productDetail,
-  plainPrices,
-} from '../../../core/catalog/product.fixture';
-import { provideFakeProductCart } from '../../../core/catalog/buying/product-cart.fixture';
-import { defaultSharedCatalogText } from '../../../core/catalog/catalog-text.fixture';
 import { defaultStorefrontCatalogText } from '../catalog-text.fixture';
+import { CatalogService } from '../catalog.service';
+import { ProductDetail } from './product-detail';
 
 type Product = NonNullable<Awaited<ReturnType<CatalogService['getProduct']>>>;
 

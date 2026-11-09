@@ -1,23 +1,25 @@
-import { formatTaxRate } from '@b2b-catalog-platform/shared/core/catalog';
-import { ADMIN_EXCHANGE_TEXT } from '../exchange-text';
 import { Component, computed, inject, input, output } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import {
-  fillText,
-  moneyFormat,
-  formatMoneyMinor,
-} from '@b2b-catalog-platform/shared/platform';
+
+import { formatTaxRate } from '@b2b-catalog-platform/shared/core/catalog';
 import {
   CatalogSyncPlan,
   CatalogSyncProductChange,
   CatalogSyncRowError,
 } from '@b2b-catalog-platform/shared/core/exchange';
-import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
+import {
+  fillText,
+  formatMoneyMinor,
+  moneyFormat,
+} from '@b2b-catalog-platform/shared/platform';
 import { Link } from '@b2b-catalog-platform/ui/actions/link';
 import {
   StatusBadge,
   StatusTone,
 } from '@b2b-catalog-platform/ui/content/status-badge';
+
+import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
+import { ADMIN_EXCHANGE_TEXT } from '../exchange-text';
 import { SyncPlanActions } from './sync-plan-actions';
 import { SyncPlanTiles } from './sync-plan-tiles';
 import { SyncRowErrors } from './sync-row-errors';
