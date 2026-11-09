@@ -1,6 +1,10 @@
 {
   "from": "v1.16.0",
-  "keys": {},
+  "keys": {
+    "texts/storefront.json:ordering.checkout.errors.preferredDateUnavailable": {
+      "new": "The day you asked for is no longer on offer. Please choose another below."
+    }
+  },
   "drop": [],
   "moves": {
     "deployment.json:tax": "deployment.json:catalog.tax"

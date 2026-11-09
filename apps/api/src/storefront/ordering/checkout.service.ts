@@ -9,10 +9,12 @@ import { eq } from 'drizzle-orm';
 import { formatPersonName } from '@b2b-catalog-platform/shared/core/accounts';
 import { TaxConfig } from '@b2b-catalog-platform/shared/core/catalog';
 import {
+  isOrderDateAllowed,
   OrderingParty,
   OrderReferenceConfig,
   OrderSubmission,
 } from '@b2b-catalog-platform/shared/core/ordering';
+import { shopToday } from '@b2b-catalog-platform/shared/platform';
 
 import { users } from '../../core/accounts/accounts-schema';
 import {
@@ -96,6 +98,7 @@ export class CheckoutService {
       throw new CartChangedException(priced);
     }
     this.assertPairings(priced);
+    this.assertPreferredDate(submission.preferredDate);
 
     this.rules.assertAddresses(submission);
     const party = await this.resolveParty(submission, userId);
@@ -148,6 +151,18 @@ export class CheckoutService {
       }));
     if (shortfalls.length > 0) {
       throw new PairingUnsatisfiedException(shortfalls);
+    }
+  }
+
+  /** The form offers the same days (FR-CART-07); counted from the shop's
+   * today, so a server in another zone agrees with it. */
+  private assertPreferredDate(date: string | null): void {
+    if (date === null) return;
+    if (!isOrderDateAllowed(date, shopToday(this.timeZone))) {
+      throw new BadRequestException({
+        code: 'preferred-date-unavailable',
+        message: 'The preferred date is not a day on offer',
+      });
     }
   }
 

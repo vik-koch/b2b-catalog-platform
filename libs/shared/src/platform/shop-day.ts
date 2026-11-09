@@ -16,6 +16,12 @@ export function shopDay(
   }).format(new Date(iso));
 }
 
+/** Today in the shop, as YYYY-MM-DD: what "tomorrow" is counted from,
+ * wherever the code runs. */
+export function shopToday(timeZone: string, now: Date = new Date()): string {
+  return shopIsoDay(now.toISOString(), timeZone);
+}
+
 /** The same day as YYYY-MM-DD, for a file name. */
 export function shopIsoDay(iso: string, timeZone: string): string {
   return new Intl.DateTimeFormat('en-CA', { timeZone }).format(new Date(iso));

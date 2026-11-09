@@ -453,6 +453,7 @@
         "rejected": "We could not accept this order. Please try again.",
         "cartChanged": "Prices or quantities in your cart changed while you were filling this in — please check your order and send it again.",
         "pairingUnsatisfied": "Some of the products in your cart are missing what they are sold with.",
+        "preferredDateUnavailable": "The day you asked for is no longer on offer. Please choose another below.",
         "generic": "Something went wrong sending your order. Please try again.",
         "staffAccount": "Staff accounts cannot place order requests — an order needs a customer account, which is what carries the agreed prices and the delivery address. Sign in as a customer to try the checkout."
       },

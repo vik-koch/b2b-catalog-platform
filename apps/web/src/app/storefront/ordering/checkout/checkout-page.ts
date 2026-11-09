@@ -14,12 +14,15 @@ import {
   AddressInput,
   formatPersonName,
 } from '@b2b-catalog-platform/shared/core/accounts';
-import { FulfilmentMethod } from '@b2b-catalog-platform/shared/core/ordering';
-import { fillText } from '@b2b-catalog-platform/shared/platform';
 import {
+  FulfilmentMethod,
   isOrderDateAllowed,
-  localToday,
-} from '@b2b-catalog-platform/shared/storefront/ordering';
+} from '@b2b-catalog-platform/shared/core/ordering';
+import {
+  fillText,
+  shopTimeZone,
+  shopToday,
+} from '@b2b-catalog-platform/shared/platform';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { Link } from '@b2b-catalog-platform/ui/actions/link';
 import { Checkbox } from '@b2b-catalog-platform/ui/choices/checkbox';
@@ -299,6 +302,7 @@ import { PreferredDate } from './ui/preferred-date';
               <app-preferred-date
                 [method]="draft().fulfilmentMethod"
                 [date]="draft().preferredDate"
+                [today]="today()"
                 [invalid]="preferredDateInvalid()"
                 (dateChange)="drafts.patch({ preferredDate: $event })"
               />
@@ -480,12 +484,13 @@ export class CheckoutPage {
       (this.isPickup() || !this.draft().billingSameAsDelivery),
   );
 
-  /** A weekend or too soon (`order-dates`); keeps it from being sent. `today`
-   * is read once, like the field's floor. */
-  private readonly today = localToday();
+  /** The shop's today, read once: midnight mid-checkout is not worth a
+   * ticking clock. Read again when the server says the day has moved on. */
+  protected readonly today = signal(shopToday(shopTimeZone(this.config)));
+  /** A weekend or too soon (`order-dates`); keeps it from being sent. */
   protected readonly preferredDateInvalid = computed(() => {
     const date = this.draft().preferredDate;
-    return date !== null && !isOrderDateAllowed(date, this.today);
+    return date !== null && !isOrderDateAllowed(date, this.today());
   });
 
   /** A company may pay by transfer (FR-CART-04): the account's own party is one
@@ -856,6 +861,11 @@ export class CheckoutPage {
         this.cart.applyPreview(result.preview);
       }
       this.errorState.set(this.submission.refusal(result.code));
+      if (result.code === 'preferred-date-unavailable') {
+        // The day stays, marked by the field, so the customer sees which.
+        this.today.set(shopToday(shopTimeZone(this.config)));
+        this.goToStep(undefined);
+      }
     } catch {
       this.errorState.set(this.text.errors.generic);
     } finally {

@@ -35,6 +35,7 @@ export type SubmitOrderResult =
         | 'party-required'
         | 'staff-cannot-order'
         | 'pairing-unsatisfied'
+        | 'preferred-date-unavailable'
         | 'rejected';
     }
   | { ok: false; code: 'cart-changed'; preview: CartPreview };

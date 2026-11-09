@@ -705,6 +705,17 @@ describe('Cart and orders (FR-CART-01…04)', () => {
       expect(res.data.code).toBe('cash-not-available');
     });
 
+    // FR-CART-07: what the form would not offer, sent without it. A Monday
+    // long gone and a Saturday far ahead.
+    it('refuses a preferred date that is not a day on offer', async () => {
+      for (const preferredDate of ['2020-01-06', '2099-12-26']) {
+        const res = await post('/orders', submission({ preferredDate }));
+
+        expect(res.status).toBe(400);
+        expect(res.data.code).toBe('preferred-date-unavailable');
+      }
+    });
+
     // Registration's rule: picker and mask are entry aids, and the API applies
     // the deployment's formats.
     it('refuses a registration number matching no configured format', async () => {

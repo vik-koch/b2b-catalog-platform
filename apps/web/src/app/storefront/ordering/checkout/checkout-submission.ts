@@ -156,6 +156,8 @@ export function createCheckoutSubmission(deps: SubmissionDeps) {
           return errors.staffAccount;
         case 'pairing-unsatisfied':
           return errors.pairingUnsatisfied;
+        case 'preferred-date-unavailable':
+          return errors.preferredDateUnavailable;
         default:
           // A 400 the contract does not name: rejected before any rule ran.
           return errors.generic;
