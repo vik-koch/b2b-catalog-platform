@@ -8,55 +8,57 @@ import {
   signal,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
+
+import {
+  documentExpiryState,
+  DocumentExpiryState,
+  ProductDocument,
+} from '@b2b-catalog-platform/shared/admin/catalog';
 import {
   fillText,
   isoToday,
   SEARCH_QUERY_MAX_LENGTH,
 } from '@b2b-catalog-platform/shared/platform';
-import {
-  ProductDocument,
-  documentExpiryState,
-  DocumentExpiryState,
-} from '@b2b-catalog-platform/shared/admin/catalog';
-import { ADMIN_TEXT } from '../../../platform/config/admin-text';
-import { SHARED_TEXT } from '../../../platform/config/shared-text';
-import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
-import { adminDayFormat } from '../../platform/dates/admin-date';
-import { delayedLoading } from '../../../platform/delayed-loading';
-import { AlternateLayout } from '../../../platform/alternate-layout';
-import { usePageSeo } from '../../../platform/page-seo';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
-import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
 import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
 import { Link } from '@b2b-catalog-platform/ui/actions/link';
-import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import {
   StatusBadge,
   StatusTone,
 } from '@b2b-catalog-platform/ui/content/status-badge';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { DataGrid } from '@b2b-catalog-platform/ui/grid/data-grid';
+import { GridCardTemplate } from '@b2b-catalog-platform/ui/grid/grid-card-template';
 import { GridColumn } from '@b2b-catalog-platform/ui/grid/grid-column';
 import { GridFilterOption } from '@b2b-catalog-platform/ui/grid/grid-filter-select';
-import { GridCardTemplate } from '@b2b-catalog-platform/ui/grid/grid-card-template';
+import { GridHeader } from '@b2b-catalog-platform/ui/grid/grid-header';
 import { GridRowTemplate } from '@b2b-catalog-platform/ui/grid/grid-row-template';
 import { GridTitle } from '@b2b-catalog-platform/ui/grid/grid-title';
 import { GridTitleLink } from '@b2b-catalog-platform/ui/grid/grid-title-link';
-import { GridTimestamp } from '../../platform/dates/grid-timestamp';
-import { GridHeader } from '@b2b-catalog-platform/ui/grid/grid-header';
+import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
+import { plusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/plus';
+import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { RecordRow } from '@b2b-catalog-platform/ui/lists/record-row';
-import { UnpublishedCount } from '../products/unpublished-count';
-import { injectEditorReturnParams } from '../../../platform/edit-mode/editor-return';
-import { DocumentsService } from './documents.service';
+import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
+
+import { AlternateLayout } from '../../../platform/alternate-layout';
+import { ADMIN_TEXT } from '../../../platform/config/admin-text';
+import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { delayedLoading } from '../../../platform/delayed-loading';
 import {
   documentFileCaption,
   documentLinkHost,
 } from '../../../platform/document-file';
-import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
-import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
-import { plusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/plus';
-import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
+import { injectEditorReturnParams } from '../../../platform/edit-mode/editor-return';
+import { usePageSeo } from '../../../platform/page-seo';
+import { adminDayFormat } from '../../platform/dates/admin-date';
+import { GridTimestamp } from '../../platform/dates/grid-timestamp';
 import { ADMIN_CATALOG_TEXT } from '../catalog-text';
+import { UnpublishedCount } from '../products/unpublished-count';
+import { DocumentsService } from './documents.service';
 
 /** `due` is no state of its own: expiring and expired, the work the panel's
  * count links to. */

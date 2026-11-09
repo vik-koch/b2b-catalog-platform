@@ -1,22 +1,24 @@
-import {
-  SHARED_TEXT,
-  provideUiText,
-} from '../../../platform/config/shared-text';
-import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
 import { TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
 import { Meta } from '@angular/platform-browser';
-import { Facet } from '@b2b-catalog-platform/shared/storefront/catalog';
+import { provideRouter } from '@angular/router';
+
 import { ProductListItem } from '@b2b-catalog-platform/shared/core/catalog';
-import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
-import { defaultStorefrontText } from '../../../platform/config/storefront-text.fixture';
+import { Facet } from '@b2b-catalog-platform/shared/storefront/catalog';
+
+import { provideFakeProductCart } from '../../../core/catalog/buying/product-cart.fixture';
+import { productListItem } from '../../../core/catalog/product.fixture';
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import { defaultDeploymentConfig } from '../../../platform/config/deployment-config.fixture';
-import { CatalogSearchService } from './catalog-search.service';
-import { productListItem } from '../../../core/catalog/product.fixture';
-import { SearchResults } from './search-results';
-import { provideFakeProductCart } from '../../../core/catalog/buying/product-cart.fixture';
+import {
+  provideUiText,
+  SHARED_TEXT,
+} from '../../../platform/config/shared-text';
+import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
+import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
+import { defaultStorefrontText } from '../../../platform/config/storefront-text.fixture';
 import { defaultStorefrontCatalogText } from '../catalog-text.fixture';
+import { CatalogSearchService } from './catalog-search.service';
+import { SearchResults } from './search-results';
 
 const item = (slug: string, name: string): ProductListItem =>
   productListItem({ slug, name });

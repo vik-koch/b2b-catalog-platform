@@ -1,7 +1,9 @@
 import { Component, inject, input, OnInit, signal } from '@angular/core';
+
 import { Glyph } from '@b2b-catalog-platform/ui/icons/glyph';
-import { SubEditorFrame } from '../ui/sub-editor-frame';
+
 import { ADMIN_CATALOG_TEXT } from '../catalog-text';
+import { SubEditorFrame } from '../ui/sub-editor-frame';
 
 /** A switched feature's box (FR-ADM-20). Open on load where it is on; the lid
  * says "on" where the list-shaped boxes give a count. */

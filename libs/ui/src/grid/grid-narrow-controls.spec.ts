@@ -1,9 +1,10 @@
-import { provideTestGridText, testGridText } from './grid-text.testing';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
+
 import { GridChip, GridColumn } from './grid-column';
 import { GridNarrowControls } from './grid-narrow-controls';
+import { provideTestGridText, testGridText } from './grid-text.testing';
 
 const columns: GridColumn[] = [
   { key: 'name', label: 'Name', sort: { asc: 'name', desc: 'name_desc' } },

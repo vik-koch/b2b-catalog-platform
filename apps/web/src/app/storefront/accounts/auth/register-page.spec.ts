@@ -1,25 +1,27 @@
+import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
+
+import { PartySuggestion } from '@b2b-catalog-platform/shared/core/accounts';
+import { Page } from '@b2b-catalog-platform/shared/core/site';
+
 import { withAccounts } from '../../../core/accounts/accounts-config.fixture';
-import { defaultStorefrontAccountsText } from '../accounts-text.fixture';
+import { PartiesService } from '../../../core/accounts/parties/parties.service';
+import { PageService } from '../../../core/site/page.service';
+import { withSite } from '../../../core/site/site-config.fixture';
+import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
+import { defaultDeploymentConfig } from '../../../platform/config/deployment-config.fixture';
 import {
   provideUiText,
   SHARED_TEXT,
 } from '../../../platform/config/shared-text';
-import { TestBed } from '@angular/core/testing';
-import { Page } from '@b2b-catalog-platform/shared/core/site';
-import { provideRouter } from '@angular/router';
+import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
 import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
 import { defaultStorefrontText } from '../../../platform/config/storefront-text.fixture';
-import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
-import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
-import { defaultDeploymentConfig } from '../../../platform/config/deployment-config.fixture';
-import { PageService } from '../../../core/site/page.service';
-import { PartiesService } from '../../../core/accounts/parties/parties.service';
-import { SignInService } from './sign-in.service';
-import { RegisterPage } from './register-page';
 import { provideDigitMaskFormat } from '../../../platform/contact-fields';
-import { PartySuggestion } from '@b2b-catalog-platform/shared/core/accounts';
 import { defaultStorefrontSiteText } from '../../site/site-text.fixture';
-import { withSite } from '../../../core/site/site-config.fixture';
+import { defaultStorefrontAccountsText } from '../accounts-text.fixture';
+import { RegisterPage } from './register-page';
+import { SignInService } from './sign-in.service';
 
 const text = defaultStorefrontAccountsText.auth.register;
 

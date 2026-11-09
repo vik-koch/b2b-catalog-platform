@@ -1,4 +1,3 @@
-import { STOREFRONT_ORDERING_TEXT } from '../ordering-text';
 import {
   Component,
   computed,
@@ -9,50 +8,53 @@ import {
   untracked,
 } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { CartLineIssue } from '@b2b-catalog-platform/shared/core/ordering';
+
 import { CART_NOTE_MAX } from '@b2b-catalog-platform/shared/core/catalog';
+import { CartLineIssue } from '@b2b-catalog-platform/shared/core/ordering';
 import {
   fillText,
-  moneyFormat,
   formatMoneyMinor,
+  moneyFormat,
 } from '@b2b-catalog-platform/shared/platform';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
+import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
+import { Checkbox } from '@b2b-catalog-platform/ui/choices/checkbox';
+import { EmptyState } from '@b2b-catalog-platform/ui/content/empty-state';
+import { Notice } from '@b2b-catalog-platform/ui/content/notice';
+import { SummaryLayout } from '@b2b-catalog-platform/ui/content/summary-layout';
+import { WarningNote } from '@b2b-catalog-platform/ui/content/warning-note';
+import { debounced } from '@b2b-catalog-platform/ui/core/debounced';
+import { shoppingBasketIcon } from '@b2b-catalog-platform/ui/icons/glyphs/shopping-basket';
+import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
+import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import { AutoGrow } from '@b2b-catalog-platform/ui/inputs/auto-grow';
+import { Input } from '@b2b-catalog-platform/ui/inputs/input';
+import { Pagination } from '@b2b-catalog-platform/ui/lists/pagination';
+import {
+  confirmRequest,
+  ConfirmService,
+} from '@b2b-catalog-platform/ui/overlay/confirm.service';
+
 import { ProductPairings } from '../../../core/catalog/buying/product-pairings';
+import { CATALOG_CONFIG } from '../../../core/catalog/catalog-config';
+import { SHARED_CATALOG_TEXT } from '../../../core/catalog/catalog-text';
+import { useTaxStatement } from '../../../core/catalog/tax-statement';
+import { OrderSummary } from '../../../core/ordering/ui/order-summary';
+import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { delayedLoading } from '../../../platform/delayed-loading';
+import { usePageSeo } from '../../../platform/page-seo';
+import { stableValue } from '../../../platform/stable-value';
+import { LastListingService } from '../../catalog/last-listing.service';
 import {
   PRODUCT_ROWS,
   ProductRow,
   RowProduct,
 } from '../../catalog/ui/product-row';
-import { SHARED_TEXT } from '../../../platform/config/shared-text';
-import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
-import { debounced } from '@b2b-catalog-platform/ui/core/debounced';
-import { delayedLoading } from '../../../platform/delayed-loading';
-import { usePageSeo } from '../../../platform/page-seo';
-import { stableValue } from '../../../platform/stable-value';
-import { Button } from '@b2b-catalog-platform/ui/actions/button';
-import { Pagination } from '@b2b-catalog-platform/ui/lists/pagination';
-import { Checkbox } from '@b2b-catalog-platform/ui/choices/checkbox';
-import { EmptyState } from '@b2b-catalog-platform/ui/content/empty-state';
-import { AutoGrow } from '@b2b-catalog-platform/ui/inputs/auto-grow';
-import { Input } from '@b2b-catalog-platform/ui/inputs/input';
-import {
-  confirmRequest,
-  ConfirmService,
-} from '@b2b-catalog-platform/ui/overlay/confirm.service';
-import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
-import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
-import { LastListingService } from '../../catalog/last-listing.service';
+import { STOREFRONT_ORDERING_TEXT } from '../ordering-text';
 import { CartPreviewService } from './cart-preview.service';
-import { useTaxStatement } from '../../../core/catalog/tax-statement';
-import { OrderSummary } from '../../../core/ordering/ui/order-summary';
 import { CartChange, CartService } from './cart.service';
-import { WarningNote } from '@b2b-catalog-platform/ui/content/warning-note';
-import { Notice } from '@b2b-catalog-platform/ui/content/notice';
-import { shoppingBasketIcon } from '@b2b-catalog-platform/ui/icons/glyphs/shopping-basket';
-import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
-import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
-import { SummaryLayout } from '@b2b-catalog-platform/ui/content/summary-layout';
-import { SHARED_CATALOG_TEXT } from '../../../core/catalog/catalog-text';
-import { CATALOG_CONFIG } from '../../../core/catalog/catalog-config';
 
 /** Lines per cart page (FR-CART-02): a row is a product row, and a long scroll
  * leaves the summary behind. Not in the URL: the cart is this browser's

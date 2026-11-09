@@ -1,10 +1,12 @@
+import { TestBed } from '@angular/core/testing';
+
+import type { DeploymentConfigFile } from '@b2b-catalog-platform/shared/deployment';
+
+import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
-import { TestBed } from '@angular/core/testing';
 import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
 import { defaultStorefrontText } from '../../../platform/config/storefront-text.fixture';
-import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
-import type { DeploymentConfigFile } from '@b2b-catalog-platform/shared/deployment';
 import { useProductUnits } from './product-units-view';
 
 const config = {

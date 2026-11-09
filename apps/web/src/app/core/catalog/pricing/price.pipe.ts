@@ -1,8 +1,10 @@
 import { inject, Pipe, PipeTransform } from '@angular/core';
+
 import {
   formatMoneyMinor,
   moneyFormat,
 } from '@b2b-catalog-platform/shared/platform';
+
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 
 /** `{{ product.priceMinor | price }}`, in the deployment's currency. Pure: the

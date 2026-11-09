@@ -1,11 +1,13 @@
 import { sql } from 'drizzle-orm';
 import { PgDialect } from 'drizzle-orm/pg-core';
+
 import {
   productSortSchema,
   searchSortSchema,
 } from '@b2b-catalog-platform/shared/storefront/catalog';
-import { catalogOrderBy, productOrderBy } from './listing-sort';
+
 import { resolvedPriceMinor } from '../../core/catalog/product-price';
+import { catalogOrderBy, productOrderBy } from './listing-sort';
 
 /** Renders an order-by list the way the query builder would, as one string. */
 function render(clauses: ReturnType<typeof productOrderBy>): string {

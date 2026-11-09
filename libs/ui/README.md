@@ -36,8 +36,8 @@ A directive that changes what a control accepts or does is named for that (`uiAl
 One file at a time, by its path:
 
 ```ts
-import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { searchIcon } from '@b2b-catalog-platform/ui/icons/glyphs/search';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 ```
 
 There is no `index.ts`, and lint refuses a path that names the library or a group: chunks are cut

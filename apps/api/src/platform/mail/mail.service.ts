@@ -1,8 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { MailBranding, MAIL_BRANDING } from './mail-branding';
+
+import { MAIL_BRANDING, MailBranding } from './mail-branding';
 import { MailContent, renderMail } from './mail-layout';
-import { MailText, MAIL_TEXT } from './mail-text';
-import { MAILER, Mailer, MailAttachment } from './mailer';
+import { MAIL_TEXT, MailText } from './mail-text';
+import { MailAttachment, MAILER, Mailer } from './mailer';
 
 /** Who the message goes to, and who a reply should reach. */
 export interface MailEnvelope {

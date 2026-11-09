@@ -1,9 +1,11 @@
 import * as z from 'zod';
+
 import { EXCHANGE_AREA } from '@b2b-catalog-platform/shared/core/exchange';
 import { ORDERING_AREA } from '@b2b-catalog-platform/shared/core/ordering';
 import { deploymentConfigSchema } from '@b2b-catalog-platform/shared/deployment';
 import { loadConfig } from '@b2b-catalog-platform/shared/node';
 import { mergeShapes } from '@b2b-catalog-platform/shared/platform';
+
 import { exchangeApiConfigShape } from '../core/exchange/exchange-api-config';
 import { orderingApiConfigShape } from '../core/ordering/ordering-api-config';
 import { retentionApiConfigShape } from '../core/retention/retention-api-config';

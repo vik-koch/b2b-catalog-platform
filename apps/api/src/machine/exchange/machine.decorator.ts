@@ -1,5 +1,7 @@
 import { applyDecorators, UseGuards } from '@nestjs/common';
+
 import { ApiTokenScope } from '@b2b-catalog-platform/shared/core/exchange';
+
 import { MachineScope } from '../../platform/auth/machine-scope.decorator';
 import { MachineTokenGuard } from '../../platform/auth/machine-token.guard';
 

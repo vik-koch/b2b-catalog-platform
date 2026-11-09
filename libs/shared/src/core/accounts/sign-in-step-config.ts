@@ -1,6 +1,7 @@
 import * as z from 'zod';
-import { SIGN_IN_STEP_MODES } from './auth';
+
 import { USER_ROLES } from '../../platform/session';
+import { SIGN_IN_STEP_MODES } from './auth';
 
 /** The second sign-in step (FR-AUTH-12): how often, and for which roles.
  * Policy, so the operator's file, not an admin setting. Absent is `off`. Read

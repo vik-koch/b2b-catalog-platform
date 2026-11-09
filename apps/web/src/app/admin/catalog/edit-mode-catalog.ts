@@ -1,4 +1,5 @@
 import { inject, Injector, Provider } from '@angular/core';
+
 import { EDIT_MODE_CATALOG } from '../../core/catalog/edit-mode-catalog';
 
 /** Hands edit mode the admin product client, loaded on first use. */

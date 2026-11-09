@@ -3,8 +3,9 @@ import {
   type SharedOrderingText,
 } from '@b2b-catalog-platform/shared/core/ordering';
 import type { SharedText } from '@b2b-catalog-platform/shared/platform';
+
 import { sharedTextBlock } from '../../platform/config/shared-text';
-import { type PdfText, pdfTextBlock } from '../../platform/pdf/pdf-text';
+import { pdfTextBlock, type PdfText } from '../../platform/pdf/pdf-text';
 import type { OrderingPdfText } from './ordering-pdf-text';
 
 /** Ordering's block of the shared text, checked with the whole file at boot. */

@@ -1,4 +1,3 @@
-import { ADMIN_EXCHANGE_TEXT } from '../exchange-text';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -8,11 +7,14 @@ import {
   output,
   signal,
 } from '@angular/core';
+
 import { fillText } from '@b2b-catalog-platform/shared/platform';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { Notice } from '@b2b-catalog-platform/ui/content/notice';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { Input } from '@b2b-catalog-platform/ui/inputs/input';
+
+import { ADMIN_EXCHANGE_TEXT } from '../exchange-text';
 
 /**
  * The decisions on a staged run: apply, behind a typed word where it takes

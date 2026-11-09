@@ -1,4 +1,3 @@
-import { STOREFRONT_ACCOUNTS_TEXT } from '../accounts-text';
 import {
   Component,
   computed,
@@ -9,19 +8,22 @@ import {
   viewChild,
 } from '@angular/core';
 import { form, required } from '@angular/forms/signals';
-import { fillText } from '@b2b-catalog-platform/shared/platform';
-import { confirmation, newPassword } from './password';
-import { Button } from '@b2b-catalog-platform/ui/actions/button';
-import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
-import { Input } from '@b2b-catalog-platform/ui/inputs/input';
-import { SubmitAttempt } from '@b2b-catalog-platform/ui/fields/submit-attempt';
-import { SignInService, ChangePasswordResult } from './sign-in.service';
-import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
+
 import {
   PASSWORD_MAX_LENGTH,
   PASSWORD_MIN_LENGTH,
 } from '@b2b-catalog-platform/shared/core/accounts';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
+import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
+import { SubmitAttempt } from '@b2b-catalog-platform/ui/fields/submit-attempt';
+import { Input } from '@b2b-catalog-platform/ui/inputs/input';
+
 import { untilInteractive } from '../../../platform/field-rules';
+import { STOREFRONT_ACCOUNTS_TEXT } from '../accounts-text';
+import { confirmation, newPassword } from './password';
+import { ChangePasswordResult, SignInService } from './sign-in.service';
 
 /** No required marks: marking every field on a form marks none. */
 @Component({

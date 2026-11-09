@@ -1,14 +1,5 @@
 import { sql } from 'drizzle-orm';
 import {
-  SETTING_CHANGE_KINDS,
-  OWNERSHIP_AREAS,
-} from '@b2b-catalog-platform/shared/platform';
-import {
-  DESTRUCTION_CATEGORIES,
-  DESTRUCTION_REASONS,
-  DESTRUCTION_SUBJECTS,
-} from '../destruction';
-import {
   boolean,
   check,
   index,
@@ -19,6 +10,17 @@ import {
   uuid,
   varchar,
 } from 'drizzle-orm/pg-core';
+
+import {
+  OWNERSHIP_AREAS,
+  SETTING_CHANGE_KINDS,
+} from '@b2b-catalog-platform/shared/platform';
+
+import {
+  DESTRUCTION_CATEGORIES,
+  DESTRUCTION_REASONS,
+  DESTRUCTION_SUBJECTS,
+} from '../destruction';
 import { oneOf } from './sql-columns';
 
 /**

@@ -1,7 +1,9 @@
 import { sql } from 'drizzle-orm';
 import { PgDialect } from 'drizzle-orm/pg-core';
+
 import { adminProductSortSchema } from '@b2b-catalog-platform/shared/admin/catalog';
 import { SEARCH_SORTS } from '@b2b-catalog-platform/shared/core/catalog';
+
 import { productSortKeys } from '../../../../core/catalog/product-sort';
 import { gridOrderBy } from './grid-sort';
 

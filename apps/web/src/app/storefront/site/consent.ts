@@ -8,11 +8,13 @@ import {
   untracked,
 } from '@angular/core';
 import { form, required, type FieldTree } from '@angular/forms/signals';
+
 import {
   CONSENT_PAGE_SLUGS,
   ConsentPurpose,
 } from '@b2b-catalog-platform/shared/core/site';
 import { CONSENT_PATHS } from '@b2b-catalog-platform/shared/storefront/site';
+
 import { PageService } from '../../core/site/page.service';
 import { SITE_CONFIG } from '../../core/site/site-config';
 

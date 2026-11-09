@@ -1,19 +1,21 @@
-import { TaxBasis } from '@b2b-catalog-platform/shared/core/catalog';
 import { Component, computed, inject, input } from '@angular/core';
+
+import { TaxBasis } from '@b2b-catalog-platform/shared/core/catalog';
+import { ShipmentSummary } from '@b2b-catalog-platform/shared/core/ordering';
 import {
   fillText,
-  moneyFormat,
   formatMoneyMinor,
+  moneyFormat,
 } from '@b2b-catalog-platform/shared/platform';
-import { ShipmentSummary } from '@b2b-catalog-platform/shared/core/ordering';
-import { formatStoredDecimal } from '../../catalog/buying/quantity';
-import { useTaxStatement } from '../../catalog/tax-statement';
-import { SHARED_ORDERING_TEXT } from '../ordering-text';
-import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
+import { Card } from '@b2b-catalog-platform/ui/content/card';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import { WarningNote } from '@b2b-catalog-platform/ui/content/warning-note';
-import { Card } from '@b2b-catalog-platform/ui/content/card';
+
+import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
+import { formatStoredDecimal } from '../../catalog/buying/quantity';
 import { CATALOG_CONFIG } from '../../catalog/catalog-config';
+import { useTaxStatement } from '../../catalog/tax-statement';
+import { SHARED_ORDERING_TEXT } from '../ordering-text';
 
 /**
  * What the order comes to: the same card on the cart, checkout and the order

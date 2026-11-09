@@ -1,12 +1,11 @@
-import { skipInPageTransitions } from './platform/in-page-transitions';
 import { isPlatformBrowser } from '@angular/common';
 import {
   ApplicationConfig,
   ErrorHandler,
-  provideBrowserGlobalErrorListeners,
-  provideEnvironmentInitializer,
   inject,
   PLATFORM_ID,
+  provideBrowserGlobalErrorListeners,
+  provideEnvironmentInitializer,
 } from '@angular/core';
 import {
   provideRouter,
@@ -15,25 +14,27 @@ import {
   withInMemoryScrolling,
   withViewTransitions,
 } from '@angular/router';
+
 import { provideEditModeCatalog } from './admin/catalog/edit-mode-catalog';
+import { provideGridText } from './admin/platform/provide-grid-text';
 import { appRoutes } from './app.routes';
+import { ProductCart } from './core/catalog/buying/product-cart';
+import { WorkService } from './core/work/work.service';
 import { BenignErrorFilter } from './platform/benign-errors';
-import { provideHydration } from './platform/hydration';
-import { StaticPageReuseStrategy } from './platform/route-reuse';
-import { ScrollRestoration } from './platform/scroll-restoration';
-import { CartRepricing } from './storefront/ordering/cart/cart-repricing';
-import { provideStorefrontText } from './platform/config/storefront-text';
+import { provideDeploymentConfig } from './platform/config/deployment-config';
 import {
   provideSharedText,
   provideUiText,
 } from './platform/config/shared-text';
-import { provideGridText } from './admin/platform/provide-grid-text';
-import { provideDeploymentConfig } from './platform/config/deployment-config';
+import { provideStorefrontText } from './platform/config/storefront-text';
 import { provideSuggestionsEnabled } from './platform/config/suggestions-enabled';
 import { provideDigitMaskFormat } from './platform/contact-fields';
-import { ProductCart } from './core/catalog/buying/product-cart';
+import { provideHydration } from './platform/hydration';
+import { skipInPageTransitions } from './platform/in-page-transitions';
+import { StaticPageReuseStrategy } from './platform/route-reuse';
+import { ScrollRestoration } from './platform/scroll-restoration';
 import { WorkRefresh } from './platform/work-refresh';
-import { WorkService } from './core/work/work.service';
+import { CartRepricing } from './storefront/ordering/cart/cart-repricing';
 import { CartService } from './storefront/ordering/cart/cart.service';
 
 export const appConfig: ApplicationConfig = {

@@ -2,13 +2,24 @@ import { createHash } from 'node:crypto';
 import { Inject, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import type { Request, Response } from 'express';
+
+import {
+  CodeSent as CodeSentAnswer,
+  SignInStepConfig,
+  SignInStep as StepAnswer,
+} from '@b2b-catalog-platform/shared/core/accounts';
+import {
+  formatPhone,
+  PhoneConfig,
+} from '@b2b-catalog-platform/shared/platform';
+
+import { sessionCookieAttributes } from '../../../platform/auth/session-cookie';
 import {
   PHONE_INPUT,
   PHONE_RULE,
   PhoneRule,
 } from '../../../platform/config/deployment-config';
 import { UserRow, UsersService } from '../users.service';
-import { sessionCookieAttributes } from '../../../platform/auth/session-cookie';
 import { CodeDeliveryError } from './code-delivery';
 import {
   CallCheckResult,
@@ -18,15 +29,6 @@ import {
   SignInCodes,
 } from './sign-in-codes';
 import { byMail, SIGN_IN_PROOF, SignInProof } from './sign-in-proof';
-import {
-  CodeSent as CodeSentAnswer,
-  SignInStep as StepAnswer,
-  SignInStepConfig,
-} from '@b2b-catalog-platform/shared/core/accounts';
-import {
-  formatPhone,
-  PhoneConfig,
-} from '@b2b-catalog-platform/shared/platform';
 
 export const SIGN_IN_STEP_CONFIG = 'SIGN_IN_STEP_CONFIG';
 export const SIGN_IN_STEP_SECRET = 'SIGN_IN_STEP_SECRET';

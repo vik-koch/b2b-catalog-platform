@@ -1,4 +1,5 @@
 import type { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
+
 import { purgeWithConfirmation, type PurgeText } from './product-removal';
 
 const text: PurgeText = {

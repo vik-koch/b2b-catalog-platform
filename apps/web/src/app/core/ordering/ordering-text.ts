@@ -1,8 +1,10 @@
 import { inject, InjectionToken } from '@angular/core';
+
 import {
   ORDERING_AREA,
   type SharedOrderingText,
 } from '@b2b-catalog-platform/shared/core/ordering';
+
 import {
   SHARED_TEXT,
   sharedTextBlock,

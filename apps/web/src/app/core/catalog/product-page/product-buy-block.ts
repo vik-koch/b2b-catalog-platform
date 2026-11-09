@@ -5,22 +5,24 @@ import {
   input,
   linkedSignal,
 } from '@angular/core';
+
 import {
   CART_NOTE_MAX,
   ProductDetail,
 } from '@b2b-catalog-platform/shared/core/catalog';
-import { ProductCart } from '../buying/product-cart';
-import { AutoGrow } from '@b2b-catalog-platform/ui/inputs/auto-grow';
+import { Card } from '@b2b-catalog-platform/ui/content/card';
 import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
+import { AutoGrow } from '@b2b-catalog-platform/ui/inputs/auto-grow';
 import { Input } from '@b2b-catalog-platform/ui/inputs/input';
-import { ProductAvailabilityBadge } from '../ui/product-availability-badge';
+
 import { ProductBuyControls } from '../buying/product-buy-controls';
+import { ProductCart } from '../buying/product-cart';
 import { ProductPairings } from '../buying/product-pairings';
+import { SHARED_CATALOG_TEXT } from '../catalog-text';
+import { useTaxStatement } from '../tax-statement';
+import { ProductAvailabilityBadge } from '../ui/product-availability-badge';
 import { ProductSetBadge } from '../ui/product-set-badge';
 import { ProductUnitFacts } from '../ui/product-unit-facts';
-import { useTaxStatement } from '../tax-statement';
-import { Card } from '@b2b-catalog-platform/ui/content/card';
-import { SHARED_CATALOG_TEXT } from '../catalog-text';
 
 /**
  * The product page's buying panel (FR-UNIT-07, FR-CART-01/08): a tile's own

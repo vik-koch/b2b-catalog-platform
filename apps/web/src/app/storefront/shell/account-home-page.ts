@@ -1,7 +1,8 @@
 import { Component, inject } from '@angular/core';
+
+import { WorkService } from '../../core/work/work.service';
 import { AccountPage } from '../accounts/account/account-page';
 import { RecentOrders } from '../ordering/orders/recent-orders';
-import { WorkService } from '../../core/work/work.service';
 
 /** `/account`: the account's own page, with its newest orders and what
  * waits on them. */

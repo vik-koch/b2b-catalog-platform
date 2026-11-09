@@ -1,18 +1,20 @@
-import { STOREFRONT_ORDERING_TEXT } from '../../ordering-text';
 import { Component, computed, inject, input } from '@angular/core';
+
 import {
   OrderDocument,
   orderDocumentPath,
 } from '@b2b-catalog-platform/shared/core/ordering';
-import { SHARED_TEXT } from '../../../../platform/config/shared-text';
 import { AcceptedDocumentMime } from '@b2b-catalog-platform/shared/platform';
+import { Card } from '@b2b-catalog-platform/ui/content/card';
+import { DocumentLink } from '@b2b-catalog-platform/ui/content/document-link';
+import { fileTextIcon } from '@b2b-catalog-platform/ui/icons/glyphs/file-text';
+
+import { SHARED_TEXT } from '../../../../platform/config/shared-text';
 import {
   documentFileCaption,
   documentFileLabel,
 } from '../../../../platform/document-file';
-import { DocumentLink } from '@b2b-catalog-platform/ui/content/document-link';
-import { fileTextIcon } from '@b2b-catalog-platform/ui/icons/glyphs/file-text';
-import { Card } from '@b2b-catalog-platform/ui/content/card';
+import { STOREFRONT_ORDERING_TEXT } from '../../ordering-text';
 
 /** What a customer can open on their order (FR-ORD-05, FR-ACC-02), by
  * account or by mailed token. */

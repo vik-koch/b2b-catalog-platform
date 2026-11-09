@@ -1,13 +1,15 @@
 import { Controller } from '@nestjs/common';
 import { Implement, implement } from '@orpc/nest';
+
 import { machineCustomerSyncContract } from '@b2b-catalog-platform/shared/machine/exchange';
+
+import { ExchangeMachine } from '../../core/exchange/api-token-lookup';
 import { CustomerSyncService } from '../../core/exchange/customer-sync.service';
 import { SyncRunLog } from '../../core/exchange/sync-run-log';
-import { refusals } from '../../platform/orpc/refusals';
 import { CurrentMachine } from '../../platform/auth/current-machine.decorator';
-import { ExchangeMachine } from '../../core/exchange/api-token-lookup';
-import { Machine } from './machine.decorator';
+import { refusals } from '../../platform/orpc/refusals';
 import { MachineThrottle } from '../../platform/throttling/throttle-presets';
+import { Machine } from './machine.decorator';
 
 /**
  * The headless customer exchange (FR-ADM-11). Its own scope: a credential

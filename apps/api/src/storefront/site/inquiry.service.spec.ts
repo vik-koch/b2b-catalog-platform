@@ -1,19 +1,21 @@
 import { Test } from '@nestjs/testing';
+
 import { InquiryRequest } from '@b2b-catalog-platform/shared/storefront/site';
-import { MAILER, Mailer } from '../../platform/mail/mailer';
+
+import { ConsentService } from '../../core/site/consent.service';
 import { PHONE_INPUT } from '../../platform/config/deployment-config';
-import { MAIL_BRANDING } from '../../platform/mail/mail-branding';
-import { MAIL_TEXT } from '../../platform/mail/mail-text';
 import { SHARED_TEXT } from '../../platform/config/shared-text';
+import { MAIL_BRANDING } from '../../platform/mail/mail-branding';
+import { MailDispatcher } from '../../platform/mail/mail-dispatcher';
+import { MAIL_TEXT } from '../../platform/mail/mail-text';
 import {
-  demoSharedText,
   demoMailBranding,
   demoMailText,
   demoPhoneInput,
+  demoSharedText,
 } from '../../platform/mail/mail-text.fixture';
-import { MailDispatcher } from '../../platform/mail/mail-dispatcher';
 import { MailService } from '../../platform/mail/mail.service';
-import { ConsentService } from '../../core/site/consent.service';
+import { MAILER, Mailer } from '../../platform/mail/mailer';
 import { InquiryService } from './inquiry.service';
 
 describe('InquiryService', () => {

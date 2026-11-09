@@ -1,4 +1,5 @@
 import { BadRequestException } from '@nestjs/common';
+
 import type { PhoneRule } from '../../platform/config/deployment-config';
 
 /**

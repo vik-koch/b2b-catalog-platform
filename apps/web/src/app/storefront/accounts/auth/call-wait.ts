@@ -1,4 +1,3 @@
-import { STOREFRONT_ACCOUNTS_TEXT } from '../accounts-text';
 import {
   afterNextRender,
   Component,
@@ -11,14 +10,17 @@ import {
   output,
   signal,
 } from '@angular/core';
+
+import { CallStep } from '@b2b-catalog-platform/shared/core/accounts';
 import { fillText } from '@b2b-catalog-platform/shared/platform';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
-import type { CallResult, SendResult } from './sign-in.service';
+
+import { STOREFRONT_ACCOUNTS_TEXT } from '../accounts-text';
 import { formatWait, tickingNow } from './countdown';
 import { placeholderRuns } from './placeholder-runs';
-import { RememberBrowser } from './ui/remember-browser';
 import { sendFailureLine } from './send-failure-line';
-import { CallStep } from '@b2b-catalog-platform/shared/core/accounts';
+import type { CallResult, SendResult } from './sign-in.service';
+import { RememberBrowser } from './ui/remember-browser';
 
 /** How often the screen asks whether the call has come. */
 const POLL_MS = 3000;

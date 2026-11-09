@@ -1,10 +1,12 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { and, count, eq, notInArray } from 'drizzle-orm';
+
 import { ENDED_ORDER_STATUSES } from '@b2b-catalog-platform/shared/core/ordering';
-import { DRIZZLE } from '../../platform/db/database.module';
-import { orders } from './ordering-schema';
-import { AccountOrders } from '../accounts/account-orders';
+
 import { Database } from '../../platform/db/database';
+import { DRIZZLE } from '../../platform/db/database.module';
+import { AccountOrders } from '../accounts/account-orders';
+import { orders } from './ordering-schema';
 
 @Injectable()
 export class OrderCounts implements AccountOrders {

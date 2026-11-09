@@ -1,27 +1,30 @@
 import { and, inArray } from 'drizzle-orm';
+
+import {
+  correctPieces,
+  effectiveTaxRate,
+  exactLineTotal,
+  piecesPerUnit,
+  ProductAvailability,
+  TaxConfig,
+  unitQuantity,
+} from '@b2b-catalog-platform/shared/core/catalog';
 import {
   CartLine,
   CartLineIssue,
   CartPreview,
   CartPreviewLine,
-  ShipmentLineInput,
   shipmentEstimate,
+  ShipmentLineInput,
 } from '@b2b-catalog-platform/shared/core/ordering';
-import {
-  ProductAvailability,
-  correctPieces,
-  exactLineTotal,
-  piecesPerUnit,
-  unitQuantity,
-  effectiveTaxRate,
-  TaxConfig,
-} from '@b2b-catalog-platform/shared/core/catalog';
-import { pairingShortfalls } from './pairing-check';
+
+import { Database } from '../../platform/db/database';
 import {
   products,
   type ProductImageRef,
   type ProductVariantRef,
 } from '../catalog/catalog-schema';
+import { pairingsAmong } from '../catalog/product-pairings';
 import { livePriceMinor } from '../catalog/product-price';
 import {
   listItemColumns,
@@ -30,8 +33,7 @@ import {
   publiclyVisible,
   unitPricesOf,
 } from '../catalog/product-view';
-import { pairingsAmong } from '../catalog/product-pairings';
-import { Database } from '../../platform/db/database';
+import { pairingShortfalls } from './pairing-check';
 
 /**
  * Pricing a cart, once, for the preview and the submission alike. A cart is

@@ -1,5 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+
 import { encodeAttributeParams } from '@b2b-catalog-platform/shared/core/catalog';
 import { Facet } from '@b2b-catalog-platform/shared/storefront/catalog';
 

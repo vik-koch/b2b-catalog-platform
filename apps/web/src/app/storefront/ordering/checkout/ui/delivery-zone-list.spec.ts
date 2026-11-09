@@ -1,12 +1,14 @@
+import { TestBed } from '@angular/core/testing';
+
+import type { OrderingConfig } from '@b2b-catalog-platform/shared/core/ordering';
+
 import { withOrdering } from '../../../../core/ordering/ordering-config.fixture';
-import { defaultStorefrontOrderingText } from '../../ordering-text.fixture';
+import { DEPLOYMENT_CONFIG } from '../../../../platform/config/deployment-config';
 import { SHARED_TEXT } from '../../../../platform/config/shared-text';
 import { defaultSharedText } from '../../../../platform/config/shared-text.fixture';
-import { TestBed } from '@angular/core/testing';
 import { STOREFRONT_TEXT } from '../../../../platform/config/storefront-text';
 import { defaultStorefrontText } from '../../../../platform/config/storefront-text.fixture';
-import { DEPLOYMENT_CONFIG } from '../../../../platform/config/deployment-config';
-import type { OrderingConfig } from '@b2b-catalog-platform/shared/core/ordering';
+import { defaultStorefrontOrderingText } from '../../ordering-text.fixture';
 import { DeliveryZoneList } from './delivery-zone-list';
 
 type Zones = NonNullable<OrderingConfig['delivery']>['zones'];

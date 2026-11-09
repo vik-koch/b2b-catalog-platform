@@ -1,11 +1,13 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
-import { fillText } from '@b2b-catalog-platform/shared/platform';
+
 import { MapEmbed } from '@b2b-catalog-platform/shared/core/site';
-import { ConsentService } from '../cookie-consent/consent.service';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
-import { STOREFRONT_SITE_TEXT } from '../site-text';
+
 import { SITE_CONFIG } from '../../../core/site/site-config';
+import { ConsentService } from '../cookie-consent/consent.service';
+import { STOREFRONT_SITE_TEXT } from '../site-text';
 
 /** The one place a map embed is created: one that sets cookies waits for
  * consent behind a placeholder. */

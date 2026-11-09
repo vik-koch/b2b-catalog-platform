@@ -1,6 +1,7 @@
 import { fillText } from '@b2b-catalog-platform/shared/platform';
-import type { CodeSendFailure } from './sign-in.service';
+
 import { formatWait } from './countdown';
+import type { CodeSendFailure } from './sign-in.service';
 
 interface SendFailureText {
   readonly unreachableAccount: string;

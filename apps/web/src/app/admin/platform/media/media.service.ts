@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { DOCUMENT, inject, Injectable } from '@angular/core';
 import { lastValueFrom } from 'rxjs';
+
 import { UploadMediaResponse } from '@b2b-catalog-platform/shared/admin/platform';
 
 /**

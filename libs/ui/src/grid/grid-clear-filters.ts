@@ -1,7 +1,8 @@
 import { Component, inject, input } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { GRID_TEXT } from './grid-text';
+
 import { ClearFiltersButton } from '../actions/clear-filters-button';
+import { GRID_TEXT } from './grid-text';
 
 /**
  * Clear-filters for a grid, whose state is its URL. It keeps the sort, which

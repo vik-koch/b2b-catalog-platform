@@ -1,14 +1,16 @@
 import { createHash, randomInt, timingSafeEqual } from 'node:crypto';
 import { Inject, Injectable } from '@nestjs/common';
 import { and, eq, gt, isNotNull, lt, sql } from 'drizzle-orm';
-import { DRIZZLE } from '../../../platform/db/database.module';
-import { signInCodePurpose, signInCodes } from '../accounts-schema';
-import { MAIL_TEXT, MailText } from '../../../platform/mail/mail-text';
-import { signInCodeText } from '../mail/sign-in-code.template';
-import { SIGN_IN_PROOF, SignInProof } from './sign-in-proof';
-import { CodeResendLimitError } from './code-resend-limit-error';
+
 import { SIGN_IN_CODE_LENGTH } from '@b2b-catalog-platform/shared/core/accounts';
+
 import { Database } from '../../../platform/db/database';
+import { DRIZZLE } from '../../../platform/db/database.module';
+import { MAIL_TEXT, MailText } from '../../../platform/mail/mail-text';
+import { signInCodePurpose, signInCodes } from '../accounts-schema';
+import { signInCodeText } from '../mail/sign-in-code.template';
+import { CodeResendLimitError } from './code-resend-limit-error';
+import { SIGN_IN_PROOF, SignInProof } from './sign-in-proof';
 
 const CODE_TTL_MS = 10 * 60 * 1000;
 /** Three codes of three tries leave a guesser nine in a million per pause. */

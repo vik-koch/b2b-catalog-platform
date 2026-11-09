@@ -1,8 +1,9 @@
 import { Component, computed, input } from '@angular/core';
-import { Icon } from '../icons/icon';
-import { gridParam, injectGridNav } from './grid-nav';
+
 import { chevronDownIcon } from '../icons/glyphs/chevron-down';
 import { chevronUpIcon } from '../icons/glyphs/chevron-up';
+import { Icon } from '../icons/icon';
+import { gridParam, injectGridNav } from './grid-nav';
 
 /** A sortable column heading (FR-ADM-05), writing its own `sort` parameter. */
 @Component({

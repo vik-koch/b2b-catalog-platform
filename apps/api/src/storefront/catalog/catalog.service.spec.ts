@@ -1,6 +1,6 @@
 import { CatalogReader } from '../../core/catalog/catalog-reader';
-import { CatalogService } from './catalog.service';
 import { Database } from '../../platform/db/database';
+import { CatalogService } from './catalog.service';
 
 /**
  * A drizzle stand-in for the sitemap selects. Each chain resolves to the next

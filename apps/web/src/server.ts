@@ -1,3 +1,6 @@
+import { existsSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import {
   AngularNodeAppEngine,
   createNodeRequestHandler,
@@ -5,29 +8,28 @@ import {
   writeResponseToNodeResponse,
 } from '@angular/ssr/node';
 import express from 'express';
+
 import { configPath } from '@b2b-catalog-platform/shared/node';
-import { existsSync } from 'node:fs';
-import { dirname, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
-import { requireEnv } from './env';
-import { getAdminText, preloadTexts } from './app/app.texts.server';
+
 import { preloadDeploymentConfig } from './app/app.deployment-config.server';
-import { injectCartShell } from './app/storefront/ordering/cart/cart-shell.server';
-import { injectSessionShell } from './app/storefront/accounts/auth/session-shell.server';
-import { sessionCookieIn } from './app/platform/auth/session-cookie';
 import { injectShellState } from './app/app.shell-state.server';
+import { getAdminText, preloadTexts } from './app/app.texts.server';
+import { sessionCookieIn } from './app/platform/auth/session-cookie';
 import { injectFontHead } from './app/platform/config/font.server';
-import {
-  isStaffPreview,
-  isGatedPath,
-  isMaintenanceOn,
-} from './app/storefront/site/maintenance/maintenance.server';
+import { injectSessionShell } from './app/storefront/accounts/auth/session-shell.server';
+import { injectCartShell } from './app/storefront/ordering/cart/cart-shell.server';
 import {
   injectCanonicalLink,
   injectNoindexMeta,
   renderRobots,
   renderSitemap,
 } from './app/storefront/shell/seo.server';
+import {
+  isGatedPath,
+  isMaintenanceOn,
+  isStaffPreview,
+} from './app/storefront/site/maintenance/maintenance.server';
+import { requireEnv } from './env';
 
 const serverDistFolder = dirname(fileURLToPath(import.meta.url));
 const browserDistFolder = resolve(serverDistFolder, '../browser');

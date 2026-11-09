@@ -1,5 +1,3 @@
-import { SHARED_TEXT } from '../../platform/config/shared-text';
-import { defaultSharedText } from '../../platform/config/shared-text.fixture';
 import {
   EnvironmentInjector,
   inject,
@@ -7,12 +5,16 @@ import {
 } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
+
+import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
+
 import { ADMIN_TEXT } from '../../platform/config/admin-text';
 import { defaultAdminText } from '../../platform/config/admin-text.fixture';
-import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
+import { SHARED_TEXT } from '../../platform/config/shared-text';
+import { defaultSharedText } from '../../platform/config/shared-text.fixture';
 import {
-  unsavedChangesGuard,
   UnsavedChangesAware,
+  unsavedChangesGuard,
 } from './unsaved-changes.guard';
 
 const snapshot = {} as ActivatedRouteSnapshot;

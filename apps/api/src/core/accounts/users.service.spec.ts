@@ -1,7 +1,7 @@
 import { AccountErasure } from './account-erasure';
-import { UsersService } from './users.service';
 import { LastAdminError } from './last-admin-error';
 import { Captured, renderingDb } from './rendering-db.fixture';
+import { UsersService } from './users.service';
 
 /**
  * The rule every admin removal shares (self-deletion, deactivation, demotion),

@@ -1,26 +1,28 @@
 import { inject } from '@angular/core';
 import { CanMatchFn, Route, UrlSegment } from '@angular/router';
+
 import {
   CONSENT_PAGE_SLUGS,
   ConsentPurpose,
   PageSlug,
 } from '@b2b-catalog-platform/shared/core/site';
 import { STANDALONE_PAGE_SLUGS } from '@b2b-catalog-platform/shared/storefront/site';
+
+import { SITE_CONFIG } from '../../core/site/site-config';
 import {
   guestOnly,
   requireAuth,
   staffToAdminOrder,
 } from '../../platform/auth/auth.guard';
-import { maintenanceGate } from '../site/maintenance/maintenance.guard';
-import { NotFoundPage } from '../platform/not-found-page';
-import { ContactPage } from '../site/pages/contact-page';
-import { MaintenanceScreen } from '../site/maintenance/maintenance-screen';
-import { Home } from './home';
 import { CategoryGrid } from '../catalog/categories/category-grid';
-import { SearchResults } from '../catalog/search/search-results';
 import { ProductDetail } from '../catalog/product-page/product-detail';
+import { SearchResults } from '../catalog/search/search-results';
+import { NotFoundPage } from '../platform/not-found-page';
+import { MaintenanceScreen } from '../site/maintenance/maintenance-screen';
+import { maintenanceGate } from '../site/maintenance/maintenance.guard';
+import { ContactPage } from '../site/pages/contact-page';
 import { StaticPage } from '../site/pages/static-page';
-import { SITE_CONFIG } from '../../core/site/site-config';
+import { Home } from './home';
 
 /**
  * The generic page route serves a slug only when the deployment publishes it,

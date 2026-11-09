@@ -1,20 +1,4 @@
 import { sql } from 'drizzle-orm';
-import { API_TOKEN_PREFIX_LENGTH } from '@b2b-catalog-platform/shared/platform';
-import {
-  API_TOKEN_NAME_MAX_LENGTH,
-  API_TOKEN_SCOPES,
-  SYNC_AREAS,
-  type CustomerSyncOptions,
-  type CustomerSyncPlan,
-  type OrderSyncPlan,
-  type CustomerSyncRow,
-  type CustomerSyncRowError,
-  type CatalogSyncOptions,
-  type CatalogSyncPlan,
-  type CatalogSyncRow,
-  type CatalogSyncRowError,
-  type SyncSummary,
-} from '@b2b-catalog-platform/shared/core/exchange';
 import {
   bigint,
   check,
@@ -26,6 +10,24 @@ import {
   uuid,
   varchar,
 } from 'drizzle-orm/pg-core';
+
+import {
+  API_TOKEN_NAME_MAX_LENGTH,
+  API_TOKEN_SCOPES,
+  SYNC_AREAS,
+  type CatalogSyncOptions,
+  type CatalogSyncPlan,
+  type CatalogSyncRow,
+  type CatalogSyncRowError,
+  type CustomerSyncOptions,
+  type CustomerSyncPlan,
+  type CustomerSyncRow,
+  type CustomerSyncRowError,
+  type OrderSyncPlan,
+  type SyncSummary,
+} from '@b2b-catalog-platform/shared/core/exchange';
+import { API_TOKEN_PREFIX_LENGTH } from '@b2b-catalog-platform/shared/platform';
+
 import { identities } from '../../platform/db/schema';
 
 export const apiTokenScope = pgEnum('api_token_scope', API_TOKEN_SCOPES);

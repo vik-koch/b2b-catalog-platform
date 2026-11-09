@@ -1,7 +1,8 @@
 import { InquiryRequest } from '@b2b-catalog-platform/shared/storefront/site';
+
 import { demoSharedText } from '../../platform/mail/mail-text.fixture';
-import { demoSiteMailText } from './site-mail-text.fixture';
 import { inquiryMail } from './inquiry.template';
+import { demoSiteMailText } from './site-mail-text.fixture';
 
 const submission: InquiryRequest = {
   name: 'Jane Doe',

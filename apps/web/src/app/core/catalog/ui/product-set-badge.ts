@@ -1,8 +1,10 @@
 import { Component, computed, inject, input } from '@angular/core';
-import { fillText } from '@b2b-catalog-platform/shared/platform';
+
 import { formatPartList } from '@b2b-catalog-platform/shared/core/catalog';
-import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
 import { layers2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/layers-2';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+
 import { SHARED_CATALOG_TEXT } from '../catalog-text';
 
 /**

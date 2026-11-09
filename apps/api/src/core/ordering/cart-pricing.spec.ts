@@ -1,5 +1,7 @@
-import { TaxConfig } from '@b2b-catalog-platform/shared/core/catalog';
 import { PgDialect } from 'drizzle-orm/pg-core';
+
+import { TaxConfig } from '@b2b-catalog-platform/shared/core/catalog';
+
 import { Database } from '../../platform/db/database';
 import { priceCart } from './cart-pricing';
 

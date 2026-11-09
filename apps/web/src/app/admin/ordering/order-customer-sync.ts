@@ -1,16 +1,18 @@
-import { ADMIN_ORDERING_TEXT } from './ordering-text';
 import { Component, computed, inject, input, output } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { fillText } from '@b2b-catalog-platform/shared/platform';
+
 import { AdminOrderDetail } from '@b2b-catalog-platform/shared/core/ordering';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
-import {
-  ConfirmService,
-  confirmRequest,
-} from '@b2b-catalog-platform/ui/overlay/confirm.service';
-import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { arrowRightIcon } from '@b2b-catalog-platform/ui/icons/glyphs/arrow-right';
 import { sendIcon } from '@b2b-catalog-platform/ui/icons/glyphs/send';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import {
+  confirmRequest,
+  ConfirmService,
+} from '@b2b-catalog-platform/ui/overlay/confirm.service';
+
+import { ADMIN_ORDERING_TEXT } from './ordering-text';
 
 const NOTIFY = 'notify';
 

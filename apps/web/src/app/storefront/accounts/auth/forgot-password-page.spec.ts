@@ -1,14 +1,15 @@
-import { defaultStorefrontAccountsText } from '../accounts-text.fixture';
-import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
-import { defaultStorefrontText } from '../../../platform/config/storefront-text.fixture';
-import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
+
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import { defaultDeploymentConfig } from '../../../platform/config/deployment-config.fixture';
-import { SignInService } from './sign-in.service';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
+import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
+import { defaultStorefrontText } from '../../../platform/config/storefront-text.fixture';
+import { defaultStorefrontAccountsText } from '../accounts-text.fixture';
 import { ForgotPasswordPage } from './forgot-password-page';
+import { SignInService } from './sign-in.service';
 
 const text = defaultStorefrontAccountsText.auth.forgotPassword;
 

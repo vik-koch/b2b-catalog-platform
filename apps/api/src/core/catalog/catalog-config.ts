@@ -1,10 +1,12 @@
+import * as z from 'zod';
+
 import {
   CATALOG_AREA,
   catalogConfigShape,
   DEFAULT_LOW_STOCK_THRESHOLD_PIECES,
   type TaxConfig,
 } from '@b2b-catalog-platform/shared/core/catalog';
-import * as z from 'zod';
+
 import { loadDeploymentConfigBlock } from '../../platform/config/deployment-config';
 
 const loadCatalogConfig = () =>

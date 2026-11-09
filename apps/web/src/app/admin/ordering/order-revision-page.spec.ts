@@ -1,18 +1,20 @@
-import { defaultAdminOrderingText } from './ordering-text.fixture';
-import { SHARED_TEXT } from '../../platform/config/shared-text';
-import { defaultSharedText } from '../../platform/config/shared-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+
 import { OrderRevision } from '@b2b-catalog-platform/shared/core/ordering';
 import { OwnershipArea } from '@b2b-catalog-platform/shared/platform';
+
 import { ADMIN_TEXT } from '../../platform/config/admin-text';
-import { provideOwnership } from '../platform/ownership/ownership.fixture';
 import { defaultAdminText } from '../../platform/config/admin-text.fixture';
-import { STOREFRONT_TEXT } from '../../platform/config/storefront-text';
-import { defaultStorefrontText } from '../../platform/config/storefront-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
 import { defaultDeploymentConfig } from '../../platform/config/deployment-config.fixture';
+import { SHARED_TEXT } from '../../platform/config/shared-text';
+import { defaultSharedText } from '../../platform/config/shared-text.fixture';
+import { STOREFRONT_TEXT } from '../../platform/config/storefront-text';
+import { defaultStorefrontText } from '../../platform/config/storefront-text.fixture';
+import { provideOwnership } from '../platform/ownership/ownership.fixture';
 import { AdminOrderRevisionPage } from './order-revision-page';
+import { defaultAdminOrderingText } from './ordering-text.fixture';
 import { AdminOrdersService } from './orders.service';
 
 const text = defaultAdminOrderingText.orders.detail;

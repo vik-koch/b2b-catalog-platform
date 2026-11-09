@@ -1,7 +1,8 @@
 import { signal, WritableSignal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { EditModeService } from './edit-mode.service';
+
 import { editAwareContent } from './edit-aware-content';
+import { EditModeService } from './edit-mode.service';
 
 /**
  * The gate exists for one reason: a storefront page must not paint for a

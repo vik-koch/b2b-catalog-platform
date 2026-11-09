@@ -1,7 +1,8 @@
-import axios from 'axios';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import axios from 'axios';
 import { Client } from 'pg';
+
 import { requireEnv } from '../support/env';
 
 const EMAIL = 'e2e-bootstrap-admin@example.com';

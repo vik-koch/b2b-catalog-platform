@@ -1,16 +1,18 @@
 import { and, eq, exists, isNotNull, not, SQL, sql } from 'drizzle-orm';
+
 import {
   PRODUCT_FACTS,
   ProductFact,
 } from '@b2b-catalog-platform/shared/admin/catalog';
+
 import {
   documentProducts,
   productAttributes,
   productPairings,
   products,
 } from '../../../../core/catalog/catalog-schema';
-import { resolvedPriceMinor } from '../../../../core/catalog/product-price';
 import { involves } from '../../../../core/catalog/product-pairings';
+import { resolvedPriceMinor } from '../../../../core/catalog/product-price';
 import { Database } from '../../../../platform/db/database';
 
 /** The filter form: every entry of both lists must hold. Every predicate is

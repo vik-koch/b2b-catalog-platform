@@ -1,5 +1,6 @@
-import { expect, Page, test } from '@playwright/test';
 import { randomUUID } from 'node:crypto';
+import { expect, Page, test } from '@playwright/test';
+
 import { localtestEnv, MAILPIT_API } from '../support/localtest';
 
 /**

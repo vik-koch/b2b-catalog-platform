@@ -1,7 +1,9 @@
 import { Injectable } from '@angular/core';
+
 import { SettingChange } from '@b2b-catalog-platform/shared/admin/platform';
-import { adminOperationsContract } from './contract-routes.generated';
+
 import { createOrpcClient } from '../../platform/orpc-client';
+import { adminOperationsContract } from './contract-routes.generated';
 
 /** The trail of changes to the runtime switches, newest first. */
 @Injectable({ providedIn: 'root' })

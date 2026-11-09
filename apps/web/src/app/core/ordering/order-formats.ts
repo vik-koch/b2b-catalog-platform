@@ -1,15 +1,16 @@
 import {
-  SharedText,
-  fillText,
-  MoneyFormat,
-} from '@b2b-catalog-platform/shared/platform';
-import { OrderLine } from '@b2b-catalog-platform/shared/core/ordering';
-import { formatUnitQuantity } from '../catalog/buying/quantity';
-import {
   CATALOG_AREA,
   type SharedCatalogText,
 } from '@b2b-catalog-platform/shared/core/catalog';
+import { OrderLine } from '@b2b-catalog-platform/shared/core/ordering';
+import {
+  fillText,
+  MoneyFormat,
+  SharedText,
+} from '@b2b-catalog-platform/shared/platform';
+
 import { sharedTextBlock } from '../../platform/config/shared-text';
+import { formatUnitQuantity } from '../catalog/buying/quantity';
 
 /**
  * A line's quantity as the customer reads it, which staff read too: in the

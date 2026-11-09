@@ -10,11 +10,11 @@
  * method, path or input/output structure; schema edits change nothing here.
  * `--check` verifies the committed files match, which is what CI runs.
  */
-import { build } from 'esbuild';
-import { minifyContractRouter } from '@orpc/contract';
 import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
+import { minifyContractRouter } from '@orpc/contract';
+import { build } from 'esbuild';
 
 /**
  * The contracts the web app calls, per entry point. Each entry's routes are

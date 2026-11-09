@@ -1,5 +1,7 @@
-import { pageSeed } from '@b2b-catalog-platform/seed';
 import { expect, Page, test } from '@playwright/test';
+
+import { pageSeed } from '@b2b-catalog-platform/seed';
+
 import { localtestEnv } from '../support/localtest';
 import { fixtureSeed } from '../support/seed-fixture';
 

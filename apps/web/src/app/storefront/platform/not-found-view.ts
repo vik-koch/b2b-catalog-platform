@@ -1,10 +1,12 @@
 import { Component, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
+
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
+import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
+import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
+
 import { STOREFRONT_TEXT } from '../../platform/config/storefront-text';
 import { setResponseStatus } from './response-status';
-import { Button } from '@b2b-catalog-platform/ui/actions/button';
-import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
-import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
 
 /** The one 404 screen, for the catch-all route and an unknown slug alike, and
  * a real 404 status rather than a styled 200. */

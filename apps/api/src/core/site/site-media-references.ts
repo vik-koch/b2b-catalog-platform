@@ -1,6 +1,6 @@
 import {
-  MediaReferenceSource,
   mediaFilenamesInHtml,
+  MediaReferenceSource,
 } from '../../platform/media/prune/media-references';
 import { pageVersions } from './site-schema';
 

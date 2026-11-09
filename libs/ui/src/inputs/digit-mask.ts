@@ -9,6 +9,7 @@ import {
   untracked,
 } from '@angular/core';
 import { type FormValueControl } from '@angular/forms/signals';
+
 import { DIGIT_MASK_FORMAT } from './digit-mask-format';
 
 /**

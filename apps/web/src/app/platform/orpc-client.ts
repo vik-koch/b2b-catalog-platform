@@ -9,14 +9,15 @@ import {
 import { DOCUMENT, inject, PLATFORM_ID } from '@angular/core';
 import { createORPCClient, type ClientOptions } from '@orpc/client';
 import type { StandardLinkClient } from '@orpc/client/standard';
-import type { ContractRouterClient, AnyContractRouter } from '@orpc/contract';
+import type { AnyContractRouter, ContractRouterClient } from '@orpc/contract';
 import { StandardOpenAPILink } from '@orpc/openapi-client/standard';
 import type {
-  StandardRequest,
-  StandardLazyResponse,
   StandardHeaders,
+  StandardLazyResponse,
+  StandardRequest,
 } from '@orpc/standard-server';
 import { lastValueFrom } from 'rxjs';
+
 import { requireEnv } from '../../env';
 
 /** A request to our API: the only kind the widened transfer cache carries. */

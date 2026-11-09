@@ -1,6 +1,8 @@
 import * as z from 'zod';
-import { loadConfig } from '@b2b-catalog-platform/shared/node';
+
 import { EXCHANGE_AREA } from '@b2b-catalog-platform/shared/core/exchange';
+import { loadConfig } from '@b2b-catalog-platform/shared/node';
+
 import {
   AdminExchangeText,
   adminExchangeTextShape,

@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+
 import { Card } from '@b2b-catalog-platform/ui/content/card';
 
 /** The card the signed-out screens sit in, on the `centered` layout's

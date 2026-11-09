@@ -1,12 +1,14 @@
-import { defaultAdminCatalogText } from '../catalog-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
+
+import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
+
+import { loadAdminText } from '../../../platform/config/admin-text';
 import { defaultAdminText } from '../../../platform/config/admin-text.fixture';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
-import { loadAdminText } from '../../../platform/config/admin-text';
-import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
 import { provideOwnership } from '../../platform/ownership/ownership.fixture';
+import { defaultAdminCatalogText } from '../catalog-text.fixture';
 import { ProductCreateService } from './product-create.service';
 
 describe('ProductCreateService', () => {

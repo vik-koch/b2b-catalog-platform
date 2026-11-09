@@ -1,11 +1,13 @@
 import { inject, Injectable } from '@angular/core';
 import { Params, Router } from '@angular/router';
-import { adminText, adminTextBlock } from '../../../platform/config/admin-text';
+
 import { CATALOG_AREA } from '@b2b-catalog-platform/shared/core/catalog';
-import type { AdminCatalogText } from '../catalog-text.type';
 import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
-import { OwnershipService } from '../../platform/ownership/ownership.service';
+
+import { adminText, adminTextBlock } from '../../../platform/config/admin-text';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { OwnershipService } from '../../platform/ownership/ownership.service';
+import type { AdminCatalogText } from '../catalog-text.type';
 
 /**
  * "Add a product": while the catalog is owned, products are created in the

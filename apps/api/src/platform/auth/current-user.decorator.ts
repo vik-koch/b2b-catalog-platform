@@ -3,8 +3,10 @@ import {
   ExecutionContext,
   InternalServerErrorException,
 } from '@nestjs/common';
-import { AuthenticatedRequest } from './authenticated-request';
+
 import { AuthUser } from '@b2b-catalog-platform/shared/platform';
+
+import { AuthenticatedRequest } from './authenticated-request';
 
 /** The signed-in account on an `@Auth()` route. Absent means the route lost
  * its guard: a wiring bug, so a 500 rather than a 401. */

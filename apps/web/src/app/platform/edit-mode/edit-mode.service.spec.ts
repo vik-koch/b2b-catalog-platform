@@ -1,10 +1,12 @@
 import { PLATFORM_ID, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { AuthService } from '../auth/auth.service';
+
+import { AuthUser } from '@b2b-catalog-platform/shared/platform';
+
 import { adminUser, plainUser } from '../auth/auth-user.fixture';
+import { AuthService } from '../auth/auth.service';
 import { ADMIN_TEXT_LOADED } from '../config/admin-text';
 import { EditModeService } from './edit-mode.service';
-import { AuthUser } from '@b2b-catalog-platform/shared/platform';
 
 /**
  * Edit mode is never on for a non-admin, whatever the stored flag, and the

@@ -1,20 +1,22 @@
+import { ConflictException, NotFoundException } from '@nestjs/common';
+import { asc, desc, getTableColumns, sql, SQL } from 'drizzle-orm';
+import { alias, PgColumn } from 'drizzle-orm/pg-core';
+
+import { AddressInput } from '@b2b-catalog-platform/shared/core/accounts';
 import {
   OrderAddress,
+  OrderContact,
+  OrderingParty,
   OrderStatus,
   OrderSubmission,
   OrderSummary,
   PaymentState,
   StaffOrderSort,
-  OrderContact,
-  OrderingParty,
 } from '@b2b-catalog-platform/shared/core/ordering';
-import { ConflictException, NotFoundException } from '@nestjs/common';
-import { asc, desc, getTableColumns, sql, SQL } from 'drizzle-orm';
-import { PricedAdjustment } from './order-adjustment';
-import { alias, PgColumn } from 'drizzle-orm/pg-core';
-import { AddressInput } from '@b2b-catalog-platform/shared/core/accounts';
-import { PickupLocation } from './ordering-config';
+
 import { pageVersions } from '../site/site-schema';
+import { PricedAdjustment } from './order-adjustment';
+import { PickupLocation } from './ordering-config';
 import { orderItems, orderRevisions, orders } from './ordering-schema';
 
 /** The snapshot columns of a version, without its bookkeeping. */

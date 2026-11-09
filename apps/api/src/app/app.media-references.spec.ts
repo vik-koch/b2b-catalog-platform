@@ -1,5 +1,7 @@
 import { drizzle } from 'drizzle-orm/node-postgres';
+
 import { MEDIA_URL_PREFIX } from '@b2b-catalog-platform/shared/platform';
+
 import { collectReferencedFilenames } from '../platform/media/prune/media-references';
 import { MEDIA_REFERENCES } from './app.media-references';
 

@@ -1,4 +1,5 @@
 import { Component, inject, input, output } from '@angular/core';
+
 import { Button } from '../actions/button';
 import { UI_TEXT } from '../core/ui-text';
 

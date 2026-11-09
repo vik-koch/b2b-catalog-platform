@@ -1,5 +1,6 @@
 import { Editor } from '@tiptap/core';
 import StarterKit from '@tiptap/starter-kit';
+
 import { RichTextImage } from './rich-text-image';
 
 function html(content: string): string {

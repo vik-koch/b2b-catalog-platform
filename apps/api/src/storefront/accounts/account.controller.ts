@@ -1,25 +1,27 @@
 import { Controller, Inject, Req, Res } from '@nestjs/common';
-import type { Request, Response } from 'express';
 import { Implement, implement } from '@orpc/nest';
+import type { Request, Response } from 'express';
+
+import { AuthUser } from '@b2b-catalog-platform/shared/platform';
+import {
+  accountContract,
+  AccountProfile,
+} from '@b2b-catalog-platform/shared/storefront/accounts';
+
+import { AccountDeletion } from '../../core/accounts/account-deletion';
+import {
+  ACCOUNT_ORDERS,
+  AccountOrders,
+} from '../../core/accounts/account-orders';
+import { SignInStep } from '../../core/accounts/sign-in-step/sign-in-step';
+import { storedPhone } from '../../core/accounts/stored-phone';
+import { UserRow, UsersService } from '../../core/accounts/users.service';
 import { AuditLogger } from '../../platform/audit/audit.logger';
 import { Auth } from '../../platform/auth/auth.decorator';
 import { CurrentUser } from '../../platform/auth/current-user.decorator';
 import { endSession } from '../../platform/auth/session-cookie';
 import { PHONE_RULE, PhoneRule } from '../../platform/config/deployment-config';
 import { refusals } from '../../platform/orpc/refusals';
-import { SignInStep } from '../../core/accounts/sign-in-step/sign-in-step';
-import { storedPhone } from '../../core/accounts/stored-phone';
-import { UserRow, UsersService } from '../../core/accounts/users.service';
-import {
-  ACCOUNT_ORDERS,
-  AccountOrders,
-} from '../../core/accounts/account-orders';
-import { AccountDeletion } from '../../core/accounts/account-deletion';
-import { AuthUser } from '@b2b-catalog-platform/shared/platform';
-import {
-  AccountProfile,
-  accountContract,
-} from '@b2b-catalog-platform/shared/storefront/accounts';
 
 /** The holder's own view of their row: never the tier. */
 function toAccountProfile(

@@ -1,22 +1,24 @@
-import { STOREFRONT_ACCOUNTS_TEXT } from '../accounts-text';
 import { Component, computed, inject, input, signal } from '@angular/core';
 import { form, required } from '@angular/forms/signals';
 import { Router, RouterLink } from '@angular/router';
-import { SHARED_TEXT } from '../../../platform/config/shared-text';
-import { usePageSeo } from '../../../platform/page-seo';
-import { emailAddress, untilInteractive } from '../../../platform/field-rules';
+
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
-import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
-import { Input } from '@b2b-catalog-platform/ui/inputs/input';
-import { AuthCard } from './auth-card';
-import { landingFor } from '../../../platform/auth/auth.guard';
-import { AuthService } from '../../../platform/auth/auth.service';
-import { LoginResult, SignInService } from './sign-in.service';
-import { SignInStepPanel } from './sign-in-step';
-import { sendFailureLine } from './send-failure-line';
 import { TextButton } from '@b2b-catalog-platform/ui/actions/text-button';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
+import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
+import { Input } from '@b2b-catalog-platform/ui/inputs/input';
+
+import { landingFor } from '../../../platform/auth/auth.guard';
+import { AuthService } from '../../../platform/auth/auth.service';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { emailAddress, untilInteractive } from '../../../platform/field-rules';
+import { usePageSeo } from '../../../platform/page-seo';
+import { STOREFRONT_ACCOUNTS_TEXT } from '../accounts-text';
+import { AuthCard } from './auth-card';
+import { sendFailureLine } from './send-failure-line';
+import { SignInStepPanel } from './sign-in-step';
+import { LoginResult, SignInService } from './sign-in.service';
 
 /** The one login form for every role; only where it lands depends on it. */
 @Component({

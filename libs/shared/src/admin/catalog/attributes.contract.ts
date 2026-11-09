@@ -6,19 +6,20 @@
 
 import { oc } from '@orpc/contract';
 import * as z from 'zod';
-import { commonAuthErrors } from '../../platform/api-error';
+
 import {
   ATTRIBUTE_NAME_MAX_LENGTH,
   ATTRIBUTE_VALUE_MAX_LENGTH,
 } from '../../core/catalog/attributes';
-import {
-  ATTRIBUTE_UNIT_MAX_LENGTH,
-  type AttributeErrorCode,
-  CATEGORY_FILTER_SOURCES,
-} from './attributes';
-import { slugSchema } from './slug.contract';
 import { attributeTypeSchema } from '../../core/catalog/catalog.contract';
 import { acknowledgementSchema } from '../../platform/acknowledgement.contract';
+import { commonAuthErrors } from '../../platform/api-error';
+import {
+  ATTRIBUTE_UNIT_MAX_LENGTH,
+  CATEGORY_FILTER_SOURCES,
+  type AttributeErrorCode,
+} from './attributes';
+import { slugSchema } from './slug.contract';
 
 /**
  * The name matches product attribute keys exactly, so only trimming normalizes

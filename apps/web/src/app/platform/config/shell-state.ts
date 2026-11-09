@@ -1,7 +1,8 @@
 import {
-  type SharedText,
   DeploymentConfig,
+  type SharedText,
 } from '@b2b-catalog-platform/shared/platform';
+
 import { StorefrontText } from './storefront-text.type';
 
 /** What the browser needs before it draws any chrome. Not in the bundle and

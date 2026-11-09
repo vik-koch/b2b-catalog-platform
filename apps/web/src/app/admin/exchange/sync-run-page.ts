@@ -1,4 +1,3 @@
-import { ADMIN_EXCHANGE_TEXT } from './exchange-text';
 import {
   Component,
   computed,
@@ -8,36 +7,39 @@ import {
   signal,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
+
 import {
+  CatalogSyncPlan,
   CustomerSyncPlan,
   isCustomerSyncPlan,
   isOrderSyncPlan,
-  CatalogSyncPlan,
   OrderSyncPlan,
   SyncRun,
 } from '@b2b-catalog-platform/shared/core/exchange';
-import { AuthService } from '../../platform/auth/auth.service';
-import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
-import { delayedLoading } from '../../platform/delayed-loading';
-import { usePageSeo } from '../../platform/page-seo';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
-import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
+import { Notice } from '@b2b-catalog-platform/ui/content/notice';
+import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import {
   StatusBadge,
   StatusTone,
 } from '@b2b-catalog-platform/ui/content/status-badge';
+import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
+
+import { AuthService } from '../../platform/auth/auth.service';
+import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
+import { SHARED_TEXT } from '../../platform/config/shared-text';
+import { delayedLoading } from '../../platform/delayed-loading';
+import { usePageSeo } from '../../platform/page-seo';
 import { adminDayFormat } from '../platform/dates/admin-date';
-import { SyncCustomerPlanView } from './ui/sync-customer-plan-view';
-import { SyncOrderPlanView } from './ui/sync-order-plan-view';
-import { SyncCatalogPlanView } from './ui/sync-catalog-plan-view';
-import { LockedNote } from '../platform/ownership/ui/locked-note';
 import { OwnershipService } from '../platform/ownership/ownership.service';
+import { LockedNote } from '../platform/ownership/ui/locked-note';
+import { ADMIN_EXCHANGE_TEXT } from './exchange-text';
 import { SYNC_RUN_TONE, syncRunActor } from './sync-run-format';
 import { SyncService } from './sync.service';
-import { SHARED_TEXT } from '../../platform/config/shared-text';
-import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
-import { Notice } from '@b2b-catalog-platform/ui/content/notice';
+import { SyncCatalogPlanView } from './ui/sync-catalog-plan-view';
+import { SyncCustomerPlanView } from './ui/sync-customer-plan-view';
+import { SyncOrderPlanView } from './ui/sync-order-plan-view';
 
 /** Whatever diff this run holds, or none: pruned, or never taken. */
 type AreaPlan = CatalogSyncPlan | CustomerSyncPlan | OrderSyncPlan | null;

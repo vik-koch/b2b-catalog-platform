@@ -1,7 +1,3 @@
-import { SHARED_ORDERING_TEXT } from '../../core/ordering/ordering-text';
-import { ORDERING_CONFIG } from '../../core/ordering/ordering-config';
-import { ADMIN_ORDERING_TEXT } from './ordering-text';
-import { ACCOUNTS_CONFIG } from '../../core/accounts/accounts-config';
 import {
   Component,
   computed,
@@ -14,66 +10,76 @@ import {
   signal,
   untracked,
 } from '@angular/core';
-import { useTaxStatement } from '../../core/catalog/tax-statement';
 import { apply, form, hidden, required } from '@angular/forms/signals';
 import { Router, RouterLink } from '@angular/router';
+
+import { AdminProductListItem } from '@b2b-catalog-platform/shared/admin/catalog';
 import {
-  fillText,
-  moneyFormat,
-  formatMoneyMinor,
-} from '@b2b-catalog-platform/shared/platform';
-import {
-  ORDER_ADJUSTMENT_NOTE_MAX,
-  PaymentMethod,
   AdminOrderDetail,
+  ORDER_ADJUSTMENT_NOTE_MAX,
   OrderAdjustment,
   OrderAdjustmentPreview,
+  PaymentMethod,
 } from '@b2b-catalog-platform/shared/core/ordering';
-import { AdminProductListItem } from '@b2b-catalog-platform/shared/admin/catalog';
+import {
+  fillText,
+  formatMoneyMinor,
+  moneyFormat,
+} from '@b2b-catalog-platform/shared/platform';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
+import { Checkbox } from '@b2b-catalog-platform/ui/choices/checkbox';
+import { TickLabel } from '@b2b-catalog-platform/ui/choices/tick-label';
+import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
+import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
+import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
+import { SummaryLayout } from '@b2b-catalog-platform/ui/content/summary-layout';
+import { WarningNote } from '@b2b-catalog-platform/ui/content/warning-note';
+import { debounced } from '@b2b-catalog-platform/ui/core/debounced';
+import { DisclosureFrame } from '@b2b-catalog-platform/ui/disclosure/disclosure-frame';
+import { DisclosureToggle } from '@b2b-catalog-platform/ui/disclosure/disclosure-toggle';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
+import {
+  FIELD_ATTEMPT,
+  FieldAttempt,
+} from '@b2b-catalog-platform/ui/fields/field-attempt';
+import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
+import { Hint } from '@b2b-catalog-platform/ui/fields/hint';
+import { submitAttempt } from '@b2b-catalog-platform/ui/fields/submit-attempt';
+import { Input } from '@b2b-catalog-platform/ui/inputs/input';
+import { SelectInput } from '@b2b-catalog-platform/ui/inputs/select-input';
+import {
+  confirmRequest,
+  ConfirmService,
+} from '@b2b-catalog-platform/ui/overlay/confirm.service';
+
+import { ACCOUNTS_CONFIG } from '../../core/accounts/accounts-config';
 import {
   AddressForm,
   blankAddress,
   injectAddressRules,
 } from '../../core/accounts/addresses/address-form';
 import { companyIdFormat } from '../../core/accounts/parties/company-id';
+import { CATALOG_CONFIG } from '../../core/catalog/catalog-config';
+import { formatPriceInput } from '../../core/catalog/pricing/price';
+import { useTaxStatement } from '../../core/catalog/tax-statement';
+import { customerQuantity } from '../../core/ordering/order-formats';
+import { ORDERING_CONFIG } from '../../core/ordering/ordering-config';
+import { SHARED_ORDERING_TEXT } from '../../core/ordering/ordering-text';
+import { ADMIN_TEXT } from '../../platform/config/admin-text';
+import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
+import { SHARED_TEXT } from '../../platform/config/shared-text';
 import { canonicalPhone, typedPhone } from '../../platform/contact-fields';
+import { delayedLoading } from '../../platform/delayed-loading';
 import {
   completeMask,
   emailAddress,
   personName,
 } from '../../platform/field-rules';
-import { formatPriceInput } from '../../core/catalog/pricing/price';
-import { ADMIN_TEXT } from '../../platform/config/admin-text';
-import { SHARED_TEXT } from '../../platform/config/shared-text';
-import { staffBlockLabels } from './staff-block-labels';
-import { staffFields } from '../platform/staff-fields';
-import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
-import { debounced } from '@b2b-catalog-platform/ui/core/debounced';
-import { delayedLoading } from '../../platform/delayed-loading';
 import { usePageSeo } from '../../platform/page-seo';
-import { Button } from '@b2b-catalog-platform/ui/actions/button';
-import { Checkbox } from '@b2b-catalog-platform/ui/choices/checkbox';
-import { TickLabel } from '@b2b-catalog-platform/ui/choices/tick-label';
-import {
-  ConfirmService,
-  confirmRequest,
-} from '@b2b-catalog-platform/ui/overlay/confirm.service';
-import { DisclosureToggle } from '@b2b-catalog-platform/ui/disclosure/disclosure-toggle';
-import { DisclosureFrame } from '@b2b-catalog-platform/ui/disclosure/disclosure-frame';
-import {
-  FieldAttempt,
-  FIELD_ATTEMPT,
-} from '@b2b-catalog-platform/ui/fields/field-attempt';
-import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
-import { Input } from '@b2b-catalog-platform/ui/inputs/input';
-import { submitAttempt } from '@b2b-catalog-platform/ui/fields/submit-attempt';
-import { SelectInput } from '@b2b-catalog-platform/ui/inputs/select-input';
-import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
-import { WarningNote } from '@b2b-catalog-platform/ui/content/warning-note';
 import { TiersService } from '../catalog/tiers/tiers.service';
-import { OrderAdjustChanges, OrderChange } from './ui/order-adjust-changes';
-import { AdjustLineRow, OrderAdjustLines } from './order-adjust-lines';
-import { OrderAdjustDetails } from './ui/order-adjust-details';
+import { OwnershipService } from '../platform/ownership/ownership.service';
+import { LockedNote } from '../platform/ownership/ui/locked-note';
+import { staffFields } from '../platform/staff-fields';
 import {
   AdjustAnswers,
   DraftLine,
@@ -85,17 +91,13 @@ import {
   priceNotices,
   REFUSAL_PART,
 } from './order-adjust-draft';
+import { AdjustLineRow, OrderAdjustLines } from './order-adjust-lines';
 import { orderBlockChanges, orderLineChanges } from './order-changes';
-import { customerQuantity } from '../../core/ordering/order-formats';
-import { LockedNote } from '../platform/ownership/ui/locked-note';
-import { OwnershipService } from '../platform/ownership/ownership.service';
+import { ADMIN_ORDERING_TEXT } from './ordering-text';
 import { AdjustmentRefusal, AdminOrdersService } from './orders.service';
-import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
-import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
-import { Hint } from '@b2b-catalog-platform/ui/fields/hint';
-import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
-import { SummaryLayout } from '@b2b-catalog-platform/ui/content/summary-layout';
-import { CATALOG_CONFIG } from '../../core/catalog/catalog-config';
+import { staffBlockLabels } from './staff-block-labels';
+import { OrderAdjustChanges, OrderChange } from './ui/order-adjust-changes';
+import { OrderAdjustDetails } from './ui/order-adjust-details';
 
 /** The typing pause before re-pricing. */
 const PREVIEW_DEBOUNCE_MS = 250;

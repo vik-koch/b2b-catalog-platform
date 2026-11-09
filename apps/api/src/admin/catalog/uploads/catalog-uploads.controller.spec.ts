@@ -1,4 +1,5 @@
 import sharp from 'sharp';
+
 import { MediaStore } from '../../../platform/media/media-store';
 import { pngUpload } from '../../../platform/media/upload.fixture';
 import { CatalogUploadsController } from './catalog-uploads.controller';

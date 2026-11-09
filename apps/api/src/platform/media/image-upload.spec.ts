@@ -3,7 +3,9 @@ import {
   PayloadTooLargeException,
   UnsupportedMediaTypeException,
 } from '@nestjs/common';
+
 import { MEDIA_MAX_UPLOAD_BYTES } from '@b2b-catalog-platform/shared/platform';
+
 import { readImageUpload } from './image-upload';
 import { pngUpload } from './upload.fixture';
 

@@ -8,6 +8,7 @@ import {
   signal,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
+
 import { HiddenProduct } from '@b2b-catalog-platform/shared/core/catalog';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';
@@ -16,10 +17,11 @@ import { bookCheckIcon } from '@b2b-catalog-platform/ui/icons/glyphs/book-check'
 import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
+
 import { EDIT_MODE_CATALOG } from '../../../core/catalog/edit-mode-catalog';
 import { PricePipe } from '../../../core/catalog/pricing/price.pipe';
-import { EDIT_MODE_TEXT } from '../../../platform/edit-mode/edit-mode-text';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { EDIT_MODE_TEXT } from '../../../platform/edit-mode/edit-mode-text';
 import { injectEditorReturnParams } from '../../../platform/edit-mode/editor-return';
 import {
   PRODUCT_GRID,

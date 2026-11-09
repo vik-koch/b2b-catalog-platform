@@ -1,7 +1,6 @@
-import type { AdminExchangeText } from './exchange-text.type';
-import { ADMIN_EXCHANGE_TEXT } from './exchange-text';
 import { Component, computed, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
+
 import {
   CATALOG_SYNC_ALL_FIELDS,
   CatalogSyncOptions,
@@ -11,14 +10,17 @@ import {
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { Link } from '@b2b-catalog-platform/ui/actions/link';
 import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
+
 import { SHARED_TEXT } from '../../platform/config/shared-text';
 import { usePageSeo } from '../../platform/page-seo';
 import { OwnershipService } from '../platform/ownership/ownership.service';
 import {
   CATALOG_SYNC_PRESETS,
-  CatalogSyncPresetName,
   catalogPresetFor,
+  CatalogSyncPresetName,
 } from './catalog-sync-presets';
+import { ADMIN_EXCHANGE_TEXT } from './exchange-text';
+import type { AdminExchangeText } from './exchange-text.type';
 import { syncChangeSummary } from './sync-run-format';
 import { SyncFlag, SyncUpload, withField } from './sync-upload';
 import { SyncService } from './sync.service';

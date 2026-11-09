@@ -15,43 +15,45 @@ import {
   viewChild,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { fillText } from '@b2b-catalog-platform/shared/platform';
+
 import {
   AdminCategory,
   CategoryOrderEntry,
 } from '@b2b-catalog-platform/shared/admin/catalog';
-import { ADMIN_TEXT } from '../../../platform/config/admin-text';
-import { usePageSeo } from '../../../platform/page-seo';
-import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
-import { delayedLoading } from '../../../platform/delayed-loading';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
-import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Link } from '@b2b-catalog-platform/ui/actions/link';
-import { CategoriesService } from './categories.service';
-import { injectEditorReturnParams } from '../../../platform/edit-mode/editor-return';
-import { RecordRow } from '@b2b-catalog-platform/ui/lists/record-row';
-import { UnpublishedCount } from '../products/unpublished-count';
-import { CategoryDeleteDialog } from './category-delete-dialog';
-import {
-  CategoryDropTarget,
-  CategoryTreeNode,
-  categorySubtreeIds,
-  currentOrderEntries,
-  flattenCategoryTree,
-  isNoOpDropTarget,
-  moveCategoryEntries,
-  resolveDropTarget,
-} from './category-tree';
+import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
+import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { funnelIcon } from '@b2b-catalog-platform/ui/icons/glyphs/funnel';
 import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
 import { plusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/plus';
 import { rotateCcwIcon } from '@b2b-catalog-platform/ui/icons/glyphs/rotate-ccw';
 import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
-import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
-import { DragGrip } from '../ui/drag-grip';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import { RecordRow } from '@b2b-catalog-platform/ui/lists/record-row';
+
+import { ADMIN_TEXT } from '../../../platform/config/admin-text';
+import { delayedLoading } from '../../../platform/delayed-loading';
+import { injectEditorReturnParams } from '../../../platform/edit-mode/editor-return';
+import { usePageSeo } from '../../../platform/page-seo';
 import { ADMIN_CATALOG_TEXT } from '../catalog-text';
+import { UnpublishedCount } from '../products/unpublished-count';
+import { DragGrip } from '../ui/drag-grip';
+import { CategoriesService } from './categories.service';
+import { CategoryDeleteDialog } from './category-delete-dialog';
+import {
+  CategoryDropTarget,
+  categorySubtreeIds,
+  CategoryTreeNode,
+  currentOrderEntries,
+  flattenCategoryTree,
+  isNoOpDropTarget,
+  moveCategoryEntries,
+  resolveDropTarget,
+} from './category-tree';
 
 /** Pixels per tree level, for the rows and the drop line alike. */
 const INDENT = 24;

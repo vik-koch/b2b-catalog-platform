@@ -2,6 +2,12 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { DOCUMENT, inject, Injectable } from '@angular/core';
 import { safe } from '@orpc/client';
 import { lastValueFrom } from 'rxjs';
+
+import {
+  SyncCommitCode,
+  SyncFormatErrorBody,
+  syncFormatErrorSchema,
+} from '@b2b-catalog-platform/shared/admin/exchange';
 import {
   CatalogSyncOptions,
   CatalogSyncPreviewResponse,
@@ -12,14 +18,10 @@ import {
   SyncRun,
   SyncRunStatus,
 } from '@b2b-catalog-platform/shared/core/exchange';
-import {
-  SyncCommitCode,
-  SyncFormatErrorBody,
-  syncFormatErrorSchema,
-} from '@b2b-catalog-platform/shared/admin/exchange';
-import { adminSyncContract } from './contract-routes.generated';
+
 import { createOrpcClient } from '../../platform/orpc-client';
 import { renderable } from '../platform/renderable';
+import { adminSyncContract } from './contract-routes.generated';
 
 /** A preview, or the refusal the page words from its code; null for a body
  * that is not the API's. */

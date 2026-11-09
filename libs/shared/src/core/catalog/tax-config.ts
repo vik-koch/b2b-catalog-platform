@@ -1,4 +1,5 @@
 import * as z from 'zod';
+
 import { TAX_RATE_MAX } from './tax';
 
 /** A percent with at most two decimals, compared in hundredths so 5.55

@@ -1,4 +1,5 @@
 import * as z from 'zod';
+
 import { catalogImageSchema } from '../../core/catalog/catalog.contract';
 import { storedDocumentFileSchema } from './documents.contract';
 

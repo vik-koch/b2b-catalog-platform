@@ -1,6 +1,8 @@
 import { BadRequestException, PayloadTooLargeException } from '@nestjs/common';
 import * as z from 'zod';
+
 import { SYNC_MAX_UPLOAD_BYTES } from '@b2b-catalog-platform/shared/core/exchange';
+
 import { SyncFormatError } from './csv-file';
 
 export interface SyncUpload<O, P> {

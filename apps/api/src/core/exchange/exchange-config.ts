@@ -1,12 +1,14 @@
+import * as z from 'zod';
+
 import {
-  type CustomerSyncPolicy,
   DEFAULT_CUSTOMER_SYNC_POLICY,
   DEFAULT_SYNC_POLICY,
   EXCHANGE_AREA,
+  type CustomerSyncPolicy,
   type SyncPolicy,
 } from '@b2b-catalog-platform/shared/core/exchange';
+
 import { loadApiConfigBlock } from '../../platform/config/api-config';
-import * as z from 'zod';
 import { exchangeApiConfigShape } from './exchange-api-config';
 
 /** Optional, as every key of it is. */

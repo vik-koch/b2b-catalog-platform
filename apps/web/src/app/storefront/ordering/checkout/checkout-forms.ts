@@ -1,13 +1,14 @@
-import { STOREFRONT_ORDERING_TEXT } from '../ordering-text';
-import { ACCOUNTS_CONFIG } from '../../../core/accounts/accounts-config';
 import { inject, signal, Signal } from '@angular/core';
 import { apply, form, hidden, required } from '@angular/forms/signals';
+
+import { ACCOUNTS_CONFIG } from '../../../core/accounts/accounts-config';
 import {
   AddressDraft,
   AddressForm,
-  injectAddressRules,
   blankAddress,
+  injectAddressRules,
 } from '../../../core/accounts/addresses/address-form';
+import { companyIdFormat } from '../../../core/accounts/parties/company-id';
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import {
@@ -16,7 +17,7 @@ import {
   personName,
   untilInteractive,
 } from '../../../platform/field-rules';
-import { companyIdFormat } from '../../../core/accounts/parties/company-id';
+import { STOREFRONT_ORDERING_TEXT } from '../ordering-text';
 import { CheckoutDraft, PartyChoice } from './checkout-draft';
 
 /** The party being invoiced where it is not the account's own. */

@@ -1,8 +1,9 @@
 import { Component, computed, input, signal } from '@angular/core';
 import { type FieldTree } from '@angular/forms/signals';
+
+import { lockIcon } from '@b2b-catalog-platform/ui/icons/glyphs/lock';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Popover } from '@b2b-catalog-platform/ui/overlay/popover';
-import { lockIcon } from '@b2b-catalog-platform/ui/icons/glyphs/lock';
 
 /**
  * The lock beside a field an external system owns (FR-ADM-10), shown while the

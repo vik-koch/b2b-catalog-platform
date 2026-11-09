@@ -1,9 +1,11 @@
 import { Component, inject } from '@angular/core';
+
 import { EmphasisedText } from '@b2b-catalog-platform/ui/content/emphasised-text';
 import { PageSectionTitle } from '@b2b-catalog-platform/ui/content/page-section-title';
+
+import { SITE_CONFIG } from '../../../core/site/site-config';
 import { MapFrame } from './map-frame';
 import { StaticPage } from './static-page';
-import { SITE_CONFIG } from '../../../core/site/site-config';
 
 /** The editable prose, then the configured offices with their maps. */
 @Component({

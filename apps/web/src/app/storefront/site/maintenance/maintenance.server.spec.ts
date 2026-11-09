@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+
 import { isGatedPath, isStaffPreview } from './maintenance.server';
 
 /** Which paths maintenance hides. Unlisted paths get the 503, so what matters

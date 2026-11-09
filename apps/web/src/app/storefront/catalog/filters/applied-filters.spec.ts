@@ -1,9 +1,11 @@
-import { SHARED_TEXT } from '../../../platform/config/shared-text';
-import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
+
 import { Facet } from '@b2b-catalog-platform/shared/storefront/catalog';
+
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
 import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
 import { defaultStorefrontText } from '../../../platform/config/storefront-text.fixture';
 import { AppliedFilters } from './applied-filters';

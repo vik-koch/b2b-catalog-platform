@@ -1,17 +1,19 @@
-import { STOREFRONT_ORDERING_TEXT } from '../../ordering-text';
-import { SHARED_ORDERING_TEXT } from '../../../../core/ordering/ordering-text';
 import { Component, computed, inject, input } from '@angular/core';
-import { fillText } from '@b2b-catalog-platform/shared/platform';
+
 import { OrderDetail } from '@b2b-catalog-platform/shared/core/ordering';
-import { DEPLOYMENT_CONFIG } from '../../../../platform/config/deployment-config';
-import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
+import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';
+
 import {
   orderPaymentLabel,
   orderPaymentTone,
   orderStatusLabel,
   orderStatusTone,
 } from '../../../../core/ordering/order-status';
+import { SHARED_ORDERING_TEXT } from '../../../../core/ordering/ordering-text';
+import { DEPLOYMENT_CONFIG } from '../../../../platform/config/deployment-config';
+import { STOREFRONT_ORDERING_TEXT } from '../../ordering-text';
 
 /**
  * A customer's order as its page opens: reference, status, payment, when it

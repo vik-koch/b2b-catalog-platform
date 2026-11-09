@@ -1,33 +1,41 @@
-import { withOrdering } from '../../../core/ordering/ordering-config.fixture';
-import { defaultStorefrontOrderingText } from '../ordering-text.fixture';
-import { defaultSharedOrderingText } from '../../../core/ordering/ordering-text.fixture';
-import { withAccounts } from '../../../core/accounts/accounts-config.fixture';
-import { defaultSharedAccountsText } from '../../../core/accounts/accounts-text.fixture';
-import {
-  provideUiText,
-  SHARED_TEXT,
-} from '../../../platform/config/shared-text';
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
+
+import { Address } from '@b2b-catalog-platform/shared/core/accounts';
 import { OrderSubmission } from '@b2b-catalog-platform/shared/core/ordering';
 import type { DeploymentConfigFile } from '@b2b-catalog-platform/shared/deployment';
 import {
   firstOrderDate,
   localToday,
 } from '@b2b-catalog-platform/shared/storefront/ordering';
-import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
-import { defaultStorefrontText } from '../../../platform/config/storefront-text.fixture';
-import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
+
+import { withAccounts } from '../../../core/accounts/accounts-config.fixture';
+import { defaultSharedAccountsText } from '../../../core/accounts/accounts-text.fixture';
+import { AddressesService } from '../../../core/accounts/addresses/addresses.service';
+import { CartAddition } from '../../../core/catalog/buying/product-cart';
+import { packagedPackaging } from '../../../core/catalog/product.fixture';
+import { withOrdering } from '../../../core/ordering/ordering-config.fixture';
+import { defaultSharedOrderingText } from '../../../core/ordering/ordering-text.fixture';
+import { PageService } from '../../../core/site/page.service';
+import { withSite } from '../../../core/site/site-config.fixture';
+import { AuthService } from '../../../platform/auth/auth.service';
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import { defaultDeploymentConfig } from '../../../platform/config/deployment-config.fixture';
+import {
+  provideUiText,
+  SHARED_TEXT,
+} from '../../../platform/config/shared-text';
+import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
+import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
+import { defaultStorefrontText } from '../../../platform/config/storefront-text.fixture';
 import { SUGGESTIONS_ENABLED } from '../../../platform/config/suggestions-enabled';
+import { provideDigitMaskFormat } from '../../../platform/contact-fields';
 import { AccountService } from '../../accounts/account/account.service';
-import { AuthService } from '../../../platform/auth/auth.service';
-import { AddressesService } from '../../../core/accounts/addresses/addresses.service';
-import { packagedPackaging } from '../../../core/catalog/product.fixture';
+import { defaultStorefrontSiteText } from '../../site/site-text.fixture';
 import { CartService } from '../cart/cart.service';
-import { CartAddition } from '../../../core/catalog/buying/product-cart';
+import { defaultStorefrontOrderingText } from '../ordering-text.fixture';
+import { OrdersService, SubmitOrderResult } from '../orders/orders.service';
 import {
   CHECKOUT_DRAFT_KEY,
   CHECKOUT_DRAFT_VERSION,
@@ -35,12 +43,6 @@ import {
 } from './checkout-draft';
 import { CheckoutDraftService } from './checkout-draft.service';
 import { CheckoutPage } from './checkout-page';
-import { OrdersService, SubmitOrderResult } from '../orders/orders.service';
-import { PageService } from '../../../core/site/page.service';
-import { provideDigitMaskFormat } from '../../../platform/contact-fields';
-import { Address } from '@b2b-catalog-platform/shared/core/accounts';
-import { defaultStorefrontSiteText } from '../../site/site-text.fixture';
-import { withSite } from '../../../core/site/site-config.fixture';
 
 /** A day the form actually offers, from whenever the suite is run: a literal
  * date here would be a working weekday now and a past Saturday later. */

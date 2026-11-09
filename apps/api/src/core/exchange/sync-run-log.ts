@@ -1,5 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { and, desc, eq, isNotNull, lt, or } from 'drizzle-orm';
+
 import {
   MachineSyncRun,
   SyncArea,
@@ -7,10 +8,11 @@ import {
   SyncRun,
   SyncRunStatus,
 } from '@b2b-catalog-platform/shared/core/exchange';
+
+import { Database } from '../../platform/db/database';
 import { DRIZZLE } from '../../platform/db/database.module';
 import { syncRuns } from './exchange-schema';
-import { Submitter, runNotFound } from './sync-run';
-import { Database } from '../../platform/db/database';
+import { runNotFound, Submitter } from './sync-run';
 
 /** Staged rows and finished runs are audit data, not archive data. */
 const RUN_RETENTION_DAYS = 90;

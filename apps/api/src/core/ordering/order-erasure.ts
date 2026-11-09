@@ -1,10 +1,11 @@
-import { Tx } from '../../platform/db/database';
 import { Injectable, Logger } from '@nestjs/common';
 import { eq } from 'drizzle-orm';
-import { orders } from './ordering-schema';
+
+import { Tx } from '../../platform/db/database';
 import { AccountErasureStep, ErasedAccount } from '../accounts/account-erasure';
 import { OrderDocumentFiles } from './order-document-files';
 import { scrubOrders } from './order-scrub';
+import { orders } from './ordering-schema';
 
 /** What an account's erasure does to its orders (FR-AUTH-06). */
 @Injectable()

@@ -1,14 +1,16 @@
-import { loadConfigFile } from '@b2b-catalog-platform/shared/node';
-import { MailBranding } from './mail-branding';
-import { DEFAULT_MAIL_COLORS } from './mail-colors';
 import * as z from 'zod';
-import { MailText, mailTextShape } from './mail-text';
-import { PdfText, pdfTextShape } from '../pdf/pdf-text';
+
+import { loadConfigFile } from '@b2b-catalog-platform/shared/node';
 import {
   PhoneConfig,
   SharedText,
   sharedTextShape,
 } from '@b2b-catalog-platform/shared/platform';
+
+import { PdfText, pdfTextShape } from '../pdf/pdf-text';
+import { MailBranding } from './mail-branding';
+import { DEFAULT_MAIL_COLORS } from './mail-colors';
+import { MailText, mailTextShape } from './mail-text';
 
 /**
  * The demo wording for tests and the generated docs, read from the committed

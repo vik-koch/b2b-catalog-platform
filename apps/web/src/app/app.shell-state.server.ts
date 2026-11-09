@@ -1,9 +1,9 @@
+import { getDeploymentConfigFile } from './app.deployment-config.server';
+import { getSharedText, getStorefrontText } from './app.texts.server';
 import {
   SHELL_STATE_ELEMENT_ID,
   ShellState,
 } from './platform/config/shell-state';
-import { getSharedText, getStorefrontText } from './app.texts.server';
-import { getDeploymentConfigFile } from './app.deployment-config.server';
 import { getSuggestionsEnabled } from './platform/config/suggestions-enabled.server';
 
 /** The same for every request: mounted files and the environment. */

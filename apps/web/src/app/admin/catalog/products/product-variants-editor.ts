@@ -14,31 +14,33 @@ import {
   output,
   signal,
 } from '@angular/core';
-import { fillText } from '@b2b-catalog-platform/shared/platform';
+
+import {
+  ProductImageInput,
+  ProductVariantInput,
+} from '@b2b-catalog-platform/shared/admin/catalog';
 import {
   PRODUCT_VARIANT_NAME_MAX_LENGTH,
   PRODUCT_VARIANTS_MAX,
   variantNameKey,
 } from '@b2b-catalog-platform/shared/core/catalog';
-import {
-  ProductImageInput,
-  ProductVariantInput,
-} from '@b2b-catalog-platform/shared/admin/catalog';
-import { ADMIN_TEXT } from '../../../platform/config/admin-text';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
-import { Checkbox } from '@b2b-catalog-platform/ui/choices/checkbox';
-import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
 import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
-import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
-import { PRODUCT_FEATURE_GLYPHS } from './product-feature-glyphs';
-import { Input } from '@b2b-catalog-platform/ui/inputs/input';
+import { Checkbox } from '@b2b-catalog-platform/ui/choices/checkbox';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
+import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
 import { imageIcon } from '@b2b-catalog-platform/ui/icons/glyphs/image';
 import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import { Input } from '@b2b-catalog-platform/ui/inputs/input';
+
+import { SHARED_CATALOG_TEXT } from '../../../core/catalog/catalog-text';
+import { ADMIN_TEXT } from '../../../platform/config/admin-text';
+import { ADMIN_CATALOG_TEXT } from '../catalog-text';
 import { DragGrip } from '../ui/drag-grip';
 import { SubEditorFrame } from '../ui/sub-editor-frame';
-import { SHARED_CATALOG_TEXT } from '../../../core/catalog/catalog-text';
-import { ADMIN_CATALOG_TEXT } from '../catalog-text';
+import { PRODUCT_FEATURE_GLYPHS } from './product-feature-glyphs';
 
 /** `aria-controls` must name one panel, and a page may hold more than one. */
 let nextId = 0;

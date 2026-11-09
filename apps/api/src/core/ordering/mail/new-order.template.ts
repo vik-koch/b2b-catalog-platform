@@ -1,10 +1,11 @@
-import { sharedOrderingText } from '../ordering-text';
-import { orderingMail } from './ordering-mail-text';
-import { SharedText, MoneyFormat } from '@b2b-catalog-platform/shared/platform';
 import { AdminOrderDetail } from '@b2b-catalog-platform/shared/core/ordering';
+import { MoneyFormat, SharedText } from '@b2b-catalog-platform/shared/platform';
+
 import { MailContent } from '../../../platform/mail/mail-layout';
 import { MailText } from '../../../platform/mail/mail-text';
+import { sharedOrderingText } from '../ordering-text';
 import { orderMailItem, orderMailTotal } from './order-items';
+import { orderingMail } from './ordering-mail-text';
 
 /** Sent to the shop when an order request arrives (FR-NOTIF-05), linking to
  * the admin view. It repeats what a manager decides on before opening

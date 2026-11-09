@@ -1,7 +1,3 @@
-import { ORDERING_CONFIG } from '../../../core/ordering/ordering-config';
-import { STOREFRONT_ORDERING_TEXT } from '../ordering-text';
-import { ACCOUNTS_CONFIG } from '../../../core/accounts/accounts-config';
-import { STOREFRONT_ACCOUNTS_TEXT } from '../../accounts/accounts-text';
 import {
   Component,
   computed,
@@ -13,38 +9,63 @@ import {
   untracked,
 } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { fillText } from '@b2b-catalog-platform/shared/platform';
+
+import {
+  AddressInput,
+  formatPersonName,
+} from '@b2b-catalog-platform/shared/core/accounts';
 import { FulfilmentMethod } from '@b2b-catalog-platform/shared/core/ordering';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
 import {
   isOrderDateAllowed,
   localToday,
 } from '@b2b-catalog-platform/shared/storefront/ordering';
-import { AccountService } from '../../accounts/account/account.service';
-import { AddressForm } from '../../../core/accounts/addresses/address-form';
-import { AddressesService } from '../../../core/accounts/addresses/addresses.service';
-import { AuthService } from '../../../platform/auth/auth.service';
-import { CartService } from '../cart/cart.service';
-import { OrderSummary } from '../../../core/ordering/ui/order-summary';
-import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
-import { delayedLoading } from '../../../platform/delayed-loading';
-import { usePageSeo } from '../../../platform/page-seo';
-import { OrderReadBack } from '../../../core/ordering/ui/order-read-back';
-import { OrdersService } from '../orders/orders.service';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
-import { HoneypotField } from '@b2b-catalog-platform/ui/fields/honeypot-field';
+import { Link } from '@b2b-catalog-platform/ui/actions/link';
 import { Checkbox } from '@b2b-catalog-platform/ui/choices/checkbox';
 import { TickLabel } from '@b2b-catalog-platform/ui/choices/tick-label';
-import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
-import { submitAttempt } from '@b2b-catalog-platform/ui/fields/submit-attempt';
 import { EmptyState } from '@b2b-catalog-platform/ui/content/empty-state';
+import { IconNote } from '@b2b-catalog-platform/ui/content/icon-note';
+import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
+import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
-import { AddressPicker } from './ui/address-picker';
+import { SummaryLayout } from '@b2b-catalog-platform/ui/content/summary-layout';
+import { WarningNote } from '@b2b-catalog-platform/ui/content/warning-note';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
+import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
+import { HoneypotField } from '@b2b-catalog-platform/ui/fields/honeypot-field';
+import { submitAttempt } from '@b2b-catalog-platform/ui/fields/submit-attempt';
+import { circleCheckIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-check';
+import { circleUserRoundIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-user-round';
+import { lockIcon } from '@b2b-catalog-platform/ui/icons/glyphs/lock';
+import { phoneIcon } from '@b2b-catalog-platform/ui/icons/glyphs/phone';
+import { shoppingBasketIcon } from '@b2b-catalog-platform/ui/icons/glyphs/shopping-basket';
+
+import { ACCOUNTS_CONFIG } from '../../../core/accounts/accounts-config';
+import { AddressForm } from '../../../core/accounts/addresses/address-form';
+import { AddressesService } from '../../../core/accounts/addresses/addresses.service';
+import { ORDERING_CONFIG } from '../../../core/ordering/ordering-config';
+import { OrderReadBack } from '../../../core/ordering/ui/order-read-back';
+import { OrderSummary } from '../../../core/ordering/ui/order-summary';
+import { AuthService } from '../../../platform/auth/auth.service';
+import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { delayedLoading } from '../../../platform/delayed-loading';
+import { usePageSeo } from '../../../platform/page-seo';
+import { AccountService } from '../../accounts/account/account.service';
+import { STOREFRONT_ACCOUNTS_TEXT } from '../../accounts/accounts-text';
+import { PrivacyNotice } from '../../site/privacy-notice';
+import { TermsNotice } from '../../site/terms-notice';
+import { CartService } from '../cart/cart.service';
+import { STOREFRONT_ORDERING_TEXT } from '../ordering-text';
+import { OrdersService } from '../orders/orders.service';
 import { CheckoutDraft, PartyChoice as Party } from './checkout-draft';
 import { CheckoutDraftService } from './checkout-draft.service';
 import { createCheckoutForms } from './checkout-forms';
 import { createCheckoutReadBack } from './checkout-read-back';
 import { createCheckoutSubmission } from './checkout-submission';
 import { DeliveryZoneHint } from './delivery-zone-hint';
+import { AddressPicker } from './ui/address-picker';
 import { FulfilmentChoice } from './ui/fulfilment-choice';
 import { GuestDetails } from './ui/guest-details';
 import { OrderNote } from './ui/order-note';
@@ -52,25 +73,6 @@ import { PartyChoice } from './ui/party-choice';
 import { PaymentChoice } from './ui/payment-choice';
 import { PickupChoice } from './ui/pickup-choice';
 import { PreferredDate } from './ui/preferred-date';
-import { Link } from '@b2b-catalog-platform/ui/actions/link';
-import { PrivacyNotice } from '../../site/privacy-notice';
-import { TermsNotice } from '../../site/terms-notice';
-import { WarningNote } from '@b2b-catalog-platform/ui/content/warning-note';
-import { SHARED_TEXT } from '../../../platform/config/shared-text';
-import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
-import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
-import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
-import { circleCheckIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-check';
-import { circleUserRoundIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-user-round';
-import { lockIcon } from '@b2b-catalog-platform/ui/icons/glyphs/lock';
-import { phoneIcon } from '@b2b-catalog-platform/ui/icons/glyphs/phone';
-import { shoppingBasketIcon } from '@b2b-catalog-platform/ui/icons/glyphs/shopping-basket';
-import {
-  AddressInput,
-  formatPersonName,
-} from '@b2b-catalog-platform/shared/core/accounts';
-import { SummaryLayout } from '@b2b-catalog-platform/ui/content/summary-layout';
-import { IconNote } from '@b2b-catalog-platform/ui/content/icon-note';
 
 /** The checkout (FR-CART-03/04/07/09): one form, then a read-back and the send.
  * One form rather than a wizard, as every question has a working default. The

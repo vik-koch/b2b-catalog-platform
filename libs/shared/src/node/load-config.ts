@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import type { ZodType } from 'zod';
+
 import type { DeepReadonly } from '../platform/deep-readonly';
 
 /** A file of the mounted config directory, which `CONFIG_PATH` names. */

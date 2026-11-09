@@ -1,20 +1,22 @@
-import { STOREFRONT_ACCOUNTS_TEXT } from '../accounts-text';
 import { Component, inject, signal } from '@angular/core';
 import { form, required } from '@angular/forms/signals';
 import { RouterLink } from '@angular/router';
+
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
+import { TextButton } from '@b2b-catalog-platform/ui/actions/text-button';
+import { Outcome } from '@b2b-catalog-platform/ui/content/outcome';
+import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
+import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
+import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
+import { Input } from '@b2b-catalog-platform/ui/inputs/input';
+
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { emailAddress, untilInteractive } from '../../../platform/field-rules';
 import { usePageSeo } from '../../../platform/page-seo';
-import { Button } from '@b2b-catalog-platform/ui/actions/button';
-import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
-import { Input } from '@b2b-catalog-platform/ui/inputs/input';
+import { STOREFRONT_ACCOUNTS_TEXT } from '../accounts-text';
 import { AuthCard } from './auth-card';
 import { SignInService } from './sign-in.service';
-import { TextButton } from '@b2b-catalog-platform/ui/actions/text-button';
-import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
-import { Outcome } from '@b2b-catalog-platform/ui/content/outcome';
-import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
-import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
 
 type Status = 'idle' | 'success' | 'error';
 

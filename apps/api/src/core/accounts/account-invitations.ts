@@ -1,15 +1,17 @@
 import { ConflictException, Inject, Injectable, Logger } from '@nestjs/common';
-import { INVITE_TTL_MS, PasswordTokenService } from './password-token.service';
-import { PasswordService } from './password.service';
-import { MAIL_TEXT, MailText } from '../../platform/mail/mail-text';
-import { MailDispatcher } from '../../platform/mail/mail-dispatcher';
-import { InvitationKind, invitationMail } from './mail/invitation.template';
-import { PasswordResetService } from './password-reset.service';
-import { StaffUsersService } from './staff-users.service';
+
 import {
   CreateUserRequest,
   StaffUser,
 } from '@b2b-catalog-platform/shared/core/accounts';
+
+import { MailDispatcher } from '../../platform/mail/mail-dispatcher';
+import { MAIL_TEXT, MailText } from '../../platform/mail/mail-text';
+import { InvitationKind, invitationMail } from './mail/invitation.template';
+import { PasswordResetService } from './password-reset.service';
+import { INVITE_TTL_MS, PasswordTokenService } from './password-token.service';
+import { PasswordService } from './password.service';
+import { StaffUsersService } from './staff-users.service';
 
 /** Turning a staff decision into a usable account: a link, mailed. */
 @Injectable()

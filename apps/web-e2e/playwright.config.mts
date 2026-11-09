@@ -1,5 +1,5 @@
-import { defineConfig, devices } from '@playwright/test';
 import { nxE2EPreset } from '@nx/playwright/preset';
+import { defineConfig, devices } from '@playwright/test';
 
 // Smoke test against the deploy stack (compose.yml + compose.override.yml),
 // started and seeded by ./src/support/global-setup.ts. BASE_URL overrides the

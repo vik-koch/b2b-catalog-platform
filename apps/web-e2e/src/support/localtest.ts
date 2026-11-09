@@ -1,6 +1,6 @@
-import type { Response } from '@playwright/test';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import type { Response } from '@playwright/test';
 import { Client } from 'pg';
 
 export const workspaceRoot = join(__dirname, '../../../..');

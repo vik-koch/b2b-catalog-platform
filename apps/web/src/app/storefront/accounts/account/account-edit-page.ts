@@ -1,4 +1,3 @@
-import { STOREFRONT_ACCOUNTS_TEXT } from '../accounts-text';
 import {
   Component,
   computed,
@@ -9,8 +8,21 @@ import {
 } from '@angular/core';
 import { form, required } from '@angular/forms/signals';
 import { Router, RouterLink } from '@angular/router';
-import { SHARED_TEXT } from '../../../platform/config/shared-text';
+
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
+import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
+import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
+import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
+import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
+import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
+import { Hint } from '@b2b-catalog-platform/ui/fields/hint';
+import { Input } from '@b2b-catalog-platform/ui/inputs/input';
+import { PhoneInput } from '@b2b-catalog-platform/ui/inputs/phone-input';
+
+import { AuthService } from '../../../platform/auth/auth.service';
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import {
   canonicalPhone,
   formatPhone,
@@ -23,18 +35,8 @@ import {
   untilInteractive,
 } from '../../../platform/field-rules';
 import { usePageSeo } from '../../../platform/page-seo';
-import { AuthService } from '../../../platform/auth/auth.service';
-import { Button } from '@b2b-catalog-platform/ui/actions/button';
-import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
-import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
-import { Input } from '@b2b-catalog-platform/ui/inputs/input';
-import { PhoneInput } from '@b2b-catalog-platform/ui/inputs/phone-input';
-import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
+import { STOREFRONT_ACCOUNTS_TEXT } from '../accounts-text';
 import { AccountService } from './account.service';
-import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
-import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
-import { Hint } from '@b2b-catalog-platform/ui/fields/hint';
-import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
 
 /**
  * Correcting your own name and phone number. The rest is not offered: staff

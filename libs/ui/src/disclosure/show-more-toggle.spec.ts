@@ -1,7 +1,8 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { ShowMoreToggle } from './show-more-toggle';
+
 import { provideTestUiText } from '../core/ui-text.testing';
+import { ShowMoreToggle } from './show-more-toggle';
 
 @Component({
   imports: [ShowMoreToggle],

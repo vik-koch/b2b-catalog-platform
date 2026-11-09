@@ -1,20 +1,22 @@
-import { STOREFRONT_ORDERING_TEXT } from '../../ordering-text';
-import { ACCOUNTS_CONFIG } from '../../../../core/accounts/accounts-config';
-import { STOREFRONT_ACCOUNTS_TEXT } from '../../../accounts/accounts-text';
 import { NgTemplateOutlet } from '@angular/common';
 import { Component, inject, input, output } from '@angular/core';
 import { FormField, type FieldTree } from '@angular/forms/signals';
-import { SHARED_TEXT } from '../../../../platform/config/shared-text';
-import { DEPLOYMENT_CONFIG } from '../../../../platform/config/deployment-config';
-import { CompanyFields } from '../../../../core/accounts/parties/company-fields';
-import { Field } from '@b2b-catalog-platform/ui/fields/field';
-import { FieldBinding } from '@b2b-catalog-platform/ui/fields/field-binding';
-import { Input } from '@b2b-catalog-platform/ui/inputs/input';
-import { PhoneInput } from '@b2b-catalog-platform/ui/inputs/phone-input';
+
 import {
   Segmented,
   SegmentOption,
 } from '@b2b-catalog-platform/ui/choices/segmented';
+import { Field } from '@b2b-catalog-platform/ui/fields/field';
+import { FieldBinding } from '@b2b-catalog-platform/ui/fields/field-binding';
+import { Input } from '@b2b-catalog-platform/ui/inputs/input';
+import { PhoneInput } from '@b2b-catalog-platform/ui/inputs/phone-input';
+
+import { ACCOUNTS_CONFIG } from '../../../../core/accounts/accounts-config';
+import { CompanyFields } from '../../../../core/accounts/parties/company-fields';
+import { DEPLOYMENT_CONFIG } from '../../../../platform/config/deployment-config';
+import { SHARED_TEXT } from '../../../../platform/config/shared-text';
+import { STOREFRONT_ACCOUNTS_TEXT } from '../../../accounts/accounts-text';
+import { STOREFRONT_ORDERING_TEXT } from '../../ordering-text';
 import { PartyChoice as Party } from '../checkout-draft';
 import { ContactAnswers, PartyAnswers } from '../checkout-forms';
 

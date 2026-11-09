@@ -1,10 +1,11 @@
 import sanitizeHtml from 'sanitize-html';
+
+import { MEDIA_MAX_IMAGE_WIDTH, MEDIA_URL_PREFIX } from '../platform/media';
 import {
   RICH_TEXT_IMAGE_ALIGNMENTS,
   RICH_TEXT_LINK_SCHEMES,
   RICH_TEXT_TAGS,
 } from '../platform/rich-text';
-import { MEDIA_MAX_IMAGE_WIDTH, MEDIA_URL_PREFIX } from '../platform/media';
 
 const IMAGE_ALIGNMENTS = new Set<string>(RICH_TEXT_IMAGE_ALIGNMENTS);
 

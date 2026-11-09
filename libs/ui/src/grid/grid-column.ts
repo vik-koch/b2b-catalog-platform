@@ -1,6 +1,6 @@
-import { GridFilterOption } from './grid-filter-select';
-import { Glyph } from '../icons/glyph';
 import { fill } from '../core/fill';
+import { Glyph } from '../icons/glyph';
+import { GridFilterOption } from './grid-filter-select';
 
 /** How a column is ordered: the key each direction writes to `sort`. */
 export interface GridSort {

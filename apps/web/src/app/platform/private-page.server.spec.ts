@@ -9,6 +9,7 @@ import {
 } from '@angular/common/http/testing';
 import { RESPONSE_INIT } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+
 import { keepPagePrivate } from './private-page.server';
 
 const URL = 'http://api.internal:3000/api/catalog/featured';

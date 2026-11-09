@@ -1,4 +1,5 @@
 import { Provider } from '@angular/core';
+
 import { CartAddition, ProductCart, ProductInCart } from './product-cart';
 
 /** An in-memory cart for specs that render the buying controls without testing

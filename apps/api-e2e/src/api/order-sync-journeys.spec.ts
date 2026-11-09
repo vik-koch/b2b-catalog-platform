@@ -1,14 +1,15 @@
 import { hash } from '@node-rs/argon2';
 import axios from 'axios';
 import { Client } from 'pg';
-import { priceProduct } from '../support/catalog-fixture';
-import { requireEnv } from '../support/env';
-import { JourneyRun } from '../support/journey/journey';
+
 import {
   orderSyncJourneyAdapter,
   OrderSyncJourneyContext,
 } from '../journeys/order-sync.adapter';
 import { orderSyncJourneys } from '../journeys/order-sync.journeys';
+import { priceProduct } from '../support/catalog-fixture';
+import { requireEnv } from '../support/env';
+import { JourneyRun } from '../support/journey/journey';
 
 /**
  * The order exchange, order by order (FR-ADM-08, FR-ADM-10, FR-ORD-02,

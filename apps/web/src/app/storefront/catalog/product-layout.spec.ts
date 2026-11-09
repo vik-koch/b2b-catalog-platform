@@ -1,5 +1,6 @@
 import { PLATFORM_ID, REQUEST } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+
 import { ProductLayoutService, readProductLayout } from './product-layout';
 
 function service(options: { cookie?: string; server?: boolean } = {}) {

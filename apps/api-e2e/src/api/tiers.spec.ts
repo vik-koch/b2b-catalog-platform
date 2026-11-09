@@ -1,6 +1,7 @@
 import { hash } from '@node-rs/argon2';
 import axios from 'axios';
 import { Client } from 'pg';
+
 import { requireEnv } from '../support/env';
 
 /** Tier administration (FR-AUTH-05; NFR-SEC-04 for the guards), against the

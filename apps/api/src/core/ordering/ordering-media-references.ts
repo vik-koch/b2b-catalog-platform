@@ -1,7 +1,8 @@
 import { isNotNull } from 'drizzle-orm';
+
 import {
-  MediaReferenceSource,
   mediaFilenamesInHtml,
+  MediaReferenceSource,
 } from '../../platform/media/prune/media-references';
 import { orderItems } from './ordering-schema';
 

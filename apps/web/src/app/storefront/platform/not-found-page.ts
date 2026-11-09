@@ -1,4 +1,5 @@
 import { Component, inject } from '@angular/core';
+
 import { STOREFRONT_TEXT } from '../../platform/config/storefront-text';
 import { usePageSeo } from '../../platform/page-seo';
 import { NotFoundView } from './not-found-view';

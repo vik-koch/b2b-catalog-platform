@@ -1,14 +1,15 @@
 import { readFileSync } from 'node:fs';
 import axios, { AxiosResponse } from 'axios';
+
+import { consentVersion } from '../support/consent';
 import { configFile, requireEnv } from '../support/env';
+import { cached, JourneyAdapter, Probe } from '../support/journey/journey';
 import {
   deleteMatching,
   messageBody,
   messagesMatching,
 } from '../support/mailpit';
-import { cached, JourneyAdapter, Probe } from '../support/journey/journey';
 import { CUSTOMER_SYNC_PROBES as reading } from './customer-sync-probe-labels';
-import { consentVersion } from '../support/consent';
 
 /**
  * What a customer-exchange journey acts on and reads, for the journey facility

@@ -7,14 +7,15 @@ import {
   output,
   signal,
 } from '@angular/core';
-import { fillText } from '@b2b-catalog-platform/shared/platform';
-import { ProductImage } from '@b2b-catalog-platform/shared/core/catalog';
 
+import { ProductImage } from '@b2b-catalog-platform/shared/core/catalog';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
+import { Frame } from '@b2b-catalog-platform/ui/content/frame';
+import { ImagePlaceholder } from '@b2b-catalog-platform/ui/content/image-placeholder';
+import { brokenImages } from '@b2b-catalog-platform/ui/core/broken-images';
 import { swipeStep, touchX } from '@b2b-catalog-platform/ui/core/swipe';
 import { ShowMoreToggle } from '@b2b-catalog-platform/ui/disclosure/show-more-toggle';
-import { ImagePlaceholder } from '@b2b-catalog-platform/ui/content/image-placeholder';
-import { Frame } from '@b2b-catalog-platform/ui/content/frame';
-import { brokenImages } from '@b2b-catalog-platform/ui/core/broken-images';
+
 import { SHARED_CATALOG_TEXT } from '../../catalog-text';
 
 /** One row of the narrow grid kept on a phone; the rest behind a show-more. */

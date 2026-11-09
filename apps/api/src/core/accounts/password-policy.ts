@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { Injectable } from '@nestjs/common';
+
 import { loadApiDeploymentConfig } from '../../platform/config/deployment-config';
 import { PasswordRejectedError } from './password-rejected-error';
 

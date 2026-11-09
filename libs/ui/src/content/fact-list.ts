@@ -1,4 +1,5 @@
 import { computed, Directive, input } from '@angular/core';
+
 import { FactTerm } from './fact-term';
 import { FactValue } from './fact-value';
 

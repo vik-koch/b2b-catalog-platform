@@ -9,20 +9,22 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
+
 import { fillText } from '@b2b-catalog-platform/shared/platform';
-import { ADMIN_TEXT } from '../../../platform/config/admin-text';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { Checkbox } from '@b2b-catalog-platform/ui/choices/checkbox';
-import { DialogActions } from '@b2b-catalog-platform/ui/overlay/dialog-actions';
-import { DialogPanel } from '@b2b-catalog-platform/ui/overlay/dialog-panel';
 import { HintBadge } from '@b2b-catalog-platform/ui/content/hint-badge';
-import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
-import { AttributeHint } from './attribute-hints';
-import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { funnelIcon } from '@b2b-catalog-platform/ui/icons/glyphs/funnel';
 import { plusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/plus';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import { DialogActions } from '@b2b-catalog-platform/ui/overlay/dialog-actions';
+import { DialogPanel } from '@b2b-catalog-platform/ui/overlay/dialog-panel';
 import { DialogTitle } from '@b2b-catalog-platform/ui/overlay/dialog-title';
+
+import { ADMIN_TEXT } from '../../../platform/config/admin-text';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { ADMIN_CATALOG_TEXT } from '../catalog-text';
+import { AttributeHint } from './attribute-hints';
 
 /**
  * The names the catalog already uses (FR-ATTR-09), one empty row appended per

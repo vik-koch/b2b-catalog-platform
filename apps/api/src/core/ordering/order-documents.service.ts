@@ -5,19 +5,21 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { and, eq, inArray } from 'drizzle-orm';
+
 import {
+  AdminOrderDocument,
   generatedSummaryFileName,
   OrderDetail,
   OrderDocument,
   OrderDocumentKind,
-  AdminOrderDocument,
 } from '@b2b-catalog-platform/shared/core/ordering';
-import { DRIZZLE } from '../../platform/db/database.module';
-import { orderDocuments, orderRevisions, orders } from './ordering-schema';
-import { MEDIA_STORE, MediaStore } from '../../platform/media/media-store';
-import { MailAttachment } from '../../platform/mail/mailer';
-import { OrderPdf } from './order-pdf';
+
 import { Database } from '../../platform/db/database';
+import { DRIZZLE } from '../../platform/db/database.module';
+import { MailAttachment } from '../../platform/mail/mailer';
+import { MEDIA_STORE, MediaStore } from '../../platform/media/media-store';
+import { OrderPdf } from './order-pdf';
+import { orderDocuments, orderRevisions, orders } from './ordering-schema';
 
 /** A file on its way out: the bytes, and what the browser should call them. */
 export interface ServedDocument {

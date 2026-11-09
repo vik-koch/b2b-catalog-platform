@@ -1,59 +1,61 @@
+import { ConflictException, Inject, Injectable } from '@nestjs/common';
+import { and, desc, eq, ilike, inArray, ne, or, SQL } from 'drizzle-orm';
+
+import { AddressInput } from '@b2b-catalog-platform/shared/core/accounts';
 import { TaxBasis } from '@b2b-catalog-platform/shared/core/catalog';
 import {
   ACCEPTED_ORDER_STATUSES,
-  moveDirection,
-  OrderStatus,
-  OrderSummary,
-  PaymentMethod,
-  PaymentState,
-  paymentStateAfterAdjustment,
   AdminOrderDetail,
+  moveDirection,
   OrderAdjustment,
   OrderAdjustmentPreview,
   OrderRevision,
   OrderRevisionEntry,
   OrderRevisionKind,
+  OrderStatus,
+  OrderSummary,
   OrderTransition,
+  PaymentMethod,
+  PaymentState,
+  paymentStateAfterAdjustment,
   StaffOrderSort,
   StaffPaymentFilter,
 } from '@b2b-catalog-platform/shared/core/ordering';
 import {
-  Pagination,
   alternateLayoutQuery,
   KeyboardLayout,
+  Pagination,
 } from '@b2b-catalog-platform/shared/platform';
-import { ConflictException, Inject, Injectable } from '@nestjs/common';
-import { and, desc, eq, ilike, inArray, ne, or, SQL } from 'drizzle-orm';
-import { AddressInput } from '@b2b-catalog-platform/shared/core/accounts';
-import {
-  orderColumns,
-  customerRevision,
-  acceptedTerms,
-  notFound,
-  orderMovedOn,
-  refuseIfDetailsRemoved,
-  toSummary,
-  OrderRow,
-  OrderSnapshot,
-  CustomerThread,
-  Fulfilment,
-  adjustedItems,
-  detailColumns,
-  shipmentColumns,
-} from '../../core/ordering/order-rows';
-import { OrderReader } from '../../core/ordering/order-reader';
-import { OrderWriter } from '../../core/ordering/order-writer';
-import { OrderRules } from '../../core/ordering/order-rules';
-import { ALTERNATE_LAYOUT } from '../../platform/config/deployment-config';
-import { DRIZZLE } from '../../platform/db/database.module';
+
 import { users } from '../../core/accounts/accounts-schema';
-import { orderRevisions, orders } from '../../core/ordering/ordering-schema';
 import {
   priceAdjustment,
   PricedAdjustment,
 } from '../../core/ordering/order-adjustment';
 import { OrderDocumentsService } from '../../core/ordering/order-documents.service';
+import { OrderReader } from '../../core/ordering/order-reader';
+import {
+  acceptedTerms,
+  adjustedItems,
+  customerRevision,
+  CustomerThread,
+  detailColumns,
+  Fulfilment,
+  notFound,
+  orderColumns,
+  orderMovedOn,
+  OrderRow,
+  OrderSnapshot,
+  refuseIfDetailsRemoved,
+  shipmentColumns,
+  toSummary,
+} from '../../core/ordering/order-rows';
+import { OrderRules } from '../../core/ordering/order-rules';
+import { OrderWriter } from '../../core/ordering/order-writer';
+import { orderRevisions, orders } from '../../core/ordering/ordering-schema';
+import { ALTERNATE_LAYOUT } from '../../platform/config/deployment-config';
 import { Database } from '../../platform/db/database';
+import { DRIZZLE } from '../../platform/db/database.module';
 
 /** Staff answering orders (FR-AUTH-03, FR-ORD-02/03/04, FR-NOTIF-03). */
 @Injectable()

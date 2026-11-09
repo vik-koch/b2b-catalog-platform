@@ -1,4 +1,5 @@
 import * as z from 'zod';
+
 import { SEARCH_QUERY_MAX_LENGTH } from '../../platform/search';
 
 /**

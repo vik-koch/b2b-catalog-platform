@@ -1,7 +1,8 @@
 import * as z from 'zod';
+
+import { loadSeedBundle, runSeed } from '@b2b-catalog-platform/seed';
 import { deploymentConfigSchema } from '@b2b-catalog-platform/shared/deployment';
 import { loadConfig } from '@b2b-catalog-platform/shared/node';
-import { loadSeedBundle, runSeed } from '@b2b-catalog-platform/seed';
 
 /**
  * The seed one-shot: writes a seed bundle's demo content into a migrated

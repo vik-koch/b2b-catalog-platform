@@ -1,22 +1,24 @@
-import { SHARED_TEXT } from '../../../platform/config/shared-text';
-import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { TestBed } from '@angular/core/testing';
-import { ComponentFixture } from '@angular/core/testing';
-import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
-import { defaultDeploymentConfig } from '../../../platform/config/deployment-config.fixture';
-import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
-import { defaultStorefrontText } from '../../../platform/config/storefront-text.fixture';
-import { CategoryGrid } from './category-grid';
-import { CatalogService } from '../catalog.service';
-import {
-  productListItem,
-  plainPrices,
-} from '../../../core/catalog/product.fixture';
-import { provideUiText } from '../../../platform/config/shared-text';
+
 import { provideFakeProductCart } from '../../../core/catalog/buying/product-cart.fixture';
 import { defaultSharedCatalogText } from '../../../core/catalog/catalog-text.fixture';
+import {
+  plainPrices,
+  productListItem,
+} from '../../../core/catalog/product.fixture';
+import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
+import { defaultDeploymentConfig } from '../../../platform/config/deployment-config.fixture';
+import {
+  provideUiText,
+  SHARED_TEXT,
+} from '../../../platform/config/shared-text';
+import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
+import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
+import { defaultStorefrontText } from '../../../platform/config/storefront-text.fixture';
 import { defaultStorefrontCatalogText } from '../catalog-text.fixture';
+import { CatalogService } from '../catalog.service';
+import { CategoryGrid } from './category-grid';
 
 type Products = NonNullable<
   Awaited<ReturnType<CatalogService['getCategoryProducts']>>

@@ -1,6 +1,7 @@
 import { sql } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { PgDialect } from 'drizzle-orm/pg-core';
+
 import { products } from './catalog-schema';
 import { resolvedPriceMinor } from './product-price';
 import { productSortKeys } from './product-sort';

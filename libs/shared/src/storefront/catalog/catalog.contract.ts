@@ -5,26 +5,27 @@
 
 import { oc } from '@orpc/contract';
 import * as z from 'zod';
-import { listParam } from '../../platform/list-param.contract';
-import {
-  pageParamSchema,
-  paginationSchema,
-} from '../../platform/pagination.contract';
+
 import { ATTRIBUTE_FILTER_MAX_PARAMS } from '../../core/catalog/attribute-filter';
 import {
   ATTRIBUTE_NAME_MAX_LENGTH,
   ATTRIBUTE_VALUE_MAX_LENGTH,
 } from '../../core/catalog/attributes';
-import { PRODUCT_SORTS, SEARCH_SORTS } from '../../core/catalog/product-sort';
-import { searchQueryParamSchema } from '../../core/catalog/search.contract';
 import {
   attributeTypeSchema,
-  type CatalogImage,
   catalogImageSchema,
   categoryCrumbSchema,
   productDetailSchema,
   productListItemSchema,
+  type CatalogImage,
 } from '../../core/catalog/catalog.contract';
+import { PRODUCT_SORTS, SEARCH_SORTS } from '../../core/catalog/product-sort';
+import { searchQueryParamSchema } from '../../core/catalog/search.contract';
+import { listParam } from '../../platform/list-param.contract';
+import {
+  pageParamSchema,
+  paginationSchema,
+} from '../../platform/pagination.contract';
 import { CATALOG_SORTS } from './listing';
 
 /**

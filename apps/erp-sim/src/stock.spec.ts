@@ -1,6 +1,6 @@
 import { seeded, shuffled } from './random';
 import { load } from './simulation';
-import { StockRules, stockOnNight } from './stock';
+import { stockOnNight, StockRules } from './stock';
 
 const rules: StockRules = {
   sold: { products: 2, percent: [10, 15] },

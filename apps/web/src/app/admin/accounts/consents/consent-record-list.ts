@@ -1,21 +1,23 @@
-import { ADMIN_ACCOUNTS_TEXT } from '../accounts-text';
 import { Component, inject, input, output } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { fillText } from '@b2b-catalog-platform/shared/platform';
+
+import { ConsentRecord } from '@b2b-catalog-platform/shared/admin/accounts';
 import {
   CONSENT_PAGE_SLUGS,
   consentLabelParts,
 } from '@b2b-catalog-platform/shared/core/site';
-import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
-import { formatPhone } from '../../../platform/contact-fields';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
 import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
-import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Link } from '@b2b-catalog-platform/ui/actions/link';
 import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';
-import { adminMomentFormat } from '../../platform/dates/admin-date';
-import { RecordRow } from '@b2b-catalog-platform/ui/lists/record-row';
 import { circleSlashIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-slash';
-import { ConsentRecord } from '@b2b-catalog-platform/shared/admin/accounts';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import { RecordRow } from '@b2b-catalog-platform/ui/lists/record-row';
+
+import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
+import { formatPhone } from '../../../platform/contact-fields';
+import { adminMomentFormat } from '../../platform/dates/admin-date';
+import { ADMIN_ACCOUNTS_TEXT } from '../accounts-text';
 
 /** Consent records as evidence reads them, on the lookup and on an account's
  * page; only the lookup names the account. An ended record says when and how:

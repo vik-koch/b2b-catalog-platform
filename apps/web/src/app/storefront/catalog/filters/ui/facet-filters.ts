@@ -6,8 +6,9 @@ import {
   output,
   signal,
 } from '@angular/core';
-import { fillText } from '@b2b-catalog-platform/shared/platform';
+
 import { formatAttributeValue } from '@b2b-catalog-platform/shared/core/catalog';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
 import {
   Facet,
   FacetValue,
@@ -15,11 +16,12 @@ import {
 import { ClearFiltersButton } from '@b2b-catalog-platform/ui/actions/clear-filters-button';
 import { Checkbox } from '@b2b-catalog-platform/ui/choices/checkbox';
 import { TickLabel } from '@b2b-catalog-platform/ui/choices/tick-label';
+import { SectionTitle } from '@b2b-catalog-platform/ui/content/section-title';
 import { DisclosureFrame } from '@b2b-catalog-platform/ui/disclosure/disclosure-frame';
 import { disclosureState } from '@b2b-catalog-platform/ui/disclosure/disclosure-state';
 import { DisclosureToggle } from '@b2b-catalog-platform/ui/disclosure/disclosure-toggle';
 import { ShowMoreList } from '@b2b-catalog-platform/ui/disclosure/show-more-list';
-import { SectionTitle } from '@b2b-catalog-platform/ui/content/section-title';
+
 import { STOREFRONT_CATALOG_TEXT } from '../../catalog-text';
 
 const VALUES_COLLAPSED = 8;

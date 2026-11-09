@@ -1,5 +1,6 @@
 import { getTableName } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/node-postgres';
+
 import { Database } from '../../platform/db/database';
 
 export interface Captured {

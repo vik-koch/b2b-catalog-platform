@@ -1,21 +1,23 @@
 import { Component, inject, input, output, signal } from '@angular/core';
+
+import { CatalogImage } from '@b2b-catalog-platform/shared/core/catalog';
 import {
   ACCEPTED_IMAGE_MIME_TYPES,
   fillText,
 } from '@b2b-catalog-platform/shared/platform';
-import { CatalogImage } from '@b2b-catalog-platform/shared/core/catalog';
-import { ADMIN_TEXT } from '../../../platform/config/admin-text';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
+import { imagePlusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/image-plus';
+import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { DropZone } from '@b2b-catalog-platform/ui/inputs/drop-zone';
 import {
   FileTarget,
   pasteKeys,
 } from '@b2b-catalog-platform/ui/inputs/file-target';
-import { CatalogUploadsService } from './catalog-uploads.service';
+
+import { ADMIN_TEXT } from '../../../platform/config/admin-text';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
-import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
-import { imagePlusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/image-plus';
-import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
+import { CatalogUploadsService } from './catalog-uploads.service';
 
 /** One catalogue image, ProductImageGallery's single counterpart from the
  * same tile and add button, so it reads alike. No order, so no drag

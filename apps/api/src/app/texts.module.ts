@@ -1,6 +1,8 @@
 import { Global, Module } from '@nestjs/common';
+
 import { sharedTextSchema } from '@b2b-catalog-platform/shared/deployment';
 import { loadConfig } from '@b2b-catalog-platform/shared/node';
+
 import { SHARED_TEXT } from '../platform/config/shared-text';
 import { MAIL_TEXT } from '../platform/mail/mail-text';
 import { PDF_TEXT } from '../platform/pdf/pdf-text';

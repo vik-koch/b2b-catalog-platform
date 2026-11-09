@@ -1,59 +1,60 @@
 import { Module } from '@nestjs/common';
-import { AddressBookModule } from '../accounts/address-book.module';
+
 import { AuditLogger } from '../../platform/audit/audit.logger';
 import { SessionModule } from '../../platform/auth/session.module';
 import {
   ALTERNATE_LAYOUT,
-  loadAlternateLayout,
   COMPANY_ID_RULE,
-  MONEY_FORMAT,
-  ORDER_CURRENCY,
-  SHOP_TIME_ZONE,
-  PDF_FONT,
+  loadAlternateLayout,
   loadCompanyIdRule,
   loadMoneyFormat,
   loadOrderCurrency,
-  loadShopTimeZone,
   loadPdfFont,
+  loadShopTimeZone,
+  MONEY_FORMAT,
+  ORDER_CURRENCY,
+  PDF_FONT,
+  SHOP_TIME_ZONE,
 } from '../../platform/config/deployment-config';
-import { TERMS_ATTACHED, loadTermsAttached } from './terms-config';
+import { MailModule } from '../../platform/mail/mail.module';
+import { MediaModule } from '../../platform/media/media.module';
+import { PdfFaces } from '../../platform/pdf/pdf-faces';
+import {
+  ACCEPTED_CUSTOMER_TYPES,
+  ADDRESS_CONFIG,
+  loadAcceptedCustomerTypes,
+  loadAddressConfig,
+} from '../accounts/accounts-config';
+import { AddressBookModule } from '../accounts/address-book.module';
+import {
+  loadPairingsEnforced,
+  loadTaxConfig,
+  PAIRINGS_ENFORCED,
+  TAX_CONFIG,
+} from '../catalog/catalog-config';
+import { loadTermsPublished, TERMS_PUBLISHED } from '../site/site-config';
+import { OrderDocumentActs } from './order-document-acts';
+import { OrderDocumentFiles } from './order-document-files';
+import { OrderDocumentsController } from './order-documents.controller';
+import { OrderDocumentsService } from './order-documents.service';
+import { OrderNotifications } from './order-notifications';
+import { OrderPdf } from './order-pdf';
+import { OrderPersonalData } from './order-personal-data';
+import { OrderReader } from './order-reader';
+import { OrderRules } from './order-rules';
+import { OrderWriter } from './order-writer';
 import {
   BILLING_ADDRESS_ENABLED,
   DELIVERY_CONFIG,
-  ORDER_REFERENCE_CONFIG,
-  PICKUP_LOCATIONS,
   loadBillingAddressEnabled,
   loadDeliveryConfig,
   loadOrderReferenceConfig,
   loadPickupLocations,
+  ORDER_REFERENCE_CONFIG,
+  PICKUP_LOCATIONS,
 } from './ordering-config';
-import {
-  ACCEPTED_CUSTOMER_TYPES,
-  loadAcceptedCustomerTypes,
-  ADDRESS_CONFIG,
-  loadAddressConfig,
-} from '../accounts/accounts-config';
-import {
-  PAIRINGS_ENFORCED,
-  loadPairingsEnforced,
-  loadTaxConfig,
-  TAX_CONFIG,
-} from '../catalog/catalog-config';
-import { loadTermsPublished, TERMS_PUBLISHED } from '../site/site-config';
-import { MailModule } from '../../platform/mail/mail.module';
-import { MediaModule } from '../../platform/media/media.module';
-import { OrderDocumentActs } from './order-document-acts';
-import { OrderDocumentsController } from './order-documents.controller';
-import { OrderDocumentsService } from './order-documents.service';
-import { OrderDocumentFiles } from './order-document-files';
-import { OrderPersonalData } from './order-personal-data';
-import { OrderNotifications } from './order-notifications';
-import { PdfFaces } from '../../platform/pdf/pdf-faces';
-import { OrderPdf } from './order-pdf';
+import { loadTermsAttached, TERMS_ATTACHED } from './terms-config';
 import { TermsPdf } from './terms-pdf';
-import { OrderReader } from './order-reader';
-import { OrderRules } from './order-rules';
-import { OrderWriter } from './order-writer';
 
 /**
  * What every ordering audience shares: the reads, the one writer of versions

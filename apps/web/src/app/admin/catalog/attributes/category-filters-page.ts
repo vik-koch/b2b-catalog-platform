@@ -13,33 +13,34 @@ import {
   signal,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
+
 import {
   CatalogFilters,
   CategoryFilter,
   CategoryFilters,
 } from '@b2b-catalog-platform/shared/admin/catalog';
 import { fillText } from '@b2b-catalog-platform/shared/platform';
-import { ADMIN_TEXT } from '../../../platform/config/admin-text';
-
-import { usePageSeo } from '../../../platform/page-seo';
-import { delayedLoading } from '../../../platform/delayed-loading';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
-import { Checkbox } from '@b2b-catalog-platform/ui/choices/checkbox';
 import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
 import { Link } from '@b2b-catalog-platform/ui/actions/link';
-import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
-import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
-import { injectEditorReturn } from '../../../platform/edit-mode/editor-return';
-import { UnpublishedCount } from '../products/unpublished-count';
-import { RecordRow } from '@b2b-catalog-platform/ui/lists/record-row';
-import { AttributesService } from './attributes.service';
-import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { Checkbox } from '@b2b-catalog-platform/ui/choices/checkbox';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
+import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
-import { DragGrip } from '../ui/drag-grip';
-import { SaveButton } from '../../platform/ui/save-button';
+import { RecordRow } from '@b2b-catalog-platform/ui/lists/record-row';
+import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
+
+import { ADMIN_TEXT } from '../../../platform/config/admin-text';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { delayedLoading } from '../../../platform/delayed-loading';
+import { injectEditorReturn } from '../../../platform/edit-mode/editor-return';
+import { usePageSeo } from '../../../platform/page-seo';
 import { CancelButton } from '../../platform/ui/cancel-button';
+import { SaveButton } from '../../platform/ui/save-button';
 import { ADMIN_CATALOG_TEXT } from '../catalog-text';
+import { UnpublishedCount } from '../products/unpublished-count';
+import { DragGrip } from '../ui/drag-grip';
+import { AttributesService } from './attributes.service';
 
 /** Where the panel closes to when it was not opened from in the app. */
 const FALLBACK_RETURN = '/admin/categories';

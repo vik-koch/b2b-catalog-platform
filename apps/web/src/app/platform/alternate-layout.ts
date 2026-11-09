@@ -1,5 +1,7 @@
 import { inject, Injectable } from '@angular/core';
+
 import { alternateLayoutQuery } from '@b2b-catalog-platform/shared/platform';
+
 import { DEPLOYMENT_CONFIG } from './config/deployment-config';
 
 /** A query on the deployment's second keyboard layout (FR-SEARCH-08), read

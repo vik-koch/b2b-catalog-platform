@@ -1,5 +1,5 @@
-import { demoMailBranding } from './mail-text.fixture';
 import { MailContent, renderMail } from './mail-layout';
+import { demoMailBranding } from './mail-text.fixture';
 
 const content: MailContent = {
   subject: 'Subject line',

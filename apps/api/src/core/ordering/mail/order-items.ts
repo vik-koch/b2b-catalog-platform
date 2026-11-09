@@ -1,18 +1,19 @@
 import {
-  SharedText,
+  CATALOG_AREA,
+  formatTaxRate,
+  sharedTaxRate,
+  type SharedCatalogText,
+} from '@b2b-catalog-platform/shared/core/catalog';
+import { OrderDetail } from '@b2b-catalog-platform/shared/core/ordering';
+import {
   fillText,
   formatMoneyMinor,
   MoneyFormat,
+  SharedText,
 } from '@b2b-catalog-platform/shared/platform';
-import { OrderDetail } from '@b2b-catalog-platform/shared/core/ordering';
-import { MailItem } from '../../../platform/mail/mail-layout';
-import {
-  CATALOG_AREA,
-  type SharedCatalogText,
-  formatTaxRate,
-  sharedTaxRate,
-} from '@b2b-catalog-platform/shared/core/catalog';
+
 import { sharedTextBlock } from '../../../platform/config/shared-text';
+import { MailItem } from '../../../platform/mail/mail-layout';
 
 /** A line as both order mails state it, from the order's copies: the unit it
  * was bought in, and its pieces where that is no piece. A mail is read months

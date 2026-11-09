@@ -1,8 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
+
 import { AccountDeletionReason } from '@b2b-catalog-platform/shared/core/accounts';
-import { recordDestruction } from '../../platform/destruction-record';
-import { DestructionCategory } from '../../platform/destruction';
+
 import { Tx } from '../../platform/db/database';
+import { DestructionCategory } from '../../platform/destruction';
+import { recordDestruction } from '../../platform/destruction-record';
 
 /** What deleting an account destroys (FR-AUTH-06, FR-ADM-23). */
 const ACCOUNT_DELETION_CATEGORIES: readonly DestructionCategory[] = [

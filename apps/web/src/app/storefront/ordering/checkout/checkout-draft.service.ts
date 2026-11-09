@@ -1,5 +1,11 @@
 import { isPlatformBrowser } from '@angular/common';
 import { inject, Injectable, PLATFORM_ID, signal } from '@angular/core';
+
+import {
+  PAYMENT_METHODS,
+  PaymentMethod,
+} from '@b2b-catalog-platform/shared/core/ordering';
+
 import {
   CHECKOUT_DRAFT_KEY,
   CHECKOUT_DRAFT_VERSION,
@@ -7,10 +13,6 @@ import {
   emptyDraft,
   PartyChoice,
 } from './checkout-draft';
-import {
-  PAYMENT_METHODS,
-  PaymentMethod,
-} from '@b2b-catalog-platform/shared/core/ordering';
 
 interface StoredDraft {
   version: number;

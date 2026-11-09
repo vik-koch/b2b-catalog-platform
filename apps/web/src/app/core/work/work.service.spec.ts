@@ -3,11 +3,13 @@ import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
+
 import { WorkCounts } from '@b2b-catalog-platform/shared/core/work';
-import { AuthService } from '../../platform/auth/auth.service';
-import { adminUser } from '../../platform/auth/auth-user.fixture';
-import { WorkService } from './work.service';
 import { AuthUser } from '@b2b-catalog-platform/shared/platform';
+
+import { adminUser } from '../../platform/auth/auth-user.fixture';
+import { AuthService } from '../../platform/auth/auth.service';
+import { WorkService } from './work.service';
 
 /** The fetching policy; the wire is orpc-client.spec's. */
 

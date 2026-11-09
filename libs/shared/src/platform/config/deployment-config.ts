@@ -1,6 +1,7 @@
 import * as z from 'zod';
-import type { DeepReadonly } from '../deep-readonly';
+
 import { companyIdInputSchema, phoneInputSchema } from '../contact-config';
+import type { DeepReadonly } from '../deep-readonly';
 import { KEYBOARD_LAYOUTS } from '../keyboard-layout';
 import { themeConfigSchema } from '../theme-config';
 

@@ -1,16 +1,18 @@
 import { Inject, Injectable } from '@nestjs/common';
+
+import { UserRole } from '@b2b-catalog-platform/shared/platform';
+import { PasswordTokenPurpose } from '@b2b-catalog-platform/shared/storefront/accounts';
+
+import { PasswordPolicy } from '../../core/accounts/password-policy';
+import { PasswordTokenService } from '../../core/accounts/password-token.service';
+import { PasswordService } from '../../core/accounts/password.service';
+import { UserRow, UsersService } from '../../core/accounts/users.service';
 import {
   CheckedConsent,
   ConsentService,
 } from '../../core/site/consent.service';
-import { DRIZZLE } from '../../platform/db/database.module';
-import { UserRow, UsersService } from '../../core/accounts/users.service';
-import { PasswordPolicy } from '../../core/accounts/password-policy';
-import { PasswordTokenService } from '../../core/accounts/password-token.service';
-import { PasswordService } from '../../core/accounts/password.service';
-import { UserRole } from '@b2b-catalog-platform/shared/platform';
-import { PasswordTokenPurpose } from '@b2b-catalog-platform/shared/storefront/accounts';
 import { Database } from '../../platform/db/database';
+import { DRIZZLE } from '../../platform/db/database.module';
 
 /**
  * Redeeming a set-a-password link, invitation or reset. The link is the whole

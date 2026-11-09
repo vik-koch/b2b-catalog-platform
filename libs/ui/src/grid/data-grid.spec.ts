@@ -1,13 +1,14 @@
-import { provideTestGridText, testGridText } from './grid-text.testing';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+
 import { NARROW_SCREEN_QUERIES } from '../core/narrow-screen';
 import { DataGrid } from './data-grid';
-import { GridColumn } from './grid-column';
-import { GridWidths, GRID_WIDTHS_KEY } from './grid-widths';
 import { GridCardTemplate } from './grid-card-template';
+import { GridColumn } from './grid-column';
 import { GridRowTemplate } from './grid-row-template';
+import { provideTestGridText, testGridText } from './grid-text.testing';
+import { GRID_WIDTHS_KEY, GridWidths } from './grid-widths';
 
 interface Row {
   id: string;

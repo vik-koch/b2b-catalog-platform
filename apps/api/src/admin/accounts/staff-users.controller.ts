@@ -1,19 +1,21 @@
 import { Controller } from '@nestjs/common';
 import { Implement, implement } from '@orpc/nest';
+
+import { usersContract } from '@b2b-catalog-platform/shared/admin/accounts';
+import { StaffUser } from '@b2b-catalog-platform/shared/core/accounts';
+import { AuthUser } from '@b2b-catalog-platform/shared/platform';
+
 import { AccountDeletion } from '../../core/accounts/account-deletion';
+import { AccountInvitations } from '../../core/accounts/account-invitations';
+import { customersExternallyOwned } from '../../core/accounts/customer-ownership-refusals';
+import { SignInStep } from '../../core/accounts/sign-in-step/sign-in-step';
+import { StaffUsersService } from '../../core/accounts/staff-users.service';
 import { AuditLogger } from '../../platform/audit/audit.logger';
 import { Auth } from '../../platform/auth/auth.decorator';
 import { CurrentUser } from '../../platform/auth/current-user.decorator';
-import { ConsentRecords } from './consent-records';
 import { refusals } from '../../platform/orpc/refusals';
-import { customersExternallyOwned } from '../../core/accounts/customer-ownership-refusals';
 import { OwnershipState } from '../../platform/settings/ownership-state';
-import { SignInStep } from '../../core/accounts/sign-in-step/sign-in-step';
-import { AccountInvitations } from '../../core/accounts/account-invitations';
-import { StaffUsersService } from '../../core/accounts/staff-users.service';
-import { AuthUser } from '@b2b-catalog-platform/shared/platform';
-import { StaffUser } from '@b2b-catalog-platform/shared/core/accounts';
-import { usersContract } from '@b2b-catalog-platform/shared/admin/accounts';
+import { ConsentRecords } from './consent-records';
 
 /** What a plain `user.updated` line covers. */
 const PROFILE_FIELDS = [

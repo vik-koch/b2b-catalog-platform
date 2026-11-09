@@ -1,6 +1,7 @@
 import { hash } from '@node-rs/argon2';
 import axios from 'axios';
 import { Client } from 'pg';
+
 import { requireEnv } from '../support/env';
 
 /** The whole-catalogue listing (FR-CAT-02/03). The panel is one table, so

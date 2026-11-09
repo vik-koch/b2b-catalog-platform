@@ -1,5 +1,7 @@
-import { DeepReadonly } from '@b2b-catalog-platform/shared/platform';
 import * as z from 'zod';
+
+import { DeepReadonly } from '@b2b-catalog-platform/shared/platform';
+
 import { confirmText, pageText } from './text-shapes';
 
 /** The keys of `texts/admin.json` no area claims. */

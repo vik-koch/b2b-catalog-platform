@@ -1,11 +1,12 @@
 import * as z from 'zod';
-import { EMAIL_MAX_LENGTH, EMAIL_PATTERN } from './email-format';
-import { PERSON_NAME_MAX_LENGTH, PERSON_NAME_PATTERN } from './person-name';
+
 import {
   normalizeCompanyId,
   type CompanyIdFormat,
   type PhoneConfig,
 } from './contact-format';
+import { EMAIL_MAX_LENGTH, EMAIL_PATTERN } from './email-format';
+import { PERSON_NAME_MAX_LENGTH, PERSON_NAME_PATTERN } from './person-name';
 
 /** The contact-field schemas; the helpers they rely on are import-free in
  * `contact-format.ts`. */

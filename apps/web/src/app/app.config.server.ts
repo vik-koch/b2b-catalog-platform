@@ -5,16 +5,17 @@ import {
 } from '@angular/common/http';
 import { ApplicationConfig, mergeApplicationConfig } from '@angular/core';
 import { provideServerRendering, withRoutes } from '@angular/ssr';
+
 import { requireEnv } from '../env';
 import { appConfig } from './app.config';
-import { provideServerTexts } from './app.texts.server';
 import { provideServerDeploymentConfig } from './app.deployment-config.server';
-import { provideServerSuggestionsEnabled } from './platform/config/suggestions-enabled.server';
 import { serverRoutes } from './app.routes.server';
+import { provideServerTexts } from './app.texts.server';
 import {
   forwardSession,
   forwardVisitorAddress,
 } from './platform/auth/forward-session.server';
+import { provideServerSuggestionsEnabled } from './platform/config/suggestions-enabled.server';
 import { keepPagePrivate } from './platform/private-page.server';
 
 const serverConfig: ApplicationConfig = {

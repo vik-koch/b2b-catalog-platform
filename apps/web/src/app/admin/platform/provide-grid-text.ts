@@ -1,6 +1,8 @@
 import { inject, Provider } from '@angular/core';
-import { ADMIN_TEXT } from '../../platform/config/admin-text';
+
 import { GRID_TEXT, GridText } from '@b2b-catalog-platform/ui/grid/grid-text';
+
+import { ADMIN_TEXT } from '../../platform/config/admin-text';
 
 /** The grid's words. Lazy: only a grid injects it, after the admin guard. */
 export function provideGridText(): Provider {

@@ -1,29 +1,31 @@
-import { defaultAdminExchangeText } from './exchange-text.fixture';
-import { SHARED_TEXT } from '../../platform/config/shared-text';
-import { defaultSharedText } from '../../platform/config/shared-text.fixture';
+import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+
 import {
-  CustomerSyncPlan,
   CatalogSyncPlan,
+  CustomerSyncPlan,
+  SyncArea,
   SyncRun,
   SyncSummary,
 } from '@b2b-catalog-platform/shared/core/exchange';
-import { signal } from '@angular/core';
-import { SyncArea } from '@b2b-catalog-platform/shared/core/exchange';
-import { AuthService } from '../../platform/auth/auth.service';
+import { AuthUser } from '@b2b-catalog-platform/shared/platform';
+import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
+
 import { adminUser, managerUser } from '../../platform/auth/auth-user.fixture';
-import { provideOwnership } from '../platform/ownership/ownership.fixture';
+import { AuthService } from '../../platform/auth/auth.service';
 import { ADMIN_TEXT } from '../../platform/config/admin-text';
 import { defaultAdminText } from '../../platform/config/admin-text.fixture';
-import { STOREFRONT_TEXT } from '../../platform/config/storefront-text';
-import { defaultStorefrontText } from '../../platform/config/storefront-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
 import { defaultDeploymentConfig } from '../../platform/config/deployment-config.fixture';
-import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
+import { SHARED_TEXT } from '../../platform/config/shared-text';
+import { defaultSharedText } from '../../platform/config/shared-text.fixture';
+import { STOREFRONT_TEXT } from '../../platform/config/storefront-text';
+import { defaultStorefrontText } from '../../platform/config/storefront-text.fixture';
+import { provideOwnership } from '../platform/ownership/ownership.fixture';
+import { defaultAdminExchangeText } from './exchange-text.fixture';
 import { SyncRunPage } from './sync-run-page';
 import { SyncService } from './sync.service';
-import { AuthUser } from '@b2b-catalog-platform/shared/platform';
 
 const text = defaultAdminExchangeText.sync;
 const ownershipText = defaultAdminExchangeText.ownership;

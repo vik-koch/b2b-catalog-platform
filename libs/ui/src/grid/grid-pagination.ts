@@ -1,4 +1,5 @@
 import { Component, input } from '@angular/core';
+
 import { Pagination } from '../lists/pagination';
 
 /** Where a paged list stands. */

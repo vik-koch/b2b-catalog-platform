@@ -1,6 +1,8 @@
 import { Reflector } from '@nestjs/core';
 import { TestingModuleBuilder } from '@nestjs/testing';
+
 import { UserRole } from '@b2b-catalog-platform/shared/platform';
+
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { OptionalAuthGuard } from './optional-auth.guard';
 import { RolesGuard } from './roles.guard';

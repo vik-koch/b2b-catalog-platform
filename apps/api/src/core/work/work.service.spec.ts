@@ -1,12 +1,14 @@
 import { SQL } from 'drizzle-orm';
 import { PgDialect } from 'drizzle-orm/pg-core';
-import { documents, products } from '../catalog/catalog-schema';
-import { users } from '../accounts/accounts-schema';
-import { orders } from '../ordering/ordering-schema';
-import { syncRuns } from '../exchange/exchange-schema';
-import { WorkService } from './work.service';
+
 import { AuthUser } from '@b2b-catalog-platform/shared/platform';
+
 import { Database } from '../../platform/db/database';
+import { users } from '../accounts/accounts-schema';
+import { documents, products } from '../catalog/catalog-schema';
+import { syncRuns } from '../exchange/exchange-schema';
+import { orders } from '../ordering/ordering-schema';
+import { WorkService } from './work.service';
 
 interface Ask {
   table: unknown;

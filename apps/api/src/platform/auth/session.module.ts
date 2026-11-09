@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
+
 import { loadSessionIdleDays } from '../config/deployment-config';
 import { env } from '../env';
 import { JwtAuthGuard } from './jwt-auth.guard';

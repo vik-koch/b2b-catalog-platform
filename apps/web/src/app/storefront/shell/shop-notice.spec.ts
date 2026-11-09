@@ -1,6 +1,8 @@
 import { TestBed } from '@angular/core/testing';
-import { ShopNotice as Notice } from '@b2b-catalog-platform/shared/platform';
+
 import type { DeploymentConfigFile } from '@b2b-catalog-platform/shared/deployment';
+import { ShopNotice as Notice } from '@b2b-catalog-platform/shared/platform';
+
 import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
 import { defaultDeploymentConfig } from '../../platform/config/deployment-config.fixture';
 import { ShopNotice } from './shop-notice';

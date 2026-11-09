@@ -1,5 +1,5 @@
-import { DestroyRef, inject, PLATFORM_ID, signal, Signal } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
+import { DestroyRef, inject, PLATFORM_ID, signal, Signal } from '@angular/core';
 
 /**
  * Whether the pointer is a finger rather than a mouse; no width query can tell.

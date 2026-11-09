@@ -1,5 +1,5 @@
 import { ViewportScroller } from '@angular/common';
-import { ApplicationRef, DestroyRef, Injectable, inject } from '@angular/core';
+import { ApplicationRef, DestroyRef, inject, Injectable } from '@angular/core';
 import { NavigationStart, Router, Scroll } from '@angular/router';
 
 /** How long a back step waits for its page before giving up on the offset. */

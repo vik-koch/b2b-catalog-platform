@@ -8,16 +8,18 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+
 import { ORDER_DOCUMENT_MAX_UPLOAD_BYTES } from '@b2b-catalog-platform/shared/core/ordering';
 import { AuthUser } from '@b2b-catalog-platform/shared/platform';
-import { Auth } from '../../platform/auth/auth.decorator';
-import { CurrentUser } from '../../platform/auth/current-user.decorator';
+
 import {
   OrderDocumentActs,
   orderDocumentKind,
 } from '../../core/ordering/order-document-acts';
-import { OrderReader } from '../../core/ordering/order-reader';
 import { ordersExternallyOwned } from '../../core/ordering/order-ownership-refusals';
+import { OrderReader } from '../../core/ordering/order-reader';
+import { Auth } from '../../platform/auth/auth.decorator';
+import { CurrentUser } from '../../platform/auth/current-user.decorator';
 import { OwnershipState } from '../../platform/settings/ownership-state';
 
 /**

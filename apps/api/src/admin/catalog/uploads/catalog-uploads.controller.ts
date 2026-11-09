@@ -9,6 +9,11 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+
+import {
+  UploadCatalogImageResponse,
+  UploadDocumentResponse,
+} from '@b2b-catalog-platform/shared/admin/catalog';
 import {
   DOCUMENT_FILE_NAME_MAX_LENGTH,
   DOCUMENT_MAX_UPLOAD_BYTES,
@@ -16,21 +21,18 @@ import {
   MEDIA_CATALOG_THUMB_WIDTH,
   MEDIA_MAX_UPLOAD_BYTES,
 } from '@b2b-catalog-platform/shared/platform';
-import {
-  UploadCatalogImageResponse,
-  UploadDocumentResponse,
-} from '@b2b-catalog-platform/shared/admin/catalog';
+
 import { Auth } from '../../../platform/auth/auth.decorator';
-import { MEDIA_STORE, MediaStore } from '../../../platform/media/media-store';
 import {
   documentExtension,
   sniffAcceptedDocument,
 } from '../../../platform/media/document-content-type';
-import { readImageUpload } from '../../../platform/media/image-upload';
 import {
   processImage,
   STORED_IMAGE_EXT,
 } from '../../../platform/media/image-processing';
+import { readImageUpload } from '../../../platform/media/image-upload';
+import { MEDIA_STORE, MediaStore } from '../../../platform/media/media-store';
 
 /** The catalog's uploads: product and category pictures, and documents. */
 @Controller('media')

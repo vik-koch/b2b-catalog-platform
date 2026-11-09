@@ -1,13 +1,13 @@
-import { ACCOUNTS_CONFIG } from '../../../core/accounts/accounts-config';
 import { computed, inject, Signal } from '@angular/core';
+
+import { OrderDetail } from '@b2b-catalog-platform/shared/core/ordering';
 import {
   formatMoneyMinor,
   moneyFormat,
 } from '@b2b-catalog-platform/shared/platform';
-import { OrderDetail } from '@b2b-catalog-platform/shared/core/ordering';
+
+import { ACCOUNTS_CONFIG } from '../../../core/accounts/accounts-config';
 import { useTaxStatement } from '../../../core/catalog/tax-statement';
-import { SHARED_TEXT } from '../../../platform/config/shared-text';
-import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import {
   injectCustomerBlockLabels,
   orderBlocks,
@@ -17,6 +17,8 @@ import {
   ReadBackLine,
   ReviewBlock,
 } from '../../../core/ordering/ui/order-read-back';
+import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
 
 /** What a customer's order page reads back; call in an injection context. */
 export function useCustomerOrderView(order: Signal<OrderDetail | null>): {

@@ -1,15 +1,17 @@
-import { defaultSharedAccountsText } from '../accounts-text.fixture';
-import { TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
 import { form } from '@angular/forms/signals';
-import { SHARED_TEXT } from '../../../platform/config/shared-text';
-import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
-import { AddressSuggestInput } from './address-suggest-input';
-import { AddressesService } from './addresses.service';
+
 import {
   AddressComponents,
   AddressSuggestion,
 } from '@b2b-catalog-platform/shared/core/accounts';
+
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
+import { defaultSharedAccountsText } from '../accounts-text.fixture';
+import { AddressSuggestInput } from './address-suggest-input';
+import { AddressesService } from './addresses.service';
 
 const text = defaultSharedAccountsText.address;
 

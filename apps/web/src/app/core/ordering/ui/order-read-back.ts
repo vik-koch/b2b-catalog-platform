@@ -1,6 +1,7 @@
-import { SHARED_ORDERING_TEXT } from '../ordering-text';
 import { Component, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
+
+import { SHARED_ORDERING_TEXT } from '../ordering-text';
 
 /**
  * An order read back: its lines, then one block per question it answers. The

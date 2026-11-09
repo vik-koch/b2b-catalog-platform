@@ -6,9 +6,10 @@
 
 import { and, eq, inArray, or, SQL, sql } from 'drizzle-orm';
 import { PgColumn } from 'drizzle-orm/pg-core';
-import { productPairings, products } from './catalog-schema';
-import { qualified } from '../../platform/db/sql-columns';
+
 import { Database } from '../../platform/db/database';
+import { qualified } from '../../platform/db/sql-columns';
+import { productPairings, products } from './catalog-schema';
 
 /**
  * How many products a customer could add alongside the row being selected: a

@@ -1,10 +1,10 @@
+import { Database } from './db/database';
+import { destructionRecords } from './db/schema';
 import {
   DestructionCategory,
   DestructionReason,
   DestructionSubject,
 } from './destruction';
-import { destructionRecords } from './db/schema';
-import { Database } from './db/database';
 
 type Writer = Pick<Database, 'insert'>;
 

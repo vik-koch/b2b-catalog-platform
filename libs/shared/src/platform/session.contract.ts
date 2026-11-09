@@ -1,9 +1,10 @@
 import { oc } from '@orpc/contract';
 import * as z from 'zod';
+
+import { acknowledgementSchema } from './acknowledgement.contract';
 import { commonAuthErrors } from './api-error';
 import { storedEmailField } from './contact-config';
 import { USER_ROLES } from './session';
-import { acknowledgementSchema } from './acknowledgement.contract';
 
 export const userRoleSchema = z.enum(USER_ROLES);
 

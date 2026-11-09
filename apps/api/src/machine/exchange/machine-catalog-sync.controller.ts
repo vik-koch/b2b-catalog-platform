@@ -1,13 +1,15 @@
 import { Controller } from '@nestjs/common';
 import { Implement, implement } from '@orpc/nest';
+
 import { machineCatalogSyncContract } from '@b2b-catalog-platform/shared/machine/exchange';
+
+import { ExchangeMachine } from '../../core/exchange/api-token-lookup';
 import { CatalogSyncService } from '../../core/exchange/catalog-sync.service';
 import { SyncRunLog } from '../../core/exchange/sync-run-log';
-import { refusals } from '../../platform/orpc/refusals';
 import { CurrentMachine } from '../../platform/auth/current-machine.decorator';
-import { ExchangeMachine } from '../../core/exchange/api-token-lookup';
-import { Machine } from './machine.decorator';
+import { refusals } from '../../platform/orpc/refusals';
 import { MachineThrottle } from '../../platform/throttling/throttle-presets';
+import { Machine } from './machine.decorator';
 
 /**
  * The headless catalog sync (FR-ADM-07), on the upload's engine. No commit

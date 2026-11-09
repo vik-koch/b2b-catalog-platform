@@ -1,5 +1,6 @@
 import { Resource, ResourceStatus, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+
 import { stableValue } from './stable-value';
 
 /**

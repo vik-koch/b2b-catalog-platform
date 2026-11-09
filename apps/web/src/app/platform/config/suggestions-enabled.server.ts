@@ -1,4 +1,5 @@
 import { Provider } from '@angular/core';
+
 import { SUGGESTIONS_ENABLED } from './suggestions-enabled';
 
 export function getSuggestionsEnabled(): boolean {

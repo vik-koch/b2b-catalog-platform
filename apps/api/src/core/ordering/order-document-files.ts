@@ -1,10 +1,11 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { eq, inArray } from 'drizzle-orm';
+
+import { Database } from '../../platform/db/database';
 import { DRIZZLE } from '../../platform/db/database.module';
-import { orderDocuments, orders } from './ordering-schema';
 import { MEDIA_STORE, MediaStore } from '../../platform/media/media-store';
 import { OrderIds } from './order-scrub';
-import { Database } from '../../platform/db/database';
+import { orderDocuments, orders } from './ordering-schema';
 
 /**
  * Deletes the files supplied for orders whose personal details go (FR-AUTH-06,

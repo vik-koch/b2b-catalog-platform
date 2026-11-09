@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
-import { loadRetention, RETENTION } from './retention-config';
+
 import { MediaModule } from '../../platform/media/media.module';
 import { OrderDocumentFiles } from '../ordering/order-document-files';
+import { loadRetention, RETENTION } from './retention-config';
 import { RetentionSweep } from './retention-sweep';
 
 @Module({

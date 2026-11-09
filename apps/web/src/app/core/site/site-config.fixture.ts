@@ -1,9 +1,10 @@
-import type { DeploymentConfigFile } from '@b2b-catalog-platform/shared/deployment';
-import { defaultDeploymentConfig } from '../../platform/config/deployment-config.fixture';
 import {
   SITE_AREA,
   type SiteConfig,
 } from '@b2b-catalog-platform/shared/core/site';
+import type { DeploymentConfigFile } from '@b2b-catalog-platform/shared/deployment';
+
+import { defaultDeploymentConfig } from '../../platform/config/deployment-config.fixture';
 
 /** The fixture's deployment config with the site's block changed. */
 export function withSite(

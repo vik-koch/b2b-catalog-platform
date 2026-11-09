@@ -6,8 +6,9 @@
  */
 import { oc } from '@orpc/contract';
 import * as z from 'zod';
-import { machineAuthErrors } from '../../core/exchange/machine-auth.contract';
+
 import { customerTypeSchema } from '../../core/accounts/users.contract';
+import { machineAuthErrors } from '../../core/exchange/machine-auth.contract';
 
 /** One page, and the default limit. */
 const CUSTOMER_READ_MAX_LIMIT = 200;

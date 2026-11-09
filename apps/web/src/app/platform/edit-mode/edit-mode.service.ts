@@ -1,3 +1,4 @@
+import { isPlatformBrowser } from '@angular/common';
 import {
   computed,
   effect,
@@ -6,7 +7,7 @@ import {
   PLATFORM_ID,
   signal,
 } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
+
 import { AuthService } from '../auth/auth.service';
 import { ADMIN_TEXT_LOADED, loadAdminText } from '../config/admin-text';
 

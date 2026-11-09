@@ -1,7 +1,9 @@
 import { Component, inject, input } from '@angular/core';
+
+import { Outcome } from '@b2b-catalog-platform/ui/content/outcome';
+
 import { STOREFRONT_TEXT } from '../../platform/config/storefront-text';
 import { setResponseStatus } from './response-status';
-import { Outcome } from '@b2b-catalog-platform/ui/content/outcome';
 
 /** A page whose data could not be loaded, as a 503: a 200 would invite a
  * crawler to index the apology and tell every monitor the site is healthy. */

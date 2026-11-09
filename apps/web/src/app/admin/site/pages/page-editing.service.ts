@@ -1,11 +1,13 @@
 import { Injectable } from '@angular/core';
-import { Page, PageSlug } from '@b2b-catalog-platform/shared/core/site';
+
 import {
   PageVersion,
   UpdatePageRequest,
 } from '@b2b-catalog-platform/shared/admin/site';
-import { adminPagesContract } from '../contract-routes.generated';
+import { Page, PageSlug } from '@b2b-catalog-platform/shared/core/site';
+
 import { createOrpcClient } from '../../../platform/orpc-client';
+import { adminPagesContract } from '../contract-routes.generated';
 
 /** Writing a page and reading its history; reading a page is `PageService`. */
 @Injectable({ providedIn: 'root' })

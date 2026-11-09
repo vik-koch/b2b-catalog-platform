@@ -1,10 +1,11 @@
 import { ORDER_STATUSES } from '@b2b-catalog-platform/shared/core/ordering';
+
 import {
-  OrderStatusLabels,
   orderStatusLabel,
+  OrderStatusLabels,
   orderStatusTone,
-  StaffPaymentLabels,
   staffPaymentBadge,
+  StaffPaymentLabels,
 } from './order-status';
 
 const labels: OrderStatusLabels = {

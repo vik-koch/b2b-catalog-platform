@@ -1,7 +1,8 @@
 import { Component, input } from '@angular/core';
-import { Card } from './card';
-import { Icon } from '../icons/icon';
+
 import { Glyph } from '../icons/glyph';
+import { Icon } from '../icons/icon';
+import { Card } from './card';
 
 /**
  * A card whose glyph marks what kind of thing it holds, the content beside

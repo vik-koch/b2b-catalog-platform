@@ -1,4 +1,3 @@
-import { ADMIN_ACCOUNTS_TEXT } from '../accounts-text';
 import {
   Component,
   computed,
@@ -10,9 +9,30 @@ import {
 } from '@angular/core';
 import { form, hidden } from '@angular/forms/signals';
 import { Router } from '@angular/router';
+
+import {
+  ConsentRecord,
+  FindConsentsQuery,
+} from '@b2b-catalog-platform/shared/admin/accounts';
+import { CONSENT_WITHDRAWAL_NOTE_MAX } from '@b2b-catalog-platform/shared/core/site';
 import { fillText } from '@b2b-catalog-platform/shared/platform';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
+import {
+  Segmented,
+  SegmentOption,
+} from '@b2b-catalog-platform/ui/choices/segmented';
+import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
+import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
+import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
+import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
+import { Input } from '@b2b-catalog-platform/ui/inputs/input';
+import { PhoneInput } from '@b2b-catalog-platform/ui/inputs/phone-input';
+import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
+
 import { ADMIN_TEXT } from '../../../platform/config/admin-text';
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import {
   canonicalPhone,
   formatPhone,
@@ -21,28 +41,10 @@ import {
 import { delayedLoading } from '../../../platform/delayed-loading';
 import { completeMask, emailAddress } from '../../../platform/field-rules';
 import { usePageSeo } from '../../../platform/page-seo';
-import { Button } from '@b2b-catalog-platform/ui/actions/button';
-import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
-import { Input } from '@b2b-catalog-platform/ui/inputs/input';
-import { PhoneInput } from '@b2b-catalog-platform/ui/inputs/phone-input';
-import {
-  Segmented,
-  SegmentOption,
-} from '@b2b-catalog-platform/ui/choices/segmented';
-import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
-import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import { adminDayFormat } from '../../platform/dates/admin-date';
+import { ADMIN_ACCOUNTS_TEXT } from '../accounts-text';
 import { ConsentRecordList } from './consent-record-list';
 import { ConsentsService } from './consents.service';
-import { SHARED_TEXT } from '../../../platform/config/shared-text';
-import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
-import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
-import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
-import { CONSENT_WITHDRAWAL_NOTE_MAX } from '@b2b-catalog-platform/shared/core/site';
-import {
-  ConsentRecord,
-  FindConsentsQuery,
-} from '@b2b-catalog-platform/shared/admin/accounts';
 
 type SearchBy = 'email' | 'phone';
 

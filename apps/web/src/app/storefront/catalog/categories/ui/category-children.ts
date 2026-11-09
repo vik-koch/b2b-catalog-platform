@@ -1,5 +1,6 @@
 import { Component, computed, input, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
+
 import { categoryDisplayName } from '@b2b-catalog-platform/shared/core/catalog';
 import { CategoryNode } from '@b2b-catalog-platform/shared/storefront/catalog';
 import { ShowMoreList } from '@b2b-catalog-platform/ui/disclosure/show-more-list';

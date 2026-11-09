@@ -2,14 +2,15 @@ import { readFileSync } from 'node:fs';
 import { hash } from '@node-rs/argon2';
 import axios from 'axios';
 import { Client } from 'pg';
-import { priceProduct } from '../support/catalog-fixture';
-import { configFile, requireEnv } from '../support/env';
-import { JourneyRun } from '../support/journey/journey';
+
 import {
   orderJourneyAdapter,
   OrderJourneyContext,
 } from '../journeys/orders.adapter';
 import { orderJourneys } from '../journeys/orders.journeys';
+import { priceProduct } from '../support/catalog-fixture';
+import { configFile, requireEnv } from '../support/env';
+import { JourneyRun } from '../support/journey/journey';
 
 /**
  * An order's life, walked end to end (FR-ORD-01…04, FR-NOTIF-03).

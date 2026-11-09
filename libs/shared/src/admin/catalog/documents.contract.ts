@@ -7,6 +7,8 @@
 
 import { oc } from '@orpc/contract';
 import * as z from 'zod';
+
+import { acknowledgementSchema } from '../../platform/acknowledgement.contract';
 import { commonAuthErrors } from '../../platform/api-error';
 import {
   ACCEPTED_DOCUMENT_MIME_TYPES,
@@ -19,7 +21,6 @@ import {
   type DocumentErrorCode,
 } from './documents';
 import { linkedProductSchema } from './linked-product.contract';
-import { acknowledgementSchema } from '../../platform/acknowledgement.contract';
 
 /**
  * A stored file as the upload hands it back and a document row keeps it. The

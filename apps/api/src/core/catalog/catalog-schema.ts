@@ -18,8 +18,10 @@ import {
   uuid,
   varchar,
 } from 'drizzle-orm/pg-core';
-import { identities } from '../../platform/db/schema';
+
 import { PRODUCT_AVAILABILITIES } from '@b2b-catalog-platform/shared/core/catalog';
+
+import { identities } from '../../platform/db/schema';
 
 /** Postgres `tsvector`, which drizzle lacks. Written only by the database and
  * read only by the index, so a plain string is enough. */

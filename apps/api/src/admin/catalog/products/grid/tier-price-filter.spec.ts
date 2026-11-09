@@ -1,5 +1,6 @@
-import { drizzle } from 'drizzle-orm/node-postgres';
 import { and } from 'drizzle-orm';
+import { drizzle } from 'drizzle-orm/node-postgres';
+
 import { products } from '../../../../core/catalog/catalog-schema';
 import { tierPriceCondition } from './tier-price-filter';
 

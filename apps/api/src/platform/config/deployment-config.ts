@@ -2,22 +2,24 @@
  * `deployment.json` and `api.json`, read once at boot. Each part a service
  * needs is provided under a token, so a spec hands one over without a file.
  */
+import { join } from 'node:path';
+import * as z from 'zod';
+
+import { configPath, loadConfig } from '@b2b-catalog-platform/shared/node';
 import {
-  companyIdMatchesAny,
-  KeyboardLayout,
   CompanyIdFormat,
-  normalizePhone,
-  PhoneConfig,
+  companyIdMatchesAny,
   deploymentConfigShape,
+  KeyboardLayout,
   MoneyFormat,
   moneyFormat,
+  normalizePhone,
+  PhoneConfig,
   shopTimeZone,
 } from '@b2b-catalog-platform/shared/platform';
-import { configPath, loadConfig } from '@b2b-catalog-platform/shared/node';
+
 import { DEFAULT_SESSION_IDLE_DAYS } from '../auth/session-config';
-import { join } from 'node:path';
 import { loadApiConfig } from './api-config';
-import * as z from 'zod';
 
 /** The parsed value, not the read-only view the web injects: services are
  * typed by the shared schemas. */

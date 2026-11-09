@@ -1,16 +1,18 @@
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { PDFDocument } from 'pdf-lib';
+
 import { AddressConfig } from '@b2b-catalog-platform/shared/core/accounts';
+
 import {
-  demoSharedText,
   demoMailBranding,
   demoPdfText,
+  demoSharedText,
 } from '../../platform/mail/mail-text.fixture';
-import { demoAdminOrder } from './order.fixture';
 import { PdfFaces } from '../../platform/pdf/pdf-faces';
 import { winAnsi } from '../../platform/pdf/pdf-sheet';
 import { OrderPdf } from './order-pdf';
+import { demoAdminOrder } from './order.fixture';
 
 /** A real TrueType face for the embedding path. The image ships none, so
  * this borrows the system's, and the case skips where there is none. */

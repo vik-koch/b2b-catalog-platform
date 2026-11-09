@@ -22,42 +22,44 @@ import {
   RouterLink,
 } from '@angular/router';
 import { filter } from 'rxjs';
-import {
-  fillText,
-  SEARCH_QUERY_MAX_LENGTH,
-} from '@b2b-catalog-platform/shared/platform';
+
 import {
   pieceFloor,
   ProductListItem,
 } from '@b2b-catalog-platform/shared/core/catalog';
-import { SearchCategory } from '@b2b-catalog-platform/shared/storefront/catalog';
 import {
-  CartAddResult,
-  ProductCart,
-} from '../../../core/catalog/buying/product-cart';
-import { CatalogSearchService } from './catalog-search.service';
-import { CategoryChip } from '../ui/category-chip';
-import { ImagePlaceholder } from '@b2b-catalog-platform/ui/content/image-placeholder';
-import { useProductUnits } from '../../../core/catalog/buying/product-units-view';
-import { MobileSearch } from '../../platform/mobile-search';
-import { currentUrl } from '../../../platform/current-url';
-import { debounced } from '@b2b-catalog-platform/ui/core/debounced';
-import { HighlightedLine } from '@b2b-catalog-platform/ui/suggest/highlighted-line';
-import { MatchSegmentsPipe } from '../../../platform/search/match-segments.pipe';
-import { AlternateLayout } from '../../../platform/alternate-layout';
+  fillText,
+  SEARCH_QUERY_MAX_LENGTH,
+} from '@b2b-catalog-platform/shared/platform';
+import { SearchCategory } from '@b2b-catalog-platform/shared/storefront/catalog';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
-import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import { Frame } from '@b2b-catalog-platform/ui/content/frame';
+import { ImagePlaceholder } from '@b2b-catalog-platform/ui/content/image-placeholder';
 import { WarningNote } from '@b2b-catalog-platform/ui/content/warning-note';
+import { brokenImages } from '@b2b-catalog-platform/ui/core/broken-images';
+import { debounced } from '@b2b-catalog-platform/ui/core/debounced';
 import { chevronRightIcon } from '@b2b-catalog-platform/ui/icons/glyphs/chevron-right';
 import { circleCheckIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-check';
 import { searchIcon } from '@b2b-catalog-platform/ui/icons/glyphs/search';
 import { shoppingBasketIcon } from '@b2b-catalog-platform/ui/icons/glyphs/shopping-basket';
 import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
-import { Frame } from '@b2b-catalog-platform/ui/content/frame';
-import { brokenImages } from '@b2b-catalog-platform/ui/core/broken-images';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import { HighlightedLine } from '@b2b-catalog-platform/ui/suggest/highlighted-line';
+
+import {
+  CartAddResult,
+  ProductCart,
+} from '../../../core/catalog/buying/product-cart';
+import { useProductUnits } from '../../../core/catalog/buying/product-units-view';
 import { SHARED_CATALOG_TEXT } from '../../../core/catalog/catalog-text';
+import { AlternateLayout } from '../../../platform/alternate-layout';
+import { currentUrl } from '../../../platform/current-url';
+import { MatchSegmentsPipe } from '../../../platform/search/match-segments.pipe';
+import { MobileSearch } from '../../platform/mobile-search';
 import { STOREFRONT_CATALOG_TEXT } from '../catalog-text';
+import { CategoryChip } from '../ui/category-chip';
+import { CatalogSearchService } from './catalog-search.service';
 
 /** Long enough that a fast typist produces one request per word rather than
  * one per letter, short enough that a pause feels answered immediately. */

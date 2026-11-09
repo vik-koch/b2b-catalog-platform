@@ -8,6 +8,7 @@ import {
   CustomerSyncRowError,
   customerSyncRowSchema,
 } from '@b2b-catalog-platform/shared/core/exchange';
+
 import {
   canonicalColumns,
   cellReader,

@@ -1,8 +1,9 @@
-import { accountsMail } from './accounts-mail-text';
-import { SharedText, fillText } from '@b2b-catalog-platform/shared/platform';
+import { formatPersonName } from '@b2b-catalog-platform/shared/core/accounts';
+import { fillText, SharedText } from '@b2b-catalog-platform/shared/platform';
+
 import { MailContent } from '../../../platform/mail/mail-layout';
 import { MailText } from '../../../platform/mail/mail-text';
-import { formatPersonName } from '@b2b-catalog-platform/shared/core/accounts';
+import { accountsMail } from './accounts-mail-text';
 
 /** The account as it was before it went. */
 export interface ClosedAccountSummary {

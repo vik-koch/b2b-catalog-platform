@@ -1,4 +1,5 @@
 import { ActivatedRouteSnapshot, ViewTransitionInfo } from '@angular/router';
+
 import { routePath, skipInPageTransitions } from './in-page-transitions';
 
 /** Only what routePath reads: the segments and the first child. */

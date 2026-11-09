@@ -1,4 +1,5 @@
 import { API_TOKEN_PREFIX_LENGTH } from '@b2b-catalog-platform/shared/platform';
+
 import { bearerToken, generateToken, hashToken } from './api-token-value';
 
 describe('generateToken', () => {

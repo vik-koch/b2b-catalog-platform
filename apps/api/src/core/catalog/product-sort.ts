@@ -7,7 +7,9 @@
 
 import { asc, desc, sql, SQL } from 'drizzle-orm';
 import { PgColumn } from 'drizzle-orm/pg-core';
+
 import { SearchSort } from '@b2b-catalog-platform/shared/core/catalog';
+
 import { products } from './catalog-schema';
 import { resolvedPriceMinor } from './product-price';
 

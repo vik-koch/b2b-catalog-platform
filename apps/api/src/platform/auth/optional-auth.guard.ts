@@ -1,5 +1,6 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import type { Response } from 'express';
+
 import { toAuthUser } from './auth-user';
 import { AuthenticatedRequest } from './authenticated-request';
 import { Sessions } from './sessions';

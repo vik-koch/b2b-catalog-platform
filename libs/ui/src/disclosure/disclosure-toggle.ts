@@ -1,6 +1,7 @@
 import { Component, input, output } from '@angular/core';
-import { Icon } from '../icons/icon';
+
 import { chevronDownIcon } from '../icons/glyphs/chevron-down';
+import { Icon } from '../icons/icon';
 
 /**
  * The button that opens a panel of controls in place: a name, how many

@@ -1,11 +1,11 @@
 /** What every docs generator needs: loading the TypeScript it reads, and
  * writing so CI can verify. `--check` compares bytes, so generated files stay
  * out of Prettier's reach (.prettierignore). */
-import { build } from 'esbuild';
 import { execFileSync } from 'node:child_process';
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { build } from 'esbuild';
 
 const SHARED = '@b2b-catalog-platform/shared';
 

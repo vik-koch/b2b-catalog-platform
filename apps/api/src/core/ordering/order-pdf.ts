@@ -1,32 +1,6 @@
-import { sharedOrderingText, orderingPdf } from './ordering-text';
-import {
-  SharedText,
-  fillText,
-  formatMoneyMinor,
-  MoneyFormat,
-} from '@b2b-catalog-platform/shared/platform';
-import {
-  orderLineTax,
-  orderLinesDifferInTax,
-  orderTaxStatement,
-} from './mail/order-items';
-import {
-  OrderAddress,
-  OrderDetail,
-} from '@b2b-catalog-platform/shared/core/ordering';
 import { Inject, Injectable } from '@nestjs/common';
 import { PDFDocument } from 'pdf-lib';
-import {
-  MONEY_FORMAT,
-  SHOP_TIME_ZONE,
-} from '../../platform/config/deployment-config';
-import { ADDRESS_CONFIG } from '../accounts/accounts-config';
-import { MAIL_BRANDING, MailBranding } from '../../platform/mail/mail-branding';
-import { SHARED_TEXT } from '../../platform/config/shared-text';
-import { PdfFaces } from '../../platform/pdf/pdf-faces';
-import { PDF_TEXT, PdfText } from '../../platform/pdf/pdf-text';
-import { Sheet } from '../../platform/pdf/pdf-sheet';
-import { shopDay } from '@b2b-catalog-platform/shared/platform';
+
 import {
   addressLines,
   type AddressConfig,
@@ -35,7 +9,37 @@ import {
   CATALOG_AREA,
   type SharedCatalogText,
 } from '@b2b-catalog-platform/shared/core/catalog';
-import { sharedTextBlock } from '../../platform/config/shared-text';
+import {
+  OrderAddress,
+  OrderDetail,
+} from '@b2b-catalog-platform/shared/core/ordering';
+import {
+  fillText,
+  formatMoneyMinor,
+  MoneyFormat,
+  SharedText,
+  shopDay,
+} from '@b2b-catalog-platform/shared/platform';
+
+import {
+  MONEY_FORMAT,
+  SHOP_TIME_ZONE,
+} from '../../platform/config/deployment-config';
+import {
+  SHARED_TEXT,
+  sharedTextBlock,
+} from '../../platform/config/shared-text';
+import { MAIL_BRANDING, MailBranding } from '../../platform/mail/mail-branding';
+import { PdfFaces } from '../../platform/pdf/pdf-faces';
+import { Sheet } from '../../platform/pdf/pdf-sheet';
+import { PDF_TEXT, PdfText } from '../../platform/pdf/pdf-text';
+import { ADDRESS_CONFIG } from '../accounts/accounts-config';
+import {
+  orderLinesDifferInTax,
+  orderLineTax,
+  orderTaxStatement,
+} from './mail/order-items';
+import { orderingPdf, sharedOrderingText } from './ordering-text';
 
 /**
  * The order summary the platform draws (FR-ORD-05, FR-ACC-02), from

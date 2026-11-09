@@ -6,12 +6,14 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import type { Request, Response } from 'express';
+
+import { passesMaintenance } from '@b2b-catalog-platform/shared/core/site';
+
 import { MachineScope } from '../../platform/auth/machine-scope.decorator';
 import { Roles } from '../../platform/auth/roles.decorator';
 import { Sessions } from '../../platform/auth/sessions';
-import { MaintenanceState } from './maintenance-state';
 import { MAINTENANCE_EXEMPT } from './maintenance-exempt.decorator';
-import { passesMaintenance } from '@b2b-catalog-platform/shared/core/site';
+import { MaintenanceState } from './maintenance-state';
 
 const RETRY_AFTER_SECONDS = 3600;
 

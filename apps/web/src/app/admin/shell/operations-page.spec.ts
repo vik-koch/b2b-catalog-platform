@@ -1,24 +1,26 @@
-import { defaultAdminExchangeText } from '../exchange/exchange-text.fixture';
-import { SHARED_TEXT } from '../../platform/config/shared-text';
-import { defaultSharedText } from '../../platform/config/shared-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+
 import { SettingChange } from '@b2b-catalog-platform/shared/admin/platform';
+import type { DeploymentConfigFile } from '@b2b-catalog-platform/shared/deployment';
 import {
   OWNERSHIP_AREAS,
   OwnershipArea,
 } from '@b2b-catalog-platform/shared/platform';
-import type { DeploymentConfigFile } from '@b2b-catalog-platform/shared/deployment';
+import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
+
 import { ADMIN_TEXT } from '../../platform/config/admin-text';
 import { defaultAdminText } from '../../platform/config/admin-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
-import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
-import { OwnershipService } from '../platform/ownership/ownership.service';
+import { SHARED_TEXT } from '../../platform/config/shared-text';
+import { defaultSharedText } from '../../platform/config/shared-text.fixture';
+import { defaultAdminExchangeText } from '../exchange/exchange-text.fixture';
 import { OwnershipSwitchService } from '../exchange/ownership-switch.service';
-import { MaintenanceSwitchService } from '../site/maintenance-switch.service';
+import { OwnershipService } from '../platform/ownership/ownership.service';
 import { SettingChangesService } from '../platform/setting-changes.service';
-import { OperationsPage } from './operations-page';
+import { MaintenanceSwitchService } from '../site/maintenance-switch.service';
 import { defaultAdminSiteText } from '../site/site-text.fixture';
+import { OperationsPage } from './operations-page';
 
 const text = defaultAdminText.operations;
 const ownershipText = defaultAdminExchangeText.ownership;

@@ -1,7 +1,8 @@
 import { oc } from '@orpc/contract';
 import * as z from 'zod';
-import { commonAuthErrors } from '../../platform/api-error';
+
 import { maintenanceCheckSchema } from '../../core/site/maintenance.contract';
+import { commonAuthErrors } from '../../platform/api-error';
 
 export const setMaintenanceSchema = z
   .object({

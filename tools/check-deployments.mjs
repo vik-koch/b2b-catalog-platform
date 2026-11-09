@@ -18,6 +18,7 @@
  */
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
+
 import { loadTypeScript } from './lib/generated-docs.mjs';
 
 /** The config files, and the schema each is loaded with at boot. */

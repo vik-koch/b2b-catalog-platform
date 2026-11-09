@@ -1,18 +1,20 @@
-import { STOREFRONT_ORDERING_TEXT } from '../ordering-text';
 import { inject, Signal } from '@angular/core';
+
+import { AddressInput } from '@b2b-catalog-platform/shared/core/accounts';
 import {
   OrderContact,
   OrderSubmission,
 } from '@b2b-catalog-platform/shared/core/ordering';
+import { AccountProfile } from '@b2b-catalog-platform/shared/storefront/accounts';
+
 import { AddressForm } from '../../../core/accounts/addresses/address-form';
-import { CartService } from '../cart/cart.service';
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import { canonicalPhone } from '../../../platform/contact-fields';
+import { CartService } from '../cart/cart.service';
+import { STOREFRONT_ORDERING_TEXT } from '../ordering-text';
 import { SubmitOrderResult } from '../orders/orders.service';
 import { CheckoutDraft } from './checkout-draft';
 import { CheckoutForms } from './checkout-forms';
-import { AddressInput } from '@b2b-catalog-platform/shared/core/accounts';
-import { AccountProfile } from '@b2b-catalog-platform/shared/storefront/accounts';
 
 export interface SubmissionDeps {
   forms: CheckoutForms;

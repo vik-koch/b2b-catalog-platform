@@ -1,13 +1,14 @@
-import type { Mock } from 'vitest';
 import {
   ExecutionContext,
   ForbiddenException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { MachineTokens } from './machine-tokens';
+import type { Mock } from 'vitest';
+
 import { MachineClient, MachineRequest } from './machine-client';
 import { MachineTokenGuard } from './machine-token.guard';
+import { MachineTokens } from './machine-tokens';
 
 const client: MachineClient = {
   id: '00000000-0000-0000-0000-000000000001',

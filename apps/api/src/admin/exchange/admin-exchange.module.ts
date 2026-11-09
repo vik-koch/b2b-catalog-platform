@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
-import { AuditLogger } from '../../platform/audit/audit.logger';
+
 import { ExchangeCoreModule } from '../../core/exchange/exchange-core.module';
+import { AuditLogger } from '../../platform/audit/audit.logger';
 import { SessionModule } from '../../platform/auth/session.module';
 import { ApiTokensController } from './api-tokens.controller';
 import { ApiTokensService } from './api-tokens.service';

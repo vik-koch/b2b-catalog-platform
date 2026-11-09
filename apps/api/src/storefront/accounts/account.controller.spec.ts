@@ -1,18 +1,20 @@
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
-import { AccountController } from './account.controller';
-import { AccountDeletion } from '../../core/accounts/account-deletion';
-import { AuditLogger } from '../../platform/audit/audit.logger';
-import { UsersService } from '../../core/accounts/users.service';
-import { ACCOUNT_ORDERS } from '../../core/accounts/account-orders';
-import { AUTH_COOKIE } from '@b2b-catalog-platform/shared/platform';
-import { PHONE_RULE } from '../../platform/config/deployment-config';
-import { SignInStep } from '../../core/accounts/sign-in-step/sign-in-step';
+
 import {
-  SESSION_HINT_COOKIE,
+  AUTH_COOKIE,
   normalizePhone,
+  SESSION_HINT_COOKIE,
 } from '@b2b-catalog-platform/shared/platform';
+
+import { AccountDeletion } from '../../core/accounts/account-deletion';
+import { ACCOUNT_ORDERS } from '../../core/accounts/account-orders';
+import { SignInStep } from '../../core/accounts/sign-in-step/sign-in-step';
+import { UsersService } from '../../core/accounts/users.service';
+import { AuditLogger } from '../../platform/audit/audit.logger';
 import { SignedInAs, withSession } from '../../platform/auth/session.fixture';
+import { PHONE_RULE } from '../../platform/config/deployment-config';
+import { AccountController } from './account.controller';
 
 /**
  * Over a real server: the refusals here are the ones a form acts on, so what

@@ -7,10 +7,12 @@ import {
   RouterStateSnapshot,
   UrlTree,
 } from '@angular/router';
-import { AuthService } from './auth.service';
-import { guestOnly, requireAuth } from './auth.guard';
-import { adminUser as admin, plainUser } from './auth-user.fixture';
+
 import { AuthUser } from '@b2b-catalog-platform/shared/platform';
+
+import { adminUser as admin, plainUser } from './auth-user.fixture';
+import { guestOnly, requireAuth } from './auth.guard';
+import { AuthService } from './auth.service';
 
 function setup(user: AuthUser | null) {
   TestBed.configureTestingModule({

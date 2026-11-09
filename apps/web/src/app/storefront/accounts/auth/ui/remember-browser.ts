@@ -1,8 +1,10 @@
 import { Component, computed, inject, input, model } from '@angular/core';
 import type { FormCheckboxControl } from '@angular/forms/signals';
+
 import { fillText } from '@b2b-catalog-platform/shared/platform';
 import { Checkbox } from '@b2b-catalog-platform/ui/choices/checkbox';
 import { TickLabel } from '@b2b-catalog-platform/ui/choices/tick-label';
+
 import { STOREFRONT_ACCOUNTS_TEXT } from '../../accounts-text';
 
 /**

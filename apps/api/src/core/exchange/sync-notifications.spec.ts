@@ -1,11 +1,12 @@
-import { demoExchangeMailText } from './exchange-mail-text.fixture';
-import type { Mock, MockInstance } from 'vitest';
 import { Logger } from '@nestjs/common';
+import type { Mock, MockInstance } from 'vitest';
+
 import {
   SyncArea,
   SyncRun,
   SyncRunStatus,
 } from '@b2b-catalog-platform/shared/core/exchange';
+
 import { MailDispatcher } from '../../platform/mail/mail-dispatcher';
 import { dispatcherOver } from '../../platform/mail/mail-dispatcher.fixture';
 import {
@@ -13,6 +14,7 @@ import {
   demoMailText,
 } from '../../platform/mail/mail-text.fixture';
 import { NotificationAudiences } from '../../platform/mail/notification-audience';
+import { demoExchangeMailText } from './exchange-mail-text.fixture';
 import { SyncNotifications } from './sync-notifications';
 
 const ADMIN = 'admin@example.com';

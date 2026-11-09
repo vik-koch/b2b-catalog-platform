@@ -1,7 +1,8 @@
 import { oc } from '@orpc/contract';
 import * as z from 'zod';
-import { PARTY_QUERY_MAX_LENGTH } from './party';
+
 import { addressComponentsSchema } from './address.contract';
+import { PARTY_QUERY_MAX_LENGTH } from './party';
 
 /** An organisation, or a person trading as one, whose registered address is
  * usually their home and so never seeds an address. Absent counts as the latter. */

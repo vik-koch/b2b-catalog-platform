@@ -1,19 +1,19 @@
-import type { OrderingMailText } from './ordering-mail-text';
-import type { SharedOrderingText } from '@b2b-catalog-platform/shared/core/ordering';
-import { sharedOrderingText } from '../ordering-text';
-import { orderingMail } from './ordering-mail-text';
-import { SharedText, MoneyFormat } from '@b2b-catalog-platform/shared/platform';
 import {
   OrderDetail,
   OrderNotice,
+  type SharedOrderingText,
 } from '@b2b-catalog-platform/shared/core/ordering';
+import { MoneyFormat, SharedText } from '@b2b-catalog-platform/shared/platform';
+
 import { MailContent } from '../../../platform/mail/mail-layout';
 import { MailText } from '../../../platform/mail/mail-text';
+import { sharedOrderingText } from '../ordering-text';
 import {
   orderLinesDifferInTax,
   orderMailItem,
   orderMailTotal,
 } from './order-items';
+import { orderingMail, type OrderingMailText } from './ordering-mail-text';
 
 /** The states a customer is written to about: every one a move reaches. A
  * move reaches `requested` only when the shop reopens an order; arrival is

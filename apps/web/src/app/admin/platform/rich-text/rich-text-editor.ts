@@ -1,3 +1,4 @@
+import { NgTemplateOutlet } from '@angular/common';
 import {
   afterNextRender,
   afterRenderEffect,
@@ -12,9 +13,9 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import { NgTemplateOutlet } from '@angular/common';
 import { Editor } from '@tiptap/core';
 import StarterKit from '@tiptap/starter-kit';
+
 import {
   ACCEPTED_IMAGE_MIME_TYPES,
   isEmailAddress,
@@ -23,19 +24,10 @@ import {
   RICH_TEXT_IMAGE_SIZE_MIN_PERCENT,
   RICH_TEXT_LINK_SCHEMES,
 } from '@b2b-catalog-platform/shared/platform';
-import { ADMIN_TEXT } from '../../../platform/config/admin-text';
-import { injectNarrowScreen } from '@b2b-catalog-platform/ui/core/narrow-screen';
-import { HeaderCollapse } from '../../../platform/header-collapse';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
-import { DialogActions } from '@b2b-catalog-platform/ui/overlay/dialog-actions';
-import { DialogPanel } from '@b2b-catalog-platform/ui/overlay/dialog-panel';
-import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
-import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
-import { Input } from '@b2b-catalog-platform/ui/inputs/input';
-import { RichTextImage } from './rich-text-image';
-import { MediaService } from '../media/media.service';
-import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { injectNarrowScreen } from '@b2b-catalog-platform/ui/core/narrow-screen';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
+import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
 import { Hint } from '@b2b-catalog-platform/ui/fields/hint';
 import { Glyph } from '@b2b-catalog-platform/ui/icons/glyph';
 import { boldIcon } from '@b2b-catalog-platform/ui/icons/glyphs/bold';
@@ -52,6 +44,16 @@ import { squareSplitVerticalIcon } from '@b2b-catalog-platform/ui/icons/glyphs/s
 import { strikethroughIcon } from '@b2b-catalog-platform/ui/icons/glyphs/strikethrough';
 import { underlineIcon } from '@b2b-catalog-platform/ui/icons/glyphs/underline';
 import { unlinkIcon } from '@b2b-catalog-platform/ui/icons/glyphs/unlink';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import { Input } from '@b2b-catalog-platform/ui/inputs/input';
+import { DialogActions } from '@b2b-catalog-platform/ui/overlay/dialog-actions';
+import { DialogPanel } from '@b2b-catalog-platform/ui/overlay/dialog-panel';
+
+import { ADMIN_TEXT } from '../../../platform/config/admin-text';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { HeaderCollapse } from '../../../platform/header-collapse';
+import { MediaService } from '../media/media.service';
+import { RichTextImage } from './rich-text-image';
 
 type ImageAlign = (typeof RICH_TEXT_IMAGE_ALIGNMENTS)[number];
 

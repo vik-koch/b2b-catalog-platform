@@ -6,52 +6,53 @@ import {
   resource,
   signal,
 } from '@angular/core';
-import { RouterLink } from '@angular/router';
-import {
-  AttributeType,
-  ATTRIBUTE_TYPES,
-} from '@b2b-catalog-platform/shared/core/catalog';
 import { form, hidden, validate } from '@angular/forms/signals';
-import { fillText } from '@b2b-catalog-platform/shared/platform';
+import { RouterLink } from '@angular/router';
 
 import {
   AttributeDefinition,
   SLUG_MAX_LENGTH,
   SLUG_PATTERN,
 } from '@b2b-catalog-platform/shared/admin/catalog';
-import { ADMIN_TEXT } from '../../../platform/config/admin-text';
-import { usePageSeo } from '../../../platform/page-seo';
-import { useRowAnchor } from '../../platform/row-anchor';
-import { delayedLoading } from '../../../platform/delayed-loading';
+import {
+  ATTRIBUTE_TYPES,
+  AttributeType,
+} from '@b2b-catalog-platform/shared/core/catalog';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
-import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Link } from '@b2b-catalog-platform/ui/actions/link';
-import { Input } from '@b2b-catalog-platform/ui/inputs/input';
-import { filled } from '../../../platform/field-rules';
-import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
-import { submitAttempt } from '@b2b-catalog-platform/ui/fields/submit-attempt';
-import { SelectInput } from '@b2b-catalog-platform/ui/inputs/select-input';
+import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
-import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
-import { RecordFields } from '@b2b-catalog-platform/ui/lists/record-fields';
-import { RecordFormActions } from '@b2b-catalog-platform/ui/lists/record-form-actions';
-import { RecordRow } from '@b2b-catalog-platform/ui/lists/record-row';
-import { UnpublishedCount } from '../products/unpublished-count';
-import { AttributesService } from './attributes.service';
 import { WarningNote } from '@b2b-catalog-platform/ui/content/warning-note';
-import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
+import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
 import { Hint } from '@b2b-catalog-platform/ui/fields/hint';
+import { submitAttempt } from '@b2b-catalog-platform/ui/fields/submit-attempt';
 import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
 import { plusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/plus';
 import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
-import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import { Input } from '@b2b-catalog-platform/ui/inputs/input';
+import { SelectInput } from '@b2b-catalog-platform/ui/inputs/select-input';
+import { RecordFields } from '@b2b-catalog-platform/ui/lists/record-fields';
+import { RecordFormActions } from '@b2b-catalog-platform/ui/lists/record-form-actions';
+import { RecordRow } from '@b2b-catalog-platform/ui/lists/record-row';
+import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
+
+import { ADMIN_TEXT } from '../../../platform/config/admin-text';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { delayedLoading } from '../../../platform/delayed-loading';
+import { filled } from '../../../platform/field-rules';
+import { usePageSeo } from '../../../platform/page-seo';
+import { useRowAnchor } from '../../platform/row-anchor';
+import { CancelButton } from '../../platform/ui/cancel-button';
+import { SaveButton } from '../../platform/ui/save-button';
+import { ADMIN_CATALOG_TEXT } from '../catalog-text';
+import { UnpublishedCount } from '../products/unpublished-count';
 import { DragGrip } from '../ui/drag-grip';
 import { EditTarget, RecordList, SortEntry } from '../ui/record-list';
-import { SaveButton } from '../../platform/ui/save-button';
-import { CancelButton } from '../../platform/ui/cancel-button';
-import { ADMIN_CATALOG_TEXT } from '../catalog-text';
+import { AttributesService } from './attributes.service';
 
 /** The row open for editing; `{ id: null }` is the add form. */
 interface AttributeDraft {

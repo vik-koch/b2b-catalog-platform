@@ -1,4 +1,5 @@
 import * as z from 'zod';
+
 import { ACCEPTED_DOCUMENT_MIME_TYPES } from '../../platform/media';
 import { ATTRIBUTE_TYPES } from './attributes';
 import { PRODUCT_AVAILABILITIES } from './product-availability';

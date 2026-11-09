@@ -1,27 +1,29 @@
 import { Test } from '@nestjs/testing';
+
+import { CustomerType } from '@b2b-catalog-platform/shared/core/accounts';
+import { normalizePhone } from '@b2b-catalog-platform/shared/platform';
+import { RegisterRequest } from '@b2b-catalog-platform/shared/storefront/accounts';
+
+import { ACCEPTED_CUSTOMER_TYPES } from '../../core/accounts/accounts-config';
 import { AddressesService } from '../../core/accounts/addresses.service';
+import { PasswordService } from '../../core/accounts/password.service';
+import { UsersService } from '../../core/accounts/users.service';
 import { ConsentService } from '../../core/site/consent.service';
 import {
   COMPANY_ID_RULE,
   PHONE_INPUT,
   PHONE_RULE,
 } from '../../platform/config/deployment-config';
-import { ACCEPTED_CUSTOMER_TYPES } from '../../core/accounts/accounts-config';
-import { MAIL_TEXT } from '../../platform/mail/mail-text';
 import { SHARED_TEXT } from '../../platform/config/shared-text';
-import {
-  demoSharedText,
-  demoMailText,
-  demoPhoneInput,
-} from '../../platform/mail/mail-text.fixture';
 import { MailDispatcher } from '../../platform/mail/mail-dispatcher';
 import { dispatcherOver } from '../../platform/mail/mail-dispatcher.fixture';
-import { UsersService } from '../../core/accounts/users.service';
-import { PasswordService } from '../../core/accounts/password.service';
+import { MAIL_TEXT } from '../../platform/mail/mail-text';
+import {
+  demoMailText,
+  demoPhoneInput,
+  demoSharedText,
+} from '../../platform/mail/mail-text.fixture';
 import { RegistrationService } from './registration.service';
-import { CustomerType } from '@b2b-catalog-platform/shared/core/accounts';
-import { RegisterRequest } from '@b2b-catalog-platform/shared/storefront/accounts';
-import { normalizePhone } from '@b2b-catalog-platform/shared/platform';
 
 /** No caller can tell whether an address has an account: each test varies
  * what was written and mailed, never the answer. */

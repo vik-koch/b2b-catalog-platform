@@ -1,8 +1,8 @@
 import { products } from '../../core/catalog/catalog-schema';
 import { CategoryRow } from '../../core/catalog/catalog-tree';
 import { publiclyVisible } from '../../core/catalog/product-view';
-import { stockedCategoryIds } from './category-tree';
 import { Database } from '../../platform/db/database';
+import { stockedCategoryIds } from './category-tree';
 
 /** The categories worth linking to, read from where the visible products sit:
  * what is not stocked is not linked to. */

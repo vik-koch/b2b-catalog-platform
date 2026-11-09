@@ -1,6 +1,16 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import * as z from 'zod';
+
+import {
+  CUSTOMER_TYPES,
+  USER_STATUSES,
+} from '@b2b-catalog-platform/shared/core/accounts';
+import {
+  PRODUCT_UNITS,
+  TAX_BASES,
+} from '@b2b-catalog-platform/shared/core/catalog';
+import { API_TOKEN_SCOPES } from '@b2b-catalog-platform/shared/core/exchange';
 import {
   ORDER_STATUSES,
   PAYMENT_METHODS,
@@ -8,16 +18,9 @@ import {
 } from '@b2b-catalog-platform/shared/core/ordering';
 import { PAGE_SLUGS } from '@b2b-catalog-platform/shared/core/site';
 import {
-  PRODUCT_UNITS,
-  TAX_BASES,
-} from '@b2b-catalog-platform/shared/core/catalog';
-import { OWNERSHIP_AREAS } from '@b2b-catalog-platform/shared/platform';
-import { API_TOKEN_SCOPES } from '@b2b-catalog-platform/shared/core/exchange';
-import {
-  CUSTOMER_TYPES,
-  USER_STATUSES,
-} from '@b2b-catalog-platform/shared/core/accounts';
-import { USER_ROLES } from '@b2b-catalog-platform/shared/platform';
+  OWNERSHIP_AREAS,
+  USER_ROLES,
+} from '@b2b-catalog-platform/shared/platform';
 
 /**
  * A seed bundle: one demo shop's content as files, so the seed carries no

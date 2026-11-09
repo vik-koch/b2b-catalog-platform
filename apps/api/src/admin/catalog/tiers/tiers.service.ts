@@ -5,27 +5,29 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { and, asc, eq, inArray, isNull, ne, sql } from 'drizzle-orm';
+
 import {
   CustomerTier,
   ReorderTiersRequest,
   TierInput,
 } from '@b2b-catalog-platform/shared/admin/catalog';
-import { DRIZZLE } from '../../../platform/db/database.module';
-import { OWNED_TIER_FIELDS } from '../owned-fields';
+
+import { catalogExternallyOwned } from '../../../core/catalog/catalog-ownership-refusals';
 import {
   customerTiers,
   productPrices,
   products,
 } from '../../../core/catalog/catalog-schema';
+import { publiclyVisible } from '../../../core/catalog/product-view';
 import {
   TIER_ACCOUNTS,
   TierAccounts,
 } from '../../../core/catalog/tier-accounts';
-import { OwnershipState } from '../../../platform/settings/ownership-state';
-import { catalogExternallyOwned } from '../../../core/catalog/catalog-ownership-refusals';
-import { publiclyVisible } from '../../../core/catalog/product-view';
-import { tierPriceCondition } from '../products/grid/tier-price-filter';
 import { Database } from '../../../platform/db/database';
+import { DRIZZLE } from '../../../platform/db/database.module';
+import { OwnershipState } from '../../../platform/settings/ownership-state';
+import { OWNED_TIER_FIELDS } from '../owned-fields';
+import { tierPriceCondition } from '../products/grid/tier-price-filter';
 
 /** A function, so each throw gets its own stack. */
 const notFound = () =>

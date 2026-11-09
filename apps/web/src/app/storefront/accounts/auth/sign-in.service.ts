@@ -1,13 +1,6 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { safe } from '@orpc/client';
-import {
-  ConsentRefusalCode,
-  isConsentRefusal,
-} from '@b2b-catalog-platform/shared/core/site';
-import { authContract } from '../contract-routes.generated';
-import { createOrpcClient } from '../../../platform/orpc-client';
-import { AuthService } from '../../../platform/auth/auth.service';
-import { AuthUser } from '@b2b-catalog-platform/shared/platform';
+
 import {
   MAINTENANCE_REFUSED,
   PASSWORD_TOKEN_INVALID,
@@ -15,12 +8,21 @@ import {
   SignInStep,
 } from '@b2b-catalog-platform/shared/core/accounts';
 import {
+  ConsentRefusalCode,
+  isConsentRefusal,
+} from '@b2b-catalog-platform/shared/core/site';
+import { AuthUser } from '@b2b-catalog-platform/shared/platform';
+import {
   ChangePasswordRequest,
   LoginRequest,
   PasswordTokenPurpose,
   RegisterRequest,
   SetPasswordRequest,
 } from '@b2b-catalog-platform/shared/storefront/accounts';
+
+import { AuthService } from '../../../platform/auth/auth.service';
+import { createOrpcClient } from '../../../platform/orpc-client';
+import { authContract } from '../contract-routes.generated';
 
 /** Why a code could not go out: refused number, no provider, or the limit. */
 export type CodeSendFailure = 'unreachable' | 'unavailable' | 'limit';

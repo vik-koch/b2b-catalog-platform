@@ -1,19 +1,21 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { and, eq, inArray, isNull, lt, ne, or } from 'drizzle-orm';
+
 import { ENDED_ORDER_STATUSES } from '@b2b-catalog-platform/shared/core/ordering';
-import { RetentionConfig } from './retention-api-config';
-import { RETENTION } from './retention-config';
+
+import { Database } from '../../platform/db/database';
 import { DRIZZLE } from '../../platform/db/database.module';
 import { destructionRecords } from '../../platform/db/schema';
-import { consents, consentWithdrawals } from '../site/site-schema';
-import { orders } from '../ordering/ordering-schema';
-import { OrderDocumentFiles } from '../ordering/order-document-files';
-import { ORDER_REMOVAL_CATEGORIES, scrubOrders } from '../ordering/order-scrub';
 import {
   Destruction,
   recordDestruction,
 } from '../../platform/destruction-record';
-import { Database } from '../../platform/db/database';
+import { OrderDocumentFiles } from '../ordering/order-document-files';
+import { ORDER_REMOVAL_CATEGORIES, scrubOrders } from '../ordering/order-scrub';
+import { orders } from '../ordering/ordering-schema';
+import { consents, consentWithdrawals } from '../site/site-schema';
+import { RetentionConfig } from './retention-api-config';
+import { RETENTION } from './retention-config';
 
 const DAY_MS = 86_400_000;
 

@@ -5,6 +5,10 @@
  * writes it.
  */
 import {
+  CustomerType,
+  UserStatus,
+} from '@b2b-catalog-platform/shared/core/accounts';
+import {
   CustomerAccountChange,
   CustomerSyncOptions,
   CustomerSyncPlan,
@@ -14,10 +18,6 @@ import {
   SYNC_PREVIEW_MAX_ITEMS,
   SyncSummary,
 } from '@b2b-catalog-platform/shared/core/exchange';
-import {
-  CustomerType,
-  UserStatus,
-} from '@b2b-catalog-platform/shared/core/accounts';
 import { UserRole } from '@b2b-catalog-platform/shared/platform';
 
 /** The slice of the accounts the differ needs. */

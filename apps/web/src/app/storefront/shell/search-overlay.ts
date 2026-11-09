@@ -1,10 +1,12 @@
 import { Component, computed, HostListener, inject } from '@angular/core';
-import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
-import { withExitAnimation } from './leave-animation';
-import { MobileSearch } from '../platform/mobile-search';
-import { SearchField } from '../catalog/search/search-field';
+
 import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+
 import { STOREFRONT_CATALOG_TEXT } from '../catalog/catalog-text';
+import { SearchField } from '../catalog/search/search-field';
+import { MobileSearch } from '../platform/mobile-search';
+import { withExitAnimation } from './leave-animation';
 
 /** The search field over the dimmed, held page below `sm`, once the header's
  * has scrolled away: the header's height and place, dropping in from the top

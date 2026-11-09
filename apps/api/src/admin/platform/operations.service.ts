@@ -1,15 +1,17 @@
 import { Inject, Injectable } from '@nestjs/common';
+import { desc } from 'drizzle-orm';
+
 import {
   BuildInfo,
   SETTING_CHANGES_PAGE_SIZE,
   SettingChange,
 } from '@b2b-catalog-platform/shared/admin/platform';
-import { desc } from 'drizzle-orm';
+
+import { ACTOR_EMAILS, ActorEmails } from '../../platform/actor-emails';
+import { Database } from '../../platform/db/database';
 import { DRIZZLE } from '../../platform/db/database.module';
 import { settingChanges } from '../../platform/db/schema';
-import { ACTOR_EMAILS, ActorEmails } from '../../platform/actor-emails';
 import { env } from '../../platform/env';
-import { Database } from '../../platform/db/database';
 
 /** What the operations page and the panel's footer read beside the switches. */
 @Injectable()

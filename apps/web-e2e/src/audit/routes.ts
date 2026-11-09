@@ -1,5 +1,6 @@
-import type { Locator, Page } from '@playwright/test';
 import { join } from 'node:path';
+import type { Locator, Page } from '@playwright/test';
+
 import { localtestDbClient, workspaceRoot } from '../support/localtest';
 
 export const ROLES = ['admin', 'editor', 'customer'] as const;

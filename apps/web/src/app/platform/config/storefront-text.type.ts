@@ -1,5 +1,6 @@
-import type { DeepReadonly } from '@b2b-catalog-platform/shared/platform';
 import * as z from 'zod';
+
+import type { DeepReadonly } from '@b2b-catalog-platform/shared/platform';
 
 /**
  * The keys of `texts/storefront.json` no area claims. The file is what a

@@ -1,4 +1,5 @@
 import { readFileSync } from 'node:fs';
+
 import { sharedTextSchema } from './shared-text';
 
 const fixture = JSON.parse(

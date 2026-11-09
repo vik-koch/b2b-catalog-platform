@@ -1,4 +1,5 @@
 import * as z from 'zod';
+
 import { SLUG_MAX_LENGTH, SLUG_PATTERN } from './slug';
 
 /**

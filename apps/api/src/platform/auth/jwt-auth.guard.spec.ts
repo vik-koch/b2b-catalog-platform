@@ -1,8 +1,9 @@
 import { ExecutionContext, UnauthorizedException } from '@nestjs/common';
-import { SessionUser } from './session-users';
+
 import { AuthenticatedRequest } from './authenticated-request';
-import { Session, Sessions } from './sessions';
 import { JwtAuthGuard } from './jwt-auth.guard';
+import { SessionUser } from './session-users';
+import { Session, Sessions } from './sessions';
 
 const session = (overrides: Partial<SessionUser> = {}): Session => ({
   payload: {

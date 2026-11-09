@@ -7,6 +7,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
+
 import { bearerToken } from './api-token-value';
 import { MachineRequest } from './machine-client';
 import { MachineScope } from './machine-scope.decorator';

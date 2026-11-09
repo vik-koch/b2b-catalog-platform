@@ -1,6 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
+
 import { NARROW_SCREEN_QUERIES } from '../core/narrow-screen';
 import { imageIcon } from '../icons/glyphs/image';
 import { DataGrid } from './data-grid';

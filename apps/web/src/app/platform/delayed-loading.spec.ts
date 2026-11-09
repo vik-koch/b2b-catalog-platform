@@ -1,6 +1,7 @@
 import { PLATFORM_ID, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { afterEach, beforeEach, vi } from 'vitest';
+
 import { delayedLoading } from './delayed-loading';
 
 const DELAY = 200;

@@ -9,6 +9,7 @@
  * CI runs.
  */
 import { readdirSync, readFileSync } from 'node:fs';
+
 import {
   formatted,
   injectSection,

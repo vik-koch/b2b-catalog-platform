@@ -1,3 +1,14 @@
 {
-  "singleQuote": true
+  "singleQuote": true,
+  "plugins": ["@ianvs/prettier-plugin-sort-imports"],
+  "importOrder": [
+    "<BUILTIN_MODULES>",
+    "<THIRD_PARTY_MODULES>",
+    "",
+    "^@b2b-catalog-platform/",
+    "",
+    "^[.]"
+  ],
+  "importOrderParserPlugins": ["typescript", "decorators-legacy"],
+  "importOrderTypeScriptVersion": "6.0.0"
 }

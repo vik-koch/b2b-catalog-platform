@@ -1,28 +1,30 @@
-import {
-  SHARED_TEXT,
-  provideUiText,
-} from '../../../platform/config/shared-text';
-import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
 import { Location } from '@angular/common';
 import { ApplicationRef, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { vi } from 'vitest';
 import { provideRouter, Router } from '@angular/router';
+import { vi } from 'vitest';
+
 import { ProductListItem } from '@b2b-catalog-platform/shared/core/catalog';
 import { SearchCategory } from '@b2b-catalog-platform/shared/storefront/catalog';
+
 import {
   CartAddition,
   ProductCart,
 } from '../../../core/catalog/buying/product-cart';
-import { CatalogSearchService } from './catalog-search.service';
+import { defaultSharedCatalogText } from '../../../core/catalog/catalog-text.fixture';
 import { productListItem } from '../../../core/catalog/product.fixture';
-import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
-import { defaultStorefrontText } from '../../../platform/config/storefront-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import { defaultDeploymentConfig } from '../../../platform/config/deployment-config.fixture';
-import { SearchField } from './search-field';
-import { defaultSharedCatalogText } from '../../../core/catalog/catalog-text.fixture';
+import {
+  provideUiText,
+  SHARED_TEXT,
+} from '../../../platform/config/shared-text';
+import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
+import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
+import { defaultStorefrontText } from '../../../platform/config/storefront-text.fixture';
 import { defaultStorefrontCatalogText } from '../catalog-text.fixture';
+import { CatalogSearchService } from './catalog-search.service';
+import { SearchField } from './search-field';
 
 type Suggestion = ProductListItem;
 

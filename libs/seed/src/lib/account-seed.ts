@@ -1,6 +1,7 @@
 import { randomBytes } from 'node:crypto';
 import { hash } from '@node-rs/argon2';
 import { Client } from 'pg';
+
 import { AccountSeed, SeedBundle, TierSeed } from './bundle';
 
 /**

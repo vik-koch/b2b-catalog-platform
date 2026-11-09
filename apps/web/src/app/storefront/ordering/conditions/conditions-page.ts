@@ -1,28 +1,30 @@
+import { Component, inject } from '@angular/core';
+import { RouterLink } from '@angular/router';
+
 import {
   formatTaxRate,
   type TaxConfig,
 } from '@b2b-catalog-platform/shared/core/catalog';
-import type { StorefrontOrderingText } from '../ordering-text.type';
-import { STOREFRONT_ORDERING_TEXT } from '../ordering-text';
-import { SHARED_ORDERING_TEXT } from '../../../core/ordering/ordering-text';
-import { ORDERING_CONFIG } from '../../../core/ordering/ordering-config';
-import { Component, inject } from '@angular/core';
-import { RouterLink } from '@angular/router';
 import { fillText } from '@b2b-catalog-platform/shared/platform';
-import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
-import { SHARED_TEXT } from '../../../platform/config/shared-text';
-import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
-import { EmphasisedText } from '@b2b-catalog-platform/ui/content/emphasised-text';
 import { TextButton } from '@b2b-catalog-platform/ui/actions/text-button';
+import { EmphasisedText } from '@b2b-catalog-platform/ui/content/emphasised-text';
+import { MarkedCard } from '@b2b-catalog-platform/ui/content/marked-card';
+import { PageSectionTitle } from '@b2b-catalog-platform/ui/content/page-section-title';
 import { banknoteIcon } from '@b2b-catalog-platform/ui/icons/glyphs/banknote';
 import { landmarkIcon } from '@b2b-catalog-platform/ui/icons/glyphs/landmark';
 import { mapPinIcon } from '@b2b-catalog-platform/ui/icons/glyphs/map-pin';
-import { MarkedCard } from '@b2b-catalog-platform/ui/content/marked-card';
-import { PageSectionTitle } from '@b2b-catalog-platform/ui/content/page-section-title';
+
+import { CATALOG_CONFIG } from '../../../core/catalog/catalog-config';
+import { ORDERING_CONFIG } from '../../../core/ordering/ordering-config';
+import { SHARED_ORDERING_TEXT } from '../../../core/ordering/ordering-text';
+import { SITE_CONFIG } from '../../../core/site/site-config';
+import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
 import { StaticPage } from '../../site/pages/static-page';
 import { DeliveryZoneList } from '../checkout/ui/delivery-zone-list';
-import { SITE_CONFIG } from '../../../core/site/site-config';
-import { CATALOG_CONFIG } from '../../../core/catalog/catalog-config';
+import { STOREFRONT_ORDERING_TEXT } from '../ordering-text';
+import type { StorefrontOrderingText } from '../ordering-text.type';
 
 /**
  * The editable prose, then the conditions read from where checkout reads them

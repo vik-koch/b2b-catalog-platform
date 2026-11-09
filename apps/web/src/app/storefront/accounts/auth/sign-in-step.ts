@@ -1,4 +1,3 @@
-import { STOREFRONT_ACCOUNTS_TEXT } from '../accounts-text';
 import {
   Component,
   computed,
@@ -8,12 +7,15 @@ import {
   signal,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
+
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
-import { SignInService } from './sign-in.service';
+import { Outcome } from '@b2b-catalog-platform/ui/content/outcome';
+import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
+
+import { STOREFRONT_ACCOUNTS_TEXT } from '../accounts-text';
 import { CallWait } from './call-wait';
 import { CodeEntry } from './code-entry';
-import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
-import { Outcome } from '@b2b-catalog-platform/ui/content/outcome';
+import { SignInService } from './sign-in.service';
 
 /**
  * The step after the password, a code to enter or a call to make, shown in

@@ -1,15 +1,17 @@
 import { Injectable } from '@angular/core';
+import { safe } from '@orpc/client';
+
 import {
   CartPreview,
   MyOrderFilter,
-  OrderSubmission,
   OrderDetail,
+  OrderSubmission,
   OrderSummary,
 } from '@b2b-catalog-platform/shared/core/ordering';
 import { Pagination } from '@b2b-catalog-platform/shared/platform';
-import { ordersContract } from '../contract-routes.generated';
-import { safe } from '@orpc/client';
+
 import { createOrpcClient } from '../../../platform/orpc-client';
+import { ordersContract } from '../contract-routes.generated';
 
 /**
  * What placing an order came to. Each refusal names something on screen the

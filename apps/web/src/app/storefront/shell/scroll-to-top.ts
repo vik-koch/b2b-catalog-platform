@@ -1,8 +1,10 @@
 import { Component, inject } from '@angular/core';
-import { STOREFRONT_TEXT } from '../../platform/config/storefront-text';
-import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
-import { HeaderCollapse } from '../../platform/header-collapse';
+
 import { chevronUpIcon } from '@b2b-catalog-platform/ui/icons/glyphs/chevron-up';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+
+import { STOREFRONT_TEXT } from '../../platform/config/storefront-text';
+import { HeaderCollapse } from '../../platform/header-collapse';
 
 /** Back to the top, always drawn so the row never reflows, and live once the
  * header has collapsed. An outlined disc: it acts on the page, unlike the

@@ -4,23 +4,25 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { AnyPgColumn } from 'drizzle-orm/pg-core';
 import { desc, eq, inArray, or, SQL } from 'drizzle-orm';
+import { AnyPgColumn } from 'drizzle-orm/pg-core';
+
+import { ConsentRecord } from '@b2b-catalog-platform/shared/admin/accounts';
+import { formatPersonName } from '@b2b-catalog-platform/shared/core/accounts';
 import {
   ConsentPurpose,
   ConsentWithdrawalReason,
 } from '@b2b-catalog-platform/shared/core/site';
-import { DRIZZLE } from '../../platform/db/database.module';
+import { AuthUser } from '@b2b-catalog-platform/shared/platform';
+
+import { users } from '../../core/accounts/accounts-schema';
 import {
   consents,
   consentWithdrawals,
   pageVersions,
 } from '../../core/site/site-schema';
-import { users } from '../../core/accounts/accounts-schema';
-import { AuthUser } from '@b2b-catalog-platform/shared/platform';
-import { formatPersonName } from '@b2b-catalog-platform/shared/core/accounts';
-import { ConsentRecord } from '@b2b-catalog-platform/shared/admin/accounts';
 import { Database } from '../../platform/db/database';
+import { DRIZZLE } from '../../platform/db/database.module';
 
 /** Consent records as staff read them (NFR-LEGAL-09), with their accounts. */
 @Injectable()

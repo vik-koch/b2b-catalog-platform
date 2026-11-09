@@ -1,46 +1,48 @@
-import { ADMIN_EXCHANGE_TEXT } from '../exchange-text';
 import { Component, computed, inject, resource, signal } from '@angular/core';
 import { form, maxLength, required, validate } from '@angular/forms/signals';
-import { fillText } from '@b2b-catalog-platform/shared/platform';
+
+import {
+  ApiToken,
+  CreatedApiToken,
+} from '@b2b-catalog-platform/shared/admin/exchange';
 import {
   API_TOKEN_NAME_MAX_LENGTH,
   API_TOKEN_SCOPES,
   ApiTokenScope,
 } from '@b2b-catalog-platform/shared/core/exchange';
-import {
-  ApiToken,
-  CreatedApiToken,
-} from '@b2b-catalog-platform/shared/admin/exchange';
-import { ADMIN_TEXT } from '../../../platform/config/admin-text';
-import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
-import { delayedLoading } from '../../../platform/delayed-loading';
-import { usePageSeo } from '../../../platform/page-seo';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
-import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
-import { filled } from '../../../platform/field-rules';
-import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
-import { submitAttempt } from '@b2b-catalog-platform/ui/fields/submit-attempt';
 import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
-import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Checkbox } from '@b2b-catalog-platform/ui/choices/checkbox';
-import { Input } from '@b2b-catalog-platform/ui/inputs/input';
+import { Notice } from '@b2b-catalog-platform/ui/content/notice';
+import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';
-import { RecordFields } from '@b2b-catalog-platform/ui/lists/record-fields';
-import { RecordFormActions } from '@b2b-catalog-platform/ui/lists/record-form-actions';
-import { RecordRow } from '@b2b-catalog-platform/ui/lists/record-row';
-import { adminMomentFormat } from '../../platform/dates/admin-date';
-import { ApiTokensService } from './api-tokens.service';
-import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
-import { Notice } from '@b2b-catalog-platform/ui/content/notice';
+import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
+import { submitAttempt } from '@b2b-catalog-platform/ui/fields/submit-attempt';
 import { circleCheckIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-check';
 import { circleSlashIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-slash';
 import { copyIcon } from '@b2b-catalog-platform/ui/icons/glyphs/copy';
 import { plusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/plus';
-import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
-import { SaveButton } from '../../platform/ui/save-button';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import { Input } from '@b2b-catalog-platform/ui/inputs/input';
+import { RecordFields } from '@b2b-catalog-platform/ui/lists/record-fields';
+import { RecordFormActions } from '@b2b-catalog-platform/ui/lists/record-form-actions';
+import { RecordRow } from '@b2b-catalog-platform/ui/lists/record-row';
+import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
+
+import { ADMIN_TEXT } from '../../../platform/config/admin-text';
+import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { delayedLoading } from '../../../platform/delayed-loading';
+import { filled } from '../../../platform/field-rules';
+import { usePageSeo } from '../../../platform/page-seo';
+import { adminMomentFormat } from '../../platform/dates/admin-date';
 import { CancelButton } from '../../platform/ui/cancel-button';
+import { SaveButton } from '../../platform/ui/save-button';
+import { ADMIN_EXCHANGE_TEXT } from '../exchange-text';
+import { ApiTokensService } from './api-tokens.service';
 
 /** The form's rows, in the order a deployment's exchange grows. */
 const SCOPE_AREAS = ['catalog', 'customers', 'orders'] as const;

@@ -1,6 +1,7 @@
-import { SYNC_MAX_ROWS } from '@b2b-catalog-platform/shared/core/exchange';
-import { SyncFormatCode } from '@b2b-catalog-platform/shared/admin/exchange';
 import Papa from 'papaparse';
+
+import { SyncFormatCode } from '@b2b-catalog-platform/shared/admin/exchange';
+import { SYNC_MAX_ROWS } from '@b2b-catalog-platform/shared/core/exchange';
 
 /**
  * A CSV upload as a table, whatever its area: UTF-8 (BOM tolerated), RFC 4180

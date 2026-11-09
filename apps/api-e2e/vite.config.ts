@@ -2,8 +2,8 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { parseEnv } from 'node:util';
-import { defineConfig } from 'vitest/config';
 import tsconfigPaths from 'vite-tsconfig-paths';
+import { defineConfig } from 'vitest/config';
 
 // The suite's own stack (ports, database, inbox, media dir) is the one Nx
 // hands `api:serve-e2e`. Nx loads only `.env` for this target, so the same file

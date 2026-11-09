@@ -1,6 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
+
 import { OwnedAreas } from '@b2b-catalog-platform/shared/admin/platform';
 import { OwnershipArea } from '@b2b-catalog-platform/shared/platform';
+
 import { Actor } from '../../core/exchange/sync-run';
 import { SettingsStore } from '../../platform/settings/settings-store';
 

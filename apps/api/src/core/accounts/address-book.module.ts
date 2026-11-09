@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+
 import { ADDRESS_CONFIG, loadAddressConfig } from './accounts-config';
 import { AddressesService } from './addresses.service';
 

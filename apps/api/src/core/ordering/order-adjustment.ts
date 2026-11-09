@@ -1,19 +1,22 @@
-import { inArray } from 'drizzle-orm';
 import { BadRequestException } from '@nestjs/common';
+import { inArray } from 'drizzle-orm';
+
 import {
+  piecesPerUnit,
   ProductAvailability,
   ProductUnit,
-  piecesPerUnit,
+  shownPictures,
   totalMinor,
   unitQuantity,
-  shownPictures,
 } from '@b2b-catalog-platform/shared/core/catalog';
 import {
-  ShipmentLineInput,
-  shipmentEstimate,
   AdjustmentLineFlag,
   OrderAdjustmentLine,
+  shipmentEstimate,
+  ShipmentLineInput,
 } from '@b2b-catalog-platform/shared/core/ordering';
+
+import { Database } from '../../platform/db/database';
 import {
   products,
   type ProductImageRef,
@@ -21,7 +24,6 @@ import {
 } from '../catalog/catalog-schema';
 import { resolvedPriceMinor } from '../catalog/product-price';
 import { packagingOf, unitColumns } from '../catalog/product-view';
-import { Database } from '../../platform/db/database';
 
 /**
  * Pricing an order as a manager writes it (FR-ORD-03), unlike a cart: a line

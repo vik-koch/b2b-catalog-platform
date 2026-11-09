@@ -1,13 +1,14 @@
 import { oc } from '@orpc/contract';
 import * as z from 'zod';
+
+import { acknowledgementSchema } from '../../platform/acknowledgement.contract';
+import { commonAuthErrors } from '../../platform/api-error';
 import {
   ADDRESS_LABEL_MAX_LENGTH,
   ADDRESS_LINE_MAX_LENGTH,
   ADDRESS_POSTAL_CODE_MAX_LENGTH,
   ADDRESS_QUERY_MAX_LENGTH,
 } from './address';
-import { commonAuthErrors } from '../../platform/api-error';
-import { acknowledgementSchema } from '../../platform/acknowledgement.contract';
 
 /** How many addresses one account may keep: a bound against an endpoint with
  * no ceiling, not a business rule. */

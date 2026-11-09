@@ -1,9 +1,10 @@
 import { Component, computed, inject, input } from '@angular/core';
+
+import { UI_TEXT } from '../core/ui-text';
 import { ErrorText } from './error-text';
 import { FieldLabel } from './field-label';
 import { FieldStatus } from './field-status';
 import { Hint } from './hint';
-import { UI_TEXT } from '../core/ui-text';
 
 let nextId = 0;
 

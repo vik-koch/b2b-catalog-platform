@@ -1,10 +1,12 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import type { Request, Response } from 'express';
+
 import { AUTH_COOKIE } from '@b2b-catalog-platform/shared/platform';
-import { SESSION_USERS, SessionUser, SessionUsers } from './session-users';
+
 import { JwtPayload } from './jwt-payload';
 import { issueSession } from './session-cookie';
+import { SESSION_USERS, SessionUser, SessionUsers } from './session-users';
 
 export const SESSION_IDLE_DAYS = 'SESSION_IDLE_DAYS';
 

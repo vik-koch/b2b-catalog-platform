@@ -1,9 +1,10 @@
 import { fillText } from '@b2b-catalog-platform/shared/platform';
 import {
+  confirmRequest,
   type ConfirmService,
   type ConfirmText,
-  confirmRequest,
 } from '@b2b-catalog-platform/ui/overlay/confirm.service';
+
 import type { ProductsService } from './products.service';
 
 /**

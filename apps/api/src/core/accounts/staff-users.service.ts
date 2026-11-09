@@ -18,37 +18,39 @@ import {
   SQL,
   sql,
 } from 'drizzle-orm';
+
+import {
+  COMPANY_ID_NONE,
+  CreateUserRequest,
+  CustomerType,
+  StaffUser,
+  UpdateUserRequest,
+  UserKind,
+} from '@b2b-catalog-platform/shared/core/accounts';
 import {
   alternateLayoutQuery,
-  KeyboardLayout,
-  UserRole,
   CompanyIdFormat,
   companyIdFormatOf,
+  KeyboardLayout,
+  UserRole,
 } from '@b2b-catalog-platform/shared/platform';
+
 import {
   ALTERNATE_LAYOUT,
   COMPANY_ID_FORMATS,
   PHONE_RULE,
   PhoneRule,
 } from '../../platform/config/deployment-config';
-import { ACCEPTED_CUSTOMER_TYPES } from './accounts-config';
+import { Database } from '../../platform/db/database';
 import { DRIZZLE } from '../../platform/db/database.module';
-import { users } from './accounts-schema';
+import { isUniqueViolation } from '../../platform/db/pg-errors';
 import { qualified } from '../../platform/db/sql-columns';
-import { storedPhone } from './stored-phone';
 import { withdrawAccountConsents } from '../site/consent-withdrawals';
 import { AccountErasure } from './account-erasure';
+import { ACCEPTED_CUSTOMER_TYPES } from './accounts-config';
+import { users } from './accounts-schema';
+import { storedPhone } from './stored-phone';
 import { UsersService } from './users.service';
-import { isUniqueViolation } from '../../platform/db/pg-errors';
-import {
-  COMPANY_ID_NONE,
-  CustomerType,
-  CreateUserRequest,
-  StaffUser,
-  UpdateUserRequest,
-  UserKind,
-} from '@b2b-catalog-platform/shared/core/accounts';
-import { Database } from '../../platform/db/database';
 
 /** A function, so each throw carries its own stack. */
 const notFound = () =>

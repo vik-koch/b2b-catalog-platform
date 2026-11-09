@@ -1,6 +1,7 @@
 import * as z from 'zod';
-import { isConsentPage, PAGE_SLUGS } from './pages';
+
 import { pageSlugSchema } from './page.contract';
+import { isConsentPage, PAGE_SLUGS } from './pages';
 
 /**
  * Which of the fixed `PAGE_SLUGS` this deployment has, and where they are

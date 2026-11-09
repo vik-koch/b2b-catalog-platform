@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+
 import { MaintenanceState } from './maintenance-state';
 
 /**

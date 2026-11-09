@@ -1,9 +1,11 @@
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import { effect, inject, Injectable, PLATFORM_ID } from '@angular/core';
+
+import { moneyFormat } from '@b2b-catalog-platform/shared/platform';
+
 import { formatPriceMinorShort } from '../../../core/catalog/pricing/price';
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import { CartService } from './cart.service';
-import { moneyFormat } from '@b2b-catalog-platform/shared/platform';
 
 /** Keeps the navbar cart's figures on `<html>` as custom properties for
  * styles.css: the server cannot read localStorage, so the pre-paint script in

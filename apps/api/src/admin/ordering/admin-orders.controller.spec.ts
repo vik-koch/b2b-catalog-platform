@@ -1,16 +1,17 @@
 import { INestApplication } from '@nestjs/common';
 import { APP_FILTER } from '@nestjs/core';
 import { Test } from '@nestjs/testing';
-import { AuditLogger } from '../../platform/audit/audit.logger';
-import { ContractErrorFilter } from '../../platform/orpc/contract-error.filter';
-import { OwnershipState } from '../../platform/settings/ownership-state';
-import { AdminOrdersController } from './admin-orders.controller';
-import { demoAdminOrder } from '../../core/ordering/order.fixture';
+
 import { OrderPersonalData } from '../../core/ordering/order-personal-data';
 import { OrderReader } from '../../core/ordering/order-reader';
 import { OrderWriter } from '../../core/ordering/order-writer';
-import { StaffOrdersService } from './staff-orders.service';
+import { demoAdminOrder } from '../../core/ordering/order.fixture';
+import { AuditLogger } from '../../platform/audit/audit.logger';
 import { SignedInAs, withSession } from '../../platform/auth/session.fixture';
+import { ContractErrorFilter } from '../../platform/orpc/contract-error.filter';
+import { OwnershipState } from '../../platform/settings/ownership-state';
+import { AdminOrdersController } from './admin-orders.controller';
+import { StaffOrdersService } from './staff-orders.service';
 
 /**
  * Order processing as an owned area (FR-ADM-10). The rule only shows itself

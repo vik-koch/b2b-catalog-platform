@@ -1,5 +1,7 @@
 import { inject, InjectionToken } from '@angular/core';
+
 import { CATALOG_AREA } from '@b2b-catalog-platform/shared/core/catalog';
+
 import { ADMIN_TEXT, adminTextBlock } from '../../platform/config/admin-text';
 import type { AdminCatalogText } from './catalog-text.type';
 

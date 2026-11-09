@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
-import { AdminPagesController } from './pages.controller';
-import { PageEditorService } from './page-editor.service';
-import { AdminMaintenanceController } from './maintenance.controller';
-import { MaintenanceSwitch } from './maintenance-switch';
+
 import { SessionModule } from '../../platform/auth/session.module';
+import { MaintenanceSwitch } from './maintenance-switch';
+import { AdminMaintenanceController } from './maintenance.controller';
+import { PageEditorService } from './page-editor.service';
+import { AdminPagesController } from './pages.controller';
 
 /** SessionModule supplies the `@Auth` guards. */
 @Module({

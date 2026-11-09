@@ -8,6 +8,7 @@
  * `--check` verifies the committed document matches, which is what CI runs.
  */
 import { readFileSync } from 'node:fs';
+
 import {
   formatted,
   injectSection,

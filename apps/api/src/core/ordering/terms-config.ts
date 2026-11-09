@@ -1,6 +1,8 @@
-import { ORDERING_AREA } from '@b2b-catalog-platform/shared/core/ordering';
-import { loadApiConfigBlock } from '../../platform/config/api-config';
 import * as z from 'zod';
+
+import { ORDERING_AREA } from '@b2b-catalog-platform/shared/core/ordering';
+
+import { loadApiConfigBlock } from '../../platform/config/api-config';
 import { orderingApiConfigShape } from './ordering-api-config';
 
 /** Whether the receipt attaches the accepted terms as a document. */

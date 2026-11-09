@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+
 import { SettingsStore } from '../../platform/settings/settings-store';
 
 /** From the store's cache: the gate asks on every request. */

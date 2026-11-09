@@ -1,8 +1,9 @@
 import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { eq } from 'drizzle-orm';
+
+import { Database } from '../db/database';
 import { DRIZZLE } from '../db/database.module';
 import { appSettings, settingChanges } from '../db/schema';
-import { Database } from '../db/database';
 
 /** The singleton row's fixed primary key (see the `id = 1` check constraint). */
 const SETTINGS_ID = 1;

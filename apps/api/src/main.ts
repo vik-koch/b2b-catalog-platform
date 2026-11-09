@@ -2,17 +2,19 @@ import { ConsoleLogger, Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import cookieParser from 'cookie-parser';
 import { json, urlencoded } from 'express';
+
 import { SYNC_MAX_BODY_BYTES } from '@b2b-catalog-platform/shared/core/exchange';
-import { AppModule } from './app/app.module';
-import { checkConfigFiles } from './app/app.config-files';
-import { runMigrations } from './platform/db/migrate';
-import { hashPassword } from './core/accounts/password-hashing';
+
 import { runBootstrapAdmin } from './admin/accounts/bootstrap-admin';
-import { scheduleMediaPrune } from './platform/media/prune/media-prune-scheduler';
-import { RetentionSweep } from './core/retention/retention-sweep';
-import { env } from './platform/env';
+import { checkConfigFiles } from './app/app.config-files';
 import { MEDIA_REFERENCES } from './app/app.media-references';
+import { AppModule } from './app/app.module';
+import { hashPassword } from './core/accounts/password-hashing';
+import { RetentionSweep } from './core/retention/retention-sweep';
 import { MACHINE_SYNC_RUNS_PATHS } from './machine/exchange/machine-sync-body-paths';
+import { runMigrations } from './platform/db/migrate';
+import { env } from './platform/env';
+import { scheduleMediaPrune } from './platform/media/prune/media-prune-scheduler';
 
 // Let the server settle and serve traffic before the first maintenance sweep.
 const PRUNE_STARTUP_DELAY_MS = 60_000;

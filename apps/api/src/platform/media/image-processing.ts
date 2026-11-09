@@ -1,7 +1,8 @@
 import sharp from 'sharp';
+
 import {
-  MEDIA_MAX_IMAGE_WIDTH,
   AcceptedImageMime,
+  MEDIA_MAX_IMAGE_WIDTH,
 } from '@b2b-catalog-platform/shared/platform';
 
 /** The single stored format for page images; also the returned extension. */

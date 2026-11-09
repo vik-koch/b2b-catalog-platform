@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+
 import { Outcome } from './outcome';
 
 @Component({

@@ -1,13 +1,14 @@
-import { sharedOrderingText } from '../ordering-text';
-import { orderingMail } from './ordering-mail-text';
-import { SharedText, MoneyFormat } from '@b2b-catalog-platform/shared/platform';
 import {
   OrderDetail,
   OrderDocumentKind,
 } from '@b2b-catalog-platform/shared/core/ordering';
-import { orderMailTotal } from './order-items';
+import { MoneyFormat, SharedText } from '@b2b-catalog-platform/shared/platform';
+
 import { MailContent } from '../../../platform/mail/mail-layout';
 import { MailText } from '../../../platform/mail/mail-text';
+import { sharedOrderingText } from '../ordering-text';
+import { orderMailTotal } from './order-items';
+import { orderingMail } from './ordering-mail-text';
 
 /** The mail a supplied document sends (FR-ORD-05). Not a status mail: no
  * step was taken, a file arrived, most often the payment details. No lines:

@@ -1,39 +1,40 @@
 import {
-  OrderingParty,
-  PaymentMethod,
-  resolveDeliveryZone,
-  OrderAdjustment,
-  DeliveryConfig,
-} from '@b2b-catalog-platform/shared/core/ordering';
-import {
   BadRequestException,
   ConflictException,
   Inject,
   Injectable,
 } from '@nestjs/common';
-import {} from 'drizzle-orm';
+
 import {
   AddressInput,
   CustomerType,
 } from '@b2b-catalog-platform/shared/core/accounts';
 import {
-  rowBillingAddress,
-  OrderRow,
-  OrderDetails,
-  Fulfilment,
-} from './order-rows';
-import { AddressesService } from '../accounts/addresses.service';
+  DeliveryConfig,
+  OrderAdjustment,
+  OrderingParty,
+  PaymentMethod,
+  resolveDeliveryZone,
+} from '@b2b-catalog-platform/shared/core/ordering';
+
 import {
   COMPANY_ID_RULE,
   CompanyIdRule,
 } from '../../platform/config/deployment-config';
+import { ACCEPTED_CUSTOMER_TYPES } from '../accounts/accounts-config';
+import { AddressesService } from '../accounts/addresses.service';
+import {
+  Fulfilment,
+  OrderDetails,
+  OrderRow,
+  rowBillingAddress,
+} from './order-rows';
 import {
   BILLING_ADDRESS_ENABLED,
   DELIVERY_CONFIG,
   PICKUP_LOCATIONS,
   PickupLocation,
 } from './ordering-config';
-import { ACCEPTED_CUSTOMER_TYPES } from '../accounts/accounts-config';
 
 /**
  * What an order must say to be written, held the same for the checkout and a

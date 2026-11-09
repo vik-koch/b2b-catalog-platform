@@ -1,22 +1,24 @@
-import { defaultStorefrontAccountsText } from '../accounts-text.fixture';
-import { defaultSharedAccountsText } from '../../../core/accounts/accounts-text.fixture';
-import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
-import { defaultStorefrontText } from '../../../platform/config/storefront-text.fixture';
-import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
-import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
-import { defaultDeploymentConfig } from '../../../platform/config/deployment-config.fixture';
-import { AuthService } from '../../../platform/auth/auth.service';
-import { plainUser } from '../../../platform/auth/auth-user.fixture';
-import { AccountPage } from './account-page';
-import { AddressesService } from '../../../core/accounts/addresses/addresses.service';
-import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
-import { AccountService } from './account.service';
+
 import { Address } from '@b2b-catalog-platform/shared/core/accounts';
 import { AccountProfile } from '@b2b-catalog-platform/shared/storefront/accounts';
+import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
+
+import { defaultSharedAccountsText } from '../../../core/accounts/accounts-text.fixture';
+import { AddressesService } from '../../../core/accounts/addresses/addresses.service';
+import { plainUser } from '../../../platform/auth/auth-user.fixture';
+import { AuthService } from '../../../platform/auth/auth.service';
+import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
+import { defaultDeploymentConfig } from '../../../platform/config/deployment-config.fixture';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
+import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
+import { defaultStorefrontText } from '../../../platform/config/storefront-text.fixture';
+import { defaultStorefrontAccountsText } from '../accounts-text.fixture';
+import { AccountPage } from './account-page';
+import { AccountService } from './account.service';
 
 const text = defaultStorefrontAccountsText.auth;
 const accountText = defaultStorefrontAccountsText.account;

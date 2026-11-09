@@ -7,33 +7,35 @@ import {
   moveItemInArray,
 } from '@angular/cdk/drag-drop';
 import { Component, inject, input, output, signal } from '@angular/core';
-import {
-  ACCEPTED_IMAGE_MIME_TYPES,
-  fillText,
-} from '@b2b-catalog-platform/shared/platform';
+
 import {
   ProductImageInput,
   ProductVariantInput,
 } from '@b2b-catalog-platform/shared/admin/catalog';
-import { ADMIN_TEXT } from '../../../platform/config/admin-text';
+import {
+  ACCEPTED_IMAGE_MIME_TYPES,
+  fillText,
+} from '@b2b-catalog-platform/shared/platform';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
+import { cropIcon } from '@b2b-catalog-platform/ui/icons/glyphs/crop';
+import { gripVerticalIcon } from '@b2b-catalog-platform/ui/icons/glyphs/grip-vertical';
+import { imagePlusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/image-plus';
+import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
-import { Input } from '@b2b-catalog-platform/ui/inputs/input';
-import { SelectInput } from '@b2b-catalog-platform/ui/inputs/select-input';
 import { DropZone } from '@b2b-catalog-platform/ui/inputs/drop-zone';
 import {
   FileTarget,
   pasteKeys,
 } from '@b2b-catalog-platform/ui/inputs/file-target';
-import { ImageFramerService } from '../../platform/media/image-framer.service';
-import { CatalogUploadsService } from '../uploads/catalog-uploads.service';
+import { Input } from '@b2b-catalog-platform/ui/inputs/input';
+import { SelectInput } from '@b2b-catalog-platform/ui/inputs/select-input';
+
+import { ADMIN_TEXT } from '../../../platform/config/admin-text';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
-import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
-import { cropIcon } from '@b2b-catalog-platform/ui/icons/glyphs/crop';
-import { gripVerticalIcon } from '@b2b-catalog-platform/ui/icons/glyphs/grip-vertical';
-import { imagePlusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/image-plus';
-import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
+import { ImageFramerService } from '../../platform/media/image-framer.service';
 import { ADMIN_CATALOG_TEXT } from '../catalog-text';
+import { CatalogUploadsService } from '../uploads/catalog-uploads.service';
 
 /**
  * The product's pictures in display order (FR-CAT-04/05). One new picture

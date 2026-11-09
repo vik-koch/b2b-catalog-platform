@@ -1,4 +1,3 @@
-import { ACCOUNTS_CONFIG } from '../accounts-config';
 import { computed, inject, signal } from '@angular/core';
 import {
   apply,
@@ -11,17 +10,20 @@ import {
   type FormSubmitOptions,
   type Schema,
 } from '@angular/forms/signals';
-import { fillText } from '@b2b-catalog-platform/shared/platform';
-import { SHARED_ACCOUNTS_TEXT } from '../accounts-text';
+
 import {
-  type AccountsConfig,
   ADDRESS_LINE_MAX_LENGTH,
   AddressComponents,
   AddressInput,
   postalCodeMatches,
   postalCodeRuleFor,
+  type AccountsConfig,
 } from '@b2b-catalog-platform/shared/core/accounts';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
+
 import { untilInteractive } from '../../../platform/field-rules';
+import { ACCOUNTS_CONFIG } from '../accounts-config';
+import { SHARED_ACCOUNTS_TEXT } from '../accounts-text';
 
 type Countries = NonNullable<AccountsConfig['address']>['countries'];
 

@@ -1,9 +1,11 @@
 import { computed, Signal } from '@angular/core';
+
 import {
   encodeAttributeParams,
   parseAttributeParams,
 } from '@b2b-catalog-platform/shared/core/catalog';
 import { ListingSort } from '@b2b-catalog-platform/shared/storefront/catalog';
+
 import { pageNumber } from '../../platform/page-number';
 
 /** The query parameters as router input binding hands them over: `attr` is a

@@ -1,5 +1,6 @@
-import { SessionUser } from './session-users';
 import { AuthUser } from '@b2b-catalog-platform/shared/platform';
+
+import { SessionUser } from './session-users';
 
 /** The client-facing identity: never the hash, the tokenVersion or the tier.
  * One function, so sign-in and both guards answer the same fields. */

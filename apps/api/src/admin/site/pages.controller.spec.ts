@@ -1,8 +1,9 @@
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
-import { AdminPagesController } from './pages.controller';
-import { PageEditorService } from './page-editor.service';
+
 import { SignedInAs, withSession } from '../../platform/auth/session.fixture';
+import { PageEditorService } from './page-editor.service';
+import { AdminPagesController } from './pages.controller';
 
 /** Over a real server: routing, validation and the refusal's shape are the
  * contract layer's work, which a call on the handler would skip. */

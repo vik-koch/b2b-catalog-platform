@@ -1,8 +1,9 @@
-import { provideTestGridText, testGridText } from './grid-text.testing';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
+
 import { GridClearFilters } from './grid-clear-filters';
+import { provideTestGridText, testGridText } from './grid-text.testing';
 
 const label = testGridText.clearFilters;
 

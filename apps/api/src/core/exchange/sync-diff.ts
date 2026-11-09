@@ -8,18 +8,18 @@ import {
   productAvailability,
 } from '@b2b-catalog-platform/shared/core/catalog';
 import {
-  DEFAULT_PRICE_LIST_ALIAS,
-  MANUAL_SOURCE_ID_PREFIX,
   CATALOG_SYNC_CSV_COLUMNS,
   CATALOG_SYNC_FIELDS,
-  SYNC_PREVIEW_MAX_ITEMS,
   CatalogSyncOptions,
   CatalogSyncPlan,
   CatalogSyncProductChange,
   CatalogSyncRow,
   CatalogSyncRowError,
-  SyncSummary,
+  DEFAULT_PRICE_LIST_ALIAS,
+  MANUAL_SOURCE_ID_PREFIX,
+  SYNC_PREVIEW_MAX_ITEMS,
   syncPriceColumn,
+  SyncSummary,
 } from '@b2b-catalog-platform/shared/core/exchange';
 
 /** The slice of the catalog the differ needs. */

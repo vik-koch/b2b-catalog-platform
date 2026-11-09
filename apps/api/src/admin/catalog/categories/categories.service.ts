@@ -5,27 +5,29 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { asc, count, eq, sql } from 'drizzle-orm';
+
 import {
   AdminCategory,
   CategoryInput,
   ReorderCategoriesRequest,
 } from '@b2b-catalog-platform/shared/admin/catalog';
-import { DRIZZLE } from '../../../platform/db/database.module';
-import { categories, products } from '../../../core/catalog/catalog-schema';
-import { OwnershipState } from '../../../platform/settings/ownership-state';
+
 import { catalogExternallyOwned } from '../../../core/catalog/catalog-ownership-refusals';
-import { changedCategoryFields } from '../owned-fields';
-import { publiclyVisible } from '../../../core/catalog/product-view';
-import { hasCycle } from './category-cycle';
+import { categories, products } from '../../../core/catalog/catalog-schema';
 import { subtreeCounts } from '../../../core/catalog/catalog-tree';
+import { publiclyVisible } from '../../../core/catalog/product-view';
+import { Database } from '../../../platform/db/database';
+import { DRIZZLE } from '../../../platform/db/database.module';
+import { OwnershipState } from '../../../platform/settings/ownership-state';
 import {
-  resolveNewSlug,
-  resolveNewCategorySourceId,
-  resolveSlugOverride,
   resolveCategorySourceIdOverride,
+  resolveNewCategorySourceId,
+  resolveNewSlug,
+  resolveSlugOverride,
   runUnique,
 } from '../catalog-identity';
-import { Database } from '../../../platform/db/database';
+import { changedCategoryFields } from '../owned-fields';
+import { hasCycle } from './category-cycle';
 
 /** A function, so each throw gets its own stack; the message may name the row
  * for a log reader, the code a screen reads never varies. */

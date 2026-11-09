@@ -1,5 +1,7 @@
 import { signal } from '@angular/core';
+
 import { CATALOG_SORTS } from '@b2b-catalog-platform/shared/storefront/catalog';
+
 import { listingParams, sortParam } from './listing-params';
 
 const read = (

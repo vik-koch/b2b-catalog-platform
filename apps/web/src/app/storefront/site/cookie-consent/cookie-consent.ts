@@ -1,12 +1,14 @@
 import { afterNextRender, Component, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { Button } from '@b2b-catalog-platform/ui/actions/button';
-import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
+
 import { fillText } from '@b2b-catalog-platform/shared/platform';
-import { ConsentService } from './consent.service';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { Link } from '@b2b-catalog-platform/ui/actions/link';
-import { STOREFRONT_SITE_TEXT } from '../site-text';
+
 import { SITE_CONFIG } from '../../../core/site/site-config';
+import { STOREFRONT_TEXT } from '../../../platform/config/storefront-text';
+import { STOREFRONT_SITE_TEXT } from '../site-text';
+import { ConsentService } from './consent.service';
 
 /** The cookie banner, where consent is enabled and no choice recorded: a card
  * near the bottom, never a modal. Gated on `ready` (afterNextRender), as the

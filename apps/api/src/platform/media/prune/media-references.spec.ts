@@ -1,4 +1,5 @@
 import { MEDIA_URL_PREFIX } from '@b2b-catalog-platform/shared/platform';
+
 import {
   collectReferencedFilenames,
   documentFilenames,

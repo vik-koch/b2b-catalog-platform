@@ -1,5 +1,7 @@
 import { Provider } from '@angular/core';
+
 import { deploymentConfigSchema } from '@b2b-catalog-platform/shared/deployment';
+
 import { DEPLOYMENT_CONFIG } from './platform/config/deployment-config';
 import { mountedFile } from './platform/config/mounted-file.server';
 

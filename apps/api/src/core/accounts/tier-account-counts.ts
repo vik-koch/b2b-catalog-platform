@@ -1,7 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { and, count, eq } from 'drizzle-orm';
-import { DRIZZLE } from '../../platform/db/database.module';
+
 import { Database } from '../../platform/db/database';
+import { DRIZZLE } from '../../platform/db/database.module';
 import { TierAccounts } from '../catalog/tier-accounts';
 import { users } from './accounts-schema';
 

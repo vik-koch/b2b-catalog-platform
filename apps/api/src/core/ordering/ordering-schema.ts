@@ -1,20 +1,5 @@
 import { sql } from 'drizzle-orm';
 import {
-  FULFILMENT_METHODS,
-  ORDER_ADJUSTMENT_NOTE_MAX,
-  ORDER_WRITE_ACTOR_MAX,
-  ORDER_DOCUMENT_KINDS,
-  ORDER_REVISION_KINDS,
-  ORDER_STATUS_REASON_MAX,
-  ORDER_STATUSES,
-  PAYMENT_METHODS,
-  PAYMENT_STATES,
-} from '@b2b-catalog-platform/shared/core/ordering';
-import {
-  PRODUCT_UNITS,
-  TAX_BASES,
-} from '@b2b-catalog-platform/shared/core/catalog';
-import {
   AnyPgColumn,
   boolean,
   check,
@@ -30,9 +15,26 @@ import {
   uuid,
   varchar,
 } from 'drizzle-orm/pg-core';
+
+import {
+  PRODUCT_UNITS,
+  TAX_BASES,
+} from '@b2b-catalog-platform/shared/core/catalog';
+import {
+  FULFILMENT_METHODS,
+  ORDER_ADJUSTMENT_NOTE_MAX,
+  ORDER_DOCUMENT_KINDS,
+  ORDER_REVISION_KINDS,
+  ORDER_STATUS_REASON_MAX,
+  ORDER_STATUSES,
+  ORDER_WRITE_ACTOR_MAX,
+  PAYMENT_METHODS,
+  PAYMENT_STATES,
+} from '@b2b-catalog-platform/shared/core/ordering';
+
+import { identities } from '../../platform/db/schema';
 import { oneOf } from '../../platform/db/sql-columns';
 import { users } from '../accounts/accounts-schema';
-import { identities } from '../../platform/db/schema';
 import { products } from '../catalog/catalog-schema';
 import { pageVersions } from '../site/site-schema';
 

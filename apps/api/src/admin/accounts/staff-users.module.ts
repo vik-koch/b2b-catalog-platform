@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
-import { AuditLogger } from '../../platform/audit/audit.logger';
+
 import { AccountsCoreModule } from '../../core/accounts/accounts-core.module';
+import { AuditLogger } from '../../platform/audit/audit.logger';
 import { OwnershipStateModule } from '../../platform/settings/ownership-state.module';
 import { ConsentAdminModule } from './consent-admin.module';
 import { StaffUsersController } from './staff-users.controller';

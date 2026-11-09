@@ -1,7 +1,9 @@
 import { hash } from '@node-rs/argon2';
-import { ADMIN_CATALOG_PAGE_SIZE } from '@b2b-catalog-platform/shared/admin/catalog';
 import axios from 'axios';
 import { Client } from 'pg';
+
+import { ADMIN_CATALOG_PAGE_SIZE } from '@b2b-catalog-platform/shared/admin/catalog';
+
 import { requireEnv } from '../support/env';
 
 /**

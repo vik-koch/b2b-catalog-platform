@@ -1,5 +1,6 @@
-import { sessionCookieIn } from './session-cookie';
 import { AUTH_COOKIE } from '@b2b-catalog-platform/shared/platform';
+
+import { sessionCookieIn } from './session-cookie';
 
 describe('sessionCookieIn', () => {
   it('picks the session cookie out, alone', () => {

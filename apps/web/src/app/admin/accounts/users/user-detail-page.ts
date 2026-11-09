@@ -1,5 +1,3 @@
-import { ACCOUNTS_CONFIG } from '../../../core/accounts/accounts-config';
-import { ADMIN_ACCOUNTS_TEXT } from '../accounts-text';
 import {
   Component,
   computed,
@@ -9,55 +7,59 @@ import {
   signal,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
+
+import { ConsentRecord } from '@b2b-catalog-platform/shared/admin/accounts';
 import { CustomerTier } from '@b2b-catalog-platform/shared/admin/catalog';
-import { ADMIN_TEXT } from '../../../platform/config/admin-text';
-import { SHARED_TEXT } from '../../../platform/config/shared-text';
-import { SHARED_ACCOUNTS_TEXT } from '../../../core/accounts/accounts-text';
-import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
-import { AuthService } from '../../../platform/auth/auth.service';
-import { formatPhone } from '../../../platform/contact-fields';
-import { delayedLoading } from '../../../platform/delayed-loading';
-import { usePageSeo } from '../../../platform/page-seo';
-import { LockedNote } from '../../platform/ownership/ui/locked-note';
-import { ConsentRecordList } from '../consents/consent-record-list';
-import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import {
-  ConfirmService,
-  confirmRequest,
-} from '@b2b-catalog-platform/ui/overlay/confirm.service';
-import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+  formatPersonName,
+  StaffUser,
+} from '@b2b-catalog-platform/shared/core/accounts';
+import {
+  fillText,
+  normalizePhone,
+} from '@b2b-catalog-platform/shared/platform';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
+import { Card } from '@b2b-catalog-platform/ui/content/card';
+import { FACT_LIST } from '@b2b-catalog-platform/ui/content/fact-list';
+import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
+import { SectionTitle } from '@b2b-catalog-platform/ui/content/section-title';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
+import { arrowLeftIcon } from '@b2b-catalog-platform/ui/icons/glyphs/arrow-left';
+import { circleCheckIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-check';
+import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
+import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import {
+  confirmRequest,
+  ConfirmService,
+} from '@b2b-catalog-platform/ui/overlay/confirm.service';
+
+import { ACCOUNTS_CONFIG } from '../../../core/accounts/accounts-config';
+import { SHARED_ACCOUNTS_TEXT } from '../../../core/accounts/accounts-text';
+import { SITE_CONFIG } from '../../../core/site/site-config';
+import { AuthService } from '../../../platform/auth/auth.service';
+import { ADMIN_TEXT } from '../../../platform/config/admin-text';
+import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { formatPhone } from '../../../platform/contact-fields';
+import { delayedLoading } from '../../../platform/delayed-loading';
 import { injectEditorReturnParams } from '../../../platform/edit-mode/editor-return';
-import { OwnershipService } from '../../platform/ownership/ownership.service';
+import { usePageSeo } from '../../../platform/page-seo';
+import { ADMIN_CATALOG_TEXT } from '../../catalog/catalog-text';
 import { TiersService } from '../../catalog/tiers/tiers.service';
-import { StaffUsersService } from './users.service';
+import { OwnershipService } from '../../platform/ownership/ownership.service';
+import { LockedNote } from '../../platform/ownership/ui/locked-note';
+import { ADMIN_ACCOUNTS_TEXT } from '../accounts-text';
+import { ConsentRecordList } from '../consents/consent-record-list';
 import {
   baseTierName,
   userRoleLabel,
   userStatusLabel,
   userStatusTone,
 } from './user-status';
-import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
-import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
-import { arrowLeftIcon } from '@b2b-catalog-platform/ui/icons/glyphs/arrow-left';
-import { circleCheckIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-check';
-import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
-import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
-import { Card } from '@b2b-catalog-platform/ui/content/card';
-import { FACT_LIST } from '@b2b-catalog-platform/ui/content/fact-list';
-import { SectionTitle } from '@b2b-catalog-platform/ui/content/section-title';
-import {
-  formatPersonName,
-  StaffUser,
-} from '@b2b-catalog-platform/shared/core/accounts';
-import { ConsentRecord } from '@b2b-catalog-platform/shared/admin/accounts';
-import {
-  normalizePhone,
-  fillText,
-} from '@b2b-catalog-platform/shared/platform';
-import { SITE_CONFIG } from '../../../core/site/site-config';
-import { ADMIN_CATALOG_TEXT } from '../../catalog/catalog-text';
+import { StaffUsersService } from './users.service';
 
 /**
  * One account, read rather than edited: the customer's own page seen from the

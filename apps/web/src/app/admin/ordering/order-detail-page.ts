@@ -1,6 +1,3 @@
-import { SHARED_ORDERING_TEXT } from '../../core/ordering/ordering-text';
-import { ADMIN_ORDERING_TEXT } from './ordering-text';
-import { ACCOUNTS_CONFIG } from '../../core/accounts/accounts-config';
 import {
   Component,
   computed,
@@ -9,66 +6,71 @@ import {
   resource,
   signal,
 } from '@angular/core';
-import { useTaxStatement } from '../../core/catalog/tax-statement';
 import { RouterLink } from '@angular/router';
-import { Link } from '@b2b-catalog-platform/ui/actions/link';
+
 import {
-  isOrderFinished,
-  OrderStatus,
   AdminOrderDetail,
   AdminOrderLine,
+  isOrderFinished,
+  OrderStatus,
 } from '@b2b-catalog-platform/shared/core/ordering';
 import {
   fillText,
-  moneyFormat,
   formatMoneyMinor,
+  moneyFormat,
   shopTimeZone,
 } from '@b2b-catalog-platform/shared/platform';
-import { OrderSummary } from '../../core/ordering/ui/order-summary';
-import { SHARED_TEXT } from '../../platform/config/shared-text';
-import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
-import { delayedLoading } from '../../platform/delayed-loading';
-import { usePageSeo } from '../../platform/page-seo';
-import { orderBlocks } from '../../core/ordering/order-blocks';
-import { staffBlockLabels } from './staff-block-labels';
-import {
-  OrderReadBack,
-  ReadBackLine,
-  ReviewBlock,
-} from '../../core/ordering/ui/order-read-back';
-import {
-  orderStatusLabel,
-  orderStatusTone,
-} from '../../core/ordering/order-status';
-import { orderDateTimeFormat } from '../../core/ordering/order-formats';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
-import {
-  ConfirmService,
-  confirmRequest,
-} from '@b2b-catalog-platform/ui/overlay/confirm.service';
-import { AuthService } from '../../platform/auth/auth.service';
-import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import { Link } from '@b2b-catalog-platform/ui/actions/link';
+import { Card } from '@b2b-catalog-platform/ui/content/card';
+import { FACT_LIST } from '@b2b-catalog-platform/ui/content/fact-list';
+import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import {
   StatusBadge,
   StatusTone,
 } from '@b2b-catalog-platform/ui/content/status-badge';
-import { LockedNote } from '../platform/ownership/ui/locked-note';
-import { OwnershipService } from '../platform/ownership/ownership.service';
-import { OrderDocumentsPanel } from './order-documents-panel';
-import { OrderCustomerSync } from './order-customer-sync';
-import { OrderVersionHistory } from './order-version-history';
-import { moveOptions, moveRequest, staffMoves } from './order-moves';
-import { AdminOrdersService } from './orders.service';
-import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
+import { SummaryLayout } from '@b2b-catalog-platform/ui/content/summary-layout';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { circleCheckIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-check';
 import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
 import { rotateCcwIcon } from '@b2b-catalog-platform/ui/icons/glyphs/rotate-ccw';
 import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
-import { Card } from '@b2b-catalog-platform/ui/content/card';
-import { FACT_LIST } from '@b2b-catalog-platform/ui/content/fact-list';
-import { SummaryLayout } from '@b2b-catalog-platform/ui/content/summary-layout';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import {
+  confirmRequest,
+  ConfirmService,
+} from '@b2b-catalog-platform/ui/overlay/confirm.service';
+
+import { ACCOUNTS_CONFIG } from '../../core/accounts/accounts-config';
+import { useTaxStatement } from '../../core/catalog/tax-statement';
+import { orderBlocks } from '../../core/ordering/order-blocks';
+import { orderDateTimeFormat } from '../../core/ordering/order-formats';
+import {
+  orderStatusLabel,
+  orderStatusTone,
+} from '../../core/ordering/order-status';
+import { SHARED_ORDERING_TEXT } from '../../core/ordering/ordering-text';
+import {
+  OrderReadBack,
+  ReadBackLine,
+  ReviewBlock,
+} from '../../core/ordering/ui/order-read-back';
+import { OrderSummary } from '../../core/ordering/ui/order-summary';
+import { AuthService } from '../../platform/auth/auth.service';
+import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
+import { SHARED_TEXT } from '../../platform/config/shared-text';
+import { delayedLoading } from '../../platform/delayed-loading';
+import { usePageSeo } from '../../platform/page-seo';
+import { OwnershipService } from '../platform/ownership/ownership.service';
+import { LockedNote } from '../platform/ownership/ui/locked-note';
+import { OrderCustomerSync } from './order-customer-sync';
+import { OrderDocumentsPanel } from './order-documents-panel';
+import { moveOptions, moveRequest, staffMoves } from './order-moves';
+import { OrderVersionHistory } from './order-version-history';
+import { ADMIN_ORDERING_TEXT } from './ordering-text';
+import { AdminOrdersService } from './orders.service';
+import { staffBlockLabels } from './staff-block-labels';
 
 /**
  * One order as staff read it (FR-AUTH-03): the customer's page plus the price

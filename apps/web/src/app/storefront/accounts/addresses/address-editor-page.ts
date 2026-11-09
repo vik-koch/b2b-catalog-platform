@@ -1,5 +1,3 @@
-import { STOREFRONT_ACCOUNTS_TEXT } from '../accounts-text';
-import { SHARED_ACCOUNTS_TEXT } from '../../../core/accounts/accounts-text';
 import {
   Component,
   computed,
@@ -9,11 +7,16 @@ import {
   signal,
 } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+
 import { fillText } from '@b2b-catalog-platform/shared/platform';
-import { delayedLoading } from '../../../platform/delayed-loading';
-import { usePageSeo } from '../../../platform/page-seo';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
+import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
+import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
+import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
+
+import { SHARED_ACCOUNTS_TEXT } from '../../../core/accounts/accounts-text';
 import { AddressFields } from '../../../core/accounts/addresses/address-fields';
 import { createAddressForm } from '../../../core/accounts/addresses/address-form';
 import {
@@ -21,10 +24,9 @@ import {
   SaveAddressResult,
 } from '../../../core/accounts/addresses/addresses.service';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
-import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
-import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
-import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
-import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
+import { delayedLoading } from '../../../platform/delayed-loading';
+import { usePageSeo } from '../../../platform/page-seo';
+import { STOREFRONT_ACCOUNTS_TEXT } from '../accounts-text';
 
 /** Adding or correcting one saved address. */
 @Component({

@@ -1,19 +1,20 @@
-import { sharedOrderingText } from '../ordering-text';
-import { orderingMail } from './ordering-mail-text';
+import { OrderDetail } from '@b2b-catalog-platform/shared/core/ordering';
 import {
-  SharedText,
   fillText,
   MoneyFormat,
+  SharedText,
+  shopDay,
 } from '@b2b-catalog-platform/shared/platform';
-import { OrderDetail } from '@b2b-catalog-platform/shared/core/ordering';
-import { shopDay } from '@b2b-catalog-platform/shared/platform';
+
 import { MailContent } from '../../../platform/mail/mail-layout';
 import { MailText } from '../../../platform/mail/mail-text';
+import { sharedOrderingText } from '../ordering-text';
 import {
   orderLinesDifferInTax,
   orderMailItem,
   orderMailTotal,
 } from './order-items';
+import { orderingMail } from './ordering-mail-text';
 
 /**
  * Sent to whoever placed an order request (FR-NOTIF-06): a receipt for a

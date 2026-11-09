@@ -1,13 +1,14 @@
 import { PDFDocument } from 'pdf-lib';
+
+import { Database } from '../../platform/db/database';
 import {
-  demoSharedText,
   demoMailBranding,
   demoPdfText,
+  demoSharedText,
 } from '../../platform/mail/mail-text.fixture';
 import { PdfFaces } from '../../platform/pdf/pdf-faces';
 import { demoAdminOrder } from './order.fixture';
 import { TermsPdf } from './terms-pdf';
-import { Database } from '../../platform/db/database';
 
 const version = {
   title: 'Terms of sale',

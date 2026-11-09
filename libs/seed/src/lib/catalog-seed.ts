@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto';
 import { Client } from 'pg';
+
 import {
   DEFAULT_LOW_STOCK_THRESHOLD_PIECES,
   parseAttributeNumber,
@@ -8,6 +9,7 @@ import {
   splitAttributeKey,
 } from '@b2b-catalog-platform/shared/core/catalog';
 import { sanitizeRichText } from '@b2b-catalog-platform/shared/node';
+
 import { ProductSeed, SeedBundle } from './bundle';
 import { CatalogPhotos, PictureMode } from './catalog-photos';
 import {

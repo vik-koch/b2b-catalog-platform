@@ -1,6 +1,6 @@
-import { accountsMail } from './accounts-mail-text';
 import { MailContent } from '../../../platform/mail/mail-layout';
 import { MailText } from '../../../platform/mail/mail-text';
+import { accountsMail } from './accounts-mail-text';
 
 /** Sent to the address that deleted its account (FR-AUTH-06), the last mail
  * it gets. No link: there is nothing to sign in to, and registering again is a

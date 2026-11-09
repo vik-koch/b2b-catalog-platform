@@ -1,15 +1,16 @@
-import { drizzle } from 'drizzle-orm/node-postgres';
 import { and, SQL } from 'drizzle-orm';
+import { drizzle } from 'drizzle-orm/node-postgres';
+
 import {
   attributeDefinitions,
   products,
 } from '../../core/catalog/catalog-schema';
+import { Database } from '../../platform/db/database';
 import {
   buildFacets,
   resolveSelections,
   selectionConditions,
 } from './product-facets';
-import { Database } from '../../platform/db/database';
 
 const definition = (
   name: string,

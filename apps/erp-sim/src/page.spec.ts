@@ -1,5 +1,6 @@
-import { AddressInfo } from 'node:net';
 import { Server } from 'node:http';
+import { AddressInfo } from 'node:net';
+
 import { PageView, servePage } from './page';
 
 const view = (overrides: Partial<PageView> = {}): PageView => ({

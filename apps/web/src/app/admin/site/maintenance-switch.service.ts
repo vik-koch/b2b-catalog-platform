@@ -1,8 +1,10 @@
 import { inject, Injectable, signal } from '@angular/core';
+
 import { MaintenanceCheck } from '@b2b-catalog-platform/shared/core/site';
-import { adminMaintenanceContract } from './contract-routes.generated';
-import { createOrpcClient } from '../../platform/orpc-client';
+
 import { MaintenanceService } from '../../core/site/maintenance.service';
+import { createOrpcClient } from '../../platform/orpc-client';
+import { adminMaintenanceContract } from './contract-routes.generated';
 
 /** Every answer goes to the public check's memo too, so this app is current. */
 @Injectable({ providedIn: 'root' })

@@ -1,12 +1,14 @@
-import { defaultSharedAccountsText } from '../accounts-text.fixture';
-import { TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
 import { form } from '@angular/forms/signals';
+
+import { PartySuggestion } from '@b2b-catalog-platform/shared/core/accounts';
+
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
 import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
+import { defaultSharedAccountsText } from '../accounts-text.fixture';
 import { PartiesService } from './parties.service';
 import { PartySuggestInput } from './party-suggest-input';
-import { PartySuggestion } from '@b2b-catalog-platform/shared/core/accounts';
 
 /** What the stubbed provider answers with; set per test. */
 let answers: PartySuggestion[] = [];

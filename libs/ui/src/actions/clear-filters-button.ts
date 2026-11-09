@@ -1,7 +1,8 @@
 import { Component, input, output } from '@angular/core';
+
+import { funnelXIcon } from '../icons/glyphs/funnel-x';
 import { Icon } from '../icons/icon';
 import { IconButton, IconButtonSize } from './icon-button';
-import { funnelXIcon } from '../icons/glyphs/funnel-x';
 
 /**
  * Back to the whole list: a glyph, so it fits the line of the box it clears.

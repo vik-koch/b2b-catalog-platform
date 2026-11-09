@@ -1,7 +1,9 @@
-import type { MockInstance } from 'vitest';
 import { Logger } from '@nestjs/common';
-import { AuditLogger } from './audit.logger';
+import type { MockInstance } from 'vitest';
+
 import { AuthUser } from '@b2b-catalog-platform/shared/platform';
+
+import { AuditLogger } from './audit.logger';
 
 const actor = {
   id: 'b6f7c0f4-1111-2222-3333-444455556666',

@@ -10,12 +10,14 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router } from '@angular/router';
 import { safe } from '@orpc/client';
 import { filter } from 'rxjs';
+
 import { WorkCounts } from '@b2b-catalog-platform/shared/core/work';
+
 import { AuthService } from '../../platform/auth/auth.service';
-import { workContract } from './contract-routes.generated';
+import { pathOf } from '../../platform/current-url';
 import { createOrpcClient } from '../../platform/orpc-client';
 import { WorkRefresh } from '../../platform/work-refresh';
-import { pathOf } from '../../platform/current-url';
+import { workContract } from './contract-routes.generated';
 
 /**
  * What awaits the signed-in account (FR-WORK-01…04). Browser only: no render

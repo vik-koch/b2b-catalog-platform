@@ -1,18 +1,20 @@
-import { SHARED_TEXT } from '../../platform/config/shared-text';
-import { defaultSharedText } from '../../platform/config/shared-text.fixture';
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
-import { AuthService } from '../../platform/auth/auth.service';
-import { WorkService } from '../../core/work/work.service';
+
+import { UserRole } from '@b2b-catalog-platform/shared/platform';
+
 import { workStub } from '../../core/work/work.fixture';
-import { STOREFRONT_TEXT } from '../../platform/config/storefront-text';
-import { defaultStorefrontText } from '../../platform/config/storefront-text.fixture';
+import { WorkService } from '../../core/work/work.service';
+import { AuthService } from '../../platform/auth/auth.service';
 import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
 import { defaultDeploymentConfig } from '../../platform/config/deployment-config.fixture';
-import { BottomNav } from './bottom-nav';
+import { SHARED_TEXT } from '../../platform/config/shared-text';
+import { defaultSharedText } from '../../platform/config/shared-text.fixture';
+import { STOREFRONT_TEXT } from '../../platform/config/storefront-text';
+import { defaultStorefrontText } from '../../platform/config/storefront-text.fixture';
 import { MobileSearch } from '../platform/mobile-search';
-import { UserRole } from '@b2b-catalog-platform/shared/platform';
+import { BottomNav } from './bottom-nav';
 
 /** Enough of AuthService for the panel's one session-dependent row. */
 function authStub(role: UserRole | null) {

@@ -1,12 +1,14 @@
-import { ORDERING_CONFIG } from '../../../../core/ordering/ordering-config';
-import { STOREFRONT_ORDERING_TEXT } from '../../ordering-text';
-import { SHARED_ORDERING_TEXT } from '../../../../core/ordering/ordering-text';
 import { Component, inject, input, output, signal } from '@angular/core';
+
 import { FulfilmentMethod } from '@b2b-catalog-platform/shared/core/ordering';
-import { DEPLOYMENT_CONFIG } from '../../../../platform/config/deployment-config';
-import { ChoiceCard } from '@b2b-catalog-platform/ui/choices/choice-card';
-import { DeliveryConditionsDialog } from './delivery-conditions-dialog';
 import { Link } from '@b2b-catalog-platform/ui/actions/link';
+import { ChoiceCard } from '@b2b-catalog-platform/ui/choices/choice-card';
+
+import { ORDERING_CONFIG } from '../../../../core/ordering/ordering-config';
+import { SHARED_ORDERING_TEXT } from '../../../../core/ordering/ordering-text';
+import { DEPLOYMENT_CONFIG } from '../../../../platform/config/deployment-config';
+import { STOREFRONT_ORDERING_TEXT } from '../../ordering-text';
+import { DeliveryConditionsDialog } from './delivery-conditions-dialog';
 
 /** How the goods arrive (FR-CART-07). First, as it decides what follows; the
  * address or pickup row stands under it, so either takes the same place. Pickup

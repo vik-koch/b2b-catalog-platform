@@ -1,7 +1,9 @@
 import { hash } from '@node-rs/argon2';
 import axios from 'axios';
 import { Client } from 'pg';
+
 import { ROUTE_ACCESS } from '@b2b-catalog-platform/shared/node';
+
 import { requireEnv } from '../support/env';
 
 /**

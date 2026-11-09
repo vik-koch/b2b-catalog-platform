@@ -1,8 +1,9 @@
 import { Component, input } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
-import { WorkService } from '../../core/work/work.service';
+
 import { workStub } from '../../core/work/work.fixture';
+import { WorkService } from '../../core/work/work.service';
 import { AccountHomePage } from './account-home-page';
 
 @Component({ selector: 'app-account-page', template: '<ng-content />' })

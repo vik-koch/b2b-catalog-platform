@@ -1,10 +1,12 @@
-import { STOREFRONT_ORDERING_TEXT } from '../../ordering-text';
-import { ORDERING_CONFIG } from '../../../../core/ordering/ordering-config';
 import { Component, inject, input, output } from '@angular/core';
-import { EmphasisedText } from '@b2b-catalog-platform/ui/content/emphasised-text';
-import { Radio } from '@b2b-catalog-platform/ui/choices/radio';
+
 import { TextButton } from '@b2b-catalog-platform/ui/actions/text-button';
+import { Radio } from '@b2b-catalog-platform/ui/choices/radio';
+import { EmphasisedText } from '@b2b-catalog-platform/ui/content/emphasised-text';
 import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
+
+import { ORDERING_CONFIG } from '../../../../core/ordering/ordering-config';
+import { STOREFRONT_ORDERING_TEXT } from '../../ordering-text';
 
 /** The collection point, in the place the delivery address takes. Plain radios:
  * a shop may have many. The map is a link, not an embed. */

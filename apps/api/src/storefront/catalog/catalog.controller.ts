@@ -1,10 +1,12 @@
 import { Controller } from '@nestjs/common';
 import { Implement, implement } from '@orpc/nest';
-import { catalogContract } from '@b2b-catalog-platform/shared/storefront/catalog';
+
 import { parseAttributeParams } from '@b2b-catalog-platform/shared/core/catalog';
-import { CatalogService } from './catalog.service';
+import { catalogContract } from '@b2b-catalog-platform/shared/storefront/catalog';
+
 import { PricingTier } from '../../core/catalog/pricing-tier.decorator';
 import { TierPriced } from '../../core/catalog/tier-priced.decorator';
+import { CatalogService } from './catalog.service';
 
 /**
  * The storefront's catalog reads (FR-CAT-01…05); search has its own

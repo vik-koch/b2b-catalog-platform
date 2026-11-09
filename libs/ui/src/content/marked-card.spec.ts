@@ -1,8 +1,9 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { MarkedCard } from './marked-card';
+
 import { Glyph } from '../icons/glyph';
 import { mapPinIcon } from '../icons/glyphs/map-pin';
+import { MarkedCard } from './marked-card';
 
 @Component({
   imports: [MarkedCard],

@@ -1,4 +1,5 @@
 import type { Request, Response } from 'express';
+
 import {
   AUTH_COOKIE,
   SESSION_HINT_COOKIE,

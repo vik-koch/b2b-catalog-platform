@@ -1,4 +1,5 @@
 import nx from '@nx/eslint-plugin';
+
 import baseConfig from '../../eslint.config.mjs';
 import { areaBoundaries } from '../../tools/lint/area-boundaries.mjs';
 import { classLines } from '../../tools/lint/class-lines.mjs';

@@ -1,19 +1,21 @@
 import { Component, inject, input } from '@angular/core';
+
 import { ProductFact } from '@b2b-catalog-platform/shared/admin/catalog';
-import { boxesIcon } from '@b2b-catalog-platform/ui/icons/glyphs/boxes';
-import { imageIcon } from '@b2b-catalog-platform/ui/icons/glyphs/image';
-import { letterTextIcon } from '@b2b-catalog-platform/ui/icons/glyphs/letter-text';
-import { tablePropertiesIcon } from '@b2b-catalog-platform/ui/icons/glyphs/table-properties';
-import { tagIcon } from '@b2b-catalog-platform/ui/icons/glyphs/tag';
-import { weightIcon } from '@b2b-catalog-platform/ui/icons/glyphs/weight';
-import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Glyph } from '@b2b-catalog-platform/ui/icons/glyph';
+import { boxesIcon } from '@b2b-catalog-platform/ui/icons/glyphs/boxes';
 import { fileTextIcon } from '@b2b-catalog-platform/ui/icons/glyphs/file-text';
+import { imageIcon } from '@b2b-catalog-platform/ui/icons/glyphs/image';
 import { layers2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/layers-2';
+import { letterTextIcon } from '@b2b-catalog-platform/ui/icons/glyphs/letter-text';
 import { messageCircleIcon } from '@b2b-catalog-platform/ui/icons/glyphs/message-circle';
 import { packagePlusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/package-plus';
 import { paletteIcon } from '@b2b-catalog-platform/ui/icons/glyphs/palette';
 import { starIcon } from '@b2b-catalog-platform/ui/icons/glyphs/star';
+import { tablePropertiesIcon } from '@b2b-catalog-platform/ui/icons/glyphs/table-properties';
+import { tagIcon } from '@b2b-catalog-platform/ui/icons/glyphs/tag';
+import { weightIcon } from '@b2b-catalog-platform/ui/icons/glyphs/weight';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+
 import { ADMIN_CATALOG_TEXT } from '../catalog-text';
 import { FeatureFact } from './product-facts';
 

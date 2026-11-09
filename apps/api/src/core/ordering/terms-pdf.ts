@@ -1,22 +1,28 @@
-import { sharedOrderingText, orderingPdf } from './ordering-text';
-import { SharedText, fillText } from '@b2b-catalog-platform/shared/platform';
-import { AdminOrderDetail } from '@b2b-catalog-platform/shared/core/ordering';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { and, eq } from 'drizzle-orm';
 import { PDFDocument } from 'pdf-lib';
+
+import { AdminOrderDetail } from '@b2b-catalog-platform/shared/core/ordering';
+import {
+  fillText,
+  SharedText,
+  shopDay,
+  shopIsoDay,
+} from '@b2b-catalog-platform/shared/platform';
+
 import { SHOP_TIME_ZONE } from '../../platform/config/deployment-config';
-import { TERMS_ATTACHED } from './terms-config';
-import { DRIZZLE } from '../../platform/db/database.module';
-import { pageVersions } from '../site/site-schema';
-import { MAIL_BRANDING, MailBranding } from '../../platform/mail/mail-branding';
 import { SHARED_TEXT } from '../../platform/config/shared-text';
-import { PDF_TEXT, PdfText } from '../../platform/pdf/pdf-text';
+import { Database } from '../../platform/db/database';
+import { DRIZZLE } from '../../platform/db/database.module';
+import { MAIL_BRANDING, MailBranding } from '../../platform/mail/mail-branding';
 import { MailAttachment } from '../../platform/mail/mailer';
 import { PdfFaces } from '../../platform/pdf/pdf-faces';
 import { Sheet } from '../../platform/pdf/pdf-sheet';
+import { PDF_TEXT, PdfText } from '../../platform/pdf/pdf-text';
 import { richTextBlocks } from '../../platform/pdf/rich-text-blocks';
-import { shopDay, shopIsoDay } from '@b2b-catalog-platform/shared/platform';
-import { Database } from '../../platform/db/database';
+import { pageVersions } from '../site/site-schema';
+import { orderingPdf, sharedOrderingText } from './ordering-text';
+import { TERMS_ATTACHED } from './terms-config';
 
 const HEADING_SIZES = { 2: 13, 3: 11.5, 4: 10.5 } as const;
 

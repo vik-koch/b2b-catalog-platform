@@ -1,14 +1,16 @@
-import { SHARED_TEXT } from '../../../platform/config/shared-text';
-import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { ADMIN_TEXT } from '../../../platform/config/admin-text';
-import { defaultAdminText } from '../../../platform/config/admin-text.fixture';
+
 import { OwnershipArea } from '@b2b-catalog-platform/shared/platform';
 import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
+
+import { ADMIN_TEXT } from '../../../platform/config/admin-text';
+import { defaultAdminText } from '../../../platform/config/admin-text.fixture';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { defaultSharedText } from '../../../platform/config/shared-text.fixture';
 import { provideOwnership } from '../../platform/ownership/ownership.fixture';
-import { ProductRowActions, ProductRowState } from './product-row-actions';
 import { defaultAdminCatalogText } from '../catalog-text.fixture';
+import { ProductRowActions, ProductRowState } from './product-row-actions';
 
 const text = defaultAdminText.editMode;
 

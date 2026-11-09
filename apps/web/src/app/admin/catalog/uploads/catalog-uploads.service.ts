@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { DOCUMENT, inject, Injectable } from '@angular/core';
 import { lastValueFrom } from 'rxjs';
+
 import { UploadCatalogImageResponse } from '@b2b-catalog-platform/shared/admin/catalog';
 
 /** Catalog pictures, multipart, so not through the oRPC client. */

@@ -1,10 +1,10 @@
 import { isPlatformBrowser } from '@angular/common';
 import {
   DestroyRef,
-  PLATFORM_ID,
-  Signal,
   effect,
   inject,
+  PLATFORM_ID,
+  Signal,
   signal,
 } from '@angular/core';
 

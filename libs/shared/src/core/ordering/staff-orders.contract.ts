@@ -1,4 +1,11 @@
 import * as z from 'zod';
+
+import { addressInputSchema } from '../accounts/address.contract';
+import { productUnitSchema } from '../catalog/catalog.contract';
+import { CART_NOTE_MAX, LINE_PIECES_MAX } from '../catalog/product-units';
+import { TAX_BASES } from '../catalog/tax';
+import { CART_LINES_MAX } from './cart';
+import { cartPreviewSchema } from './cart.contract';
 import {
   ORDER_ADJUSTMENT_NOTE_MAX,
   ORDER_NOTICES,
@@ -8,12 +15,6 @@ import {
   STAFF_ORDER_SORTS,
   STAFF_PAYMENT_FILTERS,
 } from './orders';
-import { TAX_BASES } from '../catalog/tax';
-import { cartPreviewSchema } from './cart.contract';
-import { CART_LINES_MAX } from './cart';
-import { CART_NOTE_MAX, LINE_PIECES_MAX } from '../catalog/product-units';
-import { productUnitSchema } from '../catalog/catalog.contract';
-import { addressInputSchema } from '../accounts/address.contract';
 import {
   DESTINATION_MESSAGE,
   fulfilmentMethodSchema,
@@ -21,9 +22,9 @@ import {
   orderContactSchema,
   orderDetailSchema,
   orderDocumentSchema,
+  orderingPartySchema,
   orderLineSchema,
   orderStatusSchema,
-  orderingPartySchema,
   paymentMethodSchema,
 } from './orders.contract';
 

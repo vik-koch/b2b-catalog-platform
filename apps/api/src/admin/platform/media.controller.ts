@@ -6,15 +6,17 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { MEDIA_MAX_UPLOAD_BYTES } from '@b2b-catalog-platform/shared/platform';
+
 import { UploadMediaResponse } from '@b2b-catalog-platform/shared/admin/platform';
+import { MEDIA_MAX_UPLOAD_BYTES } from '@b2b-catalog-platform/shared/platform';
+
 import { Auth } from '../../platform/auth/auth.decorator';
-import { MEDIA_STORE, MediaStore } from '../../platform/media/media-store';
-import { readImageUpload } from '../../platform/media/image-upload';
 import {
   processImage,
   STORED_IMAGE_EXT,
 } from '../../platform/media/image-processing';
+import { readImageUpload } from '../../platform/media/image-upload';
+import { MEDIA_STORE, MediaStore } from '../../platform/media/media-store';
 
 /**
  * An image for a page body. Multipart, so no oRPC contract; the response shape

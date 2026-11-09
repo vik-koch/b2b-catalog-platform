@@ -1,38 +1,18 @@
-import {
-  MoneyFormat,
-  type SharedText,
-} from '@b2b-catalog-platform/shared/platform';
+import { SyncRun } from '@b2b-catalog-platform/shared/core/exchange';
 import {
   OrderDetail,
   OrderPickup,
 } from '@b2b-catalog-platform/shared/core/ordering';
-import { SyncRun } from '@b2b-catalog-platform/shared/core/exchange';
-import type { MailBranding } from '../platform/mail/mail-branding';
-import { DEFAULT_MAIL_COLORS } from '../platform/mail/mail-colors';
+import { SITE_AREA } from '@b2b-catalog-platform/shared/core/site';
 import {
-  MailContent,
-  RenderedMail,
-  renderMail,
-} from '../platform/mail/mail-layout';
-import {
-  demoSharedText,
-  demoMailText,
-} from '../platform/mail/mail-text.fixture';
-import { type MailText, mailTextBlock } from '../platform/mail/mail-text';
-import type { SiteMailText } from '../storefront/site/site-mail-text';
-import { demoAdminOrder } from '../core/ordering/order.fixture';
-import { accountDeletedMail } from '../core/accounts/mail/account-deleted.template';
-import { inquiryMail } from '../storefront/site/inquiry.template';
-import { invitationMail } from '../core/accounts/mail/invitation.template';
+  MoneyFormat,
+  type SharedText,
+} from '@b2b-catalog-platform/shared/platform';
+
 import { accountClosedMail } from '../core/accounts/mail/account-closed.template';
-import { newOrderMail } from '../core/ordering/mail/new-order.template';
-import { orderCancelledMail } from '../core/ordering/mail/order-cancelled.template';
-import { newRegistrationMail } from '../storefront/accounts/mail/new-registration.template';
-import { orderDocumentMail } from '../core/ordering/mail/order-document.template';
-import { orderReceivedMail } from '../core/ordering/mail/order-received.template';
-import { orderStatusChangedMail } from '../core/ordering/mail/order-status.template';
+import { accountDeletedMail } from '../core/accounts/mail/account-deleted.template';
+import { invitationMail } from '../core/accounts/mail/invitation.template';
 import { passwordResetMail } from '../core/accounts/mail/password-reset.template';
-import { registrationReceivedMail } from '../storefront/accounts/mail/registration-received.template';
 import {
   signInCallMail,
   signInCodeMail,
@@ -43,7 +23,28 @@ import {
   syncRecoveredMail,
   syncWaitingMail,
 } from '../core/exchange/sync-run.template';
-import { SITE_AREA } from '@b2b-catalog-platform/shared/core/site';
+import { newOrderMail } from '../core/ordering/mail/new-order.template';
+import { orderCancelledMail } from '../core/ordering/mail/order-cancelled.template';
+import { orderDocumentMail } from '../core/ordering/mail/order-document.template';
+import { orderReceivedMail } from '../core/ordering/mail/order-received.template';
+import { orderStatusChangedMail } from '../core/ordering/mail/order-status.template';
+import { demoAdminOrder } from '../core/ordering/order.fixture';
+import type { MailBranding } from '../platform/mail/mail-branding';
+import { DEFAULT_MAIL_COLORS } from '../platform/mail/mail-colors';
+import {
+  MailContent,
+  RenderedMail,
+  renderMail,
+} from '../platform/mail/mail-layout';
+import { mailTextBlock, type MailText } from '../platform/mail/mail-text';
+import {
+  demoMailText,
+  demoSharedText,
+} from '../platform/mail/mail-text.fixture';
+import { newRegistrationMail } from '../storefront/accounts/mail/new-registration.template';
+import { registrationReceivedMail } from '../storefront/accounts/mail/registration-received.template';
+import { inquiryMail } from '../storefront/site/inquiry.template';
+import type { SiteMailText } from '../storefront/site/site-mail-text';
 
 /**
  * Every message the app can send, rendered from demo wording: what a customer

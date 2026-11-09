@@ -1,8 +1,9 @@
+import { moneyFormat } from '@b2b-catalog-platform/shared/platform';
+
 import { formatPriceMinorShort } from '../../../core/catalog/pricing/price';
 import { defaultDeploymentConfig } from '../../../platform/config/deployment-config.fixture';
 import { cartShellSource } from './cart-shell.server';
 import { CART_STORAGE_KEY, CART_STORAGE_VERSION } from './cart-storage';
-import { moneyFormat } from '@b2b-catalog-platform/shared/platform';
 
 const currency = moneyFormat(defaultDeploymentConfig);
 

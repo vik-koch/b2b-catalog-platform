@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
+
 import { MobileSearch, SearchAnchor } from './mobile-search';
 
 /** An anchor whose row sits at the given offsets from the viewport's top. */

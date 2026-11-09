@@ -1,38 +1,40 @@
+import { Inject, Injectable } from '@nestjs/common';
+import { and, asc, count, eq, inArray, sql, SQL } from 'drizzle-orm';
+
 import {
+  ProductUnit,
+  TaxBasis,
+} from '@b2b-catalog-platform/shared/core/catalog';
+import {
+  AdminOrderDetail,
+  AdminOrderLine,
   ORDER_PAGE_SIZE,
   OrderDetail,
   OrderLine,
   OrderStatus,
   PaymentState,
-  AdminOrderDetail,
-  AdminOrderLine,
   StaffOrderSort,
 } from '@b2b-catalog-platform/shared/core/ordering';
 import { Pagination } from '@b2b-catalog-platform/shared/platform';
-import {
-  ProductUnit,
-  TaxBasis,
-} from '@b2b-catalog-platform/shared/core/catalog';
-import { Inject, Injectable } from '@nestjs/common';
-import { and, asc, count, eq, inArray, sql, SQL } from 'drizzle-orm';
-import {
-  orderColumns,
-  customerRevision,
-  acceptedTerms,
-  notFound,
-  orderListOrderBy,
-  rowBillingAddress,
-  OrderRow,
-  OrderItemRow,
-  CustomerThread,
-} from './order-rows';
-import { publiclyVisible } from '../catalog/product-view';
-import { DRIZZLE } from '../../platform/db/database.module';
-import { products } from '../catalog/catalog-schema';
-import { users } from '../accounts/accounts-schema';
-import { orderItems, orderRevisions, orders } from './ordering-schema';
-import { OrderDocumentsService } from './order-documents.service';
+
 import { Database } from '../../platform/db/database';
+import { DRIZZLE } from '../../platform/db/database.module';
+import { users } from '../accounts/accounts-schema';
+import { products } from '../catalog/catalog-schema';
+import { publiclyVisible } from '../catalog/product-view';
+import { OrderDocumentsService } from './order-documents.service';
+import {
+  acceptedTerms,
+  customerRevision,
+  CustomerThread,
+  notFound,
+  orderColumns,
+  OrderItemRow,
+  orderListOrderBy,
+  OrderRow,
+  rowBillingAddress,
+} from './order-rows';
+import { orderItems, orderRevisions, orders } from './ordering-schema';
 
 /**
  * Every read of an order (FR-ACC-01, FR-AUTH-03): one projection for

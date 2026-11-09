@@ -1,9 +1,11 @@
 import { Component, computed, inject, input } from '@angular/core';
+
 import { ProductAvailability } from '@b2b-catalog-platform/shared/core/catalog';
 import {
   StatusBadge,
   StatusTone,
 } from '@b2b-catalog-platform/ui/content/status-badge';
+
 import { SHARED_CATALOG_TEXT } from '../catalog-text';
 
 /** Green, amber, grey: an empty shelf is a fact, not a refusal. */

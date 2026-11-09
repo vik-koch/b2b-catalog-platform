@@ -1,22 +1,4 @@
 import {
-  effectiveTaxRate,
-  TaxConfig,
-} from '@b2b-catalog-platform/shared/core/catalog';
-import {
-  canTransition,
-  nextPaymentState,
-  OrderActor,
-  OrderStatus,
-  PaymentMethod,
-  PaymentState,
-  paymentStateWithoutPayment,
-  transitionHasReason,
-  transitionNeedsReason,
-  AdminOrderDetail,
-  OrderNotice,
-  OrderRevisionKind,
-} from '@b2b-catalog-platform/shared/core/ordering';
-import {
   BadRequestException,
   ConflictException,
   Inject,
@@ -24,22 +6,42 @@ import {
   Logger,
 } from '@nestjs/common';
 import { and, eq, getTableColumns, sql } from 'drizzle-orm';
+
 import {
-  orderMovedOn,
-  refuseIfDetailsRemoved,
-  carriedSnapshot,
-  OrderRow,
-  OrderSnapshot,
-} from './order-rows';
-import { OrderReader } from './order-reader';
-import { TAX_CONFIG } from '../catalog/catalog-config';
+  effectiveTaxRate,
+  TaxConfig,
+} from '@b2b-catalog-platform/shared/core/catalog';
+import {
+  AdminOrderDetail,
+  canTransition,
+  nextPaymentState,
+  OrderActor,
+  OrderNotice,
+  OrderRevisionKind,
+  OrderStatus,
+  PaymentMethod,
+  PaymentState,
+  paymentStateWithoutPayment,
+  transitionHasReason,
+  transitionNeedsReason,
+} from '@b2b-catalog-platform/shared/core/ordering';
+
+import { Database } from '../../platform/db/database';
 import { DRIZZLE } from '../../platform/db/database.module';
+import { isUniqueViolation } from '../../platform/db/pg-errors';
+import { TAX_CONFIG } from '../catalog/catalog-config';
 import { customerTiers } from '../catalog/catalog-schema';
-import { orderItems, orderRevisions, orders } from './ordering-schema';
 import { OrderDocumentsService } from './order-documents.service';
 import { OrderNotifications } from './order-notifications';
-import { isUniqueViolation } from '../../platform/db/pg-errors';
-import { Database } from '../../platform/db/database';
+import { OrderReader } from './order-reader';
+import {
+  carriedSnapshot,
+  orderMovedOn,
+  OrderRow,
+  OrderSnapshot,
+  refuseIfDetailsRemoved,
+} from './order-rows';
+import { orderItems, orderRevisions, orders } from './ordering-schema';
 
 /**
  * The one writer of order versions: staff, the customer's cancel and

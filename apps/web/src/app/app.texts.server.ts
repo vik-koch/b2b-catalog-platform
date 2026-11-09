@@ -1,10 +1,12 @@
 import { Provider } from '@angular/core';
+
 import { sharedTextSchema } from '@b2b-catalog-platform/shared/deployment';
+
+import { adminTextSchema, storefrontTextSchema } from './app.texts';
 import { ADMIN_TEXT } from './platform/config/admin-text';
 import { mountedFile } from './platform/config/mounted-file.server';
 import { SHARED_TEXT } from './platform/config/shared-text';
 import { STOREFRONT_TEXT } from './platform/config/storefront-text';
-import { adminTextSchema, storefrontTextSchema } from './app.texts';
 
 export const getStorefrontText = mountedFile(
   storefrontTextSchema,

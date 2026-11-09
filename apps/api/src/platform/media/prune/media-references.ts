@@ -2,6 +2,7 @@ import {
   DOCUMENT_URL_PREFIX,
   MEDIA_URL_PREFIX,
 } from '@b2b-catalog-platform/shared/platform';
+
 import { Database } from '../../db/database';
 
 /** The filenames under `prefix` in a stored string, in the charset the

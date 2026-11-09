@@ -1,11 +1,13 @@
 import { Component, computed, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
+
 import {
   ProductAvailability,
   ProductImage,
   ProductVariant,
 } from '@b2b-catalog-platform/shared/core/catalog';
 import { Frame } from '@b2b-catalog-platform/ui/content/frame';
+
 import {
   BuyableProduct,
   ProductBuyControls,

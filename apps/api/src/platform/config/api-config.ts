@@ -1,6 +1,8 @@
-import { loadConfig } from '@b2b-catalog-platform/shared/node';
-import { sessionConfigSchema } from '../auth/session-config';
 import * as z from 'zod';
+
+import { loadConfig } from '@b2b-catalog-platform/shared/node';
+
+import { sessionConfigSchema } from '../auth/session-config';
 
 /** The keys of `api.json` no area claims: what only the API reads, kept out
  * of `deployment.json`, which every page carries. */

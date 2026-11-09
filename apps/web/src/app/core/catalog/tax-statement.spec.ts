@@ -1,9 +1,11 @@
-import { TaxConfig } from '@b2b-catalog-platform/shared/core/catalog';
-import { SHARED_TEXT } from '../../platform/config/shared-text';
-import { defaultSharedText } from '../../platform/config/shared-text.fixture';
 import { TestBed } from '@angular/core/testing';
+
+import { TaxConfig } from '@b2b-catalog-platform/shared/core/catalog';
+
 import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
 import { defaultDeploymentConfig } from '../../platform/config/deployment-config.fixture';
+import { SHARED_TEXT } from '../../platform/config/shared-text';
+import { defaultSharedText } from '../../platform/config/shared-text.fixture';
 import { useTaxStatement } from './tax-statement';
 
 function statement(tax: TaxConfig) {

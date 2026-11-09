@@ -1,37 +1,20 @@
-import { ADMIN_EXCHANGE_TEXT } from '../exchange/exchange-text';
-import { ADMIN_ORDERING_TEXT } from '../ordering/ordering-text';
-import { ADMIN_ACCOUNTS_TEXT } from '../accounts/accounts-text';
 import { Component, computed, inject, resource, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
+
+import { SyncArea } from '@b2b-catalog-platform/shared/core/exchange';
 import {
   CONSENT_PAGE_SLUGS,
   CONSENT_PURPOSES,
   ConsentPurpose,
 } from '@b2b-catalog-platform/shared/core/site';
-import { SyncArea } from '@b2b-catalog-platform/shared/core/exchange';
 import {
+  fillText,
   OWNERSHIP_AREAS,
   OwnershipArea,
-  fillText,
 } from '@b2b-catalog-platform/shared/platform';
-import { AuthService } from '../../platform/auth/auth.service';
-import { SignedInAs } from '../../core/accounts/auth/signed-in-as';
-import { ADMIN_TEXT } from '../../platform/config/admin-text';
-import { SHARED_TEXT } from '../../platform/config/shared-text';
-import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
-import { usePageSeo } from '../../platform/page-seo';
-import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';
 import { ActionLink } from '@b2b-catalog-platform/ui/actions/action-link';
-import { WorkService } from '../../core/work/work.service';
-import { BuildInfoService } from '../platform/build-info.service';
-import { injectEditorReturnParams } from '../../platform/edit-mode/editor-return';
-import { adminMomentFormat } from '../platform/dates/admin-date';
-import { PanelCard } from './panel-card';
-import { PanelRow } from './panel-row';
-import { OwnershipService } from '../platform/ownership/ownership.service';
-import { MaintenanceSwitchService } from '../site/maintenance-switch.service';
-import { SyncService } from '../exchange/sync.service';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
+import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';
 import { bookCheckIcon } from '@b2b-catalog-platform/ui/icons/glyphs/book-check';
 import { clipboardListIcon } from '@b2b-catalog-platform/ui/icons/glyphs/clipboard-list';
 import { fileTextIcon } from '@b2b-catalog-platform/ui/icons/glyphs/file-text';
@@ -40,8 +23,27 @@ import { lockIcon } from '@b2b-catalog-platform/ui/icons/glyphs/lock';
 import { packageIcon } from '@b2b-catalog-platform/ui/icons/glyphs/package';
 import { usersIcon } from '@b2b-catalog-platform/ui/icons/glyphs/users';
 import { wrenchIcon } from '@b2b-catalog-platform/ui/icons/glyphs/wrench';
+
+import { SignedInAs } from '../../core/accounts/auth/signed-in-as';
 import { SITE_CONFIG } from '../../core/site/site-config';
+import { WorkService } from '../../core/work/work.service';
+import { AuthService } from '../../platform/auth/auth.service';
+import { ADMIN_TEXT } from '../../platform/config/admin-text';
+import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
+import { SHARED_TEXT } from '../../platform/config/shared-text';
+import { injectEditorReturnParams } from '../../platform/edit-mode/editor-return';
+import { usePageSeo } from '../../platform/page-seo';
+import { ADMIN_ACCOUNTS_TEXT } from '../accounts/accounts-text';
 import { ADMIN_CATALOG_TEXT } from '../catalog/catalog-text';
+import { ADMIN_EXCHANGE_TEXT } from '../exchange/exchange-text';
+import { SyncService } from '../exchange/sync.service';
+import { ADMIN_ORDERING_TEXT } from '../ordering/ordering-text';
+import { BuildInfoService } from '../platform/build-info.service';
+import { adminMomentFormat } from '../platform/dates/admin-date';
+import { OwnershipService } from '../platform/ownership/ownership.service';
+import { MaintenanceSwitchService } from '../site/maintenance-switch.service';
+import { PanelCard } from './panel-card';
+import { PanelRow } from './panel-row';
 
 /**
  * The staff's first screen: orders and accounts, then what changes the shop's

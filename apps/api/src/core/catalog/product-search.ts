@@ -6,12 +6,14 @@
  */
 
 import { SQL, sql } from 'drizzle-orm';
+
 import {
   alternateLayoutQuery,
   KeyboardLayout,
   SEARCH_QUERY_MAX_LENGTH,
   searchTerms,
 } from '@b2b-catalog-platform/shared/platform';
+
 import { products } from './catalog-schema';
 
 /** Terms past this add only planner work: every term is another index scan. */

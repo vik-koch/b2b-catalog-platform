@@ -1,13 +1,14 @@
 import { oc } from '@orpc/contract';
 import * as z from 'zod';
+
 import { TIER_KEY_MAX_LENGTH } from '../../core/catalog/tiers';
+import { acknowledgementSchema } from '../../platform/acknowledgement.contract';
+import { commonAuthErrors } from '../../platform/api-error';
 import {
-  type TierErrorCode,
   TIER_KEY_PATTERN,
   TIER_LABEL_MAX_LENGTH,
+  type TierErrorCode,
 } from './tiers';
-import { commonAuthErrors } from '../../platform/api-error';
-import { acknowledgementSchema } from '../../platform/acknowledgement.contract';
 
 /**
  * The key a sync file addresses a price list by (see `TIER_KEY_PATTERN`).

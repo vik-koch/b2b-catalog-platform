@@ -1,10 +1,10 @@
+import { CategoryRow } from './catalog-tree';
 import {
   CategoryAttributeRow,
   categoryChain,
   DefinitionRow,
   resolveCategoryDefinitions,
 } from './category-filters';
-import { CategoryRow } from './catalog-tree';
 
 function category(id: string, parentId: string | null): CategoryRow {
   return {

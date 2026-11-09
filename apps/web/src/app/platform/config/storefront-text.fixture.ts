@@ -1,5 +1,7 @@
 import * as z from 'zod';
+
 import { loadConfig } from '@b2b-catalog-platform/shared/node';
+
 import { StorefrontText, storefrontTextShape } from './storefront-text.type';
 
 /** The fixture's storefront text, for specs; the test setup pins CONFIG_PATH

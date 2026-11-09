@@ -1,7 +1,9 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
-import { AuthService } from './auth.service';
+
 import { UserRole } from '@b2b-catalog-platform/shared/platform';
+
+import { AuthService } from './auth.service';
 
 /** Where a role lands after signing in. */
 export function landingFor(role: UserRole): string {

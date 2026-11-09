@@ -1,5 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
+
 import { MaintenanceCheck } from '@b2b-catalog-platform/shared/core/site';
+
 import { SettingsStore } from '../../platform/settings/settings-store';
 
 /** The admin's maintenance toggle (FR-ADM-04). */

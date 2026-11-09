@@ -1,7 +1,9 @@
 import { desc, eq } from 'drizzle-orm';
+
 import { Page } from '@b2b-catalog-platform/shared/core/site';
-import { pageVersions } from './site-schema';
+
 import { Reader } from '../../platform/db/database';
+import { pageVersions } from './site-schema';
 
 export type PageVersionRow = typeof pageVersions.$inferSelect;
 

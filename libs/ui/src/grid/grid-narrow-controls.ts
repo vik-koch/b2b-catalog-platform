@@ -1,14 +1,13 @@
 import { Component, computed, inject, input, signal } from '@angular/core';
+
 import { fill } from '../core/fill';
-import { GRID_TEXT } from './grid-text';
 import { Collapsible } from '../disclosure/collapsible';
-import { DisclosureToggle } from '../disclosure/disclosure-toggle';
 import { DisclosureFrame } from '../disclosure/disclosure-frame';
+import { DisclosureToggle } from '../disclosure/disclosure-toggle';
 import { Input } from '../inputs/input';
 import { SelectInput } from '../inputs/select-input';
-import { GridClearFilters } from './grid-clear-filters';
 import { GridChips } from './grid-chips';
-import { GridFacts } from './grid-facts';
+import { GridClearFilters } from './grid-clear-filters';
 import {
   activeFilterCount,
   filterableColumns,
@@ -18,7 +17,9 @@ import {
   GridFactFilter,
   sortableColumns,
 } from './grid-column';
+import { GridFacts } from './grid-facts';
 import { gridParam, injectGridNav } from './grid-nav';
+import { GRID_TEXT } from './grid-text';
 
 /** One line of the sort picker: a column in one direction. */
 interface SortOption {

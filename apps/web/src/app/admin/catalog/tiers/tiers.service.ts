@@ -1,14 +1,16 @@
 import { Injectable } from '@angular/core';
+import { safe, type ClientPromiseResult } from '@orpc/client';
+
 import {
   CustomerTier,
   ReorderTiersRequest,
   TierErrorCode,
   TierInput,
 } from '@b2b-catalog-platform/shared/admin/catalog';
-import { tiersContract } from '../contract-routes.generated';
-import { safe, type ClientPromiseResult } from '@orpc/client';
+
 import { createOrpcClient } from '../../../platform/orpc-client';
 import { renderable } from '../../platform/renderable';
+import { tiersContract } from '../contract-routes.generated';
 
 export type TierResult =
   { ok: true; tier: CustomerTier } | { ok: false; code: TierErrorCode };

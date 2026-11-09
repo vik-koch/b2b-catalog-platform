@@ -1,4 +1,5 @@
 import { CanDeactivateFn } from '@angular/router';
+
 import { confirmDiscard } from './confirm-discard';
 
 export interface UnsavedChangesAware {

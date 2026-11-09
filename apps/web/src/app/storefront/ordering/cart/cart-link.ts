@@ -1,19 +1,21 @@
-import { STOREFRONT_ORDERING_TEXT } from '../ordering-text';
 import { isPlatformBrowser } from '@angular/common';
 import { Component, computed, inject, input, PLATFORM_ID } from '@angular/core';
 import { RouterLink } from '@angular/router';
+
 import {
   fillText,
-  moneyFormat,
   formatMoneyMinor,
+  moneyFormat,
 } from '@b2b-catalog-platform/shared/platform';
-import { CartService } from './cart.service';
+import { COUNT_DOT } from '@b2b-catalog-platform/ui/content/count-dot';
+import { shoppingBasketIcon } from '@b2b-catalog-platform/ui/icons/glyphs/shopping-basket';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+
 import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
 import { currentPath } from '../../../platform/current-url';
-import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
-import { COUNT_DOT } from '@b2b-catalog-platform/ui/content/count-dot';
 import { navActionClasses, NavVariant } from '../../platform/nav-action';
-import { shoppingBasketIcon } from '@b2b-catalog-platform/ui/icons/glyphs/shopping-basket';
+import { STOREFRONT_ORDERING_TEXT } from '../ordering-text';
+import { CartService } from './cart.service';
 
 /** The navbar cart control (FR-CART-01): count and total from the stored
  * prices. **The figures are not in this template**: the cart is in

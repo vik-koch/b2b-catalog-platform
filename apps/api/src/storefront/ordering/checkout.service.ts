@@ -1,9 +1,3 @@
-import { TaxConfig } from '@b2b-catalog-platform/shared/core/catalog';
-import {
-  OrderingParty,
-  OrderSubmission,
-  OrderReferenceConfig,
-} from '@b2b-catalog-platform/shared/core/ordering';
 import {
   BadRequestException,
   Inject,
@@ -11,46 +5,54 @@ import {
   Logger,
 } from '@nestjs/common';
 import { eq } from 'drizzle-orm';
+
 import { formatPersonName } from '@b2b-catalog-platform/shared/core/accounts';
+import { TaxConfig } from '@b2b-catalog-platform/shared/core/catalog';
+import {
+  OrderingParty,
+  OrderReferenceConfig,
+  OrderSubmission,
+} from '@b2b-catalog-platform/shared/core/ordering';
+
+import { users } from '../../core/accounts/accounts-schema';
+import {
+  PAIRINGS_ENFORCED,
+  TAX_CONFIG,
+} from '../../core/catalog/catalog-config';
+import { customerTiers } from '../../core/catalog/catalog-schema';
+import { CartChangedException } from '../../core/ordering/cart-changed-exception';
+import { priceCart, PricedCart } from '../../core/ordering/cart-pricing';
+import { OrderNotifications } from '../../core/ordering/order-notifications';
+import { OrderReader } from '../../core/ordering/order-reader';
+import {
+  ORDER_REFERENCE_ATTEMPTS,
+  orderPublicToken,
+  orderReference,
+} from '../../core/ordering/order-reference';
 import {
   detailColumns,
   Fulfilment,
   notFound,
   shipmentColumns,
 } from '../../core/ordering/order-rows';
-import { OrderReader } from '../../core/ordering/order-reader';
 import { OrderRules } from '../../core/ordering/order-rules';
-import {
-  ORDER_CURRENCY,
-  SHOP_TIME_ZONE,
-} from '../../platform/config/deployment-config';
 import { ORDER_REFERENCE_CONFIG } from '../../core/ordering/ordering-config';
-import {
-  PAIRINGS_ENFORCED,
-  TAX_CONFIG,
-} from '../../core/catalog/catalog-config';
-import { TERMS_PUBLISHED } from '../../core/site/site-config';
-import { DRIZZLE } from '../../platform/db/database.module';
-import { currentPageVersion } from '../../core/site/page-versions';
-import { customerTiers } from '../../core/catalog/catalog-schema';
-import { users } from '../../core/accounts/accounts-schema';
 import {
   orderItems,
   orderRevisions,
   orders,
 } from '../../core/ordering/ordering-schema';
-import { priceCart, PricedCart } from '../../core/ordering/cart-pricing';
-import { CartChangedException } from '../../core/ordering/cart-changed-exception';
 import { PairingUnsatisfiedException } from '../../core/ordering/pairing-unsatisfied-exception';
-import { OrderNotifications } from '../../core/ordering/order-notifications';
 import { TermsPdf } from '../../core/ordering/terms-pdf';
-import { isUniqueViolation } from '../../platform/db/pg-errors';
+import { currentPageVersion } from '../../core/site/page-versions';
+import { TERMS_PUBLISHED } from '../../core/site/site-config';
 import {
-  ORDER_REFERENCE_ATTEMPTS,
-  orderPublicToken,
-  orderReference,
-} from '../../core/ordering/order-reference';
+  ORDER_CURRENCY,
+  SHOP_TIME_ZONE,
+} from '../../platform/config/deployment-config';
 import { Database } from '../../platform/db/database';
+import { DRIZZLE } from '../../platform/db/database.module';
+import { isUniqueViolation } from '../../platform/db/pg-errors';
 
 /**
  * Placing an order (FR-CART-03/04). The cart is re-priced through the

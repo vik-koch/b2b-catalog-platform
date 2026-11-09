@@ -1,6 +1,3 @@
-import { ADMIN_ORDERING_TEXT } from './ordering-text';
-import { SHARED_ORDERING_TEXT } from '../../core/ordering/ordering-text';
-import { ACCOUNTS_CONFIG } from '../../core/accounts/accounts-config';
 import {
   Component,
   computed,
@@ -10,27 +7,32 @@ import {
   signal,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { fillText, moneyFormat } from '@b2b-catalog-platform/shared/platform';
+
 import { AdminOrderDetail } from '@b2b-catalog-platform/shared/core/ordering';
-import { ADMIN_TEXT } from '../../platform/config/admin-text';
-import { SHARED_TEXT } from '../../platform/config/shared-text';
-import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
+import { fillText, moneyFormat } from '@b2b-catalog-platform/shared/platform';
+import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
+import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';
+import { DisclosureFrame } from '@b2b-catalog-platform/ui/disclosure/disclosure-frame';
+import { DisclosureToggle } from '@b2b-catalog-platform/ui/disclosure/disclosure-toggle';
+
+import { ACCOUNTS_CONFIG } from '../../core/accounts/accounts-config';
+import { CATALOG_CONFIG } from '../../core/catalog/catalog-config';
+import { orderDateTimeFormat } from '../../core/ordering/order-formats';
 import {
   orderStatusLabel,
   orderStatusTone,
 } from '../../core/ordering/order-status';
-import { orderDateTimeFormat } from '../../core/ordering/order-formats';
+import { SHARED_ORDERING_TEXT } from '../../core/ordering/ordering-text';
+import { ADMIN_TEXT } from '../../platform/config/admin-text';
+import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
+import { SHARED_TEXT } from '../../platform/config/shared-text';
 import { stableValue } from '../../platform/stable-value';
-import { DisclosureToggle } from '@b2b-catalog-platform/ui/disclosure/disclosure-toggle';
-import { DisclosureFrame } from '@b2b-catalog-platform/ui/disclosure/disclosure-frame';
-import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
-import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';
-import { OrderAdjustChanges, OrderChange } from './ui/order-adjust-changes';
 import { orderChanges } from './order-changes';
+import { ADMIN_ORDERING_TEXT } from './ordering-text';
 import { AdminOrdersService } from './orders.service';
 import { revisionKindLabel } from './revision-labels';
 import { staffBlockLabels } from './staff-block-labels';
-import { CATALOG_CONFIG } from '../../core/catalog/catalog-config';
+import { OrderAdjustChanges, OrderChange } from './ui/order-adjust-changes';
 
 /**
  * Every version of an order, newest first (FR-ORD-03), with its note and its

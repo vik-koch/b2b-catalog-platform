@@ -1,10 +1,6 @@
-import { fillText } from '@b2b-catalog-platform/shared/platform';
 import { inject, Injectable } from '@angular/core';
-import {
-  ProductAvailability,
-  HiddenProduct,
-  ProductPage,
-} from '@b2b-catalog-platform/shared/core/catalog';
+import { safe, type ClientPromiseResult } from '@orpc/client';
+
 import {
   AdminProduct,
   AdminProductSort,
@@ -13,12 +9,18 @@ import {
   ProductFact,
   ProductInput,
 } from '@b2b-catalog-platform/shared/admin/catalog';
-import { adminProductsContract } from '../contract-routes.generated';
-import { safe, type ClientPromiseResult } from '@orpc/client';
-import { createOrpcClient } from '../../../platform/orpc-client';
-import { renderable } from '../../platform/renderable';
-import { WorkRefresh } from '../../../platform/work-refresh';
+import {
+  HiddenProduct,
+  ProductAvailability,
+  ProductPage,
+} from '@b2b-catalog-platform/shared/core/catalog';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
+
 import type { EditModeCatalog } from '../../../core/catalog/edit-mode-catalog';
+import { createOrpcClient } from '../../../platform/orpc-client';
+import { WorkRefresh } from '../../../platform/work-refresh';
+import { renderable } from '../../platform/renderable';
+import { adminProductsContract } from '../contract-routes.generated';
 
 /**
  * The admin product client. The declared refusals come back as typed results

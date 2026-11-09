@@ -1,6 +1,6 @@
-import { accountsMail } from './accounts-mail-text';
 import { MailContent } from '../../../platform/mail/mail-layout';
 import { MailText } from '../../../platform/mail/mail-text';
+import { accountsMail } from './accounts-mail-text';
 
 /**
  * The link asked for on the login page (FR-AUTH-02), redeemed like an

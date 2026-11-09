@@ -1,13 +1,15 @@
 import { Component, computed, inject, input } from '@angular/core';
+
 import { PRODUCT_SORTS } from '@b2b-catalog-platform/shared/core/catalog';
 import {
   Facet,
   ListingSort,
 } from '@b2b-catalog-platform/shared/storefront/catalog';
+
+import { CATALOG_CONFIG } from '../../../core/catalog/catalog-config';
 import { FacetSelection } from './facet-selection';
 import { ProductSortSelect } from './product-sort-select';
 import { FacetFilters, FacetValueToggle } from './ui/facet-filters';
-import { CATALOG_CONFIG } from '../../../core/catalog/catalog-config';
 
 /**
  * From 63.75rem the panel is a column beside the listing, else a disclosure

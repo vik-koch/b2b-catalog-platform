@@ -1,6 +1,8 @@
 import { Controller } from '@nestjs/common';
 import { Implement, implement } from '@orpc/nest';
+
 import { pageContract } from '@b2b-catalog-platform/shared/core/site';
+
 import { PageService } from './page.service';
 
 @Controller()

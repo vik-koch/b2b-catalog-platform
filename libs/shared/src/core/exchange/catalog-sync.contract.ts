@@ -5,6 +5,15 @@
  * absorbs a changing export. CSV and JSON are two encodings of the same rows.
  */
 import * as z from 'zod';
+
+import { priceMinorSchema } from '../catalog/catalog.contract';
+import { CATEGORY_NAME_MAX_LENGTH } from '../catalog/categories';
+import {
+  PRODUCT_NAME_MAX_LENGTH,
+  SOURCE_ID_MAX_LENGTH,
+} from '../catalog/products';
+import { taxRateSchema } from '../catalog/tax-config';
+import { TIER_KEY_MAX_LENGTH } from '../catalog/tiers';
 import { CATALOG_SYNC_ALL_FIELDS, CATALOG_SYNC_FIELDS } from './catalog-sync';
 import {
   SYNC_FAILURE_MESSAGE_MAX_LENGTH,
@@ -12,14 +21,6 @@ import {
   SYNC_MAX_ROWS,
 } from './sync';
 import { syncRunSchema, syncSummarySchema } from './sync-run.contract';
-import { priceMinorSchema } from '../catalog/catalog.contract';
-import { taxRateSchema } from '../catalog/tax-config';
-import { CATEGORY_NAME_MAX_LENGTH } from '../catalog/categories';
-import {
-  PRODUCT_NAME_MAX_LENGTH,
-  SOURCE_ID_MAX_LENGTH,
-} from '../catalog/products';
-import { TIER_KEY_MAX_LENGTH } from '../catalog/tiers';
 
 /** A tier key, or `DEFAULT_PRICE_LIST_ALIAS`. Not an enum: keys are each
  * deployment's own rows, so only the shape is checked here and the differ

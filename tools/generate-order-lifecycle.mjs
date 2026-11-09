@@ -17,6 +17,7 @@
  * runs.
  */
 import { readFileSync } from 'node:fs';
+
 import {
   formatted,
   injectSection,

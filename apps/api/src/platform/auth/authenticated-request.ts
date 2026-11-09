@@ -1,4 +1,5 @@
 import type { Request } from 'express';
+
 import { AuthUser } from '@b2b-catalog-platform/shared/platform';
 
 /** A request after a session guard ran; `user` is absent on a public route. */

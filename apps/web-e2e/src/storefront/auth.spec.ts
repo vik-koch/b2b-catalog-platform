@@ -1,4 +1,5 @@
 import { expect, Page, test } from '@playwright/test';
+
 import { localtestEnv } from '../support/localtest';
 
 // The bootstrap-admin one-shot creates this account on `up` from the values

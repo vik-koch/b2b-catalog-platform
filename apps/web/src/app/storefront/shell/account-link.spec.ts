@@ -1,21 +1,23 @@
-import { defaultStorefrontAccountsText } from '../accounts/accounts-text.fixture';
-import { SHARED_TEXT } from '../../platform/config/shared-text';
-import { defaultSharedText } from '../../platform/config/shared-text.fixture';
 import { computed, signal, WritableSignal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
+
 import { WorkCounts } from '@b2b-catalog-platform/shared/core/work';
-import { AuthService } from '../../platform/auth/auth.service';
-import { STOREFRONT_TEXT } from '../../platform/config/storefront-text';
-import { defaultStorefrontText } from '../../platform/config/storefront-text.fixture';
-import { AccountLink } from './account-link';
+import { AuthUser, UserRole } from '@b2b-catalog-platform/shared/platform';
+
+import { workStub } from '../../core/work/work.fixture';
+import { WorkService } from '../../core/work/work.service';
 import {
   adminUser as admin,
   plainUser,
 } from '../../platform/auth/auth-user.fixture';
-import { WorkService } from '../../core/work/work.service';
-import { workStub } from '../../core/work/work.fixture';
-import { AuthUser, UserRole } from '@b2b-catalog-platform/shared/platform';
+import { AuthService } from '../../platform/auth/auth.service';
+import { SHARED_TEXT } from '../../platform/config/shared-text';
+import { defaultSharedText } from '../../platform/config/shared-text.fixture';
+import { STOREFRONT_TEXT } from '../../platform/config/storefront-text';
+import { defaultStorefrontText } from '../../platform/config/storefront-text.fixture';
+import { defaultStorefrontAccountsText } from '../accounts/accounts-text.fixture';
+import { AccountLink } from './account-link';
 
 const text = defaultStorefrontAccountsText.auth;
 

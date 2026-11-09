@@ -1,8 +1,9 @@
 import { Module } from '@nestjs/common';
+
 import { env } from '../../platform/env';
+import { createPartySuggestionPort } from './http-party-suggestions';
 import { PartySuggestionController } from './party-suggestion.controller';
 import { PARTY_SUGGESTION_PORT } from './party-suggestion.port';
-import { createPartySuggestionPort } from './http-party-suggestions';
 
 /** Company suggestions (FR-AUTH-09), used before an account exists. */
 @Module({

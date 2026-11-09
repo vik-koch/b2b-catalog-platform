@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import type { Response } from 'express';
 import { Observable } from 'rxjs';
+
 import { AuthenticatedRequest } from './authenticated-request';
 
 /**

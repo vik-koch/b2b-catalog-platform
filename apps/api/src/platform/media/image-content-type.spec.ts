@@ -1,4 +1,5 @@
 import sharp from 'sharp';
+
 import { sniffAcceptedImage } from './image-content-type';
 
 const solid = (fmt: 'png' | 'webp'): Promise<Buffer> =>

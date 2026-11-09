@@ -1,4 +1,6 @@
 import { Injectable } from '@angular/core';
+import { safe, type ClientPromiseResult } from '@orpc/client';
+
 import {
   AttributeDefinition,
   AttributeDefinitionInput,
@@ -7,15 +9,15 @@ import {
   AttributeValueUsage,
   CatalogFilters,
   CategoryFilters,
-  SaveCategoryFiltersRequest,
   RenameAttributeKeyRequest,
   RenameAttributeValueRequest,
   ReorderAttributesRequest,
+  SaveCategoryFiltersRequest,
 } from '@b2b-catalog-platform/shared/admin/catalog';
-import { attributesContract } from '../contract-routes.generated';
-import { safe, type ClientPromiseResult } from '@orpc/client';
+
 import { createOrpcClient } from '../../../platform/orpc-client';
 import { renderable } from '../../platform/renderable';
+import { attributesContract } from '../contract-routes.generated';
 
 export type AttributeResult =
   | { ok: true; definition: AttributeDefinition }

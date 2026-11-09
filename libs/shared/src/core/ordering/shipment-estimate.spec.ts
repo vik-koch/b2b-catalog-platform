@@ -1,4 +1,4 @@
-import { ShipmentLineInput, shipmentEstimate } from './shipment-estimate';
+import { shipmentEstimate, ShipmentLineInput } from './shipment-estimate';
 
 /** 100 pieces to a box (10 × 10), shipping as two cartons. */
 const boxed: ShipmentLineInput = {

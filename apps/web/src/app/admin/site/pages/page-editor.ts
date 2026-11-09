@@ -12,39 +12,41 @@ import {
   signal,
 } from '@angular/core';
 import { form, hidden, maxLength, validate } from '@angular/forms/signals';
-import { filled } from '../../../platform/field-rules';
+
+import { CONSENT_LABEL_MAX_LENGTH } from '@b2b-catalog-platform/shared/admin/site';
 import {
   consentLabelParts,
   isConsentPage,
   Page,
   PageSlug,
 } from '@b2b-catalog-platform/shared/core/site';
-import { CONSENT_LABEL_MAX_LENGTH } from '@b2b-catalog-platform/shared/admin/site';
-import { ADMIN_TEXT } from '../../../platform/config/admin-text';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
+import { Checkbox } from '@b2b-catalog-platform/ui/choices/checkbox';
+import { TickLabel } from '@b2b-catalog-platform/ui/choices/tick-label';
 import { Notice } from '@b2b-catalog-platform/ui/content/notice';
-import { RichTextEditor } from '../../platform/rich-text/rich-text-editor';
-import { injectConfirmDiscard } from '../../platform/confirm-discard';
-import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import {
-  FieldAttempt,
   FIELD_ATTEMPT,
+  FieldAttempt,
 } from '@b2b-catalog-platform/ui/fields/field-attempt';
 import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
 import { submitAttempt } from '@b2b-catalog-platform/ui/fields/submit-attempt';
-import { Input } from '@b2b-catalog-platform/ui/inputs/input';
-import { Checkbox } from '@b2b-catalog-platform/ui/choices/checkbox';
-import { TickLabel } from '@b2b-catalog-platform/ui/choices/tick-label';
-import { PageEditingService } from './page-editing.service';
-import { trustedRichText } from '../../../platform/trusted-rich-text';
-import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
-import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { eyeIcon } from '@b2b-catalog-platform/ui/icons/glyphs/eye';
 import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
-import { SaveButton } from '../../platform/ui/save-button';
-import { CancelButton } from '../../platform/ui/cancel-button';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import { Input } from '@b2b-catalog-platform/ui/inputs/input';
+
+import { ADMIN_TEXT } from '../../../platform/config/admin-text';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { filled } from '../../../platform/field-rules';
+import { trustedRichText } from '../../../platform/trusted-rich-text';
+import { injectConfirmDiscard } from '../../platform/confirm-discard';
+import { RichTextEditor } from '../../platform/rich-text/rich-text-editor';
+import { CancelButton } from '../../platform/ui/cancel-button';
+import { SaveButton } from '../../platform/ui/save-button';
 import { ADMIN_SITE_TEXT } from '../site-text';
+import { PageEditingService } from './page-editing.service';
 
 /**
  * Title, body and a preview in the public page's `prose` measure. Saves

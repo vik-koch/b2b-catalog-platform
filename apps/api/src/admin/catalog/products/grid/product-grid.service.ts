@@ -9,11 +9,7 @@ import {
   isNull,
   SQL,
 } from 'drizzle-orm';
-import { HiddenProduct } from '@b2b-catalog-platform/shared/core/catalog';
-import {
-  KeyboardLayout,
-  Pagination,
-} from '@b2b-catalog-platform/shared/platform';
+
 import {
   ADMIN_CATALOG_PAGE_SIZE,
   AdminProductListItem,
@@ -21,40 +17,45 @@ import {
   AdminProductState,
   PRODUCT_FACTS,
 } from '@b2b-catalog-platform/shared/admin/catalog';
-import { DRIZZLE } from '../../../../platform/db/database.module';
-import { categories, products } from '../../../../core/catalog/catalog-schema';
+import { HiddenProduct } from '@b2b-catalog-platform/shared/core/catalog';
 import {
-  PRODUCT_ORDERS,
-  ProductOrders,
-} from '../../../../core/catalog/product-orders';
+  KeyboardLayout,
+  Pagination,
+} from '@b2b-catalog-platform/shared/platform';
+
 import { attributeValuesCondition } from '../../../../core/catalog/attribute-filter';
-import { documentCondition } from './document-filter';
-import { contentCondition, factColumns } from './content-filter';
-import { tierPriceCondition } from './tier-price-filter';
+import { CatalogReader } from '../../../../core/catalog/catalog-reader';
+import { categories, products } from '../../../../core/catalog/catalog-schema';
 import {
   categoryBySlug,
   descendantIds,
 } from '../../../../core/catalog/catalog-tree';
+import {
+  PRODUCT_ORDERS,
+  ProductOrders,
+} from '../../../../core/catalog/product-orders';
+import { resolvedPriceMinor } from '../../../../core/catalog/product-price';
 import {
   adminSearchCondition,
   parseSearchQuery,
   relevanceScore,
   setSearchThreshold,
 } from '../../../../core/catalog/product-search';
-import { gridOrderBy } from './grid-sort';
 import {
   listItemColumns,
   publiclyVisible,
   toUnpricedListItem,
 } from '../../../../core/catalog/product-view';
-import { CatalogReader } from '../../../../core/catalog/catalog-reader';
-import { paginationOf } from '../../../../platform/pagination';
-import { resolvedPriceMinor } from '../../../../core/catalog/product-price';
 import { ALTERNATE_LAYOUT } from '../../../../platform/config/deployment-config';
-import { categoryNotFound } from '../../categories/categories.service';
-
-import { deletedByRun } from '../product-records';
 import { Database } from '../../../../platform/db/database';
+import { DRIZZLE } from '../../../../platform/db/database.module';
+import { paginationOf } from '../../../../platform/pagination';
+import { categoryNotFound } from '../../categories/categories.service';
+import { deletedByRun } from '../product-records';
+import { contentCondition, factColumns } from './content-filter';
+import { documentCondition } from './document-filter';
+import { gridOrderBy } from './grid-sort';
+import { tierPriceCondition } from './tier-price-filter';
 
 /**
  * The admin's product lists: the grid (FR-ADM-05) and what a category holds

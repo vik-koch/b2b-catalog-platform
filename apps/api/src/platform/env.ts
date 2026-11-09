@@ -1,4 +1,5 @@
 import * as z from 'zod';
+
 import { emailField } from '@b2b-catalog-platform/shared/platform';
 
 /** Treats an empty variable as an unset one, then applies the schema. */

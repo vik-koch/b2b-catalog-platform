@@ -1,10 +1,12 @@
-import { SitemapEntry } from '@b2b-catalog-platform/shared/storefront/catalog';
-import { requireEnv } from '../../../env';
 import * as z from 'zod';
+
 import {
   SITE_AREA,
   siteConfigShape,
 } from '@b2b-catalog-platform/shared/core/site';
+import { SitemapEntry } from '@b2b-catalog-platform/shared/storefront/catalog';
+
+import { requireEnv } from '../../../env';
 import { mountedBlock } from '../../platform/config/mounted-file.server';
 import { isMaintenanceOn } from '../site/maintenance/maintenance.server';
 

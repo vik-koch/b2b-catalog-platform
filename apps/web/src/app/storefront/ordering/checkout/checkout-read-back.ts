@@ -1,30 +1,32 @@
-import { ORDERING_CONFIG } from '../../../core/ordering/ordering-config';
-import { STOREFRONT_ORDERING_TEXT } from '../ordering-text';
-import { SHARED_ORDERING_TEXT } from '../../../core/ordering/ordering-text';
-import { ACCOUNTS_CONFIG } from '../../../core/accounts/accounts-config';
 import { computed, inject, Signal } from '@angular/core';
+
+import {
+  AddressInput,
+  addressLines,
+} from '@b2b-catalog-platform/shared/core/accounts';
+import { unitQuantity } from '@b2b-catalog-platform/shared/core/catalog';
 import {
   fillText,
-  moneyFormat,
   formatMoneyMinor,
+  moneyFormat,
 } from '@b2b-catalog-platform/shared/platform';
-import { unitQuantity } from '@b2b-catalog-platform/shared/core/catalog';
+
+import { ACCOUNTS_CONFIG } from '../../../core/accounts/accounts-config';
 import { AddressForm } from '../../../core/accounts/addresses/address-form';
-import {
-  addressLines,
-  AddressInput,
-} from '@b2b-catalog-platform/shared/core/accounts';
-import { CartService, CartStoredLine } from '../cart/cart.service';
 import { formatUnitQuantity } from '../../../core/catalog/buying/quantity';
-import { SHARED_TEXT } from '../../../platform/config/shared-text';
-import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
+import { SHARED_CATALOG_TEXT } from '../../../core/catalog/catalog-text';
 import { useTaxStatement } from '../../../core/catalog/tax-statement';
+import { ORDERING_CONFIG } from '../../../core/ordering/ordering-config';
+import { SHARED_ORDERING_TEXT } from '../../../core/ordering/ordering-text';
 import {
   ReadBackLine,
   ReviewBlock,
 } from '../../../core/ordering/ui/order-read-back';
+import { DEPLOYMENT_CONFIG } from '../../../platform/config/deployment-config';
+import { SHARED_TEXT } from '../../../platform/config/shared-text';
+import { CartService, CartStoredLine } from '../cart/cart.service';
+import { STOREFRONT_ORDERING_TEXT } from '../ordering-text';
 import { CheckoutDraft } from './checkout-draft';
-import { SHARED_CATALOG_TEXT } from '../../../core/catalog/catalog-text';
 
 /** What the draft alone cannot say: the settled addresses, the account's name,
  * whether an invoice address exists. */

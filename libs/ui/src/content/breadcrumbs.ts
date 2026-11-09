@@ -1,5 +1,6 @@
 import { Component, computed, input } from '@angular/core';
 import { Params, RouterLink } from '@angular/router';
+
 import { chevronRightIcon } from '../icons/glyphs/chevron-right';
 import { Icon } from '../icons/icon';
 

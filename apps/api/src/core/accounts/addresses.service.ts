@@ -6,18 +6,20 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { and, asc, eq } from 'drizzle-orm';
-import { ADDRESS_CONFIG } from './accounts-config';
-import { DRIZZLE } from '../../platform/db/database.module';
-import { addresses } from './accounts-schema';
+
 import {
   Address,
   ADDRESS_BOOK_MAX,
+  AddressConfig,
   AddressInput,
   postalCodeMatches,
   postalCodeRuleFor,
-  AddressConfig,
 } from '@b2b-catalog-platform/shared/core/accounts';
+
 import { Database } from '../../platform/db/database';
+import { DRIZZLE } from '../../platform/db/database.module';
+import { ADDRESS_CONFIG } from './accounts-config';
+import { addresses } from './accounts-schema';
 
 type AddressRow = typeof addresses.$inferSelect;
 

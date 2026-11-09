@@ -1,4 +1,3 @@
-import { STOREFRONT_ORDERING_TEXT } from '../../ordering-text';
 import {
   afterNextRender,
   Component,
@@ -8,14 +7,17 @@ import {
   viewChild,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { DEPLOYMENT_CONFIG } from '../../../../platform/config/deployment-config';
+
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
-import { DialogPanel } from '@b2b-catalog-platform/ui/overlay/dialog-panel';
 import { TextButton } from '@b2b-catalog-platform/ui/actions/text-button';
-import { DeliveryZoneList } from './delivery-zone-list';
-import { SHARED_TEXT } from '../../../../platform/config/shared-text';
+import { DialogPanel } from '@b2b-catalog-platform/ui/overlay/dialog-panel';
 import { DialogTitle } from '@b2b-catalog-platform/ui/overlay/dialog-title';
+
 import { SITE_CONFIG } from '../../../../core/site/site-config';
+import { DEPLOYMENT_CONFIG } from '../../../../platform/config/deployment-config';
+import { SHARED_TEXT } from '../../../../platform/config/shared-text';
+import { STOREFRONT_ORDERING_TEXT } from '../../ordering-text';
+import { DeliveryZoneList } from './delivery-zone-list';
 
 /** Where the deployment delivers and the free-delivery minimums (FR-CART-07). A
  * dialog, so the customer keeps their place in the form; it links to the

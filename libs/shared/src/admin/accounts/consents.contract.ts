@@ -1,12 +1,13 @@
 import { oc } from '@orpc/contract';
 import * as z from 'zod';
-import { commonAuthErrors } from '../../platform/api-error';
-import { CONSENT_PURPOSES } from '../../core/site/pages';
+
+import { USER_STATUSES } from '../../core/accounts/users';
 import {
   CONSENT_WITHDRAWAL_NOTE_MAX,
   CONSENT_WITHDRAWAL_REASONS,
 } from '../../core/site/consents';
-import { USER_STATUSES } from '../../core/accounts/users';
+import { CONSENT_PURPOSES } from '../../core/site/pages';
+import { commonAuthErrors } from '../../platform/api-error';
 import { EMAIL_MAX_LENGTH } from '../../platform/email-format';
 
 /**

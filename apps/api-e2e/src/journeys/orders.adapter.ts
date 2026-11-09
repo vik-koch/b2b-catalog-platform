@@ -1,16 +1,18 @@
 import { readFileSync } from 'node:fs';
 import axios, { AxiosResponse } from 'axios';
+
 import {
   notifyByDefault,
   OrderStatus,
 } from '@b2b-catalog-platform/shared/core/ordering';
+
 import { configFile } from '../support/env';
+import { cached, JourneyAdapter, Probe } from '../support/journey/journey';
 import {
   deleteMatching,
   messageBody,
   messagesMatching,
 } from '../support/mailpit';
-import { cached, JourneyAdapter, Probe } from '../support/journey/journey';
 import { ORDER_PROBES as reading } from './order-probe-labels';
 
 /**

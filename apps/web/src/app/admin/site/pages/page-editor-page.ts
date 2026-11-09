@@ -1,16 +1,18 @@
 import { Component, inject, resource, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+
 import { Page, PageSlug } from '@b2b-catalog-platform/shared/core/site';
+import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
+
+import { PageService } from '../../../core/site/page.service';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
-import { usePageSeo } from '../../../platform/page-seo';
 import { delayedLoading } from '../../../platform/delayed-loading';
+import { injectEditorReturn } from '../../../platform/edit-mode/editor-return';
+import { usePageSeo } from '../../../platform/page-seo';
+import { UnsavedChangesAware } from '../../platform/unsaved-changes.guard';
+import { ADMIN_SITE_TEXT } from '../site-text';
 import { PageEditor } from './page-editor';
 import { PageHistory } from './page-history';
-import { PageService } from '../../../core/site/page.service';
-import { UnsavedChangesAware } from '../../platform/unsaved-changes.guard';
-import { injectEditorReturn } from '../../../platform/edit-mode/editor-return';
-import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
-import { ADMIN_SITE_TEXT } from '../site-text';
 
 /**
  * Returns to whichever opened it, the panel or the storefront's pencil. A page

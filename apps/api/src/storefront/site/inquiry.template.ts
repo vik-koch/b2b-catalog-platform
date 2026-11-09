@@ -1,5 +1,6 @@
 import { SharedText } from '@b2b-catalog-platform/shared/platform';
 import { InquiryRequest } from '@b2b-catalog-platform/shared/storefront/site';
+
 import { MailContent } from '../../platform/mail/mail-layout';
 import { SiteMailText } from './site-mail-text';
 

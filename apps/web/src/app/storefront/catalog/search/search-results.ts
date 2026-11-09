@@ -1,14 +1,17 @@
 import { NgTemplateOutlet } from '@angular/common';
 import { Component, computed, inject, input, resource } from '@angular/core';
 import { Params, RouterLink } from '@angular/router';
-import { fillText } from '@b2b-catalog-platform/shared/platform';
+
 import { SEARCH_SORTS } from '@b2b-catalog-platform/shared/core/catalog';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
-import { usePageSeo } from '../../../platform/page-seo';
-import { stableValue } from '../../../platform/stable-value';
+
 import { editAwareContent } from '../../../platform/edit-mode/edit-aware-content';
 import { injectEditorReturnParams } from '../../../platform/edit-mode/editor-return';
+import { usePageSeo } from '../../../platform/page-seo';
+import { stableValue } from '../../../platform/stable-value';
 import { LoadErrorView } from '../../platform/load-error-view';
+import { STOREFRONT_CATALOG_TEXT } from '../catalog-text';
 import { AppliedFilters } from '../filters/applied-filters';
 import {
   FACET_COLUMN,
@@ -22,10 +25,9 @@ import { ProductSortSelect } from '../filters/product-sort-select';
 import { listingParams } from '../listing-params';
 import { ProductLayoutService } from '../product-layout';
 import { ProductLayoutToggle } from '../product-layout-toggle';
-import { PRODUCT_GRID } from '../ui/product-tile';
 import { ProductListing } from '../ui/product-listing';
+import { PRODUCT_GRID } from '../ui/product-tile';
 import { CatalogSearchService } from './catalog-search.service';
-import { STOREFRONT_CATALOG_TEXT } from '../catalog-text';
 
 /** Search results (FR-SEARCH-01…04): the category listing's cards and lines,
  * in relevance order, without the category chrome. */

@@ -1,5 +1,5 @@
-import { SettingsRow, SettingsStore } from './settings-store';
 import { Database } from '../db/database';
+import { SettingsRow, SettingsStore } from './settings-store';
 
 const settingsRow = (over: Partial<SettingsRow> = {}): SettingsRow => ({
   maintenanceMode: false,

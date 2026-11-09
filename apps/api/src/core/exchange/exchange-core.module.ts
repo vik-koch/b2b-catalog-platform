@@ -1,23 +1,24 @@
 import { Module } from '@nestjs/common';
-import { AccountsCoreModule } from '../accounts/accounts-core.module';
-import { OwnershipStateModule } from '../../platform/settings/ownership-state.module';
+
 import { MailModule } from '../../platform/mail/mail.module';
-import {
-  CUSTOMER_SYNC_POLICY,
-  SYNC_POLICY,
-  loadCustomerSyncPolicy,
-  loadSyncPolicy,
-} from './exchange-config';
+import { OwnershipStateModule } from '../../platform/settings/ownership-state.module';
 import {
   ACCEPTED_CUSTOMER_TYPES,
   loadAcceptedCustomerTypes,
 } from '../accounts/accounts-config';
+import { AccountsCoreModule } from '../accounts/accounts-core.module';
 import {
-  LOW_STOCK_THRESHOLD_PIECES,
   loadLowStockThresholdPieces,
+  LOW_STOCK_THRESHOLD_PIECES,
 } from '../catalog/catalog-config';
 import { CatalogSyncService } from './catalog-sync.service';
 import { CustomerSyncService } from './customer-sync.service';
+import {
+  CUSTOMER_SYNC_POLICY,
+  loadCustomerSyncPolicy,
+  loadSyncPolicy,
+  SYNC_POLICY,
+} from './exchange-config';
 import { SyncNotifications } from './sync-notifications';
 import { SyncRunLog } from './sync-run-log';
 

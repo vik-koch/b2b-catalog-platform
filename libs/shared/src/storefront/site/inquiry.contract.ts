@@ -1,12 +1,13 @@
 import { oc } from '@orpc/contract';
 import * as z from 'zod';
+
+import { consentVersionField } from '../../core/site/page.contract';
+import { consentErrors } from '../../core/site/pages';
 import { emailField, personNameField } from '../../platform/contact-config';
 import {
   blankAsAbsent,
   honeypotField,
 } from '../../platform/form-fields.contract';
-import { consentErrors } from '../../core/site/pages';
-import { consentVersionField } from '../../core/site/page.contract';
 import {
   INQUIRY_MESSAGE_MAX_LENGTH,
   INQUIRY_PHONE_MAX_LENGTH,

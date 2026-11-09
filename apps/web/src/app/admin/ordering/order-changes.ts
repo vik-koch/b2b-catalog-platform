@@ -1,15 +1,16 @@
-import {
-  SharedText,
-  MoneyFormat,
-  formatMoneyMinor,
-} from '@b2b-catalog-platform/shared/platform';
 import { OrderDetail } from '@b2b-catalog-platform/shared/core/ordering';
 import {
-  orderBlocks,
+  formatMoneyMinor,
+  MoneyFormat,
+  SharedText,
+} from '@b2b-catalog-platform/shared/platform';
+
+import { formatStoredDecimal } from '../../core/catalog/buying/quantity';
+import {
   OrderBlockConfig,
   OrderBlockLabels,
+  orderBlocks,
 } from '../../core/ordering/order-blocks';
-import { formatStoredDecimal } from '../../core/catalog/buying/quantity';
 import { customerQuantity } from '../../core/ordering/order-formats';
 import { OrderChange } from './ui/order-adjust-changes';
 

@@ -2,6 +2,7 @@ import { readdir, rm, stat } from 'node:fs/promises';
 import { join } from 'node:path';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { Client } from 'pg';
+
 import { DOCUMENT_SUBDIR } from '../media-store';
 import {
   collectReferencedFilenames,

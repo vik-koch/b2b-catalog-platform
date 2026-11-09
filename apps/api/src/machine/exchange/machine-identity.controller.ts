@@ -1,10 +1,12 @@
 import { Controller } from '@nestjs/common';
 import { Implement, implement } from '@orpc/nest';
+
 import { machineIdentityContract } from '@b2b-catalog-platform/shared/machine/exchange';
-import { CurrentMachine } from '../../platform/auth/current-machine.decorator';
+
 import { ExchangeMachine } from '../../core/exchange/api-token-lookup';
-import { Machine } from './machine.decorator';
+import { CurrentMachine } from '../../platform/auth/current-machine.decorator';
 import { MachineThrottle } from '../../platform/throttling/throttle-presets';
+import { Machine } from './machine.decorator';
 
 /** What this token is, so a credential can be checked before it is used. */
 @Machine('catalog-sync')

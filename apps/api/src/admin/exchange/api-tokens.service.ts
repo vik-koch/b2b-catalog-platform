@@ -1,15 +1,17 @@
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { and, desc, eq, isNull } from 'drizzle-orm';
+
 import {
   ApiToken,
   ApiTokenInput,
   CreatedApiToken,
 } from '@b2b-catalog-platform/shared/admin/exchange';
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { and, desc, eq, isNull } from 'drizzle-orm';
-import { DRIZZLE } from '../../platform/db/database.module';
+
 import { apiTokens } from '../../core/exchange/exchange-schema';
 import { Actor } from '../../core/exchange/sync-run';
 import { generateToken } from '../../platform/auth/api-token-value';
 import { Database } from '../../platform/db/database';
+import { DRIZZLE } from '../../platform/db/database.module';
 
 const notFound = () =>
   new NotFoundException({

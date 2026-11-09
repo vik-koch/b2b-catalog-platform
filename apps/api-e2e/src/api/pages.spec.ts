@@ -1,9 +1,11 @@
 import { hash } from '@node-rs/argon2';
+import axios from 'axios';
+import { Client } from 'pg';
+
 import { seedPages } from '@b2b-catalog-platform/seed';
 import { PAGE_BODY_MAX_LENGTH } from '@b2b-catalog-platform/shared/admin/site';
 import { sanitizeRichText } from '@b2b-catalog-platform/shared/node';
-import axios from 'axios';
-import { Client } from 'pg';
+
 import { requireEnv } from '../support/env';
 import { fixtureSeed } from '../support/seed-fixture';
 

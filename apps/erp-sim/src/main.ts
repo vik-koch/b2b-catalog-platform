@@ -1,11 +1,12 @@
 import { readFileSync } from 'node:fs';
 import * as z from 'zod';
+
 import { Account, claimsFor } from './accounts';
 import { localDate, nightsBetween } from './clock';
 import { Order, stepsFor } from './orders';
 import { servePage } from './page';
 import { Area, Outcome, Platform } from './platform';
-import { WorkingHours, workingHour } from './schedule';
+import { workingHour, WorkingHours } from './schedule';
 import { load } from './simulation';
 import { stockOnNight } from './stock';
 

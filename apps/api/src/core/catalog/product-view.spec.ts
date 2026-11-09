@@ -1,8 +1,8 @@
 import {
   boxDimensionsOf,
   packagingOf,
-  PricedProductRow,
   picturesOf,
+  PricedProductRow,
   unitPricesOf,
 } from './product-view';
 

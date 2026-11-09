@@ -1,16 +1,18 @@
 import { Inject, Injectable } from '@nestjs/common';
+
 import {
   SyncRun,
   SyncRunStatus,
 } from '@b2b-catalog-platform/shared/core/exchange';
+
 import { MAIL_BRANDING, MailBranding } from '../../platform/mail/mail-branding';
 import { MailDispatcher } from '../../platform/mail/mail-dispatcher';
+import { MailContent } from '../../platform/mail/mail-layout';
 import { MAIL_TEXT, MailText } from '../../platform/mail/mail-text';
 import {
   NotificationAudience,
   NotificationAudiences,
 } from '../../platform/mail/notification-audience';
-import { MailContent } from '../../platform/mail/mail-layout';
 import {
   syncCreatedMail,
   syncFailedMail,

@@ -1,9 +1,11 @@
 import { Component, computed, input, output } from '@angular/core';
 import { FormField, type FieldTree } from '@angular/forms/signals';
+
 import { AdminCategory } from '@b2b-catalog-platform/shared/admin/catalog';
 import { FieldBinding } from '@b2b-catalog-platform/ui/fields/field-binding';
 import { Input } from '@b2b-catalog-platform/ui/inputs/input';
 import { SelectInput } from '@b2b-catalog-platform/ui/inputs/select-input';
+
 import { flattenCategoryTree } from './category-tree';
 
 /**

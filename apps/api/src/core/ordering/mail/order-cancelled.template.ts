@@ -1,14 +1,15 @@
-import { sharedOrderingText } from '../ordering-text';
-import { orderingMail } from './ordering-mail-text';
-import { SharedText, MoneyFormat } from '@b2b-catalog-platform/shared/platform';
 import { AdminOrderDetail } from '@b2b-catalog-platform/shared/core/ordering';
+import { MoneyFormat, SharedText } from '@b2b-catalog-platform/shared/platform';
+
 import { MailContent } from '../../../platform/mail/mail-layout';
 import { MailText } from '../../../platform/mail/mail-text';
+import { sharedOrderingText } from '../ordering-text';
 import {
   orderLinesDifferInTax,
   orderMailItem,
   orderMailTotal,
 } from './order-items';
+import { orderingMail } from './ordering-mail-text';
 
 /** Sent to the shop when a customer calls their order off (FR-NOTIF-07): a
  * manager must not learn late that the order they pack is unwanted. With the

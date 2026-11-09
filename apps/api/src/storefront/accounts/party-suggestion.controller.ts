@@ -1,15 +1,17 @@
 import { Controller, Inject } from '@nestjs/common';
 import { Implement, implement } from '@orpc/nest';
-import { SidecarSuggestionThrottle } from '../../platform/throttling/throttle-presets';
-import {
-  PARTY_SUGGESTION_PORT,
-  PartySuggestionPort,
-} from './party-suggestion.port';
+
 import {
   PARTY_QUERY_MIN_LENGTH,
   PARTY_SUGGESTION_LIMIT,
   partySuggestionContract,
 } from '@b2b-catalog-platform/shared/core/accounts';
+
+import { SidecarSuggestionThrottle } from '../../platform/throttling/throttle-presets';
+import {
+  PARTY_SUGGESTION_PORT,
+  PartySuggestionPort,
+} from './party-suggestion.port';
 
 /**
  * Company suggestions (FR-AUTH-09, NFR-SEC-08). Open, since registration uses

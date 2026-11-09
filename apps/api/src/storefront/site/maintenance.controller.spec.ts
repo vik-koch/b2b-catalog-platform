@@ -1,9 +1,10 @@
 import { INestApplication } from '@nestjs/common';
 import { APP_GUARD, Reflector } from '@nestjs/core';
 import { Test } from '@nestjs/testing';
-import { MaintenanceController } from './maintenance.controller';
+
 import { MaintenanceState } from '../../core/site/maintenance-state';
 import { MaintenanceGuard } from '../../core/site/maintenance.guard';
+import { MaintenanceController } from './maintenance.controller';
 
 /** Over a real server: the gate must find the exemption on a handler the
  * contract layer registered. */

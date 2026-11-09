@@ -1,12 +1,14 @@
 import { PLATFORM_ID, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+
 import { CartPreview } from '@b2b-catalog-platform/shared/core/ordering';
+
+import { CartAddition } from '../../../core/catalog/buying/product-cart';
 import { packagedPackaging } from '../../../core/catalog/product.fixture';
 import { AuthService } from '../../../platform/auth/auth.service';
 import { CartPreviewService } from './cart-preview.service';
 import { CartRepricing } from './cart-repricing';
 import { CartService } from './cart.service';
-import { CartAddition } from '../../../core/catalog/buying/product-cart';
 
 /** Six to a pack at €70 a pack, four packs to a box: one lot price
  * multiplied out. */

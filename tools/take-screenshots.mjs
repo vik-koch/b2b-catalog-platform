@@ -16,8 +16,8 @@
  * CUSTOMER_PASSWORD to the customer login the README publishes. Pass shot names
  * as arguments to take only those.
  */
-import { chromium } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
+import { chromium } from '@playwright/test';
 import sharp from 'sharp';
 
 const OUT = 'docs/images';

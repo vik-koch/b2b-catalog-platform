@@ -1,4 +1,5 @@
 import { expect, Page, test } from '@playwright/test';
+
 import { fixtureSeed } from '../support/seed-fixture';
 
 const productSeeds = fixtureSeed.catalog.products;

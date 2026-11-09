@@ -1,9 +1,11 @@
 import type { Request, Response } from 'express';
-import { endSession, issueSession } from './session-cookie';
+
 import {
   AUTH_COOKIE,
   SESSION_HINT_COOKIE,
 } from '@b2b-catalog-platform/shared/platform';
+
+import { endSession, issueSession } from './session-cookie';
 
 const SESSION_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
 

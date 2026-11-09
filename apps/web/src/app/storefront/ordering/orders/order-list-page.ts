@@ -1,27 +1,29 @@
-import { STOREFRONT_ORDERING_TEXT } from '../ordering-text';
 import { Component, computed, inject, input, resource } from '@angular/core';
 import { Params, RouterLink } from '@angular/router';
-import { fillText } from '@b2b-catalog-platform/shared/platform';
+
 import {
   MY_ORDER_FILTERS,
   MyOrderFilter,
 } from '@b2b-catalog-platform/shared/core/ordering';
-import { delayedLoading } from '../../../platform/delayed-loading';
-import { usePageSeo } from '../../../platform/page-seo';
-import { stableValue } from '../../../platform/stable-value';
+import { fillText } from '@b2b-catalog-platform/shared/platform';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
-import { Pagination } from '@b2b-catalog-platform/ui/lists/pagination';
 import { EmptyState } from '@b2b-catalog-platform/ui/content/empty-state';
-import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
-import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
-import { OrderRows } from './ui/order-rows';
-import { OrdersService } from './orders.service';
-import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
-import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
+import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
+import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 import { shoppingBasketIcon } from '@b2b-catalog-platform/ui/icons/glyphs/shopping-basket';
 import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import { Pagination } from '@b2b-catalog-platform/ui/lists/pagination';
+
+import { delayedLoading } from '../../../platform/delayed-loading';
 import { pageNumber } from '../../../platform/page-number';
+import { usePageSeo } from '../../../platform/page-seo';
+import { stableValue } from '../../../platform/stable-value';
+import { STOREFRONT_ORDERING_TEXT } from '../ordering-text';
+import { OrdersService } from './orders.service';
+import { OrderRows } from './ui/order-rows';
 
 /** The account's whole order history, newest first, paged (FR-ACC-01). */
 @Component({

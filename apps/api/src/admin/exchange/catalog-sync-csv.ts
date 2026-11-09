@@ -1,11 +1,12 @@
 import { parseTaxRate } from '@b2b-catalog-platform/shared/core/catalog';
 import {
-  DEFAULT_PRICE_LIST_ALIAS,
   CATALOG_SYNC_CSV_COLUMNS,
   CatalogSyncPriceListKey,
   CatalogSyncRow,
   CatalogSyncRowError,
+  DEFAULT_PRICE_LIST_ALIAS,
 } from '@b2b-catalog-platform/shared/core/exchange';
+
 import {
   canonicalColumns,
   cellReader,

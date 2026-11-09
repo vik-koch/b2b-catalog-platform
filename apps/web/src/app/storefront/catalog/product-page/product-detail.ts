@@ -1,4 +1,5 @@
 import { Component, computed, inject, input, resource } from '@angular/core';
+
 import {
   HiddenReasons,
   ProductDetail as ProductDetailModel,
@@ -8,6 +9,7 @@ import {
   confirmRequest,
   ConfirmService,
 } from '@b2b-catalog-platform/ui/overlay/confirm.service';
+
 import { EDIT_MODE_CATALOG } from '../../../core/catalog/edit-mode-catalog';
 import {
   PRODUCT_PAGE_COLUMNS,
@@ -16,15 +18,15 @@ import {
 } from '../../../core/catalog/product-page/ui/product-detail-view';
 import { AuthService } from '../../../platform/auth/auth.service';
 import { SHARED_TEXT } from '../../../platform/config/shared-text';
-import { usePageSeo } from '../../../platform/page-seo';
 import { EditActions } from '../../../platform/edit-mode/edit-actions';
 import { editAwareContent } from '../../../platform/edit-mode/edit-aware-content';
 import { injectEditorReturnParams } from '../../../platform/edit-mode/editor-return';
+import { usePageSeo } from '../../../platform/page-seo';
 import { LoadErrorView } from '../../platform/load-error-view';
 import { NotFoundView } from '../../platform/not-found-view';
+import { STOREFRONT_CATALOG_TEXT } from '../catalog-text';
 import { CatalogService } from '../catalog.service';
 import { hiddenProductText } from './hidden-product-text';
-import { STOREFRONT_CATALOG_TEXT } from '../catalog-text';
 
 /**
  * The product page (FR-CAT-05). An admin also gets a product the public cannot

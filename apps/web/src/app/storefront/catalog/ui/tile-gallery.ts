@@ -1,5 +1,6 @@
 import { Component, computed, input, linkedSignal } from '@angular/core';
 import { RouterLink } from '@angular/router';
+
 import { ProductImage } from '@b2b-catalog-platform/shared/core/catalog';
 import { ImagePlaceholder } from '@b2b-catalog-platform/ui/content/image-placeholder';
 import { brokenImages } from '@b2b-catalog-platform/ui/core/broken-images';

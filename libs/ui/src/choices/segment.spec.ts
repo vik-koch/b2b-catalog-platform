@@ -1,5 +1,6 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+
 import { Segment, type SegmentState } from './segment';
 import { SegmentGroup, type SegmentTone } from './segment-group';
 

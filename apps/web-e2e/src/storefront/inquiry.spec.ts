@@ -1,5 +1,6 @@
-import { expect, test } from '@playwright/test';
 import { randomUUID } from 'node:crypto';
+import { expect, test } from '@playwright/test';
+
 import { localtestEnv, MAILPIT_API } from '../support/localtest';
 
 // Mailpit's REST API returns these fields per caught message (see the api-e2e

@@ -1,10 +1,12 @@
 import { Controller } from '@nestjs/common';
 import { Implement, implement } from '@orpc/nest';
+
 import { workContract } from '@b2b-catalog-platform/shared/core/work';
+import { AuthUser } from '@b2b-catalog-platform/shared/platform';
+
 import { Auth } from '../../platform/auth/auth.decorator';
 import { CurrentUser } from '../../platform/auth/current-user.decorator';
 import { WorkService } from './work.service';
-import { AuthUser } from '@b2b-catalog-platform/shared/platform';
 
 @Controller()
 export class WorkController {

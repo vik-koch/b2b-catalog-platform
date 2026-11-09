@@ -1,16 +1,17 @@
-import type { AdminOrderingText } from './ordering-text.type';
-import { fillText, MoneyFormat } from '@b2b-catalog-platform/shared/platform';
+import { ProductUnit } from '@b2b-catalog-platform/shared/core/catalog';
 import {
   AdminOrderDetail,
   OrderAdjustmentPreview,
   PaymentMethod,
 } from '@b2b-catalog-platform/shared/core/ordering';
-import { ProductUnit } from '@b2b-catalog-platform/shared/core/catalog';
+import { fillText, MoneyFormat } from '@b2b-catalog-platform/shared/platform';
+
 import { AddressDraft } from '../../core/accounts/addresses/address-form';
 import {
   formatPriceInput,
   parsePriceInput,
 } from '../../core/catalog/pricing/price';
+import type { AdminOrderingText } from './ordering-text.type';
 import { AdjustmentRefusal } from './orders.service';
 
 export type PartyKind = 'person' | 'company';

@@ -1,9 +1,11 @@
 import { JwtService } from '@nestjs/jwt';
 import type { Request, Response } from 'express';
-import { SessionUser, SessionUsers } from './session-users';
-import { JwtPayload } from './jwt-payload';
-import { Sessions } from './sessions';
+
 import { AUTH_COOKIE } from '@b2b-catalog-platform/shared/platform';
+
+import { JwtPayload } from './jwt-payload';
+import { SessionUser, SessionUsers } from './session-users';
+import { Sessions } from './sessions';
 
 const DAY_S = 24 * 60 * 60;
 

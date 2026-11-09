@@ -1,19 +1,21 @@
-import { SHARED_TEXT, provideUiText } from '../../platform/config/shared-text';
-import { defaultSharedText } from '../../platform/config/shared-text.fixture';
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
+
 import { ProductListItem } from '@b2b-catalog-platform/shared/core/catalog';
-import { STOREFRONT_TEXT } from '../../platform/config/storefront-text';
-import { defaultStorefrontText } from '../../platform/config/storefront-text.fixture';
-import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
-import { defaultDeploymentConfig } from '../../platform/config/deployment-config.fixture';
-import { CatalogService } from './catalog.service';
+
 import { PairingsService } from '../../core/catalog/buying/pairings.service';
-import { ProductPairingsDialog } from './product-pairings-dialog';
-import { productListItem } from '../../core/catalog/product.fixture';
 import { provideFakeProductCart } from '../../core/catalog/buying/product-cart.fixture';
 import { defaultSharedCatalogText } from '../../core/catalog/catalog-text.fixture';
+import { productListItem } from '../../core/catalog/product.fixture';
+import { DEPLOYMENT_CONFIG } from '../../platform/config/deployment-config';
+import { defaultDeploymentConfig } from '../../platform/config/deployment-config.fixture';
+import { provideUiText, SHARED_TEXT } from '../../platform/config/shared-text';
+import { defaultSharedText } from '../../platform/config/shared-text.fixture';
+import { STOREFRONT_TEXT } from '../../platform/config/storefront-text';
+import { defaultStorefrontText } from '../../platform/config/storefront-text.fixture';
+import { CatalogService } from './catalog.service';
+import { ProductPairingsDialog } from './product-pairings-dialog';
 
 const text = defaultSharedCatalogText.pairings;
 
