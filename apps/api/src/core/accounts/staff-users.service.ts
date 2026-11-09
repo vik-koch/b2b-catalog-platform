@@ -43,7 +43,10 @@ import {
 } from '../../platform/config/deployment-config';
 import { Database } from '../../platform/db/database';
 import { DRIZZLE } from '../../platform/db/database.module';
-import { isUniqueViolation } from '../../platform/db/pg-errors';
+import {
+  isUniqueViolation,
+  uniqueViolationConstraint,
+} from '../../platform/db/pg-errors';
 import { qualified } from '../../platform/db/sql-columns';
 import { withdrawAccountConsents } from '../site/consent-withdrawals';
 import { AccountErasure } from './account-erasure';
@@ -57,6 +60,12 @@ const notFound = () =>
   new NotFoundException({
     code: 'account-not-found',
     message: 'Account not found',
+  });
+
+const emailTaken = () =>
+  new ConflictException({
+    code: 'email-taken',
+    message: 'That email address already has an account',
   });
 
 /** The source key is the exchange's only identity for an account (FR-ADM-14),
@@ -260,37 +269,40 @@ export class StaffUsersService {
     const customer = input.role === 'user';
     if (customer) this.assertCustomerType(input.customerType);
 
-    if (await this.users.findByEmail(input.email)) {
-      throw new ConflictException({
-        code: 'email-taken',
-        message: 'That email address already has an account',
-      });
-    }
+    if (await this.users.findByEmail(input.email)) throw emailTaken();
 
     // A tier and a source key are a customer's, as in `update`.
     const sourceId = customer ? (input.sourceId ?? null) : null;
     if (sourceId !== null) await this.assertSourceIdFree(sourceId);
 
-    const [created] = await this.db
-      .insert(users)
-      .values({
-        email: input.email.trim().toLowerCase(),
-        passwordHash: unusablePasswordHash,
-        role: input.role,
-        sourceId,
-        status: 'invited',
-        tierId: customer ? input.tierId : null,
-        firstName: input.firstName,
-        lastName: input.lastName,
-        phone: storedPhone(this.phoneRule, input.phone) ?? null,
-        customerType: input.customerType ?? null,
-        companyName: input.companyName?.trim() ?? null,
-        companyRegistrationId: input.companyRegistrationId ?? null,
-        approvedAt: new Date(),
-        approvedBy: createdBy,
-      })
-      .returning(staffUserColumns);
-    return toStaffUser(created);
+    try {
+      const [created] = await this.db
+        .insert(users)
+        .values({
+          email: input.email.trim().toLowerCase(),
+          passwordHash: unusablePasswordHash,
+          role: input.role,
+          sourceId,
+          status: 'invited',
+          tierId: customer ? input.tierId : null,
+          firstName: input.firstName,
+          lastName: input.lastName,
+          phone: storedPhone(this.phoneRule, input.phone) ?? null,
+          customerType: input.customerType ?? null,
+          companyName: input.companyName?.trim() ?? null,
+          companyRegistrationId: input.companyRegistrationId ?? null,
+          approvedAt: new Date(),
+          approvedBy: createdBy,
+        })
+        .returning(staffUserColumns);
+      return toStaffUser(created);
+    } catch (error) {
+      // The race past the checks above: the same refusals, not a 500.
+      const constraint = uniqueViolationConstraint(error);
+      if (constraint === users.email.uniqueName) throw emailTaken();
+      if (constraint === users.sourceId.uniqueName) throw sourceIdTaken();
+      throw error;
+    }
   }
 
   /** Exempt an account from the sign-in step, or ask it again (FR-AUTH-12).

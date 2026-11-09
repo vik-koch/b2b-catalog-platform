@@ -1,4 +1,8 @@
-import { isForeignKeyViolation, isUniqueViolation } from './pg-errors';
+import {
+  isForeignKeyViolation,
+  isUniqueViolation,
+  uniqueViolationConstraint,
+} from './pg-errors';
 
 describe('isUniqueViolation', () => {
   it('recognises a unique violation and nothing else', () => {
@@ -41,5 +45,20 @@ describe('isForeignKeyViolation', () => {
         new Error('Failed query', { cause: { code: '23001' } }),
       ),
     ).toBe(true);
+  });
+});
+
+describe('uniqueViolationConstraint', () => {
+  it('names the constraint of a wrapped unique violation only', () => {
+    expect(
+      uniqueViolationConstraint(
+        new Error('Failed query', {
+          cause: { code: '23505', constraint: 'users_email_unique' },
+        }),
+      ),
+    ).toBe('users_email_unique');
+    expect(
+      uniqueViolationConstraint({ code: '23503', constraint: 'fk' }),
+    ).toBeUndefined();
   });
 });
