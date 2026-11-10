@@ -51,6 +51,7 @@ async function render(
     status?: string;
     remove?: Awaited<ReturnType<DocumentsService['remove']>>;
     confirmed?: boolean;
+    timeZone?: string;
   } = {},
 ) {
   const service = {
@@ -69,7 +70,13 @@ async function render(
       { provide: SHARED_TEXT, useValue: defaultSharedText },
       { provide: ADMIN_TEXT, useValue: defaultAdminText },
       { provide: SHARED_TEXT, useValue: defaultSharedText },
-      { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
+      {
+        provide: DEPLOYMENT_CONFIG,
+        useValue: {
+          ...defaultDeploymentConfig,
+          timeZone: options.timeZone ?? defaultDeploymentConfig.timeZone,
+        },
+      },
       { provide: DocumentsService, useValue: service },
       { provide: ConfirmService, useValue: confirm },
     ],
@@ -227,6 +234,22 @@ describe('DocumentListPage', () => {
     expect(rows()).toContain(text.statusExpired);
     // Twice: the one still current, and the one with no expiry at all.
     expect(rows().split(text.statusValid).length - 1).toBe(2);
+  });
+
+  // The shop's day, not the viewer's: in Auckland the 26th is already over.
+  it('reads expiry against the shop’s today', async () => {
+    vi.useFakeTimers({ toFake: ['Date'] });
+    try {
+      vi.setSystemTime(new Date('2026-08-26T13:00:00Z'));
+      const { rows } = await render({
+        documents: [document({ expiresAt: '2026-08-26' })],
+        timeZone: 'Pacific/Auckland',
+      });
+
+      expect(rows()).toContain(text.statusExpired);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it('narrows the list to one expiry state', async () => {

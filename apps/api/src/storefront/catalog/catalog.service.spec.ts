@@ -30,9 +30,13 @@ function serviceOver(
   pages: { slug: string; updatedAt: Date }[] = [],
 ): CatalogService {
   const db = dbReturning(results);
-  return new CatalogService(db, new CatalogReader(db, { basis: 'none' }), {
-    list: async () => pages,
-  });
+  return new CatalogService(
+    db,
+    new CatalogReader(db, { basis: 'none' }, 'UTC'),
+    {
+      list: async () => pages,
+    },
+  );
 }
 
 const category = (
